@@ -1,0 +1,6 @@
+gpsauto.cgpr
+liblkqllang.env
+lkql/build/*
+debug/
+obj/
+*.pyc
