@@ -6,19 +6,20 @@ with Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 use Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-package body Interpreter.Values is
-   function To_String (Kind: Value_Kind) return String is
+package body Interpreter.Expr is
+   function To_String (Kind: Atom_Kind) return String is
    begin
       case Kind is
          when Unit => return "";
          when Number => return "Number";
          when Int => return "Int";
          when Str => return "Str";
+         when Bool => return "Bool";
       end case;
    end To_String;
    
    
-   procedure Display (Value: in ExprVal) is
+   procedure Display (Value: in Atom) is
    begin
       Put_Line (To_String (Value));
    end Display;
@@ -37,7 +38,7 @@ package body Interpreter.Values is
              else Float'Wide_Wide_Image (N));
    end;
    
-   function To_String (Value: in ExprVal) return Unbounded_Text_Type is
+   function To_String (Value: in Atom) return Unbounded_Text_Type is
    begin
       case Value.Kind is
          when Unit => 
@@ -48,21 +49,23 @@ package body Interpreter.Values is
             return To_Unbounded_Text (Integer'Wide_Wide_Image (Value.Int_Val));
          when Str =>
             return Value.Str_Val;
+         when Bool =>
+            return To_Unbounded_Text (if Value.Bool_Val then "true" else "false");
       end case;
    end To_String;
    
    
-   function "+" (Left, Right: ExprVal) return ExprVal is
+   function "+" (Left, Right: Atom) return Atom is
    begin
       case Left.Kind is
-         when Unit => raise Unsupported with "Wrong left operand for '+': ()";
          when Number => return Left.Number_Val + Right;
          when Int => return Left.Int_Val + Right;
          when Str => return Left.Str_Val + Right;
+         when others => raise Unsupported with "Wrong left operand for '+': ()";   
       end case;
    end "+";
    
-   function "+" (Left: Float; Right: ExprVal) return ExprVal is
+   function "+" (Left: Float; Right: Atom) return Atom is
    begin
       case Right.Kind is
          when Number => 
@@ -75,7 +78,7 @@ package body Interpreter.Values is
       end case;
    end "+";
    
-   function "+" (Left: Integer; Right: ExprVal) return ExprVal is
+   function "+" (Left: Integer; Right: Atom) return Atom is
    begin
       case Right.Kind is
          when Number => 
@@ -88,19 +91,55 @@ package body Interpreter.Values is
       end case;
    end;
    
-   function "+" (Left: Unbounded_Text_Type; Right: ExprVal) return ExprVal is
+   function "+" (Left: Unbounded_Text_Type; Right: Atom) return Atom is
    begin
       case Right.Kind is
          when Number =>
-            return (Kind => Str, Str_Val => Left & Float'Wide_Wide_Image(Right.Number_Val));
+            return (Kind => Str, Str_Val => Left & Float'Wide_Wide_Image (Right.Number_Val));
          when Int =>
-            return (Kind => Str, Str_Val => Left & Integer'Wide_Wide_Image(Right.Int_Val));
+            return (Kind => Str, Str_Val => Left & Integer'Wide_Wide_Image (Right.Int_Val));
          when Str =>
             return (Kind => Str, Str_Val => Left & Right.Str_Val);
+         when Bool => 
+            return (Kind => Str, Str_Val => Left & Boolean'Wide_Wide_Image (Right.Bool_Val));
          when others =>
             raise Unsupported with 
               "Cannot add a " & To_String (Right.Kind) & " to a Str";
       end case;
    end "+";
    
-end Interpreter.Values;
+   
+   function "=" (Left, Right: Atom) return Atom is
+   begin
+      if Left.Kind /= Right.Kind then
+         raise Unsupported with "Cannot check for equality between a " & To_String (Left.Kind) 
+           & " and a " & To_String (Right.Kind);
+      end if;
+      return (Kind => Bool, Bool_Val => Left = Right);
+   end "=";
+   
+   
+   function "and" (Left, Right: Atom) return Atom is
+   begin
+      Check_Both_Bool (left, Right);
+      return (Kind => Bool, Bool_Val => Left.Bool_Val and Right.Bool_Val);
+   end "and";
+   
+   
+   function "or" (Left, Right: Atom) return Atom is 
+   begin
+      Check_Both_Bool (Left, Right);
+      return (Kind => Bool, Bool_Val => Left.Bool_Val or Right.Bool_Val);
+   end "or";
+   
+     
+   procedure Check_Both_Bool (Left, Right: Atom) is
+   begin
+      if Left.kind /= Bool then
+         raise Unsupported with "Wrong left operand type for logic operation: " & To_String (Left.Kind);
+      elsif Right.Kind /= Bool then
+          raise Unsupported with "Wrong right operand type for logic operation" & To_String (Right.Kind);
+      end if;
+   end Check_Both_Bool;
+   
+end Interpreter.Expr;

@@ -1,4 +1,4 @@
 a = "Hello"
 b = " World !"
 c = ""
-print (a + b)
+print (a + b + c)

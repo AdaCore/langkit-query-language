@@ -1,8 +1,8 @@
 with Ada.Command_Line; use Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
 with Liblkqllang.Analysis;
-with Interpreter.Values;
-with Interpreter.Evaluator; use Interpreter.Evaluator;
+with Interpreter.Expr;
+with Interpreter.Expr.Evaluator; use Interpreter.Expr.Evaluator;
 
 procedure Main is
    package LEL renames Liblkqllang.Analysis;
@@ -15,6 +15,6 @@ begin
          Put_Line (Unit.Format_GNU_Diagnostic (D));
       end loop;
    else 
-      Interpreter.Values.Display (Eval (Evaluation_Context, Unit.Root));
+      Interpreter.Expr.Display (Eval (Evaluation_Context, Unit.Root));
    end if;
 end Main;

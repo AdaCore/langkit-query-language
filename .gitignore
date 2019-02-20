@@ -4,3 +4,4 @@ lkql/build/*
 debug/
 obj/
 *.pyc
+*.swp
