@@ -31,6 +31,7 @@ class BinOp(LKQLNode):
 class Assign(LKQLNode):
     """
     Assign expression.
+    An assignment associates a name with a value, and returns Unit.
     """
     identifier = Field()
     value = Field()
@@ -83,7 +84,20 @@ class DotAccess(LKQLNode):
 
 class Query(LKQLNode):
     """
-    A query.
+    AST query.
+
+    This corresponds to a 'query <identifier> when condition' block,
+    where 'identifier' is a regular identifier bound to the "current" node and
+    'condition' is a predicate.
+
+    Queries are implicitly run from the root of the AST and return the list of children
+    nodes that matches the condition.
+
+
+    Ex:
+    classesNamedA = query n when n is ClassDecl &&
+                                 n.Identifier = "A"
+
     """
     binding = Field()
     when_clause = Field()
