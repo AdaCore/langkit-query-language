@@ -1,10 +1,7 @@
 with Ada.Strings;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO; 
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
-with Ada.Float_Text_IO;
-with Ada.Strings.UTF_Encoding.Wide_Wide_Strings; 
-use Ada.Strings.UTF_Encoding.Wide_Wide_Strings;
-with Langkit_Support.Text; use Langkit_Support.Text;
+use Ada.Strings.Wide_Wide_Unbounded; 
 
 package body Interpreter.Expr is
    function To_String (Kind: Atom_Kind) return String is
@@ -25,12 +22,12 @@ package body Interpreter.Expr is
    end Display;
    
    function Format_Float(N: in Float) return Text_Type is
-      Integral: Integer := Integer (N);
-      Integral_Str: Text_Type := Integer'Wide_Wide_Image (Integral);
-      Decimal: Float := N - Float (Integral);
-      Decimal_Int: Integer := Integer (Decimal * (Float (10 ** Float'Exponent (Decimal))));
-      Decimal_Str: Text_Type := Integer'Wide_Wide_Image (Decimal_Int);
-      Repr: Text_Type := 
+      Integral: constant Integer := Integer (N);
+      Integral_Str: constant Text_Type := Integer'Wide_Wide_Image (Integral);
+      Decimal: constant Float := N - Float (Integral);
+      Decimal_Int: constant Integer := Integer (Decimal * (Float (10 ** Float'Exponent (Decimal))));
+      Decimal_Str: constant Text_Type := Integer'Wide_Wide_Image (Decimal_Int);
+      Repr: constant Text_Type := 
         Integral_Str (Integral_Str'First + 1 .. Integral_Str'Last) & "." 
         & Decimal_Str (Decimal_Str'First + 1 .. Decimal_Str'Last);
    begin
@@ -84,7 +81,7 @@ package body Interpreter.Expr is
          when Number => 
             return (Kind => Int, Int_Val => Left + Right.Int_Val);
          when Int =>
-            return (Kind => Int, Int_Val => Left + Integer (Right.Number_Val));
+            return (Kind => Int, Int_Val => Left + Right.Int_Val);
          when others =>
             raise Unsupported with 
               "Cannot add a " & To_String (Right.Kind) & " to an Int";

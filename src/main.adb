@@ -1,8 +1,10 @@
-with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Text_IO; use Ada.Text_IO;
-with Liblkqllang.Analysis;
 with Interpreter.Expr;
 with Interpreter.Expr.Evaluator; use Interpreter.Expr.Evaluator;
+
+with Liblkqllang.Analysis;
+
+with Ada.Command_Line; use Ada.Command_Line;
+with Ada.Text_IO; use Ada.Text_IO;
 
 procedure Main is
    package LEL renames Liblkqllang.Analysis;

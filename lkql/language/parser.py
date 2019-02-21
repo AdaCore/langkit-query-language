@@ -75,64 +75,84 @@ class StringLiteral(LKQLNode):
 
 class DotAccess(LKQLNode):
     """
-    Access to a node's field using dot notaion.
+    Access to a node's field using dot notation.
     """
     receiver = Field()
     member = Field()
 
 
+class Query(LKQLNode):
+    """
+    A query.
+    """
+    binding = Field()
+    when_clause = Field()
+
+
+class IsClause(LKQLNode):
+    """
+    Check a node's kind using the 'is' keyword.
+    """
+    identifier = Field()
+    kind_name = Field()
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 lkql_grammar.add_rules(
-    main_rule=List(Or(G.statement, G.expr)),
+    main_rule=List(Or(G.statement, G.expr, G.query)),
 
-    statement = Or(G.assign,
-                   G.print_stmt),
+    statement=Or(G.assign,
+                 G.print_stmt),
 
-    print_stmt = PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
+    print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    expr = Or(Pick(Token.LPar, G.expr, Token.RPar),
-              BinOp(G.expr,
-                    Or(Op.alt_and(Token.And),
-                       Op.alt_or(Token.Or),
-                       Op.alt_eq(Token.EqEq)),
-                    G.plus_expr),
-              G.plus_expr,
-              G.assign),
+    is_clause=IsClause(G.identifier, Token.Is, G.identifier),
 
+    query=Query(Token.Query, G.identifier, Token.When, List(G.expr)),
 
-    plus_expr = Or(BinOp(G.plus_expr,
+    expr=Or(BinOp(G.expr,
+                  Or(Op.alt_and(Token.And),
+                     Op.alt_or(Token.Or),
+                     Op.alt_eq(Token.EqEq)),
+                  G.plus_expr),
+            G.plus_expr,
+            G.assign),
+
+    plus_expr=Or(BinOp(G.plus_expr,
                          Or(Op.alt_plus(Token.Plus),
                             Op.alt_minus(Token.Minus)),
                          G.prod_expr),
                    G.prod_expr),
 
-    prod_expr = Or(BinOp(G.prod_expr,
-                         Or(Op.alt_mul(Token.Mul),
-                            Op.alt_div(Token.Div)),
-                         G.value_expr),
-                   G.value_expr),
+    prod_expr=Or(BinOp(G.prod_expr,
+                       Or(Op.alt_mul(Token.Mul),
+                          Op.alt_div(Token.Div)),
+                       G.value_expr),
+                 G.value_expr),
 
-    value_expr = Or(G.identifier,
-                    G.number,
-                    G.string_literal,
-                    G.bool_literal,
-                    G.integer,
-                    G.assign,
-                    G.dot_access),
+    value_expr=Or(G.identifier,
+                  G.number,
+                  G.string_literal,
+                  G.bool_literal,
+                  G.integer,
+                  G.assign,
+                  G.dot_access,
+                  G.is_clause,
+                  Pick(Token.LPar, G.expr, Token.RPar)),
 
-    assign = Assign(G.identifier, Token.Eq, G.expr),
+    assign=Assign(G.identifier, Token.Eq, Or(G.expr, G.query)),
 
-    identifier = Identifier(Token.Identifier),
+    identifier=Identifier(Token.Identifier),
 
-    integer = Integer(Token.Integer),
+    integer=Integer(Token.Integer),
 
-    number = Number(Token.Number),
+    number=Number(Token.Number),
 
-    bool_literal = Or(BoolLiteral.alt_true(Token.TrueLit),
-                      BoolLiteral.alt_false(Token.FalseLit)),
+    bool_literal=Or(BoolLiteral.alt_true(Token.TrueLit),
+                    BoolLiteral.alt_false(Token.FalseLit)),
 
-    string_literal = StringLiteral(Token.String),
+    string_literal=StringLiteral(Token.String),
 
-    dot_access = DotAccess(G.identifier, Token.Dot, G.identifier, Token.LPar, Token.RPar)
+    dot_access=DotAccess(G.identifier, Token.Dot, G.identifier)
 )

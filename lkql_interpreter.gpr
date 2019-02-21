@@ -5,4 +5,9 @@ project Lkql_Interpreter is
    for Object_Dir use "obj";
    for Main use ("main.adb");
    for Ignore_Source_Sub_Dirs use ("lkql");
+
+   package Compiler is
+      for Default_Switches ("Ada") use ("-gnat12", "-g", "-O0", "-gnata",
+                                        "-gnatwa", "-gnatwe");
+   end Compiler;
 end Lkql_Interpreter;

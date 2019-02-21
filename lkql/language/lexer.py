@@ -5,12 +5,15 @@ from langkit.lexer import Lexer, LexerToken, Literal, WithText, WithSymbol, Patt
 class Token(LexerToken):
     Identifier = WithSymbol()
     String = WithText()
-    TrueLit = WithSymbol()
-    FalseLit = WithSymbol()
     Integer = WithText()
     Number = WithText()
 
+    Query = WithSymbol()
+    When = WithSymbol()
+    Is = WithSymbol()
     Print = WithSymbol()
+    TrueLit = WithSymbol()
+    FalseLit = WithSymbol()
 
     Dot = WithText()
     Eq = WithText()
@@ -39,6 +42,9 @@ lkql_lexer.add_rules(
     (Literal("/"),                                          Token.Div),
     (Literal("("),                                          Token.LPar),
     (Literal(")"),                                          Token.RPar),
+    (Literal("query"),                                      Token.Query),
+    (Literal("when"),                                       Token.When),
+    (Literal("is"),                                         Token.Is),
     (Literal("print"),                                      Token.Print),
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
