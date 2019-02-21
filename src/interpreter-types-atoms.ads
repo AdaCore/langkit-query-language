@@ -1,30 +1,32 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-package Interpreter.Expr is
+package Interpreter.Types.Atoms is
    
    Unsupported: exception;
    
-   type Atom_Kind is ( Unit,
-                        Number,
-                        Int,
-                        Str,
-                        Bool);
+   type Atom_Kind is (Kind_Unit,
+                      Kind_Number,
+                      Kind_Int,
+                      Kind_Str,
+                      Kind_Bool); 
    
    function To_String (Kind: Atom_Kind) return String;
    
-   type Atom(Kind: Atom_Kind) is record
+   type Atom (Kind: Atom_Kind := Kind_Unit) is record
       case Kind is
-         when Unit => null;
-         when Number =>
+         when Kind_Unit => null;
+         when Kind_Number =>
             Number_Val: Float;
-         when Int =>
+         when Kind_Int =>
             Int_Val: Integer;
-         when Str =>
+         when Kind_Str =>
             Str_Val: Unbounded_Text_Type;
-         when Bool =>
+         when Kind_Bool =>
             Bool_Val: Boolean;
       end case;
    end record;
+   
+   type Atom_Access is access Atom;
    
    procedure Display (Value: in Atom);
    
@@ -43,4 +45,4 @@ private
    
    procedure Check_Both_Bool (Left, Right: Atom);
    
-end Interpreter.Expr;
+end Interpreter.Types.Atoms;

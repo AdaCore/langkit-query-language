@@ -3,15 +3,15 @@ with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded; 
 
-package body Interpreter.Expr is
+package body Interpreter.Types.Atoms is
    function To_String (Kind: Atom_Kind) return String is
    begin
       case Kind is
-         when Unit => return "";
-         when Number => return "Number";
-         when Int => return "Int";
-         when Str => return "Str";
-         when Bool => return "Bool";
+         when Kind_Unit => return "";
+         when Kind_Number => return "Number";
+         when Kind_Int => return "Int";
+         when Kind_Str => return "Str";
+         when Kind_Bool => return "Bool";
       end case;
    end To_String;
    
@@ -38,15 +38,15 @@ package body Interpreter.Expr is
    function To_String (Value: in Atom) return Unbounded_Text_Type is
    begin
       case Value.Kind is
-         when Unit => 
+         when Kind_Unit => 
             return To_Unbounded_Text ("()");
-         when Number => 
+         when Kind_Number => 
             return To_Unbounded_Text (Format_Float (Value.Number_Val));
-         when Int =>
+         when Kind_Int =>
             return To_Unbounded_Text (Integer'Wide_Wide_Image (Value.Int_Val));
-         when Str =>
+         when Kind_Str =>
             return Value.Str_Val;
-         when Bool =>
+         when Kind_Bool =>
             return To_Unbounded_Text (if Value.Bool_Val then "true" else "false");
       end case;
    end To_String;
@@ -55,9 +55,9 @@ package body Interpreter.Expr is
    function "+" (Left, Right: Atom) return Atom is
    begin
       case Left.Kind is
-         when Number => return Left.Number_Val + Right;
-         when Int => return Left.Int_Val + Right;
-         when Str => return Left.Str_Val + Right;
+         when Kind_Number => return Left.Number_Val + Right;
+         when Kind_Int => return Left.Int_Val + Right;
+         when Kind_Str => return Left.Str_Val + Right;
          when others => raise Unsupported with "Wrong left operand for '+': ()";   
       end case;
    end "+";
@@ -65,10 +65,10 @@ package body Interpreter.Expr is
    function "+" (Left: Float; Right: Atom) return Atom is
    begin
       case Right.Kind is
-         when Number => 
-            return (Kind => Number, Number_Val => Left + Right.Number_Val); 
-         when Int => 
-            return (Kind => Number, Number_Val => Left + Float (Right.Int_Val));
+         when Kind_Number => 
+            return (Kind => Kind_Number, Number_Val => Left + Right.Number_Val); 
+         when Kind_Int => 
+            return (Kind => Kind_Number, Number_Val => Left + Float (Right.Int_Val));
          when others =>
             raise Unsupported with 
               "Cannot add a " & To_String (Right.Kind) & " to a Float"; 
@@ -78,10 +78,10 @@ package body Interpreter.Expr is
    function "+" (Left: Integer; Right: Atom) return Atom is
    begin
       case Right.Kind is
-         when Number => 
-            return (Kind => Int, Int_Val => Left + Right.Int_Val);
-         when Int =>
-            return (Kind => Int, Int_Val => Left + Right.Int_Val);
+         when Kind_Number => 
+            return (Kind => Kind_Int, Int_Val => Left + Right.Int_Val);
+         when Kind_Int =>
+            return (Kind => Kind_Int, Int_Val => Left + Right.Int_Val);
          when others =>
             raise Unsupported with 
               "Cannot add a " & To_String (Right.Kind) & " to an Int";
@@ -91,14 +91,14 @@ package body Interpreter.Expr is
    function "+" (Left: Unbounded_Text_Type; Right: Atom) return Atom is
    begin
       case Right.Kind is
-         when Number =>
-            return (Kind => Str, Str_Val => Left & Float'Wide_Wide_Image (Right.Number_Val));
-         when Int =>
-            return (Kind => Str, Str_Val => Left & Integer'Wide_Wide_Image (Right.Int_Val));
-         when Str =>
-            return (Kind => Str, Str_Val => Left & Right.Str_Val);
-         when Bool => 
-            return (Kind => Str, Str_Val => Left & Boolean'Wide_Wide_Image (Right.Bool_Val));
+         when Kind_Number =>
+            return (Kind => Kind_Str, Str_Val => Left & Float'Wide_Wide_Image (Right.Number_Val));
+         when Kind_Int =>
+            return (Kind => Kind_Str, Str_Val => Left & Integer'Wide_Wide_Image (Right.Int_Val));
+         when Kind_Str =>
+            return (Kind => Kind_Str, Str_Val => Left & Right.Str_Val);
+         when Kind_Bool => 
+            return (Kind => Kind_Str, Str_Val => Left & Boolean'Wide_Wide_Image (Right.Bool_Val));
          when others =>
             raise Unsupported with 
               "Cannot add a " & To_String (Right.Kind) & " to a Str";
@@ -112,31 +112,31 @@ package body Interpreter.Expr is
          raise Unsupported with "Cannot check for equality between a " & To_String (Left.Kind) 
            & " and a " & To_String (Right.Kind);
       end if;
-      return (Kind => Bool, Bool_Val => Left = Right);
+      return (Kind => Kind_Bool, Bool_Val => Left = Right);
    end "=";
    
    
    function "and" (Left, Right: Atom) return Atom is
    begin
       Check_Both_Bool (left, Right);
-      return (Kind => Bool, Bool_Val => Left.Bool_Val and Right.Bool_Val);
+      return (Kind => Kind_Bool, Bool_Val => Left.Bool_Val and Right.Bool_Val);
    end "and";
    
    
    function "or" (Left, Right: Atom) return Atom is 
    begin
       Check_Both_Bool (Left, Right);
-      return (Kind => Bool, Bool_Val => Left.Bool_Val or Right.Bool_Val);
+      return (Kind => Kind_Bool, Bool_Val => Left.Bool_Val or Right.Bool_Val);
    end "or";
    
      
    procedure Check_Both_Bool (Left, Right: Atom) is
    begin
-      if Left.kind /= Bool then
+      if Left.kind /= Kind_Bool then
          raise Unsupported with "Wrong left operand type for logic operation: " & To_String (Left.Kind);
-      elsif Right.Kind /= Bool then
+      elsif Right.Kind /= Kind_Bool then
           raise Unsupported with "Wrong right operand type for logic operation" & To_String (Right.Kind);
       end if;
    end Check_Both_Bool;
    
-end Interpreter.Expr;
+end Interpreter.Types.Atoms;
