@@ -123,7 +123,7 @@ lkql_grammar.add_rules(
 
     is_clause=IsClause(G.identifier, Token.Is, G.identifier),
 
-    query=Query(Token.Query, G.identifier, Token.When, List(G.expr)),
+    query=Query(Token.Query, G.identifier, Token.When, G.expr),
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
