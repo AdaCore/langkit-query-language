@@ -138,11 +138,35 @@ package body Interpreter.Evaluation is
       if Receiver.Kind /= Kind_Node then
          raise Eval_Error with
            "Cannot get member " & To_UTF8 (Member_Name)
-           & " of node of kind " & Kind_Name (Receiver);
+             & " of node of kind " & Kind_Name (Receiver);
       end if;
 
       return To_Primitive (Get_Field (Member_Name, Receiver.Node_Val));
    end Eval_Dot_Access;
+
+   -------------
+   -- Eval Is --
+   -------------
+
+   function Eval_Is
+     (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive
+   is
+      Tested_Node : constant Primitive := Eval (Ctx, Node.F_Identifier);
+   begin
+      if Tested_Node.Kind /= Kind_Node then
+         raise Eval_Error with
+           "A node of kind " & Kind_Name (Tested_Node)
+             & " cannot be on the left side of an is clause";
+      end if;
+
+      declare
+         Expected_Kind : constant String := To_UTF8 (Node.F_Identifier.Text);
+         Kind_Match    : constant Boolean :=
+           Tested_Node.Node_Val.Kind_Name = Expected_Kind;
+      begin
+         return To_Primitive ((Kind => Kind_Bool, Bool_Val => Kind_Match));
+      end;
+   end Eval_Is;
 
    ---------------
    -- Get_Field --

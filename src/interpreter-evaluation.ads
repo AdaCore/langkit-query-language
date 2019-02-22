@@ -54,6 +54,9 @@ private
    function Eval_Dot_Access
      (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive;
 
+   function Eval_Is
+     (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive;
+
    function Get_Field
      (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;
 
