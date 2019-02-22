@@ -1,3 +1,5 @@
+with Libadalang.Introspection; use Libadalang.Introspection;
+
 package body Interpreter.Evaluation is
 
    ----------
@@ -122,6 +124,56 @@ package body Interpreter.Evaluation is
    begin
       return To_Primitive (Result);
    end Eval_Bin_Op;
+
+   --------------------
+   -- Eval_Dot_Acess --
+   --------------------
+
+   function Eval_Dot_Access
+     (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive
+   is
+      Receiver : constant Primitive := Eval (Ctx, Node.F_Receiver);
+      Member_Name : constant Text_Type := Node.F_Member.Text;
+   begin
+      if Receiver.Kind /= Kind_Node then
+         raise Eval_Error with
+           "Cannot get member " & To_UTF8 (Member_Name)
+           & " of node of kind " & Kind_Name (Receiver);
+      end if;
+
+      return To_Primitive (Get_Field (Member_Name, Receiver.Node_Val));
+   end Eval_Dot_Access;
+
+   ---------------
+   -- Get_Field --
+   ---------------
+
+   function Get_Field
+     (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node
+   is
+      Idx : constant Positive := Get_Field_Index (Name, Node);
+   begin
+      return Node.Children (Idx);
+   end Get_Field;
+
+   ---------------------
+   -- Get_Field_Index --
+   ---------------------
+
+   function Get_Field_Index
+     (Name : Text_Type; Node : LAL.Ada_Node) return Positive
+   is
+      UTF8_Name : constant String := To_UTF8 (Name);
+   begin
+      for F of Fields (Node.Kind) loop
+         if Field_Name (F) = UTF8_Name then
+            return Index (Node.Kind, F);
+         end if;
+      end loop;
+
+      raise Eval_Error with
+        "Node of kind " & Node.Kind_Name & " has no field named " & UTF8_Name;
+   end Get_Field_Index;
 
    --------------------
    -- Compute_Bin_Op --

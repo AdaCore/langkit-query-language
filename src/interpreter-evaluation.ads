@@ -18,9 +18,10 @@ package Interpreter.Evaluation is
    use String_Value_Maps;
 
    type Eval_Context is record
-      Env : String_Value_Maps.Map;
+      Env      : String_Value_Maps.Map;
+      AST_Root : LAL.Ada_Node := LAL.No_Ada_Node;
    end record;
-   --  Store the value associated to variable names.
+   --  Store the evaluation context.
 
    function Eval
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive;
@@ -49,6 +50,15 @@ private
 
    function Eval_Bin_Op
      (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+
+   function Eval_Dot_Access
+     (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive;
+
+   function Get_Field
+     (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;
+
+   function Get_Field_Index
+     (Name : Text_Type; Node : LAL.Ada_Node) return Positive;
 
    function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom;
 

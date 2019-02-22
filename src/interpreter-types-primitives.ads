@@ -13,7 +13,7 @@ package Interpreter.Types.Primitives is
          when Kind_NodeList =>
             NodeList_Val : NodeList;
          when Kind_Node =>
-            Node_Val : LEL.LKQL_Node;
+            Node_Val : LAL.Ada_Node;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -26,12 +26,14 @@ package Interpreter.Types.Primitives is
    function To_Primitive (A : Atom) return Primitive;
    --  Create a Primitive value from the Atom value.
 
-   function To_Primitive (N : LEL.LKQL_Node) return Primitive;
-   --  Creata a Primitive value from the LKQL_Node value.
+   function To_Primitive (N : LAL.Ada_Node) return Primitive;
+   --  Create a Primitive value from the LKQL_Node value.
 
-   -----------------
-   -- Text output --
-   -----------------
+   ------------------------------
+   -- Text conversion & output --
+   ------------------------------
+
+   function Kind_Name (Value : Primitive) return String;
 
    procedure Display (Value : Primitive);
    --  Print a Primitive value onto the console

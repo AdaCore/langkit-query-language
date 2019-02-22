@@ -18,6 +18,19 @@ package body Interpreter.Types.Primitives is
       end case;
    end Display;
 
+   ---------------
+   -- Kind_Name --
+   ---------------
+
+   function Kind_Name (Value : Primitive) return String is
+   begin
+      case Value.Kind is
+         when Kind_Atom => return To_String (Value.Atom_Val.Kind);
+         when Kind_NodeList => return "NodeList";
+         when Kind_Node => return LAL.Kind_Name (Value.Node_Val);
+      end case;
+   end Kind_Name;
+
    ------------------
    -- To_Primitive --
    ------------------
@@ -31,7 +44,7 @@ package body Interpreter.Types.Primitives is
    -- To_Primitive --
    ------------------
 
-   function To_Primitive (N : LEL.LKQL_Node) return Primitive is
+   function To_Primitive (N : LAL.Ada_Node) return Primitive is
    begin
       return (Kind => Kind_Node, Node_Val => N);
    end To_Primitive;
