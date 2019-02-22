@@ -24,7 +24,7 @@ package body Interpreter.Evaluation is
          when LELCO.lkql_Bin_Op =>
             return Eval_Bin_Op (Ctx, Node.As_Bin_Op);
          when others =>
-            raise EvalError
+            raise Eval_Error
               with "Unsupported evaluation root: " & Node.Kind_Name;
       end case;
    end Eval;
@@ -140,7 +140,7 @@ package body Interpreter.Evaluation is
          when LELCO.lkql_Op_Or =>
             return Left or Right;
          when others =>
-            raise EvalError with "Operator not implemented: " & Op.Kind_Name;
+            raise Eval_Error with "Operator not implemented: " & Op.Kind_Name;
       end case;
    end Compute_Bin_Op;
 
@@ -154,7 +154,7 @@ package body Interpreter.Evaluation is
       Reduced : constant Primitive := Eval (Ctx, Node);
    begin
       if Reduced.Kind /= Kind_Atom then
-         raise EvalError
+         raise Eval_Error
            with "Node of kind " & Node.Kind_Name &
            " cannot be reduced to an atom.";
       else

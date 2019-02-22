@@ -9,7 +9,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Interpreter.Evaluation is
 
-   EvalError : exception;
+   Eval_Error : exception;
 
    package String_Value_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => Unbounded_Text_Type, Element_Type => Primitive,
@@ -25,7 +25,7 @@ package Interpreter.Evaluation is
    function Eval
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive;
    --  Return the result  of the AST node's evaluation in the given context.
-   --  An EvalError will be raised if the node represents an invalid query or
+   --  An Eval_Error will be raised if the node represents an invalid query or
    --  expression.
 
 private

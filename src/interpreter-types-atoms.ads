@@ -2,7 +2,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Interpreter.Types.Atoms is
 
-   Unsupported : exception;
+   Unsupported_Error : exception;
 
    type Atom_Kind is
      (Kind_Unit,

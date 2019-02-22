@@ -62,7 +62,7 @@ package body Interpreter.Types.Atoms is
          when Kind_Str =>
             return Left.Str_Val + Right;
          when others =>
-            raise Unsupported with "Wrong left operand for '+': ()";
+            raise Unsupported_Error with "Wrong left operand for '+': ()";
       end case;
    end "+";
 
@@ -76,7 +76,7 @@ package body Interpreter.Types.Atoms is
          when Kind_Int =>
             return (Kind => Kind_Int, Int_Val => Left + Right.Int_Val);
          when others =>
-            raise Unsupported
+            raise Unsupported_Error
               with "Cannot add a " & To_String (Right.Kind) & " to an Int";
       end case;
    end "+";
@@ -97,7 +97,7 @@ package body Interpreter.Types.Atoms is
             return (Kind => Kind_Str,
                Str_Val   => Left & Boolean'Wide_Wide_Image (Right.Bool_Val));
          when others =>
-            raise Unsupported
+            raise Unsupported_Error
               with "Cannot add a " & To_String (Right.Kind) & " to a Str";
       end case;
    end "+";
@@ -109,7 +109,7 @@ package body Interpreter.Types.Atoms is
    function "=" (Left, Right : Atom) return Atom is
    begin
       if Left.Kind /= Right.Kind then
-         raise Unsupported
+         raise Unsupported_Error
            with "Cannot check equality between a " &
            To_String (Left.Kind) & " and a " & To_String (Right.Kind);
       end if;
@@ -144,11 +144,11 @@ package body Interpreter.Types.Atoms is
    procedure Check_Both_Bool (Left, Right : Atom) is
    begin
       if Left.Kind /= Kind_Bool then
-         raise Unsupported
+         raise Unsupported_Error
            with "Wrong left operand type for logic operation: " &
            To_String (Left.Kind);
       elsif Right.Kind /= Kind_Bool then
-         raise Unsupported
+         raise Unsupported_Error
            with "Wrong right operand type for logic operation" &
            To_String (Right.Kind);
       end if;
