@@ -1,0 +1,3 @@
+a = 40
+b = 2
+print("The result of 40 + 2 is: " + (a + b) + " ! ")
