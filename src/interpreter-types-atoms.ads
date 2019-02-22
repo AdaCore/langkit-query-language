@@ -4,7 +4,7 @@ package Interpreter.Types.Atoms is
 
    Unsupported : exception;
 
-   type Atom_Kind is (Kind_Unit, Kind_Number, Kind_Int, Kind_Str, Kind_Bool);
+   type Atom_Kind is (Kind_Unit, Kind_Int, Kind_Str, Kind_Bool);
 
    function To_String (Kind : Atom_Kind) return String;
 
@@ -12,8 +12,6 @@ package Interpreter.Types.Atoms is
       case Kind is
          when Kind_Unit =>
             null;
-         when Kind_Number =>
-            Number_Val : Float;
          when Kind_Int =>
             Int_Val : Integer;
          when Kind_Str =>
@@ -36,12 +34,9 @@ package Interpreter.Types.Atoms is
 
 private
 
-   function "+" (Left : Float; Right : Atom) return Atom;
    function "+" (Left : Integer; Right : Atom) return Atom;
    function "+" (Left : Unbounded_Text_Type; Right : Atom) return Atom;
 
    procedure Check_Both_Bool (Left, Right : Atom);
-
-   function Format_Float (N : Float) return Text_Type;
 
 end Interpreter.Types.Atoms;

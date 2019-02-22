@@ -43,6 +43,7 @@ class PrintStmt(LKQLNode):
     """
     value = Field()
 
+
 class BoolLiteral(LKQLNode):
     """
     Booean literal
@@ -50,11 +51,13 @@ class BoolLiteral(LKQLNode):
     enum_node = True
     alternatives = ['true', 'false']
 
+
 class Identifier(LKQLNode):
     """
     Regular identifier.
     """
     token_node = True
+
 
 class Integer(LKQLNode):
     """
@@ -62,17 +65,13 @@ class Integer(LKQLNode):
     """
     token_node = True
 
-class Number(LKQLNode):
-    """
-    Decimal number literal.
-    """
-    token_node = True
 
 class StringLiteral(LKQLNode):
     """
     String literal.
     """
     token_node = True
+
 
 class DotAccess(LKQLNode):
     """
@@ -146,7 +145,6 @@ lkql_grammar.add_rules(
                  G.value_expr),
 
     value_expr=Or(G.identifier,
-                  G.number,
                   G.string_literal,
                   G.bool_literal,
                   G.integer,
@@ -160,8 +158,6 @@ lkql_grammar.add_rules(
     identifier=Identifier(Token.Identifier),
 
     integer=Integer(Token.Integer),
-
-    number=Number(Token.Number),
 
     bool_literal=Or(BoolLiteral.alt_true(Token.TrueLit),
                     BoolLiteral.alt_false(Token.FalseLit)),

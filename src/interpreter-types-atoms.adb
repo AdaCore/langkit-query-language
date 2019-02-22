@@ -13,8 +13,6 @@ package body Interpreter.Types.Atoms is
       case Kind is
          when Kind_Unit =>
             return "";
-         when Kind_Number =>
-            return "Number";
          when Kind_Int =>
             return "Int";
          when Kind_Str =>
@@ -33,8 +31,6 @@ package body Interpreter.Types.Atoms is
       case Value.Kind is
          when Kind_Unit =>
             return To_Unbounded_Text ("()");
-         when Kind_Number =>
-            return To_Unbounded_Text (Format_Float (Value.Number_Val));
          when Kind_Int =>
             return To_Unbounded_Text (Integer'Wide_Wide_Image (Value.Int_Val));
          when Kind_Str =>
@@ -54,27 +50,6 @@ package body Interpreter.Types.Atoms is
       Put_Line (To_String (Value));
    end Display;
 
-   ------------------
-   -- Format_Float --
-   ------------------
-
-   function Format_Float (N : Float) return Text_Type is
-      Integral     : constant Integer   := Integer (N);
-      Integral_Str : constant Text_Type := Integer'Wide_Wide_Image (Integral);
-      Decimal      : constant Float     := N - Float (Integral);
-      Decimal_Int  : constant Integer   :=
-        Integer (Decimal * (Float (10**Float'Exponent (Decimal))));
-      Decimal_Str : constant Text_Type :=
-        Integer'Wide_Wide_Image (Decimal_Int);
-      Repr : constant Text_Type :=
-        Integral_Str (Integral_Str'First + 1 .. Integral_Str'Last) & "." &
-        Decimal_Str (Decimal_Str'First + 1 .. Decimal_Str'Last);
-   begin
-      return
-        (if N > 0.0001 and then N < 9_999_999_999.0 then Repr
-         else Float'Wide_Wide_Image (N));
-   end Format_Float;
-
    ---------
    -- "+" --
    ---------
@@ -82,8 +57,6 @@ package body Interpreter.Types.Atoms is
    function "+" (Left, Right : Atom) return Atom is
    begin
       case Left.Kind is
-         when Kind_Number =>
-            return Left.Number_Val + Right;
          when Kind_Int =>
             return Left.Int_Val + Right;
          when Kind_Str =>
@@ -97,30 +70,9 @@ package body Interpreter.Types.Atoms is
    -- "+" --
    ---------
 
-   function "+" (Left : Float; Right : Atom) return Atom is
-   begin
-      case Right.Kind is
-         when Kind_Number =>
-            return (Kind  => Kind_Number,
-               Number_Val => Left + Right.Number_Val);
-         when Kind_Int =>
-            return (Kind  => Kind_Number,
-               Number_Val => Left + Float (Right.Int_Val));
-         when others =>
-            raise Unsupported
-              with "Cannot add a " & To_String (Right.Kind) & " to a Float";
-      end case;
-   end "+";
-
-   ---------
-   -- "+" --
-   ---------
-
    function "+" (Left : Integer; Right : Atom) return Atom is
    begin
       case Right.Kind is
-         when Kind_Number =>
-            return (Kind => Kind_Int, Int_Val => Left + Right.Int_Val);
          when Kind_Int =>
             return (Kind => Kind_Int, Int_Val => Left + Right.Int_Val);
          when others =>
@@ -136,9 +88,6 @@ package body Interpreter.Types.Atoms is
    function "+" (Left : Unbounded_Text_Type; Right : Atom) return Atom is
    begin
       case Right.Kind is
-         when Kind_Number =>
-            return (Kind => Kind_Str,
-               Str_Val   => Left & Float'Wide_Wide_Image (Right.Number_Val));
          when Kind_Int =>
             return (Kind => Kind_Str,
                Str_Val   => Left & Integer'Wide_Wide_Image (Right.Int_Val));

@@ -35,8 +35,6 @@ private
    function Eval_Identifier
      (Ctx : in out Eval_Context; Node : LEL.Identifier) return Primitive;
 
-   function Eval_Number (Node : LEL.Number) return Primitive;
-
    function Eval_Integer (Node : LEL.Integer) return Primitive;
 
    function Eval_String_Literal

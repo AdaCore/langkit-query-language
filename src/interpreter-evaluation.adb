@@ -15,8 +15,6 @@ package body Interpreter.Evaluation is
             return Eval_Assign (Ctx, Node.As_Assign);
          when LELCO.lkql_Identifier =>
             return Eval_Identifier (Ctx, Node.As_Identifier);
-         when LELCO.lkql_Number =>
-            return Eval_Number (Node.As_Number);
          when LELCO.lkql_Integer =>
             return Eval_Integer (Node.As_Integer);
          when LELCO.lkql_Print_Stmt =>
@@ -75,17 +73,6 @@ package body Interpreter.Evaluation is
    begin
       return Ctx.Env (To_Unbounded_Text (Node.Text));
    end Eval_Identifier;
-
-   -----------------
-   -- Eval_Number --
-   -----------------
-
-   function Eval_Number (Node : LEL.Number) return Primitive is
-   begin
-      return To_Primitive
-          ((Kind       => Kind_Number,
-            Number_Val => Float'Wide_Wide_Value (Node.Text)));
-   end Eval_Number;
 
    ------------------
    -- Eval_integer --
