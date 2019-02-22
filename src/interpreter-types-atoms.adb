@@ -110,7 +110,7 @@ package body Interpreter.Types.Atoms is
    begin
       if Left.Kind /= Right.Kind then
          raise Unsupported
-           with "Cannot check for equality between a " &
+           with "Cannot check equality between a " &
            To_String (Left.Kind) & " and a " & To_String (Right.Kind);
       end if;
 

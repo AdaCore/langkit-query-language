@@ -11,7 +11,13 @@ package Interpreter.Types.NodeLists is
    type NodeList is record
       nodes : Nodes_Vector.Vector;
    end record;
+   --  Store a vector of AST nodes, resulting from the execution of a query
+
+   ----------------
+   -- Text output--
+   ----------------
 
    procedure Display (Value : NodeList);
+   --  Print a NodeList value onto the console.
 
 end Interpreter.Types.NodeLists;

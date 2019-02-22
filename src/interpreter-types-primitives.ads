@@ -4,8 +4,7 @@ with Interpreter.Types.NodeLists; use Interpreter.Types.NodeLists;
 package Interpreter.Types.Primitives is
 
    type Primitive_Kind is (Kind_Atom, Kind_Node, Kind_NodeList);
-
-   type Node_Access is access constant LEL.LKQL_Node;
+   --  Denotes the kind of a primitive value.
 
    type Primitive (Kind : Primitive_Kind := Kind_Atom) is record
       case Kind is
@@ -17,10 +16,24 @@ package Interpreter.Types.Primitives is
             Node_Val : LEL.LKQL_Node;
       end case;
    end record;
+   --  Store a primitive value, which can be an atomic type
+   --  (Bool, Int, ...), an AST node, or a list of AST nodes.
 
-   procedure Display (Value : Primitive);
+   -----------------------------------
+   --  Creation of Primitive values --
+   -----------------------------------
 
    function To_Primitive (A : Atom) return Primitive;
+   --  Create a Primitive value from the Atom value.
+
    function To_Primitive (N : LEL.LKQL_Node) return Primitive;
+   --  Creata a Primitive value from the LKQL_Node value.
+
+   -----------------
+   -- Text output --
+   -----------------
+
+   procedure Display (Value : Primitive);
+   --  Print a Primitive value onto the console
 
 end Interpreter.Types.Primitives;

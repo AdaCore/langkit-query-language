@@ -20,9 +20,13 @@ package Interpreter.Evaluation is
    type Eval_Context is record
       Env : String_Value_Maps.Map;
    end record;
+   --  Store the value associated to variable names.
 
    function Eval
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive;
+   --  Return the result  of the AST node's evaluation in the given context.
+   --  An EvalError will be raised if the node represents an invalid query or
+   --  expression.
 
 private
 
