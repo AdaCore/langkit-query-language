@@ -48,6 +48,6 @@ lkql_lexer.add_rules(
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
     (Pattern("[0-9]+"),                                     Token.Integer),
-    (Pattern("[a-z][A-Za-z0-9]*"),                          Token.Identifier),
+    (Pattern("[A-Za-z][A-Za-z0-9]*"),                       Token.Identifier),
     (Pattern("\"[^\"]*\""),                                 Token.String)
 )
