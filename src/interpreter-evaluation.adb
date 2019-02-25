@@ -1,4 +1,7 @@
+with Interpreter.Types.NodeLists; use Interpreter.Types.NodeLists;
+
 with Libadalang.Introspection; use Libadalang.Introspection;
+with Libadalang.Iterators; use Libadalang.Iterators;
 
 package body Interpreter.Evaluation is
 
@@ -166,6 +169,31 @@ package body Interpreter.Evaluation is
          return To_Primitive (Kind_Match);
       end;
    end Eval_Is;
+
+   ----------------
+   -- Eval_Query --
+   ----------------
+
+   function Eval_Query
+     (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive
+   is
+      It           : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
+      Current_Node : LAL.Ada_Node;
+      Result       : NodeList;
+      Local_Ctx    : Eval_Context;
+      Binding      : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Node.F_Binding.Text);
+   begin
+      while It.Next (Current_Node) loop
+         Local_Ctx := Ctx;
+         Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
+         if Eval (Local_Ctx, Node.F_When_Clause) = To_Primitive (True) then
+            Result.nodes.Append (Current_Node);
+         end if;
+      end loop;
+
+      return (Kind => Kind_NodeList, NodeList_Val => Result);
+   end Eval_Query;
 
    ---------------
    -- Get_Field --

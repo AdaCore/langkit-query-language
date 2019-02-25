@@ -57,6 +57,9 @@ private
    function Eval_Is
      (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive;
 
+   function Eval_Query
+     (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
+
    function Get_Field
      (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;
 
