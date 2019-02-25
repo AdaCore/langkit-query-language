@@ -28,6 +28,10 @@ package body Interpreter.Evaluation is
             return Eval_String_Literal (Node.As_String_Literal);
          when LELCO.lkql_Bin_Op =>
             return Eval_Bin_Op (Ctx, Node.As_Bin_Op);
+         when LELCO.lkql_Is_Clause =>
+            return Eval_Is (Ctx, Node.As_Is_Clause);
+         when LELCO.lkql_Query =>
+            return Eval_Query (Ctx, Node.As_Query);
          when others =>
             raise Eval_Error
               with "Unsupported evaluation root: " & Node.Kind_Name;
@@ -162,7 +166,7 @@ package body Interpreter.Evaluation is
       end if;
 
       declare
-         Expected_Kind : constant String := To_UTF8 (Node.F_Identifier.Text);
+         Expected_Kind : constant String := To_UTF8 (Node.F_Kind_Name.Text);
          Kind_Match    : constant Boolean :=
            Tested_Node.Node_Val.Kind_Name = Expected_Kind;
       begin
