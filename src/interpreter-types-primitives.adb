@@ -49,4 +49,34 @@ package body Interpreter.Types.Primitives is
       return (Kind => Kind_Node, Node_Val => N);
    end To_Primitive;
 
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (B : Boolean) return Primitive is
+      Atom_Bool : constant Atom := (Kind => Kind_Bool, Bool_Val => B);
+   begin
+      return (Kind => Kind_Atom, Atom_Val => Atom_Bool);
+   end To_Primitive;
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (I : Integer) return Primitive is
+      Atom_Int : constant Atom := (Kind => Kind_Int, Int_Val => I);
+   begin
+      return (Kind => Kind_Atom, Atom_Val => Atom_Int);
+   end To_Primitive;
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (Val : Unbounded_Text_Type) return Primitive is
+      Atom_String : constant Atom := (Kind => Kind_Str, Str_Val => Val);
+   begin
+      return (Kind => Kind_Atom, Atom_Val => Atom_String);
+   end To_Primitive;
+
 end Interpreter.Types.Primitives;

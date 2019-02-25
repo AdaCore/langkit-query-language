@@ -82,8 +82,7 @@ package body Interpreter.Evaluation is
 
    function Eval_Integer (Node : LEL.Integer) return Primitive is
    begin
-      return To_Primitive
-          ((Kind => Kind_Int, Int_Val => Integer'Wide_Wide_Value (Node.Text)));
+      return To_Primitive (Integer'Wide_Wide_Value (Node.Text));
    end Eval_Integer;
 
    -------------------------
@@ -96,7 +95,7 @@ package body Interpreter.Evaluation is
       Literal : constant Unbounded_Text_Type :=
         Unbounded_Slice (Quoted_Literal, 2, Length (Quoted_Literal) - 1);
    begin
-      return To_Primitive ((Kind => Kind_Str, Str_Val => Literal));
+      return To_Primitive (Literal);
    end Eval_String_Literal;
 
    ----------------
@@ -164,7 +163,7 @@ package body Interpreter.Evaluation is
          Kind_Match    : constant Boolean :=
            Tested_Node.Node_Val.Kind_Name = Expected_Kind;
       begin
-         return To_Primitive ((Kind => Kind_Bool, Bool_Val => Kind_Match));
+         return To_Primitive (Kind_Match);
       end;
    end Eval_Is;
 

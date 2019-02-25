@@ -1,6 +1,8 @@
 with Interpreter.Types.Atoms;     use Interpreter.Types.Atoms;
 with Interpreter.Types.NodeLists; use Interpreter.Types.NodeLists;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 package Interpreter.Types.Primitives is
 
    type Primitive_Kind is (Kind_Atom, Kind_Node, Kind_NodeList);
@@ -28,6 +30,15 @@ package Interpreter.Types.Primitives is
 
    function To_Primitive (N : LAL.Ada_Node) return Primitive;
    --  Create a Primitive value from the LKQL_Node value.
+
+   function To_Primitive (B : Boolean) return Primitive;
+   --  Create a Bool primitive.
+
+   function To_Primitive (I : Integer) return Primitive;
+   --  Create an Int primitive.
+
+   function To_Primitive (Val : Unbounded_Text_Type) return Primitive;
+   --  Create a String primitive;
 
    ------------------------------
    -- Text conversion & output --
