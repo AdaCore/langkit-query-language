@@ -200,7 +200,7 @@ package body Interpreter.Evaluation is
       if Receiver.Kind /= Kind_Node then
          raise Eval_Error with
            "Cannot get member " & To_UTF8 (Member_Name)
-             & " of node of kind " & Kind_Name (Receiver);
+             & " for " & Kind_Name (Receiver) & " values";
       end if;
 
       return To_Primitive (Get_Field (Member_Name, Receiver.Node_Val));
