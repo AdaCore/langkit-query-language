@@ -1,19 +1,19 @@
 with Interpreter.Types.Atoms;     use Interpreter.Types.Atoms;
-with Interpreter.Types.NodeLists; use Interpreter.Types.NodeLists;
+with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Interpreter.Types.Primitives is
 
-   type Primitive_Kind is (Kind_Atom, Kind_Node, Kind_NodeList);
+   type Primitive_Kind is (Kind_Atom, Kind_Node, Kind_Node_List);
    --  Denotes the kind of a primitive value.
 
    type Primitive (Kind : Primitive_Kind := Kind_Atom) is record
       case Kind is
          when Kind_Atom =>
             Atom_Val : Atom;
-         when Kind_NodeList =>
-            NodeList_Val : NodeList;
+         when Kind_Node_List =>
+            Node_List_Val : Node_List;
          when Kind_Node =>
             Node_Val : LAL.Ada_Node;
       end case;

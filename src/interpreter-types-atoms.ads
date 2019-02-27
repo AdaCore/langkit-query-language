@@ -7,7 +7,7 @@ package Interpreter.Types.Atoms is
    type Atom_Kind is
      (Kind_Unit,
       --  Unit value: representation of the result of a computation that
-      --  doesn't produce a meanigfull result.
+      --  doesn't produce a meaningful result.
 
       Kind_Int,
       --  Integer value, encoded as an Ada Integer.

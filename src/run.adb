@@ -66,7 +66,7 @@ package body Run is
    begin
       for F of Files.all loop
          Put_Line (F.Display_Full_Name);
-         Ada_Unit := Make_Ada_unit (Ada_Context, F.Display_Full_Name);
+         Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
          Interpreter_Context.AST_Root := Ada_Unit.Root;
          Ignore := Eval (Interpreter_Context, LKQL_Unit.Root);
       end loop;
@@ -95,7 +95,7 @@ package body Run is
    -- Make_Ada_Unit --
    -------------------
 
-   function Make_Ada_unit
+   function Make_Ada_Unit
      (Context : LAL.Analysis_Context; Path : String) return LAL.Analysis_Unit
    is
       Unit : constant LAL.Analysis_Unit :=
@@ -109,6 +109,6 @@ package body Run is
       end if;
 
       return Unit;
-   end Make_Ada_unit;
+   end Make_Ada_Unit;
 
 end Run;

@@ -1,16 +1,16 @@
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 
-package body Interpreter.Types.NodeLists is
+package body Interpreter.Types.Node_Lists is
 
    -------------
    -- Display --
    -------------
 
-   procedure Display (Value : NodeList) is
+   procedure Display (Value : Node_List) is
    begin
-      for Node of Value.nodes loop
+      for Node of Value.Nodes loop
          Put_Line (Node.Text_Image);
       end loop;
    end Display;
 
-end Interpreter.Types.NodeLists;
+end Interpreter.Types.Node_Lists;

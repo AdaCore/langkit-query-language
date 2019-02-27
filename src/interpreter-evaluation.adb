@@ -1,4 +1,4 @@
-with Interpreter.Types.NodeLists; use Interpreter.Types.NodeLists;
+with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
 with Libadalang.Introspection; use Libadalang.Introspection;
 with Libadalang.Iterators; use Libadalang.Iterators;
@@ -138,7 +138,7 @@ package body Interpreter.Evaluation is
    function Eval_Dot_Access
      (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive
    is
-      Receiver : constant Primitive := Eval (Ctx, Node.F_Receiver);
+      Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
       if Receiver.Kind /= Kind_Node then
@@ -183,7 +183,7 @@ package body Interpreter.Evaluation is
    is
       It           : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
       Current_Node : LAL.Ada_Node;
-      Result       : NodeList;
+      Result       : Node_List;
       Local_Ctx    : Eval_Context;
       Binding      : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Node.F_Binding.Text);
@@ -192,11 +192,11 @@ package body Interpreter.Evaluation is
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
          if Eval (Local_Ctx, Node.F_When_Clause) = To_Primitive (True) then
-            Result.nodes.Append (Current_Node);
+            Result.Nodes.Append (Current_Node);
          end if;
       end loop;
 
-      return (Kind => Kind_NodeList, NodeList_Val => Result);
+      return (Kind => Kind_Node_List, Node_List_Val => Result);
    end Eval_Query;
 
    ---------------

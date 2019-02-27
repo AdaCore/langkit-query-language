@@ -13,8 +13,8 @@ package body Interpreter.Types.Primitives is
             Display (Value.Atom_Val);
          when Kind_Node =>
             Put_Line (Value.Node_Val.Text);
-         when Kind_NodeList =>
-            Display (Value.NodeList_Val);
+         when Kind_Node_List =>
+            Display (Value.Node_List_Val);
       end case;
    end Display;
 
@@ -26,7 +26,7 @@ package body Interpreter.Types.Primitives is
    begin
       case Value.Kind is
          when Kind_Atom => return To_String (Value.Atom_Val.Kind);
-         when Kind_NodeList => return "NodeList";
+         when Kind_Node_List => return "Node_List";
          when Kind_Node => return LAL.Kind_Name (Value.Node_Val);
       end case;
    end Kind_Name;

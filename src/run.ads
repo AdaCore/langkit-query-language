@@ -15,14 +15,13 @@ package Run is
 
 private
 
-   procedure Run_On_Files (LKQL_Script   : String;
+   procedure Run_On_Files (LKQL_Script : String;
                            Ada_Context : LAL.Analysis_Context;
                            Files       : File_Array_Access);
 
    function Make_LKQL_Unit (Script_Path : String) return LEL.Analysis_Unit;
 
-   function Make_Ada_unit (Context  : LAL.Analysis_Context;
-                           Path     : String)
-                           return     LAL.Analysis_Unit;
+   function Make_Ada_Unit
+     (Context : LAL.Analysis_Context; Path : String) return LAL.Analysis_Unit;
 
 end Run;
