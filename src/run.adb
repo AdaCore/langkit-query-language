@@ -86,7 +86,7 @@ package body Run is
          for D of Unit.Diagnostics loop
             Put_Line (Unit.Format_GNU_Diagnostic (D));
          end loop;
-         GNAT.OS_Lib.OS_Exit (0);
+         GNAT.OS_Lib.OS_Exit (1);
       end if;
 
       return Unit;
