@@ -1,15 +1,23 @@
 with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
 with Interpreter.Types.Atoms;      use Interpreter.Types.Atoms;
 
+with Libadalang.Common; use type Libadalang.Common.Ada_Node_Kind_Type;
+
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 package Interpreter.Evaluation is
 
    Eval_Error : exception;
+
+   package String_Kind_Maps is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => Unbounded_Text_Type,
+      Element_Type    => LALCO.Ada_Node_Kind_Type,
+      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
+      Equivalent_Keys => "=");
 
    package String_Value_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => Unbounded_Text_Type, Element_Type => Primitive,
@@ -62,6 +70,9 @@ private
 
    function Eval_Query
      (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
+
+   function To_Ada_Node_Kind
+     (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
 
    function Get_Field
      (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;

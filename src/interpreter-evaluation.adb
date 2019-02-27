@@ -3,7 +3,63 @@ with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 with Libadalang.Introspection; use Libadalang.Introspection;
 with Libadalang.Iterators; use Libadalang.Iterators;
 
+with Ada.Characters.Conversions; use Ada.Characters.Conversions;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
+
 package body Interpreter.Evaluation is
+
+   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type;
+   --  Takes the String representation of an Ada node kind of the form
+   --  "ADA_KIND_NAME" and returns a String of the form "KindName".
+
+   function Init_Name_Kinds_Lookup return String_Kind_Maps.Map;
+
+   --------------------------
+   -- Format_Ada_Kind_Name --
+   --------------------------
+
+   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type is
+      Formatted    : Unbounded_Text_Type;
+      New_Word     : Boolean := True;
+   begin
+      if Name'Length < 5 then
+         raise Eval_Error with "Not a valid Ada kind name: " & Name;
+      end if;
+
+      for C of Name (Name'First + 4 .. Name'Last) loop
+         if C /= '_' then
+            if New_Word then
+               Append (Formatted, To_Wide_Wide_Character (C));
+            else
+               Append (Formatted, To_Wide_Wide_Character (To_Lower (C)));
+            end if;
+
+            New_Word := False;
+         else
+            New_Word := True;
+         end if;
+      end loop;
+
+      return Formatted;
+   end Format_Ada_Kind_Name;
+
+   ----------------------------
+   -- Init_Name_Kinds_Lookup --
+   ----------------------------
+
+   function Init_Name_Kinds_Lookup return String_Kind_Maps.Map is
+      Result : String_Kind_Maps.Map;
+   begin
+      for K in LALCO.Ada_Node_Kind_Type loop
+         Result.Insert (Format_Ada_Kind_Name (K'Image), K);
+      end loop;
+
+      return Result;
+   end Init_Name_Kinds_Lookup;
+
+   Name_Kinds : constant String_Kind_Maps.Map := Init_Name_Kinds_Lookup;
+   --  Lookup table used to quickly retrieve the Ada node kind associated
+   --  with a given name, if any.
 
    ----------
    -- Eval --
@@ -166,9 +222,10 @@ package body Interpreter.Evaluation is
       end if;
 
       declare
-         Expected_Kind : constant String := To_UTF8 (Node.F_Kind_Name.Text);
+         Expected_Kind : constant LALCO.Ada_Node_Kind_Type
+           := To_Ada_Node_Kind (To_Unbounded_Text (Node.F_Kind_Name.Text));
          Kind_Match    : constant Boolean :=
-           Tested_Node.Node_Val.Kind_Name = Expected_Kind;
+           Tested_Node.Node_Val.Kind = Expected_Kind;
       begin
          return To_Primitive (Kind_Match);
       end;
@@ -198,6 +255,22 @@ package body Interpreter.Evaluation is
 
       return (Kind => Kind_Node_List, Node_List_Val => Result);
    end Eval_Query;
+
+   ----------------------
+   -- To_Ada_Node_Kind --
+   ----------------------
+
+   function To_Ada_Node_Kind
+     (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type
+   is
+   begin
+      if not Name_Kinds.Contains (Kind_Name) then
+         raise Eval_Error with
+           "Invalid kind name: " & To_UTF8 (To_Text (Kind_Name));
+      end if;
+
+      return Name_Kinds (Kind_Name);
+   end To_Ada_Node_Kind;
 
    ---------------
    -- Get_Field --
