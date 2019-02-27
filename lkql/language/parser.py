@@ -43,6 +43,7 @@ class PrintStmt(LKQLNode):
     """
     value = Field()
 
+
 class BoolLiteral(LKQLNode):
     """
     Booean literal
@@ -50,11 +51,13 @@ class BoolLiteral(LKQLNode):
     enum_node = True
     alternatives = ['true', 'false']
 
+
 class Identifier(LKQLNode):
     """
     Regular identifier.
     """
     token_node = True
+
 
 class Integer(LKQLNode):
     """
@@ -62,17 +65,13 @@ class Integer(LKQLNode):
     """
     token_node = True
 
-class Number(LKQLNode):
-    """
-    Decimal number literal.
-    """
-    token_node = True
 
 class StringLiteral(LKQLNode):
     """
     String literal.
     """
     token_node = True
+
 
 class DotAccess(LKQLNode):
     """
@@ -107,7 +106,7 @@ class IsClause(LKQLNode):
     """
     Check a node's kind using the 'is' keyword.
     """
-    identifier = Field()
+    node_expr = Field()
     kind_name = Field()
 
 
@@ -121,7 +120,7 @@ lkql_grammar.add_rules(
 
     print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    is_clause=IsClause(G.identifier, Token.Is, G.identifier),
+    is_clause=IsClause(G.expr, Token.Is, G.identifier),
 
     query=Query(Token.Query, G.identifier, Token.When, G.expr),
 
@@ -130,6 +129,7 @@ lkql_grammar.add_rules(
                      Op.alt_or(Token.Or),
                      Op.alt_eq(Token.EqEq)),
                   G.plus_expr),
+            G.is_clause,
             G.plus_expr,
             G.assign),
 
@@ -146,13 +146,11 @@ lkql_grammar.add_rules(
                  G.value_expr),
 
     value_expr=Or(G.identifier,
-                  G.number,
                   G.string_literal,
                   G.bool_literal,
                   G.integer,
                   G.assign,
                   G.dot_access,
-                  G.is_clause,
                   Pick(Token.LPar, G.expr, Token.RPar)),
 
     assign=Assign(G.identifier, Token.Eq, Or(G.expr, G.query)),
@@ -160,8 +158,6 @@ lkql_grammar.add_rules(
     identifier=Identifier(Token.Identifier),
 
     integer=Integer(Token.Integer),
-
-    number=Number(Token.Number),
 
     bool_literal=Or(BoolLiteral.alt_true(Token.TrueLit),
                     BoolLiteral.alt_false(Token.FalseLit)),

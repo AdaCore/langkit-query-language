@@ -6,7 +6,6 @@ class Token(LexerToken):
     Identifier = WithSymbol()
     String = WithText()
     Integer = WithText()
-    Number = WithText()
 
     Query = WithSymbol()
     When = WithSymbol()
@@ -49,7 +48,6 @@ lkql_lexer.add_rules(
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
     (Pattern("[0-9]+"),                                     Token.Integer),
-    (Pattern("([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)"),          Token.Number),
-    (Pattern("[a-z][A-Za-z0-9]*"),                          Token.Identifier),
+    (Pattern("[A-Za-z][A-Za-z0-9]*"),                       Token.Identifier),
     (Pattern("\"[^\"]*\""),                                 Token.String)
 )
