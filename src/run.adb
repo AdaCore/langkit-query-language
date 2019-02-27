@@ -48,6 +48,7 @@ package body Run is
       Ada_Context := LAL.Create_Context (Unit_Provider => Provider);
       Source_Files := Project.Root_Project.Source_Files (Recursive => False);
       Run_On_Files (LKQL_Script, Ada_Context, Source_Files);
+      Unchecked_Free (Source_Files);
    end Run_Against_Project;
 
    ------------------
