@@ -248,9 +248,21 @@ package body Interpreter.Evaluation is
       while It.Next (Current_Node) loop
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
-         if Eval (Local_Ctx, Node.F_When_Clause) = To_Primitive (True) then
-            Result.Nodes.Append (Current_Node);
-         end if;
+         declare
+            When_Clause_Result : constant Primitive :=
+              Eval (Local_Ctx, Node.F_When_Clause);
+         begin
+            if When_Clause_Result.Kind /= Kind_Atom or else
+               When_Clause_Result.Atom_Val.Kind /= Kind_Bool
+            then
+               raise Eval_Error with "When clause should return a boolean" &
+                 " but returned a " & Kind_Name (When_Clause_Result);
+            end if;
+
+            if When_Clause_Result = To_Primitive (True) then
+               Result.Nodes.Append (Current_Node);
+            end if;
+         end;
       end loop;
 
       return (Kind => Kind_Node_List, Node_List_Val => Result);
