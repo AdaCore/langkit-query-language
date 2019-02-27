@@ -217,8 +217,8 @@ package body Interpreter.Evaluation is
    begin
       if Tested_Node.Kind /= Kind_Node then
          raise Eval_Error with
-           "A node of kind " & Kind_Name (Tested_Node)
-             & " cannot be on the left side of an is clause";
+           "Invalid kind on the left side on an if-clause: expected Node" &
+           " but got " & Kind_Name (Tested_Node);
       end if;
 
       declare
