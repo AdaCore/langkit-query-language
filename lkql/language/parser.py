@@ -106,7 +106,7 @@ class IsClause(LKQLNode):
     """
     Check a node's kind using the 'is' keyword.
     """
-    identifier = Field()
+    node_expr = Field()
     kind_name = Field()
 
 
@@ -120,7 +120,7 @@ lkql_grammar.add_rules(
 
     print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    is_clause=IsClause(G.identifier, Token.Is, G.identifier),
+    is_clause=IsClause(G.expr, Token.Is, G.identifier),
 
     query=Query(Token.Query, G.identifier, Token.When, G.expr),
 

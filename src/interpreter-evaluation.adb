@@ -213,7 +213,7 @@ package body Interpreter.Evaluation is
    function Eval_Is
      (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive
    is
-      Tested_Node : constant Primitive := Eval (Ctx, Node.F_Identifier);
+      Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
       if Tested_Node.Kind /= Kind_Node then
          raise Eval_Error with
