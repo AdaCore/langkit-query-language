@@ -245,6 +245,10 @@ package body Interpreter.Evaluation is
       Binding      : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Node.F_Binding.Text);
    begin
+      if Ctx.AST_Root.Is_Null then
+         raise Eval_Error with "Cannot run queries in standalone mode";
+      end if;
+
       while It.Next (Current_Node) loop
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
