@@ -130,8 +130,7 @@ lkql_grammar.add_rules(
                      Op.alt_eq(Token.EqEq)),
                   G.plus_expr),
             G.is_clause,
-            G.plus_expr,
-            G.assign),
+            G.plus_expr),
 
     plus_expr=Or(BinOp(G.plus_expr,
                          Or(Op.alt_plus(Token.Plus),
@@ -146,11 +145,11 @@ lkql_grammar.add_rules(
                  G.value_expr),
 
     value_expr=Or(G.dot_access,
+                  G.assign,
                   G.identifier,
                   G.string_literal,
                   G.bool_literal,
                   G.integer,
-                  G.assign,
                   Pick(Token.LPar, G.expr, Token.RPar)),
 
     assign=Assign(G.identifier, Token.Eq, Or(G.expr, G.query)),
