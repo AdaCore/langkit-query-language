@@ -145,12 +145,12 @@ lkql_grammar.add_rules(
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(G.identifier,
+    value_expr=Or(G.dot_access,
+                  G.identifier,
                   G.string_literal,
                   G.bool_literal,
                   G.integer,
                   G.assign,
-                  G.dot_access,
                   Pick(Token.LPar, G.expr, Token.RPar)),
 
     assign=Assign(G.identifier, Token.Eq, Or(G.expr, G.query)),
