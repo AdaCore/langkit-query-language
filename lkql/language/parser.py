@@ -16,7 +16,7 @@ class Op(LKQLNode):
     Base class for operators.
     """
     enum_node = True
-    alternatives = ['plus', 'minus', 'mul', 'div', 'and', 'or', 'eq']
+    alternatives = ['plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq']
 
 
 class BinOp(LKQLNode):
@@ -124,17 +124,22 @@ lkql_grammar.add_rules(
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
-                     Op.alt_or(Token.Or),
-                     Op.alt_eq(Token.EqEq)),
-                  G.plus_expr),
+                     Op.alt_or(Token.Or)),
+                  G.comp_expr),
             IsClause(G.expr, Token.Is, G.identifier),
-            G.plus_expr),
+            G.comp_expr),
+
+    comp_expr=Or(BinOp(G.comp_expr,
+                       Or(Op.alt_eq(Token.EqEq),
+                           Op.alt_neq(Token.Neq)),
+                       G.plus_expr),
+                 G.plus_expr),
 
     plus_expr=Or(BinOp(G.plus_expr,
-                         Or(Op.alt_plus(Token.Plus),
-                            Op.alt_minus(Token.Minus)),
-                         G.prod_expr),
-                   G.prod_expr),
+                       Or(Op.alt_plus(Token.Plus),
+                          Op.alt_minus(Token.Minus)),
+                       G.prod_expr),
+                 G.prod_expr),
 
     prod_expr=Or(BinOp(G.prod_expr,
                        Or(Op.alt_mul(Token.Mul),
