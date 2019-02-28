@@ -1,8 +1,8 @@
+from util import read_to_string
 from e3.testsuite.driver import BasicTestDriver
 from e3.testsuite.process import Run
 from e3.testsuite.result import TestStatus
 import os
-import glob
 
 
 class ParserDriver(BasicTestDriver):
@@ -39,9 +39,3 @@ class ParserDriver(BasicTestDriver):
     def get_parse_path():
         project_root = os.path.dirname(os.getcwd())
         return os.path.join(project_root, 'lkql', 'build', 'bin', 'parse')
-
-
-def read_to_string(path):
-    with open(path, 'r') as f:
-        text = f.read()
-    return text.strip()
