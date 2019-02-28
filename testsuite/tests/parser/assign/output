@@ -1,0 +1,11 @@
+Assign
+|identifier:
+|  Identifier: a
+|value:
+|  BinOp
+|  |left:
+|  |  Integer: 2
+|  |op:
+|  |  OpMul
+|  |right:
+|  |  Integer: 3

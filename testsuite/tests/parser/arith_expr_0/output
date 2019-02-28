@@ -1,0 +1,7 @@
+BinOp
+|left:
+|  Integer: 40
+|op:
+|  OpPlus
+|right:
+|  Integer: 2

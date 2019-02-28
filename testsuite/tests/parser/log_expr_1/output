@@ -1,0 +1,7 @@
+BinOp
+|left:
+|  BoolLiteralTrue
+|op:
+|  OpAnd
+|right:
+|  BoolLiteralFalse

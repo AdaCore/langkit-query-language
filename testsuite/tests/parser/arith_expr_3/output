@@ -1,0 +1,7 @@
+BinOp
+|left:
+|  Integer: 84
+|op:
+|  OpDiv
+|right:
+|  Integer: 2

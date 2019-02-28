@@ -1,0 +1,25 @@
+BinOp
+|left:
+|  BinOp
+|  |left:
+|  |  Integer: 5
+|  |op:
+|  |  OpEq
+|  |right:
+|  |  Integer: 5
+|op:
+|  OpAnd
+|right:
+|  BinOp
+|  |left:
+|  |  BinOp
+|  |  |left:
+|  |  |  Integer: 5
+|  |  |op:
+|  |  |  OpPlus
+|  |  |right:
+|  |  |  Integer: 1
+|  |op:
+|  |  OpNeq
+|  |right:
+|  |  Integer: 5
