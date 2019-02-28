@@ -281,7 +281,7 @@ package body Interpreter.Evaluation is
       use String_Kind_Maps;
       Position : constant Cursor := Name_Kinds.Find (Kind_Name);
    begin
-      if Has_Element (Position) then
+      if not Has_Element (Position) then
          raise Eval_Error with
            "Invalid kind name: " & To_UTF8 (To_Text (Kind_Name));
       end if;
