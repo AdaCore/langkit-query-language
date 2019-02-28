@@ -5,7 +5,7 @@ with Libadalang.Common; use type Libadalang.Common.Ada_Node_Kind_Type;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
@@ -13,17 +13,17 @@ package Interpreter.Evaluation is
 
    Eval_Error : exception;
 
-   package String_Kind_Maps is new Ada.Containers.Indefinite_Hashed_Maps
+   package String_Kind_Maps is new Ada.Containers.Hashed_Maps
      (Key_Type        => Unbounded_Text_Type,
       Element_Type    => LALCO.Ada_Node_Kind_Type,
       Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
       Equivalent_Keys => "=");
 
-   package String_Value_Maps is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => Unbounded_Text_Type, Element_Type => Primitive,
+   package String_Value_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Unbounded_Text_Type,
+      Element_Type    => Primitive,
       Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
       Equivalent_Keys => "=");
-   use String_Value_Maps;
 
    type Eval_Context is record
       Env      : String_Value_Maps.Map;
