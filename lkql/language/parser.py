@@ -120,8 +120,6 @@ lkql_grammar.add_rules(
 
     print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    is_clause=IsClause(G.expr, Token.Is, G.identifier),
-
     query=Query(Token.Query, G.identifier, Token.When, G.expr),
 
     expr=Or(BinOp(G.expr,
@@ -129,7 +127,7 @@ lkql_grammar.add_rules(
                      Op.alt_or(Token.Or),
                      Op.alt_eq(Token.EqEq)),
                   G.plus_expr),
-            G.is_clause,
+            IsClause(G.expr, Token.Is, G.identifier),
             G.plus_expr),
 
     plus_expr=Or(BinOp(G.plus_expr,
