@@ -21,8 +21,8 @@ package body Interpreter.Evaluation is
    --------------------------
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type is
-      Formatted    : Unbounded_Text_Type;
-      New_Word     : Boolean := True;
+      Formatted : Unbounded_Text_Type;
+      New_Word  : Boolean := True;
    begin
       for C of Name (Name'First + 4 .. Name'Last) loop
          if C /= '_' then
@@ -216,7 +216,7 @@ package body Interpreter.Evaluation is
    begin
       if Tested_Node.Kind /= Kind_Node then
          raise Eval_Error with
-           "Invalid kind on the left side on an if-clause: expected Node" &
+           "Invalid kind on the left side on an is clause: expected Node" &
            " but got " & Kind_Name (Tested_Node);
       end if;
 
