@@ -8,7 +8,9 @@ with Ada.Characters.Handling; use Ada.Characters.Handling;
 
 package body Interpreter.Evaluation is
 
-   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type;
+   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
+     with Pre => Name'Length > 4 and then
+                 Name (Name'First .. Name'First + 3) = "ADA_";
    --  Takes the String representation of an Ada node kind of the form
    --  "ADA_KIND_NAME" and returns a String of the form "KindName".
 
@@ -22,10 +24,6 @@ package body Interpreter.Evaluation is
       Formatted    : Unbounded_Text_Type;
       New_Word     : Boolean := True;
    begin
-      if Name'Length < 5 then
-         raise Eval_Error with "Not a valid Ada kind name: " & Name;
-      end if;
-
       for C of Name (Name'First + 4 .. Name'Last) loop
          if C /= '_' then
             if New_Word then
@@ -42,6 +40,7 @@ package body Interpreter.Evaluation is
 
       return Formatted;
    end Format_Ada_Kind_Name;
+   --  TODO: do the conversion using Langkit's primitives (when available !)
 
    ----------------------------
    -- Init_Name_Kinds_Lookup --
