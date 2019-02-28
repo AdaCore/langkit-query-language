@@ -279,13 +279,15 @@ package body Interpreter.Evaluation is
    function To_Ada_Node_Kind
      (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type
    is
+      use String_Kind_Maps;
+      Position : constant Cursor := Name_Kinds.Find (Kind_Name);
    begin
-      if not Name_Kinds.Contains (Kind_Name) then
+      if Has_Element (Position) then
          raise Eval_Error with
            "Invalid kind name: " & To_UTF8 (To_Text (Kind_Name));
       end if;
 
-      return Name_Kinds (Kind_Name);
+      return Element (Position);
    end To_Ada_Node_Kind;
 
    ---------------
