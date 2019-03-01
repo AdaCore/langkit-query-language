@@ -1,0 +1,2 @@
+p = query p when "Hello"
+print (p)
