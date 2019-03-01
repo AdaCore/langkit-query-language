@@ -6,6 +6,7 @@ with Libadalang.Iterators; use Libadalang.Iterators;
 
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Exceptions;
 
 package body Interpreter.Evaluation is
    function Eval_List
@@ -242,6 +243,10 @@ package body Interpreter.Evaluation is
       Result : constant Atom := Compute_Bin_Op (Node.F_Op, Left, Right);
    begin
       return To_Primitive (Result);
+   exception
+      when E : Unsupported_Error =>
+         Ctx.Last_Error := Make_Eval_Error (Node.As_LKQL_Node);
+         raise Eval_Error with Ada.Exceptions.Exception_Message (E);
    end Eval_Bin_Op;
 
    --------------------
@@ -255,6 +260,7 @@ package body Interpreter.Evaluation is
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
       if Receiver.Kind /= Kind_Node then
+         Ctx.Last_Error := Make_Eval_Error (Node.As_LKQL_Node);
          raise Eval_Error with
            "Cannot get member " & To_UTF8 (Member_Name)
              & " for " & Kind_Name (Receiver) & " values";
@@ -273,6 +279,7 @@ package body Interpreter.Evaluation is
       Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
       if Tested_Node.Kind /= Kind_Node then
+         Ctx.Last_Error := Make_Eval_Error (Node.As_LKQL_Node);
          raise Eval_Error with
            "Invalid kind on the left side on an is clause: expected Node" &
            " but got " & Kind_Name (Tested_Node);
@@ -286,6 +293,10 @@ package body Interpreter.Evaluation is
       begin
          return To_Primitive (Kind_Match);
       end;
+   exception
+      when Eval_Error =>
+         Ctx.Last_Error := Make_Eval_Error (Node.As_LKQL_Node);
+         raise;
    end Eval_Is;
 
    ----------------
@@ -303,6 +314,7 @@ package body Interpreter.Evaluation is
         To_Unbounded_Text (Node.F_Binding.Text);
    begin
       if Ctx.AST_Root.Is_Null then
+         Ctx.Last_Error := Make_Eval_Error (Node.As_LKQL_Node);
          raise Eval_Error with "Cannot run queries in standalone mode";
       end if;
 
@@ -316,6 +328,7 @@ package body Interpreter.Evaluation is
             if When_Clause_Result.Kind /= Kind_Atom or else
                When_Clause_Result.Atom_Val.Kind /= Kind_Bool
             then
+               Ctx.Last_Error := Make_Eval_Error (Node.F_When_Clause);
                raise Eval_Error with "When clause should return a boolean" &
                  " but returned a " & Kind_Name (When_Clause_Result);
             end if;
@@ -409,6 +422,7 @@ package body Interpreter.Evaluation is
       Reduced : constant Primitive := Eval (Ctx, Node);
    begin
       if Reduced.Kind /= Kind_Atom then
+         Ctx.Last_Error := Make_Eval_Error (Node.As_LKQL_Node);
          raise Eval_Error
            with "Node of kind " & Node.Kind_Name &
            " cannot be reduced to an atom.";

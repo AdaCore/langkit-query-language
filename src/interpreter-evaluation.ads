@@ -7,6 +7,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Interpreter.Errors; use Interpreter.Errors;
 
 package Interpreter.Evaluation is
 
@@ -30,6 +31,9 @@ package Interpreter.Evaluation is
 
       AST_Root : LAL.Ada_Node := LAL.No_Ada_Node;
       --  Root node of the tree in wich node queries will run.
+
+      Last_Error : Error_Data := (Kind => Empty_Error);
+      --  Store data about the last error, if any.
    end record;
    --  Store the evaluation context.
 
