@@ -1,3 +1,4 @@
+with Interpreter.Types.Atoms; use Interpreter.Types.Atoms;
 with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
 with Libadalang.Introspection; use Libadalang.Introspection;
@@ -7,6 +8,48 @@ with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 
 package body Interpreter.Evaluation is
+   function Eval_List
+     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node_List) return Primitive;
+
+   function Eval_Assign
+     (Ctx : in out Eval_Context; Node : LEL.Assign) return Primitive;
+
+   function Eval_Identifier
+     (Ctx : in out Eval_Context; Node : LEL.Identifier) return Primitive;
+
+   function Eval_Integer (Node : LEL.Integer) return Primitive;
+
+   function Eval_String_Literal
+     (Node : LEL.String_Literal) return Primitive;
+
+   function Eval_Print
+     (Ctx : in out Eval_Context; Node : LEL.Print_Stmt) return Primitive;
+
+   function Eval_Bin_Op
+     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+
+   function Eval_Dot_Access
+     (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive;
+
+   function Eval_Is
+     (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive;
+
+   function Eval_Query
+     (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
+
+   function To_Ada_Node_Kind
+     (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
+
+   function Get_Field
+     (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;
+
+   function Get_Field_Index
+     (Name : Text_Type; Node : LAL.Ada_Node) return Positive;
+
+   function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom;
+
+   function Reduce
+     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Atom;
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
      with Pre => Name'Length > 4 and then
