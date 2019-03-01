@@ -12,7 +12,6 @@ class LKQLTestsuite(Testsuite):
 
 
 if __name__ == "__main__":
-    subprocess.call(['gprbuild', INTERPRETER_GPR_FILE])
     suite = LKQLTestsuite(os.path.dirname(__file__))
     suite.testsuite_main()
     for k, v in suite.test_status_counters.iteritems():

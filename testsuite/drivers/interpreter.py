@@ -3,6 +3,7 @@ from e3.testsuite.driver import BasicTestDriver
 from e3.testsuite.process import Run
 from e3.testsuite.result import TestStatus
 import os
+import re
 
 
 def get_interpreter_path():
@@ -35,10 +36,11 @@ class InterpreterDriver(BasicTestDriver):
             project_path = os.path.join(ADA_PROJECTS_PATH, self.test_env['project'])
 
         process = Run([INTERPRETER_PATH, script_path, project_path])
+        process_output = remove_paths(process.out)
 
         if process.err is not None and not failure_expected:
             status = TestStatus.ERROR
-        elif process.out.strip() != expected:
+        elif process_output != expected:
             status = TestStatus.FAIL
 
         self.result.set_status(status)
@@ -46,6 +48,9 @@ class InterpreterDriver(BasicTestDriver):
         self.result.env['expected'] = expected
         self.push_result()
 
-
     def analyze(self, prev):
         pass
+
+
+def remove_paths(text):
+    return re.sub("^.*\.ad[bs]\\n", "", text).strip()
