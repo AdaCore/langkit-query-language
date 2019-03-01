@@ -68,29 +68,28 @@ package body Interpreter.Evaluation is
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive
    is
    begin
-      case Node.Kind is
+      return (case Node.Kind is
          when LELCO.lkql_LKQL_Node_List =>
-            return Eval_List (Ctx, Node.As_LKQL_Node_List);
+            Eval_List (Ctx, Node.As_LKQL_Node_List),
          when LELCO.lkql_Assign =>
-            return Eval_Assign (Ctx, Node.As_Assign);
+            Eval_Assign (Ctx, Node.As_Assign),
          when LELCO.lkql_Identifier =>
-            return Eval_Identifier (Ctx, Node.As_Identifier);
+            Eval_Identifier (Ctx, Node.As_Identifier),
          when LELCO.lkql_Integer =>
-            return Eval_Integer (Node.As_Integer);
+            Eval_Integer (Node.As_Integer),
          when LELCO.lkql_Print_Stmt =>
-            return Eval_Print (Ctx, Node.As_Print_Stmt);
+            Eval_Print (Ctx, Node.As_Print_Stmt),
          when LELCO.lkql_String_Literal =>
-            return Eval_String_Literal (Node.As_String_Literal);
+            Eval_String_Literal (Node.As_String_Literal),
          when LELCO.lkql_Bin_Op =>
-            return Eval_Bin_Op (Ctx, Node.As_Bin_Op);
+            Eval_Bin_Op (Ctx, Node.As_Bin_Op),
          when LELCO.lkql_Is_Clause =>
-            return Eval_Is (Ctx, Node.As_Is_Clause);
+            Eval_Is (Ctx, Node.As_Is_Clause),
          when LELCO.lkql_Query =>
-            return Eval_Query (Ctx, Node.As_Query);
+            Eval_Query (Ctx, Node.As_Query),
          when others =>
             raise Eval_Error
-              with "Unsupported evaluation root: " & Node.Kind_Name;
-      end case;
+              with "Unsupported evaluation root: " & Node.Kind_Name);
    end Eval;
 
    ---------------
