@@ -95,7 +95,7 @@ class Query(LKQLNode):
 
     Ex:
     classesNamedA = query n when n is ClassDecl &&
-                                 n.Identifier = "A"
+                                 n.Identifier == "A"
 
     """
     binding = Field()
