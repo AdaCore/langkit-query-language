@@ -19,8 +19,9 @@ package body Interpreter.Evaluation is
 
    function Eval_Integer (Node : LEL.Integer) return Primitive;
 
-   function Eval_String_Literal
-     (Node : LEL.String_Literal) return Primitive;
+   function Eval_String_Literal (Node : LEL.String_Literal) return Primitive;
+
+   function Eval_Bool_Literal (Node : LEL.Bool_Literal) return Primitive;
 
    function Eval_Print
      (Ctx : in out Eval_Context; Node : LEL.Print_Stmt) return Primitive;
@@ -122,6 +123,8 @@ package body Interpreter.Evaluation is
                    Eval_Integer (Node.As_Integer),
                  when LELCO.lkql_String_Literal =>
                    Eval_String_Literal (Node.As_String_Literal),
+                 when LELCO.lkql_Bool_Literal =>
+                   Eval_Bool_Literal (Node.As_Bool_Literal),
                  when LELCO.lkql_Print_Stmt =>
                    Eval_Print (Ctx, Node.As_Print_Stmt),
                  when LELCO.lkql_Bin_Op =>
@@ -203,6 +206,17 @@ package body Interpreter.Evaluation is
    begin
       return To_Primitive (Literal);
    end Eval_String_Literal;
+
+   -------------------------
+   -- Eval_Bool_Literal --
+   -------------------------
+
+   function Eval_Bool_Literal (Node : LEL.Bool_Literal) return Primitive is
+      use type LELCO.LKQL_Node_Kind_Type;
+      Value : constant Boolean := (Node.Kind = LELCO.lkql_Bool_Literal_True);
+   begin
+      return To_Primitive (Value);
+   end Eval_Bool_Literal;
 
    ----------------
    -- Eval_Print --
