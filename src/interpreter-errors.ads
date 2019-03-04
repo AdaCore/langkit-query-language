@@ -1,3 +1,5 @@
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 package Interpreter.Errors is
 
    Eval_Error : exception;
@@ -11,8 +13,11 @@ package Interpreter.Errors is
             null;
             --  Represents the absence of error
          when Kind_Eval_Error =>
-            AST_Node : LEL.LKQL_Node;
+            AST_Node     : LEL.LKQL_Node;
             --  AST node where the error occured
+
+            Short_Message : Unbounded_Text_Type;
+            --  A short description of the error
       end case;
    end record;
    --  Store an error value.
@@ -22,7 +27,9 @@ package Interpreter.Errors is
 
    function Make_Empty_Error return Error_Data;
 
-   function Make_Eval_Error (AST_Node : LEL.LKQL_Node) return Error_Data;
+   function Make_Eval_Error (AST_Node      : LEL.LKQL_Node;
+                             Short_Message : Unbounded_Text_Type)
+                             return Error_Data;
    --  Create an error value of kind Eval_Error
 
 end Interpreter.Errors;

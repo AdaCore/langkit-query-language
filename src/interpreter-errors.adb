@@ -22,10 +22,14 @@ package body Interpreter.Errors is
    -- Make_Eval_Error --
    ---------------------
 
-   function Make_Eval_Error (AST_Node : LEL.LKQL_Node) return Error_Data
+   function Make_Eval_Error (AST_Node      : LEL.LKQL_Node;
+                             Short_Message : Unbounded_Text_Type)
+                             return Error_Data
    is
    begin
-      return (Kind => Kind_Eval_Error, AST_Node => AST_Node);
+      return (Kind => Kind_Eval_Error,
+              AST_Node => AST_Node,
+              Short_Message => Short_Message);
    end Make_Eval_Error;
 
 end Interpreter.Errors;

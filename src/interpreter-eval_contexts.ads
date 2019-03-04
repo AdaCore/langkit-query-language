@@ -26,4 +26,7 @@ package Interpreter.Eval_Contexts is
    end record;
    --  Store the evaluation context.
 
+   procedure Add_Error (Ctx : in out Eval_Context; Error : Error_Data);
+   --  Add the given error to the evaluation context.
+
 end Interpreter.Eval_Contexts;
