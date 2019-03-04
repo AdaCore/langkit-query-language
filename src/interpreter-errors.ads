@@ -3,6 +3,12 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 package Interpreter.Errors is
 
    Eval_Error : exception;
+   --  This type of exception is used to signal that the execution should not
+   --  be resumed.
+
+   Recoverable_Error : exception;
+   --  This type of exception is used to indicate that the evaluator should
+   --  try to resume execution in spite of the error.
 
    type Error_Kind is (Kind_Empty_Error, Kind_Eval_Error);
    --  Denotes the kind of an error value.

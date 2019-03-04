@@ -8,10 +8,15 @@ package body Interpreter.Error_Handling is
    ---------------------
 
    procedure Init_Error_Flow (Ctx : in out Eval_Context; Error : Error_Data) is
-
+      Error_Message : constant String :=
+        To_UTF8 (To_Text (Error.Short_Message));
    begin
       Add_Error (Ctx, Error);
-      raise Eval_Error with To_UTF8 (To_Text (Error.Short_Message));
+      if Ctx.Error_Recovery_Enabled then
+         raise Recoverable_Error with Error_Message;
+      else
+         raise Eval_Error with Error_Message;
+      end if;
    end Init_Error_Flow;
 
    -----------------

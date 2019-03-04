@@ -17,20 +17,25 @@ package body Run is
    -- Run_Single_query --
    ----------------------
 
-   procedure Run_Standalone_Query (Script_Path : String) is
+   procedure Run_Standalone_Query
+     (Script_Path : String; Recovery_Enabled : Boolean := False)
+   is
       Unit    : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (Script_Path);
       Context : Eval_Context;
-      Ignore  : constant Primitive := Eval (Context, Unit.Root);
+      Ignore  : Primitive := Eval (Context, Unit.Root);
    begin
-      null;
+      Context.Error_Recovery_Enabled := Recovery_Enabled;
+      Ignore := Eval (Context, Unit.Root);
    end Run_Standalone_Query;
 
    -------------------------
    -- Run_Against_Project --
    -------------------------
 
-   procedure Run_Against_Project (LKQL_Script : String; Project_Path : String)
+   procedure Run_Against_Project (LKQL_Script      : String;
+                                  Project_Path     : String;
+                                  Recovery_Enabled : Boolean := False)
    is
       Provider      : LAL.Unit_Provider_Reference;
       Ada_Context   : LAL.Analysis_Context;
@@ -47,7 +52,7 @@ package body Run is
         LAL_GPR.Create_Project_Unit_Provider_Reference (Project, Env);
       Ada_Context := LAL.Create_Context (Unit_Provider => Provider);
       Source_Files := Project.Root_Project.Source_Files (Recursive => False);
-      Run_On_Files (LKQL_Script, Ada_Context, Source_Files);
+      Run_On_Files (LKQL_Script, Ada_Context, Source_Files, Recovery_Enabled);
       Unchecked_Free (Source_Files);
    end Run_Against_Project;
 
@@ -55,9 +60,10 @@ package body Run is
    -- Run_On_Files --
    ------------------
 
-   procedure Run_On_Files (LKQL_Script : String;
-                           Ada_Context : LAL.Analysis_Context;
-                           Files       : File_Array_Access)
+   procedure Run_On_Files (LKQL_Script      : String;
+                           Ada_Context      : LAL.Analysis_Context;
+                           Files            : File_Array_Access;
+                           Recovery_Enabled : Boolean := False)
    is
       Ada_Unit            : LAL.Analysis_Unit;
       Ignore              : Primitive;
@@ -65,6 +71,7 @@ package body Run is
       LKQL_Unit           : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
+      Interpreter_Context.Error_Recovery_Enabled := Recovery_Enabled;
       for F of Files.all loop
          Put_Line (F.Display_Full_Name);
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);

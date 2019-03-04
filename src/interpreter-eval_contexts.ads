@@ -15,7 +15,7 @@ package Interpreter.Eval_Contexts is
       Equivalent_Keys => "=");
 
    type Eval_Context is record
-      Env      : String_Value_Maps.Map;
+      Env : String_Value_Maps.Map;
       --  Store the value associated with variable names.
 
       AST_Root : LAL.Ada_Node := LAL.No_Ada_Node;
@@ -23,6 +23,10 @@ package Interpreter.Eval_Contexts is
 
       Last_Error : Error_Data := (Kind => Kind_Empty_Error);
       --  Store data about the last error, if any.
+
+      Error_Recovery_Enabled : Boolean := False;
+      --  If true, the user will be asked if he wants to resume execution uppon
+      --  encountering an error.
    end record;
    --  Store the evaluation context.
 
