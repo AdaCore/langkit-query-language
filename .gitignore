@@ -7,4 +7,5 @@ obj/
 testsuite/out/
 *.pyc
 *.swp
+*.npp
 lkql/build.sh

@@ -1,3 +1,4 @@
+with Interpreter.Errors; use Interpreter.Errors;
 with Interpreter.Types.Atoms; use Interpreter.Types.Atoms;
 with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 

@@ -1,4 +1,5 @@
 with Interpreter.Evaluation; use Interpreter.Evaluation;
+with Interpreter.Eval_Contexts; use Interpreter.Eval_Contexts;
 with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
 
 with Libadalang.Project_Provider;
@@ -8,7 +9,6 @@ with Ada.Text_IO; use Ada.Text_IO;
 with GNAT.OS_Lib;
 
 with GNATCOLL.Projects;
-
 package body Run is
    package GPR renames GNATCOLL.Projects;
    package LAL_GPR renames Libadalang.Project_Provider;
