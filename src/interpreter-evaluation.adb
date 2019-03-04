@@ -2,14 +2,27 @@ with Interpreter.Errors; use Interpreter.Errors;
 with Interpreter.Types.Atoms; use Interpreter.Types.Atoms;
 with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
-with Libadalang.Introspection; use Libadalang.Introspection;
 with Libadalang.Iterators; use Libadalang.Iterators;
+with Libadalang.Introspection; use Libadalang.Introspection;
+with Libadalang.Common; use type Libadalang.Common.Ada_Node_Kind_Type;
 
-with Ada.Characters.Conversions; use Ada.Characters.Conversions;
-with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with Ada.Exceptions;
+with Ada.Containers.Hashed_Maps;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
+with Ada.Characters.Handling;
+with Ada.Characters.Conversions;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Interpreter.Evaluation is
+
+   package String_Kind_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Unbounded_Text_Type,
+      Element_Type    => LALCO.Ada_Node_Kind_Type,
+      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
+      Equivalent_Keys => "=");
+
    function Eval_List
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node_List) return Primitive;
 
@@ -67,6 +80,8 @@ package body Interpreter.Evaluation is
    --------------------------
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type is
+      use Ada.Characters.Handling;
+      use Ada.Characters.Conversions;
       Formatted : Unbounded_Text_Type;
       New_Word  : Boolean := True;
    begin
