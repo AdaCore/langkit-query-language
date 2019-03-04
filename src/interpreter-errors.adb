@@ -6,7 +6,7 @@ package body Interpreter.Errors is
 
    function Is_Error (Err : Error_Data) return Boolean is
    begin
-      return Err.Kind /= Empty_Error;
+      return Err.Kind /= Kind_Empty_Error;
    end Is_Error;
 
    ----------------------
@@ -15,7 +15,7 @@ package body Interpreter.Errors is
 
    function Make_Empty_Error return Error_Data is
    begin
-      return (Kind => Empty_Error);
+      return (Kind => Kind_Empty_Error);
    end Make_Empty_Error;
 
    ---------------------
@@ -25,7 +25,7 @@ package body Interpreter.Errors is
    function Make_Eval_Error (AST_Node : LEL.LKQL_Node) return Error_Data
    is
    begin
-      return (Kind => Eval_Error, AST_Node => AST_Node);
+      return (Kind => Kind_Eval_Error, AST_Node => AST_Node);
    end Make_Eval_Error;
 
 end Interpreter.Errors;

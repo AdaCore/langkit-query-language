@@ -1,14 +1,16 @@
 package Interpreter.Errors is
 
-   type Error_Kind is (Empty_Error, Eval_Error);
+   Eval_Error : exception;
+
+   type Error_Kind is (Kind_Empty_Error, Kind_Eval_Error);
    --  Denotes the kind of an error value.
 
-   type Error_Data (Kind : Error_Kind := Empty_Error) is record
+   type Error_Data (Kind : Error_Kind := Kind_Empty_Error) is record
       case Kind is
-         when Empty_Error =>
+         when Kind_Empty_Error =>
             null;
             --  Represents the absence of error
-         when Eval_Error =>
+         when Kind_Eval_Error =>
             AST_Node : LEL.LKQL_Node;
             --  AST node where the error occured
       end case;

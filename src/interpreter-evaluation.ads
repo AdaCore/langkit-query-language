@@ -3,8 +3,6 @@ with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
 
 package Interpreter.Evaluation is
 
-   Eval_Error : exception;
-
    function Eval
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive;
    --  Return the result of the AST node's evaluation in the given context.
