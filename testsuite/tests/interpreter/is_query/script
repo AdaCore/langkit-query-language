@@ -1,0 +1,2 @@
+p = query p when p is ObjectDecl
+print (p)

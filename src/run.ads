@@ -9,9 +9,13 @@ package Run is
 
    procedure Run_Standalone_Query (Script_Path : String);
    --  Run a standalone LKQL script.
+   --  While in standalone mode, queries are forbidden and will raise an
+   --  Eval_Error.
 
    procedure Run_Against_Project (LKQL_Script : String; Project_Path : String);
-   --  Run a LKQL script against an entire GPR Project.
+   --  Run a LKQL script on all source files that belong to the given project.
+   --  LKQL_Script is the name of the file containing the script and
+   --  Project_Path is the project file name to load.
 
 private
 

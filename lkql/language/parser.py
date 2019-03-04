@@ -16,7 +16,7 @@ class Op(LKQLNode):
     Base class for operators.
     """
     enum_node = True
-    alternatives = ['plus', 'minus', 'mul', 'div', 'and', 'or', 'eq']
+    alternatives = ['plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq']
 
 
 class BinOp(LKQLNode):
@@ -95,7 +95,7 @@ class Query(LKQLNode):
 
     Ex:
     classesNamedA = query n when n is ClassDecl &&
-                                 n.Identifier = "A"
+                                 n.Identifier == "A"
 
     """
     binding = Field()
@@ -120,24 +120,26 @@ lkql_grammar.add_rules(
 
     print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    is_clause=IsClause(G.expr, Token.Is, G.identifier),
-
     query=Query(Token.Query, G.identifier, Token.When, G.expr),
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
-                     Op.alt_or(Token.Or),
-                     Op.alt_eq(Token.EqEq)),
-                  G.plus_expr),
-            G.is_clause,
-            G.plus_expr,
-            G.assign),
+                     Op.alt_or(Token.Or)),
+                  G.comp_expr),
+            IsClause(G.expr, Token.Is, G.identifier),
+            G.comp_expr),
+
+    comp_expr=Or(BinOp(G.comp_expr,
+                       Or(Op.alt_eq(Token.EqEq),
+                           Op.alt_neq(Token.Neq)),
+                       G.plus_expr),
+                 G.plus_expr),
 
     plus_expr=Or(BinOp(G.plus_expr,
-                         Or(Op.alt_plus(Token.Plus),
-                            Op.alt_minus(Token.Minus)),
-                         G.prod_expr),
-                   G.prod_expr),
+                       Or(Op.alt_plus(Token.Plus),
+                          Op.alt_minus(Token.Minus)),
+                       G.prod_expr),
+                 G.prod_expr),
 
     prod_expr=Or(BinOp(G.prod_expr,
                        Or(Op.alt_mul(Token.Mul),
@@ -145,12 +147,12 @@ lkql_grammar.add_rules(
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(G.identifier,
+    value_expr=Or(G.dot_access,
+                  G.assign,
+                  G.identifier,
                   G.string_literal,
                   G.bool_literal,
                   G.integer,
-                  G.assign,
-                  G.dot_access,
                   Pick(Token.LPar, G.expr, Token.RPar)),
 
     assign=Assign(G.identifier, Token.Eq, Or(G.expr, G.query)),

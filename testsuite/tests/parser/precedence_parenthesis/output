@@ -1,0 +1,19 @@
+BinOp
+|left:
+|  BinOp
+|  |left:
+|  |  Integer: 1
+|  |op:
+|  |  OpMul
+|  |right:
+|  |  BinOp
+|  |  |left:
+|  |  |  Integer: 2
+|  |  |op:
+|  |  |  OpPlus
+|  |  |right:
+|  |  |  Integer: 3
+|op:
+|  OpMul
+|right:
+|  Integer: 4

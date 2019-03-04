@@ -1,0 +1,9 @@
+IsClause
+|node_expr:
+|  DotAccess
+|  |receiver:
+|  |  Identifier: node
+|  |member:
+|  |  Identifier: field
+|kind_name:
+|  Identifier: FieldKind

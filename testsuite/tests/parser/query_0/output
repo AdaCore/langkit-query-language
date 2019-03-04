@@ -1,0 +1,26 @@
+LKQLNodeList
+|  Query
+|  |binding:
+|  |  Identifier: n
+|  |when_clause:
+|  |  BinOp
+|  |  |left:
+|  |  |  IsClause
+|  |  |  |node_expr:
+|  |  |  |  Identifier: n
+|  |  |  |kind_name:
+|  |  |  |  Identifier: NodeKind
+|  |  |op:
+|  |  |  OpAnd
+|  |  |right:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  DotAccess
+|  |  |  |  |receiver:
+|  |  |  |  |  Identifier: n
+|  |  |  |  |member:
+|  |  |  |  |  Identifier: identifier
+|  |  |  |op:
+|  |  |  |  OpEq
+|  |  |  |right:
+|  |  |  |  StringLiteral: "Identifier"

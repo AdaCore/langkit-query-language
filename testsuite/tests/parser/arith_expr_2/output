@@ -1,0 +1,7 @@
+BinOp
+|left:
+|  Integer: 21
+|op:
+|  OpMul
+|right:
+|  Integer: 2

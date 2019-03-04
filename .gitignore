@@ -3,5 +3,8 @@ liblkqllang.env
 lkql/build/*
 debug/
 obj/
+.idea/
+testsuite/out/
 *.pyc
 *.swp
+lkql/build.sh

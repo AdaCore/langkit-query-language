@@ -17,6 +17,7 @@ class Token(LexerToken):
     Dot = WithText()
     Eq = WithText()
     EqEq = WithText()
+    Neq = WithText()
     And = WithText()
     Or = WithText()
     Plus = WithText()
@@ -33,6 +34,7 @@ lkql_lexer.add_rules(
     (Literal("."),                                          Token.Dot),
     (Literal("="),                                          Token.Eq),
     (Literal("=="),                                         Token.EqEq),
+    (Literal("!="),                                         Token.Neq),
     (Literal("&&"),                                         Token.And),
     (Literal("||"),                                         Token.Or),
     (Literal("+"),                                          Token.Plus),

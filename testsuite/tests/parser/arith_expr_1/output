@@ -1,0 +1,7 @@
+BinOp
+|left:
+|  Integer: 46
+|op:
+|  OpMinus
+|right:
+|  Integer: 4

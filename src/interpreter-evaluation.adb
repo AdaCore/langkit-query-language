@@ -1,3 +1,4 @@
+with Interpreter.Types.Atoms; use Interpreter.Types.Atoms;
 with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
 with Libadalang.Introspection; use Libadalang.Introspection;
@@ -7,8 +8,53 @@ with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 
 package body Interpreter.Evaluation is
+   function Eval_List
+     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node_List) return Primitive;
 
-   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type;
+   function Eval_Assign
+     (Ctx : in out Eval_Context; Node : LEL.Assign) return Primitive;
+
+   function Eval_Identifier
+     (Ctx : in out Eval_Context; Node : LEL.Identifier) return Primitive;
+
+   function Eval_Integer (Node : LEL.Integer) return Primitive;
+
+   function Eval_String_Literal (Node : LEL.String_Literal) return Primitive;
+
+   function Eval_Bool_Literal (Node : LEL.Bool_Literal) return Primitive;
+
+   function Eval_Print
+     (Ctx : in out Eval_Context; Node : LEL.Print_Stmt) return Primitive;
+
+   function Eval_Bin_Op
+     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+
+   function Eval_Dot_Access
+     (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive;
+
+   function Eval_Is
+     (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive;
+
+   function Eval_Query
+     (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
+
+   function To_Ada_Node_Kind
+     (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
+
+   function Get_Field
+     (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;
+
+   function Get_Field_Index
+     (Name : Text_Type; Node : LAL.Ada_Node) return Positive;
+
+   function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom;
+
+   function Reduce
+     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Atom;
+
+   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
+     with Pre => Name'Length > 4 and then
+                 Name (Name'First .. Name'First + 3) = "ADA_";
    --  Takes the String representation of an Ada node kind of the form
    --  "ADA_KIND_NAME" and returns a String of the form "KindName".
 
@@ -19,13 +65,9 @@ package body Interpreter.Evaluation is
    --------------------------
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type is
-      Formatted    : Unbounded_Text_Type;
-      New_Word     : Boolean := True;
+      Formatted : Unbounded_Text_Type;
+      New_Word  : Boolean := True;
    begin
-      if Name'Length < 5 then
-         raise Eval_Error with "Not a valid Ada kind name: " & Name;
-      end if;
-
       for C of Name (Name'First + 4 .. Name'Last) loop
          if C /= '_' then
             if New_Word then
@@ -42,6 +84,7 @@ package body Interpreter.Evaluation is
 
       return Formatted;
    end Format_Ada_Kind_Name;
+   --  TODO: do the conversion using Langkit's primitives (when available !)
 
    ----------------------------
    -- Init_Name_Kinds_Lookup --
@@ -69,29 +112,32 @@ package body Interpreter.Evaluation is
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive
    is
    begin
-      case Node.Kind is
-         when LELCO.lkql_LKQL_Node_List =>
-            return Eval_List (Ctx, Node.As_LKQL_Node_List);
-         when LELCO.lkql_Assign =>
-            return Eval_Assign (Ctx, Node.As_Assign);
-         when LELCO.lkql_Identifier =>
-            return Eval_Identifier (Ctx, Node.As_Identifier);
-         when LELCO.lkql_Integer =>
-            return Eval_Integer (Node.As_Integer);
-         when LELCO.lkql_Print_Stmt =>
-            return Eval_Print (Ctx, Node.As_Print_Stmt);
-         when LELCO.lkql_String_Literal =>
-            return Eval_String_Literal (Node.As_String_Literal);
-         when LELCO.lkql_Bin_Op =>
-            return Eval_Bin_Op (Ctx, Node.As_Bin_Op);
-         when LELCO.lkql_Is_Clause =>
-            return Eval_Is (Ctx, Node.As_Is_Clause);
-         when LELCO.lkql_Query =>
-            return Eval_Query (Ctx, Node.As_Query);
-         when others =>
-            raise Eval_Error
-              with "Unsupported evaluation root: " & Node.Kind_Name;
-      end case;
+      return (case Node.Kind is
+                 when LELCO.lkql_LKQL_Node_List =>
+                   Eval_List (Ctx, Node.As_LKQL_Node_List),
+                 when LELCO.lkql_Assign =>
+                   Eval_Assign (Ctx, Node.As_Assign),
+                 when LELCO.lkql_Identifier =>
+                   Eval_Identifier (Ctx, Node.As_Identifier),
+                 when LELCO.lkql_Integer =>
+                   Eval_Integer (Node.As_Integer),
+                 when LELCO.lkql_String_Literal =>
+                   Eval_String_Literal (Node.As_String_Literal),
+                 when LELCO.lkql_Bool_Literal =>
+                   Eval_Bool_Literal (Node.As_Bool_Literal),
+                 when LELCO.lkql_Print_Stmt =>
+                   Eval_Print (Ctx, Node.As_Print_Stmt),
+                 when LELCO.lkql_Bin_Op =>
+                   Eval_Bin_Op (Ctx, Node.As_Bin_Op),
+                 when LELCO.lkql_Dot_Access =>
+                   Eval_Dot_Access (Ctx, Node.As_Dot_Access),
+                 when LELCO.lkql_Is_Clause =>
+                   Eval_Is (Ctx, Node.As_Is_Clause),
+                 when LELCO.lkql_Query =>
+                   Eval_Query (Ctx, Node.As_Query),
+                 when others =>
+                    raise Eval_Error
+                      with "Unsupported evaluation root: " & Node.Kind_Name);
    end Eval;
 
    ---------------
@@ -161,6 +207,17 @@ package body Interpreter.Evaluation is
       return To_Primitive (Literal);
    end Eval_String_Literal;
 
+   -------------------------
+   -- Eval_Bool_Literal --
+   -------------------------
+
+   function Eval_Bool_Literal (Node : LEL.Bool_Literal) return Primitive is
+      use type LELCO.LKQL_Node_Kind_Type;
+      Value : constant Boolean := (Node.Kind = LELCO.lkql_Bool_Literal_True);
+   begin
+      return To_Primitive (Value);
+   end Eval_Bool_Literal;
+
    ----------------
    -- Eval_Print --
    ----------------
@@ -200,7 +257,7 @@ package body Interpreter.Evaluation is
       if Receiver.Kind /= Kind_Node then
          raise Eval_Error with
            "Cannot get member " & To_UTF8 (Member_Name)
-             & " of node of kind " & Kind_Name (Receiver);
+             & " for " & Kind_Name (Receiver) & " values";
       end if;
 
       return To_Primitive (Get_Field (Member_Name, Receiver.Node_Val));
@@ -217,7 +274,7 @@ package body Interpreter.Evaluation is
    begin
       if Tested_Node.Kind /= Kind_Node then
          raise Eval_Error with
-           "Invalid kind on the left side on an if-clause: expected Node" &
+           "Invalid kind on the left side on an is clause: expected Node" &
            " but got " & Kind_Name (Tested_Node);
       end if;
 
@@ -245,6 +302,10 @@ package body Interpreter.Evaluation is
       Binding      : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Node.F_Binding.Text);
    begin
+      if Ctx.AST_Root.Is_Null then
+         raise Eval_Error with "Cannot run queries in standalone mode";
+      end if;
+
       while It.Next (Current_Node) loop
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
@@ -275,13 +336,15 @@ package body Interpreter.Evaluation is
    function To_Ada_Node_Kind
      (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type
    is
+      use String_Kind_Maps;
+      Position : constant Cursor := Name_Kinds.Find (Kind_Name);
    begin
-      if not Name_Kinds.Contains (Kind_Name) then
+      if not Has_Element (Position) then
          raise Eval_Error with
            "Invalid kind name: " & To_UTF8 (To_Text (Kind_Name));
       end if;
 
-      return Name_Kinds (Kind_Name);
+      return Element (Position);
    end To_Ada_Node_Kind;
 
    ---------------

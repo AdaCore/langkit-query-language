@@ -1,0 +1,2 @@
+query n when n is NodeKind &&
+             n.identifier == "Identifier"
