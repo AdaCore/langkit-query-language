@@ -1,7 +1,27 @@
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+
 package body Interpreter.Error_Handling is
+
+   function User_Chooses_Recovery return Boolean;
+   --  Ask the user wether he wants to recover from the error or cancel the
+   --  execution.
+
+   ---------------------------
+   -- User_Chooses_Recovery --
+   ---------------------------
+
+   function User_Chooses_Recovery return Boolean is
+      Choice : Unbounded_Text_Type;
+   begin
+      Put_Line ("[R]esume execution / [A]bort execution ?");
+      Get_Line (Choice);
+      return Choice = "R" or else Choice = "r";
+   end User_Chooses_Recovery;
 
    ---------------------
    -- Init_Error_Flow --
@@ -12,11 +32,15 @@ package body Interpreter.Error_Handling is
         To_UTF8 (To_Text (Error.Short_Message));
    begin
       Add_Error (Ctx, Error);
+
       if Ctx.Error_Recovery_Enabled then
-         raise Recoverable_Error with Error_Message;
-      else
-         raise Eval_Error with Error_Message;
+         Put_Line (Error_Description (Error));
+         if User_Chooses_Recovery then
+            raise Recoverable_Error with Error_Message;
+         end if;
       end if;
+
+      raise Eval_Error with Error_Message;
    end Init_Error_Flow;
 
    -----------------

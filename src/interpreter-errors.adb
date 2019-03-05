@@ -3,9 +3,6 @@ with String_Utils; use String_Utils;
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
---  with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
---  use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
---  with Ada.Text_IO; use Ada.Text_IO;
 
 package body Interpreter.Errors is
 
@@ -52,13 +49,16 @@ package body Interpreter.Errors is
 
    function Error_Description (Error : Error_Data) return Unbounded_Text_Type
    is
+      use Langkit_Support.Text.Chars;
       Error_Unit : constant LEL.Analysis_Unit := Error.AST_Node.Unit;
+      Error_Msg  : constant Unbounded_Text_Type :=
+        "Error: " & Error.Short_Message;
       Unit_Lines : constant String_Vectors.Vector :=
         Split_Lines (Error_Unit.Text);
       Underlined : constant Unbounded_Text_Type :=
         Underline_Error (Unit_Lines, Error.AST_Node.Sloc_Range);
    begin
-      return Underlined;
+      return LF & Error_Msg & LF & LF & Underlined;
    end Error_Description;
 
    --------------
