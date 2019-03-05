@@ -23,7 +23,7 @@ package body Run is
       Unit    : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (Script_Path);
       Context : Eval_Context;
-      Ignore  : Primitive := Eval (Context, Unit.Root);
+      Ignore  : Primitive;
    begin
       Context.Error_Recovery_Enabled := Recovery_Enabled;
       Ignore := Eval (Context, Unit.Root);
