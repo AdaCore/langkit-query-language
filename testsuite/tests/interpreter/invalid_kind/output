@@ -1,1 +1,1 @@
-raised INTERPRETER.EVALUATION.EVAL_ERROR : Invalid kind name: PreposterouslyInvalidKind
+raised PROGRAM_ERROR : Invalid kind name: PreposterouslyInvalidKind

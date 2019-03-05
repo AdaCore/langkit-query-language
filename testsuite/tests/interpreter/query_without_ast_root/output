@@ -1,1 +1,3 @@
-raised INTERPRETER.EVALUATION.EVAL_ERROR : Cannot run queries in standalone mode
+Error: Cannot run a query without a proper AST root
+query p when true
+^^^^^^^^^^^^^^^^^
