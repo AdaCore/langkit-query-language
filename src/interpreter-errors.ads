@@ -28,6 +28,9 @@ package Interpreter.Errors is
    end record;
    --  Store an error value.
 
+   function Error_Description (Error : Error_Data) return Unbounded_Text_Type;
+   --  Return a detailed description of the given error.
+
    function Is_Error (Err : Error_Data) return Boolean;
    --  Return wether the error value represents an actual error
 
