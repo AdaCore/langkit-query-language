@@ -1,10 +1,11 @@
-with Interpreter.Types.Atoms; use Interpreter.Types.Atoms;
-with Interpreter.Error_Handling; use Interpreter.Error_Handling;
-with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
+with Interpreter.Errors;              use Interpreter.Errors;
+with Interpreter.Types.Atoms;         use Interpreter.Types.Atoms;
+with Interpreter.Error_Handling;      use Interpreter.Error_Handling;
+with Interpreter.Types.Node_Lists;    use Interpreter.Types.Node_Lists;
 
-with Libadalang.Iterators; use Libadalang.Iterators;
+with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Introspection; use Libadalang.Introspection;
-with Libadalang.Common; use type Libadalang.Common.Ada_Node_Kind_Type;
+with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -171,7 +172,11 @@ package body Interpreter.Evaluation is
       end if;
 
       for Child of Node.Children loop
-         Result := Eval (Ctx, Child);
+         begin
+            Result := Eval (Ctx, Child);
+         exception
+            when Recoverable_Error => null;
+         end;
       end loop;
 
       return Result;
@@ -343,6 +348,8 @@ package body Interpreter.Evaluation is
             if When_Clause_Result = To_Primitive (True) then
                Result.Nodes.Append (Current_Node);
             end if;
+         exception
+               when Recoverable_Error => null;
          end;
       end loop;
 
