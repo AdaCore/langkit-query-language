@@ -1,2 +1,2 @@
-p = query p when "Hello"
+let p = query p when "Hello"
 print (p)

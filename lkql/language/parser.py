@@ -32,6 +32,9 @@ class Assign(LKQLNode):
     """
     Assign expression.
     An assignment associates a name with a value, and returns Unit.
+
+    Ex:
+    let message = "Hello World"
     """
     identifier = Field()
     value = Field()
@@ -94,8 +97,8 @@ class Query(LKQLNode):
 
 
     Ex:
-    classesNamedA = query n when n is ClassDecl &&
-                                 n.Identifier == "A"
+    let classesNamedA = query n when n is ClassDecl &&
+                                     n.Identifier == "A"
 
     """
     binding = Field()
@@ -155,7 +158,7 @@ lkql_grammar.add_rules(
                   G.integer,
                   Pick(Token.LPar, G.expr, Token.RPar)),
 
-    assign=Assign(G.identifier, Token.Eq, Or(G.expr, G.query)),
+    assign=Assign(Token.Let, G.identifier, Token.Eq, Or(G.expr, G.query)),
 
     identifier=Identifier(Token.Identifier),
 
