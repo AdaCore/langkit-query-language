@@ -1,11 +1,16 @@
-with Interpreter.Errors; use Interpreter.Errors;
-with Interpreter.Eval_Contexts; use Interpreter.Eval_Contexts;
+with Interpreter.Errors;           use Interpreter.Errors;
+with Interpreter.Eval_Contexts;    use Interpreter.Eval_Contexts;
 with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
 
 package Interpreter.Error_Handling is
 
-   procedure Init_Error_Flow (Ctx : in out Eval_Context; Error : Error_Data);
-   pragma No_Return (Init_Error_Flow);
+   procedure Recover_Or_Abort (Ctx : in out Eval_Context; Error : Error_Data);
+   pragma No_Return (Recover_Or_Abort);
+   --  Add the given error to the evaluation context and:
+   --    * raise a Recoverable_Error if error recovery is enabled and the
+   --      user chooses to ignore the error
+   --    * raise an Eval_Error if error recovery is disabled or the user
+   --      chooses not to ignore the error
 
    procedure Raise_Error (Ctx     : in out Eval_Context;
                           Node    : LEL.LKQL_Node;
