@@ -1,5 +1,5 @@
-with Ada.Wide_Wide_Characters.Unicode; use Ada.Wide_Wide_Characters.Unicode;
 with Ada.Strings;
+with Ada.Wide_Wide_Characters.Unicode; use Ada.Wide_Wide_Characters.Unicode;
 
 package body String_Utils is
 
@@ -51,7 +51,7 @@ package body String_Utils is
    function Underline_Range (Line  : Unbounded_Text_Type;
                              Start : Integer;
                              Stop  : Integer)
-                             return Unbounded_Text_Type
+                             return  Unbounded_Text_Type
    is
       use Langkit_Support.Text.Chars;
       Actual_Start  : constant Integer :=
@@ -75,7 +75,7 @@ package body String_Utils is
 
    function Underline_From (Line  : Unbounded_Text_Type;
                             Start : Integer)
-                            return Unbounded_Text_Type
+                            return  Unbounded_Text_Type
    is
       Stop  : constant Integer := Index_Non_Blank (Line, Ada.Strings.Backward);
    begin

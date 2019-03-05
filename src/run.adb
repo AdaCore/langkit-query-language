@@ -13,7 +13,7 @@ with GNAT.OS_Lib;
 with GNATCOLL.Projects;
 
 package body Run is
-   package GPR renames GNATCOLL.Projects;
+   package GPR     renames GNATCOLL.Projects;
    package LAL_GPR renames Libadalang.Project_Provider;
 
    procedure Evaluate

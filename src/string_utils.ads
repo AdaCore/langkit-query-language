@@ -1,7 +1,7 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Indefinite_Vectors; use Ada.Containers;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded;   use Ada.Strings.Wide_Wide_Unbounded;
 
 package String_Utils is
 
@@ -14,13 +14,13 @@ package String_Utils is
    function Underline_Range (Line  : Unbounded_Text_Type;
                              Start : Integer;
                              Stop  : Integer)
-                             return Unbounded_Text_Type;
+                             return  Unbounded_Text_Type;
    --  Underline the text in the given range. The input must contain a
    --  single line of text.
 
    function Underline_From (Line  : Unbounded_Text_Type;
                             Start : Integer)
-                            return Unbounded_Text_Type;
+                            return  Unbounded_Text_Type;
    --  Underline the text from the given index to the end of the line. The
    --  input must contain a single line of text.
 

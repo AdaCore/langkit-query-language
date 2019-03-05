@@ -1,6 +1,6 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Text_IO;                     use Ada.Text_IO;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
@@ -48,8 +48,8 @@ package body Interpreter.Error_Handling is
    -- Raise_Error --
    -----------------
 
-   procedure Raise_Error (Ctx : in out Eval_Context;
-                          Node : LEL.LKQL_Node;
+   procedure Raise_Error (Ctx     : in out Eval_Context;
+                          Node    : LEL.LKQL_Node;
                           Message : String)
    is
       Unicode_Message : constant Unbounded_Text_Type :=
