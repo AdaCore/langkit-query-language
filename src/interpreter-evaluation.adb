@@ -412,19 +412,26 @@ package body Interpreter.Evaluation is
    function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom
    is
    begin
-      case Op.Kind is
-         when LELCO.lkql_Op_Plus =>
-            return Left + Right;
-         when LELCO.lkql_Op_Eq =>
-            return Left = Right;
-         when LELCO.lkql_Op_And =>
-            return Left and Right;
-         when LELCO.lkql_Op_Or =>
-            return Left or Right;
-         when others =>
-            raise Program_Error with
-              "Operator not implemented: " & Op.Kind_Name;
-      end case;
+      return (case Op.Kind is
+                 when LELCO.lkql_Op_Plus =>
+                    Left + Right,
+                 when LELCO.lkql_Op_Minus =>
+                    Left - Right,
+                 when LELCO.lkql_Op_Mul =>
+                    Left * Right,
+                 when LELCO.lkql_Op_Div =>
+                    Left / Right,
+                 when LELCO.lkql_Op_Eq =>
+                    Left = Right,
+                 when LELCO.lkql_Op_Neq =>
+                    Left /= Right,
+                 when LELCO.lkql_Op_And =>
+                    Left and Right,
+                 when LELCO.lkql_Op_Or =>
+                    Left or Right,
+                 when others =>
+                    raise Program_Error with
+                       "Unsupported operation kind: " & Op.Kind_Name);
    end Compute_Bin_Op;
 
    ------------
