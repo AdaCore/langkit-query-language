@@ -57,20 +57,40 @@ package Interpreter.Types.Atoms is
    --  The supported operations are: Int + Int, String + Int,
    --  String + String and String + Bool.
    --
-   --  Unsupported operations will rase an Unsupported exception.
+   --  Unsupported operations will rase an Unsupported_Error exception.
+
+   function "-" (Left, Right : Atom) return Atom;
+   --  Subract two Atom values.
+   --  The only supported operation is Int - Int.
+   --  Unsupported operations will rase an Unsupported_Error exception.
+
+   function "*" (Left, Right : Atom) return Atom;
+   --  Multiply two Atom values.
+   --  The only supported operation is Int * Int.
+   --  Unsupported operations will rase an Unsupported_Error exception.
+
+   function "/" (Left, Right : Atom) return Atom;
+   --  Divide two Atom values.
+   --  The only supported operation is Int / Int, with a non-zero denominator.
+   --  Unsupported operations will rase an Unsupported_Error exception.
 
    function "and" (Left, Right : Atom) return Atom;
    --  Compute the logical 'and' between two Atom values.
    --  Both values must be Boolean values.
-   --  Unsupported operations will raise an Unsupported exception.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "or" (Left, Right : Atom) return Atom;
    --  Compute the logical 'or' between two Atom values.
    --  Both values must be Boolean values.
-   --  Unsupported operations will raise an Unsupported exception.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "=" (Left, Right : Atom) return Atom;
    --  Test equality between two Atom values.
+   --  An Unsupported exception will be raised if Left and Right have different
+   --  kinds.
+
+   function "/=" (Left, Right : Atom) return Atom;
+   --  Test inequality between two Atom values.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
 
@@ -78,7 +98,5 @@ private
 
    function "+" (Left : Integer; Right : Atom) return Atom;
    function "+" (Left : Unbounded_Text_Type; Right : Atom) return Atom;
-
-   procedure Check_Both_Bool (Left, Right : Atom);
 
 end Interpreter.Types.Atoms;
