@@ -1,0 +1,2 @@
+main.adb
+raised INTERPRETER.TYPES.ATOMS.UNSUPPORTED_ERROR : Wrong left operand for '+': Bool
