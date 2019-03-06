@@ -23,11 +23,12 @@ package body Interpreter.Error_Handling is
       return Choice = "R" or else Choice = "r";
    end User_Chooses_Recovery;
 
-   ---------------------
-   -- Init_Error_Flow --
-   ---------------------
+   ----------------------------
+   -- Raise_And_Record_Error --
+   ----------------------------
 
-   procedure Recover_Or_Abort (Ctx : in out Eval_Context; Error : Error_Data)
+   procedure Raise_And_Record_Error
+     (Ctx : in out Eval_Context; Error : Error_Data)
    is
       Error_Message : constant String :=
         To_UTF8 (To_Text (Error.Short_Message));
@@ -42,7 +43,7 @@ package body Interpreter.Error_Handling is
       end if;
 
       raise Eval_Error with Error_Message;
-   end Recover_Or_Abort;
+   end Raise_And_Record_Error;
 
    -----------------
    -- Raise_Error --
@@ -55,7 +56,7 @@ package body Interpreter.Error_Handling is
       Unicode_Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text (To_Text (Message));
    begin
-      Recover_Or_Abort (Ctx, Make_Eval_Error (Node, Unicode_Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Unicode_Message));
    end Raise_Error;
 
    --------------------------
@@ -70,7 +71,8 @@ package body Interpreter.Error_Handling is
         "Cannot get member " & To_Unbounded_Text (Node.F_Member.Text) &
         " for " & To_Text (Kind_Name (Receiver)) & " value";
    begin
-      Recover_Or_Abort (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Invalid_Member;
 
    ------------------------------
@@ -85,7 +87,8 @@ package body Interpreter.Error_Handling is
         "Invalid kind on the left side of an is clause: expected Node " &
         "but got " & To_Unbounded_Text (To_Text (Kind_Name (Tested_Node)));
    begin
-      Recover_Or_Abort (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Invalid_Is_Operand;
 
    ---------------------
@@ -98,7 +101,8 @@ package body Interpreter.Error_Handling is
         To_Unbounded_Text (
            To_Text ("Cannot run a query without a proper AST root"));
    begin
-      Recover_Or_Abort (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Null_Root;
 
    ------------------------
@@ -115,7 +119,8 @@ package body Interpreter.Error_Handling is
            To_Text (
               "Type error: expected " & Expected & " but got " & Actual));
    begin
-      Recover_Or_Abort (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Invalid_Type;
 
 end Interpreter.Error_Handling;

@@ -4,8 +4,9 @@ with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
 
 package Interpreter.Error_Handling is
 
-   procedure Recover_Or_Abort (Ctx : in out Eval_Context; Error : Error_Data);
-   pragma No_Return (Recover_Or_Abort);
+   procedure Raise_And_Record_Error
+     (Ctx : in out Eval_Context; Error : Error_Data)
+      with No_Return;
    --  Add the given error to the evaluation context and:
    --    * raise a Recoverable_Error if error recovery is enabled and the
    --      user chooses to ignore the error
@@ -14,28 +15,28 @@ package Interpreter.Error_Handling is
 
    procedure Raise_Error (Ctx     : in out Eval_Context;
                           Node    : LEL.LKQL_Node;
-                          Message : String);
-   pragma No_Return (Raise_Error);
+                          Message : String)
+      with No_Return;
    --  Raise a generic exception with the given message, and add an Error_Data
    --  describing the error to the evaluation context.
 
    procedure Raise_Invalid_Member (Ctx      : in out Eval_Context;
                                    Node     : LEL.Dot_Access;
-                                   Receiver : Primitive);
-   pragma No_Return (Raise_Invalid_Member);
+                                   Receiver : Primitive)
+      with No_Return;
    --  Raise an exception signaling an invalid member access, and add an
    --  Error_Data describing the error to the evaluation context.
 
    procedure Raise_Invalid_Is_Operand (Ctx         : in out Eval_Context;
                                        Node        : LEL.Is_Clause;
-                                       Tested_Node : Primitive);
-   pragma No_Return (Raise_Invalid_Member);
+                                       Tested_Node : Primitive)
+      with No_Return;
    --  Raise an exception signaling that the left operand of an is clause is
    --  not a node, and add an Error_Data describing the error to the
    --  evaluation context.
 
-   procedure Raise_Null_Root (Ctx : in out Eval_Context; Node : LEL.Query);
-   pragma No_Return (Raise_Null_Root);
+   procedure Raise_Null_Root (Ctx : in out Eval_Context; Node : LEL.Query)
+      with No_Return;
    --  Raise an exception signaling the absence of a proper AST root while
    --  trying to execute a query, and add an Error_Data describing the error
    --  to the evaluation context.
@@ -43,8 +44,8 @@ package Interpreter.Error_Handling is
    procedure Raise_Invalid_Type (Ctx      : in out Eval_Context;
                                  Node     : LEL.LKQL_Node;
                                  Expected : String;
-                                 Actual   : String);
-   pragma No_Return (Raise_Invalid_Type);
+                                 Actual   : String)
+      with No_Return;
    --  Raise an exception signaling a type error, and add an Error_Data
    --  describing the error to the evaluation context.
 
