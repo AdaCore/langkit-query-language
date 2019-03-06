@@ -42,7 +42,7 @@ package body Interpreter.Error_Handling is
          end if;
       end if;
 
-      raise Eval_Error with Error_Message;
+      raise Stop_Evaluation_Error with Error_Message;
    end Raise_And_Record_Error;
 
    ----------------------------

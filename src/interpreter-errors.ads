@@ -2,7 +2,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Interpreter.Errors is
 
-   Eval_Error : exception;
+   Stop_Evaluation_Error : exception;
    --  This type of exception is used to signal that the execution should not
    --  be resumed.
 
@@ -10,15 +10,15 @@ package Interpreter.Errors is
    --  This type of exception is used to indicate that the evaluator should
    --  try to resume execution in spite of the error.
 
-   type Error_Kind is (Kind_Empty_Error, Kind_Eval_Error);
+   type Error_Kind is (Empty_Error, Eval_Error);
    --  Denotes the kind of an error value.
 
-   type Error_Data (Kind : Error_Kind := Kind_Empty_Error) is record
+   type Error_Data (Kind : Error_Kind := Empty_Error) is record
       case Kind is
-         when Kind_Empty_Error =>
+         when Empty_Error =>
             null;
             --  Represents the absence of error
-         when Kind_Eval_Error =>
+         when Eval_Error =>
             AST_Node     : LEL.LKQL_Node;
             --  Node whose evaluation triggered this error
 

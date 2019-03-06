@@ -10,8 +10,8 @@ package Interpreter.Error_Handling is
    --  Add the given error to the evaluation context and:
    --    * raise a Recoverable_Error if error recovery is enabled and the
    --      user chooses to ignore the error
-   --    * raise an Eval_Error if error recovery is disabled or the user
-   --      chooses not to ignore the error
+   --    * raise a Stop_Evaluation_Error if error recovery is disabled or the
+   --      user chooses not to ignore the error
 
    procedure Raise_Evaluation_Error (Ctx     : in out Eval_Context;
                           Node    : LEL.LKQL_Node;
