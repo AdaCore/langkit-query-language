@@ -20,7 +20,7 @@ package Interpreter.Errors is
             --  Represents the absence of error
          when Kind_Eval_Error =>
             AST_Node     : LEL.LKQL_Node;
-            --  AST node where the error occured
+            --  Node whose evaluation triggered this error
 
             Short_Message : Unbounded_Text_Type;
             --  A short description of the error
@@ -32,7 +32,7 @@ package Interpreter.Errors is
    --  Return a detailed description of the given error.
 
    function Is_Error (Err : Error_Data) return Boolean;
-   --  Return wether the error value represents an actual error
+   --  Return whether Err contains an error
 
    function Make_Empty_Error return Error_Data;
 

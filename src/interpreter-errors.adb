@@ -88,8 +88,8 @@ package body Interpreter.Errors is
                              return Error_Data
    is
    begin
-      return (Kind => Kind_Eval_Error,
-              AST_Node => AST_Node,
+      return (Kind          => Kind_Eval_Error,
+              AST_Node      => AST_Node,
               Short_Message => Short_Message);
    end Make_Eval_Error;
 

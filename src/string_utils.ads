@@ -13,22 +13,28 @@ package String_Utils is
 
    function Underline_Range (Line  : Unbounded_Text_Type;
                              Start : Integer;
-                             Stop  : Integer)
-                             return  Unbounded_Text_Type;
-   --  Underline the text in the given range. The input must contain a
-   --  single line of text.
+                             Stop  : Integer) return Unbounded_Text_Type;
+   --  Return Line plus a new line character and a sequence characters so that
+   --  all non-whitespace columns between `Start` and `Stop` (included) are '^'
+   --  and the other columns are spaces.
+   --
+   --  The input must contain a single line of text.
 
    function Underline_From (Line  : Unbounded_Text_Type;
-                            Start : Integer)
-                            return  Unbounded_Text_Type;
-   --  Underline the text from the given index to the end of the line. The
-   --  input must contain a single line of text.
+                            Start : Integer) return Unbounded_Text_Type;
+   --  Return Line plus a new line character and a sequence characters so that
+   --  all non-whistapce columns from `Start` to the end of the line are
+   --  '^' and the other columns are spaces.
+   --
+   --  The input must contain a single line of text.
 
-   function Underline_To   (Line : Unbounded_Text_Type;
-                            Stop : Integer)
-                            return Unbounded_Text_Type;
-   --  Underline the text from the begining of the line to the given index. The
-   --  input must contain a single line of text.
+   function Underline_To (Line : Unbounded_Text_Type;
+                          Stop : Integer) return Unbounded_Text_Type;
+   --  Return Line plus a new line character and a sequence characters so that
+   --  all non-whistapce columns from the begining of the line to `Stop` are
+   --  '^' and the other columns are spaces.
+   --
+   --  The input must contain a single line of text.
 
    function Underline (Line : Unbounded_Text_Type) return Unbounded_Text_Type;
    --  Underline all the text in the input String. The input must contain a
