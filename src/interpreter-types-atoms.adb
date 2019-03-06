@@ -4,9 +4,22 @@ use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Interpreter.Types.Atoms is
+   function Int_Image (Value : Integer) return Unbounded_Text_Type;
+   --  Wraps the Integer'Wide_Wide_Image function, removing the leading space
+
    procedure Check_Kind (Expected_Kind : Atom_Kind; Value : Atom);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
    --  Expected_Kind.
+
+   ---------------
+   -- Int_Image --
+   ---------------
+
+   function Int_Image (Value : Integer) return Unbounded_Text_Type is
+      Image : constant Text_Type := Integer'Wide_Wide_Image (Value);
+   begin
+      return To_Unbounded_Text (Image (2 .. Image'Last));
+   end Int_Image;
 
    ----------------
    -- Check_Kind --
@@ -48,7 +61,7 @@ package body Interpreter.Types.Atoms is
                  when Kind_Unit =>
                    To_Unbounded_Text ("()"),
                  when Kind_Int =>
-                   To_Unbounded_Text (Integer'Wide_Wide_Image (Value.Int_Val)),
+                   Int_Image (Value.Int_Val),
                  when Kind_Str =>
                    Value.Str_Val,
                  when Kind_Bool =>
