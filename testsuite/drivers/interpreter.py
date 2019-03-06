@@ -1,4 +1,4 @@
-from util import read_to_string
+from util import read_to_string, INTERPRETER_PATH
 from e3.testsuite.driver import BasicTestDriver
 from e3.testsuite.process import Run
 from e3.testsuite.result import TestStatus
@@ -27,8 +27,6 @@ def get_interpreter_path():
 ADA_PROJECTS_PATH = os.path.join(
     os.path.dirname(os.getcwd()), 'testsuite', 'ada_projects'
 )
-
-INTERPRETER_PATH = get_interpreter_path()
 
 
 class InterpreterDriver(BasicTestDriver):
