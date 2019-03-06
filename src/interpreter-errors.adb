@@ -67,7 +67,7 @@ package body Interpreter.Errors is
 
    function Is_Error (Err : Error_Data) return Boolean is
    begin
-      return Err.Kind /= Kind_Empty_Error;
+      return Err.Kind /= Empty_Error;
    end Is_Error;
 
    ----------------------
@@ -76,7 +76,7 @@ package body Interpreter.Errors is
 
    function Make_Empty_Error return Error_Data is
    begin
-      return (Kind => Kind_Empty_Error);
+      return (Kind => Empty_Error);
    end Make_Empty_Error;
 
    ---------------------
@@ -88,7 +88,7 @@ package body Interpreter.Errors is
                              return Error_Data
    is
    begin
-      return (Kind          => Kind_Eval_Error,
+      return (Kind          => Eval_Error,
               AST_Node      => AST_Node,
               Short_Message => Short_Message);
    end Make_Eval_Error;

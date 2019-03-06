@@ -32,7 +32,7 @@ package body Run is
    begin
       Ignore := Eval (Context, LKQL_Script);
    exception
-      when Eval_Error =>
+      when Stop_Evaluation_Error =>
          if not Context.Error_Recovery_Enabled then
             Put_Line (Error_Description (Context.Last_Error));
          end if;
