@@ -13,7 +13,7 @@ package Interpreter.Error_Handling is
    --    * raise an Eval_Error if error recovery is disabled or the user
    --      chooses not to ignore the error
 
-   procedure Raise_Error (Ctx     : in out Eval_Context;
+   procedure Raise_Evaluation_Error (Ctx     : in out Eval_Context;
                           Node    : LEL.LKQL_Node;
                           Message : String)
       with No_Return;
