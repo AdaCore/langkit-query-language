@@ -9,3 +9,5 @@ testsuite/out/
 *.swp
 *.npp
 lkql/build.sh
+testsuite/build
+testsuite/libadalang
