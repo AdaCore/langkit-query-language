@@ -1,0 +1,6 @@
+print (42 != 42)
+print ("Hello" != "Hello")
+print (true != true)
+print (43 != 42)
+print ("Hello" != "World")
+print (true != false)
