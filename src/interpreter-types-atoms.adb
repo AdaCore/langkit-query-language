@@ -139,7 +139,7 @@ package body Interpreter.Types.Atoms is
    begin
       Check_Kind (Kind_Int, Left);
       Check_Kind (Kind_Int, Right);
-      return (Kind => Kind_Int, Int_Val => Left.Int_Val + Right.Int_Val);
+      return (Kind => Kind_Int, Int_Val => Left.Int_Val - Right.Int_Val);
    end "-";
 
    ---------
@@ -166,7 +166,7 @@ package body Interpreter.Types.Atoms is
          raise Unsupported_Error with "Zero division";
       end if;
 
-      return (Kind => Kind_Int, Int_Val => Left.Int_Val * Right.Int_Val);
+      return (Kind => Kind_Int, Int_Val => Left.Int_Val / Right.Int_Val);
    end "/";
 
    ----------
