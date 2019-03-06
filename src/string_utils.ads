@@ -12,8 +12,8 @@ package String_Utils is
    --  Return a list of the lines in the given string
 
    function Underline_Range (Line  : Unbounded_Text_Type;
-                             Start : Integer;
-                             Stop  : Integer) return Unbounded_Text_Type;
+                             Start : Natural;
+                             Stop  : Natural) return Unbounded_Text_Type;
    --  Return Line plus a new line character and a sequence characters so that
    --  all non-whitespace columns between `Start` and `Stop` (included) are '^'
    --  and the other columns are spaces.
@@ -21,7 +21,7 @@ package String_Utils is
    --  The input must contain a single line of text.
 
    function Underline_From (Line  : Unbounded_Text_Type;
-                            Start : Integer) return Unbounded_Text_Type;
+                            Start : Natural) return Unbounded_Text_Type;
    --  Return Line plus a new line character and a sequence characters so that
    --  all non-whistapce columns from `Start` to the end of the line are
    --  '^' and the other columns are spaces.
@@ -29,7 +29,7 @@ package String_Utils is
    --  The input must contain a single line of text.
 
    function Underline_To (Line : Unbounded_Text_Type;
-                          Stop : Integer) return Unbounded_Text_Type;
+                          Stop : Natural) return Unbounded_Text_Type;
    --  Return Line plus a new line character and a sequence characters so that
    --  all non-whistapce columns from the begining of the line to `Stop` are
    --  '^' and the other columns are spaces.
