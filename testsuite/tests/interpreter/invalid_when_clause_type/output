@@ -1,3 +1,4 @@
+main.adb
 Error: Type error: expected Bool but got Str
 let p = query p when "Hello"
                      ^^^^^^^
