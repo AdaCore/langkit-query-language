@@ -3,27 +3,43 @@ with Run;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line; use Ada.Command_Line;
 
---  The program can be launched wth either 1 or 2 command-line arguments.
---  The first argument is the path of the LKQL script to be run.
---  The optionnal second argument is the path of a GPR project file.
+--  Usage:
+--  main [SCRIPT_PATH] [PROJECT_PATH] [OPTIONS]
 --
---  * When launched with one argument, the program will run the script in
---    standalone mode, and raise an Eval_Error on every query.
---  * When launched with a second argument, the script will executed on every
---    source file of the project.
+--  * SCRIPT_PATH: path of the LKQL script to evaluate
+--  * PROJECT_PATH (optionnal): path of a GPR project file. If present, the
+--    LKQL script will be run on every source file of the project.
+--  * OPTIONS : -r enable error recovery
 
 ----------
 -- Main --
 ----------
 
 procedure Main is
+   function Recovery_Enabled return Boolean;
+
+   ----------------------
+   -- Recovery_Enabled --
+   ----------------------
+
+   function Recovery_Enabled return Boolean is
+   begin
+      for I in 1 .. Argument_Count loop
+         if Argument (I) = "-r" then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Recovery_Enabled;
+
+   Recovery : constant Boolean := Recovery_Enabled;
 begin
-   case Argument_Count is
-      when 1 =>
-         Run.Run_Standalone_Query (Argument (1));
-      when 2 =>
-         Run.Run_Against_Project (Argument (1), Argument (2));
-      when others =>
-         Put_Line ("Expected 1..2 argument !");
-   end case;
+   if Argument_Count = 1 or else (Argument_Count = 2 and then Recovery) then
+      Run.Run_Standalone_Query (Argument (1), Recovery);
+   elsif Argument_Count = 2 or else (Argument_Count = 3 and then Recovery) then
+      Run.Run_Against_Project (Argument (1), Argument (2), Recovery);
+   else
+      Put_Line ("usage: main [SCRIPT_PATH] [PROJECT_PATH] [OPTIONS]");
+   end if;
 end Main;

@@ -1,13 +1,29 @@
-with Interpreter.Types.Atoms; use Interpreter.Types.Atoms;
-with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
+with Interpreter.Errors;              use Interpreter.Errors;
+with Interpreter.Types.Atoms;         use Interpreter.Types.Atoms;
+with Interpreter.Error_Handling;      use Interpreter.Error_Handling;
+with Interpreter.Types.Node_Lists;    use Interpreter.Types.Node_Lists;
 
+with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Introspection; use Libadalang.Introspection;
-with Libadalang.Iterators; use Libadalang.Iterators;
+with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
 
-with Ada.Characters.Conversions; use Ada.Characters.Conversions;
-with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Langkit_Support.Text; use Langkit_Support.Text;
+
+with Ada.Exceptions;
+with Ada.Containers.Hashed_Maps;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
+with Ada.Characters.Handling;
+with Ada.Characters.Conversions;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Interpreter.Evaluation is
+
+   package String_Kind_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Unbounded_Text_Type,
+      Element_Type    => LALCO.Ada_Node_Kind_Type,
+      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
+      Equivalent_Keys => "=");
+
    function Eval_List
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node_List) return Primitive;
 
@@ -65,6 +81,8 @@ package body Interpreter.Evaluation is
    --------------------------
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type is
+      use Ada.Characters.Handling;
+      use Ada.Characters.Conversions;
       Formatted : Unbounded_Text_Type;
       New_Word  : Boolean := True;
    begin
@@ -136,7 +154,7 @@ package body Interpreter.Evaluation is
                  when LELCO.lkql_Query =>
                    Eval_Query (Ctx, Node.As_Query),
                  when others =>
-                    raise Eval_Error
+                    raise Program_Error
                       with "Unsupported evaluation root: " & Node.Kind_Name);
    end Eval;
 
@@ -154,7 +172,11 @@ package body Interpreter.Evaluation is
       end if;
 
       for Child of Node.Children loop
-         Result := Eval (Ctx, Child);
+         begin
+            Result := Eval (Ctx, Child);
+         exception
+            when Recoverable_Error => null;
+         end;
       end loop;
 
       return Result;
@@ -242,6 +264,11 @@ package body Interpreter.Evaluation is
       Result : constant Atom := Compute_Bin_Op (Node.F_Op, Left, Right);
    begin
       return To_Primitive (Result);
+   exception
+      when E : Unsupported_Error =>
+         Raise_Error (Ctx,
+                      Node.As_LKQL_Node,
+                      Ada.Exceptions.Exception_Message (E));
    end Eval_Bin_Op;
 
    --------------------
@@ -255,9 +282,7 @@ package body Interpreter.Evaluation is
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
       if Receiver.Kind /= Kind_Node then
-         raise Eval_Error with
-           "Cannot get member " & To_UTF8 (Member_Name)
-             & " for " & Kind_Name (Receiver) & " values";
+         Raise_Invalid_Member (Ctx, Node, Receiver);
       end if;
 
       return To_Primitive (Get_Field (Member_Name, Receiver.Node_Val));
@@ -273,9 +298,7 @@ package body Interpreter.Evaluation is
       Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
       if Tested_Node.Kind /= Kind_Node then
-         raise Eval_Error with
-           "Invalid kind on the left side on an is clause: expected Node" &
-           " but got " & Kind_Name (Tested_Node);
+         Raise_Invalid_Is_Operand (Ctx, Node, Tested_Node);
       end if;
 
       declare
@@ -303,7 +326,7 @@ package body Interpreter.Evaluation is
         To_Unbounded_Text (Node.F_Binding.Text);
    begin
       if Ctx.AST_Root.Is_Null then
-         raise Eval_Error with "Cannot run queries in standalone mode";
+         Raise_Null_Root (Ctx, Node);
       end if;
 
       while It.Next (Current_Node) loop
@@ -316,13 +339,17 @@ package body Interpreter.Evaluation is
             if When_Clause_Result.Kind /= Kind_Atom or else
                When_Clause_Result.Atom_Val.Kind /= Kind_Bool
             then
-               raise Eval_Error with "When clause should return a boolean" &
-                 " but returned a " & Kind_Name (When_Clause_Result);
+               Raise_Invalid_Type (Ctx,
+                                   Node.F_When_Clause.As_LKQL_Node,
+                                   "Bool",
+                                   Kind_Name (When_Clause_Result));
             end if;
 
             if When_Clause_Result = To_Primitive (True) then
                Result.Nodes.Append (Current_Node);
             end if;
+         exception
+               when Recoverable_Error => null;
          end;
       end loop;
 
@@ -340,7 +367,7 @@ package body Interpreter.Evaluation is
       Position : constant Cursor := Name_Kinds.Find (Kind_Name);
    begin
       if not Has_Element (Position) then
-         raise Eval_Error with
+         raise Program_Error with
            "Invalid kind name: " & To_UTF8 (To_Text (Kind_Name));
       end if;
 
@@ -374,7 +401,7 @@ package body Interpreter.Evaluation is
          end if;
       end loop;
 
-      raise Eval_Error with
+      raise Program_Error with
         "Node of kind " & Node.Kind_Name & " has no field named " & UTF8_Name;
    end Get_Field_Index;
 
@@ -395,7 +422,8 @@ package body Interpreter.Evaluation is
          when LELCO.lkql_Op_Or =>
             return Left or Right;
          when others =>
-            raise Eval_Error with "Operator not implemented: " & Op.Kind_Name;
+            raise Program_Error with
+              "Operator not implemented: " & Op.Kind_Name;
       end case;
    end Compute_Bin_Op;
 
@@ -409,9 +437,7 @@ package body Interpreter.Evaluation is
       Reduced : constant Primitive := Eval (Ctx, Node);
    begin
       if Reduced.Kind /= Kind_Atom then
-         raise Eval_Error
-           with "Node of kind " & Node.Kind_Name &
-           " cannot be reduced to an atom.";
+         Raise_Invalid_Type (Ctx, Node.As_LKQL_Node, "atom", Node.Kind_Name);
       else
          return Reduced.Atom_Val;
       end if;

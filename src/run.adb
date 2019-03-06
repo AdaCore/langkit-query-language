@@ -1,36 +1,65 @@
-with Interpreter.Evaluation; use Interpreter.Evaluation;
+with Interpreter.Errors;           use Interpreter.Errors;
+with Interpreter.Evaluation;       use Interpreter.Evaluation;
+with Interpreter.Eval_Contexts;    use Interpreter.Eval_Contexts;
 with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
 
 with Libadalang.Project_Provider;
 
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+use  Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
 with GNAT.OS_Lib;
-
 with GNATCOLL.Projects;
 
 package body Run is
-   package GPR renames GNATCOLL.Projects;
+   package GPR     renames GNATCOLL.Projects;
    package LAL_GPR renames Libadalang.Project_Provider;
+
+   procedure Evaluate
+     (Context : in out Eval_Context; LKQL_Script : LEL.LKQL_Node);
+   --  Evaluate the script in the given context and display the error
+   --  messages, if any.
+
+   --------------
+   -- Evaluate --
+   --------------
+
+   procedure Evaluate
+     (Context : in out Eval_Context; LKQL_Script : LEL.LKQL_Node)
+   is
+      Ignore : Primitive;
+   begin
+      Ignore := Eval (Context, LKQL_Script);
+   exception
+      when Eval_Error =>
+         if not Context.Error_Recovery_Enabled then
+            Put_Line (Error_Description (Context.Last_Error));
+         end if;
+   end Evaluate;
 
    ----------------------
    -- Run_Single_query --
    ----------------------
 
-   procedure Run_Standalone_Query (Script_Path : String) is
+   procedure Run_Standalone_Query
+     (Script_Path : String; Recovery_Enabled : Boolean := False)
+   is
       Unit    : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (Script_Path);
       Context : Eval_Context;
-      Ignore  : constant Primitive := Eval (Context, Unit.Root);
    begin
-      null;
+      Context.Error_Recovery_Enabled := Recovery_Enabled;
+      Evaluate (Context, Unit.Root);
    end Run_Standalone_Query;
 
    -------------------------
    -- Run_Against_Project --
    -------------------------
 
-   procedure Run_Against_Project (LKQL_Script : String; Project_Path : String)
+   procedure Run_Against_Project (LKQL_Script      : String;
+                                  Project_Path     : String;
+                                  Recovery_Enabled : Boolean := False)
    is
       Provider      : LAL.Unit_Provider_Reference;
       Ada_Context   : LAL.Analysis_Context;
@@ -47,7 +76,7 @@ package body Run is
         LAL_GPR.Create_Project_Unit_Provider_Reference (Project, Env);
       Ada_Context := LAL.Create_Context (Unit_Provider => Provider);
       Source_Files := Project.Root_Project.Source_Files (Recursive => False);
-      Run_On_Files (LKQL_Script, Ada_Context, Source_Files);
+      Run_On_Files (LKQL_Script, Ada_Context, Source_Files, Recovery_Enabled);
       Unchecked_Free (Source_Files);
    end Run_Against_Project;
 
@@ -55,21 +84,22 @@ package body Run is
    -- Run_On_Files --
    ------------------
 
-   procedure Run_On_Files (LKQL_Script : String;
-                           Ada_Context : LAL.Analysis_Context;
-                           Files       : File_Array_Access)
+   procedure Run_On_Files (LKQL_Script      : String;
+                           Ada_Context      : LAL.Analysis_Context;
+                           Files            : File_Array_Access;
+                           Recovery_Enabled : Boolean := False)
    is
       Ada_Unit            : LAL.Analysis_Unit;
-      Ignore              : Primitive;
       Interpreter_Context : Eval_Context;
       LKQL_Unit           : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
+      Interpreter_Context.Error_Recovery_Enabled := Recovery_Enabled;
       for F of Files.all loop
          Put_Line (F.Display_Full_Name);
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
          Interpreter_Context.AST_Root := Ada_Unit.Root;
-         Ignore := Eval (Interpreter_Context, LKQL_Unit.Root);
+         Evaluate (Interpreter_Context, LKQL_Unit.Root);
       end loop;
    end Run_On_Files;
 
