@@ -120,12 +120,12 @@ package body Interpreter.Types.Atoms is
         (case Right.Kind is
             when Kind_Int =>
               (Kind    => Kind_Str,
-               Str_Val => Left & Integer'Wide_Wide_Image (Right.Int_Val)),
+               Str_Val => Left & Int_Image (Right.Int_Val)),
             when Kind_Str =>
               (Kind => Kind_Str, Str_Val => Left & Right.Str_Val),
             when Kind_Bool =>
               (Kind    => Kind_Str,
-               Str_Val => Left & Boolean'Wide_Wide_Image (Right.Bool_Val)),
+               Str_Val => Left & To_String (Right)),
             when others =>
                raise Unsupported_Error
                  with "Cannot add a " & To_String (Right.Kind) & " to a Str");
