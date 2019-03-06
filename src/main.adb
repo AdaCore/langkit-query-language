@@ -1,14 +1,15 @@
 with Run;
 
-with Ada.Text_IO;      use Ada.Text_IO;
-with Ada.Command_Line; use Ada.Command_Line;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 
 --  Usage:
 --  main [SCRIPT_PATH] [PROJECT_PATH] [OPTIONS]
 --
---  * SCRIPT_PATH: path of the LKQL script to evaluate
---  * PROJECT_PATH (optionnal): path of a GPR project file. If present, the
---    LKQL script will be run on every source file of the project.
+--  * SCRIPT_PATH:  path of the LKQL script to evaluate
+--  * PROJECT_PATH: path of a GPR project file. The script will be evaluated
+--                  on all source file that belong to the project.
 --  * OPTIONS : -r enable error recovery
 
 ----------
@@ -16,30 +17,37 @@ with Ada.Command_Line; use Ada.Command_Line;
 ----------
 
 procedure Main is
-   function Recovery_Enabled return Boolean;
 
-   ----------------------
-   -- Recovery_Enabled --
-   ----------------------
+   package Arg is
 
-   function Recovery_Enabled return Boolean is
-   begin
-      for I in 1 .. Argument_Count loop
-         if Argument (I) = "-r" then
-            return True;
-         end if;
-      end loop;
+      Parser : Argument_Parser := Create_Argument_Parser
+        (Help => "The script will be evaluated on all source files that " &
+                 "belong to the project.");
 
-      return False;
-   end Recovery_Enabled;
+      package Script_Path is new Parse_Positional_Arg
+        (Parser   => Parser,
+         Name     => "script_path",
+         Arg_Type => Unbounded_String,
+         Help     => "Path of the LKQL script to evaluate");
 
-   Recovery : constant Boolean := Recovery_Enabled;
+      package Project_Path is new Parse_Positional_Arg
+        (Parser   => Parser,
+         Name     => "project_path",
+         Arg_Type => Unbounded_String,
+         Help     => "Path of the GPR project file");
+
+      package Recovery_Enabled is new Parse_Flag
+        (Parser => Parser,
+         Short  => "-r",
+         Long   => "--recover",
+         Help   => "Enable error recovery");
+
+   end Arg;
+
 begin
-   if Argument_Count = 1 or else (Argument_Count = 2 and then Recovery) then
-      Run.Run_Standalone_Query (Argument (1), Recovery);
-   elsif Argument_Count = 2 or else (Argument_Count = 3 and then Recovery) then
-      Run.Run_Against_Project (Argument (1), Argument (2), Recovery);
-   else
-      Put_Line ("usage: main [SCRIPT_PATH] [PROJECT_PATH] [OPTIONS]");
+   if Arg.Parser.Parse then
+      Run.Run_Against_Project (To_String (Arg.Script_Path.Get),
+                               To_String (Arg.Project_Path.Get),
+                               Arg.Recovery_Enabled.Get);
    end if;
 end Main;

@@ -1,3 +1,0 @@
-Error: Cannot run a query without a proper AST root
-query p when true
-^^^^^^^^^^^^^^^^^
