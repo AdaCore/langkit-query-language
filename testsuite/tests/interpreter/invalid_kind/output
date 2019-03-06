@@ -1,1 +1,2 @@
+main.adb
 raised PROGRAM_ERROR : Invalid kind name: PreposterouslyInvalidKind

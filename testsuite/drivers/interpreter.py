@@ -68,7 +68,7 @@ class InterpreterDriver(BasicTestDriver):
 
         # Run the interpreter
         process = Run(args)
-        process_output = remove_paths_and_whitespace(process.out)
+        process_output = remove_whitespace(process.out)
         process_failure = process.status != 0
 
         # If there is a difference between the process's output and the
@@ -86,17 +86,9 @@ class InterpreterDriver(BasicTestDriver):
         pass
 
 
-def whitespace_or_file(text):
-    """
-    Returns True if the given text is empty or ends with .ad[bs].
-    """
-    return text == "" or text.endswith('.adb') or text.endswith('.ads')
-
-
-def remove_paths_and_whitespace(text):
+def remove_whitespace(text):
     """
     Removes the file names and the empty lines from the given text.
     """
-    filtered_lines = [l for l in text.splitlines()
-                      if not whitespace_or_file(l)]
+    filtered_lines = [line for line in text.splitlines() if line != ""]
     return '\n'.join(filtered_lines)

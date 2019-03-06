@@ -96,7 +96,7 @@ package body Run is
    begin
       Interpreter_Context.Error_Recovery_Enabled := Recovery_Enabled;
       for F of Files.all loop
-         Put_Line (F.Display_Full_Name);
+         Put_Line (F.Display_Base_Name);
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
          Interpreter_Context.AST_Root := Ada_Unit.Root;
          Evaluate (Interpreter_Context, LKQL_Unit.Root);
