@@ -1,7 +1,7 @@
-with Interpreter.Errors;              use Interpreter.Errors;
-with Interpreter.Types.Atoms;         use Interpreter.Types.Atoms;
-with Interpreter.Error_Handling;      use Interpreter.Error_Handling;
-with Interpreter.Types.Node_Lists;    use Interpreter.Types.Node_Lists;
+with Interpreter.Errors;           use Interpreter.Errors;
+with Interpreter.Types.Atoms;      use Interpreter.Types.Atoms;
+with Interpreter.Error_Handling;   use Interpreter.Error_Handling;
+with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
 with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Introspection; use Libadalang.Introspection;
@@ -155,7 +155,7 @@ package body Interpreter.Evaluation is
                    Eval_Query (Ctx, Node.As_Query),
                  when others =>
                     raise Program_Error
-                      with "Unsupported evaluation root: " & Node.Kind_Name);
+                      with "Invalid evaluation root kind: " & Node.Kind_Name);
    end Eval;
 
    ---------------
@@ -349,7 +349,7 @@ package body Interpreter.Evaluation is
                Result.Nodes.Append (Current_Node);
             end if;
          exception
-               when Recoverable_Error => null;
+            when Recoverable_Error => null;
          end;
       end loop;
 

@@ -7,12 +7,15 @@ import os
 
 class ParserDriver(BasicTestDriver):
     """
-    This driver used the `parse` binary to produce an AST an compare it with
-    an AST provided by the user.
-    The provided AST must respect `parse`'s output format, with --hide-slocs enabled.
+    Compare the output of LKQL's `parse` program on the script in the `input`
+    file to the expected output in the `output` text file. Tests pass iff the output
+    is the same.
+
+    Note that this compares the output of `parse` passing to it the
+    `--hide-slocs` option.
 
     Test arguments:
-        - rule: starting rule of the parser
+        - rule: name of the grammar rule to pass to `parse`
     """
     def analyze(self, prev):
         pass
@@ -26,9 +29,9 @@ class ParserDriver(BasicTestDriver):
 
         status = TestStatus.PASS
 
-        # run the `parse` program.
-        # The `f` option is used to specify a file name, instead of passing the text
-        # to parse as a command-line argument.
+        # Run the `parse` program.
+        # The `f` option is used to specify a file name, instead of passing
+        # the text to parse as a command-line argument.
         # The `r` option is used to choose a starting rule for the parser.
         process = Run([parse_bin, '-f', test_file, '-r', rule, '--hide-slocs'])
 

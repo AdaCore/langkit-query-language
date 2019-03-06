@@ -8,7 +8,7 @@ use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 package body Interpreter.Error_Handling is
 
    function User_Chooses_Recovery return Boolean;
-   --  Ask the user wether he wants to recover from the error or cancel the
+   --  Ask the user whether he wants to recover from the error or cancel the
    --  execution.
 
    ---------------------------

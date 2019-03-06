@@ -12,6 +12,7 @@ package Run is
    --  Run a standalone LKQL script. If Recovery_Enabled is set to true,
    --  the user will have the possibility to resume execution uppon encoutering
    --  an error.
+   --
    --  While in standalone mode, queries are forbidden and will raise an
    --  exception.
 
@@ -21,6 +22,7 @@ package Run is
    --  Run a LKQL script on all source files that belong to the given project.
    --  If Recovery_Enabled is set to true, the user will have the possibility
    --  to resume execution uppon encoutering an error.
+   --
    --  LKQL_Script is the name of the file containing the script and
    --  Project_Path is the project file name to load.
 
