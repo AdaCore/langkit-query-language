@@ -266,7 +266,7 @@ package body Interpreter.Evaluation is
       return To_Primitive (Result);
    exception
       when E : Unsupported_Error =>
-         Raise_Error (Ctx,
+         Raise_Evaluation_Error (Ctx,
                       Node.As_LKQL_Node,
                       Ada.Exceptions.Exception_Message (E));
    end Eval_Bin_Op;
