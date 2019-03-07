@@ -298,7 +298,7 @@ package body Interpreter.Evaluation is
       Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
       if Tested_Node.Kind /= Kind_Node then
-         Raise_Invalid_Is_Operand (Ctx, Node, Tested_Node);
+         Raise_Invalid_Is_Operand (Ctx, Node.F_Node_Expr, Tested_Node);
       end if;
 
       declare
@@ -333,13 +333,14 @@ package body Interpreter.Evaluation is
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
          declare
-            When_Clause_Result : constant Primitive :=
-              Eval (Local_Ctx, Node.F_When_Clause);
+            When_Clause_Result : Primitive;
          begin
+            When_Clause_Result := Eval (Local_Ctx, Node.F_When_Clause);
+
             if When_Clause_Result.Kind /= Kind_Atom or else
                When_Clause_Result.Atom_Val.Kind /= Kind_Bool
             then
-               Raise_Invalid_Type (Ctx,
+               Raise_Invalid_Type (Local_Ctx,
                                    Node.F_When_Clause.As_LKQL_Node,
                                    "Bool",
                                    Kind_Name (When_Clause_Result));
@@ -349,7 +350,14 @@ package body Interpreter.Evaluation is
                Result.Nodes.Append (Current_Node);
             end if;
          exception
-            when Recoverable_Error => null;
+            when Stop_Evaluation_Error =>
+               --  Errors that are raised during the evaluation of the when
+               --  clause are stored in the local context and must be copied
+               --  to the global context.
+               Ctx.Last_Error := Local_Ctx.Last_Error;
+               raise;
+            when Recoverable_Error =>
+               null;
          end;
       end loop;
 

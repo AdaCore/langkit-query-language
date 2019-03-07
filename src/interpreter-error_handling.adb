@@ -80,7 +80,7 @@ package body Interpreter.Error_Handling is
    ------------------------------
 
    procedure Raise_Invalid_Is_Operand (Ctx         : in out Eval_Context;
-                                       Node        : LEL.Is_Clause;
+                                       Node        : LEL.LKQL_Node;
                                        Tested_Node : Primitive)
    is
       Message : constant Unbounded_Text_Type :=
