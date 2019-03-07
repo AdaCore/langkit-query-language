@@ -9,7 +9,6 @@ with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with Ada.Exceptions;
 with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Characters.Handling;
@@ -264,11 +263,6 @@ package body Interpreter.Evaluation is
       Result : constant Atom := Compute_Bin_Op (Node.F_Op, Left, Right);
    begin
       return To_Primitive (Result);
-   exception
-      when E : Unsupported_Error =>
-         Raise_Evaluation_Error (Ctx,
-                      Node.As_LKQL_Node,
-                      Ada.Exceptions.Exception_Message (E));
    end Eval_Bin_Op;
 
    --------------------

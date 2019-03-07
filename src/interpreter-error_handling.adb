@@ -45,20 +45,6 @@ package body Interpreter.Error_Handling is
       raise Stop_Evaluation_Error with Error_Message;
    end Raise_And_Record_Error;
 
-   ----------------------------
-   -- Raise_Evaluation_Error --
-   ----------------------------
-
-   procedure Raise_Evaluation_Error (Ctx     : in out Eval_Context;
-                          Node    : LEL.LKQL_Node;
-                          Message : String)
-   is
-      Unicode_Message : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (To_Text (Message));
-   begin
-      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Unicode_Message));
-   end Raise_Evaluation_Error;
-
    --------------------------
    -- Raise_Invalid_Member --
    --------------------------
