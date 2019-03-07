@@ -10,12 +10,12 @@ package Interpreter.Errors is
    --  This type of exception is used to indicate that the evaluator should
    --  try to resume execution in spite of the error.
 
-   type Error_Kind is (Empty_Error, Eval_Error);
+   type Error_Kind is (No_Error, Eval_Error);
    --  Denotes the kind of an error value.
 
-   type Error_Data (Kind : Error_Kind := Empty_Error) is record
+   type Error_Data (Kind : Error_Kind := No_Error) is record
       case Kind is
-         when Empty_Error =>
+         when No_Error =>
             null;
             --  Represents the absence of error
          when Eval_Error =>

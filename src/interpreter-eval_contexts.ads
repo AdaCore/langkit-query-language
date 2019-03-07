@@ -21,7 +21,7 @@ package Interpreter.Eval_Contexts is
       AST_Root : LAL.Ada_Node := LAL.No_Ada_Node;
       --  Root node of the tree in wich node queries will run.
 
-      Last_Error : Error_Data := (Kind => Empty_Error);
+      Last_Error : Error_Data := (Kind => No_Error);
       --  Store data about the last error, if any.
 
       Error_Recovery_Enabled : Boolean := False;
