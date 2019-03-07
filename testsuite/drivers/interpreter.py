@@ -89,4 +89,4 @@ def remove_whitespace(text):
     Removes the file names and the empty lines from the given text.
     """
     filtered_lines = [line for line in text.splitlines() if line != ""]
-    return '\n'.join(filtered_lines)
+    return '\n'.join(filtered_lines).strip()

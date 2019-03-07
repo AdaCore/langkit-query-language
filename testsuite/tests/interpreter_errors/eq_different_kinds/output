@@ -1,0 +1,2 @@
+main.adb
+raised INTERPRETER.TYPES.ATOMS.UNSUPPORTED_ERROR : Cannot check equality between a Str and a Bool

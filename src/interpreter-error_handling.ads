@@ -13,13 +13,6 @@ package Interpreter.Error_Handling is
    --    * raise a Stop_Evaluation_Error if error recovery is disabled or the
    --      user chooses not to ignore the error
 
-   procedure Raise_Evaluation_Error (Ctx     : in out Eval_Context;
-                          Node    : LEL.LKQL_Node;
-                          Message : String)
-      with No_Return;
-   --  Raise a generic exception with the given message, and add an Error_Data
-   --  describing the error to the evaluation context.
-
    procedure Raise_Invalid_Member (Ctx      : in out Eval_Context;
                                    Node     : LEL.Dot_Access;
                                    Receiver : Primitive)
