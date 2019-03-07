@@ -11,3 +11,4 @@ testsuite/out/
 lkql/build.sh
 testsuite/build
 testsuite/libadalang
+testsuite/run_testsuite.sh
