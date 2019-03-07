@@ -1,14 +1,35 @@
 from e3.testsuite import Testsuite
+from e3.os.process import Run
 from drivers import ParserDriver, InterpreterDriver, make_interpreter
 import os
+import glob
+import sys
 
 TESTSUITE_ROOT_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
-INTERPRETER_PATH = os.path.join(TESTSUITE_ROOT_DIR, 'build', 'obj', 'main')
+OBJ_DIR = os.path.join('build', 'obj')
 
-INTERPRETER_GPR_FILE = os.path.join(os.path.dirname(os.getcwd()), 'lkql_interpreter.gpr')
+INTERPRETER_PATH = os.path.join(OBJ_DIR, 'main')
+
+INTERPRETER_GPR_FILE = os.path.join(os.path.dirname(os.getcwd()),
+                                    'lkql_interpreter.gpr')
+
+
+def run_gcov():
+    """
+    Run `gcov` on the .gcda files produced during test execution
+    """
+    gcda_files = glob.glob(os.path.join(OBJ_DIR, '*.gcda'))
+
+    for f in gcda_files:
+        # Local path of the current .gcda file from the `out` directory,
+        # where `gcov` is run
+        path_from_out = os.path.join('..', f)
+        p = Run(['gcov', path_from_out], cwd='out')
+        if p.status != 0:
+            sys.stderr.write(p.out)
 
 
 class LKQLTestsuite(Testsuite):
@@ -23,3 +44,4 @@ if __name__ == "__main__":
     for k, v in suite.test_status_counters.iteritems():
         if v != 0:
             print "%s: %d" % (k, v)
+    run_gcov()
