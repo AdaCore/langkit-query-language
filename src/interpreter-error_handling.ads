@@ -28,7 +28,7 @@ package Interpreter.Error_Handling is
    --  Error_Data describing the error to the evaluation context.
 
    procedure Raise_Invalid_Is_Operand (Ctx         : in out Eval_Context;
-                                       Node        : LEL.Is_Clause;
+                                       Node        : LEL.LKQL_Node;
                                        Tested_Node : Primitive)
       with No_Return;
    --  Raise an exception signaling that the left operand of an is clause is
