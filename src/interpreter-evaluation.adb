@@ -56,11 +56,8 @@ package body Interpreter.Evaluation is
    function To_Ada_Node_Kind
      (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
 
-   function Get_Field
-     (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node;
-
    function Get_Field_Index
-     (Name : Text_Type; Node : LAL.Ada_Node) return Positive;
+     (Name : Text_Type; Node : LAL.Ada_Node) return Integer;
 
    function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom;
 
@@ -274,12 +271,19 @@ package body Interpreter.Evaluation is
    is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
+      Field_Index : Integer;
    begin
       if Receiver.Kind /= Kind_Node then
          Raise_Invalid_Member (Ctx, Node, Receiver);
       end if;
 
-      return To_Primitive (Get_Field (Member_Name, Receiver.Node_Val));
+      Field_Index := Get_Field_Index (Member_Name, Receiver.Node_Val);
+
+      if Field_Index = -1 then
+         Raise_Invalid_Member (Ctx, Node, Receiver);
+      end if;
+
+      return To_Primitive (Receiver.Node_Val.Children (Field_Index));
    end Eval_Dot_Access;
 
    -------------
@@ -376,24 +380,12 @@ package body Interpreter.Evaluation is
       return Element (Position);
    end To_Ada_Node_Kind;
 
-   ---------------
-   -- Get_Field --
-   ---------------
-
-   function Get_Field
-     (Name : Text_Type; Node : LAL.Ada_Node) return LAL.Ada_Node
-   is
-      Idx : constant Positive := Get_Field_Index (Name, Node);
-   begin
-      return Node.Children (Idx);
-   end Get_Field;
-
    ---------------------
    -- Get_Field_Index --
    ---------------------
 
    function Get_Field_Index
-     (Name : Text_Type; Node : LAL.Ada_Node) return Positive
+     (Name : Text_Type; Node : LAL.Ada_Node) return Integer
    is
       UTF8_Name : constant String := To_UTF8 (Name);
    begin
@@ -403,8 +395,7 @@ package body Interpreter.Evaluation is
          end if;
       end loop;
 
-      raise Program_Error with
-        "Node of kind " & Node.Kind_Name & " has no field named " & UTF8_Name;
+      return -1;
    end Get_Field_Index;
 
    --------------------
