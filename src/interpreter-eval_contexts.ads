@@ -1,5 +1,5 @@
 with Interpreter.Errors;           use Interpreter.Errors;
-with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
+with Interpreter.Primitives; use Interpreter.Primitives;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 

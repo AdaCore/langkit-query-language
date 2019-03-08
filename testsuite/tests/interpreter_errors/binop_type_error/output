@@ -1,2 +1,2 @@
 main.adb
-raised INTERPRETER.TYPES.PRIMITIVES.UNSUPPORTED_ERROR : Cannot add a Str to an Int
+raised INTERPRETER.PRIMITIVES.UNSUPPORTED_ERROR : Cannot add a Str to an Int

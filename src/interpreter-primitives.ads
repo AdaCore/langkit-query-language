@@ -2,7 +2,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Vectors;
 
-package Interpreter.Types.Primitives is
+package Interpreter.Primitives is
 
    type Primitive_List;
 
@@ -156,4 +156,4 @@ private
    function "+"
      (Left : Unbounded_Text_Type; Right : Primitive) return Primitive;
 
-end Interpreter.Types.Primitives;
+end Interpreter.Primitives;
