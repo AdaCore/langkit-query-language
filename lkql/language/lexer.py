@@ -11,6 +11,7 @@ class Token(LexerToken):
     Query = WithSymbol()
     When = WithSymbol()
     Is = WithSymbol()
+    In = WithSymbol()
     Print = WithSymbol()
     TrueLit = WithSymbol()
     FalseLit = WithSymbol()
@@ -48,10 +49,11 @@ lkql_lexer.add_rules(
     (Literal("query"),                                      Token.Query),
     (Literal("when"),                                       Token.When),
     (Literal("is"),                                         Token.Is),
+    (Literal("in"),                                         Token.In),
     (Literal("print"),                                      Token.Print),
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
     (Pattern("[0-9]+"),                                     Token.Integer),
-    (Pattern("[A-Za-z][A-Za-z0-9]*"),                       Token.Identifier),
+    (Pattern("[A-Za-z][A-Za-z0-9_]*"),                      Token.Identifier),
     (Pattern("\"[^\"]*\""),                                 Token.String)
 )
