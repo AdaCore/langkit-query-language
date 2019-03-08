@@ -1,0 +1,28 @@
+LKQLNodeList
+|  Assign
+|  |identifier:
+|  |  Identifier: o
+|  |value:
+|  |  Query
+|  |  |binding:
+|  |  |  Identifier: o
+|  |  |when_clause:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  IsClause
+|  |  |  |  |node_expr:
+|  |  |  |  |  Identifier: o
+|  |  |  |  |kind_name:
+|  |  |  |  |  Identifier: ObjectDecl
+|  |  |  |op:
+|  |  |  |  OpAnd
+|  |  |  |right:
+|  |  |  |  InClause
+|  |  |  |  |value_expr:
+|  |  |  |  |  DotAccess
+|  |  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: o
+|  |  |  |  |  |member:
+|  |  |  |  |  |  Identifier: random_field
+|  |  |  |  |list_expr:
+|  |  |  |  |  Identifier: filteredFields

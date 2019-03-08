@@ -113,6 +113,14 @@ class IsClause(LKQLNode):
     kind_name = Field()
 
 
+class InClause(LKQLNode):
+    """
+    Check that a list contains a given value using the 'in' keyword
+    """
+    value_expr = Field()
+    list_expr = Field()
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 lkql_grammar.add_rules(
@@ -129,12 +137,13 @@ lkql_grammar.add_rules(
                   Or(Op.alt_and(Token.And),
                      Op.alt_or(Token.Or)),
                   G.comp_expr),
-            IsClause(G.expr, Token.Is, G.identifier),
             G.comp_expr),
 
-    comp_expr=Or(BinOp(G.comp_expr,
+    comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.identifier),
+                 InClause(G.comp_expr, Token.In, G.expr),
+                 BinOp(G.comp_expr,
                        Or(Op.alt_eq(Token.EqEq),
-                           Op.alt_neq(Token.Neq)),
+                          Op.alt_neq(Token.Neq)),
                        G.plus_expr),
                  G.plus_expr),
 
