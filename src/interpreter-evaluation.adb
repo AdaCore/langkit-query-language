@@ -42,6 +42,12 @@ package body Interpreter.Evaluation is
    function Eval_Bin_Op
      (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
 
+   function Eval_Non_Short_Circuit_Op
+     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+
+   function Eval_Short_Circuit_Op
+     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+
    function Eval_Dot_Access
      (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive;
 
@@ -69,6 +75,13 @@ package body Interpreter.Evaluation is
    function Init_Name_Kinds_Lookup return String_Kind_Maps.Map;
    --  Fill the Name_Kinds lookup table by asscoaiting a kind name to a
    --  Ada_Node_Kind_Type value.
+
+   procedure Check_Kind (Ctx           : in out Eval_Context;
+                         Node          : LEL.LKQL_Node;
+                         Expected_Kind : Primitive_Kind;
+                         Value         : Primitive);
+   --  Raise an exception and register an error in the evaluation context if
+   --  `Value` doesn't have the expected kind.
 
    --------------------------
    -- Format_Ada_Kind_Name --
@@ -115,7 +128,22 @@ package body Interpreter.Evaluation is
    Name_Kinds : constant String_Kind_Maps.Map := Init_Name_Kinds_Lookup;
    --  Lookup table used to quickly retrieve the Ada node kind associated
    --  with a given name, if any.
-   
+
+   ----------------
+   -- Check_Kind --
+   ----------------
+
+   procedure Check_Kind (Ctx           : in out Eval_Context;
+                         Node          : LEL.LKQL_Node;
+                         Expected_Kind : Primitive_Kind;
+                         Value         : Primitive)
+   is
+   begin
+      if Value.Kind /= Expected_Kind then
+         Raise_Invalid_Kind (Ctx, Node, Expected_Kind, Value);
+      end if;
+   end Check_Kind;
+
    ----------
    -- Eval --
    ----------
@@ -255,6 +283,23 @@ package body Interpreter.Evaluation is
    function Eval_Bin_Op
      (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
    is
+   begin
+      return (case Node.F_Op.Kind is
+                 when LELCO.lkql_Op_And
+                    | LELCO.lkql_Op_Or
+                 =>
+                    Eval_Short_Circuit_Op (Ctx, Node),
+                 when others =>
+                    Eval_Non_Short_Circuit_Op (Ctx, Node));
+   end Eval_Bin_Op;
+
+   -------------------------------
+   -- Eval_Non_Short_Circuit_Op --
+   -------------------------------
+
+   function Eval_Non_Short_Circuit_Op
+     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
+   is
       Left   : constant Primitive := Eval (Ctx, Node.F_Left);
       Right  : constant Primitive := Eval (Ctx, Node.F_Right);
    begin
@@ -271,14 +316,44 @@ package body Interpreter.Evaluation is
                     Left = Right,
                  when LELCO.lkql_Op_Neq =>
                     Left /= Right,
-                 when LELCO.lkql_Op_And =>
-                    Left and Right,
-                 when LELCO.lkql_Op_Or =>
-                    Left or Right,
                  when others =>
                     raise Program_Error with
-                       "Unsupported operation kind: " & Node.F_Op.Kind_Name);
-   end Eval_Bin_Op;
+                      "Not a non-short-cirtcuit operator kind: " &
+                      Node.F_Op.Kind_Name);
+   end Eval_Non_Short_Circuit_Op;
+
+   ---------------------------
+   -- Eval_Short_Circuit_Op --
+   ---------------------------
+
+   function Eval_Short_Circuit_Op
+     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
+   is
+      use type LELCO.LKQL_Node_Kind_Type;
+      Left    : constant Primitive := Eval (Ctx, Node.F_Left);
+      Right   : Primitive;
+      Op_Kind : constant LELCO.LKQL_Node_Kind_Type := Node.F_Op.Kind;
+   begin
+      Check_Kind (Ctx, Node.F_Left, Kind_Bool, Left);
+
+      if Op_Kind = LELCO.lkql_Op_And and then not Left.Bool_Val then
+         return To_Primitive (False);
+      elsif Op_Kind = LELCO.lkql_Op_Or and then Left.Bool_Val then
+         return To_Primitive (True);
+      end if;
+
+      Right := Eval (Ctx, Node.F_Right);
+      Check_Kind (Ctx, Node.F_Right, Kind_Bool, Right);
+      return (case Op_Kind is
+                 when LELCO.lkql_Op_And =>
+                   To_Primitive (Left.Bool_Val and then Right.Bool_Val),
+                 when LELCO.lkql_Op_Or =>
+                   To_Primitive (Left.Bool_Val or else Right.Bool_Val),
+                 when others =>
+                    raise Program_Error with
+                      "Not a short-circuit operator kind: " &
+                      Node.F_Op.Kind_Name);
+   end Eval_Short_Circuit_Op;
 
    --------------------
    -- Eval_Dot_Acess --
@@ -365,13 +440,10 @@ package body Interpreter.Evaluation is
             When_Clause_Result : Primitive;
          begin
             When_Clause_Result := Eval (Local_Ctx, Node.F_When_Clause);
-
-            if When_Clause_Result.Kind /= Kind_Bool then
-               Raise_Invalid_Type (Local_Ctx,
-                                   Node.F_When_Clause.As_LKQL_Node,
-                                   "Bool",
-                                   Kind_Name (When_Clause_Result));
-            end if;
+            Check_Kind (Local_Ctx,
+                        Node.F_When_Clause.As_LKQL_Node,
+                        Kind_Bool,
+                        When_Clause_Result);
 
             if When_Clause_Result = To_Primitive (True) then
                Append (Result, To_Primitive (Current_Node));
