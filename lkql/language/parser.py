@@ -128,8 +128,8 @@ class Indexing(LKQLNode):
     Ex:
     values[0]
     """
-    identifier = Field()
-    index = Field()
+    collection_expr = Field()
+    index_expr = Field()
 
 
 lkql_grammar = Grammar('main_rule')
@@ -192,5 +192,5 @@ lkql_grammar.add_rules(
 
     dot_access=DotAccess(G.identifier, Token.Dot, G.identifier),
 
-    indexing=Indexing(G.identifier, Token.LBrack, G.integer, Token.RBrack)
+    indexing=Indexing(G.expr, Token.LBrack, G.expr, Token.RBrack)
 )

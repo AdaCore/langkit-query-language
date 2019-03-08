@@ -9,7 +9,7 @@ Assign
 |  |  OpMul
 |  |right:
 |  |  Indexing
-|  |  |identifier:
+|  |  |collection_expr:
 |  |  |  Identifier: value
-|  |  |index:
+|  |  |index_expr:
 |  |  |  Integer: 0

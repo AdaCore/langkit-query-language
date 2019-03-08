@@ -344,6 +344,7 @@ package body Interpreter.Evaluation is
 
       Right := Eval (Ctx, Node.F_Right);
       Check_Kind (Ctx, Node.F_Right, Kind_Bool, Right);
+
       return (case Op_Kind is
                  when LELCO.lkql_Op_And =>
                    To_Primitive (Left.Bool_Val and then Right.Bool_Val),
