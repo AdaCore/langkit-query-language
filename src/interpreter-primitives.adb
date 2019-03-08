@@ -123,20 +123,21 @@ package body Interpreter.Primitives is
 
    procedure Append (List, Element : Primitive) is
    begin
-      if List.Kind /= Kind_List then
-         raise Unsupported_Error with
-           "Cannot append an element to a value of kind " & Kind_Name (List);
-      end if;
-
-      if Element.Kind /= List.List_Val.Elements_Kind then
-         raise Unsupported_Error with
-           "Cannot append an element of kind " & Kind_Name (Element) &
-           " to a list of " & To_String (List.List_Val.Elements_Kind)
-           & " values";
-      end if;
-
+      Check_Kind (Kind_List, List);
+      Check_Kind (List.List_Val.Elements_Kind, Element);
       List.List_Val.Elements.Append (Element);
    end Append;
+
+   --------------
+   -- Contains --
+   --------------
+
+   function Contains (List, Value : Primitive) return Boolean is
+   begin
+      Check_Kind (Kind_List, List);
+      Check_Kind (List.List_Val.Elements_Kind, Value);
+      return List.List_Val.Elements.Contains (Value);
+   end Contains;
 
    -----------------------
    -- To_Unbounded_Text --

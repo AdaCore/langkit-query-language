@@ -61,9 +61,9 @@ package Interpreter.Primitives is
 
    Unsupported_Error : exception;
 
-   -----------------------------------
-   --  Creation of Primitive values --
-   -----------------------------------
+   ----------------------------------
+   -- Creation of Primitive values --
+   ----------------------------------
 
    function To_Primitive (Val : Integer) return Primitive;
    --  Create a Primitive value from the Integer value
@@ -81,10 +81,20 @@ package Interpreter.Primitives is
    --  Return a Primitive value storing an empty list of Primitive values
    --  of kind `Kind`.
 
+   --------------------
+   -- List Functions --
+   --------------------
+
    procedure Append (List, Element : Primitive);
    --  Add `Element` to the end of `List`.
    --  An Unsupported_Error will be raised if `List` is not a value of kind
-   --  Kind_List, or if the kind of `Elelement` doesn't match the kind of the
+   --  Kind_List, or if the kind of `Element` doesn't match the kind of the
+   --  values stored in `List`.
+
+   function Contains (List, Value : Primitive) return Boolean;
+   --  Check whether `List` contains `Value`.
+   --  An Unsupported_Error will be raised if `List` is not a value of kind
+   --  Kind_List, or if the kind of `Value` doesn't match the kind of the
    --  values stored in `List`.
 
    ------------------------------
