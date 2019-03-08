@@ -48,6 +48,9 @@ package body Interpreter.Evaluation is
    function Eval_Is
      (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive;
 
+   function Eval_In
+     (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive;
+
    function Eval_Query
      (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
 
@@ -64,6 +67,8 @@ package body Interpreter.Evaluation is
    --  "ADA_KIND_NAME" and returns a String of the form "KindName".
 
    function Init_Name_Kinds_Lookup return String_Kind_Maps.Map;
+   --  Fill the Name_Kinds lookup table by asscoaiting a kind name to a
+   --  Ada_Node_Kind_Type value.
 
    --------------------------
    -- Format_Ada_Kind_Name --
@@ -110,7 +115,7 @@ package body Interpreter.Evaluation is
    Name_Kinds : constant String_Kind_Maps.Map := Init_Name_Kinds_Lookup;
    --  Lookup table used to quickly retrieve the Ada node kind associated
    --  with a given name, if any.
-
+   
    ----------
    -- Eval --
    ----------
@@ -140,6 +145,8 @@ package body Interpreter.Evaluation is
                    Eval_Dot_Access (Ctx, Node.As_Dot_Access),
                  when LELCO.lkql_Is_Clause =>
                    Eval_Is (Ctx, Node.As_Is_Clause),
+                 when LELCO.lkql_In_Clause =>
+                   Eval_In (Ctx, Node.As_In_Clause),
                  when LELCO.lkql_Query =>
                    Eval_Query (Ctx, Node.As_Query),
                  when others =>
@@ -319,6 +326,19 @@ package body Interpreter.Evaluation is
          return To_Primitive (Kind_Match);
       end;
    end Eval_Is;
+
+   -------------
+   -- Eval_In --
+   -------------
+
+   function Eval_In
+     (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive
+   is
+      Tested_Value : constant Primitive := Eval (Ctx, Node.F_Value_Expr);
+      Tested_List  : constant Primitive := Eval (Ctx, Node.F_List_Expr);
+   begin
+      return To_Primitive (Contains (Tested_List, Tested_Value));
+   end Eval_In;
 
    ----------------
    -- Eval_Query --
