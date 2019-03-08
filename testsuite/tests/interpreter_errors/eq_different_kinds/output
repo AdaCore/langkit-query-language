@@ -1,2 +1,2 @@
 main.adb
-raised INTERPRETER.TYPES.PRIMITIVES.UNSUPPORTED_ERROR : Cannot check equality between a Str and a Bool
+raised INTERPRETER.PRIMITIVES.UNSUPPORTED_ERROR : Cannot check equality between a Str and a Bool

@@ -1,7 +1,7 @@
-with Interpreter.Errors;           use Interpreter.Errors;
-with Interpreter.Evaluation;       use Interpreter.Evaluation;
-with Interpreter.Eval_Contexts;    use Interpreter.Eval_Contexts;
-with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
+with Interpreter.Errors;        use Interpreter.Errors;
+with Interpreter.Evaluation;    use Interpreter.Evaluation;
+with Interpreter.Eval_Contexts; use Interpreter.Eval_Contexts;
+with Interpreter.Primitives;    use Interpreter.Primitives;
 
 with Libadalang.Project_Provider;
 

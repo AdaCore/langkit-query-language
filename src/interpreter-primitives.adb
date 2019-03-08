@@ -4,7 +4,7 @@ use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
 with GNAT.Case_Util;
 
-package body Interpreter.Types.Primitives is
+package body Interpreter.Primitives is
    function Int_Image (Value : Integer) return Unbounded_Text_Type;
    --  Wraps the Integer'Wide_Wide_Image function, removing the leading space
 
@@ -336,4 +336,4 @@ package body Interpreter.Types.Primitives is
       return (Kind => Kind_Bool, Bool_Val => not Eq.Bool_Val);
    end "/=";
 
-end Interpreter.Types.Primitives;
+end Interpreter.Primitives;

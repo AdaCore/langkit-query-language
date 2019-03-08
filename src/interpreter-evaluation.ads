@@ -1,5 +1,5 @@
 with Interpreter.Eval_Contexts;    use Interpreter.Eval_Contexts;
-with Interpreter.Types.Primitives; use Interpreter.Types.Primitives;
+with Interpreter.Primitives; use Interpreter.Primitives;
 
 package Interpreter.Evaluation is
 
