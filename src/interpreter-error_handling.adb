@@ -92,21 +92,23 @@ package body Interpreter.Error_Handling is
    end Raise_Null_Root;
 
    ------------------------
-   -- Raise_Invalid_Type --
+   -- Raise_Invalid_Kind --
    ------------------------
 
-   procedure Raise_Invalid_Type (Ctx      : in out Eval_Context;
+   procedure Raise_Invalid_Kind (Ctx      : in out Eval_Context;
                                  Node     : LEL.LKQL_Node;
-                                 Expected : String;
-                                 Actual   : String)
+                                 Expected : Primitive_Kind;
+                                 Value   : Primitive)
    is
       Message : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (
-           To_Text (
-              "Type error: expected " & Expected & " but got " & Actual));
+        To_Unbounded_Text
+          (To_Text
+             ("Type error: expected " & To_String (Expected) & " but got " &
+                Kind_Name (Value)
+           ));
    begin
       Raise_And_Record_Error
         (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
-   end Raise_Invalid_Type;
+   end Raise_Invalid_Kind;
 
 end Interpreter.Error_Handling;

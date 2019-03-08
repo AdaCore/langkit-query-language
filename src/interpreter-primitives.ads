@@ -140,16 +140,6 @@ package Interpreter.Primitives is
    --  The only supported operation is Int / Int, with a non-zero denominator.
    --  Unsupported operations will rase an Unsupported_Error exception.
 
-   function "and" (Left, Right : Primitive) return Primitive;
-   --  Compute the logical 'and' between two Primitive values.
-   --  Both values must be Boolean values.
-   --  Unsupported operations will raise an Unsupported_Error exception.
-
-   function "or" (Left, Right : Primitive) return Primitive;
-   --  Compute the logical 'or' between two Primitive values.
-   --  Both values must be Boolean values.
-   --  Unsupported operations will raise an Unsupported_Error exception.
-
    function "=" (Left, Right : Primitive) return Primitive;
    --  Test equality between two Primitive values.
    --  An Unsupported exception will be raised if Left and Right have different

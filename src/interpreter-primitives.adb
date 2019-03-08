@@ -290,28 +290,6 @@ package body Interpreter.Primitives is
       return To_Primitive (Left.Int_Val / Right.Int_Val);
    end "/";
 
-   -----------
-   -- "and" --
-   -----------
-
-   function "and" (Left, Right : Primitive) return Primitive is
-   begin
-      Check_Kind (Kind_Bool, Left);
-      Check_Kind (Kind_Bool, Right);
-      return To_Primitive (Left.Bool_Val and Right.Bool_Val);
-   end "and";
-
-   ----------
-   -- "or" --
-   ----------
-
-   function "or" (Left, Right : Primitive) return Primitive is
-   begin
-      Check_Kind (Kind_Bool, Left);
-      Check_Kind (Kind_Bool, Right);
-      return To_Primitive (Left.Bool_Val or Right.Bool_Val);
-   end "or";
-
    ---------
    -- "=" --
    ---------
