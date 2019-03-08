@@ -1,7 +1,5 @@
 with Interpreter.Errors;           use Interpreter.Errors;
-with Interpreter.Types.Atoms;      use Interpreter.Types.Atoms;
 with Interpreter.Error_Handling;   use Interpreter.Error_Handling;
-with Interpreter.Types.Node_Lists; use Interpreter.Types.Node_Lists;
 
 with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Introspection; use Libadalang.Introspection;
@@ -58,11 +56,6 @@ package body Interpreter.Evaluation is
 
    function Get_Field_Index
      (Name : Text_Type; Node : LAL.Ada_Node) return Integer;
-
-   function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom;
-
-   function Reduce
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Atom;
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
      with Pre => Name'Length > 4 and then
@@ -164,7 +157,7 @@ package body Interpreter.Evaluation is
       Result : Primitive;
    begin
       if Node.Children'Length = 0 then
-         return To_Primitive ((Kind => Kind_Unit));
+         return Unit_Constant;
       end if;
 
       for Child of Node.Children loop
@@ -189,7 +182,7 @@ package body Interpreter.Evaluation is
         To_Unbounded_Text (Node.F_Identifier.Text);
    begin
       Ctx.Env.Include (Identifier, Eval (Ctx, Node.F_Value));
-      return To_Primitive ((Kind => Kind_Unit));
+      return Unit_Constant;
    end Eval_Assign;
 
    ---------------------
@@ -245,7 +238,7 @@ package body Interpreter.Evaluation is
    is
    begin
       Display (Eval (Ctx, Node.F_Value));
-      return To_Primitive ((Kind => Kind_Unit));
+      return Unit_Constant;
    end Eval_Print;
 
    -----------------
@@ -255,11 +248,29 @@ package body Interpreter.Evaluation is
    function Eval_Bin_Op
      (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
    is
-      Left   : constant Atom := Reduce (Ctx, Node.F_Left);
-      Right  : constant Atom := Reduce (Ctx, Node.F_Right);
-      Result : constant Atom := Compute_Bin_Op (Node.F_Op, Left, Right);
+      Left   : constant Primitive := Eval (Ctx, Node.F_Left);
+      Right  : constant Primitive := Eval (Ctx, Node.F_Right);
    begin
-      return To_Primitive (Result);
+      return (case Node.F_Op.Kind is
+                 when LELCO.lkql_Op_Plus =>
+                    Left + Right,
+                 when LELCO.lkql_Op_Minus =>
+                    Left - Right,
+                 when LELCO.lkql_Op_Mul =>
+                    Left * Right,
+                 when LELCO.lkql_Op_Div =>
+                    Left / Right,
+                 when LELCO.lkql_Op_Eq =>
+                    Left = Right,
+                 when LELCO.lkql_Op_Neq =>
+                    Left /= Right,
+                 when LELCO.lkql_Op_And =>
+                    Left and Right,
+                 when LELCO.lkql_Op_Or =>
+                    Left or Right,
+                 when others =>
+                    raise Program_Error with
+                       "Unsupported operation kind: " & Node.F_Op.Kind_Name);
    end Eval_Bin_Op;
 
    --------------------
@@ -317,8 +328,8 @@ package body Interpreter.Evaluation is
      (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive
    is
       It           : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
+      Result       : constant Primitive := Make_Empty_List (Kind_Node);
       Current_Node : LAL.Ada_Node;
-      Result       : Node_List;
       Local_Ctx    : Eval_Context;
       Binding      : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Node.F_Binding.Text);
@@ -335,9 +346,7 @@ package body Interpreter.Evaluation is
          begin
             When_Clause_Result := Eval (Local_Ctx, Node.F_When_Clause);
 
-            if When_Clause_Result.Kind /= Kind_Atom or else
-               When_Clause_Result.Atom_Val.Kind /= Kind_Bool
-            then
+            if When_Clause_Result.Kind /= Kind_Bool then
                Raise_Invalid_Type (Local_Ctx,
                                    Node.F_When_Clause.As_LKQL_Node,
                                    "Bool",
@@ -345,7 +354,7 @@ package body Interpreter.Evaluation is
             end if;
 
             if When_Clause_Result = To_Primitive (True) then
-               Result.Nodes.Append (Current_Node);
+               Append (Result, To_Primitive (Current_Node));
             end if;
          exception
             when Stop_Evaluation_Error =>
@@ -359,7 +368,7 @@ package body Interpreter.Evaluation is
          end;
       end loop;
 
-      return (Kind => Kind_Node_List, Node_List_Val => Result);
+      return Result;
    end Eval_Query;
 
    ----------------------
@@ -397,50 +406,5 @@ package body Interpreter.Evaluation is
 
       return -1;
    end Get_Field_Index;
-
-   --------------------
-   -- Compute_Bin_Op --
-   --------------------
-
-   function Compute_Bin_Op (Op : LEL.Op'Class; Left, Right : Atom) return Atom
-   is
-   begin
-      return (case Op.Kind is
-                 when LELCO.lkql_Op_Plus =>
-                    Left + Right,
-                 when LELCO.lkql_Op_Minus =>
-                    Left - Right,
-                 when LELCO.lkql_Op_Mul =>
-                    Left * Right,
-                 when LELCO.lkql_Op_Div =>
-                    Left / Right,
-                 when LELCO.lkql_Op_Eq =>
-                    Left = Right,
-                 when LELCO.lkql_Op_Neq =>
-                    Left /= Right,
-                 when LELCO.lkql_Op_And =>
-                    Left and Right,
-                 when LELCO.lkql_Op_Or =>
-                    Left or Right,
-                 when others =>
-                    raise Program_Error with
-                       "Unsupported operation kind: " & Op.Kind_Name);
-   end Compute_Bin_Op;
-
-   ------------
-   -- Reduce --
-   ------------
-
-   function Reduce
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Atom
-   is
-      Reduced : constant Primitive := Eval (Ctx, Node);
-   begin
-      if Reduced.Kind /= Kind_Atom then
-         Raise_Invalid_Type (Ctx, Node.As_LKQL_Node, "atom", Node.Kind_Name);
-      else
-         return Reduced.Atom_Val;
-      end if;
-   end Reduce;
 
 end Interpreter.Evaluation;
