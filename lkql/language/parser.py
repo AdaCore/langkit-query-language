@@ -121,6 +121,17 @@ class InClause(LKQLNode):
     list_expr = Field()
 
 
+class Indexing(LKQLNode):
+    """
+    Access to the nth element of a List or String
+
+    Ex:
+    values[0]
+    """
+    identifier = Field()
+    index = Field()
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 lkql_grammar.add_rules(
@@ -161,6 +172,7 @@ lkql_grammar.add_rules(
 
     value_expr=Or(G.dot_access,
                   G.assign,
+                  G.indexing,
                   G.identifier,
                   G.string_literal,
                   G.bool_literal,
@@ -178,5 +190,7 @@ lkql_grammar.add_rules(
 
     string_literal=StringLiteral(Token.String),
 
-    dot_access=DotAccess(G.identifier, Token.Dot, G.identifier)
+    dot_access=DotAccess(G.identifier, Token.Dot, G.identifier),
+
+    indexing=Indexing(G.identifier, Token.LBrack, G.integer, Token.RBrack)
 )

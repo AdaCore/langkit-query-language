@@ -28,6 +28,8 @@ class Token(LexerToken):
     Div = WithText()
     LPar = WithText()
     RPar = WithText()
+    LBrack = WithText()
+    RBrack = WithText()
 
 
 lkql_lexer = Lexer(Token)
@@ -45,6 +47,8 @@ lkql_lexer.add_rules(
     (Literal("/"),                                          Token.Div),
     (Literal("("),                                          Token.LPar),
     (Literal(")"),                                          Token.RPar),
+    (Literal("["),                                          Token.LBrack),
+    (Literal("]"),                                          Token.RBrack),
     (Literal("let"),                                        Token.Let),
     (Literal("query"),                                      Token.Query),
     (Literal("when"),                                       Token.When),
