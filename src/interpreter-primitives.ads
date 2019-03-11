@@ -148,22 +148,22 @@ package Interpreter.Primitives is
    --  The supported operations are: Int + Int, String + Int,
    --  String + String and String + Bool.
    --
-   --  Unsupported operations will rase an Unsupported_Error exception.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "-" (Left, Right : Primitive) return Primitive;
-   --  Subract two Primitive values.
+   --  Substract two Primitive values.
    --  The only supported operation is Int - Int.
-   --  Unsupported operations will rase an Unsupported_Error exception.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "*" (Left, Right : Primitive) return Primitive;
    --  Multiply two Primitive values.
    --  The only supported operation is Int * Int.
-   --  Unsupported operations will rase an Unsupported_Error exception.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "/" (Left, Right : Primitive) return Primitive;
    --  Divide two Primitive values.
    --  The only supported operation is Int / Int, with a non-zero denominator.
-   --  Unsupported operations will rase an Unsupported_Error exception.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "=" (Left, Right : Primitive) return Primitive;
    --  Perform a deep equality check between 'Left' and 'Right'.
