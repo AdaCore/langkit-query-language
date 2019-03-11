@@ -26,12 +26,12 @@ package Run is
    --  LKQL_Script is the name of the file containing the script and
    --  Project_Path is the project file name to load.
 
-private
-
    procedure Run_On_Files (LKQL_Script      : String;
                            Ada_Context      : LAL.Analysis_Context;
                            Files            : File_Array_Access;
                            Recovery_Enabled : Boolean := False);
+
+private
 
    function Make_LKQL_Unit (Script_Path : String) return LEL.Analysis_Unit;
 

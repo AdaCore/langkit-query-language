@@ -59,7 +59,7 @@ class InterpreterDriver(BasicTestDriver):
             project_path = ''
 
         # Build the process's arguments list
-        args = [a for a in [INTERPRETER_PATH, script_path, project_path]
+        args = [a for a in [INTERPRETER_PATH, script_path, '-p', project_path]
                 if a != '']
 
         status = TestStatus.PASS
