@@ -14,6 +14,10 @@ with Ada.Characters.Conversions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Interpreter.Evaluation is
+   subtype Field_Index is Integer range -1 .. Integer'Last;
+   --  Represents the index of an AST node's field, retrieved using the
+   --  introspection API.
+   --  -1 is used to represent invalid fields
 
    package String_Kind_Maps is new Ada.Containers.Hashed_Maps
      (Key_Type        => Unbounded_Text_Type,
@@ -64,7 +68,9 @@ package body Interpreter.Evaluation is
      (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
 
    function Get_Field_Index
-     (Name : Text_Type; Node : LAL.Ada_Node) return Integer;
+     (Name : Text_Type; Node : LAL.Ada_Node) return Field_Index;
+   --  Return the index of 'Node's field named 'Name', or -1 if there is no
+   --  field matching the given name.
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
      with Pre => Name'Length > 4 and then
@@ -482,7 +488,7 @@ package body Interpreter.Evaluation is
    ---------------------
 
    function Get_Field_Index
-     (Name : Text_Type; Node : LAL.Ada_Node) return Integer
+     (Name : Text_Type; Node : LAL.Ada_Node) return Field_Index
    is
       UTF8_Name : constant String := To_UTF8 (Name);
    begin
