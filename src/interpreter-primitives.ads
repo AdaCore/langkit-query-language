@@ -1,10 +1,17 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Vectors;
+with Ada.Unchecked_Deallocation;
+
+with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 
 package Interpreter.Primitives is
 
    type Primitive_List;
+   --  List of Primitive Values
+
+   type Primitive_List_Access is access Primitive_List;
+   --  Pointer to a list of Primitive values
 
    type Primitive_Kind is
      (Kind_Unit,
@@ -28,7 +35,8 @@ package Interpreter.Primitives is
    );
    --  Denotes the kind of a primitive value.
 
-   type Primitive (Kind : Primitive_Kind := Kind_Unit) is record
+   type Primitive_Data (Kind : Primitive_Kind) is
+     new Refcounted with record
       case Kind is
          when Kind_Unit =>
             null;
@@ -41,11 +49,22 @@ package Interpreter.Primitives is
          when Kind_Node =>
             Node_Val : LAL.Ada_Node;
          when Kind_List =>
-            List_Val : access Primitive_List;
+            List_Val : Primitive_List_Access;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
    --  (Bool, Int, ...), an AST node, or a list of Primitive values.
+
+   procedure Release (Data : in out Primitive_Data);
+   --  Release if data is of Kind Kind_List, free the list's memory
+
+   package Primitive_Ptrs is
+     new GNATCOLL.Refcount.Shared_Pointers
+       (Element_Type => Primitive_Data,
+        Release      => Release);
+   use Primitive_Ptrs;
+
+   subtype Primitive is Primitive_Ptrs.Ref;
 
    package Primitive_Vectors is new
      Ada.Containers.Vectors (Index_Type   => Positive,
@@ -53,17 +72,23 @@ package Interpreter.Primitives is
 
    type Primitive_List is record
       Elements_Kind : Primitive_Kind;
+      --  Kind of the elemnts stored in the list
       Elements      : Primitive_Vectors.Vector;
+      --  Vector that holds the actual elemnts
    end record;
+   --  List of primitive values.
 
-   Unit_Constant : constant Primitive := (Kind => Kind_Unit);
-   --  Unit constant, used to materialize the absence of meaningful value
+   procedure Free_Primitive_List is
+     new Ada.Unchecked_Deallocation (Primitive_List, Primitive_List_Access);
 
    Unsupported_Error : exception;
 
    ----------------------------------
    -- Creation of Primitive values --
    ----------------------------------
+
+   function Make_Unit_Primitive return Primitive_Ptrs.Ref;
+   --  Create a Unit Primitive value
 
    function To_Primitive (Val : Integer) return Primitive;
    --  Create a Primitive value from the Integer value
@@ -141,7 +166,7 @@ package Interpreter.Primitives is
    --  Unsupported operations will rase an Unsupported_Error exception.
 
    function "=" (Left, Right : Primitive) return Primitive;
-   --  Test equality between two Primitive values.
+   --  Perform a deep equality check between 'Left' and 'Right'.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
 
@@ -149,7 +174,6 @@ package Interpreter.Primitives is
    --  Test inequality between two Primitive values.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
-
 private
 
    function "+" (Left : Integer; Right : Primitive) return Primitive;
