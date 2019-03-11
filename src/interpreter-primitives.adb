@@ -63,7 +63,7 @@ package body Interpreter.Primitives is
    begin
       if Value.Get.Kind /= Expected_Kind then
          raise Unsupported_Error
-           with "Expected " & Kind_Name (Value) & " but got " &
+           with "Expected " & To_String (Expected_Kind) & " but got " &
                 To_String (Value.Get.Kind);
       end if;
    end Check_Kind;
