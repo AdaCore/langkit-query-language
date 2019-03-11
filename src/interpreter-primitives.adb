@@ -260,51 +260,9 @@ package body Interpreter.Primitives is
 
    function "+" (Left, Right : Primitive) return Primitive is
    begin
-      return (case Left.Get.Kind is
-                 when Kind_Int =>
-                   Left.Get.Int_Val + Right,
-                 when Kind_Str =>
-                   Left.Get.Str_Val + Right,
-                 when others =>
-                    raise Unsupported_Error
-                      with "Wrong left operand for '+': " &
-                           Kind_Name (Left));
-   end "+";
-
-   ---------
-   -- "+" --
-   ---------
-
-   function "+" (Left : Integer; Right : Primitive) return Primitive is
-   begin
-      case Right.Get.Kind is
-         when Kind_Int =>
-            return To_Primitive (Left + Right.Get.Int_Val);
-         when others =>
-            raise Unsupported_Error
-              with "Cannot add a " & To_String (Right.Get.Kind) & " to an Int";
-      end case;
-   end "+";
-
-   ---------
-   -- "+" --
-   ---------
-
-   function "+"
-     (Left : Unbounded_Text_Type; Right : Primitive) return Primitive is
-   begin
-      return
-        (case Right.Get.Kind is
-            when Kind_Int =>
-              To_Primitive (Left & Int_Image (Right.Get.Int_Val)),
-            when Kind_Str =>
-              To_Primitive (Left & Right.Get.Str_Val),
-            when Kind_Bool =>
-              To_Primitive (Left & To_Unbounded_Text (Right)),
-            when others =>
-               raise Unsupported_Error
-                 with "Cannot add a " & To_String (Right.Get.Kind) &
-                      " to a Str");
+      Check_Kind (Kind_Int, Left);
+      Check_Kind (Kind_Int, Right);
+      return To_Primitive (Left.Get.Int_Val + Right.Get.Int_Val);
    end "+";
 
    ---------
@@ -370,5 +328,30 @@ package body Interpreter.Primitives is
    begin
       return To_Primitive (not Eq.Get.Bool_Val);
    end "/=";
+
+   ---------
+   -- "&" --
+   ---------
+
+   function "&" (Left, Right : Primitive) return Primitive is
+      Result : Unbounded_Text_Type;
+   begin
+      Check_Kind (Kind_Str, Left);
+
+      case Right.Get.Kind is
+         when Kind_Int =>
+            Result := Left.Get.Str_Val & Int_Image (Right.Get.Int_Val);
+         when Kind_Str =>
+            Result := Left.Get.Str_Val & Right.Get.Str_Val;
+         when Kind_Bool =>
+            Result := Left.Get.Str_Val & Bool_Image (Right.Get.Bool_Val);
+         when others =>
+            raise Unsupported_Error
+               with "Cannot add a " & To_String (Right.Get.Kind) &
+                    " to a Str";
+      end case;
+
+      return To_Primitive (Result);
+   end "&";
 
 end Interpreter.Primitives;

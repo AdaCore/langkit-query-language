@@ -1,0 +1,13 @@
+BinOp
+|left:
+|  StringLiteral: "Hello"
+|op:
+|  OpConcat
+|right:
+|  BinOp
+|  |left:
+|  |  Integer: 39
+|  |op:
+|  |  OpPlus
+|  |right:
+|  |  Integer: 3

@@ -144,10 +144,7 @@ package Interpreter.Primitives is
 
    function "+" (Left, Right : Primitive) return Primitive;
    --  Add two Primitive values together.
-   --
-   --  The supported operations are: Int + Int, String + Int,
-   --  String + String and String + Bool.
-   --
+   --  The only supported operation is Int + Int.
    --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "-" (Left, Right : Primitive) return Primitive;
@@ -174,10 +171,10 @@ package Interpreter.Primitives is
    --  Test inequality between two Primitive values.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
-private
 
-   function "+" (Left : Integer; Right : Primitive) return Primitive;
-   function "+"
-     (Left : Unbounded_Text_Type; Right : Primitive) return Primitive;
+   function "&" (Left, Right : Primitive) return Primitive;
+   --  Concatenate a Primitive value to a Str Primitive.
+   --  The supported operations are: Str & Int, Str & Str, Str & Bool.
+   --  Unsupported operations will raise an Unsupported_Error exception.
 
 end Interpreter.Primitives;
