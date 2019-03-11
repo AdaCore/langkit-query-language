@@ -139,7 +139,7 @@ package body Interpreter.Evaluation is
                          Value         : Primitive)
    is
    begin
-      if Value.Kind /= Expected_Kind then
+      if Value.Get.Kind /= Expected_Kind then
          Raise_Invalid_Kind (Ctx, Node, Expected_Kind, Value);
       end if;
    end Check_Kind;
@@ -192,7 +192,7 @@ package body Interpreter.Evaluation is
       Result : Primitive;
    begin
       if Node.Children'Length = 0 then
-         return Unit_Constant;
+         return Make_Unit_Primitive;
       end if;
 
       for Child of Node.Children loop
@@ -217,7 +217,7 @@ package body Interpreter.Evaluation is
         To_Unbounded_Text (Node.F_Identifier.Text);
    begin
       Ctx.Env.Include (Identifier, Eval (Ctx, Node.F_Value));
-      return Unit_Constant;
+      return Make_Unit_Primitive;
    end Eval_Assign;
 
    ---------------------
@@ -273,7 +273,7 @@ package body Interpreter.Evaluation is
    is
    begin
       Display (Eval (Ctx, Node.F_Value));
-      return Unit_Constant;
+      return Make_Unit_Primitive;
    end Eval_Print;
 
    -----------------
@@ -313,7 +313,7 @@ package body Interpreter.Evaluation is
                  when LELCO.lkql_Op_Div =>
                     Left / Right,
                  when LELCO.lkql_Op_Eq =>
-                    Left = Right,
+                    "=" (Left, Right),
                  when LELCO.lkql_Op_Neq =>
                     Left /= Right,
                  when others =>
@@ -336,9 +336,9 @@ package body Interpreter.Evaluation is
    begin
       Check_Kind (Ctx, Node.F_Left, Kind_Bool, Left);
 
-      if Op_Kind = LELCO.lkql_Op_And and then not Left.Bool_Val then
+      if Op_Kind = LELCO.lkql_Op_And and then not Left.Get.Bool_Val then
          return To_Primitive (False);
-      elsif Op_Kind = LELCO.lkql_Op_Or and then Left.Bool_Val then
+      elsif Op_Kind = LELCO.lkql_Op_Or and then Left.Get.Bool_Val then
          return To_Primitive (True);
       end if;
 
@@ -347,9 +347,10 @@ package body Interpreter.Evaluation is
 
       return (case Op_Kind is
                  when LELCO.lkql_Op_And =>
-                   To_Primitive (Left.Bool_Val and then Right.Bool_Val),
+                   To_Primitive (Left.Get.Bool_Val and then
+                                 Right.Get.Bool_Val),
                  when LELCO.lkql_Op_Or =>
-                   To_Primitive (Left.Bool_Val or else Right.Bool_Val),
+                   To_Primitive (Left.Get.Bool_Val or else Right.Get.Bool_Val),
                  when others =>
                     raise Program_Error with
                       "Not a short-circuit operator kind: " &
@@ -367,17 +368,17 @@ package body Interpreter.Evaluation is
       Member_Name : constant Text_Type := Node.F_Member.Text;
       Field_Index : Integer;
    begin
-      if Receiver.Kind /= Kind_Node then
+      if Receiver.Get.Kind /= Kind_Node then
          Raise_Invalid_Member (Ctx, Node, Receiver);
       end if;
 
-      Field_Index := Get_Field_Index (Member_Name, Receiver.Node_Val);
+      Field_Index := Get_Field_Index (Member_Name, Receiver.Get.Node_Val);
 
       if Field_Index = -1 then
          Raise_Invalid_Member (Ctx, Node, Receiver);
       end if;
 
-      return To_Primitive (Receiver.Node_Val.Children (Field_Index));
+      return To_Primitive (Receiver.Get.Node_Val.Children (Field_Index));
    end Eval_Dot_Access;
 
    -------------
@@ -389,7 +390,7 @@ package body Interpreter.Evaluation is
    is
       Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
-      if Tested_Node.Kind /= Kind_Node then
+      if Tested_Node.Get.Kind /= Kind_Node then
          Raise_Invalid_Is_Operand (Ctx, Node.F_Node_Expr, Tested_Node);
       end if;
 
@@ -397,7 +398,7 @@ package body Interpreter.Evaluation is
          Expected_Kind : constant LALCO.Ada_Node_Kind_Type
            := To_Ada_Node_Kind (To_Unbounded_Text (Node.F_Kind_Name.Text));
          Kind_Match    : constant Boolean :=
-           Tested_Node.Node_Val.Kind = Expected_Kind;
+           Tested_Node.Get.Node_Val.Kind = Expected_Kind;
       begin
          return To_Primitive (Kind_Match);
       end;
@@ -446,7 +447,7 @@ package body Interpreter.Evaluation is
                         Kind_Bool,
                         When_Clause_Result);
 
-            if When_Clause_Result = To_Primitive (True) then
+            if When_Clause_Result.Get.Bool_Val then
                Append (Result, To_Primitive (Current_Node));
             end if;
          exception

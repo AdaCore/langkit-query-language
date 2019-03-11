@@ -61,20 +61,47 @@ package body Interpreter.Primitives is
 
    procedure Check_Kind (Expected_Kind : Primitive_Kind; Value : Primitive) is
    begin
-      if Value.Kind /= Expected_Kind then
+      if Value.Get.Kind /= Expected_Kind then
          raise Unsupported_Error
            with "Expected " & Kind_Name (Value) & " but got " &
-                To_String (Value.Kind);
+                To_String (Value.Get.Kind);
       end if;
    end Check_Kind;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (Data : in out Primitive_Data) is
+   begin
+      if Data.Kind /= Kind_List then
+         return;
+      end if;
+
+      Free_Primitive_List (Data.List_Val);
+   end Release;
+
+   -------------------------
+   -- Make_Unit_Primitive --
+   -------------------------
+
+   function Make_Unit_Primitive return Primitive is
+      Ref : Primitive;
+   begin
+      Ref.Set (Primitive_Data'(Refcounted with Kind => Kind_Unit));
+      return Ref;
+   end Make_Unit_Primitive;
 
    ------------------
    -- To_Primitive --
    ------------------
 
    function To_Primitive (Val : Integer) return Primitive is
+      Ref : Primitive;
    begin
-      return (Kind => Kind_Int, Int_Val => Val);
+      Ref.Set
+        (Primitive_Data'(Refcounted with Kind => Kind_Int, Int_Val => Val));
+      return Ref;
    end To_Primitive;
 
    ------------------
@@ -82,8 +109,11 @@ package body Interpreter.Primitives is
    ------------------
 
    function To_Primitive (Val : Unbounded_Text_Type) return Primitive is
+      Ref : Primitive;
    begin
-      return (Kind => Kind_Str, Str_Val => Val);
+      Ref.Set
+        (Primitive_Data'(Refcounted with Kind => Kind_Str, Str_Val => Val));
+      return Ref;
    end To_Primitive;
 
    ------------------
@@ -91,8 +121,11 @@ package body Interpreter.Primitives is
    ------------------
 
    function To_Primitive (Val : Boolean) return Primitive is
+      Ref : Primitive;
    begin
-      return (Kind => Kind_Bool, Bool_Val => Val);
+      Ref.Set
+        (Primitive_Data'(Refcounted with Kind => Kind_Bool, Bool_Val => Val));
+      return Ref;
    end To_Primitive;
 
    ------------------
@@ -100,8 +133,11 @@ package body Interpreter.Primitives is
    ------------------
 
    function To_Primitive (Val : LAL.Ada_Node) return Primitive is
+      Ref : Primitive;
    begin
-      return (Kind => Kind_Node, Node_Val => Val);
+      Ref.Set
+        (Primitive_Data'(Refcounted with Kind => Kind_Node, Node_Val => Val));
+      return Ref;
    end To_Primitive;
 
    ---------------------
@@ -109,12 +145,14 @@ package body Interpreter.Primitives is
    ---------------------
 
    function Make_Empty_List (Kind : Primitive_Kind) return Primitive is
-      List : constant access Primitive_List :=
+      Ref  : Primitive;
+      List : constant Primitive_List_Access :=
         new Primitive_List'(Elements_Kind => Kind,
                             Elements      => Primitive_Vectors.Empty_Vector);
    begin
-      return (Kind     => Kind_List,
-              List_Val => List);
+      Ref.Set (Primitive_Data'(Refcounted with Kind     => Kind_List,
+                                               List_Val => List));
+      return Ref;
    end Make_Empty_List;
 
    ------------
@@ -124,8 +162,8 @@ package body Interpreter.Primitives is
    procedure Append (List, Element : Primitive) is
    begin
       Check_Kind (Kind_List, List);
-      Check_Kind (List.List_Val.Elements_Kind, Element);
-      List.List_Val.Elements.Append (Element);
+      Check_Kind (List.Get.List_Val.Elements_Kind, Element);
+      List.Get.List_Val.Elements.Append (Element);
    end Append;
 
    --------------
@@ -135,8 +173,18 @@ package body Interpreter.Primitives is
    function Contains (List, Value : Primitive) return Boolean is
    begin
       Check_Kind (Kind_List, List);
-      Check_Kind (List.List_Val.Elements_Kind, Value);
-      return List.List_Val.Elements.Contains (Value);
+      Check_Kind (List.Get.List_Val.Elements_Kind, Value);
+
+      --  Since we're using smart pointers, the "=" function used by
+      --  Vector.Contains checks referencial equality instead of structural
+      --  equality. So the iteration "has" to be done manually.
+      for Elem of List.Get.List_Val.Elements loop
+         if Elem.Get = Value.Get then
+            return True;
+         end if;
+      end loop;
+
+      return False;
    end Contains;
 
    -----------------------
@@ -145,13 +193,19 @@ package body Interpreter.Primitives is
 
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type is
    begin
-      return (case Val.Kind is
-                 when Kind_Unit => To_Unbounded_Text (To_Text ("()")),
-                 when Kind_Int  => Int_Image (Val.Int_Val),
-                 when Kind_Str  => Val.Str_Val,
-                 when Kind_Bool => Bool_Image (Val.Bool_Val),
-                 when Kind_Node => To_Unbounded_Text (Val.Node_Val.Text_Image),
-                 when Kind_List => List_Image (Val.List_Val.all));
+      return (case Val.Get.Kind is
+                 when Kind_Unit =>
+                   To_Unbounded_Text (To_Text ("()")),
+                 when Kind_Int  =>
+                   Int_Image (Val.Get.Int_Val),
+                 when Kind_Str  =>
+                   Val.Get.Str_Val,
+                 when Kind_Bool =>
+                   Bool_Image (Val.Get.Bool_Val),
+                 when Kind_Node =>
+                   To_Unbounded_Text (Val.Get.Node_Val.Text_Image),
+                 when Kind_List =>
+                   List_Image (Val.Get.List_Val.all));
    end To_Unbounded_Text;
 
    ---------------
@@ -175,7 +229,7 @@ package body Interpreter.Primitives is
 
    function Kind_Name (Value : Primitive) return String is
    begin
-      return (case Value.Kind is
+      return (case Value.Get.Kind is
                  when Kind_Unit =>
                    "Unit",
                  when Kind_Int =>
@@ -185,10 +239,10 @@ package body Interpreter.Primitives is
                  when Kind_Bool =>
                    "Bool",
                  when Kind_Node =>
-                   LAL.Kind_Name (Value.Node_Val),
+                   LAL.Kind_Name (Value.Get.Node_Val),
                  when Kind_List =>
-                   To_String (Value.Kind) & '[' &
-                   To_String (Value.List_Val.Elements_Kind) & ']');
+                   To_String (Value.Get.Kind) & '[' &
+                   To_String (Value.Get.List_Val.Elements_Kind) & ']');
    end Kind_Name;
 
    -------------
@@ -206,11 +260,11 @@ package body Interpreter.Primitives is
 
    function "+" (Left, Right : Primitive) return Primitive is
    begin
-      return (case Left.Kind is
+      return (case Left.Get.Kind is
                  when Kind_Int =>
-                   Left.Int_Val + Right,
+                   Left.Get.Int_Val + Right,
                  when Kind_Str =>
-                   Left.Str_Val + Right,
+                   Left.Get.Str_Val + Right,
                  when others =>
                     raise Unsupported_Error
                       with "Wrong left operand for '+': " &
@@ -223,12 +277,12 @@ package body Interpreter.Primitives is
 
    function "+" (Left : Integer; Right : Primitive) return Primitive is
    begin
-      case Right.Kind is
+      case Right.Get.Kind is
          when Kind_Int =>
-            return To_Primitive (Left + Right.Int_Val);
+            return To_Primitive (Left + Right.Get.Int_Val);
          when others =>
             raise Unsupported_Error
-              with "Cannot add a " & To_String (Right.Kind) & " to an Int";
+              with "Cannot add a " & To_String (Right.Get.Kind) & " to an Int";
       end case;
    end "+";
 
@@ -240,16 +294,17 @@ package body Interpreter.Primitives is
      (Left : Unbounded_Text_Type; Right : Primitive) return Primitive is
    begin
       return
-        (case Right.Kind is
+        (case Right.Get.Kind is
             when Kind_Int =>
-              To_Primitive (Left & Int_Image (Right.Int_Val)),
+              To_Primitive (Left & Int_Image (Right.Get.Int_Val)),
             when Kind_Str =>
-              To_Primitive (Left & Right.Str_Val),
+              To_Primitive (Left & Right.Get.Str_Val),
             when Kind_Bool =>
               To_Primitive (Left & To_Unbounded_Text (Right)),
             when others =>
                raise Unsupported_Error
-                 with "Cannot add a " & To_String (Right.Kind) & " to a Str");
+                 with "Cannot add a " & To_String (Right.Get.Kind) &
+                      " to a Str");
    end "+";
 
    ---------
@@ -260,7 +315,7 @@ package body Interpreter.Primitives is
    begin
       Check_Kind (Kind_Int, Left);
       Check_Kind (Kind_Int, Right);
-      return To_Primitive (Left.Int_Val - Right.Int_Val);
+      return To_Primitive (Left.Get.Int_Val - Right.Get.Int_Val);
    end "-";
 
    ---------
@@ -271,7 +326,7 @@ package body Interpreter.Primitives is
    begin
       Check_Kind (Kind_Int, Left);
       Check_Kind (Kind_Int, Right);
-      return To_Primitive (Left.Int_Val * Right.Int_Val);
+      return To_Primitive (Left.Get.Int_Val * Right.Get.Int_Val);
    end "*";
 
    --------
@@ -283,11 +338,11 @@ package body Interpreter.Primitives is
       Check_Kind (Kind_Int, Left);
       Check_Kind (Kind_Int, Right);
 
-      if Right.Int_Val = 0 then
+      if Right.Get.Int_Val = 0 then
          raise Unsupported_Error with "Zero division";
       end if;
 
-      return To_Primitive (Left.Int_Val / Right.Int_Val);
+      return To_Primitive (Left.Get.Int_Val / Right.Get.Int_Val);
    end "/";
 
    ---------
@@ -296,13 +351,14 @@ package body Interpreter.Primitives is
 
    function "=" (Left, Right : Primitive) return Primitive is
    begin
-      if Left.Kind /= Right.Kind then
+      if Left.Get.Kind /= Right.Get.Kind then
          raise Unsupported_Error
            with "Cannot check equality between a " &
-                To_String (Left.Kind) & " and a " & To_String (Right.Kind);
+             To_String (Left.Get.Kind) & " and a " &
+             To_String (Right.Get.Kind);
       end if;
 
-      return To_Primitive (Left = Right);
+      return To_Primitive (Left.Get = Right.Get);
    end "=";
 
    ----------
@@ -312,7 +368,7 @@ package body Interpreter.Primitives is
    function "/=" (Left, Right : Primitive) return Primitive is
       Eq : constant Primitive := Left = Right;
    begin
-      return (Kind => Kind_Bool, Bool_Val => not Eq.Bool_Val);
+      return To_Primitive (not Eq.Get.Bool_Val);
    end "/=";
 
 end Interpreter.Primitives;
