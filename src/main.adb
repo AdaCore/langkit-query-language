@@ -36,7 +36,7 @@ procedure Main is
 
       package Project_Path is new Parse_Option
         (Parser      => Parser,
-         Long        => "project",
+         Long        => "--project",
          Short       => "-p",
          Arg_Type    => Unbounded_String,
          Default_Val => Null_Unbounded_String,
@@ -45,7 +45,7 @@ procedure Main is
       package Auto_Dirs is new Parse_Option_List
         (Parser => Parser,
          Short  => "-a",
-         Long   => "auto_dirs",
+         Long   => "--auto_dirs",
          Arg_Type => Unbounded_String,
          Accumulate => True,
          Help       =>
