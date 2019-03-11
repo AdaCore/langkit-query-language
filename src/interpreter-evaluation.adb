@@ -310,12 +310,13 @@ package body Interpreter.Evaluation is
       Right  : constant Primitive := Eval (Ctx, Node.F_Right);
    begin
       return (case Node.F_Op.Kind is
-              when LELCO.lkql_Op_Plus  => Left + Right,
-              when LELCO.lkql_Op_Minus => Left - Right,
-              when LELCO.lkql_Op_Mul   => Left * Right,
-              when LELCO.lkql_Op_Div   => Left / Right,
-              when LELCO.lkql_Op_Eq    => "=" (Left, Right),
-              when LELCO.lkql_Op_Neq   => Left /= Right,
+              when LELCO.lkql_Op_Plus   => Left + Right,
+              when LELCO.lkql_Op_Minus  => Left - Right,
+              when LELCO.lkql_Op_Mul    => Left * Right,
+              when LELCO.lkql_Op_Div    => Left / Right,
+              when LELCO.lkql_Op_Eq     => "=" (Left, Right),
+              when LELCO.lkql_Op_Neq    => Left /= Right,
+              when LELCO.lkql_Op_Concat => Left & Right,
               when others =>
                  raise Program_Error with
                    "Not a non-short-cirtcuit operator kind: " &

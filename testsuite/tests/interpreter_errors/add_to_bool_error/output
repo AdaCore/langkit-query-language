@@ -1,2 +1,2 @@
 main.adb
-raised INTERPRETER.PRIMITIVES.UNSUPPORTED_ERROR : Wrong left operand for '+': Bool
+raised INTERPRETER.PRIMITIVES.UNSUPPORTED_ERROR : Expected Int but got Bool

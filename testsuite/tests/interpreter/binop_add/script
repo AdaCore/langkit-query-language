@@ -1,4 +1,1 @@
 print (40 + 2)
-print ("Hello " + "World")
-print ("Hello " + 42)
-print ("Hello " + true)

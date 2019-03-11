@@ -26,6 +26,7 @@ class Token(LexerToken):
     Minus = WithText()
     Mul = WithText()
     Div = WithText()
+    Amp = WithText()
     LPar = WithText()
     RPar = WithText()
     LBrack = WithText()
@@ -45,6 +46,7 @@ lkql_lexer.add_rules(
     (Literal("-"),                                          Token.Minus),
     (Literal("*"),                                          Token.Mul),
     (Literal("/"),                                          Token.Div),
+    (Literal("&"),                                          Token.Amp),
     (Literal("("),                                          Token.LPar),
     (Literal(")"),                                          Token.RPar),
     (Literal("["),                                          Token.LBrack),
