@@ -122,6 +122,10 @@ package Interpreter.Primitives is
    --  Kind_List, or if the kind of `Value` doesn't match the kind of the
    --  values stored in `List`.
 
+   function Get (List : Primitive; Index : Integer) return Primitive;
+   --  Return the element of 'List' at 'Index'.
+   --  Raise an Unsupported_Error exception if 'Index' is out of bounds.
+
    ------------------------------
    -- Text conversion & output --
    ------------------------------
