@@ -173,7 +173,7 @@ lkql_grammar.add_rules(
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(G.dot_access,
+    value_expr=Or(DotAccess(G.value_expr, Token.Dot, G.identifier),
                   G.assign,
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
                   G.identifier,
@@ -192,8 +192,4 @@ lkql_grammar.add_rules(
                     BoolLiteral.alt_false(Token.FalseLit)),
 
     string_literal=StringLiteral(Token.String),
-
-    dot_access=DotAccess(G.identifier, Token.Dot, G.identifier),
-
-    indexing=Indexing(G.expr, Token.LBrack, G.expr, Token.RBrack)
 )

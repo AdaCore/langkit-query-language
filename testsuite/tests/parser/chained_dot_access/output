@@ -1,0 +1,9 @@
+DotAccess
+|receiver:
+|  DotAccess
+|  |receiver:
+|  |  Identifier: receiver
+|  |member:
+|  |  Identifier: member1
+|member:
+|  Identifier: member2
