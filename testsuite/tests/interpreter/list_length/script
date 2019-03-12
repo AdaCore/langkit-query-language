@@ -1,0 +1,2 @@
+let o = query o when o is ObjectDecl
+print(o.length)

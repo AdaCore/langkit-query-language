@@ -1,3 +1,5 @@
+with Libadalang.Introspection; use Libadalang.Introspection;
+
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
@@ -5,6 +7,11 @@ use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with GNAT.Case_Util;
 
 package body Interpreter.Primitives is
+   subtype Field_Index is Integer range -1 .. Integer'Last;
+   --  Represents the index of an AST node's field, retrieved using the
+   --  introspection API.
+   --  -1 is used to represent invalid fields
+
    function Int_Image (Value : Integer) return Unbounded_Text_Type;
    --  Wraps the Integer'Wide_Wide_Image function, removing the leading space
 
@@ -17,6 +24,32 @@ package body Interpreter.Primitives is
    procedure Check_Kind (Expected_Kind : Primitive_Kind; Value : Primitive);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
    --  Expected_Kind.
+
+   function Get_Field_Index
+     (Name : Text_Type; Node : LAL.Ada_Node) return Field_Index;
+   --  Return the index of 'Node's field named 'Name', or -1 if there is no
+   --  field matching the given name.
+
+   function List_Property (Value : Primitive_List_Access;
+                           Property_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Property_Name' of the given
+   --  Primitive List.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
+
+   function Str_Property
+     (Value : Unbounded_Text_Type; Property_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Property_Name' of the given
+   --  Str value.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
+
+   function Node_Property
+     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Property_Name' of the given
+   --  Node value.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
 
    ---------------
    -- Int_Image --
@@ -68,6 +101,24 @@ package body Interpreter.Primitives is
       end if;
    end Check_Kind;
 
+   ---------------------
+   -- Get_Field_Index --
+   ---------------------
+
+   function Get_Field_Index
+     (Name : Text_Type; Node : LAL.Ada_Node) return Field_Index
+   is
+      UTF8_Name : constant String := To_UTF8 (Name);
+   begin
+      for F of Fields (Node.Kind) loop
+         if Field_Name (F) = UTF8_Name then
+            return Index (Node.Kind, F);
+         end if;
+      end loop;
+
+      return -1;
+   end Get_Field_Index;
+
    -------------
    -- Release --
    -------------
@@ -80,6 +131,81 @@ package body Interpreter.Primitives is
 
       Free_Primitive_List (Data.List_Val);
    end Release;
+
+   -------------------
+   -- List_Property --
+   -------------------
+
+   function List_Property (Value : Primitive_List_Access;
+                           Property_Name : Text_Type) return Primitive
+   is
+   begin
+      if Property_Name = "length" then
+         return To_Primitive (Integer (Value.Elements.Length));
+      else
+         raise Unsupported_Error with
+           "No property named " & To_UTF8 (Property_Name) &
+           " on values of kind " & To_String (Kind_List);
+      end if;
+   end List_Property;
+
+   ------------------
+   -- Str_Property --
+   ------------------
+
+   function Str_Property
+     (Value : Unbounded_Text_Type; Property_Name : Text_Type) return Primitive
+   is
+   begin
+      if Property_Name = "length" then
+         return To_Primitive (Length (Value));
+      else
+         raise Unsupported_Error with
+           "No property named " & To_UTF8 (Property_Name) &
+           " on values of kind " & To_String (Kind_Str);
+      end if;
+   end Str_Property;
+
+   -------------------
+   -- Node_Property --
+   -------------------
+
+   function Node_Property
+     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
+   is
+      Index : constant Field_Index :=
+        Get_Field_Index (Property_Name, Value);
+   begin
+
+      if Index = -1 then
+         raise Unsupported_Error with
+           "No field named " & To_UTF8 (Property_Name) &
+           " on values of kind " & To_String (Kind_Node);
+      end if;
+
+      return To_Primitive (Value.Children (Index));
+   end Node_Property;
+
+   --------------
+   -- Property --
+   --------------
+
+   function Property
+     (Value : Primitive; Property_Name : Text_Type) return Primitive
+   is
+   begin
+      return (case Value.Get.Kind is
+                 when Kind_List =>
+                   List_Property (Value.Get.List_Val, Property_Name),
+                 when Kind_Str =>
+                   Str_Property (Value.Get.Str_Val, Property_Name),
+                 when Kind_Node =>
+                   Node_Property (Value.Get.Node_Val, Property_Name),
+                 when others =>
+                    raise Unsupported_Error with
+                      "Values of kind " & To_String (Value.Get.Kind) &
+                      " dont have properties");
+   end Property;
 
    -------------------------
    -- Make_Unit_Primitive --
