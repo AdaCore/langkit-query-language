@@ -13,8 +13,7 @@ package String_Utils is
 
    function Underline_Range (Line  : Unbounded_Text_Type;
                              Start : Positive;
-                             Stop  : Positive) return Unbounded_Text_Type
-     with Pre => Stop <= Length (Line);
+                             Stop  : Positive) return Unbounded_Text_Type;
    --  Return Line plus a new line character and a sequence characters so that
    --  all non-whitespace columns between `Start` and `Stop` (included) are '^'
    --  and the other columns are spaces.
