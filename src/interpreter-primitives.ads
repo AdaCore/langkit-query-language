@@ -83,6 +83,13 @@ package Interpreter.Primitives is
 
    Unsupported_Error : exception;
 
+   function Property
+     (Value : Primitive; Property_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Property_Name' of the given
+   --  Primitive value.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
+
    ----------------------------------
    -- Creation of Primitive values --
    ----------------------------------
