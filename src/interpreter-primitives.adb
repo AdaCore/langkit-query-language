@@ -187,6 +187,23 @@ package body Interpreter.Primitives is
       return False;
    end Contains;
 
+   ---------
+   -- Get --
+   ---------
+
+   function Get (List : Primitive; Index : Integer) return Primitive is
+      Vec : Primitive_Vectors.Vector renames List.Get.List_Val.Elements;
+   begin
+      Check_Kind (Kind_List, List);
+
+      if Index not in Vec.First_Index .. Vec.Last_Index then
+         raise Unsupported_Error
+           with "Invalid index: " & Integer'Image (Index);
+      end if;
+
+      return Vec.Element (Positive (Index));
+   end Get;
+
    -----------------------
    -- To_Unbounded_Text --
    -----------------------

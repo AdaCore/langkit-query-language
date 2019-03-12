@@ -64,6 +64,9 @@ package body Interpreter.Evaluation is
    function Eval_Query
      (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
 
+   function Eval_Indexing
+     (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive;
+
    function To_Ada_Node_Kind
      (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
 
@@ -183,6 +186,8 @@ package body Interpreter.Evaluation is
                    Eval_In (Ctx, Node.As_In_Clause),
                  when LELCO.lkql_Query =>
                    Eval_Query (Ctx, Node.As_Query),
+                 when LELCO.lkql_Indexing =>
+                   Eval_Indexing (Ctx, Node.As_Indexing),
                  when others =>
                     raise Program_Error
                       with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -465,6 +470,20 @@ package body Interpreter.Evaluation is
 
       return Result;
    end Eval_Query;
+
+   -------------------
+   -- Eval_Indexing --
+   -------------------
+
+   function Eval_Indexing
+     (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive
+   is
+      Index : constant Primitive := Eval (Ctx, Node.F_Index_Expr);
+      List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
+   begin
+      Check_Kind (Ctx, Node.F_Index_Expr, Kind_Int, Index);
+      return Get (List, Index.Get.Int_Val);
+   end Eval_Indexing;
 
    ----------------------
    -- To_Ada_Node_Kind --
