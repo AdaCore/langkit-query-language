@@ -26,7 +26,7 @@ package body Interpreter.Evaluation is
       Equivalent_Keys => "=");
 
    function Eval_List
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node_List) return Primitive;
+     (Ctx : in out Eval_Context; Node : LEL.Expr_List) return Primitive;
 
    function Eval_Assign
      (Ctx : in out Eval_Context; Node : LEL.Assign) return Primitive;
@@ -162,8 +162,8 @@ package body Interpreter.Evaluation is
    is
    begin
       return (case Node.Kind is
-                 when LELCO.lkql_LKQL_Node_List =>
-                   Eval_List (Ctx, Node.As_LKQL_Node_List),
+                 when LELCO.lkql_Expr_List =>
+                   Eval_List (Ctx, Node.As_Expr_List),
                  when LELCO.lkql_Assign =>
                    Eval_Assign (Ctx, Node.As_Assign),
                  when LELCO.lkql_Identifier =>
@@ -198,7 +198,7 @@ package body Interpreter.Evaluation is
    ---------------
 
    function Eval_List
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node_List) return Primitive
+     (Ctx : in out Eval_Context; Node : LEL.Expr_List) return Primitive
    is
       Result : Primitive;
    begin
@@ -340,7 +340,7 @@ package body Interpreter.Evaluation is
       Right   : Primitive;
       Op_Kind : constant LELCO.LKQL_Node_Kind_Type := Node.F_Op.Kind;
    begin
-      Check_Kind (Ctx, Node.F_Left, Kind_Bool, Left);
+      Check_Kind (Ctx, Node.F_Left.As_LKQL_Node, Kind_Bool, Left);
 
       if Op_Kind = LELCO.lkql_Op_And and then not Left.Get.Bool_Val then
          return To_Primitive (False);
@@ -349,7 +349,7 @@ package body Interpreter.Evaluation is
       end if;
 
       Right := Eval (Ctx, Node.F_Right);
-      Check_Kind (Ctx, Node.F_Right, Kind_Bool, Right);
+      Check_Kind (Ctx, Node.F_Right.As_LKQL_Node, Kind_Bool, Right);
 
       return (case Op_Kind is
                  when LELCO.lkql_Op_And =>
@@ -397,7 +397,8 @@ package body Interpreter.Evaluation is
       Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
       if Tested_Node.Get.Kind /= Kind_Node then
-         Raise_Invalid_Is_Operand (Ctx, Node.F_Node_Expr, Tested_Node);
+         Raise_Invalid_Is_Operand
+           (Ctx, Node.F_Node_Expr.As_LKQL_Node, Tested_Node);
       end if;
 
       declare
@@ -481,7 +482,7 @@ package body Interpreter.Evaluation is
       Index : constant Primitive := Eval (Ctx, Node.F_Index_Expr);
       List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
    begin
-      Check_Kind (Ctx, Node.F_Index_Expr, Kind_Int, Index);
+      Check_Kind (Ctx, Node.F_Index_Expr.As_LKQL_Node, Kind_Int, Index);
       return Get (List, Index.Get.Int_Val);
    end Eval_Indexing;
 

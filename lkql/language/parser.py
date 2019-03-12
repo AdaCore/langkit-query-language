@@ -11,6 +11,14 @@ class LKQLNode(ASTNode):
 
 
 @abstract
+class Expr(LKQLNode):
+    """
+    Root node class for LKQL expressions.
+    """
+    pass
+
+
+@abstract
 class Op(LKQLNode):
     """
     Base class for operators.
@@ -21,35 +29,7 @@ class Op(LKQLNode):
     ]
 
 
-class BinOp(LKQLNode):
-    """
-    Binary operation.
-    """
-    left = Field()
-    op = Field()
-    right = Field()
-
-
-class Assign(LKQLNode):
-    """
-    Assign expression.
-    An assignment associates a name with a value, and returns Unit.
-
-    Ex:
-    let message = "Hello World"
-    """
-    identifier = Field()
-    value = Field()
-
-
-class PrintStmt(LKQLNode):
-    """
-    `print` built-in.
-    """
-    value = Field()
-
-
-class BoolLiteral(LKQLNode):
+class BoolLiteral(Expr):
     """
     Booean literal
     """
@@ -57,36 +37,64 @@ class BoolLiteral(LKQLNode):
     alternatives = ['true', 'false']
 
 
-class Identifier(LKQLNode):
+class Identifier(Expr):
     """
     Regular identifier.
     """
     token_node = True
 
 
-class Integer(LKQLNode):
+class Integer(Expr):
     """
     Integer literal.
     """
     token_node = True
 
 
-class StringLiteral(LKQLNode):
+class StringLiteral(Expr):
     """
     String literal.
     """
     token_node = True
 
 
-class DotAccess(LKQLNode):
+class BinOp(Expr):
+    """
+    Binary operation.
+    """
+    left = Field(type=Expr)
+    op = Field(type=Op)
+    right = Field(type=Expr)
+
+
+class Assign(Expr):
+    """
+    Assign expression.
+    An assignment associates a name with a value, and returns Unit.
+
+    Ex:
+    let message = "Hello World"
+    """
+    identifier = Field(type=Identifier)
+    value = Field(type=Expr)
+
+
+class PrintStmt(Expr):
+    """
+    `print` built-in.
+    """
+    value = Field(type=Expr)
+
+
+class DotAccess(Expr):
     """
     Access to a node's field using dot notation.
     """
-    receiver = Field()
-    member = Field()
+    receiver = Field(type=Expr)
+    member = Field(type=Identifier)
 
 
-class Query(LKQLNode):
+class Query(Expr):
     """
     AST query.
 
@@ -103,35 +111,35 @@ class Query(LKQLNode):
                                      n.Identifier == "A"
 
     """
-    binding = Field()
-    when_clause = Field()
+    binding = Field(type=Identifier)
+    when_clause = Field(type=Expr)
 
 
-class IsClause(LKQLNode):
+class IsClause(Expr):
     """
     Check a node's kind using the 'is' keyword.
     """
-    node_expr = Field()
-    kind_name = Field()
+    node_expr = Field(type=Expr)
+    kind_name = Field(type=Identifier)
 
 
-class InClause(LKQLNode):
+class InClause(Expr):
     """
     Check that a list contains a given value using the 'in' keyword
     """
-    value_expr = Field()
-    list_expr = Field()
+    value_expr = Field(type=Expr)
+    list_expr = Field(type=Expr)
 
 
-class Indexing(LKQLNode):
+class Indexing(Expr):
     """
     Access to the nth element of a List or String
 
     Ex:
     values[0]
     """
-    collection_expr = Field()
-    index_expr = Field()
+    collection_expr = Field(type=Expr)
+    index_expr = Field(type=Expr)
 
 
 lkql_grammar = Grammar('main_rule')
