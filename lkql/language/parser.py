@@ -175,7 +175,7 @@ lkql_grammar.add_rules(
 
     value_expr=Or(G.dot_access,
                   G.assign,
-                  G.indexing,
+                  Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
                   G.identifier,
                   G.string_literal,
                   G.bool_literal,
