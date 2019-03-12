@@ -49,8 +49,8 @@ package body String_Utils is
    ---------------------
 
    function Underline_Range (Line  : Unbounded_Text_Type;
-                             Start : Natural;
-                             Stop  : Natural) return Unbounded_Text_Type
+                             Start : Positive;
+                             Stop  : Positive) return Unbounded_Text_Type
    is
       use Langkit_Support.Text.Chars;
       Actual_Start  : constant Integer :=
@@ -73,7 +73,7 @@ package body String_Utils is
    --------------------
 
    function Underline_From (Line  : Unbounded_Text_Type;
-                            Start : Natural) return Unbounded_Text_Type
+                            Start : Positive) return Unbounded_Text_Type
    is
       Stop  : constant Integer := Index_Non_Blank (Line, Ada.Strings.Backward);
    begin
@@ -85,7 +85,7 @@ package body String_Utils is
    ------------------
 
    function Underline_To   (Line : Unbounded_Text_Type;
-                            Stop : Natural) return Unbounded_Text_Type
+                            Stop : Positive) return Unbounded_Text_Type
    is
       Start : constant Integer := Index_Non_Blank (Line);
    begin
@@ -102,7 +102,8 @@ package body String_Utils is
       Start : constant Integer := Index_Non_Blank (Line);
       Stop  : constant Integer := Index_Non_Blank (Line, Ada.Strings.Backward);
    begin
-      return Underline_Range (Line, Start, Stop);
+      return (if Start < 1 or else Stop < 1 or else Stop <= Start then Line
+              else Underline_Range (Line, Start, Stop));
    end Underline;
 
 end String_Utils;
