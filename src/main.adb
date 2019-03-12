@@ -45,7 +45,7 @@ procedure Main is
       package Auto_Dirs is new Parse_Option_List
         (Parser => Parser,
          Short  => "-a",
-         Long   => "--auto_dirs",
+         Long   => "--auto-dirs",
          Arg_Type => Unbounded_String,
          Accumulate => True,
          Help       =>
