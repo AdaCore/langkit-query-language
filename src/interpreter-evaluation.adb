@@ -479,7 +479,8 @@ package body Interpreter.Evaluation is
    function Eval_Indexing
      (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive
    is
-      List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
+      List  : constant Primitive :=
+        Typed_Eval (Ctx, Node.F_Collection_Expr, Kind_List);
       Index : constant Primitive :=
         Typed_Eval (Ctx, Node.F_Index_Expr, Kind_Int);
    begin
