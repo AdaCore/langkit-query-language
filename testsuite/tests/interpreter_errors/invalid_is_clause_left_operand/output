@@ -1,4 +1,4 @@
 main.adb
-Error: Invalid kind on the left side of an is clause: expected Node but got Str
+Error: Type error: expected Node but got Str
 query p when "Hello" is ObjectDecl
              ^^^^^^^^

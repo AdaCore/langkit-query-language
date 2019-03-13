@@ -83,10 +83,16 @@ package body Interpreter.Evaluation is
    --  `Value` doesn't have the expected kind.
 
    function Typed_Eval (Ctx           : in out Eval_Context;
-                        Node          : LEL.LKQL_Node;
+                        Node          : LEL.LKQL_Node'Class;
                         Expected_Kind : Primitive_Kind) return Primitive;
    --  Evaluate the given node and raise an exception if the kind of the
    --  result doesn't match 'Expected_Kind".
+
+   function Bool_Eval
+     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node) return Boolean;
+   --  Evalauate the given node and convert to result to an Ada Boolean.
+   --  Raise an exception if the result of the node's evaluation is not a
+   --  boolean.
 
    --------------------------
    -- Format_Ada_Kind_Name --
@@ -154,14 +160,26 @@ package body Interpreter.Evaluation is
    ----------------
 
    function Typed_Eval (Ctx           : in out Eval_Context;
-                        Node          : LEL.LKQL_Node;
+                        Node          : LEL.LKQL_Node'Class;
                         Expected_Kind : Primitive_Kind) return Primitive
    is
       Result : constant Primitive := Eval (Ctx, Node);
    begin
-      Check_Kind (Ctx, Node, Expected_Kind, Result);
+      Check_Kind (Ctx, Node.As_LKQL_Node, Expected_Kind, Result);
       return Result;
    end Typed_Eval;
+
+   ---------------
+   -- Bool_Eval --
+   ---------------
+
+   function Bool_Eval
+     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node) return Boolean
+   is
+      Result : constant Primitive := Typed_Eval (Ctx, Node, Kind_Bool);
+   begin
+      return Bool_Val (Result);
+   end Bool_Eval;
 
    ----------
    -- Eval --
@@ -345,32 +363,23 @@ package body Interpreter.Evaluation is
    function Eval_Short_Circuit_Op
      (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
    is
-      use type LELCO.LKQL_Node_Kind_Type;
-      Left    : constant Primitive := Eval (Ctx, Node.F_Left);
-      Right   : Primitive;
-      Op_Kind : constant LELCO.LKQL_Node_Kind_Type := Node.F_Op.Kind;
+      Result  : Boolean;
+      Left    : constant LEL.LKQL_Node := Node.F_Left.As_LKQL_Node;
+      Right   : constant LEL.LKQL_Node := Node.F_Right.As_LKQL_Node;
    begin
-      Check_Kind (Ctx, Node.F_Left.As_LKQL_Node, Kind_Bool, Left);
+      case Node.F_Op.Kind is
+      when LELCO.lkql_Op_And =>
+         Result :=
+           Bool_Eval (Ctx, Left) and then Bool_Eval (Ctx, Right);
+      when LELCO.lkql_Op_Or =>
+         Result :=
+           Bool_Eval (Ctx, Left) or else Bool_Eval (Ctx, Right);
+      when others =>
+         raise Program_Error
+           with "Not a short-circuit operator kind: " & Node.F_Op.Kind_Name;
+      end case;
 
-      if Op_Kind = LELCO.lkql_Op_And and then not Bool_Val (Left) then
-         return To_Primitive (False);
-      elsif Op_Kind = LELCO.lkql_Op_Or and then Bool_Val (Left) then
-         return To_Primitive (True);
-      end if;
-
-      Right := Eval (Ctx, Node.F_Right);
-      Check_Kind (Ctx, Node.F_Right.As_LKQL_Node, Kind_Bool, Right);
-
-      return (case Op_Kind is
-                 when LELCO.lkql_Op_And =>
-                   To_Primitive (Bool_Val (Left) and then
-                                 Bool_Val (Right)),
-                 when LELCO.lkql_Op_Or =>
-                   To_Primitive (Bool_Val (Left) or else Bool_Val (Right)),
-                 when others =>
-                    raise Program_Error with
-                      "Not a short-circuit operator kind: " &
-                      Node.F_Op.Kind_Name);
+      return To_Primitive (Result);
    end Eval_Short_Circuit_Op;
 
    --------------------
@@ -396,21 +405,13 @@ package body Interpreter.Evaluation is
    function Eval_Is
      (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive
    is
-      Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
+      Tested_Node   : constant Primitive :=
+        Typed_Eval (Ctx, Node.F_Node_Expr, Kind_Node);
+      Expected_Kind : constant LALCO.Ada_Node_Kind_Type :=
+        To_Ada_Node_Kind (To_Unbounded_Text (Node.F_Kind_Name.Text));
+      LAL_Node      : constant LAL.Ada_Node := Node_Val (Tested_Node);
    begin
-      if Kind (Tested_Node) /= Kind_Node then
-         Raise_Invalid_Is_Operand
-           (Ctx, Node.F_Node_Expr.As_LKQL_Node, Tested_Node);
-      end if;
-
-      declare
-         Expected_Kind : constant LALCO.Ada_Node_Kind_Type
-           := To_Ada_Node_Kind (To_Unbounded_Text (Node.F_Kind_Name.Text));
-         LAL_Node      : constant LAL.Ada_Node := Node_Val (Tested_Node);
-         Kind_Match    : constant Boolean := LAL_Node.Kind = Expected_Kind;
-      begin
-         return To_Primitive (Kind_Match);
-      end;
+      return To_Primitive (LAL_Node.Kind = Expected_Kind);
    end Eval_Is;
 
    -------------
@@ -421,7 +422,8 @@ package body Interpreter.Evaluation is
      (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive
    is
       Tested_Value : constant Primitive := Eval (Ctx, Node.F_Value_Expr);
-      Tested_List  : constant Primitive := Eval (Ctx, Node.F_List_Expr);
+      Tested_List  : constant Primitive :=
+        Typed_Eval (Ctx, Node.F_List_Expr, Kind_List);
    begin
       return To_Primitive (Contains (Tested_List, Tested_Value));
    end Eval_In;
@@ -448,9 +450,10 @@ package body Interpreter.Evaluation is
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
          declare
-            When_Clause_Result : constant Primitive :=
-              Typed_Eval (Local_Ctx, Node.F_When_Clause, Kind_Bool);
+            When_Clause_Result : Primitive;
          begin
+            When_Clause_Result :=
+              Typed_Eval (Local_Ctx, Node.F_When_Clause, Kind_Bool);
             if Bool_Val (When_Clause_Result) then
                Append (Result, To_Primitive (Current_Node));
             end if;
@@ -477,7 +480,7 @@ package body Interpreter.Evaluation is
      (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive
    is
       List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
-      Index : constant Primitive := 
+      Index : constant Primitive :=
         Typed_Eval (Ctx, Node.F_Index_Expr, Kind_Int);
    begin
       return Get (List, Int_Val (Index));

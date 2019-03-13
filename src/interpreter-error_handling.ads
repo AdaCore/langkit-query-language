@@ -20,14 +20,6 @@ package Interpreter.Error_Handling is
    --  Raise an exception signaling an invalid member access, and add an
    --  Error_Data describing the error to the evaluation context.
 
-   procedure Raise_Invalid_Is_Operand (Ctx         : in out Eval_Context;
-                                       Node        : LEL.LKQL_Node;
-                                       Tested_Node : Primitive)
-      with No_Return;
-   --  Raise an exception signaling that the left operand of an is clause is
-   --  not a node, and add an Error_Data describing the error to the
-   --  evaluation context.
-
    procedure Raise_Null_Root (Ctx : in out Eval_Context; Node : LEL.Query)
       with No_Return;
    --  Raise an exception signaling the absence of a proper AST root while
