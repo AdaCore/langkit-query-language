@@ -72,8 +72,8 @@ class Assign(Expr):
     Assign expression.
     An assignment associates a name with a value, and returns Unit.
 
-    Ex:
-    let message = "Hello World"
+    For instance::
+       let message = "Hello World"
     """
     identifier = Field(type=Identifier)
     value = Field(type=Expr)
@@ -102,13 +102,12 @@ class Query(Expr):
     where 'identifier' is a regular identifier bound to the "current" node and
     'condition' is a predicate.
 
-    Queries are implicitly run from the root of the AST and return the list of children
-    nodes that matches the condition.
+    Queries are implicitly run from the root of the AST and return the list of
+    children nodes that matches the condition.
 
-
-    Ex:
-    let classesNamedA = query n when n is ClassDecl &&
-                                     n.Identifier == "A"
+    For instance::
+       let classesNamedA = query n when n is ClassDecl &&
+                                        n.Identifier == "A"
 
     """
     binding = Field(type=Identifier)
@@ -135,8 +134,8 @@ class Indexing(Expr):
     """
     Access to the nth element of a List or String
 
-    Ex:
-    values[0]
+    For instance::
+       values[0]
     """
     collection_expr = Field(type=Expr)
     index_expr = Field(type=Expr)
