@@ -33,6 +33,12 @@ package body Run is
       Ignore := Eval (Context, LKQL_Script);
    exception
       when Stop_Evaluation_Error =>
+         if not Is_Error (Context.Last_Error) then
+            raise Program_Error with
+              "Stop Evaluation Error raised without adding the error to the " &
+              "evaluation context";
+         end if;
+
          if not Context.Error_Recovery_Enabled then
             Put_Line (Error_Description (Context.Last_Error));
          end if;
