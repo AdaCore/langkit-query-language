@@ -61,22 +61,6 @@ package body Interpreter.Error_Handling is
         (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Invalid_Member;
 
-   ------------------------------
-   -- Raise_Invalid_Is_Operand --
-   ------------------------------
-
-   procedure Raise_Invalid_Is_Operand (Ctx         : in out Eval_Context;
-                                       Node        : LEL.LKQL_Node;
-                                       Tested_Node : Primitive)
-   is
-      Message : constant Unbounded_Text_Type :=
-        "Invalid kind on the left side of an is clause: expected Node " &
-        "but got " & To_Unbounded_Text (To_Text (Kind_Name (Tested_Node)));
-   begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
-   end Raise_Invalid_Is_Operand;
-
    ---------------------
    -- Raise_Null_Root --
    ---------------------
