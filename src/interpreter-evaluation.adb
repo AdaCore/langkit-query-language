@@ -138,7 +138,7 @@ package body Interpreter.Evaluation is
                          Value         : Primitive)
    is
    begin
-      if Value.Get.Kind /= Expected_Kind then
+      if Kind (Value) /= Expected_Kind then
          Raise_Invalid_Kind (Ctx, Node, Expected_Kind, Value);
       end if;
    end Check_Kind;
@@ -332,9 +332,9 @@ package body Interpreter.Evaluation is
    begin
       Check_Kind (Ctx, Node.F_Left.As_LKQL_Node, Kind_Bool, Left);
 
-      if Op_Kind = LELCO.lkql_Op_And and then not Left.Get.Bool_Val then
+      if Op_Kind = LELCO.lkql_Op_And and then not Bool_Val (Left) then
          return To_Primitive (False);
-      elsif Op_Kind = LELCO.lkql_Op_Or and then Left.Get.Bool_Val then
+      elsif Op_Kind = LELCO.lkql_Op_Or and then Bool_Val (Left) then
          return To_Primitive (True);
       end if;
 
@@ -343,10 +343,10 @@ package body Interpreter.Evaluation is
 
       return (case Op_Kind is
                  when LELCO.lkql_Op_And =>
-                   To_Primitive (Left.Get.Bool_Val and then
-                                 Right.Get.Bool_Val),
+                   To_Primitive (Bool_Val (Left) and then
+                                 Bool_Val (Right)),
                  when LELCO.lkql_Op_Or =>
-                   To_Primitive (Left.Get.Bool_Val or else Right.Get.Bool_Val),
+                   To_Primitive (Bool_Val (Left) or else Bool_Val (Right)),
                  when others =>
                     raise Program_Error with
                       "Not a short-circuit operator kind: " &
@@ -378,7 +378,7 @@ package body Interpreter.Evaluation is
    is
       Tested_Node : constant Primitive := Eval (Ctx, Node.F_Node_Expr);
    begin
-      if Tested_Node.Get.Kind /= Kind_Node then
+      if Kind (Tested_Node) /= Kind_Node then
          Raise_Invalid_Is_Operand
            (Ctx, Node.F_Node_Expr.As_LKQL_Node, Tested_Node);
       end if;
@@ -386,8 +386,8 @@ package body Interpreter.Evaluation is
       declare
          Expected_Kind : constant LALCO.Ada_Node_Kind_Type
            := To_Ada_Node_Kind (To_Unbounded_Text (Node.F_Kind_Name.Text));
-         Kind_Match    : constant Boolean :=
-           Tested_Node.Get.Node_Val.Kind = Expected_Kind;
+         LAL_Node      : constant LAL.Ada_Node := Node_Val (Tested_Node);
+         Kind_Match    : constant Boolean := LAL_Node.Kind = Expected_Kind;
       begin
          return To_Primitive (Kind_Match);
       end;
@@ -436,7 +436,7 @@ package body Interpreter.Evaluation is
                         Kind_Bool,
                         When_Clause_Result);
 
-            if When_Clause_Result.Get.Bool_Val then
+            if Bool_Val (When_Clause_Result) then
                Append (Result, To_Primitive (Current_Node));
             end if;
          exception
@@ -465,7 +465,7 @@ package body Interpreter.Evaluation is
       List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
    begin
       Check_Kind (Ctx, Node.F_Index_Expr.As_LKQL_Node, Kind_Int, Index);
-      return Get (List, Index.Get.Int_Val);
+      return Get (List, Int_Val (Index));
    end Eval_Indexing;
 
    ----------------------

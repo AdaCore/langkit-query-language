@@ -70,10 +70,12 @@ package Interpreter.Primitives is
      Ada.Containers.Vectors (Index_Type   => Positive,
                              Element_Type => Primitive);
 
+   type Primitive_Vector_Access is access all Primitive_Vectors.Vector;
+
    type Primitive_List is record
       Elements_Kind : Primitive_Kind;
       --  Kind of the elemnts stored in the list
-      Elements      : Primitive_Vectors.Vector;
+      Elements      : aliased Primitive_Vectors.Vector;
       --  Vector that holds the actual elemnts
    end record;
    --  List of primitive values.
@@ -89,6 +91,35 @@ package Interpreter.Primitives is
    --  Primitive value.
    --  Raise an Unsupported_Error if there is no property named
    --  'Property_Name'.
+
+   ---------------
+   -- Accessors --
+   ---------------
+
+   function Kind (Value : Primitive) return Primitive_Kind;
+   --  Return the kind of a primitive
+
+   function Int_Val (Value : Primitive) return Integer;
+   --  Return the value of an Int primitive
+
+   function Str_Val (Value : Primitive) return Unbounded_Text_Type;
+   --  Return the value of a Str primitive
+
+   function Bool_Val (Value : Primitive) return Boolean;
+   --  Return the value of a Bool primitive
+
+   function Node_Val (Value : Primitive) return LAL.Ada_Node;
+   --  Return the value of a Node primitive
+
+   function List_Val (Value : Primitive) return Primitive_List_Access;
+   --  Return the value of a list primitive
+
+   function Elements_Kind (Value : Primitive) return Primitive_Kind;
+   --  Return the kind of the elements of a list
+
+   function Elements
+     (Value : Primitive) return not null Primitive_Vector_Access;
+   --  Return a pointer to the elements of a list primitive
 
    ----------------------------------
    -- Creation of Primitive values --
