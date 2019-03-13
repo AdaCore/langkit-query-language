@@ -82,6 +82,12 @@ package body Interpreter.Evaluation is
    --  Raise an exception and register an error in the evaluation context if
    --  `Value` doesn't have the expected kind.
 
+   function Typed_Eval (Ctx           : in out Eval_Context;
+                        Node          : LEL.LKQL_Node;
+                        Expected_Kind : Primitive_Kind) return Primitive;
+   --  Evaluate the given node and raise an exception if the kind of the
+   --  result doesn't match 'Expected_Kind".
+
    --------------------------
    -- Format_Ada_Kind_Name --
    --------------------------
@@ -142,6 +148,20 @@ package body Interpreter.Evaluation is
          Raise_Invalid_Kind (Ctx, Node, Expected_Kind, Value);
       end if;
    end Check_Kind;
+
+   ----------------
+   -- Typed_Eval --
+   ----------------
+
+   function Typed_Eval (Ctx           : in out Eval_Context;
+                        Node          : LEL.LKQL_Node;
+                        Expected_Kind : Primitive_Kind) return Primitive
+   is
+      Result : constant Primitive := Eval (Ctx, Node);
+   begin
+      Check_Kind (Ctx, Node, Expected_Kind, Result);
+      return Result;
+   end Typed_Eval;
 
    ----------
    -- Eval --
@@ -428,14 +448,9 @@ package body Interpreter.Evaluation is
          Local_Ctx := Ctx;
          Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
          declare
-            When_Clause_Result : Primitive;
+            When_Clause_Result : constant Primitive :=
+              Typed_Eval (Local_Ctx, Node.F_When_Clause, Kind_Bool);
          begin
-            When_Clause_Result := Eval (Local_Ctx, Node.F_When_Clause);
-            Check_Kind (Local_Ctx,
-                        Node.F_When_Clause.As_LKQL_Node,
-                        Kind_Bool,
-                        When_Clause_Result);
-
             if Bool_Val (When_Clause_Result) then
                Append (Result, To_Primitive (Current_Node));
             end if;
@@ -461,10 +476,10 @@ package body Interpreter.Evaluation is
    function Eval_Indexing
      (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive
    is
-      Index : constant Primitive := Eval (Ctx, Node.F_Index_Expr);
       List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
+      Index : constant Primitive := 
+        Typed_Eval (Ctx, Node.F_Index_Expr, Kind_Int);
    begin
-      Check_Kind (Ctx, Node.F_Index_Expr.As_LKQL_Node, Kind_Int, Index);
       return Get (List, Int_Val (Index));
    end Eval_Indexing;
 
