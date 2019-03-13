@@ -1,0 +1,2 @@
+main.adb
+raised INTERPRETER.PRIMITIVES.UNSUPPORTED_ERROR : Invalid index:  999999
