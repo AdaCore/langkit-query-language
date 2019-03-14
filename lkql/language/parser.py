@@ -159,7 +159,7 @@ lkql_grammar.add_rules(
                   G.comp_expr),
             G.comp_expr),
 
-    comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.identifier),
+    comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.kind_name),
                  InClause(G.comp_expr, Token.In, G.expr),
                  BinOp(G.comp_expr,
                        Or(Op.alt_eq(Token.EqEq),
@@ -192,6 +192,8 @@ lkql_grammar.add_rules(
     assign=Assign(Token.Let, G.identifier, Token.Eq, Or(G.expr, G.query)),
 
     identifier=Identifier(Token.Identifier),
+
+    kind_name=Identifier(Token.KindName),
 
     integer=Integer(Token.Integer),
 
