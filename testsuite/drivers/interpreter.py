@@ -74,6 +74,11 @@ class InterpreterDriver(BasicTestDriver):
         # expected exit status, the test fails.
         if process_output != expected or process_failure != failure_expected:
             status = TestStatus.FAIL
+            self.result.env["reason"] = "invalid output"
+        elif process_failure != failure_expected:
+            status = TestStatus.FAIL
+            self.result.env["reason"] = \
+                "expected failure = %b" % failure_expected
 
         self.result.set_status(status)
         self.result.env['output'] = process_output
