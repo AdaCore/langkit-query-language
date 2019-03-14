@@ -1,0 +1,38 @@
+ExprList
+|  Assign
+|  |identifier:
+|  |  Identifier: declWihAspect
+|  |value:
+|  |  FilteredQuery
+|  |  |pattern:
+|  |  |  FullQueryPattern
+|  |  |  |queried_node:
+|  |  |  |  FullNodePattern
+|  |  |  |  |binding:
+|  |  |  |  |  Identifier: o
+|  |  |  |  |kind:
+|  |  |  |  |  Identifier: ObjectDecl
+|  |  |  |selector:
+|  |  |  |  SelectorPattern
+|  |  |  |  |selector_name:
+|  |  |  |  |  Identifier: child
+|  |  |  |related_node:
+|  |  |  |  KindNodePattern
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: AspectAssoc
+|  |  |predicate:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  DotAccess
+|  |  |  |  |receiver:
+|  |  |  |  |  DotAccess
+|  |  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: o
+|  |  |  |  |  |member:
+|  |  |  |  |  |  Identifier: identifier
+|  |  |  |  |member:
+|  |  |  |  |  Identifier: length
+|  |  |  |op:
+|  |  |  |  OpEq
+|  |  |  |right:
+|  |  |  |  Integer: 42

@@ -56,8 +56,9 @@ package body Interpreter.Evaluation is
    function Eval_In
      (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive;
 
-   function Eval_Query
-     (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive;
+   function Eval_Filtered_query (Ctx : in out Eval_Context;
+                                 Node : LEL.Filtered_Query)
+                                 return Primitive;
 
    function Eval_Indexing
      (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive;
@@ -212,8 +213,8 @@ package body Interpreter.Evaluation is
                    Eval_Is (Ctx, Node.As_Is_Clause),
                  when LELCO.lkql_In_Clause =>
                    Eval_In (Ctx, Node.As_In_Clause),
-                 when LELCO.lkql_Query =>
-                   Eval_Query (Ctx, Node.As_Query),
+                 when LELCO.lkql_Filtered_Query =>
+                   Eval_Filtered_query (Ctx, Node.As_Filtered_Query),
                  when LELCO.lkql_Indexing =>
                    Eval_Indexing (Ctx, Node.As_Indexing),
                  when others =>
@@ -428,49 +429,47 @@ package body Interpreter.Evaluation is
       return To_Primitive (Contains (Tested_List, Tested_Value));
    end Eval_In;
 
-   ----------------
-   -- Eval_Query --
-   ----------------
+   -----------------------------
+   -- Eval_Non_Filtered_Query --
+   -----------------------------
 
-   function Eval_Query
-     (Ctx : in out Eval_Context; Node : LEL.Query) return Primitive
+   function Eval_Filtered_query (Ctx : in out Eval_Context;
+                                 Node : LEL.Filtered_Query)
+                                 return Primitive
    is
-      It           : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
-      Result       : constant Primitive := Make_Empty_List (Kind_Node);
-      Current_Node : LAL.Ada_Node;
-      Local_Ctx    : Eval_Context;
-      Binding      : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Node.F_Binding.Text);
+      Current_Node  : LAL.Ada_Node;
+      It            : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
+      Result        : constant Primitive := Make_Empty_List (Kind_Node);
+      Binding       : constant Unbounded_Text_Type :=
+        To_Unbounded_Text
+          (Node.F_Query_Pattern.As_Node_Query_Pattern
+           .F_Queried_Node.As_Binding_Node_Pattern.F_Binding.Text);
+      Env_Conflict  : constant Boolean := Ctx.Env.Contains (Binding);
+      Env_Backup    : constant Primitive :=
+        (if Env_Conflict then Ctx.Env (Binding) else Make_Unit_Primitive);
    begin
-      if Ctx.AST_Root.Is_Null then
-         Raise_Null_Root (Ctx, Node);
-      end if;
-
       while It.Next (Current_Node) loop
-         Local_Ctx := Ctx;
-         Local_Ctx.Env.Include (Binding, To_Primitive (Current_Node));
+         Ctx.Env.Include (Binding, To_Primitive (Current_Node));
          declare
             When_Clause_Result : Primitive;
          begin
             When_Clause_Result :=
-              Typed_Eval (Local_Ctx, Node.F_When_Clause, Kind_Bool);
+              Typed_Eval (Ctx, Node.F_Predicate, Kind_Bool);
             if Bool_Val (When_Clause_Result) then
                Append (Result, To_Primitive (Current_Node));
             end if;
          exception
-            when Stop_Evaluation_Error =>
-               --  Errors that are raised during the evaluation of the when
-               --  clause are stored in the local context and must be copied
-               --  to the global context.
-               Ctx.Last_Error := Local_Ctx.Last_Error;
-               raise;
             when Recoverable_Error =>
                null;
          end;
       end loop;
 
+      if Env_Conflict then
+         Ctx.Env.Include (Binding, Env_Backup);
+      end if;
+
       return Result;
-   end Eval_Query;
+   end Eval_Filtered_query;
 
    -------------------
    -- Eval_Indexing --

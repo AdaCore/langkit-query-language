@@ -9,7 +9,7 @@ class Token(LexerToken):
     Integer = WithText()
 
     Let = WithSymbol()
-    Query = WithSymbol()
+    QueryTok = WithSymbol()
     When = WithSymbol()
     Is = WithSymbol()
     In = WithSymbol()
@@ -55,7 +55,7 @@ lkql_lexer.add_rules(
     (Literal("]"),                                          Token.RBrack),
     (Literal("@"),                                          Token.At),
     (Literal("let"),                                        Token.Let),
-    (Literal("query"),                                      Token.Query),
+    (Literal("query"),                                      Token.QueryTok),
     (Literal("when"),                                       Token.When),
     (Literal("is"),                                         Token.Is),
     (Literal("in"),                                         Token.In),
