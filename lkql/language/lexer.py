@@ -4,6 +4,7 @@ from langkit.lexer import Lexer, LexerToken, Literal, WithText, WithSymbol, Patt
 
 class Token(LexerToken):
     Identifier = WithSymbol()
+    KindName = WithSymbol()
     String = WithText()
     Integer = WithText()
 
@@ -31,6 +32,7 @@ class Token(LexerToken):
     RPar = WithText()
     LBrack = WithText()
     RBrack = WithText()
+    At = WithText()
 
 
 lkql_lexer = Lexer(Token)
@@ -51,6 +53,7 @@ lkql_lexer.add_rules(
     (Literal(")"),                                          Token.RPar),
     (Literal("["),                                          Token.LBrack),
     (Literal("]"),                                          Token.RBrack),
+    (Literal("@"),                                          Token.At),
     (Literal("let"),                                        Token.Let),
     (Literal("query"),                                      Token.Query),
     (Literal("when"),                                       Token.When),
@@ -60,6 +63,7 @@ lkql_lexer.add_rules(
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
     (Pattern("[0-9]+"),                                     Token.Integer),
-    (Pattern("[A-Za-z][A-Za-z0-9_]*"),                      Token.Identifier),
+    (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
+    (Pattern("[A-Z][A-Za-z_]*"),                            Token.KindName),
     (Pattern("\"[^\"]*\""),                                 Token.String)
 )
