@@ -4,8 +4,6 @@ with Interpreter.Error_Handling;   use Interpreter.Error_Handling;
 with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Characters.Handling;
@@ -63,9 +61,6 @@ package body Interpreter.Evaluation is
    function Eval_Indexing
      (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive;
 
-   function To_Ada_Node_Kind
-     (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type;
-
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
      with Pre => Name'Length > 4 and then
                  Name (Name'First .. Name'First + 3) = "ADA_";
@@ -82,12 +77,6 @@ package body Interpreter.Evaluation is
                          Value         : Primitive);
    --  Raise an exception and register an error in the evaluation context if
    --  `Value` doesn't have the expected kind.
-
-   function Typed_Eval (Ctx           : in out Eval_Context;
-                        Node          : LEL.LKQL_Node'Class;
-                        Expected_Kind : Primitive_Kind) return Primitive;
-   --  Evaluate the given node and raise an exception if the kind of the
-   --  result doesn't match 'Expected_Kind".
 
    function Bool_Eval
      (Ctx : in out Eval_Context; Node : LEL.LKQL_Node) return Boolean;
@@ -409,7 +398,7 @@ package body Interpreter.Evaluation is
       Tested_Node   : constant Primitive :=
         Typed_Eval (Ctx, Node.F_Node_Expr, Kind_Node);
       Expected_Kind : constant LALCO.Ada_Node_Kind_Type :=
-        To_Ada_Node_Kind (To_Unbounded_Text (Node.F_Kind_Name.Text));
+        To_Ada_Node_Kind (Node.F_Kind_Name.Text);
       LAL_Node      : constant LAL.Ada_Node := Node_Val (Tested_Node);
    begin
       return To_Primitive (LAL_Node.Kind = Expected_Kind);
@@ -491,14 +480,15 @@ package body Interpreter.Evaluation is
    ----------------------
 
    function To_Ada_Node_Kind
-     (Kind_Name : Unbounded_Text_Type) return LALCO.Ada_Node_Kind_Type
+     (Kind_Name : Text_Type) return LALCO.Ada_Node_Kind_Type
    is
       use String_Kind_Maps;
-      Position : constant Cursor := Name_Kinds.Find (Kind_Name);
+      Position : constant Cursor :=
+        Name_Kinds.Find (To_Unbounded_Text (Kind_Name));
    begin
       if not Has_Element (Position) then
          raise Program_Error with
-           "Invalid kind name: " & To_UTF8 (To_Text (Kind_Name));
+           "Invalid kind name: " & To_UTF8 (Kind_Name);
       end if;
 
       return Element (Position);
