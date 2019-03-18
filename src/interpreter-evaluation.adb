@@ -425,16 +425,22 @@ package body Interpreter.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Primitive
    is
+      use Query.Node_Iterator_Filter;
       Current_Node : LAL.Ada_Node;
       Result       : constant Primitive := Make_Empty_List (Kind_Node);
-      Iter         : Query_Iterator :=
+      Iter         : Filter_Iter :=
         Make_Query_Iterator (Ctx, Node);
    begin
       while Iter.Next (Current_Node) loop
          Append (Result, To_Primitive (Current_Node));
       end loop;
 
+      Free_Filter (Iter);
       return Result;
+   exception
+      when others =>
+         Free_Filter (Iter);
+         raise;
    end Eval_Query;
 
    -------------------

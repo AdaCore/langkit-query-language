@@ -8,8 +8,9 @@ package body Query is
    -- Make_Query_Iterator --
    -------------------------
 
-   function Make_Query_Iterator
-     (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Query_Iterator
+   function Make_Query_Iterator (Ctx : Eval_Context_Ptr;
+                                 Node : LEL.Query)
+                                 return Node_Iterator_Filter.Filter_Iter
    is
       It        : constant Query_Iterator_Access :=
         new Query_Iterator'(Query_Iterator (Traverse (Ctx.AST_Root)));
@@ -22,7 +23,7 @@ package body Query is
             when others =>
                raise Program_Error with
                  "Invalid query kind: " & Kind_Name (Node));
-      Result : constant Query_Iterator :=
+      Result : constant Node_Iterator_Filter.Filter_Iter :=
         Query_Adapter (It, Node.F_Pattern, Ctx, Predicate);
    begin
       return Result;

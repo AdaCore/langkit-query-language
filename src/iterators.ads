@@ -14,6 +14,8 @@ package Iterators is
       type Filter_Iter is new Ada_Node_Iterators.Iterator with private;
       --  Iterator adapter that filters the elements of the wrapped iterator
 
+      procedure Free_Filter (Self : in out Filter_Iter);
+
       function Filter (Iter      : Iter_Type;
                        Predicate : Ada_Node_Predicate) return Filter_Iter;
       --  Return an iterator over Iter's elements that uses Predicate as a

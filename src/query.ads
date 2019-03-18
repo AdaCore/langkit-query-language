@@ -26,8 +26,9 @@ package Query is
      (Query_Iterator);
    --  Iterators that performs filtering on top of a Query_Iterator
 
-   function Make_Query_Iterator
-     (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Query_Iterator;
+   function Make_Query_Iterator (Ctx : Eval_Context_Ptr;
+                                 Node : LEL.Query)
+                                 return Node_Iterator_Filter.Filter_Iter;
 
    function Query_Adapter
      (Iter    : Query_Iterator_Access;

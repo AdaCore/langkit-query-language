@@ -6,7 +6,11 @@ package body Iterators is
 
       procedure Free_Ada_Node_Iterator is new Ada.Unchecked_Deallocation
         (Iter_Type, Iter_Type_Access);
-      pragma Unreferenced (Free_Ada_Node_Iterator);
+
+      procedure Free_Filter (Self : in out Filter_Iter) is
+      begin
+         Free_Ada_Node_Iterator (Self.Iter);
+      end Free_Filter;
 
       ------------
       -- Filter --
