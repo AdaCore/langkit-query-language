@@ -35,26 +35,37 @@ package Query is
       Pattern : Query_Pattern;
       Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
+   --  Returns an iterator that wraps Iter, yielding only the elements that
+   --  belong to the result of the given query.
 
    function Node_Query_Adapter
      (Iter          : Query_Iterator_Access;
       Query_Pattern : Node_Query_Pattern;
       Ctx           : Eval_Context_Ptr;
       Expr          : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
+   --  Given a query pattern comprised of a single node pattern, return an
+   --  iterator tha wraps Iter, yielding only the elements that match the
+   --  pattern.
 
    function Full_Query_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Full_Query_Pattern;
       Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
+   --  Given a query pattern comprised of a node pattern, a selector and a
+   --  related node ppatern, returns an iterator that wraps Iter, yielding only
+   --  the elements that match the given pattern and for witch the related node
+   --  matched the related node pattern.
 
    function Full_Node_Pattern_Adaptor
      (Iter    : Query_Iterator_Access;
       Pattern : Full_Node_Pattern;
       Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
-   --  Returns an iterator that wraps iter, yielding only the elements that
-   --  match the given Pattern.
+   --  Given a node pattern comprised of a node kind pattern and a binding
+   --  name, return an iterator that wraps Iter, yielding only the elements of
+   --  the given kind for witch the predicate 'Expr' is verrified when the
+   --  binding name is bound to the value of the element.
 
    function Kind_Node_Pattern_Adapter
      (Iter    : Query_Iterator_Access;

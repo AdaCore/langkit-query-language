@@ -15,6 +15,7 @@ package Iterators is
       --  Iterator adapter that filters the elements of the wrapped iterator
 
       procedure Free_Filter (Self : in out Filter_Iter);
+      --  Release the memory owned by the Filter_Iter
 
       function Filter (Iter      : Iter_Type;
                        Predicate : Ada_Node_Predicate) return Filter_Iter;
