@@ -1,59 +1,81 @@
-with Ada.Unchecked_Deallocation;
+with Ada.Containers.Vectors;
 
 package body Iterators is
+   ----------
+   -- Next --
+   ----------
 
-   package body Filters is
+   function Next
+     (Iter   : in out Filter_Iter; Result : out Element_Type) return Boolean
+   is
+      Current_Element : Element_Type;
+   begin
+      while Iter.Inner.Next (Current_Element) loop
+         if Iter.Predicate.Evaluate (Current_Element) then
+            Result := Current_Element;
+            return True;
+         end if;
+      end loop;
 
-      procedure Free_Ada_Node_Iterator is new Ada.Unchecked_Deallocation
-        (Iter_Type, Iter_Type_Access);
+      return False;
+   end Next;
 
-      procedure Free_Filter (Self : in out Filter_Iter) is
-      begin
-         Free_Ada_Node_Iterator (Self.Iter);
-      end Free_Filter;
+   -------------
+   -- Release --
+   -------------
 
-      ------------
-      -- Filter --
-      ------------
+   overriding procedure Release (Iter : in out Filter_Iter) is
+   begin
+      Iter.Inner.Release;
+      Free_Iter_Access (Iter.Inner);
+      Free_Predicate_Access (Iter.Predicate);
+   end Release;
 
-      function Filter (Iter      : Iter_Type;
-                       Predicate : Ada_Node_Predicate) return Filter_Iter
-      is
-      begin
-         return (new Iter_Type'(Iter), Predicate);
-      end Filter;
+   -------------
+   -- Consume --
+   -------------
 
-      ------------
-      -- Filter --
-      ------------
+   function Consume (Iter : Iterator'Class) return Element_Array
+   is
+      package Element_Vectors is new Ada.Containers.Vectors
+        (Positive, Element_Type);
+      Vec     : Element_Vectors.Vector;
+      Element : Element_Type;
+   begin
+      --  Note: This is bad design in Ada: We're hiding mutation of the
+      --  Iterator object, because if we make it mutable, then you can no
+      --  longer call consume on an expression that returns an Iterator, which
+      --  in user APIs is not very friendly, because it means you cannot write
+      --  write::
+      --
+      --      for Element of Node.Find (...).Consume loop
+      --         ...
+      --      end loop;
+      --
+      --  You have to declare the iterator explicitly.
 
-      function Filter (Iter      : Iter_Type_Access;
-                       Predicate : Ada_Node_Predicate) return Filter_Iter
-      is
-      begin
-         return (Iter, Predicate);
-      end Filter;
+      while Iter'Unrestricted_Access.Next (Element) loop
+         Vec.Append (Element);
+      end loop;
 
-      ----------
-      -- Next --
-      ----------
+      Iter'Unrestricted_Access.Release;
 
-      function Next
-        (I       : in out  Filter_Iter;
-         Element : out Ada_Node) return Boolean
-      is
-         Current_Node : Ada_Node;
-      begin
-         while I.Iter.Next (Current_Node) loop
-            if I.Predicate.Get.Evaluate (Current_Node) then
-               Element := Current_Node;
-               return True;
-            end if;
+      return Result : Element_Array (1 .. Natural (Vec.Length)) do
+         for I in Result'Range loop
+            Result (I) := Vec.Element (I);
          end loop;
+      end return;
+   end Consume;
 
-         return False;
-      end Next;
+   ------------
+   -- Filter --
+   ------------
 
-   end Filters;
+   function Filter
+     (Iter : Iterator_Access; Pred : Predicate_Access) return Filter_Iter
+   is
+   begin
+      return (Iter, Pred);
+   end Filter;
 
 end Iterators;
