@@ -26,7 +26,7 @@ package Query is
      (Query_Iterator);
    --  Iterators that performs filtering on top of a Query_Iterator
 
-   function Make_Query_Iterator (Ctx : Eval_Context_Ptr;
+   function Make_Query_Iterator (Ctx  : Eval_Context_Ptr;
                                  Node : LEL.Query)
                                  return Node_Iterator_Filter.Filter_Iter;
 
@@ -57,7 +57,7 @@ package Query is
    --  match the given Pattern.
 
    function Kind_Node_Pattern_Adapter
-     (Iter : Query_Iterator_Access;
+     (Iter    : Query_Iterator_Access;
       Pattern : Kind_Node_Pattern)
       return Node_Iterator_Filter.Filter_Iter;
    --  Return an iterator that wraps Iter, yielding only the elements that

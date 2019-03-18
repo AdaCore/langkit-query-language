@@ -8,7 +8,7 @@ package body Query is
    -- Make_Query_Iterator --
    -------------------------
 
-   function Make_Query_Iterator (Ctx : Eval_Context_Ptr;
+   function Make_Query_Iterator (Ctx  : Eval_Context_Ptr;
                                  Node : LEL.Query)
                                  return Node_Iterator_Filter.Filter_Iter
    is
@@ -65,7 +65,7 @@ package body Query is
       Expr          : LEL.Expr) return Node_Iterator_Filter.Filter_Iter
    is
       Pattern : constant Node_Pattern := Query_Pattern.F_Queried_Node;
-      Result : Node_Iterator_Filter.Filter_Iter;
+      Result  : Node_Iterator_Filter.Filter_Iter;
    begin
       Result := (case Pattern.Kind is
                  when LELCO.lkql_Full_Node_Pattern =>
@@ -151,7 +151,7 @@ package body Query is
       Expr    : LEL.Expr)
       return Node_Iterator_Filter.Filter_Iter
    is
-      Result : Node_Iterator_Filter.Filter_Iter;
+      Result    : Node_Iterator_Filter.Filter_Iter;
       Binding   : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.F_Binding.Text);
       Predicate : constant Ada_Node_Predicate :=
