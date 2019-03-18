@@ -5,7 +5,7 @@ with Interpreter.Primitives;    use Interpreter.Primitives;
 package Interpreter.Error_Handling is
 
    procedure Raise_And_Record_Error
-     (Ctx : in out Eval_Context; Error : Error_Data)
+     (Ctx : Eval_Context_Ptr; Error : Error_Data)
       with No_Return;
    --  Add the given error to the evaluation context and:
    --    * raise a Recoverable_Error if error recovery is enabled and the
@@ -13,20 +13,20 @@ package Interpreter.Error_Handling is
    --    * raise a Stop_Evaluation_Error if error recovery is disabled or the
    --      user chooses not to ignore the error
 
-   procedure Raise_Invalid_Member (Ctx      : in out Eval_Context;
+   procedure Raise_Invalid_Member (Ctx      : Eval_Context_Ptr;
                                    Node     : LEL.Dot_Access;
                                    Receiver : Primitive)
       with No_Return;
    --  Raise an exception signaling an invalid member access, and add an
    --  Error_Data describing the error to the evaluation context.
 
-   procedure Raise_Null_Root (Ctx : in out Eval_Context; Node : LEL.Query)
+   procedure Raise_Null_Root (Ctx : Eval_Context_Ptr; Node : LEL.Query)
       with No_Return;
    --  Raise an exception signaling the absence of a proper AST root while
    --  trying to execute a query, and add an Error_Data describing the error
    --  to the evaluation context.
 
-   procedure Raise_Invalid_Kind (Ctx      : in out Eval_Context;
+   procedure Raise_Invalid_Kind (Ctx      : Eval_Context_Ptr;
                                  Node     : LEL.LKQL_Node;
                                  Expected : Primitive_Kind;
                                  Value    : Primitive)

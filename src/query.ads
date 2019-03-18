@@ -27,30 +27,30 @@ package Query is
    --  Iterators that performs filtering on top of a Query_Iterator
 
    function Make_Query_Iterator
-     (Ctx : Eval_Context; Node : LEL.Query) return Query_Iterator;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Query_Iterator;
 
    function Query_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Query_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
 
    function Node_Query_Adapter
      (Iter          : Query_Iterator_Access;
       Query_Pattern : Node_Query_Pattern;
-      Ctx           : Eval_Context;
+      Ctx           : Eval_Context_Ptr;
       Expr          : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
 
    function Full_Query_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Full_Query_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
 
    function Full_Node_Pattern_Adaptor
      (Iter    : Query_Iterator_Access;
       Pattern : Full_Node_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter;
    --  Returns an iterator that wraps iter, yielding only the elements that
    --  match the given Pattern.
@@ -65,7 +65,7 @@ package Query is
    function Binding_Node_Pattern_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Binding_Node_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr)
       return Node_Iterator_Filter.Filter_Iter;
    --  Return an iterator that wraps Iter, yielding only the elements x for
@@ -76,7 +76,7 @@ private
 
    type Binding_Expr_Predicate is new Ada_Node_Predicate_Interface with record
       Binding : Unbounded_Text_Type;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr;
    end record;
 
@@ -84,7 +84,7 @@ private
      (P : in out Binding_Expr_Predicate; N : LAL.Ada_Node) return Boolean;
 
    function Make_Binding_Expr_Predicate
-     (Binding : Unbounded_Text_Type; Ctx : Eval_Context; Expr : LEL.Expr)
+     (Binding : Unbounded_Text_Type; Ctx : Eval_Context_Ptr; Expr : LEL.Expr)
       return Ada_Node_Predicate;
    --  Return a ref-counted pointer pointing to a Binding_Expr_Predicate with
    --  the given Binding, Ctx and Expr.

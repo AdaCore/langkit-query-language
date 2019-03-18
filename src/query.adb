@@ -9,7 +9,7 @@ package body Query is
    -------------------------
 
    function Make_Query_Iterator
-     (Ctx : Eval_Context; Node : LEL.Query) return Query_Iterator
+     (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Query_Iterator
    is
       It        : constant Query_Iterator_Access :=
         new Query_Iterator'(Query_Iterator (Traverse (Ctx.AST_Root)));
@@ -35,7 +35,7 @@ package body Query is
    function Query_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Query_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter
    is
       Result : Node_Iterator_Filter.Filter_Iter;
@@ -60,7 +60,7 @@ package body Query is
    function Node_Query_Adapter
      (Iter          : Query_Iterator_Access;
       Query_Pattern : Node_Query_Pattern;
-      Ctx           : Eval_Context;
+      Ctx           : Eval_Context_Ptr;
       Expr          : LEL.Expr) return Node_Iterator_Filter.Filter_Iter
    is
       Pattern : constant Node_Pattern := Query_Pattern.F_Queried_Node;
@@ -90,7 +90,7 @@ package body Query is
    function Full_Query_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Full_Query_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter
    is
       pragma Unreferenced (Iter, Pattern, Ctx, Expr);
@@ -107,7 +107,7 @@ package body Query is
    function Full_Node_Pattern_Adaptor
      (Iter    : Query_Iterator_Access;
       Pattern : Full_Node_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr) return Node_Iterator_Filter.Filter_Iter
    is
       Kind_Adapter         : constant Node_Iterator_Filter.Filter_Iter :=
@@ -146,7 +146,7 @@ package body Query is
    function Binding_Node_Pattern_Adapter
      (Iter    : Query_Iterator_Access;
       Pattern : Binding_Node_Pattern;
-      Ctx     : Eval_Context;
+      Ctx     : Eval_Context_Ptr;
       Expr    : LEL.Expr)
       return Node_Iterator_Filter.Filter_Iter
    is
@@ -194,7 +194,7 @@ package body Query is
    -------------------------------
 
    function Make_Binding_Expr_Predicate (Binding : Unbounded_Text_Type;
-                                         Ctx     : Eval_Context;
+                                         Ctx     : Eval_Context_Ptr;
                                          Expr    : LEL.Expr)
                                          return Ada_Node_Predicate
    is
