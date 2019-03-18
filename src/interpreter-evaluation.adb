@@ -19,13 +19,13 @@ package body Interpreter.Evaluation is
       Equivalent_Keys => "=");
 
    function Eval_List
-     (Ctx : in out Eval_Context; Node : LEL.Expr_List) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Expr_List) return Primitive;
 
    function Eval_Assign
-     (Ctx : in out Eval_Context; Node : LEL.Assign) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Assign) return Primitive;
 
    function Eval_Identifier
-     (Ctx : in out Eval_Context; Node : LEL.Identifier) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Identifier) return Primitive;
 
    function Eval_Integer (Node : LEL.Integer) return Primitive;
 
@@ -34,32 +34,31 @@ package body Interpreter.Evaluation is
    function Eval_Bool_Literal (Node : LEL.Bool_Literal) return Primitive;
 
    function Eval_Print
-     (Ctx : in out Eval_Context; Node : LEL.Print_Stmt) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Print_Stmt) return Primitive;
 
    function Eval_Bin_Op
-     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Bin_Op) return Primitive;
 
    function Eval_Non_Short_Circuit_Op
-     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Bin_Op) return Primitive;
 
    function Eval_Short_Circuit_Op
-     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Bin_Op) return Primitive;
 
    function Eval_Dot_Access
-     (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Dot_Access) return Primitive;
 
    function Eval_Is
-     (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Is_Clause) return Primitive;
 
    function Eval_In
-     (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.In_Clause) return Primitive;
 
-   function Eval_Filtered_query (Ctx : in out Eval_Context;
-                                 Node : LEL.Filtered_Query)
-                                 return Primitive;
+   function Eval_Query
+     (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Primitive;
 
    function Eval_Indexing
-     (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.Indexing) return Primitive;
 
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
      with Pre => Name'Length > 4 and then
@@ -71,7 +70,7 @@ package body Interpreter.Evaluation is
    --  Fill the Name_Kinds lookup table by asscoaiting a kind name to a
    --  Ada_Node_Kind_Type value.
 
-   procedure Check_Kind (Ctx           : in out Eval_Context;
+   procedure Check_Kind (Ctx           : Eval_Context_Ptr;
                          Node          : LEL.LKQL_Node;
                          Expected_Kind : Primitive_Kind;
                          Value         : Primitive);
@@ -79,7 +78,7 @@ package body Interpreter.Evaluation is
    --  `Value` doesn't have the expected kind.
 
    function Bool_Eval
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node) return Boolean;
+     (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node) return Boolean;
    --  Evalauate the given node and convert to result to an Ada Boolean.
    --  Raise an exception if the result of the node's evaluation is not a
    --  boolean.
@@ -134,7 +133,7 @@ package body Interpreter.Evaluation is
    -- Check_Kind --
    ----------------
 
-   procedure Check_Kind (Ctx           : in out Eval_Context;
+   procedure Check_Kind (Ctx           : Eval_Context_Ptr;
                          Node          : LEL.LKQL_Node;
                          Expected_Kind : Primitive_Kind;
                          Value         : Primitive)
@@ -149,7 +148,7 @@ package body Interpreter.Evaluation is
    -- Typed_Eval --
    ----------------
 
-   function Typed_Eval (Ctx           : in out Eval_Context;
+   function Typed_Eval (Ctx           : Eval_Context_Ptr;
                         Node          : LEL.LKQL_Node'Class;
                         Expected_Kind : Primitive_Kind) return Primitive
    is
@@ -164,7 +163,7 @@ package body Interpreter.Evaluation is
    ---------------
 
    function Bool_Eval
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node) return Boolean
+     (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node) return Boolean
    is
       Result : constant Primitive := Typed_Eval (Ctx, Node, Kind_Bool);
    begin
@@ -176,7 +175,7 @@ package body Interpreter.Evaluation is
    ----------
 
    function Eval
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node'Class) return Primitive
    is
    begin
       return (case Node.Kind is
@@ -216,7 +215,7 @@ package body Interpreter.Evaluation is
    ---------------
 
    function Eval_List
-     (Ctx : in out Eval_Context; Node : LEL.Expr_List) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Expr_List) return Primitive
    is
       Result : Primitive;
    begin
@@ -240,7 +239,7 @@ package body Interpreter.Evaluation is
    -----------------
 
    function Eval_Assign
-     (Ctx : in out Eval_Context; Node : LEL.Assign) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Assign) return Primitive
    is
       Identifier : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Node.F_Identifier.Text);
@@ -254,7 +253,7 @@ package body Interpreter.Evaluation is
    ---------------------
 
    function Eval_Identifier
-     (Ctx : in out Eval_Context; Node : LEL.Identifier) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Identifier) return Primitive
    is
    begin
       return Ctx.Env (To_Unbounded_Text (Node.Text));
@@ -298,7 +297,7 @@ package body Interpreter.Evaluation is
    ----------------
 
    function Eval_Print
-     (Ctx : in out Eval_Context; Node : LEL.Print_Stmt) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Print_Stmt) return Primitive
    is
    begin
       Display (Eval (Ctx, Node.F_Value));
@@ -310,7 +309,7 @@ package body Interpreter.Evaluation is
    -----------------
 
    function Eval_Bin_Op
-     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Bin_Op) return Primitive
    is
    begin
       return (case Node.F_Op.Kind is
@@ -327,7 +326,7 @@ package body Interpreter.Evaluation is
    -------------------------------
 
    function Eval_Non_Short_Circuit_Op
-     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Bin_Op) return Primitive
    is
       Left   : constant Primitive := Eval (Ctx, Node.F_Left);
       Right  : constant Primitive := Eval (Ctx, Node.F_Right);
@@ -351,7 +350,7 @@ package body Interpreter.Evaluation is
    ---------------------------
 
    function Eval_Short_Circuit_Op
-     (Ctx : in out Eval_Context; Node : LEL.Bin_Op) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Bin_Op) return Primitive
    is
       Result  : Boolean;
       Left    : constant LEL.LKQL_Node := Node.F_Left.As_LKQL_Node;
@@ -377,7 +376,7 @@ package body Interpreter.Evaluation is
    --------------------
 
    function Eval_Dot_Access
-     (Ctx : in out Eval_Context; Node : LEL.Dot_Access) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Dot_Access) return Primitive
    is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
@@ -393,7 +392,7 @@ package body Interpreter.Evaluation is
    -------------
 
    function Eval_Is
-     (Ctx : in out Eval_Context; Node : LEL.Is_Clause) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Is_Clause) return Primitive
    is
       Tested_Node   : constant Primitive :=
         Typed_Eval (Ctx, Node.F_Node_Expr, Kind_Node);
@@ -409,7 +408,7 @@ package body Interpreter.Evaluation is
    -------------
 
    function Eval_In
-     (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.In_Clause) return Primitive
    is
       Tested_Value : constant Primitive := Eval (Ctx, Node.F_Value_Expr);
       Tested_List  : constant Primitive :=
@@ -422,9 +421,8 @@ package body Interpreter.Evaluation is
    -- Eval_Non_Filtered_Query --
    -----------------------------
 
-   function Eval_Filtered_query (Ctx : in out Eval_Context;
-                                 Node : LEL.Filtered_Query)
-                                 return Primitive
+   function Eval_Query
+     (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Primitive
    is
       Current_Node  : LAL.Ada_Node;
       It            : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
@@ -465,7 +463,7 @@ package body Interpreter.Evaluation is
    -------------------
 
    function Eval_Indexing
-     (Ctx : in out Eval_Context; Node : LEL.Indexing) return Primitive
+     (Ctx : Eval_Context_Ptr; Node : LEL.Indexing) return Primitive
    is
       List  : constant Primitive :=
         Typed_Eval (Ctx, Node.F_Collection_Expr, Kind_List);

@@ -6,12 +6,12 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 package Interpreter.Evaluation is
 
    function Eval
-     (Ctx : in out Eval_Context; Node : LEL.LKQL_Node'Class) return Primitive;
+     (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node'Class) return Primitive;
    --  Return the result of the AST node's evaluation in the given context.
    --  An Eval_Error will be raised if the node represents an invalid query or
    --  expression.
 
-   function Typed_Eval (Ctx           : in out Eval_Context;
+   function Typed_Eval (Ctx           : Eval_Context_Ptr;
                         Node          : LEL.LKQL_Node'Class;
                         Expected_Kind : Primitive_Kind) return Primitive;
    --  Evaluate the given node and raise an exception if the kind of the

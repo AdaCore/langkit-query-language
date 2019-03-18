@@ -28,12 +28,12 @@ package body Interpreter.Error_Handling is
    ----------------------------
 
    procedure Raise_And_Record_Error
-     (Ctx : in out Eval_Context; Error : Error_Data)
+     (Ctx : Eval_Context_Ptr; Error : Error_Data)
    is
       Error_Message : constant String :=
         To_UTF8 (To_Text (Error.Short_Message));
    begin
-      Add_Error (Ctx, Error);
+      Add_Error (Ctx.all, Error);
 
       if Ctx.Error_Recovery_Enabled then
          Put_Line (Error_Description (Error));
@@ -49,7 +49,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Invalid_Member --
    --------------------------
 
-   procedure Raise_Invalid_Member (Ctx      : in out Eval_Context;
+   procedure Raise_Invalid_Member (Ctx      : Eval_Context_Ptr;
                                    Node     : LEL.Dot_Access;
                                    Receiver : Primitive)
    is
@@ -65,7 +65,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Null_Root --
    ---------------------
 
-   procedure Raise_Null_Root (Ctx : in out Eval_Context; Node : LEL.Query)
+   procedure Raise_Null_Root (Ctx : Eval_Context_Ptr; Node : LEL.Query)
    is
       Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text (
@@ -79,7 +79,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Invalid_Kind --
    ------------------------
 
-   procedure Raise_Invalid_Kind (Ctx      : in out Eval_Context;
+   procedure Raise_Invalid_Kind (Ctx      : Eval_Context_Ptr;
                                  Node     : LEL.LKQL_Node;
                                  Expected : Primitive_Kind;
                                  Value   : Primitive)
