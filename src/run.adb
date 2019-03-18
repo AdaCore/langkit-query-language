@@ -17,7 +17,7 @@ package body Run is
    package LAL_GPR renames Libadalang.Project_Provider;
 
    procedure Evaluate
-     (Context : in out Eval_Context; LKQL_Script : LEL.LKQL_Node);
+     (Context : Eval_Context_Ptr; LKQL_Script : LEL.LKQL_Node);
    --  Evaluate the script in the given context and display the error
    --  messages, if any.
 
@@ -26,7 +26,7 @@ package body Run is
    --------------
 
    procedure Evaluate
-     (Context : in out Eval_Context; LKQL_Script : LEL.LKQL_Node)
+     (Context : Eval_Context_Ptr; LKQL_Script : LEL.LKQL_Node)
    is
       Ignore : Primitive;
    begin
@@ -53,10 +53,11 @@ package body Run is
    is
       Unit    : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (Script_Path);
-      Context : Eval_Context;
+      Context : Eval_Context_Ptr := new Eval_Context;
    begin
       Context.Error_Recovery_Enabled := Recovery_Enabled;
       Evaluate (Context, Unit.Root);
+      Free_Eval_Context (Context);
    end Run_Standalone_Query;
 
    -------------------------
@@ -96,7 +97,7 @@ package body Run is
                            Recovery_Enabled : Boolean := False)
    is
       Ada_Unit            : LAL.Analysis_Unit;
-      Interpreter_Context : Eval_Context;
+      Interpreter_Context : Eval_Context_Ptr := new Eval_Context;
       LKQL_Unit           : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
@@ -107,6 +108,7 @@ package body Run is
          Interpreter_Context.AST_Root := Ada_Unit.Root;
          Evaluate (Interpreter_Context, LKQL_Unit.Root);
       end loop;
+      Free_Eval_Context (Interpreter_Context);
    end Run_On_Files;
 
    --------------------

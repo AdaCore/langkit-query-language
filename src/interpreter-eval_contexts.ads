@@ -5,6 +5,7 @@ use  Interpreter.Primitives.Primitive_Ptrs;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Hashed_Maps;
+with Ada.Unchecked_Deallocation;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
@@ -30,6 +31,12 @@ package Interpreter.Eval_Contexts is
       --  encountering an error.
    end record;
    --  Store the evaluation context.
+
+   type Eval_Context_Ptr is access all Eval_Context;
+   --  Pointer to an Eval_Context
+
+   procedure Free_Eval_Context is new Ada.Unchecked_Deallocation
+     (Eval_Context, Eval_Context_Ptr);
 
    procedure Add_Error (Ctx : in out Eval_Context; Error : Error_Data);
    --  Add the given error to the evaluation context.
