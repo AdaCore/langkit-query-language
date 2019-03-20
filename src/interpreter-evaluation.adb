@@ -1,3 +1,4 @@
+with Query;                        use Query;
 with Interpreter.Errors;           use Interpreter.Errors;
 with Interpreter.Error_Handling;   use Interpreter.Error_Handling;
 
@@ -54,8 +55,8 @@ package body Interpreter.Evaluation is
    function Eval_In
      (Ctx : in out Eval_Context; Node : LEL.In_Clause) return Primitive;
 
-   function Eval_Filtered_query (Ctx : in out Eval_Context;
-                                 Node : LEL.Filtered_Query)
+   function Eval_Query (Ctx : in out Eval_Context;
+                                 Node : LEL.Query)
                                  return Primitive;
 
    function Eval_Indexing
@@ -202,8 +203,8 @@ package body Interpreter.Evaluation is
                    Eval_Is (Ctx, Node.As_Is_Clause),
                  when LELCO.lkql_In_Clause =>
                    Eval_In (Ctx, Node.As_In_Clause),
-                 when LELCO.lkql_Filtered_Query =>
-                   Eval_Filtered_query (Ctx, Node.As_Filtered_Query),
+                 when LELCO.lkql_Query | LELCO.lkql_Filtered_Query =>
+                   Eval_Query (Ctx, Node.As_Query),
                  when LELCO.lkql_Indexing =>
                    Eval_Indexing (Ctx, Node.As_Indexing),
                  when others =>
@@ -418,47 +419,25 @@ package body Interpreter.Evaluation is
       return To_Primitive (Contains (Tested_List, Tested_Value));
    end Eval_In;
 
-   -----------------------------
-   -- Eval_Non_Filtered_Query --
-   -----------------------------
+   ----------------
+   -- Eval_Query --
+   ----------------
 
-   function Eval_Filtered_query (Ctx : in out Eval_Context;
-                                 Node : LEL.Filtered_Query)
+   function Eval_Query (Ctx : in out Eval_Context;
+                                 Node : LEL.Query)
                                  return Primitive
    is
-      Current_Node  : LAL.Ada_Node;
-      It            : Traverse_Iterator'Class := Traverse (Ctx.AST_Root);
-      Result        : constant Primitive := Make_Empty_List (Kind_Node);
-      Binding       : constant Unbounded_Text_Type :=
-        To_Unbounded_Text
-          (Node.F_Query_Pattern.As_Node_Query_Pattern
-           .F_Queried_Node.As_Binding_Node_Pattern.F_Binding.Text);
-      Env_Conflict  : constant Boolean := Ctx.Env.Contains (Binding);
-      Env_Backup    : constant Primitive :=
-        (if Env_Conflict then Ctx.Env (Binding) else Make_Unit_Primitive);
+      Current_Node : LAL.Ada_Node;
+      Result       : constant Primitive := Make_Empty_List (Kind_Node);
+      Iter         : Query_Iterator :=
+        Make_Query_Iterator (Ctx, Node);
    begin
-      while It.Next (Current_Node) loop
-         Ctx.Env.Include (Binding, To_Primitive (Current_Node));
-         declare
-            When_Clause_Result : Primitive;
-         begin
-            When_Clause_Result :=
-              Typed_Eval (Ctx, Node.F_Predicate, Kind_Bool);
-            if Bool_Val (When_Clause_Result) then
-               Append (Result, To_Primitive (Current_Node));
-            end if;
-         exception
-            when Recoverable_Error =>
-               null;
-         end;
+      while Iter.Next (Current_Node) loop
+         Append (Result, To_Primitive (Current_Node));
       end loop;
 
-      if Env_Conflict then
-         Ctx.Env.Include (Binding, Env_Backup);
-      end if;
-
       return Result;
-   end Eval_Filtered_query;
+   end Eval_Query;
 
    -------------------
    -- Eval_Indexing --
