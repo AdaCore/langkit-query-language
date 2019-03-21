@@ -406,6 +406,16 @@ package body Interpreter.Primitives is
       return Vec.Element (Positive (Index));
    end Get;
 
+   ------------
+   -- Length --
+   ------------
+
+   function Length (List : Primitive) return Natural is
+   begin
+      Check_Kind (Kind_List, List);
+      return Natural (Elements (List).Length);
+   end Length;
+
    -----------------------
    -- To_Unbounded_Text --
    -----------------------
