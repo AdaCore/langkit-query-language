@@ -163,6 +163,11 @@ package Interpreter.Primitives is
    function Get (List : Primitive; Index : Integer) return Primitive;
    --  Return the element of 'List' at 'Index'.
    --  Raise an Unsupported_Error exception if 'Index' is out of bounds.
+   
+   function Length (List : Primitive) return Natural;
+   --  Return the length of the list.
+   --  An Unsupported_Error will be raised if List is not a value of kind
+   --  Kind_List.
 
    ------------------------------
    -- Text conversion & output --
