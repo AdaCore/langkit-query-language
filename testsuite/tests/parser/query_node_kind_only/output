@@ -1,0 +1,12 @@
+ExprList
+|  Assign
+|  |identifier:
+|  |  Identifier: o
+|  |value:
+|  |  Query
+|  |  |pattern:
+|  |  |  NodeQueryPattern
+|  |  |  |queried_node:
+|  |  |  |  KindNodePattern
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: ObjectDecl

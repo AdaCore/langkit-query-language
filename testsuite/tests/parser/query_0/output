@@ -1,8 +1,12 @@
 ExprList
-|  Query
-|  |binding:
-|  |  Identifier: n
-|  |when_clause:
+|  FilteredQuery
+|  |pattern:
+|  |  NodeQueryPattern
+|  |  |queried_node:
+|  |  |  BindingNodePattern
+|  |  |  |binding:
+|  |  |  |  Identifier: n
+|  |predicate:
 |  |  BinOp
 |  |  |left:
 |  |  |  IsClause
