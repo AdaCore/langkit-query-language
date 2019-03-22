@@ -95,4 +95,19 @@ package body Interpreter.Error_Handling is
         (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Invalid_Kind;
 
+   ---------------------------------
+   -- Raise_Invalid_Selector_Name --
+   ---------------------------------
+
+   procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context_Ptr;
+                                          Node : LEL.Selector_Pattern)
+   is
+      Message : constant Unbounded_Text_Type :=
+        "Invalid selector name: " &
+        To_Unbounded_Text (Node.F_Selector_Name.Text);
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+   end Raise_Invalid_Selector_Name;
+
 end Interpreter.Error_Handling;

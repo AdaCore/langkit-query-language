@@ -34,4 +34,10 @@ package Interpreter.Error_Handling is
    --  Raise an exception signaling a type error, and add an Error_Data
    --  describing the error to the evaluation context.
 
+   procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context_Ptr;
+                                          Node : LEL.Selector_Pattern)
+     with No_Return;
+   --  Raise an exception signaling the use of an invalid selector name,
+   --  and add an Error_Data describing the error to the evaluation context.
+
 end Interpreter.Error_Handling;
