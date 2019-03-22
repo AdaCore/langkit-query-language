@@ -1,5 +1,5 @@
 from langkit.dsl import ASTNode, abstract, Field
-from langkit.parsers import Grammar, Or, List, Pick
+from langkit.parsers import Grammar, Or, List, Pick, Opt, Skip
 from lexer import Token
 
 @abstract
@@ -94,26 +94,6 @@ class DotAccess(Expr):
     member = Field(type=Identifier)
 
 
-class Query(Expr):
-    """
-    AST query.
-
-    This corresponds to a 'query <identifier> when condition' block,
-    where 'identifier' is a regular identifier bound to the "current" node and
-    'condition' is a predicate.
-
-    Queries are implicitly run from the root of the AST and return the list of
-    children nodes that matches the condition.
-
-    For instance::
-       let classesNamedA = query n when n is ClassDecl &&
-                                        n.Identifier == "A"
-
-    """
-    binding = Field(type=Identifier)
-    when_clause = Field(type=Expr)
-
-
 class IsClause(Expr):
     """
     Check a node's kind using the 'is' keyword.
@@ -141,6 +121,106 @@ class Indexing(Expr):
     index_expr = Field(type=Expr)
 
 
+@abstract
+class NodePattern(LKQLNode):
+    """
+    Root node class for node patterns
+    """
+    pass
+
+
+class BindingNodePattern(NodePattern):
+    """
+    Node pattern comprising only a binding identifier
+
+    For instance::
+       let decls = query o ...
+    """
+    binding = Field(type=Identifier)
+
+
+class KindNodePattern(NodePattern):
+    """
+    Node pattern comprising only a kind name
+
+    For instance::
+       let decls = query ObjectDecl ...
+    """
+    identifier = Field(type=Identifier)
+
+
+class FullNodePattern(NodePattern):
+    """
+    Complete node pattern of the form: binding @ KindName
+
+    For instance::
+       let decls = query o@ObjectDecl ...
+    """
+    binding_pattern = Field(type=BindingNodePattern)
+    kind_pattern = Field(type=KindNodePattern)
+
+
+class SelectorPattern(LKQLNode):
+    """
+    Selector pattern of the form: [name]
+    Used to specify the relationship between the node being queried and some
+    other nodes.
+
+    For instance::
+       let parentDecls = query p [child] ObjectDecl when ...
+    """
+    selector_name = Field(type=Identifier)
+
+
+@abstract
+class QueryPattern(Expr):
+    """
+    Root node class for query patterns
+    """
+    pass
+
+
+class NodeQueryPattern(QueryPattern):
+    """
+    A query pattern of the form: node_pattern
+
+    For instance::
+       let decls = query ObjectDecls when ...
+    """
+    queried_node = Field(type=NodePattern)
+
+
+class FullQueryPattern(NodeQueryPattern):
+    """
+    A query pattern of the form: node_pattern selector_pattern node_pattern
+
+    For instance::
+       let withAspects = query ObjectDecl [child] AspectAssoc when ...
+    """
+    selector = Field(type=SelectorPattern)
+    related_node = Field(type=NodePattern)
+
+
+class Query(Expr):
+    """
+    Query without filtering predicate.
+
+    For instance::
+       let withAspects = query ObjectDecl [child] AspectAssoc
+    """
+    pattern = Field(type=QueryPattern)
+
+
+class FilteredQuery(Query):
+    """
+    Query with a filtering predicate.
+
+    For instance::
+       let classesNamedA = query cls@ClassDecl when cls.identifier == "A"
+    """
+    predicate = Field(type=Expr)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 lkql_grammar.add_rules(
@@ -151,7 +231,30 @@ lkql_grammar.add_rules(
 
     print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    query=Query(Token.Query, G.identifier, Token.When, G.expr),
+    query=Or(FilteredQuery(Token.QueryTok,
+                           G.query_pattern,
+                           Token.When,
+                           G.expr),
+             Query(Token.QueryTok, G.query_pattern)),
+
+    query_pattern=Or(FullQueryPattern(G.node_pattern,
+                                      G.selector_pattern,
+                                      G.node_pattern),
+                     NodeQueryPattern(G.node_pattern)),
+
+    node_pattern=Or(G.full_node_pattern,
+                    G.binding_node_pattern,
+                    G.kind_node_pattern),
+
+    full_node_pattern=FullNodePattern(G.binding_node_pattern,
+                                      Token.At,
+                                      G.kind_node_pattern),
+
+    binding_node_pattern=BindingNodePattern(G.identifier),
+
+    kind_node_pattern=KindNodePattern(G.kind_name),
+
+    selector_pattern=SelectorPattern(Token.LBrack, G.identifier, Token.RBrack),
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),

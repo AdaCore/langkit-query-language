@@ -3,10 +3,14 @@ ExprList
 |  |identifier:
 |  |  Identifier: o
 |  |value:
-|  |  Query
-|  |  |binding:
-|  |  |  Identifier: o
-|  |  |when_clause:
+|  |  FilteredQuery
+|  |  |pattern:
+|  |  |  NodeQueryPattern
+|  |  |  |queried_node:
+|  |  |  |  BindingNodePattern
+|  |  |  |  |binding:
+|  |  |  |  |  Identifier: o
+|  |  |predicate:
 |  |  |  BinOp
 |  |  |  |left:
 |  |  |  |  IsClause
