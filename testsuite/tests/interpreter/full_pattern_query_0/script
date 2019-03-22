@@ -1,0 +1,2 @@
+let withAspect = query ObjectDecl [children] AspectAssoc
+print (withAspect)
