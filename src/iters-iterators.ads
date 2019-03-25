@@ -10,6 +10,31 @@ package Iters.Iterators is
    type Element_Array is array (Positive range <>) of Element_Type;
    --  Array type to use when consuming the iterator into an array of elements
 
+   --------------
+   -- Iterator --
+   --------------
+
+   type Iterator_Interface is interface;
+   --  Abstraction for iterating over a sequence of values
+
+   type Iterator_Access is access all Iterator_Interface'Class;
+
+   function Next (Iter   : in out Iterator_Interface;
+                  Result : out Element_Type) return Boolean is abstract;
+   --  Get the next iteration element. If there was no element to yield
+   --  anymore, return false. Otherwise, return true and set Result.
+
+   procedure Release (Iter : in out Iterator_Interface) is null;
+   --  Release ressources that belong to Iter
+
+   function Consume (Iter : Iterator_Interface'Class) return Element_Array;
+   --  Consume the iterator and return an array that contains the yielded
+   --  elements.
+   --  The ressources associated with the iterator will be released.
+
+   procedure Free_Iterator is new Ada.Unchecked_Deallocation
+     (Iterator_Interface'Class, Iterator_Access);
+
    -----------
    -- Funcs --
    -----------
@@ -39,30 +64,25 @@ package Iters.Iterators is
 
    end Funcs;
 
-   --------------
-   -- Iterator --
-   --------------
+   ---------------
+   -- Consumers --
+   ---------------
 
-   type Iterator_Interface is interface;
-   --  Abstraction for iterating over a sequence of values
+   generic
 
-   type Iterator_Access is access all Iterator_Interface'Class;
+      type Return_Type (<>) is private;
+      --  Type of values produced by the iterator's consumption
 
-   function Next (Iter   : in out Iterator_Interface;
-                  Result : out Element_Type) return Boolean is abstract;
-   --  Get the next iteration element. If there was no element to yield
-   --  anymore, return false. Otherwise, return true and set Result.
+   package Consumers is
 
-   procedure Release (Iter : in out Iterator_Interface) is null;
-   --  Release ressources that belong to Iter
+      type Consumer_Interface is interface;
 
-   function Consume (Iter : Iterator_Interface'Class) return Element_Array;
-   --  Consume the iterator and return an array that contains the yielded
-   --  elements.
-   --  The ressources associated with the iterator will be released.
+      function Consume (Self : in out Consumer_Interface;
+                        Iter : in out Iterator_Interface'Class)
+                        return Return_Type is abstract;
+      --  Consume and release the iterator
 
-   procedure Free_Iterator is new Ada.Unchecked_Deallocation
-     (Iterator_Interface'Class, Iterator_Access);
+   end Consumers;
 
    ------------
    -- Filter --

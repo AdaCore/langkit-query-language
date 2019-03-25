@@ -15,7 +15,7 @@ package body Query is
                                  return Node_Iterators.Filter_Iter
    is
       Iter      : constant Node_Iterator_Access :=
-        Node_Iterator_Access (Make_Travers_Wrapper (Ctx.AST_Root));
+        new Traverse_Wrapper'(Make_Travers_Wrapper (Ctx.AST_Root));
       Predicate : constant Node_Iterators.Predicate_Access :=
         Node_Iterators.Predicate_Access (Make_Query_Predicate (Ctx, Node));
    begin
@@ -82,10 +82,8 @@ package body Query is
          return False;
       end if;
 
-      if Query_Match.Kind = With_Bindings then
-         Backup := Backup_Env (Ctx.Env, Query_Match.Bindings);
-         Update_Env (Ctx.Env, Query_Match.Bindings);
-      end if;
+      Backup := Backup_Env (Ctx.Env, Query_Match.Bindings);
+      Update_Env (Ctx.Env, Query_Match.Bindings);
 
       Result := Bool_Val (Typed_Eval (Ctx, Query.F_Predicate, Kind_Bool));
       Update_Env (Ctx.Env, Backup);
@@ -164,43 +162,30 @@ package body Query is
       Node          : LAL.Ada_Node) return Match
    is
       use String_Value_Maps;
-      Element               : LAL.Ada_Node;
-      Matched_Nodes         : constant Primitive :=
-        Make_Empty_List (Kind_Node);
-      Queried_Match         : constant Match :=
+      Queried_Match          : constant Match :=
         Match_Node_Pattern (Query_Pattern.F_Queried_Node, Node);
-      Related_Pattern       : LEL.Node_Pattern
-         renames Query_Pattern.F_Related_Node;
-      Related_Nodes_Iter    : Node_Iterator'Class :=
+      Related_Nodes_Iter     : Node_Iterator'Class :=
         Make_Selector_Iterator (Ctx, Node, Query_Pattern.F_Selector);
-      Bindings              : Map;
-      Success               : Boolean;
+      Related_Nodes_Consumer : Exists_Consumer :=
+        (Pattern => Query_Pattern.F_Related_Node);
+      Selector_Match         : Match;
+      Bindings               : Map;
    begin
       if not Queried_Match.Success then
-         return (No_Bindings, Success => False);
-      elsif Queried_Match.Kind = With_Bindings then
-         Update_Env (Bindings, Queried_Match.Bindings);
+         Related_Nodes_Iter.Release;
+         return Match_Failure;
       end if;
 
-      while Related_Nodes_Iter.Next (Element) loop
-         if Match_Node_Pattern (Related_Pattern, Element).Success then
-            Append (Matched_Nodes, To_Primitive (Element));
-         end if;
-      end loop;
+      Update_Env (Bindings, Queried_Match.Bindings);
+      Selector_Match := Related_Nodes_Consumer.Consume (Related_Nodes_Iter);
 
-      if Related_Pattern.Kind = LELCO.lkql_Binding_Node_Pattern or else
-        Related_Pattern.Kind = LELCO.lkql_Full_Node_Pattern
-      then
-         Bindings.Insert
-           (Binding_Name (Related_Pattern),
-            Matched_Nodes);
+      if not Selector_Match.Success then
+         return Match_Failure;
       end if;
 
-      Success := Length (Matched_Nodes) > 0;
+      Update_Env (Bindings, Selector_Match.Bindings);
 
-      return (if Integer (Bindings.Length) > 0
-              then (With_Bindings, Success, Bindings)
-              else (No_Bindings, Success));
+      return (Success => True, Bindings => Bindings);
    end Match_Full_Query_Pattern;
 
    ------------------------
@@ -242,7 +227,7 @@ package body Query is
         To_Unbounded_Text (Node_Pattern.F_Binding.Text);
    begin
       Bindings.Insert (Name, To_Primitive (Node));
-      return (Kind => With_Bindings, Success => True, Bindings => Bindings);
+      return (Success => True, Bindings => Bindings);
    end Match_Binding_Node_Pattern;
 
    -----------------------------
@@ -259,7 +244,7 @@ package body Query is
         To_Ada_Node_Kind (Node_Pattern.F_Identifier.Text);
       Success       : constant Boolean := Node.Kind = Expected_Kind;
    begin
-      return (No_Bindings, Success);
+      return (Success, String_Value_Maps.Empty_Map);
    end Match_Kind_Node_Pattern;
 
    -----------------------------
@@ -311,7 +296,7 @@ package body Query is
         To_UTF8 (Selector_Pattern.F_Selector_Name.Text);
    begin
       if Selector_Name = "children" then
-         return Node_Iterator'Class (Make_Travers_Wrapper (Queried_Node).all);
+         return Node_Iterator'Class (Make_Travers_Wrapper (Queried_Node));
       else
          Raise_Invalid_Selector_Name (Ctx, Selector_Pattern);
       end if;
@@ -342,14 +327,56 @@ package body Query is
    ---------------------------
 
    function Make_Travers_Wrapper
-     (Root : LAL.Ada_Node) return Traverse_Wrapper_Access
+     (Root : LAL.Ada_Node) return Traverse_Wrapper
    is
       Iter : constant Traverse_Iterator_Access :=
         new Libadalang.Iterators.Traverse_Iterator'Class'
           (Libadalang.Iterators.Traverse (Root));
    begin
-      return new Traverse_Wrapper'
-        (Inner => Iter);
+      return Traverse_Wrapper'(Inner => Iter);
    end Make_Travers_Wrapper;
+
+   -------------
+   -- Consume --
+   -------------
+
+   function Consume (Self : in out Exists_Consumer;
+                     Iter : in out Node_Iterator'Class)
+                     return Match
+   is
+      use String_Value_Maps;
+      Bindings      : Map;
+      Current_Node  : LAL.Ada_Node;
+      Current_Match : Match;
+      Matched       : Boolean := False;
+      Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
+      Save_Bindings : constant Boolean :=
+        Self.Pattern.Kind = LELCO.lkql_Binding_Node_Pattern or else
+        Self.Pattern.Kind = LELCO.lkql_Full_Node_Pattern;
+   begin
+      while Iter.Next (Current_Node) loop
+         Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
+
+         if Current_Match.Success then
+            Matched := True;
+
+            if Save_Bindings then
+               Append (Nodes, To_Primitive (Current_Node));
+            end if;
+         end if;
+      end loop;
+
+      Iter.Release;
+
+      if not Matched then
+         return Match_Failure;
+      end if;
+
+      if Save_Bindings then
+         Bindings.Insert (Binding_Name (Self.Pattern), Nodes);
+      end if;
+
+      return (Success => True, Bindings => Bindings);
+   end Consume;
 
 end Query;
