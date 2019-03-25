@@ -1,0 +1,26 @@
+ExprList
+|  Query
+|  |pattern:
+|  |  FullQueryPattern
+|  |  |queried_node:
+|  |  |  FullNodePattern
+|  |  |  |binding_pattern:
+|  |  |  |  BindingNodePattern
+|  |  |  |  |binding:
+|  |  |  |  |  Identifier: o
+|  |  |  |kind_pattern:
+|  |  |  |  KindNodePattern
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: ObjectDecl
+|  |  |selector:
+|  |  |  QuantifiedSelector
+|  |  |  |quantifier:
+|  |  |  |  Identifier: all
+|  |  |  |selector:
+|  |  |  |  NamedSelector
+|  |  |  |  |name:
+|  |  |  |  |  Identifier: children
+|  |  |related_node:
+|  |  |  KindNodePattern
+|  |  |  |identifier:
+|  |  |  |  Identifier: AspectAssoc

@@ -17,9 +17,9 @@ ExprList
 |  |  |  |  |  |identifier:
 |  |  |  |  |  |  Identifier: ObjectDecl
 |  |  |  |selector:
-|  |  |  |  SelectorPattern
-|  |  |  |  |selector_name:
-|  |  |  |  |  Identifier: child
+|  |  |  |  NamedSelector
+|  |  |  |  |name:
+|  |  |  |  |  Identifier: children
 |  |  |  |related_node:
 |  |  |  |  KindNodePattern
 |  |  |  |  |identifier:

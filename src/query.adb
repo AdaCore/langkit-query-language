@@ -165,7 +165,8 @@ package body Query is
       Queried_Match          : constant Match :=
         Match_Node_Pattern (Query_Pattern.F_Queried_Node, Node);
       Related_Nodes_Iter     : Node_Iterator'Class :=
-        Make_Selector_Iterator (Ctx, Node, Query_Pattern.F_Selector);
+        Make_Selector_Iterator
+          (Ctx, Node, Query_Pattern.F_Selector.As_Named_Selector);
       Related_Nodes_Consumer : Exists_Consumer :=
         (Pattern => Query_Pattern.F_Related_Node);
       Selector_Match         : Match;
@@ -289,11 +290,11 @@ package body Query is
 
    function Make_Selector_Iterator (Ctx              : Eval_Context_Ptr;
                                     Queried_Node     : LAL.Ada_Node;
-                                    Selector_Pattern : LEL.Selector_Pattern)
+                                    Selector_Pattern : LEL.Named_Selector)
                                     return Node_Iterator'Class
    is
       Selector_Name : constant String :=
-        To_UTF8 (Selector_Pattern.F_Selector_Name.Text);
+        To_UTF8 (Selector_Pattern.F_Name.Text);
    begin
       if Selector_Name = "children" then
          return Node_Iterator'Class (Make_Travers_Wrapper (Queried_Node));
