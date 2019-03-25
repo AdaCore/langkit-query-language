@@ -123,7 +123,7 @@ private
 
    function Make_Selector_Iterator (Ctx              : Eval_Context_Ptr;
                                     Queried_Node     : LAL.Ada_Node;
-                                    Selector_Pattern : LEL.Selector_Pattern)
+                                    Selector_Pattern : LEL.Named_Selector)
                                     return Node_Iterator'Class;
    --  Return an iterator that yields the nodes bound to Queried_Node by the
    --  given selector.

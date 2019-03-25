@@ -160,16 +160,36 @@ class FullNodePattern(NodePattern):
     kind_pattern = Field(type=KindNodePattern)
 
 
+@abstract
 class SelectorPattern(LKQLNode):
     """
-    Selector pattern of the form: [name]
+    Root node for selector patterns
+    """
+    pass
+
+
+class NamedSelector(SelectorPattern):
+    """
+    Selector comprising only a selector name.
     Used to specify the relationship between the node being queried and some
     other nodes.
 
     For instance::
-       let parentDecls = query p [child] ObjectDecl when ...
+       query p [children] ObjectDecl ...
     """
-    selector_name = Field(type=Identifier)
+    name = Field(type=Identifier)
+
+
+class QuantifiedSelector(SelectorPattern):
+    """
+    Selector of the form: [quantifier selector_name].
+    The supported quantifiers are: some, all
+
+    For instance::
+       query p [all children] ObjectDecl ...
+    """
+    quantifier = Field(type=Identifier)
+    selector = Field(type=SelectorPattern)
 
 
 @abstract
@@ -223,6 +243,7 @@ class FilteredQuery(Query):
 
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
+# noinspection PyTypeChecker
 lkql_grammar.add_rules(
     main_rule=List(Or(G.statement, G.expr, G.query)),
 
@@ -254,7 +275,14 @@ lkql_grammar.add_rules(
 
     kind_node_pattern=KindNodePattern(G.kind_name),
 
-    selector_pattern=SelectorPattern(Token.LBrack, G.identifier, Token.RBrack),
+    selector_pattern=Pick(Token.LBrack, G.selector, Token.RBrack),
+
+    selector=Or(G.quantified_selector,
+                G.named_selector),
+
+    named_selector=NamedSelector(G.identifier),
+
+    quantified_selector=QuantifiedSelector(G.identifier, G.named_selector),
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
