@@ -79,20 +79,13 @@ private
    --  Insert all the key-value pairs from New_Values into Env. In case of
    --  a conflict, the value from Env will be overriden.
 
-   type Match_Kind is (No_Bindings, With_Bindings);
-
-   type Match (Kind : Match_Kind := No_Bindings) is
-   record
+   type Match is record
       Success : Boolean;
-      case Kind is
-         when No_Bindings =>
-            null;
-         when With_Bindings =>
-            Bindings : String_Value_Maps.Map;
-      end case;
+      Bindings : String_Value_Maps.Map;
    end record;
 
-   Match_Failure : constant Match := (Kind => No_Bindings, Success => False);
+   Match_Failure : constant Match :=
+     (Success => False, Bindings => String_Value_Maps.Empty_Map);
 
    function Match_Query_Pattern (Ctx           : Eval_Context_Ptr;
                                  Query_Pattern : LEL.Query_Pattern;
@@ -146,14 +139,27 @@ private
    end record;
    --  Iterator that wrapps a Libadalang Traverse iterator
 
-   type Traverse_Wrapper_Access is access all Traverse_Wrapper;
-
    overriding function Next (Iter : in out Traverse_Wrapper;
                              Result : out LAL.Ada_Node) return Boolean;
 
    overriding procedure Release (Iter : in out Traverse_Wrapper);
 
    function Make_Travers_Wrapper
-     (Root : LAL.Ada_Node) return Traverse_Wrapper_Access;
+     (Root : LAL.Ada_Node) return Traverse_Wrapper;
+
+   ------------------------
+   -- Selector consumers --
+   ------------------------
+
+   package Selector_Consumers is new Node_Iterators.Consumers (Match);
+
+   type Exists_Consumer is new Selector_Consumers.Consumer_Interface
+   with record
+      Pattern : LEL.Node_Pattern;
+   end record;
+
+   function Consume (Self : in out Exists_Consumer;
+                     Iter : in out Node_Iterator'Class)
+                     return Match;
 
 end Query;
