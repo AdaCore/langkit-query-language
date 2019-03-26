@@ -100,11 +100,11 @@ package body Interpreter.Error_Handling is
    ---------------------------------
 
    procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context_Ptr;
-                                          Node : LEL.Named_Selector)
+                                          Node : LEL.Selector_Pattern'Class)
    is
       Message : constant Unbounded_Text_Type :=
         "Invalid selector name: " &
-        To_Unbounded_Text (Node.F_Name.Text);
+        To_Unbounded_Text (Node.P_Selector_Name);
    begin
       Raise_And_Record_Error
         (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));

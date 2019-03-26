@@ -1,5 +1,9 @@
-from langkit.dsl import ASTNode, abstract, Field
+from langkit.dsl import (T, ASTNode, abstract, Field)
 from langkit.parsers import Grammar, Or, List, Pick
+from langkit.expressions import (
+    Property, AbstractProperty, Self
+)
+from langkit.expressions.logic import LogicTrue, LogicFalse
 from lexer import Token
 
 @abstract
@@ -165,7 +169,11 @@ class SelectorPattern(LKQLNode):
     """
     Root node for selector patterns
     """
-    pass
+
+    selector_name = AbstractProperty(
+        type=T.String, public=True,
+        doc="Name of the selector."
+    )
 
 
 class NamedSelector(SelectorPattern):
@@ -177,7 +185,10 @@ class NamedSelector(SelectorPattern):
     For instance::
        query p [children] ObjectDecl ...
     """
+
     name = Field(type=Identifier)
+
+    selector_name = Property(Self.name.text, public=True)
 
 
 class QuantifiedSelector(SelectorPattern):
@@ -190,6 +201,8 @@ class QuantifiedSelector(SelectorPattern):
     """
     quantifier = Field(type=Identifier)
     selector = Field(type=SelectorPattern)
+
+    selector_name = Property(Self.selector.selector_name, public=True)
 
 
 @abstract
