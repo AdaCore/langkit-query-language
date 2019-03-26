@@ -166,9 +166,10 @@ package body Query is
         Match_Node_Pattern (Query_Pattern.F_Queried_Node, Node);
       Related_Nodes_Iter     : Node_Iterator'Class :=
         Make_Selector_Iterator
-          (Ctx, Node, Query_Pattern.F_Selector.As_Named_Selector);
-      Related_Nodes_Consumer : Exists_Consumer :=
-        (Pattern => Query_Pattern.F_Related_Node);
+          (Ctx, Node, Query_Pattern.F_Selector);
+      Related_Nodes_Consumer : Node_Consumer'Class :=
+        Make_Selector_Consumer
+          (Query_Pattern.F_Selector, Query_Pattern.F_Related_Node);
       Selector_Match         : Match;
       Bindings               : Map;
    begin
@@ -284,24 +285,52 @@ package body Query is
                 To_Unbounded_Text (""));
    end Binding_Name;
 
+   -----------------
+   -- Has_Binding --
+   -----------------
+
+   function Has_Binding (Node : LEL.Node_Pattern'Class) return Boolean is
+   begin
+      return Node.Kind = LELCO.lkql_Binding_Node_Pattern or else
+        Node.Kind = LELCO.lkql_Full_Node_Pattern;
+   end Has_Binding;
+
    ----------------------------
    -- Make_Selector_Iterator --
    ----------------------------
 
-   function Make_Selector_Iterator (Ctx              : Eval_Context_Ptr;
-                                    Queried_Node     : LAL.Ada_Node;
-                                    Selector_Pattern : LEL.Named_Selector)
-                                    return Node_Iterator'Class
+   function Make_Selector_Iterator
+     (Ctx              : Eval_Context_Ptr;
+      Queried_Node     : LAL.Ada_Node;
+      Selector_Pattern : LEL.Selector_Pattern'Class)
+      return Node_Iterator'Class
    is
-      Selector_Name : constant String :=
-        To_UTF8 (Selector_Pattern.F_Name.Text);
    begin
-      if Selector_Name = "children" then
+      if Selector_Pattern.P_Selector_Name = "children" then
          return Node_Iterator'Class (Make_Travers_Wrapper (Queried_Node));
       else
          Raise_Invalid_Selector_Name (Ctx, Selector_Pattern);
       end if;
    end Make_Selector_Iterator;
+
+   ----------------------------
+   -- Make_Selector_Consumer --
+   ----------------------------
+
+   function Make_Selector_Consumer (Selector     : LEL.Selector_Pattern;
+                                    Related_Node : LEL.Node_Pattern)
+                                    return Node_Consumer'Class
+   is
+      Quantifier_Name : constant Text_Type :=
+        (if Selector.Kind = LELCO.lkql_Named_Selector then "some"
+         else Selector.As_Quantified_Selector.F_Quantifier.Text);
+   begin
+      return (if Quantifier_Name = "some" then
+                 Exists_Consumer'(Pattern => Related_Node)
+              elsif Quantifier_Name = "all" then
+                 All_Consumer'(Pattern => Related_Node)
+              else raise Program_Error);
+   end Make_Selector_Consumer;
 
    ----------
    -- Next --
@@ -351,9 +380,7 @@ package body Query is
       Current_Match : Match;
       Matched       : Boolean := False;
       Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
-      Save_Bindings : constant Boolean :=
-        Self.Pattern.Kind = LELCO.lkql_Binding_Node_Pattern or else
-        Self.Pattern.Kind = LELCO.lkql_Full_Node_Pattern;
+      Save_Bindings : constant Boolean := Has_Binding (Self.Pattern);
    begin
       while Iter.Next (Current_Node) loop
          Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
@@ -378,6 +405,39 @@ package body Query is
       end if;
 
       return (Success => True, Bindings => Bindings);
+   end Consume;
+
+   -------------
+   -- Consume --
+   -------------
+
+   function Consume (Self : in out All_Consumer;
+                     Iter : in out Node_Iterator'Class)
+                     return Match
+   is
+      use String_Value_Maps;
+      Current_Node  : LAL.Ada_Node;
+      Current_Match : Match;
+      Bindings      : Map;
+      Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
+      Save_Bindings : constant Boolean := Has_Binding (Self.Pattern);
+   begin
+      while Iter.Next (Current_Node) loop
+         Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
+
+         if not Current_Match.Success then
+            Iter.Release;
+            return Match_Failure;
+         elsif Save_Bindings then
+            Append (Nodes, To_Primitive (Current_Node));
+         end if;
+      end loop;
+
+      if Save_Bindings then
+         Bindings.Insert (Binding_Name (Self.Pattern), Nodes);
+      end if;
+
+      return (True, Bindings);
    end Consume;
 
 end Query;

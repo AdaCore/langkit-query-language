@@ -121,10 +121,14 @@ private
    --  if the patern doesn't contain a binding name, an empty string will be
    --  returned.
 
-   function Make_Selector_Iterator (Ctx              : Eval_Context_Ptr;
-                                    Queried_Node     : LAL.Ada_Node;
-                                    Selector_Pattern : LEL.Named_Selector)
-                                    return Node_Iterator'Class;
+   function Has_Binding (Node : LEL.Node_Pattern'Class) return Boolean;
+   --  Return True if the the given node contains a binging name.
+
+   function Make_Selector_Iterator
+     (Ctx              : Eval_Context_Ptr;
+      Queried_Node     : LAL.Ada_Node;
+      Selector_Pattern : LEL.Selector_Pattern'Class)
+      return Node_Iterator'Class;
    --  Return an iterator that yields the nodes bound to Queried_Node by the
    --  given selector.
 
@@ -153,6 +157,8 @@ private
 
    package Selector_Consumers is new Node_Iterators.Consumers (Match);
 
+   subtype Node_Consumer is Selector_Consumers.Consumer_Interface;
+
    type Exists_Consumer is new Selector_Consumers.Consumer_Interface
    with record
       Pattern : LEL.Node_Pattern;
@@ -161,5 +167,18 @@ private
    function Consume (Self : in out Exists_Consumer;
                      Iter : in out Node_Iterator'Class)
                      return Match;
+
+   type All_Consumer is new Selector_Consumers.Consumer_Interface
+   with record
+      Pattern : LEL.Node_Pattern;
+   end record;
+
+   function Consume (Self : in out All_Consumer;
+                     Iter : in out Node_Iterator'Class)
+                     return Match;
+
+   function Make_Selector_Consumer (Selector     : LEL.Selector_Pattern;
+                                    Related_Node : LEL.Node_Pattern)
+                                    return Node_Consumer'Class;
 
 end Query;
