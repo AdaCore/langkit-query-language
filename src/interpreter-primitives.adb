@@ -470,8 +470,7 @@ package body Interpreter.Primitives is
                  when Kind_Node =>
                    LAL.Kind_Name (Value.Get.Node_Val),
                  when Kind_List =>
-                   Kind_Name (Value) & '[' &
-                   To_String (Elements_Kind (Value)) & ']');
+                   "List[" & To_String (Elements_Kind (Value)) & ']');
    end Kind_Name;
 
    -------------
