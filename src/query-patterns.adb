@@ -1,12 +1,12 @@
-with Interpreter.Evaluation;     use Interpreter.Evaluation;
 with Interpreter.Primitives;     use Interpreter.Primitives;
+with Interpreter.Evaluation;     use Interpreter.Evaluation;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
 with Liblkqllang.Common; use type Liblkqllang.Common.LKQL_Node_Kind_Type;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-package body Query is
+package body Query.Patterns is
 
    -------------------------
    -- Make_Query_Iterator --
@@ -17,9 +17,9 @@ package body Query is
                                  return Node_Iterators.Filter_Iter
    is
       Iter      : constant Node_Iterator_Access :=
-        new Traverse_Wrapper'(Make_Travers_Wrapper (Ctx.AST_Root));
-      Predicate : constant Node_Iterators.Predicate_Access :=
-        Node_Iterators.Predicate_Access (Make_Query_Predicate (Ctx, Node));
+        new Childs_Iterator'(Make_Childs_Iterator (Ctx.AST_Root));
+      Predicate : constant Iterator_Predicate_Access :=
+        Iterator_Predicate_Access (Make_Query_Predicate (Ctx, Node));
    begin
       return Node_Iterators.Filter (Iter, Predicate);
    end Make_Query_Iterator;
@@ -40,7 +40,7 @@ package body Query is
    --------------
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : LAL.Ada_Node) return Boolean
+     (Self : in out Query_Predicate; Node : Iterator_Node) return Boolean
    is
    begin
       return (case Self.Query.Kind is
@@ -60,7 +60,7 @@ package body Query is
 
    function Match_Unfiltered_Query (Ctx   : Eval_Context_Ptr;
                                     Query : LEL.Query;
-                                    Node  : LAL.Ada_Node) return Boolean
+                                    Node  : Iterator_Node) return Boolean
    is
    begin
       return Match_Query_Pattern (Ctx, Query.F_Pattern, Node).Success;
@@ -72,7 +72,7 @@ package body Query is
 
    function Match_Filtered_Query (Ctx   : Eval_Context_Ptr;
                                   Query : LEL.Filtered_Query;
-                                  Node  : LAL.Ada_Node) return Boolean
+                                  Node  : Iterator_Node) return Boolean
    is
       use String_Value_Maps;
       Result      : Boolean;
@@ -137,14 +137,15 @@ package body Query is
 
    function Match_Query_Pattern (Ctx           : Eval_Context_Ptr;
                                  Query_Pattern : LEL.Query_Pattern;
-                                 Node          : LAL.Ada_Node) return Match
+                                 Node          : Iterator_Node)
+                                 return Match
    is
    begin
       return (case Query_Pattern.Kind is
                  when LELCO.lkql_Node_Query_Pattern =>
                    Match_Node_Pattern
                      (Query_Pattern.As_Node_Query_Pattern.F_Queried_Node,
-                      Node),
+                      Node.Node),
                  when LELCO.lkql_Full_Query_Pattern =>
                    Match_Full_Query_Pattern
                      (Ctx, Query_Pattern.As_Full_Query_Pattern, Node),
@@ -161,11 +162,11 @@ package body Query is
    function Match_Full_Query_Pattern
      (Ctx           : Eval_Context_Ptr;
       Query_Pattern : LEL.Full_Query_Pattern;
-      Node          : LAL.Ada_Node) return Match
+      Node          : Iterator_Node) return Match
    is
       use String_Value_Maps;
       Queried_Match          : constant Match :=
-        Match_Node_Pattern (Query_Pattern.F_Queried_Node, Node);
+        Match_Node_Pattern (Query_Pattern.F_Queried_Node, Node.Node);
       Related_Nodes_Iter     : Node_Iterator'Class :=
         Make_Selector_Iterator
           (Ctx, Node, Query_Pattern.F_Selector);
@@ -228,7 +229,7 @@ package body Query is
       use String_Value_Maps;
       Bindings : Map;
       Name     : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Node_Pattern.F_Binding.Text);
+        To_Unbounded_Text (Node_Pattern.P_Binding_Name);
    begin
       Bindings.Insert (Name, To_Primitive (Node));
       return (Success => True, Bindings => Bindings);
@@ -274,13 +275,13 @@ package body Query is
 
    function Make_Selector_Iterator
      (Ctx              : Eval_Context_Ptr;
-      Queried_Node     : LAL.Ada_Node;
+      Queried_Node     : Iterator_Node;
       Selector_Pattern : LEL.Selector_Pattern'Class)
       return Node_Iterator'Class
    is
    begin
       if Selector_Pattern.P_Selector_Name = "children" then
-         return Node_Iterator'Class (Make_Travers_Wrapper (Queried_Node));
+         return Make_Childs_Iterator (Queried_Node.Node);
       else
          Raise_Invalid_Selector_Name (Ctx, Selector_Pattern);
       end if;
@@ -305,40 +306,6 @@ package body Query is
               else raise Program_Error);
    end Make_Selector_Consumer;
 
-   ----------
-   -- Next --
-   ----------
-
-   overriding function Next (Iter : in out Traverse_Wrapper;
-                             Result : out LAL.Ada_Node) return Boolean
-   is
-   begin
-      return Iter.Inner.Next (Result);
-   end Next;
-
-   -------------
-   -- Release --
-   -------------
-
-   overriding procedure Release (Iter : in out Traverse_Wrapper) is
-   begin
-      Free_Traverse_Iterator (Iter.Inner);
-   end Release;
-
-   ---------------------------
-   -- Make_Traverse_Wrapper --
-   ---------------------------
-
-   function Make_Travers_Wrapper
-     (Root : LAL.Ada_Node) return Traverse_Wrapper
-   is
-      Iter : constant Traverse_Iterator_Access :=
-        new Libadalang.Iterators.Traverse_Iterator'Class'
-          (Libadalang.Iterators.Traverse (Root));
-   begin
-      return Traverse_Wrapper'(Inner => Iter);
-   end Make_Travers_Wrapper;
-
    -------------
    -- Consume --
    -------------
@@ -349,20 +316,20 @@ package body Query is
    is
       use String_Value_Maps;
       Bindings      : Map;
-      Current_Node  : LAL.Ada_Node;
+      Current_Node  : Iterator_Node;
       Current_Match : Match;
       Matched       : Boolean := False;
       Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
       Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
    begin
       while Iter.Next (Current_Node) loop
-         Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
+         Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node.Node);
 
          if Current_Match.Success then
             Matched := True;
 
             if Save_Bindings then
-               Append (Nodes, To_Primitive (Current_Node));
+               Append (Nodes, To_Primitive (Current_Node.Node));
             end if;
          end if;
       end loop;
@@ -390,20 +357,20 @@ package body Query is
                      return Match
    is
       use String_Value_Maps;
-      Current_Node  : LAL.Ada_Node;
+      Current_Node  : Iterator_Node;
       Current_Match : Match;
       Bindings      : Map;
       Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
       Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
    begin
       while Iter.Next (Current_Node) loop
-         Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
+         Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node.Node);
 
          if not Current_Match.Success then
             Iter.Release;
             return Match_Failure;
          elsif Save_Bindings then
-            Append (Nodes, To_Primitive (Current_Node));
+            Append (Nodes, To_Primitive (Current_Node.Node));
          end if;
       end loop;
 
@@ -415,4 +382,4 @@ package body Query is
       return (True, Bindings);
    end Consume;
 
-end Query;
+end Query.Patterns;
