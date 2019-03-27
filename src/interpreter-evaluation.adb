@@ -1,6 +1,7 @@
-with Query;                        use Query;
-with Interpreter.Errors;           use Interpreter.Errors;
-with Interpreter.Error_Handling;   use Interpreter.Error_Handling;
+with Query.Patterns;             use Query.Patterns;
+with Query.Iterators;            use Query.Iterators;
+with Interpreter.Errors;         use Interpreter.Errors;
+with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
 with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
@@ -425,13 +426,13 @@ package body Interpreter.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context_Ptr; Node : LEL.Query) return Primitive
    is
-      use Query.Node_Iterators;
-      Current_Node : LAL.Ada_Node;
+      use Query.Iterators.Node_Iterators;
+      Current_Node : Iterator_Node;
       Iter         : Filter_Iter := Make_Query_Iterator (Ctx, Node);
       Result       : constant Primitive :=  Make_Empty_List (Kind_Node);
    begin
       while Iter.Next (Current_Node) loop
-         Append (Result, To_Primitive (Current_Node));
+         Append (Result, To_Primitive (Current_Node.Node));
       end loop;
 
       Iter.Release;
