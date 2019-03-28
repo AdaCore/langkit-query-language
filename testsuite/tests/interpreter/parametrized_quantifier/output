@@ -1,0 +1,5 @@
+aspect_decls.ads
+<ObjectDecl ["Variable"] 4:5-5:74>
+<ObjectDecl ["Variable1"] 7:5-8:23>
+<TypeDecl ["My_Int"] 10:5-10:48>
+<ObjectDecl ["Variable4"] 14:5-15:43>

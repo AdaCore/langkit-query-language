@@ -1,0 +1,2 @@
+let declWithAssoc = query d [children(depth == 3)] AspectAssoc
+print(declWithAssoc)
