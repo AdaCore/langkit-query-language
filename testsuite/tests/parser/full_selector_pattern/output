@@ -1,0 +1,15 @@
+QuantifiedSelector
+|quantifier:
+|  Identifier: all
+|selector:
+|  ParametrizedSelector
+|  |name:
+|  |  Identifier: children
+|  |condition_expr:
+|  |  BinOp
+|  |  |left:
+|  |  |  Identifier: depth
+|  |  |op:
+|  |  |  OpEq
+|  |  |right:
+|  |  |  Integer: 3
