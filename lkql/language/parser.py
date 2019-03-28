@@ -246,6 +246,8 @@ class QuantifiedSelector(SelectorPattern):
 
     quantifier_name = Property(Self.quantifier.text)
 
+    condition = Property(Self.selector.condition)
+
 
 @abstract
 class QueryPattern(Expr):
