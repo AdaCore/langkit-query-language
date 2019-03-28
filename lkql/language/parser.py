@@ -1,9 +1,10 @@
 from langkit.dsl import (T, ASTNode, abstract, Field)
-from langkit.parsers import Grammar, Or, List, Pick
+from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.expressions import (
-    Property, AbstractProperty, Self, String
+    Property, AbstractProperty, Self, String, No
 )
 from lexer import Token
+
 
 @abstract
 class LKQLNode(ASTNode):
@@ -205,6 +206,7 @@ class SelectorPattern(LKQLNode):
                property defaults to "some"."""
     )
 
+
 class NamedSelector(SelectorPattern):
     """
     Selector comprising only a selector name.
@@ -238,7 +240,7 @@ class QuantifiedSelector(SelectorPattern):
        query p [all children] ObjectDecl ...
     """
     quantifier = Field(type=Identifier)
-    selector = Field(type=SelectorPattern)
+    selector = Field(type=NamedSelector)
 
     selector_name = Property(Self.selector.selector_name, public=True)
 
@@ -333,7 +335,11 @@ lkql_grammar.add_rules(
     selector=Or(G.quantified_selector,
                 G.named_selector),
 
-    named_selector=NamedSelector(G.identifier),
+    named_selector=Or(ParametrizedSelector(G.identifier,
+                                           Token.LPar,
+                                           Opt(G.comp_expr),
+                                           Token.RPar),
+                      NamedSelector(G.identifier)),
 
     quantified_selector=QuantifiedSelector(G.identifier, G.named_selector),
 
