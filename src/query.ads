@@ -8,8 +8,6 @@ with Libadalang.Common;
 with Libadalang.Analysis;
 with Libadalang.Iterators;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 with Ada.Unchecked_Deallocation;
 
 package Query is
@@ -114,15 +112,6 @@ private
    function Match_Full_Node_Pattern (Node_Pattern : LEL.Full_Node_Pattern;
                                      Node : LAL.Ada_Node) return Match;
    --  Match a node pattern of the form: BINDING @ KIND_NAME
-
-   function Binding_Name
-     (Node : LEL.Node_Pattern) return Unbounded_Text_Type;
-   --  Return the binding name contained in the given node pattern.
-   --  if the patern doesn't contain a binding name, an empty string will be
-   --  returned.
-
-   function Has_Binding (Node : LEL.Node_Pattern'Class) return Boolean;
-   --  Return True if the the given node contains a binging name.
 
    function Make_Selector_Iterator
      (Ctx              : Eval_Context_Ptr;
