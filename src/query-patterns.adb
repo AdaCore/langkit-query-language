@@ -279,13 +279,36 @@ package body Query.Patterns is
       Selector_Pattern : LEL.Selector_Pattern'Class)
       return Node_Iterator'Class
    is
+      Base_Selector : constant Node_Iterator'Class :=
+        Selector_Iterator_From_Name (Ctx, Queried_Node.Node, Selector_Pattern);
+   begin
+      if Selector_Pattern.P_Condition.Is_Null then
+         return Base_Selector;
+      end if;
+
+      return
+        Node_Iterators.Filter
+         (Base_Selector,
+          Selector_Conditions_Predicate'(Ctx, Selector_Pattern.P_Condition));
+   end Make_Selector_Iterator;
+
+   ---------------------------------
+   -- Selector_Iterator_From_Name --
+   ---------------------------------
+
+   function Selector_Iterator_From_Name
+     (Ctx           : Eval_Context_Ptr;
+      Queried_Node  : LAL.Ada_Node;
+      Selector_Pattern : LEL.Selector_Pattern'Class)
+      return Node_Iterator'Class
+   is
    begin
       if Selector_Pattern.P_Selector_Name = "children" then
-         return Make_Childs_Iterator (Queried_Node.Node);
+         return Make_Childs_Iterator (Queried_Node);
       else
          Raise_Invalid_Selector_Name (Ctx, Selector_Pattern);
       end if;
-   end Make_Selector_Iterator;
+   end Selector_Iterator_From_Name;
 
    ----------------------------
    -- Make_Selector_Consumer --
@@ -296,8 +319,7 @@ package body Query.Patterns is
                                     return Node_Consumer'Class
    is
       Quantifier_Name : constant Text_Type :=
-        (if Selector.Kind = LELCO.lkql_Named_Selector then "some"
-         else Selector.As_Quantified_Selector.F_Quantifier.Text);
+        Selector.P_Quantifier_Name;
    begin
       return (if Quantifier_Name = "some" then
                  Exists_Consumer'(Pattern => Related_Node)
@@ -381,5 +403,37 @@ package body Query.Patterns is
 
       return (True, Bindings);
    end Consume;
+
+   --------------
+   -- Evaluate --
+   --------------
+
+   overriding function Evaluate
+     (Self    : in out Selector_Conditions_Predicate;
+      Element : Iterator_Node)
+      return Boolean
+   is
+      use String_Value_Maps;
+      Local_Env  : Map;
+      Env_Backup : Map;
+   begin
+      Local_Env.Insert
+        (To_Unbounded_Text ("depth"), To_Primitive (Element.Depth));
+      Env_Backup := Backup_Env (Self.Context.Env, Local_Env);
+      Update_Env (Self.Context.Env, Local_Env);
+
+      if not Bool_Val (Typed_Eval (Self.Context, Self.Condition, Kind_Bool))
+      then
+         Update_Env (Self.Context.Env, Env_Backup);
+         return False;
+      end if;
+
+      Update_Env (Self.Context.Env, Env_Backup);
+      return True;
+   exception
+      when others =>
+         Update_Env (Self.Context.Env, Env_Backup);
+         raise;
+   end Evaluate;
 
 end Query.Patterns;

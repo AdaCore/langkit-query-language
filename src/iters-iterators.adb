@@ -78,4 +78,20 @@ package body Iters.Iterators is
       return (Iter, Pred);
    end Filter;
 
+   ------------
+   -- Filter --
+   ------------
+
+   function Filter (Iter : Iterator_Interface'Class;
+                    Pred : Predicates.Func'Class)
+                    return Filter_Iter
+   is
+      Iter_Ptr : constant Iterator_Access :=
+        new Iterator_Interface'Class'(Iter);
+      Pred_Ptr : constant Predicate_Access :=
+        new Predicates.Func'Class'(Pred);
+   begin
+      return Filter (Iter_Ptr, Pred_Ptr);
+   end Filter;
+
 end Iters.Iterators;

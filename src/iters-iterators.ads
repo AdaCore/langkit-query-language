@@ -106,6 +106,10 @@ package Iters.Iterators is
    function Filter
      (Iter : Iterator_Access; Pred : Predicate_Access) return Filter_Iter;
 
+   function Filter (Iter : Iterator_Interface'Class;
+                    Pred : Predicates.Func'Class)
+                    return Filter_Iter;
+
 private
 
    procedure Free_Predicate_Access is new Ada.Unchecked_Deallocation

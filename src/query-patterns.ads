@@ -102,6 +102,12 @@ private
    --  Return an iterator that yields the nodes bound to Queried_Node by the
    --  given selector.
 
+   function Selector_Iterator_From_Name
+     (Ctx           : Eval_Context_Ptr;
+      Queried_Node  : LAL.Ada_Node;
+      Selector_Pattern : LEL.Selector_Pattern'Class)
+      return Node_Iterator'Class;
+
    ------------------------
    -- Selector consumers --
    ------------------------
@@ -131,5 +137,16 @@ private
    function Make_Selector_Consumer (Selector     : LEL.Selector_Pattern;
                                     Related_Node : LEL.Node_Pattern)
                                     return Node_Consumer'Class;
+
+   type Selector_Conditions_Predicate is new Iterator_Predicate_Interface
+   with record
+      Context    : Eval_Context_Ptr;
+      Condition : LEL.Expr;
+   end record;
+
+   overriding function Evaluate
+     (Self    : in out Selector_Conditions_Predicate;
+      Element : Iterator_Node)
+      return Boolean;
 
 end Query.Patterns;
