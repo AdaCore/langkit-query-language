@@ -1,9 +1,8 @@
 from langkit.dsl import (T, ASTNode, abstract, Field)
 from langkit.parsers import Grammar, Or, List, Pick
 from langkit.expressions import (
-    Property, AbstractProperty, Self
+    Property, AbstractProperty, Self, String
 )
-from langkit.expressions.logic import LogicTrue, LogicFalse
 from lexer import Token
 
 @abstract
@@ -130,7 +129,18 @@ class NodePattern(LKQLNode):
     """
     Root node class for node patterns
     """
-    pass
+
+    binding_name = AbstractProperty(
+        type=T.String, public=True,
+        doc="Return the pattern's binding name."
+            "Return an empty string if the pattern doesn't "
+            "contain a binding name"
+    )
+
+    has_binding = Property(Self.binding_name.length > 0,
+                           type=T.Bool, public=True,
+                           doc="Return whether the node patern contains a "
+                               "binding name")
 
 
 class BindingNodePattern(NodePattern):
@@ -142,6 +152,8 @@ class BindingNodePattern(NodePattern):
     """
     binding = Field(type=Identifier)
 
+    binding_name = Property(Self.binding.text)
+
 
 class KindNodePattern(NodePattern):
     """
@@ -151,6 +163,8 @@ class KindNodePattern(NodePattern):
        let decls = query ObjectDecl ...
     """
     identifier = Field(type=Identifier)
+
+    binding_name = Property(String(""))
 
 
 class FullNodePattern(NodePattern):
@@ -163,6 +177,8 @@ class FullNodePattern(NodePattern):
     binding_pattern = Field(type=BindingNodePattern)
     kind_pattern = Field(type=KindNodePattern)
 
+    binding_name = Property(Self.binding_pattern.binding_name)
+
 
 @abstract
 class SelectorPattern(LKQLNode):
@@ -170,11 +186,24 @@ class SelectorPattern(LKQLNode):
     Root node for selector patterns
     """
 
+    condition = Property(
+        No(T.Expr),
+        type=T.Expr, public=True,
+        doc="Conditions associated with this selector"
+    )
+
     selector_name = AbstractProperty(
         type=T.String, public=True,
         doc="Name of the selector."
     )
 
+    quantifier_name = Property(
+        String("some"),  # default implicit quantifier
+        type=T.String, public=True,
+        doc="""Name of the selector's quantifier
+               If the selector pattern doesn't include a quantifier, this
+               property defaults to "some"."""
+    )
 
 class NamedSelector(SelectorPattern):
     """
@@ -191,6 +220,15 @@ class NamedSelector(SelectorPattern):
     selector_name = Property(Self.name.text, public=True)
 
 
+class ParametrizedSelector(NamedSelector):
+    """
+    Selector of the form selector(condition1, condition2, ...)
+    """
+    condition_expr = Field(type=T.Expr)
+
+    condition = Property(Self.condition_expr)
+
+
 class QuantifiedSelector(SelectorPattern):
     """
     Selector of the form: [quantifier selector_name].
@@ -203,6 +241,8 @@ class QuantifiedSelector(SelectorPattern):
     selector = Field(type=SelectorPattern)
 
     selector_name = Property(Self.selector.selector_name, public=True)
+
+    quantifier_name = Property(Self.quantifier.text)
 
 
 @abstract

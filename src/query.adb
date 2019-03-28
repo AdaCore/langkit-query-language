@@ -4,6 +4,8 @@ with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
 with Liblkqllang.Common; use type Liblkqllang.Common.LKQL_Node_Kind_Type;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 package body Query is
 
    -------------------------
@@ -266,35 +268,6 @@ package body Query is
       return Binding_Match'Update (Success => Kind_Match.Success);
    end Match_Full_Node_Pattern;
 
-   ------------------
-   -- Binding_Name --
-   ------------------
-
-   function Binding_Name
-     (Node : LEL.Node_Pattern) return Unbounded_Text_Type
-   is
-   begin
-      return (case Node.Kind is
-              when LELCO.lkql_Binding_Node_Pattern =>
-                To_Unbounded_Text
-                  (Node.As_Binding_Node_Pattern.F_Binding.Text),
-              when LELCO.lkql_Full_Node_Pattern =>
-                To_Unbounded_Text
-                  (Node.As_Full_Node_Pattern.F_Binding_Pattern.F_Binding.Text),
-              when others =>
-                To_Unbounded_Text (""));
-   end Binding_Name;
-
-   -----------------
-   -- Has_Binding --
-   -----------------
-
-   function Has_Binding (Node : LEL.Node_Pattern'Class) return Boolean is
-   begin
-      return Node.Kind = LELCO.lkql_Binding_Node_Pattern or else
-        Node.Kind = LELCO.lkql_Full_Node_Pattern;
-   end Has_Binding;
-
    ----------------------------
    -- Make_Selector_Iterator --
    ----------------------------
@@ -380,7 +353,7 @@ package body Query is
       Current_Match : Match;
       Matched       : Boolean := False;
       Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
-      Save_Bindings : constant Boolean := Has_Binding (Self.Pattern);
+      Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
    begin
       while Iter.Next (Current_Node) loop
          Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
@@ -401,7 +374,8 @@ package body Query is
       end if;
 
       if Save_Bindings then
-         Bindings.Insert (Binding_Name (Self.Pattern), Nodes);
+         Bindings.Insert
+           (To_Unbounded_Text (Self.Pattern.P_Binding_Name), Nodes);
       end if;
 
       return (Success => True, Bindings => Bindings);
@@ -420,7 +394,7 @@ package body Query is
       Current_Match : Match;
       Bindings      : Map;
       Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
-      Save_Bindings : constant Boolean := Has_Binding (Self.Pattern);
+      Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
    begin
       while Iter.Next (Current_Node) loop
          Current_Match := Match_Node_Pattern (Self.Pattern, Current_Node);
@@ -434,7 +408,8 @@ package body Query is
       end loop;
 
       if Save_Bindings then
-         Bindings.Insert (Binding_Name (Self.Pattern), Nodes);
+         Bindings.Insert
+           (To_Unbounded_Text (Self.Pattern.P_Binding_Name), Nodes);
       end if;
 
       return (True, Bindings);
