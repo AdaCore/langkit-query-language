@@ -20,6 +20,16 @@ package body Iters.Iterators is
       return False;
    end Next;
 
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Iter : Filter_Iter) return Filter_Iter
+   is
+   begin
+      return Filter (Iter.Inner.all, Iter.Predicate.all);
+   end Clone;
+
    -------------
    -- Release --
    -------------

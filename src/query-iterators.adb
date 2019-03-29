@@ -79,4 +79,15 @@ package body Query.Iterators is
       Free_Element_Vector (Iter.Stack);
    end Release;
 
+   -----------
+   -- Clone --
+   -----------
+
+   function Clone (Iter : Childs_Iterator) return Childs_Iterator is
+      Stack_Copy : constant Element_Vector_Access :=
+        new Iterator_Node_Vectors.Vector'(Iter.Stack.all);
+   begin
+      return Childs_Iterator'(Stack => Stack_Copy);
+   end Clone;
+
 end Query.Iterators;

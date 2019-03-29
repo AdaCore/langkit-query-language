@@ -24,6 +24,10 @@ package Iters.Iterators is
    --  Get the next iteration element. If there was no element to yield
    --  anymore, return false. Otherwise, return true and set Result.
 
+   function Clone
+     (Iter : Iterator_Interface) return Iterator_Interface is abstract;
+   --  Make a deep copy of the iterator
+
    procedure Release (Iter : in out Iterator_Interface) is null;
    --  Release ressources that belong to Iter
 
@@ -100,6 +104,8 @@ package Iters.Iterators is
 
    overriding function Next (Iter   : in out Filter_Iter;
                              Result : out Element_Type) return Boolean;
+
+   overriding function Clone (Iter : Filter_Iter) return Filter_Iter;
 
    overriding procedure Release (Iter : in out Filter_Iter);
 

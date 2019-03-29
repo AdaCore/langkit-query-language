@@ -41,6 +41,8 @@ package Query.Iterators is
    overriding procedure Release (Iter : in out Childs_Iterator);
    --  Release ressources that belong to 'Iter'
 
+   overriding function Clone (Iter : Childs_Iterator) return Childs_Iterator;
+
    function Make_Childs_Iterator (Node : LAL.Ada_Node) return Childs_Iterator;
    --  Return an iterator that yields all nodes under 'Node' (included) in
    --  a depth first search fashion.
