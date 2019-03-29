@@ -1,3 +1,5 @@
+with Iters.Iterators;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Vectors;
@@ -7,11 +9,17 @@ with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 
 package Interpreter.Primitives is
 
+   Unsupported_Error : exception;
+
    type Primitive_List;
    --  List of Primitive Values
 
    type Primitive_List_Access is access Primitive_List;
    --  Pointer to a list of Primitive values
+
+   type Generator;
+
+   type Generator_Access is access all Generator;
 
    type Primitive_Kind is
      (Kind_Unit,
@@ -30,8 +38,11 @@ package Interpreter.Primitives is
       Kind_Node,
       --  Libadalang node
 
+      Kind_Generator,
+      --  Generator yielding Primitive values
+
       Kind_List
-      --  List of libadalang nodes
+      --  List of Primitive values
    );
    --  Denotes the kind of a primitive value.
 
@@ -48,6 +59,8 @@ package Interpreter.Primitives is
             Bool_Val : Boolean;
          when Kind_Node =>
             Node_Val : LAL.Ada_Node;
+         when Kind_Generator =>
+            Gen_Val : Generator_Access;
          when Kind_List =>
             List_Val : Primitive_List_Access;
       end case;
@@ -66,6 +79,37 @@ package Interpreter.Primitives is
 
    subtype Primitive is Primitive_Ptrs.Ref;
 
+   ---------------
+   -- Generator --
+   ---------------
+
+   package Primitive_Iters is new Iters.Iterators (Primitive);
+
+   subtype Primitive_Iter_Access is Primitive_Iters.Iterator_Access;
+
+   procedure Free_Primitive_Iter is new Ada.Unchecked_Deallocation
+     (Primitive_Iters.Iterator_Interface'Class, Primitive_Iter_Access);
+
+   type Generator is new Primitive_Iters.Iterator_Interface with record
+      Elements_Kind : Primitive_Kind;
+      Iter          : Primitive_Iter_Access;
+   end record;
+   --  Lazy stream of Primitive_values
+
+   overriding function Next
+     (Iter : in out Generator; Result : out Primitive) return Boolean;
+
+   overriding function Clone (Gen : Generator) return Generator;
+
+   overriding procedure Release (Gen : in out Generator);
+
+   function To_List (Gen : Generator) return Primitive;
+   --  Create a List Primitive from the given Generator
+
+   ----------
+   -- List --
+   ----------
+
    package Primitive_Vectors is new
      Ada.Containers.Vectors (Index_Type   => Positive,
                              Element_Type => Primitive);
@@ -82,15 +126,6 @@ package Interpreter.Primitives is
 
    procedure Free_Primitive_List is
      new Ada.Unchecked_Deallocation (Primitive_List, Primitive_List_Access);
-
-   Unsupported_Error : exception;
-
-   function Property
-     (Value : Primitive; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the property named 'Property_Name' of the given
-   --  Primitive value.
-   --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
 
    ---------------
    -- Accessors --
@@ -115,11 +150,18 @@ package Interpreter.Primitives is
    --  Return the value of a list primitive
 
    function Elements_Kind (Value : Primitive) return Primitive_Kind;
-   --  Return the kind of the elements of a list
+   --  Return the kind of the elements of a list or generator
 
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;
    --  Return a pointer to the elements of a list primitive
+
+   function Property
+     (Value : Primitive; Property_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Property_Name' of the given
+   --  Primitive value.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
 
    ----------------------------------
    -- Creation of Primitive values --

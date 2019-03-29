@@ -18,6 +18,8 @@ package body Interpreter.Primitives is
    function Bool_Image (Value : Boolean) return Unbounded_Text_Type;
    --  Return a String representation of the given Boolean value
 
+   function Generator_Image (Value : Generator) return Unbounded_Text_Type;
+
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
@@ -88,6 +90,11 @@ package body Interpreter.Primitives is
       return Image;
    end List_Image;
 
+   function Generator_Image (Value : Generator) return Unbounded_Text_Type is
+   begin
+      return List_Image (List_Val (To_List (Value)).all);
+   end Generator_Image;
+
    ----------------
    -- Check_Kind --
    ----------------
@@ -131,6 +138,53 @@ package body Interpreter.Primitives is
 
       Free_Primitive_List (Data.List_Val);
    end Release;
+
+   ----------
+   -- Next --
+   ----------
+
+   function Next
+     (Iter : in out Generator; Result : out Primitive) return Boolean
+   is
+   begin
+      return Iter.Iter.Next (Result);
+   end Next;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Gen : Generator) return Generator is
+      Iter_Copy : constant Primitive_Iter_Access :=
+        new Primitive_Iters.Iterator_Interface'Class'(Gen.Iter.all);
+   begin
+      return Generator'(Gen.Elements_Kind, Iter_Copy);
+   end Clone;
+
+   -------------
+   -- Release --
+   -------------
+
+   overriding procedure Release (Gen : in out Generator) is
+   begin
+      Free_Primitive_Iter (Gen.Iter);
+   end Release;
+
+   -------------
+   -- To_List --
+   -------------
+
+   function To_List (Gen : Generator) return Primitive is
+      Element  : Primitive;
+      Gen_Copy : constant Generator := Gen.Clone;
+      Result   : constant Primitive := Make_Empty_List (Gen.Elements_Kind);
+   begin
+      while Gen_Copy.Iter.Next (Element) loop
+         Append (Result, Element);
+      end loop;
+
+      return Result;
+   end To_List;
 
    ----------
    -- Kind --
@@ -192,7 +246,13 @@ package body Interpreter.Primitives is
 
    function Elements_Kind (Value : Primitive) return Primitive_Kind is
    begin
-      return Value.Get.List_Val.Elements_Kind;
+      return (case Value.Get.Kind is
+              when Kind_List => Value.Get.List_Val.Elements_Kind,
+              when Kind_Generator => Value.Get.Gen_Val.Elements_Kind,
+              when others =>
+                 raise Program_Error with
+                    "No property 'Elements_Kind' for values of kind: " &
+                    Kind_Name (Value));
    end Elements_Kind;
 
    --------------
@@ -433,6 +493,8 @@ package body Interpreter.Primitives is
                    Bool_Image (Bool_Val (Val)),
                  when Kind_Node =>
                    To_Unbounded_Text (Val.Get.Node_Val.Text_Image),
+                 when Kind_Generator =>
+                   Generator_Image (Val.Get.Gen_Val.all),
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all));
    end To_Unbounded_Text;
@@ -444,12 +506,13 @@ package body Interpreter.Primitives is
    function To_String (Val : Primitive_Kind) return String is
    begin
       return (case Val is
-                 when Kind_Unit => "Unit",
-                 when Kind_Int  => "Int",
-                 when Kind_Str  => "Str",
-                 when Kind_Bool => "Bool",
-                 when Kind_Node => "Node",
-                 when Kind_List => "List");
+                 when Kind_Unit      => "Unit",
+                 when Kind_Int       => "Int",
+                 when Kind_Str       => "Str",
+                 when Kind_Bool      => "Bool",
+                 when Kind_Node      => "Node",
+                 when Kind_Generator => "Generator",
+                 when Kind_List      => "List");
    end To_String;
 
    ---------------
@@ -469,6 +532,8 @@ package body Interpreter.Primitives is
                    "Bool",
                  when Kind_Node =>
                    LAL.Kind_Name (Value.Get.Node_Val),
+                 when Kind_Generator =>
+                   "Generator[" & To_String (Elements_Kind (Value)) & ']',
                  when Kind_List =>
                    "List[" & To_String (Elements_Kind (Value)) & ']');
    end Kind_Name;
