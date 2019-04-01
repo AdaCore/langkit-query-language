@@ -46,17 +46,6 @@ private
    --  Given a query of the form "query PATTERN when CONDITON", return true if
    --  'Node' belongs to the result set of the query.
 
-   function Backup_Env (Parent_Env  : String_Value_Maps.Map;
-                        Local_Env  : String_Value_Maps.Map)
-                        return String_Value_Maps.Map;
-   --  Return the key-value pairs from Parent_Env which have a key that belongs
-   --  to the key set of Local_Env.
-
-   procedure Update_Env (Env        : in out String_Value_Maps.Map;
-                         New_Values : String_Value_Maps.Map);
-   --  Insert all the key-value pairs from New_Values into Env. In case of
-   --  a conflict, the value from Env will be overriden.
-
    type Match is record
       Success : Boolean;
       Bindings : String_Value_Maps.Map;

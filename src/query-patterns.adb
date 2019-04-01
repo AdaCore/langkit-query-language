@@ -74,9 +74,6 @@ package body Query.Patterns is
                                   Query : LEL.Filtered_Query;
                                   Node  : Iterator_Node) return Boolean
    is
-      use String_Value_Maps;
-      Result      : Boolean;
-      Backup      : Map;
       Query_Match : constant Match :=
         Match_Query_Pattern (Ctx, Query.F_Pattern, Node);
    begin
@@ -84,52 +81,11 @@ package body Query.Patterns is
          return False;
       end if;
 
-      Backup := Backup_Env (Ctx.Env, Query_Match.Bindings);
-      Update_Env (Ctx.Env, Query_Match.Bindings);
-
-      Result := Bool_Val (Typed_Eval (Ctx, Query.F_Predicate, Kind_Bool));
-      Update_Env (Ctx.Env, Backup);
-
-      return Result;
-   exception
-      when others =>
-         Update_Env (Ctx.Env, Backup);
-         raise;
+      return
+        Bool_Val
+          (Typed_Bindings_Eval
+             (Ctx, Query.F_Predicate, Kind_Bool, Query_Match.Bindings));
    end Match_Filtered_Query;
-
-   ----------------
-   -- Backup_Env --
-   ----------------
-
-   function Backup_Env (Parent_Env  : String_Value_Maps.Map;
-                        Local_Env  : String_Value_Maps.Map)
-                        return String_Value_Maps.Map
-   is
-      use String_Value_Maps;
-      Backup : Map;
-   begin
-      for C in Local_Env.Iterate loop
-         if Parent_Env.Contains (Key (C)) then
-            Backup.Insert (Key (C), Element (C));
-         end if;
-      end loop;
-
-      return Backup;
-   end Backup_Env;
-
-   ----------------
-   -- Update_Env --
-   ----------------
-
-   procedure Update_Env (Env         : in out String_Value_Maps.Map;
-                         New_Values  : String_Value_Maps.Map)
-   is
-      use String_Value_Maps;
-   begin
-      for C in New_Values.Iterate loop
-         Env.Include (Key (C), Element (C));
-      end loop;
-   end Update_Env;
 
    -------------------------
    -- Match_Query_Pattern --
@@ -413,27 +369,26 @@ package body Query.Patterns is
       Element : Iterator_Node)
       return Boolean
    is
-      use String_Value_Maps;
-      Local_Env  : Map;
-      Env_Backup : Map;
+      Local_Env   : Environment;
+      Eval_Result : Primitive;
    begin
       Local_Env.Insert
         (To_Unbounded_Text ("depth"), To_Primitive (Element.Depth));
-      Env_Backup := Backup_Env (Self.Context.Env, Local_Env);
-      Update_Env (Self.Context.Env, Local_Env);
-
-      if not Bool_Val (Typed_Eval (Self.Context, Self.Condition, Kind_Bool))
-      then
-         Update_Env (Self.Context.Env, Env_Backup);
-         return False;
-      end if;
-
-      Update_Env (Self.Context.Env, Env_Backup);
-      return True;
-   exception
-      when others =>
-         Update_Env (Self.Context.Env, Env_Backup);
-         raise;
+      Eval_Result :=
+        Typed_Bindings_Eval
+          (Self.Context, Self.Condition, Kind_Bool, Local_Env);
+      return Bool_Val (Eval_Result);
    end Evaluate;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Self : Selector_Conditions_Predicate)
+                              return Selector_Conditions_Predicate
+   is
+   begin
+      return Selector_Conditions_Predicate'(Self.Context, Self.Condition);
+   end Clone;
 
 end Query.Patterns;
