@@ -73,6 +73,26 @@ package Iters.Iterators is
         (Func'Class, Func_Access);
       --  Free the memory accessed through a Func_Access pointer
 
+      type Ada_Func_Access is access
+        function (X : Element_Type) return Return_Type;
+      --  Pointer to an Ada function that takes an Element_Type value and
+      --  returns a Return_Type value.
+
+      type Ada_Func_Wrapper is new Func with private;
+
+      function Evaluate (Self    : in out Ada_Func_Wrapper;
+                         Element : Element_Type) return Return_Type;
+
+      function Clone (Self : Ada_Func_Wrapper) return Ada_Func_Wrapper;
+
+      function To_Func (Fn : Ada_Func_Access) return Ada_Func_Wrapper;
+
+   private
+
+      type Ada_Func_Wrapper is new Func with record
+         Fn : Ada_Func_Access;
+      end record;
+
    end Funcs;
 
    ---------------
