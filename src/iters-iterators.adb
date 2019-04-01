@@ -60,8 +60,14 @@ package body Iters.Iterators is
 
    overriding function Clone (Iter : Filter_Iter) return Filter_Iter
    is
+      Predicate_Copy : constant Predicates.Func_Access :=
+        new Predicates.Func'Class'
+          (Predicates.Func'Class (Iter.Predicate.Clone));
+      Inner_Copy     : constant Iterator_Access :=
+        new Iterator_Interface'Class'
+          (Iterator_Interface'Class (Iter.Inner.Clone));
    begin
-      return Filter (Iter.Inner.all, Iter.Predicate.all);
+      return Filter_Iter'(Inner_Copy, Predicate_Copy);
    end Clone;
 
    -------------
