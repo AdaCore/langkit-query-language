@@ -172,6 +172,42 @@ package body Interpreter.Evaluation is
       return Bool_Val (Result);
    end Bool_Eval;
 
+   -------------------
+   -- Bindings_Eval --
+   -------------------
+
+   function Bindings_Eval (Ctx      : Eval_Context_Ptr;
+                           Node     : LEL.LKQL_Node'Class;
+                           Bindings : Environment) return Primitive
+   is
+      Result : Primitive;
+      Backup : constant Environment := Backup_Env (Ctx.Env, Bindings);
+   begin
+      Result := Eval (Ctx, Node);
+      Update_Env (Ctx.Env, Backup);
+      return Result;
+   exception
+      when others =>
+         Update_Env (Ctx.Env, Backup);
+         raise;
+   end Bindings_Eval;
+
+   -------------------------
+   -- Typed_Bindings_Eval --
+   -------------------------
+
+   function Typed_Bindings_Eval (Ctx           : Eval_Context_Ptr;
+                                 Node          : LEL.LKQL_Node'Class;
+                                 Expected_Kind : Primitive_Kind;
+                                 Bindings      : Environment)
+                                 return Primitive
+   is
+      Result : constant Primitive := Bindings_Eval (Ctx, Node, Bindings);
+   begin
+      Check_Kind (Ctx, Node.As_LKQL_Node, Expected_Kind, Result);
+      return Result;
+   end Typed_Bindings_Eval;
+
    ----------
    -- Eval --
    ----------

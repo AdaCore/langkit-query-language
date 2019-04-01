@@ -15,6 +15,20 @@ package Interpreter.Eval_Contexts is
       Element_Type    => Primitive,
       Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
       Equivalent_Keys => "=");
+   use String_Value_Maps;
+
+   subtype Environment is String_Value_Maps.Map;
+
+   function Backup_Env (Parent_Env : Environment;
+                        Local_Env  : Environment)
+                        return Environment;
+   --  Return the key-value pairs from Parent_Env which have a key that belongs
+   --  to the key set of Local_Env.
+
+   procedure Update_Env (Env        : in out Environment;
+                         New_Values : Environment);
+   --  Insert all the key-value pairs from New_Values into Env. In case of
+   --  a conflict, the value from Env will be overriden.
 
    type Eval_Context is record
       Env : String_Value_Maps.Map;
