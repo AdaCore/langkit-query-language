@@ -183,8 +183,8 @@ package body Interpreter.Evaluation is
       Result : Primitive;
       Backup : constant Environment := Backup_Env (Ctx.Env, Bindings);
    begin
+      Update_Env (Ctx.Env, Bindings);
       Result := Eval (Ctx, Node);
-      Update_Env (Ctx.Env, Backup);
       return Result;
    exception
       when others =>
