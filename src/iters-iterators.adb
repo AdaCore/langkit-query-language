@@ -197,6 +197,55 @@ package body Iters.Iterators is
       Iter.Cache_Pos := 1;
    end Reset;
 
+   -----------------
+   -- To_Iterator --
+   -----------------
+
+   function To_Iterator
+     (Elements : Element_Vectors.Vector) return Vec_Iterator
+   is
+      Elements_Copy : constant Element_Vector_Access :=
+        new Element_Vectors.Vector'(Elements);
+   begin
+      return Vec_Iterator'(Elements_Copy, Positive'First);
+   end To_Iterator;
+
+   ----------
+   -- Next --
+   ----------
+
+   overriding function Next (Iter   : in out Vec_Iterator;
+                             Result : out Element_Type) return Boolean is
+   begin
+      if Iter.Next_Element > Iter.Elements.Last_Index then
+         return False;
+      end if;
+
+      Result := Iter.Elements.all (Iter.Next_Element);
+      Iter.Next_Element := Iter.Next_Element + 1;
+      return True;
+   end Next;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Iter : Vec_Iterator) return Vec_Iterator is
+      Elements_Copy : constant Element_Vector_Access :=
+        new Element_Vectors.Vector'(Iter.Elements.all);
+   begin
+      return Vec_Iterator'(Elements_Copy, Iter.Next_Element);
+   end Clone;
+
+   -------------
+   -- Release --
+   -------------
+
+   overriding procedure Release (Iter : in out Vec_Iterator) is
+   begin
+      Free_Element_Vector (Iter.Elements);
+   end Release;
+
    package body Funcs is
 
       --------------
