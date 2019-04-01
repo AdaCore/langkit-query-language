@@ -1,0 +1,33 @@
+ListComprehension
+|expr:
+|  BinOp
+|  |left:
+|  |  Identifier: x
+|  |op:
+|  |  OpPlus
+|  |right:
+|  |  Identifier: y
+|generators:
+|  ArrowAssocList
+|  |  ArrowAssoc
+|  |  |binding_name:
+|  |  |  Identifier: x
+|  |  |coll_expr:
+|  |  |  Identifier: valuesList
+|  |  ArrowAssoc
+|  |  |binding_name:
+|  |  |  Identifier: y
+|  |  |coll_expr:
+|  |  |  Identifier: valuesList2
+|guard:
+|  BinOp
+|  |left:
+|  |  DotAccess
+|  |  |receiver:
+|  |  |  Identifier: x
+|  |  |member:
+|  |  |  Identifier: property
+|  |op:
+|  |  OpEq
+|  |right:
+|  |  StringLiteral: "Foo"
