@@ -18,6 +18,7 @@ class Token(LexerToken):
     FalseLit = WithSymbol()
 
     Dot = WithText()
+    Coma = WithText()
     Eq = WithText()
     EqEq = WithText()
     Neq = WithText()
@@ -33,12 +34,15 @@ class Token(LexerToken):
     LBrack = WithText()
     RBrack = WithText()
     At = WithText()
+    Pipe = WithText()
+    LArrow = WithText()
 
 
 lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
     (Pattern(r"[ \t\n\r]"),                                 Ignore()),
     (Literal("."),                                          Token.Dot),
+    (Literal(","),                                          Token.Coma),
     (Literal("="),                                          Token.Eq),
     (Literal("=="),                                         Token.EqEq),
     (Literal("!="),                                         Token.Neq),
@@ -54,6 +58,8 @@ lkql_lexer.add_rules(
     (Literal("["),                                          Token.LBrack),
     (Literal("]"),                                          Token.RBrack),
     (Literal("@"),                                          Token.At),
+    (Literal("|"),                                          Token.Pipe),
+    (Literal("<-"),                                         Token.LArrow),
     (Literal("let"),                                        Token.Let),
     (Literal("query"),                                      Token.QueryTok),
     (Literal("when"),                                       Token.When),

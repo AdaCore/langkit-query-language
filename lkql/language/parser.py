@@ -298,6 +298,25 @@ class FilteredQuery(Query):
     predicate = Field(type=Expr)
 
 
+class ArrowAssoc(LKQLNode):
+    """
+    Arrow association of the form: id <- expr.
+    This construction is meant to be used a part of a list comprehension
+    """
+    binding_name = Field(type=Identifier)
+    coll_expr = Field(type=Expr)
+
+
+class ListComprehension (Expr):
+    """
+    List comprehension of the form:
+        [ expr | generator1, generator2, ...,  opt(guard)]
+    """
+    expr = Field(type=Expr)
+    generators = Field(type=ArrowAssoc.list)
+    guard = Field(type=Expr)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
@@ -345,6 +364,17 @@ lkql_grammar.add_rules(
 
     quantified_selector=QuantifiedSelector(G.identifier, G.named_selector),
 
+    arrow_assoc=ArrowAssoc(G.identifier, Token.LArrow, G.expr),
+
+    listcomp=ListComprehension(Token.LBrack,
+                               G.expr,
+                               Token.Pipe,
+                               List(G.arrow_assoc,
+                                    sep=Token.Coma, empty_valid=False),
+                               Opt(Token.Coma, G.expr),
+                               Token.RBrack),
+
+
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
                      Op.alt_or(Token.Or)),
@@ -372,7 +402,8 @@ lkql_grammar.add_rules(
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(DotAccess(G.value_expr, Token.Dot, G.identifier),
+    value_expr=Or(G.listcomp,
+                  DotAccess(G.value_expr, Token.Dot, G.identifier),
                   G.assign,
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
                   G.identifier,
