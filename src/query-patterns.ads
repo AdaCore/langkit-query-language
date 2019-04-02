@@ -133,7 +133,7 @@ private
 
    type Selector_Conditions_Predicate is new Iterator_Predicate_Interface
    with record
-      Context    : Eval_Context_Ptr;
+      Context   : Eval_Context_Ptr;
       Condition : LEL.Expr;
    end record;
 
