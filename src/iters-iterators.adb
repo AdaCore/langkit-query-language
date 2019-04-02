@@ -197,6 +197,21 @@ package body Iters.Iterators is
       Iter.Cache_Pos := 1;
    end Reset;
 
+   ---------------
+   -- Resetable --
+   ---------------
+
+   function Resetable (Iter : Iterator_Interface'Class) return Resetable_Iter
+   is (Resetable_Iter'
+         (Inner => new Iterator_Interface'Class'(Iter), others => <>));
+
+   ---------------
+   -- Resetable --
+   ---------------
+
+   function Resetable (Iter : Iterator_Access) return Resetable_Iter is
+      (Resetable_Iter'(Inner => Iter, others => <>));
+
    -----------------
    -- To_Iterator --
    -----------------
