@@ -22,7 +22,7 @@ package Interpreter.Primitives is
 
    type Iterator_Primitive_Access is access all Iterator_Primitive;
 
-   type Primitive_Kind is
+   type Base_Primitive_Kind is
      (Kind_Unit,
       --  Unit value: representation of the result of a computation that
       --  doesn't produce a meaningful result.
@@ -42,12 +42,18 @@ package Interpreter.Primitives is
       Kind_Iterator,
       --  Iterator yielding Primitive values
 
-      Kind_List
+      Kind_List,
       --  List of Primitive values
-   );
-   --  Denotes the kind of a primitive value.
 
-   type Primitive_Data (Kind : Primitive_Kind) is
+      No_Kind
+      --  Special value that allows using this enum as an option type
+   );
+   --  Denotes the kind of a primitive value
+
+   subtype Valid_Primitive_Kind is Base_Primitive_Kind
+      range Kind_Unit .. Kind_List;
+
+   type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
       case Kind is
          when Kind_Unit =>
@@ -93,7 +99,7 @@ package Interpreter.Primitives is
    --  Pointer to a vector of Primitive values
 
    type Primitive_List is record
-      Elements_Kind : Primitive_Kind;
+      Elements_Kind : Valid_Primitive_Kind;
       --  Kind of the elemnts stored in the list
       Elements      : aliased Primitive_Vectors.Vector;
       --  Vector that holds the actual elemnts
@@ -154,7 +160,7 @@ package Interpreter.Primitives is
    -- Accessors --
    ---------------
 
-   function Kind (Value : Primitive) return Primitive_Kind;
+   function Kind (Value : Primitive) return Valid_Primitive_Kind;
    --  Return the kind of a primitive
 
    function Int_Val (Value : Primitive) return Integer;
@@ -177,7 +183,7 @@ package Interpreter.Primitives is
    --  Since iterators a immutable, this accessor performs a deep copy of the
    --  value.
 
-   function Elements_Kind (Value : Primitive) return Primitive_Kind;
+   function Elements_Kind (Value : Primitive) return Valid_Primitive_Kind;
    --  Return the kind of the elements of a list or iterator
 
    function Elements
@@ -210,7 +216,7 @@ package Interpreter.Primitives is
    function To_Primitive (Val : LAL.Ada_Node) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
-   function Make_Empty_List (Kind : Primitive_Kind) return Primitive;
+   function Make_Empty_List (Kind : Valid_Primitive_Kind) return Primitive;
    --  Return a Primitive value storing an empty list of Primitive values
    --  of kind `Kind`.
 
@@ -246,7 +252,7 @@ package Interpreter.Primitives is
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type;
    --  Return a unicode String representation of `Val`
 
-   function To_String (Val : Primitive_Kind) return String;
+   function To_String (Val : Valid_Primitive_Kind) return String;
    --  Return a String representation of `Val`
 
    function Kind_Name (Value : Primitive) return String;
