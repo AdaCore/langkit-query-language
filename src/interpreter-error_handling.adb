@@ -81,8 +81,8 @@ package body Interpreter.Error_Handling is
 
    procedure Raise_Invalid_Kind (Ctx      : Eval_Context_Ptr;
                                  Node     : LEL.LKQL_Node;
-                                 Expected : Primitive_Kind;
-                                 Value   : Primitive)
+                                 Expected : Valid_Primitive_Kind;
+                                 Value    : Primitive)
    is
       Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text

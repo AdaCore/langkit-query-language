@@ -74,7 +74,7 @@ package body Interpreter.Evaluation is
 
    procedure Check_Kind (Ctx           : Eval_Context_Ptr;
                          Node          : LEL.LKQL_Node;
-                         Expected_Kind : Primitive_Kind;
+                         Expected_Kind : Valid_Primitive_Kind;
                          Value         : Primitive);
    --  Raise an exception and register an error in the evaluation context if
    --  `Value` doesn't have the expected kind.
@@ -137,7 +137,7 @@ package body Interpreter.Evaluation is
 
    procedure Check_Kind (Ctx           : Eval_Context_Ptr;
                          Node          : LEL.LKQL_Node;
-                         Expected_Kind : Primitive_Kind;
+                         Expected_Kind : Valid_Primitive_Kind;
                          Value         : Primitive)
    is
    begin
@@ -146,20 +146,6 @@ package body Interpreter.Evaluation is
       end if;
    end Check_Kind;
 
-   ----------------
-   -- Typed_Eval --
-   ----------------
-
-   function Typed_Eval (Ctx           : Eval_Context_Ptr;
-                        Node          : LEL.LKQL_Node'Class;
-                        Expected_Kind : Primitive_Kind) return Primitive
-   is
-      Result : constant Primitive := Eval (Ctx, Node);
-   begin
-      Check_Kind (Ctx, Node.As_LKQL_Node, Expected_Kind, Result);
-      return Result;
-   end Typed_Eval;
-
    ---------------
    -- Bool_Eval --
    ---------------
@@ -167,59 +153,32 @@ package body Interpreter.Evaluation is
    function Bool_Eval
      (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node) return Boolean
    is
-      Result : constant Primitive := Typed_Eval (Ctx, Node, Kind_Bool);
+      Result : constant Primitive := Eval (Ctx, Node, Kind_Bool);
    begin
       return Bool_Val (Result);
    end Bool_Eval;
-
-   -------------------
-   -- Bindings_Eval --
-   -------------------
-
-   function Bindings_Eval (Ctx      : Eval_Context_Ptr;
-                           Node     : LEL.LKQL_Node'Class;
-                           Bindings : Environment) return Primitive
-   is
-      Result : Primitive;
-      Backup : constant Environment := Backup_Env (Ctx.Env, Bindings);
-   begin
-      Update_Env (Ctx.Env, Bindings);
-      Result := Eval (Ctx, Node);
-      return Result;
-   exception
-      when others =>
-         Update_Env (Ctx.Env, Backup);
-         raise;
-   end Bindings_Eval;
-
-   -------------------------
-   -- Typed_Bindings_Eval --
-   -------------------------
-
-   function Typed_Bindings_Eval (Ctx           : Eval_Context_Ptr;
-                                 Node          : LEL.LKQL_Node'Class;
-                                 Expected_Kind : Primitive_Kind;
-                                 Bindings      : Environment)
-                                 return Primitive
-   is
-      Result : constant Primitive := Bindings_Eval (Ctx, Node, Bindings);
-   begin
-      Check_Kind (Ctx, Node.As_LKQL_Node, Expected_Kind, Result);
-      return Result;
-   end Typed_Bindings_Eval;
 
    ----------
    -- Eval --
    ----------
 
-   function Eval
-     (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node'Class) return Primitive
+   function Eval (Ctx            : Eval_Context_Ptr;
+                  Node           : LEL.LKQL_Node'Class;
+                  Expected_Kind  : Base_Primitive_Kind := No_Kind;
+                  Local_Bindings : Environment := String_Value_Maps.Empty_Map)
+                  return Primitive
    is
+      Result             : Primitive;
+      Bindings_Conflicts : constant Environment :=
+        Backup_Env (Ctx.Env, Local_Bindings);
    begin
-      return (case Node.Kind is
-                 when LELCO.lkql_Expr_List =>
-                   Eval_List (Ctx, Node.As_Expr_List),
-                 when LELCO.lkql_Assign =>
+      Update_Env (Ctx.Env, Local_Bindings);
+
+      Result :=
+        (case Node.Kind is
+            when LELCO.lkql_Expr_List =>
+              Eval_List (Ctx, Node.As_Expr_List),
+            when LELCO.lkql_Assign =>
                    Eval_Assign (Ctx, Node.As_Assign),
                  when LELCO.lkql_Identifier =>
                    Eval_Identifier (Ctx, Node.As_Identifier),
@@ -240,12 +199,26 @@ package body Interpreter.Evaluation is
                  when LELCO.lkql_In_Clause =>
                    Eval_In (Ctx, Node.As_In_Clause),
                  when LELCO.lkql_Query | LELCO.lkql_Filtered_Query =>
-                   Eval_Query (Ctx, Node.As_Query),
-                 when LELCO.lkql_Indexing =>
-                   Eval_Indexing (Ctx, Node.As_Indexing),
-                 when others =>
-                    raise Program_Error
-                      with "Invalid evaluation root kind: " & Node.Kind_Name);
+              Eval_Query (Ctx, Node.As_Query),
+            when LELCO.lkql_Indexing =>
+              Eval_Indexing (Ctx, Node.As_Indexing),
+            when LELCO.lkql_List_Comprehension =>
+              Eval_List_Comprehension (Ctx, Node.As_List_Comprehension),
+            when others =>
+               raise Program_Error
+                 with "Invalid evaluation root kind: " & Node.Kind_Name);
+      Update_Env (Ctx.Env, Bindings_Conflicts);
+
+      if Expected_Kind in Valid_Primitive_Kind then
+         Check_Kind (Ctx, Node.As_LKQL_Node, Expected_Kind, Result);
+      end if;
+
+      return Result;
+
+   exception
+      when others =>
+         Update_Env (Ctx.Env, Bindings_Conflicts);
+         raise;
    end Eval;
 
    ---------------
@@ -433,7 +406,7 @@ package body Interpreter.Evaluation is
      (Ctx : Eval_Context_Ptr; Node : LEL.Is_Clause) return Primitive
    is
       Tested_Node   : constant Primitive :=
-        Typed_Eval (Ctx, Node.F_Node_Expr, Kind_Node);
+        Eval (Ctx, Node.F_Node_Expr, Kind_Node);
       Expected_Kind : constant LALCO.Ada_Node_Kind_Type :=
         To_Ada_Node_Kind (Node.F_Kind_Name.Text);
       LAL_Node      : constant LAL.Ada_Node := Node_Val (Tested_Node);
@@ -450,7 +423,7 @@ package body Interpreter.Evaluation is
    is
       Tested_Value : constant Primitive := Eval (Ctx, Node.F_Value_Expr);
       Tested_List  : constant Primitive :=
-        Typed_Eval (Ctx, Node.F_List_Expr, Kind_List);
+        Eval (Ctx, Node.F_List_Expr, Kind_List);
    begin
       return To_Primitive (Contains (Tested_List, Tested_Value));
    end Eval_In;
@@ -483,9 +456,9 @@ package body Interpreter.Evaluation is
      (Ctx : Eval_Context_Ptr; Node : LEL.Indexing) return Primitive
    is
       List  : constant Primitive :=
-        Typed_Eval (Ctx, Node.F_Collection_Expr, Kind_List);
+        Eval (Ctx, Node.F_Collection_Expr, Kind_List);
       Index : constant Primitive :=
-        Typed_Eval (Ctx, Node.F_Index_Expr, Kind_Int);
+        Eval (Ctx, Node.F_Index_Expr, Kind_Int);
    begin
       return Get (List, Int_Val (Index));
    end Eval_Indexing;

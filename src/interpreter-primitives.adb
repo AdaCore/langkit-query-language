@@ -24,7 +24,8 @@ package body Interpreter.Primitives is
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
-   procedure Check_Kind (Expected_Kind : Primitive_Kind; Value : Primitive);
+   procedure Check_Kind
+     (Expected_Kind : Valid_Primitive_Kind; Value : Primitive);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
    --  Expected_Kind.
 
@@ -105,7 +106,8 @@ package body Interpreter.Primitives is
    -- Check_Kind --
    ----------------
 
-   procedure Check_Kind (Expected_Kind : Primitive_Kind; Value : Primitive) is
+   procedure Check_Kind
+     (Expected_Kind : Valid_Primitive_Kind; Value : Primitive) is
    begin
       if Kind (Value) /= Expected_Kind then
          raise Unsupported_Error
@@ -213,7 +215,7 @@ package body Interpreter.Primitives is
    -- Kind --
    ----------
 
-   function Kind (Value : Primitive) return Primitive_Kind is
+   function Kind (Value : Primitive) return Valid_Primitive_Kind is
    begin
       return Value.Get.Kind;
    end Kind;
@@ -282,7 +284,7 @@ package body Interpreter.Primitives is
    -- Elements_Kind --
    -------------------
 
-   function Elements_Kind (Value : Primitive) return Primitive_Kind is
+   function Elements_Kind (Value : Primitive) return Valid_Primitive_Kind is
    begin
       return (case Value.Get.Kind is
               when Kind_List => Value.Get.List_Val.Elements_Kind,
@@ -441,7 +443,7 @@ package body Interpreter.Primitives is
    -- Make_Empty_List --
    ---------------------
 
-   function Make_Empty_List (Kind : Primitive_Kind) return Primitive is
+   function Make_Empty_List (Kind : Valid_Primitive_Kind) return Primitive is
       Ref  : Primitive;
       List : constant Primitive_List_Access :=
         new Primitive_List'(Elements_Kind => Kind,
@@ -541,7 +543,7 @@ package body Interpreter.Primitives is
    -- To_String --
    ---------------
 
-   function To_String (Val : Primitive_Kind) return String is
+   function To_String (Val : Valid_Primitive_Kind) return String is
    begin
       return (case Val is
                  when Kind_Unit      => "Unit",

@@ -94,8 +94,7 @@ package body Query.Patterns is
 
       return
         Bool_Val
-          (Typed_Bindings_Eval
-             (Ctx, Query.F_Predicate, Kind_Bool, Query_Match.Bindings));
+          (Eval (Ctx, Query.F_Predicate, Kind_Bool, Query_Match.Bindings));
    end Match_Filtered_Query;
 
    -------------------------
@@ -386,8 +385,7 @@ package body Query.Patterns is
       Local_Env.Insert
         (To_Unbounded_Text ("depth"), To_Primitive (Element.Depth));
       Eval_Result :=
-        Typed_Bindings_Eval
-          (Self.Context, Self.Condition, Kind_Bool, Local_Env);
+        Eval (Self.Context, Self.Condition, Kind_Bool, Local_Env);
       return Bool_Val (Eval_Result);
    end Evaluate;
 

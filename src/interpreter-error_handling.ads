@@ -28,7 +28,7 @@ package Interpreter.Error_Handling is
 
    procedure Raise_Invalid_Kind (Ctx      : Eval_Context_Ptr;
                                  Node     : LEL.LKQL_Node;
-                                 Expected : Primitive_Kind;
+                                 Expected : Valid_Primitive_Kind;
                                  Value    : Primitive)
       with No_Return;
    --  Raise an exception signaling a type error, and add an Error_Data
