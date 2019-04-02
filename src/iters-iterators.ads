@@ -117,6 +117,10 @@ package Iters.Iterators is
    --  Reset the iterator. Further calls to 'Next' will yield the cached
    --  elements.
 
+   function Resetable (Iter : Iterator_Interface'Class) return Resetable_Iter;
+
+   function Resetable (Iter : Iterator_Access) return Resetable_Iter;
+
    ------------------
    -- Vec_Iterator --
    ------------------
