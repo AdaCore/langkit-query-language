@@ -163,7 +163,7 @@ package body Interpreter.Primitives is
    function To_List (Iter : Iterator_Primitive) return Primitive is
       Element   : Primitive;
       Iter_Copy : Primitive_Iter'Class := Iter.Iter.all;
-      Result    : constant Primitive := Make_Empty_List (Iter.Elements_Kind);
+      Result    : constant Primitive := Make_Empty_List;
    begin
       while Iter_Copy.Next (Element) loop
          Append (Result, Element);
@@ -276,24 +276,8 @@ package body Interpreter.Primitives is
         new Primitive_Iter'Class'(Iter_Primitive.Iter.all);
    begin
       return Iterator_Primitive'(Ada.Finalization.Controlled with
-                                   Iter_Primitive.Elements_Kind,
                                    Wrapped_Iter_Copy);
    end Iter_Val;
-
-   -------------------
-   -- Elements_Kind --
-   -------------------
-
-   function Elements_Kind (Value : Primitive) return Valid_Primitive_Kind is
-   begin
-      return (case Value.Get.Kind is
-              when Kind_List => Value.Get.List_Val.Elements_Kind,
-              when Kind_Iterator => Value.Get.Iter_Val.Elements_Kind,
-              when others =>
-                 raise Program_Error with
-                    "No property 'Elements_Kind' for values of kind: " &
-                    Kind_Name (Value));
-   end Elements_Kind;
 
    --------------
    -- Elements --
@@ -443,11 +427,10 @@ package body Interpreter.Primitives is
    -- Make_Empty_List --
    ---------------------
 
-   function Make_Empty_List (Kind : Valid_Primitive_Kind) return Primitive is
+   function Make_Empty_List return Primitive is
       Ref  : Primitive;
       List : constant Primitive_List_Access :=
-        new Primitive_List'(Elements_Kind => Kind,
-                            Elements      => Primitive_Vectors.Empty_Vector);
+        new Primitive_List'(Elements => Primitive_Vectors.Empty_Vector);
    begin
       Ref.Set (Primitive_Data'(Refcounted with Kind     => Kind_List,
                                                List_Val => List));
@@ -463,7 +446,6 @@ package body Interpreter.Primitives is
         Elements (List);
    begin
       Check_Kind (Kind_List, List);
-      Check_Kind (Elements_Kind (List), Element);
       List_Elements.Append (Element);
    end Append;
 
@@ -474,7 +456,6 @@ package body Interpreter.Primitives is
    function Contains (List, Value : Primitive) return Boolean is
    begin
       Check_Kind (Kind_List, List);
-      Check_Kind (Elements_Kind (List), Value);
 
       --  Since we're using smart pointers, the "=" function used by
       --  Vector.Contains checks referencial equality instead of structural
@@ -573,9 +554,9 @@ package body Interpreter.Primitives is
                  when Kind_Node =>
                    LAL.Kind_Name (Value.Get.Node_Val),
                  when Kind_Iterator =>
-                   "Iterator[" & To_String (Elements_Kind (Value)) & ']',
+                   "Iterator",
                  when Kind_List =>
-                   "List[" & To_String (Elements_Kind (Value)) & ']');
+                   "List");
    end Kind_Name;
 
    -------------

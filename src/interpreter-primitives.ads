@@ -99,10 +99,7 @@ package Interpreter.Primitives is
    --  Pointer to a vector of Primitive values
 
    type Primitive_List is record
-      Elements_Kind : Valid_Primitive_Kind;
-      --  Kind of the elemnts stored in the list
       Elements      : aliased Primitive_Vectors.Vector;
-      --  Vector that holds the actual elemnts
    end record;
    --  List of primitive values.
 
@@ -183,9 +180,6 @@ package Interpreter.Primitives is
    --  Since iterators a immutable, this accessor performs a deep copy of the
    --  value.
 
-   function Elements_Kind (Value : Primitive) return Valid_Primitive_Kind;
-   --  Return the kind of the elements of a list or iterator
-
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;
    --  Return a pointer to the elements of a list primitive
@@ -217,6 +211,8 @@ package Interpreter.Primitives is
    --  Create a Primitive value from the LKQL_Node value
 
    function Make_Empty_List (Kind : Valid_Primitive_Kind) return Primitive;
+
+   function Make_Empty_List return Primitive;
    --  Return a Primitive value storing an empty list of Primitive values
    --  of kind `Kind`.
 

@@ -307,7 +307,7 @@ package body Query.Patterns is
       Current_Node  : Iterator_Node;
       Current_Match : Match;
       Matched       : Boolean := False;
-      Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
+      Nodes         : constant Primitive := Make_Empty_List;
       Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
    begin
       while Iter.Next (Current_Node) loop
@@ -348,7 +348,7 @@ package body Query.Patterns is
       Current_Node  : Iterator_Node;
       Current_Match : Match;
       Bindings      : Map;
-      Nodes         : constant Primitive := Make_Empty_List (Kind_Node);
+      Nodes         : constant Primitive := Make_Empty_List;
       Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
    begin
       while Iter.Next (Current_Node) loop
