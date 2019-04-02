@@ -63,6 +63,12 @@ package Iters.Iterators is
                          return Return_Type is abstract;
       --  Apply the current Func to Element
 
+      function Clone (Self : Func) return Func is abstract;
+      --  Perform a deep copy of the given Func
+
+      procedure Release (Self : in out Func) is null;
+      --  Release ressources that belong to Self
+
       procedure Free_Func is new Ada.Unchecked_Deallocation
         (Func'Class, Func_Access);
       --  Free the memory accessed through a Func_Access pointer

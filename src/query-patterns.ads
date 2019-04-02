@@ -34,6 +34,10 @@ private
      (Self : in out Query_Predicate; Node : Iterator_Node) return Boolean;
    --  Evaluae the given predicate against 'Node'
 
+   overriding function Clone
+     (Self : Query_Predicate) return Query_Predicate;
+   --  Return a copy of the given Query_Predicate
+
    function Match_Unfiltered_Query (Ctx   : Eval_Context_Ptr;
                                     Query : LEL.Query;
                                     Node  : Iterator_Node) return Boolean;
@@ -137,5 +141,9 @@ private
      (Self    : in out Selector_Conditions_Predicate;
       Element : Iterator_Node)
       return Boolean;
+
+   overriding function Clone (Self : Selector_Conditions_Predicate)
+                              return Selector_Conditions_Predicate;
+   --  Return a copy of the given Selector_Conditions_Predicate
 
 end Query.Patterns;
