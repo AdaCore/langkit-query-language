@@ -134,25 +134,6 @@ package Interpreter.Primitives is
    function To_List (Iter : Iterator_Primitive) return Primitive;
    --  Create a List Primitive from the given iterator
 
-   type Primitive_Vector_Iter is new Primitive_Iters.Iterator_Interface with
-      record
-         Next_Pos : Positive;
-         Values   : Primitive_Vector_Access;
-      end record;
-   --  Iterator that yields the values of a Primitive vector
-
-   overriding function Next (Iter   : in out Primitive_Vector_Iter;
-                             Result : out Primitive) return Boolean;
-   --  Get the next iteration element. If there was no element to yield
-   --  anymore, return false. Otherwise, return true and set Result.
-
-   overriding function Clone
-     (Iter : Primitive_Vector_Iter) return Primitive_Vector_Iter;
-   --  Make a deep copy of the iterator
-
-   overriding procedure Release (Iter : in out Primitive_Vector_Iter);
-   --  Release ressources that belong to Iter
-
    ---------------
    -- Accessors --
    ---------------
