@@ -54,6 +54,17 @@ package body Query.Patterns is
                       "Invalid query kind: " & LEL.Kind_Name (Self.Query));
    end Evaluate;
 
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone
+     (Self : Query_Predicate) return Query_Predicate
+   is
+   begin
+      return Query_Predicate'(Self.Ctx, Self.Query);
+   end Clone;
+
    -----------------
    -- Match_Query --
    -----------------
