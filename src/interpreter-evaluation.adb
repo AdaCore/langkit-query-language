@@ -438,7 +438,7 @@ package body Interpreter.Evaluation is
       use Query.Iterators.Node_Iterators;
       Current_Node : Iterator_Node;
       Iter         : Filter_Iter := Make_Query_Iterator (Ctx, Node);
-      Result       : constant Primitive :=  Make_Empty_List (Kind_Node);
+      Result       : constant Primitive :=  Make_Empty_List;
    begin
       while Iter.Next (Current_Node) loop
          Append (Result, To_Primitive (Current_Node.Node));
