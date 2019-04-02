@@ -4,6 +4,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
+with Ada.Finalization;
 
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 
@@ -17,9 +18,9 @@ package Interpreter.Primitives is
    type Primitive_List_Access is access Primitive_List;
    --  Pointer to a list of Primitive values
 
-   type Generator;
+   type Iterator_Primitive;
 
-   type Generator_Access is access all Generator;
+   type Iterator_Primitive_Access is access all Iterator_Primitive;
 
    type Primitive_Kind is
      (Kind_Unit,
@@ -38,8 +39,8 @@ package Interpreter.Primitives is
       Kind_Node,
       --  Libadalang node
 
-      Kind_Generator,
-      --  Generator yielding Primitive values
+      Kind_Iterator,
+      --  Iterator yielding Primitive values
 
       Kind_List
       --  List of Primitive values
@@ -59,8 +60,8 @@ package Interpreter.Primitives is
             Bool_Val : Boolean;
          when Kind_Node =>
             Node_Val : LAL.Ada_Node;
-         when Kind_Generator =>
-            Gen_Val : Generator_Access;
+         when Kind_Iterator =>
+            Iter_Val : Iterator_Primitive_Access;
          when Kind_List =>
             List_Val : Primitive_List_Access;
       end case;
@@ -105,12 +106,14 @@ package Interpreter.Primitives is
    procedure Free_Primitive_Vector is new Ada.Unchecked_Deallocation
      (Primitive_Vectors.Vector, Primitive_Vector_Access);
 
-   ---------------
-   -- Generator --
-   ---------------
+   --------------
+   -- Iterator --
+   --------------
 
    package Primitive_Iters is new Iters.Iterators (Primitive);
    --  Iterator over Primitive values
+
+   subtype Primitive_Iter is Primitive_Iters.Iterator_Interface;
 
    subtype Primitive_Iter_Access is Primitive_Iters.Iterator_Access;
    --  Pointer to an iterator over Primitive values
@@ -118,27 +121,15 @@ package Interpreter.Primitives is
    procedure Free_Primitive_Iter is new Ada.Unchecked_Deallocation
      (Primitive_Iters.Iterator_Interface'Class, Primitive_Iter_Access);
 
-   type Generator is new Primitive_Iters.Iterator_Interface with record
-      Elements_Kind : Primitive_Kind;
-      --  Kind of the yielded values
+   type Iterator_Primitive is new Ada.Finalization.Controlled with record
       Iter          : Primitive_Iter_Access;
-      --  Wrapped iterator
    end record;
    --  Lazy stream of Primitive_values
 
-   overriding function Next
-     (Iter : in out Generator; Result : out Primitive) return Boolean;
-   --  Get the next iteration element. If there was no element to yield
-   --  anymore, return false. Otherwise, return true and set Result.
+   overriding procedure Finalize (Object : in out Iterator_Primitive);
 
-   overriding function Clone (Gen : Generator) return Generator;
-   --  Make a deep copy of the iterator
-
-   overriding procedure Release (Gen : in out Generator);
-   --  Release ressources that belong to Iter
-
-   function To_List (Gen : Generator) return Primitive;
-   --  Create a List Primitive from the given Generator
+   function To_List (Iter : Iterator_Primitive) return Primitive;
+   --  Create a List Primitive from the given iterator
 
    type Primitive_Vector_Iter is new Primitive_Iters.Iterator_Interface with
       record
@@ -181,8 +172,13 @@ package Interpreter.Primitives is
    function List_Val (Value : Primitive) return Primitive_List_Access;
    --  Return the value of a list primitive
 
+   function Iter_Val (Value : Primitive) return Iterator_Primitive;
+   --  Return the value of an iterator primitive.
+   --  Since iterators a immutable, this accessor performs a deep copy of the
+   --  value.
+
    function Elements_Kind (Value : Primitive) return Primitive_Kind;
-   --  Return the kind of the elements of a list or generator
+   --  Return the kind of the elements of a list or iterator
 
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;

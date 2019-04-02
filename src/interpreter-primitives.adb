@@ -18,7 +18,8 @@ package body Interpreter.Primitives is
    function Bool_Image (Value : Boolean) return Unbounded_Text_Type;
    --  Return a String representation of the given Boolean value
 
-   function Generator_Image (Value : Generator) return Unbounded_Text_Type;
+   function Iterator_Image
+     (Value : Iterator_Primitive) return Unbounded_Text_Type;
 
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
@@ -90,10 +91,15 @@ package body Interpreter.Primitives is
       return Image;
    end List_Image;
 
-   function Generator_Image (Value : Generator) return Unbounded_Text_Type is
+   --------------------
+   -- Iterator_Image --
+   --------------------
+
+   function Iterator_Image
+     (Value : Iterator_Primitive) return Unbounded_Text_Type is
    begin
       return List_Image (List_Val (To_List (Value)).all);
-   end Generator_Image;
+   end Iterator_Image;
 
    ----------------
    -- Check_Kind --
@@ -139,47 +145,25 @@ package body Interpreter.Primitives is
       Free_Primitive_List (Data.List_Val);
    end Release;
 
-   ----------
-   -- Next --
-   ----------
+   --------------
+   -- Finalize --
+   --------------
 
-   function Next
-     (Iter : in out Generator; Result : out Primitive) return Boolean
-   is
+   overriding procedure Finalize (Object : in out Iterator_Primitive) is
    begin
-      return Iter.Iter.Next (Result);
-   end Next;
-
-   -----------
-   -- Clone --
-   -----------
-
-   overriding function Clone (Gen : Generator) return Generator is
-      Iter_Copy : constant Primitive_Iter_Access :=
-        new Primitive_Iters.Iterator_Interface'Class'(Gen.Iter.all);
-   begin
-      return Generator'(Gen.Elements_Kind, Iter_Copy);
-   end Clone;
-
-   -------------
-   -- Release --
-   -------------
-
-   overriding procedure Release (Gen : in out Generator) is
-   begin
-      Free_Primitive_Iter (Gen.Iter);
-   end Release;
+      Free_Primitive_Iter (Object.Iter);
+   end Finalize;
 
    -------------
    -- To_List --
    -------------
 
-   function To_List (Gen : Generator) return Primitive is
-      Element  : Primitive;
-      Gen_Copy : constant Generator := Gen.Clone;
-      Result   : constant Primitive := Make_Empty_List (Gen.Elements_Kind);
+   function To_List (Iter : Iterator_Primitive) return Primitive is
+      Element   : Primitive;
+      Iter_Copy : Primitive_Iter'Class := Iter.Iter.all;
+      Result    : constant Primitive := Make_Empty_List (Iter.Elements_Kind);
    begin
-      while Gen_Copy.Iter.Next (Element) loop
+      while Iter_Copy.Next (Element) loop
          Append (Result, Element);
       end loop;
 
@@ -279,6 +263,21 @@ package body Interpreter.Primitives is
       return Value.Get.List_Val;
    end List_Val;
 
+   --------------
+   -- Iter_Val --
+   --------------
+
+   function Iter_Val (Value : Primitive) return Iterator_Primitive is
+      Iter_Primitive    : constant Iterator_Primitive_Access :=
+        Value.Get.Iter_Val;
+      Wrapped_Iter_Copy : constant Primitive_Iter_Access :=
+        new Primitive_Iter'Class'(Iter_Primitive.Iter.all);
+   begin
+      return Iterator_Primitive'(Ada.Finalization.Controlled with
+                                   Iter_Primitive.Elements_Kind,
+                                   Wrapped_Iter_Copy);
+   end Iter_Val;
+
    -------------------
    -- Elements_Kind --
    -------------------
@@ -287,7 +286,7 @@ package body Interpreter.Primitives is
    begin
       return (case Value.Get.Kind is
               when Kind_List => Value.Get.List_Val.Elements_Kind,
-              when Kind_Generator => Value.Get.Gen_Val.Elements_Kind,
+              when Kind_Iterator => Value.Get.Iter_Val.Elements_Kind,
               when others =>
                  raise Program_Error with
                     "No property 'Elements_Kind' for values of kind: " &
@@ -532,8 +531,8 @@ package body Interpreter.Primitives is
                    Bool_Image (Bool_Val (Val)),
                  when Kind_Node =>
                    To_Unbounded_Text (Val.Get.Node_Val.Text_Image),
-                 when Kind_Generator =>
-                   Generator_Image (Val.Get.Gen_Val.all),
+                 when Kind_Iterator =>
+                   Iterator_Image (Val.Get.Iter_Val.all),
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all));
    end To_Unbounded_Text;
@@ -550,7 +549,7 @@ package body Interpreter.Primitives is
                  when Kind_Str       => "Str",
                  when Kind_Bool      => "Bool",
                  when Kind_Node      => "Node",
-                 when Kind_Generator => "Generator",
+                 when Kind_Iterator  => "Iterator",
                  when Kind_List      => "List");
    end To_String;
 
@@ -571,8 +570,8 @@ package body Interpreter.Primitives is
                    "Bool",
                  when Kind_Node =>
                    LAL.Kind_Name (Value.Get.Node_Val),
-                 when Kind_Generator =>
-                   "Generator[" & To_String (Elements_Kind (Value)) & ']',
+                 when Kind_Iterator =>
+                   "Iterator[" & To_String (Elements_Kind (Value)) & ']',
                  when Kind_List =>
                    "List[" & To_String (Elements_Kind (Value)) & ']');
    end Kind_Name;
