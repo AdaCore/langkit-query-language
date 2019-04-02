@@ -1,3 +1,5 @@
+with Funcs;
+
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Vectors;
 
@@ -47,61 +49,6 @@ package Iters.Iterators is
    procedure Free_Iterator is new Ada.Unchecked_Deallocation
      (Iterator_Interface'Class, Iterator_Access);
 
-   -----------
-   -- Funcs --
-   -----------
-
-   generic
-
-      type Return_Type (<>) is private;
-      --  Function's return type
-
-   package Funcs is
-
-      type Func is interface;
-      --  Abstraction representing a function that takes Element_Type values
-      --  and returns values of type Return_Type.
-
-      type Func_Access is access all Func'Class;
-      --  Pointer to a Func
-
-      function Evaluate (Self    : in out Func;
-                         Element : Element_Type)
-                         return Return_Type is abstract;
-      --  Apply the current Func to Element
-
-      function Clone (Self : Func) return Func is abstract;
-      --  Perform a deep copy of the given Func
-
-      procedure Release (Self : in out Func) is null;
-      --  Release ressources that belong to Self
-
-      procedure Free_Func is new Ada.Unchecked_Deallocation
-        (Func'Class, Func_Access);
-      --  Free the memory accessed through a Func_Access pointer
-
-      type Ada_Func_Access is access
-        function (X : Element_Type) return Return_Type;
-      --  Pointer to an Ada function that takes an Element_Type value and
-      --  returns a Return_Type value.
-
-      type Ada_Func_Wrapper is new Func with private;
-
-      function Evaluate (Self    : in out Ada_Func_Wrapper;
-                         Element : Element_Type) return Return_Type;
-
-      function Clone (Self : Ada_Func_Wrapper) return Ada_Func_Wrapper;
-
-      function To_Func (Fn : Ada_Func_Access) return Ada_Func_Wrapper;
-
-   private
-
-      type Ada_Func_Wrapper is new Func with record
-         Fn : Ada_Func_Access;
-      end record;
-
-   end Funcs;
-
    ---------------
    -- Consumers --
    ---------------
@@ -126,7 +73,7 @@ package Iters.Iterators is
    -- Filter --
    ------------
 
-   package Predicates is new Funcs (Boolean);
+   package Predicates is new Funcs (Element_Type, Boolean);
    --  Function that takes an Element_Type argument an retrurns a Boolean
 
    subtype Predicate_Access is Predicates.Func_Access;
@@ -150,9 +97,9 @@ package Iters.Iterators is
                     Pred : Predicates.Func'Class)
                     return Filter_Iter;
 
-   ------------
-   -- Repeat --
-   ------------
+   ---------------
+   -- Resetable --
+   ---------------
 
    type Resetable_Iter is new Iterator_Interface with private;
    --  Resetable iterator that caches the elements that it yields.
@@ -197,11 +144,6 @@ private
       Inner     : Iterator_Access;
       Predicate : Predicate_Access;
    end record;
-
-   package Element_Vectors is new Ada.Containers.Vectors
-     (Positive, Element_Type);
-
-   type Element_Vector_Access is access all Element_Vectors.Vector;
 
    procedure Free_Element_Vector is new Ada.Unchecked_Deallocation
      (Element_Vectors.Vector, Element_Vector_Access);
