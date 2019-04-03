@@ -176,33 +176,33 @@ package body Interpreter.Evaluation is
 
       Result :=
         (case Node.Kind is
-            when LELCO.lkql_Expr_List =>
+            when LELCO.LKQL_Expr_List =>
               Eval_List (Ctx, Node.As_Expr_List),
-            when LELCO.lkql_Assign =>
-                   Eval_Assign (Ctx, Node.As_Assign),
-                 when LELCO.lkql_Identifier =>
-                   Eval_Identifier (Ctx, Node.As_Identifier),
-                 when LELCO.lkql_Integer =>
-                   Eval_Integer (Node.As_Integer),
-                 when LELCO.lkql_String_Literal =>
-                   Eval_String_Literal (Node.As_String_Literal),
-                 when LELCO.lkql_Bool_Literal =>
-                   Eval_Bool_Literal (Node.As_Bool_Literal),
-                 when LELCO.lkql_Print_Stmt =>
-                   Eval_Print (Ctx, Node.As_Print_Stmt),
-                 when LELCO.lkql_Bin_Op =>
-                   Eval_Bin_Op (Ctx, Node.As_Bin_Op),
-                 when LELCO.lkql_Dot_Access =>
-                   Eval_Dot_Access (Ctx, Node.As_Dot_Access),
-                 when LELCO.lkql_Is_Clause =>
-                   Eval_Is (Ctx, Node.As_Is_Clause),
-                 when LELCO.lkql_In_Clause =>
-                   Eval_In (Ctx, Node.As_In_Clause),
-                 when LELCO.lkql_Query | LELCO.lkql_Filtered_Query =>
+            when LELCO.LKQL_Assign =>
+              Eval_Assign (Ctx, Node.As_Assign),
+            when LELCO.LKQL_Identifier =>
+              Eval_Identifier (Ctx, Node.As_Identifier),
+            when LELCO.LKQL_Integer =>
+              Eval_Integer (Node.As_Integer),
+            when LELCO.LKQL_String_Literal =>
+              Eval_String_Literal (Node.As_String_Literal),
+            when LELCO.LKQL_Bool_Literal =>
+              Eval_Bool_Literal (Node.As_Bool_Literal),
+            when LELCO.LKQL_Print_Stmt =>
+              Eval_Print (Ctx, Node.As_Print_Stmt),
+            when LELCO.LKQL_Bin_Op =>
+              Eval_Bin_Op (Ctx, Node.As_Bin_Op),
+            when LELCO.LKQL_Dot_Access =>
+              Eval_Dot_Access (Ctx, Node.As_Dot_Access),
+            when LELCO.LKQL_Is_Clause =>
+              Eval_Is (Ctx, Node.As_Is_Clause),
+            when LELCO.LKQL_In_Clause =>
+              Eval_In (Ctx, Node.As_In_Clause),
+            when LELCO.LKQL_Query | LELCO.LKQL_Filtered_Query =>
               Eval_Query (Ctx, Node.As_Query),
-            when LELCO.lkql_Indexing =>
+            when LELCO.LKQL_Indexing =>
               Eval_Indexing (Ctx, Node.As_Indexing),
-            when LELCO.lkql_List_Comprehension =>
+            when LELCO.LKQL_List_Comprehension =>
               Eval_List_Comprehension (Ctx, Node.As_List_Comprehension),
             when others =>
                raise Program_Error
@@ -298,7 +298,7 @@ package body Interpreter.Evaluation is
 
    function Eval_Bool_Literal (Node : LEL.Bool_Literal) return Primitive is
       use type LELCO.LKQL_Node_Kind_Type;
-      Value : constant Boolean := (Node.Kind = LELCO.lkql_Bool_Literal_True);
+      Value : constant Boolean := (Node.Kind = LELCO.LKQL_Bool_Literal_True);
    begin
       return To_Primitive (Value);
    end Eval_Bool_Literal;
@@ -324,8 +324,8 @@ package body Interpreter.Evaluation is
    is
    begin
       return (case Node.F_Op.Kind is
-                 when LELCO.lkql_Op_And
-                    | LELCO.lkql_Op_Or
+                 when LELCO.LKQL_Op_And
+                    | LELCO.LKQL_Op_Or
                  =>
                     Eval_Short_Circuit_Op (Ctx, Node),
                  when others =>
@@ -343,13 +343,13 @@ package body Interpreter.Evaluation is
       Right  : constant Primitive := Eval (Ctx, Node.F_Right);
    begin
       return (case Node.F_Op.Kind is
-              when LELCO.lkql_Op_Plus   => Left + Right,
-              when LELCO.lkql_Op_Minus  => Left - Right,
-              when LELCO.lkql_Op_Mul    => Left * Right,
-              when LELCO.lkql_Op_Div    => Left / Right,
-              when LELCO.lkql_Op_Eq     => "=" (Left, Right),
-              when LELCO.lkql_Op_Neq    => Left /= Right,
-              when LELCO.lkql_Op_Concat => Left & Right,
+              when LELCO.LKQL_Op_Plus   => Left + Right,
+              when LELCO.LKQL_Op_Minus  => Left - Right,
+              when LELCO.LKQL_Op_Mul    => Left * Right,
+              when LELCO.LKQL_Op_Div    => Left / Right,
+              when LELCO.LKQL_Op_Eq     => "=" (Left, Right),
+              when LELCO.LKQL_Op_Neq    => Left /= Right,
+              when LELCO.LKQL_Op_Concat => Left & Right,
               when others =>
                  raise Program_Error with
                    "Not a non-short-cirtcuit operator kind: " &
@@ -368,10 +368,10 @@ package body Interpreter.Evaluation is
       Right   : constant LEL.LKQL_Node := Node.F_Right.As_LKQL_Node;
    begin
       case Node.F_Op.Kind is
-      when LELCO.lkql_Op_And =>
+      when LELCO.LKQL_Op_And =>
          Result :=
            Bool_Eval (Ctx, Left) and then Bool_Eval (Ctx, Right);
-      when LELCO.lkql_Op_Or =>
+      when LELCO.LKQL_Op_Or =>
          Result :=
            Bool_Eval (Ctx, Left) or else Bool_Eval (Ctx, Right);
       when others =>
