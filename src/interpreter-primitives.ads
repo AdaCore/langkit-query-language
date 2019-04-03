@@ -1,4 +1,5 @@
 with Iters.Iterators;
+with Iters.Vec_Iterators;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -116,6 +117,10 @@ package Interpreter.Primitives is
    package Primitive_Iters is new Iters.Iterators (Primitive);
    --  Iterator over Primitive values
 
+   package Primitive_Vec_Iters is
+     new Iters.Vec_Iterators (Primitive_Vectors, Primitive_Iters);
+   --  Iterators over Primitive vectors
+
    subtype Primitive_Iter is Primitive_Iters.Iterator_Interface;
 
    subtype Primitive_Iter_Access is Primitive_Iters.Iterator_Access;
@@ -133,6 +138,11 @@ package Interpreter.Primitives is
 
    function To_List (Iter : Iterator_Primitive) return Primitive;
    --  Create a List Primitive from the given iterator
+
+   function To_Iterator (Value : Primitive) return Primitive_Iter'Class;
+   --  Create an iterator that yields the elements of a List or
+   --  Iterator Primitive.
+   --  Raise an Unsupported_Error if the value isn"t a List or an Iterator
 
    ---------------
    -- Accessors --

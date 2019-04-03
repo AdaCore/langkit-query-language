@@ -1,5 +1,6 @@
 with Libadalang.Introspection; use Libadalang.Introspection;
 
+with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
@@ -171,6 +172,21 @@ package body Interpreter.Primitives is
 
       return Result;
    end To_List;
+
+   -----------------
+   -- To_Iterator --
+   -----------------
+
+   function To_Iterator (Value : Primitive) return Primitive_Iter'Class is
+     (case Value.Get.Kind is
+      when Kind_Iterator =>
+         Primitive_Iter'Class (Iter_Val (Value).Iter.Clone),
+      when Kind_List     =>
+         Primitive_Vec_Iters.To_Iterator (Elements (Value).all),
+      when others =>
+         raise Assertion_Error with
+           "Cannot get an iterator from a value of kind : " &
+           Kind_Name (Value));
 
    ----------
    -- Kind --
