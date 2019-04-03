@@ -12,7 +12,7 @@ class Manage(ManageScript):
         from language.lexer import lkql_lexer
         from language.parser import lkql_grammar
 
-        return CompileCtx(lang_name='lkql',
+        return CompileCtx(lang_name='LKQL',
                           lexer=lkql_lexer,
                           grammar=lkql_grammar)
 

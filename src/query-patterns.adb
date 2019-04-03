@@ -44,9 +44,9 @@ package body Query.Patterns is
    is
    begin
       return (case Self.Query.Kind is
-                 when LELCO.lkql_Query =>
+                 when LELCO.LKQL_Query =>
                    Match_Unfiltered_Query (Self.Ctx, Self.Query, Node),
-                 when LELCO.lkql_Filtered_Query =>
+                 when LELCO.LKQL_Filtered_Query =>
                    Match_Filtered_Query
                       (Self.Ctx, Self.Query.As_Filtered_Query, Node),
                  when others =>
@@ -108,11 +108,11 @@ package body Query.Patterns is
    is
    begin
       return (case Query_Pattern.Kind is
-                 when LELCO.lkql_Node_Query_Pattern =>
+                 when LELCO.LKQL_Node_Query_Pattern =>
                    Match_Node_Pattern
                      (Query_Pattern.As_Node_Query_Pattern.F_Queried_Node,
                       Node.Node),
-                 when LELCO.lkql_Full_Query_Pattern =>
+                 when LELCO.LKQL_Full_Query_Pattern =>
                    Match_Full_Query_Pattern
                      (Ctx, Query_Pattern.As_Full_Query_Pattern, Node),
                  when others =>
@@ -169,13 +169,13 @@ package body Query.Patterns is
    is
    begin
       return (case Node_Pattern.Kind is
-                 when LELCO.lkql_Kind_Node_Pattern =>
+                 when LELCO.LKQL_Kind_Node_Pattern =>
                    Match_Kind_Node_Pattern
                      (Node_Pattern.As_Kind_Node_Pattern, Node),
-                 when LELCO.lkql_Binding_Node_Pattern =>
+                 when LELCO.LKQL_Binding_Node_Pattern =>
                    Match_Binding_Node_Pattern
                      (Node_Pattern.As_Binding_Node_Pattern, Node),
-                 when LELCO.lkql_Full_Node_Pattern =>
+                 when LELCO.LKQL_Full_Node_Pattern =>
                    Match_Full_Node_Pattern
                      (Node_Pattern.As_Full_Node_Pattern, Node),
                  when others =>
