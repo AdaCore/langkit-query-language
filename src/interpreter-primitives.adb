@@ -57,6 +57,18 @@ package body Interpreter.Primitives is
    --  Raise an Unsupported_Error if there is no property named
    --  'Property_Name'.
 
+   function Built_In_Node_Property
+     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
+   --  Return the value of the built-in node property named 'Property_Name'.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
+
+   function Langkit_Node_Property
+     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
+   --  Return the value of the Langkit node property named 'Property_Name'.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Property_Name'.
+
    ---------------
    -- Int_Image --
    ---------------
@@ -308,10 +320,38 @@ package body Interpreter.Primitives is
    function Node_Property
      (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
    is
+   begin
+      return (if Property_Name = "image"
+              then Built_In_Node_Property (Value, Property_Name)
+              else Langkit_Node_Property (Value, Property_Name));
+   end Node_Property;
+
+   ----------------------------
+   -- Build_In_Node_Property --
+   ----------------------------
+
+   function Built_In_Node_Property
+     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
+   is
+   begin
+      if Property_Name = "image" then
+         return To_Primitive (To_Unbounded_Text (Value.Text_Image));
+      end if;
+
+      raise Assertion_Error with
+        "Invalid built-in node property: " & To_UTF8 (Property_Name);
+   end Built_In_Node_Property;
+
+   ---------------------------
+   -- Langkit_Node_Property --
+   ---------------------------
+
+   function Langkit_Node_Property
+     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
+   is
       Index : constant Field_Index :=
         Get_Field_Index (Property_Name, Value);
    begin
-
       if Index = -1 then
          raise Unsupported_Error with
            "No field named " & To_UTF8 (Property_Name) &
@@ -319,7 +359,7 @@ package body Interpreter.Primitives is
       end if;
 
       return To_Primitive (Value.Children (Index));
-   end Node_Property;
+   end Langkit_Node_Property;
 
    --------------
    -- Property --
