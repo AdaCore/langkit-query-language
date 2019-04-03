@@ -1,4 +1,5 @@
 with Ada.Unchecked_Deallocation;
+with Ada.Containers.Vectors;
 
 generic
 
@@ -116,6 +117,26 @@ package Iters.Iterators is
                     Pred : Predicates.Func'Class)
                     return Filter_Iter;
 
+   ------------
+   -- Repeat --
+   ------------
+
+   type Resetable_Iter is new Iterator_Interface with private;
+   --  Resetable iterator that caches the elements that it yields.
+
+   type Resetable_Access is access all Resetable_Iter;
+
+   overriding function Next (Iter   : in out Resetable_Iter;
+                             Result : out Element_Type) return Boolean;
+
+   overriding procedure Release (Iter : in out Resetable_Iter);
+
+   overriding function Clone (Iter : Resetable_Iter) return Resetable_Iter;
+
+   procedure Reset (Iter : in out Resetable_Iter);
+   --  Reset the iterator. Further calls to 'Next' will yield the cached
+   --  elements.
+
 private
 
    procedure Free_Predicate_Access is new Ada.Unchecked_Deallocation
@@ -124,6 +145,26 @@ private
    type Filter_Iter is new Iterator_Interface with record
       Inner     : Iterator_Access;
       Predicate : Predicate_Access;
+   end record;
+
+   package Element_Vectors is new Ada.Containers.Vectors
+     (Positive, Element_Type);
+
+   type Element_Vector_Access is access all Element_Vectors.Vector;
+
+   procedure Free_Element_Vector is new Ada.Unchecked_Deallocation
+     (Element_Vectors.Vector, Element_Vector_Access);
+
+   subtype Cache_Index is Integer range -1 .. Integer'Last;
+
+   type Resetable_Iter is new Iterator_Interface with record
+      Inner : Iterator_Access;
+      --  Wrapped iterator
+      Cache : Element_Vector_Access := new Element_Vectors.Vector;
+      --  Cached values
+      Cache_Pos : Cache_Index := -1;
+      --  Index of the next cache value to read.
+      --  -1 if the wrapped iterator hasn't been fully consumed yet
    end record;
 
 end Iters.Iterators;
