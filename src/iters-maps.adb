@@ -40,6 +40,7 @@ package body Iters.Maps is
    begin
       Iter.Fn.Release;
       Map_Funcs.Free_Func (Iter.Fn);
+      Iter.Inner.Release;
       Input_Iterators.Free_Iterator (Iter.Inner);
    end Release;
 

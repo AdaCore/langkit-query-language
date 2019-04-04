@@ -170,7 +170,7 @@ package body Iters.Iterators is
    overriding procedure Release (Iter : in out Resetable_Iter) is
    begin
       Free_Element_Vector (Iter.Cache);
-      Iter.Release;
+      Iter.Inner.Release;
       Free_Iterator (Iter.Inner);
    end Release;
 

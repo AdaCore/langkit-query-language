@@ -153,12 +153,18 @@ package body Interpreter.Primitives is
    -------------
 
    procedure Release (Data : in out Primitive_Data) is
+      procedure Free_Iterator_Primitive_Access is
+        new Ada.Unchecked_Deallocation
+          (Iterator_Primitive, Iterator_Primitive_Access);
    begin
-      if Data.Kind /= Kind_List then
-         return;
-      end if;
-
-      Free_Primitive_List (Data.List_Val);
+      case Data.Kind is
+         when Kind_List =>
+            Free_Primitive_List (Data.List_Val);
+         when Kind_Iterator =>
+            Free_Iterator_Primitive_Access (Data.Iter_Val);
+         when others =>
+            null;
+      end case;
    end Release;
 
    --------------
@@ -167,6 +173,7 @@ package body Interpreter.Primitives is
 
    overriding procedure Finalize (Object : in out Iterator_Primitive) is
    begin
+      Object.Iter.Release;
       Free_Primitive_Iter (Object.Iter);
    end Finalize;
 
@@ -435,7 +442,7 @@ package body Interpreter.Primitives is
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive is
       Val_Copy : constant Primitive_Iter_Access :=
-        new Primitive_Iter'Class'(Val);
+        new Primitive_Iter'Class'(Primitive_Iter'Class (Val.Clone));
       Iter_Primitive : constant Iterator_Primitive_Access :=
         new Iterator_Primitive'(Controlled with Val_Copy);
    begin
