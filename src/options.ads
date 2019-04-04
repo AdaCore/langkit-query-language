@@ -22,14 +22,14 @@ package Options is
    --  Return True if the option doesn't contain a value
 
    function Extract (Self : Option) return Value_Type;
-   --  Return the wrapped value, if any.
+   --  Return the wraped value, if any.
    --  A Program_Error will be raised if there is no value.
 
    function To_Option (Value : Value_Type) return Option;
    --  Create an Option value that contains the given value
 
    function None return Option;
-   --  Create an Option that does'n contain a value
+   --  Create an Option that doesn't contain a value
 
 private
 

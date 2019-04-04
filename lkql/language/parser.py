@@ -35,7 +35,7 @@ class Op(LKQLNode):
 
 class BoolLiteral(Expr):
     """
-    Booean literal
+    Boolean literal
     """
     enum_node = True
     alternatives = ['true', 'false']
