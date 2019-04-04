@@ -91,7 +91,7 @@ package body Interpreter.Evaluation is
 
    function Bool_Eval
      (Ctx : Eval_Context_Ptr; Node : LEL.LKQL_Node) return Boolean;
-   --  Evalauate the given node and convert to result to an Ada Boolean.
+   --  Evalaluate the given node and convert to result to an Ada Boolean.
    --  Raise an exception if the result of the node's evaluation is not a
    --  boolean.
 
