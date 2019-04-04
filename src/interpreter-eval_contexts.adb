@@ -4,7 +4,7 @@ package body Interpreter.Eval_Contexts is
    -- Add_Error --
    ---------------
 
-   procedure Add_Error (Ctx : in out Eval_Context; Error : Error_Data) is
+   procedure Add_Error (Ctx : in out Eval_Context_Value; Error : Error_Data) is
    begin
       Ctx.Last_Error := Error;
    end Add_Error;

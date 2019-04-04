@@ -30,7 +30,7 @@ package Interpreter.Eval_Contexts is
    --  Insert all the key-value pairs from New_Values into Env. In case of
    --  a conflict, the value from Env will be overriden.
 
-   type Eval_Context is record
+   type Eval_Context_Value is record
       Env : String_Value_Maps.Map;
       --  Store the value associated with variable names.
 
@@ -46,13 +46,13 @@ package Interpreter.Eval_Contexts is
    end record;
    --  Store the evaluation context.
 
-   type Eval_Context_Ptr is access all Eval_Context;
+   type Eval_Context is access all Eval_Context_Value;
    --  Pointer to an Eval_Context
 
    procedure Free_Eval_Context is new Ada.Unchecked_Deallocation
-     (Eval_Context, Eval_Context_Ptr);
+     (Eval_Context_Value, Eval_Context);
 
-   procedure Add_Error (Ctx : in out Eval_Context; Error : Error_Data);
+   procedure Add_Error (Ctx : in out Eval_Context_Value; Error : Error_Data);
    --  Add the given error to the evaluation context.
 
 end Interpreter.Eval_Contexts;
