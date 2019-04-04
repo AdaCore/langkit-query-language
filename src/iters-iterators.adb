@@ -35,6 +35,18 @@ package body Iters.Iterators is
       end return;
    end Consume;
 
+   --------------------
+   -- Release_Access --
+   --------------------
+
+   procedure Release_Access (Iter : in out Iterator_Access) is
+   begin
+      if Iter /= null then
+         Iter.all.Release;
+         Free_Iterator (Iter);
+      end if;
+   end Release_Access;
+
    ----------
    -- Next --
    ----------
@@ -76,10 +88,8 @@ package body Iters.Iterators is
 
    overriding procedure Release (Iter : in out Filter_Iter) is
    begin
-      Iter.Inner.Release;
-      Free_Iterator (Iter.Inner);
-      Iter.Predicate.Release;
-      Predicates.Free_Func (Iter.Predicate);
+      Release_Access (Iter.Inner);
+      Predicates.Release_Access (Iter.Predicate);
    end Release;
 
    ------------

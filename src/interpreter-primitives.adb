@@ -173,8 +173,7 @@ package body Interpreter.Primitives is
 
    overriding procedure Finalize (Object : in out Iterator_Primitive) is
    begin
-      Object.Iter.Release;
-      Free_Primitive_Iter (Object.Iter);
+      Primitive_Iters.Release_Access (Object.Iter);
    end Finalize;
 
    -------------

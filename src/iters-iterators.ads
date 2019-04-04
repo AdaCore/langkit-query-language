@@ -46,6 +46,10 @@ package Iters.Iterators is
    --  elements.
    --  The ressources associated with the iterator will be released.
 
+   procedure Release_Access (Iter : in out Iterator_Access);
+   --  Release the ressources that belong to the iterator accessed trough
+   --  'Iter', then free 'Iter' itself.
+
    procedure Free_Iterator is new Ada.Unchecked_Deallocation
      (Iterator_Interface'Class, Iterator_Access);
 

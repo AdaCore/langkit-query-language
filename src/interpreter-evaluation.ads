@@ -6,8 +6,6 @@ with Interpreter.Eval_Contexts;    use Interpreter.Eval_Contexts;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with Ada.Unchecked_Deallocation;
-
 package Interpreter.Evaluation is
 
    function Eval (Ctx            : Eval_Context;
@@ -35,9 +33,6 @@ private
 
    package Primitive_Options is new Options (Primitive);
    use Primitive_Options;
-
-   procedure Free_Resetable_Environement_Iter is new Ada.Unchecked_Deallocation
-     (Environment_Iters.Resetable_Iter, Environment_Iters.Resetable_Access);
 
    type Comprehension_Env_Iter is new Environment_Iters.Iterator_Interface with
       record

@@ -126,9 +126,6 @@ package Interpreter.Primitives is
    subtype Primitive_Iter_Access is Primitive_Iters.Iterator_Access;
    --  Pointer to an iterator over Primitive values
 
-   procedure Free_Primitive_Iter is new Ada.Unchecked_Deallocation
-     (Primitive_Iters.Iterator_Interface'Class, Primitive_Iter_Access);
-
    type Iterator_Primitive is new Ada.Finalization.Controlled with record
       Iter          : Primitive_Iter_Access;
    end record;

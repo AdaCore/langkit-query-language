@@ -38,10 +38,8 @@ package body Iters.Maps is
 
    overriding procedure Release (Iter : in out Map_Iter) is
    begin
-      Iter.Fn.Release;
-      Map_Funcs.Free_Func (Iter.Fn);
-      Iter.Inner.Release;
-      Input_Iterators.Free_Iterator (Iter.Inner);
+      Map_Funcs.Release_Access (Iter.Fn);
+      Input_Iterators.Release_Access (Iter.Inner);
    end Release;
 
    ---------
