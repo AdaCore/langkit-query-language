@@ -27,6 +27,10 @@ package Funcs is
    procedure Release (Self : in out Func) is null;
    --  Release ressources that belong to Self
 
+   procedure Release_Access (F : in out Func_Access);
+   --  Release the resources of the function that is accessed through 'F',
+   --  the free 'F' itself.
+
    procedure Free_Func is new Ada.Unchecked_Deallocation
      (Func'Class, Func_Access);
    --  Free the memory accessed through a Func_Access pointer

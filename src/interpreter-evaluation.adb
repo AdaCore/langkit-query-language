@@ -699,14 +699,10 @@ package body Interpreter.Evaluation is
    -------------
 
    overriding procedure Release (Iter : in out Comprehension_Env_Iter) is
-      use type Environment_Iters.Resetable_Access;
    begin
-      Iter.Gen.Release;
-      Primitive_Iters.Free_Iterator (Iter.Gen);
-      if Iter.Nested /= null then
-         Iter.Nested.Release;
-         Free_Resetable_Environement_Iter (Iter.Nested);
-      end if;
+      Primitive_Iters.Release_Access (Iter.Gen);
+      Environment_Iters.Release_Access
+        (Environment_Iters.Iterator_Access (Iter.Nested));
    end Release;
 
    --------------

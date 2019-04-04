@@ -1,5 +1,17 @@
 package body Funcs is
 
+   --------------------
+   -- Release_Access --
+   --------------------
+
+   procedure Release_Access (F : in out Func_Access) is
+   begin
+      if F /= null then
+         F.Release;
+         Free_Func (F);
+      end if;
+   end Release_Access;
+
    --------------
    -- Evaluate --
    --------------
