@@ -206,54 +206,42 @@ package body Interpreter.Primitives is
    ----------
 
    function Kind (Value : Primitive) return Valid_Primitive_Kind is
-   begin
-      return Value.Get.Kind;
-   end Kind;
+      (Value.Get.Kind);
 
    -------------
    -- Int_Val --
    -------------
 
    function Int_Val (Value : Primitive) return Integer is
-   begin
-      return Value.Get.Int_Val;
-   end Int_Val;
+      (Value.Get.Int_Val);
 
    -------------
    -- Str_Val --
    -------------
 
    function Str_Val (Value : Primitive) return Unbounded_Text_Type is
-   begin
-      return Value.Get.Str_Val;
-   end Str_Val;
+      (Value.Get.Str_Val);
 
    --------------
    -- Bool_Val --
    --------------
 
    function Bool_Val (Value : Primitive) return Boolean is
-   begin
-      return Value.Get.Bool_Val;
-   end Bool_Val;
+      (Value.Get.Bool_Val);
 
    --------------
    -- Node_Val --
    --------------
 
    function Node_Val (Value : Primitive) return LAL.Ada_Node is
-   begin
-      return Value.Get.Node_Val;
-   end Node_Val;
+      (Value.Get.Node_Val);
 
    --------------
    -- List_Val --
    --------------
 
    function List_Val (Value : Primitive) return Primitive_List_Access is
-   begin
-      return Value.Get.List_Val;
-   end List_Val;
+      (Value.Get.List_Val);
 
    --------------
    -- Iter_Val --
