@@ -36,19 +36,19 @@ package body Interpreter.Primitives is
    --  Return the index of 'Node's field named 'Name', or -1 if there is no
    --  field matching the given name.
 
-   function List_Property (Value : Primitive_List_Access;
-                           Property_Name : Text_Type) return Primitive;
-   --  Return the value of the property named 'Property_Name' of the given
+   function List_Data (Value : Primitive_List_Access;
+                       Member_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Member_Name' of the given
    --  Primitive List.
    --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
+   --  'Member_Name'.
 
-   function Str_Property
-     (Value : Unbounded_Text_Type; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the property named 'Property_Name' of the given
+   function Str_Data
+     (Value : Unbounded_Text_Type; Member_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Member_Name' of the given
    --  Str value.
    --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
+   --  'Member_Name'.
 
    function Node_Property
      (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
@@ -271,35 +271,35 @@ package body Interpreter.Primitives is
    -- List_Property --
    -------------------
 
-   function List_Property (Value : Primitive_List_Access;
-                           Property_Name : Text_Type) return Primitive
+   function List_Data (Value : Primitive_List_Access;
+                           Member_Name : Text_Type) return Primitive
    is
    begin
-      if Property_Name = "length" then
+      if Member_Name = "length" then
          return To_Primitive (Integer (Value.Elements.Length));
       else
          raise Unsupported_Error with
-           "No property named " & To_UTF8 (Property_Name) &
+           "No property named " & To_UTF8 (Member_Name) &
            " on values of kind " & To_String (Kind_List);
       end if;
-   end List_Property;
+   end List_Data;
 
    ------------------
    -- Str_Property --
    ------------------
 
-   function Str_Property
-     (Value : Unbounded_Text_Type; Property_Name : Text_Type) return Primitive
+   function Str_Data
+     (Value : Unbounded_Text_Type; Member_Name : Text_Type) return Primitive
    is
    begin
-      if Property_Name = "length" then
+      if Member_Name = "length" then
          return To_Primitive (Length (Value));
       else
          raise Unsupported_Error with
-           "No property named " & To_UTF8 (Property_Name) &
+           "No property named " & To_UTF8 (Member_Name) &
            " on values of kind " & To_String (Kind_Str);
       end if;
-   end Str_Property;
+   end Str_Data;
 
    -------------------
    -- Node_Property --
@@ -353,22 +353,22 @@ package body Interpreter.Primitives is
    -- Property --
    --------------
 
-   function Property
-     (Value : Primitive; Property_Name : Text_Type) return Primitive
+   function Data
+     (Value : Primitive; Member_Name : Text_Type) return Primitive
    is
    begin
       return (case Kind (Value) is
                  when Kind_List =>
-                   List_Property (List_Val (Value), Property_Name),
+                   List_Data (List_Val (Value), Member_Name),
                  when Kind_Str =>
-                   Str_Property (Str_Val (Value), Property_Name),
+                   Str_Data (Str_Val (Value), Member_Name),
                  when Kind_Node =>
-                   Node_Property (Node_Val (Value), Property_Name),
+                   Node_Property (Node_Val (Value), Member_Name),
                  when others =>
                     raise Unsupported_Error with
                       "Values of kind " & Kind_Name (Value) &
                       " dont have properties");
-   end Property;
+   end Data;
 
    -------------------------
    -- Make_Unit_Primitive --

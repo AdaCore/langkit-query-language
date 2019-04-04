@@ -403,7 +403,7 @@ package body Interpreter.Evaluation is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
-      return Property (Receiver, Member_Name);
+      return Data (Receiver, Member_Name);
    exception
       when Unsupported_Error =>
          Raise_Invalid_Member (Ctx, Node, Receiver);
