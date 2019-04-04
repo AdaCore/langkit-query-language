@@ -63,7 +63,7 @@ private
    -----------------------------
 
    package Env_Primitive_Maps is
-      new Iters.Maps (Environment_Iters, Primitive_Iters);
+     new Iters.Maps (Environment_Iters, Primitive_Iters);
 
    type Closure is new Env_Primitive_Maps.Map_Funcs.Func with record
       Ctx       : Eval_Context;

@@ -489,14 +489,16 @@ package body Interpreter.Evaluation is
         Environment_Iters.Filter (Comprehension_Envs, Guard_Filter);
       Comprehension_Closure : constant Closure :=
         Make_Closure (Ctx, Node.F_Expr);
-      Comprehension_Values : constant Env_Primitive_Maps.Map_Iter :=
+      Comprehension_Values : Env_Primitive_Maps.Map_Iter :=
         (if Node.F_Guard.Is_Null
          then
             Env_Primitive_Maps.Map (Comprehension_Envs, Comprehension_Closure)
          else
             Env_Primitive_Maps.Map (Filtered_Envs, Comprehension_Closure));
+      Result : constant Primitive := To_Primitive (Comprehension_Values);
    begin
-      return To_Primitive (Comprehension_Values);
+      Comprehension_Values.Release;
+      return Result;
    end Eval_List_Comprehension;
 
    function Environment_Iter_For_Assoc
@@ -697,9 +699,14 @@ package body Interpreter.Evaluation is
    -------------
 
    overriding procedure Release (Iter : in out Comprehension_Env_Iter) is
+      use type Environment_Iters.Resetable_Access;
    begin
+      Iter.Gen.Release;
       Primitive_Iters.Free_Iterator (Iter.Gen);
-      Free_Resetable_Environement_Iter (Iter.Nested);
+      if Iter.Nested /= null then
+         Iter.Nested.Release;
+         Free_Resetable_Environement_Iter (Iter.Nested);
+      end if;
    end Release;
 
    --------------
