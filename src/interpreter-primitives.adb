@@ -1,6 +1,7 @@
 with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Assertions;                  use Ada.Assertions;
+with Ada.Finalization;                use Ada.Finalization;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
@@ -398,6 +399,23 @@ package body Interpreter.Primitives is
       Ref.Set
         (Primitive_Data'(Refcounted with Kind => Kind_Node, Node_Val => Val));
       return Ref;
+   end To_Primitive;
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (Val : Primitive_Iter'Class) return Primitive is
+      Val_Copy : constant Primitive_Iter_Access :=
+        new Primitive_Iter'Class'(Val);
+      Iter_Primitive : constant Iterator_Primitive_Access :=
+        new Iterator_Primitive'(Controlled with Val_Copy);
+   begin
+      return Result : Primitive do
+         Result.Set
+           (Primitive_Data'
+              (Refcounted with Kind_Iterator, Iter_Primitive));
+      end return;
    end To_Primitive;
 
    ---------------------

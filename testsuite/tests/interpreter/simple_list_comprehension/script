@@ -1,0 +1,3 @@
+let all = query p
+let decls = [a | a <- all, a is ObjectDecl]
+print(decls)
