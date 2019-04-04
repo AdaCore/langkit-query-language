@@ -175,12 +175,13 @@ package Interpreter.Primitives is
      (Value : Primitive) return not null Primitive_Vector_Access;
    --  Return a pointer to the elements of a list primitive
 
-   function Property
-     (Value : Primitive; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the property named 'Property_Name' of the given
-   --  Primitive value.
-   --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
+   function Data
+     (Value : Primitive; Member_Name : Text_Type) return Primitive;
+   --  Return the value of 'Value's member named 'Member_Name'.
+   --  This member can be either a built_in member (ex: length), or a
+   --  Langkit field/property.
+   --  Raise an Unsupported_Error if there is no member named
+   --  'Member_Name'.
 
    ----------------------------------
    -- Creation of Primitive values --
