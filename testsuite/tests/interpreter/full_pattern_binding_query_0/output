@@ -1,3 +1,3 @@
 aspect_decls.ads
-<ObjectDecl ["Variable1"] 7:5-8:23>
-<ObjectDecl ["Variable4"] 14:5-15:43>
+<ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23>
+<ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43>
