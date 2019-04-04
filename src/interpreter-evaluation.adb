@@ -62,6 +62,16 @@ package body Interpreter.Evaluation is
    function Eval_Indexing
      (Ctx : Eval_Context_Ptr; Node : LEL.Indexing) return Primitive;
 
+   function Eval_List_Comprehension
+     (Ctx : Eval_Context_Ptr; Node : LEL.List_Comprehension) return Primitive;
+
+   function Make_Comprehension_Environment_Iter
+     (Ctx : Eval_Context_Ptr; Node : LEL.Arrow_Assoc_List)
+      return Comprehension_Env_Iter;
+   --  Given a List of Arrow_Assoc, return an iterator that yields the
+   --  environments produced by this list of Arrow_Assoc in the context of a
+   --  list comprehension.
+
    function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
      with Pre => Name'Length > 4 and then
                  Name (Name'First .. Name'First + 3) = "ADA_";
@@ -463,6 +473,96 @@ package body Interpreter.Evaluation is
       return Get (List, Int_Val (Index));
    end Eval_Indexing;
 
+   -----------------------------
+   -- Eval_List_Comprehension --
+   -----------------------------
+
+   function Eval_List_Comprehension
+     (Ctx : Eval_Context_Ptr; Node : LEL.List_Comprehension) return Primitive
+   is
+      Comprehension_Envs : constant Comprehension_Env_Iter :=
+        Make_Comprehension_Environment_Iter (Ctx, Node.F_Generators);
+      Guard_Filter : constant Comprehension_Guard_Filter :=
+        Make_Guard_Filter (Ctx, Node.F_Guard);
+      Filtered_Envs : constant Environment_Iters.Filter_Iter :=
+        Environment_Iters.Filter (Comprehension_Envs, Guard_Filter);
+      Comprehension_Closure : constant Closure :=
+        Make_Closure (Ctx, Node.F_Expr);
+      Comprehension_Values : constant Env_Primitive_Maps.Map_Iter :=
+        (if Node.F_Guard.Is_Null
+         then
+            Env_Primitive_Maps.Map (Comprehension_Envs, Comprehension_Closure)
+         else
+            Env_Primitive_Maps.Map (Filtered_Envs, Comprehension_Closure));
+   begin
+      return To_Primitive (Comprehension_Values);
+   end Eval_List_Comprehension;
+
+   function Environment_Iter_For_Assoc
+     (Ctx    : Eval_Context_Ptr;
+      Assoc  : LEL.Arrow_Assoc;
+      Nested : Comprehension_Env_Iter_Access)
+      return Comprehension_Env_Iter_Access;
+
+   -----------------------------------------
+   -- Make_Comprehension_Environment_Iter --
+   -----------------------------------------
+
+   function Make_Comprehension_Environment_Iter
+     (Ctx : Eval_Context_Ptr; Node : LEL.Arrow_Assoc_List)
+      return Comprehension_Env_Iter
+   is
+      Current_Env : Comprehension_Env_Iter_Access := null;
+      Res       : Comprehension_Env_Iter;
+   begin
+      for I in reverse Node.Children'Range loop
+         declare
+            Current_Assoc   : constant LEL.Arrow_Assoc :=
+              Node.Children (I).As_Arrow_Assoc;
+         begin
+            Current_Env :=
+              Environment_Iter_For_Assoc (Ctx, Current_Assoc, Current_Env);
+         end;
+      end loop;
+
+      Res := Current_Env.all;
+      Environment_Iters.Free_Iterator
+        (Environment_Iters.Iterator_Access (Current_Env));
+      return Res;
+   end Make_Comprehension_Environment_Iter;
+
+   --------------------------------
+   -- Environment_Iter_For_Assoc --
+   --------------------------------
+
+   function Environment_Iter_For_Assoc
+     (Ctx    : Eval_Context_Ptr;
+      Assoc  : LEL.Arrow_Assoc;
+      Nested : Comprehension_Env_Iter_Access)
+      return Comprehension_Env_Iter_Access
+   is
+      Generator_Value  : constant Primitive :=
+        Eval (Ctx, Assoc.F_Coll_Expr);
+      Generator_Iter   : constant Primitive_Iter_Access :=
+        new Primitive_Iter'Class'(To_Iterator (Generator_Value));
+      Binding_Name     : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Assoc.F_Binding_Name.Text);
+      Nested_Resetable : constant Environment_Iters.Resetable_Access :=
+        (if Nested = null then null
+         else new Environment_Iters.Resetable_Iter'
+           (Environment_Iters.Resetable
+                (Environment_Iters.Iterator_Access (Nested))));
+      Current_Element : Primitive_Options.Option;
+      First_Element   : Primitive;
+   begin
+      if Generator_Iter.Next (First_Element) then
+         Current_Element := To_Option (First_Element);
+      end if;
+
+      return new Comprehension_Env_Iter'
+        (Binding_Name, Current_Element, Generator_Iter, Nested_Resetable);
+   end Environment_Iter_For_Assoc;
+
    ----------------------
    -- To_Ada_Node_Kind --
    ----------------------
@@ -481,5 +581,193 @@ package body Interpreter.Evaluation is
 
       return Element (Position);
    end To_Ada_Node_Kind;
+
+   function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
+                               Result : out Environment) return Boolean;
+   --  Return a new enviroment built by adding the current iterator's binding
+   --  to the environment produced by it's 'Nested' iterator.
+
+   function Create_New_Env (Iter   : in out Comprehension_Env_Iter;
+                            Result : out Environment) return Boolean;
+   --  Return a new environment containing only the current iterator's binding
+
+   ----------
+   -- Next --
+   ----------
+
+   overriding function Next (Iter   : in out Comprehension_Env_Iter;
+                             Result : out Environment) return Boolean
+   is
+      use type Environment_Iters.Resetable_Access;
+   begin
+      if Iter.Nested /= null then
+         return Update_Nested_Env (Iter, Result);
+      else
+         return Create_New_Env (Iter, Result);
+      end if;
+   end Next;
+
+   procedure Update_Current_Element (Iter : in out Comprehension_Env_Iter);
+
+   -----------------------
+   -- Update_Nested_Env --
+   -----------------------
+
+   function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
+                               Result : out Environment) return Boolean
+   is
+      Env            : Environment;
+      Nested_Exists  : Boolean;
+   begin
+      if Is_None (Iter.Current_Element) then
+         return False;
+      end if;
+
+      Nested_Exists := Iter.Nested.Next (Env);
+
+      if not Nested_Exists then
+         Update_Current_Element (Iter);
+         Iter.Nested.Reset;
+         --  Stop the iteation if we can't build a complete environment
+         --  after updating the current element and reseting the nested
+         --  iterator.
+         if Is_None (Iter.Current_Element) or else
+           not Iter.Nested.Next (Env)
+         then
+            return False;
+         end if;
+      end if;
+
+      Env.Include (Iter.Binding_Name, Extract (Iter.Current_Element));
+      Result := Env;
+      return True;
+   end Update_Nested_Env;
+
+   ----------------------------
+   -- Update_Current_Element --
+   ----------------------------
+
+   procedure Update_Current_Element (Iter : in out Comprehension_Env_Iter) is
+      Element        : Primitive;
+      Element_Exists : constant Boolean := Iter.Gen.Next (Element);
+   begin
+      if Element_Exists then
+         Iter.Current_Element := To_Option (Element);
+      else
+         Iter.Current_Element := None;
+      end if;
+   end Update_Current_Element;
+
+   --------------------
+   -- Create_New_Env --
+   --------------------
+
+   function Create_New_Env (Iter   : in out Comprehension_Env_Iter;
+                            Result : out Environment) return Boolean
+   is
+   begin
+      if Is_None (Iter.Current_Element) then
+         return False;
+      end if;
+
+      Result.Include (Iter.Binding_Name, Extract (Iter.Current_Element));
+      Update_Current_Element (Iter);
+      return True;
+   end Create_New_Env;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone
+     (Iter : Comprehension_Env_Iter) return Comprehension_Env_Iter
+   is
+      use type Environment_Iters.Resetable_Access;
+      Gen_Copy    : constant Primitive_Iters.Iterator_Access :=
+        new Primitive_Iters.Iterator_Interface'Class'(
+          Primitive_Iters.Iterator_Interface'Class (Iter.Gen.Clone));
+      Nested_Copy : constant Environment_Iters.Resetable_Access :=
+        (if Iter.Nested = null then null
+         else new Environment_Iters.Resetable_Iter'(Iter.Nested.Clone));
+   begin
+      return (Iter.Binding_Name, Iter.Current_Element, Gen_Copy, Nested_Copy);
+   end Clone;
+
+   -------------
+   -- Release --
+   -------------
+
+   overriding procedure Release (Iter : in out Comprehension_Env_Iter) is
+   begin
+      Primitive_Iters.Free_Iterator (Iter.Gen);
+      Free_Resetable_Environement_Iter (Iter.Nested);
+   end Release;
+
+   --------------
+   -- Evaluate --
+   --------------
+
+   overriding function Evaluate (Self    : in out Closure;
+                                 Element : Environment) return Primitive
+   is
+   begin
+      return Eval (Self.Ctx, Self.Body_Expr, Local_Bindings => Element);
+   end Evaluate;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Self : Closure) return Closure is
+   begin
+      return Make_Closure (Self.Ctx, Self.Body_Expr);
+   end Clone;
+
+   ------------------
+   -- Make_Closure --
+   ------------------
+
+   function Make_Closure
+     (Ctx : Eval_Context_Ptr; Body_Expr : LEL.Expr) return Closure
+   is
+   begin
+      return Closure'(Ctx, Body_Expr);
+   end Make_Closure;
+
+   --------------
+   -- Evaluate --
+   --------------
+
+   function Evaluate (Self : in out Comprehension_Guard_Filter;
+                      Element : Environment) return Boolean
+   is
+      Result : constant Primitive :=
+        Eval (Self.Ctx, Self.Guard, Kind_Bool, Element);
+   begin
+      return Bool_Val (Result);
+   end Evaluate;
+
+   -----------
+   -- Clone --
+   -----------
+
+   function Clone
+     (Self : Comprehension_Guard_Filter) return Comprehension_Guard_Filter
+   is
+   begin
+      return Self;
+   end Clone;
+
+   -----------------------
+   -- Make_Guard_Filter --
+   -----------------------
+
+   function Make_Guard_Filter (Ctx : Eval_Context_Ptr;
+                               Guard : LEL.Expr)
+                               return Comprehension_Guard_Filter
+   is
+   begin
+      return Comprehension_Guard_Filter'(Ctx, Guard);
+   end Make_Guard_Filter;
 
 end Interpreter.Evaluation;

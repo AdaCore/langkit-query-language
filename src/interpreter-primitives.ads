@@ -201,7 +201,7 @@ package Interpreter.Primitives is
    function To_Primitive (Val : LAL.Ada_Node) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
-   function Make_Empty_List (Kind : Valid_Primitive_Kind) return Primitive;
+   function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
 
    function Make_Empty_List return Primitive;
    --  Return a Primitive value storing an empty list of Primitive values

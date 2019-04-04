@@ -1,0 +1,15 @@
+aspect_decls.ads
+<ObjectDecl ["Variable"] 4:5-5:74> <SubtypeIndication 12:17-12:23>
+<ObjectDecl ["Variable"] 4:5-5:74> <SubtypeIndication 14:17-14:23>
+<ObjectDecl ["Variable1"] 7:5-8:23> <SubtypeIndication 4:15-4:36>
+<ObjectDecl ["Variable1"] 7:5-8:23> <SubtypeIndication 7:16-7:37>
+<ObjectDecl ["Variable1"] 7:5-8:23> <SubtypeIndication 12:17-12:23>
+<ObjectDecl ["Variable1"] 7:5-8:23> <SubtypeIndication 14:17-14:23>
+<ObjectDecl ["Variable3"] 12:5-12:24> <SubtypeIndication 4:15-4:36>
+<ObjectDecl ["Variable3"] 12:5-12:24> <SubtypeIndication 7:16-7:37>
+<ObjectDecl ["Variable3"] 12:5-12:24> <SubtypeIndication 12:17-12:23>
+<ObjectDecl ["Variable3"] 12:5-12:24> <SubtypeIndication 14:17-14:23>
+<ObjectDecl ["Variable4"] 14:5-15:43> <SubtypeIndication 4:15-4:36>
+<ObjectDecl ["Variable4"] 14:5-15:43> <SubtypeIndication 7:16-7:37>
+<ObjectDecl ["Variable4"] 14:5-15:43> <SubtypeIndication 12:17-12:23>
+<ObjectDecl ["Variable4"] 14:5-15:43> <SubtypeIndication 14:17-14:23>
