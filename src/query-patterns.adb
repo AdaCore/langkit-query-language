@@ -6,6 +6,8 @@ with Liblkqllang.Common; use type Liblkqllang.Common.LKQL_Node_Kind_Type;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Ada.Assertions; use Ada.Assertions;
+
 package body Query.Patterns is
 
    -------------------------
@@ -50,7 +52,7 @@ package body Query.Patterns is
                    Match_Filtered_Query
                       (Self.Ctx, Self.Query.As_Filtered_Query, Node),
                  when others =>
-                    raise Program_Error with
+                    raise Assertion_Error with
                       "Invalid query kind: " & LEL.Kind_Name (Self.Query));
    end Evaluate;
 
@@ -116,7 +118,7 @@ package body Query.Patterns is
                    Match_Full_Query_Pattern
                      (Ctx, Query_Pattern.As_Full_Query_Pattern, Node),
                  when others =>
-                    raise Program_Error with
+                    raise Assertion_Error with
                       "Invalid query pattern kind: " &
                       LEL.Kind_Name (Query_Pattern));
    end Match_Query_Pattern;
@@ -179,7 +181,7 @@ package body Query.Patterns is
                    Match_Full_Node_Pattern
                      (Node_Pattern.As_Full_Node_Pattern, Node),
                  when others =>
-                    raise Program_Error with
+                    raise Assertion_Error with
                       "invalid node pattern kind: " &
                       LEL.Kind_Name (Node_Pattern));
    end Match_Node_Pattern;
@@ -287,11 +289,12 @@ package body Query.Patterns is
       Quantifier_Name : constant Text_Type :=
         Selector.P_Quantifier_Name;
    begin
-      return (if Quantifier_Name = "some" then
-                 Exists_Consumer'(Pattern => Related_Node)
-              elsif Quantifier_Name = "all" then
-                 All_Consumer'(Pattern => Related_Node)
-              else raise Program_Error);
+      pragma Assert (Quantifier_Name = "some" or else Quantifier_Name = "all",
+                     "Invalid quantifier Name: " & To_UTF8 (Quantifier_Name));
+
+      return (if Quantifier_Name = "some"
+              then Exists_Consumer'(Pattern => Related_Node)
+              else All_Consumer'(Pattern => Related_Node));
    end Make_Selector_Consumer;
 
    -------------

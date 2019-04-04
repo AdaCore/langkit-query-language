@@ -5,7 +5,7 @@ with Interpreter.Primitives;    use Interpreter.Primitives;
 
 with Libadalang.Project_Provider;
 
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Text_IO;    use Ada.Text_IO;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use  Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
@@ -33,11 +33,9 @@ package body Run is
       Ignore := Eval (Context, LKQL_Script);
    exception
       when Stop_Evaluation_Error =>
-         if not Is_Error (Context.Last_Error) then
-            raise Program_Error with
-              "Stop Evaluation Error raised without adding the error to the " &
-              "evaluation context";
-         end if;
+         pragma Assert (Is_Error (Context.Last_Error),
+                        "Stop Evaluation Error raised without adding the " &
+                        "error to the evaluation context");
 
          if not Context.Error_Recovery_Enabled then
             Put_Line (Error_Description (Context.Last_Error));

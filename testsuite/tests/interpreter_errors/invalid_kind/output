@@ -1,2 +1,2 @@
 main.adb
-raised PROGRAM_ERROR : Invalid kind name: PreposterouslyInvalidKind
+raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : Invalid kind name: PreposterouslyInvalidKind
