@@ -1,3 +1,6 @@
+--  This package provides a generic 'Option' type, meant to represent optional
+--  values.
+
 generic
 
    type Value_Type is private;
