@@ -10,7 +10,7 @@ with Ada.Unchecked_Deallocation;
 
 package Interpreter.Evaluation is
 
-   function Eval (Ctx            : Eval_Context_Ptr;
+   function Eval (Ctx            : Eval_Context;
                   Node           : LEL.LKQL_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
                   Local_Bindings : Environment := String_Value_Maps.Empty_Map)
@@ -66,7 +66,7 @@ private
       new Iters.Maps (Environment_Iters, Primitive_Iters);
 
    type Closure is new Env_Primitive_Maps.Map_Funcs.Func with record
-      Ctx       : Eval_Context_Ptr;
+      Ctx       : Eval_Context;
       --  Copy of the evaluation context at call site
       Body_Expr : LEL.Expr;
       --  Body of the closure
@@ -78,11 +78,11 @@ private
    overriding function Clone (Self : Closure) return Closure;
 
    function Make_Closure
-     (Ctx : Eval_Context_Ptr; Body_Expr : LEL.Expr) return Closure;
+     (Ctx : Eval_Context; Body_Expr : LEL.Expr) return Closure;
 
    type Comprehension_Guard_Filter is new Environment_Iters.Predicates.Func
    with record
-      Ctx   : Eval_Context_Ptr;
+      Ctx   : Eval_Context;
       Guard : LEL.Expr;
    end record;
 
@@ -92,7 +92,7 @@ private
    function Clone
      (Self : Comprehension_Guard_Filter) return Comprehension_Guard_Filter;
 
-   function Make_Guard_Filter (Ctx : Eval_Context_Ptr;
+   function Make_Guard_Filter (Ctx : Eval_Context;
                                Guard : LEL.Expr)
                                return Comprehension_Guard_Filter;
 

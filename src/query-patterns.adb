@@ -14,7 +14,7 @@ package body Query.Patterns is
    -- Make_Query_Iterator --
    -------------------------
 
-   function Make_Query_Iterator (Ctx  : Eval_Context_Ptr;
+   function Make_Query_Iterator (Ctx  : Eval_Context;
                                  Node : LEL.Query)
                                  return Node_Iterators.Filter_Iter
    is
@@ -31,7 +31,7 @@ package body Query.Patterns is
    --------------------------
 
    function Make_Query_Predicate
-     (Ctx : Eval_Context_Ptr; Query : LEL.Query) return Query_Predicate_Access
+     (Ctx : Eval_Context; Query : LEL.Query) return Query_Predicate_Access
    is
    begin
       return new Query_Predicate'(Ctx, Query);
@@ -71,7 +71,7 @@ package body Query.Patterns is
    -- Match_Query --
    -----------------
 
-   function Match_Unfiltered_Query (Ctx   : Eval_Context_Ptr;
+   function Match_Unfiltered_Query (Ctx   : Eval_Context;
                                     Query : LEL.Query;
                                     Node  : Iterator_Node) return Boolean
    is
@@ -83,7 +83,7 @@ package body Query.Patterns is
    -- Match_Filtered_Query --
    --------------------------
 
-   function Match_Filtered_Query (Ctx   : Eval_Context_Ptr;
+   function Match_Filtered_Query (Ctx   : Eval_Context;
                                   Query : LEL.Filtered_Query;
                                   Node  : Iterator_Node) return Boolean
    is
@@ -103,7 +103,7 @@ package body Query.Patterns is
    -- Match_Query_Pattern --
    -------------------------
 
-   function Match_Query_Pattern (Ctx           : Eval_Context_Ptr;
+   function Match_Query_Pattern (Ctx           : Eval_Context;
                                  Query_Pattern : LEL.Query_Pattern;
                                  Node          : Iterator_Node)
                                  return Match
@@ -128,7 +128,7 @@ package body Query.Patterns is
    ------------------------------
 
    function Match_Full_Query_Pattern
-     (Ctx           : Eval_Context_Ptr;
+     (Ctx           : Eval_Context;
       Query_Pattern : LEL.Full_Query_Pattern;
       Node          : Iterator_Node) return Match
    is
@@ -242,7 +242,7 @@ package body Query.Patterns is
    ----------------------------
 
    function Make_Selector_Iterator
-     (Ctx              : Eval_Context_Ptr;
+     (Ctx              : Eval_Context;
       Queried_Node     : Iterator_Node;
       Selector_Pattern : LEL.Selector_Pattern'Class)
       return Node_Iterator'Class
@@ -265,7 +265,7 @@ package body Query.Patterns is
    ---------------------------------
 
    function Selector_Iterator_From_Name
-     (Ctx           : Eval_Context_Ptr;
+     (Ctx           : Eval_Context;
       Queried_Node  : LAL.Ada_Node;
       Selector_Pattern : LEL.Selector_Pattern'Class)
       return Node_Iterator'Class

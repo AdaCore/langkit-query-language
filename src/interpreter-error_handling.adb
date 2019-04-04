@@ -28,7 +28,7 @@ package body Interpreter.Error_Handling is
    ----------------------------
 
    procedure Raise_And_Record_Error
-     (Ctx : Eval_Context_Ptr; Error : Error_Data)
+     (Ctx : Eval_Context; Error : Error_Data)
    is
       Error_Message : constant String :=
         To_UTF8 (To_Text (Error.Short_Message));
@@ -49,7 +49,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Invalid_Member --
    --------------------------
 
-   procedure Raise_Invalid_Member (Ctx      : Eval_Context_Ptr;
+   procedure Raise_Invalid_Member (Ctx      : Eval_Context;
                                    Node     : LEL.Dot_Access;
                                    Receiver : Primitive)
    is
@@ -65,7 +65,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Null_Root --
    ---------------------
 
-   procedure Raise_Null_Root (Ctx : Eval_Context_Ptr; Node : LEL.Query)
+   procedure Raise_Null_Root (Ctx : Eval_Context; Node : LEL.Query)
    is
       Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text (
@@ -79,7 +79,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Invalid_Kind --
    ------------------------
 
-   procedure Raise_Invalid_Kind (Ctx      : Eval_Context_Ptr;
+   procedure Raise_Invalid_Kind (Ctx      : Eval_Context;
                                  Node     : LEL.LKQL_Node;
                                  Expected : Valid_Primitive_Kind;
                                  Value    : Primitive)
@@ -99,7 +99,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Invalid_Selector_Name --
    ---------------------------------
 
-   procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context_Ptr;
+   procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context;
                                           Node : LEL.Selector_Pattern'Class)
    is
       Message : constant Unbounded_Text_Type :=

@@ -9,7 +9,7 @@ package Query.Patterns is
    subtype Iterator_Predicate_Access is Node_Iterators.Predicate_Access;
    --  Pointer to a predicate on 'Iterator_Node' values
 
-   function Make_Query_Iterator (Ctx  : Eval_Context_Ptr;
+   function Make_Query_Iterator (Ctx  : Eval_Context;
                                  Node : LEL.Query)
                                  return Node_Iterators.Filter_Iter;
    --  Returns an iterator over the AST nodes, yielding only the elements that
@@ -22,7 +22,7 @@ private
    ---------------------
 
    type Query_Predicate is new Iterator_Predicate_Interface with record
-      Ctx   : Eval_Context_Ptr;
+      Ctx   : Eval_Context;
       Query : LEL.Query;
    end record;
    --  Predicate that returns true for every node that belongs to the
@@ -32,7 +32,7 @@ private
    --  Pointer to a Query_predicate
 
    function Make_Query_Predicate
-     (Ctx : Eval_Context_Ptr; Query : LEL.Query) return Query_Predicate_Access;
+     (Ctx : Eval_Context; Query : LEL.Query) return Query_Predicate_Access;
    --  Return a pointer to a Query_Predicate that returns true for every node
    --  that belongs to the result set of the given query.
 
@@ -48,13 +48,13 @@ private
    -- Matching --
    --------------
 
-   function Match_Unfiltered_Query (Ctx   : Eval_Context_Ptr;
+   function Match_Unfiltered_Query (Ctx   : Eval_Context;
                                     Query : LEL.Query;
                                     Node  : Iterator_Node) return Boolean;
    --  Given a query of the form "query PATTERN", return true if 'Node' belongs
    --  to the result set of the query.
 
-   function Match_Filtered_Query (Ctx   : Eval_Context_Ptr;
+   function Match_Filtered_Query (Ctx   : Eval_Context;
                                   Query : LEL.Filtered_Query;
                                   Node  : Iterator_Node) return Boolean;
    --  Given a query of the form "query PATTERN when CONDITON", return true if
@@ -71,14 +71,14 @@ private
    Match_Failure : constant Match :=
      (Success => False, Bindings => String_Value_Maps.Empty_Map);
 
-   function Match_Query_Pattern (Ctx           : Eval_Context_Ptr;
+   function Match_Query_Pattern (Ctx           : Eval_Context;
                                  Query_Pattern : LEL.Query_Pattern;
                                  Node          : Iterator_Node)
                                  return Match;
    --  Match a query pattern
 
    function Match_Full_Query_Pattern
-     (Ctx           : Eval_Context_Ptr;
+     (Ctx           : Eval_Context;
       Query_Pattern : LEL.Full_Query_Pattern;
       Node          : Iterator_Node) return Match;
    --  Match a query pattern of the form: QUERIED_NODE [SELECTOR] RELATED_NODE
@@ -101,7 +101,7 @@ private
    --  Match a node pattern of the form: BINDING @ KIND_NAME
 
    function Make_Selector_Iterator
-     (Ctx              : Eval_Context_Ptr;
+     (Ctx              : Eval_Context;
       Queried_Node     : Iterator_Node;
       Selector_Pattern : LEL.Selector_Pattern'Class)
       return Node_Iterator'Class;
@@ -109,7 +109,7 @@ private
    --  given selector.
 
    function Selector_Iterator_From_Name
-     (Ctx           : Eval_Context_Ptr;
+     (Ctx           : Eval_Context;
       Queried_Node  : LAL.Ada_Node;
       Selector_Pattern : LEL.Selector_Pattern'Class)
       return Node_Iterator'Class;
@@ -157,7 +157,7 @@ private
 
    type Selector_Conditions_Predicate is new Iterator_Predicate_Interface
    with record
-      Context   : Eval_Context_Ptr;
+      Context   : Eval_Context;
       Condition : LEL.Expr;
    end record;
    --  Predicate that evaluates a selector's filtering expression
