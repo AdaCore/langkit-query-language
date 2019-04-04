@@ -24,9 +24,10 @@ package Options is
    function Is_None (Self : Option) return Boolean;
    --  Return True if the option doesn't contain a value
 
-   function Extract (Self : Option) return Value_Type;
+   function Extract (Self : Option) return Value_Type
+     with Pre => Self.Kind = Kind_Some;
    --  Return the wraped value, if any.
-   --  A Program_Error will be raised if there is no value.
+   --  An Assertion_Error will be raised if there is no value.
 
    function To_Option (Value : Value_Type) return Option;
    --  Create an Option value that contains the given value
