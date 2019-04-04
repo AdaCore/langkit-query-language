@@ -10,6 +10,7 @@ with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Characters.Handling;
 with Ada.Characters.Conversions;
+with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Interpreter.Evaluation is
@@ -215,7 +216,7 @@ package body Interpreter.Evaluation is
             when LELCO.LKQL_List_Comprehension =>
               Eval_List_Comprehension (Ctx, Node.As_List_Comprehension),
             when others =>
-               raise Program_Error
+               raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
       Update_Env (Ctx.Env, Bindings_Conflicts);
 
@@ -361,7 +362,7 @@ package body Interpreter.Evaluation is
               when LELCO.LKQL_Op_Neq    => Left /= Right,
               when LELCO.LKQL_Op_Concat => Left & Right,
               when others =>
-                 raise Program_Error with
+                 raise Assertion_Error with
                    "Not a non-short-cirtcuit operator kind: " &
                    Node.F_Op.Kind_Name);
    end Eval_Non_Short_Circuit_Op;
@@ -385,7 +386,7 @@ package body Interpreter.Evaluation is
          Result :=
            Bool_Eval (Ctx, Left) or else Bool_Eval (Ctx, Right);
       when others =>
-         raise Program_Error
+         raise Assertion_Error
            with "Not a short-circuit operator kind: " & Node.F_Op.Kind_Name;
       end case;
 
@@ -574,10 +575,8 @@ package body Interpreter.Evaluation is
       Position : constant Cursor :=
         Name_Kinds.Find (To_Unbounded_Text (Kind_Name));
    begin
-      if not Has_Element (Position) then
-         raise Program_Error with
-           "Invalid kind name: " & To_UTF8 (Kind_Name);
-      end if;
+      pragma Assert
+        (Has_Element (Position), "Invalid kind name: " & To_UTF8 (Kind_Name));
 
       return Element (Position);
    end To_Ada_Node_Kind;
