@@ -126,7 +126,7 @@ private
 
    subtype Node_Consumer is Selector_Consumers.Consumer_Interface;
 
-   type Exists_Consumer is new Selector_Consumers.Consumer_Interface
+   type Exists_Consumer is new Node_Consumer
    with record
       Pattern : LEL.Node_Pattern;
    end record;
@@ -137,7 +137,7 @@ private
                      Iter : in out Node_Iterator'Class)
                      return Match;
 
-   type All_Consumer is new Selector_Consumers.Consumer_Interface
+   type All_Consumer is new Node_Consumer
    with record
       Pattern : LEL.Node_Pattern;
    end record;
