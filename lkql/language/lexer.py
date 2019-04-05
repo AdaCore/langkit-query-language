@@ -1,5 +1,5 @@
-from langkit.lexer import Lexer, LexerToken, Literal, WithText, WithSymbol, Pattern, Literal,\
-                          Ignore
+from langkit.lexer import Lexer, LexerToken, WithText, WithSymbol, Pattern,\
+                            Literal, Ignore
 
 
 class Token(LexerToken):
@@ -70,6 +70,6 @@ lkql_lexer.add_rules(
     (Literal("false"),                                      Token.FalseLit),
     (Pattern("[0-9]+"),                                     Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
-    (Pattern("[A-Z][A-Za-z_]*"),                            Token.KindName),
+    (Pattern("[A-Z][A-Za-z_]*(.list)?"),                    Token.KindName),
     (Pattern("\"[^\"]*\""),                                 Token.String)
 )
