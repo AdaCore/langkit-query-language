@@ -1,0 +1,19 @@
+ValExpr
+|binding_name:
+|  Identifier: x
+|binding_value:
+|  Integer: 40
+|expr:
+|  ValExpr
+|  |binding_name:
+|  |  Identifier: y
+|  |binding_value:
+|  |  Integer: 2
+|  |expr:
+|  |  BinOp
+|  |  |left:
+|  |  |  Identifier: x
+|  |  |op:
+|  |  |  OpPlus
+|  |  |right:
+|  |  |  Identifier: y

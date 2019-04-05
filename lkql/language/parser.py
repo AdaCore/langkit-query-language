@@ -317,6 +317,20 @@ class ListComprehension (Expr):
     guard = Field(type=Expr)
 
 
+class ValExpr (Expr):
+    """
+    Expression of the form: val id = value; expr
+
+    For instance::
+       val x = 40;
+       val y = 2;
+       x + y
+    """
+    binding_name = Field(type=Identifier)
+    binding_value = Field(type=Expr)
+    expr = Field(type=Expr)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
@@ -379,7 +393,8 @@ lkql_grammar.add_rules(
                   Or(Op.alt_and(Token.And),
                      Op.alt_or(Token.Or)),
                   G.comp_expr),
-            G.comp_expr),
+            G.comp_expr,
+            G.val_expr),
 
     comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.kind_name),
                  InClause(G.comp_expr, Token.In, G.expr),
@@ -411,6 +426,9 @@ lkql_grammar.add_rules(
                   G.bool_literal,
                   G.integer,
                   Pick(Token.LPar, G.expr, Token.RPar)),
+
+    val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
+                     G.expr, Token.SemiCol, G.expr),
 
     assign=Assign(Token.Let, G.identifier, Token.Eq, Or(G.expr, G.query)),
 
