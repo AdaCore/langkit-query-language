@@ -212,10 +212,8 @@ package body Query.Patterns is
       Node         : LAL.Ada_Node)
       return Match
    is
-      use type LALCO.Ada_Node_Kind_Type;
-      Expected_Kind : constant LALCO.Ada_Node_Kind_Type :=
-        To_Ada_Node_Kind (Node_Pattern.F_Identifier.Text);
-      Success       : constant Boolean := Node.Kind = Expected_Kind;
+      Kind_Name : constant String := To_UTF8 (Node_Pattern.F_Identifier.Text);
+      Success   : constant Boolean := Matches_Kind_Name (Kind_Name, Node);
    begin
       return (Success, String_Value_Maps.Empty_Map);
    end Match_Kind_Node_Pattern;

@@ -5,21 +5,12 @@ with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
 with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
+with Libadalang.Introspection; use Libadalang.Introspection;
 
-with Ada.Containers.Hashed_Maps;
-with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
-with Ada.Characters.Handling;
-with Ada.Characters.Conversions;
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Interpreter.Evaluation is
-
-   package String_Kind_Maps is new Ada.Containers.Hashed_Maps
-     (Key_Type        => Unbounded_Text_Type,
-      Element_Type    => LALCO.Ada_Node_Kind_Type,
-      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
-      Equivalent_Keys => "=");
 
    function Eval_List
      (Ctx : Eval_Context; Node : LEL.Expr_List) return Primitive;
@@ -73,16 +64,6 @@ package body Interpreter.Evaluation is
    --  environments produced by this list of Arrow_Assoc in the context of a
    --  list comprehension.
 
-   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type
-     with Pre => Name'Length > 4 and then
-                 Name (Name'First .. Name'First + 3) = "ADA_";
-   --  Takes the String representation of an Ada node kind of the form
-   --  "ADA_KIND_NAME" and returns a String of the form "KindName".
-
-   function Init_Name_Kinds_Lookup return String_Kind_Maps.Map;
-   --  Fill the Name_Kinds lookup table by asscoaiting a kind name to a
-   --  Ada_Node_Kind_Type value.
-
    procedure Check_Kind (Ctx           : Eval_Context;
                          Node          : LEL.LKQL_Node;
                          Expected_Kind : Valid_Primitive_Kind;
@@ -95,52 +76,6 @@ package body Interpreter.Evaluation is
    --  Evalaluate the given node and convert to result to an Ada Boolean.
    --  Raise an exception if the result of the node's evaluation is not a
    --  boolean.
-
-   --------------------------
-   -- Format_Ada_Kind_Name --
-   --------------------------
-
-   function Format_Ada_Kind_Name (Name : String) return Unbounded_Text_Type is
-      use Ada.Characters.Handling;
-      use Ada.Characters.Conversions;
-      Formatted : Unbounded_Text_Type;
-      New_Word  : Boolean := True;
-   begin
-      for C of Name (Name'First + 4 .. Name'Last) loop
-         if C /= '_' then
-            if New_Word then
-               Append (Formatted, To_Wide_Wide_Character (C));
-            else
-               Append (Formatted, To_Wide_Wide_Character (To_Lower (C)));
-            end if;
-
-            New_Word := False;
-         else
-            New_Word := True;
-         end if;
-      end loop;
-
-      return Formatted;
-   end Format_Ada_Kind_Name;
-   --  TODO: do the conversion using Langkit's primitives (when available !)
-
-   ----------------------------
-   -- Init_Name_Kinds_Lookup --
-   ----------------------------
-
-   function Init_Name_Kinds_Lookup return String_Kind_Maps.Map is
-      Result : String_Kind_Maps.Map;
-   begin
-      for K in LALCO.Ada_Node_Kind_Type loop
-         Result.Insert (Format_Ada_Kind_Name (K'Image), K);
-      end loop;
-
-      return Result;
-   end Init_Name_Kinds_Lookup;
-
-   Name_Kinds : constant String_Kind_Maps.Map := Init_Name_Kinds_Lookup;
-   --  Lookup table used to quickly retrieve the Ada node kind associated
-   --  with a given name, if any.
 
    ----------------
    -- Check_Kind --
@@ -418,11 +353,10 @@ package body Interpreter.Evaluation is
    is
       Tested_Node   : constant Primitive :=
         Eval (Ctx, Node.F_Node_Expr, Kind_Node);
-      Expected_Kind : constant LALCO.Ada_Node_Kind_Type :=
-        To_Ada_Node_Kind (Node.F_Kind_Name.Text);
-      LAL_Node      : constant LAL.Ada_Node := Node_Val (Tested_Node);
+      Type_Name : constant String := To_UTF8 (Node.F_Kind_Name.Text);
    begin
-      return To_Primitive (LAL_Node.Kind = Expected_Kind);
+      return To_Primitive
+        (Matches_Kind_Name (Type_Name, Node_Val (Tested_Node)));
    end Eval_Is;
 
    -------------
@@ -566,22 +500,24 @@ package body Interpreter.Evaluation is
         (Binding_Name, Current_Element, Generator_Iter, Nested_Resetable);
    end Environment_Iter_For_Assoc;
 
-   ----------------------
-   -- To_Ada_Node_Kind --
-   ----------------------
+   -----------------------
+   -- Matches_Type_Name --
+   -----------------------
 
-   function To_Ada_Node_Kind
-     (Kind_Name : Text_Type) return LALCO.Ada_Node_Kind_Type
+   function Matches_Kind_Name
+     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean
    is
-      use String_Kind_Maps;
-      Position : constant Cursor :=
-        Name_Kinds.Find (To_Unbounded_Text (Kind_Name));
+      Expected_Kind : constant Any_Node_Type_Id :=
+        Lookup_DSL_Name (Kind_Name);
+      Actual_Kind   : constant Any_Node_Type_Id :=
+        Id_For_Kind (Node.Kind);
    begin
       pragma Assert
-        (Has_Element (Position), "Invalid kind name: " & To_UTF8 (Kind_Name));
+        (Expected_Kind /= None, "Invalid kind name: " & Kind_Name);
 
-      return Element (Position);
-   end To_Ada_Node_Kind;
+      return Actual_Kind = Expected_Kind or else
+             Is_Derived_From (Actual_Kind, Expected_Kind);
+   end Matches_Kind_Name;
 
    function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
                                Result : out Environment) return Boolean;

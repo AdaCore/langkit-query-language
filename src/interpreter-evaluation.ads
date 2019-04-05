@@ -17,11 +17,10 @@ package Interpreter.Evaluation is
    --  An Eval_Error will be raised if the node represents an invalid query or
    --  expression.
 
-   function To_Ada_Node_Kind
-     (Kind_Name : Text_Type) return LALCO.Ada_Node_Kind_Type;
-   --  Return the Ada_Node_Kind_Type that matches the given name.
-   --  Raise a program error if the name doesn't correspond to any
-   --  ada_Node_Kind_Type.
+   function Matches_Kind_Name
+     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean;
+   --  Return true if 'Node's type is named 'Type_Name' or is a subtype of
+   --  a type named 'Type_Name'.
 
 private
 
