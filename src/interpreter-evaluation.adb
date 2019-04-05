@@ -57,6 +57,9 @@ package body Interpreter.Evaluation is
    function Eval_List_Comprehension
      (Ctx : Eval_Context; Node : LEL.List_Comprehension) return Primitive;
 
+   function Eval_Val_Expr
+     (Ctx : Eval_Context; Node : LEL.Val_Expr) return Primitive;
+
    function Make_Comprehension_Environment_Iter
      (Ctx : Eval_Context; Node : LEL.Arrow_Assoc_List)
       return Comprehension_Env_Iter;
@@ -150,6 +153,8 @@ package body Interpreter.Evaluation is
               Eval_Indexing (Ctx, Node.As_Indexing),
             when LELCO.LKQL_List_Comprehension =>
               Eval_List_Comprehension (Ctx, Node.As_List_Comprehension),
+            when LELCO.LKQL_Val_Expr =>
+              Eval_Val_Expr (Ctx, Node.As_Val_Expr),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -440,6 +445,23 @@ package body Interpreter.Evaluation is
       Assoc  : LEL.Arrow_Assoc;
       Nested : Comprehension_Env_Iter_Access)
       return Comprehension_Env_Iter_Access;
+
+   -------------------
+   -- Eval_Val_Expr --
+   -------------------
+
+   function Eval_Val_Expr
+     (Ctx : Eval_Context; Node : LEL.Val_Expr) return Primitive
+   is
+      Binding : Environment;
+      Binding_Name  : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Node.F_Binding_Name.Text);
+      Binding_Value : constant Primitive :=
+        Eval (Ctx, Node.F_Binding_Value);
+   begin
+      Binding.Include (Binding_Name, Binding_Value);
+      return Eval (Ctx, Node.F_Expr, Local_Bindings => Binding);
+   end Eval_Val_Expr;
 
    -----------------------------------------
    -- Make_Comprehension_Environment_Iter --
