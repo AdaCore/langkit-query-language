@@ -1,14 +1,12 @@
 ExprList
 |  Query
 |  |pattern:
-|  |  FullQueryPattern
+|  |  RelationalNodePattern
 |  |  |queried_node:
-|  |  |  FullNodePattern
-|  |  |  |binding_pattern:
-|  |  |  |  BindingNodePattern
-|  |  |  |  |binding:
-|  |  |  |  |  Identifier: o
-|  |  |  |kind_pattern:
+|  |  |  FullPattern
+|  |  |  |binding:
+|  |  |  |  Identifier: o
+|  |  |  |value_pattern:
 |  |  |  |  KindNodePattern
 |  |  |  |  |identifier:
 |  |  |  |  |  Identifier: ObjectDecl

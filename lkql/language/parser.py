@@ -126,9 +126,9 @@ class Indexing(Expr):
 
 
 @abstract
-class NodePattern(LKQLNode):
+class BasePattern(LKQLNode):
     """
-    Root node class for node patterns
+    Root node class for patterns.
     """
 
     binding_name = AbstractProperty(
@@ -140,20 +140,70 @@ class NodePattern(LKQLNode):
 
     has_binding = Property(Self.binding_name.length > 0,
                            type=T.Bool, public=True,
-                           doc="Return whether the node patern contains a "
+                           doc="Return whether the node pattern contains a "
                                "binding name")
 
 
-class BindingNodePattern(NodePattern):
+@abstract
+class UnfilteredPattern(BasePattern):
     """
-    Node pattern comprising only a binding identifier
+    Pattern without a filtering predicate.
+    """
+
+    pass
+
+
+class FilteredPattern(BasePattern):
+    """
+    Pattern with a filtering predicate, of the form: pattern when predicate
 
     For instance::
-       let decls = query o ...
+       o@ObjectDecl when o.children.length == 3
     """
+    pattern = Field(type=UnfilteredPattern)
+    predicate = Field(type=Expr)
+
+    binding_name = Property(Self.pattern.binding_name)
+
+
+@abstract
+class ValuePattern(UnfilteredPattern):
+    """
+    Root node class for patterns that filter values.
+    (As opposed to patterns that only bind values to a given name without
+    doing any kind of filtering)
+    """
+
+    binding_name = Property(String(""))
+
+
+class BindingPattern(UnfilteredPattern):
+    """
+    Pattern comprising only an identifier.
+    """
+
     binding = Field(type=Identifier)
 
     binding_name = Property(Self.binding.text)
+
+
+class FullPattern(BindingPattern):
+    """
+    Pattern comprising a binding name and a value pattern.
+
+    For instance::
+       o @ ObjectDecl
+    """
+
+    value_pattern = Field(type=ValuePattern)
+
+
+@abstract
+class NodePattern(ValuePattern):
+    """
+    Root node class for node patterns
+    """
+    pass
 
 
 class KindNodePattern(NodePattern):
@@ -163,24 +213,13 @@ class KindNodePattern(NodePattern):
     For instance::
        let decls = query ObjectDecl ...
     """
+
     identifier = Field(type=Identifier)
 
-    binding_name = Property(String(""))
 
-
-class FullNodePattern(NodePattern):
-    """
-    Complete node pattern of the form: binding @ KindName
-
-    For instance::
-       let decls = query o@ObjectDecl ...
-    """
-    binding_pattern = Field(type=BindingNodePattern)
-    kind_pattern = Field(type=KindNodePattern)
-
-    binding_name = Property(Self.binding_pattern.binding_name)
-
-
+# Unlike other kind of patterns, selector patterns cannot appear on their own,
+# (indeed, they only make sense in the context of a RelationalNodePattern), so
+# they do not inherit the BasePattern class.
 @abstract
 class SelectorPattern(LKQLNode):
     """
@@ -226,6 +265,7 @@ class ParametrizedSelector(NamedSelector):
     """
     Selector of the form selector(condition1, condition2, ...)
     """
+
     condition_expr = Field(type=T.Expr)
 
     condition = Property(Self.condition_expr)
@@ -239,6 +279,7 @@ class QuantifiedSelector(SelectorPattern):
     For instance::
        query p [all children] ObjectDecl ...
     """
+
     quantifier = Field(type=Identifier)
     selector = Field(type=NamedSelector)
 
@@ -249,53 +290,32 @@ class QuantifiedSelector(SelectorPattern):
     condition = Property(Self.selector.condition)
 
 
-@abstract
-class QueryPattern(Expr):
+class RelationalNodePattern(NodePattern):
     """
-    Root node class for query patterns
-    """
-    pass
-
-
-class NodeQueryPattern(QueryPattern):
-    """
-    A query pattern of the form: node_pattern
+    Pattern of the form: node_pattern selector_pattern node_pattern
 
     For instance::
-       let decls = query ObjectDecls when ...
+       ObjectDecl [all children(depth == 2)] AspectAssoc
     """
-    queried_node = Field(type=NodePattern)
 
-
-class FullQueryPattern(NodeQueryPattern):
-    """
-    A query pattern of the form: node_pattern selector_pattern node_pattern
-
-    For instance::
-       let withAspects = query ObjectDecl [child] AspectAssoc when ...
-    """
+    queried_node = Field(type=UnfilteredPattern)
     selector = Field(type=SelectorPattern)
-    related_node = Field(type=NodePattern)
+    related_node = Field(type=UnfilteredPattern)
+
+    binding_name = Property(String(""))
 
 
 class Query(Expr):
     """
-    Query without filtering predicate.
+    Query against a pattern.
+    this kind of expression will return every AST node that matches the given
+    pattern.
 
     For instance::
        let withAspects = query ObjectDecl [child] AspectAssoc
     """
-    pattern = Field(type=QueryPattern)
 
-
-class FilteredQuery(Query):
-    """
-    Query with a filtering predicate.
-
-    For instance::
-       let classesNamedA = query cls@ClassDecl when cls.identifier == "A"
-    """
-    predicate = Field(type=Expr)
+    pattern = Field(type=BasePattern)
 
 
 class ArrowAssoc(LKQLNode):
@@ -303,6 +323,7 @@ class ArrowAssoc(LKQLNode):
     Arrow association of the form: id <- expr.
     This construction is meant to be used a part of a list comprehension
     """
+
     binding_name = Field(type=Identifier)
     coll_expr = Field(type=Expr)
 
@@ -312,6 +333,7 @@ class ListComprehension (Expr):
     List comprehension of the form:
         [ expr | generator1, generator2, ...,  opt(guard)]
     """
+
     expr = Field(type=Expr)
     generators = Field(type=ArrowAssoc.list)
     guard = Field(type=Expr)
@@ -326,6 +348,7 @@ class ValExpr (Expr):
        val y = 2;
        x + y
     """
+
     binding_name = Field(type=Identifier)
     binding_value = Field(type=Expr)
     expr = Field(type=Expr)
@@ -342,26 +365,19 @@ lkql_grammar.add_rules(
 
     print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
 
-    query=Or(FilteredQuery(Token.QueryTok,
-                           G.query_pattern,
-                           Token.When,
-                           G.expr),
-             Query(Token.QueryTok, G.query_pattern)),
+    query=Query(Token.QueryTok, G.pattern),
 
-    query_pattern=Or(FullQueryPattern(G.node_pattern,
-                                      G.selector_pattern,
-                                      G.node_pattern),
-                     NodeQueryPattern(G.node_pattern)),
+    pattern=Or(FilteredPattern(G.unfiltered_pattern, Token.When, G.expr),
+               G.unfiltered_pattern),
 
-    node_pattern=Or(G.full_node_pattern,
-                    G.binding_node_pattern,
-                    G.kind_node_pattern),
+    unfiltered_pattern=Or(RelationalNodePattern(G.unfiltered_pattern,
+                                                G.selector_pattern,
+                                                G.unfiltered_pattern),
+                          FullPattern(G.identifier, Token.At, G.value_pattern),
+                          BindingPattern(G.identifier),
+                          G.value_pattern),
 
-    full_node_pattern=FullNodePattern(G.binding_node_pattern,
-                                      Token.At,
-                                      G.kind_node_pattern),
-
-    binding_node_pattern=BindingNodePattern(G.identifier),
+    value_pattern=G.kind_node_pattern,
 
     kind_node_pattern=KindNodePattern(G.kind_name),
 

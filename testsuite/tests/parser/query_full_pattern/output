@@ -3,40 +3,40 @@ ExprList
 |  |identifier:
 |  |  Identifier: declWihAspect
 |  |value:
-|  |  FilteredQuery
+|  |  Query
 |  |  |pattern:
-|  |  |  FullQueryPattern
-|  |  |  |queried_node:
-|  |  |  |  FullNodePattern
-|  |  |  |  |binding_pattern:
-|  |  |  |  |  BindingNodePattern
+|  |  |  FilteredPattern
+|  |  |  |pattern:
+|  |  |  |  RelationalNodePattern
+|  |  |  |  |queried_node:
+|  |  |  |  |  FullPattern
 |  |  |  |  |  |binding:
 |  |  |  |  |  |  Identifier: o
-|  |  |  |  |kind_pattern:
+|  |  |  |  |  |value_pattern:
+|  |  |  |  |  |  KindNodePattern
+|  |  |  |  |  |  |identifier:
+|  |  |  |  |  |  |  Identifier: ObjectDecl
+|  |  |  |  |selector:
+|  |  |  |  |  NamedSelector
+|  |  |  |  |  |name:
+|  |  |  |  |  |  Identifier: children
+|  |  |  |  |related_node:
 |  |  |  |  |  KindNodePattern
 |  |  |  |  |  |identifier:
-|  |  |  |  |  |  Identifier: ObjectDecl
-|  |  |  |selector:
-|  |  |  |  NamedSelector
-|  |  |  |  |name:
-|  |  |  |  |  Identifier: children
-|  |  |  |related_node:
-|  |  |  |  KindNodePattern
-|  |  |  |  |identifier:
-|  |  |  |  |  Identifier: AspectAssoc
-|  |  |predicate:
-|  |  |  BinOp
-|  |  |  |left:
-|  |  |  |  DotAccess
-|  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: AspectAssoc
+|  |  |  |predicate:
+|  |  |  |  BinOp
+|  |  |  |  |left:
 |  |  |  |  |  DotAccess
 |  |  |  |  |  |receiver:
-|  |  |  |  |  |  Identifier: o
+|  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |receiver:
+|  |  |  |  |  |  |  Identifier: o
+|  |  |  |  |  |  |member:
+|  |  |  |  |  |  |  Identifier: identifier
 |  |  |  |  |  |member:
-|  |  |  |  |  |  Identifier: identifier
-|  |  |  |  |member:
-|  |  |  |  |  Identifier: length
-|  |  |  |op:
-|  |  |  |  OpEq
-|  |  |  |right:
-|  |  |  |  Integer: 42
+|  |  |  |  |  |  Identifier: length
+|  |  |  |  |op:
+|  |  |  |  |  OpEq
+|  |  |  |  |right:
+|  |  |  |  |  Integer: 42
