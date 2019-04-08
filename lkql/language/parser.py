@@ -305,6 +305,16 @@ class RelationalNodePattern(NodePattern):
     binding_name = Property(String(""))
 
 
+class UniversalPattern(ValuePattern):
+    """
+    Universal pattern that matches any value.
+
+    For instance::
+       let declParent = query _ [children(depth==1)] BasicDecl
+    """
+    pass
+
+
 class Query(Expr):
     """
     Query against a pattern.
@@ -377,7 +387,10 @@ lkql_grammar.add_rules(
                           BindingPattern(G.identifier),
                           G.value_pattern),
 
-    value_pattern=G.kind_node_pattern,
+    value_pattern=Or(G.universal_pattern,
+                     G.kind_node_pattern),
+
+    universal_pattern=UniversalPattern(Token.UnderScore),
 
     kind_node_pattern=KindNodePattern(G.kind_name),
 

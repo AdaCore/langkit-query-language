@@ -26,4 +26,10 @@ package Patterns is
      Match_Result'(Success => False, others => <>);
    --  Special value representing the failure of a matching attempt
 
+   function Make_Match_Success
+     (Bindings : Environment := String_Value_Maps.Empty_Map)
+      return Match_Result;
+   --  Create a Match_Result value representing a successful matching attempt
+   --  with the given binding(s).
+
 end Patterns;
