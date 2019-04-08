@@ -5,8 +5,6 @@ ExprList
 |  |value:
 |  |  Query
 |  |  |pattern:
-|  |  |  NodeQueryPattern
-|  |  |  |queried_node:
-|  |  |  |  KindNodePattern
-|  |  |  |  |identifier:
-|  |  |  |  |  Identifier: ObjectDecl
+|  |  |  KindNodePattern
+|  |  |  |identifier:
+|  |  |  |  Identifier: ObjectDecl

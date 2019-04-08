@@ -3,30 +3,30 @@ ExprList
 |  |identifier:
 |  |  Identifier: o
 |  |value:
-|  |  FilteredQuery
+|  |  Query
 |  |  |pattern:
-|  |  |  NodeQueryPattern
-|  |  |  |queried_node:
-|  |  |  |  BindingNodePattern
+|  |  |  FilteredPattern
+|  |  |  |pattern:
+|  |  |  |  BindingPattern
 |  |  |  |  |binding:
 |  |  |  |  |  Identifier: o
-|  |  |predicate:
-|  |  |  BinOp
-|  |  |  |left:
-|  |  |  |  IsClause
-|  |  |  |  |node_expr:
-|  |  |  |  |  Identifier: o
-|  |  |  |  |kind_name:
-|  |  |  |  |  Identifier: ObjectDecl
-|  |  |  |op:
-|  |  |  |  OpAnd
-|  |  |  |right:
-|  |  |  |  InClause
-|  |  |  |  |value_expr:
-|  |  |  |  |  DotAccess
-|  |  |  |  |  |receiver:
+|  |  |  |predicate:
+|  |  |  |  BinOp
+|  |  |  |  |left:
+|  |  |  |  |  IsClause
+|  |  |  |  |  |node_expr:
 |  |  |  |  |  |  Identifier: o
-|  |  |  |  |  |member:
-|  |  |  |  |  |  Identifier: random_field
-|  |  |  |  |list_expr:
-|  |  |  |  |  Identifier: filteredFields
+|  |  |  |  |  |kind_name:
+|  |  |  |  |  |  Identifier: ObjectDecl
+|  |  |  |  |op:
+|  |  |  |  |  OpAnd
+|  |  |  |  |right:
+|  |  |  |  |  InClause
+|  |  |  |  |  |value_expr:
+|  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |receiver:
+|  |  |  |  |  |  |  Identifier: o
+|  |  |  |  |  |  |member:
+|  |  |  |  |  |  |  Identifier: random_field
+|  |  |  |  |  |list_expr:
+|  |  |  |  |  |  Identifier: filteredFields

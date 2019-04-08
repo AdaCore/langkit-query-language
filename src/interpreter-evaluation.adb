@@ -1,5 +1,5 @@
-with Query.Patterns;             use Query.Patterns;
-with Query.Iterators;            use Query.Iterators;
+with Queries;                    use Queries;
+with Patterns.Nodes;             use Patterns.Nodes;
 with Interpreter.Errors;         use Interpreter.Errors;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
@@ -147,7 +147,7 @@ package body Interpreter.Evaluation is
               Eval_Is (Ctx, Node.As_Is_Clause),
             when LELCO.LKQL_In_Clause =>
               Eval_In (Ctx, Node.As_In_Clause),
-            when LELCO.LKQL_Query | LELCO.LKQL_Filtered_Query =>
+            when LELCO.LKQL_Query =>
               Eval_Query (Ctx, Node.As_Query),
             when LELCO.LKQL_Indexing =>
               Eval_Indexing (Ctx, Node.As_Indexing),
@@ -385,7 +385,7 @@ package body Interpreter.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : LEL.Query) return Primitive
    is
-      use Query.Iterators.Node_Iterators;
+      use Patterns.Nodes.Node_Iterators;
       Current_Node : Iterator_Node;
       Iter         : Filter_Iter := Make_Query_Iterator (Ctx, Node);
       Result       : constant Primitive :=  Make_Empty_List;
