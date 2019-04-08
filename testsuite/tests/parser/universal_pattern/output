@@ -1,0 +1,14 @@
+ExprList
+|  Query
+|  |pattern:
+|  |  RelationalNodePattern
+|  |  |queried_node:
+|  |  |  UniversalPattern
+|  |  |selector:
+|  |  |  NamedSelector
+|  |  |  |name:
+|  |  |  |  Identifier: children
+|  |  |related_node:
+|  |  |  KindNodePattern
+|  |  |  |identifier:
+|  |  |  |  Identifier: BasicDecl

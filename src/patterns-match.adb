@@ -77,6 +77,8 @@ package body Patterns.Match is
      (case Pattern.Kind is
          when LCO.LKQL_Node_Pattern =>
             Match_Node (Ctx, Pattern.As_Node_Pattern, Value),
+         when LCO.LKQL_Universal_Pattern =>
+            Make_Match_Success,
          when others =>
             raise Assertion_Error with
               "Cannot match values of kind: " & Kind_Name (Value));

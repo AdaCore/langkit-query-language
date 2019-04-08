@@ -21,6 +21,7 @@ class Token(LexerToken):
     Dot = WithText()
     Coma = WithText()
     SemiCol = WithText()
+    UnderScore = WithText()
     Eq = WithText()
     EqEq = WithText()
     Neq = WithText()
@@ -46,6 +47,7 @@ lkql_lexer.add_rules(
     (Literal("."),                                          Token.Dot),
     (Literal(","),                                          Token.Coma),
     (Literal(";"),                                          Token.SemiCol),
+    (Literal("_"),                                          Token.UnderScore),
     (Literal("="),                                          Token.Eq),
     (Literal("=="),                                         Token.EqEq),
     (Literal("!="),                                         Token.Neq),

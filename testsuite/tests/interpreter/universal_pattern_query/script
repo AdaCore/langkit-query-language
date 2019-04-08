@@ -1,0 +1,2 @@
+let declParent = query _ [children(depth == 1)] BasicDecl
+print(declParent)
