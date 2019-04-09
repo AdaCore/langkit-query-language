@@ -3,6 +3,7 @@ with Libadalang.Introspection; use Libadalang.Introspection;
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Finalization;                use Ada.Finalization;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
@@ -651,6 +652,13 @@ package body Interpreter.Primitives is
    ---------
 
    function "=" (Left, Right : Primitive) return Primitive is
+      (To_Primitive (Deep_Equals (Left, Right)));
+
+   -----------------
+   -- Deep_Equals --
+   -----------------
+
+   function Deep_Equals (Left, Right : Primitive) return Boolean is
    begin
       if Kind (Left) /= Kind (Right) then
          raise Unsupported_Error
@@ -658,8 +666,31 @@ package body Interpreter.Primitives is
                 " and a " & Kind_Name (Right);
       end if;
 
-      return To_Primitive (Left.Get = Right.Get);
-   end "=";
+      return (case Kind (Left) is
+                 when Kind_List =>
+                   Deep_Equals (List_Val (Left), List_Val (Right)),
+                 when others =>
+                   Left.Get = Right.Get);
+   end Deep_Equals;
+
+   -----------------
+   -- Deep_Equals --
+   -----------------
+
+   function Deep_Equals (Left, Right : Primitive_List_Access) return Boolean is
+   begin
+      if Left.Elements.Length /= Right.Elements.Length then
+         return False;
+      end if;
+
+      for I in Left.Elements.First_Index .. Left.Elements.Last_Index loop
+         if not Bool_Val (Left.Elements (I) = Right.Elements (I)) then
+            return False;
+         end if;
+      end loop;
+
+      return True;
+   end Deep_Equals;
 
    ----------
    -- "/=" --

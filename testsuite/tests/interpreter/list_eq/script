@@ -1,0 +1,3 @@
+let decls = query BasicDecl
+let everything = query _
+print(decls != everything)
