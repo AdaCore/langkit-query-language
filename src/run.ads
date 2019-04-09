@@ -7,15 +7,6 @@ package Run is
    package LEL renames Liblkqllang.Analysis;
    package LAL renames Libadalang.Analysis;
 
-   procedure Run_Standalone_Query
-     (Script_Path : String; Recovery_Enabled : Boolean := False);
-   --  Run a standalone LKQL script. If Recovery_Enabled is set to true,
-   --  the user will have the possibility to resume execution uppon encoutering
-   --  an error.
-   --
-   --  While in standalone mode, queries are forbidden and will raise an
-   --  exception.
-
    procedure Run_Against_Project (LKQL_Script      : String;
                                   Project_Path     : String;
                                   Recovery_Enabled : Boolean := False);

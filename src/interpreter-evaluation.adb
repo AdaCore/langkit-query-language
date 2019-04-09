@@ -114,23 +114,24 @@ package body Interpreter.Evaluation is
    function Eval (Ctx            : Eval_Context;
                   Node           : LEL.LKQL_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
-                  Local_Bindings : Environment := String_Value_Maps.Empty_Map)
+                  Local_Bindings : Environment_Map :=
+                    String_Value_Maps.Empty_Map)
                   return Primitive
    is
       Result             : Primitive;
-      Bindings_Conflicts : constant Environment :=
-        Backup_Env (Ctx.Env, Local_Bindings);
+      Local_Context : Eval_Context :=
+        (if Local_Bindings.Is_Empty then Ctx
+         else Ctx.Create_New_Frame (Local_Bindings));
    begin
-      Update_Env (Ctx.Env, Local_Bindings);
 
       Result :=
         (case Node.Kind is
             when LELCO.LKQL_Expr_List =>
               Eval_List (Local_Context, Node.As_Expr_List),
             when LELCO.LKQL_Assign =>
-              Eval_Assign (Ctx, Node.As_Assign),
+              Eval_Assign (Local_Context, Node.As_Assign),
             when LELCO.LKQL_Identifier =>
-              Eval_Identifier (Ctx, Node.As_Identifier),
+              Eval_Identifier (Local_Context, Node.As_Identifier),
             when LELCO.LKQL_Integer =>
               Eval_Integer (Node.As_Integer),
             when LELCO.LKQL_String_Literal =>
@@ -138,37 +139,44 @@ package body Interpreter.Evaluation is
             when LELCO.LKQL_Bool_Literal =>
               Eval_Bool_Literal (Node.As_Bool_Literal),
             when LELCO.LKQL_Print_Stmt =>
-              Eval_Print (Ctx, Node.As_Print_Stmt),
+              Eval_Print (Local_Context, Node.As_Print_Stmt),
             when LELCO.LKQL_Bin_Op =>
-              Eval_Bin_Op (Ctx, Node.As_Bin_Op),
+              Eval_Bin_Op (Local_Context, Node.As_Bin_Op),
             when LELCO.LKQL_Dot_Access =>
-              Eval_Dot_Access (Ctx, Node.As_Dot_Access),
+              Eval_Dot_Access (Local_Context, Node.As_Dot_Access),
             when LELCO.LKQL_Is_Clause =>
-              Eval_Is (Ctx, Node.As_Is_Clause),
+              Eval_Is (Local_Context, Node.As_Is_Clause),
             when LELCO.LKQL_In_Clause =>
-              Eval_In (Ctx, Node.As_In_Clause),
+              Eval_In (Local_Context, Node.As_In_Clause),
             when LELCO.LKQL_Query =>
-              Eval_Query (Ctx, Node.As_Query),
+              Eval_Query (Local_Context, Node.As_Query),
             when LELCO.LKQL_Indexing =>
-              Eval_Indexing (Ctx, Node.As_Indexing),
+              Eval_Indexing (Local_Context, Node.As_Indexing),
             when LELCO.LKQL_List_Comprehension =>
-              Eval_List_Comprehension (Ctx, Node.As_List_Comprehension),
+              Eval_List_Comprehension
+                 (Local_Context, Node.As_List_Comprehension),
             when LELCO.LKQL_Val_Expr =>
-              Eval_Val_Expr (Ctx, Node.As_Val_Expr),
+              Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
-      Update_Env (Ctx.Env, Bindings_Conflicts);
 
       if Expected_Kind in Valid_Primitive_Kind then
-         Check_Kind (Ctx, Node.As_LKQL_Node, Expected_Kind, Result);
+         Check_Kind (Local_Context, Node.As_LKQL_Node, Expected_Kind, Result);
+      end if;
+
+      if Local_Context /= Ctx then
+         Local_Context.Release_Current_Frame;
       end if;
 
       return Result;
 
    exception
       when others =>
-         Update_Env (Ctx.Env, Bindings_Conflicts);
+         if Local_Context /= Ctx then
+            Local_Context.Release_Current_Frame;
+         end if;
+
          raise;
    end Eval;
 
@@ -203,10 +211,10 @@ package body Interpreter.Evaluation is
    function Eval_Assign
      (Ctx : Eval_Context; Node : LEL.Assign) return Primitive
    is
-      Identifier : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Node.F_Identifier.Text);
+      Identifier : constant Text_Type :=
+        Node.F_Identifier.Text;
    begin
-      Ctx.Env.Include (Identifier, Eval (Ctx, Node.F_Value));
+      Ctx.Add_Binding (Identifier, Eval (Ctx, Node.F_Value));
       return Make_Unit_Primitive;
    end Eval_Assign;
 
@@ -217,8 +225,14 @@ package body Interpreter.Evaluation is
    function Eval_Identifier
      (Ctx : Eval_Context; Node : LEL.Identifier) return Primitive
    is
+      use String_Value_Maps;
+      Position : constant Cursor := Ctx.Lookup (To_Unbounded_Text (Node.Text));
    begin
-      return Ctx.Env (To_Unbounded_Text (Node.Text));
+      if Has_Element (Position) then
+         return Element (Position);
+      end if;
+
+      Raise_Unknown_Symbol (Ctx, Node);
    end Eval_Identifier;
 
    ------------------
@@ -453,7 +467,7 @@ package body Interpreter.Evaluation is
    function Eval_Val_Expr
      (Ctx : Eval_Context; Node : LEL.Val_Expr) return Primitive
    is
-      Binding : Environment;
+      Binding : Environment_Map;
       Binding_Name  : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Node.F_Binding_Name.Text);
       Binding_Value : constant Primitive :=
@@ -542,12 +556,12 @@ package body Interpreter.Evaluation is
    end Matches_Kind_Name;
 
    function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
-                               Result : out Environment) return Boolean;
+                               Result : out Environment_Map) return Boolean;
    --  Return a new enviroment built by adding the current iterator's binding
    --  to the environment produced by it's 'Nested' iterator.
 
    function Create_New_Env (Iter   : in out Comprehension_Env_Iter;
-                            Result : out Environment) return Boolean;
+                            Result : out Environment_Map) return Boolean;
    --  Return a new environment containing only the current iterator's binding
 
    ----------
@@ -555,7 +569,7 @@ package body Interpreter.Evaluation is
    ----------
 
    overriding function Next (Iter   : in out Comprehension_Env_Iter;
-                             Result : out Environment) return Boolean
+                             Result : out Environment_Map) return Boolean
    is
       use type Environment_Iters.Resetable_Access;
    begin
@@ -573,9 +587,9 @@ package body Interpreter.Evaluation is
    -----------------------
 
    function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
-                               Result : out Environment) return Boolean
+                               Result : out Environment_Map) return Boolean
    is
-      Env            : Environment;
+      Env            : Environment_Map;
       Nested_Exists  : Boolean;
    begin
       if Is_None (Iter.Current_Element) then
@@ -622,7 +636,7 @@ package body Interpreter.Evaluation is
    --------------------
 
    function Create_New_Env (Iter   : in out Comprehension_Env_Iter;
-                            Result : out Environment) return Boolean
+                            Result : out Environment_Map) return Boolean
    is
    begin
       if Is_None (Iter.Current_Element) then
@@ -668,7 +682,7 @@ package body Interpreter.Evaluation is
    --------------
 
    overriding function Evaluate (Self    : in out Closure;
-                                 Element : Environment) return Primitive
+                                 Element : Environment_Map) return Primitive
    is
    begin
       return Eval (Self.Ctx, Self.Body_Expr, Local_Bindings => Element);
@@ -699,7 +713,7 @@ package body Interpreter.Evaluation is
    --------------
 
    function Evaluate (Self : in out Comprehension_Guard_Filter;
-                      Element : Environment) return Boolean
+                      Element : Environment_Map) return Boolean
    is
       Result : constant Primitive :=
         Eval (Self.Ctx, Self.Guard, Kind_Bool, Element);

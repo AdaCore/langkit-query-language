@@ -33,7 +33,7 @@ package body Interpreter.Error_Handling is
       Error_Message : constant String :=
         To_UTF8 (To_Text (Error.Short_Message));
    begin
-      Add_Error (Ctx.all, Error);
+      Ctx.Add_Error (Error);
 
       if Ctx.Error_Recovery_Enabled then
          Put_Line (Error_Description (Error));
@@ -109,5 +109,19 @@ package body Interpreter.Error_Handling is
       Raise_And_Record_Error
         (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Invalid_Selector_Name;
+
+   --------------------------
+   -- Raise_Unknown_Symbol --
+   --------------------------
+
+   procedure Raise_Unknown_Symbol (Ctx : Eval_Context;
+                                   Node : LEL.Identifier)
+   is
+      Message : constant Unbounded_Text_Type :=
+        "Unknown symbol: " & To_Unbounded_Text (Node.Text);
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+   end Raise_Unknown_Symbol;
 
 end Interpreter.Error_Handling;
