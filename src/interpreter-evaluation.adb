@@ -126,7 +126,7 @@ package body Interpreter.Evaluation is
       Result :=
         (case Node.Kind is
             when LELCO.LKQL_Expr_List =>
-              Eval_List (Ctx, Node.As_Expr_List),
+              Eval_List (Local_Context, Node.As_Expr_List),
             when LELCO.LKQL_Assign =>
               Eval_Assign (Ctx, Node.As_Assign),
             when LELCO.LKQL_Identifier =>

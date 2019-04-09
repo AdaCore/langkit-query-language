@@ -1,0 +1,7 @@
+FunCall
+|name:
+|  Identifier: add
+|arguments:
+|  ExprList
+|  |  Integer: 2
+|  |  Integer: 40
