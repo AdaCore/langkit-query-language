@@ -54,21 +54,21 @@ package body Patterns.Nodes is
         Make_Selector_Consumer
           (Ctx, Pattern.F_Selector, Pattern.F_Related_Node);
       Selector_Match         : Match_Result;
-      Bindings               : Environment;
+      Bindings               : Environment_Map;
    begin
       if not Queried_Match.Success then
          Related_Nodes_Iter.Release;
          return Match_Failure;
       end if;
 
-      Update_Env (Bindings, Queried_Match.Bindings);
+      Add_Bindings (Bindings, Queried_Match.Bindings);
       Selector_Match := Related_Nodes_Consumer.Consume (Related_Nodes_Iter);
 
       if not Selector_Match.Success then
          return Match_Failure;
       end if;
 
-      Update_Env (Bindings, Selector_Match.Bindings);
+      Add_Bindings (Bindings, Selector_Match.Bindings);
 
       return (Success => True, Bindings => Bindings);
    end Match_Relationnal;
@@ -158,7 +158,7 @@ package body Patterns.Nodes is
                      Iter : in out Node_Iterator'Class)
                      return Match_Result
    is
-      Bindings      : Environment;
+      Bindings      : Environment_Map;
       Current_Node  : Iterator_Node;
       Current_Match : Match_Result;
       Matched       : Boolean := False;
@@ -236,7 +236,7 @@ package body Patterns.Nodes is
       Element : Iterator_Node)
       return Boolean
    is
-      Local_Env   : Environment;
+      Local_Env   : Environment_Map;
       Eval_Result : Primitive;
    begin
       Local_Env.Insert

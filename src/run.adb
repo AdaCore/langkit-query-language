@@ -42,22 +42,6 @@ package body Run is
          end if;
    end Evaluate;
 
-   ----------------------
-   -- Run_Single_query --
-   ----------------------
-
-   procedure Run_Standalone_Query
-     (Script_Path : String; Recovery_Enabled : Boolean := False)
-   is
-      Unit    : constant LEL.Analysis_Unit :=
-        Make_LKQL_Unit (Script_Path);
-      Context : Eval_Context := new Eval_Context_Value;
-   begin
-      Context.Error_Recovery_Enabled := Recovery_Enabled;
-      Evaluate (Context, Unit.Root);
-      Free_Eval_Context (Context);
-   end Run_Standalone_Query;
-
    -------------------------
    -- Run_Against_Project --
    -------------------------
@@ -95,17 +79,18 @@ package body Run is
                            Recovery_Enabled : Boolean := False)
    is
       Ada_Unit            : LAL.Analysis_Unit;
-      Interpreter_Context : Eval_Context := new Eval_Context_Value;
+      Interpreter_Context : Eval_Context :=
+        Make_Eval_Context (Err_Recovery => Recovery_Enabled);
       LKQL_Unit           : constant LEL.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
-      Interpreter_Context.Error_Recovery_Enabled := Recovery_Enabled;
       for F of Files.all loop
          Put_Line (F.Display_Base_Name);
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
-         Interpreter_Context.AST_Root := Ada_Unit.Root;
+         Interpreter_Context.Set_AST_Root (Ada_Unit.Root);
          Evaluate (Interpreter_Context, LKQL_Unit.Root);
       end loop;
+
       Free_Eval_Context (Interpreter_Context);
    end Run_On_Files;
 

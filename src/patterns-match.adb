@@ -90,7 +90,7 @@ package body Patterns.Match is
    function Match_Binding (Pattern : L.Binding_Pattern;
                            Value   : Primitive) return Match_Result
    is
-      Bindings     : Environment;
+      Bindings     : Environment_Map;
       Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.F_Binding.Text);
    begin

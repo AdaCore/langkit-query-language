@@ -40,4 +40,8 @@ package Interpreter.Error_Handling is
    --  Raise an exception signaling the use of an invalid selector name,
    --  and add an Error_Data describing the error to the evaluation context.
 
+   procedure Raise_Unknown_Symbol (Ctx : Eval_Context;
+                                   Node : LEL.Identifier)
+     with No_Return;
+
 end Interpreter.Error_Handling;
