@@ -364,6 +364,32 @@ class ValExpr(Expr):
     expr = Field(type=Expr)
 
 
+class FunDef(Expr):
+    """
+    Function definition.
+    The list of arguments of a function cannot be empty
+
+    For instance::
+       fun add(x, y) = x + y
+    """
+
+    name = Field(type=Identifier)
+    parameters = Field(type=Identifier.list)
+    body_expr = Field(type=Expr)
+
+
+class FunCall(Expr):
+    """
+    Function call.
+
+    For instance::
+       add(2, 40)
+    """
+
+    name = Field(type=Identifier)
+    arguments = Field(type=Expr.list)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
@@ -446,7 +472,9 @@ lkql_grammar.add_rules(
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(G.listcomp,
+    value_expr=Or(G.fun_def,
+                  G.fun_call,
+                  G.listcomp,
                   DotAccess(G.value_expr, Token.Dot, G.identifier),
                   G.assign,
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
@@ -460,6 +488,19 @@ lkql_grammar.add_rules(
                      G.expr, Token.SemiCol, G.expr),
 
     assign=Assign(Token.Let, G.identifier, Token.Eq, Or(G.expr, G.query)),
+
+    fun_def=FunDef(Token.Fun,
+                   G.identifier,
+                   Token.LPar,
+                   List(G.identifier, empty_valid=False, sep=Token.Coma),
+                   Token.RPar,
+                   Token.Eq,
+                   G.expr),
+
+    fun_call=FunCall(G.identifier,
+                     Token.LPar,
+                     List(G.expr, empty_valid=False, sep=Token.Coma),
+                     Token.RPar),
 
     identifier=Identifier(Token.Identifier),
 
