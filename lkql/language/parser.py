@@ -1,7 +1,7 @@
 from langkit.dsl import (T, ASTNode, abstract, Field)
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.expressions import (
-    Property, AbstractProperty, Self, String, No
+    Self, String, No, langkit_property, AbstractKind
 )
 from lexer import Token
 
@@ -131,17 +131,21 @@ class BasePattern(LKQLNode):
     Root node class for patterns.
     """
 
-    binding_name = AbstractProperty(
-        type=T.String, public=True,
-        doc="Return the pattern's binding name."
-            "Return an empty string if the pattern doesn't "
-            "contain a binding name"
-    )
+    @langkit_property(return_type=T.String, public=True,
+                      kind=AbstractKind.abstract)
+    def binding_name():
+        """
+        Return the pattern's binding name.
+        Return an empty String if the pattern doesn't contain a binding name.
+        """
+        pass
 
-    has_binding = Property(Self.binding_name.length > 0,
-                           type=T.Bool, public=True,
-                           doc="Return whether the node pattern contains a "
-                               "binding name")
+    @langkit_property(return_type=T.Bool, public=True)
+    def has_binding():
+        """
+        Return whether the node pattern contains a binding name.
+        """
+        return Self.binding_name.length > 0
 
 
 @abstract
@@ -163,7 +167,9 @@ class FilteredPattern(BasePattern):
     pattern = Field(type=UnfilteredPattern)
     predicate = Field(type=Expr)
 
-    binding_name = Property(Self.pattern.binding_name)
+    @langkit_property()
+    def binding_name():
+        return Self.pattern.binding_name
 
 
 @abstract
@@ -174,7 +180,9 @@ class ValuePattern(UnfilteredPattern):
     doing any kind of filtering)
     """
 
-    binding_name = Property(String(""))
+    @langkit_property()
+    def binding_name():
+        return String("")
 
 
 class BindingPattern(UnfilteredPattern):
@@ -184,7 +192,9 @@ class BindingPattern(UnfilteredPattern):
 
     binding = Field(type=Identifier)
 
-    binding_name = Property(Self.binding.text)
+    @langkit_property()
+    def binding_name():
+        return Self.binding.text
 
 
 class FullPattern(BindingPattern):
@@ -226,24 +236,29 @@ class SelectorPattern(LKQLNode):
     Root node for selector patterns
     """
 
-    condition = Property(
-        No(T.Expr),
-        type=T.Expr, public=True,
-        doc="Conditions associated with this selector"
-    )
+    @langkit_property(return_type=T.Expr, public=True)
+    def condition():
+        """
+        Return the condition associated with this selector.
+        """
+        return No(T.Expr)
 
-    selector_name = AbstractProperty(
-        type=T.String, public=True,
-        doc="Name of the selector."
-    )
+    @langkit_property(return_type=T.String, public=True,
+                      kind=AbstractKind.abstract)
+    def selector_name():
+        """
+        Return the name of the selector.
+        """
+        pass
 
-    quantifier_name = Property(
-        String("some"),  # default implicit quantifier
-        type=T.String, public=True,
-        doc="""Name of the selector's quantifier
-               If the selector pattern doesn't include a quantifier, this
-               property defaults to "some"."""
-    )
+    @langkit_property(return_type=T.String, public=True)
+    def quantifier_name():
+        """
+        Return the selector's quantifier.
+        If the selector pattern doesn't include a quantifier, this property
+        defaults to "some".
+        """
+        return String("some")  # default implicit quantifier
 
 
 class NamedSelector(SelectorPattern):
@@ -258,7 +273,9 @@ class NamedSelector(SelectorPattern):
 
     name = Field(type=Identifier)
 
-    selector_name = Property(Self.name.text, public=True)
+    @langkit_property()
+    def selector_name():
+        return Self.name.text
 
 
 class ParametrizedSelector(NamedSelector):
@@ -268,7 +285,9 @@ class ParametrizedSelector(NamedSelector):
 
     condition_expr = Field(type=T.Expr)
 
-    condition = Property(Self.condition_expr)
+    @langkit_property()
+    def condition():
+        return Self.condition_expr
 
 
 class QuantifiedSelector(SelectorPattern):
@@ -283,11 +302,17 @@ class QuantifiedSelector(SelectorPattern):
     quantifier = Field(type=Identifier)
     selector = Field(type=NamedSelector)
 
-    selector_name = Property(Self.selector.selector_name, public=True)
+    @langkit_property()
+    def selector_name():
+        return Self.selector.selector_name
 
-    quantifier_name = Property(Self.quantifier.text)
+    @langkit_property()
+    def quantifier_name():
+        return Self.quantifier.text
 
-    condition = Property(Self.selector.condition)
+    @langkit_property()
+    def condition():
+        return Self.selector.condition
 
 
 class RelationalNodePattern(NodePattern):
@@ -302,7 +327,9 @@ class RelationalNodePattern(NodePattern):
     selector = Field(type=SelectorPattern)
     related_node = Field(type=UnfilteredPattern)
 
-    binding_name = Property(String(""))
+    @langkit_property()
+    def binding_name():
+        return String("")
 
 
 class UniversalPattern(ValuePattern):
