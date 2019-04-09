@@ -275,6 +275,16 @@ package Interpreter.Primitives is
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
 
+   function Deep_Equals (Left, Right : Primitive) return Boolean;
+   --  Perform a deep equality check between 'Left' and 'Right'.
+   --  An Unsupported exception will be raised if Left and Right have different
+   --  kinds.
+
+   function Deep_Equals (Left, Right : Primitive_List_Access) return Boolean;
+   --  Perform a deep equality check between two primitive_List_Access values.
+   --  An Unsupported exception will be raised if Left and Right have different
+   --  kinds.
+
    function "/=" (Left, Right : Primitive) return Primitive;
    --  Test inequality between two Primitive values.
    --  An Unsupported exception will be raised if Left and Right have different
