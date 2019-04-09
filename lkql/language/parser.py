@@ -338,7 +338,7 @@ class ArrowAssoc(LKQLNode):
     coll_expr = Field(type=Expr)
 
 
-class ListComprehension (Expr):
+class ListComprehension(Expr):
     """
     List comprehension of the form:
         [ expr | generator1, generator2, ...,  opt(guard)]
@@ -349,7 +349,7 @@ class ListComprehension (Expr):
     guard = Field(type=Expr)
 
 
-class ValExpr (Expr):
+class ValExpr(Expr):
     """
     Expression of the form: val id = value; expr
 
