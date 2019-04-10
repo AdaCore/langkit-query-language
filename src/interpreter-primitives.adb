@@ -27,6 +27,10 @@ package body Interpreter.Primitives is
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
+   function Fun_Image (Value : LEL.Fun_Def) return Unbounded_Text_Type;
+   --  Return a String for the form: name[arity] representing the given
+   --  function declaration.
+
    procedure Check_Kind
      (Expected_Kind : Valid_Primitive_Kind; Value : Primitive);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
@@ -106,6 +110,19 @@ package body Interpreter.Primitives is
 
       return Image;
    end List_Image;
+
+   ---------------
+   -- Fun_Image --
+   ---------------
+
+   function Fun_Image (Value : LEL.Fun_Def) return Unbounded_Text_Type is
+      Arity : constant Unbounded_Text_Type :=
+        Int_Image (Value.F_Parameters.Children_Count);
+      Name  : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Value.F_Name.Text);
+   begin
+      return Name & '[' & Arity & ']';
+   end Fun_Image;
 
    --------------------
    -- Iterator_Image --
@@ -248,7 +265,14 @@ package body Interpreter.Primitives is
    --------------
 
    function List_Val (Value : Primitive) return Primitive_List_Access is
-      (Value.Get.List_Val);
+     (Value.Get.List_Val);
+
+   -------------
+   -- Fun_Val --
+   -------------
+
+   function Fun_Val (Value : Primitive) return LEL.Fun_Def is
+      (Value.Get.Fun_Val);
 
    --------------
    -- Iter_Val --
@@ -547,7 +571,9 @@ package body Interpreter.Primitives is
                  when Kind_Iterator =>
                    Iterator_Image (Val.Get.Iter_Val.all),
                  when Kind_List =>
-                   List_Image (Val.Get.List_Val.all));
+                   List_Image (Val.Get.List_Val.all),
+                 when Kind_Fun =>
+                   Fun_Image (Val.Get.Fun_Val));
    end To_Unbounded_Text;
 
    ---------------
@@ -563,7 +589,8 @@ package body Interpreter.Primitives is
                  when Kind_Bool      => "Bool",
                  when Kind_Node      => "Node",
                  when Kind_Iterator  => "Iterator",
-                 when Kind_List      => "List");
+                 when Kind_List      => "List",
+                 when Kind_Fun       => "Fun");
    end To_String;
 
    ---------------
@@ -573,20 +600,10 @@ package body Interpreter.Primitives is
    function Kind_Name (Value : Primitive) return String is
    begin
       return (case Value.Get.Kind is
-                 when Kind_Unit =>
-                   "Unit",
-                 when Kind_Int =>
-                   "Int",
-                 when Kind_Str =>
-                   "Str",
-                 when Kind_Bool =>
-                   "Bool",
                  when Kind_Node =>
                    LAL.Kind_Name (Value.Get.Node_Val),
-                 when Kind_Iterator =>
-                   "Iterator",
-                 when Kind_List =>
-                   "List");
+                 when others =>
+                   To_String (Kind (Value)));
    end Kind_Name;
 
    -------------
