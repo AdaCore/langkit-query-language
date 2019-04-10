@@ -53,6 +53,16 @@ package Interpreter.Eval_Contexts is
    function Last_Error (Ctx : Eval_Context) return Error_Data;
    --  Return the value of the last registered error
 
+   function Exists_In_Local_Env (Ctx : Eval_Context;
+                                 Key : Text_Type) return Boolean;
+   --  Return wether the given name is associated to a value in the local
+   --  environment.
+
+   function Exists_In_Local_Env (Ctx : Eval_Context;
+                                 Key : Unbounded_Text_Type) return Boolean;
+   --  Return wether the given name is associated to a value in the local
+   --  environment.
+
    function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean;
    --  Return wether the error recovery mecanism is enabled
 

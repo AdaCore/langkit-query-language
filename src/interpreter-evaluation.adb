@@ -214,6 +214,12 @@ package body Interpreter.Evaluation is
       Identifier : constant Text_Type :=
         Node.F_Identifier.Text;
    begin
+      if Ctx.Exists_In_Local_Env (Identifier) then
+         Raise_Already_Existing_Symbol (Ctx,
+                                        To_Unbounded_Text (Identifier),
+                                        Node.F_Identifier.As_LKQL_Node);
+      end if;
+
       Ctx.Add_Binding (Identifier, Eval (Ctx, Node.F_Value));
       return Make_Unit_Primitive;
    end Eval_Assign;

@@ -25,6 +25,22 @@ package body Interpreter.Eval_Contexts is
    function Last_Error (Ctx : Eval_Context) return Error_Data is
      (Ctx.Kernel.Last_Error);
 
+   -------------------------
+   -- Exists_In_Local_Env --
+   -------------------------
+
+   function Exists_In_Local_Env (Ctx : Eval_Context;
+                                 Key : Text_Type) return Boolean
+   is (Ctx.Exists_In_Local_Env (To_Unbounded_Text (Key)));
+
+   -------------------------
+   -- Exists_In_Local_Env --
+   -------------------------
+
+   function Exists_In_Local_Env (Ctx : Eval_Context;
+                                 Key : Unbounded_Text_Type) return Boolean
+   is (Ctx.Frames.Local_Bindings.Contains (Key));
+
    ----------------------------
    -- Error_Recovery_Enabled --
    ----------------------------

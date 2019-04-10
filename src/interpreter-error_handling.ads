@@ -2,6 +2,8 @@ with Interpreter.Errors;        use Interpreter.Errors;
 with Interpreter.Eval_Contexts; use Interpreter.Eval_Contexts;
 with Interpreter.Primitives;    use Interpreter.Primitives;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 package Interpreter.Error_Handling is
 
    procedure Raise_And_Record_Error
@@ -40,8 +42,16 @@ package Interpreter.Error_Handling is
    --  Raise an exception signaling the use of an invalid selector name,
    --  and add an Error_Data describing the error to the evaluation context.
 
-   procedure Raise_Unknown_Symbol (Ctx : Eval_Context;
+   procedure Raise_Unknown_Symbol (Ctx  : Eval_Context;
                                    Node : LEL.Identifier)
      with No_Return;
+   --  Raise an exception signaling the use of an unknwown identifier
+
+   procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
+                                            Identifier : Unbounded_Text_Type;
+                                            Node       : LEL.LKQL_Node)
+     with No_Return;
+   --  Raise an exception signaling an attempt to create a binding using a name
+   --  that is already bound to a value in the local context.
 
 end Interpreter.Error_Handling;

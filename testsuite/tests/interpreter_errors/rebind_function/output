@@ -1,0 +1,4 @@
+main.adb
+Error: already existing symbol: add
+fun add(x) = x + 42
+    ^^^^

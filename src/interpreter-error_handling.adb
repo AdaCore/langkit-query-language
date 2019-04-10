@@ -1,5 +1,3 @@
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 with Ada.Text_IO;                     use Ada.Text_IO;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
@@ -123,5 +121,20 @@ package body Interpreter.Error_Handling is
       Raise_And_Record_Error
         (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
    end Raise_Unknown_Symbol;
+
+   -----------------------------------
+   -- Raise_already_Existing_Symbol --
+   -----------------------------------
+
+   procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
+                                            Identifier : Unbounded_Text_Type;
+                                            Node       : LEL.LKQL_Node)
+   is
+      Message : constant Unbounded_Text_Type :=
+        "already existing symbol: " & Identifier;
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node, Message));
+   end Raise_Already_Existing_Symbol;
 
 end Interpreter.Error_Handling;
