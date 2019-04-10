@@ -209,6 +209,9 @@ package Interpreter.Primitives is
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
 
+   function To_Primitive (Val : LEL.Fun_Def) return Primitive;
+   --  Create a Primitive value from a Fun_Def
+
    function Make_Empty_List return Primitive;
    --  Return a Primitive value storing an empty list of Primitive values
    --  of kind `Kind`.

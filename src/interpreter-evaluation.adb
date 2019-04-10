@@ -60,6 +60,9 @@ package body Interpreter.Evaluation is
    function Eval_Val_Expr
      (Ctx : Eval_Context; Node : LEL.Val_Expr) return Primitive;
 
+   function Eval_Fun_Def
+     (Ctx : Eval_Context; Node : LEL.Fun_Def) return Primitive;
+
    function Make_Comprehension_Environment_Iter
      (Ctx : Eval_Context; Node : LEL.Arrow_Assoc_List)
       return Comprehension_Env_Iter;
@@ -157,6 +160,8 @@ package body Interpreter.Evaluation is
                  (Local_Context, Node.As_List_Comprehension),
             when LELCO.LKQL_Val_Expr =>
               Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
+            when LELCO.LKQL_Fun_Def =>
+              Eval_Fun_Def (Ctx, Node.As_Fun_Def),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -482,6 +487,26 @@ package body Interpreter.Evaluation is
       Binding.Include (Binding_Name, Binding_Value);
       return Eval (Ctx, Node.F_Expr, Local_Bindings => Binding);
    end Eval_Val_Expr;
+
+   ------------------
+   -- Eval_Fun_Def --
+   ------------------
+
+   function Eval_Fun_Def
+     (Ctx : Eval_Context; Node : LEL.Fun_Def) return Primitive
+   is
+      Identifier : constant Text_Type := Node.F_Name.Text;
+      Fun_Value  : constant Primitive := To_Primitive (Node);
+   begin
+      if Ctx.Exists_In_Local_Env (Identifier) then
+         Raise_Already_Existing_Symbol
+           (Ctx, To_Unbounded_Text (Identifier), Node.F_Name.As_LKQL_Node);
+      end if;
+
+      Ctx.Add_Binding (Identifier, Fun_Value);
+
+      return Make_Unit_Primitive;
+   end Eval_Fun_Def;
 
    -----------------------------------------
    -- Make_Comprehension_Environment_Iter --
