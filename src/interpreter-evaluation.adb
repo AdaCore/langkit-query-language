@@ -63,6 +63,9 @@ package body Interpreter.Evaluation is
    function Eval_Fun_Def
      (Ctx : Eval_Context; Node : LEL.Fun_Def) return Primitive;
 
+   function Eval_Fun_Call
+     (Ctx : Eval_Context; Node : LEL.Fun_Call) return Primitive;
+
    function Make_Comprehension_Environment_Iter
      (Ctx : Eval_Context; Node : LEL.Arrow_Assoc_List)
       return Comprehension_Env_Iter;
@@ -162,6 +165,8 @@ package body Interpreter.Evaluation is
               Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
             when LELCO.LKQL_Fun_Def =>
               Eval_Fun_Def (Ctx, Node.As_Fun_Def),
+            when LELCO.LKQL_Fun_Call =>
+              Eval_Fun_Call (Ctx, Node.As_Fun_Call),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -507,6 +512,46 @@ package body Interpreter.Evaluation is
 
       return Make_Unit_Primitive;
    end Eval_Fun_Def;
+
+   -------------------
+   -- Eval_Fun_Call --
+   -------------------
+
+   function Eval_Fun_Call
+     (Ctx : Eval_Context; Node : LEL.Fun_Call) return Primitive
+   is
+      Arguments : LEL.Expr_List renames Node.F_Arguments;
+      Fun_Def   : LEL.Fun_Def;
+      Fun_Prim  : constant Primitive :=
+        Eval_Identifier (Ctx, Node.F_Name);
+      Fun_Ctx   : constant Eval_Context :=
+        (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
+   begin
+      if Kind (Fun_Prim) /= Kind_Fun then
+         Raise_Invalid_Kind
+           (Ctx, Node.F_Name.As_LKQL_Node, Kind_Fun, Fun_Prim);
+      end if;
+
+      Fun_Def := Fun_Val (Fun_Prim);
+
+      if Arguments.Children_Count /= Fun_Def.F_Parameters.Children_Count
+      then
+         Raise_Invalid_Arity (Ctx, Node, Fun_Def.F_Parameters.Children_Count);
+      end if;
+
+      for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index loop
+         declare
+            Arg       : constant LEL.LKQL_Node := Arguments.Children (I);
+            Arg_Name  : constant Text_Type :=
+              Fun_Def.F_Parameters.Children (I).Text;
+            Arg_Value : constant Primitive := Eval (Ctx, Arg);
+         begin
+            Fun_Ctx.Add_Binding (Arg_Name, Arg_Value);
+         end;
+      end loop;
+
+      return Eval (Fun_Ctx, Fun_Def.F_Body_Expr);
+   end Eval_Fun_Call;
 
    -----------------------------------------
    -- Make_Comprehension_Environment_Iter --
