@@ -1,0 +1,5 @@
+let delta = 18
+
+fun add(x, y) = x + y + delta
+
+print(add(21, 3))

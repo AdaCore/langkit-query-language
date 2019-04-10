@@ -98,6 +98,24 @@ package body Interpreter.Eval_Contexts is
       Ctx.Frames.Local_Bindings.Include (To_Unbounded_Text (Key), Value);
    end Add_Binding;
 
+   ---------------------
+   -- Is_Root_Context --
+   ---------------------
+
+   function Is_Root_Context (Ctx : Eval_Context) return Boolean is
+     (Ctx.Frames.Parent = null);
+
+   --------------------
+   -- Parent_Context --
+   --------------------
+
+   function Parent_Context (Ctx : Eval_Context) return Eval_Context is
+      Parent_Env : constant Environment_Access :=
+        Ctx.Frames.Parent;
+   begin
+      return Eval_Context'(Ctx.Kernel, Parent_Env);
+   end Parent_Context;
+
    -----------------------
    -- Make_Eval_Context --
    -----------------------

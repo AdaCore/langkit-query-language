@@ -54,4 +54,11 @@ package Interpreter.Error_Handling is
    --  Raise an exception signaling an attempt to create a binding using a name
    --  that is already bound to a value in the local context.
 
+   procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
+                                  Call           : LEL.Fun_Call;
+                                  Expected_Arity : Positive)
+     with No_Return;
+   --  Raise an exception signaling an attempt to calla function with the wrong
+   --  number of arguments.
+
 end Interpreter.Error_Handling;
