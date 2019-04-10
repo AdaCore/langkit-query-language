@@ -98,6 +98,15 @@ class DotAccess(Expr):
     member = Field(type=Identifier)
 
 
+class DotCall(Expr):
+    """
+    Call a property with arguments using dot notation
+    """
+    receiver = Field(type=Expr)
+    member = Field(type=Identifier)
+    arguments = Field(type=Expr.list)
+
+
 class IsClause(Expr):
     """
     Check a node's kind using the 'is' keyword.
@@ -502,6 +511,12 @@ lkql_grammar.add_rules(
     value_expr=Or(G.fun_def,
                   G.fun_call,
                   G.listcomp,
+                  DotCall(G.value_expr,
+                          Token.Dot,
+                          G.identifier,
+                          Token.LPar,
+                          List(G.expr, sep=Token.Coma, empty_valid=False),
+                          Token.RPar),
                   DotAccess(G.value_expr, Token.Dot, G.identifier),
                   G.assign,
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),

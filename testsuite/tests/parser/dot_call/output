@@ -1,0 +1,15 @@
+DotCall
+|receiver:
+|  Identifier: value
+|member:
+|  Identifier: propertyWithArgs
+|arguments:
+|  ExprList
+|  |  StringLiteral: "arg1"
+|  |  BinOp
+|  |  |left:
+|  |  |  Integer: 40
+|  |  |op:
+|  |  |  OpPlus
+|  |  |right:
+|  |  |  Integer: 2
