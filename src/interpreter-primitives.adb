@@ -27,7 +27,7 @@ package body Interpreter.Primitives is
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
-   function Fun_Image (Value : LEL.Fun_Def) return Unbounded_Text_Type;
+   function Fun_Image (Value : L.Fun_Def) return Unbounded_Text_Type;
    --  Return a String for the form: name[arity] representing the given
    --  function declaration.
 
@@ -115,7 +115,7 @@ package body Interpreter.Primitives is
    -- Fun_Image --
    ---------------
 
-   function Fun_Image (Value : LEL.Fun_Def) return Unbounded_Text_Type is
+   function Fun_Image (Value : L.Fun_Def) return Unbounded_Text_Type is
       Arity : constant Unbounded_Text_Type :=
         Int_Image (Value.F_Parameters.Children_Count);
       Name  : constant Unbounded_Text_Type :=
@@ -271,7 +271,7 @@ package body Interpreter.Primitives is
    -- Fun_Val --
    -------------
 
-   function Fun_Val (Value : Primitive) return LEL.Fun_Def is
+   function Fun_Val (Value : Primitive) return L.Fun_Def is
       (Value.Get.Fun_Val);
 
    --------------
@@ -481,7 +481,7 @@ package body Interpreter.Primitives is
    -- To_Primitive --
    ------------------
 
-   function To_Primitive (Val : LEL.Fun_Def) return Primitive is
+   function To_Primitive (Val : L.Fun_Def) return Primitive is
    begin
       return Result : Primitive do
          Result.Set (Primitive_Data'(Refcounted with Kind_Fun, Val));

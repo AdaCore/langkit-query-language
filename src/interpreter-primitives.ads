@@ -75,7 +75,7 @@ package Interpreter.Primitives is
          when Kind_List =>
             List_Val : Primitive_List_Access;
          when Kind_Fun =>
-            Fun_Val : LEL.Fun_Def;
+            Fun_Val : L.Fun_Def;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -173,7 +173,7 @@ package Interpreter.Primitives is
    --  Since iterators a immutable, this accessor performs a deep copy of the
    --  value.
 
-   function Fun_Val (Value : Primitive) return LEL.Fun_Def;
+   function Fun_Val (Value : Primitive) return L.Fun_Def;
    --  Return the value of a function primitive
 
    function Elements
@@ -209,7 +209,7 @@ package Interpreter.Primitives is
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
 
-   function To_Primitive (Val : LEL.Fun_Def) return Primitive;
+   function To_Primitive (Val : L.Fun_Def) return Primitive;
    --  Create a Primitive value from a Fun_Def
 
    function Make_Empty_List return Primitive;

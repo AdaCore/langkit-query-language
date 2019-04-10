@@ -17,7 +17,7 @@ package body Run is
    package LAL_GPR renames Libadalang.Project_Provider;
 
    procedure Evaluate
-     (Context : Eval_Context; LKQL_Script : LEL.LKQL_Node);
+     (Context : Eval_Context; LKQL_Script : L.LKQL_Node);
    --  Evaluate the script in the given context and display the error
    --  messages, if any.
 
@@ -26,7 +26,7 @@ package body Run is
    --------------
 
    procedure Evaluate
-     (Context : Eval_Context; LKQL_Script : LEL.LKQL_Node)
+     (Context : Eval_Context; LKQL_Script : L.LKQL_Node)
    is
       Ignore : Primitive;
    begin
@@ -81,7 +81,7 @@ package body Run is
       Ada_Unit            : LAL.Analysis_Unit;
       Interpreter_Context : Eval_Context :=
         Make_Eval_Context (Err_Recovery => Recovery_Enabled);
-      LKQL_Unit           : constant LEL.Analysis_Unit :=
+      LKQL_Unit           : constant L.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
       for F of Files.all loop
@@ -98,9 +98,9 @@ package body Run is
    -- Make_LKQL_Unit --
    --------------------
 
-   function Make_LKQL_Unit (Script_Path : String) return LEL.Analysis_Unit is
-      Context : constant LEL.Analysis_Context := LEL.Create_Context;
-      Unit    : constant LEL.Analysis_Unit :=
+   function Make_LKQL_Unit (Script_Path : String) return L.Analysis_Unit is
+      Context : constant L.Analysis_Context := L.Create_Context;
+      Unit    : constant L.Analysis_Unit :=
         Context.Get_From_File (Script_Path);
    begin
       if Unit.Has_Diagnostics then

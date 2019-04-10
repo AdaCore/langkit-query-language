@@ -4,7 +4,7 @@ with Libadalang.Analysis;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package Run is
-   package LEL renames Liblkqllang.Analysis;
+   package L renames Liblkqllang.Analysis;
    package LAL renames Libadalang.Analysis;
 
    procedure Run_Against_Project (LKQL_Script      : String;
@@ -24,7 +24,7 @@ package Run is
 
 private
 
-   function Make_LKQL_Unit (Script_Path : String) return LEL.Analysis_Unit;
+   function Make_LKQL_Unit (Script_Path : String) return L.Analysis_Unit;
 
    function Make_Ada_Unit
      (Context : LAL.Analysis_Context; Path : String) return LAL.Analysis_Unit;

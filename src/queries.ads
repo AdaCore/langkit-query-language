@@ -9,8 +9,8 @@ with Libadalang.Common;
 
 package Queries is
 
-   package LEL renames Liblkqllang.Analysis;
-   package LELCO renames Liblkqllang.Common;
+   package L renames Liblkqllang.Analysis;
+   package LCO renames Liblkqllang.Common;
 
    package LAL renames Libadalang.Analysis;
    package LALCO renames Libadalang.Common;
@@ -22,7 +22,7 @@ package Queries is
    --  Pointer to a predicate on 'Iterator_Node' values
 
    function Make_Query_Iterator (Ctx  : Eval_Context;
-                                 Node : LEL.Query)
+                                 Node : L.Query)
                                  return Node_Iterators.Filter_Iter;
    --  Returns an iterator over the AST nodes, yielding only the elements that
    --  belong to the result of the given query.
@@ -35,7 +35,7 @@ private
 
    type Query_Predicate is new Iterator_Predicate_Interface with record
       Ctx   : Eval_Context;
-      Query : LEL.Query;
+      Query : L.Query;
    end record;
    --  Predicate that returns true for every node that belongs to the
    --  result of the given query.
@@ -44,7 +44,7 @@ private
    --  Pointer to a Query_predicate
 
    function Make_Query_Predicate
-     (Ctx : Eval_Context; Query : LEL.Query) return Query_Predicate_Access;
+     (Ctx : Eval_Context; Query : L.Query) return Query_Predicate_Access;
    --  Return a pointer to a Query_Predicate that returns true for every node
    --  that belongs to the result set of the given query.
 

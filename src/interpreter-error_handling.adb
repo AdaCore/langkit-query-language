@@ -48,7 +48,7 @@ package body Interpreter.Error_Handling is
    --------------------------
 
    procedure Raise_Invalid_Member (Ctx      : Eval_Context;
-                                   Node     : LEL.Dot_Access;
+                                   Node     : L.Dot_Access;
                                    Receiver : Primitive)
    is
       Message : constant Unbounded_Text_Type :=
@@ -63,7 +63,7 @@ package body Interpreter.Error_Handling is
    -- Raise_Null_Root --
    ---------------------
 
-   procedure Raise_Null_Root (Ctx : Eval_Context; Node : LEL.Query)
+   procedure Raise_Null_Root (Ctx : Eval_Context; Node : L.Query)
    is
       Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text (
@@ -78,7 +78,7 @@ package body Interpreter.Error_Handling is
    ------------------------
 
    procedure Raise_Invalid_Kind (Ctx      : Eval_Context;
-                                 Node     : LEL.LKQL_Node;
+                                 Node     : L.LKQL_Node;
                                  Expected : Valid_Primitive_Kind;
                                  Value    : Primitive)
    is
@@ -98,7 +98,7 @@ package body Interpreter.Error_Handling is
    ---------------------------------
 
    procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context;
-                                          Node : LEL.Selector_Pattern'Class)
+                                          Node : L.Selector_Pattern'Class)
    is
       Message : constant Unbounded_Text_Type :=
         "Invalid selector name: " &
@@ -113,7 +113,7 @@ package body Interpreter.Error_Handling is
    --------------------------
 
    procedure Raise_Unknown_Symbol (Ctx : Eval_Context;
-                                   Node : LEL.Identifier)
+                                   Node : L.Identifier)
    is
       Message : constant Unbounded_Text_Type :=
         "Unknown symbol: " & To_Unbounded_Text (Node.Text);
@@ -128,7 +128,7 @@ package body Interpreter.Error_Handling is
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
                                             Identifier : Unbounded_Text_Type;
-                                            Node       : LEL.LKQL_Node)
+                                            Node       : L.LKQL_Node)
    is
       Message : constant Unbounded_Text_Type :=
         "already existing symbol: " & Identifier;
@@ -142,7 +142,7 @@ package body Interpreter.Error_Handling is
    -------------------------
 
    procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
-                                  Call           : LEL.Fun_Call;
+                                  Call           : L.Fun_Call;
                                   Expected_Arity : Positive)
    is
       Expected : constant Text_Type :=
