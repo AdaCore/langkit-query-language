@@ -9,7 +9,7 @@ package body Queries is
    -------------------------
 
    function Make_Query_Iterator (Ctx  : Eval_Context;
-                                 Node : LEL.Query)
+                                 Node : L.Query)
                                  return Node_Iterators.Filter_Iter
    is
       Iter      : constant Node_Iterator_Access :=
@@ -25,7 +25,7 @@ package body Queries is
    --------------------------
 
    function Make_Query_Predicate
-     (Ctx : Eval_Context; Query : LEL.Query) return Query_Predicate_Access
+     (Ctx : Eval_Context; Query : L.Query) return Query_Predicate_Access
    is
    begin
       return new Query_Predicate'(Ctx, Query);

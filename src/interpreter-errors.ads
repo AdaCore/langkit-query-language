@@ -19,7 +19,7 @@ package Interpreter.Errors is
             null;
             --  Represents the absence of error
          when Eval_Error =>
-            AST_Node     : LEL.LKQL_Node;
+            AST_Node     : L.LKQL_Node;
             --  Node whose evaluation triggered this error
 
             Short_Message : Unbounded_Text_Type;
@@ -36,7 +36,7 @@ package Interpreter.Errors is
 
    function Make_Empty_Error return Error_Data;
 
-   function Make_Eval_Error (AST_Node      : LEL.LKQL_Node;
+   function Make_Eval_Error (AST_Node      : L.LKQL_Node;
                              Short_Message : Unbounded_Text_Type)
                              return Error_Data;
    --  Create an error value of kind Eval_Error

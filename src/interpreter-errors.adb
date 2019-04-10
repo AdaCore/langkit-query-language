@@ -50,7 +50,7 @@ package body Interpreter.Errors is
    function Error_Description (Error : Error_Data) return Unbounded_Text_Type
    is
       use Langkit_Support.Text.Chars;
-      Error_Unit : constant LEL.Analysis_Unit := Error.AST_Node.Unit;
+      Error_Unit : constant L.Analysis_Unit := Error.AST_Node.Unit;
       Error_Msg  : constant Unbounded_Text_Type :=
         "Error: " & Error.Short_Message;
       Unit_Lines : constant String_Vectors.Vector :=
@@ -83,7 +83,7 @@ package body Interpreter.Errors is
    -- Make_Eval_Error --
    ---------------------
 
-   function Make_Eval_Error (AST_Node      : LEL.LKQL_Node;
+   function Make_Eval_Error (AST_Node      : L.LKQL_Node;
                              Short_Message : Unbounded_Text_Type)
                              return Error_Data
    is

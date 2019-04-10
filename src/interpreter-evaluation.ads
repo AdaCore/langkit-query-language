@@ -9,7 +9,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 package Interpreter.Evaluation is
 
    function Eval (Ctx            : Eval_Context;
-                  Node           : LEL.LKQL_Node'Class;
+                  Node           : L.LKQL_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
                   Local_Bindings : Environment_Map :=
                     String_Value_Maps.Empty_Map)
@@ -70,7 +70,7 @@ private
    type Closure is new Env_Primitive_Maps.Map_Funcs.Func with record
       Ctx       : Eval_Context;
       --  Copy of the evaluation context at call site
-      Body_Expr : LEL.Expr;
+      Body_Expr : L.Expr;
       --  Body of the closure
    end record;
 
@@ -80,12 +80,12 @@ private
    overriding function Clone (Self : Closure) return Closure;
 
    function Make_Closure
-     (Ctx : Eval_Context; Body_Expr : LEL.Expr) return Closure;
+     (Ctx : Eval_Context; Body_Expr : L.Expr) return Closure;
 
    type Comprehension_Guard_Filter is new Environment_Iters.Predicates.Func
    with record
       Ctx   : Eval_Context;
-      Guard : LEL.Expr;
+      Guard : L.Expr;
    end record;
    --  Func that, given an environment, computes the value of a list
    --  comprehension's guard expression in the context of this environment.
@@ -97,7 +97,7 @@ private
      (Self : Comprehension_Guard_Filter) return Comprehension_Guard_Filter;
 
    function Make_Guard_Filter (Ctx : Eval_Context;
-                               Guard : LEL.Expr)
+                               Guard : L.Expr)
                                return Comprehension_Guard_Filter;
 
 end Interpreter.Evaluation;
