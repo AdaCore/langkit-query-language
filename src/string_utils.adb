@@ -33,10 +33,7 @@ package body String_Utils is
    begin
       for I in Str'First .. Str'Last + 1 loop
          if I = Str'Last + 1 or else Is_Line_Terminator (Str (I)) then
-            if I /= Start then
-               Result.Append (To_Unbounded_Text (Str (Start .. I - 1)));
-            end if;
-
+            Result.Append (To_Unbounded_Text (Str (Start .. I - 1)));
             Start := I + 1;
          end if;
       end loop;
