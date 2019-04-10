@@ -1,0 +1,2 @@
+fun value(x) = x
+let value = 42
