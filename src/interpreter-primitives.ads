@@ -46,13 +46,16 @@ package Interpreter.Primitives is
       Kind_List,
       --  List of Primitive values
 
+      Kind_Fun,
+      --  Function values
+
       No_Kind
       --  Special value that allows using this enum as an option type
    );
    --  Denotes the kind of a primitive value
 
    subtype Valid_Primitive_Kind is Base_Primitive_Kind
-      range Kind_Unit .. Kind_List;
+      range Kind_Unit .. Kind_Fun;
 
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
@@ -71,6 +74,8 @@ package Interpreter.Primitives is
             Iter_Val : Iterator_Primitive_Access;
          when Kind_List =>
             List_Val : Primitive_List_Access;
+         when Kind_Fun =>
+            Fun_Val : LEL.Fun_Def;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -167,6 +172,9 @@ package Interpreter.Primitives is
    --  Return the value of an iterator primitive.
    --  Since iterators a immutable, this accessor performs a deep copy of the
    --  value.
+
+   function Fun_Val (Value : Primitive) return LEL.Fun_Def;
+   --  Return the value of a function primitive
 
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;
