@@ -137,4 +137,24 @@ package body Interpreter.Error_Handling is
         (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Already_Existing_Symbol;
 
+   -------------------------
+   -- Raise_Invalid_Arity --
+   -------------------------
+
+   procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
+                                  Call           : LEL.Fun_Call;
+                                  Expected_Arity : Positive)
+   is
+      Expected : constant Text_Type :=
+        Integer'Wide_Wide_Image (Expected_Arity);
+      Actual   : constant Text_Type :=
+        Integer'Wide_Wide_Image (Call.F_Arguments.Children_Count);
+      Message  : constant Unbounded_Text_Type :=
+        To_Unbounded_Text
+          ("Expected " & Expected & " arguments but got " & Actual);
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Call.As_LKQL_Node, Message));
+   end Raise_Invalid_Arity;
+
 end Interpreter.Error_Handling;

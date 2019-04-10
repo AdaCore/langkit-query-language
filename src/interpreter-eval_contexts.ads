@@ -90,6 +90,15 @@ package Interpreter.Eval_Contexts is
                           Value : Primitive);
    --  Associate 'Value' to the given key in the local frame.
 
+   function Is_Root_Context (Ctx : Eval_Context) return Boolean;
+   --  Return whether the current context is the root context. I.e, it's
+   --  environment doesn't have a parent environment.
+
+   function Parent_Context (Ctx : Eval_Context) return Eval_Context
+     with Pre => not Ctx.Is_Root_Context;
+   --  Return the parent of the current local context.
+   --  An Assertion_Error will be raised is 'Ctx' is the root context.
+
    function Make_Eval_Context (Ast_Root     : LAL.Ada_Node := LAL.No_Ada_Node;
                                Err_Recovery : Boolean := False)
                                return Eval_Context;

@@ -1,0 +1,9 @@
+let delta = 18
+
+fun add(x, y) = x + y + delta
+
+fun wrapper(x, y) =
+    val delta = 999;
+    add(x, y)
+
+print(wrapper(21, 3))
