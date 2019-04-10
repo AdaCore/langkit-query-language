@@ -477,6 +477,17 @@ package body Interpreter.Primitives is
       end return;
    end To_Primitive;
 
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (Val : LEL.Fun_Def) return Primitive is
+   begin
+      return Result : Primitive do
+         Result.Set (Primitive_Data'(Refcounted with Kind_Fun, Val));
+      end return;
+   end To_Primitive;
+
    ---------------------
    -- Make_Empty_List --
    ---------------------
