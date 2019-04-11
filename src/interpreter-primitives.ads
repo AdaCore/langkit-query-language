@@ -201,6 +201,9 @@ package Interpreter.Primitives is
    function To_Primitive (Val : Unbounded_Text_Type) return Primitive;
    --  Create a Primitive value from the String value
 
+   function To_Primitive (Val : Text_Type) return Primitive;
+   --  Create a Primitive value from the String value
+
    function To_Primitive (Val : Boolean) return Primitive;
    --  Create a Bool primitive
 

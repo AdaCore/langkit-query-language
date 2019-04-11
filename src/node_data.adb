@@ -2,6 +2,7 @@ with Interpreter.Evaluation;     use Interpreter.Evaluation;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
 with Ada.Assertions; use Ada.Assertions;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Node_Data is
 
@@ -103,6 +104,9 @@ package body Node_Data is
             return To_Primitive (As_Boolean (Value));
          when Integer_Value =>
             return To_Primitive (As_Integer (Value));
+         when Character_Value =>
+            return To_Primitive
+              (Character_Type'Wide_Wide_Image ((As_Character (Value))));
          when Unbounded_Text_Value =>
             return To_Primitive (As_Unbounded_Text (Value));
          when Node_Value =>
@@ -129,12 +133,17 @@ package body Node_Data is
          return Create_Boolean (Bool_Val (Value));
       elsif Target_Kind = Node_Value and then Kind (Value) = Kind_Node then
          return Create_Node (Node_Val (Value));
+      elsif Target_Kind = Text_Type_Value and then Kind (Value) = Kind_Str then
+         return Create_Text_Type (To_Text (Str_Val (Value)));
+      elsif Target_Kind = Character_Value and then
+            Kind (Value) = Kind_Str and then
+            Length ((Str_Val (Value))) = 1
+      then
+         return Create_Character (Element (Str_Val (Value), 1));
       elsif Target_Kind = Unbounded_Text_Value and then
         Kind (Value) = Kind_Bool
       then
          return Create_Unbounded_Text (Str_Val (Value));
-      elsif Target_Kind = Text_Type_Value and then Kind (Value) = Kind_Str then
-         return Create_Text_Type (To_Text (Str_Val (Value)));
       end if;
 
       Raise_Invalid_Type_Conversion (Ctx, Value_Expr, Value, Target_Kind);
