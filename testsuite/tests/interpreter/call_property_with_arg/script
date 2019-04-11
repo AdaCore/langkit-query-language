@@ -1,0 +1,2 @@
+let names = query Name
+print(names[1].referenced_decl(true))

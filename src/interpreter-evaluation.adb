@@ -43,6 +43,9 @@ package body Interpreter.Evaluation is
    function Eval_Dot_Access
      (Ctx : Eval_Context; Node : L.Dot_Access) return Primitive;
 
+   function Eval_Dot_Call
+     (Ctx : Eval_Context; Node : L.Dot_Call) return Primitive;
+
    function Eval_Is
      (Ctx : Eval_Context; Node : L.Is_Clause) return Primitive;
 
@@ -151,6 +154,8 @@ package body Interpreter.Evaluation is
               Eval_Bin_Op (Local_Context, Node.As_Bin_Op),
             when LCO.LKQL_Dot_Access =>
               Eval_Dot_Access (Local_Context, Node.As_Dot_Access),
+            when LCO.LKQL_Dot_Call =>
+              Eval_Dot_Call (Local_Context, Node.As_Dot_Call),
             when LCO.LKQL_Is_Clause =>
               Eval_Is (Local_Context, Node.As_Is_Clause),
             when LCO.LKQL_In_Clause =>
@@ -382,6 +387,23 @@ package body Interpreter.Evaluation is
       when Unsupported_Error =>
          Raise_Invalid_Member (Ctx, Node, Receiver);
    end Eval_Dot_Access;
+
+   ---------------------
+   -- Eval_Dot_Access --
+   ---------------------
+
+   function Eval_Dot_Call
+     (Ctx : Eval_Context; Node : L.Dot_Call) return Primitive
+   is
+      Receiver : constant Primitive := Eval (Ctx, Node.F_Receiver);
+   begin
+      if Kind (Receiver) /= Kind_Node then
+         Raise_Invalid_Kind
+           (Ctx, Node.F_Receiver.As_LKQL_Node, Kind_Node, Receiver);
+      end if;
+
+      return Call_Property (Ctx, Node_Val (Receiver), Node);
+   end Eval_Dot_Call;
 
    -------------
    -- Eval Is --
