@@ -2,6 +2,8 @@ with Interpreter.Errors;        use Interpreter.Errors;
 with Interpreter.Eval_Contexts; use Interpreter.Eval_Contexts;
 with Interpreter.Primitives;    use Interpreter.Primitives;
 
+with Libadalang.Introspection; use Libadalang.Introspection;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Interpreter.Error_Handling is
@@ -68,6 +70,16 @@ package Interpreter.Error_Handling is
                                   Expected_Arity : Positive)
      with No_Return;
    --  Raise an exception signaling an attempt to call a function with an
-   --  incorrect number of arguments.
+   --  incorrect number of arguments,
+   --  and add an Error_Data describing the error to the evaluation context.
+
+   procedure Raise_Unsupported_Value_Type (Ctx       : Eval_Context;
+                                           Node      : L.LKQL_Node;
+                                           Kind      : Value_Kind)
+     with No_Return;
+   --  raise an exception signaling the use of a value of a type that is not
+   --  supported by the interpreter and add an Error_Data describing the error
+   --  to the evaluation context. Such an error may occur when retriving
+   --  a value from the introspection API.
 
 end Interpreter.Error_Handling;

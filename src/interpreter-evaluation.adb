@@ -1,4 +1,5 @@
 with Queries;                    use Queries;
+with Node_Data;                  use Node_Data;
 with Patterns.Nodes;             use Patterns.Nodes;
 with Interpreter.Errors;         use Interpreter.Errors;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
@@ -373,7 +374,10 @@ package body Interpreter.Evaluation is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
-      return Data (Receiver, Member_Name);
+      return (if Kind (Receiver) = Kind_Node
+              then Node_Data.Access_Data
+                     (Ctx, Node_Val (Receiver), Node.F_Member)
+              else Primitives.Data (Receiver, Member_Name));
    exception
       when Unsupported_Error =>
          Raise_Invalid_Member (Ctx, Node, Receiver);

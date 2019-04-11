@@ -169,4 +169,20 @@ package body Interpreter.Error_Handling is
         (Ctx, Make_Eval_Error (Call.As_LKQL_Node, Message));
    end Raise_Invalid_Arity;
 
+   ----------------------------------
+   -- Raise_Unsupported_Value_Type --
+   ----------------------------------
+
+   procedure Raise_Unsupported_Value_Type (Ctx       : Eval_Context;
+                                           Node      : L.LKQL_Node;
+                                           Kind      : Value_Kind)
+   is
+      Kind_Name : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Value_Kind'Wide_Wide_Image (Kind));
+      Message : constant Unbounded_Text_Type :=
+        "Unsupported value type: " & Kind_Name;
+   begin
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
+   end Raise_Unsupported_Value_Type;
+
 end Interpreter.Error_Handling;
