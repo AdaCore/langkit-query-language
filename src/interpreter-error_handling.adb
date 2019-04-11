@@ -154,19 +154,19 @@ package body Interpreter.Error_Handling is
    -------------------------
 
    procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
-                                  Call           : L.Fun_Call;
-                                  Expected_Arity : Positive)
+                                  Expected_Arity : Positive;
+                                  Arguments      : L.Expr_List)
    is
       Expected : constant Text_Type :=
         Integer'Wide_Wide_Image (Expected_Arity);
-      Actual   : constant Text_Type :=
-        Integer'Wide_Wide_Image (Call.F_Arguments.Children_Count);
+      Actual_Arity   : constant Text_Type :=
+        Integer'Wide_Wide_Image (Arguments.Children_Count);
       Message  : constant Unbounded_Text_Type :=
         To_Unbounded_Text
-          ("Expected " & Expected & " arguments but got " & Actual);
+          ("Expected" & Expected & " arguments but got" & Actual_Arity);
    begin
       Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Call.As_LKQL_Node, Message));
+        (Ctx, Make_Eval_Error (Arguments.As_LKQL_Node, Message));
    end Raise_Invalid_Arity;
 
    ----------------------------------
