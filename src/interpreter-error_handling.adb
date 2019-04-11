@@ -51,8 +51,20 @@ package body Interpreter.Error_Handling is
                                    Node     : L.Dot_Access;
                                    Receiver : Primitive)
    is
+   begin
+      Raise_Invalid_Member (Ctx, Node.F_Member, Receiver);
+   end Raise_Invalid_Member;
+
+   --------------------------
+   -- Raise_Invalid_Member --
+   --------------------------
+
+   procedure Raise_Invalid_Member (Ctx      : Eval_Context;
+                                   Node     : L.Identifier;
+                                   Receiver : Primitive)
+   is
       Message : constant Unbounded_Text_Type :=
-        "Cannot get member " & To_Unbounded_Text (Node.F_Member.Text) &
+        "Cannot get member " & To_Unbounded_Text (Node.Text) &
         " for " & To_Text (Kind_Name (Receiver)) & " value";
    begin
       Raise_And_Record_Error

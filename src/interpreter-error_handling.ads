@@ -22,6 +22,13 @@ package Interpreter.Error_Handling is
    --  Raise an exception signaling an invalid member access, and add an
    --  Error_Data describing the error to the evaluation context.
 
+   procedure Raise_Invalid_Member (Ctx      : Eval_Context;
+                                   Node     : L.Identifier;
+                                   Receiver : Primitive)
+     with No_Return;
+   --  Raise an exception signaling an invalid member access, and add an
+   --  Error_Data describing the error to the evaluation context.
+
    procedure Raise_Null_Root (Ctx : Eval_Context; Node : L.Query)
       with No_Return;
    --  Raise an exception signaling the absence of a proper AST root while
