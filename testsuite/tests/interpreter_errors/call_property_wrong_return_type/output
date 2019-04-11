@@ -1,0 +1,5 @@
+main.adb
+Error: Unsupported value type: ANALYSIS_UNIT_VALUE
+print(names[1].unit)
+               ^^^^^
+

@@ -1,0 +1,4 @@
+main.adb
+Error: Cannot convert a : Int to a BOOLEAN_VALUE
+print(names[1].referenced_decl(1))
+                               ^^

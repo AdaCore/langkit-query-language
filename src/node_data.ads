@@ -19,6 +19,18 @@ package Node_Data is
    --  Return the value of the field/property designated by 'Member' on
    --  'Receiver'.
 
+   function Call_Property (Ctx           : Eval_Context;
+                           Receiver      : LAL.Ada_Node;
+                           Call          : L.Dot_Call) return Primitive;
+   --  Call the node property designated by 'Property_Name'with the given
+   --  arguments on 'Receiver'.
+
+   function Call_Property (Ctx          : Eval_Context;
+                           Receiver     : LAL.Ada_Node;
+                           Property_Ref : Property_Reference;
+                           Call         : L.Dot_Call) return Primitive;
+   --  Call a node property with the given arguments.
+
 private
 
    function Data_Reference_For_Name (Receiver : LAL.Ada_Node;
@@ -28,7 +40,7 @@ private
    --  node. Return None if the name is invalid.
 
    function Create_Primitive (Ctx    : Eval_Context;
-                              Member : L.Identifier;
+                              Member : L.LKQL_Node;
                               Value  : Value_Type) return Primitive;
    --  Converte the given 'Value_Type' value to a 'Primitive'.
    --  An exception will be raised if no Primitve kind match the kind of
