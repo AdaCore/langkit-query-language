@@ -1,5 +1,3 @@
-with Libadalang.Introspection; use Libadalang.Introspection;
-
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Finalization;                use Ada.Finalization;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
@@ -10,10 +8,6 @@ use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with GNAT.Case_Util;
 
 package body Interpreter.Primitives is
-   subtype Field_Index is Integer range -1 .. Integer'Last;
-   --  Represents the index of an AST node's field, retrieved using the
-   --  introspection API.
-   --  -1 is used to represent invalid fields
 
    function Int_Image (Value : Integer) return Unbounded_Text_Type;
    --  Wraps the Integer'Wide_Wide_Image function, removing the leading space
@@ -36,11 +30,6 @@ package body Interpreter.Primitives is
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
    --  Expected_Kind.
 
-   function Get_Field_Index
-     (Name : Text_Type; Node : LAL.Ada_Node) return Field_Index;
-   --  Return the index of 'Node's field named 'Name', or -1 if there is no
-   --  field matching the given name.
-
    function List_Data (Value : Primitive_List_Access;
                        Member_Name : Text_Type) return Primitive;
    --  Return the value of the property named 'Member_Name' of the given
@@ -54,25 +43,6 @@ package body Interpreter.Primitives is
    --  Str value.
    --  Raise an Unsupported_Error if there is no property named
    --  'Member_Name'.
-
-   function Node_Property
-     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the property named 'Property_Name' of the given
-   --  Node value.
-   --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
-
-   function Built_In_Node_Property
-     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the built-in node property named 'Property_Name'.
-   --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
-
-   function Langkit_Node_Property
-     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the Langkit node property named 'Property_Name'.
-   --  Raise an Unsupported_Error if there is no property named
-   --  'Property_Name'.
 
    ---------------
    -- Int_Image --
@@ -147,24 +117,6 @@ package body Interpreter.Primitives is
                 Kind_Name (Value);
       end if;
    end Check_Kind;
-
-   ---------------------
-   -- Get_Field_Index --
-   ---------------------
-
-   function Get_Field_Index
-     (Name : Text_Type; Node : LAL.Ada_Node) return Field_Index
-   is
-      UTF8_Name : constant String := To_UTF8 (Name);
-   begin
-      for F of Fields (Node.Kind) loop
-         if Field_Name (F) = UTF8_Name then
-            return Index (Node.Kind, F);
-         end if;
-      end loop;
-
-      return -1;
-   end Get_Field_Index;
 
    -------------
    -- Release --
@@ -332,54 +284,6 @@ package body Interpreter.Primitives is
       end if;
    end Str_Data;
 
-   -------------------
-   -- Node_Property --
-   -------------------
-
-   function Node_Property
-     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
-   is
-   begin
-      return (if Property_Name = "image"
-              then Built_In_Node_Property (Value, Property_Name)
-              else Langkit_Node_Property (Value, Property_Name));
-   end Node_Property;
-
-   ----------------------------
-   -- Build_In_Node_Property --
-   ----------------------------
-
-   function Built_In_Node_Property
-     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
-   is
-   begin
-      if Property_Name = "image" then
-         return To_Primitive (To_Unbounded_Text (Value.Text_Image));
-      end if;
-
-      raise Assertion_Error with
-        "Invalid built-in node property: " & To_UTF8 (Property_Name);
-   end Built_In_Node_Property;
-
-   ---------------------------
-   -- Langkit_Node_Property --
-   ---------------------------
-
-   function Langkit_Node_Property
-     (Value : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
-   is
-      Index : constant Field_Index :=
-        Get_Field_Index (Property_Name, Value);
-   begin
-      if Index = -1 then
-         raise Unsupported_Error with
-           "No field named " & To_UTF8 (Property_Name) &
-           " on values of kind " & To_String (Kind_Node);
-      end if;
-
-      return To_Primitive (Value.Children (Index));
-   end Langkit_Node_Property;
-
    --------------
    -- Property --
    --------------
@@ -393,12 +297,10 @@ package body Interpreter.Primitives is
                    List_Data (List_Val (Value), Member_Name),
                  when Kind_Str =>
                    Str_Data (Str_Val (Value), Member_Name),
-                 when Kind_Node =>
-                   Node_Property (Node_Val (Value), Member_Name),
                  when others =>
                     raise Unsupported_Error with
-                      "Values of kind " & Kind_Name (Value) &
-                      " dont have properties");
+                      "Cannot get property on value of kind "
+                       & Kind_Name (Value));
    end Data;
 
    -------------------------
