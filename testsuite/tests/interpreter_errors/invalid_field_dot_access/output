@@ -1,4 +1,4 @@
 main.adb
 Error: Cannot get member nonExistingField for CompilationUnit value
 let p = query p when p.nonExistingField is ObjectDecl
-                     ^^^^^^^^^^^^^^^^^^^
+                       ^^^^^^^^^^^^^^^^^
