@@ -185,4 +185,23 @@ package body Interpreter.Error_Handling is
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Unsupported_Value_Type;
 
+   -----------------------------------
+   -- Raise_Invalid_Type_Conversion --
+   -----------------------------------
+
+   procedure Raise_Invalid_Type_Conversion (Ctx           : Eval_Context;
+                                            Value_Expr    : L.Expr;
+                                            Value         : Primitive;
+                                            Expected_Kind : Value_Kind)
+   is
+      Expected_Kind_Name : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Value_Kind'Wide_Wide_Image (Expected_Kind));
+      Message : constant Unbounded_Text_Type :=
+        "Cannot convert a : " & To_Text (Kind_Name (Value)) &
+        " to a " & Expected_Kind_Name;
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Value_Expr.As_LKQL_Node, Message));
+   end Raise_Invalid_Type_Conversion;
+
 end Interpreter.Error_Handling;

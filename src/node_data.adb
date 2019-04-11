@@ -56,6 +56,33 @@ package body Node_Data is
       end case;
    end Create_Primitive;
 
+   -------------------
+   -- To_Value_Type --
+   -------------------
+
+   function To_Value_Type (Ctx         : Eval_Context;
+                           Value_Expr  : L.Expr;
+                           Value       : Primitive;
+                           Target_Kind : Value_Kind) return Value_Type
+   is
+   begin
+      if Target_Kind = Integer_Value and then Kind (Value) = Kind_Int then
+         return Create_Integer (Int_Val (Value));
+      elsif Target_Kind = Boolean_Value and then Kind (Value) = Kind_Bool then
+         return Create_Boolean (Bool_Val (Value));
+      elsif Target_Kind = Node_Value and then Kind (Value) = Kind_Node then
+         return Create_Node (Node_Val (Value));
+      elsif Target_Kind = Unbounded_Text_Value and then
+        Kind (Value) = Kind_Bool
+      then
+         return Create_Unbounded_Text (Str_Val (Value));
+      elsif Target_Kind = Text_Type_Value and then Kind (Value) = Kind_Str then
+         return Create_Text_Type (To_Text (Str_Val (Value)));
+      end if;
+
+      Raise_Invalid_Type_Conversion (Ctx, Value_Expr, Value, Target_Kind);
+   end To_Value_Type;
+
    -----------------------
    -- Built_In_Property --
    -----------------------

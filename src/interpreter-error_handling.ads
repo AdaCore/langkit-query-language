@@ -82,4 +82,13 @@ package Interpreter.Error_Handling is
    --  to the evaluation context. Such an error may occur when retriving
    --  a value from the introspection API.
 
+   procedure Raise_Invalid_Type_Conversion (Ctx           : Eval_Context;
+                                            Value_Expr    : L.Expr;
+                                            Value         : Primitive;
+                                            Expected_Kind : Value_Kind)
+     with No_Return;
+   --  Raise an exception signaling an invalid type conversion between a
+   --  Primitive and a Value_Kind value from the introspection API,
+   --  and add an Error_Data describing the error to the evaluation context.
+
 end Interpreter.Error_Handling;

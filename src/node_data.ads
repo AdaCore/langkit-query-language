@@ -34,6 +34,13 @@ private
    --  An exception will be raised if no Primitve kind match the kind of
    --  'Value'.
 
+   function To_Value_Type (Ctx         : Eval_Context;
+                           Value_Expr  : L.Expr;
+                           Value       : Primitive;
+                           Target_Kind : Value_Kind) return Value_Type;
+   --  Create a Value_Type value of kind 'Target_Kind' from the given Primitive
+   --  value. An exceptioin will be raised if the conversion is illegal.
+
    function Built_In_Property
      (Receiver : LAL.Ada_Node; Property_Name : String) return Primitive;
    --  Return the value of the built-in property named 'Property_Name' on
