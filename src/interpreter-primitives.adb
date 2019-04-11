@@ -342,6 +342,13 @@ package body Interpreter.Primitives is
    -- To_Primitive --
    ------------------
 
+   function To_Primitive (Val : Text_Type) return Primitive is
+     (To_Primitive (To_Unbounded_Text (Val)));
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+
    function To_Primitive (Val : Boolean) return Primitive is
       Ref : Primitive;
    begin
