@@ -540,7 +540,8 @@ package body Interpreter.Evaluation is
 
       if Arguments.Children_Count /= Fun_Def.F_Parameters.Children_Count
       then
-         Raise_Invalid_Arity (Ctx, Node, Fun_Def.F_Parameters.Children_Count);
+         Raise_Invalid_Arity
+           (Ctx, Fun_Def.F_Parameters.Children_Count, Node.F_Arguments);
       end if;
 
       for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index loop

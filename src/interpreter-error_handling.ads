@@ -66,8 +66,8 @@ package Interpreter.Error_Handling is
    --  and add an Error_Data describing the error to the evaluation context.
 
    procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
-                                  Call           : L.Fun_Call;
-                                  Expected_Arity : Positive)
+                                  Expected_Arity : Positive;
+                                  Arguments      : L.Expr_List)
      with No_Return;
    --  Raise an exception signaling an attempt to call a function with an
    --  incorrect number of arguments,
