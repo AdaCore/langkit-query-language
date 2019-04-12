@@ -25,6 +25,10 @@ package body Interpreter.Primitives is
    --  Return a String for the form: name[arity] representing the given
    --  function declaration.
 
+   function Selector_Image (Value : L.Selector_Def) return Unbounded_Text_Type;
+   --  Return a String of te form: Selector[name] representing the given
+   --  selector definition.
+
    procedure Check_Kind
      (Expected_Kind : Valid_Primitive_Kind; Value : Primitive);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
@@ -93,6 +97,16 @@ package body Interpreter.Primitives is
    begin
       return Name & '[' & Arity & ']';
    end Fun_Image;
+
+   --------------------
+   -- Selector_Image --
+   --------------------
+
+   function Selector_Image (Value : L.Selector_Def) return Unbounded_Text_Type
+   is
+   begin
+      return "Selector[" & To_Unbounded_Text (Value.F_Name.Text) & ']';
+   end Selector_Image;
 
    --------------------
    -- Iterator_Image --
@@ -224,7 +238,14 @@ package body Interpreter.Primitives is
    -------------
 
    function Fun_Val (Value : Primitive) return L.Fun_Def is
-      (Value.Get.Fun_Val);
+     (Value.Get.Fun_Val);
+
+   ------------------
+   -- Selector_Val --
+   ------------------
+
+   function Selector_Val (Value : Primitive) return L.Selector_Def is
+      (Value.Get.Selector_Val);
 
    --------------
    -- Iter_Val --
@@ -397,6 +418,17 @@ package body Interpreter.Primitives is
       end return;
    end To_Primitive;
 
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (Val : L.Selector_Def) return Primitive is
+   begin
+      return Result : Primitive do
+         Result.Set (Primitive_Data'(Refcounted with Kind_Selector, Val));
+      end return;
+   end To_Primitive;
+
    ---------------------
    -- Make_Empty_List --
    ---------------------
@@ -493,7 +525,9 @@ package body Interpreter.Primitives is
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all),
                  when Kind_Fun =>
-                   Fun_Image (Val.Get.Fun_Val));
+                   Fun_Image (Val.Get.Fun_Val),
+                 when Kind_Selector =>
+                   Selector_Image (Selector_Val (Val)));
    end To_Unbounded_Text;
 
    ---------------
@@ -510,7 +544,8 @@ package body Interpreter.Primitives is
                  when Kind_Node      => "Node",
                  when Kind_Iterator  => "Iterator",
                  when Kind_List      => "List",
-                 when Kind_Fun       => "Fun");
+                 when Kind_Fun       => "Fun",
+                 when Kind_Selector  => "Selector");
    end To_String;
 
    ---------------
