@@ -62,6 +62,13 @@ class StringLiteral(Expr):
     token_node = True
 
 
+class UnitLiteral(Expr):
+    """
+    Literal representing the unit value.
+    """
+    pass
+
+
 class BinOp(Expr):
     """
     Binary operation.
@@ -523,6 +530,7 @@ lkql_grammar.add_rules(
                   G.identifier,
                   G.string_literal,
                   G.bool_literal,
+                  G.unit_literal,
                   G.integer,
                   Pick(Token.LPar, G.expr, Token.RPar)),
 
@@ -554,4 +562,6 @@ lkql_grammar.add_rules(
                     BoolLiteral.alt_false(Token.FalseLit)),
 
     string_literal=StringLiteral(Token.String),
+
+    unit_literal=UnitLiteral(Token.LPar, Token.RPar)
 )
