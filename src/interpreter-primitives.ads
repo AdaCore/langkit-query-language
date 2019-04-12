@@ -57,6 +57,9 @@ package Interpreter.Primitives is
    subtype Valid_Primitive_Kind is Base_Primitive_Kind
       range Kind_Unit .. Kind_Fun;
 
+   subtype Sequence_Kind is Valid_Primitive_Kind
+     range Kind_Iterator .. Kind_List;
+
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
       case Kind is

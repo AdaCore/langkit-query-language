@@ -6,6 +6,100 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Node_Data is
 
+   ---------------------------------------------
+   --  Ada node array to Primitive conversion --
+   ---------------------------------------------
+
+   generic
+      type Value_Type is new LAL.Ada_Node with private;
+
+      type Value_Array is array (Positive range <>) of Value_Type;
+
+   function List_From_Node_Array (Nodes : Value_Array) return Primitive;
+
+   --------------------------
+   -- List_From_Node_Array --
+   --------------------------
+
+   function List_From_Node_Array (Nodes : Value_Array) return Primitive is
+   begin
+      return Result : constant Primitive := Make_Empty_List do
+         for N of Nodes loop
+            Append (Result, To_Primitive (N.As_Ada_Node));
+         end loop;
+      end return;
+   end List_From_Node_Array;
+
+   function List_From_Ada_Nodes is new List_From_Node_Array
+     (LAL.Ada_Node, LAL.Ada_Node_Array);
+
+   function List_From_Basic_Decls is new List_From_Node_Array
+     (LAL.Basic_Decl, LAL.Basic_Decl_Array);
+
+   function List_From_Base_Formal_Param_Decls is new List_From_Node_Array
+     (LAL.Base_Formal_Param_Decl, LAL.Base_Formal_Param_Decl_Array);
+
+   function List_From_Generic_Instanciations is new List_From_Node_Array
+     (LAL.Generic_Instantiation, LAL.Generic_Instantiation_Array);
+
+   function List_From_Defining_Names is new List_From_Node_Array
+     (LAL.Defining_Name, LAL.Defining_Name_Array);
+
+   --------------------------------------------
+   -- Primitive to Ada node array conversion --
+   --------------------------------------------
+
+   generic
+      type Value_Type is new LAL.Ada_Node with private;
+
+      type Value_Array is array (Positive range <>) of Value_Type;
+
+      with function Convert (Node : LAL.Ada_Node'Class) return Value_Type;
+
+   function Node_Array_From_List (Nodes : Primitive) return Value_Array;
+
+   --------------------------
+   -- Node_Array_From_List --
+   --------------------------
+
+   function Node_Array_From_List (Nodes : Primitive) return Value_Array is
+      Elements     : constant Primitive :=
+        (if Kind (Nodes) = Kind_List
+         then Nodes
+         else To_List (Iter_Val (Nodes)));
+      Elements_Vec : constant Primitive_Vectors.Vector :=
+        List_Val (Elements).Elements;
+      Result       : Value_Array (1 .. Length (Elements));
+   begin
+      for I in Elements_Vec.First_Index .. Elements_Vec.Last_Index loop
+         Result (I) := Convert (Node_Val (Elements_Vec (I)));
+      end loop;
+
+      return Result;
+   end Node_Array_From_List;
+
+   function Ada_Node_Array_From_List is new Node_Array_From_List
+     (LAL.Ada_Node, LAL.Ada_Node_Array, LAL.As_Ada_Node);
+
+   function Base_Formal_Param_Decl_Array_From_List is new Node_Array_From_List
+     (LAL.Base_Formal_Param_Decl,
+      LAL.Base_Formal_Param_Decl_Array,
+      LAL.As_Base_Formal_Param_Decl);
+
+   function Basic_Decl_Array_From_List is new Node_Array_From_List
+     (LAL.Basic_Decl, LAL.Basic_Decl_Array, LAL.As_Basic_Decl);
+
+   function Defining_Name_Array_From_List is new Node_Array_From_List
+     (LAL.Defining_Name, LAL.Defining_Name_Array, LAL.As_Defining_Name);
+
+   function Generic_Instantiation_Array_From_List is new Node_Array_From_List
+     (LAL.Generic_Instantiation,
+      LAL.Generic_Instantiation_Array,
+      LAL.As_Generic_Instantiation);
+
+   function Param_Spec_Array_From_List is new Node_Array_From_List
+     (LAL.Param_Spec, LAL.Param_Spec_Array, LAL.As_Param_Spec);
+
    -----------------
    -- Access_Data --
    -----------------
@@ -111,11 +205,41 @@ package body Node_Data is
             return To_Primitive (As_Unbounded_Text (Value));
          when Node_Value =>
             return To_Primitive (As_Node (Value));
+         when Ada_Node_Array_Value =>
+            return List_From_Ada_Nodes (As_Ada_Node_Array (Value));
+         when Basic_Decl_Array_Value =>
+            return List_From_Basic_Decls (As_Basic_Decl_Array (Value));
+         when Defining_Name_Array_Value =>
+            return List_From_Defining_Names (As_Defining_Name_Array (Value));
+         when Base_Formal_Param_Decl_Array_Value =>
+            return List_From_Base_Formal_Param_Decls
+              (As_Base_Formal_Param_Decl_Array (Value));
+         when Generic_Instantiation_Array_Value =>
+            return List_From_Generic_Instanciations
+              (As_Generic_Instantiation_Array (Value));
          when others =>
             Raise_Unsupported_Value_Type
               (Ctx, Member.As_LKQL_Node, Kind (Value));
       end case;
    end Create_Primitive;
+
+   function Sequence_To_Value_Type (Ctx         : Eval_Context;
+                                    Value_Expr  : L.Expr;
+                                    Value       : Primitive;
+                                    Target_Kind : Value_Kind)
+                                    return Value_Type
+     with Pre => Kind (Value) in Sequence_Kind;
+   --  Convert a list or iterator Primtive to a Value_Type value of kind
+   --  'Target_Kind'.
+   --  An exception will be raised if the conversion is invalid.
+
+   function String_To_Value_Type (Ctx         : Eval_Context;
+                                  Value_Expr  : L.Expr;
+                                  Value       : Unbounded_Text_Type;
+                                  Target_Kind : Value_Kind)
+                                  return Value_Type;
+   --  Convert a String Primitive to a Value_Type value of kind 'Target_Kind'.
+   --  An exception will be raised if the conversion is invalid.
 
    -------------------
    -- To_Value_Type --
@@ -127,27 +251,79 @@ package body Node_Data is
                            Target_Kind : Value_Kind) return Value_Type
    is
    begin
-      if Target_Kind = Integer_Value and then Kind (Value) = Kind_Int then
+      if Kind (Value) in Sequence_Kind then
+         return Sequence_To_Value_Type (Ctx, Value_Expr, Value, Target_Kind);
+      elsif Kind (Value) = Kind_Str then
+         return String_To_Value_Type
+           (Ctx, Value_Expr, Str_Val (Value), Target_Kind);
+      elsif Target_Kind = Integer_Value and then Kind (Value) = Kind_Int then
          return Create_Integer (Int_Val (Value));
       elsif Target_Kind = Boolean_Value and then Kind (Value) = Kind_Bool then
          return Create_Boolean (Bool_Val (Value));
       elsif Target_Kind = Node_Value and then Kind (Value) = Kind_Node then
          return Create_Node (Node_Val (Value));
-      elsif Target_Kind = Text_Type_Value and then Kind (Value) = Kind_Str then
-         return Create_Text_Type (To_Text (Str_Val (Value)));
-      elsif Target_Kind = Character_Value and then
-            Kind (Value) = Kind_Str and then
-            Length ((Str_Val (Value))) = 1
-      then
-         return Create_Character (Element (Str_Val (Value), 1));
-      elsif Target_Kind = Unbounded_Text_Value and then
-        Kind (Value) = Kind_Bool
-      then
-         return Create_Unbounded_Text (Str_Val (Value));
       end if;
 
       Raise_Invalid_Type_Conversion (Ctx, Value_Expr, Value, Target_Kind);
    end To_Value_Type;
+
+   ----------------------------
+   -- Sequence_To_Value_Type --
+   ----------------------------
+
+   function Sequence_To_Value_Type (Ctx         : Eval_Context;
+                                    Value_Expr  : L.Expr;
+                                    Value       : Primitive;
+                                    Target_Kind : Value_Kind)
+                                    return Value_Type
+   is
+   begin
+      case Target_Kind is
+         when Ada_Node_Array_Value =>
+            return Create_Ada_Node_Array (Ada_Node_Array_From_List (Value));
+         when Base_Formal_Param_Decl_Array_Value =>
+            return Create_Base_Formal_Param_Decl_Array
+              (Base_Formal_Param_Decl_Array_From_List (Value));
+         when Basic_Decl_Array_Value =>
+            return Create_Basic_Decl_Array
+              (Basic_Decl_Array_From_List (Value));
+         when Defining_Name_Array_Value =>
+            return Create_Defining_Name_Array
+              (Defining_Name_Array_From_List (Value));
+         when Generic_Instantiation_Array_Value =>
+            return Create_Generic_Instantiation_Array
+              (Generic_Instantiation_Array_From_List (Value));
+         when Param_Spec_Array_Value =>
+            return Create_Param_Spec_Array
+              (Param_Spec_Array_From_List (Value));
+         when others =>
+            Raise_Invalid_Type_Conversion
+              (Ctx, Value_Expr, Value, Target_Kind);
+      end case;
+   end Sequence_To_Value_Type;
+
+   --------------------------
+   -- String_To_Value_Type --
+   --------------------------
+
+   function String_To_Value_Type (Ctx         : Eval_Context;
+                                  Value_Expr  : L.Expr;
+                                  Value       : Unbounded_Text_Type;
+                                  Target_Kind : Value_Kind)
+                                  return Value_Type
+   is
+   begin
+      if Target_Kind = Unbounded_Text_Value then
+         return Create_Unbounded_Text (Value);
+      elsif Target_Kind = Text_Type_Value then
+         return Create_Text_Type (To_Text (Value));
+      elsif Target_Kind = Character_Value and then Length (Value) = 1 then
+         return Create_Character (Element (Value, 1));
+      end if;
+
+      Raise_Invalid_Type_Conversion
+              (Ctx, Value_Expr, To_Primitive (Value), Target_Kind);
+   end String_To_Value_Type;
 
    -----------------------
    -- Built_In_Property --
