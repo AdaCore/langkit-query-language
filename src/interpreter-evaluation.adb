@@ -28,6 +28,8 @@ package body Interpreter.Evaluation is
 
    function Eval_Bool_Literal (Node : L.Bool_Literal) return Primitive;
 
+   function Eval_Unit_Literal (Node : L.Unit_Literal) return Primitive;
+
    function Eval_Print
      (Ctx : Eval_Context; Node : L.Print_Stmt) return Primitive;
 
@@ -148,6 +150,8 @@ package body Interpreter.Evaluation is
               Eval_String_Literal (Node.As_String_Literal),
             when LCO.LKQL_Bool_Literal =>
               Eval_Bool_Literal (Node.As_Bool_Literal),
+            when LCO.LKQL_Unit_Literal =>
+              Eval_Unit_Literal (Node.As_Unit_Literal),
             when LCO.LKQL_Print_Stmt =>
               Eval_Print (Local_Context, Node.As_Print_Stmt),
             when LCO.LKQL_Bin_Op =>
@@ -289,6 +293,13 @@ package body Interpreter.Evaluation is
    begin
       return To_Primitive (Value);
    end Eval_Bool_Literal;
+
+   -----------------------
+   -- Eval_Unit_Literal --
+   -----------------------
+
+   function Eval_Unit_Literal (Node : L.Unit_Literal) return Primitive is
+      (Make_Unit_Primitive);
 
    ----------------
    -- Eval_Print --
