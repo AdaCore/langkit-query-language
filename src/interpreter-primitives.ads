@@ -49,13 +49,16 @@ package Interpreter.Primitives is
       Kind_Fun,
       --  Function values
 
+      Kind_Selector,
+      --  Selector delcaration
+
       No_Kind
       --  Special value that allows using this enum as an option type
    );
    --  Denotes the kind of a primitive value
 
    subtype Valid_Primitive_Kind is Base_Primitive_Kind
-      range Kind_Unit .. Kind_Fun;
+      range Kind_Unit .. Kind_Selector;
 
    subtype Sequence_Kind is Valid_Primitive_Kind
      range Kind_Iterator .. Kind_List;
@@ -79,6 +82,8 @@ package Interpreter.Primitives is
             List_Val : Primitive_List_Access;
          when Kind_Fun =>
             Fun_Val : L.Fun_Def;
+         when Kind_Selector =>
+            Selector_Val : L.Selector_Def;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -179,6 +184,9 @@ package Interpreter.Primitives is
    function Fun_Val (Value : Primitive) return L.Fun_Def;
    --  Return the value of a function primitive
 
+   function Selector_Val (Value : Primitive) return L.Selector_Def;
+   --  Return the value of a selector primitive
+
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;
    --  Return a pointer to the elements of a list primitive
@@ -217,6 +225,9 @@ package Interpreter.Primitives is
 
    function To_Primitive (Val : L.Fun_Def) return Primitive;
    --  Create a Primitive value from a Fun_Def
+
+   function To_Primitive (Val : L.Selector_Def) return Primitive;
+   --  Creata a Primitive value from a Selector_Def
 
    function Make_Empty_List return Primitive;
    --  Return a Primitive value storing an empty list of Primitive values
