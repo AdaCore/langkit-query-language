@@ -13,6 +13,9 @@ class Token(LexerToken):
     When = WithSymbol()
     Val = WithSymbol()
     Fun = WithSymbol()
+    Selector = WithSymbol()
+    Rec = WithSymbol()
+    Skip = WithSymbol()
     Is = WithSymbol()
     In = WithSymbol()
     Print = WithSymbol()
@@ -40,6 +43,8 @@ class Token(LexerToken):
     At = WithText()
     Pipe = WithText()
     LArrow = WithText()
+    BigRArrow = WithText()
+    Box = WithText()
 
 
 lkql_lexer = Lexer(Token)
@@ -66,11 +71,16 @@ lkql_lexer.add_rules(
     (Literal("@"),                                          Token.At),
     (Literal("|"),                                          Token.Pipe),
     (Literal("<-"),                                         Token.LArrow),
+    (Literal("=>"),                                         Token.BigRArrow),
+    (Literal("<>"),                                         Token.Box),
     (Literal("let"),                                        Token.Let),
     (Literal("query"),                                      Token.QueryTok),
     (Literal("when"),                                       Token.When),
     (Literal("val"),                                        Token.Val),
     (Literal("fun"),                                        Token.Fun),
+    (Literal("selector"),                                   Token.Selector),
+    (Literal("rec"),                                        Token.Rec),
+    (Literal("skip"),                                       Token.Skip),
     (Literal("is"),                                         Token.Is),
     (Literal("in"),                                         Token.In),
     (Literal("print"),                                      Token.Print),

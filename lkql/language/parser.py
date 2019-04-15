@@ -433,11 +433,69 @@ class FunCall(Expr):
     arguments = Field(type=Expr.list)
 
 
+class SelectorExprMode(LKQLNode):
+    """
+    Modes for selector values:
+       - default: add the value to the result set
+       - rec: add the value to the result set and call the selector recursively
+       - skip: call the selector recursively without adding the value to the result
+            set
+    """
+    enum_node = True
+
+    alternatives = ['default', 'rec', 'skip']
+
+
+class SelectorExpr(LKQLNode):
+    """
+    Expression appearing in the right part of a selector arm.
+    """
+    mode = Field(type=SelectorExprMode)
+    expr = Field(type=Expr)
+
+
+
+class SelectorArm(LKQLNode):
+    """
+    Represents one case of a selector
+
+    For instance::
+       | o@ObjectDecl => o.image
+    """
+
+    pattern = Field(type=BasePattern)
+    value = Field(type=SelectorExpr.list)
+
+
+class SelectorDef(Expr):
+    """
+    Ast selector, describing a subtree
+    """
+    name = Field(type=Identifier)
+    arms = Field(type=SelectorArm.list)
+
+    @langkit_property(return_type=BasePattern.entity.array, public=True)
+    def patterns():
+        """
+        Return the patterns that appear in the selector's arms.
+        """
+        return Self.arms.map(lambda x: x.pattern.as_entity)
+
+    @langkit_property(return_type=SelectorExpr.list.entity.array, public=True)
+    def selector_exprs():
+        """
+        Return a list of the selector expressions lists that appear in the
+        selector's arms.
+        :return:
+        """
+        return Self.arms.map(lambda x: x.value.as_entity)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
-    main_rule=List(Or(G.statement, G.expr, G.query)),
+    main_rule=List(Or(G.statement, G.expr, G.query, G.selector_def)),
 
     statement=Or(G.assign,
                  G.print_stmt),
@@ -551,6 +609,23 @@ lkql_grammar.add_rules(
                      Token.LPar,
                      List(G.expr, empty_valid=False, sep=Token.Coma),
                      Token.RPar),
+
+    selector_def=SelectorDef(Token.Selector,
+                             G.identifier,
+                             List(G.selector_arm, empty_valid=False)),
+
+    selector_arm=SelectorArm(Token.Pipe,
+                             G.pattern,
+                             Token.BigRArrow,
+                             List(G.selector_expr,
+                                  empty_valid=False, sep=Token.Box)),
+
+    selector_expr=SelectorExpr(Or(SelectorExprMode.alt_rec(Token.Rec),
+                                  SelectorExprMode.alt_skip(Token.Skip),
+                                  SelectorExprMode.alt_default()),
+                               G.unpackable_expr),
+
+    unpackable_expr=Or(G.expr, Unpack(Token.Mul, G.expr)),
 
     identifier=Identifier(Token.Identifier),
 
