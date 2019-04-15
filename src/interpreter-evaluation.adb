@@ -1,6 +1,6 @@
 with Queries;                    use Queries;
 with Node_Data;                  use Node_Data;
-with Patterns.Nodes;             use Patterns.Nodes;
+with Depth_Nodes;                use Depth_Nodes;
 with Interpreter.Errors;         use Interpreter.Errors;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
@@ -457,8 +457,8 @@ package body Interpreter.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : L.Query) return Primitive
    is
-      use Patterns.Nodes.Node_Iterators;
-      Current_Node : Iterator_Node;
+      use Depth_Node_Iters;
+      Current_Node : Depth_Node;
       Iter         : Filter_Iter := Make_Query_Iterator (Ctx, Node);
       Result       : constant Primitive :=  Make_Empty_List;
    begin
