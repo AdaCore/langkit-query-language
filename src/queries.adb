@@ -1,4 +1,5 @@
 with Patterns;               use Patterns;
+with Patterns.Nodes;         use Patterns.Nodes;
 with Patterns.Match;         use Patterns.Match;
 with Interpreter.Primitives; use Interpreter.Primitives;
 
@@ -10,14 +11,14 @@ package body Queries is
 
    function Make_Query_Iterator (Ctx  : Eval_Context;
                                  Node : L.Query)
-                                 return Node_Iterators.Filter_Iter
+                                 return Depth_Node_Iters.Filter_Iter
    is
-      Iter      : constant Node_Iterator_Access :=
+      Iter      : constant Depth_Node_Iter_Access :=
         new Childs_Iterator'(Make_Childs_Iterator (Ctx.AST_Root));
       Predicate : constant Iterator_Predicate_Access :=
         Iterator_Predicate_Access (Make_Query_Predicate (Ctx, Node));
    begin
-      return Node_Iterators.Filter (Iter, Predicate);
+      return Depth_Node_Iters.Filter (Iter, Predicate);
    end Make_Query_Iterator;
 
    --------------------------
@@ -36,7 +37,7 @@ package body Queries is
    --------------
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : Iterator_Node) return Boolean
+     (Self : in out Query_Predicate; Node : Depth_Node) return Boolean
    is
       Match : constant Match_Result :=
         Match_Pattern (Self.Ctx,

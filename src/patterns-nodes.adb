@@ -47,7 +47,7 @@ package body Patterns.Nodes is
       Queried_Match          : constant Match_Result :=
         Match_Unfiltered
           (Ctx, Pattern.F_Queried_Node, To_Primitive (Node.As_Ada_Node));
-      Related_Nodes_Iter     : Node_Iterator'Class :=
+      Related_Nodes_Iter     : Depth_Node_Iter'Class :=
         Make_Selector_Iterator
           (Ctx, Node, Pattern.F_Selector);
       Related_Nodes_Consumer : Node_Consumer'Class :=
@@ -95,9 +95,9 @@ package body Patterns.Nodes is
      (Ctx              : Eval_Context;
       Queried_Node     : LAL.Ada_Node'Class;
       Selector_Pattern : L.Selector_Pattern'Class)
-      return Node_Iterator'Class
+      return Depth_Node_Iter'Class
    is
-      Base_Selector : constant Node_Iterator'Class :=
+      Base_Selector : constant Depth_Node_Iter'Class :=
         Selector_Iterator_From_Name
           (Ctx, Queried_Node.As_Ada_Node, Selector_Pattern);
    begin
@@ -106,7 +106,7 @@ package body Patterns.Nodes is
       end if;
 
       return
-        Node_Iterators.Filter
+        Depth_Node_Iters.Filter
          (Base_Selector,
           Selector_Conditions_Predicate'(Ctx, Selector_Pattern.P_Condition));
    end Make_Selector_Iterator;
@@ -119,7 +119,7 @@ package body Patterns.Nodes is
      (Ctx              : Eval_Context;
       Queried_Node     : LAL.Ada_Node;
       Selector_Pattern : L.Selector_Pattern'Class)
-      return Node_Iterator'Class
+      return Depth_Node_Iter'Class
    is
    begin
       if Selector_Pattern.P_Selector_Name = "children" then
@@ -155,11 +155,11 @@ package body Patterns.Nodes is
    -------------
 
    function Consume (Self : in out Exists_Consumer;
-                     Iter : in out Node_Iterator'Class)
+                     Iter : in out Depth_Node_Iter'Class)
                      return Match_Result
    is
       Bindings      : Environment_Map;
-      Current_Node  : Iterator_Node;
+      Current_Node  : Depth_Node;
       Current_Match : Match_Result;
       Matched       : Boolean := False;
       Nodes         : constant Primitive := Make_Empty_List;
@@ -197,11 +197,11 @@ package body Patterns.Nodes is
    -------------
 
    function Consume (Self : in out All_Consumer;
-                     Iter : in out Node_Iterator'Class)
+                     Iter : in out Depth_Node_Iter'Class)
                      return Match_Result
    is
       use String_Value_Maps;
-      Current_Node  : Iterator_Node;
+      Current_Node  : Depth_Node;
       Current_Match : Match_Result;
       Bindings      : Map;
       Nodes         : constant Primitive := Make_Empty_List;
@@ -233,7 +233,7 @@ package body Patterns.Nodes is
 
    overriding function Evaluate
      (Self    : in out Selector_Conditions_Predicate;
-      Element : Iterator_Node)
+      Element : Depth_Node)
       return Boolean
    is
       Local_Env   : Environment_Map;
@@ -262,7 +262,7 @@ package body Patterns.Nodes is
    ----------
 
    overriding function Next (Iter : in out Childs_Iterator;
-                             Element : out Iterator_Node)
+                             Element : out Depth_Node)
                              return Boolean
    is
       Result : constant Option := Pop (Iter.Stack);
@@ -284,8 +284,8 @@ package body Patterns.Nodes is
    is
    begin
       return Result : Childs_Iterator do
-         Result.Stack := new Iterator_Node_Vectors.Vector;
-         Result.Stack.Append ((Node, 0));
+         Result.Stack := new Depth_Node_Vectors.Vector;
+         Result.Stack.Append ((0, Node));
       end return;
    end Make_Childs_Iterator;
 
@@ -294,13 +294,13 @@ package body Patterns.Nodes is
    ------------------
 
    procedure Stack_Childs
-     (Iter : in out Childs_Iterator; Element : Iterator_Node)
+     (Iter : in out Childs_Iterator; Element : Depth_Node)
    is
       Children : LAL.Ada_Node_Array renames Element.Node.Children;
    begin
       for I in reverse Children'Range loop
          if not Children (I).Is_Null then
-            Iter.Stack.Append ((Children (I), Element.Depth + 1));
+            Iter.Stack.Append ((Element.Depth + 1, Children (I)));
          end if;
       end loop;
    end Stack_Childs;
@@ -312,8 +312,8 @@ package body Patterns.Nodes is
    function Pop
      (Stack  : Element_Vector_Access) return Option
    is
-      use Iterator_Node_Vectors;
-      Result        : Iterator_Node;
+      use Depth_Node_Vectors;
+      Result        : Depth_Node;
       Result_Cursor : constant Cursor := Stack.all.Last;
    begin
       if not Has_Element (Result_Cursor) then
@@ -340,7 +340,7 @@ package body Patterns.Nodes is
 
    function Clone (Iter : Childs_Iterator) return Childs_Iterator is
       Stack_Copy : constant Element_Vector_Access :=
-        new Iterator_Node_Vectors.Vector'(Iter.Stack.all);
+        new Depth_Node_Vectors.Vector'(Iter.Stack.all);
    begin
       return Childs_Iterator'(Stack => Stack_Copy);
    end Clone;

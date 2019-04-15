@@ -1,5 +1,5 @@
 with Options;
-with Iters.Iterators;
+with Depth_Nodes;            use Depth_Nodes;
 with Interpreter.Primitives; use Interpreter.Primitives;
 
 with Ada.Containers.Vectors;
@@ -24,20 +24,6 @@ package Patterns.Nodes is
    --  Given a pattern comprising only a kind name, try to match 'Value'
    --  against it.
 
-   type Iterator_Node is record
-      Node  : LAL.Ada_Node;
-      Depth : Natural;
-   end record;
-   --  Store an AST node along with it's depth
-
-   package Node_Iterators is new Iters.Iterators (Iterator_Node);
-   --  Iterator over Iterator_Node values
-
-   subtype Node_Iterator is Node_Iterators.Iterator_Interface;
-   --  Interface implemented by iterator over Iterator_Node values
-
-   subtype Node_Iterator_Access is Node_Iterators.Iterator_Access;
-
    -------------------------------------
    -- Selectors creation & evaluation --
    -------------------------------------
@@ -46,7 +32,7 @@ package Patterns.Nodes is
      (Ctx              : Eval_Context;
       Queried_Node     : LAL.Ada_Node'Class;
       Selector_Pattern : L.Selector_Pattern'Class)
-      return Node_Iterator'Class;
+      return Depth_Node_Iter'Class;
    --  Return an iterator that yields the nodes bound to Queried_Node by the
    --  given selector.
 
@@ -54,14 +40,14 @@ package Patterns.Nodes is
      (Ctx              : Eval_Context;
       Queried_Node     : LAL.Ada_Node;
       Selector_Pattern : L.Selector_Pattern'Class)
-      return Node_Iterator'Class;
+      return Depth_Node_Iter'Class;
 
    ------------------------
    -- Selector consumers --
    ------------------------
 
-   package Selector_Consumers is new Node_Iterators.Consumers (Match_Result);
-   --  Consummer for Iterators over 'Iterator_Node' values that produces
+   package Selector_Consumers is new Depth_Node_Iters.Consumers (Match_Result);
+   --  Consummer for Iterators over 'Depth_Node' values that produces
    --  'Match' values as a result.
 
    subtype Node_Consumer is Selector_Consumers.Consumer_Interface;
@@ -75,7 +61,7 @@ package Patterns.Nodes is
    --  the values yieded by the consumed iterator matches 'Pattern'.
 
    function Consume (Self : in out Exists_Consumer;
-                     Iter : in out Node_Iterator'Class)
+                     Iter : in out Depth_Node_Iter'Class)
                      return Match_Result;
 
    type All_Consumer is new Node_Consumer
@@ -88,7 +74,7 @@ package Patterns.Nodes is
    --  doesn't yield any value.
 
    function Consume (Self : in out All_Consumer;
-                     Iter : in out Node_Iterator'Class)
+                     Iter : in out Depth_Node_Iter'Class)
                      return Match_Result;
 
    function Make_Selector_Consumer (Ctx          : Eval_Context;
@@ -98,8 +84,8 @@ package Patterns.Nodes is
    --  Given a selector pattern, return a selector consumer that corresponds
    --  to the quantifier specified in the pattern.
 
-   subtype Iterator_Predicate_Interface is Node_Iterators.Predicates.Func;
-   --  Predicates on 'Iterator_Node' values
+   subtype Iterator_Predicate_Interface is Depth_Node_Iters.Predicates.Func;
+   --  Predicates on 'Depth_Node' values
 
    type Selector_Conditions_Predicate is new Iterator_Predicate_Interface
    with record
@@ -110,7 +96,7 @@ package Patterns.Nodes is
 
    overriding function Evaluate
      (Self    : in out Selector_Conditions_Predicate;
-      Element : Iterator_Node)
+      Element : Depth_Node)
       return Boolean;
 
    overriding function Clone (Self : Selector_Conditions_Predicate)
@@ -121,27 +107,27 @@ package Patterns.Nodes is
    -- Childs_Iterator --
    ---------------------
 
-   package Iterator_Node_Options is new Options (Iterator_Node);
-   use Iterator_Node_Options;
-   --  Optional Iterator_Node values
+   package Depth_Node_Options is new Options (Depth_Node);
+   use Depth_Node_Options;
+   --  Optional Depth_Node values
 
-   package Iterator_Node_Vectors is new Ada.Containers.Vectors
-     (Positive, Iterator_Node);
-   --  Vector of Iterator_Node values
+   package Depth_Node_Vectors is new Ada.Containers.Vectors
+     (Positive, Depth_Node);
+   --  Vector of Depth_Node values
 
-   type Element_Vector_Access is access all Iterator_Node_Vectors.Vector;
-   --  Pointer to a Vector if Iterator_Node values
+   type Element_Vector_Access is access all Depth_Node_Vectors.Vector;
+   --  Pointer to a Vector if Depth_Node values
 
    procedure Free_Element_Vector is new Ada.Unchecked_Deallocation
-     (Iterator_Node_Vectors.Vector, Element_Vector_Access);
+     (Depth_Node_Vectors.Vector, Element_Vector_Access);
 
-   type Childs_Iterator is new Node_Iterator with record
+   type Childs_Iterator is new Depth_Node_Iter with record
       Stack : Element_Vector_Access;
    end record;
    --  Iterator that yields the children of a given node
 
    overriding function Next (Iter : in out Childs_Iterator;
-                             Element : out Iterator_Node)
+                             Element : out Depth_Node)
                              return Boolean;
    --  Get the next children. If there is no children to yield
    --  anymore, return False. Otherwise, return True and set 'Result'.
@@ -156,7 +142,7 @@ package Patterns.Nodes is
    --  a depth first search fashion.
 
    procedure Stack_Childs
-     (Iter : in out Childs_Iterator; Element : Iterator_Node);
+     (Iter : in out Childs_Iterator; Element : Depth_Node);
    --  Push the children of 'Element' onto 'Iter's stack
 
    function Pop

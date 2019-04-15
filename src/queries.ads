@@ -1,4 +1,4 @@
-with Patterns.Nodes;            use Patterns.Nodes;
+with Depth_Nodes;               use Depth_Nodes;
 with Interpreter.Eval_Contexts; use Interpreter.Eval_Contexts;
 
 with Liblkqllang.Analysis;
@@ -15,15 +15,15 @@ package Queries is
    package LAL renames Libadalang.Analysis;
    package LALCO renames Libadalang.Common;
 
-   subtype Iterator_Predicate_Interface is Node_Iterators.Predicates.Func;
+   subtype Iterator_Predicate_Interface is Depth_Node_Iters.Predicates.Func;
    --  Predicates on 'Iterator_Node' values
 
-   subtype Iterator_Predicate_Access is Node_Iterators.Predicate_Access;
+   subtype Iterator_Predicate_Access is Depth_Node_Iters.Predicate_Access;
    --  Pointer to a predicate on 'Iterator_Node' values
 
    function Make_Query_Iterator (Ctx  : Eval_Context;
                                  Node : L.Query)
-                                 return Node_Iterators.Filter_Iter;
+                                 return Depth_Node_Iters.Filter_Iter;
    --  Returns an iterator over the AST nodes, yielding only the elements that
    --  belong to the result of the given query.
 
@@ -49,7 +49,7 @@ private
    --  that belongs to the result set of the given query.
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : Iterator_Node) return Boolean;
+     (Self : in out Query_Predicate; Node : Depth_Node) return Boolean;
    --  Evaluae the given predicate against 'Node'
 
    overriding function Clone
