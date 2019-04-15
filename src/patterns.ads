@@ -32,4 +32,15 @@ package Patterns is
    --  Create a Match_Result value representing a successful matching attempt
    --  with the given binding(s).
 
+   subtype Match_Index is Integer range Positive'First - 1 .. Positive'Last;
+
+   type Match_Array_Result is record
+      Index    :  Match_Index := Match_Index'First;
+      --  Index of the first matched pattern
+      Bindings : Environment_Map := String_Value_Maps.Empty_Map;
+      --  Bindings from the pattern, if any.
+   end record;
+   --  Represents the result of a matching attempt against a sequence of
+   --  patterns.
+
 end Patterns;

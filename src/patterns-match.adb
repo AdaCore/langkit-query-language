@@ -7,6 +7,28 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package body Patterns.Match is
 
+   -------------------------
+   -- Match_Pattern_Array --
+   -------------------------
+
+   function Match_Pattern_Array (Ctx      : Eval_Context;
+                                 Patterns : L.Base_Pattern_Array;
+                                 Value    : Primitive)
+                                 return Match_Array_Result
+   is
+      Current_Result : Match_Result;
+   begin
+      for I in Patterns'Range loop
+         Current_Result := Match_Pattern (Ctx, Patterns (I), Value);
+
+         if Current_Result.Success then
+            return Match_Array_Result'(I, Current_Result.Bindings);
+         end if;
+      end loop;
+
+      return Match_Array_Result'(others => <>);
+   end Match_Pattern_Array;
+
    -------------------
    -- Match_Pattern --
    -------------------

@@ -2,6 +2,14 @@ with Interpreter.Primitives; use Interpreter.Primitives;
 
 package Patterns.Match is
 
+   function Match_Pattern_Array (Ctx      : Eval_Context;
+                                 Patterns : L.Base_Pattern_Array;
+                                 Value    : Primitive)
+                                 return Match_Array_Result;
+   --  Match a value agains an array of pattern.
+   --  Return the index of the first successful match, allong with the
+   --  associated bindings, if any.
+
    function Match_Pattern (Ctx     : Eval_Context;
                            Pattern : L.Base_Pattern;
                            Value   : Primitive) return Match_Result;
