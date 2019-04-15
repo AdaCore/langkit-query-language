@@ -78,6 +78,16 @@ class BinOp(Expr):
     right = Field(type=Expr)
 
 
+class Unpack(Expr):
+    """
+    Unpacking operator, written '*'.
+
+    For instance::
+       \*listValue
+    """
+    collection_expr = Field(type=Expr)
+
+
 class Assign(Expr):
     """
     Assign expression.
