@@ -177,11 +177,11 @@ package body Interpreter.Evaluation is
             when LCO.LKQL_Val_Expr =>
               Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
             when LCO.LKQL_Fun_Def =>
-              Eval_Fun_Def (Ctx, Node.As_Fun_Def),
+              Eval_Fun_Def (Local_Context, Node.As_Fun_Def),
             when LCO.LKQL_Fun_Call =>
-              Eval_Fun_Call (Ctx, Node.As_Fun_Call),
+              Eval_Fun_Call (Local_Context, Node.As_Fun_Call),
             when LCO.LKQL_Selector_Def =>
-              Eval_Selector_Def (Ctx, Node.As_Selector_Def),
+              Eval_Selector_Def (Local_Context, Node.As_Selector_Def),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
