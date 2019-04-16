@@ -9,7 +9,7 @@ ExprList
 |  |  |  |  KindNodePattern
 |  |  |  |  |identifier:
 |  |  |  |  |  Identifier: FirstNodeKind
-|  |  |  |value:
+|  |  |  |exprs_list:
 |  |  |  |  SelectorExprList
 |  |  |  |  |  SelectorExpr
 |  |  |  |  |  |mode:
@@ -44,7 +44,7 @@ ExprList
 |  |  |  |  |  KindNodePattern
 |  |  |  |  |  |identifier:
 |  |  |  |  |  |  Identifier: ThirdNodeKind
-|  |  |  |value:
+|  |  |  |exprs_list:
 |  |  |  |  SelectorExprList
 |  |  |  |  |  SelectorExpr
 |  |  |  |  |  |mode:
@@ -58,7 +58,7 @@ ExprList
 |  |  |  SelectorArm
 |  |  |  |pattern:
 |  |  |  |  UniversalPattern
-|  |  |  |value:
+|  |  |  |exprs_list:
 |  |  |  |  SelectorExprList
 |  |  |  |  |  SelectorExpr
 |  |  |  |  |  |mode:

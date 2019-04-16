@@ -473,7 +473,7 @@ class SelectorArm(LKQLNode):
     """
 
     pattern = Field(type=BasePattern)
-    value = Field(type=SelectorExpr.list)
+    exprs_list = Field(type=SelectorExpr.list)
 
 
 class SelectorDef(Expr):
