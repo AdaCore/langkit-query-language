@@ -79,19 +79,19 @@ package body Run is
                            Recovery_Enabled : Boolean := False)
    is
       Ada_Unit            : LAL.Analysis_Unit;
-      Interpreter_Context : Eval_Context :=
-        Make_Eval_Context (Err_Recovery => Recovery_Enabled);
+      Interpreter_Context : Eval_Context;
       LKQL_Unit           : constant L.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
       for F of Files.all loop
+         Interpreter_Context :=
+           Make_Eval_Context (Err_Recovery => Recovery_Enabled);
          Put_Line (F.Display_Base_Name);
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
          Interpreter_Context.Set_AST_Root (Ada_Unit.Root);
          Evaluate (Interpreter_Context, LKQL_Unit.Root);
+         Interpreter_Context.Free_Eval_Context;
       end loop;
-
-      Free_Eval_Context (Interpreter_Context);
    end Run_On_Files;
 
    --------------------
