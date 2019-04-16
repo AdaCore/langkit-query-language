@@ -3,5 +3,5 @@ FunCall
 |  Identifier: add
 |arguments:
 |  ExprList
-|  |  Integer: 2
-|  |  Integer: 40
+|  |  IntegerLiteral: 2
+|  |  IntegerLiteral: 40

@@ -48,7 +48,7 @@ class Identifier(Expr):
     token_node = True
 
 
-class Integer(Expr):
+class IntegerLiteral(Expr):
     """
     Integer literal.
     """
@@ -640,7 +640,7 @@ lkql_grammar.add_rules(
 
     kind_name=Identifier(Token.KindName),
 
-    integer=Integer(Token.Integer),
+    integer=IntegerLiteral(Token.Integer),
 
     bool_literal=Or(BoolLiteral.alt_true(Token.TrueLit),
                     BoolLiteral.alt_false(Token.FalseLit)),

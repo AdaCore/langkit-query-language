@@ -22,7 +22,7 @@ package body Interpreter.Evaluation is
    function Eval_Identifier
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive;
 
-   function Eval_Integer (Node : L.Integer) return Primitive;
+   function Eval_Integer_Literal (Node : L.Integer_Literal) return Primitive;
 
    function Eval_String_Literal (Node : L.String_Literal) return Primitive;
 
@@ -147,8 +147,8 @@ package body Interpreter.Evaluation is
               Eval_Assign (Local_Context, Node.As_Assign),
             when LCO.LKQL_Identifier =>
               Eval_Identifier (Local_Context, Node.As_Identifier),
-            when LCO.LKQL_Integer =>
-              Eval_Integer (Node.As_Integer),
+            when LCO.LKQL_Integer_Literal =>
+              Eval_Integer_Literal (Node.As_Integer_Literal),
             when LCO.LKQL_String_Literal =>
               Eval_String_Literal (Node.As_String_Literal),
             when LCO.LKQL_Bool_Literal =>
@@ -266,14 +266,14 @@ package body Interpreter.Evaluation is
       Raise_Unknown_Symbol (Ctx, Node);
    end Eval_Identifier;
 
-   ------------------
-   -- Eval_integer --
-   ------------------
+   --------------------------
+   -- Eval_Integer_Literal --
+   --------------------------
 
-   function Eval_Integer (Node : L.Integer) return Primitive is
+   function Eval_Integer_Literal (Node : L.Integer_Literal) return Primitive is
    begin
       return To_Primitive (Integer'Wide_Wide_Value (Node.Text));
-   end Eval_Integer;
+   end Eval_Integer_Literal;
 
    -------------------------
    -- Eval_String_Literal --

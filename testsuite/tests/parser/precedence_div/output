@@ -2,18 +2,18 @@ BinOp
 |left:
 |  BinOp
 |  |left:
-|  |  Integer: 1
+|  |  IntegerLiteral: 1
 |  |op:
 |  |  OpPlus
 |  |right:
 |  |  BinOp
 |  |  |left:
-|  |  |  Integer: 2
+|  |  |  IntegerLiteral: 2
 |  |  |op:
 |  |  |  OpDiv
 |  |  |right:
-|  |  |  Integer: 3
+|  |  |  IntegerLiteral: 3
 |op:
 |  OpPlus
 |right:
-|  Integer: 4
+|  IntegerLiteral: 4

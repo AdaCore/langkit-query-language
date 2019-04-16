@@ -2,13 +2,13 @@ ValExpr
 |binding_name:
 |  Identifier: x
 |binding_value:
-|  Integer: 40
+|  IntegerLiteral: 40
 |expr:
 |  ValExpr
 |  |binding_name:
 |  |  Identifier: y
 |  |binding_value:
-|  |  Integer: 2
+|  |  IntegerLiteral: 2
 |  |expr:
 |  |  BinOp
 |  |  |left:
