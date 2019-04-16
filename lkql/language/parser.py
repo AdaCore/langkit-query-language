@@ -448,7 +448,8 @@ class SelectorExprMode(LKQLNode):
     Modes for selector values:
        - default: add the value to the result set
        - rec: add the value to the result set and call the selector recursively
-       - skip: call the selector recursively without adding the value to the result
+       - skip: call the selector recursively without adding the value to the
+         result
             set
     """
     enum_node = True
