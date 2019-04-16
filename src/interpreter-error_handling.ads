@@ -91,4 +91,12 @@ package Interpreter.Error_Handling is
    --  Primitive and a Value_Kind value from the introspection API,
    --  and add an Error_Data describing the error to the evaluation context.
 
+   procedure Raise_Invalid_Kind_For_Selector (Ctx   : Eval_Context;
+                                              Node  : L.LKQL_Node'Class;
+                                              Value : Primitive)
+     with No_Return;
+   --  Raise an exception signaling the use of a value that is neither a node
+   --  or an unpacked collection of nodes in a selector, and add an Error_Data
+   --  describing the error to the evaluation context.
+
 end Interpreter.Error_Handling;

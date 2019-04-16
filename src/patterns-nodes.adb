@@ -1,3 +1,4 @@
+with Custom_Selectors; use Custom_Selectors;
 with Interpreter.Evaluation;     use Interpreter.Evaluation;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 with Patterns.Match;             use Patterns.Match;
@@ -121,9 +122,21 @@ package body Patterns.Nodes is
       Selector_Pattern : L.Selector_Pattern'Class)
       return Depth_Node_Iter'Class
    is
+      use String_Value_Maps;
    begin
       if Selector_Pattern.P_Selector_Name = "children" then
          return Make_Childs_Iterator (Queried_Node);
+      elsif Ctx.Exists_In_Local_Env (Selector_Pattern.P_Selector_Name) then
+         declare
+            Position     : constant Cursor := Ctx.Lookup
+              (To_Unbounded_Text (Selector_Pattern.P_Selector_Name));
+            Selector_Def : constant L.Selector_Def :=
+              Selector_Val (Element (Position));
+            Iter         : constant Custom_Selector_Iter :=
+              Make_Custom_Selector_Iter (Ctx, Selector_Def, Queried_Node);
+         begin
+            return Iter;
+         end;
       else
          Raise_Invalid_Selector_Name (Ctx, Selector_Pattern);
       end if;
