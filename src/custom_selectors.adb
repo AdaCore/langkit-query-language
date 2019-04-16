@@ -81,11 +81,9 @@ package body Custom_Selectors is
    procedure Eval_Selector (Iter : in out Custom_Selector_Iter;
                             Node : Depth_Node)
    is
-      Local_Ctx          : Eval_Context;
-      Matched_Arm        : L.Selector_Arm;
-      Exprs_To_Add       : L.Selector_Expr_List;
-      Node_Value         : constant Primitive := To_Primitive (Node.Node);
-      Match_Data         : constant Match_Array_Result :=
+      Local_Ctx  : Eval_Context;
+      Node_Value : constant Primitive := To_Primitive (Node.Node);
+      Match_Data : constant Match_Array_Result :=
         Match_Pattern_Array (Iter.Ctx, Iter.Selector.P_Patterns, Node_Value);
    begin
       if Match_Data.Index = 0 then
@@ -95,13 +93,8 @@ package body Custom_Selectors is
       Local_Ctx := Iter.Ctx.Create_New_Frame (Match_Data.Bindings);
       Local_Ctx.Add_Binding ("it", Node_Value);
 
-      Matched_Arm :=
-        Iter.Selector.F_Arms.Children (Match_Data.Index).As_Selector_Arm;
-      Exprs_To_Add := Matched_Arm.F_Value;
-
-      for E of Exprs_To_Add loop
-         Add_Selector_Expr
-           (Iter, Local_Ctx, Node.Depth, E.As_Selector_Expr);
+      for E of Iter.Selector.P_Nth_Expressions (Match_Data.Index) loop
+         Add_Selector_Expr (Iter, Local_Ctx, Node.Depth, E.As_Selector_Expr);
       end loop;
 
       Local_Ctx.Release_Current_Frame;
