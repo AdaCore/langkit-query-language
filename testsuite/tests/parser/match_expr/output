@@ -1,0 +1,17 @@
+Match
+|matched_val:
+|  Identifier: node
+|arms:
+|  MatchArmList
+|  |  MatchArm
+|  |  |pattern:
+|  |  |  KindNodePattern
+|  |  |  |identifier:
+|  |  |  |  Identifier: ObjectDecl
+|  |  |expr:
+|  |  |  BoolLiteralTrue
+|  |  MatchArm
+|  |  |pattern:
+|  |  |  UniversalPattern
+|  |  |expr:
+|  |  |  BoolLiteralFalse

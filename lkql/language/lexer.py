@@ -14,6 +14,7 @@ class Token(LexerToken):
     Val = WithSymbol()
     Fun = WithSymbol()
     Selector = WithSymbol()
+    Match = WithSymbol()
     Rec = WithSymbol()
     Skip = WithSymbol()
     Is = WithSymbol()
@@ -79,6 +80,7 @@ lkql_lexer.add_rules(
     (Literal("val"),                                        Token.Val),
     (Literal("fun"),                                        Token.Fun),
     (Literal("selector"),                                   Token.Selector),
+    (Literal("match"),                                      Token.Match),
     (Literal("rec"),                                        Token.Rec),
     (Literal("skip"),                                       Token.Skip),
     (Literal("is"),                                         Token.Is),

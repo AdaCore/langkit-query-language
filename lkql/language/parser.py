@@ -500,6 +500,28 @@ class SelectorDef(Expr):
         return Self.arms.map(lambda x: x.value.as_entity)
 
 
+class MatchArm(LKQLNode):
+    """
+    Represents one case of a 'match'.
+    """
+    pattern = Field(type=BasePattern)
+    expr = Field(type=Expr)
+
+
+class Match(Expr):
+    """
+    Match expression, returns the expression associated with the first pattern
+    that matches the 'matched_val' field, or unit if no pattern matches.
+
+    For instance::
+       match nodes[0]
+           | ObjectDecl => true
+           | _          => false
+    """
+    matched_val = Field(type=Expr)
+    arms = Field(type=MatchArm.list)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
@@ -585,6 +607,7 @@ lkql_grammar.add_rules(
     value_expr=Or(G.fun_def,
                   G.fun_call,
                   G.listcomp,
+                  G.match,
                   DotCall(G.value_expr,
                           Token.Dot,
                           G.identifier,
@@ -635,6 +658,13 @@ lkql_grammar.add_rules(
                                G.unpackable_expr),
 
     unpackable_expr=Or(G.expr, Unpack(Token.Mul, G.expr)),
+
+    match=Match(Token.Match, G.expr, List(G.match_arm, empty_valid=False)),
+
+    match_arm=MatchArm(Token.Pipe,
+                       G.pattern,
+                       Token.BigRArrow,
+                       G.expr),
 
     identifier=Identifier(Token.Identifier),
 
