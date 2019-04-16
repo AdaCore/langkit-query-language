@@ -483,27 +483,26 @@ class SelectorDef(Expr):
     name = Field(type=Identifier)
     arms = Field(type=SelectorArm.list)
 
+    @langkit_property(return_type=SelectorExpr.list, public=True)
+    def nth_expressions(n=(T.Int, 0)):
+        """
+        Return the selector expressions associated with the nth selector arm.
+        """
+        return Self.arms.at(n - 1).exprs_list
+
     @langkit_property(return_type=BasePattern.entity.array, public=True)
     def patterns():
         """
-        Return the patterns that appear in the selector's arms.
+        Return a list of the patterns that appear n the selector's arms.
         """
         return Self.arms.map(lambda x: x.pattern.as_entity)
-
-    @langkit_property(return_type=SelectorExpr.list.entity.array, public=True)
-    def selector_exprs():
-        """
-        Return a list of the selector expressions lists that appear in the
-        selector's arms.
-        :return:
-        """
-        return Self.arms.map(lambda x: x.value.as_entity)
 
 
 class MatchArm(LKQLNode):
     """
     Represents one case of a 'match'.
     """
+
     pattern = Field(type=BasePattern)
     expr = Field(type=Expr)
 
@@ -520,6 +519,21 @@ class Match(Expr):
     """
     matched_val = Field(type=Expr)
     arms = Field(type=MatchArm.list)
+
+    @langkit_property(return_type=Expr, public=True)
+    def nth_expression(n=(T.Int, 0)):
+        """
+        Return the expression associated with the nth selector arm.
+        """
+        return Self.arms.at(n - 1).expr()
+
+    @langkit_property(return_type=BasePattern.entity.array, public=True)
+    def patterns():
+        """
+        Return a list of the patterns that appear n the match
+        expressions's arms.
+        """
+        return Self.arms.map(lambda x: x.pattern.as_entity)
 
 
 lkql_grammar = Grammar('main_rule')
