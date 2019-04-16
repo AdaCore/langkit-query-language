@@ -134,7 +134,7 @@ package body Interpreter.Evaluation is
                   return Primitive
    is
       Result             : Primitive;
-      Local_Context : Eval_Context :=
+      Local_Context      : Eval_Context :=
         (if Local_Bindings.Is_Empty then Ctx
          else Ctx.Create_New_Frame (Local_Bindings));
    begin
