@@ -204,4 +204,21 @@ package body Interpreter.Error_Handling is
         (Ctx, Make_Eval_Error (Value_Expr.As_LKQL_Node, Message));
    end Raise_Invalid_Type_Conversion;
 
+   -------------------------------------
+   -- Raise_Invalid_Kind_For_Selector --
+   -------------------------------------
+
+   procedure Raise_Invalid_Kind_For_Selector (Ctx   : Eval_Context;
+                                              Node  : L.LKQL_Node'Class;
+                                              Value : Primitive)
+   is
+      Value_Kind_Name : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (To_Text (Kind_Name (Value)));
+      Message : constant Unbounded_Text_Type :=
+        "Cannot use values of kind " & Value_Kind_Name & " in a selector";
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+   end Raise_Invalid_Kind_For_Selector;
+
 end Interpreter.Error_Handling;

@@ -1,0 +1,4 @@
+selector badSelector
+    | _ => true
+
+query _ [badSelector] _
