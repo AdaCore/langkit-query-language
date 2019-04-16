@@ -1,6 +1,8 @@
 with Queries;                    use Queries;
+with Patterns;                   use Patterns;
 with Node_Data;                  use Node_Data;
 with Depth_Nodes;                use Depth_Nodes;
+with Patterns.Match;             use Patterns.Match;
 with Interpreter.Errors;         use Interpreter.Errors;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
@@ -74,6 +76,8 @@ package body Interpreter.Evaluation is
 
    function Eval_Selector_Def
      (Ctx : Eval_Context; Node : L.Selector_Def) return Primitive;
+
+   function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
    function Make_Comprehension_Environment_Iter
      (Ctx : Eval_Context; Node : L.Arrow_Assoc_List)
@@ -182,6 +186,8 @@ package body Interpreter.Evaluation is
               Eval_Fun_Call (Local_Context, Node.As_Fun_Call),
             when LCO.LKQL_Selector_Def =>
               Eval_Selector_Def (Local_Context, Node.As_Selector_Def),
+            when LCO.LKQL_Match =>
+              Eval_Match (Local_Context, Node.As_Match),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -614,6 +620,29 @@ package body Interpreter.Evaluation is
       Ctx.Add_Binding (Identifier, Value);
       return Make_Unit_Primitive;
    end Eval_Selector_Def;
+
+   ----------------
+   -- Eval_Match --
+   ----------------
+
+   function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive is
+      Result        : Primitive;
+      Local_Context : Eval_Context;
+      Matched_Value : constant Primitive := Eval (Ctx, Node.F_Matched_Val);
+      Match_Data    : constant Match_Array_Result :=
+        Match_Pattern_Array (Ctx, Node.P_Patterns, Matched_Value);
+   begin
+      if Match_Data.Index = Match_Index'First then
+         return Make_Unit_Primitive;
+      end if;
+
+      Local_Context := Ctx.Create_New_Frame (Match_Data.Bindings);
+      Local_Context.Add_Binding ("it", Matched_Value);
+      Result := Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));
+      Local_Context.Release_Current_Frame;
+
+      return Result;
+   end Eval_Match;
 
    -----------------------------------------
    -- Make_Comprehension_Environment_Iter --
