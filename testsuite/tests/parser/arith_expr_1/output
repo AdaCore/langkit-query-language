@@ -1,7 +1,7 @@
 BinOp
 |left:
-|  Integer: 46
+|  IntegerLiteral: 46
 |op:
 |  OpMinus
 |right:
-|  Integer: 4
+|  IntegerLiteral: 4

@@ -39,4 +39,4 @@ ExprList
 |  |  |  |  |op:
 |  |  |  |  |  OpEq
 |  |  |  |  |right:
-|  |  |  |  |  Integer: 42
+|  |  |  |  |  IntegerLiteral: 42

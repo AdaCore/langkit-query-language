@@ -4,7 +4,7 @@ Assign
 |value:
 |  BinOp
 |  |left:
-|  |  Integer: 3
+|  |  IntegerLiteral: 3
 |  |op:
 |  |  OpMul
 |  |right:
@@ -12,4 +12,4 @@ Assign
 |  |  |collection_expr:
 |  |  |  Identifier: value
 |  |  |index_expr:
-|  |  |  Integer: 0
+|  |  |  IntegerLiteral: 0

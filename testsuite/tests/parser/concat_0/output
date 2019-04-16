@@ -6,8 +6,8 @@ BinOp
 |right:
 |  BinOp
 |  |left:
-|  |  Integer: 39
+|  |  IntegerLiteral: 39
 |  |op:
 |  |  OpPlus
 |  |right:
-|  |  Integer: 3
+|  |  IntegerLiteral: 3

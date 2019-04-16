@@ -4,8 +4,8 @@ Assign
 |value:
 |  BinOp
 |  |left:
-|  |  Integer: 2
+|  |  IntegerLiteral: 2
 |  |op:
 |  |  OpMul
 |  |right:
-|  |  Integer: 3
+|  |  IntegerLiteral: 3

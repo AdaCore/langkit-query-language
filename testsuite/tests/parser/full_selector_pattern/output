@@ -12,4 +12,4 @@ QuantifiedSelector
 |  |  |op:
 |  |  |  OpEq
 |  |  |right:
-|  |  |  Integer: 3
+|  |  |  IntegerLiteral: 3
