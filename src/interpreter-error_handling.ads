@@ -77,7 +77,7 @@ package Interpreter.Error_Handling is
                                            Node      : L.LKQL_Node;
                                            Kind      : Value_Kind)
      with No_Return;
-   --  raise an exception signaling the use of a value of a type that is not
+   --  Raise an exception signaling the use of a value of a type that is not
    --  supported by the interpreter and add an Error_Data describing the error
    --  to the evaluation context. Such an error may occur when retriving
    --  a value from the introspection API.

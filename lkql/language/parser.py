@@ -454,7 +454,6 @@ class SelectorExpr(LKQLNode):
     expr = Field(type=Expr)
 
 
-
 class SelectorArm(LKQLNode):
     """
     Represents one case of a selector
