@@ -359,6 +359,10 @@ package body Interpreter.Evaluation is
               when LCO.LKQL_Op_Eq     => "=" (Left, Right),
               when LCO.LKQL_Op_Neq    => Left /= Right,
               when LCO.LKQL_Op_Concat => Left & Right,
+              when LCO.LKQL_Op_Lt     => Left < Right,
+              when LCO.LKQL_Op_Leq    => Left <= Right,
+              when LCO.LKQL_Op_Gt     => Left > Right,
+              when LCO.LKQL_Op_Geq    => Left >= Right,
               when others =>
                  raise Assertion_Error with
                    "Not a non-short-cirtcuit operator kind: " &
