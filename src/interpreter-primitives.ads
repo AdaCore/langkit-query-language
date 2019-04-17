@@ -147,7 +147,8 @@ package Interpreter.Primitives is
    overriding procedure Finalize (Object : in out Iterator_Primitive);
 
    function To_List (Iter : Iterator_Primitive) return Primitive;
-   --  Create a List Primitive from the given iterator
+   --  Create a List Primitive from the given iterator.
+   --  This operation consumes the iterator.
 
    function To_Iterator (Value : Primitive) return Primitive_Iter'Class;
    --  Create an iterator that yields the elements of a List or
