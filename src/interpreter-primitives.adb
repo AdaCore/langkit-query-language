@@ -1,5 +1,4 @@
 with Ada.Assertions;                  use Ada.Assertions;
-with Ada.Finalization;                use Ada.Finalization;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
@@ -178,15 +177,6 @@ package body Interpreter.Primitives is
       end case;
    end Release;
 
-   --------------
-   -- Finalize --
-   --------------
-
-   overriding procedure Finalize (Object : in out Iterator_Primitive) is
-   begin
-      Primitive_Iters.Release_Access (Object.Iter);
-   end Finalize;
-
    -------------
    -- To_List --
    -------------
@@ -285,8 +275,7 @@ package body Interpreter.Primitives is
         new Primitive_Iter'Class'
           (Primitive_Iter'Class (Iter_Primitive.Iter.Clone));
    begin
-      return Iterator_Primitive'(Ada.Finalization.Controlled with
-                                   Wrapped_Iter_Copy);
+      return Iterator_Primitive'(Iter => Wrapped_Iter_Copy);
    end Iter_Val;
 
    --------------
@@ -304,7 +293,7 @@ package body Interpreter.Primitives is
    -------------------
 
    function List_Data (Value : Primitive_List_Access;
-                           Member_Name : Text_Type) return Primitive
+                       Member_Name : Text_Type) return Primitive
    is
    begin
       if Member_Name = "length" then
@@ -429,7 +418,7 @@ package body Interpreter.Primitives is
       Val_Copy : constant Primitive_Iter_Access :=
         new Primitive_Iter'Class'(Primitive_Iter'Class (Val.Clone));
       Iter_Primitive : constant Iterator_Primitive_Access :=
-        new Iterator_Primitive'(Controlled with Val_Copy);
+        new Iterator_Primitive'(Iter => Val_Copy);
    begin
       return Result : Primitive do
          Result.Set
