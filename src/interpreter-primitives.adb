@@ -48,6 +48,12 @@ package body Interpreter.Primitives is
    --  Raise an Unsupported_Error if there is no property named
    --  'Member_Name'.
 
+   procedure Raise_Unsupported_Operation
+     (Left, Right : Primitive; Name : String)
+     with No_Return;
+   --  Raise an Unsupported_Operation exception mentionning the kind of the
+   --  operands as well as the name of the operation.
+
    ---------------
    -- Int_Image --
    ---------------
@@ -131,6 +137,20 @@ package body Interpreter.Primitives is
                 Kind_Name (Value);
       end if;
    end Check_Kind;
+
+   ---------------------------------
+   -- Raise_Unsupported_Operation --
+   ---------------------------------
+
+   procedure Raise_Unsupported_Operation
+     (Left, Right : Primitive; Name : String)
+   is
+      Message : constant String :=
+        "Unsupported operation: " & Kind_Name (Left) & ' ' & Name &
+          Kind_Name (Right);
+   begin
+      raise Unsupported_Error with Message;
+   end Raise_Unsupported_Operation;
 
    -------------
    -- Release --
@@ -695,5 +715,47 @@ package body Interpreter.Primitives is
 
       return To_Primitive (Left_Str & Right_Str);
    end "&";
+
+   ---------
+   -- "<" --
+   ---------
+
+   function "<" (Left, Right : Primitive) return Primitive is
+   begin
+      if Kind (Left) /= Kind (Right) then
+         Raise_Unsupported_Operation (Left, Right, "<");
+      end if;
+
+      case Kind (Left) is
+         when Kind_Int =>
+            return To_Primitive (Int_Val (Left) < Int_Val (Right));
+         when Kind_Str =>
+            return To_Primitive (Str_Val (Left) < Str_Val (Right));
+         when others =>
+            Raise_Unsupported_Operation (Left, Right, "<");
+      end case;
+   end "<";
+
+   ----------
+   -- "<=" --
+   ----------
+
+   function "<=" (Left, Right : Primitive) return Primitive is
+     (if Bool_Val (Left < Right) then To_Primitive (True) else Left = Right);
+
+   ---------
+   -- ">" --
+   ---------
+
+   function ">" (Left, Right : Primitive) return Primitive is
+     (To_Primitive
+        (not (Bool_Val (Left < Right) or else Bool_Val (Left = Right))));
+
+   ----------
+   -- ">=" --
+   ----------
+
+   function ">=" (Left, Right : Primitive) return Primitive is
+      (To_Primitive (not Bool_Val (Left < Right)));
 
 end Interpreter.Primitives;

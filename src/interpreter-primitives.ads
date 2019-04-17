@@ -323,4 +323,24 @@ package Interpreter.Primitives is
    --  The supported operations are: Str & Int, Str & Str, Str & Bool.
    --  Unsupported operations will raise an Unsupported_Error exception.
 
+   function "<" (Left, Right : Primitive) return Primitive;
+   --  Tests that 'Left' is strictly lower than 'Right'.
+   --  The supported operations are: Int < Int, String < String.
+   --  Unsupported operations will raise an Unsupported_Error exception.
+
+   function "<=" (Left, Right : Primitive) return Primitive;
+   --  Tests that 'Left' is equal to, or lower than than 'Right'.
+   --  The supported operations are: Int <= Int, String <= String.
+   --  Unsupported operations will raise an Unsupported_Error exception.
+
+   function ">" (Left, Right : Primitive) return Primitive;
+   --  Tests that 'Left' is strictly higher than 'Right'.
+   --  The supported operations are: Int > Int, String > String.
+   --  Unsupported operations will raise an Unsupported_Error exception.
+
+   function ">=" (Left, Right : Primitive) return Primitive;
+   --  Tests that 'Left' is equal to, or higher than than 'Right'.
+   --  The supported operations are: Int >= Int, String >= String.
+   --  Unsupported operations will raise an Unsupported_Error exception.
+
 end Interpreter.Primitives;

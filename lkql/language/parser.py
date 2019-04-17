@@ -29,7 +29,8 @@ class Op(LKQLNode):
     """
     enum_node = True
     alternatives = [
-        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat'
+        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat',
+        'lt', 'leq', 'gt', 'geq'
     ]
 
 
@@ -446,11 +447,10 @@ class FunCall(Expr):
 class SelectorExprMode(LKQLNode):
     """
     Modes for selector values:
-       - default: add the value to the result set
-       - rec: add the value to the result set and call the selector recursively
-       - skip: call the selector recursively without adding the value to the
-         result
-            set
+        - default: add the value to the result set
+        - rec: add the value to the result set and call the selector recursively
+        - skip: call the selector recursively without adding the value to the
+                result set
     """
     enum_node = True
 
@@ -603,7 +603,11 @@ lkql_grammar.add_rules(
                  BinOp(G.comp_expr,
                        Or(Op.alt_eq(Token.EqEq),
                           Op.alt_neq(Token.Neq),
-                          Op.alt_concat(Token.Amp)),
+                          Op.alt_concat(Token.Amp),
+                          Op.alt_lt(Token.Lt),
+                          Op.alt_leq(Token.LEq),
+                          Op.alt_gt(Token.Gt),
+                          Op.alt_geq(Token.GEq)),
                        G.plus_expr),
                  G.plus_expr),
 

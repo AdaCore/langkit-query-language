@@ -1,0 +1,55 @@
+BinOp
+|left:
+|  BinOp
+|  |left:
+|  |  BinOp
+|  |  |left:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  IntegerLiteral: 4
+|  |  |  |op:
+|  |  |  |  OpLt
+|  |  |  |right:
+|  |  |  |  IntegerLiteral: 5
+|  |  |op:
+|  |  |  OpAnd
+|  |  |right:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  BinOp
+|  |  |  |  |left:
+|  |  |  |  |  IntegerLiteral: 4
+|  |  |  |  |op:
+|  |  |  |  |  OpPlus
+|  |  |  |  |right:
+|  |  |  |  |  IntegerLiteral: 1
+|  |  |  |op:
+|  |  |  |  OpLeq
+|  |  |  |right:
+|  |  |  |  IntegerLiteral: 5
+|  |op:
+|  |  OpAnd
+|  |right:
+|  |  BinOp
+|  |  |left:
+|  |  |  IntegerLiteral: 5
+|  |  |op:
+|  |  |  OpGt
+|  |  |right:
+|  |  |  IntegerLiteral: 4
+|op:
+|  OpAnd
+|right:
+|  BinOp
+|  |left:
+|  |  BinOp
+|  |  |left:
+|  |  |  IntegerLiteral: 5
+|  |  |op:
+|  |  |  OpMinus
+|  |  |right:
+|  |  |  IntegerLiteral: 1
+|  |op:
+|  |  OpGeq
+|  |right:
+|  |  IntegerLiteral: 4
