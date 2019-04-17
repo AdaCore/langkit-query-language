@@ -186,13 +186,13 @@ package body Interpreter.Primitives is
 
    function To_List (Iter : Iterator_Primitive) return Primitive is
       Element   : Primitive;
-      Iter_Copy : Primitive_Iter'Class := Iter.Iter.all;
       Result    : constant Primitive := Make_Empty_List;
    begin
-      while Iter_Copy.Next (Element) loop
+      while Iter.Iter.Next (Element) loop
          Append (Result, Element);
       end loop;
 
+      Iter.Iter.Release;
       return Result;
    end To_List;
 
