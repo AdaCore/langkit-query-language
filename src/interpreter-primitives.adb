@@ -275,7 +275,8 @@ package body Interpreter.Primitives is
       Iter_Primitive    : constant Iterator_Primitive_Access :=
         Value.Get.Iter_Val;
       Wrapped_Iter_Copy : constant Primitive_Iter_Access :=
-        new Primitive_Iter'Class'(Iter_Primitive.Iter.all);
+        new Primitive_Iter'Class'
+          (Primitive_Iter'Class (Iter_Primitive.Iter.Clone));
    begin
       return Iterator_Primitive'(Ada.Finalization.Controlled with
                                    Wrapped_Iter_Copy);
