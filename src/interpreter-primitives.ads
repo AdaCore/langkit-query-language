@@ -5,7 +5,6 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
-with Ada.Finalization;
 
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 
@@ -139,12 +138,10 @@ package Interpreter.Primitives is
    subtype Primitive_Iter_Access is Primitive_Iters.Iterator_Access;
    --  Pointer to an iterator over Primitive values
 
-   type Iterator_Primitive is new Ada.Finalization.Controlled with record
+   type Iterator_Primitive is record
       Iter          : Primitive_Iter_Access;
    end record;
    --  Lazy stream of Primitive_values
-
-   overriding procedure Finalize (Object : in out Iterator_Primitive);
 
    function To_List (Iter : Iterator_Primitive) return Primitive;
    --  Create a List Primitive from the given iterator.
