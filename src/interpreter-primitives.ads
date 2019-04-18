@@ -143,14 +143,20 @@ package Interpreter.Primitives is
    end record;
    --  Lazy stream of Primitive_values
 
+   function Get_Iter (Value : Iterator_Primitive) return Primitive_Iter_Access;
+   --  Return a deep copy of the wrapped iterator
+
    function To_List (Iter : Iterator_Primitive) return Primitive;
-   --  Create a List Primitive from the given iterator.
-   --  This operation consumes the iterator.
+   --  Create a List Primitive from the given iterator
 
    function To_Iterator (Value : Primitive) return Primitive_Iter'Class;
    --  Create an iterator that yields the elements of a List or
    --  Iterator Primitive.
    --  Raise an Unsupported_Error if the value isn"t a List or an Iterator
+
+   procedure Free_Iterator_Primitive is
+     new Ada.Unchecked_Deallocation
+       (Iterator_Primitive, Iterator_Primitive_Access);
 
    ---------------
    -- Accessors --
@@ -174,10 +180,8 @@ package Interpreter.Primitives is
    function List_Val (Value : Primitive) return Primitive_List_Access;
    --  Return the value of a list primitive
 
-   function Iter_Val (Value : Primitive) return Iterator_Primitive;
-   --  Return the value of an iterator primitive.
-   --  Since iterators a immutable, this accessor performs a deep copy of the
-   --  value.
+   function Iter_Val (Value : Primitive) return Iterator_Primitive_Access;
+   --  Return the value of an iterator primitive
 
    function Fun_Val (Value : Primitive) return L.Fun_Def;
    --  Return the value of a function primitive

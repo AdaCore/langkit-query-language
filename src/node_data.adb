@@ -66,7 +66,7 @@ package body Node_Data is
       Elements     : constant Primitive :=
         (if Kind (Nodes) = Kind_List
          then Nodes
-         else To_List (Iter_Val (Nodes)));
+         else To_List (Iter_Val (Nodes).all));
       Elements_Vec : constant Primitive_Vectors.Vector :=
         List_Val (Elements).Elements;
       Result       : Value_Array (1 .. Length (Elements));

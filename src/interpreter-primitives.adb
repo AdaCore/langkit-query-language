@@ -47,8 +47,8 @@ package body Interpreter.Primitives is
    --  Raise an Unsupported_Error if there is no property named
    --  'Member_Name'.
 
-   function Iterator_Data
-     (Value : Iterator_Primitive; Member_Name : Text_Type) return Primitive;
+   function Iterator_Data (Value : Iterator_Primitive_Access;
+                           Member_Name : Text_Type) return Primitive;
    --  Return the value of the property named 'Member_Name' of the given
    --  Iterator value.
    --  Raise an Unsupported_Error if there is no property named
@@ -163,33 +163,41 @@ package body Interpreter.Primitives is
    -------------
 
    procedure Release (Data : in out Primitive_Data) is
-      procedure Free_Iterator_Primitive_Access is
-        new Ada.Unchecked_Deallocation
-          (Iterator_Primitive, Iterator_Primitive_Access);
    begin
       case Data.Kind is
          when Kind_List =>
             Free_Primitive_List (Data.List_Val);
          when Kind_Iterator =>
-            Free_Iterator_Primitive_Access (Data.Iter_Val);
+            Primitive_Iters.Free_Iterator (Data.Iter_Val.Iter);
+            Free_Iterator_Primitive (Data.Iter_Val);
          when others =>
             null;
       end case;
    end Release;
 
+   --------------
+   -- Get_Iter --
+   --------------
+
+   function Get_Iter (Value : Iterator_Primitive) return Primitive_Iter_Access
+   is (new Primitive_Iters.Iterator_Interface'Class'
+         (Primitive_Iters.Iterator_Interface'Class (Value.Iter.Clone)));
+
    -------------
    -- To_List --
    -------------
 
-   function To_List (Iter : Iterator_Primitive) return Primitive is
-      Element   : Primitive;
-      Result    : constant Primitive := Make_Empty_List;
+   function To_List (Iter : Iterator_Primitive) return Primitive
+   is
+      Element : Primitive;
+      Inner   : Primitive_Iter_Access := Get_Iter (Iter);
+      Result  : constant Primitive := Make_Empty_List;
    begin
-      while Iter.Iter.Next (Element) loop
+      while Inner.Next (Element) loop
          Append (Result, Element);
       end loop;
 
-      Iter.Iter.Release;
+      Primitive_Iters.Free_Iterator (Inner);
       return Result;
    end To_List;
 
@@ -268,15 +276,8 @@ package body Interpreter.Primitives is
    -- Iter_Val --
    --------------
 
-   function Iter_Val (Value : Primitive) return Iterator_Primitive is
-      Iter_Primitive    : constant Iterator_Primitive_Access :=
-        Value.Get.Iter_Val;
-      Wrapped_Iter_Copy : constant Primitive_Iter_Access :=
-        new Primitive_Iter'Class'
-          (Primitive_Iter'Class (Iter_Primitive.Iter.Clone));
-   begin
-      return Iterator_Primitive'(Iter => Wrapped_Iter_Copy);
-   end Iter_Val;
+   function Iter_Val (Value : Primitive) return Iterator_Primitive_Access is
+     (Value.Get.Iter_Val);
 
    --------------
    -- Elements --
@@ -322,6 +323,17 @@ package body Interpreter.Primitives is
       end if;
    end Str_Data;
 
+   -------------------
+   -- Iterator_Data --
+   -------------------
+
+   function Iterator_Data (Value : Iterator_Primitive_Access;
+                           Member_Name : Text_Type) return Primitive
+   is
+   begin
+      return List_Data (List_Val (To_List (Value.all)), Member_Name);
+   end Iterator_Data;
+
    --------------
    -- Property --
    --------------
@@ -336,8 +348,7 @@ package body Interpreter.Primitives is
                  when Kind_Str =>
                    Str_Data (Str_Val (Value), Member_Name),
                  when Kind_Iterator =>
-                   List_Data
-                      (List_Val (To_List (Iter_Val (Value))), Member_Name),
+                   Iterator_Data (Iter_Val (Value), Member_Name),
                  when others =>
                     raise Unsupported_Error with
                       "Cannot get property on value of kind "
@@ -541,7 +552,7 @@ package body Interpreter.Primitives is
                  when Kind_Node =>
                    To_Unbounded_Text (Val.Get.Node_Val.Text_Image),
                  when Kind_Iterator =>
-                   Iterator_Image (Val.Get.Iter_Val.all),
+                   Iterator_Image (Iter_Val (Val).all),
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all),
                  when Kind_Fun =>
