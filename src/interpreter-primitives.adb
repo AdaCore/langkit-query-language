@@ -180,8 +180,11 @@ package body Interpreter.Primitives is
    --------------
 
    function Get_Iter (Value : Iterator_Primitive) return Primitive_Iter_Access
-   is (new Primitive_Iters.Iterator_Interface'Class'
-         (Primitive_Iters.Iterator_Interface'Class (Value.Iter.Clone)));
+   is
+   begin
+      return new Primitive_Iters.Iterator_Interface'Class'
+           (Primitive_Iters.Iterator_Interface'Class (Value.Iter.Clone));
+   end Get_Iter;
 
    -------------
    -- To_List --
