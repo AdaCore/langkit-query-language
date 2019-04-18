@@ -48,6 +48,13 @@ package body Interpreter.Primitives is
    --  Raise an Unsupported_Error if there is no property named
    --  'Member_Name'.
 
+   function Iterator_Data
+     (Value : Iterator_Primitive; Member_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Member_Name' of the given
+   --  Iterator value.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Member_Name'.
+
    procedure Raise_Unsupported_Operation
      (Left, Right : Primitive; Name : String)
      with No_Return;
@@ -339,6 +346,9 @@ package body Interpreter.Primitives is
                    List_Data (List_Val (Value), Member_Name),
                  when Kind_Str =>
                    Str_Data (Str_Val (Value), Member_Name),
+                 when Kind_Iterator =>
+                   List_Data
+                      (List_Val (To_List (Iter_Val (Value))), Member_Name),
                  when others =>
                     raise Unsupported_Error with
                       "Cannot get property on value of kind "
