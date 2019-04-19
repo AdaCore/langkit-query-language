@@ -12,6 +12,12 @@ package body Interpreter.Errors is
    --  Return a String representing the source code containing the error, where
    --  the location of the error has been underlined.
 
+   function Error_Description (Ast_Node : L.LKQL_Node;
+                               Message  : Unbounded_Text_Type)
+                               return Unbounded_Text_Type;
+   --  Return a detailed description of the error with the given message that
+   --  occured durint the evaluation of 'Ast_Node'.
+
    ----------------------
    -- Underline_Error --
    ----------------------
@@ -43,41 +49,49 @@ package body Interpreter.Errors is
       return Result;
    end Underline_Error;
 
+   -----------------------
+   -- Error_description --
+   -----------------------
+
+   function Error_Description (Ast_Node : L.LKQL_Node;
+                               Message  : Unbounded_Text_Type)
+                               return Unbounded_Text_Type
+   is
+      use Langkit_Support.Text.Chars;
+      Error_Unit : constant L.Analysis_Unit := Ast_Node.Unit;
+      Error_Msg  : constant Unbounded_Text_Type :=
+        "Error: " & Message;
+      Unit_Lines : constant String_Vectors.Vector :=
+        Split_Lines (Error_Unit.Text);
+      Underlined : constant Unbounded_Text_Type :=
+        Underline_Error (Unit_Lines, Ast_Node.Sloc_Range);
+   begin
+      return LF & Error_Msg & LF & LF & Underlined;
+   end Error_Description;
+
    ------------------------
    --  Error_Description --
    ------------------------
 
    function Error_Description (Error : Error_Data) return Unbounded_Text_Type
-   is
-      use Langkit_Support.Text.Chars;
-      Error_Unit : constant L.Analysis_Unit := Error.AST_Node.Unit;
-      Error_Msg  : constant Unbounded_Text_Type :=
-        "Error: " & Error.Short_Message;
-      Unit_Lines : constant String_Vectors.Vector :=
-        Split_Lines (Error_Unit.Text);
-      Underlined : constant Unbounded_Text_Type :=
-        Underline_Error (Unit_Lines, Error.AST_Node.Sloc_Range);
-   begin
-      return LF & Error_Msg & LF & LF & Underlined;
-   end Error_Description;
+   is (case Error.Kind is
+          when No_Error =>
+             To_Unbounded_Text ("No error"),
+          when Eval_Error =>
+             Error_Description (Error.AST_Node, Error.Short_Message));
 
    --------------
    -- Is_Error --
    --------------
 
    function Is_Error (Err : Error_Data) return Boolean is
-   begin
-      return Err.Kind /= No_Error;
-   end Is_Error;
+     (Err.Kind /= No_Error);
 
    ----------------------
    -- Make_Empty_Error --
    ----------------------
 
-   function Make_Empty_Error return Error_Data is
-   begin
-      return (Kind => No_Error);
-   end Make_Empty_Error;
+   function Make_Empty_Error return Error_Data is (Kind => No_Error);
 
    ---------------------
    -- Make_Eval_Error --
@@ -86,11 +100,8 @@ package body Interpreter.Errors is
    function Make_Eval_Error (AST_Node      : L.LKQL_Node;
                              Short_Message : Unbounded_Text_Type)
                              return Error_Data
-   is
-   begin
-      return (Kind          => Eval_Error,
-              AST_Node      => AST_Node,
-              Short_Message => Short_Message);
-   end Make_Eval_Error;
+   is (Kind          => Eval_Error,
+       AST_Node      => AST_Node,
+       Short_Message => Short_Message);
 
 end Interpreter.Errors;
