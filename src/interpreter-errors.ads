@@ -10,7 +10,12 @@ package Interpreter.Errors is
    --  This type of exception is used to indicate that the evaluator should
    --  try to resume execution in spite of the error.
 
-   type Error_Kind is (No_Error, Eval_Error);
+   type Error_Kind is
+     (No_Error,
+      --  Asbence of error
+      Eval_Error
+      --  Error originating from the execution of the LKQL program
+     );
    --  Denotes the kind of an error value.
 
    type Error_Data (Kind : Error_Kind := No_Error) is record
