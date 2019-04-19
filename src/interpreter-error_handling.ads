@@ -4,7 +4,7 @@ with Interpreter.Primitives;    use Interpreter.Primitives;
 
 with Libadalang.Introspection; use Libadalang.Introspection;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
+with Langkit_Support.Text;        use Langkit_Support.Text;
 
 package Interpreter.Error_Handling is
 
@@ -55,7 +55,7 @@ package Interpreter.Error_Handling is
                                    Node : L.Identifier)
      with No_Return;
    --  Raise an exception signaling the use of an unknwown identifier,
-   --  and add an Error_Data describing the error to the evaluation context
+   --  and add an Error_Data describing the error to the evaluation context.
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
                                             Identifier : Unbounded_Text_Type;
