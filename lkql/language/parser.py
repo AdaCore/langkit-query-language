@@ -623,7 +623,8 @@ lkql_grammar.add_rules(
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(G.fun_def,
+    value_expr=Or(G.query,
+                  G.fun_def,
                   G.fun_call,
                   G.listcomp,
                   G.match,
@@ -646,7 +647,7 @@ lkql_grammar.add_rules(
     val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
                      G.expr, Token.SemiCol, G.expr),
 
-    assign=Assign(Token.Let, G.identifier, Token.Eq, Or(G.expr, G.query)),
+    assign=Assign(Token.Let, G.identifier, Token.Eq, G.expr),
 
     fun_def=FunDef(Token.Fun,
                    G.identifier,
