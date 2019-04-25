@@ -8,6 +8,9 @@ package String_Utils is
    package String_Vectors is new
      Indefinite_Vectors (Positive, Unbounded_Text_Type);
 
+   subtype String_Vector is String_Vectors.Vector;
+   --  Vector of Unbouted_Text_type values
+
    function Split_Lines (Str : Text_Type) return String_Vectors.Vector;
    --  Return a list of the lines in the given string
 
