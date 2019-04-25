@@ -270,6 +270,14 @@ class SelectorPattern(LKQLNode):
         """
         return No(T.Expr)
 
+    @langkit_property(return_type=Identifier, public=True,
+                      kind=AbstractKind.abstract)
+    def selector_identifier():
+        """
+        Return the selector's identifier node
+        """
+        return
+
     @langkit_property(return_type=T.String, public=True,
                       kind=AbstractKind.abstract)
     def selector_name():
@@ -301,6 +309,10 @@ class NamedSelector(SelectorPattern):
     name = Field(type=Identifier)
 
     @langkit_property()
+    def selector_identifier():
+        return Self.name
+
+    @langkit_property()
     def selector_name():
         return Self.name.text
 
@@ -328,6 +340,10 @@ class QuantifiedSelector(SelectorPattern):
 
     quantifier = Field(type=Identifier)
     selector = Field(type=NamedSelector)
+
+    @langkit_property()
+    def selector_identifier():
+        return Self.selector.selector_identifier
 
     @langkit_property()
     def selector_name():
