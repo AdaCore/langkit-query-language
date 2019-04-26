@@ -1,0 +1,12 @@
+selector superTypes
+    | TypeDecl          => skip it.type_def
+    | InterfaceTypeDef  => skip it.interfaces
+    | RecordTypeDef     => ()
+    | DerivedTypeDef    => skip it.subtype_indication <> skip it.interfaces
+    | SubtypeIndication => skip it.name
+    | Name              => rec it.referenced_decl(true)
+    | ParentList        => skip *it.children
+    | _                 => ()
+
+fun result(n) = 
+    query TypeDecl [superTypes(depth > n)] _
