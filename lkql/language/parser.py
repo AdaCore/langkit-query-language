@@ -101,13 +101,6 @@ class Assign(Expr):
     value = Field(type=Expr)
 
 
-class PrintStmt(Expr):
-    """
-    `print` built-in.
-    """
-    value = Field(type=Expr)
-
-
 class DotAccess(Expr):
     """
     Access to a node's field using dot notation.
@@ -565,17 +558,13 @@ class Match(Expr):
         """
         return Self.arms.map(lambda x: x.pattern.as_entity)
 
-
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
     main_rule=List(Or(G.statement, G.expr, G.query, G.selector_def)),
 
-    statement=Or(G.assign,
-                 G.print_stmt),
-
-    print_stmt=PrintStmt(Token.Print, Token.LPar, G.expr, Token.RPar),
+    statement=Or(G.assign),
 
     query=Query(Token.QueryTok, G.pattern),
 

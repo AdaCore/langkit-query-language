@@ -3,6 +3,7 @@ with Patterns;                   use Patterns;
 with Node_Data;                  use Node_Data;
 with Depth_Nodes;                use Depth_Nodes;
 with Patterns.Match;             use Patterns.Match;
+with Builtin_Functions;          use Builtin_Functions;
 with Interpreter.Errors;         use Interpreter.Errors;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
@@ -31,9 +32,6 @@ package body Interpreter.Evaluation is
    function Eval_Bool_Literal (Node : L.Bool_Literal) return Primitive;
 
    function Eval_Unit_Literal (Node : L.Unit_Literal) return Primitive;
-
-   function Eval_Print
-     (Ctx : Eval_Context; Node : L.Print_Stmt) return Primitive;
 
    function Eval_Bin_Op
      (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive;
@@ -72,7 +70,7 @@ package body Interpreter.Evaluation is
      (Ctx : Eval_Context; Node : L.Fun_Def) return Primitive;
 
    function Eval_Fun_Call
-     (Ctx : Eval_Context; Node : L.Fun_Call) return Primitive;
+     (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive;
 
    function Eval_Selector_Def
      (Ctx : Eval_Context; Node : L.Selector_Def) return Primitive;
@@ -159,8 +157,6 @@ package body Interpreter.Evaluation is
               Eval_Bool_Literal (Node.As_Bool_Literal),
             when LCO.LKQL_Unit_Literal =>
               Eval_Unit_Literal (Node.As_Unit_Literal),
-            when LCO.LKQL_Print_Stmt =>
-              Eval_Print (Local_Context, Node.As_Print_Stmt),
             when LCO.LKQL_Bin_Op =>
               Eval_Bin_Op (Local_Context, Node.As_Bin_Op),
             when LCO.LKQL_Dot_Access =>
@@ -311,18 +307,6 @@ package body Interpreter.Evaluation is
 
    function Eval_Unit_Literal (Node : L.Unit_Literal) return Primitive is
       (Make_Unit_Primitive);
-
-   ----------------
-   -- Eval_Print --
-   ----------------
-
-   function Eval_Print
-     (Ctx : Eval_Context; Node : L.Print_Stmt) return Primitive
-   is
-   begin
-      Display (Eval (Ctx, Node.F_Value));
-      return Make_Unit_Primitive;
-   end Eval_Print;
 
    -----------------
    -- Eval_Bin_Op --
@@ -570,40 +554,38 @@ package body Interpreter.Evaluation is
    -------------------
 
    function Eval_Fun_Call
-     (Ctx : Eval_Context; Node : L.Fun_Call) return Primitive
+     (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive
    is
-      Arguments : L.Expr_List renames Node.F_Arguments;
-      Fun_Def   : L.Fun_Def;
-      Fun_Prim  : constant Primitive :=
-        Eval_Identifier (Ctx, Node.F_Name);
-      Fun_Ctx   : constant Eval_Context :=
-        (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
    begin
-      if Kind (Fun_Prim) /= Kind_Fun then
-         Raise_Invalid_Kind
-           (Ctx, Node.F_Name.As_LKQL_Node, Kind_Fun, Fun_Prim);
+      if Is_Builtin_Call (Call) then
+         return Eval_Builtin_Call (Ctx, Call);
       end if;
 
-      Fun_Def := Fun_Val (Fun_Prim);
+      declare
+         Arguments : L.Expr_List renames Call.F_Arguments;
+         Fun_Def   : constant L.Fun_Def :=
+           Fun_Val (Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Fun));
+         Fun_Ctx   : constant Eval_Context :=
+           (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
+      begin
+         if Call.P_Arity /= Fun_Def.P_Arity then
+            Raise_Invalid_Arity (Ctx, Fun_Def.P_Arity, Call.F_Arguments);
+         end if;
 
-      if Arguments.Children_Count /= Fun_Def.F_Parameters.Children_Count
-      then
-         Raise_Invalid_Arity
-           (Ctx, Fun_Def.F_Parameters.Children_Count, Node.F_Arguments);
-      end if;
+         for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index
+         loop
+            declare
+               Arg       : constant L.Expr := Call.P_Nth_Argument (I);
+               Arg_Name  : constant Text_Type :=
+                 Fun_Def.P_Nth_Parameter (I).Text;
+               Arg_Value : constant Primitive := Eval (Ctx, Arg);
+            begin
+               Fun_Ctx.Add_Binding (Arg_Name, Arg_Value);
+            end;
+         end loop;
 
-      for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index loop
-         declare
-            Arg       : constant L.LKQL_Node := Arguments.Children (I);
-            Arg_Name  : constant Text_Type :=
-              Fun_Def.F_Parameters.Children (I).Text;
-            Arg_Value : constant Primitive := Eval (Ctx, Arg);
-         begin
-            Fun_Ctx.Add_Binding (Arg_Name, Arg_Value);
-         end;
-      end loop;
-
-      return Eval (Fun_Ctx, Fun_Def.F_Body_Expr);
+         return Eval (Fun_Ctx, Fun_Def.F_Body_Expr);
+      end;
    end Eval_Fun_Call;
 
    -----------------------
