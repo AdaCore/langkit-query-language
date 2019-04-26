@@ -72,6 +72,15 @@ package body Interpreter.Evaluation is
    function Eval_Fun_Call
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive;
 
+   function Eval_User_Fun_Call (Ctx  : Eval_Context;
+                                Call : L.Fun_Call;
+                                Fun_Def : L.Fun_Def) return Primitive;
+
+   function Eval_Arguments (Ctx        : Eval_Context;
+                            Arguments  : L.Expr_List;
+                            Parameters : L.Identifier_List)
+                            return Environment_Map;
+
    function Eval_Selector_Def
      (Ctx : Eval_Context; Node : L.Selector_Def) return Primitive;
 
@@ -556,37 +565,62 @@ package body Interpreter.Evaluation is
    function Eval_Fun_Call
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive
    is
+      Fun_Def : L.Fun_Def;
    begin
       if Is_Builtin_Call (Call) then
          return Eval_Builtin_Call (Ctx, Call);
       end if;
 
-      declare
-         Arguments : L.Expr_List renames Call.F_Arguments;
-         Fun_Def   : constant L.Fun_Def :=
-           Fun_Val (Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Fun));
-         Fun_Ctx   : constant Eval_Context :=
-           (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
-      begin
-         if Call.P_Arity /= Fun_Def.P_Arity then
-            Raise_Invalid_Arity (Ctx, Fun_Def.P_Arity, Call.F_Arguments);
-         end if;
+      Fun_Def := Fun_Val (Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Fun));
 
-         for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index
-         loop
-            declare
-               Arg       : constant L.Expr := Call.P_Nth_Argument (I);
-               Arg_Name  : constant Text_Type :=
-                 Fun_Def.P_Nth_Parameter (I).Text;
-               Arg_Value : constant Primitive := Eval (Ctx, Arg);
-            begin
-               Fun_Ctx.Add_Binding (Arg_Name, Arg_Value);
-            end;
-         end loop;
-
-         return Eval (Fun_Ctx, Fun_Def.F_Body_Expr);
-      end;
+      return Eval_User_Fun_Call (Ctx, Call, Fun_Def);
    end Eval_Fun_Call;
+
+   ------------------------
+   -- Eval_User_Fun_Call --
+   ------------------------
+
+   function Eval_User_Fun_Call (Ctx  : Eval_Context;
+                                Call : L.Fun_Call;
+                                Fun_Def : L.Fun_Def) return Primitive
+   is
+      Args_Bindings : constant Environment_Map :=
+        Eval_Arguments (Ctx, Call.F_Arguments, Fun_Def.F_Parameters);
+      Fun_Ctx       : constant Eval_Context :=
+           (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
+   begin
+      return Eval
+        (Fun_Ctx, Fun_Def.F_Body_Expr, Local_Bindings => Args_Bindings);
+   end Eval_User_Fun_Call;
+
+   --------------------
+   -- Eval_Arguments --
+   --------------------
+
+   function Eval_Arguments (Ctx        : Eval_Context;
+                            Arguments  : L.Expr_List;
+                            Parameters : L.Identifier_List)
+                            return Environment_Map
+   is
+      Args_Bindings : Environment_Map;
+   begin
+      if Arguments.Children_Count /= Parameters.Children_Count then
+         Raise_Invalid_Arity (Ctx, Parameters.Children_Count, Arguments);
+      end if;
+
+      for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index loop
+         declare
+            Arg       : constant L.Expr := Arguments.List_Child (I);
+            Arg_Name  : constant Unbounded_Text_Type :=
+              To_Unbounded_Text (Parameters.List_Child (I).Text);
+            Arg_Value : constant Primitive := Eval (Ctx, Arg);
+         begin
+            Args_Bindings.Insert (Arg_Name, Arg_Value);
+         end;
+      end loop;
+
+      return Args_Bindings;
+   end Eval_Arguments;
 
    -----------------------
    -- Eval_Selector_Def --
