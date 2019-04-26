@@ -1,0 +1,11 @@
+let no_override = 42
+
+fun attempt_override(no_override) = ()
+
+fun attempt_override2() = val no_override = 88888888; ()
+
+print(no_override)
+attempt_override(99999999)
+print(no_override)
+attempt_override2()
+print(no_override)
