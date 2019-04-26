@@ -1,6 +1,12 @@
 with Interpreter.Evaluation;     use Interpreter.Evaluation;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+
 package body Builtin_Functions is
 
    ---------------------
@@ -8,7 +14,7 @@ package body Builtin_Functions is
    ---------------------
 
    function Is_Builtin_Call (Call : L.Fun_Call) return Boolean is
-      (Call.F_Name.Text = "print");
+      (Call.F_Name.Text = "print" or else Call.F_Name.Text = "debug");
 
    -----------------------
    -- Eval_Builtin_Call --
@@ -24,6 +30,8 @@ package body Builtin_Functions is
 
       if Call.F_Name.Text = "print" then
          return Eval_Print (Ctx, Call.P_Nth_Argument (1));
+      elsif Call.F_Name.Text = "debug" then
+         return Eval_Debug (Ctx, Call.P_Nth_Argument (1));
       end if;
 
       Raise_Unknown_Symbol (Ctx, Call.F_Name);
@@ -38,5 +46,19 @@ package body Builtin_Functions is
       Display (Eval (Ctx, Expr));
       return Make_Unit_Primitive;
    end Eval_Print;
+
+   ----------------
+   -- Eval_Debug --
+   ----------------
+
+   function Eval_Debug (Ctx : Eval_Context; Node : L.Expr) return Primitive is
+      Code  : constant Text_Type := Node.Text;
+      Value : constant Primitive := Eval (Ctx, Node);
+      Message : constant Unbounded_Text_Type :=
+        Code & " = " & To_Unbounded_Text (Value);
+   begin
+      Put_Line (Message);
+      return Value;
+   end Eval_Debug;
 
 end Builtin_Functions;

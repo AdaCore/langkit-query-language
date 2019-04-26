@@ -1,0 +1,7 @@
+let x = 38
+
+let y = 4
+
+let result = debug(x + y)
+
+print(result)
