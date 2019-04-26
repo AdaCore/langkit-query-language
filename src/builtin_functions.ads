@@ -18,7 +18,6 @@ private
 
    function Eval_Print (Ctx : Eval_Context; Expr : L.Expr) return Primitive;
 
-   --  function Eval_Debug
-   --  (Ctx : Eval_Context; Value : L.Expr) return Primitive;
+   function Eval_Debug (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
 end Builtin_Functions;
