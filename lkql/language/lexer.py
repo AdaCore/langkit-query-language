@@ -19,7 +19,6 @@ class Token(LexerToken):
     Skip = WithSymbol()
     Is = WithSymbol()
     In = WithSymbol()
-    Print = WithSymbol()
     TrueLit = WithSymbol()
     FalseLit = WithSymbol()
 
@@ -93,7 +92,6 @@ lkql_lexer.add_rules(
     (Literal("skip"),                                       Token.Skip),
     (Literal("is"),                                         Token.Is),
     (Literal("in"),                                         Token.In),
-    (Literal("print"),                                      Token.Print),
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
     (Pattern("[0-9]+"),                                     Token.Integer),
