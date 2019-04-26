@@ -446,6 +446,13 @@ class FunDef(Expr):
     parameters = Field(type=Identifier.list)
     body_expr = Field(type=Expr)
 
+    @langkit_property(return_type=T.Int, public=True)
+    def arity():
+        """
+        Return the number of parameters of the function
+        """
+        return Self.parameters.length
+
 
 class FunCall(Expr):
     """
@@ -457,6 +464,13 @@ class FunCall(Expr):
 
     name = Field(type=Identifier)
     arguments = Field(type=Expr.list)
+
+    @langkit_property(return_type=T.Int, public=True)
+    def arity():
+        """
+        Return the number of arguments of the function call
+        """
+        return Self.arguments.length
 
 
 class SelectorExprMode(LKQLNode):
