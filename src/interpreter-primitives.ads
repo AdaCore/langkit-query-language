@@ -245,6 +245,13 @@ package Interpreter.Primitives is
    --  Kind_List, or if the kind of `Element` doesn't match the kind of the
    --  values stored in `List`.
 
+   procedure Extend (List, New_Value : Primitive);
+   --  Push 'New_value' to the end of 'List'.
+   --  If 'New_value' is a list or iterator, it's elements will be pushed
+   --  in order.
+   --  An Unsupported_Error will be raise if 'List' is not a value of kind
+   --  Kind_List.
+
    function Contains (List, Value : Primitive) return Boolean;
    --  Check whether `List` contains `Value`.
    --  An Unsupported_Error will be raised if `List` is not a value of kind
