@@ -23,6 +23,12 @@ package Interpreter.Eval_Contexts is
      (Env : in out Environment_Map; New_Bindings : Environment_Map);
    --  Add the key-value pairs from 'New_Bindings' to 'Env'
 
+   procedure Merge_Into
+     (Env : in out Environment_Map; Other : Environment_Map);
+   --  Merge 'Other' into 'Env'. All the key-value pairs from 'Other' will be
+   --  added to 'Env'. In case of key conflict, the values will be stored
+   --  into a list Primitive.
+
    type Global_Data is private;
 
    type Global_Data_Access is access all Global_Data;

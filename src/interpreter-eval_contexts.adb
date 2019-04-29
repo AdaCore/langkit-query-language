@@ -181,4 +181,49 @@ package body Interpreter.Eval_Contexts is
       end loop;
    end Add_Bindings;
 
+   procedure Merge_Item_Into (Env   : in out Environment_Map;
+                              Key   : Unbounded_Text_Type;
+                              Value : Primitive);
+
+   ----------------
+   -- Merge_Into --
+   ----------------
+
+   procedure Merge_Into
+     (Env : in out Environment_Map; Other : Environment_Map)
+   is
+   begin
+      for C in Iterate (Other) loop
+         Merge_Item_Into (Env, Key (C), Element (C));
+      end loop;
+   end Merge_Into;
+
+   ---------------------
+   -- Merge_Item_Into --
+   ---------------------
+
+   procedure Merge_Item_Into (Env   : in out Environment_Map;
+                              Key   : Unbounded_Text_Type;
+                              Value : Primitive)
+   is
+      Pos : constant Cursor := Env.Find (Key);
+   begin
+      if not Has_Element (Pos) then
+         Env.Insert (Key, Value);
+      elsif Kind (Element (Pos)) = Kind_List then
+         Extend (Element (Pos), Value);
+      elsif Kind (Value) = Kind_List then
+         Extend (Value, Element (Pos));
+         Env.Include (Key, Value);
+      else
+         declare
+            List : constant Primitive := Make_Empty_List;
+         begin
+            Append (List, Element (Pos));
+            Append (List, Value);
+            Env.Insert (Key, List);
+         end;
+      end if;
+   end Merge_Item_Into;
+
 end Interpreter.Eval_Contexts;
