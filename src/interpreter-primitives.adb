@@ -489,6 +489,61 @@ package body Interpreter.Primitives is
       List_Elements.Append (Element);
    end Append;
 
+   procedure Extend_With_List (List      : Primitive_List_Access;
+                               New_values : Primitive_List_Access);
+
+   procedure Extend_With_Iter (List : Primitive_List_Access;
+                               Iter : Iterator_Primitive_Access);
+
+   ------------
+   -- Extend --
+   ------------
+
+   procedure Extend (List, New_Value : Primitive) is
+   begin
+      Check_Kind (Kind_List, List);
+
+      case Kind (New_Value) is
+         when Kind_List =>
+            Extend_With_List (List_Val (List), List_Val (New_Value));
+         when Kind_Iterator =>
+            Extend_With_Iter (List_Val (List), Iter_Val (New_Value));
+         when others =>
+            Append (List, New_Value);
+      end case;
+   end Extend;
+
+   ----------------------
+   -- Extend_With_List --
+   ----------------------
+
+   procedure Extend_With_List (List      : Primitive_List_Access;
+                               New_values : Primitive_List_Access)
+   is
+   begin
+      for E of New_values.Elements loop
+         List.Elements.Append (E);
+      end loop;
+   end Extend_With_List;
+
+   ----------------------
+   -- Extend_With_Iter --
+   ----------------------
+
+   procedure Extend_With_Iter (List : Primitive_List_Access;
+                               Iter : Iterator_Primitive_Access)
+   is
+      Iter_Copy       : Primitive_Iter'Class :=
+        Iter.Iter.Clone;
+      Current_Element : Primitive;
+   begin
+      while Iter_Copy.Next (Current_Element) loop
+         List.Elements.Append (Current_Element);
+      end loop;
+
+      Iter_Copy.Release;
+   end Extend_With_Iter;
+
    --------------
    -- Contains --
    --------------
