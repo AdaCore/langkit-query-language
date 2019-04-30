@@ -143,7 +143,7 @@ package body Node_Data is
                            Property_Ref : Property_Reference;
                            Call         : L.Dot_Call) return Primitive
    is
-      Arguments          : constant L.Expr_List := Call.F_Arguments;
+      Arguments          : constant L.Arg_List := Call.F_Arguments;
       Arguments_Type     : constant Value_Constraint_Array :=
         Property_Argument_Types (Property_Ref);
       Property_Arguments : Value_Array (1 .. Arguments_Type'Length);
@@ -154,12 +154,12 @@ package body Node_Data is
 
       for I in 1 .. Arguments_Type'Length loop
          declare
-            Arg       : constant L.LKQL_Node := Arguments.Children (I);
-            Arg_Value : constant Primitive := Eval (Ctx, Arg);
+            Arg       : constant L.Arg := Arguments.List_Child (I);
+            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
             Arg_Type  : constant Value_Kind := Arguments_Type (I).Kind;
          begin
             Property_Arguments (I) :=
-              To_Value_Type (Ctx, Arg.As_Expr, Arg_Value, Arg_Type);
+              To_Value_Type (Ctx, Arg.P_Expr, Arg_Value, Arg_Type);
          end;
       end loop;
 

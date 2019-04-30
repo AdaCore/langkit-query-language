@@ -29,9 +29,9 @@ package body Builtin_Functions is
       end if;
 
       if Call.F_Name.Text = "print" then
-         return Eval_Print (Ctx, Call.P_Nth_Argument (1));
+         return Eval_Print (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
       elsif Call.F_Name.Text = "debug" then
-         return Eval_Debug (Ctx, Call.P_Nth_Argument (1));
+         return Eval_Debug (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
       end if;
 
       Raise_Unknown_Symbol (Ctx, Call.F_Name);
