@@ -1,7 +1,9 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Ada.Containers.Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors; use Ada.Containers;
 with Ada.Strings.Wide_Wide_Unbounded;   use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 
 package String_Utils is
 
@@ -10,6 +12,14 @@ package String_Utils is
 
    subtype String_Vector is String_Vectors.Vector;
    --  Vector of Unbouted_Text_type values
+
+   package String_Sets is new Ada.Containers.Hashed_Sets
+     (Element_Type        => Unbounded_Text_Type,
+      Hash                => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
+      Equivalent_Elements => Ada.Strings.Wide_Wide_Unbounded."=");
+
+   subtype String_Set is String_Sets.Set;
+   --  Set of Unbounded_Text_Type values
 
    function Split_Lines (Str : Text_Type) return String_Vectors.Vector;
    --  Return a list of the lines in the given string
