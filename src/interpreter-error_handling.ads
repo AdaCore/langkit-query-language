@@ -67,11 +67,31 @@ package Interpreter.Error_Handling is
 
    procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
                                   Expected_Arity : Positive;
-                                  Arguments      : L.Expr_List)
+                                  Arguments      : L.Arg_List)
      with No_Return;
    --  Raise an exception signaling an attempt to call a function with an
    --  incorrect number of arguments,
    --  and add an Error_Data describing the error to the evaluation context.
+
+   procedure Raise_Unknown_Argument (Ctx        : Eval_Context;
+                                     Identifier : L.Identifier)
+     with No_Return;
+   --  Raise an exception signaling an attempt to call a functon with an
+   --  argument which name doesn't match the name of a parameter, and add an
+   --  Error_Data describing the error to the evaluation context.
+
+   procedure Raise_Positionnal_After_Named (Ctx         : Eval_Context;
+                                            Positionnal : L.Expr_Arg)
+     with No_Return;
+   --  Raise an exception signaling the use of a positonnal argument after a
+   --  named argument, and add an Error_Data describing the error to the
+   --  evaluation context.
+
+   procedure Raise_Already_Seen_Arg (Ctx : Eval_Context;
+                                     Arg : L.Named_Arg)
+     with No_Return;
+   --  Raise an exception signaling an attempt to call a function with
+   --  at least two identically-named arguments.
 
    procedure Raise_Unsupported_Value_Type (Ctx       : Eval_Context;
                                            Node      : L.LKQL_Node;

@@ -155,7 +155,7 @@ package body Interpreter.Error_Handling is
 
    procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
                                   Expected_Arity : Positive;
-                                  Arguments      : L.Expr_List)
+                                  Arguments      : L.Arg_List)
    is
       Expected : constant Text_Type :=
         Integer'Wide_Wide_Image (Expected_Arity);
@@ -168,6 +168,48 @@ package body Interpreter.Error_Handling is
       Raise_And_Record_Error
         (Ctx, Make_Eval_Error (Arguments.As_LKQL_Node, Message));
    end Raise_Invalid_Arity;
+
+   ----------------------------
+   -- Raise_Unknown_Argument --
+   ----------------------------
+
+   procedure Raise_Unknown_Argument (Ctx        : Eval_Context;
+                                     Identifier : L.Identifier)
+   is
+      Message : constant Unbounded_Text_Type :=
+        "Unknown argument name: " & To_Unbounded_Text (Identifier.Text);
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Identifier.As_LKQL_Node, Message));
+   end Raise_Unknown_Argument;
+
+   -----------------------------------
+   -- Raise_Positionnal_After_Named --
+   -----------------------------------
+
+   procedure Raise_Positionnal_After_Named (Ctx         : Eval_Context;
+                                            Positionnal : L.Expr_Arg)
+   is
+      Message : constant Unbounded_Text_Type :=
+        To_Unbounded_Text ("Positional argument after named argument");
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Positionnal.As_LKQL_Node, Message));
+   end Raise_Positionnal_After_Named;
+
+   ----------------------------
+   -- Raise_Already_Seen_Arg --
+   ----------------------------
+
+   procedure Raise_Already_Seen_Arg (Ctx : Eval_Context;
+                                     Arg : L.Named_Arg)
+   is
+      Message : constant Unbounded_Text_Type :=
+        To_Unbounded_Text ("Multiple arguments with the same name");
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (Arg.As_LKQL_Node, Message));
+   end Raise_Already_Seen_Arg;
 
    ----------------------------------
    -- Raise_Unsupported_Value_Type --

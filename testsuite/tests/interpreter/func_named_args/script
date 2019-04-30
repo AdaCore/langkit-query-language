@@ -1,0 +1,4 @@
+fun concat(first, second) = first & second
+
+print(concat(second="World !", first="Hello "))
+print(concat("Hello", second=" World !"))

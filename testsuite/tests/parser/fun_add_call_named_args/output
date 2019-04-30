@@ -3,9 +3,13 @@ FunCall
 |  Identifier: add
 |arguments:
 |  ArgList
-|  |  ExprArg
+|  |  NamedArg
+|  |  |arg_name:
+|  |  |  Identifier: x
 |  |  |value_expr:
 |  |  |  IntegerLiteral: 2
-|  |  ExprArg
+|  |  NamedArg
+|  |  |arg_name:
+|  |  |  Identifier: y
 |  |  |value_expr:
 |  |  |  IntegerLiteral: 40

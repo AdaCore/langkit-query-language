@@ -1,7 +1,7 @@
 from langkit.dsl import (T, ASTNode, abstract, Field)
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind
+    Self, String, No, langkit_property, AbstractKind, Not
 )
 from lexer import Token
 
@@ -70,6 +70,66 @@ class UnitLiteral(Expr):
     pass
 
 
+@abstract
+class Arg(LKQLNode):
+    """
+    Base class for arguments
+    """
+
+    @langkit_property(return_type=Identifier, public=True)
+    def name():
+        """
+        Return the argument's name, or an empty String if the argument has no
+        name.
+        """
+        return No(Identifier)
+
+    @langkit_property(return_type=T.Bool, public=True)
+    def has_name():
+        """
+        Return whether the argument has a name.
+        """
+        return Not(Self.name.is_null)
+
+    @langkit_property(return_type=Expr, public=True,
+                      kind=AbstractKind.abstract)
+    def expr():
+        """
+        Return the argument's expression.
+        """
+        pass
+
+
+class ExprArg(Arg):
+    """
+    Argument that consists of an expression
+    """
+    value_expr = Field(type=Expr)
+
+    @langkit_property()
+    def expr():
+        return Self.value_expr
+
+
+class NamedArg(Arg):
+    """
+    Named argument of the form: name=expression
+
+    For instance::
+       add(x=20, y=22)
+    """
+    arg_name = Field(type=Identifier)
+    value_expr = Field(type=Expr)
+
+    @langkit_property()
+    def expr():
+        return Self.value_expr
+
+    @langkit_property()
+    def name():
+        return Self.arg_name
+
+
 class BinOp(Expr):
     """
     Binary operation.
@@ -115,7 +175,7 @@ class DotCall(Expr):
     """
     receiver = Field(type=Expr)
     member = Field(type=Identifier)
-    arguments = Field(type=Expr.list)
+    arguments = Field(type=Arg.list)
 
 
 class IsClause(Expr):
@@ -446,6 +506,20 @@ class FunDef(Expr):
         """
         return Self.parameters.length
 
+    @langkit_property(return_type=Identifier, public=True)
+    def find_parameter(name=T.String):
+        """
+        Return the parameter associated with the given name, if any.
+        """
+        return Self.parameters.find(lambda p: p.text == name)
+
+    @langkit_property(return_type=T.Bool, public=True)
+    def has_parameter(name=T.String):
+        """
+        Return whether the function has a parameter with the given name.
+        """
+        return Not(Self.find_parameter(name).is_null)
+
 
 class FunCall(Expr):
     """
@@ -456,7 +530,7 @@ class FunCall(Expr):
     """
 
     name = Field(type=Identifier)
-    arguments = Field(type=Expr.list)
+    arguments = Field(type=Arg.list)
 
     @langkit_property(return_type=T.Int, public=True)
     def arity():
@@ -558,6 +632,7 @@ class Match(Expr):
         """
         return Self.arms.map(lambda x: x.pattern.as_entity)
 
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
@@ -650,7 +725,7 @@ lkql_grammar.add_rules(
                           Token.Dot,
                           G.identifier,
                           Token.LPar,
-                          List(G.expr, sep=Token.Coma, empty_valid=False),
+                          List(G.arg, sep=Token.Coma, empty_valid=False),
                           Token.RPar),
                   DotAccess(G.value_expr, Token.Dot, G.identifier),
                   G.assign,
@@ -677,7 +752,7 @@ lkql_grammar.add_rules(
 
     fun_call=FunCall(G.identifier,
                      Token.LPar,
-                     List(G.expr, empty_valid=True, sep=Token.Coma),
+                     List(G.arg, empty_valid=True, sep=Token.Coma),
                      Token.RPar),
 
     selector_def=SelectorDef(Token.Selector,
@@ -715,5 +790,7 @@ lkql_grammar.add_rules(
 
     string_literal=StringLiteral(Token.String),
 
-    unit_literal=UnitLiteral(Token.LPar, Token.RPar)
+    unit_literal=UnitLiteral(Token.LPar, Token.RPar),
+
+    arg=Or(NamedArg(G.identifier, Token.Eq, G.expr), ExprArg(G.expr))
 )

@@ -4,12 +4,16 @@ DotCall
 |member:
 |  Identifier: propertyWithArgs
 |arguments:
-|  ExprList
-|  |  StringLiteral: "arg1"
-|  |  BinOp
-|  |  |left:
-|  |  |  IntegerLiteral: 40
-|  |  |op:
-|  |  |  OpPlus
-|  |  |right:
-|  |  |  IntegerLiteral: 2
+|  ArgList
+|  |  ExprArg
+|  |  |value_expr:
+|  |  |  StringLiteral: "arg1"
+|  |  ExprArg
+|  |  |value_expr:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  IntegerLiteral: 40
+|  |  |  |op:
+|  |  |  |  OpPlus
+|  |  |  |right:
+|  |  |  |  IntegerLiteral: 2
