@@ -436,8 +436,7 @@ class ValExpr(Expr):
 
 class FunDef(Expr):
     """
-    Function definition.
-    The list of arguments of a function cannot be empty
+    Function definition
 
     For instance::
        fun add(x, y) = x + y
@@ -668,14 +667,14 @@ lkql_grammar.add_rules(
     fun_def=FunDef(Token.Fun,
                    G.identifier,
                    Token.LPar,
-                   List(G.identifier, empty_valid=False, sep=Token.Coma),
+                   List(G.identifier, empty_valid=True, sep=Token.Coma),
                    Token.RPar,
                    Token.Eq,
                    G.expr),
 
     fun_call=FunCall(G.identifier,
                      Token.LPar,
-                     List(G.expr, empty_valid=False, sep=Token.Coma),
+                     List(G.expr, empty_valid=True, sep=Token.Coma),
                      Token.RPar),
 
     selector_def=SelectorDef(Token.Selector,
