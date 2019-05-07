@@ -35,4 +35,15 @@ private
    --     * Named arguments are unique and match the name of a function
    --       parameter
 
+   function Is_Builtin_Call (Call : L.Fun_Call) return Boolean;
+   --  Return wether 'Call' is a call to a built-in function
+
+   function Eval_Builtin_Call
+     (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive;
+   --  Evaluate a call to a built-in function
+
+   function Eval_Print (Ctx : Eval_Context; Expr : L.Expr) return Primitive;
+
+   function Eval_Debug (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+
 end Functions;
