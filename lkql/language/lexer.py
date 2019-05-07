@@ -1,5 +1,5 @@
 from langkit.lexer import Lexer, LexerToken, WithText, WithSymbol, Pattern,\
-                            Literal, Ignore
+                            Literal, Ignore, WithTrivia
 
 
 class Token(LexerToken):
@@ -50,6 +50,8 @@ class Token(LexerToken):
     BigRArrow = WithText()
     Box = WithText()
 
+    Comment = WithTrivia()
+
 
 lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
@@ -97,5 +99,6 @@ lkql_lexer.add_rules(
     (Pattern("[0-9]+"),                                     Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),                    Token.KindName),
-    (Pattern("\"[^\"]*\""),                                 Token.String)
+    (Pattern("\"[^\"]*\""),                                 Token.String),
+    (Pattern(r"//(.?)+"),                                   Token.Comment)
 )
