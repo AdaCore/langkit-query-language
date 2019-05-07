@@ -808,6 +808,15 @@ package body Interpreter.Evaluation is
       return Make_Closure (Self.Ctx, Self.Body_Expr);
    end Clone;
 
+   -------------
+   -- Release --
+   -------------
+
+   overriding procedure Release (Self : in out Closure) is
+   begin
+      Self.Ctx.Release_Current_Frame;
+   end Release;
+
    ------------------
    -- Make_Closure --
    ------------------
@@ -816,7 +825,7 @@ package body Interpreter.Evaluation is
      (Ctx : Eval_Context; Body_Expr : L.Expr) return Closure
    is
    begin
-      return Closure'(Ctx, Body_Expr);
+      return Closure'(Ctx.Clone_Frame, Body_Expr);
    end Make_Closure;
 
    --------------

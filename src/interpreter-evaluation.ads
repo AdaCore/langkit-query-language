@@ -79,6 +79,8 @@ private
 
    overriding function Clone (Self : Closure) return Closure;
 
+   overriding procedure Release (Self : in out Closure);
+
    function Make_Closure
      (Ctx : Eval_Context; Body_Expr : L.Expr) return Closure;
 

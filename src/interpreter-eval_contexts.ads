@@ -78,6 +78,9 @@ package Interpreter.Eval_Contexts is
    procedure Set_AST_Root (Ctx : Eval_Context; New_Root : LAL.Ada_Node);
    --  Set 'New_Root' as the Ast root for evaluation
 
+   function Clone_Frame (Ctx : Eval_Context) return Eval_Context;
+   --  Make a deep copy of the current frame
+
    function Create_New_Frame (Ctx            : Eval_Context;
                               Local_Bindings : Environment_Map := Empty_Map)
                               return Eval_Context;
