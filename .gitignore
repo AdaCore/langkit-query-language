@@ -12,5 +12,8 @@ lkql/build.sh
 testsuite/build
 testsuite/libadalang
 testsuite/run_testsuite.sh
+callgrind*
 
 coding_standard
+
+IL_design\.txt
