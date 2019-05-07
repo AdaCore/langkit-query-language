@@ -53,7 +53,15 @@ package body Interpreter.Eval_Contexts is
    --------------
 
    function AST_Root (Ctx : Eval_Context) return LAL.Ada_Node is
-      (Ctx.Kernel.Ast_Root);
+     (Ctx.Kernel.Ast_Root);
+
+   -----------
+   -- Clone --
+   -----------
+
+   function Clone_Frame (Ctx : Eval_Context) return Eval_Context is
+     ((Kernel => Ctx.Kernel,
+       Frames => new Environment'(Ctx.Frames.all)));
 
    --------------
    -- Set_Root --
