@@ -483,15 +483,15 @@ package body Interpreter.Evaluation is
    function Eval_List_Comprehension
      (Ctx : Eval_Context; Node : L.List_Comprehension) return Primitive
    is
-      Comprehension_Envs : constant Comprehension_Env_Iter :=
+      Comprehension_Envs    : constant Comprehension_Env_Iter :=
         Make_Comprehension_Environment_Iter (Ctx, Node.F_Generators);
-      Guard_Filter : constant Comprehension_Guard_Filter :=
+      Guard_Filter          : constant Comprehension_Guard_Filter :=
         Make_Guard_Filter (Ctx, Node.F_Guard);
-      Filtered_Envs : constant Environment_Iters.Filter_Iter :=
+      Filtered_Envs         : constant Environment_Iters.Filter_Iter :=
         Environment_Iters.Filter (Comprehension_Envs, Guard_Filter);
       Comprehension_Closure : constant Closure :=
         Make_Closure (Ctx, Node.F_Expr);
-      Comprehension_Values : Env_Primitive_Maps.Map_Iter :=
+      Comprehension_Values  : Env_Primitive_Maps.Map_Iter :=
         (if Node.F_Guard.Is_Null
          then
             Env_Primitive_Maps.Map (Comprehension_Envs, Comprehension_Closure)
