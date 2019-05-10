@@ -23,7 +23,7 @@ package body Functions is
          return Eval_Builtin_Call (Ctx, Call);
       end if;
 
-      Fun_Def := Fun_Val (Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Fun));
+      Fun_Def := Call.P_Called_Function;
 
       return Eval_User_Fun_Call (Ctx, Call, Fun_Def);
    end Eval_Fun_Call;

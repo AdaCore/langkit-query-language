@@ -1,10 +1,12 @@
-from langkit.dsl import (T, ASTNode, abstract, Field)
 from langkit.parsers import Grammar, Or, List, Pick, Opt
+from langkit.dsl import (
+    T, ASTNode, abstract, Field, has_abstract_list
+)
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Not
 )
+from langkit.envs import add_env, add_to_env_kv, EnvSpec
 from lexer import Token
-
 
 @abstract
 class LKQLNode(ASTNode):
@@ -15,11 +17,22 @@ class LKQLNode(ASTNode):
 
 
 @abstract
+@has_abstract_list
 class Expr(LKQLNode):
     """
     Root node class for LKQL expressions.
     """
     pass
+
+
+class TopLevelList(Expr.list):
+    """
+    Holder for the top-level environment
+    """
+
+    env_spec = EnvSpec(
+        add_env()
+    )
 
 
 @abstract
@@ -499,6 +512,8 @@ class FunDef(Expr):
     parameters = Field(type=Identifier.list)
     body_expr = Field(type=Expr)
 
+    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+
     @langkit_property(return_type=T.Int, public=True)
     def arity():
         """
@@ -538,6 +553,13 @@ class FunCall(Expr):
         Return the number of arguments of the function call
         """
         return Self.arguments.length
+
+    @langkit_property(return_type=FunDef.entity, public=True)
+    def called_function():
+        """
+        Return the function definition that corresponds to the called function.
+        """
+        return Self.node_env.get_first(Self.name.symbol).cast(FunDef)
 
 
 class SelectorExprMode(LKQLNode):
@@ -637,7 +659,8 @@ lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
-    main_rule=List(Or(G.statement, G.expr, G.query, G.selector_def)),
+    main_rule=List(Or(G.statement, G.expr, G.query, G.selector_def),
+                   list_cls=TopLevelList),
 
     statement=Or(G.assign),
 
