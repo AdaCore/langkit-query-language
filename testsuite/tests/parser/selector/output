@@ -1,4 +1,4 @@
-ExprList
+TopLevelList
 |  SelectorDef
 |  |name:
 |  |  Identifier: testSelector
