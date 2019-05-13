@@ -165,7 +165,7 @@ package body Node_Data is
 
       declare
          Result : constant Value_Type :=
-           Evaluate_Node_Data (Receiver, Property_Ref, Property_Arguments);
+           Eval_Node_Data (Receiver, Property_Ref, Property_Arguments);
       begin
          return Create_Primitive (Ctx, Call.As_LKQL_Node, Result);
       end;
@@ -365,7 +365,7 @@ package body Node_Data is
 
       return Create_Primitive
         (Ctx, Member.As_LKQL_Node,
-         Evaluate_Node_Data (Receiver, Data_Ref, Empty_Args));
+         Eval_Node_Data (Receiver, Data_Ref, Empty_Args));
    end Access_Custom_Data;
 
 end Node_Data;
