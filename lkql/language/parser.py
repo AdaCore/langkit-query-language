@@ -642,13 +642,16 @@ class FunCall(Expr):
         return Let(
             lambda call_args=Self.as_entity.call_args:
             Let(lambda default_args=
-                Self.called_function().default_parameters()
-                    .filter(lambda p:
-                            Not(call_args.any(lambda e: e.name().text == p.name())))
-                    .map(lambda param:
-                         NamedArg.new(arg_name=param.param_identifier.node,
-                                      value_expr=param.default_expr.node)
-                                 .as_entity)
+                       Self.called_function()
+                           .default_parameters()
+                           .filter(lambda p:
+                                   Not(call_args.any(
+                                       lambda e: e.name().text == p.name())))
+                           .map(lambda param:
+                                NamedArg.new(
+                                    arg_name=param.param_identifier.node,
+                                    value_expr=param.default_expr.node)
+                                .as_entity)
                 : call_args.concat(default_args)))
 
     @langkit_property(return_type=T.Bool, public=True)
