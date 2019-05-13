@@ -1,12 +1,13 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
-    T, ASTNode, abstract, Field, has_abstract_list
+    T, ASTNode, abstract, Field, has_abstract_list, synthetic
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Not
+    Self, String, No, langkit_property, AbstractKind, Not, Let
 )
 from langkit.envs import add_env, add_to_env_kv, EnvSpec
 from lexer import Token
+
 
 @abstract
 class LKQLNode(ASTNode):
@@ -124,6 +125,7 @@ class ExprArg(Arg):
         return Self.value_expr
 
 
+@synthetic
 class NamedArg(Arg):
     """
     Named argument of the form: name=expression
@@ -141,6 +143,49 @@ class NamedArg(Arg):
     @langkit_property()
     def name():
         return Self.arg_name
+
+
+class Parameter(LKQLNode):
+    """
+    Base class for parameters
+    """
+
+    param_identifier = Field(type=Identifier)
+
+    @langkit_property(return_type=T.Identifier, public=True)
+    def identifier():
+        """
+        Return the identifier of the parameter.
+        """
+        return Self.param_identifier
+
+    @langkit_property(return_type=T.String, public=True)
+    def name():
+        """
+        Return the name of the parameter.
+        """
+        return Self.param_identifier.text
+
+    @langkit_property(return_type=Expr, public=True)
+    def default():
+        """
+        Return the default value of the parameter.
+        """
+        return No(Expr)
+
+
+class DefaultParam(Parameter):
+    """
+    Parameter with a default value.
+
+    For instance::
+       fun add(x, y=42) = ...
+    """
+    default_expr = Field(type=Expr)
+
+    @langkit_property()
+    def default():
+        return Self.default_expr
 
 
 class BinOp(Expr):
@@ -509,7 +554,7 @@ class FunDef(Expr):
     """
 
     name = Field(type=Identifier)
-    parameters = Field(type=Identifier.list)
+    parameters = Field(type=Parameter.list)
     body_expr = Field(type=Expr)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
@@ -521,7 +566,7 @@ class FunDef(Expr):
         """
         return Self.parameters.length
 
-    @langkit_property(return_type=Identifier, public=True)
+    @langkit_property(return_type=Parameter, public=True)
     def find_parameter(name=T.String):
         """
         Return the parameter associated with the given name, if any.
@@ -534,6 +579,16 @@ class FunDef(Expr):
         Return whether the function has a parameter with the given name.
         """
         return Not(Self.find_parameter(name).is_null)
+
+    @langkit_property(return_type=DefaultParam.entity.array, public=True)
+    def default_parameters():
+        """
+        Return the defaults parameters of the function, if any.
+        """
+        return Self.parameters.filtermap(
+            lambda p: p.cast(DefaultParam).as_entity,
+            lambda p: p.is_a(DefaultParam)
+        )
 
 
 class FunCall(Expr):
@@ -560,6 +615,41 @@ class FunCall(Expr):
         Return the function definition that corresponds to the called function.
         """
         return Self.node_env.get_first(Self.name.symbol).cast(FunDef)
+
+    @langkit_property(return_type=NamedArg.entity.array, memoized=True)
+    def call_args():
+        """
+        Return the explicit arguments of this call as named arguments.
+        """
+        return Self.arguments.map(
+            lambda pos, arg:
+            arg.match(
+                lambda e=ExprArg:
+                NamedArg.new(arg_name=Self.called_function()
+                             .parameters.at(pos).identifier,
+                             value_expr=e.value_expr).as_entity,
+                lambda n=NamedArg: n.as_entity,
+            )
+        )
+
+    @langkit_property(return_type=NamedArg.entity.array, public=True,
+                      memoized=True)
+    def resolved_arguments():
+        """
+        Return the arguments of this call (default arguments included)
+        as named arguments.
+        """
+        return Let(
+            lambda call_args=Self.as_entity.call_args:
+            Let(lambda default_args=
+                Self.called_function().default_parameters()
+                    .filter(lambda p:
+                            Not(call_args.any(lambda e: e.name().text == p.name())))
+                    .map(lambda param:
+                         NamedArg.new(arg_name=param.param_identifier.node,
+                                      value_expr=param.default_expr.node)
+                                 .as_entity)
+                : call_args.concat(default_args)))
 
 
 class SelectorExprMode(LKQLNode):
@@ -706,7 +796,6 @@ lkql_grammar.add_rules(
                                Opt(Token.Coma, G.expr),
                                Token.RBrack),
 
-
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
                      Op.alt_or(Token.Or)),
@@ -768,7 +857,7 @@ lkql_grammar.add_rules(
     fun_def=FunDef(Token.Fun,
                    G.identifier,
                    Token.LPar,
-                   List(G.identifier, empty_valid=True, sep=Token.Coma),
+                   List(G.param, empty_valid=True, sep=Token.Coma),
                    Token.RPar,
                    Token.Eq,
                    G.expr),
@@ -815,5 +904,8 @@ lkql_grammar.add_rules(
 
     unit_literal=UnitLiteral(Token.LPar, Token.RPar),
 
-    arg=Or(NamedArg(G.identifier, Token.Eq, G.expr), ExprArg(G.expr))
+    arg=Or(NamedArg(G.identifier, Token.Eq, G.expr), ExprArg(G.expr)),
+
+    param=Or(DefaultParam(G.identifier, Token.Eq, G.expr),
+             Parameter(G.identifier))
 )

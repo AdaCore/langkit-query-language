@@ -37,7 +37,7 @@ package body Functions is
                                 Def  : L.Fun_Def) return Primitive
    is
       Args_Bindings : constant Environment_Map :=
-        Eval_Arguments (Ctx, Call.F_Arguments, Def);
+        Eval_Arguments (Ctx, Call.P_Resolved_Arguments);
       Fun_Ctx       : constant Eval_Context :=
            (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
    begin
@@ -50,21 +50,15 @@ package body Functions is
    --------------------
 
    function Eval_Arguments (Ctx       : Eval_Context;
-                            Arguments : L.Arg_List;
-                            Def       : L.Fun_Def)
+                            Arguments : L.Named_Arg_Array)
                             return Environment_Map
    is
       Args_Bindings : Environment_Map;
    begin
-      Check_Arguments (Ctx, Arguments, Def);
-
-      for I in Arguments.First_Child_Index .. Arguments.Last_Child_Index loop
+      for Arg of Arguments loop
          declare
-            Arg       : constant L.Arg := Arguments.List_Child (I);
             Arg_Name  : constant Unbounded_Text_Type :=
-              (if Arg.P_Has_Name
-               then To_Unbounded_Text (Arg.P_Name.Text)
-               else To_Unbounded_Text (Def.F_Parameters.List_Child (I).Text));
+              To_Unbounded_Text (Arg.P_Name.Text);
             Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
          begin
             Args_Bindings.Insert (Arg_Name, Arg_Value);
