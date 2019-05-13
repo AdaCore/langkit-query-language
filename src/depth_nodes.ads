@@ -2,7 +2,8 @@ with Iters.Iterators;
 
 with Libadalang.Analysis;
 
-with Ada.Containers; use Ada.Containers;
+with Ada.Containers;
+with Ada.Containers.Vectors;
 
 package Depth_Nodes is
 
@@ -11,6 +12,13 @@ package Depth_Nodes is
       Node  : Libadalang.Analysis.Ada_Node;
    end record;
    --  Depth-mapped AST node used in (and returned by) selectors
+
+   package Depth_Node_Vectors is new Ada.Containers.Vectors
+     (Positive, Depth_Node);
+   --  Vectors of Depth_Node values
+
+   subtype Depth_Node_Vector is Depth_Node_Vectors.Vector;
+   --  Vector of Depth_Node values
 
    package Depth_Node_Iters is new Iters.Iterators (Depth_Node);
    --  Iterators over Depth_Node values
