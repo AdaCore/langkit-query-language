@@ -1,10 +1,9 @@
-ExprList
-|  FunDef
-|  |name:
-|  |  Identifier: allNodes
-|  |parameters:
-|  |  IdentifierList: <empty list>
-|  |body_expr:
-|  |  Query
-|  |  |pattern:
-|  |  |  UniversalPattern
+FunDef
+|name:
+|  Identifier: allNodes
+|parameters:
+|  ParameterList: <empty list>
+|body_expr:
+|  Query
+|  |pattern:
+|  |  UniversalPattern
