@@ -67,8 +67,7 @@ package body Interpreter.Error_Handling is
         "Cannot get member " & To_Unbounded_Text (Node.Text) &
         " for " & To_Text (Kind_Name (Receiver)) & " value";
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Member;
 
    ---------------------
@@ -81,8 +80,7 @@ package body Interpreter.Error_Handling is
         To_Unbounded_Text (
            To_Text ("Cannot run a query without a proper AST root"));
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Null_Root;
 
    ------------------------
@@ -101,8 +99,7 @@ package body Interpreter.Error_Handling is
                 Kind_Name (Value)
            ));
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Kind;
 
    ---------------------------------
@@ -110,14 +107,13 @@ package body Interpreter.Error_Handling is
    ---------------------------------
 
    procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context;
-                                          Node : L.Identifier'Class)
+                                          Node : L.Identifier)
    is
       Message : constant Unbounded_Text_Type :=
         "Invalid selector name: " &
         To_Unbounded_Text (Node.Text);
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Selector_Name;
 
    --------------------------
@@ -130,8 +126,7 @@ package body Interpreter.Error_Handling is
       Message : constant Unbounded_Text_Type :=
         "Unknown symbol: " & To_Unbounded_Text (Node.Text);
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Unknown_Symbol;
 
    -----------------------------------
@@ -145,8 +140,7 @@ package body Interpreter.Error_Handling is
       Message : constant Unbounded_Text_Type :=
         "already existing symbol: " & Identifier;
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Already_Existing_Symbol;
 
    -------------------------
@@ -165,8 +159,7 @@ package body Interpreter.Error_Handling is
         To_Unbounded_Text
           ("Expected" & Expected & " arguments but got" & Actual_Arity);
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Arguments.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Arguments, Message));
    end Raise_Invalid_Arity;
 
    ----------------------------
@@ -179,8 +172,7 @@ package body Interpreter.Error_Handling is
       Message : constant Unbounded_Text_Type :=
         "Unknown argument name: " & To_Unbounded_Text (Identifier.Text);
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Identifier.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Identifier, Message));
    end Raise_Unknown_Argument;
 
    -----------------------------------
@@ -193,8 +185,7 @@ package body Interpreter.Error_Handling is
       Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text ("Positional argument after named argument");
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Positionnal.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Positionnal, Message));
    end Raise_Positionnal_After_Named;
 
    ----------------------------
@@ -207,8 +198,7 @@ package body Interpreter.Error_Handling is
       Message : constant Unbounded_Text_Type :=
         To_Unbounded_Text ("Multiple arguments with the same name");
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Arg.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Arg, Message));
    end Raise_Already_Seen_Arg;
 
    ----------------------------------
@@ -242,8 +232,7 @@ package body Interpreter.Error_Handling is
         "Cannot convert a : " & To_Text (Kind_Name (Value)) &
         " to a " & Expected_Kind_Name;
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Value_Expr.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Value_Expr, Message));
    end Raise_Invalid_Type_Conversion;
 
    -------------------------------------
@@ -259,8 +248,7 @@ package body Interpreter.Error_Handling is
       Message : constant Unbounded_Text_Type :=
         "Cannot use values of kind " & Value_Kind_Name & " in a selector";
    begin
-      Raise_And_Record_Error
-        (Ctx, Make_Eval_Error (Node.As_LKQL_Node, Message));
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Kind_For_Selector;
 
 end Interpreter.Error_Handling;

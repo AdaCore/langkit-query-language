@@ -97,11 +97,11 @@ package body Interpreter.Errors is
    -- Make_Eval_Error --
    ---------------------
 
-   function Make_Eval_Error (AST_Node      : L.LKQL_Node;
+   function Make_Eval_Error (AST_Node      : L.LKQL_Node'Class;
                              Short_Message : Unbounded_Text_Type)
                              return Error_Data
    is (Kind          => Eval_Error,
-       AST_Node      => AST_Node,
+       AST_Node      => AST_Node.As_LKQL_Node,
        Short_Message => Short_Message);
 
 end Interpreter.Errors;
