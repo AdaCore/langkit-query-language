@@ -19,7 +19,7 @@ package body Functions is
    is
       Fun_Def : L.Fun_Def;
    begin
-      if Is_Builtin_Call (Call) then
+      if Call.P_Is_Builtin_Call then
          return Eval_Builtin_Call (Ctx, Call);
       end if;
 
@@ -99,13 +99,6 @@ package body Functions is
       end loop;
 
    end Check_Arguments;
-
-   ---------------------
-   -- Is_Builtin_Call --
-   ---------------------
-
-   function Is_Builtin_Call (Call : L.Fun_Call) return Boolean is
-      (Call.F_Name.Text = "print" or else Call.F_Name.Text = "debug");
 
    -----------------------
    -- Eval_Builtin_Call --

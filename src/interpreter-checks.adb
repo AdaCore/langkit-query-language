@@ -1,4 +1,3 @@
-with Functions;                  use Functions;
 with String_Utils;               use String_Utils;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
@@ -18,7 +17,7 @@ package body Interpreter.Checks is
 
       case Node.Kind is
          when LCO.LKQL_Fun_Call =>
-            if not Is_Builtin_Call (Node.As_Fun_Call) then
+            if not Node.As_Fun_Call.P_Is_Builtin_Call then
                Check_Fun_Call (Ctx, Node.As_Fun_Call);
             end if;
          when others =>
