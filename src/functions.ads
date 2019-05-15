@@ -11,9 +11,6 @@ package Functions is
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive;
    --  Evaluate a function call
 
-   function Is_Builtin_Call (Call : L.Fun_Call) return Boolean;
-   --  Return wether 'Call' is a call to a built-in function
-
 private
 
    function Eval_User_Fun_Call (Ctx  : Eval_Context;

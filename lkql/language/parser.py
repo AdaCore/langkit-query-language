@@ -651,6 +651,14 @@ class FunCall(Expr):
                                  .as_entity)
                 : call_args.concat(default_args)))
 
+    @langkit_property(return_type=T.Bool, public=True)
+    def is_builtin_call():
+        """
+        Return whether this is a call to a built-in property.
+        """
+        return (Self.name.text == String("print")) | \
+               (Self.name.text == String("debug"))
+
 
 class SelectorExprMode(LKQLNode):
     """
