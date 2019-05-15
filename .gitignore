@@ -17,3 +17,5 @@ callgrind*
 coding_standard
 
 IL_design\.txt
+
+IL_optimizations\.txt
