@@ -6,6 +6,8 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Node_Data is
 
+   Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
+
    ---------------------------------------------
    --  Ada node array to Primitive conversion --
    ---------------------------------------------
@@ -100,76 +102,87 @@ package body Node_Data is
    function Param_Spec_Array_From_List is new Node_Array_From_List
      (LAL.Param_Spec, LAL.Param_Spec_Array, LAL.As_Param_Spec);
 
-   -----------------
-   -- Access_Data --
-   -----------------
+   --------------------
+   -- Eval_Node_data --
+   --------------------
 
-   function Access_Data (Ctx             : Eval_Context;
-                         Receiver        : LAL.Ada_Node;
-                         Member          : L.Identifier) return Primitive
+   function Eval_Node_Data (Ctx      : Eval_Context;
+                            Receiver : LAL.Ada_Node;
+                            Member   : L.Identifier;
+                            Args     : L.Arg_List := L.No_Arg_List)
+                            return Primitive
    is
-      Member_Name : constant String := To_UTF8 (Member.Text);
+      Property_Ref : Any_Node_Data_Reference;
    begin
-      return (if Is_Built_In (Member_Name)
-              then Built_In_Property (Receiver, Member_Name)
-              else Access_Custom_Data (Ctx, Receiver, Member));
-   end Access_Data;
+      if Is_Built_In (To_UTF8 (Member.Text)) then
+         return Built_In_Property (Receiver, To_UTF8 (Member.Text));
+      end if;
 
-   -------------------
-   -- Call_Property --
-   -------------------
+      Property_Ref := Data_Reference_For_Name (Receiver, Member.Text);
 
-   function Call_Property (Ctx           : Eval_Context;
-                           Receiver      : LAL.Ada_Node;
-                           Call          : L.Dot_Call) return Primitive
-   is
-      Property_Ref       : constant Any_Node_Data_Reference :=
-        Data_Reference_For_Name (Receiver, Call.F_Member.Text);
-   begin
       if Property_Ref = None or not (Property_Ref in Property_Reference'Range)
       then
-         Raise_Invalid_Member (Ctx, Call.F_Member, To_Primitive (Receiver));
+         Raise_Invalid_Member (Ctx, Member, To_Primitive (Receiver));
       end if;
 
-      return Call_Property (Ctx, Receiver, Property_Ref, Call);
-   end Call_Property;
+      return Eval_Node_Data (Ctx, Receiver, Property_Ref, Member, Args);
+   end Eval_Node_Data;
 
    -------------------
-   -- Call_Property --
+   -- Eval_Property --
    -------------------
 
-   function Call_Property (Ctx          : Eval_Context;
-                           Receiver     : LAL.Ada_Node;
-                           Property_Ref : Property_Reference;
-                           Call         : L.Dot_Call) return Primitive
+   function Eval_Node_Data (Ctx        : Eval_Context;
+                            Receiver   : LAL.Ada_Node;
+                            Data_Ref   : Node_Data_Reference;
+                            Identifier : L.Identifier;
+                            Args       : L.Arg_List) return Primitive
    is
-      Arguments          : constant L.Arg_List := Call.F_Arguments;
-      Arguments_Type     : constant Value_Constraint_Array :=
-        Property_Argument_Types (Property_Ref);
-      Property_Arguments : Value_Array (1 .. Arguments_Type'Length);
+      Data_Arguments : constant Value_Array :=
+        Value_Array_From_Args (Ctx, Data_Ref, Args);
+      Result         : constant Value_Type :=
+        Eval_Node_Data (Receiver, Data_Ref, Data_Arguments);
    begin
-      if Arguments_Type'Length /= Arguments.Children_Count then
-         Raise_Invalid_Arity (Ctx, Arguments_Type'Length, Arguments);
-      end if;
+      return Create_Primitive (Ctx, Identifier.As_LKQL_Node, Result);
+   end Eval_Node_Data;
 
-      for I in 1 .. Arguments_Type'Length loop
-         declare
-            Arg       : constant L.Arg := Arguments.List_Child (I);
-            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
-            Arg_Type  : constant Value_Kind := Arguments_Type (I).Kind;
-         begin
-            Property_Arguments (I) :=
-              To_Value_Type (Ctx, Arg.P_Expr, Arg_Value, Arg_Type);
-         end;
-      end loop;
+   --------------------------
+   -- Value_Array_From_Arg --
+   --------------------------
+
+   function Value_Array_From_Args (Ctx          : Eval_Context;
+                                   Property_Ref : Property_Reference;
+                                   Args         : L.Arg_List)
+                                   return Value_Array
+   is
+   begin
+      if Args.Children_Count = 0 then
+         return Empty_Value_Array;
+      end if;
 
       declare
-         Result : constant Value_Type :=
-           Eval_Node_Data (Receiver, Property_Ref, Property_Arguments);
+         Arguments_Type     : constant Value_Constraint_Array :=
+           Property_Argument_Types (Property_Ref);
+         Result : Value_Array (1 .. Arguments_Type'Length);
       begin
-         return Create_Primitive (Ctx, Call.As_LKQL_Node, Result);
+         if Arguments_Type'Length /= Args.Children_Count then
+            Raise_Invalid_Arity (Ctx, Arguments_Type'Length, Args);
+         end if;
+
+         for I in 1 .. Arguments_Type'Length loop
+            declare
+               Arg       : constant L.Arg := Args.List_Child (I);
+               Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
+               Arg_Type  : constant Value_Kind := Arguments_Type (I).Kind;
+            begin
+               Result (I) :=
+              To_Value_Type (Ctx, Arg.P_Expr, Arg_Value, Arg_Type);
+            end;
+         end loop;
+
+         return Result;
       end;
-   end Call_Property;
+   end Value_Array_From_Args;
 
    -----------------------------
    -- Data_Reference_For_Name --
@@ -357,7 +370,6 @@ package body Node_Data is
    is
       Data_Ref   : constant Any_Node_Data_Reference :=
         Data_Reference_For_Name (Receiver, Member.Text);
-      Empty_Args : constant Value_Array (1 .. 0) := (others => <>);
    begin
       if Data_Ref = None then
          Raise_Invalid_Member (Ctx, Member, To_Primitive (Receiver));
@@ -365,7 +377,7 @@ package body Node_Data is
 
       return Create_Primitive
         (Ctx, Member.As_LKQL_Node,
-         Eval_Node_Data (Receiver, Data_Ref, Empty_Args));
+         Eval_Node_Data (Receiver, Data_Ref, Empty_Value_Array));
    end Access_Custom_Data;
 
 end Node_Data;

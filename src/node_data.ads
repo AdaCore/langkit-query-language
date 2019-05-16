@@ -13,25 +13,30 @@ package Node_Data is
    package L renames Liblkqllang.Analysis;
    package LAL renames Libadalang.Analysis;
 
-   function Access_Data (Ctx      : Eval_Context;
-                         Receiver : LAL.Ada_Node;
-                         Member   : L.Identifier) return Primitive;
-   --  Return the value of the field/property designated by 'Member' on
-   --  'Receiver'.
-
-   function Call_Property (Ctx           : Eval_Context;
-                           Receiver      : LAL.Ada_Node;
-                           Call          : L.Dot_Call) return Primitive;
-   --  Call the node property designated by 'Property_Name'with the given
-   --  arguments on 'Receiver'.
-
-   function Call_Property (Ctx          : Eval_Context;
-                           Receiver     : LAL.Ada_Node;
-                           Property_Ref : Property_Reference;
-                           Call         : L.Dot_Call) return Primitive;
-   --  Call a node property with the given arguments.
+   function Eval_Node_Data (Ctx      : Eval_Context;
+                            Receiver : LAL.Ada_Node;
+                            Member   : L.Identifier;
+                            Args     : L.Arg_List := L.No_Arg_List)
+                            return Primitive;
+   --  Call the property designated by 'Member' with the givena arguments.
 
 private
+
+   function Eval_Node_Data (Ctx        : Eval_Context;
+                            Receiver   : LAL.Ada_Node;
+                            Data_Ref   : Node_Data_Reference;
+                            Identifier : L.Identifier;
+                            Args       : L.Arg_List) return Primitive;
+   --  Call the property designated by 'Property_Ref' on 'Receiver' with the
+   --  given arguments.
+
+   function Value_Array_From_Args (Ctx          : Eval_Context;
+                                   Property_Ref : Property_Reference;
+                                   Args         : L.Arg_List)
+                                   return Value_Array;
+   --  Evalute the given arguments and convert them to Value_Type values.
+   --  The converted argument's types will be compared to the expected
+   --  argument types for the given poperty.
 
    function Data_Reference_For_Name (Receiver : LAL.Ada_Node;
                                      Name : Text_Type)
