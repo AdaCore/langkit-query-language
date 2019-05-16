@@ -469,21 +469,11 @@ class QuantifiedSelector(SelectorPattern):
         return Self.selector.condition
 
 
-class RelationalNodePattern(NodePattern):
     """
-    Pattern of the form: node_pattern selector_pattern node_pattern
-
-    For instance::
-       ObjectDecl [all children(depth == 2)] AspectAssoc
+        Return the name of the selector.
     """
 
-    queried_node = Field(type=UnfilteredPattern)
-    selector = Field(type=SelectorPattern)
-    related_node = Field(type=UnfilteredPattern)
 
-    @langkit_property()
-    def binding_name():
-        return String("")
 
 
 class UniversalPattern(ValuePattern):
@@ -770,10 +760,7 @@ lkql_grammar.add_rules(
     pattern=Or(FilteredPattern(G.unfiltered_pattern, Token.When, G.expr),
                G.unfiltered_pattern),
 
-    unfiltered_pattern=Or(RelationalNodePattern(G.unfiltered_pattern,
-                                                G.selector_pattern,
-                                                G.unfiltered_pattern),
-                          FullPattern(G.identifier, Token.At, G.value_pattern),
+    unfiltered_pattern=Or(FullPattern(G.identifier, Token.At, G.value_pattern),
                           BindingPattern(G.identifier),
                           G.value_pattern),
 
