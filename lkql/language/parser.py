@@ -897,6 +897,8 @@ lkql_grammar.add_rules(
 
     arg=Or(NamedArg(G.identifier, Token.Eq, G.expr), ExprArg(G.expr)),
 
+    named_arg=NamedArg(G.identifier, Token.Eq, G.expr),
+
     param=Or(DefaultParam(G.identifier, Token.Eq, G.expr),
              Parameter(G.identifier))
 )
