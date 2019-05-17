@@ -28,65 +28,30 @@ package body Patterns.Nodes is
       return (case Pattern.Kind is
                  when LCO.LKQL_Kind_Node_Pattern =>
                     Match_Kind (Pattern.As_Kind_Node_Pattern, Node),
-                 when LCO.LKQL_Relational_Node_Pattern =>
-                   Match_Relationnal
-                     (Ctx, Pattern.As_Relational_Node_Pattern, Node),
                  when others =>
                     raise Assertion_Error with
                       "Not a node pattern kind: " & L.Kind_Name (Pattern));
    end Match_Node;
 
    -----------------------
-   -- Match_Relationnal --
+   -- Matches_Type_Name --
    -----------------------
 
-   function Match_Relationnal (Ctx     : Eval_Context;
-                               Pattern : L.Relational_Node_Pattern;
-                               Node    : LAL.Ada_Node'Class)
-                               return Match_Result
+   function Matches_Kind_Name
+     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean
    is
-      Queried_Match          : constant Match_Result :=
-        Match_Unfiltered
-          (Ctx, Pattern.F_Queried_Node, To_Primitive (Node.As_Ada_Node));
-      Related_Nodes_Iter     : Depth_Node_Iter'Class :=
-        Make_Selector_Iterator
-          (Ctx, Node, Pattern.F_Selector);
-      Related_Nodes_Consumer : Node_Consumer'Class :=
-        Make_Selector_Consumer
-          (Ctx, Pattern.F_Selector, Pattern.F_Related_Node);
-      Selector_Match         : Match_Result;
-      Bindings               : Environment_Map;
+      use Libadalang.Introspection;
+      Expected_Kind : constant Any_Node_Type_Id :=
+        Lookup_DSL_Name (Kind_Name);
+      Actual_Kind   : constant Any_Node_Type_Id :=
+        Id_For_Kind (Node.Kind);
    begin
-      if not Queried_Match.Success then
-         Related_Nodes_Iter.Release;
-         return Match_Failure;
-      end if;
+      pragma Assert
+        (Expected_Kind /= None, "Invalid kind name: " & Kind_Name);
 
-      Add_Bindings (Bindings, Queried_Match.Bindings);
-      Selector_Match := Related_Nodes_Consumer.Consume (Related_Nodes_Iter);
-
-      if not Selector_Match.Success then
-         return Match_Failure;
-      end if;
-
-      Add_Bindings (Bindings, Selector_Match.Bindings);
-
-      return (Success => True, Bindings => Bindings);
-   end Match_Relationnal;
-
-   ----------------
-   -- Match_Kind --
-   ----------------
-
-   function Match_Kind (Pattern : L.Kind_Node_Pattern;
-                        Node    : LAL.Ada_Node'Class) return Match_Result
-   is
-      Kind_Name : constant String := To_UTF8 (Pattern.F_Identifier.Text);
-   begin
-      return Match_Result'
-        (Success => Matches_Kind_Name (Kind_Name, Node.As_Ada_Node),
-         others => <>);
-   end Match_Kind;
+      return Actual_Kind = Expected_Kind or else
+             Is_Derived_From (Actual_Kind, Expected_Kind);
+   end Matches_Kind_Name;
 
    ----------------------------
    -- Make_Selector_Iterator --

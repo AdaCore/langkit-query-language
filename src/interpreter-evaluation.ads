@@ -22,11 +22,6 @@ package Interpreter.Evaluation is
    --  An Eval_Error will be raised if the node represents an invalid query or
    --  expression.
 
-   function Matches_Kind_Name
-     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean;
-   --  Return true if 'Node's type is named 'Type_Name' or is a subtype of
-   --  a type named 'Type_Name'.
-
 private
 
    -----------------------------------------
