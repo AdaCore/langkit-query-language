@@ -94,6 +94,9 @@ package Iters.Iterators is
    --  Iterator that wraps an other iterator an filters it's elements using a
    --  Predicate.
 
+   function Filtered_Count (Iter : Filter_Iter) return Natural;
+   --  Return the number of filtered elements
+
    overriding function Next (Iter   : in out Filter_Iter;
                              Result : out Element_Type) return Boolean;
 
@@ -131,6 +134,9 @@ package Iters.Iterators is
    function Cache_Length (Iter : Resetable_Iter) return Natural;
    --  Return the number of cached elements
 
+   function Get_Inner (Iter : Resetable_Iter) return Iterator_Access;
+   --  Return an access to the wrapped iterator
+
    procedure Reset (Iter : in out Resetable_Iter);
    --  Reset the iterator. Further calls to 'Next' will yield the cached
    --  elements.
@@ -145,8 +151,9 @@ private
      (Predicates.Func'Class, Predicate_Access);
 
    type Filter_Iter is new Iterator_Interface with record
-      Inner     : Iterator_Access;
-      Predicate : Predicate_Access;
+      Inner       : Iterator_Access;
+      Predicate   : Predicate_Access;
+      Nb_Filtered : Natural := 0;
    end record;
 
    procedure Free_Element_Vector is new Ada.Unchecked_Deallocation
