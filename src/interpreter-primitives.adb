@@ -17,6 +17,10 @@ package body Interpreter.Primitives is
    function Iterator_Image
      (Value : Iterator_Primitive) return Unbounded_Text_Type;
 
+   function Selector_List_Image
+     (Value : Selector_List) return Unbounded_Text_Type;
+   --  Return a String representation of the given Selector_List
+
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
@@ -81,6 +85,23 @@ package body Interpreter.Primitives is
       To_Lower (Image);
       return To_Unbounded_Text (To_Text (Image));
    end Bool_Image;
+
+   -------------------------
+   -- Selector_List_Image --
+   -------------------------
+
+   function Selector_List_Image
+     (Value : Selector_List) return Unbounded_Text_Type
+   is
+      use Langkit_Support.Text.Chars;
+      Image   : Unbounded_Text_Type;
+   begin
+      for D of Value.Depth_Nodes loop
+         Append (Image, D.Node.Text_Image & LF);
+      end loop;
+
+      return Image;
+   end Selector_List_Image;
 
    ----------------
    -- List_Image --
@@ -260,6 +281,13 @@ package body Interpreter.Primitives is
 
    function List_Val (Value : Primitive) return Primitive_List_Access is
      (Value.Get.List_Val);
+
+   -----------------------
+   -- Selector_List_Val --
+   -----------------------
+
+   function Selector_List_Val (Value : Primitive) return Selector_List is
+      (Value.Get.Selector_List_Val);
 
    -------------
    -- Fun_Val --
@@ -463,6 +491,17 @@ package body Interpreter.Primitives is
       end return;
    end To_Primitive;
 
+   ------------------
+   -- To_Primitive --
+   ------------------
+
+   function To_Primitive (Val : Selector_List) return Primitive is
+   begin
+      return Result : Primitive do
+         Result.Set (Primitive_Data'(Refcounted with Kind_Selector_List, Val));
+      end return;
+   end To_Primitive;
+
    ---------------------
    -- Make_Empty_List --
    ---------------------
@@ -613,6 +652,8 @@ package body Interpreter.Primitives is
                    Iterator_Image (Iter_Val (Val).all),
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all),
+                 when Kind_Selector_List =>
+                   Selector_List_Image (Selector_List_Val (Val)),
                  when Kind_Fun =>
                    Fun_Image (Val.Get.Fun_Val),
                  when Kind_Selector =>
@@ -626,15 +667,16 @@ package body Interpreter.Primitives is
    function To_String (Val : Valid_Primitive_Kind) return String is
    begin
       return (case Val is
-                 when Kind_Unit      => "Unit",
-                 when Kind_Int       => "Int",
-                 when Kind_Str       => "Str",
-                 when Kind_Bool      => "Bool",
-                 when Kind_Node      => "Node",
-                 when Kind_Iterator  => "Iterator",
-                 when Kind_List      => "List",
-                 when Kind_Fun       => "Fun",
-                 when Kind_Selector  => "Selector");
+                 when Kind_Unit          => "Unit",
+                 when Kind_Int           => "Int",
+                 when Kind_Str           => "Str",
+                 when Kind_Bool          => "Bool",
+                 when Kind_Node          => "Node",
+                 when Kind_Iterator      => "Iterator",
+                 when Kind_List          => "List",
+                 when Kind_Selector_List => "Selector List",
+                 when Kind_Fun           => "Fun",
+                 when Kind_Selector      => "Selector");
    end To_String;
 
    ---------------
