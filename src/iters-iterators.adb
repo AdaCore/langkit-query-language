@@ -47,6 +47,13 @@ package body Iters.Iterators is
       end if;
    end Release_Access;
 
+   --------------------
+   -- Filtered_Count --
+   --------------------
+
+   function Filtered_Count (Iter : Filter_Iter) return Natural is
+      (Iter.Nb_Filtered);
+
    ----------
    -- Next --
    ----------
@@ -60,6 +67,8 @@ package body Iters.Iterators is
          if Iter.Predicate.Evaluate (Current_Element) then
             Result := Current_Element;
             return True;
+         else
+            Iter.Nb_Filtered := Iter.Nb_Filtered + 1;
          end if;
       end loop;
 
@@ -79,7 +88,7 @@ package body Iters.Iterators is
         new Iterator_Interface'Class'
           (Iterator_Interface'Class (Iter.Inner.Clone));
    begin
-      return Filter_Iter'(Inner_Copy, Predicate_Copy);
+      return Filter_Iter'(Inner_Copy, Predicate_Copy, 0);
    end Clone;
 
    -------------
@@ -100,7 +109,7 @@ package body Iters.Iterators is
      (Iter : Iterator_Access; Pred : Predicate_Access) return Filter_Iter
    is
    begin
-      return (Iter, Pred);
+      return (Inner => Iter, Predicate => Pred, Nb_Filtered => 0);
    end Filter;
 
    ------------
@@ -204,6 +213,13 @@ package body Iters.Iterators is
 
    function Cache_Length (Iter : Resetable_Iter) return Natural is
      (Natural (Iter.Cache.Length));
+
+   -----------
+   -- Inner --
+   -----------
+
+   function Get_Inner (Iter : Resetable_Iter) return Iterator_Access is
+      (Iter.Inner);
 
    ----------------
    -- Get_Cached --
