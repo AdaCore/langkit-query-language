@@ -20,7 +20,7 @@ package Exec is
    --  then return the evaluation Context.
    --  Loading the program requires the creation of an analysis context that
    --  will be stored in the out 'Context' parameter.
-   --  An exception willl be raised if the LKQL program is ill-formed or the
+   --  An exception will be raised if the LKQL program is ill-formed or the
    --  file at 'Path' doesn't exist.
 
    function Load (Script : L.LKQL_Node) return Eval_Context;
