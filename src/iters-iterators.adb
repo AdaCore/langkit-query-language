@@ -198,6 +198,24 @@ package body Iters.Iterators is
       return (Inner_Copy, Cache_Copy, Iter.Cache_Pos);
    end Clone;
 
+   ------------------
+   -- Cache_Length --
+   ------------------
+
+   function Cache_Length (Iter : Resetable_Iter) return Natural is
+     (Natural (Iter.Cache.Length));
+
+   ----------------
+   -- Get_Cached --
+   ----------------
+
+   function Get_Cached
+     (Iter : Resetable_Iter; Pos : Positive) return Element_Option
+   is
+     (if Pos <= Iter.Cache_Length
+      then Element_Options.To_Option (Iter.Cache.Element (Pos))
+      else Element_Options.None);
+
    -----------
    -- Reset --
    -----------
@@ -206,7 +224,6 @@ package body Iters.Iterators is
    begin
       Iter.Cache_Pos := 1;
    end Reset;
-
    ---------------
    -- Resetable --
    ---------------
@@ -220,6 +237,6 @@ package body Iters.Iterators is
    ---------------
 
    function Resetable (Iter : Iterator_Access) return Resetable_Iter is
-      (Resetable_Iter'(Inner => Iter, others => <>));
+     (Resetable_Iter'(Inner => Iter, others => <>));
 
 end Iters.Iterators;

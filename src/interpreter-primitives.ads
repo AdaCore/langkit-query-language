@@ -1,5 +1,6 @@
 with Iters.Iterators;
 with Iters.Vec_Iterators;
+with Interpreter.Selector_Lists; use Interpreter.Selector_Lists;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -45,6 +46,9 @@ package Interpreter.Primitives is
       Kind_List,
       --  List of Primitive values
 
+      Kind_Selector_List,
+      --  Lazy 'list' returned by a selector
+
       Kind_Fun,
       --  Function values
 
@@ -60,7 +64,7 @@ package Interpreter.Primitives is
       range Kind_Unit .. Kind_Selector;
 
    subtype Sequence_Kind is Valid_Primitive_Kind
-     range Kind_Iterator .. Kind_List;
+      range Kind_Iterator .. Kind_List;
 
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
@@ -79,6 +83,8 @@ package Interpreter.Primitives is
             Iter_Val : Iterator_Primitive_Access;
          when Kind_List =>
             List_Val : Primitive_List_Access;
+         when Kind_Selector_List =>
+            Selector_List_Val : Selector_List;
          when Kind_Fun =>
             Fun_Val : L.Fun_Def;
          when Kind_Selector =>
@@ -180,6 +186,9 @@ package Interpreter.Primitives is
    function List_Val (Value : Primitive) return Primitive_List_Access;
    --  Return the value of a list primitive
 
+   function Selector_List_Val (Value : Primitive) return Selector_List;
+   --  Return the value of a selector list primitive
+
    function Iter_Val (Value : Primitive) return Iterator_Primitive_Access;
    --  Return the value of an iterator primitive
 
@@ -230,6 +239,9 @@ package Interpreter.Primitives is
 
    function To_Primitive (Val : L.Selector_Def) return Primitive;
    --  Creata a Primitive value from a Selector_Def
+
+   function To_Primitive (Val : Selector_List) return Primitive;
+   --  Create a Primitive value from a Selector_List;
 
    function Make_Empty_List return Primitive;
    --  Return a Primitive value storing an empty list of Primitive values

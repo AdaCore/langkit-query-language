@@ -1,3 +1,5 @@
+with Ada.Containers; use Ada.Containers;
+
 package body Depth_Nodes is
 
    ----------

@@ -1,3 +1,4 @@
+with Options;
 with Iters.Iterators;
 
 with Libadalang.Analysis;
@@ -29,6 +30,14 @@ package Depth_Nodes is
 
    subtype Depth_Node_Iter_Access is Depth_Node_Iters.Iterator_Access;
    --  Pointer to an iterator over Depth_Node values
+
+   package Depth_Node_Options is new Options (Depth_Node);
+   --  Optionnal Depth_Node values
+
+   subtype Depth_Node_Option is Depth_Node_Options.Option;
+   --  Optionnal Depth_Node value
+
+   type Depth_Node_Array is array (Positive range <>) of Depth_Node;
 
    function Hash (Value : Depth_Node) return Ada.Containers.Hash_Type;
    --  Return the has of a Depth_Node value.

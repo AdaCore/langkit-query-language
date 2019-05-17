@@ -1,4 +1,5 @@
 with Funcs;
+with Options;
 
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Vectors;
@@ -19,6 +20,12 @@ package Iters.Iterators is
 
    type Element_Vector_Access is access all Element_Vectors.Vector;
    --  Pointer to a vector of Element_Type values
+
+   package Element_Options is new Options (Element_Type);
+   --  Optionnal Element_Type values
+
+   subtype Element_Option is Element_Options.Option;
+   --  Optionnal Element_Type value
 
    --------------
    -- Iterator --
@@ -116,6 +123,13 @@ package Iters.Iterators is
    overriding procedure Release (Iter : in out Resetable_Iter);
 
    overriding function Clone (Iter : Resetable_Iter) return Resetable_Iter;
+
+   function Get_Cached
+     (Iter : Resetable_Iter; Pos : Positive) return Element_Option;
+   --  Get the cached element at Pos, if it exists
+
+   function Cache_Length (Iter : Resetable_Iter) return Natural;
+   --  Return the number of cached elements
 
    procedure Reset (Iter : in out Resetable_Iter);
    --  Reset the iterator. Further calls to 'Next' will yield the cached
