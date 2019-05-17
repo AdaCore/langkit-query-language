@@ -12,17 +12,10 @@ package Patterns.Nodes is
                         Value   : Primitive) return Match_Result;
    --  Return the result of matching 'Value' against the given node pattern
 
-   function Match_Relationnal (Ctx     : Eval_Context;
-                               Pattern : L.Relational_Node_Pattern;
-                               Node    : LAL.Ada_Node'Class)
-                               return Match_Result;
-   --  Given a relationnal pattern of the form:
-   --  queried_node [selector] related_node, try to match 'Value' against it.
-
-   function Match_Kind (Pattern : L.Kind_Node_Pattern;
-                        Node    : LAL.Ada_Node'Class) return Match_Result;
-   --  Given a pattern comprising only a kind name, try to match 'Value'
-   --  against it.
+   function Matches_Kind_Name
+     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean;
+   --  Return true if 'Node's type is named 'Type_Name' or is a subtype of
+   --  a type named 'Type_Name'.
 
    -------------------------------------
    -- Selectors creation & evaluation --

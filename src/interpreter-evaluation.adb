@@ -10,7 +10,6 @@ with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
 with Libadalang.Iterators;     use Libadalang.Iterators;
 with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
-with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
@@ -434,10 +433,10 @@ package body Interpreter.Evaluation is
    is
       Tested_Node   : constant Primitive :=
         Eval (Ctx, Node.F_Node_Expr, Kind_Node);
-      Type_Name : constant String := To_UTF8 (Node.F_Kind_Name.Text);
+      Success       : constant Boolean :=
+        Match_Pattern (Ctx, Node.F_Pattern, Tested_Node).Success;
    begin
-      return To_Primitive
-        (Matches_Kind_Name (Type_Name, Node_Val (Tested_Node)));
+      return To_Primitive (Success);
    end Eval_Is;
 
    -------------
@@ -659,25 +658,6 @@ package body Interpreter.Evaluation is
       return new Comprehension_Env_Iter'
         (Binding_Name, Current_Element, Generator_Iter, Nested_Resetable);
    end Environment_Iter_For_Assoc;
-
-   -----------------------
-   -- Matches_Type_Name --
-   -----------------------
-
-   function Matches_Kind_Name
-     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean
-   is
-      Expected_Kind : constant Any_Node_Type_Id :=
-        Lookup_DSL_Name (Kind_Name);
-      Actual_Kind   : constant Any_Node_Type_Id :=
-        Id_For_Kind (Node.Kind);
-   begin
-      pragma Assert
-        (Expected_Kind /= None, "Invalid kind name: " & Kind_Name);
-
-      return Actual_Kind = Expected_Kind or else
-             Is_Derived_From (Actual_Kind, Expected_Kind);
-   end Matches_Kind_Name;
 
    function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
                                Result : out Environment_Map) return Boolean;

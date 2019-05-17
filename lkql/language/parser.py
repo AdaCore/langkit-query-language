@@ -236,14 +236,6 @@ class DotCall(Expr):
     arguments = Field(type=Arg.list)
 
 
-class IsClause(Expr):
-    """
-    Check a node's kind using the 'is' keyword.
-    """
-    node_expr = Field(type=Expr)
-    kind_name = Field(type=Identifier)
-
-
 class InClause(Expr):
     """
     Check that a list contains a given value using the 'in' keyword
@@ -346,12 +338,13 @@ class FullPattern(BindingPattern):
     value_pattern = Field(type=ValuePattern)
 
 
-@abstract
+class IsClause(Expr):
 class NodePattern(ValuePattern):
     """
-    Root node class for node patterns
+    Check that a node matches a given pattern
     """
-    pass
+    node_expr = Field(type=Expr)
+    pattern = Field(type=BasePattern)
 
 
 class KindNodePattern(NodePattern):
@@ -801,7 +794,7 @@ lkql_grammar.add_rules(
             G.comp_expr,
             G.val_expr),
 
-    comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.kind_name),
+    comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.pattern),
                  InClause(G.comp_expr, Token.In, G.expr),
                  BinOp(G.comp_expr,
                        Or(Op.alt_eq(Token.EqEq),
