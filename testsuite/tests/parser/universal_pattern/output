@@ -1,14 +1,20 @@
-TopLevelList
-|  Query
-|  |pattern:
-|  |  RelationalNodePattern
-|  |  |queried_node:
-|  |  |  UniversalPattern
-|  |  |selector:
-|  |  |  NamedSelector
-|  |  |  |name:
-|  |  |  |  Identifier: children
-|  |  |related_node:
-|  |  |  KindNodePattern
-|  |  |  |identifier:
-|  |  |  |  Identifier: BasicDecl
+Query
+|pattern:
+|  ExtendedNodePattern
+|  |node_pattern:
+|  |  UniversalPattern
+|  |details:
+|  |  NodePatternDetailList
+|  |  |  NodePatternSelector
+|  |  |  |call:
+|  |  |  |  SelectorCall
+|  |  |  |  |quantifier: <null>
+|  |  |  |  |binding: <null>
+|  |  |  |  |selector_identifier:
+|  |  |  |  |  Identifier: children
+|  |  |  |  |args:
+|  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |kind_name:
+|  |  |  |  |  Identifier: BasicDecl

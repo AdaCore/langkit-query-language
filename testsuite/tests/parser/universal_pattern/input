@@ -1,1 +1,1 @@
-query _ [children] BasicDecl
+query _(children: BasicDecl)

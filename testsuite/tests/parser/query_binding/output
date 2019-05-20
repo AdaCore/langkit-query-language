@@ -1,14 +1,13 @@
-TopLevelList
-|  Assign
-|  |identifier:
-|  |  Identifier: o
-|  |value:
-|  |  Query
-|  |  |pattern:
-|  |  |  FullPattern
-|  |  |  |binding:
-|  |  |  |  Identifier: o
-|  |  |  |value_pattern:
-|  |  |  |  KindNodePattern
-|  |  |  |  |identifier:
-|  |  |  |  |  Identifier: ObjectDecl
+Assign
+|identifier:
+|  Identifier: o
+|value:
+|  Query
+|  |pattern:
+|  |  FullPattern
+|  |  |binding:
+|  |  |  Identifier: o
+|  |  |value_pattern:
+|  |  |  NodeKindPattern
+|  |  |  |kind_name:
+|  |  |  |  Identifier: ObjectDecl

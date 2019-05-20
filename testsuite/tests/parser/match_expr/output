@@ -5,8 +5,8 @@ Match
 |  MatchArmList
 |  |  MatchArm
 |  |  |pattern:
-|  |  |  KindNodePattern
-|  |  |  |identifier:
+|  |  |  NodeKindPattern
+|  |  |  |kind_name:
 |  |  |  |  Identifier: ObjectDecl
 |  |  |expr:
 |  |  |  BoolLiteralTrue

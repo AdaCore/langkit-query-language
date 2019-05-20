@@ -1,0 +1,19 @@
+SelectorCall
+|quantifier:
+|  Identifier: all
+|binding:
+|  Identifier: c
+|selector_identifier:
+|  Identifier: children
+|args:
+|  NamedArgList
+|  |  NamedArg
+|  |  |arg_name:
+|  |  |  Identifier: min_depth
+|  |  |value_expr:
+|  |  |  IntegerLiteral: 1
+|  |  NamedArg
+|  |  |arg_name:
+|  |  |  Identifier: max_depth
+|  |  |value_expr:
+|  |  |  IntegerLiteral: 3

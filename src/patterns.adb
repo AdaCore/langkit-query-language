@@ -8,6 +8,6 @@ package body Patterns is
      (Bindings : Environment_Map := String_Value_Maps.Empty_Map)
       return Match_Result
    is
-      (Match_Result'(Success => True, others => <>));
+      (Match_Result'(Success => True, Bindings => Bindings));
 
 end Patterns;

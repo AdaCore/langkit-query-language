@@ -1,24 +1,27 @@
-TopLevelList
-|  Query
-|  |pattern:
-|  |  RelationalNodePattern
-|  |  |queried_node:
-|  |  |  FullPattern
-|  |  |  |binding:
-|  |  |  |  Identifier: o
-|  |  |  |value_pattern:
-|  |  |  |  KindNodePattern
-|  |  |  |  |identifier:
-|  |  |  |  |  Identifier: ObjectDecl
-|  |  |selector:
-|  |  |  QuantifiedSelector
-|  |  |  |quantifier:
-|  |  |  |  Identifier: all
-|  |  |  |selector:
-|  |  |  |  NamedSelector
-|  |  |  |  |name:
-|  |  |  |  |  Identifier: children
-|  |  |related_node:
-|  |  |  KindNodePattern
-|  |  |  |identifier:
-|  |  |  |  Identifier: AspectAssoc
+Query
+|pattern:
+|  FullPattern
+|  |binding:
+|  |  Identifier: o
+|  |value_pattern:
+|  |  ExtendedNodePattern
+|  |  |node_pattern:
+|  |  |  NodeKindPattern
+|  |  |  |kind_name:
+|  |  |  |  Identifier: ObjectDecl
+|  |  |details:
+|  |  |  NodePatternDetailList
+|  |  |  |  NodePatternSelector
+|  |  |  |  |call:
+|  |  |  |  |  SelectorCall
+|  |  |  |  |  |quantifier:
+|  |  |  |  |  |  Identifier: all
+|  |  |  |  |  |binding: <null>
+|  |  |  |  |  |selector_identifier:
+|  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |args:
+|  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  |pattern:
+|  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |kind_name:
+|  |  |  |  |  |  Identifier: AspectAssoc

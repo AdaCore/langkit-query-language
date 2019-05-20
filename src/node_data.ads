@@ -31,7 +31,7 @@ private
    --  given arguments.
 
    function Value_Array_From_Args (Ctx          : Eval_Context;
-                                   Property_Ref : Property_Reference;
+                                   Property_Ref : Node_Data_Reference;
                                    Args         : L.Arg_List)
                                    return Value_Array;
    --  Evalute the given arguments and convert them to Value_Type values.

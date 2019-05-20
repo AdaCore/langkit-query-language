@@ -1,2 +1,6 @@
-let result = query AdaNode.list [all children(depth == 1)] ObjectDecl
+selector children
+    | AdaNode => rec *it.children
+    | _        => ()
+
+let result = query AdaNode.list(all children(depth=1): ObjectDecl)
 print(result)

@@ -1,42 +1,48 @@
-TopLevelList
-|  Assign
-|  |identifier:
-|  |  Identifier: declWihAspect
-|  |value:
-|  |  Query
+Assign
+|identifier:
+|  Identifier: declWihAspect
+|value:
+|  Query
+|  |pattern:
+|  |  FilteredPattern
 |  |  |pattern:
-|  |  |  FilteredPattern
-|  |  |  |pattern:
-|  |  |  |  RelationalNodePattern
-|  |  |  |  |queried_node:
-|  |  |  |  |  FullPattern
-|  |  |  |  |  |binding:
-|  |  |  |  |  |  Identifier: o
-|  |  |  |  |  |value_pattern:
-|  |  |  |  |  |  KindNodePattern
-|  |  |  |  |  |  |identifier:
-|  |  |  |  |  |  |  Identifier: ObjectDecl
-|  |  |  |  |selector:
-|  |  |  |  |  NamedSelector
-|  |  |  |  |  |name:
-|  |  |  |  |  |  Identifier: children
-|  |  |  |  |related_node:
-|  |  |  |  |  KindNodePattern
-|  |  |  |  |  |identifier:
-|  |  |  |  |  |  Identifier: AspectAssoc
-|  |  |  |predicate:
-|  |  |  |  BinOp
-|  |  |  |  |left:
+|  |  |  FullPattern
+|  |  |  |binding:
+|  |  |  |  Identifier: o
+|  |  |  |value_pattern:
+|  |  |  |  ExtendedNodePattern
+|  |  |  |  |node_pattern:
+|  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |kind_name:
+|  |  |  |  |  |  Identifier: ObjectDecl
+|  |  |  |  |details:
+|  |  |  |  |  NodePatternDetailList
+|  |  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |  |call:
+|  |  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |  |quantifier: <null>
+|  |  |  |  |  |  |  |binding: <null>
+|  |  |  |  |  |  |  |selector_identifier:
+|  |  |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |  |  |args:
+|  |  |  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  |  |  |pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |kind_name:
+|  |  |  |  |  |  |  |  Identifier: AspectAssoc
+|  |  |predicate:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  DotAccess
+|  |  |  |  |receiver:
 |  |  |  |  |  DotAccess
 |  |  |  |  |  |receiver:
-|  |  |  |  |  |  DotAccess
-|  |  |  |  |  |  |receiver:
-|  |  |  |  |  |  |  Identifier: o
-|  |  |  |  |  |  |member:
-|  |  |  |  |  |  |  Identifier: identifier
+|  |  |  |  |  |  Identifier: o
 |  |  |  |  |  |member:
-|  |  |  |  |  |  Identifier: length
-|  |  |  |  |op:
-|  |  |  |  |  OpEq
-|  |  |  |  |right:
-|  |  |  |  |  IntegerLiteral: 42
+|  |  |  |  |  |  Identifier: identifier
+|  |  |  |  |member:
+|  |  |  |  |  Identifier: length
+|  |  |  |op:
+|  |  |  |  OpEq
+|  |  |  |right:
+|  |  |  |  IntegerLiteral: 42

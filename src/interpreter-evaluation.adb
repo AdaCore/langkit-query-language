@@ -1,7 +1,7 @@
 with Queries;                    use Queries;
 with Patterns;                   use Patterns;
 with Functions;                  use Functions;
-with Node_Data;                  use Node_Data;
+with Node_Data;
 with Depth_Nodes;                use Depth_Nodes;
 with Patterns.Match;             use Patterns.Match;
 with Interpreter.Checks;         use Interpreter.Checks;
@@ -399,7 +399,7 @@ package body Interpreter.Evaluation is
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
       return (if Kind (Receiver) = Kind_Node
-              then Node_Data.Access_Data
+              then Node_Data.Eval_Node_Data
                      (Ctx, Node_Val (Receiver), Node.F_Member)
               else Primitives.Data (Receiver, Member_Name));
    exception
@@ -421,7 +421,8 @@ package body Interpreter.Evaluation is
            (Ctx, Node.F_Receiver.As_LKQL_Node, Kind_Node, Receiver);
       end if;
 
-      return Call_Property (Ctx, Node_Val (Receiver), Node);
+      return Node_Data.Eval_Node_Data
+        (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments);
    end Eval_Dot_Call;
 
    -------------

@@ -238,7 +238,20 @@ package body Interpreter.Primitives is
       when others =>
          raise Assertion_Error with
            "Cannot get an iterator from a value of kind : " &
-           Kind_Name (Value));
+              Kind_Name (Value));
+
+   -------------
+   -- To_List --
+   -------------
+
+   function To_List (Value : Selector_List) return Primitive is
+   begin
+      return Result : constant Primitive := Make_Empty_List do
+         for N of Value.Nodes loop
+            Append (Result, To_Primitive (N));
+         end loop;
+      end return;
+   end To_List;
 
    ----------
    -- Kind --
@@ -374,6 +387,8 @@ package body Interpreter.Primitives is
    is
    begin
       return (case Kind (Value) is
+                 when Kind_Selector_List =>
+                   Data (To_List (Selector_List_Val (Value)), Member_Name),
                  when Kind_List =>
                    List_Data (List_Val (Value), Member_Name),
                  when Kind_Str =>

@@ -1,9 +1,9 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt
+from langkit.parsers import Grammar, Or, List, Pick, Opt, Null
 from langkit.dsl import (
     T, ASTNode, abstract, Field, has_abstract_list, synthetic
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Not, Let
+    Self, String, No, langkit_property, AbstractKind, Not, Let, If
 )
 from langkit.envs import add_env, add_to_env_kv, EnvSpec
 from lexer import Token
@@ -339,134 +339,11 @@ class FullPattern(BindingPattern):
 
 
 class IsClause(Expr):
-class NodePattern(ValuePattern):
     """
     Check that a node matches a given pattern
     """
     node_expr = Field(type=Expr)
     pattern = Field(type=BasePattern)
-
-
-class KindNodePattern(NodePattern):
-    """
-    Node pattern comprising only a kind name
-
-    For instance::
-       let decls = query ObjectDecl ...
-    """
-
-    identifier = Field(type=Identifier)
-
-
-# Unlike other kind of patterns, selector patterns cannot appear on their own,
-# (indeed, they only make sense in the context of a RelationalNodePattern), so
-# they do not inherit the BasePattern class.
-@abstract
-class SelectorPattern(LKQLNode):
-    """
-    Root node for selector patterns
-    """
-
-    @langkit_property(return_type=T.Expr, public=True)
-    def condition():
-        """
-        Return the condition associated with this selector.
-        """
-        return No(T.Expr)
-
-    @langkit_property(return_type=Identifier, public=True,
-                      kind=AbstractKind.abstract)
-    def selector_identifier():
-        """
-        Return the selector's identifier node
-        """
-        return
-
-    @langkit_property(return_type=T.String, public=True,
-                      kind=AbstractKind.abstract)
-    def selector_name():
-        """
-        Return the name of the selector.
-        """
-        pass
-
-    @langkit_property(return_type=T.String, public=True)
-    def quantifier_name():
-        """
-        Return the selector's quantifier.
-        If the selector pattern doesn't include a quantifier, this property
-        defaults to "some".
-        """
-        return String("some")  # default implicit quantifier
-
-
-class NamedSelector(SelectorPattern):
-    """
-    Selector comprising only a selector name.
-    Used to specify the relationship between the node being queried and some
-    other nodes.
-
-    For instance::
-       query p [children] ObjectDecl ...
-    """
-
-    name = Field(type=Identifier)
-
-    @langkit_property()
-    def selector_identifier():
-        return Self.name
-
-    @langkit_property()
-    def selector_name():
-        return Self.name.text
-
-
-class ParametrizedSelector(NamedSelector):
-    """
-    Selector of the form selector(condition1, condition2, ...)
-    """
-
-    condition_expr = Field(type=T.Expr)
-
-    @langkit_property()
-    def condition():
-        return Self.condition_expr
-
-
-class QuantifiedSelector(SelectorPattern):
-    """
-    Selector of the form: [quantifier selector_name].
-    The supported quantifiers are: some, all
-
-    For instance::
-       query p [all children] ObjectDecl ...
-    """
-
-    quantifier = Field(type=Identifier)
-    selector = Field(type=NamedSelector)
-
-    @langkit_property()
-    def selector_identifier():
-        return Self.selector.selector_identifier
-
-    @langkit_property()
-    def selector_name():
-        return Self.selector.selector_name
-
-    @langkit_property()
-    def quantifier_name():
-        return Self.quantifier.text
-
-    @langkit_property()
-    def condition():
-        return Self.selector.condition
-
-
-    """
-        Return the name of the selector.
-    """
-
-
 
 
 class UniversalPattern(ValuePattern):
@@ -686,6 +563,8 @@ class SelectorDef(Expr):
     name = Field(type=Identifier)
     arms = Field(type=SelectorArm.list)
 
+    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+
     @langkit_property(return_type=SelectorExpr.list, public=True)
     def nth_expressions(n=(T.Int, 0)):
         """
@@ -699,6 +578,136 @@ class SelectorDef(Expr):
         Return a list of the patterns that appear n the selector's arms.
         """
         return Self.arms.map(lambda x: x.pattern.as_entity)
+
+
+class SelectorCall(LKQLNode):
+    """
+    Root node for selector patterns
+    """
+
+    quantifier = Field(type=Identifier)
+    binding = Field(type=Identifier)
+    selector_identifier = Field(type=Identifier)
+    args = Field(type=NamedArg.list)
+
+    @langkit_property(return_type=T.String, public=True)
+    def name():
+        """
+        Return the name of the selector.
+        """
+        return Self.selector_identifier.text
+
+    @langkit_property(return_type=T.String, public=True)
+    def quantifier_name():
+        """
+        Return the selector's quantifier name.
+        If the name hasn't been explicitly specified, the default quantifier
+        name is 'any'.
+        """
+        return If(Self.quantifier.is_null,
+                  String("any"),
+                  Self.quantifier.text)
+
+    @langkit_property(return_type=T.String, public=True)
+    def binding_name():
+        """
+        Return the binding name associated with this selector call, if any.
+        """
+        return If(Self.binding.is_null,
+                  String(""),
+                  Self.binding.text)
+
+    @langkit_property(return_type=Expr)
+    def expr_for_arg(name=T.String):
+        return Let(lambda x=Self.args.find(lambda a: a.arg_name.text == name)
+                   : If(x.is_null, No(Expr), x.expr))
+
+    @langkit_property(return_type=SelectorDef.entity, public=True, memoized=True)
+    def called_selector():
+        """
+        Return the function definition that corresponds to the called function.
+        """
+        return Self.node_env.get_first(Self.selector_identifier.symbol)\
+                            .cast(SelectorDef)
+
+    @langkit_property(return_type=Expr, public=True, memoized=True)
+    def depth_expr():
+        """
+        Return the expression associated to the 'expr' argument, if any.
+        """
+        return Self.expr_for_arg(String('depth'))
+
+    @langkit_property(return_type=Expr, public=True, memoized=True)
+    def max_depth_expr():
+        """
+        If if the 'max_depth' arg is set and 'depth" is not set, return the
+        expression for 'max_depth'. If 'depth' is set return it's expression.
+        If neither 'depth' or 'max_depth' is set, return a null expression.
+        """
+        return If(Self.depth_expr.is_null,
+                  Self.expr_for_arg(String('max_depth')),
+                  Self.depth_expr)
+
+    @langkit_property(return_type=Expr, public=True, memoized=True)
+    def min_depth_expr():
+        """
+        If if the 'min_depth' arg is set and 'depth" is not set, return the
+        expression for 'min_depth'. If 'depth' is set return it's expression.
+        If neither 'depth' or 'min_depth' is set, return a null expression.
+        """
+        return If(Self.depth_expr.is_null,
+                  Self.expr_for_arg(String('min_depth')),
+                  Self.depth_expr)
+
+
+@abstract
+class NodePattern(ValuePattern):
+    """
+    Root node class for node patterns
+    """
+    pass
+
+
+class NodeKindPattern(NodePattern):
+    """
+    Pattern of the form: KindName
+    """
+    kind_name = Field(type=Identifier)
+
+
+@abstract
+class NodePatternDetail(LKQLNode):
+    """
+    Access to a field, property or selector inside a node pattern.
+    """
+
+
+class NodePatternData(NodePatternDetail):
+    """
+    Access to a field or property in a node pattern.
+    """
+    identifier = Field(type=Identifier)
+    arguments = Field(type=Arg.list)
+    value_expr = Field(type=Expr)
+
+
+class NodePatternSelector(NodePatternDetail):
+    """
+    Use of a selector in a node pattern
+    """
+    call = Field(type=SelectorCall)
+    pattern = Field(type=BasePattern)
+
+
+class ExtendedNodePattern(NodePattern):
+    """
+    Node pattern of the form: KindName(field: val, prop: val, selector: Pattern)
+
+    For instance::
+        ObjectDecl(children: AspectAssoc)
+    """
+    node_pattern = Field(type=ValuePattern)
+    details = Field(type=NodePatternDetail.list)
 
 
 class MatchArm(LKQLNode):
@@ -757,25 +766,49 @@ lkql_grammar.add_rules(
                           BindingPattern(G.identifier),
                           G.value_pattern),
 
-    value_pattern=Or(G.universal_pattern,
-                     G.kind_node_pattern),
+    value_pattern=Or(G.node_pattern,
+                     G.universal_pattern),
 
     universal_pattern=UniversalPattern(Token.UnderScore),
 
-    kind_node_pattern=KindNodePattern(G.kind_name),
+    node_pattern=Or(G.extended_node_pattern, G.node_kind_pattern),
 
-    selector_pattern=Pick(Token.LBrack, G.selector, Token.RBrack),
+    node_kind_pattern=NodeKindPattern(G.kind_name),
 
-    selector=Or(G.quantified_selector,
-                G.named_selector),
+    extended_node_pattern=ExtendedNodePattern(Or(G.universal_pattern,
+                                                 G.node_kind_pattern),
+                                              Pick(Token.LPar,
+                                                   List(G.node_pattern_detail,
+                                                        sep=Token.Coma),
+                                                   Token.RPar)),
 
-    named_selector=Or(ParametrizedSelector(G.identifier,
-                                           Token.LPar,
-                                           Opt(G.comp_expr),
-                                           Token.RPar),
-                      NamedSelector(G.identifier)),
+    node_pattern_detail=Or(NodePatternSelector(G.selector_call,
+                                               Token.Colon,
+                                               G.pattern),
+                           NodePatternData(G.identifier,
+                                           Opt(Token.LPar,
+                                               List(G.arg,
+                                                    sep=Token.Coma),
+                                               Token.RPar),
+                                           Token.Colon,
+                                           G.expr)),
 
-    quantified_selector=QuantifiedSelector(G.identifier, G.named_selector),
+    selector_call=Or(SelectorCall(G.identifier,
+                                  Opt(Pick(G.identifier, Token.At)),
+                                  G.identifier,
+                                  Opt(Token.LPar,
+                                      List(G.named_arg,
+                                           sep=Token.Coma,
+                                           empty_valid=False),
+                                      Token.RPar)),
+                     SelectorCall(Null(Identifier),
+                                  Opt(Pick(G.identifier, Token.At)),
+                                  G.identifier,
+                                  Opt(Token.LPar,
+                                      List(G.named_arg,
+                                           sep=Token.Coma,
+                                           empty_valid=False),
+                                      Token.RPar))),
 
     arrow_assoc=ArrowAssoc(G.identifier, Token.LArrow, G.expr),
 
