@@ -1,5 +1,6 @@
-with Patterns.Nodes;         use Patterns.Nodes;
-with Interpreter.Evaluation; use Interpreter.Evaluation;
+with Patterns.Nodes;             use Patterns.Nodes;
+with Interpreter.Evaluation;     use Interpreter.Evaluation;
+with Interpreter.Error_Handling;
 
 with Ada.Assertions; use Ada.Assertions;
 
@@ -96,14 +97,26 @@ package body Patterns.Match is
                          Pattern : L.Value_Pattern;
                          Value   : Primitive) return Match_Result
    is
-     (case Pattern.Kind is
+      use Interpreter.Error_Handling;
+   begin
+      case Pattern.Kind is
          when LCO.LKQL_Node_Pattern =>
-            Match_Node (Ctx, Pattern.As_Node_Pattern, Value),
+            if not (Kind (Value) = Kind_Node) then
+               Raise_Invalid_Kind
+                 (Ctx, Pattern.As_LKQL_Node, Kind_Node, Value);
+            end if;
+
+            return Match_Node_pattern
+              (Ctx, Pattern.As_Node_Pattern, Node_Val (Value));
+
          when LCO.LKQL_Universal_Pattern =>
-            Make_Match_Success,
+            return Make_Match_Success;
+
          when others =>
             raise Assertion_Error with
-              "Cannot match values of kind: " & Kind_Name (Value));
+              "Cannot match values of kind: " & Kind_Name (Value);
+      end case;
+   end Match_Value;
 
    -------------------
    -- Match_Binding --

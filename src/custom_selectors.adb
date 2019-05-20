@@ -41,19 +41,32 @@ package body Custom_Selectors is
    -------------------------------
 
    function Make_Custom_Selector_Iter (Ctx        : Eval_Context;
-                                       Definition : L.Selector_Def;
+                                       Call       : L.Selector_Call;
                                        Root       : LAL.Ada_Node)
                                        return Custom_Selector_Iter
    is
-      Next_Values   : Depth_Node_Lists.List;
-      Next_To_Visit : Depth_Node_Lists.List;
+      Definition    : constant L.Selector_Def := Call.P_Called_Selector;
+      Default_Min   : constant Primitive := To_Primitive (1);
+      Min_Depth     : constant Integer :=
+        Int_Val (Eval_Default (Ctx, Call.P_Min_Depth_Expr, Default_Min,
+                               Expected_Kind => Kind_Int));
+      Default_Max   : constant Primitive := To_Primitive (-1);
+      Max_Depth     : constant Integer :=
+        Int_Val (Eval_Default (Ctx, Call.P_Max_Depth_Expr, Default_Max,
+                               Expected_Kind => Kind_Int));
       Root_Node     : constant Depth_Node :=
         Depth_Node'(0, Root);
    begin
-      Next_Values.Append (Root_Node);
-      Next_To_Visit.Append (Root_Node);
-      return Custom_Selector_Iter'
-        (Ctx, Definition, Next_Values, Next_To_Visit, others => <>);
+      return Result : Custom_Selector_Iter do
+         Result := Custom_Selector_Iter'
+           (Ctx, Definition, Min_Depth, Max_Depth, others => <>);
+
+         Result.Next_To_Visit.Append (Root_Node);
+
+         if Min_Depth < 1 then
+            Result.Next_Values.Append (Root_Node);
+         end if;
+      end return;
    end Make_Custom_Selector_Iter;
 
    -------------------
@@ -134,22 +147,28 @@ package body Custom_Selectors is
    -- Add_Node --
    --------------
 
-   procedure Add_Node (Iter  : in out Custom_Selector_Iter;
-                       Depth : Natural;
-                       Node  : LAL.Ada_Node;
-                       Mode  : L.Selector_Expr_Mode)
+   procedure Add_Node (Iter          : in out Custom_Selector_Iter;
+                       Current_Depth : Natural;
+                       Node          : LAL.Ada_Node;
+                       Mode          : L.Selector_Expr_Mode)
    is
       use type LCO.LKQL_Node_Kind_Type;
       Depth_Offset : constant Integer :=
         (if Mode.Kind = LCO.LKQL_Selector_Expr_Mode_Skip then 0 else 1);
       With_Depth : constant Depth_Node :=
-        Depth_Node'(Depth + Depth_Offset, Node);
+        Depth_Node'(Current_Depth + Depth_Offset, Node);
    begin
-      if Node.Is_Null then
+      if Node.Is_Null or else
+        (Iter.Max_Depth >= 0 and then With_Depth.Depth > Iter.Max_Depth)
+      then
          return;
       end if;
 
-      if Mode.Kind /= LCO.LKQL_Selector_Expr_Mode_Skip then
+      --  If the node's depth is too low we want to visit it without adding
+      --  it to the list of nodes to be yielded.
+      if Mode.Kind /= LCO.LKQL_Selector_Expr_Mode_Skip and
+        (Iter.Min_Depth < 0 or else With_Depth.Depth >= Iter.Min_Depth)
+      then
          Add_If_Unseen (With_Depth, Iter.Already_Yielded, Iter.Next_Values);
       end if;
 

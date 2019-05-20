@@ -164,6 +164,13 @@ package Interpreter.Primitives is
      new Ada.Unchecked_Deallocation
        (Iterator_Primitive, Iterator_Primitive_Access);
 
+   -------------------
+   -- Selector list --
+   -------------------
+
+   function To_List (Value : Selector_List) return Primitive;
+   --  Create a List Primitive value from a Selector_List Primitive value
+
    ---------------
    -- Accessors --
    ---------------

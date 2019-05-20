@@ -1,37 +1,225 @@
-with Custom_Selectors; use Custom_Selectors;
+with Node_Data;
+with Patterns.Match;
+with Custom_Selectors;           use Custom_Selectors;
+with Interpreter.Primitives;     use Interpreter.Primitives;
 with Interpreter.Evaluation;     use Interpreter.Evaluation;
-with Interpreter.Error_Handling; use Interpreter.Error_Handling;
-with Patterns.Match;             use Patterns.Match;
+with Interpreter.Selector_Lists; use Interpreter.Selector_Lists;
+
+with Libadalang.Introspection;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Assertions; use Ada.Assertions;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Patterns.Nodes is
 
-   ----------------
-   -- Match_Node --
-   ----------------
+   ------------------------
+   -- Match_Node_Pattern --
+   ------------------------
 
-   function Match_Node (Ctx     : Eval_Context;
-                        Pattern : L.Node_Pattern;
-                        Value   : Primitive) return Match_Result
+   function Match_Node_pattern (Ctx     : Eval_Context;
+                                Pattern : L.Node_Pattern;
+                                Node    : LAL.Ada_Node) return Match_Result
    is
-      Node : LAL.Ada_Node;
    begin
-      if not (Kind (Value) = Kind_Node) then
-         Raise_Invalid_Kind (Ctx, Pattern.As_LKQL_Node, Kind_Node, Value);
+      case Pattern.Kind is
+         when LCO.LKQL_Node_Kind_Pattern =>
+            return Match_Kind_pattern
+              (Ctx, Pattern.As_Node_Kind_Pattern, Node);
+         when LCO.LKQL_Extended_Node_Pattern =>
+            return Match_Extended_Pattern
+              (Ctx, Pattern.As_Extended_Node_Pattern, Node);
+         when others =>
+            raise Assertion_Error
+              with "Invalid node pattern kind: " & L.Kind_Name (Pattern);
+      end case;
+   end Match_Node_pattern;
+
+   ------------------------
+   -- Match_Kind_Pattern --
+   ------------------------
+
+   function Match_Kind_pattern (Ctx     : Eval_Context;
+                                Pattern : L.Node_Kind_Pattern;
+                                Node    : LAL.Ada_Node) return Match_Result
+   is
+     (if Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text), Node)
+      then Make_Match_Success
+      else Match_Failure);
+
+   ----------------------------
+   -- Match_Extended_Pattern --
+   ----------------------------
+
+   function Match_Extended_Pattern (Ctx     : Eval_Context;
+                                    Pattern : L.Extended_Node_Pattern;
+                                    Node    : LAL.Ada_Node)
+                                    return Match_Result
+   is
+      use Patterns.Match;
+   begin
+      if not
+        Match_Value (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node)).Success
+      then
+         return Match_Failure;
       end if;
 
-      Node := Node_Val (Value);
+      return Match_Pattern_Details (Ctx, Pattern.F_Details, Node);
+   end Match_Extended_Pattern;
 
-      return (case Pattern.Kind is
-                 when LCO.LKQL_Kind_Node_Pattern =>
-                    Match_Kind (Pattern.As_Kind_Node_Pattern, Node),
-                 when others =>
-                    raise Assertion_Error with
-                      "Not a node pattern kind: " & L.Kind_Name (Pattern));
-   end Match_Node;
+   ---------------------------
+   -- Match_Pattern_Details --
+   ---------------------------
+
+   function Match_Pattern_Details (Ctx     : Eval_Context;
+                                   Details : L.Node_Pattern_Detail_List;
+                                   Node    : LAL.Ada_Node)
+                                   return Match_Result
+   is
+      use String_Value_Maps;
+      Bindings      : Environment_Map;
+      Current_Match : Match_Result;
+   begin
+      for D of Details loop
+         Current_Match := Match_Pattern_Detail (Ctx, Node, D);
+
+         if not Current_Match.Success then
+            return Match_Failure;
+         end if;
+
+         if not Current_Match.Bindings.Is_Empty then
+            for C in Current_Match.Bindings.Iterate loop
+               Bindings.Insert (Key (C), Element (C));
+            end loop;
+         end if;
+      end loop;
+
+      return Make_Match_Success (Bindings);
+   end Match_Pattern_Details;
+
+   --------------------------
+   -- Match_Pattern_Detail --
+   --------------------------
+
+   function Match_Pattern_Detail (Ctx    : Eval_Context;
+                                  Node   : LAL.Ada_Node;
+                                  Detail : L.Node_Pattern_Detail'Class)
+                                  return Match_Result
+   is
+   begin
+      case Detail.Kind is
+         when LCO.LKQL_Node_Pattern_Data =>
+            return
+              (if Match_Pattern_Data (Ctx, Node, Detail.As_Node_Pattern_Data)
+               then Make_Match_Success
+               else Match_Failure);
+         when LCO.LKQL_Node_Pattern_Selector =>
+            return Match_Pattern_Selector
+              (Ctx, Node, Detail.As_Node_Pattern_Selector);
+         when others =>
+            raise Assertion_Error
+              with "Invalid pattern detail kind: " & L.Kind_Name (Detail);
+      end case;
+   end Match_Pattern_Detail;
+
+   ------------------------
+   -- Match_Pattern_Data --
+   ------------------------
+
+   function Match_Pattern_Data (Ctx    : Eval_Context;
+                                Node   : LAL.Ada_Node;
+                                Detail : L.Node_Pattern_Data)
+                                return Boolean
+   is
+      use Node_Data;
+      Data_Value     : constant Primitive :=
+        Eval_Node_Data (Ctx, Node, Detail.F_Identifier, Detail.F_Arguments);
+      Expected_Value : constant Primitive :=
+        Eval (Ctx, Detail.F_Value_Expr);
+   begin
+      return Deep_Equals (Data_Value, Expected_Value);
+   end Match_Pattern_Data;
+
+   ----------------------------
+   -- Match_Pattern_Selector --
+   ----------------------------
+
+   function Match_Pattern_Selector (Ctx      : Eval_Context;
+                                    Node     : LAL.Ada_Node;
+                                    Selector : L.Node_Pattern_Selector)
+                                    return Match_Result
+   is
+      S_List            : Selector_List;
+      Bindings          : Environment_Map;
+      Bindings_Name     : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Selector.F_Call.P_Binding_Name);
+      Quantifier_Name   : constant String :=
+        To_UTF8 (Selector.F_Call.P_Quantifier_Name);
+      Selector_Iterator : constant Depth_Node_Iter_Access :=
+        new Depth_Node_Iter'Class'
+          (Depth_Node_Iter'Class
+             (Make_Custom_Selector_Iter (Ctx, Selector.F_Call, Node)));
+      Pattern_Predicate : constant Depth_Node_Iters.Predicate_Access :=
+        new Depth_Node_Iters.Predicates.Func'Class'
+          (Depth_Node_Iters.Predicates.Func'Class
+             (Make_Node_Pattern_Predicate (Ctx, Selector.F_Pattern)));
+      Filtered_Iter     : constant Depth_Node_Filter_Access :=
+        new Depth_Node_Iters.Filter_Iter'
+          (Depth_Node_Iters.Filter (Selector_Iterator, Pattern_Predicate));
+   begin
+      if not Make_Selector_List (Filtered_Iter, Quantifier_Name, S_List) then
+         return Match_Failure;
+      end if;
+
+      if Length (Bindings_Name) /= 0 then
+         Bindings.Include (Bindings_Name, To_Primitive (S_List));
+      end if;
+
+      return Make_Match_Success (Bindings);
+   end Match_Pattern_Selector;
+
+   --------------
+   -- Evaluate --
+   --------------
+
+   overriding function Evaluate
+     (Self : in out Node_Pattern_Predicate; Node : Depth_Node) return Boolean
+   is
+      use Patterns.Match;
+      Result : constant Match_Result :=
+        Match_Pattern (Self.Ctx, Self.Pattern, To_Primitive (Node.Node));
+   begin
+      return Result.Success;
+   end Evaluate;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone
+     (Self : Node_Pattern_Predicate) return Node_Pattern_Predicate
+   is
+     (Self.Ctx.Clone_Frame, Self.Pattern);
+
+   -------------
+   -- Release --
+   -------------
+
+   overriding procedure Release (Self : in out Node_Pattern_Predicate) is
+   begin
+      Self.Ctx.Release_Current_Frame;
+   end Release;
+
+   ---------------------------------
+   -- Make_Node_Pattern_Predicate --
+   ---------------------------------
+
+   function Make_Node_Pattern_Predicate (Ctx        : Eval_Context;
+                                         Pattern    : L.Base_Pattern)
+                                         return Node_Pattern_Predicate
+   is
+      (Ctx.Clone_Frame, Pattern);
 
    -----------------------
    -- Matches_Type_Name --
@@ -52,185 +240,6 @@ package body Patterns.Nodes is
       return Actual_Kind = Expected_Kind or else
              Is_Derived_From (Actual_Kind, Expected_Kind);
    end Matches_Kind_Name;
-
-   ----------------------------
-   -- Make_Selector_Iterator --
-   ----------------------------
-
-   function Make_Selector_Iterator
-     (Ctx              : Eval_Context;
-      Queried_Node     : LAL.Ada_Node'Class;
-      Selector_Pattern : L.Selector_Pattern'Class)
-      return Depth_Node_Iter'Class
-   is
-      Base_Selector : constant Depth_Node_Iter'Class :=
-        Selector_Iterator_From_Name
-          (Ctx, Queried_Node.As_Ada_Node, Selector_Pattern);
-   begin
-      if Selector_Pattern.P_Condition.Is_Null then
-         return Base_Selector;
-      end if;
-
-      return
-        Depth_Node_Iters.Filter
-         (Base_Selector,
-          Selector_Conditions_Predicate'(Ctx, Selector_Pattern.P_Condition));
-   end Make_Selector_Iterator;
-
-   ---------------------------------
-   -- Selector_Iterator_From_Name --
-   ---------------------------------
-
-   function Selector_Iterator_From_Name
-     (Ctx              : Eval_Context;
-      Queried_Node     : LAL.Ada_Node;
-      Selector_Pattern : L.Selector_Pattern'Class)
-      return Depth_Node_Iter'Class
-   is
-   begin
-      if Selector_Pattern.P_Selector_Name = "children" then
-         return Make_Childs_Iterator (Queried_Node);
-      else
-         declare
-            Id           : constant L.Identifier :=
-              Selector_Pattern.P_Selector_Identifier;
-            Selector_Def : constant L.Selector_Def :=
-              Selector_Val (Eval (Ctx, Id, Expected_Kind => Kind_Selector));
-            Iter         : constant Custom_Selector_Iter :=
-              Make_Custom_Selector_Iter (Ctx, Selector_Def, Queried_Node);
-         begin
-            return Iter;
-         end;
-      end if;
-   end Selector_Iterator_From_Name;
-
-   ----------------------------
-   -- Make_Selector_Consumer --
-   ----------------------------
-
-   function Make_Selector_Consumer (Ctx          : Eval_Context;
-                                    Selector     : L.Selector_Pattern;
-                                    Related_Node : L.Unfiltered_Pattern)
-                                    return Node_Consumer'Class
-   is
-      Quantifier_Name : constant Text_Type :=
-        Selector.P_Quantifier_Name;
-   begin
-      if Quantifier_Name /= "some" and then Quantifier_Name /= "all" then
-         Raise_Invalid_Selector_Name (Ctx, Selector);
-      end if;
-
-      return (if Quantifier_Name = "some"
-              then Exists_Consumer'(Ctx, Related_Node)
-              else All_Consumer'(Ctx, Related_Node));
-   end Make_Selector_Consumer;
-
-   -------------
-   -- Consume --
-   -------------
-
-   function Consume (Self : in out Exists_Consumer;
-                     Iter : in out Depth_Node_Iter'Class)
-                     return Match_Result
-   is
-      Bindings      : Environment_Map;
-      Current_Node  : Depth_Node;
-      Current_Match : Match_Result;
-      Matched       : Boolean := False;
-      Nodes         : constant Primitive := Make_Empty_List;
-      Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
-   begin
-      while Iter.Next (Current_Node) loop
-         Current_Match := Match_Unfiltered
-           (Self.Ctx, Self.Pattern, To_Primitive (Current_Node.Node));
-
-         if Current_Match.Success then
-            Matched := True;
-
-            if Save_Bindings then
-               Append (Nodes, To_Primitive (Current_Node.Node));
-            end if;
-         end if;
-      end loop;
-
-      Iter.Release;
-
-      if not Matched then
-         return Match_Failure;
-      end if;
-
-      if Save_Bindings then
-         Bindings.Insert
-           (To_Unbounded_Text (Self.Pattern.P_Binding_Name), Nodes);
-      end if;
-
-      return (Success => True, Bindings => Bindings);
-   end Consume;
-
-   -------------
-   -- Consume --
-   -------------
-
-   function Consume (Self : in out All_Consumer;
-                     Iter : in out Depth_Node_Iter'Class)
-                     return Match_Result
-   is
-      use String_Value_Maps;
-      Current_Node  : Depth_Node;
-      Current_Match : Match_Result;
-      Bindings      : Map;
-      Nodes         : constant Primitive := Make_Empty_List;
-      Save_Bindings : constant Boolean := Self.Pattern.P_Has_Binding;
-   begin
-      while Iter.Next (Current_Node) loop
-         Current_Match := Match_Unfiltered
-           (Self.Ctx, Self.Pattern, To_Primitive (Current_Node.Node));
-
-         if not Current_Match.Success then
-            Iter.Release;
-            return Match_Failure;
-         elsif Save_Bindings then
-            Append (Nodes, To_Primitive (Current_Node.Node));
-         end if;
-      end loop;
-
-      if Save_Bindings then
-         Bindings.Insert
-           (To_Unbounded_Text (Self.Pattern.P_Binding_Name), Nodes);
-      end if;
-
-      return (True, Bindings);
-   end Consume;
-
-   --------------
-   -- Evaluate --
-   --------------
-
-   overriding function Evaluate
-     (Self    : in out Selector_Conditions_Predicate;
-      Element : Depth_Node)
-      return Boolean
-   is
-      Local_Env   : Environment_Map;
-      Eval_Result : Primitive;
-   begin
-      Local_Env.Insert
-        (To_Unbounded_Text ("depth"), To_Primitive (Element.Depth));
-      Eval_Result :=
-        Eval (Self.Context, Self.Condition, Kind_Bool, Local_Env);
-      return Bool_Val (Eval_Result);
-   end Evaluate;
-
-   -----------
-   -- Clone --
-   -----------
-
-   overriding function Clone (Self : Selector_Conditions_Predicate)
-                              return Selector_Conditions_Predicate
-   is
-   begin
-      return Selector_Conditions_Predicate'(Self.Context, Self.Condition);
-   end Clone;
 
    ----------
    -- Next --

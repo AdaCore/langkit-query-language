@@ -25,7 +25,7 @@ package Custom_Selectors is
    function Clone (Iter : Custom_Selector_Iter) return Custom_Selector_Iter;
 
    function Make_Custom_Selector_Iter (Ctx        : Eval_Context;
-                                       Definition : L.Selector_Def;
+                                       Call       : L.Selector_Call;
                                        Root       : LAL.Ada_Node)
                                        return Custom_Selector_Iter;
    --  Create an iterator that yields the nodes bound to 'Root' by
@@ -49,6 +49,12 @@ private
       --  Copy of the evaluation context
       Selector        : L.Selector_Def;
       --  LKQL definititon of the custom selector
+      Min_Depth       : Integer;
+      --  Minimum depth of the nodes. If Min_Depth < 0, the minimum depth will
+      --  be ingored.
+      Max_Depth       : Integer;
+      --  Maximum depth of the nodes. If Max_Depth < 0, the maximum depth will
+      --  be ignored.
       Next_Values     : Depth_Node_Lists.List;
       --  Nodes that will be yielded
       Next_To_Visit   : Depth_Node_Lists.List;
@@ -80,10 +86,10 @@ private
    --  Add the result of 'Expr's evaluation to the values produced by the
    --  selector.
 
-   procedure Add_Node (Iter  : in out Custom_Selector_Iter;
-                       Depth : Natural;
-                       Node  : LAL.Ada_Node;
-                       Mode  : L.Selector_Expr_Mode);
+   procedure Add_Node (Iter          : in out Custom_Selector_Iter;
+                       Current_Depth : Natural;
+                       Node          : LAL.Ada_Node;
+                       Mode          : L.Selector_Expr_Mode);
    --  Add the given node to the values produced by the selector.
    --  The value will be added to 'Next_Values' or 'Next_To_Visit' (or both)
    --  depending on the given mode.

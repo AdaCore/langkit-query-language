@@ -8,6 +8,6 @@ selector supertypes
     | ParentList        => skip *it.children
     | _                 => ()
 
-let result = query TypeDecl [supertypes(depth == 3)] _
+let result = query TypeDecl(supertypes(depth=3): _)
 
 print(result)

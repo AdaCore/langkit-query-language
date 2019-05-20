@@ -128,7 +128,7 @@ package body Interpreter.Selector_Lists is
          end if;
       end loop;
 
-      return True;
+      return List.Data.Get.Filtered_Count = 0;
    end Verify_All;
 
    ----------------
@@ -185,7 +185,7 @@ package body Interpreter.Selector_Lists is
       Element : constant Option := Data.Iter.Get_Cached (N);
    begin
       return (if Is_Some (Element) then Element
-              else Draw_N_From_Iter (Data, Data.Iter.Cache_Length - N));
+              else Draw_N_From_Iter (Data, N - Data.Iter.Cache_Length));
    end Nth_Node;
 
    ----------------------

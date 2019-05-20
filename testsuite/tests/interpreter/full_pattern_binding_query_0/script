@@ -1,3 +1,7 @@
-let withAspect = query ObjectDecl [children] childs@AspectAssoc
+selector children
+    | AdaNode => rec *it.children
+    | _       => ()
+
+let withAspect = query ObjectDecl(childs@children: AspectAssoc)
                     when childs.length == 1
 print (withAspect)

@@ -1,67 +1,73 @@
-TopLevelList
-|  SelectorDef
-|  |name:
-|  |  Identifier: testSelector
-|  |arms:
-|  |  SelectorArmList
-|  |  |  SelectorArm
-|  |  |  |pattern:
-|  |  |  |  KindNodePattern
-|  |  |  |  |identifier:
-|  |  |  |  |  Identifier: FirstNodeKind
-|  |  |  |exprs_list:
-|  |  |  |  SelectorExprList
-|  |  |  |  |  SelectorExpr
-|  |  |  |  |  |mode:
-|  |  |  |  |  |  SelectorExprModeSkip
-|  |  |  |  |  |expr:
-|  |  |  |  |  |  DotAccess
-|  |  |  |  |  |  |receiver:
-|  |  |  |  |  |  |  Identifier: it
-|  |  |  |  |  |  |member:
-|  |  |  |  |  |  |  Identifier: field1
-|  |  |  |  |  SelectorExpr
-|  |  |  |  |  |mode:
-|  |  |  |  |  |  SelectorExprModeRec
-|  |  |  |  |  |expr:
-|  |  |  |  |  |  DotAccess
-|  |  |  |  |  |  |receiver:
-|  |  |  |  |  |  |  Identifier: it
-|  |  |  |  |  |  |member:
-|  |  |  |  |  |  |  Identifier: field2
-|  |  |  SelectorArm
-|  |  |  |pattern:
-|  |  |  |  RelationalNodePattern
-|  |  |  |  |queried_node:
-|  |  |  |  |  KindNodePattern
-|  |  |  |  |  |identifier:
-|  |  |  |  |  |  Identifier: SecondNodeKind
-|  |  |  |  |selector:
-|  |  |  |  |  NamedSelector
-|  |  |  |  |  |name:
-|  |  |  |  |  |  Identifier: children
-|  |  |  |  |related_node:
-|  |  |  |  |  KindNodePattern
-|  |  |  |  |  |identifier:
-|  |  |  |  |  |  Identifier: ThirdNodeKind
-|  |  |  |exprs_list:
-|  |  |  |  SelectorExprList
-|  |  |  |  |  SelectorExpr
-|  |  |  |  |  |mode:
-|  |  |  |  |  |  SelectorExprModeDefault
-|  |  |  |  |  |expr:
-|  |  |  |  |  |  DotAccess
-|  |  |  |  |  |  |receiver:
-|  |  |  |  |  |  |  Identifier: it
-|  |  |  |  |  |  |member:
-|  |  |  |  |  |  |  Identifier: field
-|  |  |  SelectorArm
-|  |  |  |pattern:
-|  |  |  |  UniversalPattern
-|  |  |  |exprs_list:
-|  |  |  |  SelectorExprList
-|  |  |  |  |  SelectorExpr
-|  |  |  |  |  |mode:
-|  |  |  |  |  |  SelectorExprModeDefault
-|  |  |  |  |  |expr:
-|  |  |  |  |  |  UnitLiteral
+SelectorDef
+|name:
+|  Identifier: testSelector
+|arms:
+|  SelectorArmList
+|  |  SelectorArm
+|  |  |pattern:
+|  |  |  NodeKindPattern
+|  |  |  |kind_name:
+|  |  |  |  Identifier: FirstNodeKind
+|  |  |exprs_list:
+|  |  |  SelectorExprList
+|  |  |  |  SelectorExpr
+|  |  |  |  |mode:
+|  |  |  |  |  SelectorExprModeSkip
+|  |  |  |  |expr:
+|  |  |  |  |  DotAccess
+|  |  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: it
+|  |  |  |  |  |member:
+|  |  |  |  |  |  Identifier: field1
+|  |  |  |  SelectorExpr
+|  |  |  |  |mode:
+|  |  |  |  |  SelectorExprModeRec
+|  |  |  |  |expr:
+|  |  |  |  |  DotAccess
+|  |  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: it
+|  |  |  |  |  |member:
+|  |  |  |  |  |  Identifier: field2
+|  |  SelectorArm
+|  |  |pattern:
+|  |  |  ExtendedNodePattern
+|  |  |  |node_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |kind_name:
+|  |  |  |  |  Identifier: SecondNodeKind
+|  |  |  |details:
+|  |  |  |  NodePatternDetailList
+|  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |call:
+|  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |quantifier: <null>
+|  |  |  |  |  |  |binding: <null>
+|  |  |  |  |  |  |selector_identifier:
+|  |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |  |args:
+|  |  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  |  |pattern:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |kind_name:
+|  |  |  |  |  |  |  Identifier: ThirdNodeKind
+|  |  |exprs_list:
+|  |  |  SelectorExprList
+|  |  |  |  SelectorExpr
+|  |  |  |  |mode:
+|  |  |  |  |  SelectorExprModeDefault
+|  |  |  |  |expr:
+|  |  |  |  |  DotAccess
+|  |  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: it
+|  |  |  |  |  |member:
+|  |  |  |  |  |  Identifier: field
+|  |  SelectorArm
+|  |  |pattern:
+|  |  |  UniversalPattern
+|  |  |exprs_list:
+|  |  |  SelectorExprList
+|  |  |  |  SelectorExpr
+|  |  |  |  |mode:
+|  |  |  |  |  SelectorExprModeDefault
+|  |  |  |  |expr:
+|  |  |  |  |  UnitLiteral

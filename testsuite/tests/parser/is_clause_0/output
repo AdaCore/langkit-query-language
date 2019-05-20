@@ -5,5 +5,7 @@ IsClause
 |  |  Identifier: node
 |  |member:
 |  |  Identifier: field
-|kind_name:
-|  Identifier: FieldKind
+|pattern:
+|  NodeKindPattern
+|  |kind_name:
+|  |  Identifier: FieldKind

@@ -1,2 +1,6 @@
-let declWithAssoc = query d [children(depth == 3)] AspectAssoc
+selector children
+    | AdaNode => rec *it.children
+    | _       => ()
+
+let declWithAssoc = query _(children(depth=3): AspectAssoc)
 print(declWithAssoc)

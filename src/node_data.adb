@@ -112,20 +112,19 @@ package body Node_Data is
                             Args     : L.Arg_List := L.No_Arg_List)
                             return Primitive
    is
-      Property_Ref : Any_Node_Data_Reference;
+      Data_Ref : Any_Node_Data_Reference;
    begin
       if Is_Built_In (To_UTF8 (Member.Text)) then
          return Built_In_Property (Receiver, To_UTF8 (Member.Text));
       end if;
 
-      Property_Ref := Data_Reference_For_Name (Receiver, Member.Text);
+      Data_Ref := Data_Reference_For_Name (Receiver, Member.Text);
 
-      if Property_Ref = None or not (Property_Ref in Property_Reference'Range)
-      then
+      if Data_Ref = None then
          Raise_Invalid_Member (Ctx, Member, To_Primitive (Receiver));
       end if;
 
-      return Eval_Node_Data (Ctx, Receiver, Property_Ref, Member, Args);
+      return Eval_Node_Data (Ctx, Receiver, Data_Ref, Member, Args);
    end Eval_Node_Data;
 
    -------------------
@@ -151,12 +150,12 @@ package body Node_Data is
    --------------------------
 
    function Value_Array_From_Args (Ctx          : Eval_Context;
-                                   Property_Ref : Property_Reference;
+                                   Property_Ref : Node_Data_Reference;
                                    Args         : L.Arg_List)
                                    return Value_Array
    is
    begin
-      if Args.Children_Count = 0 then
+      if Args.Is_Null then
          return Empty_Value_Array;
       end if;
 

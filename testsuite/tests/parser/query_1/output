@@ -1,32 +1,33 @@
-TopLevelList
-|  Assign
-|  |identifier:
-|  |  Identifier: o
-|  |value:
-|  |  Query
+Assign
+|identifier:
+|  Identifier: o
+|value:
+|  Query
+|  |pattern:
+|  |  FilteredPattern
 |  |  |pattern:
-|  |  |  FilteredPattern
-|  |  |  |pattern:
-|  |  |  |  BindingPattern
-|  |  |  |  |binding:
+|  |  |  BindingPattern
+|  |  |  |binding:
+|  |  |  |  Identifier: o
+|  |  |predicate:
+|  |  |  BinOp
+|  |  |  |left:
+|  |  |  |  IsClause
+|  |  |  |  |node_expr:
 |  |  |  |  |  Identifier: o
-|  |  |  |predicate:
-|  |  |  |  BinOp
-|  |  |  |  |left:
-|  |  |  |  |  IsClause
-|  |  |  |  |  |node_expr:
-|  |  |  |  |  |  Identifier: o
+|  |  |  |  |pattern:
+|  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |kind_name:
 |  |  |  |  |  |  Identifier: ObjectDecl
-|  |  |  |  |op:
-|  |  |  |  |  OpAnd
-|  |  |  |  |right:
-|  |  |  |  |  InClause
-|  |  |  |  |  |value_expr:
-|  |  |  |  |  |  DotAccess
-|  |  |  |  |  |  |receiver:
-|  |  |  |  |  |  |  Identifier: o
-|  |  |  |  |  |  |member:
-|  |  |  |  |  |  |  Identifier: random_field
-|  |  |  |  |  |list_expr:
-|  |  |  |  |  |  Identifier: filteredFields
+|  |  |  |op:
+|  |  |  |  OpAnd
+|  |  |  |right:
+|  |  |  |  InClause
+|  |  |  |  |value_expr:
+|  |  |  |  |  DotAccess
+|  |  |  |  |  |receiver:
+|  |  |  |  |  |  Identifier: o
+|  |  |  |  |  |member:
+|  |  |  |  |  |  Identifier: random_field
+|  |  |  |  |list_expr:
+|  |  |  |  |  Identifier: filteredFields

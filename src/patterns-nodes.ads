@@ -1,100 +1,88 @@
 with Options;
 with Depth_Nodes;            use Depth_Nodes;
-with Interpreter.Primitives; use Interpreter.Primitives;
 
 with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
 
 package Patterns.Nodes is
 
-   function Match_Node (Ctx     : Eval_Context;
-                        Pattern : L.Node_Pattern;
-                        Value   : Primitive) return Match_Result;
-   --  Return the result of matching 'Value' against the given node pattern
+   function Match_Node_pattern (Ctx     : Eval_Context;
+                                Pattern : L.Node_Pattern;
+                                Node    : LAL.Ada_Node) return Match_Result;
+   --  Match the given node againsta a node pattern
+
+   function Match_Kind_pattern (Ctx     : Eval_Context;
+                                Pattern : L.Node_Kind_Pattern;
+                                Node    : LAL.Ada_Node) return Match_Result;
+   --  Match th given node against a kind pattern
+
+   function Match_Extended_Pattern (Ctx     : Eval_Context;
+                                    Pattern : L.Extended_Node_Pattern;
+                                    Node    : LAL.Ada_Node)
+                                    return Match_Result;
+   --  Match the given node against an extended pattern
 
    function Matches_Kind_Name
      (Kind_Name : String; Node : LAL.Ada_Node) return Boolean;
    --  Return true if 'Node's type is named 'Type_Name' or is a subtype of
    --  a type named 'Type_Name'.
 
-   -------------------------------------
-   -- Selectors creation & evaluation --
-   -------------------------------------
+   function Match_Pattern_Details (Ctx     : Eval_Context;
+                                   Details : L.Node_Pattern_Detail_List;
+                                   Node    : LAL.Ada_Node)
+                                   return Match_Result;
+   --  Match a given node agains the 'details' (fields, properties & sekectors)
+   --  of a node pattern.
+   --  The 'Bindings' part of the Match result will contain references to the
+   --  selector lists that are associated with a binding name in the pattern.
 
-   function Make_Selector_Iterator
-     (Ctx              : Eval_Context;
-      Queried_Node     : LAL.Ada_Node'Class;
-      Selector_Pattern : L.Selector_Pattern'Class)
-      return Depth_Node_Iter'Class;
-   --  Return an iterator that yields the nodes bound to Queried_Node by the
-   --  given selector.
+   function Match_Pattern_Detail (Ctx    : Eval_Context;
+                                  Node   : LAL.Ada_Node;
+                                  Detail : L.Node_Pattern_Detail'Class)
+                                  return Match_Result;
+   --  Match 'Node' against a node pattern 'detail'
 
-   function Selector_Iterator_From_Name
-     (Ctx              : Eval_Context;
-      Queried_Node     : LAL.Ada_Node;
-      Selector_Pattern : L.Selector_Pattern'Class)
-      return Depth_Node_Iter'Class;
+   function Match_Pattern_Data (Ctx    : Eval_Context;
+                                Node   : LAL.Ada_Node;
+                                Detail : L.Node_Pattern_Data)
+                                return Boolean;
+   --  Return whether the field or property designated by 'Detail' is equal
+   --  to the expected value set in 'Detail'.
 
-   ------------------------
-   -- Selector consumers --
-   ------------------------
+   function Match_Pattern_Selector (Ctx      : Eval_Context;
+                                    Node     : LAL.Ada_Node;
+                                    Selector : L.Node_Pattern_Selector)
+                                    return Match_Result;
+   --  Match 'Node' againt a selector apearing as a node pattern detail.
+   --  If the selector has a binding name, a binding associating the said name
+   --  to the output of the selector will be added to the 'Bindings' part of
+   --  the 'Match_Result'.
 
-   package Selector_Consumers is new Depth_Node_Iters.Consumers (Match_Result);
-   --  Consummer for Iterators over 'Depth_Node' values that produces
-   --  'Match' values as a result.
+   -----------------------------
+   --  Node_Pattern_Predicate --
+   -----------------------------
 
-   subtype Node_Consumer is Selector_Consumers.Consumer_Interface;
-
-   type Exists_Consumer is new Node_Consumer
-   with record
-      Ctx     : Eval_Context;
-      Pattern : L.Unfiltered_Pattern;
-   end record;
-   --  Consumer that produces a successful 'Match' value if at least one of
-   --  the values yieded by the consumed iterator matches 'Pattern'.
-
-   function Consume (Self : in out Exists_Consumer;
-                     Iter : in out Depth_Node_Iter'Class)
-                     return Match_Result;
-
-   type All_Consumer is new Node_Consumer
-   with record
-      Ctx     : Eval_Context;
-      Pattern : L.Unfiltered_Pattern;
-   end record;
-   --  Consumer that produces a successful 'Match' value if all of the values
-   --  yielded by the consumed iterator match 'Pattern', or the iterator
-   --  doesn't yield any value.
-
-   function Consume (Self : in out All_Consumer;
-                     Iter : in out Depth_Node_Iter'Class)
-                     return Match_Result;
-
-   function Make_Selector_Consumer (Ctx          : Eval_Context;
-                                    Selector     : L.Selector_Pattern;
-                                    Related_Node : L.Unfiltered_Pattern)
-                                    return Node_Consumer'Class;
-   --  Given a selector pattern, return a selector consumer that corresponds
-   --  to the quantifier specified in the pattern.
-
-   subtype Iterator_Predicate_Interface is Depth_Node_Iters.Predicates.Func;
-   --  Predicates on 'Depth_Node' values
-
-   type Selector_Conditions_Predicate is new Iterator_Predicate_Interface
-   with record
-      Context   : Eval_Context;
-      Condition : L.Expr;
-   end record;
-   --  Predicate that evaluates a selector's filtering expression
+   type Node_Pattern_Predicate is new Depth_Node_Iters.Predicates.Func with
+      record
+         Ctx     : Eval_Context;
+         Pattern : L.Base_Pattern;
+      end record;
+   --  Predicate that returns true when given a Depth_Node that matches
+   --  'Pattern'.
 
    overriding function Evaluate
-     (Self    : in out Selector_Conditions_Predicate;
-      Element : Depth_Node)
-      return Boolean;
+     (Self : in out Node_Pattern_Predicate; Node : Depth_Node) return Boolean;
 
-   overriding function Clone (Self : Selector_Conditions_Predicate)
-                              return Selector_Conditions_Predicate;
-   --  Return a copy of the given Selector_Conditions_Predicate
+   overriding function Clone
+     (Self : Node_Pattern_Predicate) return Node_Pattern_Predicate;
+
+   overriding procedure Release (Self : in out Node_Pattern_Predicate);
+
+   function Make_Node_Pattern_Predicate (Ctx     : Eval_Context;
+                                         Pattern : L.Base_Pattern)
+                                         return Node_Pattern_Predicate;
+   --  Create a Node_Pattern_Predicate with the given pattern and evalalution
+   --  context.
 
    ---------------------
    -- Childs_Iterator --

@@ -1,10 +1,9 @@
-TopLevelList
-|  Assign
-|  |identifier:
-|  |  Identifier: o
-|  |value:
-|  |  Query
-|  |  |pattern:
-|  |  |  KindNodePattern
-|  |  |  |identifier:
-|  |  |  |  Identifier: ObjectDecl
+Assign
+|identifier:
+|  Identifier: o
+|value:
+|  Query
+|  |pattern:
+|  |  NodeKindPattern
+|  |  |kind_name:
+|  |  |  Identifier: ObjectDecl
