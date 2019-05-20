@@ -8,6 +8,10 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Interpreter.Evaluation is
 
+   function Check_And_Eval
+     (Ctx  : Eval_Context; Node : L.LKQL_Node'Class) return Primitive;
+   --  Check 'Node' and then evaluate it.
+
    function Eval (Ctx            : Eval_Context;
                   Node           : L.LKQL_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
@@ -68,9 +72,9 @@ private
    --  Mapping from environment values to primitive values
 
    type Closure is new Env_Primitive_Maps.Map_Funcs.Func with record
-      Ctx       : Eval_Context;
+      Ctx           : Eval_Context;
       --  Copy of the evaluation context at call site
-      Body_Expr : L.Expr;
+      Body_Expr     : L.Expr;
       --  Body of the closure
    end record;
 
@@ -81,8 +85,9 @@ private
 
    overriding procedure Release (Self : in out Closure);
 
-   function Make_Closure
-     (Ctx : Eval_Context; Body_Expr : L.Expr) return Closure;
+   function Make_Closure (Ctx            : Eval_Context;
+                          Body_Expr      : L.Expr)
+                          return Closure;
 
    type Comprehension_Guard_Filter is new Environment_Iters.Predicates.Func
    with record

@@ -4,6 +4,7 @@ with Functions;                  use Functions;
 with Node_Data;                  use Node_Data;
 with Depth_Nodes;                use Depth_Nodes;
 with Patterns.Match;             use Patterns.Match;
+with Interpreter.Checks;         use Interpreter.Checks;
 with Interpreter.Errors;         use Interpreter.Errors;
 with Interpreter.Error_Handling; use Interpreter.Error_Handling;
 
@@ -120,6 +121,18 @@ package body Interpreter.Evaluation is
    begin
       return Bool_Val (Result);
    end Bool_Eval;
+
+   --------------------
+   -- Check_And_Eval --
+   --------------------
+
+   function Check_And_Eval
+     (Ctx  : Eval_Context; Node : L.LKQL_Node'Class) return Primitive
+   is
+   begin
+      Check (Ctx, Node);
+      return Eval (Ctx, Node);
+   end Check_And_Eval;
 
    ----------
    -- Eval --
