@@ -30,10 +30,7 @@ class TopLevelList(Expr.list):
     """
     Holder for the top-level environment
     """
-
-    env_spec = EnvSpec(
-        add_env()
-    )
+    pass
 
 
 @abstract
