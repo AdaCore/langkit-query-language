@@ -7,14 +7,21 @@ from langkit.libmanage import ManageScript
 
 class Manage(ManageScript):
     def create_context(self, args):
-        from langkit.compile_context import CompileCtx
+        
+        from langkit.compile_context import (CompileCtx, ADA_BODY)
 
         from language.lexer import lkql_lexer
         from language.parser import lkql_grammar
 
-        return CompileCtx(lang_name='LKQL',
-                          lexer=lkql_lexer,
-                          grammar=lkql_grammar)
+        ctx = CompileCtx(lang_name='LKQL',
+                         lexer=lkql_lexer,
+                         grammar=lkql_grammar)
+
+        ctx.add_with_clause('Implementation', ADA_BODY, 'Liblkqllang.Prelude',
+                            use_clause=True)
+
+        return ctx
+
 
 if __name__ == '__main__':
     Manage().run()
