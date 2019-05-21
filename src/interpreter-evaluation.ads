@@ -16,11 +16,23 @@ package Interpreter.Evaluation is
                   Node           : L.LKQL_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
                   Local_Bindings : Environment_Map :=
-                    String_Value_Maps.Empty_Map)
-                  return Primitive;
+                    String_Value_Maps.Empty_Map) return Primitive;
    --  Return the result of the AST node's evaluation in the given context.
    --  An Eval_Error will be raised if the node represents an invalid query or
    --  expression.
+
+   function Eval_Default
+     (Ctx            : Eval_Context;
+      Node           : L.LKQL_Node'Class;
+      Default        : Primitive;
+      Expected_Kind  : Base_Primitive_Kind := No_Kind;
+      Local_Bindings : Environment_Map :=
+        String_Value_Maps.Empty_Map) return Primitive
+   is
+     (if Node.Is_Null then Default
+      else Eval (Ctx, Node, Expected_Kind, Local_Bindings));
+   --  If 'Node' is null return 'Default', otherwide call 'Eval' with the
+   --  given arguments.
 
 private
 
