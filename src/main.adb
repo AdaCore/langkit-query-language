@@ -1,4 +1,4 @@
-with Run;
+with LKQL.Run;
 
 with Libadalang.Analysis;      use Libadalang.Analysis;
 with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
@@ -81,7 +81,7 @@ begin
          UFP := Create_Auto_Provider_Reference (Files.all);
          Context := Create_Context (Unit_Provider => UFP);
 
-         Run.Run_On_Files (To_String (Arg.Script_Path.Get),
+         LKQL.Run.Run_On_Files (To_String (Arg.Script_Path.Get),
                            Context,
                            Files,
                            Arg.Recovery_Enabled.Get);
@@ -90,7 +90,7 @@ begin
       end;
 
    elsif Length (Arg.Project_Path.Get) > 0 then
-      Run.Run_Against_Project (To_String (Arg.Script_Path.Get),
+      LKQL.Run.Run_Against_Project (To_String (Arg.Script_Path.Get),
                                To_String (Arg.Project_Path.Get),
                                Arg.Recovery_Enabled.Get);
    end if;
