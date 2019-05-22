@@ -37,6 +37,13 @@ package body Interpreter.Primitives is
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
    --  Expected_Kind.
 
+   function Selector_List_Data (Value       : Selector_List;
+                                Member_Name : Text_Type) return Primitive;
+   --  Return the value of the property named 'Member_Name' of the given
+   --  Primitive Selector_List.
+   --  Raise an Unsupported_Error if there is no property named
+   --  'Member_Name'.
+
    function List_Data (Value : Primitive_List_Access;
                        Member_Name : Text_Type) return Primitive;
    --  Return the value of the property named 'Member_Name' of the given
@@ -333,6 +340,29 @@ package body Interpreter.Primitives is
       return Value.Get.List_Val.Elements'Access;
    end Elements;
 
+   ------------------------
+   -- Selector_List_Data --
+   ------------------------
+
+   function Selector_List_Data (Value       : Selector_List;
+                                Member_Name : Text_Type) return Primitive
+   is
+   begin
+      if Member_Name = "max_depth" then
+         return To_Primitive (Value.Max_Depth);
+      elsif Member_Name = "nodes" then
+         return To_List (Value);
+      else
+         return List_Data (List_Val (To_List (Value)), Member_Name);
+      end if;
+
+   exception
+      when Unsupported_Error =>
+         raise Unsupported_Error with
+           "No property named " & To_UTF8 (Member_Name) &
+           " on values of kind " & To_String (Kind_Selector_List);
+   end Selector_List_Data;
+
    -------------------
    -- List_Property --
    -------------------
@@ -388,7 +418,7 @@ package body Interpreter.Primitives is
    begin
       return (case Kind (Value) is
                  when Kind_Selector_List =>
-                   Data (To_List (Selector_List_Val (Value)), Member_Name),
+                   Selector_List_Data (Selector_List_Val (Value), Member_Name),
                  when Kind_List =>
                    List_Data (List_Val (Value), Member_Name),
                  when Kind_Str =>
