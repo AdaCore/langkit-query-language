@@ -24,14 +24,6 @@ package body LKQL.Primitives is
    function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
-   function Fun_Image (Value : L.Fun_Def) return Unbounded_Text_Type;
-   --  Return a String for the form: name[arity] representing the given
-   --  function declaration.
-
-   function Selector_Image (Value : L.Selector_Def) return Unbounded_Text_Type;
-   --  Return a String of te form: Selector[name] representing the given
-   --  selector definition.
-
    procedure Check_Kind
      (Expected_Kind : Valid_Primitive_Kind; Value : Primitive);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
@@ -124,29 +116,6 @@ package body LKQL.Primitives is
 
       return Image;
    end List_Image;
-
-   ---------------
-   -- Fun_Image --
-   ---------------
-
-   function Fun_Image (Value : L.Fun_Def) return Unbounded_Text_Type is
-      Arity : constant Unbounded_Text_Type :=
-        Int_Image (Value.F_Parameters.Children_Count);
-      Name  : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Value.F_Name.Text);
-   begin
-      return Name & '[' & Arity & ']';
-   end Fun_Image;
-
-   --------------------
-   -- Selector_Image --
-   --------------------
-
-   function Selector_Image (Value : L.Selector_Def) return Unbounded_Text_Type
-   is
-   begin
-      return "Selector[" & To_Unbounded_Text (Value.F_Name.Text) & ']';
-   end Selector_Image;
 
    --------------------
    -- Iterator_Image --
@@ -308,20 +277,6 @@ package body LKQL.Primitives is
 
    function Selector_List_Val (Value : Primitive) return Selector_List is
       (Value.Get.Selector_List_Val);
-
-   -------------
-   -- Fun_Val --
-   -------------
-
-   function Fun_Val (Value : Primitive) return L.Fun_Def is
-     (Value.Get.Fun_Val);
-
-   ------------------
-   -- Selector_Val --
-   ------------------
-
-   function Selector_Val (Value : Primitive) return L.Selector_Def is
-      (Value.Get.Selector_Val);
 
    --------------
    -- Iter_Val --
@@ -518,28 +473,6 @@ package body LKQL.Primitives is
    -- To_Primitive --
    ------------------
 
-   function To_Primitive (Val : L.Fun_Def) return Primitive is
-   begin
-      return Result : Primitive do
-         Result.Set (Primitive_Data'(Refcounted with Kind_Fun, Val));
-      end return;
-   end To_Primitive;
-
-   ------------------
-   -- To_Primitive --
-   ------------------
-
-   function To_Primitive (Val : L.Selector_Def) return Primitive is
-   begin
-      return Result : Primitive do
-         Result.Set (Primitive_Data'(Refcounted with Kind_Selector, Val));
-      end return;
-   end To_Primitive;
-
-   ------------------
-   -- To_Primitive --
-   ------------------
-
    function To_Primitive (Val : Selector_List) return Primitive is
    begin
       return Result : Primitive do
@@ -698,11 +631,7 @@ package body LKQL.Primitives is
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all),
                  when Kind_Selector_List =>
-                   Selector_List_Image (Selector_List_Val (Val)),
-                 when Kind_Fun =>
-                   Fun_Image (Val.Get.Fun_Val),
-                 when Kind_Selector =>
-                   Selector_Image (Selector_Val (Val)));
+                   Selector_List_Image (Selector_List_Val (Val)));
    end To_Unbounded_Text;
 
    ---------------
@@ -719,9 +648,7 @@ package body LKQL.Primitives is
                  when Kind_Node          => "Node",
                  when Kind_Iterator      => "Iterator",
                  when Kind_List          => "List",
-                 when Kind_Selector_List => "Selector List",
-                 when Kind_Fun           => "Fun",
-                 when Kind_Selector      => "Selector");
+                 when Kind_Selector_List => "Selector List");
    end To_String;
 
    ---------------
