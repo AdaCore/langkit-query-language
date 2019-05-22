@@ -1,2 +1,2 @@
 main.adb
-raised INTERPRETER.PRIMITIVES.UNSUPPORTED_ERROR : Zero division
+raised LKQL.PRIMITIVES.UNSUPPORTED_ERROR : Zero division
