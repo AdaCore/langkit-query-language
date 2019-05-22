@@ -63,9 +63,9 @@ package body LKQL.Error_Handling is
                                    Node     : L.Identifier;
                                    Receiver : Primitive)
    is
-      Message : constant Unbounded_Text_Type :=
-        "Cannot get member " & To_Unbounded_Text (Node.Text) &
-        " for " & To_Text (Kind_Name (Receiver)) & " value";
+      Message : constant Text_Type :=
+        "Cannot get member " & Node.Text & " for " &
+        To_Text (Kind_Name (Receiver)) & " value";
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Member;
@@ -76,9 +76,8 @@ package body LKQL.Error_Handling is
 
    procedure Raise_Null_Root (Ctx : Eval_Context; Node : L.Query)
    is
-      Message : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (
-           To_Text ("Cannot run a query without a proper AST root"));
+      Message : constant Text_Type :=
+         "Cannot run a query without a proper AST root";
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Null_Root;
@@ -92,12 +91,9 @@ package body LKQL.Error_Handling is
                                  Expected : Valid_Primitive_Kind;
                                  Value    : Primitive)
    is
-      Message : constant Unbounded_Text_Type :=
-        To_Unbounded_Text
-          (To_Text
-             ("Type error: expected " & To_String (Expected) & " but got " &
-                Kind_Name (Value)
-           ));
+      Message : constant Text_Type :=
+        "Type error: expected " & To_Text (To_String (Expected)) &
+        " but got " & To_Text (Kind_Name (Value));
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Kind;
@@ -109,9 +105,7 @@ package body LKQL.Error_Handling is
    procedure Raise_Invalid_Selector_Name (Ctx  : Eval_Context;
                                           Node : L.Identifier)
    is
-      Message : constant Unbounded_Text_Type :=
-        "Invalid selector name: " &
-        To_Unbounded_Text (Node.Text);
+      Message : constant Text_Type := "Invalid selector name: " & Node.Text;
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Selector_Name;
@@ -123,8 +117,7 @@ package body LKQL.Error_Handling is
    procedure Raise_Unknown_Symbol (Ctx : Eval_Context;
                                    Node : L.Identifier)
    is
-      Message : constant Unbounded_Text_Type :=
-        "Unknown symbol: " & To_Unbounded_Text (Node.Text);
+      Message : constant Text_Type := "Unknown symbol: " & Node.Text;
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Unknown_Symbol;
@@ -137,8 +130,8 @@ package body LKQL.Error_Handling is
                                             Identifier : Unbounded_Text_Type;
                                             Node       : L.LKQL_Node)
    is
-      Message : constant Unbounded_Text_Type :=
-        "already existing symbol: " & Identifier;
+      Message : constant Text_Type :=
+        "Already existing symbol: " & To_Text (Identifier);
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Already_Existing_Symbol;
@@ -155,9 +148,8 @@ package body LKQL.Error_Handling is
         Integer'Wide_Wide_Image (Expected_Arity);
       Actual_Arity   : constant Text_Type :=
         Integer'Wide_Wide_Image (Arguments.Children_Count);
-      Message  : constant Unbounded_Text_Type :=
-        To_Unbounded_Text
-          ("Expected" & Expected & " arguments but got" & Actual_Arity);
+      Message  : constant Text_Type :=
+         "Expected" & Expected & " arguments but got" & Actual_Arity;
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Arguments, Message));
    end Raise_Invalid_Arity;
@@ -169,8 +161,8 @@ package body LKQL.Error_Handling is
    procedure Raise_Unknown_Argument (Ctx        : Eval_Context;
                                      Identifier : L.Identifier)
    is
-      Message : constant Unbounded_Text_Type :=
-        "Unknown argument name: " & To_Unbounded_Text (Identifier.Text);
+      Message : constant Text_Type :=
+        "Unknown argument name: " & Identifier.Text;
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Identifier, Message));
    end Raise_Unknown_Argument;
@@ -182,8 +174,8 @@ package body LKQL.Error_Handling is
    procedure Raise_Positionnal_After_Named (Ctx         : Eval_Context;
                                             Positionnal : L.Expr_Arg)
    is
-      Message : constant Unbounded_Text_Type :=
-        To_Unbounded_Text ("Positional argument after named argument");
+      Message : constant Text_Type :=
+        "Positional argument after named argument";
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Positionnal, Message));
    end Raise_Positionnal_After_Named;
@@ -195,8 +187,8 @@ package body LKQL.Error_Handling is
    procedure Raise_Already_Seen_Arg (Ctx : Eval_Context;
                                      Arg : L.Named_Arg)
    is
-      Message : constant Unbounded_Text_Type :=
-        To_Unbounded_Text ("Multiple arguments with the same name");
+      Message : constant Text_Type :=
+        "Multiple arguments with the same name";
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Arg, Message));
    end Raise_Already_Seen_Arg;
@@ -209,10 +201,9 @@ package body LKQL.Error_Handling is
                                            Node      : L.LKQL_Node;
                                            Kind      : Value_Kind)
    is
-      Kind_Name : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Value_Kind'Wide_Wide_Image (Kind));
-      Message : constant Unbounded_Text_Type :=
-        "Unsupported value type: " & Kind_Name;
+      Kind_Name : constant Text_Type :=
+        Value_Kind'Wide_Wide_Image (Kind);
+      Message : constant Text_Type := "Unsupported value type: " & Kind_Name;
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Unsupported_Value_Type;
@@ -226,9 +217,9 @@ package body LKQL.Error_Handling is
                                             Value         : Primitive;
                                             Expected_Kind : Value_Kind)
    is
-      Expected_Kind_Name : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Value_Kind'Wide_Wide_Image (Expected_Kind));
-      Message : constant Unbounded_Text_Type :=
+      Expected_Kind_Name : constant Text_Type :=
+       Value_Kind'Wide_Wide_Image (Expected_Kind);
+      Message : constant Text_Type :=
         "Cannot convert a : " & To_Text (Kind_Name (Value)) &
         " to a " & Expected_Kind_Name;
    begin
