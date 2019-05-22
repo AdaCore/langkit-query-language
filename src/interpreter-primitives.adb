@@ -363,9 +363,9 @@ package body Interpreter.Primitives is
            " on values of kind " & To_String (Kind_Selector_List);
    end Selector_List_Data;
 
-   -------------------
-   -- List_Property --
-   -------------------
+   ---------------
+   -- List_Data --
+   ---------------
 
    function List_Data (Value : Primitive_List_Access;
                        Member_Name : Text_Type) return Primitive
