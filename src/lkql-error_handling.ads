@@ -119,4 +119,34 @@ private package LKQL.Error_Handling is
    --  or an unpacked collection of nodes in a selector, and add an Error_Data
    --  describing the error to the evaluation context.
 
+   procedure Raise_No_Such_Field (Ctx        : Eval_Context;
+                                  Node       : LAL.Ada_Node;
+                                  Field_Name : L.Identifier)
+     with No_Return;
+   --  Raise an exception signaling an attempt to access a field that doesn't
+   --  exists, and add an Error_Data describing the error to the evaluation
+   --  context.
+
+   procedure Raise_No_Such_Property (Ctx           : Eval_Context;
+                                     Node          : LAL.Ada_Node;
+                                     Property_Name : L.Identifier)
+     with No_Return;
+   --  Raise an exception signaling an attempt to access a property that
+   --  doesn't exists, and add an Error_Data describing the error to the
+   --  evaluation context.
+
+private
+
+   type Data_Type is (Field, Property);
+
+   procedure Raise_No_Such_Datum (Ctx            : Eval_Context;
+                                  Node           : LAL.Ada_Node;
+                                  Field_Name     : L.Identifier;
+                                  Data_Type_Name : Text_Type)
+     with No_Return;
+   --  Raise an exception signaling an attempt to access a node datum that
+   --  doesn't exist, and add an Error_Data describing the error to the
+   --  evaluation context.
+   --  Data_Type_Name = "field" or "property".
+
 end LKQL.Error_Handling;
