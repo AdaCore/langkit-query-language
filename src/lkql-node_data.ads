@@ -57,12 +57,6 @@ private
    --  Return the value of the built-in property named 'Property_Name' on
    --  'Receiver'.
 
-   function Access_Custom_Data (Ctx      : Eval_Context;
-                                Receiver : LAL.Ada_Node;
-                                Member   : L.Identifier) return Primitive;
-   --  Return the value of the non built-in field/property designated by
-   --  'Member' on 'Receiver'.
-
    function Is_Built_In (Name : String) return Boolean;
    --  Return whether the property named 'Name' is built-in
 

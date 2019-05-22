@@ -49,19 +49,13 @@ package LKQL.Primitives is
       Kind_Selector_List,
       --  Lazy 'list' returned by a selector
 
-      Kind_Fun,
-      --  Function values
-
-      Kind_Selector,
-      --  Selector delcaration
-
       No_Kind
       --  Special value that allows using this enum as an option type
    );
    --  Denotes the kind of a primitive value
 
    subtype Valid_Primitive_Kind is Base_Primitive_Kind
-      range Kind_Unit .. Kind_Selector;
+      range Kind_Unit .. Kind_Selector_List;
 
    subtype Sequence_Kind is Valid_Primitive_Kind
       range Kind_Iterator .. Kind_List;
@@ -85,10 +79,6 @@ package LKQL.Primitives is
             List_Val : Primitive_List_Access;
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
-         when Kind_Fun =>
-            Fun_Val : L.Fun_Def;
-         when Kind_Selector =>
-            Selector_Val : L.Selector_Def;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -199,12 +189,6 @@ package LKQL.Primitives is
    function Iter_Val (Value : Primitive) return Iterator_Primitive_Access;
    --  Return the value of an iterator primitive
 
-   function Fun_Val (Value : Primitive) return L.Fun_Def;
-   --  Return the value of a function primitive
-
-   function Selector_Val (Value : Primitive) return L.Selector_Def;
-   --  Return the value of a selector primitive
-
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;
    --  Return a pointer to the elements of a list primitive
@@ -240,12 +224,6 @@ package LKQL.Primitives is
    --  Create a Primitive value from the LKQL_Node value
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
-
-   function To_Primitive (Val : L.Fun_Def) return Primitive;
-   --  Create a Primitive value from a Fun_Def
-
-   function To_Primitive (Val : L.Selector_Def) return Primitive;
-   --  Creata a Primitive value from a Selector_Def
 
    function To_Primitive (Val : Selector_List) return Primitive;
    --  Create a Primitive value from a Selector_List;

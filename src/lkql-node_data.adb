@@ -359,24 +359,4 @@ package body LKQL.Node_Data is
    function Is_Built_In (Name : String) return Boolean is
      (Name = "image");
 
-   ------------------------
-   -- Access_Custom_Data --
-   ------------------------
-
-   function Access_Custom_Data (Ctx      : Eval_Context;
-                                Receiver : LAL.Ada_Node;
-                                Member   : L.Identifier) return Primitive
-   is
-      Data_Ref   : constant Any_Node_Data_Reference :=
-        Data_Reference_For_Name (Receiver, Member.Text);
-   begin
-      if Data_Ref = None then
-         Raise_Invalid_Member (Ctx, Member, To_Primitive (Receiver));
-      end if;
-
-      return Create_Primitive
-        (Ctx, Member.As_LKQL_Node,
-         Eval_Node_Data (Receiver, Data_Ref, Empty_Value_Array));
-   end Access_Custom_Data;
-
 end LKQL.Node_Data;

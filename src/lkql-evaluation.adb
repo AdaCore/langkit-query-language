@@ -66,12 +66,6 @@ package body LKQL.Evaluation is
    function Eval_Val_Expr
      (Ctx : Eval_Context; Node : L.Val_Expr) return Primitive;
 
-   function Eval_Fun_Def
-     (Ctx : Eval_Context; Node : L.Fun_Def) return Primitive;
-
-   function Eval_Selector_Def
-     (Ctx : Eval_Context; Node : L.Selector_Def) return Primitive;
-
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
    function Make_Comprehension_Environment_Iter
@@ -186,11 +180,11 @@ package body LKQL.Evaluation is
             when LCO.LKQL_Val_Expr =>
               Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
             when LCO.LKQL_Fun_Def =>
-              Eval_Fun_Def (Local_Context, Node.As_Fun_Def),
+              Make_Unit_Primitive,
             when LCO.LKQL_Fun_Call =>
               Eval_Fun_Call (Local_Context, Node.As_Fun_Call),
             when LCO.LKQL_Selector_Def =>
-              Eval_Selector_Def (Local_Context, Node.As_Selector_Def),
+              Make_Unit_Primitive,
             when LCO.LKQL_Match =>
               Eval_Match (Local_Context, Node.As_Match),
             when others =>
@@ -538,45 +532,6 @@ package body LKQL.Evaluation is
       Binding.Include (Binding_Name, Binding_Value);
       return Eval (Ctx, Node.F_Expr, Local_Bindings => Binding);
    end Eval_Val_Expr;
-
-   ------------------
-   -- Eval_Fun_Def --
-   ------------------
-
-   function Eval_Fun_Def
-     (Ctx : Eval_Context; Node : L.Fun_Def) return Primitive
-   is
-      Identifier : constant Text_Type := Node.F_Name.Text;
-      Fun_Value  : constant Primitive := To_Primitive (Node);
-   begin
-      if Ctx.Exists_In_Local_Env (Identifier) then
-         Raise_Already_Existing_Symbol
-           (Ctx, To_Unbounded_Text (Identifier), Node.F_Name.As_LKQL_Node);
-      end if;
-
-      Ctx.Add_Binding (Identifier, Fun_Value);
-
-      return Make_Unit_Primitive;
-   end Eval_Fun_Def;
-
-   -----------------------
-   -- Eval_Selector_Def --
-   -----------------------
-
-   function Eval_Selector_Def
-     (Ctx : Eval_Context; Node : L.Selector_Def) return Primitive
-   is
-      Identifier : constant Text_Type := Node.F_Name.Text;
-      Value      : constant Primitive := To_Primitive (Node);
-   begin
-      if Ctx.Exists_In_Local_Env (Identifier) then
-         Raise_Already_Existing_Symbol
-           (Ctx, To_Unbounded_Text (Identifier), Node.As_LKQL_Node);
-      end if;
-
-      Ctx.Add_Binding (Identifier, Value);
-      return Make_Unit_Primitive;
-   end Eval_Selector_Def;
 
    ----------------
    -- Eval_Match --

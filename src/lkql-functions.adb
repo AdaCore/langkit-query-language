@@ -1,4 +1,3 @@
-with LKQL.String_Utils;   use LKQL.String_Utils;
 with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
@@ -67,38 +66,6 @@ package body LKQL.Functions is
 
       return Args_Bindings;
    end Eval_Arguments;
-
-   ---------------------
-   -- Check_Arguments --
-   ---------------------
-
-   procedure Check_Arguments (Ctx       : Eval_Context;
-                              Arguments : L.Arg_List;
-                              Def       : L.Fun_Def)
-   is
-      Names_Seen : String_Set;
-   begin
-      if Arguments.Children_Count /= Def.P_Arity then
-         Raise_Invalid_Arity (Ctx, Def.P_Arity, Arguments);
-      end if;
-
-      for Arg of Arguments loop
-         if Arg.P_Has_Name then
-            if not Def.P_Has_Parameter (Arg.P_Name.Text) then
-               Raise_Unknown_Argument (Ctx, Arg.P_Name);
-            end if;
-
-            if Names_Seen.Contains (To_Unbounded_Text (Arg.P_Name.Text)) then
-               Raise_Already_Seen_Arg (Ctx, Arg.As_Named_Arg);
-            end if;
-
-            Names_Seen.Insert (To_Unbounded_Text (Arg.P_Name.Text));
-         elsif not Names_Seen.Is_Empty then
-               Raise_Positionnal_After_Named (Ctx, Arg.As_Expr_Arg);
-         end if;
-      end loop;
-
-   end Check_Arguments;
 
    -----------------------
    -- Eval_Builtin_Call --

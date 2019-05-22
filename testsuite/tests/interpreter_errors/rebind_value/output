@@ -1,4 +1,0 @@
-main.adb
-Error: already existing symbol: value
-let value = 42
-    ^^^^^^
