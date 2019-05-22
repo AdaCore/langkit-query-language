@@ -234,12 +234,51 @@ package body LKQL.Error_Handling is
                                               Node  : L.LKQL_Node'Class;
                                               Value : Primitive)
    is
-      Value_Kind_Name : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (To_Text (Kind_Name (Value)));
-      Message : constant Unbounded_Text_Type :=
+      Value_Kind_Name : constant Text_Type := To_Text (Kind_Name (Value));
+      Message : constant Text_Type :=
         "Cannot use values of kind " & Value_Kind_Name & " in a selector";
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Invalid_Kind_For_Selector;
+
+   -------------------------
+   -- Raise_No_Such_Field --
+   -------------------------
+
+   procedure Raise_No_Such_Field (Ctx        : Eval_Context;
+                                  Node       : LAL.Ada_Node;
+                                  Field_Name : L.Identifier)
+   is
+   begin
+      Raise_No_Such_Datum (Ctx, Node, Field_Name, "field");
+   end Raise_No_Such_Field;
+
+   ----------------------------
+   -- Raise_No_Such_Property --
+   ----------------------------
+
+   procedure Raise_No_Such_Property (Ctx           : Eval_Context;
+                                     Node          : LAL.Ada_Node;
+                                     Property_Name : L.Identifier)
+   is
+   begin
+      Raise_No_Such_Datum (Ctx, Node, Property_Name, "property");
+   end Raise_No_Such_Property;
+
+   -------------------------
+   -- Raise_No_Such_Datum --
+   -------------------------
+
+   procedure Raise_No_Such_Datum (Ctx            : Eval_Context;
+                                  Node           : LAL.Ada_Node;
+                                  Field_Name     : L.Identifier;
+                                  Data_Type_Name : Text_Type)
+   is
+      Message : constant Text_Type :=
+        "No " & Data_Type_Name & " named " & Field_Name.Text & " on nodes of" &
+        " kind: " & To_Text (LAL.Kind_Name (Node));
+   begin
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Field_Name, Message));
+   end Raise_No_Such_Datum;
 
 end LKQL.Error_Handling;
