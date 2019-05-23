@@ -133,10 +133,12 @@ package body LKQL.Patterns.Nodes is
                                 return Boolean
    is
       use LKQL.Node_Data;
+      Expected_Value : constant Primitive := Eval (Ctx, Detail.F_Value_Expr);
       Data_Value     : constant Primitive :=
-        Eval_Node_Data (Ctx, Node, Detail.F_Identifier, Detail.F_Arguments);
-      Expected_Value : constant Primitive :=
-        Eval (Ctx, Detail.F_Value_Expr);
+        (if Is_Field_Name (Node, Detail.F_Identifier.Text)
+         then Access_Node_Field (Ctx, Node, Detail.F_Identifier)
+         else Eval_Node_Property
+           (Ctx, Node, Detail.F_Identifier, Detail.F_Arguments));
    begin
       return Deep_Equals (Data_Value, Expected_Value);
    end Match_Pattern_Data;

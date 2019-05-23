@@ -8,6 +8,9 @@ package body LKQL.Node_Data is
 
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
 
+   subtype Built_In_LAL_Field is Node_Data_Reference
+      range Ada_Node_Parent .. Ada_Node_Is_Ghost;
+
    ---------------------------------------------
    --  Ada node array to Primitive conversion --
    ---------------------------------------------
@@ -102,40 +105,94 @@ package body LKQL.Node_Data is
    function Param_Spec_Array_From_List is new Node_Array_From_List
      (LAL.Param_Spec, LAL.Param_Spec_Array, LAL.As_Param_Spec);
 
-   --------------------
-   -- Eval_Node_data --
-   --------------------
+   -------------------
+   -- Is_Field_Name --
+   -------------------
 
-   function Eval_Node_Data (Ctx      : Eval_Context;
-                            Receiver : LAL.Ada_Node;
-                            Member   : L.Identifier;
-                            Args     : L.Arg_List := L.No_Arg_List)
-                            return Primitive
+   function Is_Field_Name (Receiver : LAL.Ada_Node;
+                           Name     : Text_Type) return Boolean
    is
-      Data_Ref : Any_Node_Data_Reference;
+      Data_Ref : constant Any_Node_Data_Reference :=
+        Data_Reference_For_Name (Receiver, Name);
    begin
-      if Is_Built_In (To_UTF8 (Member.Text)) then
-         return Built_In_Property (Receiver, To_UTF8 (Member.Text));
+      return (Data_Ref in Field_Reference) or else
+             (Data_Ref in Built_In_LAL_Field);
+   end Is_Field_Name;
+
+   ----------------------
+   -- Is_Property_Name --
+   ----------------------
+
+   function Is_Property_Name (Receiver : LAL.Ada_Node;
+                              Name     : Text_Type) return Boolean
+   is (Data_Reference_For_Name (Receiver, Name) in Property_Reference);
+
+   -----------------------
+   -- Access_Node_Field --
+   -----------------------
+
+   function Access_Node_Field (Ctx        : Eval_Context;
+                               Receiver   : LAL.Ada_Node;
+                               Field_Name : L.Identifier) return Primitive
+   is
+      Data_Ref : constant Any_Node_Data_Reference :=
+         Data_Reference_For_Name (Receiver, Field_Name.Text);
+   begin
+      if Is_Built_In (Field_Name.Text) then
+         return Built_In_Field (Receiver, Field_Name.Text);
       end if;
 
-      Data_Ref := Data_Reference_For_Name (Receiver, Member.Text);
-
-      if Data_Ref = None then
-         Raise_Invalid_Member (Ctx, Member, To_Primitive (Receiver));
+      if not Is_Field_Name (Receiver, Field_Name.Text) then
+         Raise_No_Such_Field (Ctx, Receiver, Field_Name);
       end if;
 
-      return Eval_Node_Data (Ctx, Receiver, Data_Ref, Member, Args);
-   end Eval_Node_Data;
+      return Access_Node_Field (Ctx, Receiver, Field_Name, Data_Ref);
+   end Access_Node_Field;
 
-   -------------------
-   -- Eval_Property --
-   -------------------
+   ------------------------
+   --  Access_Node_Field --
+   ------------------------
 
-   function Eval_Node_Data (Ctx        : Eval_Context;
-                            Receiver   : LAL.Ada_Node;
-                            Data_Ref   : Node_Data_Reference;
-                            Identifier : L.Identifier;
-                            Args       : L.Arg_List) return Primitive
+   function Access_Node_Field (Ctx             : Eval_Context;
+                               Receiver        : LAL.Ada_Node;
+                               Field_Name      : L.Identifier;
+                               Field_Reference : Node_Data_Reference)
+                               return Primitive
+   is
+      Result : constant Value_Type :=
+        Eval_Node_Data (Receiver, Field_Reference, Empty_Value_Array);
+   begin
+      return Create_Primitive (Ctx, Field_Name, Result);
+   end Access_Node_Field;
+
+   ------------------------
+   -- Eval_Node_Property --
+   ------------------------
+
+   function Eval_Node_Property (Ctx : Eval_Context;
+                                Receiver : LAL.Ada_Node;
+                                Property_Name : L.Identifier;
+                                Args          : L.Arg_List) return Primitive
+   is
+      Data_Ref : constant Any_Node_Data_Reference :=
+         Data_Reference_For_Name (Receiver, Property_Name.Text);
+   begin
+      if not (Data_Ref in Property_Reference) then
+         Raise_No_Such_Property (Ctx, Receiver, Property_Name);
+      end if;
+
+      return Eval_Node_Property (Ctx, Receiver, Data_Ref, Property_Name, Args);
+   end Eval_Node_Property;
+
+   ------------------------
+   -- Eval_Node_Property --
+   ------------------------
+
+   function Eval_Node_Property (Ctx        : Eval_Context;
+                                Receiver   : LAL.Ada_Node;
+                                Data_Ref   : Property_Reference;
+                                Identifier : L.Identifier;
+                                Args       : L.Arg_List) return Primitive
    is
       Data_Arguments : constant Value_Array :=
         Value_Array_From_Args (Ctx, Data_Ref, Args);
@@ -143,44 +200,42 @@ package body LKQL.Node_Data is
         Eval_Node_Data (Receiver, Data_Ref, Data_Arguments);
    begin
       return Create_Primitive (Ctx, Identifier.As_LKQL_Node, Result);
-   end Eval_Node_Data;
+   end Eval_Node_Property;
 
    --------------------------
    -- Value_Array_From_Arg --
    --------------------------
 
    function Value_Array_From_Args (Ctx          : Eval_Context;
-                                   Property_Ref : Node_Data_Reference;
+                                   Data_Ref     : Node_Data_Reference;
                                    Args         : L.Arg_List)
                                    return Value_Array
    is
+      Arguments_Type     : constant Value_Constraint_Array :=
+        Property_Argument_Types (Data_Ref);
+      Result : Value_Array (1 .. Arguments_Type'Length);
    begin
-      if Args.Is_Null then
-         return Empty_Value_Array;
+      if Arguments_Type'Length = 0 then
+         return Result;
       end if;
 
-      declare
-         Arguments_Type     : constant Value_Constraint_Array :=
-           Property_Argument_Types (Property_Ref);
-         Result : Value_Array (1 .. Arguments_Type'Length);
-      begin
-         if Arguments_Type'Length /= Args.Children_Count then
-            Raise_Invalid_Arity (Ctx, Arguments_Type'Length, Args);
-         end if;
+      if Args.Children_Count /= Arguments_Type'Length
+      then
+         Raise_Invalid_Arity (Ctx, Arguments_Type'Length, Args);
+      end if;
 
-         for I in 1 .. Arguments_Type'Length loop
-            declare
-               Arg       : constant L.Arg := Args.List_Child (I);
-               Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
-               Arg_Type  : constant Value_Kind := Arguments_Type (I).Kind;
-            begin
-               Result (I) :=
+      for I in Arguments_Type'Range loop
+         declare
+            Arg       : constant L.Arg := Args.List_Child (I);
+            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
+            Arg_Type  : constant Value_Kind := Arguments_Type (I).Kind;
+         begin
+            Result (I) :=
               To_Value_Type (Ctx, Arg.P_Expr, Arg_Value, Arg_Type);
-            end;
-         end loop;
+         end;
+      end loop;
 
-         return Result;
-      end;
+      return Result;
    end Value_Array_From_Args;
 
    -----------------------------
@@ -201,7 +256,7 @@ package body LKQL.Node_Data is
    ---------------------
 
    function Create_Primitive (Ctx    : Eval_Context;
-                              Member : L.LKQL_Node;
+                              Member : L.LKQL_Node'Class;
                               Value  : Value_Type) return Primitive
    is
    begin
@@ -337,26 +392,27 @@ package body LKQL.Node_Data is
               (Ctx, Value_Expr, To_Primitive (Value), Target_Kind);
    end String_To_Value_Type;
 
-   -----------------------
-   -- Built_In_Property --
-   -----------------------
+   --------------------
+   -- Built_In_Field --
+   --------------------
 
-   function Built_In_Property
-     (Receiver : LAL.Ada_Node; Property_Name : String) return Primitive
+   function Built_In_Field
+     (Receiver : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
    is
    begin
       if Property_Name = "image" then
          return To_Primitive (To_Unbounded_Text (To_Text (Receiver.Image)));
       end if;
 
-      raise Assertion_Error with "Invalid built-in property: " & Property_Name;
-   end Built_In_Property;
+      raise Assertion_Error with
+        "Invalid built-in property: " & To_UTF8 (Property_Name);
+   end Built_In_Field;
 
    -----------------
    -- Is_Built_In --
    -----------------
 
-   function Is_Built_In (Name : String) return Boolean is
+   function Is_Built_In (Name : Text_Type) return Boolean is
      (Name = "image");
 
 end LKQL.Node_Data;
