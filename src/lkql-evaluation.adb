@@ -393,7 +393,7 @@ package body LKQL.Evaluation is
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
       return (if Kind (Receiver) = Kind_Node
-              then Node_Data.Eval_Node_Data
+              then Node_Data.Access_Node_Field
                      (Ctx, Node_Val (Receiver), Node.F_Member)
               else Primitives.Data (Receiver, Member_Name));
    exception
@@ -415,7 +415,7 @@ package body LKQL.Evaluation is
            (Ctx, Node.F_Receiver.As_LKQL_Node, Kind_Node, Receiver);
       end if;
 
-      return Node_Data.Eval_Node_Data
+      return Node_Data.Eval_Node_Property
         (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments);
    end Eval_Dot_Call;
 
