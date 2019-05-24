@@ -1,3 +1,4 @@
+with Options;
 with Iters.Iterators;
 with Iters.Vec_Iterators;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
@@ -94,6 +95,12 @@ package LKQL.Primitives is
    use Primitive_Ptrs;
 
    subtype Primitive is Primitive_Ptrs.Ref;
+
+   package Primitive_Options is new Options (Primitive);
+   --  Optionnal Primitive values
+
+   subtype Primitive_Option is Primitive_Options.Option;
+   --  Optionnal primitive value
 
    ----------
    -- List --
