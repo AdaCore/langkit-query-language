@@ -103,6 +103,8 @@ package LKQL.Patterns.Nodes is
    use Depth_Node_Options;
    --  Optional Depth_Node values
 
+   subtype Depth_Node_Option is Depth_Node_Options.Option;
+
    package Depth_Node_Vectors is new Ada.Containers.Vectors
      (Positive, Depth_Node);
    --  Vector of Depth_Node values
@@ -138,7 +140,7 @@ package LKQL.Patterns.Nodes is
    --  Push the children of 'Element' onto 'Iter's stack
 
    function Pop
-     (Stack  : Element_Vector_Access) return Option;
+     (Stack  : Element_Vector_Access) return Depth_Node_Option;
    --  Pop an element from 'Stack'
 
 end LKQL.Patterns.Nodes;

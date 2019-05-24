@@ -44,7 +44,7 @@ package body LKQL.Patterns.Nodes is
                                 Node    : LAL.Ada_Node) return Match_Result
    is
      (if Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text), Node)
-      then Make_Match_Success
+      then Make_Match_Success (To_Primitive (Node))
       else Match_Failure);
 
    ----------------------------
@@ -59,7 +59,8 @@ package body LKQL.Patterns.Nodes is
       use LKQL.Patterns.Match;
    begin
       if not
-        Match_Value (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node)).Success
+        Match_Value
+          (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node)).Is_Success
       then
          return Match_Failure;
       end if;
@@ -83,7 +84,7 @@ package body LKQL.Patterns.Nodes is
       for D of Details loop
          Current_Match := Match_Pattern_Detail (Ctx, Node, D);
 
-         if not Current_Match.Success then
+         if not Current_Match.Is_Success then
             return Match_Failure;
          end if;
 
@@ -94,7 +95,7 @@ package body LKQL.Patterns.Nodes is
          end if;
       end loop;
 
-      return Make_Match_Success (Bindings);
+      return Make_Match_Success (To_Primitive (Node), Bindings);
    end Match_Pattern_Details;
 
    --------------------------
@@ -111,7 +112,7 @@ package body LKQL.Patterns.Nodes is
          when LCO.LKQL_Node_Pattern_Data =>
             return
               (if Match_Pattern_Data (Ctx, Node, Detail.As_Node_Pattern_Data)
-               then Make_Match_Success
+               then Make_Match_Success (To_Primitive (Node))
                else Match_Failure);
          when LCO.LKQL_Node_Pattern_Selector =>
             return Match_Pattern_Selector
@@ -166,7 +167,7 @@ package body LKQL.Patterns.Nodes is
          Bindings.Include (Binding_Name, To_Primitive (S_List));
       end if;
 
-      return Make_Match_Success (Bindings);
+      return Make_Match_Success (To_Primitive (Node), Bindings);
    end Match_Pattern_Selector;
 
    -------------------
@@ -207,7 +208,7 @@ package body LKQL.Patterns.Nodes is
       Result : constant Match_Result :=
         Match_Pattern (Self.Ctx, Self.Pattern, To_Primitive (Node.Node));
    begin
-      return Result.Success;
+      return Result.Is_Success;
    end Evaluate;
 
    -----------
@@ -266,7 +267,7 @@ package body LKQL.Patterns.Nodes is
                              Element : out Depth_Node)
                              return Boolean
    is
-      Result : constant Option := Pop (Iter.Stack);
+      Result : constant Depth_Node_Option := Pop (Iter.Stack);
    begin
       if Is_None (Result) then
          return False;
@@ -311,7 +312,7 @@ package body LKQL.Patterns.Nodes is
    ---------
 
    function Pop
-     (Stack  : Element_Vector_Access) return Option
+     (Stack  : Element_Vector_Access) return Depth_Node_Option
    is
       use Depth_Node_Vectors;
       Result        : Depth_Node;

@@ -429,7 +429,7 @@ package body LKQL.Evaluation is
       Tested_Node   : constant Primitive :=
         Eval (Ctx, Node.F_Node_Expr, Kind_Node);
       Success       : constant Boolean :=
-        Match_Pattern (Ctx, Node.F_Pattern, Tested_Node).Success;
+        Match_Pattern (Ctx, Node.F_Pattern, Tested_Node).Is_Success;
    begin
       return To_Primitive (Success);
    end Eval_Is;
