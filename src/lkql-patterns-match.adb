@@ -22,7 +22,7 @@ package body LKQL.Patterns.Match is
       for I in Patterns'Range loop
          Current_Result := Match_Pattern (Ctx, Patterns (I), Value);
 
-         if Current_Result.Success then
+         if Current_Result.Is_Success then
             return Match_Array_Result'(I, Current_Result.Bindings);
          end if;
       end loop;
@@ -56,7 +56,7 @@ package body LKQL.Patterns.Match is
         Match_Unfiltered (Ctx, Pattern.F_Pattern, Value);
       Predicate_Result : Primitive;
    begin
-      if not Result.Success then
+      if not Result.Is_Success then
          return Match_Failure;
       end if;
 
@@ -110,7 +110,7 @@ package body LKQL.Patterns.Match is
               (Ctx, Pattern.As_Node_Pattern, Node_Val (Value));
 
          when LCO.LKQL_Universal_Pattern =>
-            return Make_Match_Success;
+            return Make_Match_Success (Value);
 
          when others =>
             raise Assertion_Error with
@@ -130,7 +130,7 @@ package body LKQL.Patterns.Match is
         To_Unbounded_Text (Pattern.F_Binding.Text);
    begin
       Bindings.Insert (Binding_Name, Value);
-      return Match_Result'(True, Bindings);
+      return Make_Match_Success (Value, Bindings);
    end Match_Binding;
 
    ----------------
@@ -141,7 +141,7 @@ package body LKQL.Patterns.Match is
                         Pattern : L.Full_Pattern;
                         Value   : Primitive) return Match_Result
    is
-     (if Match_Value (Ctx, Pattern.F_Value_Pattern, Value).Success
+     (if Match_Value (Ctx, Pattern.F_Value_Pattern, Value).Is_Success
       then Match_Binding (Pattern.As_Binding_Pattern, Value)
       else Match_Failure);
 

@@ -44,7 +44,7 @@ package body LKQL.Queries is
                     Self.Query.F_Pattern,
                     To_Primitive (Node.Node));
    begin
-      return Match.Success;
+      return Match.Is_Success;
    end Evaluate;
 
    -----------
