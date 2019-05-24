@@ -3,6 +3,7 @@ with LKQL.Depth_Nodes;            use LKQL.Depth_Nodes;
 
 with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
+with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
 package LKQL.Patterns.Nodes is
 
@@ -57,6 +58,16 @@ package LKQL.Patterns.Nodes is
    --  If the selector has a binding name, a binding associating the said name
    --  to the output of the selector will be added to the 'Bindings' part of
    --  the 'Match_Result'.
+
+   function Eval_Selector (Ctx     : Eval_Context;
+                           Node    : LAL.Ada_Node;
+                           Call    : L.Selector_Call;
+                           Pattern : L.Base_Pattern;
+                           Result  : out Selector_List) return Boolean;
+   --  Return whether the evaluation of the given selector from 'Node' produces
+   --  a valid result.
+   --  If that is the case, the associated selector_list will be stored in
+   --  'Result'.
 
    -----------------------------
    --  Node_Pattern_Predicate --

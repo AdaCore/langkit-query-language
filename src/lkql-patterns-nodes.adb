@@ -3,7 +3,6 @@ with LKQL.Patterns.Match;
 with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Primitives;       use LKQL.Primitives;
 with LKQL.Evaluation;       use LKQL.Evaluation;
-with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
 
 with Libadalang.Introspection;
 
@@ -152,34 +151,50 @@ package body LKQL.Patterns.Nodes is
                                     Selector : L.Node_Pattern_Selector)
                                     return Match_Result
    is
-      S_List            : Selector_List;
-      Bindings          : Environment_Map;
-      Bindings_Name     : constant Unbounded_Text_Type :=
+      S_List       : Selector_List;
+      Bindings     : Environment_Map;
+      Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Selector.F_Call.P_Binding_Name);
-      Quantifier_Name   : constant String :=
-        To_UTF8 (Selector.F_Call.P_Quantifier_Name);
-      Selector_Iterator : constant Depth_Node_Iter_Access :=
-        new Depth_Node_Iter'Class'
-          (Depth_Node_Iter'Class
-             (Make_Custom_Selector_Iter (Ctx, Selector.F_Call, Node)));
-      Pattern_Predicate : constant Depth_Node_Iters.Predicate_Access :=
-        new Depth_Node_Iters.Predicates.Func'Class'
-          (Depth_Node_Iters.Predicates.Func'Class
-             (Make_Node_Pattern_Predicate (Ctx, Selector.F_Pattern)));
-      Filtered_Iter     : constant Depth_Node_Filter_Access :=
-        new Depth_Node_Iters.Filter_Iter'
-          (Depth_Node_Iters.Filter (Selector_Iterator, Pattern_Predicate));
    begin
-      if not Make_Selector_List (Filtered_Iter, Quantifier_Name, S_List) then
+      if not Eval_Selector
+        (Ctx, Node, Selector.F_Call, Selector.F_Pattern, S_List)
+      then
          return Match_Failure;
       end if;
 
-      if Length (Bindings_Name) /= 0 then
-         Bindings.Include (Bindings_Name, To_Primitive (S_List));
+      if Length (Binding_Name) /= 0 then
+         Bindings.Include (Binding_Name, To_Primitive (S_List));
       end if;
 
       return Make_Match_Success (Bindings);
    end Match_Pattern_Selector;
+
+   -------------------
+   -- Eval_Selector --
+   -------------------
+
+   function Eval_Selector (Ctx     : Eval_Context;
+                           Node    : LAL.Ada_Node;
+                           Call    : L.Selector_Call;
+                           Pattern : L.Base_Pattern;
+                           Result  : out Selector_List) return Boolean
+   is
+      Quantifier_Name   : constant String :=
+        To_UTF8 (Call.P_Quantifier_Name);
+      Selector_Iterator : constant Depth_Node_Iter_Access :=
+        new Depth_Node_Iter'Class'
+          (Depth_Node_Iter'Class
+             (Make_Custom_Selector_Iter (Ctx, Call, Node)));
+      Pattern_Predicate : constant Depth_Node_Iters.Predicate_Access :=
+        new Depth_Node_Iters.Predicates.Func'Class'
+          (Depth_Node_Iters.Predicates.Func'Class
+             (Make_Node_Pattern_Predicate (Ctx, Pattern)));
+      Filtered_Iter     : constant Depth_Node_Filter_Access :=
+        new Depth_Node_Iters.Filter_Iter'
+          (Depth_Node_Iters.Filter (Selector_Iterator, Pattern_Predicate));
+   begin
+      return Make_Selector_List (Filtered_Iter, Quantifier_Name, Result);
+   end Eval_Selector;
 
    --------------
    -- Evaluate --
