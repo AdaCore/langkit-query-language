@@ -1,8 +1,5 @@
-with Options;
 with LKQL.Depth_Nodes;            use LKQL.Depth_Nodes;
 
-with Ada.Containers.Vectors;
-with Ada.Unchecked_Deallocation;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
 package LKQL.Patterns.Nodes is
@@ -94,53 +91,5 @@ package LKQL.Patterns.Nodes is
                                          return Node_Pattern_Predicate;
    --  Create a Node_Pattern_Predicate with the given pattern and evalalution
    --  context.
-
-   ---------------------
-   -- Childs_Iterator --
-   ---------------------
-
-   package Depth_Node_Options is new Options (Depth_Node);
-   use Depth_Node_Options;
-   --  Optional Depth_Node values
-
-   subtype Depth_Node_Option is Depth_Node_Options.Option;
-
-   package Depth_Node_Vectors is new Ada.Containers.Vectors
-     (Positive, Depth_Node);
-   --  Vector of Depth_Node values
-
-   type Element_Vector_Access is access all Depth_Node_Vectors.Vector;
-   --  Pointer to a Vector if Depth_Node values
-
-   procedure Free_Element_Vector is new Ada.Unchecked_Deallocation
-     (Depth_Node_Vectors.Vector, Element_Vector_Access);
-
-   type Childs_Iterator is new Depth_Node_Iter with record
-      Stack : Element_Vector_Access;
-   end record;
-   --  Iterator that yields the children of a given node
-
-   overriding function Next (Iter : in out Childs_Iterator;
-                             Element : out Depth_Node)
-                             return Boolean;
-   --  Get the next children. If there is no children to yield
-   --  anymore, return False. Otherwise, return True and set 'Result'.
-
-   overriding procedure Release (Iter : in out Childs_Iterator);
-   --  Release ressources that belong to 'Iter'
-
-   overriding function Clone (Iter : Childs_Iterator) return Childs_Iterator;
-
-   function Make_Childs_Iterator (Node : LAL.Ada_Node) return Childs_Iterator;
-   --  Return an iterator that yields all nodes under 'Node' (included) in
-   --  a depth first search fashion.
-
-   procedure Stack_Childs
-     (Iter : in out Childs_Iterator; Element : Depth_Node);
-   --  Push the children of 'Element' onto 'Iter's stack
-
-   function Pop
-     (Stack  : Element_Vector_Access) return Depth_Node_Option;
-   --  Pop an element from 'Stack'
 
 end LKQL.Patterns.Nodes;

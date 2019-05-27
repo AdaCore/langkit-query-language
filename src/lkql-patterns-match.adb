@@ -114,7 +114,7 @@ package body LKQL.Patterns.Match is
 
          when others =>
             raise Assertion_Error with
-              "Cannot match values of kind: " & Kind_Name (Value);
+              "Invalid pattern kind: " & L.Kind_Name (Pattern);
       end case;
    end Match_Value;
 

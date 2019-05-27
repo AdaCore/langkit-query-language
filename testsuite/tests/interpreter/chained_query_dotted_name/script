@@ -1,0 +1,2 @@
+let inDottedInWith = query a@AspectSpec children DottedName children Identifier
+print(inDottedInWith)

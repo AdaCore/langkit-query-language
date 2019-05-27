@@ -1,0 +1,65 @@
+Query
+|pattern:
+|  FilteredPattern
+|  |pattern:
+|  |  ChainedNodePattern
+|  |  |first_pattern:
+|  |  |  FullPattern
+|  |  |  |binding:
+|  |  |  |  Identifier: k
+|  |  |  |value_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |kind_name:
+|  |  |  |  |  Identifier: KindOne
+|  |  |chain:
+|  |  |  ChainedPatternLinkList
+|  |  |  |  ChainedPatternLink
+|  |  |  |  |selector:
+|  |  |  |  |  SelectorCall
+|  |  |  |  |  |quantifier: <null>
+|  |  |  |  |  |binding: <null>
+|  |  |  |  |  |selector_identifier:
+|  |  |  |  |  |  Identifier: sel
+|  |  |  |  |  |args:
+|  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  |pattern:
+|  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |kind_name:
+|  |  |  |  |  |  Identifier: KindTwo
+|  |  |  |  ChainedPatternLink
+|  |  |  |  |selector:
+|  |  |  |  |  SelectorCall
+|  |  |  |  |  |quantifier: <null>
+|  |  |  |  |  |binding: <null>
+|  |  |  |  |  |selector_identifier:
+|  |  |  |  |  |  Identifier: sel
+|  |  |  |  |  |args:
+|  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  |pattern:
+|  |  |  |  |  FullPattern
+|  |  |  |  |  |binding:
+|  |  |  |  |  |  Identifier: l
+|  |  |  |  |  |value_pattern:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |kind_name:
+|  |  |  |  |  |  |  Identifier: KindThree
+|  |predicate:
+|  |  BinOp
+|  |  |left:
+|  |  |  DotCall
+|  |  |  |receiver:
+|  |  |  |  Identifier: k
+|  |  |  |member:
+|  |  |  |  Identifier: prop
+|  |  |  |arguments:
+|  |  |  |  ArgList: <empty list>
+|  |  |op:
+|  |  |  OpAnd
+|  |  |right:
+|  |  |  DotCall
+|  |  |  |receiver:
+|  |  |  |  Identifier: l
+|  |  |  |member:
+|  |  |  |  Identifier: prop
+|  |  |  |arguments:
+|  |  |  |  ArgList: <empty list>

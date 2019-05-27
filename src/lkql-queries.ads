@@ -1,29 +1,37 @@
-with LKQL.Depth_Nodes;   use LKQL.Depth_Nodes;
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.Common;          use LKQL.Common;
+with LKQL.Depth_Nodes;     use LKQL.Depth_Nodes;
+with LKQL.Eval_Contexts;   use LKQL.Eval_Contexts;
+with LKQL.Chained_Pattern; use LKQL.Chained_Pattern;
+
+with Libadalang.Iterators; use Libadalang.Iterators;
 
 private package LKQL.Queries is
 
-   subtype Iterator_Predicate_Interface is Depth_Node_Iters.Predicates.Func;
-   --  Predicates on 'Iterator_Node' values
-
-   subtype Iterator_Predicate_Access is Depth_Node_Iters.Predicate_Access;
-   --  Pointer to a predicate on 'Iterator_Node' values
-
    function Make_Query_Iterator (Ctx  : Eval_Context;
                                  Node : L.Query)
-                                 return Depth_Node_Iters.Filter_Iter;
+                                 return Node_Iterator'Class;
    --  Returns an iterator over the AST nodes, yielding only the elements that
    --  belong to the result of the given query.
 
+   function Make_Query_Iterator (Ctx     : Eval_Context;
+                                 Pattern : L.Base_Pattern)
+                                 return Node_Iterator'Class;
+   --  Returns an iterator over the AST nodes, yielding only the elements that
+   --  match the given pattern.
+
 private
+
+   function Make_Chained_Pattern_Query_Iterator
+     (Ctx : Eval_Context;
+      Node : L.Query) return Node_Iterator'Class;
 
    ---------------------
    -- Query_Predicate --
    ---------------------
 
-   type Query_Predicate is new Iterator_Predicate_Interface with record
-      Ctx   : Eval_Context;
-      Query : L.Query;
+   type Query_Predicate is new Node_Iterator_Predicate with record
+      Ctx     : Eval_Context;
+      Pattern : L.Base_Pattern;
    end record;
    --  Predicate that returns true for every node that belongs to the
    --  result of the given query.
@@ -32,16 +40,37 @@ private
    --  Pointer to a Query_predicate
 
    function Make_Query_Predicate
-     (Ctx : Eval_Context; Query : L.Query) return Query_Predicate_Access;
+     (Ctx : Eval_Context; Pattern : L.Base_Pattern)
+      return Query_Predicate_Access;
    --  Return a pointer to a Query_Predicate that returns true for every node
    --  that belongs to the result set of the given query.
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : Depth_Node) return Boolean;
+     (Self : in out Query_Predicate; Node : LAL.Ada_Node) return Boolean;
    --  Evaluae the given predicate against 'Node'
 
    overriding function Clone
      (Self : Query_Predicate) return Query_Predicate;
    --  Return a copy of the given Query_Predicate
+
+   overriding procedure Release (Self : in out Query_Predicate);
+
+   --------------------------------
+   -- Chained_Pattern_Query_Iter --
+   --------------------------------
+
+   type Chained_Pattern_Query_Iter is new Node_Iterator with record
+      Ctx       : Eval_Context;
+      Predicate : L.Expr;
+      Iter      : Chained_Pattern_Iterator;
+   end record;
+
+   overriding function Next (Iter   : in out Chained_Pattern_Query_Iter;
+                             Result : out LAL.Ada_Node) return Boolean;
+
+   overriding function Clone (Iter : Chained_Pattern_Query_Iter)
+                              return Chained_Pattern_Query_Iter;
+
+   overriding procedure Release (Iter : in out Chained_Pattern_Query_Iter);
 
 end LKQL.Queries;

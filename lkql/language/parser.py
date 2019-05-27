@@ -274,13 +274,36 @@ class BasePattern(LKQLNode):
         """
         return Self.binding_name.length > 0
 
+    @langkit_property(return_type=T.ValuePattern, public=True)
+    def value_part():
+        """
+        Return the value pattern contained in the pattern , if any.
+        """
+        return No(ValuePattern)
+
+    @langkit_property(return_type=T.Expr, public=True)
+    def predicate_part():
+        """
+        Return the filtering predicate associated with this pattern, if any.
+        """
+        return No(Expr)
+
+    @langkit_property(return_type=T.Bool, public=True)
+    def contains_chained():
+        """
+        Return whether this pattern contains a value part
+        that is a chained pattern.
+        """
+        return If(Self.value_part.is_null,
+                  False,
+                  Self.value_part.is_a(ChainedNodePattern))
+
 
 @abstract
 class UnfilteredPattern(BasePattern):
     """
     Pattern without a filtering predicate.
     """
-
     pass
 
 
@@ -298,6 +321,14 @@ class FilteredPattern(BasePattern):
     def binding_name():
         return Self.pattern.binding_name
 
+    @langkit_property()
+    def value_part():
+        return Self.pattern.value_part()
+
+    @langkit_property()
+    def predicate_part():
+        return Self.predicate
+
 
 @abstract
 class ValuePattern(UnfilteredPattern):
@@ -310,6 +341,10 @@ class ValuePattern(UnfilteredPattern):
     @langkit_property()
     def binding_name():
         return String("")
+
+    @langkit_property()
+    def value_part():
+        return Self
 
 
 class BindingPattern(UnfilteredPattern):
@@ -707,6 +742,23 @@ class ExtendedNodePattern(NodePattern):
     details = Field(type=NodePatternDetail.list)
 
 
+class ChainedPatternLink(LKQLNode):
+    """
+    Element of a chained pattern of the form: selector Kind(details...)
+    """
+    selector = Field(type=SelectorCall)
+    pattern = Field(type=UnfilteredPattern)
+
+
+class ChainedNodePattern(ValuePattern):
+    """
+    Node pattern of the form:
+        Kind1(details...) selector1 Kind2(details...) selector2 ... KindN
+    """
+    first_pattern = Field(type=UnfilteredPattern)
+    chain = Field(type=ChainedPatternLink.list)
+
+
 class MatchArm(LKQLNode):
     """
     Represents one case of a 'match'.
@@ -756,8 +808,19 @@ lkql_grammar.add_rules(
 
     query=Query(Token.QueryTok, G.pattern),
 
-    pattern=Or(FilteredPattern(G.unfiltered_pattern, Token.When, G.expr),
-               G.unfiltered_pattern),
+    pattern=Or(FilteredPattern(G.unfiltered_pattern_optional_chain,
+                               Token.When,
+                               G.expr),
+               G.unfiltered_pattern_optional_chain),
+
+    unfiltered_pattern_optional_chain=Or(
+        ChainedNodePattern(
+            G.unfiltered_pattern,
+            List(ChainedPatternLink(G.selector_call,
+                                    G.unfiltered_pattern))
+        ),
+        G.unfiltered_pattern
+    ),
 
     unfiltered_pattern=Or(FullPattern(G.identifier, Token.At, G.value_pattern),
                           BindingPattern(G.identifier),
@@ -858,7 +921,7 @@ lkql_grammar.add_rules(
                           Token.Dot,
                           G.identifier,
                           Token.LPar,
-                          List(G.arg, sep=Token.Coma, empty_valid=False),
+                          List(G.arg, sep=Token.Coma, empty_valid=True),
                           Token.RPar),
                   DotAccess(G.value_expr, Token.Dot, G.identifier),
                   G.assign,
