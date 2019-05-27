@@ -202,6 +202,16 @@ package body LKQL.Node_Data is
       return Create_Primitive (Ctx, Identifier.As_LKQL_Node, Result);
    end Eval_Node_Property;
 
+   function Nth_Arg (Ctx            : Eval_Context;
+                     Property_Ref   : Property_Reference;
+                     Args           : L.Arg_List;
+                     Arguments_Type : Value_Constraint_Array;
+                     N              : Positive)
+                     return Value_Type
+      with Pre => N <= Arguments_Type'Length;
+   --  Return the value of the nth argument in a call to the property
+   --  designated by 'Property_Ref'.
+
    --------------------------
    -- Value_Array_From_Arg --
    --------------------------
@@ -219,24 +229,45 @@ package body LKQL.Node_Data is
          return Result;
       end if;
 
-      if Args.Children_Count /= Arguments_Type'Length
-      then
+      if Args.Children_Count > Arguments_Type'Length then
          Raise_Invalid_Arity (Ctx, Arguments_Type'Length, Args);
       end if;
 
       for I in Arguments_Type'Range loop
-         declare
-            Arg       : constant L.Arg := Args.List_Child (I);
-            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
-            Arg_Type  : constant Value_Kind := Arguments_Type (I).Kind;
-         begin
-            Result (I) :=
-              To_Value_Type (Ctx, Arg.P_Expr, Arg_Value, Arg_Type);
-         end;
+         Result (I) := Nth_Arg (Ctx, Data_Ref, Args, Arguments_Type, I);
+
+         if Result (I) = No_Value then
+            Raise_Invalid_Arity (Ctx, Arguments_Type'Length, Args);
+         end if;
       end loop;
 
       return Result;
    end Value_Array_From_Args;
+
+   -------------
+   -- Nth_Arg --
+   -------------
+
+   function Nth_Arg (Ctx            : Eval_Context;
+                     Property_Ref   : Property_Reference;
+                     Args           : L.Arg_List;
+                     Arguments_Type : Value_Constraint_Array;
+                     N              : Positive)
+                     return Value_Type
+   is
+   begin
+      if N > Args.Children_Count then
+         return Property_Argument_Default_Value (Property_Ref, N);
+      else
+         declare
+            Arg       : constant L.Arg := Args.List_Child (N);
+            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
+            Arg_Type  : constant Value_Kind := Arguments_Type (N).Kind;
+         begin
+            return To_Value_Type (Ctx, Arg.P_Expr, Arg_Value, Arg_Type);
+         end;
+      end if;
+   end Nth_Arg;
 
    -----------------------------
    -- Data_Reference_For_Name --
