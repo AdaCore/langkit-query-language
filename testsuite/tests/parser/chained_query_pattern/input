@@ -1,0 +1,1 @@
+query k@KindOne sel KindTwo sel l@KindThree when k.prop() && l.prop()

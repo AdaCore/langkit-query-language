@@ -1,3 +1,4 @@
+with LKQL.Common; use LKQL.Common;
 with LKQL.Queries;        use LKQL.Queries;
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Functions;      use LKQL.Functions;
@@ -455,13 +456,13 @@ package body LKQL.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : L.Query) return Primitive
    is
-      use Depth_Node_Iters;
-      Current_Node : Depth_Node;
-      Iter         : Filter_Iter := Make_Query_Iterator (Ctx, Node);
+      use Node_Iterators;
+      Current_Node : LAL.Ada_Node;
+      Iter         : Node_Iterator'Class := Make_Query_Iterator (Ctx, Node);
       Result       : constant Primitive :=  Make_Empty_List;
    begin
       while Iter.Next (Current_Node) loop
-         Append (Result, To_Primitive (Current_Node.Node));
+         Append (Result, To_Primitive (Current_Node));
       end loop;
 
       Iter.Release;
