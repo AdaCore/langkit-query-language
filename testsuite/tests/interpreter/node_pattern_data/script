@@ -1,0 +1,2 @@
+let result = query BaseTypeDecl(is_access_type: true)
+print(result)
