@@ -122,7 +122,6 @@ class ExprArg(Arg):
         return Self.value_expr
 
 
-@synthetic
 class NamedArg(Arg):
     """
     Named argument of the form: name=expression
@@ -140,6 +139,14 @@ class NamedArg(Arg):
     @langkit_property()
     def name():
         return Self.arg_name
+
+
+@synthetic
+class SynthNamedArg(NamedArg):
+    """
+    Synthetic NamedArg node
+    """
+    pass
 
 
 class Parameter(LKQLNode):
@@ -517,9 +524,9 @@ class FunCall(Expr):
             lambda pos, arg:
             arg.match(
                 lambda e=ExprArg:
-                NamedArg.new(arg_name=Self.called_function()
+                SynthNamedArg.new(arg_name=Self.called_function()
                              .parameters.at(pos).identifier,
-                             value_expr=e.value_expr).as_entity,
+                             value_expr=e.value_expr).cast(NamedArg).as_entity,
                 lambda n=NamedArg: n.as_entity,
             )
         )
@@ -540,9 +547,10 @@ class FunCall(Expr):
                                    Not(call_args.any(
                                        lambda e: e.name().text == p.name())))
                            .map(lambda param:
-                                NamedArg.new(
+                                SynthNamedArg.new(
                                     arg_name=param.param_identifier.node,
                                     value_expr=param.default_expr.node)
+                                .cast(NamedArg)
                                 .as_entity)
                 : call_args.concat(default_args)))
 
