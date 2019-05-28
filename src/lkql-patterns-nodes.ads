@@ -7,7 +7,7 @@ package LKQL.Patterns.Nodes is
    function Match_Node_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
                                 Node    : LAL.Ada_Node) return Match_Result;
-   --  Match the given node againsta a node pattern
+   --  Match the given node against a node pattern
 
    function Match_Kind_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Kind_Pattern;
