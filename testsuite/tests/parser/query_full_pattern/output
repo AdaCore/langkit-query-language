@@ -20,7 +20,8 @@ Assign
 |  |  |  |  |  |  NodePatternSelector
 |  |  |  |  |  |  |call:
 |  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |quantifier: <null>
+|  |  |  |  |  |  |  |quantifier:
+|  |  |  |  |  |  |  |  Identifier: any
 |  |  |  |  |  |  |  |binding: <null>
 |  |  |  |  |  |  |  |selector_identifier:
 |  |  |  |  |  |  |  |  Identifier: children

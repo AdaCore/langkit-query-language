@@ -1,5 +1,5 @@
 selector children
     | AdaNode => rec *it.children
 
-let withAspect = query ObjectDecl(children: AspectAssoc)
+let withAspect = query ObjectDecl(any children: AspectAssoc)
 print (withAspect)

@@ -7,7 +7,7 @@ package LKQL.Patterns.Nodes is
    function Match_Node_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
                                 Node    : LAL.Ada_Node) return Match_Result;
-   --  Match the given node against a node pattern
+   --  Match the given node againsta a node pattern
 
    function Match_Kind_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Kind_Pattern;
@@ -40,12 +40,19 @@ package LKQL.Patterns.Nodes is
                                   return Match_Result;
    --  Match 'Node' against a node pattern 'detail'
 
-   function Match_Pattern_Data (Ctx    : Eval_Context;
-                                Node   : LAL.Ada_Node;
-                                Detail : L.Node_Pattern_Data)
-                                return Boolean;
-   --  Return whether the field or property designated by 'Detail' is equal
-   --  to the expected value set in 'Detail'.
+   function Match_Pattern_Field (Ctx    : Eval_Context;
+                                 Node   : LAL.Ada_Node;
+                                 Field  : L.Node_Pattern_Field)
+                                 return Match_Result;
+   --  Match the expected value specified in 'Field' against the value of the
+   --  field of 'Node' designated by 'Field'.
+
+   function Match_Pattern_Property (Ctx      : Eval_Context;
+                                    Node     : LAL.Ada_Node;
+                                    Property : L.Node_Pattern_Property)
+                                    return Match_Result;
+   --  Match the exoected vaue specified in 'Property' agains the value of the
+   --  property call described in 'Property' on 'Node'.
 
    function Match_Pattern_Selector (Ctx      : Eval_Context;
                                     Node     : LAL.Ada_Node;
@@ -91,5 +98,11 @@ package LKQL.Patterns.Nodes is
                                          return Node_Pattern_Predicate;
    --  Create a Node_Pattern_Predicate with the given pattern and evalalution
    --  context.
+
+private
+
+   function Match_Detail_Value (Ctx    : Eval_Context;
+                                Value  : Primitive;
+                                Detail : L.Detail_Value) return Match_Result;
 
 end LKQL.Patterns.Nodes;
