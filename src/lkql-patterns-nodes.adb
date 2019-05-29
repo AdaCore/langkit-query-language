@@ -289,7 +289,7 @@ package body LKQL.Patterns.Nodes is
          declare
             Detail_Value : constant Primitive :=
               Eval (Ctx, Detail.As_Detail_Expr.F_Expr_Value,
-                    Expected_Kind => Kind_Bool);
+                    Expected_Kind => Kind (Value));
          begin
             return (if Deep_Equals (Value, Detail_Value)
                     then Make_Match_Success (Value)
