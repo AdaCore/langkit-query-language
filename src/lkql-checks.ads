@@ -7,5 +7,10 @@ package LKQL.Checks is
    --  An exception will be raised on the first error.
 
    procedure Check_Fun_Call (Ctx : Eval_Context; Node : L.Fun_Call);
+   --  Check a Fun_Call node
+
+private
+
+   procedure Check_Fun_Call_Arguments (Ctx : Eval_Context; Node : L.Fun_Call);
 
 end LKQL.Checks;

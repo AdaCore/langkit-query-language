@@ -5,7 +5,7 @@ from langkit.dsl import (
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Not, Let, If
 )
-from langkit.envs import add_env, add_to_env_kv, EnvSpec
+from langkit.envs import add_to_env_kv, EnvSpec
 from lexer import Token
 
 
@@ -555,6 +555,15 @@ class FunCall(Expr):
                 : call_args.concat(default_args)))
 
     @langkit_property(return_type=T.Bool, public=True)
+    def is_actual_call():
+        """
+        Return whether this is a call to an actual function (instead of a
+        syntactic construct that looks like a function call bu isn't one).
+        """
+        return Not(Self.parent.is_a(NodePatternProperty))
+
+
+    @langkit_property(return_type=T.Bool, public=True)
     def is_builtin_call():
         """
         Return whether this is a call to a built-in property.
@@ -716,19 +725,50 @@ class NodeKindPattern(NodePattern):
 
 
 @abstract
+class DetailValue(LKQLNode):
+    """
+    Root node class for pattern data values.
+    Pattern data values can be expressions or patterns.
+    """
+    pass
+
+
+class DetailExpr(DetailValue):
+    """
+    Expression pattern data value.
+    """
+    expr_value = Field(type=Expr)
+
+
+class DetailPattern(DetailValue):
+    """
+    Pattern pattern data value
+    """
+    pattern_value = Field(type=BasePattern)
+
+
+@abstract
 class NodePatternDetail(LKQLNode):
     """
     Access to a field, property or selector inside a node pattern.
     """
+    pass
 
 
-class NodePatternData(NodePatternDetail):
+class NodePatternField(NodePatternDetail):
     """
-    Access to a field or property in a node pattern.
+    Access to a field in a node pattern.
     """
     identifier = Field(type=Identifier)
-    arguments = Field(type=Arg.list)
-    value_expr = Field(type=Expr)
+    expected_value = Field(type=DetailValue)
+
+
+class NodePatternProperty(NodePatternDetail):
+    """
+    Access to a property in a node pattern.
+    """
+    call = Field(type=FunCall)
+    expected_value = Field(type=DetailValue)
 
 
 class NodePatternSelector(NodePatternDetail):
@@ -843,6 +883,8 @@ lkql_grammar.add_rules(
 
     node_kind_pattern=NodeKindPattern(G.kind_name),
 
+    detail_value=Or(DetailExpr(G.expr), DetailPattern(G.pattern)),
+
     extended_node_pattern=ExtendedNodePattern(Or(G.universal_pattern,
                                                  G.node_kind_pattern),
                                               Pick(Token.LPar,
@@ -850,16 +892,23 @@ lkql_grammar.add_rules(
                                                         sep=Token.Coma),
                                                    Token.RPar)),
 
-    node_pattern_detail=Or(NodePatternSelector(G.selector_call,
+    node_pattern_detail=Or(NodePatternSelector(
+                               SelectorCall(G.identifier,
+                                            Opt(Pick(G.identifier, Token.At)),
+                                            G.identifier,
+                                            Opt(Token.LPar,
+                                                List(G.named_arg,
+                                                     sep=Token.Coma,
+                                                     empty_valid=False),
+                                                Token.RPar)),
+                               Token.Colon,
+                               G.pattern),
+                           NodePatternField(G.identifier,
+                                            Token.Colon,
+                                            G.detail_value),
+                           NodePatternProperty(G.fun_call,
                                                Token.Colon,
-                                               G.pattern),
-                           NodePatternData(G.identifier,
-                                           Opt(Token.LPar,
-                                               List(G.arg,
-                                                    sep=Token.Coma),
-                                               Token.RPar),
-                                           Token.Colon,
-                                           G.expr)),
+                                               G.detail_value)),
 
     selector_call=Or(SelectorCall(G.identifier,
                                   Opt(Pick(G.identifier, Token.At)),

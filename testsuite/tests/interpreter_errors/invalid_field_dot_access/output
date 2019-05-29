@@ -1,4 +1,4 @@
 main.adb
-Error: Cannot get member nonExistingField for CompilationUnit value
+Error: No field named nonExistingField on nodes of kind: CompilationUnit
 let p = query p when p.nonExistingField is ObjectDecl
                        ^^^^^^^^^^^^^^^^^

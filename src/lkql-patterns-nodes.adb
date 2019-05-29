@@ -109,11 +109,12 @@ package body LKQL.Patterns.Nodes is
    is
    begin
       case Detail.Kind is
-         when LCO.LKQL_Node_Pattern_Data =>
-            return
-              (if Match_Pattern_Data (Ctx, Node, Detail.As_Node_Pattern_Data)
-               then Make_Match_Success (To_Primitive (Node))
-               else Match_Failure);
+         when LCO.LKQL_Node_Pattern_Field =>
+            return Match_Pattern_Field
+              (Ctx, Node, Detail.As_Node_Pattern_Field);
+         when LCO.LKQL_Node_Pattern_Property =>
+            return Match_Pattern_Property
+              (Ctx, Node, Detail.As_Node_Pattern_Property);
          when LCO.LKQL_Node_Pattern_Selector =>
             return Match_Pattern_Selector
               (Ctx, Node, Detail.As_Node_Pattern_Selector);
@@ -123,25 +124,39 @@ package body LKQL.Patterns.Nodes is
       end case;
    end Match_Pattern_Detail;
 
-   ------------------------
-   -- Match_Pattern_Data --
-   ------------------------
+   -------------------------
+   -- Match_Pattern_Field --
+   -------------------------
 
-   function Match_Pattern_Data (Ctx    : Eval_Context;
-                                Node   : LAL.Ada_Node;
-                                Detail : L.Node_Pattern_Data)
-                                return Boolean
+   function Match_Pattern_Field (Ctx    : Eval_Context;
+                                 Node   : LAL.Ada_Node;
+                                 Field  : L.Node_Pattern_Field)
+                                 return Match_Result
    is
       use LKQL.Node_Data;
-      Expected_Value : constant Primitive := Eval (Ctx, Detail.F_Value_Expr);
-      Data_Value     : constant Primitive :=
-        (if Is_Field_Name (Node, Detail.F_Identifier.Text)
-         then Access_Node_Field (Ctx, Node, Detail.F_Identifier)
-         else Eval_Node_Property
-           (Ctx, Node, Detail.F_Identifier, Detail.F_Arguments));
+      Field_Value : constant Primitive :=
+        Access_Node_Field (Ctx, Node, Field.F_Identifier);
    begin
-      return Deep_Equals (Data_Value, Expected_Value);
-   end Match_Pattern_Data;
+      return Match_Detail_Value (Ctx, Field_Value, Field.F_Expected_Value);
+   end Match_Pattern_Field;
+
+   ----------------------------
+   -- Match_Pattern_Property --
+   ----------------------------
+
+   function Match_Pattern_Property (Ctx      : Eval_Context;
+                                    Node     : LAL.Ada_Node;
+                                    Property : L.Node_Pattern_Property)
+                                    return Match_Result
+   is
+      use LKQL.Node_Data;
+      Property_Value : constant Primitive :=
+        Eval_Node_Property
+          (Ctx, Node, Property.F_Call.F_Name, Property.F_Call.F_Arguments);
+   begin
+      return Match_Detail_Value
+        (Ctx, Property_Value, Property.F_Expected_Value);
+   end Match_Pattern_Property;
 
    ----------------------------
    -- Match_Pattern_Selector --
@@ -258,5 +273,32 @@ package body LKQL.Patterns.Nodes is
       return Actual_Kind = Expected_Kind or else
              Is_Derived_From (Actual_Kind, Expected_Kind);
    end Matches_Kind_Name;
+
+   ------------------------
+   -- Match_Detail_Value --
+   ------------------------
+
+   function Match_Detail_Value (Ctx    : Eval_Context;
+                                Value  : Primitive;
+                                Detail : L.Detail_Value) return Match_Result
+   is
+      use LCO;
+      use LKQL.Patterns.Match;
+   begin
+      if Detail.Kind = LKQL_Detail_Expr then
+         declare
+            Detail_Value : constant Primitive :=
+              Eval (Ctx, Detail.As_Detail_Expr.F_Expr_Value,
+                    Expected_Kind => Kind_Bool);
+         begin
+            return (if Deep_Equals (Value, Detail_Value)
+                    then Make_Match_Success (Value)
+                    else Match_Failure);
+         end;
+      else
+         return Match_Pattern
+           (Ctx, Detail.As_Detail_Pattern.F_Pattern_Value, Value);
+      end if;
+   end Match_Detail_Value;
 
 end LKQL.Patterns.Nodes;

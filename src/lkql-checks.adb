@@ -32,6 +32,20 @@ package body LKQL.Checks is
    --------------------
 
    procedure Check_Fun_Call (Ctx : Eval_Context; Node : L.Fun_Call) is
+   begin
+      if Node.P_Is_Builtin_Call or else not Node.P_Is_Actual_Call then
+         return;
+      else
+         Check_Fun_Call_Arguments (Ctx, Node);
+      end if;
+   end Check_Fun_Call;
+
+   --------------------------
+   -- Check_Call_Arguments --
+   --------------------------
+
+   procedure Check_Fun_Call_Arguments (Ctx : Eval_Context; Node : L.Fun_Call)
+   is
       Names_Seen     : String_Set;
       Def            : constant L.Fun_Def := Node.P_Called_Function;
       Expected_Arity : constant Integer :=
@@ -56,6 +70,6 @@ package body LKQL.Checks is
                Raise_Positionnal_After_Named (Ctx, Arg.As_Expr_Arg);
          end if;
       end loop;
-   end Check_Fun_Call;
+   end Check_Fun_Call_Arguments;
 
 end LKQL.Checks;
