@@ -432,7 +432,9 @@ package body LKQL.Node_Data is
    is
    begin
       if Property_Name = "image" then
-         return To_Primitive (To_Unbounded_Text (To_Text (Receiver.Image)));
+         return To_Primitive (To_Unbounded_Text (Receiver.Text_Image));
+      elsif Property_Name = "text" then
+         return To_Primitive (To_Unbounded_Text (Receiver.Text));
       end if;
 
       raise Assertion_Error with
@@ -444,6 +446,6 @@ package body LKQL.Node_Data is
    -----------------
 
    function Is_Built_In (Name : Text_Type) return Boolean is
-     (Name = "image");
+     (Name = "image" or else Name = "text");
 
 end LKQL.Node_Data;
