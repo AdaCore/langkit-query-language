@@ -22,6 +22,10 @@ package body LKQL.Patterns.Nodes is
                                 Node    : LAL.Ada_Node) return Match_Result
    is
    begin
+      if Node.Is_Null then
+         return Match_Failure;
+      end if;
+
       case Pattern.Kind is
          when LCO.LKQL_Node_Kind_Pattern =>
             return Match_Kind_pattern
