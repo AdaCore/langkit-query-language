@@ -141,8 +141,23 @@ package body LKQL.Patterns.Match is
                         Pattern : L.Full_Pattern;
                         Value   : Primitive) return Match_Result
    is
-     (if Match_Value (Ctx, Pattern.F_Value_Pattern, Value).Is_Success
-      then Match_Binding (Pattern.As_Binding_Pattern, Value)
-      else Match_Failure);
+      Binding_Match : constant Match_Result :=
+        Match_Binding (Pattern.As_Binding_Pattern, Value);
+      Local_Ctx     : Eval_Context :=
+        Ctx.Create_New_Frame (Binding_Match.Bindings);
+   begin
+      if Match_Value (Local_Ctx, Pattern.F_Value_Pattern, Value).Is_Success
+      then
+         Local_Ctx.Release_Current_Frame;
+         return Binding_Match;
+      else
+         return Match_Failure;
+      end if;
+
+   exception
+      when others =>
+         Local_Ctx.Release_Current_Frame;
+         raise;
+   end Match_Full;
 
 end LKQL.Patterns.Match;
