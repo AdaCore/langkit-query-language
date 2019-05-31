@@ -16,5 +16,5 @@ PROG_OUTPUT="$(echo "$OUTPUT" | grep -v '0x')"
 
 echo "$PROG_OUTPUT"
 
-[ ! -z $ADDRESSES ] && 
+[ ! -z "$ADDRESSES" ] && 
     echo "$(addr2line --exe=$1 --demangle=gnat $ADDRESSES | grep -v ??:)"
