@@ -883,7 +883,7 @@ lkql_grammar.add_rules(
 
     node_kind_pattern=NodeKindPattern(G.kind_name),
 
-    detail_value=Or(DetailExpr(G.expr), DetailPattern(G.pattern)),
+    detail_value=Or(DetailPattern(G.pattern), DetailExpr(G.expr)),
 
     extended_node_pattern=ExtendedNodePattern(Or(G.universal_pattern,
                                                  G.node_kind_pattern),
@@ -971,7 +971,6 @@ lkql_grammar.add_rules(
 
     value_expr=Or(G.query,
                   G.fun_def,
-                  G.fun_call,
                   G.listcomp,
                   G.match,
                   DotCall(G.value_expr,
@@ -981,6 +980,7 @@ lkql_grammar.add_rules(
                           List(G.arg, sep=Token.Coma, empty_valid=True),
                           Token.RPar),
                   DotAccess(G.value_expr, Token.Dot, G.identifier),
+                  G.fun_call,
                   G.assign,
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
                   G.identifier,
