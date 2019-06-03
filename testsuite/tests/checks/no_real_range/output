@@ -1,0 +1,4 @@
+decls.ads
+<TypeDecl ["Invalid1"] decls.ads:4:4-4:30>
+<TypeDecl ["Invalid2"] decls.ads:5:4-5:41>
+<SubtypeDecl ["InvalidSub"] decls.ads:7:4-7:35>

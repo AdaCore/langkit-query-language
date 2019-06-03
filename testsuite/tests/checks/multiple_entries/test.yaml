@@ -1,0 +1,2 @@
+driver: 'interpreter'
+project: 'multiple_entries/multiple.gpr'

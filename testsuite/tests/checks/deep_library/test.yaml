@@ -1,0 +1,2 @@
+driver: 'interpreter'
+project: 'deep_library/prj.gpr'

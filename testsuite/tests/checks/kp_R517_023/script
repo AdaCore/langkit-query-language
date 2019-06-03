@@ -1,0 +1,37 @@
+let result = query CallExpr(is_call(): true,
+                            any children(depth=2): p@ParamAssoc when isFlagArg(p)
+                   )
+print(result)
+
+// Return whether the given 'ParamAssoc' represents an arg that must be flagged by
+// the R517-023 detector.
+fun isFlagArg(assoc) =
+    val spec = specOfAssoc(assoc);
+    isInOutOrOut(spec) &&
+    isUnConstrainedArrayWithPacked(typeOfParamSpec(spec)) &&
+    isReprRecordComponent(argumentDecl(assoc.r_expr))
+
+fun isReprRecordComponent(decl) =
+    decl is ComponentDecl(any parent:
+                TypeDecl(get_record_representation_clause(): RecordRepClause)
+            )
+
+fun argumentDecl(argExpr) =
+    match argExpr
+        | DottedName => it.referenced_decl()
+        | _          => ()
+
+fun specOfAssoc(assoc) =
+    (debug(assoc).get_params())[1].parent.parent
+
+fun typeOfParamSpec(spec) =
+    spec.type_expr.name.referenced_decl()
+
+fun isInOutOrOut(spec) =
+    spec.mode is ModeOut || spec.mode is ModeInOut
+
+fun isUnConstrainedArrayWithPacked(decl) =
+    decl is TypeDecl(
+              type_def: ArrayTypeDef(any children(depth=6): BoxExpr),
+              get_attribute("Pack"): a when a is AdaNode
+            )
