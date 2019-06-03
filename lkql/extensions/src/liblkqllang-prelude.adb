@@ -5,6 +5,14 @@ with Liblkqllang.Converters; use Liblkqllang.Converters;
 package body Liblkqllang.Prelude is
 
     Prelude_Content : String :=
+        "selector nextSiblings" & ASCII.LF &
+        "   | AdaNode => rec it.next_sibling" & ASCII.LF &
+        "   | _       => ()" & ASCII.LF &
+        ""                   & ASCII.LF &
+        "selector prevSiblings" & ASCII.LF &
+        "   | AdaNode => rec it.previous_sibling" & ASCII.LF &
+        "   | _       => ()" & ASCII.LF &
+        ""                   & ASCII.LF &
         "selector parent" & ASCII.LF &
         "   | AdaNode => rec *it.parent" & ASCII.LF &
         "   | _       => ()" & ASCII.LF &
