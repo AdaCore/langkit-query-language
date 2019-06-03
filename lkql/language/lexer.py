@@ -21,6 +21,11 @@ class Token(LexerToken):
     In = WithSymbol()
     TrueLit = WithSymbol()
     FalseLit = WithSymbol()
+    If = WithSymbol()
+    Then = WithSymbol()
+    Else = WithSymbol()
+    Not = WithSymbol()
+    
 
     Dot = WithText()
     Coma = WithText()
@@ -98,6 +103,10 @@ lkql_lexer.add_rules(
     (Literal("in"),                                         Token.In),
     (Literal("true"),                                       Token.TrueLit),
     (Literal("false"),                                      Token.FalseLit),
+    (Literal("if"),                                         Token.If),
+    (Literal("else"),                                       Token.Else),
+    (Literal("then"),                                       Token.Then),
+    (Literal("not"),                                        Token.Not),
     (Pattern("[0-9]+"),                                     Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),                    Token.KindName),
