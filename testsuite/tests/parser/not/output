@@ -1,0 +1,21 @@
+IfThenElse
+|condition:
+|  NotNode
+|  |value:
+|  |  BinOp
+|  |  |left:
+|  |  |  DotCall
+|  |  |  |receiver:
+|  |  |  |  Identifier: node
+|  |  |  |member:
+|  |  |  |  Identifier: prop
+|  |  |  |arguments:
+|  |  |  |  ArgList: <empty list>
+|  |  |op:
+|  |  |  OpGt
+|  |  |right:
+|  |  |  IntegerLiteral: 0
+|then_expr:
+|  BoolLiteralTrue
+|else_expr:
+|  BoolLiteralFalse

@@ -1,0 +1,3 @@
+if true then print("then_expr") else print("else_expr")
+
+if false then print("then_expr") else print("else_expr")

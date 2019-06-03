@@ -34,6 +34,11 @@ package body LKQL.Evaluation is
 
    function Eval_Unit_Literal (Node : L.Unit_Literal) return Primitive;
 
+   function Eval_If_Then_Else
+     (Ctx : Eval_Context; Node : L.If_Then_Else) return Primitive;
+
+   function Eval_Not (Ctx : Eval_Context; Node : L.Not_Node) return Primitive;
+
    function Eval_Bin_Op
      (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive;
 
@@ -161,6 +166,10 @@ package body LKQL.Evaluation is
               Eval_Bool_Literal (Node.As_Bool_Literal),
             when LCO.LKQL_Unit_Literal =>
               Eval_Unit_Literal (Node.As_Unit_Literal),
+            when LCO.LKQL_If_Then_Else =>
+              Eval_If_Then_Else (Local_Context, Node.As_If_Then_Else),
+            when LCO.LKQL_Not_Node =>
+              Eval_Not (Local_Context, Node.As_Not_Node),
             when LCO.LKQL_Bin_Op =>
               Eval_Bin_Op (Local_Context, Node.As_Bin_Op),
             when LCO.LKQL_Dot_Access =>
@@ -310,7 +319,34 @@ package body LKQL.Evaluation is
    -----------------------
 
    function Eval_Unit_Literal (Node : L.Unit_Literal) return Primitive is
-      (Make_Unit_Primitive);
+     (Make_Unit_Primitive);
+
+   -----------------------
+   -- Eval_If_Then_Else --
+   -----------------------
+
+   function Eval_If_Then_Else
+     (Ctx : Eval_Context; Node : L.If_Then_Else) return Primitive
+   is
+      Cond : constant Primitive :=
+        Eval (Ctx, Node.F_Condition, Expected_Kind => Kind_Bool);
+   begin
+      return (if Bool_Val (Cond)
+              then Eval (Ctx, Node.F_Then_Expr)
+              else Eval (Ctx, Node.F_Else_Expr));
+   end Eval_If_Then_Else;
+
+   --------------
+   -- Eval_Not --
+   --------------
+
+   function Eval_Not (Ctx : Eval_Context; Node : L.Not_Node) return Primitive
+   is
+      Value : constant Primitive :=
+        Eval (Ctx, Node.F_Value, Expected_Kind => Kind_Bool);
+   begin
+      return To_Primitive (not Bool_Val (Value));
+   end Eval_Not;
 
    -----------------
    -- Eval_Bin_Op --

@@ -3,8 +3,9 @@ from langkit.dsl import (
     T, ASTNode, abstract, Field, has_abstract_list, synthetic
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Not, Let, If
+    Self, String, No, langkit_property, AbstractKind, Let, If
 )
+import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
 from lexer import Token
 
@@ -81,6 +82,15 @@ class UnitLiteral(Expr):
     pass
 
 
+class IfThenElse(Expr):
+    """
+    Expression of the form: if CONDITION then EXPR1 else EXPR2
+    """
+    condition = Field(type=Expr)
+    then_expr = Field(type=Expr)
+    else_expr = Field(type=Expr)
+
+
 @abstract
 class Arg(LKQLNode):
     """
@@ -100,7 +110,7 @@ class Arg(LKQLNode):
         """
         Return whether the argument has a name.
         """
-        return Not(Self.name.is_null)
+        return dsl_expr.Not(Self.name.is_null)
 
     @langkit_property(return_type=Expr, public=True,
                       kind=AbstractKind.abstract)
@@ -190,6 +200,13 @@ class DefaultParam(Parameter):
     @langkit_property()
     def default():
         return Self.default_expr
+
+
+class Not(Expr):
+    """
+    Negation of a boolean value.
+    """
+    value = Field(type=Expr)
 
 
 class BinOp(Expr):
@@ -477,7 +494,7 @@ class FunDef(Expr):
         """
         Return whether the function has a parameter with the given name.
         """
-        return Not(Self.find_parameter(name).is_null)
+        return dsl_expr.Not(Self.find_parameter(name).is_null)
 
     @langkit_property(return_type=DefaultParam.entity.array, public=True)
     def default_parameters():
@@ -544,7 +561,7 @@ class FunCall(Expr):
                        Self.called_function()
                            .default_parameters()
                            .filter(lambda p:
-                                   Not(call_args.any(
+                                   dsl_expr.Not(call_args.any(
                                        lambda e: e.name().text == p.name())))
                            .map(lambda param:
                                 SynthNamedArg.new(
@@ -560,7 +577,7 @@ class FunCall(Expr):
         Return whether this is a call to an actual function (instead of a
         syntactic construct that looks like a function call bu isn't one).
         """
-        return Not(Self.parent.is_a(NodePatternProperty))
+        return dsl_expr.Not(Self.parent.is_a(NodePatternProperty))
 
 
     @langkit_property(return_type=T.Bool, public=True)
@@ -946,6 +963,7 @@ lkql_grammar.add_rules(
 
     comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.pattern),
                  InClause(G.comp_expr, Token.In, G.expr),
+                 Not(Token.Not, G.expr),
                  BinOp(G.comp_expr,
                        Or(Op.alt_eq(Token.EqEq),
                           Op.alt_neq(Token.Neq),
@@ -988,7 +1006,8 @@ lkql_grammar.add_rules(
                   G.bool_literal,
                   G.unit_literal,
                   G.integer,
-                  Pick(Token.LPar, G.expr, Token.RPar)),
+                  Pick(Token.LPar, G.expr, Token.RPar),
+                  G.if_then_else),
 
     val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
                      G.expr, Token.SemiCol, G.expr),
@@ -1031,6 +1050,10 @@ lkql_grammar.add_rules(
                        G.pattern,
                        Token.BigRArrow,
                        G.expr),
+
+    if_then_else=IfThenElse(
+        Token.If, G.expr, Token.Then, G.expr, Token.Else, G.expr
+    ),
 
     identifier=Identifier(Token.Identifier),
 
