@@ -1,0 +1,2 @@
+let result = query ProtectedDef children EntryDecl(any prevSiblings: EntryDecl)
+print(result)

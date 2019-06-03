@@ -1,0 +1,2 @@
+driver: 'interpreter'
+project: 'implicit_small/prj.gpr'

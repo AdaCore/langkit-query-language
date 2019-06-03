@@ -1,0 +1,18 @@
+let result = query t@_
+                 when isRealWithoutRange(t) ||
+                      t is SubtypeDecl(any superTypes: s@_ when isRealWithoutRange(s))
+print(result)
+
+selector superTypes
+    | TypeDecl          => skip it.type_def
+    | SubtypeDecl       => skip it.subtype
+    | InterfaceTypeDef  => skip it.interfaces
+    | RecordTypeDef     => ()
+    | DerivedTypeDef    => skip it.subtype_indication <> skip it.interfaces
+    | SubtypeIndication => skip it.name
+    | Name              => rec it.referenced_decl(true)
+    | ParentList        => skip *it.children
+    | _                 => ()
+
+fun isRealWithoutRange(decl) =
+    decl is TypeDecl(type_def: RealTypeDef(no children: RangeSpec))
