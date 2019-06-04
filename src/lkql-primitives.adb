@@ -634,7 +634,9 @@ package body LKQL.Primitives is
                  when Kind_Bool =>
                    Bool_Image (Bool_Val (Val)),
                  when Kind_Node =>
-                   To_Unbounded_Text (Val.Get.Node_Val.Text_Image),
+                   (if Node_Val (Val).Is_Null
+                    then To_Unbounded_Text ("null")
+                    else To_Unbounded_Text (Val.Get.Node_Val.Text_Image)),
                  when Kind_Iterator =>
                    Iterator_Image (Iter_Val (Val).all),
                  when Kind_List =>
