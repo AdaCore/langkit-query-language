@@ -61,15 +61,13 @@ package body LKQL.Patterns.Nodes is
                                     return Match_Result
    is
       use LKQL.Patterns.Match;
-   begin
-      if not
+      Match : constant Match_Result :=
         Match_Value
-          (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node)).Is_Success
-      then
-         return Match_Failure;
-      end if;
-
-      return Match_Pattern_Details (Ctx, Pattern.F_Details, Node);
+          (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node));
+   begin
+      return (if Match.Is_Success
+              then Match_Pattern_Details (Ctx, Pattern.F_Details, Node)
+              else Match_Failure);
    end Match_Extended_Pattern;
 
    ---------------------------
@@ -225,7 +223,8 @@ package body LKQL.Patterns.Nodes is
    is
       use LKQL.Patterns.Match;
       Result : constant Match_Result :=
-        Match_Pattern (Self.Ctx, Self.Pattern, To_Primitive (Node.Node));
+        Match_Pattern
+          (Self.Ctx, Self.Pattern, To_Primitive (Node.Node));
    begin
       return Result.Is_Success;
    end Evaluate;

@@ -30,7 +30,7 @@ package body LKQL.Node_Data is
    begin
       return Result : constant Primitive := Make_Empty_List do
          for N of Nodes loop
-            Append (Result, To_Primitive (N.As_Ada_Node));
+            Append (Result, To_Primitive (N.As_Ada_Node, Nullable => True));
          end loop;
       end return;
    end List_From_Node_Array;
@@ -302,7 +302,7 @@ package body LKQL.Node_Data is
          when Unbounded_Text_Value =>
             return To_Primitive (As_Unbounded_Text (Value));
          when Node_Value =>
-            return To_Primitive (As_Node (Value));
+            return To_Primitive (As_Node (Value), Nullable => True);
          when Ada_Node_Array_Value =>
             return List_From_Ada_Nodes (As_Ada_Node_Array (Value));
          when Basic_Decl_Array_Value =>

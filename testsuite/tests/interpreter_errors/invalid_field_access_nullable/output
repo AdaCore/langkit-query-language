@@ -1,0 +1,4 @@
+main.adb
+Error: Invalid direct access on node of kind ConstantAbsent?
+objects[1].has_constant.text
+                        ^^^^

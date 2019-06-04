@@ -74,6 +74,7 @@ package LKQL.Primitives is
             Bool_Val : Boolean;
          when Kind_Node =>
             Node_Val : LAL.Ada_Node;
+            Nullable : Boolean := False;
          when Kind_Iterator =>
             Iter_Val : Iterator_Primitive_Access;
          when Kind_List =>
@@ -208,6 +209,9 @@ package LKQL.Primitives is
    --  Raise an Unsupported_Error if there is no member named
    --  'Member_Name'.
 
+   function Is_Nullable (Value : Primitive) return Boolean;
+   --  Return whether the given Primitive value is nullable
+
    ----------------------------------
    -- Creation of Primitive values --
    ----------------------------------
@@ -227,7 +231,8 @@ package LKQL.Primitives is
    function To_Primitive (Val : Boolean) return Primitive;
    --  Create a Bool primitive
 
-   function To_Primitive (Val : LAL.Ada_Node) return Primitive;
+   function To_Primitive
+     (Node : LAL.Ada_Node; Nullable : Boolean := False) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;

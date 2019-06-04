@@ -82,6 +82,13 @@ class UnitLiteral(Expr):
     pass
 
 
+class NullLiteral(Expr):
+    """
+    Literal representing a null node.
+    """
+    token_node = True
+
+
 class IfThenElse(Expr):
     """
     Expression of the form: if CONDITION then EXPR1 else EXPR2
@@ -1005,6 +1012,7 @@ lkql_grammar.add_rules(
                   G.string_literal,
                   G.bool_literal,
                   G.unit_literal,
+                  NullLiteral(Token.Null),
                   G.integer,
                   Pick(Token.LPar, G.expr, Token.RPar),
                   G.if_then_else),

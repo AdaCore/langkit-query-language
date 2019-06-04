@@ -386,6 +386,13 @@ package body LKQL.Primitives is
                        & Kind_Name (Value));
    end Data;
 
+   -----------------
+   -- Is_Nullable --
+   -----------------
+
+   function Is_Nullable (Value : Primitive) return Boolean is
+      (Kind (Value) = Kind_Node and then Value.Get.Nullable);
+
    -------------------------
    -- Make_Unit_Primitive --
    -------------------------
@@ -444,11 +451,13 @@ package body LKQL.Primitives is
    -- To_Primitive --
    ------------------
 
-   function To_Primitive (Val : LAL.Ada_Node) return Primitive is
-      Ref : Primitive;
+   function To_Primitive
+     (Node : LAL.Ada_Node; Nullable : Boolean := False) return Primitive
+   is
+      Ref       : Primitive;
    begin
       Ref.Set
-        (Primitive_Data'(Refcounted with Kind => Kind_Node, Node_Val => Val));
+        (Primitive_Data'(Refcounted with Kind_Node, Node, Nullable));
       return Ref;
    end To_Primitive;
 
@@ -573,7 +582,7 @@ package body LKQL.Primitives is
       --  Vector.Contains checks referencial equality instead of structural
       --  equality. So the iteration "has" to be done manually.
       for Elem of List.Get.List_Val.Elements loop
-         if Elem.Get = Value.Get then
+         if Deep_Equals (Elem, Value) then
             return True;
          end if;
       end loop;
@@ -659,7 +668,8 @@ package body LKQL.Primitives is
    begin
       return (case Value.Get.Kind is
                  when Kind_Node =>
-                   LAL.Kind_Name (Value.Get.Node_Val),
+                   LAL.Kind_Name (Value.Get.Node_Val) &
+                   (if Value.Get.Nullable then "?" else ""),
                  when others =>
                    To_String (Kind (Value)));
    end Kind_Name;
@@ -734,6 +744,7 @@ package body LKQL.Primitives is
    -----------------
 
    function Deep_Equals (Left, Right : Primitive) return Boolean is
+      use LAL;
    begin
       if Kind (Left) /= Kind (Right) then
          raise Unsupported_Error
@@ -744,6 +755,8 @@ package body LKQL.Primitives is
       return (case Kind (Left) is
                  when Kind_List =>
                    Deep_Equals (List_Val (Left), List_Val (Right)),
+                 when Kind_Node =>
+                   Left.Get.Node_Val = Right.Get.Node_Val,
                  when others =>
                    Left.Get = Right.Get);
    end Deep_Equals;
