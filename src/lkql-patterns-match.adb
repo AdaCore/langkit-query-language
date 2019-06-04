@@ -23,7 +23,8 @@ package body LKQL.Patterns.Match is
          Current_Result := Match_Pattern (Ctx, Patterns (I), Value);
 
          if Current_Result.Is_Success then
-            return Match_Array_Result'(I, Current_Result.Bindings);
+            return Match_Array_Result'
+              (Current_Result.Matched_Value, I, Current_Result.Bindings);
          end if;
       end loop;
 

@@ -37,6 +37,8 @@ private package LKQL.Patterns is
    subtype Match_Index is Integer range Positive'First - 1 .. Positive'Last;
 
    type Match_Array_Result is record
+      Matched_Value : Primitive_Option;
+      --  If the match was successful, stores the matched value
       Index    :  Match_Index := Match_Index'First;
       --  Index of the first matched pattern
       Bindings : Environment_Map := String_Value_Maps.Empty_Map;

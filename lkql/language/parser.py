@@ -255,6 +255,13 @@ class DotAccess(Expr):
     member = Field(type=Identifier)
 
 
+class SafeAccess(DotAccess):
+    """
+    Access to a field of a nullable node using the ?. operator
+    """
+    pass
+
+
 class DotCall(Expr):
     """
     Call a property with arguments using dot notation
@@ -262,6 +269,13 @@ class DotCall(Expr):
     receiver = Field(type=Expr)
     member = Field(type=Identifier)
     arguments = Field(type=Arg.list)
+
+
+class SafeCall(DotCall):
+    """
+    Call a property using the ?. operator
+    """
+    pass
 
 
 class InClause(Expr):
@@ -1004,7 +1018,14 @@ lkql_grammar.add_rules(
                           Token.LPar,
                           List(G.arg, sep=Token.Coma, empty_valid=True),
                           Token.RPar),
+                  SafeCall(G.value_expr,
+                           Token.QuestionDot,
+                           G.identifier,
+                           Token.LPar,
+                           List(G.arg, sep=Token.Coma, empty_valid=True),
+                           Token.RPar),
                   DotAccess(G.value_expr, Token.Dot, G.identifier),
+                  SafeAccess(G.value_expr, Token.QuestionDot, G.identifier),
                   G.fun_call,
                   G.assign,
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),

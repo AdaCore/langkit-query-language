@@ -28,6 +28,7 @@ class Token(LexerToken):
     Null = WithSymbol()
 
     Dot = WithText()
+    QuestionDot = WithText()
     Coma = WithText()
     SemiCol = WithText()
     Colon = WithText()
@@ -63,6 +64,7 @@ lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
     (Pattern(r"[ \t\n\r]"),                                 Ignore()),
     (Literal("."),                                          Token.Dot),
+    (Literal("?."),                                         Token.QuestionDot),
     (Literal(","),                                          Token.Coma),
     (Literal(";"),                                          Token.SemiCol),
     (Literal(":"),                                          Token.Colon),

@@ -1,4 +1,4 @@
-with LKQL.Common; use LKQL.Common;
+with LKQL.Common;         use LKQL.Common;
 with LKQL.Queries;        use LKQL.Queries;
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Functions;      use LKQL.Functions;
@@ -51,8 +51,14 @@ package body LKQL.Evaluation is
    function Eval_Dot_Access
      (Ctx : Eval_Context; Node : L.Dot_Access) return Primitive;
 
+   function Eval_Safe_Access
+     (Ctx  : Eval_Context; Node : L.Safe_Access) return Primitive;
+
    function Eval_Dot_Call
      (Ctx : Eval_Context; Node : L.Dot_Call) return Primitive;
+
+   function Eval_Safe_Call
+     (Ctx : Eval_Context; Node : L.Safe_Call) return Primitive;
 
    function Eval_Is
      (Ctx : Eval_Context; Node : L.Is_Clause) return Primitive;
@@ -174,8 +180,12 @@ package body LKQL.Evaluation is
               Eval_Bin_Op (Local_Context, Node.As_Bin_Op),
             when LCO.LKQL_Dot_Access =>
               Eval_Dot_Access (Local_Context, Node.As_Dot_Access),
+            when LCO.LKQL_Safe_Access =>
+              Eval_Safe_Access (Local_Context, Node.As_Safe_Access),
             when LCO.LKQL_Dot_Call =>
               Eval_Dot_Call (Local_Context, Node.As_Dot_Call),
+            when LCO.LKQL_Safe_Call =>
+              Eval_Safe_Call (Local_Context, Node.As_Safe_Call),
             when LCO.LKQL_Is_Clause =>
               Eval_Is (Local_Context, Node.As_Is_Clause),
             when LCO.LKQL_In_Clause =>
@@ -445,6 +455,22 @@ package body LKQL.Evaluation is
          Raise_Invalid_Member (Ctx, Node, Receiver);
    end Eval_Dot_Access;
 
+   ----------------------
+   -- Eval_Safe_Access --
+   ----------------------
+
+   function Eval_Safe_Access
+     (Ctx  : Eval_Context; Node : L.Safe_Access) return Primitive
+   is
+      Receiver : constant LAL.Ada_Node :=
+        Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
+   begin
+      return (if Receiver.Is_Null
+              then To_Primitive (LAL.No_Ada_Node, Nullable => True)
+              else Node_Data.Access_Node_Field
+                (Ctx, Receiver, Node.F_Member));
+   end Eval_Safe_Access;
+
    ---------------------
    -- Eval_Dot_Access --
    ---------------------
@@ -464,6 +490,22 @@ package body LKQL.Evaluation is
       return Node_Data.Eval_Node_Property
         (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments);
    end Eval_Dot_Call;
+
+   --------------------
+   -- Eval_Safe_Call --
+   -------------------
+
+   function Eval_Safe_Call
+     (Ctx : Eval_Context; Node : L.Safe_Call) return Primitive
+   is
+      Receiver : constant Primitive :=
+        Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node);
+   begin
+      return (if Node_Val (Receiver).Is_Null
+              then To_Primitive (LAL.No_Ada_Node, Nullable => True)
+              else Node_Data.Eval_Node_Property
+                (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments));
+   end Eval_Safe_Call;
 
    -------------
    -- Eval Is --
@@ -584,6 +626,7 @@ package body LKQL.Evaluation is
    ----------------
 
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive is
+      use Primitive_Options;
       Result        : Primitive;
       Local_Context : Eval_Context;
       Matched_Value : constant Primitive := Eval (Ctx, Node.F_Matched_Val);
@@ -595,7 +638,7 @@ package body LKQL.Evaluation is
       end if;
 
       Local_Context := Ctx.Create_New_Frame (Match_Data.Bindings);
-      Local_Context.Add_Binding ("it", Matched_Value);
+      Local_Context.Add_Binding ("it", Extract (Match_Data.Matched_Value));
       Result := Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));
       Local_Context.Release_Current_Frame;
 
@@ -639,6 +682,7 @@ package body LKQL.Evaluation is
       Nested : Comprehension_Env_Iter_Access)
       return Comprehension_Env_Iter_Access
    is
+      use Primitive_Options;
       Generator_Value  : constant Primitive :=
         Eval (Ctx, Assoc.F_Coll_Expr);
       Generator_Iter   : constant Primitive_Iter_Access :=
@@ -695,6 +739,7 @@ package body LKQL.Evaluation is
    function Update_Nested_Env (Iter   : in out Comprehension_Env_Iter;
                                Result : out Environment_Map) return Boolean
    is
+      use Primitive_Options;
       Env            : Environment_Map;
       Nested_Exists  : Boolean;
    begin
@@ -727,6 +772,7 @@ package body LKQL.Evaluation is
    ----------------------------
 
    procedure Update_Current_Element (Iter : in out Comprehension_Env_Iter) is
+      use Primitive_Options;
       Element        : Primitive;
       Element_Exists : constant Boolean := Iter.Gen.Next (Element);
    begin
@@ -744,6 +790,7 @@ package body LKQL.Evaluation is
    function Create_New_Env (Iter   : in out Comprehension_Env_Iter;
                             Result : out Environment_Map) return Boolean
    is
+      use Primitive_Options;
    begin
       if Is_None (Iter.Current_Element) then
          return False;
