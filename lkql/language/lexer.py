@@ -25,7 +25,7 @@ class Token(LexerToken):
     Then = WithSymbol()
     Else = WithSymbol()
     Not = WithSymbol()
-    
+    Null = WithSymbol()
 
     Dot = WithText()
     Coma = WithText()
@@ -107,6 +107,7 @@ lkql_lexer.add_rules(
     (Literal("else"),                                       Token.Else),
     (Literal("then"),                                       Token.Then),
     (Literal("not"),                                        Token.Not),
+    (Literal("null"),                                       Token.Null),
     (Pattern("[0-9]+"),                                     Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),                    Token.KindName),

@@ -197,6 +197,8 @@ package body LKQL.Evaluation is
               Make_Unit_Primitive,
             when LCO.LKQL_Match =>
               Eval_Match (Local_Context, Node.As_Match),
+            when LCO.LKQL_Null_Literal =>
+              To_Primitive (LAL.No_Ada_Node, Nullable => True),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -429,10 +431,15 @@ package body LKQL.Evaluation is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
-      return (if Kind (Receiver) = Kind_Node
-              then Node_Data.Access_Node_Field
-                     (Ctx, Node_Val (Receiver), Node.F_Member)
-              else Primitives.Data (Receiver, Member_Name));
+      if Kind (Receiver) /= Kind_Node then
+         return Primitives.Data (Receiver, Member_Name);
+      elsif Is_Nullable (Receiver) then
+         Raise_Null_Access (Ctx, Receiver, Node.F_Member);
+      else
+         return Node_Data.Access_Node_Field
+           (Ctx, Node_Val (Receiver), Node.F_Member);
+      end if;
+
    exception
       when Unsupported_Error =>
          Raise_Invalid_Member (Ctx, Node, Receiver);
@@ -450,6 +457,8 @@ package body LKQL.Evaluation is
       if Kind (Receiver) /= Kind_Node then
          Raise_Invalid_Kind
            (Ctx, Node.F_Receiver.As_LKQL_Node, Kind_Node, Receiver);
+      elsif Is_Nullable (Receiver) then
+         Raise_Null_Access (Ctx, Receiver, Node.F_Member);
       end if;
 
       return Node_Data.Eval_Node_Property

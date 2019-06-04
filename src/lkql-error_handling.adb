@@ -281,4 +281,19 @@ package body LKQL.Error_Handling is
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Field_Name, Message));
    end Raise_No_Such_Datum;
 
+   -----------------------
+   -- Raise_Null_Access --
+   -----------------------
+
+   procedure Raise_Null_Access (Ctx         : Eval_Context;
+                                Node        : Primitive;
+                                Member_Name : L.Identifier)
+   is
+      Message : constant Text_Type :=
+        To_Text ("Invalid direct access on node of kind ") &
+        To_Text (Kind_Name (Node));
+   begin
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Member_Name, Message));
+   end Raise_Null_Access;
+
 end LKQL.Error_Handling;

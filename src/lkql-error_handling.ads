@@ -135,6 +135,15 @@ private package LKQL.Error_Handling is
    --  doesn't exists, and add an Error_Data describing the error to the
    --  evaluation context.
 
+   procedure Raise_Null_Access (Ctx         : Eval_Context;
+                                Node        : Primitive;
+                                Member_Name : L.Identifier)
+     with No_Return,
+          Pre => Kind (Node) = Kind_Node and then Is_Nullable (Node);
+   --  Raise an exception signaling an attempt to directly access a
+   --  field/property on a nullable node, and add an Error_Data describing the
+   --  error to the evaluation context.
+
 private
 
    type Data_Type is (Field, Property);
