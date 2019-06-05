@@ -80,6 +80,8 @@ package body LKQL.Evaluation is
 
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
+   function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive;
+
    function Make_Comprehension_Environment_Iter
      (Ctx : Eval_Context; Node : L.Arrow_Assoc_List)
       return Comprehension_Env_Iter;
@@ -209,6 +211,8 @@ package body LKQL.Evaluation is
               Eval_Match (Local_Context, Node.As_Match),
             when LCO.LKQL_Null_Literal =>
               To_Primitive (LAL.No_Ada_Node, Nullable => True),
+            when LCO.LKQL_Unwrap =>
+              Eval_Unwrap (Local_Context, Node.As_Unwrap),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -644,6 +648,18 @@ package body LKQL.Evaluation is
 
       return Result;
    end Eval_Match;
+
+   -----------------
+   -- Eval_Unwrap --
+   -----------------
+
+   function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive
+   is
+      Value : constant LAL.Ada_Node :=
+        Node_Val (Eval (Ctx, Node.F_Node_Expr, Expected_Kind => Kind_Node));
+   begin
+      return To_Primitive (Value, Nullable => False);
+   end Eval_Unwrap;
 
    -----------------------------------------
    -- Make_Comprehension_Environment_Iter --

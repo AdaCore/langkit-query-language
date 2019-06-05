@@ -1,0 +1,9 @@
+DotCall
+|receiver:
+|  Unwrap
+|  |node_expr:
+|  |  Identifier: receiver
+|member:
+|  Identifier: property
+|arguments:
+|  ArgList: <empty list>

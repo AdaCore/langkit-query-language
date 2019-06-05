@@ -98,6 +98,13 @@ class IfThenElse(Expr):
     else_expr = Field(type=Expr)
 
 
+class Unwrap(Expr):
+    """
+    Unwrapping of a nullable node using the !! operator.
+    """
+    node_expr = Field(type=Expr)
+
+
 @abstract
 class Arg(LKQLNode):
     """
@@ -1012,6 +1019,7 @@ lkql_grammar.add_rules(
                   G.fun_def,
                   G.listcomp,
                   G.match,
+                  Unwrap(G.value_expr, Token.ExclExcl),
                   DotCall(G.value_expr,
                           Token.Dot,
                           G.identifier,
@@ -1036,7 +1044,7 @@ lkql_grammar.add_rules(
                   NullLiteral(Token.Null),
                   G.integer,
                   Pick(Token.LPar, G.expr, Token.RPar),
-                  G.if_then_else),
+                  G.if_then_else,),
 
     val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
                      G.expr, Token.SemiCol, G.expr),
