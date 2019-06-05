@@ -696,10 +696,10 @@ class SelectorCall(LKQLNode):
         """
         Return the selector's quantifier name.
         If the name hasn't been explicitly specified, the default quantifier
-        name is 'any'.
+        name is 'all'.
         """
         return If(Self.quantifier.is_null,
-                  String("any"),
+                  String("all"),
                   Self.quantifier.text)
 
     @langkit_property(return_type=T.String, public=True)
