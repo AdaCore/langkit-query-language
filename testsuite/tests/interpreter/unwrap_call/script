@@ -1,0 +1,2 @@
+let objects = query ObjectDecl
+print(objects[1]!!.has_constant is ConstantAbsent)

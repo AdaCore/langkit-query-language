@@ -36,6 +36,7 @@ class Token(LexerToken):
     Eq = WithText()
     EqEq = WithText()
     Neq = WithText()
+    ExclExcl = WithText()
     Lt = WithText()
     LEq = WithText()
     Gt = WithText()
@@ -72,6 +73,7 @@ lkql_lexer.add_rules(
     (Literal("="),                                          Token.Eq),
     (Literal("=="),                                         Token.EqEq),
     (Literal("!="),                                         Token.Neq),
+    (Literal("!!"),                                         Token.ExclExcl),
     (Literal("<"),                                          Token.Lt),
     (Literal("<="),                                         Token.LEq),
     (Literal(">"),                                          Token.Gt),
