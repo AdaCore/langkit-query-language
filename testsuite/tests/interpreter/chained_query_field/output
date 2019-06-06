@@ -1,0 +1,5 @@
+src.ads
+<TypeDecl ["Int_Access"] src.ads:3:5-3:43>
+<DefiningName src.ads:3:10-3:20>
+<TypeDecl ["Volt"] src.ads:5:5-5:49>
+<DefiningName src.ads:5:10-5:14>

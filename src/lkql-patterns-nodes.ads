@@ -4,6 +4,13 @@ with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
 package LKQL.Patterns.Nodes is
 
+   function Filter_Node_Array (Ctx     : Eval_Context;
+                               Pattern : L.Base_Pattern;
+                               Nodes   : LAL.Ada_Node_Array)
+                               return LAL.Ada_Node_Array;
+   --  Return a node array that only contains the nodes from 'Nodes' that match
+   --  'Pattern'.
+
    function Match_Node_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
                                 Node    : LAL.Ada_Node) return Match_Result;

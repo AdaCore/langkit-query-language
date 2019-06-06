@@ -2,6 +2,7 @@ with Iters.Iterators;
 
 with Libadalang.Iterators; use Libadalang.Iterators;
 
+with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
 
 package LKQL.Common is
@@ -20,6 +21,15 @@ package LKQL.Common is
 
    subtype Iterator_Predicate_Access is Node_Iterators.Predicate_Access;
    --  Pointer to a predicate on 'Iterator_Node' values
+
+   package Node_Vectors is new Ada.Containers.Vectors
+     (Element_Type => LAL.Ada_Node,
+      Index_Type   => Positive,
+      "="          => LAL."=");
+   --  Vectors of Ada_Node values
+
+   subtype Node_Vector is Node_Vectors.Vector;
+   --  Vector of Ada_Node values
 
    ---------------------
    -- Childs_Iterator --

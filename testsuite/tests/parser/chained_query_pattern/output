@@ -13,23 +13,22 @@ Query
 |  |  |  |  |  Identifier: KindOne
 |  |  |chain:
 |  |  |  ChainedPatternLinkList
-|  |  |  |  ChainedPatternLink
-|  |  |  |  |selector:
-|  |  |  |  |  SelectorCall
-|  |  |  |  |  |quantifier: <null>
-|  |  |  |  |  |binding: <null>
-|  |  |  |  |  |selector_identifier:
-|  |  |  |  |  |  Identifier: sel
-|  |  |  |  |  |args:
-|  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  PropertyLink
+|  |  |  |  |property:
+|  |  |  |  |  FunCall
+|  |  |  |  |  |name:
+|  |  |  |  |  |  Identifier: property
+|  |  |  |  |  |arguments:
+|  |  |  |  |  |  ArgList: <empty list>
 |  |  |  |  |pattern:
 |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |kind_name:
 |  |  |  |  |  |  Identifier: KindTwo
-|  |  |  |  ChainedPatternLink
+|  |  |  |  SelectorLink
 |  |  |  |  |selector:
 |  |  |  |  |  SelectorCall
-|  |  |  |  |  |quantifier: <null>
+|  |  |  |  |  |quantifier:
+|  |  |  |  |  |  Identifier: all
 |  |  |  |  |  |binding: <null>
 |  |  |  |  |  |selector_identifier:
 |  |  |  |  |  |  Identifier: sel
@@ -43,6 +42,13 @@ Query
 |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |kind_name:
 |  |  |  |  |  |  |  Identifier: KindThree
+|  |  |  |  FieldLink
+|  |  |  |  |field:
+|  |  |  |  |  Identifier: field
+|  |  |  |  |pattern:
+|  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |kind_name:
+|  |  |  |  |  |  Identifier: KindFour
 |  |predicate:
 |  |  BinOp
 |  |  |left:
