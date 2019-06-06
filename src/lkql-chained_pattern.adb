@@ -1,10 +1,12 @@
 with LKQL.Queries;        use LKQL.Queries;
-with LKQL.Primitives;     use LKQL.Primitives;
+with LKQL.Node_Data;
+with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Patterns.Nodes; use LKQL.Patterns.Nodes;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body LKQL.Chained_Pattern is
@@ -125,34 +127,160 @@ package body LKQL.Chained_Pattern is
       Current_Env : Environment_Map;
       Link_Nb     : Positive)
    is
-      Elements         : Selector_List;
       Env              : Environment_Map := Current_Env;
       Link             : constant L.Chained_Pattern_Link :=
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
-      Selector_Call    : constant L.Selector_Call := Link.F_Selector;
-      Pattern          : constant L.Base_Pattern :=
-        Link.F_Pattern.As_Base_Pattern;
-      Selector_Binding : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Selector_Call.P_Binding_Name);
+      Pattern          : constant L.Unfiltered_Pattern := Link.F_Pattern;
+      Nodes            : constant LAL.Ada_Node_Array :=
+        Eval_Link (Iter.Ctx, Root, Link, Pattern, Env);
       Pattern_Binding  : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.P_Binding_Name);
    begin
-      if not Eval_Selector (Iter.Ctx, Root, Selector_Call, Pattern, Elements)
-      then
+      if Nodes'Length = 0 then
          return;
       end if;
 
-      if Length (Selector_Binding) /= 0 then
-         Env.Insert (Selector_Binding, To_Primitive (Elements.Clone));
-      end if;
-
-      for E of Elements.Nodes loop
+      for E of Nodes loop
          if Length (Pattern_Binding) /= 0 then
-            Env.Insert (Pattern_Binding, To_Primitive (E));
+            Env.Include (Pattern_Binding, To_Primitive (E));
          end if;
 
          Eval_Chain_From (Iter, E, Env, Link_Nb + 1);
       end loop;
    end Eval_Chain_From_Link;
+
+   ---------------------
+   -- Eval_Chain_Link --
+   ---------------------
+
+   function Eval_Link (Ctx             : Eval_Context;
+                       Root            : LAL.Ada_Node;
+                       Link            : L.Chained_Pattern_Link;
+                       Related_Pattern : L.Unfiltered_Pattern;
+                       Bindings        : in out Environment_Map)
+                       return LAL.Ada_Node_Array
+   is
+   begin
+      case Link.Kind is
+         when LCO.LKQL_Selector_Link =>
+            return Eval_Selector_Link
+              (Ctx, Root, Link.As_Selector_Link, Related_Pattern, Bindings);
+         when LCO.LKQL_Field_Link =>
+            return Filter_Node_Array
+              (Ctx, Related_Pattern.As_Base_Pattern,
+               Eval_Field_Link (Ctx, Root, Link.As_Field_Link));
+         when LCO.LKQL_Property_Link =>
+            return Filter_Node_Array
+              (Ctx, Related_Pattern.As_Base_Pattern,
+               Eval_Property_Link (Ctx, Root, Link.As_Property_Link));
+         when others =>
+            raise Assertion_Error with
+              "Invalid chained pattern link kind: " & L.Kind_Name (Link);
+      end case;
+   end Eval_Link;
+
+   ------------------------
+   -- Eval_Selector_Link --
+   ------------------------
+
+   function Eval_Selector_Link (Ctx             : Eval_Context;
+                                Root            : LAL.Ada_Node;
+                                Selector        : L.Selector_Link;
+                                Related_Pattern : L.Unfiltered_Pattern;
+                                Bindings        : in out Environment_Map)
+                                return LAL.Ada_Node_Array
+   is
+      S_List       : Selector_List;
+      Call         : constant L.Selector_Call := Selector.F_Selector;
+      Binding_Name : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Call.P_Binding_Name);
+      Empty_Array  : constant LAL.Ada_Node_Array (1 .. 0) :=
+        (others => LAL.No_Ada_Node);
+   begin
+      if not Eval_Selector
+        (Ctx, Root, Call, Related_Pattern.As_Base_Pattern, S_List)
+      then
+         return Empty_Array;
+      end if;
+
+      if Length (Binding_Name) /= 0 then
+         Bindings.Insert (Binding_Name, To_Primitive (S_List.Clone));
+      end if;
+
+      return S_List.Nodes;
+   end Eval_Selector_Link;
+
+   ---------------------
+   -- Eval_Field_Link --
+   ---------------------
+
+   function Eval_Field_Link (Ctx   : Eval_Context;
+                             Root  : LAL.Ada_Node;
+                             Field : L.Field_Link)
+                             return LAL.Ada_Node_Array
+   is
+      use LKQL.Node_Data;
+      Field_Value : constant Primitive :=
+        Access_Node_Field (Ctx, Root, Field.F_Field);
+   begin
+      if Kind (Field_Value) /= Kind_Node
+        and then Kind (Field_Value) /= Kind_List
+      then
+         Raise_Invalid_Kind
+           (Ctx, Field.As_LKQL_Node, Kind_List, Field_Value);
+      end if;
+
+      return To_Ada_Node_Array (Field_Value);
+   end Eval_Field_Link;
+
+   ------------------------
+   -- Eval_Property_Link --
+   ------------------------
+
+   function Eval_Property_Link (Ctx : Eval_Context;
+                                Root : LAL.Ada_Node;
+                                Property : L.Property_Link)
+                                return LAL.Ada_Node_Array
+   is
+      use LKQL.Node_Data;
+      Call        : constant L.Fun_Call := Property.F_Property;
+      Property_Value : constant Primitive :=
+        Eval_Node_Property (Ctx, Root, Call.F_Name, Call.F_Arguments);
+   begin
+      if Kind (Property_Value) /= Kind_Node
+        and then Kind (Property_Value) /= Kind_List
+      then
+         Raise_Invalid_Kind
+           (Ctx, Property.As_LKQL_Node, Kind_List, Property_Value);
+      end if;
+
+      return To_Ada_Node_Array (Property_Value);
+   end Eval_Property_Link;
+
+   -----------------------
+   -- To_Ada_Node_Array --
+   -----------------------
+
+   function To_Ada_Node_Array (Value : Primitive) return LAL.Ada_Node_Array is
+   begin
+      case Kind (Value) is
+         when Kind_Node =>
+            return Result : LAL.Ada_Node_Array (1 .. 1) do
+               Result (1) := Node_Val (Value);
+            end return;
+
+         when Kind_List =>
+            return Result : LAL.Ada_Node_Array (1 .. Length (Value)) do
+               for I in 1 .. Length (Value) loop
+                  Result (I) := Node_Val (Get (Value, I));
+               end loop;
+            end return;
+
+         when others =>
+            raise Assertion_Error with
+              "Cannot make an ada node array from a value of kind: " &
+              Kind_Name (Value);
+      end case;
+   end To_Ada_Node_Array;
 
 end LKQL.Chained_Pattern;

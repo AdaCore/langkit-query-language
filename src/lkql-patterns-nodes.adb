@@ -1,5 +1,6 @@
 with LKQL.Node_Data;
-with LKQL.Patterns.Match;
+with LKQL.Patterns.Match;   use LKQL.Patterns.Match;
+with LKQL.Common;           use LKQL.Common;
 with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Primitives;       use LKQL.Primitives;
 with LKQL.Evaluation;       use LKQL.Evaluation;
@@ -12,6 +13,30 @@ with Ada.Assertions; use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body LKQL.Patterns.Nodes is
+
+   -----------------------
+   -- Filter_Node_Array --
+   -----------------------
+
+   function Filter_Node_Array (Ctx     : Eval_Context;
+                               Pattern : L.Base_Pattern;
+                               Nodes   : LAL.Ada_Node_Array)
+                               return LAL.Ada_Node_Array
+   is
+      Filtered : Node_Vector;
+   begin
+      for N of Nodes loop
+         if Match_Pattern (Ctx, Pattern, To_Primitive (N)).Is_Success then
+            Filtered.Append (N);
+         end if;
+      end loop;
+
+      return Result : LAL.Ada_Node_Array (1 .. Filtered.Last_Index) do
+         for I in 1 .. Filtered.Last_Index loop
+            Result (I) := Filtered (I);
+         end loop;
+      end return;
+   end Filter_Node_Array;
 
    ------------------------
    -- Match_Node_Pattern --
@@ -60,7 +85,6 @@ package body LKQL.Patterns.Nodes is
                                     Node    : LAL.Ada_Node)
                                     return Match_Result
    is
-      use LKQL.Patterns.Match;
       Match : constant Match_Result :=
         Match_Value
           (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node));
@@ -221,7 +245,6 @@ package body LKQL.Patterns.Nodes is
    overriding function Evaluate
      (Self : in out Node_Pattern_Predicate; Node : Depth_Node) return Boolean
    is
-      use LKQL.Patterns.Match;
       Result : constant Match_Result :=
         Match_Pattern
           (Self.Ctx, Self.Pattern, To_Primitive (Node.Node));
@@ -286,7 +309,6 @@ package body LKQL.Patterns.Nodes is
                                 Detail : L.Detail_Value) return Match_Result
    is
       use LCO;
-      use LKQL.Patterns.Match;
    begin
       if Detail.Kind = LKQL_Detail_Expr then
          declare

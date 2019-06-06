@@ -1,1 +1,2 @@
-query k@KindOne sel KindTwo sel l@KindThree when k.prop() && l.prop()
+query k@KindOne property() KindTwo all sel l@KindThree field KindFour
+    when k.prop() && l.prop()

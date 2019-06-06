@@ -1,6 +1,7 @@
 with Iters.Iterators;
 with LKQL.Common;        use LKQL.Common;
 with LKQL.Patterns;      use LKQL.Patterns;
+with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 with Ada.Containers.Hashed_Sets;
@@ -85,5 +86,35 @@ private
       Current_Env : Environment_Map;
       Link_Nb     : Positive)
      with Pre => Link_Nb <= Iter.Pattern.F_Chain.Children_Count;
+
+   function Eval_Link (Ctx             : Eval_Context;
+                       Root            : LAL.Ada_Node;
+                       Link            : L.Chained_Pattern_Link;
+                       Related_Pattern : L.Unfiltered_Pattern;
+                       Bindings        : in out Environment_Map)
+                       return LAL.Ada_Node_Array;
+   --  Return the result of a link's evaluation.
+   --  If the link introduces new bindings, they will be added to 'Bindings'.
+   --  If 'Link' is a selector link, the related pattern is used to verrify the
+   --  quantifier.
+
+   function Eval_Selector_Link (Ctx             : Eval_Context;
+                                Root            : LAL.Ada_Node;
+                                Selector        : L.Selector_Link;
+                                Related_Pattern : L.Unfiltered_Pattern;
+                                Bindings        : in out Environment_Map)
+                                return LAL.Ada_Node_Array;
+
+   function Eval_Field_Link (Ctx   : Eval_Context;
+                             Root  : LAL.Ada_Node;
+                             Field : L.Field_Link)
+                             return LAL.Ada_Node_Array;
+
+   function Eval_Property_Link (Ctx : Eval_Context;
+                                Root : LAL.Ada_Node;
+                                Property : L.Property_Link)
+                                return LAL.Ada_Node_Array;
+
+   function To_Ada_Node_Array (Value : Primitive) return LAL.Ada_Node_Array;
 
 end LKQL.Chained_Pattern;

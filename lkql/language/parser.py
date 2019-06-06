@@ -1,6 +1,6 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt, Null
 from langkit.dsl import (
-    T, ASTNode, abstract, Field, has_abstract_list, synthetic
+    T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
 )
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Let, If
@@ -835,11 +835,39 @@ class ExtendedNodePattern(NodePattern):
     details = Field(type=NodePatternDetail.list)
 
 
+@abstract
 class ChainedPatternLink(LKQLNode):
     """
-    Element of a chained pattern of the form: selector Kind(details...)
+    Element of a chained pattern of the form:
+        (selector|field|property) pattern
+    """
+    pattern = AbstractField(type=UnfilteredPattern)
+
+
+class SelectorLink(ChainedPatternLink):
+    """
+    Element of a chained pattern of the form:
+        quantifier selector_name pattern
     """
     selector = Field(type=SelectorCall)
+    pattern = Field(type=UnfilteredPattern)
+
+
+class FieldLink(ChainedPatternLink):
+    """
+    Element of a chained pattern of the form:
+       field pattern
+    """
+    field = Field(type=Identifier)
+    pattern = Field(type=UnfilteredPattern)
+
+
+class PropertyLink(ChainedPatternLink):
+    """
+    Element of a chained pattern of the form:
+       property(args) pattern
+    """
+    property = Field(type=FunCall)
     pattern = Field(type=UnfilteredPattern)
 
 
@@ -909,8 +937,9 @@ lkql_grammar.add_rules(
     unfiltered_pattern_optional_chain=Or(
         ChainedNodePattern(
             G.unfiltered_pattern,
-            List(ChainedPatternLink(G.selector_call,
-                                    G.unfiltered_pattern))
+            List(Or(SelectorLink(G.selector_call, G.unfiltered_pattern),
+                    FieldLink(G.identifier, G.unfiltered_pattern),
+                    PropertyLink(G.fun_call, G.unfiltered_pattern)))
         ),
         G.unfiltered_pattern
     ),
@@ -961,7 +990,8 @@ lkql_grammar.add_rules(
                                Opt(Token.LPar,
                                    List(G.named_arg,
                                         sep=Token.Coma,
-                                        empty_valid=False))),
+                                        empty_valid=False),
+                                   Token.RPar)),
 
     arrow_assoc=ArrowAssoc(G.identifier, Token.LArrow, G.expr),
 

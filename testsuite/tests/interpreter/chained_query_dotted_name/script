@@ -1,2 +1,2 @@
-let inDottedInWith = query a@AspectSpec children DottedName children Identifier
+let inDottedInWith = query a@AspectSpec any children DottedName any children Identifier
 print(inDottedInWith)
