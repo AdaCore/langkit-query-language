@@ -36,5 +36,5 @@ fun isInOutOrOut(spec) =
 fun isUnConstrainedArrayWithPacked(decl) =
     decl is TypeDecl(
               type_def: ArrayTypeDef(any children(depth=6): BoxExpr),
-              get_attribute("Pack"): a when a is AdaNode
+              get_attribute("Pack"): AdaNode
             )
