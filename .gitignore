@@ -21,3 +21,7 @@ IL_design\.txt
 IL_optimizations\.txt
 
 kp_experiments/
+
+lkql/lkql_generated_sources/
+
+lkql/lkql_src_templates/
