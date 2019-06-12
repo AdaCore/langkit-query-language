@@ -1,2 +1,3 @@
-let result = query TypeDecl(get_attribute("Small"): AdaNode)
+let result =
+    query TypeDecl(any children: OrdinaryFixedPointDef, get_attribute("Small"): null)
 print(result)
