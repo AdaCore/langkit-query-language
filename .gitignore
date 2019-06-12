@@ -25,3 +25,7 @@ kp_experiments/
 lkql/lkql_generated_sources/
 
 lkql/lkql_src_templates/
+
+lkql/generated_sources/
+
+lkql/src_templates/
