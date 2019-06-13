@@ -1,2 +1,2 @@
 driver: 'interpreter'
-project: 'deep_library/prj.gpr'
+project: 'raise_builtin_exception/prj.gpr'

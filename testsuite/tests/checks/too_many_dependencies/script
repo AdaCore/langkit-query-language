@@ -1,0 +1,8 @@
+let maxDeps = 5
+
+let result =
+    query CompilationUnit(any c@children: Identifier) body l@LibraryItem
+        when val actualWith = [x | x <- c, x?.parent is WithClause && x.referenced_decl() != l.item];
+             actualWith.length > maxDeps
+
+print(result)
