@@ -1,0 +1,2 @@
+driver: 'interpreter'
+project: 'too_many_dependencies/prj.gpr'

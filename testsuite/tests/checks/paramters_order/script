@@ -6,9 +6,9 @@ let result =
 print(result)
 
 fun priority(paramSpec) =
-    match paramSpec.mode
-        | _ when paramSpec.default_expr is AdaNode => 0
-        | ModeOut                                  => 1
-        | ModeInOut                                => 2
-        | ModeIn                                   => 3
-        | ModeDefault                              => 3
+    if paramSpec.default_expr != null then 0
+    else match paramSpec.mode
+            | ModeOut     => 1
+            | ModeInOut   => 2
+            | ModeIn      => 3
+            | ModeDefault => 3
