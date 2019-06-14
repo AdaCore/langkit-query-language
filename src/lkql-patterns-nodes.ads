@@ -1,42 +1,37 @@
+with LKQL.AST_Nodes;              use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes;            use LKQL.Depth_Nodes;
-
-with LKQL.Selector_Lists; use LKQL.Selector_Lists;
+with LKQL.Selector_Lists;         use LKQL.Selector_Lists;
 
 package LKQL.Patterns.Nodes is
 
    function Filter_Node_Array (Ctx     : Eval_Context;
                                Pattern : L.Base_Pattern;
-                               Nodes   : LAL.Ada_Node_Array)
-                               return LAL.Ada_Node_Array;
+                               Nodes   : AST_Node_Array)
+                               return AST_Node_Array;
    --  Return a node array that only contains the nodes from 'Nodes' that match
    --  'Pattern'.
 
    function Match_Node_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
-                                Node    : LAL.Ada_Node) return Match_Result;
+                                Node    : AST_Node_Rc) return Match_Result;
    --  Match the given node againsta a node pattern
 
    function Match_Kind_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Kind_Pattern;
-                                Node    : LAL.Ada_Node) return Match_Result
+                                Node    : AST_Node_Rc) return Match_Result
      with Pre => not Node.Is_Null;
    --  Match th given node against a kind pattern
 
    function Match_Extended_Pattern (Ctx     : Eval_Context;
                                     Pattern : L.Extended_Node_Pattern;
-                                    Node    : LAL.Ada_Node)
+                                    Node    : AST_Node_Rc)
                                     return Match_Result
      with Pre => not Node.Is_Null;
    --  Match the given node against an extended pattern
 
-   function Matches_Kind_Name
-     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean;
-   --  Return true if 'Node's type is named 'Type_Name' or is a subtype of
-   --  a type named 'Type_Name'.
-
    function Match_Pattern_Details (Ctx     : Eval_Context;
                                    Details : L.Node_Pattern_Detail_List;
-                                   Node    : LAL.Ada_Node)
+                                   Node    : AST_Node_Rc)
                                    return Match_Result
      with Pre => not Node.Is_Null;
    --  Match a given node agains the 'details' (fields, properties & sekectors)
@@ -45,14 +40,14 @@ package LKQL.Patterns.Nodes is
    --  selector lists that are associated with a binding name in the pattern.
 
    function Match_Pattern_Detail (Ctx    : Eval_Context;
-                                  Node   : LAL.Ada_Node;
+                                  Node   : AST_Node_Rc;
                                   Detail : L.Node_Pattern_Detail'Class)
                                   return Match_Result
      with Pre => not Node.Is_Null;
    --  Match 'Node' against a node pattern 'detail'
 
    function Match_Pattern_Field (Ctx    : Eval_Context;
-                                 Node   : LAL.Ada_Node;
+                                 Node   : AST_Node_Rc;
                                  Field  : L.Node_Pattern_Field)
                                  return Match_Result
      with Pre => not Node.Is_Null;
@@ -60,7 +55,7 @@ package LKQL.Patterns.Nodes is
    --  field of 'Node' designated by 'Field'.
 
    function Match_Pattern_Property (Ctx      : Eval_Context;
-                                    Node     : LAL.Ada_Node;
+                                    Node     : AST_Node_Rc;
                                     Property : L.Node_Pattern_Property)
                                     return Match_Result
      with Pre => not Node.Is_Null;
@@ -68,7 +63,7 @@ package LKQL.Patterns.Nodes is
    --  property call described in 'Property' on 'Node'.
 
    function Match_Pattern_Selector (Ctx      : Eval_Context;
-                                    Node     : LAL.Ada_Node;
+                                    Node     : AST_Node_Rc;
                                     Selector : L.Node_Pattern_Selector)
                                     return Match_Result
      with Pre => not Node.Is_Null;
@@ -78,7 +73,7 @@ package LKQL.Patterns.Nodes is
    --  the 'Match_Result'.
 
    function Eval_Selector (Ctx     : Eval_Context;
-                           Node    : LAL.Ada_Node;
+                           Node    : AST_Node_Rc;
                            Call    : L.Selector_Call;
                            Pattern : L.Base_Pattern;
                            Result  : out Selector_List) return Boolean;

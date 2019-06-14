@@ -11,7 +11,7 @@ package body LKQL.Queries is
 
    function Make_Query_Iterator (Ctx  : Eval_Context;
                                  Node : L.Query)
-                                 return Node_Iterator'Class
+                                 return AST_Node_Iterator'Class
    is
       (if Node.F_Pattern.P_Contains_Chained
        then Make_Chained_Pattern_Query_Iterator (Ctx, Node)
@@ -23,14 +23,15 @@ package body LKQL.Queries is
 
    function Make_Query_Iterator (Ctx     : Eval_Context;
                                  Pattern : L.Base_Pattern)
-                                 return Node_Iterator'Class
+                                 return AST_Node_Iterator'Class
    is
-      Iter      : constant Node_Iterator_Access :=
-        new Childs_Iterator'(Make_Childs_Iterator (Ctx.AST_Root));
-      Predicate : constant Iterator_Predicate_Access :=
-        Iterator_Predicate_Access (Make_Query_Predicate (Ctx, Pattern));
+      Iter      : constant AST_Node_Iterator_Access :=
+         new AST_Node_Iterator'Class'
+            (AST_Node_Iterator'Class (Make_Child_Iterator (Ctx.AST_Root)));
+      Predicate : constant AST_Node_Predicate_Access :=
+        AST_Node_Predicate_Access (Make_Query_Predicate (Ctx, Pattern));
    begin
-      return Node_Iterators.Filter (Iter, Predicate);
+      return AST_Node_Iterators.Filter (Iter, Predicate);
    end Make_Query_Iterator;
 
    -----------------------------------------
@@ -39,7 +40,7 @@ package body LKQL.Queries is
 
    function Make_Chained_Pattern_Query_Iterator
      (Ctx  : Eval_Context;
-      Node : L.Query) return Node_Iterator'Class
+      Node : L.Query) return AST_Node_Iterator'Class
    is
       Chained : constant Chained_Pattern_Iterator :=
         Make_Chained_Pattern_Iterator
@@ -68,7 +69,7 @@ package body LKQL.Queries is
    --------------
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : LAL.Ada_Node) return Boolean
+     (Self : in out Query_Predicate; Node : AST_Node_Rc) return Boolean
    is
       Match : constant Match_Result :=
         Match_Pattern (Self.Ctx,
@@ -103,7 +104,7 @@ package body LKQL.Queries is
    ----------
 
    overriding function Next (Iter   : in out Chained_Pattern_Query_Iter;
-                             Result : out LAL.Ada_Node) return Boolean
+                             Result : out AST_Node_Rc) return Boolean
    is
       Match            : Match_Result;
       Predicate_Result : Boolean;

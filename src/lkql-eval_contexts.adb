@@ -52,7 +52,7 @@ package body LKQL.Eval_Contexts is
    -- AST_Root --
    --------------
 
-   function AST_Root (Ctx : Eval_Context) return LAL.Ada_Node is
+   function AST_Root (Ctx : Eval_Context) return AST_Node_Rc is
      (Ctx.Kernel.Ast_Root);
 
    -----------
@@ -62,15 +62,6 @@ package body LKQL.Eval_Contexts is
    function Clone_Frame (Ctx : Eval_Context) return Eval_Context is
      ((Kernel => Ctx.Kernel,
        Frames => new Environment'(Ctx.Frames.all)));
-
-   --------------
-   -- Set_Root --
-   --------------
-
-   procedure Set_AST_Root (Ctx : Eval_Context; New_Root : LAL.Ada_Node) is
-   begin
-      Ctx.Kernel.Ast_Root := New_Root;
-   end Set_AST_Root;
 
    ----------------------
    -- Create_New_Frame --
@@ -128,7 +119,7 @@ package body LKQL.Eval_Contexts is
    -- Make_Eval_Context --
    -----------------------
 
-   function Make_Eval_Context (Ast_Root     : LAL.Ada_Node := LAL.No_Ada_Node;
+   function Make_Eval_Context (Ast_Root     : AST_Node_Rc;
                                Err_Recovery : Boolean := False)
                                return Eval_Context
    is

@@ -42,7 +42,7 @@ package body LKQL.Custom_Selectors is
 
    function Make_Custom_Selector_Iter (Ctx        : Eval_Context;
                                        Call       : L.Selector_Call;
-                                       Root       : LAL.Ada_Node)
+                                       Root       : AST_Node_Rc)
                                        return Custom_Selector_Iter
    is
       Definition    : constant L.Selector_Def := Call.P_Called_Selector;
@@ -149,7 +149,7 @@ package body LKQL.Custom_Selectors is
 
    procedure Add_Node (Iter          : in out Custom_Selector_Iter;
                        Current_Depth : Natural;
-                       Node          : LAL.Ada_Node;
+                       Node          : AST_Node_Rc;
                        Mode          : L.Selector_Expr_Mode)
    is
       use type LCO.LKQL_Node_Kind_Type;
