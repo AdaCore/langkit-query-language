@@ -27,12 +27,25 @@ package Ada_AST_Node is
    overriding function Is_Null (Node : Ada_AST_Node) return Boolean is
      (Node.Node.Is_Null);
 
-   function Children_Count (Node : Ada_AST_Node) return Natural is
+   overriding function Children_Count (Node : Ada_AST_Node) return Natural is
      (Node.Node.Children_Count);
 
-   function Nth_Child (Node : Ada_AST_Node; N : Positive) return Ada_AST_Node
+   overriding function Nth_Child
+     (Node : Ada_AST_Node; N : Positive) return Ada_AST_Node
    is
      (Ada_AST_Node'(Node => Node.Node.Child (N)));
+
+   overriding function Matches_Kind_Name
+     (Node : Ada_AST_Node; Kind_Name : String) return Boolean;
+
+   overriding function Is_Field_Name
+     (Node : Ada_AST_Node; Name : Text_Type) return Boolean;
+
+   overriding function Is_Property_Name
+     (Node : Ada_AST_Node; Name : Text_Type) return Boolean;
+
+   overriding function Access_Field
+     (Node : Ada_AST_Node; Field : Text_Type) return Primitive;
 
    function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc
      is (Make_AST_Node_Rc (Ada_AST_Node'(Node => Node)));
