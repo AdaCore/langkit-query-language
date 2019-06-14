@@ -1,3 +1,4 @@
+with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes;   use LKQL.Depth_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -16,7 +17,7 @@ private package LKQL.Custom_Selectors is
 
    function Make_Custom_Selector_Iter (Ctx        : Eval_Context;
                                        Call       : L.Selector_Call;
-                                       Root       : LAL.Ada_Node)
+                                       Root       : AST_Node_Rc)
                                        return Custom_Selector_Iter;
    --  Create an iterator that yields the nodes bound to 'Root' by
    --  the given selector defitnion.
@@ -78,7 +79,7 @@ private
 
    procedure Add_Node (Iter          : in out Custom_Selector_Iter;
                        Current_Depth : Natural;
-                       Node          : LAL.Ada_Node;
+                       Node          : AST_Node_Rc;
                        Mode          : L.Selector_Expr_Mode);
    --  Add the given node to the values produced by the selector.
    --  The value will be added to 'Next_Values' or 'Next_To_Visit' (or both)

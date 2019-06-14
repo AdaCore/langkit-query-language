@@ -1,12 +1,12 @@
-with LKQL.Common;         use LKQL.Common;
+with LKQL.Checks;         use LKQL.Checks;
+with LKQL.Errors;         use LKQL.Errors;
 with LKQL.Queries;        use LKQL.Queries;
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Functions;      use LKQL.Functions;
+with LKQL.AST_Nodes;      use LKQL.AST_Nodes;
 with LKQL.Node_Data;
 with LKQL.Depth_Nodes;    use LKQL.Depth_Nodes;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
-with LKQL.Checks;         use LKQL.Checks;
-with LKQL.Errors;         use LKQL.Errors;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 with Libadalang.Iterators;     use Libadalang.Iterators;
@@ -209,8 +209,6 @@ package body LKQL.Evaluation is
               Make_Unit_Primitive,
             when LCO.LKQL_Match =>
               Eval_Match (Local_Context, Node.As_Match),
-            when LCO.LKQL_Null_Literal =>
-              To_Primitive (LAL.No_Ada_Node, Nullable => True),
             when LCO.LKQL_Unwrap =>
               Eval_Unwrap (Local_Context, Node.As_Unwrap),
             when others =>
@@ -466,11 +464,11 @@ package body LKQL.Evaluation is
    function Eval_Safe_Access
      (Ctx  : Eval_Context; Node : L.Safe_Access) return Primitive
    is
-      Receiver : constant LAL.Ada_Node :=
+      Receiver : constant AST_Node_Rc :=
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
       return (if Receiver.Is_Null
-              then To_Primitive (LAL.No_Ada_Node, Nullable => True)
+              then To_Primitive (Receiver, Nullable => True)
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
    end Eval_Safe_Access;
@@ -502,13 +500,13 @@ package body LKQL.Evaluation is
    function Eval_Safe_Call
      (Ctx : Eval_Context; Node : L.Safe_Call) return Primitive
    is
-      Receiver : constant Primitive :=
-        Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node);
+      Receiver : constant AST_Node_Rc :=
+        Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
-      return (if Node_Val (Receiver).Is_Null
-              then To_Primitive (LAL.No_Ada_Node, Nullable => True)
+      return (if Receiver.Get.Is_Null
+              then To_Primitive (Receiver, Nullable => True)
               else Node_Data.Eval_Node_Property
-                (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments));
+                (Ctx, Receiver, Node.F_Member, Node.F_Arguments));
    end Eval_Safe_Call;
 
    -------------
@@ -547,9 +545,9 @@ package body LKQL.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : L.Query) return Primitive
    is
-      use Node_Iterators;
-      Current_Node : LAL.Ada_Node;
-      Iter         : Node_Iterator'Class := Make_Query_Iterator (Ctx, Node);
+      Current_Node : AST_Node_Rc;
+      Iter         : AST_Node_Iterator'Class :=
+        Make_Query_Iterator (Ctx, Node);
       Result       : constant Primitive :=  Make_Empty_List;
    begin
       while Iter.Next (Current_Node) loop
@@ -655,7 +653,7 @@ package body LKQL.Evaluation is
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive
    is
-      Value : constant LAL.Ada_Node :=
+      Value : constant AST_Node_Rc :=
         Node_Val (Eval (Ctx, Node.F_Node_Expr, Expected_Kind => Kind_Node));
    begin
       return To_Primitive (Value, Nullable => False);

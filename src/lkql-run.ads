@@ -1,3 +1,5 @@
+with Libadalang.Analysis; use Libadalang.Analysis;
+
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package LKQL.Run is
@@ -13,7 +15,7 @@ package LKQL.Run is
    --  Project_Path is the project file name to load.
 
    procedure Run_On_Files (LKQL_Script      : String;
-                           Ada_Context      : LAL.Analysis_Context;
+                           Ada_Context      : Analysis_Context;
                            Files            : File_Array_Access;
                            Recovery_Enabled : Boolean := False);
 
@@ -22,6 +24,6 @@ private
    function Make_LKQL_Unit (Script_Path : String) return L.Analysis_Unit;
 
    function Make_Ada_Unit
-     (Context : LAL.Analysis_Context; Path : String) return LAL.Analysis_Unit;
+     (Context : Analysis_Context; Path : String) return Analysis_Unit;
 
 end LKQL.Run;

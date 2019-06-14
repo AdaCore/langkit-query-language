@@ -1,5 +1,8 @@
+with Ada_AST_Node;        use Ada_AST_Node;
 with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
+
+with Libadalang.Analysis; use Libadalang.Analysis;
 
 with Ada.Assertions; use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
@@ -16,7 +19,7 @@ package body LKQL.Node_Data is
    ---------------------------------------------
 
    generic
-      type Value_Type is new LAL.Ada_Node with private;
+      type Value_Type is new Ada_Node with private;
 
       type Value_Array is array (Positive range <>) of Value_Type;
 
@@ -30,36 +33,37 @@ package body LKQL.Node_Data is
    begin
       return Result : constant Primitive := Make_Empty_List do
          for N of Nodes loop
-            Append (Result, To_Primitive (N.As_Ada_Node, Nullable => True));
+            Append (Result, To_Primitive (Make_Ada_AST_Node (N.As_Ada_Node),
+                                          Nullable => True));
          end loop;
       end return;
    end List_From_Node_Array;
 
    function List_From_Ada_Nodes is new List_From_Node_Array
-     (LAL.Ada_Node, LAL.Ada_Node_Array);
+     (Ada_Node, Ada_Node_Array);
 
    function List_From_Basic_Decls is new List_From_Node_Array
-     (LAL.Basic_Decl, LAL.Basic_Decl_Array);
+     (Basic_Decl, Basic_Decl_Array);
 
    function List_From_Base_Formal_Param_Decls is new List_From_Node_Array
-     (LAL.Base_Formal_Param_Decl, LAL.Base_Formal_Param_Decl_Array);
+     (Base_Formal_Param_Decl, Base_Formal_Param_Decl_Array);
 
    function List_From_Generic_Instanciations is new List_From_Node_Array
-     (LAL.Generic_Instantiation, LAL.Generic_Instantiation_Array);
+     (Generic_Instantiation, Generic_Instantiation_Array);
 
    function List_From_Defining_Names is new List_From_Node_Array
-     (LAL.Defining_Name, LAL.Defining_Name_Array);
+     (Defining_Name, Defining_Name_Array);
 
    --------------------------------------------
    -- Primitive to Ada node array conversion --
    --------------------------------------------
 
    generic
-      type Value_Type is new LAL.Ada_Node with private;
+      type Value_Type is new Ada_Node with private;
 
       type Value_Array is array (Positive range <>) of Value_Type;
 
-      with function Convert (Node : LAL.Ada_Node'Class) return Value_Type;
+      with function Convert (Node : Ada_Node'Class) return Value_Type;
 
    function Node_Array_From_List (Nodes : Primitive) return Value_Array;
 
@@ -84,7 +88,7 @@ package body LKQL.Node_Data is
    end Node_Array_From_List;
 
    function Ada_Node_Array_From_List is new Node_Array_From_List
-     (LAL.Ada_Node, LAL.Ada_Node_Array, LAL.As_Ada_Node);
+     (Ada_Node, Ada_Node_Array, As_Ada_Node);
 
    function Base_Formal_Param_Decl_Array_From_List is new Node_Array_From_List
      (LAL.Base_Formal_Param_Decl,
@@ -109,7 +113,7 @@ package body LKQL.Node_Data is
    -- Is_Field_Name --
    -------------------
 
-   function Is_Field_Name (Receiver : LAL.Ada_Node;
+   function Is_Field_Name (Receiver : AST_Node_Rc;
                            Name     : Text_Type) return Boolean
    is
       Data_Ref : constant Any_Node_Data_Reference :=
@@ -123,7 +127,7 @@ package body LKQL.Node_Data is
    -- Is_Property_Name --
    ----------------------
 
-   function Is_Property_Name (Receiver : LAL.Ada_Node;
+   function Is_Property_Name (Receiver : AST_Node_Rc;
                               Name     : Text_Type) return Boolean
    is (Data_Reference_For_Name (Receiver, Name) in Property_Reference);
 
@@ -132,7 +136,7 @@ package body LKQL.Node_Data is
    -----------------------
 
    function Access_Node_Field (Ctx        : Eval_Context;
-                               Receiver   : LAL.Ada_Node;
+                               Receiver   : AST_Node_Rc;
                                Field_Name : L.Identifier) return Primitive
    is
       Data_Ref : constant Any_Node_Data_Reference :=
@@ -154,7 +158,7 @@ package body LKQL.Node_Data is
    ------------------------
 
    function Access_Node_Field (Ctx             : Eval_Context;
-                               Receiver        : LAL.Ada_Node;
+                               Receiver        : AST_Node_Rc;
                                Field_Name      : L.Identifier;
                                Field_Reference : Node_Data_Reference)
                                return Primitive
@@ -170,7 +174,7 @@ package body LKQL.Node_Data is
    ------------------------
 
    function Eval_Node_Property (Ctx : Eval_Context;
-                                Receiver : LAL.Ada_Node;
+                                Receiver : AST_Node_Rc;
                                 Property_Name : L.Identifier;
                                 Args          : L.Arg_List) return Primitive
    is
@@ -189,7 +193,7 @@ package body LKQL.Node_Data is
    ------------------------
 
    function Eval_Node_Property (Ctx        : Eval_Context;
-                                Receiver   : LAL.Ada_Node;
+                                Receiver   : AST_Node_Rc;
                                 Data_Ref   : Property_Reference;
                                 Identifier : L.Identifier;
                                 Args       : L.Arg_List) return Primitive
@@ -274,7 +278,7 @@ package body LKQL.Node_Data is
    -----------------------------
 
    function Data_Reference_For_Name
-     (Receiver : LAL.Ada_Node; Name : Text_Type) return Any_Node_Data_Reference
+     (Receiver : AST_Node_Rc; Name : Text_Type) return Any_Node_Data_Reference
    is
       Receiver_Type_Id : constant Node_Type_Id :=
         Id_For_Kind (Receiver.Kind);
@@ -428,7 +432,7 @@ package body LKQL.Node_Data is
    --------------------
 
    function Built_In_Field
-     (Receiver : LAL.Ada_Node; Property_Name : Text_Type) return Primitive
+     (Receiver : AST_Node_Rc; Property_Name : Text_Type) return Primitive
    is
    begin
       if Property_Name = "image" then

@@ -1,3 +1,4 @@
+with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -7,22 +8,22 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package LKQL.Node_Data is
 
-   function Is_Field_Name (Receiver : LAL.Ada_Node;
+   function Is_Field_Name (Receiver : AST_Node_Rc;
                            Name     : Text_Type) return Boolean;
    --  Return whether 'Receiver' has a field called 'Name'
 
-   function Is_Property_Name (Receiver : LAL.Ada_Node;
+   function Is_Property_Name (Receiver : AST_Node_Rc;
                               Name     : Text_Type) return Boolean;
    --  Return whether 'Receiver' has a field called 'Name'
 
    function Access_Node_Field (Ctx        : Eval_Context;
-                               Receiver   : LAL.Ada_Node;
+                               Receiver   : AST_Node_Rc;
                                Field_Name : L.Identifier) return Primitive;
    --  Return the value of the field designated by 'Field_Name' on 'Receiver'.
    --  An exception will be raised if there is no such field.
 
    function Eval_Node_Property (Ctx           : Eval_Context;
-                                Receiver      : LAL.Ada_Node;
+                                Receiver      : AST_Node_Rc;
                                 Property_Name : L.Identifier;
                                 Args          : L.Arg_List) return Primitive
      with Pre => not Args.Is_Null;
@@ -33,14 +34,14 @@ package LKQL.Node_Data is
 private
 
    function Access_Node_Field (Ctx             : Eval_Context;
-                               Receiver        : LAL.Ada_Node;
+                               Receiver        : AST_Node_Rc;
                                Field_Name      : L.Identifier;
                                Field_Reference : Node_Data_Reference)
                                return Primitive;
    --  Access the field designated by 'Field_Reference' on 'Receiver'.
 
    function Eval_Node_Property (Ctx        : Eval_Context;
-                                Receiver   : LAL.Ada_Node;
+                                Receiver   : AST_Node_Rc;
                                 Data_Ref   : Property_Reference;
                                 Identifier : L.Identifier;
                                 Args       : L.Arg_List) return Primitive;
@@ -55,7 +56,7 @@ private
    --  The converted argument's types will be compared to the expected
    --  argument types for the given poperty.
 
-   function Data_Reference_For_Name (Receiver : LAL.Ada_Node;
+   function Data_Reference_For_Name (Receiver : AST_Node_Rc;
                                      Name     : Text_Type)
                                      return Any_Node_Data_Reference;
    --  Return the node data type corresponding to 'Name' on the receiver
@@ -76,7 +77,7 @@ private
    --  value. An exceptioin will be raised if the conversion is illegal.
 
    function Built_In_Field
-     (Receiver : LAL.Ada_Node; Property_Name : Text_Type) return Primitive;
+     (Receiver : AST_Node_Rc; Property_Name : Text_Type) return Primitive;
    --  Return the value of the built-in property named 'Property_Name' on
    --  'Receiver'.
 

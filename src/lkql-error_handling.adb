@@ -246,7 +246,7 @@ package body LKQL.Error_Handling is
    -------------------------
 
    procedure Raise_No_Such_Field (Ctx        : Eval_Context;
-                                  Node       : LAL.Ada_Node;
+                                  Node       : AST_Node_Rc;
                                   Field_Name : L.Identifier)
    is
    begin
@@ -258,7 +258,7 @@ package body LKQL.Error_Handling is
    ----------------------------
 
    procedure Raise_No_Such_Property (Ctx           : Eval_Context;
-                                     Node          : LAL.Ada_Node;
+                                     Node          : AST_Node_Rc;
                                      Property_Name : L.Identifier)
    is
    begin
@@ -270,13 +270,13 @@ package body LKQL.Error_Handling is
    -------------------------
 
    procedure Raise_No_Such_Datum (Ctx            : Eval_Context;
-                                  Node           : LAL.Ada_Node;
+                                  Node           : AST_Node_Rc;
                                   Field_Name     : L.Identifier;
                                   Data_Type_Name : Text_Type)
    is
       Message : constant Text_Type :=
         "No " & Data_Type_Name & " named " & Field_Name.Text & " on nodes of" &
-        " kind: " & To_Text (LAL.Kind_Name (Node));
+        " kind: " & To_Text (Node.Get.Kind_Name);
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Field_Name, Message));
    end Raise_No_Such_Datum;

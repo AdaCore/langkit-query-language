@@ -1,4 +1,5 @@
 with LKQL.Errors;        use LKQL.Errors;
+with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Primitives;    use LKQL.Primitives;
 
@@ -120,7 +121,7 @@ private package LKQL.Error_Handling is
    --  describing the error to the evaluation context.
 
    procedure Raise_No_Such_Field (Ctx        : Eval_Context;
-                                  Node       : LAL.Ada_Node;
+                                  Node       : AST_Node_Rc;
                                   Field_Name : L.Identifier)
      with No_Return;
    --  Raise an exception signaling an attempt to access a field that doesn't
@@ -128,7 +129,7 @@ private package LKQL.Error_Handling is
    --  context.
 
    procedure Raise_No_Such_Property (Ctx           : Eval_Context;
-                                     Node          : LAL.Ada_Node;
+                                     Node          : AST_Node_Rc;
                                      Property_Name : L.Identifier)
      with No_Return;
    --  Raise an exception signaling an attempt to access a property that
@@ -149,7 +150,7 @@ private
    type Data_Type is (Field, Property);
 
    procedure Raise_No_Such_Datum (Ctx            : Eval_Context;
-                                  Node           : LAL.Ada_Node;
+                                  Node           : AST_Node_Rc;
                                   Field_Name     : L.Identifier;
                                   Data_Type_Name : Text_Type)
      with No_Return;

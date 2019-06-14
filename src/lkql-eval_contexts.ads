@@ -1,4 +1,5 @@
 with LKQL.Errors;     use LKQL.Errors;
+with LKQL.AST_Nodes;  use LKQL.AST_Nodes;
 with LKQL.Primitives; use LKQL.Primitives;
 use  LKQL.Primitives.Primitive_Ptrs;
 
@@ -72,11 +73,8 @@ package LKQL.Eval_Contexts is
    function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean;
    --  Return wether the error recovery mecanism is enabled
 
-   function AST_Root (Ctx : Eval_Context) return LAL.Ada_Node;
+   function AST_Root (Ctx : Eval_Context) return AST_Node_Rc;
    --  Return the evaluation context's AST root
-
-   procedure Set_AST_Root (Ctx : Eval_Context; New_Root : LAL.Ada_Node);
-   --  Set 'New_Root' as the Ast root for evaluation
 
    function Clone_Frame (Ctx : Eval_Context) return Eval_Context;
    --  Make a deep copy of the current frame
@@ -108,7 +106,7 @@ package LKQL.Eval_Contexts is
    --  Return the parent of the current local context.
    --  An Assertion_Error will be raised is 'Ctx' is the root context.
 
-   function Make_Eval_Context (Ast_Root     : LAL.Ada_Node := LAL.No_Ada_Node;
+   function Make_Eval_Context (Ast_Root     : AST_Node_Rc;
                                Err_Recovery : Boolean := False)
                                return Eval_Context;
    --  Create a new Eval_Context with the given Ast_Root and error recovery
@@ -127,7 +125,7 @@ private
    -----------------
 
    type Global_Data is record
-      Ast_Root : LAL.Ada_Node := LAL.No_Ada_Node;
+      Ast_Root : AST_Node_Rc;
       --  Root node of the tree in wich node queries will run.
 
       Last_Error : Error_Data := Make_Empty_Error;

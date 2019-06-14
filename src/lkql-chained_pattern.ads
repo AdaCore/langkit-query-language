@@ -1,6 +1,6 @@
 with Iters.Iterators;
-with LKQL.Common;        use LKQL.Common;
 with LKQL.Patterns;      use LKQL.Patterns;
+with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -46,10 +46,10 @@ private package LKQL.Chained_Pattern is
 private
 
    package Node_Sets is new Ada.Containers.Hashed_Sets
-     (Element_Type        => LAL.Ada_Node,
-      Hash                => LAL.Hash,
-      Equivalent_Elements => LAL."=",
-      "="                 => LAL."=");
+     (Element_Type        => AST_Node_Rc,
+      Hash                => AST_Nodes.Hash_Rc,
+      Equivalent_Elements => AST_Node_Ptrs."=",
+      "="                 => AST_Node_Ptrs."=");
    --  Sets of Ada nodes
 
    subtype Node_Set is Node_Sets.Set;
@@ -63,7 +63,7 @@ private
       --  matching the sub patterns.
       Pattern                : L.Chained_Node_Pattern;
       --  THE pattern
-      Root_Elements_Iterator : Node_Iterator_Access;
+      Root_Elements_Iterator : AST_Node_Iterator_Access;
       --  Iterator that yields the nodes that match the first pattern of the
       --  chain.
       Yielded_Elements       : Node_Set;
@@ -71,50 +71,50 @@ private
    end record;
 
    procedure Eval_Element (Iter : in out Chained_Pattern_Iterator;
-                           Root : LAL.Ada_Node);
+                           Root : AST_Node_Rc);
    --  Populate the 'Next_Values' list of 'Iter' by evaluating the pattern from
    --  'Root'.
 
    procedure Eval_Chain_From (Iter        : in out Chained_Pattern_Iterator;
-                              Root        : LAL.Ada_Node;
+                              Root        : AST_Node_Rc;
                               Current_Env : Environment_Map;
                               Link_Nb     : Positive);
 
    procedure Eval_Chain_From_Link
      (Iter        : in out Chained_Pattern_Iterator;
-      Root        : LAL.Ada_Node;
+      Root        : AST_Node_Rc;
       Current_Env : Environment_Map;
       Link_Nb     : Positive)
      with Pre => Link_Nb <= Iter.Pattern.F_Chain.Children_Count;
 
    function Eval_Link (Ctx             : Eval_Context;
-                       Root            : LAL.Ada_Node;
+                       Root            : AST_Node_Rc;
                        Link            : L.Chained_Pattern_Link;
                        Related_Pattern : L.Unfiltered_Pattern;
                        Bindings        : in out Environment_Map)
-                       return LAL.Ada_Node_Array;
+                       return AST_Node_Array;
    --  Return the result of a link's evaluation.
    --  If the link introduces new bindings, they will be added to 'Bindings'.
    --  If 'Link' is a selector link, the related pattern is used to verrify the
    --  quantifier.
 
    function Eval_Selector_Link (Ctx             : Eval_Context;
-                                Root            : LAL.Ada_Node;
+                                Root            : AST_Node_Rc;
                                 Selector        : L.Selector_Link;
                                 Related_Pattern : L.Unfiltered_Pattern;
                                 Bindings        : in out Environment_Map)
-                                return LAL.Ada_Node_Array;
+                                return AST_Node_Array;
 
    function Eval_Field_Link (Ctx   : Eval_Context;
-                             Root  : LAL.Ada_Node;
+                             Root  : AST_Node_Rc;
                              Field : L.Field_Link)
-                             return LAL.Ada_Node_Array;
+                             return AST_Node_Array;
 
    function Eval_Property_Link (Ctx : Eval_Context;
-                                Root : LAL.Ada_Node;
+                                Root : AST_Node_Rc;
                                 Property : L.Property_Link)
-                                return LAL.Ada_Node_Array;
+                                return AST_Node_Array;
 
-   function To_Ada_Node_Array (Value : Primitive) return LAL.Ada_Node_Array;
+   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Array;
 
 end LKQL.Chained_Pattern;

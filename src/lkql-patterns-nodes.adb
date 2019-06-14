@@ -1,11 +1,8 @@
 with LKQL.Node_Data;
 with LKQL.Patterns.Match;   use LKQL.Patterns.Match;
-with LKQL.Common;           use LKQL.Common;
 with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Primitives;       use LKQL.Primitives;
 with LKQL.Evaluation;       use LKQL.Evaluation;
-
-with Libadalang.Introspection;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -20,10 +17,10 @@ package body LKQL.Patterns.Nodes is
 
    function Filter_Node_Array (Ctx     : Eval_Context;
                                Pattern : L.Base_Pattern;
-                               Nodes   : LAL.Ada_Node_Array)
-                               return LAL.Ada_Node_Array
+                               Nodes   : AST_Node_Array)
+                               return AST_Node_Array
    is
-      Filtered : Node_Vector;
+      Filtered : AST_Node_Vector;
    begin
       for N of Nodes loop
          if Match_Pattern (Ctx, Pattern, To_Primitive (N)).Is_Success then
@@ -31,7 +28,7 @@ package body LKQL.Patterns.Nodes is
          end if;
       end loop;
 
-      return Result : LAL.Ada_Node_Array (1 .. Filtered.Last_Index) do
+      return Result : AST_Node_Array (1 .. Filtered.Last_Index) do
          for I in 1 .. Filtered.Last_Index loop
             Result (I) := Filtered (I);
          end loop;
@@ -44,7 +41,7 @@ package body LKQL.Patterns.Nodes is
 
    function Match_Node_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
-                                Node    : LAL.Ada_Node) return Match_Result
+                                Node    : AST_Node_Rc) return Match_Result
    is
    begin
       if Node.Is_Null then
@@ -70,9 +67,9 @@ package body LKQL.Patterns.Nodes is
 
    function Match_Kind_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Kind_Pattern;
-                                Node    : LAL.Ada_Node) return Match_Result
+                                Node    : AST_Node_Rc) return Match_Result
    is
-     (if Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text), Node)
+     (if Node.Get.Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text))
       then Make_Match_Success (To_Primitive (Node))
       else Match_Failure);
 
@@ -82,7 +79,7 @@ package body LKQL.Patterns.Nodes is
 
    function Match_Extended_Pattern (Ctx     : Eval_Context;
                                     Pattern : L.Extended_Node_Pattern;
-                                    Node    : LAL.Ada_Node)
+                                    Node    : AST_Node_Rc)
                                     return Match_Result
    is
       Match : constant Match_Result :=
@@ -100,7 +97,7 @@ package body LKQL.Patterns.Nodes is
 
    function Match_Pattern_Details (Ctx     : Eval_Context;
                                    Details : L.Node_Pattern_Detail_List;
-                                   Node    : LAL.Ada_Node)
+                                   Node    : AST_Node_Rc)
                                    return Match_Result
    is
       use String_Value_Maps;
@@ -129,7 +126,7 @@ package body LKQL.Patterns.Nodes is
    --------------------------
 
    function Match_Pattern_Detail (Ctx    : Eval_Context;
-                                  Node   : LAL.Ada_Node;
+                                  Node   : AST_Node_Rc;
                                   Detail : L.Node_Pattern_Detail'Class)
                                   return Match_Result
    is
@@ -155,7 +152,7 @@ package body LKQL.Patterns.Nodes is
    -------------------------
 
    function Match_Pattern_Field (Ctx    : Eval_Context;
-                                 Node   : LAL.Ada_Node;
+                                 Node   : AST_Node_Rc;
                                  Field  : L.Node_Pattern_Field)
                                  return Match_Result
    is
@@ -171,7 +168,7 @@ package body LKQL.Patterns.Nodes is
    ----------------------------
 
    function Match_Pattern_Property (Ctx      : Eval_Context;
-                                    Node     : LAL.Ada_Node;
+                                    Node     : AST_Node_Rc;
                                     Property : L.Node_Pattern_Property)
                                     return Match_Result
    is
@@ -189,7 +186,7 @@ package body LKQL.Patterns.Nodes is
    ----------------------------
 
    function Match_Pattern_Selector (Ctx      : Eval_Context;
-                                    Node     : LAL.Ada_Node;
+                                    Node     : AST_Node_Rc;
                                     Selector : L.Node_Pattern_Selector)
                                     return Match_Result
    is
@@ -216,7 +213,7 @@ package body LKQL.Patterns.Nodes is
    -------------------
 
    function Eval_Selector (Ctx     : Eval_Context;
-                           Node    : LAL.Ada_Node;
+                           Node    : AST_Node_Rc;
                            Call    : L.Selector_Call;
                            Pattern : L.Base_Pattern;
                            Result  : out Selector_List) return Boolean
@@ -279,26 +276,6 @@ package body LKQL.Patterns.Nodes is
                                          return Node_Pattern_Predicate
    is
       (Ctx.Clone_Frame, Pattern);
-
-   -----------------------
-   -- Matches_Type_Name --
-   -----------------------
-
-   function Matches_Kind_Name
-     (Kind_Name : String; Node : LAL.Ada_Node) return Boolean
-   is
-      use Libadalang.Introspection;
-      Expected_Kind : constant Any_Node_Type_Id :=
-        Lookup_DSL_Name (Kind_Name);
-      Actual_Kind   : constant Any_Node_Type_Id :=
-        Id_For_Kind (Node.Kind);
-   begin
-      pragma Assert
-        (Expected_Kind /= None, "Invalid kind name: " & Kind_Name);
-
-      return Actual_Kind = Expected_Kind or else
-             Is_Derived_From (Actual_Kind, Expected_Kind);
-   end Matches_Kind_Name;
 
    ------------------------
    -- Match_Detail_Value --

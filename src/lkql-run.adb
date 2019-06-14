@@ -1,3 +1,5 @@
+with Ada_AST_Node; use Ada_AST_Node;
+
 with LKQL.Errors;        use LKQL.Errors;
 with LKQL.Evaluation;    use LKQL.Evaluation;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
@@ -50,8 +52,8 @@ package body LKQL.Run is
                                   Project_Path     : String;
                                   Recovery_Enabled : Boolean := False)
    is
-      Provider      : LAL.Unit_Provider_Reference;
-      Ada_Context   : LAL.Analysis_Context;
+      Provider      : Unit_Provider_Reference;
+      Ada_Context   : Analysis_Context;
       Env           : GPR.Project_Environment_Access;
       Project       : constant GPR.Project_Tree_Access := new GPR.Project_Tree;
       Ignore        : Primitive;
@@ -63,7 +65,7 @@ package body LKQL.Run is
       Project.Load (Project_File, Env);
       Provider :=
         LAL_GPR.Create_Project_Unit_Provider_Reference (Project, Env);
-      Ada_Context := LAL.Create_Context (Unit_Provider => Provider);
+      Ada_Context := Create_Context (Unit_Provider => Provider);
       Source_Files := Project.Root_Project.Source_Files (Recursive => False);
       Run_On_Files (LKQL_Script, Ada_Context, Source_Files, Recovery_Enabled);
       Unchecked_Free (Source_Files);
@@ -74,21 +76,21 @@ package body LKQL.Run is
    ------------------
 
    procedure Run_On_Files (LKQL_Script      : String;
-                           Ada_Context      : LAL.Analysis_Context;
+                           Ada_Context      : Analysis_Context;
                            Files            : File_Array_Access;
                            Recovery_Enabled : Boolean := False)
    is
-      Ada_Unit            : LAL.Analysis_Unit;
+      Ada_Unit            : Analysis_Unit;
       Interpreter_Context : Eval_Context;
       LKQL_Unit           : constant L.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
    begin
       for F of Files.all loop
-         Interpreter_Context :=
-           Make_Eval_Context (Err_Recovery => Recovery_Enabled);
-         Put_Line (F.Display_Base_Name);
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
-         Interpreter_Context.Set_AST_Root (Ada_Unit.Root);
+         Interpreter_Context :=
+           Make_Eval_Context (Make_Ada_AST_Node (Ada_Unit.Root),
+                              Err_Recovery => Recovery_Enabled);
+         Put_Line (F.Display_Base_Name);
          Evaluate (Interpreter_Context, LKQL_Unit.Root);
          Interpreter_Context.Free_Eval_Context;
       end loop;
@@ -118,16 +120,17 @@ package body LKQL.Run is
    -------------------
 
    function Make_Ada_Unit
-     (Context : LAL.Analysis_Context; Path : String) return LAL.Analysis_Unit
+     (Context : Analysis_Context; Path : String) return Analysis_Unit
    is
-      Unit : constant LAL.Analysis_Unit :=
+      Unit : constant Analysis_Unit :=
         Context.Get_From_File (Path);
    begin
       if Unit.Has_Diagnostics then
          for D of Unit.Diagnostics loop
             Put_Line (Unit.Format_GNU_Diagnostic (D));
          end loop;
-         return LAL.No_Analysis_Unit;
+
+         return No_Analysis_Unit;
       end if;
 
       return Unit;
