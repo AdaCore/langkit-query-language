@@ -1,29 +1,50 @@
-from os import listdir, mkdir
-from os.path import join, isdir
-from shutil import rmtree
+from os import listdir, makedirs
+from os.path import join, isdir, dirname, relpath
 from langkit.passes import GlobalPass
 from mako.template import Template
 
-TEMPLATES_DIR = 'lkql_src_templates'
-OUTPUT_DIR = 'lkql_generated_sources'
+TEMPLATES_DIR = 'src_templates'
+OUTPUT_DIR = 'generated_sources'
 
 
 def run(ctx):
+    display_introspection_kinds(ctx)
     values = {
-        'lib_name': ctx.ada_api_settings.lib_name,
-        'root_name': ctx.astnode_types[0].entity.api_name
+        'lib_name': ctx.lib_name,
+        'root_name': ctx.root_grammar_class.raw_name.base_name
     }
+    create_dir(OUTPUT_DIR)
+    process_templated(TEMPLATES_DIR, values)
 
-    # if isdir(OUTPUT_DIR):
-    #     rmtree(OUTPUT_DIR)
 
-    if not isdir(OUTPUT_DIR):
-        mkdir(OUTPUT_DIR)
+def display_introspection_kinds(ctx):
+    fields_types = set()
+    for node in ctx.astnode_types:
+        fields = [f for f in node._fields.values()
+                  if f.is_property and f.is_public]
+        for field in fields:
+            fields_types.add(field.public_type.introspection_kind)
+    print(fields_types)
 
-    for src in listdir(TEMPLATES_DIR):
-        template = Template(filename=join(TEMPLATES_DIR, src))
-        with open(join(OUTPUT_DIR, src), 'w+') as f:
-            f.write(template.render(**values))
+
+def create_dir(dir):
+    try:
+        makedirs(dir)
+    except OSError:
+        pass
+
+
+def process_templated(dir, template_args):
+    for src in listdir(dir):
+        current_path = join(dir, src)
+        if isdir(current_path):
+            process_templated(current_path, template_args)
+        else:
+            template = Template(filename=current_path)
+            output_path = join(OUTPUT_DIR, relpath(dir, TEMPLATES_DIR), src)
+            create_dir(dirname(output_path))
+            with open(output_path, 'w+') as f:
+                f.write(template.render(**template_args))
 
 
 def get_pass():
