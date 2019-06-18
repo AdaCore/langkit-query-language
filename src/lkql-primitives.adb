@@ -96,7 +96,7 @@ package body LKQL.Primitives is
       Image   : Unbounded_Text_Type;
    begin
       for D of Value.Depth_Nodes loop
-         Append (Image, D.Node.Text_Image & LF);
+         Append (Image, D.Node.Get.Text_Image & LF);
       end loop;
 
       return Image;
@@ -261,7 +261,7 @@ package body LKQL.Primitives is
    -- Node_Val --
    --------------
 
-   function Node_Val (Value : Primitive) return LAL.Ada_Node is
+   function Node_Val (Value : Primitive) return AST_Node_Rc is
       (Value.Get.Node_Val);
 
    --------------
@@ -452,7 +452,7 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive
-     (Node : LAL.Ada_Node; Nullable : Boolean := False) return Primitive
+     (Node : AST_Node_Rc; Nullable : Boolean := False) return Primitive
    is
       Ref       : Primitive;
    begin
@@ -636,7 +636,7 @@ package body LKQL.Primitives is
                  when Kind_Node =>
                    (if Node_Val (Val).Is_Null
                     then To_Unbounded_Text ("null")
-                    else To_Unbounded_Text (Val.Get.Node_Val.Text_Image)),
+                    else To_Unbounded_Text (Val.Get.Node_Val.Get.Text_Image)),
                  when Kind_Iterator =>
                    Iterator_Image (Iter_Val (Val).all),
                  when Kind_List =>
@@ -670,7 +670,7 @@ package body LKQL.Primitives is
    begin
       return (case Value.Get.Kind is
                  when Kind_Node =>
-                   LAL.Kind_Name (Value.Get.Node_Val) &
+                   (Value.Get.Node_Val.Get.Kind_Name) &
                    (if Value.Get.Nullable then "?" else ""),
                  when others =>
                    To_String (Kind (Value)));
@@ -746,7 +746,6 @@ package body LKQL.Primitives is
    -----------------
 
    function Deep_Equals (Left, Right : Primitive) return Boolean is
-      use LAL;
    begin
       if Kind (Left) /= Kind (Right) then
          raise Unsupported_Error
@@ -758,7 +757,8 @@ package body LKQL.Primitives is
                  when Kind_List =>
                    Deep_Equals (List_Val (Left), List_Val (Right)),
                  when Kind_Node =>
-                   Left.Get.Node_Val = Right.Get.Node_Val,
+                   LKQL.AST_Nodes.AST_Node_Ptrs."="
+                      (Left.Get.Node_Val, Right.Get.Node_Val),
                  when others =>
                    Left.Get = Right.Get);
    end Deep_Equals;

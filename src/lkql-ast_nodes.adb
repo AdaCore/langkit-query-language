@@ -1,4 +1,3 @@
-pragma Ada_2012;
 package body LKQL.AST_Nodes is
 
    ----------------------
@@ -11,6 +10,48 @@ package body LKQL.AST_Nodes is
       Ref.Set (Node);
       return Ref;
    end Make_AST_Node_Rc;
+
+   ----------------------
+   -- Make_Ast_Node_Rc --
+   ----------------------
+
+   function Make_AST_Node_Rc
+     (Node : in out AST_Node_Access) return AST_Node_Rc
+   is
+      Copy_Rc : constant AST_Node_Rc := Make_AST_Node_Rc (Node.all);
+   begin
+      Free_AST_Node (Node);
+      return Copy_Rc;
+   end Make_AST_Node_Rc;
+
+   ----------------------------
+   -- Release_AST_Node_Array --
+   ----------------------------
+
+   procedure Release_AST_Node_Array (Value : in out AST_Node_Array_Access) is
+   begin
+      for N of Value.all loop
+         Free_AST_Node (N);
+      end loop;
+
+      Free_Ast_Node_Array (Value);
+   end Release_AST_Node_Array;
+
+   ---------------------------------
+   -- Release_Introspection_Value --
+   ---------------------------------
+
+   procedure Release_Introspection_Value (Value : in out Introspection_Value)
+   is
+   begin
+      case Value.Kind is
+         when Kind_Node_Array =>
+            Release_AST_Node_Array (Value.Node_Array_Val);
+         when Kind_Text_Array =>
+            Free_Unbounded_Text_Array (Value.Text_Array_Val);
+         when others => null;
+      end case;
+   end Release_Introspection_Value;
 
    procedure Add_Children (Iter : in out Child_Iterator; Node : AST_Node_Rc);
 

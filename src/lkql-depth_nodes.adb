@@ -8,7 +8,7 @@ package body LKQL.Depth_Nodes is
 
    function Hash (Value : Depth_Node) return Ada.Containers.Hash_Type is
       Node_Hash : constant Hash_Type :=
-        LAL.Hash (Value.Node);
+        Hash_Rc (Value.Node);
       Depth_hash : constant Hash_Type := Hash_Type (Value.Depth);
    begin
       return Node_Hash xor Depth_hash;

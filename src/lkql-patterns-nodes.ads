@@ -6,8 +6,8 @@ package LKQL.Patterns.Nodes is
 
    function Filter_Node_Array (Ctx     : Eval_Context;
                                Pattern : L.Base_Pattern;
-                               Nodes   : AST_Node_Array)
-                               return AST_Node_Array;
+                               Nodes   : AST_Node_Rc_Array)
+                               return AST_Node_Rc_Array;
    --  Return a node array that only contains the nodes from 'Nodes' that match
    --  'Pattern'.
 

@@ -11,6 +11,8 @@ with Ada.Containers.Vectors;
 
 package LKQL.AST_Nodes is
 
+   Introspection_Error : exception;
+
    --------------
    -- AST_Node --
    --------------
@@ -21,16 +23,45 @@ package LKQL.AST_Nodes is
 
    type AST_Node_Array is array (Positive range <>) of AST_Node_Access;
 
-   type Introspection_Value_Kind is (Kind_Node, Kind_Bool);
+   type AST_Node_Array_Access is access all AST_Node_Array;
 
-   type Introspection_Value (Kind : Introspection_Value_Kind) is record
+   type Introspection_Value_Kind is
+     (Kind_Node,
+      Kind_Node_Array,
+      Kind_Bool,
+      Kind_Int,
+      Kind_Text,
+      Kind_Text_Array);
+
+   type Introspection_Value;
+
+   type Introspection_Value_Access is access all Introspection_Value;
+
+   type Unbounded_Text_Array is
+     array (Positive range <>) of Unbounded_Text_Type;
+
+   type Unbounded_Text_Array_Access is access all Unbounded_Text_Array;
+
+   type Introspection_Value (Kind : Introspection_Value_Kind := Kind_Node) is
+   record
       case Kind is
          when Kind_Node =>
             Node_Val : AST_Node_Access;
+         when Kind_Node_Array =>
+            Node_Array_Val : AST_Node_Array_Access;
          when Kind_Bool =>
             Bool_Val : Boolean;
+         when Kind_Int =>
+            Int_Val : Integer;
+         when Kind_Text =>
+            Text_Val : Unbounded_Text_Type;
+         when Kind_Text_Array =>
+            Text_Array_Val : Unbounded_Text_Array_Access;
       end case;
    end record;
+
+   type Introspection_Value_Array is
+     array (Positive range <>) of Introspection_Value;
 
    function "=" (Left, Right : AST_Node) return Boolean is abstract;
    --  Checks for equality between two AST nodes
@@ -58,9 +89,37 @@ package LKQL.AST_Nodes is
    function Is_Property_Name
      (Node : AST_Node; Name : Text_Type) return Boolean is abstract;
 
-   function Access_Field (Node : AST_Node;
+   function Access_Field (Node  : AST_Node;
                           Field : Text_Type)
                           return Introspection_Value is abstract;
+
+   function Property_Arity (Node          : AST_Node;
+                            Property_Name : Text_Type)
+                            return Natural is abstract;
+
+   function Default_Arg_Value (Node          : AST_Node;
+                               Property_Name : Text_Type;
+                               Arg_Position  : Positive)
+                               return Introspection_Value is abstract;
+
+   function Evaluate_Property
+     (Node          : AST_Node;
+      Property_Name : Text_Type;
+      Arguments     : Introspection_Value_Array)
+      return Introspection_Value is abstract;
+
+   ----------------------------
+   -- Deallocation functions --
+   ----------------------------
+
+   procedure Release_Introspection_Value (Value : in out Introspection_Value);
+
+   procedure Free_Introspection_Value_Access is new
+     Ada.Unchecked_Deallocation
+       (Introspection_Value, Introspection_Value_Access);
+
+   procedure Free_Unbounded_Text_Array is new Ada.Unchecked_Deallocation
+     (Unbounded_Text_Array, Unbounded_Text_Array_Access);
 
    -------------------
    -- Utility_Types --
@@ -72,13 +131,23 @@ package LKQL.AST_Nodes is
 
    subtype AST_Node_Rc is AST_Node_Ptrs.Ref;
 
+   type AST_Node_Rc_Array is array (Positive range <>) of AST_Node_Rc;
+
    function Hash_Rc (Node : AST_Node_Rc) return Ada.Containers.Hash_Type is
       (Node.Get.Hash);
 
    procedure Free_AST_Node is new Ada.Unchecked_Deallocation
      (AST_Node'Class, AST_Node_Access);
 
+   procedure Free_Ast_Node_Array is new Ada.Unchecked_Deallocation
+     (AST_Node_Array, AST_Node_Array_Access);
+
+   procedure Release_AST_Node_Array (Value : in out AST_Node_Array_Access);
+
    function Make_AST_Node_Rc (Node : AST_Node'Class) return AST_Node_Rc;
+
+   function Make_AST_Node_Rc
+     (Node : in out AST_Node_Access) return AST_Node_Rc;
 
    package AST_Node_Lists is
      new Ada.Containers.Doubly_Linked_Lists

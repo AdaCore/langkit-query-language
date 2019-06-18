@@ -12,6 +12,8 @@ package Ada_AST_Node is
       Node : Ada_Node;
    end record;
 
+   type Ada_AST_Node_Access is access all Ada_AST_Node;
+
    overriding function "=" (Left, Right : Ada_AST_Node) return Boolean is
      (Left.Node = Right.Node);
 
@@ -45,7 +47,21 @@ package Ada_AST_Node is
      (Node : Ada_AST_Node; Name : Text_Type) return Boolean;
 
    overriding function Access_Field
-     (Node : Ada_AST_Node; Field : Text_Type) return Primitive;
+     (Node : Ada_AST_Node; Field : Text_Type) return Introspection_Value;
+
+   overriding function Property_Arity
+     (Node : Ada_AST_Node; Property_Name : Text_Type) return Natural;
+
+   overriding function Default_Arg_Value (Node          : Ada_AST_Node;
+                                          Property_Name : Text_Type;
+                                          Arg_Position  : Positive)
+                                          return Introspection_Value;
+
+   function Evaluate_Property
+     (Node          : Ada_AST_Node;
+      Property_Name : Text_Type;
+      Arguments     : Introspection_Value_Array)
+      return Introspection_Value;
 
    function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc
      is (Make_AST_Node_Rc (Ada_AST_Node'(Node => Node)));
