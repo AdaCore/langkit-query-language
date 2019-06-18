@@ -23,7 +23,7 @@ package LKQL.Common is
    --  Pointer to a predicate on 'Iterator_Node' values
 
    package Node_Vectors is new Ada.Containers.Vectors
-     (Element_Type => LAL.Ada_Node,
+     (Element_Type => AST_Node_Rc,
       Index_Type   => Positive,
       "="          => LAL."=");
    --  Vectors of Ada_Node values
@@ -42,18 +42,18 @@ package LKQL.Common is
 
    type Childs_Iterator is new Node_Iterator with record
       Inner : Traverse_Iterator_Access;
-      Root  : LAL.Ada_Node;
+      Root  : AST_Node_Rc;
    end record;
    --  Iterator that yields every node under 'Root'
 
    overriding function Next (Iter : in out Childs_Iterator;
-                             Result : out LAL.Ada_Node) return Boolean;
+                             Result : out AST_Node_Rc) return Boolean;
 
    overriding function Clone (Iter : Childs_Iterator) return Childs_Iterator;
 
    overriding procedure Release (Iter : in out Childs_Iterator);
 
-   function Make_Childs_Iterator (Root : LAL.Ada_Node) return Childs_Iterator;
+   function Make_Childs_Iterator (Root : AST_Node_Rc) return Childs_Iterator;
    --  Return an iterator that yields every node under 'Root' in depth-first
    --  order.
 

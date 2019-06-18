@@ -1,6 +1,7 @@
 with Options;
 with Iters.Iterators;
 with Iters.Vec_Iterators;
+with LKQL.AST_Nodes;      use LKQL.AST_Nodes;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
@@ -73,7 +74,7 @@ package LKQL.Primitives is
          when Kind_Bool =>
             Bool_Val : Boolean;
          when Kind_Node =>
-            Node_Val : LAL.Ada_Node;
+            Node_Val : AST_Node_Rc;
             Nullable : Boolean := False;
          when Kind_Iterator =>
             Iter_Val : Iterator_Primitive_Access;
@@ -185,7 +186,7 @@ package LKQL.Primitives is
    function Bool_Val (Value : Primitive) return Boolean;
    --  Return the value of a Bool primitive
 
-   function Node_Val (Value : Primitive) return LAL.Ada_Node;
+   function Node_Val (Value : Primitive) return AST_Node_Rc;
    --  Return the value of a Node primitive
 
    function List_Val (Value : Primitive) return Primitive_List_Access;
@@ -232,7 +233,7 @@ package LKQL.Primitives is
    --  Create a Bool primitive
 
    function To_Primitive
-     (Node : LAL.Ada_Node; Nullable : Boolean := False) return Primitive;
+     (Node : AST_Node_Rc; Nullable : Boolean := False) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;

@@ -1,3 +1,4 @@
+with LKQL.AST_Nodes;   use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes; use LKQL.Depth_Nodes;
 
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
@@ -6,7 +7,7 @@ package LKQL.Selector_Lists is
 
    type Selector_List is new Depth_Node_Iter with private;
 
-   function Nodes (Self : Selector_List) return LAL.Ada_Node_Array;
+   function Nodes (Self : Selector_List) return AST_Node_Rc_Array;
    --  Return an array containing the Ada_Node values returned by the selector
 
    function Depth_Nodes (Self : Selector_List) return Depth_Node_Array;

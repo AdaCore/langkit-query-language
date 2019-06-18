@@ -76,12 +76,4 @@ private
    --  Create a Value_Type value of kind 'Target_Kind' from the given Primitive
    --  value. An exceptioin will be raised if the conversion is illegal.
 
-   function Built_In_Field
-     (Receiver : AST_Node_Rc; Property_Name : Text_Type) return Primitive;
-   --  Return the value of the built-in property named 'Property_Name' on
-   --  'Receiver'.
-
-   function Is_Built_In (Name : Text_Type) return Boolean;
-   --  Return whether the property named 'Name' is built-in
-
 end LKQL.Node_Data;

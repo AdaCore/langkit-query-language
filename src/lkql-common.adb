@@ -5,7 +5,7 @@ package body LKQL.Common is
    ----------
 
    overriding function Next (Iter : in out Childs_Iterator;
-                             Result : out LAL.Ada_Node) return Boolean
+                             Result : out AST_Node_Rc) return Boolean
    is
      (Iter.Inner.Next (Result));
 
@@ -29,7 +29,7 @@ package body LKQL.Common is
    -- Make_Childs_Iterator --
    --------------------------
 
-   function Make_Childs_Iterator (Root : LAL.Ada_Node) return Childs_Iterator
+   function Make_Childs_Iterator (Root : AST_Node_Rc) return Childs_Iterator
    is
       Inner : constant Traverse_Iterator_Access :=
         new Traverse_Iterator'Class'(Traverse (Root));

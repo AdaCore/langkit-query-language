@@ -6,10 +6,10 @@ package body LKQL.Selector_Lists is
    -- Nodes --
    -----------
 
-   function Nodes (Self : Selector_List) return LAL.Ada_Node_Array is
+   function Nodes (Self : Selector_List) return AST_Node_Rc_Array is
       Depth_Node_Values : constant Depth_Node_Array := Self.Depth_Nodes;
    begin
-      return Result : LAL.Ada_Node_Array (1 .. Depth_Node_Values'Length) do
+      return Result : AST_Node_Rc_Array (1 .. Depth_Node_Values'Length) do
          for I in Result'Range loop
             Result (I) := Depth_Node_Values (I).Node;
          end loop;
