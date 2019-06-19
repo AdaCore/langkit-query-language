@@ -57,7 +57,7 @@ package body LKQL.Chained_Pattern is
    overriding procedure Release (Iter : in out Chained_Pattern_Iterator) is
    begin
       Iter.Ctx.Release_Current_Frame;
-      Node_Iterators.Free_Iterator (Iter.Root_Elements_Iterator);
+      AST_Node_Iterators.Free_Iterator (Iter.Root_Elements_Iterator);
    end Release;
 
    -------------------------------
@@ -131,7 +131,7 @@ package body LKQL.Chained_Pattern is
       Link             : constant L.Chained_Pattern_Link :=
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
       Pattern          : constant L.Unfiltered_Pattern := Link.F_Pattern;
-      Nodes            : constant AST_Node_Array :=
+      Nodes            : constant AST_Node_Rc_Array :=
         Eval_Link (Iter.Ctx, Root, Link, Pattern, Env);
       Pattern_Binding  : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.P_Binding_Name);
@@ -158,7 +158,7 @@ package body LKQL.Chained_Pattern is
                        Link            : L.Chained_Pattern_Link;
                        Related_Pattern : L.Unfiltered_Pattern;
                        Bindings        : in out Environment_Map)
-                       return AST_Node_Array
+                       return AST_Node_Rc_Array
    is
    begin
       case Link.Kind is
@@ -188,13 +188,13 @@ package body LKQL.Chained_Pattern is
                                 Selector        : L.Selector_Link;
                                 Related_Pattern : L.Unfiltered_Pattern;
                                 Bindings        : in out Environment_Map)
-                                return AST_Node_Array
+                                return AST_Node_Rc_Array
    is
       S_List       : Selector_List;
       Call         : constant L.Selector_Call := Selector.F_Selector;
       Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Call.P_Binding_Name);
-      Empty_Array  : AST_Node_Array (1 .. 0);
+      Empty_Array  : AST_Node_Rc_Array (1 .. 0);
    begin
       if not Eval_Selector
         (Ctx, Root, Call, Related_Pattern.As_Base_Pattern, S_List)
@@ -216,7 +216,7 @@ package body LKQL.Chained_Pattern is
    function Eval_Field_Link (Ctx   : Eval_Context;
                              Root  : AST_Node_Rc;
                              Field : L.Field_Link)
-                             return AST_Node_Array
+                             return AST_Node_Rc_Array
    is
       use LKQL.Node_Data;
       Field_Value : constant Primitive :=
@@ -239,7 +239,7 @@ package body LKQL.Chained_Pattern is
    function Eval_Property_Link (Ctx : Eval_Context;
                                 Root : AST_Node_Rc;
                                 Property : L.Property_Link)
-                                return AST_Node_Array
+                                return AST_Node_Rc_Array
    is
       use LKQL.Node_Data;
       Call        : constant L.Fun_Call := Property.F_Property;
@@ -260,16 +260,16 @@ package body LKQL.Chained_Pattern is
    -- To_Ada_Node_Array --
    -----------------------
 
-   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Array is
+   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Rc_Array is
    begin
       case Kind (Value) is
          when Kind_Node =>
-            return Result : AST_Node_Array (1 .. 1) do
+            return Result : AST_Node_Rc_Array (1 .. 1) do
                Result (1) := Node_Val (Value);
             end return;
 
          when Kind_List =>
-            return Result : AST_Node_Array (1 .. Length (Value)) do
+            return Result : AST_Node_Rc_Array (1 .. Length (Value)) do
                for I in 1 .. Length (Value) loop
                   Result (I) := Node_Val (Get (Value, I));
                end loop;

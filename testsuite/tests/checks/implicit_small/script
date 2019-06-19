@@ -1,3 +1,4 @@
 let result =
     query TypeDecl(any children: OrdinaryFixedPointDef, get_attribute("Small"): null)
+
 print(result)

@@ -503,6 +503,36 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Empty_List;
 
+   ----------------------------
+   -- To_Introspection_Value --
+   ----------------------------
+
+   function To_Introspection_Value
+     (Value : Primitive) return Introspection_Value
+   is
+   begin
+      case Kind (Value) is
+         when Kind_Unit =>
+            raise Assertion_Error with "Cannot create an Introspection value" &
+              " from: ()";
+         when Kind_Int =>
+            return To_Introspection_Value (Int_Val (Value));
+         when Kind_Str =>
+            return To_Introspection_Value (Str_Val (Value));
+         when Kind_Node =>
+            return To_Introspection_Value (Node_Val (Value));
+         when Kind_Iterator =>
+            return To_Introspection_Value (To_List (Iter_Val (Value).all));
+         when Kind_List =>
+            return To_Introspection_Value (List_Val (Value));
+         when Kind_Selector_List =>
+            return To_Introspection_Value
+              (To_List (Selector_List_Val (Value)));
+         when Kind_Bool =>
+            return To_Introspection_Value (Bool_Val (Value));
+      end case;
+   end To_Introspection_Value;
+
    ------------
    -- Append --
    ------------

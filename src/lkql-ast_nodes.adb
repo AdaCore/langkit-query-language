@@ -1,3 +1,5 @@
+with LKQL.Primitives; use LKQL.Primitives;
+
 package body LKQL.AST_Nodes is
 
    ----------------------
@@ -16,11 +18,10 @@ package body LKQL.AST_Nodes is
    ----------------------
 
    function Make_AST_Node_Rc
-     (Node : in out AST_Node_Access) return AST_Node_Rc
+     (Node : AST_Node_Access) return AST_Node_Rc
    is
       Copy_Rc : constant AST_Node_Rc := Make_AST_Node_Rc (Node.all);
    begin
-      Free_AST_Node (Node);
       return Copy_Rc;
    end Make_AST_Node_Rc;
 
@@ -55,6 +56,52 @@ package body LKQL.AST_Nodes is
 
    procedure Add_Children (Iter : in out Child_Iterator; Node : AST_Node_Rc);
 
+   ----------------------------
+   -- To_Introspection_Value --
+   ----------------------------
+
+   function To_Introspection_Value
+     (Val : LKQL.Primitives.Primitive_List_Access) return Introspection_Value
+   is
+      Elements : constant Primitive_Vectors.Vector := Val.Elements;
+   begin
+      if Elements.Is_Empty then
+         return Introspection_Value'(Kind => Kind_Empty_List);
+      end if;
+
+      case Kind (Elements.First_Element) is
+         when Kind_Node =>
+            declare
+               Result : constant AST_Node_Array_Access :=
+                 new AST_Node_Array (1 .. Integer (Elements.Length));
+            begin
+               for I in 1 .. Integer (Elements.Length) loop
+                  Result (I) := new AST_Node'Class'
+                    (Node_Val (Elements.Element (I)).Unchecked_Get.all);
+               end loop;
+
+               return (Kind => Kind_Node_Array, Node_Array_Val => Result);
+            end;
+
+         when Kind_Str =>
+            declare
+               Result : constant Unbounded_Text_Array_Access :=
+                 new Unbounded_Text_Array (1 .. Integer (Elements.Length));
+            begin
+               for I in 1 .. Integer (Elements.Length) loop
+                  Result (I) := Str_Val (Elements.Element (I));
+               end loop;
+
+               return (Kind => Kind_Text_Array, Text_Array_Val => Result);
+            end;
+
+         when others =>
+            raise Unsupported_Error with "Cannot create a Value array from" &
+              " a list of " & To_String (Kind (Elements.First_Element)) &
+              " values";
+      end case;
+   end To_Introspection_Value;
+
    ----------
    -- Next --
    ----------
@@ -81,7 +128,10 @@ package body LKQL.AST_Nodes is
    procedure Add_Children (Iter : in out Child_Iterator; Node : AST_Node_Rc) is
    begin
       for I in 1 .. Node.Get.Children_Count loop
-         Iter.Next_Elements.Append (Make_AST_Node_Rc (Node.Get.Nth_Child (I)));
+         if not Node.Get.Nth_Child (I).Is_Null then
+            Iter.Next_Elements.Append
+              (Make_AST_Node_Rc (Node.Get.Nth_Child (I)));
+         end if;
       end loop;
    end Add_Children;
 
@@ -100,7 +150,9 @@ package body LKQL.AST_Nodes is
    is
       Result : Child_Iterator := (Root => Node, others => <>);
    begin
-      Add_Children (Result, Node);
+      if not Node.Get.Is_Null then
+         Result.Next_Elements.Append (Node);
+      end if;
       return Result;
    end Make_Child_Iterator;
 

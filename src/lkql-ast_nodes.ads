@@ -1,4 +1,5 @@
 with Iters.Iterators;
+limited with LKQL.Primitives;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -31,7 +32,8 @@ package LKQL.AST_Nodes is
       Kind_Bool,
       Kind_Int,
       Kind_Text,
-      Kind_Text_Array);
+      Kind_Text_Array,
+      Kind_Empty_List);
 
    type Introspection_Value;
 
@@ -57,6 +59,8 @@ package LKQL.AST_Nodes is
             Text_Val : Unbounded_Text_Type;
          when Kind_Text_Array =>
             Text_Array_Val : Unbounded_Text_Array_Access;
+         when Kind_Empty_List =>
+            null;
       end case;
    end record;
 
@@ -147,7 +151,7 @@ package LKQL.AST_Nodes is
    function Make_AST_Node_Rc (Node : AST_Node'Class) return AST_Node_Rc;
 
    function Make_AST_Node_Rc
-     (Node : in out AST_Node_Access) return AST_Node_Rc;
+     (Node : AST_Node_Access) return AST_Node_Rc;
 
    package AST_Node_Lists is
      new Ada.Containers.Doubly_Linked_Lists
@@ -173,6 +177,30 @@ package LKQL.AST_Nodes is
 
    subtype AST_Node_Predicate_Access is
      AST_Node_Iterators.Predicates.Func_Access;
+
+   -----------------------------------
+   -- Introspection_Value  creation --
+   -----------------------------------
+
+   function To_Introspection_Value (Val : Boolean) return Introspection_Value
+     is (Kind => Kind_Bool, Bool_Val => Val);
+
+   function To_Introspection_Value (Val : Integer) return Introspection_Value
+     is (Kind => Kind_Int, Int_Val => Val);
+
+   function To_Introspection_Value
+     (Val : Unbounded_Text_Type) return Introspection_Value
+   is
+     (Kind => Kind_Text, Text_Val => Val);
+
+   function To_Introspection_Value
+     (Val : AST_Node_Rc) return Introspection_Value
+   is
+      (Kind     => Kind_Node,
+       Node_Val => new AST_Node'Class'(Val.Unchecked_Get.all));
+
+   function To_Introspection_Value
+     (Val : LKQL.Primitives.Primitive_List_Access) return Introspection_Value;
 
    --------------------
    -- Child_Iterator --
