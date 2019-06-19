@@ -7,7 +7,7 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 package body Ada_AST_Node is
 
    subtype Built_In_LAL_Field is Node_Data_Reference
-   range Ada_Node_Parent .. Ada_Node_Is_Ghost;
+      range Ada_Node_Parent .. Ada_Node_Is_Ghost;
 
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
@@ -410,7 +410,8 @@ package body Ada_AST_Node is
         Data_Reference_For_Name (Node, Name);
    begin
       return (Data_Ref in Field_Reference) or else
-             (Data_Ref in Built_In_LAL_Field);
+             (Data_Ref in Built_In_LAL_Field) or else
+              Is_Built_In (Name);
    end Is_Field_Name;
 
    ----------------------

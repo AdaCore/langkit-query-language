@@ -92,7 +92,7 @@ private
                        Link            : L.Chained_Pattern_Link;
                        Related_Pattern : L.Unfiltered_Pattern;
                        Bindings        : in out Environment_Map)
-                       return AST_Node_Array;
+                       return AST_Node_Rc_Array;
    --  Return the result of a link's evaluation.
    --  If the link introduces new bindings, they will be added to 'Bindings'.
    --  If 'Link' is a selector link, the related pattern is used to verrify the
@@ -103,18 +103,18 @@ private
                                 Selector        : L.Selector_Link;
                                 Related_Pattern : L.Unfiltered_Pattern;
                                 Bindings        : in out Environment_Map)
-                                return AST_Node_Array;
+                                return AST_Node_Rc_Array;
 
    function Eval_Field_Link (Ctx   : Eval_Context;
                              Root  : AST_Node_Rc;
                              Field : L.Field_Link)
-                             return AST_Node_Array;
+                             return AST_Node_Rc_Array;
 
    function Eval_Property_Link (Ctx : Eval_Context;
                                 Root : AST_Node_Rc;
                                 Property : L.Property_Link)
-                                return AST_Node_Array;
+                                return AST_Node_Rc_Array;
 
-   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Array;
+   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Rc_Array;
 
 end LKQL.Chained_Pattern;

@@ -245,6 +245,14 @@ package LKQL.Primitives is
    --  Return a Primitive value storing an empty list of Primitive values
    --  of kind `Kind`.
 
+   -------------------------------------------------
+   -- Primitive to Introspection value conversion --
+   -------------------------------------------------
+
+   function To_Introspection_Value
+     (Value : Primitive) return Introspection_Value;
+   --  Create an introspection value from the given Primitive value
+
    --------------------
    -- List Functions --
    --------------------
