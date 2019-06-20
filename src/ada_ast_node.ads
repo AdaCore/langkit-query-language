@@ -26,7 +26,7 @@ package Ada_AST_Node is
    overriding function Kind_Name (Node : Ada_AST_Node) return String is
      (Kind_Name (Node.Node));
 
-   overriding function Is_Null (Node : Ada_AST_Node) return Boolean is
+   overriding function Is_Null_Node (Node : Ada_AST_Node) return Boolean is
      (Node.Node.Is_Null);
 
    overriding function Children_Count (Node : Ada_AST_Node) return Natural is

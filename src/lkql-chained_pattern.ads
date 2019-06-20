@@ -48,8 +48,8 @@ private
    package Node_Sets is new Ada.Containers.Hashed_Sets
      (Element_Type        => AST_Node_Rc,
       Hash                => AST_Nodes.Hash_Rc,
-      Equivalent_Elements => AST_Node_Ptrs."=",
-      "="                 => AST_Node_Ptrs."=");
+      Equivalent_Elements => "=",
+      "="                 => "=");
    --  Sets of Ada nodes
 
    subtype Node_Set is Node_Sets.Set;

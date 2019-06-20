@@ -664,7 +664,7 @@ package body LKQL.Primitives is
                  when Kind_Bool =>
                    Bool_Image (Bool_Val (Val)),
                  when Kind_Node =>
-                   (if Node_Val (Val).Is_Null
+                   (if Node_Val (Val).Get.Is_Null_Node
                     then To_Unbounded_Text ("null")
                     else To_Unbounded_Text (Val.Get.Node_Val.Get.Text_Image)),
                  when Kind_Iterator =>
@@ -787,7 +787,7 @@ package body LKQL.Primitives is
                  when Kind_List =>
                    Deep_Equals (List_Val (Left), List_Val (Right)),
                  when Kind_Node =>
-                   LKQL.AST_Nodes.AST_Node_Ptrs."="
+                   LKQL.AST_Nodes."="
                       (Left.Get.Node_Val, Right.Get.Node_Val),
                  when others =>
                    Left.Get = Right.Get);

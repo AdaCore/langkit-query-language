@@ -211,6 +211,8 @@ package body LKQL.Evaluation is
               Eval_Match (Local_Context, Node.As_Match),
             when LCO.LKQL_Unwrap =>
               Eval_Unwrap (Local_Context, Node.As_Unwrap),
+            when LCO.LKQL_Null_Literal =>
+              To_Primitive (Local_Context.Null_Node),
             when others =>
                raise Assertion_Error
                  with "Invalid evaluation root kind: " & Node.Kind_Name);
@@ -467,7 +469,7 @@ package body LKQL.Evaluation is
       Receiver : constant AST_Node_Rc :=
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
-      return (if Receiver.Is_Null
+      return (if Receiver.Get.Is_Null_Node
               then To_Primitive (Receiver, Nullable => True)
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
@@ -503,7 +505,7 @@ package body LKQL.Evaluation is
       Receiver : constant AST_Node_Rc :=
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
-      return (if Receiver.Get.Is_Null
+      return (if Receiver.Get.Is_Null_Node
               then To_Primitive (Receiver, Nullable => True)
               else Node_Data.Eval_Node_Property
                 (Ctx, Receiver, Node.F_Member, Node.F_Arguments));

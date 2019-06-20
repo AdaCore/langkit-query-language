@@ -44,7 +44,7 @@ package body LKQL.Patterns.Nodes is
                                 Node    : AST_Node_Rc) return Match_Result
    is
    begin
-      if Node.Get.Is_Null then
+      if Node.Get.Is_Null_Node then
          return Match_Failure;
       end if;
 

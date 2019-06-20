@@ -90,6 +90,12 @@ package body LKQL.Node_Data is
       Result := Receiver.Get.Access_Field (Field_Name.Text);
 
       return To_Primitive (Result);
+
+   exception
+      when Error : Introspection_Error =>
+         Raise_And_Record_Error
+           (Ctx, Make_Eval_Error (Field_Name,
+                                  To_Text (Exception_Message (Error))));
    end Access_Node_Field;
 
    ------------------------
@@ -108,6 +114,12 @@ package body LKQL.Node_Data is
    begin
       if not Receiver.Get.Is_Property_Name (Property_Name.Text) then
          Raise_No_Such_Property (Ctx, Receiver, Property_Name);
+      end if;
+
+      if Args.Children_Count > Receiver.Get.Property_Arity (Property_Name.Text)
+      then
+         Raise_Invalid_Arity
+           (Ctx, Receiver.Get.Property_Arity (Property_Name.Text), Args);
       end if;
 
       Result :=

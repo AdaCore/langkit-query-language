@@ -1,2 +1,2 @@
 let names = query Name
-print(names[1].referenced_decl(true))
+print(names[3].referenced_decl(true))

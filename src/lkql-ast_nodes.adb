@@ -128,7 +128,7 @@ package body LKQL.AST_Nodes is
    procedure Add_Children (Iter : in out Child_Iterator; Node : AST_Node_Rc) is
    begin
       for I in 1 .. Node.Get.Children_Count loop
-         if not Node.Get.Nth_Child (I).Is_Null then
+         if not Node.Get.Nth_Child (I).Is_Null_Node then
             Iter.Next_Elements.Append
               (Make_AST_Node_Rc (Node.Get.Nth_Child (I)));
          end if;
@@ -150,7 +150,7 @@ package body LKQL.AST_Nodes is
    is
       Result : Child_Iterator := (Root => Node, others => <>);
    begin
-      if not Node.Get.Is_Null then
+      if not Node.Get.Is_Null_Node then
          Result.Next_Elements.Append (Node);
       end if;
       return Result;

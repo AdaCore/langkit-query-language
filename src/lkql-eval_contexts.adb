@@ -41,6 +41,13 @@ package body LKQL.Eval_Contexts is
                                  Key : Unbounded_Text_Type) return Boolean
    is (Ctx.Frames.Local_Bindings.Contains (Key));
 
+   ---------------
+   -- Null_Node --
+   ---------------
+
+   function Null_Node (Ctx : Eval_Context) return AST_Node_Rc is
+      (Ctx.Kernel.Null_Node);
+
    ----------------------------
    -- Error_Recovery_Enabled --
    ----------------------------
@@ -120,11 +127,12 @@ package body LKQL.Eval_Contexts is
    -----------------------
 
    function Make_Eval_Context (Ast_Root     : AST_Node_Rc;
+                               Null_Node    : AST_Node_Rc;
                                Err_Recovery : Boolean := False)
                                return Eval_Context
    is
       Kernel : constant Global_Data_Access :=
-        new Global_Data'(Ast_Root, Make_Empty_Error, Err_Recovery);
+        new Global_Data'(Ast_Root, Null_Node, Make_Empty_Error, Err_Recovery);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
    begin

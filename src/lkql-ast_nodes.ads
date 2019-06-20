@@ -77,7 +77,7 @@ package LKQL.AST_Nodes is
 
    function Kind_Name (Node : AST_Node) return String is abstract;
 
-   function Is_Null (Node : AST_Node) return Boolean is abstract;
+   function Is_Null_Node (Node : AST_Node) return Boolean is abstract;
 
    function Children_Count (Node : AST_Node) return Natural is abstract;
 
@@ -138,7 +138,10 @@ package LKQL.AST_Nodes is
    type AST_Node_Rc_Array is array (Positive range <>) of AST_Node_Rc;
 
    function Hash_Rc (Node : AST_Node_Rc) return Ada.Containers.Hash_Type is
-      (Node.Get.Hash);
+     (Node.Get.Hash);
+
+   function "=" (Left, Right : AST_Node_Rc) return Boolean is
+      (Left.Get = Right.Get);
 
    procedure Free_AST_Node is new Ada.Unchecked_Deallocation
      (AST_Node'Class, AST_Node_Access);
