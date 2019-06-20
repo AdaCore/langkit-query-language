@@ -19,21 +19,21 @@ package LKQL.Patterns.Nodes is
    function Match_Kind_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Kind_Pattern;
                                 Node    : AST_Node_Rc) return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match th given node against a kind pattern
 
    function Match_Extended_Pattern (Ctx     : Eval_Context;
                                     Pattern : L.Extended_Node_Pattern;
                                     Node    : AST_Node_Rc)
                                     return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match the given node against an extended pattern
 
    function Match_Pattern_Details (Ctx     : Eval_Context;
                                    Details : L.Node_Pattern_Detail_List;
                                    Node    : AST_Node_Rc)
                                    return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match a given node agains the 'details' (fields, properties & sekectors)
    --  of a node pattern.
    --  The 'Bindings' part of the Match result will contain references to the
@@ -43,14 +43,14 @@ package LKQL.Patterns.Nodes is
                                   Node   : AST_Node_Rc;
                                   Detail : L.Node_Pattern_Detail'Class)
                                   return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match 'Node' against a node pattern 'detail'
 
    function Match_Pattern_Field (Ctx    : Eval_Context;
                                  Node   : AST_Node_Rc;
                                  Field  : L.Node_Pattern_Field)
                                  return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match the expected value specified in 'Field' against the value of the
    --  field of 'Node' designated by 'Field'.
 
@@ -58,7 +58,7 @@ package LKQL.Patterns.Nodes is
                                     Node     : AST_Node_Rc;
                                     Property : L.Node_Pattern_Property)
                                     return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match the exoected vaue specified in 'Property' agains the value of the
    --  property call described in 'Property' on 'Node'.
 
@@ -66,7 +66,7 @@ package LKQL.Patterns.Nodes is
                                     Node     : AST_Node_Rc;
                                     Selector : L.Node_Pattern_Selector)
                                     return Match_Result
-     with Pre => not Node.Is_Null;
+     with Pre => not Node.Get.Is_Null_Node;
    --  Match 'Node' againt a selector apearing as a node pattern detail.
    --  If the selector has a binding name, a binding associating the said name
    --  to the output of the selector will be added to the 'Bindings' part of

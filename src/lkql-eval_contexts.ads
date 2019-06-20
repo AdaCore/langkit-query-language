@@ -70,6 +70,9 @@ package LKQL.Eval_Contexts is
    --  Return wether the given name is associated to a value in the local
    --  environment.
 
+   function Null_Node (Ctx : Eval_Context) return AST_Node_Rc;
+   --  Return the node produced by a "null" litteral
+
    function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean;
    --  Return wether the error recovery mecanism is enabled
 
@@ -107,6 +110,7 @@ package LKQL.Eval_Contexts is
    --  An Assertion_Error will be raised is 'Ctx' is the root context.
 
    function Make_Eval_Context (Ast_Root     : AST_Node_Rc;
+                               Null_Node    : AST_Node_Rc;
                                Err_Recovery : Boolean := False)
                                return Eval_Context;
    --  Create a new Eval_Context with the given Ast_Root and error recovery
@@ -127,6 +131,9 @@ private
    type Global_Data is record
       Ast_Root : AST_Node_Rc;
       --  Root node of the tree in wich node queries will run.
+
+      Null_Node : AST_Node_Rc;
+      --  Value produced by a "null" litteral
 
       Last_Error : Error_Data := Make_Empty_Error;
       --  Store data about the last error, if any.

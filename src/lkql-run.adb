@@ -84,11 +84,13 @@ package body LKQL.Run is
       Interpreter_Context : Eval_Context;
       LKQL_Unit           : constant L.Analysis_Unit :=
         Make_LKQL_Unit (LKQL_Script);
+
    begin
       for F of Files.all loop
          Ada_Unit := Make_Ada_Unit (Ada_Context, F.Display_Full_Name);
          Interpreter_Context :=
            Make_Eval_Context (Make_Ada_AST_Node (Ada_Unit.Root),
+                              Make_Ada_AST_Node (No_Ada_Node),
                               Err_Recovery => Recovery_Enabled);
          Put_Line (F.Display_Base_Name);
          Evaluate (Interpreter_Context, LKQL_Unit.Root);

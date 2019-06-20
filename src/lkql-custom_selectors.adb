@@ -158,7 +158,7 @@ package body LKQL.Custom_Selectors is
       With_Depth : constant Depth_Node :=
         Depth_Node'(Current_Depth + Depth_Offset, Node);
    begin
-      if Node.Is_Null or else
+      if Node.Get.Is_Null_Node or else
         (Iter.Max_Depth >= 0 and then With_Depth.Depth > Iter.Max_Depth)
       then
          return;

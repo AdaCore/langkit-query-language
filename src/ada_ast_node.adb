@@ -1,6 +1,5 @@
 with Libadalang.Introspection; use Libadalang.Introspection;
 
-with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Unchecked_Conversion;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
@@ -119,7 +118,7 @@ package body Ada_AST_Node is
    function Node_Array_From_List
      (Nodes : AST_Node_Array) return Node_Array;
 
-   function Generic_Node_To_Ada_Node is new Ada.Unchecked_Conversion
+   function Introspection_Node_To_Ada_Node is new Ada.Unchecked_Conversion
      (AST_Node_Access, Ada_AST_Node_Access);
 
    --------------------------
@@ -132,7 +131,8 @@ package body Ada_AST_Node is
       Result       : Node_Array (1 .. Nodes'Length);
    begin
       for I in Nodes'Range loop
-         Result (I) := Convert (Generic_Node_To_Ada_Node (Nodes (I)).Node);
+         Result (I) :=
+           Convert (Introspection_Node_To_Ada_Node (Nodes (I)).Node);
       end loop;
 
       return Result;
@@ -264,7 +264,7 @@ package body Ada_AST_Node is
             return Make_Introspection_Value
               (As_Generic_Instantiation_Array (Value));
          when others =>
-            raise Assertion_Error with
+            raise Introspection_Error with
               "Unsupported value type from the introspection API: " &
                  Value_Kind'Image (Kind (Value));
       end case;
@@ -317,10 +317,13 @@ package body Ada_AST_Node is
          return Create_Integer (Value.Int_Val);
       elsif Value.Kind = Kind_Bool and then Target_Kind = Boolean_Value then
          return Create_Boolean (Value.Bool_Val);
+      elsif Value.Kind = Kind_Node and then Target_Kind = Node_Value then
+         return Create_Node
+           (Introspection_Node_To_Ada_Node (Value.Node_Val).Node);
       end if;
 
-      raise Introspection_Error with "Cannot perform conversion between: " &
-        Introspection_Value_Kind'Image (Value.Kind) & " and " &
+      raise Introspection_Error with "Cannot convert a " &
+        Introspection_Value_Kind'Image (Value.Kind) & " to a " &
         Value_Kind'Image (Target_Kind);
    end Make_Value_Type;
 
