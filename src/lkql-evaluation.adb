@@ -9,9 +9,6 @@ with LKQL.Depth_Nodes;    use LKQL.Depth_Nodes;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
-with Libadalang.Iterators;     use Libadalang.Iterators;
-with Libadalang.Common;        use type Libadalang.Common.Ada_Node_Kind_Type;
-
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 

@@ -3,8 +3,6 @@ with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Primitives;    use LKQL.Primitives;
 
-with Libadalang.Introspection; use Libadalang.Introspection;
-
 with Langkit_Support.Text;        use Langkit_Support.Text;
 
 private package LKQL.Error_Handling is
@@ -93,24 +91,6 @@ private package LKQL.Error_Handling is
      with No_Return;
    --  Raise an exception signaling an attempt to call a function with
    --  at least two identically-named arguments.
-
-   procedure Raise_Unsupported_Value_Type (Ctx       : Eval_Context;
-                                           Node      : L.LKQL_Node;
-                                           Kind      : Value_Kind)
-     with No_Return;
-   --  Raise an exception signaling the use of a value of a type that is not
-   --  supported by the interpreter and add an Error_Data describing the error
-   --  to the evaluation context. Such an error may occur when retriving
-   --  a value from the introspection API.
-
-   procedure Raise_Invalid_Type_Conversion (Ctx           : Eval_Context;
-                                            Value_Expr    : L.Expr;
-                                            Value         : Primitive;
-                                            Expected_Kind : Value_Kind)
-     with No_Return;
-   --  Raise an exception signaling an invalid type conversion between a
-   --  Primitive and a Value_Kind value from the introspection API,
-   --  and add an Error_Data describing the error to the evaluation context.
 
    procedure Raise_Invalid_Kind_For_Selector (Ctx   : Eval_Context;
                                               Node  : L.LKQL_Node'Class;

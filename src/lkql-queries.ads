@@ -3,8 +3,6 @@ with LKQL.Depth_Nodes;     use LKQL.Depth_Nodes;
 with LKQL.Eval_Contexts;   use LKQL.Eval_Contexts;
 with LKQL.Chained_Pattern; use LKQL.Chained_Pattern;
 
-with Libadalang.Iterators; use Libadalang.Iterators;
-
 private package LKQL.Queries is
 
    function Make_Query_Iterator (Ctx  : Eval_Context;
