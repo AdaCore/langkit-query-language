@@ -2,7 +2,7 @@
 LKQL Checks
 ===========
 
-This document presents a *florilège* of LKQL-based checks indpired on **GNATCheck** and **kp-toolkit**.
+This document presents a *florilège* of LKQL-based checks inspired on **GNATCheck** and **kp-toolkit**.
 
 
 
@@ -26,7 +26,7 @@ LKQL Script::
     print(result)
 
 
-Lists the type declarations which depth is superior or equal to 3.
+Lists the type declarations which depth is greater or equal to 3.
 
 `Deep inheritance hierarchyies test <https://github.com/geoffreycopin/langkit-query-language/tree/checker/testsuite/tests/checks/deep_inheritance>`_
 
