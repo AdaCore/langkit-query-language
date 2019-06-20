@@ -193,39 +193,6 @@ package body LKQL.Error_Handling is
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Arg, Message));
    end Raise_Already_Seen_Arg;
 
-   ----------------------------------
-   -- Raise_Unsupported_Value_Type --
-   ----------------------------------
-
-   procedure Raise_Unsupported_Value_Type (Ctx       : Eval_Context;
-                                           Node      : L.LKQL_Node;
-                                           Kind      : Value_Kind)
-   is
-      Kind_Name : constant Text_Type :=
-        Value_Kind'Wide_Wide_Image (Kind);
-      Message : constant Text_Type := "Unsupported value type: " & Kind_Name;
-   begin
-      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
-   end Raise_Unsupported_Value_Type;
-
-   -----------------------------------
-   -- Raise_Invalid_Type_Conversion --
-   -----------------------------------
-
-   procedure Raise_Invalid_Type_Conversion (Ctx           : Eval_Context;
-                                            Value_Expr    : L.Expr;
-                                            Value         : Primitive;
-                                            Expected_Kind : Value_Kind)
-   is
-      Expected_Kind_Name : constant Text_Type :=
-       Value_Kind'Wide_Wide_Image (Expected_Kind);
-      Message : constant Text_Type :=
-        "Cannot convert a : " & To_Text (Kind_Name (Value)) &
-        " to a " & Expected_Kind_Name;
-   begin
-      Raise_And_Record_Error (Ctx, Make_Eval_Error (Value_Expr, Message));
-   end Raise_Invalid_Type_Conversion;
-
    -------------------------------------
    -- Raise_Invalid_Kind_For_Selector --
    -------------------------------------

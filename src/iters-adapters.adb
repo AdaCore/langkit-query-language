@@ -1,5 +1,14 @@
 package body Iters.Adapters is
 
+   ------------------
+   -- Wrapped_Iter --
+   ------------------
+
+   function Wrapped_Iter
+     (Iter : Filter_Adapter) return Wrapped_Iters.Iterator_Access
+   is
+      (Iter.Wrapped);
+
    ----------
    -- Next --
    ----------

@@ -29,3 +29,7 @@ lkql/lkql_src_templates/
 lkql/generated_sources/
 
 lkql/src_templates/
+
+lkql_library/
+
+lkql_library_obj/
