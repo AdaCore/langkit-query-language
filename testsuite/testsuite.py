@@ -13,7 +13,7 @@ OBJ_DIR = os.path.join('build', 'obj')
 
 INTERPRETER_PATH = os.path.join(OBJ_DIR, 'main')
 
-INTERPRETER_GPR_FILE = os.path.join(os.path.dirname(os.getcwd()),
+INTERPRETER_GPR_FILE = os.path.join(os.getcwd(), 'lkql_ada_interpreter',
                                     'lkql_interpreter.gpr')
 
 
