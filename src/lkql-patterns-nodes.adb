@@ -85,10 +85,12 @@ package body LKQL.Patterns.Nodes is
       Match : constant Match_Result :=
         Match_Value
           (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node));
+      Result : constant Match_Result :=
+        (if Match.Is_Success
+         then Match_Pattern_Details (Ctx, Pattern.F_Details, Node)
+         else Match_Failure);
    begin
-      return (if Match.Is_Success
-              then Match_Pattern_Details (Ctx, Pattern.F_Details, Node)
-              else Match_Failure);
+      return Result;
    end Match_Extended_Pattern;
 
    ---------------------------

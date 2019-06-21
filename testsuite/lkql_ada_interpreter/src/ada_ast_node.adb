@@ -1,6 +1,7 @@
 with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Unchecked_Conversion;
+with Ada.Assertions; use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Ada_AST_Node is
@@ -395,12 +396,14 @@ package body Ada_AST_Node is
       Actual_Kind   : constant Any_Node_Type_Id :=
         Id_For_Kind (Node.Node.Kind);
    begin
-      pragma Assert
-        (Expected_Kind /= None, "Invalid kind name: " & Kind_Name);
+      if Expected_Kind = None then
+         raise Assertion_Error with "Invalid kind name: " & Kind_Name;
+      end if;
 
       return Actual_Kind = Expected_Kind or else
              Is_Derived_From (Actual_Kind, Expected_Kind);
    end Matches_Kind_Name;
+
 
    -------------------
    -- Is_Field_Name --

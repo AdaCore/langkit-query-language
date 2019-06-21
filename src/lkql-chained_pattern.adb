@@ -1,6 +1,6 @@
-with LKQL.Queries;        use LKQL.Queries;
 with LKQL.Node_Data;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
+with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Patterns.Nodes; use LKQL.Patterns.Nodes;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
@@ -22,7 +22,7 @@ package body LKQL.Chained_Pattern is
       Current_Root : AST_Node_Rc;
    begin
       while Iter.Next_Values.Is_Empty and then
-        Iter.Root_Elements_Iterator.Next (Current_Root)
+        Iter.Root_Nodes_Iterator.Next (Current_Root)
       loop
          Iter.Eval_Element (Current_Root);
       end loop;
@@ -45,9 +45,9 @@ package body LKQL.Chained_Pattern is
    is (Ctx                    => Iter.Ctx.Clone_Frame,
        Next_Values            => Iter.Next_Values,
        Pattern                => Iter.Pattern,
-       Root_Elements_Iterator =>
+       Root_Nodes_Iterator =>
           new AST_Node_Iterator'Class'
-         (AST_Node_Iterator'Class ((Iter.Root_Elements_Iterator.Clone))),
+         (AST_Node_Iterator'Class ((Iter.Root_Nodes_Iterator.Clone))),
        Yielded_Elements       => Node_Sets.Empty_Set);
 
    -------------
@@ -57,7 +57,7 @@ package body LKQL.Chained_Pattern is
    overriding procedure Release (Iter : in out Chained_Pattern_Iterator) is
    begin
       Iter.Ctx.Release_Current_Frame;
-      AST_Node_Iterators.Free_Iterator (Iter.Root_Elements_Iterator);
+      AST_Node_Iterators.Free_Iterator (Iter.Root_Nodes_Iterator);
    end Release;
 
    -------------------------------
@@ -70,11 +70,11 @@ package body LKQL.Chained_Pattern is
    is
       Root_Iterator : constant AST_Node_Iterator_Access :=
         new AST_Node_Iterator'Class'
-          (Make_Query_Iterator (Ctx, Pattern.F_First_Pattern.As_Base_Pattern));
+          (AST_Node_Iterator'Class (Make_Child_Iterator (Ctx.AST_Root)));
    begin
       return (Ctx                    => Ctx.Clone_Frame,
               Pattern                => Pattern,
-              Root_Elements_Iterator => Root_Iterator,
+              Root_Nodes_Iterator    => Root_Iterator,
               others => <>);
    end Make_Chained_Pattern_Iterator;
 
@@ -85,15 +85,15 @@ package body LKQL.Chained_Pattern is
    procedure Eval_Element (Iter : in out Chained_Pattern_Iterator;
                            Root : AST_Node_Rc)
    is
-      Env          : Environment_Map;
-      Root_Binding : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Iter.Pattern.F_First_Pattern.P_Binding_Name);
+      Match : constant Match_Result :=
+        Match_Unfiltered
+          (Iter.Ctx, Iter.Pattern.F_First_Pattern, To_Primitive (Root));
    begin
-      if Length (Root_Binding) /= 0 then
-         Env.Insert (Root_Binding, To_Primitive (Root));
+      if not Match.Is_Success then
+         return;
       end if;
 
-      Iter.Eval_Chain_From (Root, Env, Link_Nb => 1);
+      Iter.Eval_Chain_From (Root, Match.Bindings, Link_Nb => 1);
    end Eval_Element;
 
    ---------------------

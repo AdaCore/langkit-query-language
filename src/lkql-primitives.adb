@@ -209,8 +209,10 @@ package body LKQL.Primitives is
      (case Value.Get.Kind is
       when Kind_Iterator =>
          Primitive_Iter'Class (Iter_Val (Value).Iter.Clone),
-      when Kind_List     =>
+      when Kind_List =>
          Primitive_Vec_Iters.To_Iterator (Elements (Value).all),
+      when Kind_Selector_List =>
+         To_Iterator (To_List (Selector_List_Val (Value))),
       when others =>
          raise Assertion_Error with
            "Cannot get an iterator from a value of kind : " &

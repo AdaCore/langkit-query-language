@@ -1,12 +1,11 @@
 let maxDeps = 5
 
-// Fix bug: the bindings set in the first subpattern of a chained pattern
-// are not properly handled.
 let result =
-    query CompilationUnit(any c@children: Identifier(parent: WithClause))
+    query CompilationUnit(any c@children: Identifier(any parent(depth=2): WithClause))
             body
                 l@LibraryItem
-        when val deps = [x | x <- c, x.referenced_decl() != l.semantic_parent()];
+        when val semanticParent = l.item?.semantic_parent();
+             val deps = [x | x <- c, x.referenced_decl() != semanticParent];
              deps.length > maxDeps
 
 print(result)

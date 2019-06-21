@@ -56,17 +56,17 @@ private
    --  Set of Ada nodes
 
    type Chained_Pattern_Iterator is new Chained_Pattern_Iter with record
-      Ctx                    : Eval_Context;
+      Ctx                 : Eval_Context;
       --  Context in whitch the patterns will be evaluated
-      Next_Values            : Match_Result_List;
+      Next_Values         : Match_Result_List;
       --  Next values to be yielded, along with the bindings created while
       --  matching the sub patterns.
-      Pattern                : L.Chained_Node_Pattern;
+      Pattern             : L.Chained_Node_Pattern;
       --  THE pattern
-      Root_Elements_Iterator : AST_Node_Iterator_Access;
+      Root_Nodes_Iterator : AST_Node_Iterator_Access;
       --  Iterator that yields the nodes that match the first pattern of the
       --  chain.
-      Yielded_Elements       : Node_Set;
+      Yielded_Elements    : Node_Set;
       --  Cache storing the elements that have been yielded
    end record;
 
