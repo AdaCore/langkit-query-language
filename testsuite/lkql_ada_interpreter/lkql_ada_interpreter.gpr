@@ -1,6 +1,6 @@
 with "liblkqllang";
 with "libadalang";
-with "../lkql_interpreter";
+with "../../lkql_interpreter";
 
 
 project Lkql_Ada_Interpreter is
