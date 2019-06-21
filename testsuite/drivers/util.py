@@ -7,7 +7,8 @@ TESTSUITE_ROOT_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
-INTERPRETER_PATH = os.path.join(TESTSUITE_ROOT_DIR, 'build', 'obj', 'main')
+INTERPRETER_PATH = os.path.join(TESTSUITE_ROOT_DIR, 'lkql_ada_interpreter',
+                                'obj', 'main')
 
 
 def make_interpreter(gcov=False):
@@ -17,8 +18,8 @@ def make_interpreter(gcov=False):
 
     # Compute gprbuild invocation
     gprbuild = [
-        'gprbuild', os.path.join('..', '..', 'lkql_interpreter.gpr'),
-        '--relocate-build-tree=%s' % build_dir, '-j0'
+        'gprbuild', os.path.join('..', 'lkql_ada_interpreter',
+                                 'lkql_ada_interpreter.gpr'), '-j0'
     ]
 
     if gcov:

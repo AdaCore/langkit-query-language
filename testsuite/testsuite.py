@@ -11,11 +11,6 @@ TESTSUITE_ROOT_DIR = os.path.dirname(
 
 OBJ_DIR = os.path.join('build', 'obj')
 
-INTERPRETER_PATH = os.path.join(OBJ_DIR, 'main')
-
-INTERPRETER_GPR_FILE = os.path.join(os.getcwd(), 'lkql_ada_interpreter',
-                                    'lkql_interpreter.gpr')
-
 
 def run_gcov():
     """

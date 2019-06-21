@@ -322,15 +322,16 @@ package body Ext_AST_Nodes is
    -----------------------
 
    overriding function Matches_Kind_Name
-     (Node : Ext_AST_Node; Kind_Name : String) return Boolean
+     (Node : Ada_AST_Node; Kind_Name : String) return Boolean
    is
       Expected_Kind : constant Any_Node_Type_Id :=
         Lookup_DSL_Name (Kind_Name);
       Actual_Kind   : constant Any_Node_Type_Id :=
         Id_For_Kind (Node.Node.Kind);
    begin
-      pragma Assert
-        (Expected_Kind /= None, "Invalid kind name: " & Kind_Name);
+      if Expected_Kind = None then
+         raise Assertion_Error with "Invalid kind name: " & Kind_Name;
+      end if;
 
       return Actual_Kind = Expected_Kind or else
              Is_Derived_From (Actual_Kind, Expected_Kind);
