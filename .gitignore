@@ -1,6 +1,7 @@
 gpsauto.cgpr
 liblkqllang.env
 lkql/build/*
+build/
 debug/
 obj/
 .idea/
@@ -33,3 +34,5 @@ lkql/src_templates/
 lkql_library/
 
 lkql_library_obj/
+
+lkql/lkql_repl/
