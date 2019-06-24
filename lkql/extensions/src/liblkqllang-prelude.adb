@@ -1,6 +1,8 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Liblkqllang.Common;     use Liblkqllang.Common;
 with Liblkqllang.Converters; use Liblkqllang.Converters;
+with Liblkqllang.Implementation; use Liblkqllang.Implementation;
 
 package body Liblkqllang.Prelude is
 
@@ -27,8 +29,15 @@ package body Liblkqllang.Prelude is
 
     procedure Fetch_Prelude (Context : Internal_Context) is
        use Liblkqllang.Analysis;
-       Std : constant Analysis_Unit :=
-          Get_From_Buffer (Wrap_Context (Context), "prelude", "ascii", Prelude_Content);
+       Std : constant Internal_Unit :=
+          (if Prelude_Unit = null
+           then Get_From_Buffer 
+                   (Context  => Context, 
+                    Filename => "prelude", 
+                    Charset  => "ascii", 
+                    Buffer   => Prelude_Content,
+                    Rule     => Default_Grammar_Rule)
+           else Prelude_Unit);
     begin
        Populate_Lexical_Env (Std);
     end Fetch_Prelude;

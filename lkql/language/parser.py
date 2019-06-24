@@ -16,8 +16,14 @@ class LKQLNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
     """
-    pass
 
+    @langkit_property(public=True, return_type=T.AnalysisUnit, external=True,
+                      uses_envs=False, uses_entity_info=False)
+    def prelude_unit():
+        """
+        Retrive the Prelude unit.
+        """
+        pass
 
 @abstract
 class Declaration(LKQLNode):
