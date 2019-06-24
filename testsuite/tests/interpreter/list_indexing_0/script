@@ -1,2 +1,2 @@
-let p = query p when p is ObjectDecl
+let p: List = query p when p is ObjectDecl
 print(p[1].has_constant is ConstantAbsent)

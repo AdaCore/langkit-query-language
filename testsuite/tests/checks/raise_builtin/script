@@ -1,4 +1,4 @@
-let result = query r@RaiseStmt when isPredefinedName(r.exception_name)
+let result: List = query r@RaiseStmt when isPredefinedName(r.exception_name)
 
 print(result)
 

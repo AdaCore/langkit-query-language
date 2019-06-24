@@ -1,2 +1,2 @@
-let result = query AdaNode.list(all children(depth=1): ObjectDecl)
+let result: List = query AdaNode.list(all children(depth=1): ObjectDecl)
 print(result)

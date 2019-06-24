@@ -2,8 +2,8 @@ FunDecl
 |name:
 |  Identifier: dummy
 |parameters:
-|  ParameterList
-|  |  Parameter
+|  ParameterDeclList
+|  |  ParameterDecl
 |  |  |param_identifier:
 |  |  |  Identifier: a
 |  |  DefaultParam

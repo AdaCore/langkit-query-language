@@ -1,2 +1,2 @@
-let result = query ProtectedDef any children EntryDecl(any prevSiblings: EntryDecl)
+let result: List = query ProtectedDef any children EntryDecl(any prevSiblings: EntryDecl)
 print(result)

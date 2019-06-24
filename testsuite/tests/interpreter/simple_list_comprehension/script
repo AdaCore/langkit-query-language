@@ -1,3 +1,3 @@
-let all = query p
-let decls = [a | a <- all, a is ObjectDecl]
+let all: List = query p
+let decls: List = [a | a <- all, a is ObjectDecl]
 print(decls)

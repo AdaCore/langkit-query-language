@@ -1,4 +1,4 @@
-let delta = 18
+let delta: List = 18
 
 fun add(x, y) = x + y + delta
 

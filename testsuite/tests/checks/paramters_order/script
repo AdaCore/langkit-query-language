@@ -1,4 +1,4 @@
-let result =
+let result: List =
     query p@ParamSpec(any nextSiblings:
                           sib@ParamSpec when priority(sib) > priority(p)
           )

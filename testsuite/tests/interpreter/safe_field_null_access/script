@@ -1,4 +1,4 @@
-let specs = query SubpSpec
-let nullParams = specs[1].subp_params
+let specs: List = query SubpSpec
+let nullParams: AdaNode = specs[1].subp_params
 print(nullParams) // null
 print(nullParams?.params) // stil null

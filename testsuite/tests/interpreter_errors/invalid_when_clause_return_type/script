@@ -1,2 +1,2 @@
-let p = query p when "Hello"
+let p: List = query p when "Hello"
 print (p)

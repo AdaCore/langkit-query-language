@@ -1,4 +1,4 @@
-let result = query t@BaseTypeDecl
+let result: List = query t@BaseTypeDecl
                  when isRealWithoutRange(t) ||
                       t is SubtypeDecl(any superTypes: s@_ when isRealWithoutRange(s))
 print(result)

@@ -1,6 +1,6 @@
-let targetDepth = 5
+let targetDepth: int = 5
 
-let result =
+let result: List =
     query PackageDecl (
         package_name: DefiningName(any children(depth=targetDepth): Name)
     )

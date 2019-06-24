@@ -1,4 +1,4 @@
-let answer = val x = 40;
-             val y = 2;
-             x + y
+let answer: int = val x = 40;
+                  val y = 2;
+                  x + y
 print(answer)

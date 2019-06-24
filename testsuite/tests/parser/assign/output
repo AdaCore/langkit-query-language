@@ -1,6 +1,10 @@
 Assign
 |identifier:
 |  Identifier: a
+|type:
+|  TypeName
+|  |name:
+|  |  Identifier: int
 |value:
 |  BinOp
 |  |left:

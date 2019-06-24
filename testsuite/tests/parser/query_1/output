@@ -1,6 +1,10 @@
 Assign
 |identifier:
 |  Identifier: o
+|type:
+|  TypeName
+|  |name:
+|  |  Identifier: List
 |value:
 |  Query
 |  |pattern:

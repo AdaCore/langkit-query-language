@@ -1,2 +1,2 @@
-let result = query BaseTypeDecl(is_access_type(): true)
+let result: List = query BaseTypeDecl(is_access_type(): true)
 print(result)

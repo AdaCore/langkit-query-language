@@ -1,4 +1,4 @@
-let result = query CallExpr(is_call(): true,
+let result: List = query CallExpr(is_call(): true,
                             any children(depth=2): p@ParamAssoc when isFlagArg(p)
                    )
 print(result)

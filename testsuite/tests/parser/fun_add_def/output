@@ -2,11 +2,11 @@ FunDecl
 |name:
 |  Identifier: add
 |parameters:
-|  ParameterList
-|  |  Parameter
+|  ParameterDeclList
+|  |  ParameterDecl
 |  |  |param_identifier:
 |  |  |  Identifier: x
-|  |  Parameter
+|  |  ParameterDecl
 |  |  |param_identifier:
 |  |  |  Identifier: y
 |body_expr:

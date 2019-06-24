@@ -1,4 +1,4 @@
-let subtype = query SubtypeIndication
-let objects = query ObjectDecl
+let subtype: List = query SubtypeIndication
+let objects: List = query ObjectDecl
 print([ o.image & " " & st.image | o <- objects, st <- subtype,
                                    (o.image & " " & st.image).length != 64])

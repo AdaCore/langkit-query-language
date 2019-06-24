@@ -2,7 +2,7 @@ FunDecl
 |name:
 |  Identifier: allNodes
 |parameters:
-|  ParameterList: <empty list>
+|  ParameterDeclList: <empty list>
 |body_expr:
 |  Query
 |  |pattern:

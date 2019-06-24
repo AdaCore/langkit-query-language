@@ -1,2 +1,2 @@
-let p = query BasicDecl
+let p: List = query BasicDecl
 print (p)

@@ -1,2 +1,2 @@
-let declWithAssoc = query _(any children(depth=3): AspectAssoc)
+let declWithAssoc: List = query _(any children(depth=3): AspectAssoc)
 print(declWithAssoc)

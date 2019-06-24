@@ -1,2 +1,2 @@
-let inDottedInWith = query t@TypeDecl children d@DefiningName
-    when val x = print(t); val y = print(d); true
+let inDottedInWith: List = query t@TypeDecl children d@DefiningName
+                               when val x = print(t); val y = print(d); true

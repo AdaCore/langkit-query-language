@@ -1,1 +1,1 @@
-let o = query ObjectDecl
+let o: List = query ObjectDecl

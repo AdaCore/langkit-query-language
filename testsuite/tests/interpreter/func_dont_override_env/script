@@ -1,4 +1,4 @@
-let no_override = 42
+let no_override: int = 42
 
 fun attempt_override(no_override) = ()
 

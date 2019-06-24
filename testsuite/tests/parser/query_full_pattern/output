@@ -1,6 +1,10 @@
 Assign
 |identifier:
 |  Identifier: declWihAspect
+|type:
+|  TypeName
+|  |name:
+|  |  Identifier: List
 |value:
 |  Query
 |  |pattern:

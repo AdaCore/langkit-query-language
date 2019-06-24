@@ -1,2 +1,2 @@
-let p = query p when p.nonExistingField is ObjectDecl
+let p: List = query p when p.nonExistingField is ObjectDecl
 print (p)

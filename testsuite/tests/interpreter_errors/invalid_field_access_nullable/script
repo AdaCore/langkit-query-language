@@ -1,2 +1,2 @@
-let objects = query o when o is ObjectDecl
+let objects: List = query o when o is ObjectDecl
 objects[1].has_constant.text

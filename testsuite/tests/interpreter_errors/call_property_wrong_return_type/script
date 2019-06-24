@@ -1,2 +1,2 @@
-let names = query Name
+let names: List = query Name
 print(names[1].unit)

@@ -1,2 +1,2 @@
-let declWihAspect = query o@ObjectDecl(any children: AspectAssoc) when
-                        o.identifier.length == 42
+let declWihAspect: List = query o@ObjectDecl(any children: AspectAssoc)
+                              when o.identifier.length == 42

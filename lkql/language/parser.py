@@ -3,10 +3,10 @@ from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Let, If
+    Self, String, No, langkit_property, AbstractKind, Let, If, Bind
 )
 import langkit.expressions as dsl_expr
-from langkit.envs import add_to_env_kv, EnvSpec
+from langkit.envs import add_to_env_kv, EnvSpec, add_env
 from lexer import Token
 
 
@@ -39,12 +39,18 @@ class Expr(LKQLNode):
     """
     Root node class for LKQL expressions.
     """
-    pass
+
+    @langkit_property(return_type=T.TypeExpr, public=True)
+    def type_expr():
+        """
+        Return the TypeExpr describing this expression's type.
+        """
+        return No(TypeExpr)
 
 
 class TopLevelList(LKQLNode.list):
     """
-    Holder for the top-level environment
+    Holder for the top-level members
     """
     pass
 
@@ -74,6 +80,13 @@ class Identifier(Expr):
     Regular identifier.
     """
     token_node = True
+
+    @langkit_property(return_type=Declaration.entity, public=True)
+    def referenced_decl():
+        """
+        Return the declarations referenced by this identifier, if any.
+        """
+        return Self.node_env.get_first(Self.symbol).cast(Declaration)
 
 
 class IntegerLiteral(Expr):
@@ -283,6 +296,10 @@ class Assign(Declaration):
     identifier = Field(type=Identifier)
     type = Field(type=TypeExpr)
     value = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_env()
+    )
 
 
 class DotAccess(Expr):
@@ -1149,7 +1166,7 @@ lkql_grammar.add_rules(
         Token.If, G.expr, Token.Then, G.expr, Token.Else, G.expr
     ),
 
-    type_expr=TypeName(G.identifier),
+    type_expr=TypeName(Identifier(Or(Token.Identifier, Token.KindName))),
 
     identifier=Identifier(Token.Identifier),
 

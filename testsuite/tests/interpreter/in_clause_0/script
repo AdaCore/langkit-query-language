@@ -1,4 +1,4 @@
-let nonConstant = query p when p is ConstantAbsent
-let nonConstantObjects = query o when o is ObjectDecl &&
-                                        o.has_constant in nonConstant
+let nonConstant: List = query p when p is ConstantAbsent
+let nonConstantObjects: List = query o when o is ObjectDecl &&
+                                            o.has_constant in nonConstant
 print (nonConstantObjects)

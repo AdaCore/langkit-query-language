@@ -1,1 +1,1 @@
-let a = 3 * value[0]
+let a: int = 3 * value[0]

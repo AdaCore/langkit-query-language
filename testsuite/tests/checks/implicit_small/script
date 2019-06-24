@@ -1,4 +1,4 @@
-let result =
+let result: List =
     query TypeDecl(any children: OrdinaryFixedPointDef, get_attribute("Small"): null)
 
 print(result)

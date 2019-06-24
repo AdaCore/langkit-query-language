@@ -1,2 +1,2 @@
-let declParent = query _(any children(depth=1): BasicDecl)
+let declParent: List = query _(any children(depth=1): BasicDecl)
 print(declParent)

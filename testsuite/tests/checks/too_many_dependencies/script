@@ -1,6 +1,6 @@
-let maxDeps = 5
+let maxDeps: int = 5
 
-let result =
+let result: List =
     query CompilationUnit(any c@children: Identifier(any parent(depth=2): WithClause))
             body
                 l@LibraryItem
