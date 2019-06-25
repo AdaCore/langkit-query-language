@@ -45,7 +45,7 @@ package body LKQL.Custom_Selectors is
                                        Root       : AST_Node_Rc)
                                        return Custom_Selector_Iter
    is
-      Definition    : constant L.Selector_Def := Call.P_Called_Selector;
+      Definition    : constant L.Selector_Decl := Call.P_Called_Selector;
       Default_Min   : constant Primitive := To_Primitive (1);
       Min_Depth     : constant Integer :=
         Int_Val (Eval_Default (Ctx, Call.P_Min_Depth_Expr, Default_Min,

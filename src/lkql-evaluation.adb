@@ -15,7 +15,7 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 package body LKQL.Evaluation is
 
    function Eval_List
-     (Ctx : Eval_Context; Node : L.Expr_List) return Primitive;
+     (Ctx : Eval_Context; Node : L.LKQL_Node_List) return Primitive;
 
    function Eval_Assign
      (Ctx : Eval_Context; Node : L.Assign) return Primitive;
@@ -157,8 +157,8 @@ package body LKQL.Evaluation is
 
       Result :=
         (case Node.Kind is
-            when LCO.LKQL_Expr_List =>
-              Eval_List (Local_Context, Node.As_Expr_List),
+            when LCO.LKQL_LKQL_Node_List =>
+              Eval_List (Local_Context, Node.As_LKQL_Node_List),
             when LCO.LKQL_Assign =>
               Eval_Assign (Local_Context, Node.As_Assign),
             when LCO.LKQL_Identifier =>
@@ -198,11 +198,11 @@ package body LKQL.Evaluation is
                  (Local_Context, Node.As_List_Comprehension),
             when LCO.LKQL_Val_Expr =>
               Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
-            when LCO.LKQL_Fun_Def =>
+            when LCO.LKQL_Fun_Decl =>
               Make_Unit_Primitive,
             when LCO.LKQL_Fun_Call =>
               Eval_Fun_Call (Local_Context, Node.As_Fun_Call),
-            when LCO.LKQL_Selector_Def =>
+            when LCO.LKQL_Selector_Decl =>
               Make_Unit_Primitive,
             when LCO.LKQL_Match =>
               Eval_Match (Local_Context, Node.As_Match),
@@ -238,7 +238,7 @@ package body LKQL.Evaluation is
    ---------------
 
    function Eval_List
-     (Ctx : Eval_Context; Node : L.Expr_List) return Primitive
+     (Ctx : Eval_Context; Node : L.LKQL_Node_List) return Primitive
    is
       Result : Primitive;
    begin

@@ -11,7 +11,7 @@ private
 
    function Eval_User_Fun_Call (Ctx  : Eval_Context;
                                 Call : L.Fun_Call;
-                                Def  : L.Fun_Def) return Primitive;
+                                Def  : L.Fun_Decl) return Primitive;
    --  Evaluate a call to a user-defined function
 
    function Eval_Arguments (Ctx       : Eval_Context;

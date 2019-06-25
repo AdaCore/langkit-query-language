@@ -47,7 +47,7 @@ package body LKQL.Checks is
    procedure Check_Fun_Call_Arguments (Ctx : Eval_Context; Node : L.Fun_Call)
    is
       Names_Seen     : String_Set;
-      Def            : constant L.Fun_Def := Node.P_Called_Function;
+      Def            : constant L.Fun_Decl := Node.P_Called_Function;
       Expected_Arity : constant Integer :=
         Node.P_Called_Function.P_Arity;
    begin

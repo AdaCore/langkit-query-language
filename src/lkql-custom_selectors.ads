@@ -38,7 +38,7 @@ private
    type Custom_Selector_Iter is new Depth_Node_Iter with record
       Ctx             : Eval_Context;
       --  Copy of the evaluation context
-      Selector        : L.Selector_Def;
+      Selector        : L.Selector_Decl;
       --  LKQL definititon of the custom selector
       Min_Depth       : Integer;
       --  Minimum depth of the nodes. If Min_Depth < 0, the minimum depth will
