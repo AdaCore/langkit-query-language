@@ -1,4 +1,4 @@
-SelectorDef
+SelectorDecl
 |name:
 |  Identifier: testSelector
 |arms:

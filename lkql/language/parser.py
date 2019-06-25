@@ -1,4 +1,4 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt, Null
+from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
 )
@@ -11,9 +11,18 @@ from lexer import Token
 
 
 @abstract
+@has_abstract_list
 class LKQLNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
+    """
+    pass
+
+
+@abstract
+class Declaration(LKQLNode):
+    """
+    Root node class for LKQL declarations.
     """
     pass
 
@@ -27,7 +36,7 @@ class Expr(LKQLNode):
     pass
 
 
-class TopLevelList(Expr.list):
+class TopLevelList(LKQLNode.list):
     """
     Holder for the top-level environment
     """
@@ -173,7 +182,7 @@ class SynthNamedArg(NamedArg):
     pass
 
 
-class Parameter(LKQLNode):
+class ParameterDecl(Declaration):
     """
     Base class for parameters
     """
@@ -202,7 +211,7 @@ class Parameter(LKQLNode):
         return No(Expr)
 
 
-class DefaultParam(Parameter):
+class DefaultParam(ParameterDecl):
     """
     Parameter with a default value.
 
@@ -242,7 +251,7 @@ class Unpack(Expr):
     collection_expr = Field(type=Expr)
 
 
-class Assign(Expr):
+class Assign(Declaration):
     """
     Assign expression.
     An assignment associates a name with a value, and returns Unit.
@@ -489,7 +498,7 @@ class ValExpr(Expr):
     expr = Field(type=Expr)
 
 
-class FunDef(Expr):
+class FunDecl(Declaration):
     """
     Function definition
 
@@ -498,7 +507,7 @@ class FunDef(Expr):
     """
 
     name = Field(type=Identifier)
-    parameters = Field(type=Parameter.list)
+    parameters = Field(type=ParameterDecl.list)
     body_expr = Field(type=Expr)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
@@ -510,7 +519,7 @@ class FunDef(Expr):
         """
         return Self.parameters.length
 
-    @langkit_property(return_type=Parameter, public=True)
+    @langkit_property(return_type=ParameterDecl, public=True)
     def find_parameter(name=T.String):
         """
         Return the parameter associated with the given name, if any.
@@ -553,12 +562,12 @@ class FunCall(Expr):
         """
         return Self.arguments.length
 
-    @langkit_property(return_type=FunDef.entity, public=True)
+    @langkit_property(return_type=FunDecl.entity, public=True)
     def called_function():
         """
         Return the function definition that corresponds to the called function.
         """
-        return Self.node_env.get_first(Self.name.symbol).cast(FunDef)
+        return Self.node_env.get_first(Self.name.symbol).cast(FunDecl)
 
     @langkit_property(return_type=NamedArg.entity.array, memoized=True)
     def call_args():
@@ -650,7 +659,7 @@ class SelectorArm(LKQLNode):
     exprs_list = Field(type=SelectorExpr.list)
 
 
-class SelectorDef(Expr):
+class SelectorDecl(Declaration):
     """
     Ast selector, describing a subtree
     """
@@ -716,13 +725,13 @@ class SelectorCall(LKQLNode):
         return Let(lambda x=Self.args.find(lambda a: a.arg_name.text == name)
                    : If(x.is_null, No(Expr), x.expr))
 
-    @langkit_property(return_type=SelectorDef.entity, public=True, memoized=True)
+    @langkit_property(return_type=SelectorDecl.entity, public=True, memoized=True)
     def called_selector():
         """
         Return the function definition that corresponds to the called function.
         """
         return Self.node_env.get_first(Self.selector_identifier.symbol)\
-                            .cast(SelectorDef)
+                            .cast(SelectorDecl)
 
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def depth_expr():
@@ -922,10 +931,8 @@ lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
-    main_rule=List(Or(G.statement, G.expr, G.query, G.selector_def),
+    main_rule=List(Or(G.decl, G.expr),
                    list_cls=TopLevelList),
-
-    statement=Or(G.assign),
 
     query=Query(Token.QueryTok, G.pattern),
 
@@ -1003,6 +1010,10 @@ lkql_grammar.add_rules(
                                Opt(Token.Coma, G.expr),
                                Token.RBrack),
 
+    decl=Or(G.fun_decl,
+            G.selector_decl,
+            G.assign),
+
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
                      Op.alt_or(Token.Or)),
@@ -1054,10 +1065,8 @@ lkql_grammar.add_rules(
                   Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
                   G.fun_call,
                   G.query,
-                  G.fun_def,
                   G.listcomp,
                   G.match,
-                  G.assign,
                   G.identifier,
                   G.string_literal,
                   G.bool_literal,
@@ -1072,7 +1081,7 @@ lkql_grammar.add_rules(
 
     assign=Assign(Token.Let, G.identifier, Token.Eq, G.expr),
 
-    fun_def=FunDef(Token.Fun,
+    fun_decl=FunDecl(Token.Fun,
                    G.identifier,
                    Token.LPar,
                    List(G.param, empty_valid=True, sep=Token.Coma),
@@ -1085,9 +1094,9 @@ lkql_grammar.add_rules(
                      List(G.arg, empty_valid=True, sep=Token.Coma),
                      Token.RPar),
 
-    selector_def=SelectorDef(Token.Selector,
-                             G.identifier,
-                             List(G.selector_arm, empty_valid=False)),
+    selector_decl=SelectorDecl(Token.Selector,
+                               G.identifier,
+                               List(G.selector_arm, empty_valid=False)),
 
     selector_arm=SelectorArm(Token.Pipe,
                              G.pattern,
@@ -1131,5 +1140,5 @@ lkql_grammar.add_rules(
     named_arg=NamedArg(G.identifier, Token.Eq, G.expr),
 
     param=Or(DefaultParam(G.identifier, Token.Eq, G.expr),
-             Parameter(G.identifier))
+             ParameterDecl(G.identifier))
 )
