@@ -60,6 +60,8 @@ class Token(LexerToken):
 
     Comment = WithTrivia()
 
+    Builtin = WithText()
+
 
 lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
@@ -94,6 +96,7 @@ lkql_lexer.add_rules(
     (Literal("<-"),                                         Token.LArrow),
     (Literal("=>"),                                         Token.BigRArrow),
     (Literal("<>"),                                         Token.Box),
+    (Literal("BUILTIN_DECL"),                               Token.Builtin),
     (Literal("let"),                                        Token.Let),
     (Literal("query"),                                      Token.QueryTok),
     (Literal("when"),                                       Token.When),
@@ -116,5 +119,5 @@ lkql_lexer.add_rules(
     (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),                    Token.KindName),
     (Pattern("\"[^\"]*\""),                                 Token.String),
-    (Pattern(r"//(.?)+"),                                   Token.Comment)
+    (Pattern(r"//(.?)+"),                                   Token.Comment),
 )

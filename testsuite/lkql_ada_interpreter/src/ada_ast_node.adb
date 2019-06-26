@@ -1,4 +1,5 @@
 with Libadalang.Introspection; use Libadalang.Introspection;
+with Libadalang.Common; use Libadalang.Common;
 
 with Ada.Unchecked_Conversion;
 with Ada.Assertions; use Ada.Assertions;

@@ -36,3 +36,7 @@ lkql_library/
 lkql_library_obj/
 
 lkql/lkql_repl/
+
+rapport\.pdf
+
+rapport\.synctex\.gz

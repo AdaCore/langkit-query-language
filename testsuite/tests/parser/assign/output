@@ -1,9 +1,9 @@
 Assign
 |identifier:
 |  Identifier: a
-|type:
+|type_annotation:
 |  TypeName
-|  |name:
+|  |identifier:
 |  |  Identifier: int
 |value:
 |  BinOp

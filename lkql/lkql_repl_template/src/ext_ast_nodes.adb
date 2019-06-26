@@ -1,3 +1,4 @@
+with ${lib_name}.Common; use ${lib_name}.Common;
 with ${lib_name}.Introspection; use ${lib_name}.Introspection;
 
 with Ada.Unchecked_Conversion;

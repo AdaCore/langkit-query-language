@@ -1,9 +1,9 @@
 Assign
 |identifier:
 |  Identifier: o
-|type:
+|type_annotation:
 |  TypeName
-|  |name:
+|  |identifier:
 |  |  Identifier: List
 |value:
 |  Query

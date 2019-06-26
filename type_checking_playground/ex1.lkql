@@ -1,0 +1,4 @@
+let a: int = 3
+let b: bool = 3
+let c: bool = true
+c

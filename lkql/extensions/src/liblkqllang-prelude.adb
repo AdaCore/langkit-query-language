@@ -7,6 +7,11 @@ with Liblkqllang.Implementation; use Liblkqllang.Implementation;
 package body Liblkqllang.Prelude is
 
     Prelude_Content : String :=
+        "BUILTIN_DECL int;"    & ASCII.LF &
+        "BUILTIN_DECL string;" & ASCII.LF & 
+        "BUILTIN_DECL bool;"   & ASCII.LF &
+        "BUILTIN_DECL unit;"   & ASCII.LF &  
+        "BUILTIN_DECL error;"   & ASCII.LF & 
         "selector nextSiblings" & ASCII.LF &
         "   | AdaNode => rec it.next_sibling" & ASCII.LF &
         "   | _       => ()" & ASCII.LF &
@@ -30,15 +35,14 @@ package body Liblkqllang.Prelude is
     procedure Fetch_Prelude (Context : Internal_Context) is
        use Liblkqllang.Analysis;
        Std : constant Internal_Unit :=
-          (if Prelude_Unit = null
-           then Get_From_Buffer 
+          Get_From_Buffer 
                    (Context  => Context, 
                     Filename => "prelude", 
                     Charset  => "ascii", 
                     Buffer   => Prelude_Content,
-                    Rule     => Default_Grammar_Rule)
-           else Prelude_Unit);
+                    Rule     => Default_Grammar_Rule);
     begin
+       Prelude_Unit := Std;
        Populate_Lexical_Env (Std);
     end Fetch_Prelude;
 

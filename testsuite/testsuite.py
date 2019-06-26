@@ -1,6 +1,8 @@
 from e3.testsuite import Testsuite
 from e3.os.process import Run
-from drivers import ParserDriver, InterpreterDriver, make_interpreter
+from drivers import (ParserDriver, InterpreterDriver, make_interpreter,
+    TypeCheckDriver
+)
 import os
 import glob
 import sys
@@ -29,7 +31,8 @@ def run_gcov():
 
 class LKQLTestsuite(Testsuite):
     DRIVERS = {'parser': ParserDriver,
-               'interpreter': InterpreterDriver}
+               'interpreter': InterpreterDriver,
+               'type_checker': TypeCheckDriver}
 
 
 if __name__ == "__main__":

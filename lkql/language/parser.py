@@ -1,13 +1,72 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
-    T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
+    T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic,
+    UserField, LogicVar, Equation, Struct
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Let, If, Bind
+    Self, String, No, langkit_property, AbstractKind, Let, If, Bind, LogicTrue,
+    Property, And
 )
 import langkit.expressions as dsl_expr
-from langkit.envs import add_to_env_kv, EnvSpec, add_env
+from langkit.envs import add_to_env_kv, EnvSpec
 from lexer import Token
+
+
+class UndefinedType(Struct):
+    """
+    Represents the type of a node that couldn't be type_checked due to the
+    incompleteness of the typechecker.
+    """
+    origin = UserField(type=T.LKQLNode)
+
+
+class ValidType(Struct):
+    """
+    Represents the type of a well-typed node.
+    """
+    type_value = UserField(type=T.TypeExpr.entity)
+
+
+class UnexpectedType(Struct):
+    """
+    Represents a typing error.
+    """
+    expected = UserField(type=ValidType)
+    expected_origin = UserField(type=T.LKQLNode)
+    actual = UserField(type=T.ValidType)
+    actual_origin = UserField(type=T.LKQLNode)
+
+
+class UnknownType(Struct):
+    """
+    represents a typing error involving a type name that doesn't match any
+    known type.
+    """
+    name = UserField(type=T.String)
+
+
+class TypingJudgment(Struct):
+    """
+    Pseudo-union of typing judgment values.
+    """
+    undefined = UserField(type=UndefinedType)
+    valid = UserField(type=ValidType)
+    unexpected = UserField(type=UnexpectedType)
+    unknown = UserField(type=UnknownType)
+
+
+def new_typing_judgment(value):
+    field_name = value.struct_type.__name__.replace('Type', '').lower()
+
+    args = {
+        "undefined": No(T.UndefinedType),
+        "valid": No(T.ValidType),
+        "unexpected": No(T.UnexpectedType),
+        "unknown": No(T.UnknownType),
+        field_name: value
+    }
+
+    return TypingJudgment.new(**args)
 
 
 @abstract
@@ -21,9 +80,70 @@ class LKQLNode(ASTNode):
                       uses_envs=False, uses_entity_info=False)
     def prelude_unit():
         """
-        Retrive the Prelude unit.
+        Retrieve the Prelude unit.
         """
         pass
+
+    @langkit_property(public=True, return_type=TypingJudgment)
+    def type_check():
+        """
+        Typecheck the current node.
+        """
+        return new_typing_judgment(UndefinedType.new(origin=Self))
+
+    @langkit_property(public=False, return_type=TypingJudgment)
+    def compare_type(expected=T.TypingJudgment, expected_origin=T.LKQLNode,
+                     value=T.LKQLNode):
+        """
+        Check the type of `value` against the expected type.
+        """
+        return If(
+            expected.valid.is_null,
+            expected,
+            Let(
+                lambda actual=value.type_check:
+                If(actual.valid.is_null,
+                   actual,
+                   If(
+                       actual == expected,
+                       actual,
+                       new_typing_judgment(UnexpectedType.new(
+                           expected=expected.valid,
+                           expected_origin=expected_origin,
+                           actual=actual.valid,
+                           actual_origin=value
+                       ))
+                   )
+                )
+            )
+        )
+
+    @langkit_property(public=False, return_type=TypingJudgment)
+    def check_identical_types(left=T.LKQLNode, right=T.LKQLNode):
+        return Self.compare_type(left.type_check, left, right)
+
+    @langkit_property(public=True, return_type=TypingJudgment)
+    def lookup_type(name=T.Symbol):
+        """
+        Return the TypeExpr node representing the type with the given name.
+        If there is no type named `name`, return the error type.
+        """
+        return Let(lambda n=Self.node_env.get_first(name):
+                   If(n.is_null,
+                      new_typing_judgment(UnknownType.new(name=name.image)),
+                      new_typing_judgment(
+                          ValidType.new(type_value=n.cast(TypeExpr))
+                      )))
+
+    @langkit_property(public=True, return_type=T.String)
+    def type_name():
+        """
+        Return the name of the node's type.
+        """
+        return If(Self.type_check.valid.is_null,
+                  String("error"),
+                  Self.type_check.valid.type_value.name)
+
 
 @abstract
 class Declaration(LKQLNode):
@@ -40,12 +160,7 @@ class Expr(LKQLNode):
     Root node class for LKQL expressions.
     """
 
-    @langkit_property(return_type=T.TypeExpr, public=True)
-    def type_expr():
-        """
-        Return the TypeExpr describing this expression's type.
-        """
-        return No(TypeExpr)
+    type_var = UserField(LogicVar, public=False)
 
 
 class TopLevelList(LKQLNode.list):
@@ -55,24 +170,16 @@ class TopLevelList(LKQLNode.list):
     pass
 
 
-@abstract
-class Op(LKQLNode):
-    """
-    Base class for operators.
-    """
-    enum_node = True
-    alternatives = [
-        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat',
-        'lt', 'leq', 'gt', 'geq'
-    ]
-
-
 class BoolLiteral(Expr):
     """
     Boolean literal
     """
     enum_node = True
     alternatives = ['true', 'false']
+
+    @langkit_property()
+    def type_check():
+        return Self.lookup_type("bool")
 
 
 class Identifier(Expr):
@@ -81,12 +188,16 @@ class Identifier(Expr):
     """
     token_node = True
 
-    @langkit_property(return_type=Declaration.entity, public=True)
-    def referenced_decl():
+    @langkit_property(return_type=LKQLNode.entity, public=True)
+    def referenced_node():
         """
-        Return the declarations referenced by this identifier, if any.
+        Return the node referenced by this identifier, if any.
         """
-        return Self.node_env.get_first(Self.symbol).cast(Declaration)
+        return Self.node_env.get_first(Self.symbol)
+
+    @langkit_property()
+    def type_check():
+        return Self.referenced_node.type_check()
 
 
 class IntegerLiteral(Expr):
@@ -95,6 +206,10 @@ class IntegerLiteral(Expr):
     """
     token_node = True
 
+    @langkit_property()
+    def type_check():
+        return Self.lookup_type("int")
+
 
 class StringLiteral(Expr):
     """
@@ -102,12 +217,18 @@ class StringLiteral(Expr):
     """
     token_node = True
 
+    @langkit_property()
+    def type_check():
+        return Self.lookup_type("string")
+
 
 class UnitLiteral(Expr):
     """
     Literal representing the unit value.
     """
-    pass
+    @langkit_property()
+    def type_check():
+        return Self.lookup_type("unit")
 
 
 class NullLiteral(Expr):
@@ -118,18 +239,44 @@ class NullLiteral(Expr):
 
 
 @abstract
-class TypeExpr(LKQLNode):
+class TypeExpr(Declaration):
     """
     Reference to a type.
     """
-    pass
+    @langkit_property(public=True, kind=AbstractKind.abstract,
+                      return_type=T.String)
+    def name():
+        """
+        Return the name of the type.
+        """
+        pass
+
+
+class BuiltinTypeDecl(TypeExpr):
+    """
+    Declaration of a builtin type using the BUILTIN_DECL keyword.
+
+    For instance::
+       BUILTIN_DECL int;
+    """
+    identifier = Field(type=Identifier)
+
+    env_spec = EnvSpec(add_to_env_kv(Self.identifier.symbol, Self))
+
+    @langkit_property()
+    def name():
+        return Self.identifier.text
 
 
 class TypeName(TypeExpr):
     """
     Named type annotation.
     """
-    name = Field(type=Identifier)
+    identifier = Field(type=Identifier)
+
+    @langkit_property()
+    def name():
+        return Self.identifier.text
 
 
 class IfThenElse(Expr):
@@ -265,6 +412,22 @@ class Not(Expr):
     """
     value = Field(type=Expr)
 
+    @langkit_property()
+    def type_check():
+        return Self.value.type_check
+
+
+@abstract
+class Op(LKQLNode):
+    """
+    Base class for operators.
+    """
+    enum_node = True
+    alternatives = [
+        'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat',
+        'lt', 'leq', 'gt', 'geq'
+    ]
+
 
 class BinOp(Expr):
     """
@@ -273,6 +436,18 @@ class BinOp(Expr):
     left = Field(type=Expr)
     op = Field(type=Op)
     right = Field(type=Expr)
+
+    @langkit_property()
+    def type_check():
+        return Self.op.match(
+            lambda _=Op.alt_concat: Self.compare_type(
+                expected=Self.lookup_type("string"),
+                expected_origin=Self.op,
+                value=Self.left
+            ),
+
+            lambda _: new_typing_judgment(UndefinedType.new(origin=Self.op))
+        )
 
 
 class Unpack(Expr):
@@ -291,15 +466,23 @@ class Assign(Declaration):
     An assignment associates a name with a value, and returns Unit.
 
     For instance::
-       let message = "Hello World"
+       let message: string = "Hello World"
     """
     identifier = Field(type=Identifier)
-    type = Field(type=TypeExpr)
+    type_annotation = Field(type=TypeName)
     value = Field(type=Expr)
 
     env_spec = EnvSpec(
-        add_env()
+        add_to_env_kv(Self.identifier.symbol, Self.value)
     )
+
+    @langkit_property()
+    def type_check():
+        return Self.compare_type(
+            expected=Self.lookup_type(Self.type_annotation.identifier.symbol),
+            expected_origin=Self.type_annotation,
+            value=Self.value
+        )
 
 
 class DotAccess(Expr):
@@ -618,8 +801,9 @@ class FunCall(Expr):
             arg.match(
                 lambda e=ExprArg:
                 SynthNamedArg.new(arg_name=Self.called_function()
-                             .parameters.at(pos).identifier,
-                             value_expr=e.value_expr).cast(NamedArg).as_entity,
+                                  .parameters.at(pos).identifier,
+                                  value_expr=e.value_expr).cast(
+                    NamedArg).as_entity,
                 lambda n=NamedArg: n.as_entity,
             )
         )
@@ -654,7 +838,6 @@ class FunCall(Expr):
         syntactic construct that looks like a function call bu isn't one).
         """
         return dsl_expr.Not(Self.parent.is_a(NodePatternProperty))
-
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_builtin_call():
@@ -764,13 +947,14 @@ class SelectorCall(LKQLNode):
         return Let(lambda x=Self.args.find(lambda a: a.arg_name.text == name)
                    : If(x.is_null, No(Expr), x.expr))
 
-    @langkit_property(return_type=SelectorDecl.entity, public=True, memoized=True)
+    @langkit_property(return_type=SelectorDecl.entity, public=True,
+                      memoized=True)
     def called_selector():
         """
         Return the function definition that corresponds to the called function.
         """
-        return Self.node_env.get_first(Self.selector_identifier.symbol)\
-                            .cast(SelectorDecl)
+        return Self.node_env.get_first(Self.selector_identifier.symbol) \
+            .cast(SelectorDecl)
 
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def depth_expr():
@@ -1013,22 +1197,22 @@ lkql_grammar.add_rules(
                                                    Token.RPar)),
 
     node_pattern_detail=Or(NodePatternSelector(
-                               SelectorCall(G.identifier,
-                                            Opt(Pick(G.identifier, Token.At)),
-                                            G.identifier,
-                                            Opt(Token.LPar,
-                                                List(G.named_arg,
-                                                     sep=Token.Coma,
-                                                     empty_valid=False),
-                                                Token.RPar)),
-                               Token.Colon,
-                               G.pattern),
-                           NodePatternField(G.identifier,
-                                            Token.Colon,
-                                            G.detail_value),
-                           NodePatternProperty(G.fun_call,
-                                               Token.Colon,
-                                               G.detail_value)),
+        SelectorCall(G.identifier,
+                     Opt(Pick(G.identifier, Token.At)),
+                     G.identifier,
+                     Opt(Token.LPar,
+                         List(G.named_arg,
+                              sep=Token.Coma,
+                              empty_valid=False),
+                         Token.RPar)),
+        Token.Colon,
+        G.pattern),
+        NodePatternField(G.identifier,
+                         Token.Colon,
+                         G.detail_value),
+        NodePatternProperty(G.fun_call,
+                            Token.Colon,
+                            G.detail_value)),
 
     selector_call=SelectorCall(G.identifier,
                                Opt(Pick(G.identifier, Token.At)),
@@ -1051,7 +1235,10 @@ lkql_grammar.add_rules(
 
     decl=Or(G.fun_decl,
             G.selector_decl,
-            G.assign),
+            G.assign,
+            BuiltinTypeDecl(Token.Builtin,
+                            Identifier(Or(Token.Identifier, Token.KindName)),
+                            Token.SemiCol)),
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and(Token.And),
