@@ -1,6 +1,6 @@
 IfThenElse
 |condition:
-|  NotNode
+|  NotOp
 |  |value:
 |  |  BinOp
 |  |  |left:

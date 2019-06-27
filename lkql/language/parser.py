@@ -406,7 +406,7 @@ class DefaultParam(ParameterDecl):
         return Self.default_expr
 
 
-class Not(Expr):
+class NotOp(Expr):
     """
     Negation of a boolean value.
     """
