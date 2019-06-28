@@ -1,8 +1,8 @@
 let no_override: int = 42
 
-fun attempt_override(no_override) = ()
+fun attempt_override(no_override: unit) -> unit = ()
 
-fun attempt_override2() = val no_override = 88888888; ()
+fun attempt_override2() -> unit = val no_override = 88888888; ()
 
 print(no_override)
 attempt_override(99999999)

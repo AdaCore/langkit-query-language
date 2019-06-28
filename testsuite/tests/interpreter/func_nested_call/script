@@ -1,8 +1,8 @@
 let delta: List = 18
 
-fun add(x, y) = x + y + delta
+fun add(x: int, y: int) -> int = x + y + delta
 
-fun wrapper(x, y) =
+fun wrapper(x: int, y: int) -> int =
     val delta = 999;
     add(x, y)
 

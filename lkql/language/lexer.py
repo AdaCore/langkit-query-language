@@ -55,6 +55,7 @@ class Token(LexerToken):
     At = WithText()
     Pipe = WithText()
     LArrow = WithText()
+    RArrow = WithText()
     BigRArrow = WithText()
     Box = WithText()
 
@@ -94,6 +95,7 @@ lkql_lexer.add_rules(
     (Literal("@"),                                          Token.At),
     (Literal("|"),                                          Token.Pipe),
     (Literal("<-"),                                         Token.LArrow),
+    (Literal("->"),                                         Token.RArrow),
     (Literal("=>"),                                         Token.BigRArrow),
     (Literal("<>"),                                         Token.Box),
     (Literal("BUILTIN_DECL"),                               Token.Builtin),

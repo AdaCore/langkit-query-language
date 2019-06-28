@@ -1,4 +1,4 @@
-fun concat(first, second) = first & second
+fun concat(first: string, second: string) -> string = first & second
 
 print(concat(second="World !", first="Hello "))
 print(concat("Hello", second=" World !"))

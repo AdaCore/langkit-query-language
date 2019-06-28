@@ -331,6 +331,7 @@ class ParameterDecl(Declaration):
     """
 
     param_identifier = Field(type=Identifier)
+    type_annotation = Field(type=TypeName)
 
     @langkit_property(return_type=T.Identifier, public=True)
     def identifier():
@@ -754,11 +755,12 @@ class FunDecl(Declaration):
     Function definition
 
     For instance::
-       fun add(x, y) = x + y
+       fun add(x: int, y: int) -> int = x + y
     """
 
     name = Field(type=Identifier)
     parameters = Field(type=ParameterDecl.list)
+    return_type = Field(type=TypeExpr)
     body_expr = Field(type=Expr)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
@@ -775,14 +777,14 @@ class FunDecl(Declaration):
         """
         Return the parameter associated with the given name, if any.
         """
-        return Self.parameters.find(lambda p: p.text == name)
+        return Self.parameters.find(lambda p: p.name == name)
 
     @langkit_property(return_type=T.Bool, public=True)
     def has_parameter(name=T.String):
         """
         Return whether the function has a parameter with the given name.
         """
-        return dsl_expr.Not(Self.find_parameter(name).is_null)
+        return Not(Self.find_parameter(name).is_null)
 
     @langkit_property(return_type=DefaultParam.entity.array, public=True)
     def default_parameters():
@@ -1346,6 +1348,8 @@ lkql_grammar.add_rules(
                      Token.LPar,
                      List(G.param, empty_valid=True, sep=Token.Coma),
                      Token.RPar,
+                     Token.RArrow,
+                     G.type_expr,
                      Token.Eq,
                      G.expr),
 
@@ -1401,6 +1405,10 @@ lkql_grammar.add_rules(
 
     named_arg=NamedArg(G.identifier, Token.Eq, G.expr),
 
-    param=Or(DefaultParam(G.identifier, Token.Eq, G.expr),
-             ParameterDecl(G.identifier))
+    param=Or(DefaultParam(G.identifier,
+                          Token.Colon,
+                          G.type_expr,
+                          Token.Eq,
+                          G.expr),
+             ParameterDecl(G.identifier, Token.Colon, G.type_expr))
 )

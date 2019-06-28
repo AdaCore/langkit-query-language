@@ -3,6 +3,10 @@ FunDecl
 |  Identifier: allNodes
 |parameters:
 |  ParameterDeclList: <empty list>
+|return_type:
+|  TypeName
+|  |identifier:
+|  |  Identifier: list
 |body_expr:
 |  Query
 |  |pattern:

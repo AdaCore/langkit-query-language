@@ -1,5 +1,5 @@
 let delta: int = 18
 
-fun add(x, y) = x + y + delta
+fun add(x: int, y: int) -> int = x + y + delta
 
 print(add(21, 3))

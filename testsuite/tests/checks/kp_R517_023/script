@@ -5,7 +5,7 @@ print(result)
 
 // Return whether the given 'ParamAssoc' represents an arg that must be flagged by
 // the R517-023 detector.
-fun isFlagArg(actual) =
+fun isFlagArg(actual: Node) -> bool =
     val formal = getFormal(actual);
     if formal == null
     then false
@@ -13,27 +13,27 @@ fun isFlagArg(actual) =
          isUnConstrainedArrayWithPacked(typeOfParamSpec(formal)) &&
          isReprRecordComponent(argumentDecl(actual.r_expr))
 
-fun getFormal(actual) = 
+fun getFormal(actual: Node) -> Node =
     val params = actual.get_params();
     if params.length == 0 then null else params[1]?.parent?.parent
 
-fun isReprRecordComponent(decl) =
+fun isReprRecordComponent(decl: Node) -> bool =
     decl is ComponentDecl(any parent:
                 TypeDecl(get_record_representation_clause(): RecordRepClause)
             )
 
-fun argumentDecl(argExpr) =
+fun argumentDecl(argExpr: Node) -> Node =
     match argExpr
         | DottedName => it.referenced_decl()
         | _          => null
 
-fun typeOfParamSpec(spec) =
+fun typeOfParamSpec(spec: Node) -> Node =
     spec?.type_expr?.name?.referenced_decl()
 
-fun isInOutOrOut(spec) =
+fun isInOutOrOut(spec: Node) -> bool =
     spec?.mode is ModeOut || spec?.mode is ModeInOut
 
-fun isUnConstrainedArrayWithPacked(decl) =
+fun isUnConstrainedArrayWithPacked(decl: Node) -> bool =
     decl is TypeDecl(
               type_def: ArrayTypeDef(any children(depth=6): BoxExpr),
               get_attribute("Pack"): AdaNode

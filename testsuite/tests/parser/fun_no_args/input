@@ -1,1 +1,1 @@
-fun allNodes() = query _
+fun allNodes() -> list = query _

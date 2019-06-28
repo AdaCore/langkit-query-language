@@ -14,5 +14,5 @@ selector superTypes
     | ParentList        => skip *it.children
     | _                 => ()
 
-fun isRealWithoutRange(decl) =
+fun isRealWithoutRange(decl: Node) -> Bool =
     decl is TypeDecl(type_def: RealTypeDef(no children: RangeSpec))

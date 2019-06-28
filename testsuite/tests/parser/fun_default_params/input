@@ -1,1 +1,1 @@
-fun dummy (a, b=40, c=2) = a + b + c
+fun dummy (a: int, b: int = 40, c: int = 2) -> int = a + b + c

@@ -2,7 +2,7 @@ let result: List = query r@RaiseStmt when isPredefinedName(r.exception_name)
 
 print(result)
 
-fun isPredefinedName(id) =
+fun isPredefinedName(id: Node) -> bool =
     val name = id?.text;
     name == "Program_Error" || name == "Constraint_Error" ||
     name == "Numeric_Error" || name == "Storage_Error"    ||

@@ -5,7 +5,7 @@ let result: List =
 
 print(result)
 
-fun priority(paramSpec) =
+fun priority(paramSpec: Node) -> Node =
     if paramSpec.default_expr != null then 0
     else match paramSpec.mode
             | ModeOut     => 1
