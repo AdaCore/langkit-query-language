@@ -1,0 +1,8 @@
+true != true
+42 != 42
+() != ()
+"Hello" != "World"
+true != 42
+"Hello" != false
+() != "World"
+42 != ()

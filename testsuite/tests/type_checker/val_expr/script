@@ -1,0 +1,3 @@
+val nb = 42; val msg = "nb is 42"; if nb > 40 then msg else "Failure !"
+
+val nb = 42; nb || false

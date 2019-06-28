@@ -1,72 +1,15 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic,
-    UserField, LogicVar, Equation, Struct
+    UserField, LogicVar, Struct, Equation
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Let, If, Bind, LogicTrue,
-    Property, And
+    Self, String, No, langkit_property, AbstractKind, Let, If, Property, And,
+    Bind, Eq, LogicFalse, Entity, Predicate, Not
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
 from lexer import Token
-
-
-class UndefinedType(Struct):
-    """
-    Represents the type of a node that couldn't be type_checked due to the
-    incompleteness of the typechecker.
-    """
-    origin = UserField(type=T.LKQLNode)
-
-
-class ValidType(Struct):
-    """
-    Represents the type of a well-typed node.
-    """
-    type_value = UserField(type=T.TypeExpr.entity)
-
-
-class UnexpectedType(Struct):
-    """
-    Represents a typing error.
-    """
-    expected = UserField(type=ValidType)
-    expected_origin = UserField(type=T.LKQLNode)
-    actual = UserField(type=T.ValidType)
-    actual_origin = UserField(type=T.LKQLNode)
-
-
-class UnknownType(Struct):
-    """
-    represents a typing error involving a type name that doesn't match any
-    known type.
-    """
-    name = UserField(type=T.String)
-
-
-class TypingJudgment(Struct):
-    """
-    Pseudo-union of typing judgment values.
-    """
-    undefined = UserField(type=UndefinedType)
-    valid = UserField(type=ValidType)
-    unexpected = UserField(type=UnexpectedType)
-    unknown = UserField(type=UnknownType)
-
-
-def new_typing_judgment(value):
-    field_name = value.struct_type.__name__.replace('Type', '').lower()
-
-    args = {
-        "undefined": No(T.UndefinedType),
-        "valid": No(T.ValidType),
-        "unexpected": No(T.UnexpectedType),
-        "unknown": No(T.UnknownType),
-        field_name: value
-    }
-
-    return TypingJudgment.new(**args)
 
 
 @abstract
@@ -84,65 +27,63 @@ class LKQLNode(ASTNode):
         """
         pass
 
-    @langkit_property(public=True, return_type=TypingJudgment)
-    def type_check():
-        """
-        Typecheck the current node.
-        """
-        return new_typing_judgment(UndefinedType.new(origin=Self))
-
-    @langkit_property(public=False, return_type=TypingJudgment)
-    def compare_type(expected=T.TypingJudgment, expected_origin=T.LKQLNode,
-                     value=T.LKQLNode):
-        """
-        Check the type of `value` against the expected type.
-        """
-        return If(
-            expected.valid.is_null,
-            expected,
-            Let(
-                lambda actual=value.type_check:
-                If(actual.valid.is_null,
-                   actual,
-                   If(
-                       actual == expected,
-                       actual,
-                       new_typing_judgment(UnexpectedType.new(
-                           expected=expected.valid,
-                           expected_origin=expected_origin,
-                           actual=actual.valid,
-                           actual_origin=value
-                       ))
-                   )
-                )
-            )
-        )
-
-    @langkit_property(public=False, return_type=TypingJudgment)
-    def check_identical_types(left=T.LKQLNode, right=T.LKQLNode):
-        return Self.compare_type(left.type_check, left, right)
-
-    @langkit_property(public=True, return_type=TypingJudgment)
+    @langkit_property(public=True, return_type=T.TypeExpr.entity, memoized=True)
     def lookup_type(name=T.Symbol):
         """
         Return the TypeExpr node representing the type with the given name.
         If there is no type named `name`, return the error type.
         """
-        return Let(lambda n=Self.node_env.get_first(name):
-                   If(n.is_null,
-                      new_typing_judgment(UnknownType.new(name=name.image)),
-                      new_typing_judgment(
-                          ValidType.new(type_value=n.cast(TypeExpr))
-                      )))
+        return Self.node_env.get_first(name).cast_or_raise(TypeExpr)
+
+    @langkit_property(public=True, return_type=T.TypeExpr.entity, memoized=True)
+    def get_type():
+        """
+        Return the type of the AST node.
+        """
+        return No(TypeExpr).as_entity
+
+    @langkit_property(public=True, memoized=True, return_type=T.TypeExpr.entity)
+    def get_inner_type():
+        """
+        Return the type computed from the inner_type_equation.
+        """
+        return Entity.get_type()
+
+    @langkit_property(public=False, return_type=Equation)
+    def typing_equation():
+        """
+        Return a node's typing equation
+        """
+        return LogicFalse()
+
+    @langkit_property(public=False, return_type=Equation)
+    def inner_typing_equation():
+        """
+        Alternative typing equation meant to be called from an other
+        typing equation.
+        For example, a function declaration has the (top-level) type unit, but
+        when typing a call to a function, it's `functional type`
+        (arg1 -> arg2 -> .. -> ret) is needed.
+        """
+        return Entity.typing_equation
 
     @langkit_property(public=True, return_type=T.String)
     def type_name():
         """
         Return the name of the node's type.
         """
-        return If(Self.type_check.valid.is_null,
+        return If(Entity.get_type.is_null,
                   String("error"),
-                  Self.type_check.valid.type_value.name)
+                  Entity.get_type.name)
+
+    @langkit_property(public=True, return_type=T.String)
+    def inner_type_name():
+        """
+        Return the inner type name of the node.
+        """
+        return If(Entity.get_inner_type.is_null,
+                  String("error"),
+                  Entity.get_inner_type.name)
 
 
 @abstract
@@ -162,6 +103,14 @@ class Expr(LKQLNode):
 
     type_var = UserField(LogicVar, public=False)
 
+    @langkit_property()
+    def get_type():
+        return If(
+            Entity.typing_equation.solve,
+            Self.type_var.get_value.cast_or_raise(TypeExpr),
+            Self.lookup_type("error")
+        )
+
 
 class TopLevelList(LKQLNode.list):
     """
@@ -177,9 +126,9 @@ class BoolLiteral(Expr):
     enum_node = True
     alternatives = ['true', 'false']
 
-    @langkit_property()
-    def type_check():
-        return Self.lookup_type("bool")
+    typing_equation = Property(
+        Bind(Self.type_var, Self.lookup_type("bool"))
+    )
 
 
 class Identifier(Expr):
@@ -188,16 +137,20 @@ class Identifier(Expr):
     """
     token_node = True
 
+    typing_equation = Property(
+        If(
+            Self.referenced_node.is_null,
+            LogicFalse(),
+            Bind(Self.type_var, Self.referenced_node.get_inner_type)
+        )
+    )
+
     @langkit_property(return_type=LKQLNode.entity, public=True)
     def referenced_node():
         """
         Return the node referenced by this identifier, if any.
         """
         return Self.node_env.get_first(Self.symbol)
-
-    @langkit_property()
-    def type_check():
-        return Self.referenced_node.type_check()
 
 
 class IntegerLiteral(Expr):
@@ -206,9 +159,9 @@ class IntegerLiteral(Expr):
     """
     token_node = True
 
-    @langkit_property()
-    def type_check():
-        return Self.lookup_type("int")
+    typing_equation = Property(
+        Bind(Self.type_var, Self.lookup_type("int"))
+    )
 
 
 class StringLiteral(Expr):
@@ -217,18 +170,18 @@ class StringLiteral(Expr):
     """
     token_node = True
 
-    @langkit_property()
-    def type_check():
-        return Self.lookup_type("string")
+    typing_equation = Property(
+        Bind(Self.type_var, Self.lookup_type("string"))
+    )
 
 
 class UnitLiteral(Expr):
     """
     Literal representing the unit value.
     """
-    @langkit_property()
-    def type_check():
-        return Self.lookup_type("unit")
+    typing_equation = Property(
+        Bind(Self.type_var, Self.lookup_type("unit"))
+    )
 
 
 class NullLiteral(Expr):
@@ -286,6 +239,15 @@ class IfThenElse(Expr):
     condition = Field(type=Expr)
     then_expr = Field(type=Expr)
     else_expr = Field(type=Expr)
+
+    typing_equation = Property(
+        Entity.condition.typing_equation &
+        Entity.then_expr.typing_equation &
+        Entity.else_expr.typing_equation &
+        Bind(Self.type_var, Self.then_expr.type_var) &
+        Bind(Self.condition.type_var, Self.lookup_type("bool")) &
+        Bind(Self.then_expr.type_var, Self.else_expr.type_var)
+    )
 
 
 class Unwrap(Expr):
@@ -412,9 +374,11 @@ class NotOp(Expr):
     """
     value = Field(type=Expr)
 
-    @langkit_property()
-    def type_check():
-        return Self.value.type_check
+    typing_equation = Property(
+        Entity.value.typing_equation() &
+        Bind(Self.value.type_var, Self.lookup_type("bool")) &
+        Bind(Self.type_var, Entity.value.type_var)
+    )
 
 
 @abstract
@@ -437,17 +401,69 @@ class BinOp(Expr):
     op = Field(type=Op)
     right = Field(type=Expr)
 
-    @langkit_property()
-    def type_check():
-        return Self.op.match(
-            lambda _=Op.alt_concat: Self.compare_type(
-                expected=Self.lookup_type("string"),
-                expected_origin=Self.op,
-                value=Self.left
-            ),
+    typing_equation = Property(
+        Entity.left.typing_equation &
+        Entity.right.typing_equation &
 
-            lambda _: new_typing_judgment(UndefinedType.new(origin=Self.op))
+        Self.op.match(
+            lambda _=Op.alt_concat:
+            Bind(Self.type_var, Self.lookup_type("string")) &
+            Bind(Self.left.type_var, Self.lookup_type("string")),
+
+            lambda _=Op.alt_plus: Self.operands_type_is("int") &
+            Bind(Self.type_var, Self.lookup_type("int")),
+
+            lambda _=Op.alt_minus: Self.operands_type_is("int") &
+            Bind(Self.type_var, Self.lookup_type("int")),
+
+            lambda _=Op.alt_mul: Self.operands_type_is("int") &
+            Bind(Self.type_var, Self.lookup_type("int")),
+
+            lambda _=Op.alt_div: Self.operands_type_is("int") &
+            Bind(Self.type_var, Self.lookup_type("int")),
+
+            lambda _=Op.alt_and: Self.operands_type_is("bool") &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_or: Self.operands_type_is("bool") &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_eq: Bind(Self.left.type_var, Self.right.type_var) &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_neq: Bind(Self.left.type_var, Self.right.type_var) &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_gt:
+            (Self.operands_type_is("int") | Self.operands_type_is("string")) &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_geq:
+            (Self.operands_type_is("int") | Self.operands_type_is("string")) &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_lt:
+            (Self.operands_type_is("int") | Self.operands_type_is("string")) &
+            Bind(Self.type_var, Self.lookup_type("bool")),
+
+            lambda _=Op.alt_leq:
+            (Self.operands_type_is("int") | Self.operands_type_is("string")) &
+            Bind(Self.type_var, Self.lookup_type("bool")),
         )
+    )
+
+    @langkit_property()
+    def operands_type_is(name=T.Symbol):
+        return Let(
+            lambda t=Self.lookup_type(name):
+            Bind(Self.left.type_var, t) & Bind(Self.right.type_var, t)
+        )
+
+    @langkit_property()
+    def get_type():
+        return If(Entity.typing_equation.solve,
+                  Self.type_var.get_value.cast_or_raise(TypeExpr),
+                  Self.lookup_type('error'))
 
 
 class Unpack(Expr):
@@ -477,11 +493,14 @@ class Assign(Declaration):
     )
 
     @langkit_property()
-    def type_check():
-        return Self.compare_type(
-            expected=Self.lookup_type(Self.type_annotation.identifier.symbol),
-            expected_origin=Self.type_annotation,
-            value=Self.value
+    def get_type():
+        return Let(
+            lambda expected=Self.lookup_type(
+                Self.type_annotation.identifier.symbol
+            )
+            : If(expected.is_null | (expected != Entity.value.get_type),
+                 Self.lookup_type("error"),
+                 Self.lookup_type("unit"))
         )
 
 
@@ -718,6 +737,16 @@ class ValExpr(Expr):
     binding_name = Field(type=Identifier)
     binding_value = Field(type=Expr)
     expr = Field(type=Expr)
+
+    env_spec = EnvSpec(
+        add_to_env_kv(Self.binding_name.symbol, Self.binding_value)
+    )
+
+    typing_equation = Property(
+        Entity.binding_value.typing_equation &
+        Entity.expr.typing_equation &
+        Bind(Self.type_var, Self.expr.type_var)
+    )
 
 
 class FunDecl(Declaration):
@@ -1249,7 +1278,7 @@ lkql_grammar.add_rules(
 
     comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.pattern),
                  InClause(G.comp_expr, Token.In, G.expr),
-                 Not(Token.Not, G.expr),
+                 NotOp(Token.Not, G.expr),
                  BinOp(G.comp_expr,
                        Or(Op.alt_eq(Token.EqEq),
                           Op.alt_neq(Token.Neq),

@@ -1,0 +1,7 @@
+if true then 1 else 2
+
+if (1 > 2) || ("a" < "b") then "Hello" else "World"
+
+if false then "Hello" else ()
+
+if "Hello" then 1 else 2
