@@ -614,9 +614,9 @@ package body LKQL.Evaluation is
    is
       Binding : Environment_Map;
       Binding_Name  : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Node.F_Binding_Name.Text);
+        To_Unbounded_Text (Node.F_Decl.F_Binding_Name.Text);
       Binding_Value : constant Primitive :=
-        Eval (Ctx, Node.F_Binding_Value);
+        Eval (Ctx, Node.F_Decl.F_Binding_Value);
    begin
       Binding.Include (Binding_Name, Binding_Value);
       return Eval (Ctx, Node.F_Expr, Local_Bindings => Binding);

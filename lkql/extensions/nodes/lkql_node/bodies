@@ -7,3 +7,13 @@ function P_Prelude_Unit
   (Node : access Bare_LKQL_Node_Type'Class) return Internal_Unit
   is
    (Liblkqllang.Prelude.Prelude_Unit);
+
+------------------------
+-- P_Create_Logic_Var --
+------------------------
+
+function P_Create_Logic_Var
+  (Node : access Bare_LKQL_Node_Type'Class) return Logic_Var is
+begin
+   return Eq_Node.Refs.Create;
+end P_Create_Logic_Var;

@@ -1,11 +1,11 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic,
-    UserField, LogicVar, Struct, Equation
+    UserField, LogicVar, Struct, Equation, Symbol
 )
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Let, If, Property, And,
-    Bind, Eq, LogicFalse, Entity, Predicate, Not
+    Bind, Eq, LogicFalse, LogicTrue, Entity, Predicate, Not
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
@@ -18,6 +18,14 @@ class LKQLNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
     """
+
+    @langkit_property(public=False, return_type=LogicVar, external=True,
+                      uses_entity_info=False, uses_envs=False)
+    def create_logic_var():
+        """
+        LogicVar constructor.
+        """
+        pass
 
     @langkit_property(public=True, return_type=T.AnalysisUnit, external=True,
                       uses_envs=False, uses_entity_info=False)
@@ -35,37 +43,13 @@ class LKQLNode(ASTNode):
         """
         return Self.node_env.get_first(name).cast_or_raise(TypeExpr)
 
-    @langkit_property(public=True, return_type=T.TypeExpr.entity, memoized=True)
+    @langkit_property(public=True, return_type=T.TypeExpr.entity)
     def get_type():
         """
-        Return the type of the AST node.
+        Return an node's type.
+        A special "error" type will be returned if the node isn't well-typed.
         """
-        return No(TypeExpr).as_entity
-
-    @langkit_property(public=True, memoized=True, return_type=T.TypeExpr.entity)
-    def get_inner_type():
-        """
-        Return the type computed from the inner_type_equation.
-        """
-        return Entity.get_type()
-
-    @langkit_property(public=False, return_type=Equation)
-    def typing_equation():
-        """
-        Return a node's typing equation
-        """
-        return LogicFalse()
-
-    @langkit_property(public=False, return_type=Equation)
-    def inner_typing_equation():
-        """
-        Alternative typing equation meant to be called from an other
-        typing equation.
-        For example, a function declaration has the (top-level) type unit, but
-        when typing a call to a function, it's `functional type`
-        (arg1 -> arg2 -> .. -> ret) is needed.
-        """
-        return Entity.typing_equation
+        return No(T.TypeExpr).as_entity
 
     @langkit_property(public=True, return_type=T.String)
     def type_name():
@@ -76,22 +60,45 @@ class LKQLNode(ASTNode):
                   String("error"),
                   Entity.get_type.name)
 
-    @langkit_property(public=True, return_type=T.String)
-    def inner_type_name():
-        """
-        Return the inner type name of the node.
-        """
-        return If(Entity.get_inner_type.is_null,
-                  String("error"),
-                  Entity.get_inner_type.name)
-
 
 @abstract
 class Declaration(LKQLNode):
     """
     Root node class for LKQL declarations.
     """
-    pass
+
+    referenced_type_var = UserField(LogicVar, public=False)
+
+    referenced_type_eq = Property(LogicFalse())
+
+    @langkit_property()
+    def get_type():
+        return If(
+            Entity.referenced_type_eq.solve,
+            Self.lookup_type("unit"),
+            Self.lookup_type("error")
+        )
+
+    @langkit_property(public=True, return_type=T.TypeExpr.entity)
+    def get_referenced_type():
+        """
+        Return an node's type.
+        A special "error" type will be returned if the node isn't well-typed.
+        """
+        return If(
+            Entity.referenced_type_eq.solve,
+            Self.referenced_type_var.get_value.cast_or_raise(TypeExpr),
+            Self.lookup_type("error")
+        )
+
+    @langkit_property(public=True, return_type=T.String)
+    def referenced_type_name():
+        """
+        Return the name of the node's type.
+        """
+        return If(Entity.get_referenced_type.is_null,
+                  String("error"),
+                  Entity.get_referenced_type.name)
 
 
 @abstract
@@ -103,10 +110,12 @@ class Expr(LKQLNode):
 
     type_var = UserField(LogicVar, public=False)
 
+    type_eq = Property(LogicFalse())
+
     @langkit_property()
     def get_type():
         return If(
-            Entity.typing_equation.solve,
+            Entity.type_eq.solve,
             Self.type_var.get_value.cast_or_raise(TypeExpr),
             Self.lookup_type("error")
         )
@@ -126,7 +135,7 @@ class BoolLiteral(Expr):
     enum_node = True
     alternatives = ['true', 'false']
 
-    typing_equation = Property(
+    type_eq = Property(
         Bind(Self.type_var, Self.lookup_type("bool"))
     )
 
@@ -137,20 +146,22 @@ class Identifier(Expr):
     """
     token_node = True
 
-    typing_equation = Property(
+    type_eq = Property(
         If(
-            Self.referenced_node.is_null,
+            Self.referenced_decl.is_null,
             LogicFalse(),
-            Bind(Self.type_var, Self.referenced_node.get_inner_type)
+            Self.referenced_decl.referenced_type_eq &
+            Bind(Self.type_var, Self.referenced_decl.get_referenced_type)
         )
     )
 
-    @langkit_property(return_type=LKQLNode.entity, public=True)
-    def referenced_node():
+    @langkit_property(return_type=Declaration.entity, public=True)
+    def referenced_decl():
         """
         Return the node referenced by this identifier, if any.
         """
-        return Self.node_env.get_first(Self.symbol)
+        return (Self.node_env.get_first(Self.symbol)
+                ._.cast_or_raise(Declaration))
 
 
 class IntegerLiteral(Expr):
@@ -159,7 +170,7 @@ class IntegerLiteral(Expr):
     """
     token_node = True
 
-    typing_equation = Property(
+    type_eq = Property(
         Bind(Self.type_var, Self.lookup_type("int"))
     )
 
@@ -170,7 +181,7 @@ class StringLiteral(Expr):
     """
     token_node = True
 
-    typing_equation = Property(
+    type_eq = Property(
         Bind(Self.type_var, Self.lookup_type("string"))
     )
 
@@ -179,7 +190,7 @@ class UnitLiteral(Expr):
     """
     Literal representing the unit value.
     """
-    typing_equation = Property(
+    type_eq = Property(
         Bind(Self.type_var, Self.lookup_type("unit"))
     )
 
@@ -196,6 +207,11 @@ class TypeExpr(Declaration):
     """
     Reference to a type.
     """
+
+    referenced_type_eq = Property(
+        Bind(Self.referenced_type_var, Self)
+    )
+
     @langkit_property(public=True, kind=AbstractKind.abstract,
                       return_type=T.String)
     def name():
@@ -227,6 +243,11 @@ class TypeName(TypeExpr):
     """
     identifier = Field(type=Identifier)
 
+    referenced_type_eq = Property(
+        Entity.identifier.type_eq &
+        Bind(Self.referenced_type_var, Entity.identifier.get_type)
+    )
+
     @langkit_property()
     def name():
         return Self.identifier.text
@@ -240,10 +261,10 @@ class IfThenElse(Expr):
     then_expr = Field(type=Expr)
     else_expr = Field(type=Expr)
 
-    typing_equation = Property(
-        Entity.condition.typing_equation &
-        Entity.then_expr.typing_equation &
-        Entity.else_expr.typing_equation &
+    type_eq = Property(
+        Entity.condition.type_eq &
+        Entity.then_expr.type_eq &
+        Entity.else_expr.type_eq &
         Bind(Self.type_var, Self.then_expr.type_var) &
         Bind(Self.condition.type_var, Self.lookup_type("bool")) &
         Bind(Self.then_expr.type_var, Self.else_expr.type_var)
@@ -333,6 +354,16 @@ class ParameterDecl(Declaration):
     param_identifier = Field(type=Identifier)
     type_annotation = Field(type=TypeName)
 
+    env_spec = EnvSpec(
+        add_to_env_kv(Self.param_identifier.symbol, Self)
+    )
+
+    referenced_type_eq = Property(
+        Entity.type_annotation.referenced_type_eq &
+        Bind(Self.referenced_type_var,
+             Entity.type_annotation.get_referenced_type)
+    )
+
     @langkit_property(return_type=T.Identifier, public=True)
     def identifier():
         """
@@ -375,8 +406,8 @@ class NotOp(Expr):
     """
     value = Field(type=Expr)
 
-    typing_equation = Property(
-        Entity.value.typing_equation() &
+    type_eq = Property(
+        Entity.value.type_eq() &
         Bind(Self.value.type_var, Self.lookup_type("bool")) &
         Bind(Self.type_var, Entity.value.type_var)
     )
@@ -402,9 +433,9 @@ class BinOp(Expr):
     op = Field(type=Op)
     right = Field(type=Expr)
 
-    typing_equation = Property(
-        Entity.left.typing_equation &
-        Entity.right.typing_equation &
+    type_eq = Property(
+        Entity.left.type_eq &
+        Entity.right.type_eq &
 
         Self.op.match(
             lambda _=Op.alt_concat:
@@ -462,7 +493,7 @@ class BinOp(Expr):
 
     @langkit_property()
     def get_type():
-        return If(Entity.typing_equation.solve,
+        return If(Entity.type_eq.solve,
                   Self.type_var.get_value.cast_or_raise(TypeExpr),
                   Self.lookup_type('error'))
 
@@ -490,19 +521,16 @@ class Assign(Declaration):
     value = Field(type=Expr)
 
     env_spec = EnvSpec(
-        add_to_env_kv(Self.identifier.symbol, Self.value)
+        add_to_env_kv(Self.identifier.symbol, Self)
     )
 
-    @langkit_property()
-    def get_type():
-        return Let(
-            lambda expected=Self.lookup_type(
-                Self.type_annotation.identifier.symbol
-            )
-            : If(expected.is_null | (expected != Entity.value.get_type),
-                 Self.lookup_type("error"),
-                 Self.lookup_type("unit"))
-        )
+    referenced_type_eq = Property(
+        Entity.type_annotation.referenced_type_eq &
+        Entity.value.type_eq &
+        Bind(Self.value.type_var, Entity.type_annotation.get_referenced_type) &
+        Bind(Self.referenced_type_var,
+             Entity.type_annotation.get_referenced_type)
+    )
 
 
 class DotAccess(Expr):
@@ -725,6 +753,19 @@ class ListComprehension(Expr):
     guard = Field(type=Expr)
 
 
+class ValDecl(Declaration):
+    """
+    Declarative part of a val expression.
+    """
+    binding_name = Field(type=Identifier)
+    binding_value = Field(type=Expr)
+
+    referenced_type_eq = Property(
+        Entity.binding_value.type_eq &
+        Bind(Self.referenced_type_var, Entity.binding_value.get_type)
+    )
+
+
 class ValExpr(Expr):
     """
     Expression of the form: val id = value; expr
@@ -735,17 +776,16 @@ class ValExpr(Expr):
        x + y
     """
 
-    binding_name = Field(type=Identifier)
-    binding_value = Field(type=Expr)
+    decl = Field(type=ValDecl)
     expr = Field(type=Expr)
 
     env_spec = EnvSpec(
-        add_to_env_kv(Self.binding_name.symbol, Self.binding_value)
+        add_to_env_kv(Self.decl.binding_name.symbol, Self.decl)
     )
 
-    typing_equation = Property(
-        Entity.binding_value.typing_equation &
-        Entity.expr.typing_equation &
+    type_eq = Property(
+        Entity.decl.binding_value.type_eq &
+        Entity.expr.type_eq &
         Bind(Self.type_var, Self.expr.type_var)
     )
 
@@ -760,10 +800,17 @@ class FunDecl(Declaration):
 
     name = Field(type=Identifier)
     parameters = Field(type=ParameterDecl.list)
-    return_type = Field(type=TypeExpr)
+    return_type = Field(type=TypeName)
     body_expr = Field(type=Expr)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+
+    referenced_type_eq = Property(
+        Entity.return_type.referenced_type_eq &
+        Entity.parameters.logic_all(lambda p: p.referenced_type_eq) &
+        Entity.body_expr.type_eq &
+        Bind(Entity.body_expr.type_var, Entity.return_type.get_referenced_type)
+    )
 
     @langkit_property(return_type=T.Int, public=True)
     def arity():
@@ -1333,8 +1380,9 @@ lkql_grammar.add_rules(
                   Pick(Token.LPar, G.expr, Token.RPar),
                   G.if_then_else),
 
-    val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
-                     G.expr, Token.SemiCol, G.expr),
+    val_expr=ValExpr(ValDecl(Token.Val, G.identifier, Token.Eq, G.expr),
+                     Token.SemiCol,
+                     G.expr),
 
     assign=Assign(Token.Let,
                   G.identifier,

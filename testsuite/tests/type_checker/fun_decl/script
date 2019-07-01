@@ -1,0 +1,7 @@
+fun add(x: int, y: int) -> int = x + y
+
+fun foo() -> int = 15
+
+fun add(x: invalid, y: int) -> int = x + y
+
+fun add(x: int, y: int) -> invalid = x + y
