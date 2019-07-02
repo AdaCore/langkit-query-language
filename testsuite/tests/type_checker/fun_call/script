@@ -1,0 +1,15 @@
+fun returnInt() -> int = 42
+
+returnInt()
+
+fun concatInt(msg: string, nb: int) -> string = msg & nb
+
+concatInt("Hello ", 42)
+
+concatInt("Hello ", 42, "whyIsThereAnExtraArgument")
+
+concatInt("Hello ")
+
+concatInt(42)
+
+concatInt(nb="Hello", msg=42)

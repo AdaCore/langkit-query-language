@@ -855,6 +855,30 @@ class FunCall(Expr):
     name = Field(type=Identifier)
     arguments = Field(type=Arg.list)
 
+    type_eq = Property(
+        Let(
+            lambda f=Self.called_function:
+            If(f.is_null | Not(f.is_a(FunDecl)) |
+                (Entity.resolved_arguments.length != f.arity),
+
+               LogicFalse(),
+
+               f.referenced_type_eq &
+               Entity.resolved_arguments.logic_all(
+                    lambda e: Let(
+                        lambda p=f.find_parameter(e.name.text)._.as_entity:
+                        If(p.is_null,
+                           LogicFalse(),
+                           p.referenced_type_eq &
+                           e.expr.as_entity.type_eq &
+                           Bind(e.expr.type_var,
+                                p.get_referenced_type))
+                    )
+               ) &
+               Bind(Self.type_var, f.return_type.referenced_type_var))
+            )
+    )
+
     @langkit_property(return_type=T.Int, public=True)
     def arity():
         """
@@ -867,23 +891,30 @@ class FunCall(Expr):
         """
         Return the function definition that corresponds to the called function.
         """
-        return Self.node_env.get_first(Self.name.symbol).cast(FunDecl)
+        return (Self.node_env.get_first(Self.name.symbol)
+                ._.cast_or_raise(FunDecl))
 
-    @langkit_property(return_type=NamedArg.entity.array, memoized=True)
+    @langkit_property(return_type=NamedArg.entity.array, memoized=True,
+                      public=False)
     def call_args():
         """
         Return the explicit arguments of this call as named arguments.
         """
-        return Self.arguments.map(
-            lambda pos, arg:
-            arg.match(
-                lambda e=ExprArg:
-                SynthNamedArg.new(arg_name=Self.called_function()
-                                  .parameters.at(pos).identifier,
-                                  value_expr=e.value_expr).cast(
-                    NamedArg).as_entity,
-                lambda n=NamedArg: n.as_entity,
-            )
+        return Let(
+            lambda f=Self.called_function:
+            If(f.is_null | (Self.arity > f.arity),
+               No(NamedArg.entity.array),
+               Self.arguments.map(
+                   lambda pos, arg:
+                   arg.match(
+                       lambda e=ExprArg:
+                       SynthNamedArg.new(arg_name=Self.called_function()
+                                         .parameters.at(pos).identifier,
+                                         value_expr=e.value_expr).cast(
+                           NamedArg).as_entity,
+                       lambda n=NamedArg: n.as_entity,
+                   )
+               ))
         )
 
     @langkit_property(return_type=NamedArg.entity.array, public=True,
