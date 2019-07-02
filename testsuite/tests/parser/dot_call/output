@@ -1,19 +1,21 @@
 DotCall
 |receiver:
 |  Identifier: value
-|member:
-|  Identifier: propertyWithArgs
-|arguments:
-|  ArgList
-|  |  ExprArg
-|  |  |value_expr:
-|  |  |  StringLiteral: "arg1"
-|  |  ExprArg
-|  |  |value_expr:
-|  |  |  BinOp
-|  |  |  |left:
-|  |  |  |  IntegerLiteral: 40
-|  |  |  |op:
-|  |  |  |  OpPlus
-|  |  |  |right:
-|  |  |  |  IntegerLiteral: 2
+|call:
+|  FunCall
+|  |name:
+|  |  Identifier: propertyWithArgs
+|  |arguments:
+|  |  ArgList
+|  |  |  ExprArg
+|  |  |  |value_expr:
+|  |  |  |  StringLiteral: "arg1"
+|  |  |  ExprArg
+|  |  |  |value_expr:
+|  |  |  |  BinOp
+|  |  |  |  |left:
+|  |  |  |  |  IntegerLiteral: 40
+|  |  |  |  |op:
+|  |  |  |  |  OpPlus
+|  |  |  |  |right:
+|  |  |  |  |  IntegerLiteral: 2

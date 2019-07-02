@@ -1,12 +1,16 @@
 FunDecl
-|name:
-|  Identifier: allNodes
-|parameters:
-|  ParameterDeclList: <empty list>
-|return_type:
-|  TypeName
-|  |identifier:
-|  |  Identifier: list
+|spec:
+|  FunSpec
+|  |fun_kind:
+|  |  FunKindFunction
+|  |name:
+|  |  Identifier: allNodes
+|  |parameters:
+|  |  ParameterDeclList: <empty list>
+|  |return_type:
+|  |  TypeName
+|  |  |identifier:
+|  |  |  Identifier: list
 |body_expr:
 |  Query
 |  |pattern:

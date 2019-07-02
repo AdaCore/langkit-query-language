@@ -1,11 +1,11 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic,
-    UserField, LogicVar, Struct, Equation, Symbol
+    UserField, LogicVar
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Let, If, Property, And,
-    Bind, Eq, LogicFalse, LogicTrue, Entity, Predicate, Not
+    Self, String, No, langkit_property, AbstractKind, Let, If, Property,
+    Bind, LogicFalse, Entity, Not
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
@@ -790,27 +790,25 @@ class ValExpr(Expr):
     )
 
 
-class FunDecl(Declaration):
+class FunKind(LKQLNode):
     """
-    Function definition
+    Denoted the "kind" of a function.
+    """
+    enum_node = True
+    alternatives = ["function"]
+
+
+class FunSpec(Declaration):
+    """
+    Function specification.
 
     For instance::
-       fun add(x: int, y: int) -> int = x + y
+       fun incr(x: int) -> int
     """
-
+    fun_kind = Field(type=FunKind)
     name = Field(type=Identifier)
     parameters = Field(type=ParameterDecl.list)
     return_type = Field(type=TypeName)
-    body_expr = Field(type=Expr)
-
-    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
-
-    referenced_type_eq = Property(
-        Entity.return_type.referenced_type_eq &
-        Entity.parameters.logic_all(lambda p: p.referenced_type_eq) &
-        Entity.body_expr.type_eq &
-        Bind(Entity.body_expr.type_var, Entity.return_type.get_referenced_type)
-    )
 
     @langkit_property(return_type=T.Int, public=True)
     def arity():
@@ -844,6 +842,27 @@ class FunDecl(Declaration):
         )
 
 
+class FunDecl(Declaration):
+    """
+    Function definition.
+
+    For instance::
+       fun add(x: int, y: int) -> int = x + y
+    """
+
+    spec = Field(type=FunSpec)
+    body_expr = Field(type=Expr)
+
+    env_spec = EnvSpec(add_to_env_kv(Self.spec.name.symbol, Self))
+
+    referenced_type_eq = Property(
+        Entity.spec.parameters.logic_all(lambda p: p.referenced_type_eq) &
+        Entity.spec.return_type.referenced_type_eq &
+        Bind(Entity.body_expr.type_var,
+             Entity.spec.return_type.referenced_type_var)
+    )
+
+
 class FunCall(Expr):
     """
     Function call.
@@ -859,23 +878,24 @@ class FunCall(Expr):
         Let(
             lambda f=Self.called_function:
             If(f.is_null | Not(f.is_a(FunDecl)) |
-                (Entity.resolved_arguments.length != f.arity),
+                (Entity.resolved_arguments.length != f.spec.arity),
 
                LogicFalse(),
 
                f.referenced_type_eq &
                Entity.resolved_arguments.logic_all(
-                    lambda e: Let(
-                        lambda p=f.find_parameter(e.name.text)._.as_entity:
+                    lambda a: Let(
+                        lambda p=f.spec.find_parameter(a.name.text)._.as_entity:
                         If(p.is_null,
                            LogicFalse(),
                            p.referenced_type_eq &
-                           e.expr.as_entity.type_eq &
-                           Bind(e.expr.type_var,
+                           a.expr.as_entity.type_eq &
+                           Bind(a.expr.type_var,
                                 p.get_referenced_type))
                     )
                ) &
-               Bind(Self.type_var, f.return_type.referenced_type_var))
+               f.spec.return_type.referenced_type_eq &
+               Bind(Self.type_var, f.spec.return_type.referenced_type_var))
             )
     )
 
@@ -902,14 +922,14 @@ class FunCall(Expr):
         """
         return Let(
             lambda f=Self.called_function:
-            If(f.is_null | (Self.arity > f.arity),
+            If(f.is_null | (Self.arity > f.spec.arity),
                No(NamedArg.entity.array),
                Self.arguments.map(
                    lambda pos, arg:
                    arg.match(
                        lambda e=ExprArg:
                        SynthNamedArg.new(arg_name=Self.called_function()
-                                         .parameters.at(pos).identifier,
+                                         .spec.parameters.at(pos).identifier,
                                          value_expr=e.value_expr).cast(
                            NamedArg).as_entity,
                        lambda n=NamedArg: n.as_entity,
@@ -928,6 +948,7 @@ class FunCall(Expr):
             lambda call_args=Self.as_entity.call_args:
             Let(lambda default_args=
                        Self.called_function()
+                           .spec
                            .default_parameters()
                            .filter(lambda p:
                                    dsl_expr.Not(call_args.any(
@@ -1422,13 +1443,17 @@ lkql_grammar.add_rules(
                   Token.Eq,
                   G.expr),
 
-    fun_decl=FunDecl(Token.Fun,
+    fun_kind=Or(FunKind.alt_function(Token.Fun)),
+
+    fun_spec=FunSpec(G.fun_kind,
                      G.identifier,
                      Token.LPar,
                      List(G.param, empty_valid=True, sep=Token.Coma),
                      Token.RPar,
                      Token.RArrow,
-                     G.type_expr,
+                     G.type_expr),
+
+    fun_decl=FunDecl(G.fun_spec,
                      Token.Eq,
                      G.expr),
 

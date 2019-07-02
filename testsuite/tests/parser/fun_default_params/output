@@ -1,37 +1,41 @@
 FunDecl
-|name:
-|  Identifier: dummy
-|parameters:
-|  ParameterDeclList
-|  |  ParameterDecl
-|  |  |param_identifier:
-|  |  |  Identifier: a
-|  |  |type_annotation:
-|  |  |  TypeName
-|  |  |  |identifier:
-|  |  |  |  Identifier: int
-|  |  DefaultParam
-|  |  |param_identifier:
-|  |  |  Identifier: b
-|  |  |type_annotation:
-|  |  |  TypeName
-|  |  |  |identifier:
-|  |  |  |  Identifier: int
-|  |  |default_expr:
-|  |  |  IntegerLiteral: 40
-|  |  DefaultParam
-|  |  |param_identifier:
-|  |  |  Identifier: c
-|  |  |type_annotation:
-|  |  |  TypeName
-|  |  |  |identifier:
-|  |  |  |  Identifier: int
-|  |  |default_expr:
-|  |  |  IntegerLiteral: 2
-|return_type:
-|  TypeName
-|  |identifier:
-|  |  Identifier: int
+|spec:
+|  FunSpec
+|  |fun_kind:
+|  |  FunKindFunction
+|  |name:
+|  |  Identifier: dummy
+|  |parameters:
+|  |  ParameterDeclList
+|  |  |  ParameterDecl
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: a
+|  |  |  |type_annotation:
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: int
+|  |  |  DefaultParam
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: b
+|  |  |  |type_annotation:
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: int
+|  |  |  |default_expr:
+|  |  |  |  IntegerLiteral: 40
+|  |  |  DefaultParam
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: c
+|  |  |  |type_annotation:
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: int
+|  |  |  |default_expr:
+|  |  |  |  IntegerLiteral: 2
+|  |return_type:
+|  |  TypeName
+|  |  |identifier:
+|  |  |  Identifier: int
 |body_expr:
 |  BinOp
 |  |left:
@@ -46,4 +50,3 @@ FunDecl
 |  |  OpPlus
 |  |right:
 |  |  Identifier: c
-

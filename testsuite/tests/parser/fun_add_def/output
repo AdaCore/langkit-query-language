@@ -1,26 +1,30 @@
 FunDecl
-|name:
-|  Identifier: add
-|parameters:
-|  ParameterDeclList
-|  |  ParameterDecl
-|  |  |param_identifier:
-|  |  |  Identifier: x
-|  |  |type_annotation:
-|  |  |  TypeName
-|  |  |  |identifier:
-|  |  |  |  Identifier: int
-|  |  ParameterDecl
-|  |  |param_identifier:
-|  |  |  Identifier: y
-|  |  |type_annotation:
-|  |  |  TypeName
-|  |  |  |identifier:
-|  |  |  |  Identifier: int
-|return_type:
-|  TypeName
-|  |identifier:
-|  |  Identifier: int
+|spec:
+|  FunSpec
+|  |fun_kind:
+|  |  FunKindFunction
+|  |name:
+|  |  Identifier: add
+|  |parameters:
+|  |  ParameterDeclList
+|  |  |  ParameterDecl
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: x
+|  |  |  |type_annotation:
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: int
+|  |  |  ParameterDecl
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: y
+|  |  |  |type_annotation:
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: int
+|  |return_type:
+|  |  TypeName
+|  |  |identifier:
+|  |  |  Identifier: int
 |body_expr:
 |  BinOp
 |  |left:
@@ -29,3 +33,4 @@ FunDecl
 |  |  OpPlus
 |  |right:
 |  |  Identifier: y
+

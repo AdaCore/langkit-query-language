@@ -3,10 +3,12 @@ IfThenElse
 |  DotCall
 |  |receiver:
 |  |  Identifier: node
-|  |member:
-|  |  Identifier: property
-|  |arguments:
-|  |  ArgList: <empty list>
+|  |call:
+|  |  FunCall
+|  |  |name:
+|  |  |  Identifier: property
+|  |  |arguments:
+|  |  |  ArgList: <empty list>
 |then_expr:
 |  IntegerLiteral: 1
 |else_expr:

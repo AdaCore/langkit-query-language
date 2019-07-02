@@ -485,11 +485,13 @@ package body LKQL.Evaluation is
          Raise_Invalid_Kind
            (Ctx, Node.F_Receiver.As_LKQL_Node, Kind_Node, Receiver);
       elsif Is_Nullable (Receiver) then
-         Raise_Null_Access (Ctx, Receiver, Node.F_Member);
+         Raise_Null_Access (Ctx, Receiver, Node.F_Call.F_Name);
       end if;
 
-      return Node_Data.Eval_Node_Property
-        (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments);
+      return Node_Data.Eval_Node_Property (Ctx,
+                                           Node_Val (Receiver),
+                                           Node.F_Call.F_Name,
+                                           Node.F_Call.F_Arguments);
    end Eval_Dot_Call;
 
    --------------------
@@ -505,7 +507,7 @@ package body LKQL.Evaluation is
       return (if Receiver.Get.Is_Null_Node
               then To_Primitive (Receiver, Nullable => True)
               else Node_Data.Eval_Node_Property
-                (Ctx, Receiver, Node.F_Member, Node.F_Arguments));
+                (Ctx, Receiver, Node.F_Call.F_Name, Node.F_Call.F_Arguments));
    end Eval_Safe_Call;
 
    -------------
