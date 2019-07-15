@@ -5,7 +5,7 @@ FunDecl
 |  |  FunKindFunction
 |  |name:
 |  |  Identifier: dummy
-|  |parameters:
+|  |params:
 |  |  ParameterDeclList
 |  |  |  ParameterDecl
 |  |  |  |param_identifier:
@@ -32,7 +32,7 @@ FunDecl
 |  |  |  |  |  Identifier: int
 |  |  |  |default_expr:
 |  |  |  |  IntegerLiteral: 2
-|  |return_type:
+|  |ret_type:
 |  |  TypeName
 |  |  |identifier:
 |  |  |  Identifier: int

@@ -1,0 +1,5 @@
+prototype Collection<T> {
+    fun get(pos: int) -> T
+
+    fun put(value: T) -> unit
+}

@@ -5,9 +5,9 @@ FunDecl
 |  |  FunKindFunction
 |  |name:
 |  |  Identifier: allNodes
-|  |parameters:
+|  |params:
 |  |  ParameterDeclList: <empty list>
-|  |return_type:
+|  |ret_type:
 |  |  TypeName
 |  |  |identifier:
 |  |  |  Identifier: list

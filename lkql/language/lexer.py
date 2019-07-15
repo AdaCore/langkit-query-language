@@ -26,6 +26,8 @@ class Token(LexerToken):
     Else = WithSymbol()
     Not = WithSymbol()
     Null = WithSymbol()
+    Prototype = WithSymbol()
+    AstNode = WithSymbol()
 
     Dot = WithText()
     QuestionDot = WithText()
@@ -52,6 +54,8 @@ class Token(LexerToken):
     RPar = WithText()
     LBrack = WithText()
     RBrack = WithText()
+    LCurl = WithText()
+    RCurl = WithText()
     At = WithText()
     Pipe = WithText()
     LArrow = WithText()
@@ -92,6 +96,8 @@ lkql_lexer.add_rules(
     (Literal(")"),                                          Token.RPar),
     (Literal("["),                                          Token.LBrack),
     (Literal("]"),                                          Token.RBrack),
+    (Literal("{"),                                          Token.LCurl),
+    (Literal("}"),                                          Token.RCurl),
     (Literal("@"),                                          Token.At),
     (Literal("|"),                                          Token.Pipe),
     (Literal("<-"),                                         Token.LArrow),
@@ -117,6 +123,8 @@ lkql_lexer.add_rules(
     (Literal("then"),                                       Token.Then),
     (Literal("not"),                                        Token.Not),
     (Literal("null"),                                       Token.Null),
+    (Literal("prototype"),                                  Token.Prototype),
+    (Literal("astnode"),                                    Token.AstNode),
     (Pattern("[0-9]+"),                                     Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),                         Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),                    Token.KindName),

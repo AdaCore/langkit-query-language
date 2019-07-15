@@ -1,0 +1,5 @@
+prototype List<T> { }
+
+astnode SuperNode { }
+
+query SuperNode

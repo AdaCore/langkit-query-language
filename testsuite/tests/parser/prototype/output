@@ -1,0 +1,48 @@
+Prototype
+|kind:
+|  PrototypeKindPrototype
+|identifier:
+|  Identifier: Collection
+|type_params:
+|  TypeParameterList
+|  |  TypeParameter
+|  |  |identifier:
+|  |  |  Identifier: T
+|specs:
+|  FunSpecList
+|  |  FunSpec
+|  |  |fun_kind:
+|  |  |  FunKindFunction
+|  |  |name:
+|  |  |  Identifier: get
+|  |  |params:
+|  |  |  ParameterDeclList
+|  |  |  |  ParameterDecl
+|  |  |  |  |param_identifier:
+|  |  |  |  |  Identifier: pos
+|  |  |  |  |type_annotation:
+|  |  |  |  |  TypeName
+|  |  |  |  |  |identifier:
+|  |  |  |  |  |  Identifier: int
+|  |  |ret_type:
+|  |  |  TypeName
+|  |  |  |identifier:
+|  |  |  |  Identifier: T
+|  |  FunSpec
+|  |  |fun_kind:
+|  |  |  FunKindFunction
+|  |  |name:
+|  |  |  Identifier: put
+|  |  |params:
+|  |  |  ParameterDeclList
+|  |  |  |  ParameterDecl
+|  |  |  |  |param_identifier:
+|  |  |  |  |  Identifier: value
+|  |  |  |  |type_annotation:
+|  |  |  |  |  TypeName
+|  |  |  |  |  |identifier:
+|  |  |  |  |  |  Identifier: T
+|  |  |ret_type:
+|  |  |  TypeName
+|  |  |  |identifier:
+|  |  |  |  Identifier: unit
