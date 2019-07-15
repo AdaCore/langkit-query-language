@@ -20,6 +20,12 @@ class TypeCheckDriver(BasicTestDriver):
         unit = context.get_from_file(os.path.join(test_dir, 'script'))
         expected = read_to_string(os.path.join(test_dir, 'output'))
 
+        if len(unit.diagnostics) != 0:
+            self.result.set_status(TestStatus.FAIL)
+            self.result.env['diagnostics'] = str(unit.diagnostics)
+            self.push_result()
+            return
+
         for (node, expected_type) in zip(unit.root, expected.split('\n')):
             if node.p_type_name != expected_type:
                 self.result.set_status(TestStatus.FAIL)

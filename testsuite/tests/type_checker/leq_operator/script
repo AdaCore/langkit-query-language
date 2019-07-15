@@ -1,5 +1,5 @@
 42 <= 41
-"Hello" <= "Allo
+"Hello" <= "Allo"
 42 <= "World"
 "Hello" <= 42
 () <= ()
