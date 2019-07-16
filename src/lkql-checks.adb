@@ -47,9 +47,8 @@ package body LKQL.Checks is
    procedure Check_Fun_Call_Arguments (Ctx : Eval_Context; Node : L.Fun_Call)
    is
       Names_Seen     : String_Set;
-      Def            : constant L.Fun_Decl := Node.P_Called_Function;
-      Expected_Arity : constant Integer :=
-        Node.P_Called_Function.F_Spec.P_Arity;
+      Spec            : constant L.Fun_Spec_Base := Node.P_Called_Spec;
+      Expected_Arity : constant Integer := Spec.P_Arity;
    begin
       if Node.P_Resolved_Arguments'Length /= Expected_Arity then
          Raise_Invalid_Arity (Ctx, Expected_Arity, Node.F_Arguments);
@@ -57,7 +56,7 @@ package body LKQL.Checks is
 
       for Arg of Node.F_Arguments loop
          if Arg.P_Has_Name then
-            if not Def.F_Spec.P_Has_Parameter (Arg.P_Name.Text) then
+            if not Spec.P_Has_Parameter (Arg.P_Name.Text) then
                Raise_Unknown_Argument (Ctx, Arg.P_Name);
             end if;
 

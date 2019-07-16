@@ -8,7 +8,7 @@ from langkit.expressions import (
     Bind, LogicFalse, Entity, Not, Var, ArrayLiteral
 )
 import langkit.expressions as dsl_expr
-from langkit.envs import add_to_env_kv, EnvSpec
+from langkit.envs import add_to_env_kv, EnvSpec, add_env
 from lexer import Token
 
 
@@ -55,11 +55,11 @@ class LKQLNode(ASTNode):
     @langkit_property(public=True, return_type=T.TypeDecl.entity)
     def get_type():
         """
-        Return an node's type.
+        Return this node's type.
         A special "error" type will be returned if the node isn't well-typed.
         """
         return If(Entity.type_eq.solve,
-                  Entity.type_var.get_value.cast_or_raise(TypeDecl),
+                  Entity.type_var.get_value._.cast_or_raise(TypeDecl),
                   Self.lookup_type("error"))
 
     @langkit_property(public=True, return_type=T.String)
@@ -192,6 +192,21 @@ class TypeDecl(Declaration):
         """
         pass
 
+    @langkit_property(public=True, return_type=T.SynthTypeName, memoized=True)
+    def make_synthetic_type_name():
+        """
+        Return a synthetic TypeName node referencing this type.
+        """
+        return SynthTypeName.new(
+            name_val=Entity.name
+        )
+
+    @langkit_property(public=False, return_type=T.TypeDecl, memoized=True)
+    def list_type():
+        return Self.lookup_type("List").cast(Prototype).apply_type_args(
+            ArrayLiteral([Entity])
+        )
+
 
 class BuiltinTypeDecl(TypeDecl):
     """
@@ -215,6 +230,12 @@ class TypeRef(LKQLNode):
     Referenced to an existing type.
     """
 
+    type_eq = Property(
+        Let(lambda t=Entity.referenced_type:
+            If(t.is_null,
+               LogicFalse(),
+               Bind(Entity.type_var, t))))
+
     @langkit_property(return_type=T.String, kind=AbstractKind.abstract,
                       public=True)
     def name():
@@ -223,17 +244,17 @@ class TypeRef(LKQLNode):
         """
         pass
 
+    @langkit_property(return_type=T.TypeDecl.entity, public=False,
+                      memoized=True)
+    def referenced_type():
+        return Entity.lookup_type_name(Entity.name)
+
 
 @abstract
 class TypeNameBase(TypeRef):
     """
     Base class for syntactic & synthetic TypeName nodes.
     """
-    type_eq = Property(
-        Let(lambda t=Entity.lookup_type_name(Entity.name):
-            If(t.is_null,
-               LogicFalse(),
-               Bind(Entity.type_var, t))))
 
 
 class TypeName(TypeNameBase):
@@ -577,6 +598,12 @@ class DotCall(Expr):
     receiver = Field(type=Expr)
     call = Field(type=T.FunCall)
 
+    type_eq = Property(
+        Entity.receiver.type_eq &
+        Entity.call.type_eq &
+        Bind(Entity.type_var, Entity.call.type_var)
+    )
+
 
 class SafeCall(DotCall):
     """
@@ -650,13 +677,6 @@ class BasePattern(LKQLNode):
                   False,
                   Self.value_part.is_a(ChainedNodePattern))
 
-    @langkit_property(return_type=T.Symbol, public=True)
-    def value_type_name():
-        """
-        Return the kind name of the values that match this pattern.
-        """
-        return No(Symbol)
-
 
 @abstract
 class UnfilteredPattern(BasePattern):
@@ -675,6 +695,13 @@ class FilteredPattern(BasePattern):
     """
     pattern = Field(type=UnfilteredPattern)
     predicate = Field(type=Expr)
+
+    type_eq = Property(
+        Entity.pattern.type_eq &
+        Entity.predicate.type_eq &
+        Bind(Entity.predicate.type_var, Entity.lookup_type("bool")) &
+        Bind(Entity.type_var, Entity.pattern.type_var)
+    )
 
     @langkit_property()
     def binding_name():
@@ -728,6 +755,15 @@ class FullPattern(BindingPattern):
 
     value_pattern = Field(type=ValuePattern)
 
+    type_eq = Property(
+        Entity.value_pattern.type_eq &
+        Bind(Entity.type_var, Entity.value_pattern.type_var)
+    )
+
+    env_spec = EnvSpec(
+        add_to_env_kv(Self.binding.symbol, Self.value_pattern)
+    )
+
 
 class IsClause(Expr):
     """
@@ -759,22 +795,15 @@ class Query(Expr):
 
     pattern = Field(type=BasePattern)
 
+    env_spec = EnvSpec(add_env())
+
     @langkit_property()
     def type_eq():
-        node_type = Var(Self.lookup_type(Self.pattern.value_type_name)
-                        ._.cast(T.Prototype))
+        t = Var(Entity.pattern.get_type._.cast(T.Prototype))
 
-        return If(node_type.is_null | Not(node_type.is_node_prototype),
+        return If(t.is_null | Not(t.is_node_prototype),
                   LogicFalse(),
-                  Bind(Entity.type_var, Entity.get_result_type(node_type)))
-
-    @langkit_property(return_type=T.SynthPrototype, public=False, memoized=True)
-    def get_result_type(node_type=T.Prototype.entity):
-        name_node = SynthTypeName.new(
-            name_val=node_type.name
-        )
-        return (Self.lookup_type("List").cast(T.Prototype)
-                .apply_type_args(ArrayLiteral([name_node.cast(TypeRef).as_entity])))
+                  Bind(Entity.type_var, t.list_type))
 
 
 class ArrowAssoc(LKQLNode):
@@ -899,40 +928,58 @@ class FunSpecBase(Declaration):
         )
 
     @langkit_property(return_type=T.SynthFunSpec, public=False, memoized=True)
-    def monomorphize(type_args=T.TypeParameterValue.array):
+    def monomorphize(formals=T.TypeParameter.entity.array,
+                     actuals=T.TypeDecl.entity.array):
         return SynthFunSpec.new(
             fun_kind=Self.fun_kind,
             name=Self.name,
             params=Entity.parameters.map(
-                lambda p: Entity.monomorphize_param(p, type_args)
+                lambda p: Entity.monomorphize_param(formals, actuals, p)
             ),
             ret_type=Let(
-                lambda a=type_args.find(
-                    lambda t: t.identifier ==
-                    Self.return_type_annotation.as_entity.name
+                lambda t=Entity.actual_for_name(
+                    formals, actuals,
+                    Entity.return_type_annotation.as_entity.name
                 )
-                : If(a.is_null, Self.return_type_annotation, a.value)
+                : If(t.is_null,
+                     Self.return_type_annotation,
+                     t.make_synthetic_type_name)
             )
         )
 
     @langkit_property(return_type=T.ParameterDecl, memoized=True,
                       public=False)
-    def monomorphize_param(param=ParameterDecl.entity,
-                           type_args=T.TypeParameterValue.array):
-
-        matching_arg = Var(type_args.find(
-            lambda t: t.identifier == param.type_annotation.name
-        ))
+    def monomorphize_param(formals=T.TypeParameter.entity.array,
+                           actuals=T.TypeDecl.entity.array,
+                           param=ParameterDecl.entity):
+        matching_arg = Entity.actual_for_name(
+            formals, actuals, param.type_annotation.name
+        )
 
         return If(matching_arg.is_null,
-
                   param.node,
-
                   SynthParameterDecl.new(
                       param_identifier=param.param_identifier.node,
-                      type_annotation=matching_arg.value
+                      type_annotation=matching_arg.make_synthetic_type_name
                   ).cast(ParameterDecl)
         )
+
+    @langkit_property(return_type=T.TypeDecl.entity, public=False)
+    def actual_for_name(formals=T.TypeParameter.entity.array,
+                        actuals=T.TypeDecl.entity.array,
+                        name=T.String):
+        """
+        Return the actual type parameter corresponding to the formal named
+        'name'.
+        """
+        idx = Var(formals.filtermap(
+            lambda i, e: i,
+            lambda e: e.name == name
+        ))
+
+        return If(idx.length == 0,
+                  No(TypeDecl).as_entity,
+                  actuals.at(0))
 
 
 @synthetic
@@ -1007,16 +1054,15 @@ class FunCall(Expr):
 
     type_eq = Property(
         Let(
-            lambda f=Self.called_function:
-            If(f.is_null | Not(f.is_a(FunDecl)) |
-               (Entity.resolved_arguments.length != f.spec.arity),
+            lambda f=Entity.called_spec:
+            If(f.is_null | (Entity.resolved_arguments.length != f.arity),
 
                LogicFalse(),
 
                f.type_eq &
                Entity.resolved_arguments.logic_all(
                     lambda a: Let(
-                        lambda p=f.spec.find_parameter(a.name.text)._.as_entity:
+                        lambda p=f.find_parameter(a.name.text)._.as_entity:
                         If(p.is_null,
                            LogicFalse(),
                            p.type_eq &
@@ -1024,9 +1070,9 @@ class FunCall(Expr):
                            Bind(a.expr.as_entity.type_var, p.type_var))
                     )
                ) &
-               f.spec.return_type_annotation.as_entity.type_eq &
+               f.return_type_annotation.as_entity.type_eq &
                Bind(Entity.type_var,
-                    f.spec.return_type_annotation.as_entity.type_var))
+                    f.return_type_annotation.as_entity.type_var))
             )
     )
 
@@ -1037,60 +1083,53 @@ class FunCall(Expr):
         """
         return Self.arguments.length
 
-    @langkit_property(return_type=FunDecl.entity, public=True)
-    def called_function():
-        """
-        Return the function definition that corresponds to the called function.
-        """
-        return Self.node_env.get_first(Self.name.symbol) \
-                    ._.cast_or_raise(FunDecl)
-
-    @langkit_property(return_type=FunSpec.entity, public=True)
+    @langkit_property(return_type=FunSpecBase.entity, public=True)
     def called_spec():
         """
         Return the specification of the function/method referenced by a FunCall
         node.
         """
-        dot_call_parent = Var(Entity.parent.cast(DotCall))
 
-        return If(dot_call_parent.is_null,
+        return Entity.parent.match(
+            # If the call belong to a DotCall node, search the corresponding
+            # method.
+            lambda p=DotCall: p.receiver.get_type._.cast(PrototypeBase)
+                     ._.find_method(Self.name.text),
 
-                  # If the call doesnt belong to a DotCall node, search the
-                  # function in the environment.
-                  (Self.node_env.get_first(Self.name.symbol)
-                   ._.cast_or_raise(FunDecl).spec),
+            # Otherwise search the function in the environment.
+            lambda _: Self.node_env.get_first(Self.name.symbol)
+                      ._.cast(FunDecl).spec
+        )
 
-                  # Otherwise, search it in the receiver's prototype
-                  (dot_call_parent.receiver.get_type._.cast_or_raise(Prototype)
-                   .then(lambda p: p.find_method(Self.name.text)._.as_entity))
-                  )
+    @langkit_property(return_type=T.FunDecl.entity, public=True)
+    def called_function():
+        """
+        Return the called function, if any.
+        """
+        return Entity.called_spec.parent.cast(FunDecl)
 
-
-    @langkit_property(return_type=NamedArg.entity.array, memoized=True,
-                      public=False)
+    @langkit_property(return_type=NamedArg.entity.array, public=False)
     def call_args():
         """
         Return the explicit arguments of this call as named arguments.
         """
         return Let(
-            lambda f=Self.called_function:
-            If(f.is_null | (Self.arity > f.spec.arity),
+            lambda f=Entity.called_spec:
+            If(f.is_null | (Self.arity > f.arity),
                No(NamedArg.entity.array),
                Self.arguments.map(
                    lambda pos, arg:
                    arg.match(
                        lambda e=ExprArg:
-                       SynthNamedArg.new(arg_name=Self.called_function()
-                                         .spec.parameters.at(pos).identifier,
-                                         value_expr=e.value_expr).cast(
-                           NamedArg).as_entity,
+                       Entity.make_synth_named_arg(
+                           f.parameters.at(pos).identifier, e.value_expr
+                       ),
                        lambda n=NamedArg: n.as_entity,
                    )
                ))
         )
 
-    @langkit_property(return_type=NamedArg.entity.array, public=True,
-                      memoized=True)
+    @langkit_property(return_type=NamedArg.entity.array, public=True)
     def resolved_arguments():
         """
         Return the arguments of this call (default arguments included)
@@ -1099,19 +1138,22 @@ class FunCall(Expr):
         return Let(
             lambda call_args=Self.as_entity.call_args:
             Let(lambda default_args=
-                       Self.called_function()
-                           .spec
-                           .default_parameters()
-                           .filter(lambda p:
-                                   dsl_expr.Not(call_args.any(
-                                       lambda e: e.name().text == p.name())))
-                           .map(lambda param:
-                                SynthNamedArg.new(
-                                    arg_name=param.param_identifier.node,
-                                    value_expr=param.default_expr.node)
-                                .cast(NamedArg)
-                                .as_entity)
+                       Entity.called_spec()
+                              .default_parameters()
+                              .filter(lambda p:
+                                      dsl_expr.Not(call_args.any(
+                                          lambda e: e.name().text == p.name())))
+                              .map(lambda p: Entity.make_synth_named_arg(
+                                  p.param_identifier.node, p.default_expr.node
+                              ))
                 : call_args.concat(default_args)))
+
+    @langkit_property(return_type=NamedArg.entity, public=False, memoized=True)
+    def make_synth_named_arg(name=Identifier, value=Expr):
+        return SynthNamedArg.new(
+            arg_name=name,
+            value_expr=value
+        ).cast(NamedArg).as_entity
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_actual_call():
@@ -1283,9 +1325,12 @@ class NodeKindPattern(NodePattern):
     """
     kind_name = Field(type=Identifier)
 
-    @langkit_property()
-    def value_type_name():
-        return Self.kind_name.symbol
+    type_eq = Property(
+        Let(lambda t=Entity.lookup_type_name(Self.kind_name.text):
+            If(t.is_null,
+               LogicFalse(),
+               Bind(Entity.type_var, t)))
+    )
 
 
 @abstract
@@ -1352,10 +1397,6 @@ class ExtendedNodePattern(NodePattern):
     """
     node_pattern = Field(type=ValuePattern)
     details = Field(type=NodePatternDetail.list)
-
-    @langkit_property()
-    def value_type_name():
-        return Self.node_pattern.value_type_name()
 
 
 @abstract
@@ -1456,17 +1497,6 @@ class TypeParameter(TypeDecl):
         return Self.identifier.text
 
 
-@synthetic
-@has_abstract_list
-class TypeParameterValue(LKQLNode):
-    """
-    Key/value pair associating a type parameter's name to it's concrete type
-    value.
-    """
-    identifier = UserField(type=T.String, public=False)
-    value = UserField(type=TypeRef, public=False)
-
-
 class PrototypeKind(LKQLNode):
     """
     Denotes the kind of a prototype.
@@ -1507,11 +1537,10 @@ class PrototypeBase(TypeDecl):
         pass
 
     @langkit_property(return_type=T.SynthPrototype, public=True, memoized=True)
-    def apply_type_args(args=TypeRef.entity.array):
-        resolved_args = Var(Entity.resolve_type_args(args))
+    def apply_type_args(args=TypeDecl.entity.array):
 
         return If(
-            resolved_args.length != Entity.type_parameters.length,
+            args.length != Entity.type_parameters.length,
             No(T.SynthPrototype),
             SynthPrototype.new(
                 kind=Self.kind,
@@ -1519,25 +1548,11 @@ class PrototypeBase(TypeDecl):
                 full_name=Entity.format_name(args.map(lambda a: a.name)),
                 type_params=(No(TypeParameter.entity.array)),
                 specs=Entity.fun_specs.map(
-                    lambda s: s.monomorphize(resolved_args)\
+                    lambda s: s.monomorphize(Entity.type_parameters, args)\
                         .cast(FunSpecBase).as_entity
                 )
             )
         )
-
-    @langkit_property(return_type=T.TypeParameterValue.array, public=False,
-                      memoized=True)
-    def resolve_type_args(args=TypeRef.entity.array):
-        """
-        Return a list of TypeParameterValue associating each concrete type
-        argument to the matching formal parameter.
-        """
-        return If(args.length != Entity.type_parameters.length,
-                  No(TypeParameterValue.array),
-                  args.map(lambda i, a: TypeParameterValue.new(
-                      identifier=Entity.type_parameters.at(i).identifier.text,
-                      value=a.node
-                  )))
 
     @langkit_property(return_type=T.String, public=False)
     def format_name(type_names=T.String.array):
@@ -1558,6 +1573,13 @@ class PrototypeBase(TypeDecl):
                          String(", ").concat(name))
                       ).concat(Entity.format_args(type_names, pos + 1))
                   )
+
+    @langkit_property(return_type=FunSpecBase.entity, public=True)
+    def find_method(name=T.String):
+        """
+        Return the method named "name", if any.
+        """
+        return Entity.fun_specs.find(lambda x: x.name.text == name)
 
 
 @synthetic
@@ -1603,13 +1625,6 @@ class Prototype(PrototypeBase):
         Return whether this is the prototype of an AST node type.
         """
         return Self.kind.is_a(T.PrototypeKindAstnode)
-    #
-    @langkit_property(return_type=FunSpec, public=True)
-    def find_method(name=T.String):
-        """
-        Return the method named "name", if any.
-        """
-        return Self.specs.find(lambda x: x.name.text == name)
 
 
 @abstract
@@ -1618,6 +1633,19 @@ class ParametrizedGenericBase(TypeRef):
     Root node class for syntactic & synthetic parametrized generics.
     """
     prototype_name = Field(type=TypeName)
+
+    @langkit_property()
+    def type_eq():
+        prototype_val = Entity.prototype_name.get_type.cast(Prototype)
+
+        return \
+            Entity.type_parameters.logic_all(lambda p: p.type_eq) & \
+            Entity.prototype_name.type_eq & \
+            If(prototype_val.is_null,
+               LogicFalse(),
+               Bind(Entity.type_var,
+                    prototype_val.apply_type_args(
+                        Entity.type_parameters.map(lambda p: p.get_type))))
 
     @langkit_property(public=True, memoized=True, kind=AbstractKind.abstract,
                       return_type=T.TypeRef.entity.array)
@@ -1877,11 +1905,11 @@ lkql_grammar.add_rules(
 
     type_name=TypeName(Identifier(Or(Token.Identifier, Token.KindName))),
 
-    type_expr=Or(G.type_name,
-                 ParametrizedGeneric(G.type_name,
+    type_expr=Or(ParametrizedGeneric(G.type_name,
                                      Token.Lt,
                                      List(G.type_expr, sep=Token.Coma),
-                                     Token.Gt)),
+                                     Token.Gt),
+                 G.type_name),
 
     prototype_kind=Or(PrototypeKind.alt_prototype(Token.Prototype),
                       PrototypeKind.alt_astnode(Token.AstNode)),

@@ -3,3 +3,5 @@ prototype List<T> { }
 astnode SuperNode { }
 
 query SuperNode
+let result: List<SuperNode> = query SuperNode // OK
+let result: List<Foo> = query SuperNode // Error

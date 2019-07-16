@@ -1,0 +1,11 @@
+prototype List<T> {
+    fun at(i: int) -> T
+}
+
+astnode Foo {
+    fun bar() -> bool
+}
+
+let result: List<Foo> = query Foo
+result.at(0)
+result.at(0).bar()

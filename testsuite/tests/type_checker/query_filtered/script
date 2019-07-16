@@ -1,0 +1,10 @@
+prototype List<T> {
+    fun at(i: int) -> T
+}
+
+astnode Foo {
+    fun bar() -> bool
+}
+
+query f@Foo when f.bar() // OK
+query f@Foo when "Hello" // Error
