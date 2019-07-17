@@ -58,7 +58,7 @@ package body LKQL.Functions is
          declare
             Arg_Name  : constant Unbounded_Text_Type :=
               To_Unbounded_Text (Arg.P_Name.Text);
-            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
+            Arg_Value : constant Primitive := Eval (Ctx, Arg.F_Expr);
          begin
             Args_Bindings.Insert (Arg_Name, Arg_Value);
          end;
@@ -80,9 +80,9 @@ package body LKQL.Functions is
       end if;
 
       if Call.F_Name.Text = "print" then
-         return Eval_Print (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
+         return Eval_Print (Ctx, Call.F_Arguments.List_Child (1).F_Expr);
       elsif Call.F_Name.Text = "debug" then
-         return Eval_Debug (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
+         return Eval_Debug (Ctx, Call.F_Arguments.List_Child (1).F_Expr);
       end if;
 
       Raise_Unknown_Symbol (Ctx, Call.F_Name);

@@ -8,10 +8,10 @@ SafeCall
 |  |arguments:
 |  |  ArgList
 |  |  |  ExprArg
-|  |  |  |value_expr:
+|  |  |  |expr:
 |  |  |  |  StringLiteral: "arg1"
 |  |  |  ExprArg
-|  |  |  |value_expr:
+|  |  |  |expr:
 |  |  |  |  BinOp
 |  |  |  |  |left:
 |  |  |  |  |  IntegerLiteral: 40

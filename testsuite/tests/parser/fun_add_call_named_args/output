@@ -6,10 +6,10 @@ FunCall
 |  |  NamedArg
 |  |  |arg_name:
 |  |  |  Identifier: x
-|  |  |value_expr:
+|  |  |expr:
 |  |  |  IntegerLiteral: 2
 |  |  NamedArg
 |  |  |arg_name:
 |  |  |  Identifier: y
-|  |  |value_expr:
+|  |  |expr:
 |  |  |  IntegerLiteral: 40

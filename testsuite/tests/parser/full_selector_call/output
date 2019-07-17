@@ -10,10 +10,10 @@ SelectorCall
 |  |  NamedArg
 |  |  |arg_name:
 |  |  |  Identifier: min_depth
-|  |  |value_expr:
+|  |  |expr:
 |  |  |  IntegerLiteral: 1
 |  |  NamedArg
 |  |  |arg_name:
 |  |  |  Identifier: max_depth
-|  |  |value_expr:
+|  |  |expr:
 |  |  |  IntegerLiteral: 3

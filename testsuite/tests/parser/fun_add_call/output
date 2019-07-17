@@ -4,8 +4,8 @@ FunCall
 |arguments:
 |  ArgList
 |  |  ExprArg
-|  |  |value_expr:
+|  |  |expr:
 |  |  |  IntegerLiteral: 2
 |  |  ExprArg
-|  |  |value_expr:
+|  |  |expr:
 |  |  |  IntegerLiteral: 40

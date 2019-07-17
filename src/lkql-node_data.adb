@@ -152,7 +152,7 @@ package body LKQL.Node_Data is
          Result (I) :=
            (if I <= Args.Children_Count
             then To_Introspection_Value
-                    (Eval (Ctx, Args.List_Child (I).P_Expr))
+                    (Eval (Ctx, Args.List_Child (I).F_Expr))
             else Node.Get.Default_Arg_Value (Property_Name, I));
       end loop;
 
