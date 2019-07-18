@@ -1,0 +1,10 @@
+prototype Indexable<T> {
+    fun at(i: int) -> T
+}
+
+prototype List<T>: Indexable<T> { }
+
+astnode SuperNode { }
+
+let result: List<SuperNode> = query SuperNode
+result.at(0)

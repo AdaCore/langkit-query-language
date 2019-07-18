@@ -1,0 +1,55 @@
+TopLevelList
+|  Prototype
+|  |kind:
+|  |  PrototypeKindPrototype
+|  |identifier:
+|  |  Identifier: Indexable
+|  |type_params:
+|  |  TypeParameterList
+|  |  |  TypeParameter
+|  |  |  |identifier:
+|  |  |  |  Identifier: T
+|  |parent_ref: <null>
+|  |specs:
+|  |  FunSpecList
+|  |  |  FunSpec
+|  |  |  |fun_kind:
+|  |  |  |  FunKindFunction
+|  |  |  |name:
+|  |  |  |  Identifier: at
+|  |  |  |params:
+|  |  |  |  ParameterDeclList
+|  |  |  |  |  ParameterDecl
+|  |  |  |  |  |param_identifier:
+|  |  |  |  |  |  Identifier: i
+|  |  |  |  |  |type_annotation:
+|  |  |  |  |  |  TypeName
+|  |  |  |  |  |  |identifier:
+|  |  |  |  |  |  |  Identifier: int
+|  |  |  |ret_type:
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: T
+|  Prototype
+|  |kind:
+|  |  PrototypeKindPrototype
+|  |identifier:
+|  |  Identifier: List
+|  |type_params:
+|  |  TypeParameterList
+|  |  |  TypeParameter
+|  |  |  |identifier:
+|  |  |  |  Identifier: T
+|  |parent_ref:
+|  |  ParametrizedGeneric
+|  |  |prototype_name:
+|  |  |  TypeName
+|  |  |  |identifier:
+|  |  |  |  Identifier: Indexable
+|  |  |parameters:
+|  |  |  TypeRefList
+|  |  |  |  TypeName
+|  |  |  |  |identifier:
+|  |  |  |  |  Identifier: T
+|  |specs:
+|  |  FunSpecList: <empty list>

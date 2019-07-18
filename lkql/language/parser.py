@@ -241,12 +241,34 @@ class TypeRef(LKQLNode):
     def referenced_type():
         return Entity.lookup_type_name(Entity.name)
 
+    @langkit_property(return_type=T.TypeRef, public=False,
+                      kind=AbstractKind.abstract)
+    def monomorphize(formals=T.TypeParameter.entity.array,
+                     actuals=T.TypeDecl.entity.array):
+        """
+        Given two lists representing formal type parameters and the associated
+        actual types, monomorphize the current type reference if it is (or if
+        it contains) a formal type parameter that belongs to the list.
+        """
+        pass
+
 
 @abstract
 class TypeNameBase(TypeRef):
     """
     Base class for syntactic & synthetic TypeName nodes.
     """
+    @langkit_property()
+    def monomorphize(formals=T.TypeParameter.entity.array,
+                     actuals=T.TypeDecl.entity.array):
+        idx = Var(formals.filtermap(
+            lambda i, e: i,
+            lambda e: e.name == Entity.name
+        ))
+
+        return If(idx.length == 0,
+                  Self,
+                  actuals.at(idx.at(0)).make_synthetic_type_name)
 
 
 class TypeName(TypeNameBase):
@@ -871,7 +893,7 @@ class FunSpecBase(Declaration):
 
     @langkit_property(return_type=TypeRef, public=True,
                       kind=AbstractKind.abstract)
-    def return_type_annotation():
+    def return_type():
         """
         Return the type annotation for the return type of the function.
         """
@@ -917,12 +939,7 @@ class FunSpecBase(Declaration):
             params=Entity.parameters.map(
                 lambda p: Entity.monomorphize_param(formals, actuals, p)
             ),
-            ret_type=Entity.actual_for_name(
-                formals, actuals, Entity.return_type_annotation.as_entity.name
-            ).then(
-                lambda t: t.make_synthetic_type_name,
-                Self.return_type_annotation
-            )
+            ret_type=Entity.return_type.as_entity.monomorphize(formals, actuals)
         )
 
     @langkit_property(return_type=T.ParameterDecl, memoized=True,
@@ -951,7 +968,7 @@ class FunSpecBase(Declaration):
         'name'.
         """
         idx = Var(formals.filtermap(
-            lambda i, _: i,
+            lambda i, e: i,
             lambda e: e.name == name
         ))
 
@@ -973,7 +990,7 @@ class SynthFunSpec(FunSpecBase):
         return Self.params.map(lambda x: x.as_entity)
 
     @langkit_property()
-    def return_type_annotation():
+    def return_type():
         return Self.ret_type
 
 
@@ -992,7 +1009,7 @@ class FunSpec(FunSpecBase):
         return Self.params.map(lambda x: x.as_entity)
 
     @langkit_property()
-    def return_type_annotation():
+    def return_type():
         return Self.ret_type
 
 
@@ -1011,10 +1028,10 @@ class FunDecl(Declaration):
 
     type_eq = Property(
         Entity.spec.parameters.logic_all(lambda p: p.type_eq) &
-        Entity.spec.return_type_annotation.as_entity.type_eq &
+        Entity.spec.return_type.as_entity.type_eq &
         Entity.body_expr.type_eq &
         Bind(Entity.body_expr.type_var,
-             Entity.spec.return_type_annotation.as_entity.type_var) &
+             Entity.spec.return_type.as_entity.type_var) &
         Bind(Entity.type_var, Self.lookup_type("unit"))
     )
 
@@ -1033,11 +1050,11 @@ class FunCall(Expr):
     type_eq = Property(
         Entity.called_spec.then(lambda spec:
             # type_check the function spec
-            spec.type_eq &
+                                spec.type_eq &
 
-            # type check the arguments & verrify that the number of arguments
-            # matches the arity of the function
-            Let(lambda args=Entity.resolved_arguments:
+                                # type check the arguments & verrify that the number of arguments
+                                # matches the arity of the function
+                                Let(lambda args=Entity.resolved_arguments:
                 If(args.length != spec.arity,
                    LogicFalse(),
                    args.logic_all(lambda a:
@@ -1048,15 +1065,15 @@ class FunCall(Expr):
                        )
                    ))) &
 
-            # type_check the return type annotation and bind the call's type
-            # varible to this type
-            spec.return_type_annotation.as_entity.type_eq &
-            Bind(Entity.type_var,
-                 spec.return_type_annotation.as_entity.type_var),
+                                # type_check the return type annotation and bind the call's type
+                                # varible to this type
+                                spec.return_type.as_entity.type_eq &
+                                Bind(Entity.type_var,
+                                     spec.return_type.as_entity.type_var),
 
-            # If the spec is null, don't resolve
-            LogicFalse()
-        )
+                                # If the spec is null, don't resolve
+                                LogicFalse()
+                                )
     )
 
     @langkit_property(return_type=T.Int, public=True)
@@ -1519,9 +1536,23 @@ class PrototypeBase(TypeDecl):
         """
         pass
 
-    @langkit_property(return_type=T.SynthPrototype, public=True, memoized=True)
-    def apply_type_args(args=TypeDecl.entity.array):
+    @langkit_property(return_type=TypeRef.entity, public=True,
+                      kind=AbstractKind.abstract)
+    def parent_reference():
+        """
+        Return a type annotation referencing the parent prototype, if any.
+        """
+        pass
 
+    @langkit_property(return_type=T.PrototypeBase.entity, public=True)
+    def parent_prototype():
+        """
+        Return the parent prototype, if any.
+        """
+        return Entity.parent_reference._.get_type.cast(PrototypeBase)
+
+    @langkit_property(return_type=T.SynthPrototype, public=False, memoized=True)
+    def apply_type_args(args=TypeDecl.entity.array):
         return If(
             args.length != Entity.type_parameters.length,
             No(T.SynthPrototype),
@@ -1530,6 +1561,8 @@ class PrototypeBase(TypeDecl):
                 identifier=Self.identifier,
                 full_name=Entity.format_name(args.map(lambda a: a.name)),
                 type_params=(No(TypeParameter.entity.array)),
+                parent_ref=Entity.parent_reference._
+                    .monomorphize(Entity.type_parameters, args),
                 specs=Entity.fun_specs.map(
                     lambda s: s.monomorphize(Entity.type_parameters, args)\
                         .cast(FunSpecBase).as_entity
@@ -1562,7 +1595,10 @@ class PrototypeBase(TypeDecl):
         """
         Return the method named "name", if any.
         """
-        return Entity.fun_specs.find(lambda x: x.name.text == name)
+        return Entity.fun_specs\
+            .find(lambda x: x.name.text == name)\
+            .then(lambda m: m,
+                  Entity.parent_prototype._.find_method(name))
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_node_prototype():
@@ -1580,10 +1616,13 @@ class SynthPrototype(PrototypeBase):
     full_name = UserField(type=T.String, public=False)
     type_params = UserField(type=TypeParameter.entity.array, public=False)
     specs = UserField(type=FunSpecBase.entity.array, public=False)
+    parent_ref = UserField(type=TypeRef, public=False)
 
     type_parameters = Property(Self.type_params)
 
     fun_specs = Property(Self.specs)
+
+    parent_reference = Property(Self.parent_ref.as_entity)
 
     @langkit_property()
     def name():
@@ -1595,6 +1634,7 @@ class Prototype(PrototypeBase):
     Represents a class prototype.
     """
     type_params = Field(type=TypeParameter.list)
+    parent_ref = Field(type=TypeRef)
     specs = Field(type=FunSpec.list)
 
     env_spec = EnvSpec(
@@ -1608,6 +1648,10 @@ class Prototype(PrototypeBase):
     @langkit_property()
     def fun_specs():
         return Self.specs.map(lambda s: s.cast(FunSpecBase).as_entity)
+
+    @langkit_property()
+    def parent_reference():
+        return Entity.parent_ref
 
 
 @abstract
@@ -1657,6 +1701,16 @@ class ParametrizedGenericBase(TypeRef):
                          String(", ").concat(name))
                   ).concat(Entity.format_args(pos + 1))
                )
+
+    @langkit_property(memoized=True)
+    def monomorphize(formals=T.TypeParameter.entity.array,
+                     actuals=T.TypeDecl.entity.array):
+        return SynthParametrizedGeneric.new(
+            prototype_name=Self.prototype_name,
+            parameters=Entity.type_parameters.map(lambda p:
+                p.monomorphize(formals, actuals)
+            )
+        )
 
 
 class ParametrizedGeneric(ParametrizedGenericBase):
@@ -1835,7 +1889,7 @@ lkql_grammar.add_rules(
     assign=Assign(Token.Let,
                   G.identifier,
                   Token.Colon,
-                  G.type_expr,
+                  G.type_ref,
                   Token.Eq,
                   G.expr),
 
@@ -1847,7 +1901,7 @@ lkql_grammar.add_rules(
                      List(G.param, empty_valid=True, sep=Token.Coma),
                      Token.RPar,
                      Token.RArrow,
-                     G.type_expr),
+                     G.type_ref),
 
     fun_decl=FunDecl(G.fun_spec,
                      Token.Eq,
@@ -1888,9 +1942,9 @@ lkql_grammar.add_rules(
 
     type_name=TypeName(Identifier(Or(Token.Identifier, Token.KindName))),
 
-    type_expr=Or(ParametrizedGeneric(G.type_name,
+    type_ref=Or(ParametrizedGeneric(G.type_name,
                                      Token.Lt,
-                                     List(G.type_expr, sep=Token.Coma),
+                                     List(G.type_ref, sep=Token.Coma),
                                      Token.Gt),
                  G.type_name),
 
@@ -1903,6 +1957,7 @@ lkql_grammar.add_rules(
                             List(G.type_parameter, sep=Token.Coma,
                                  empty_valid=False),
                             Token.Gt),
+                        Opt(Token.Colon, G.type_ref),
                         Token.LCurl,
                         List(G.fun_spec, empty_valid=True),
                         Token.RCurl),
@@ -1929,8 +1984,8 @@ lkql_grammar.add_rules(
 
     param=Or(DefaultParam(G.identifier,
                           Token.Colon,
-                          G.type_expr,
+                          G.type_ref,
                           Token.Eq,
                           G.expr),
-             ParameterDecl(G.identifier, Token.Colon, G.type_expr))
+             ParameterDecl(G.identifier, Token.Colon, G.type_ref))
 )
