@@ -869,10 +869,10 @@ class ValExpr(Expr):
 
 class FunKind(LKQLNode):
     """
-    Denoted the "kind" of a function.
+    Denotes the "kind" of a function.
     """
     enum_node = True
-    alternatives = ["function"]
+    alternatives = ["function", "property", "field"]
 
 
 @abstract
@@ -1893,7 +1893,9 @@ lkql_grammar.add_rules(
                   Token.Eq,
                   G.expr),
 
-    fun_kind=Or(FunKind.alt_function(Token.Fun)),
+    fun_kind=Or(FunKind.alt_function(Token.Fun),
+                FunKind.alt_property(Token.Property),
+                FunKind.alt_field(Token.Field)),
 
     fun_spec=FunSpec(G.fun_kind,
                      G.identifier,

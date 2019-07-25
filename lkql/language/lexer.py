@@ -13,6 +13,8 @@ class Token(LexerToken):
     When = WithSymbol()
     Val = WithSymbol()
     Fun = WithSymbol()
+    Property = WithSymbol()
+    Field = WithSymbol()
     Selector = WithSymbol()
     Match = WithSymbol()
     Rec = WithSymbol()
@@ -110,6 +112,8 @@ lkql_lexer.add_rules(
     (Literal("when"),                                       Token.When),
     (Literal("val"),                                        Token.Val),
     (Literal("fun"),                                        Token.Fun),
+    (Literal("property"),                                   Token.Property),
+    (Literal("field"),                                      Token.Field),
     (Literal("selector"),                                   Token.Selector),
     (Literal("match"),                                      Token.Match),
     (Literal("rec"),                                        Token.Rec),
