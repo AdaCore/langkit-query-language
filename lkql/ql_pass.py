@@ -27,17 +27,38 @@ def run(ctx):
     """
     array_types = get_array_types(ctx)
     node_array_types = [t for t in array_types if t.element_type.is_entity_type]
+    node_prototypes = generate_node_prototypes(ctx)
 
     values = {
         'lib_name': ctx.lib_name,
         'lang_name': ctx.lang_name,
         'root_type': ctx.root_grammar_class.raw_name.base_name,
         'node_array_types': node_array_types,
+        'node_lkql_prototypes': node_prototypes,
         'use_unbounded_text_array':
             any(x.api_name == "Unbounded_Text_Array" for x in array_types)
     }
 
     generate_projects(values)
+
+
+def generate_node_prototypes(ctx):
+    """
+    Return a string containing the LKQL prototype of all node types.
+    """
+    types_map = {"Character.array": "string", "Int": "int", "Bool": "bool"}
+
+    def lkql_type_name(t):
+        if t.is_entity_type:
+            return lkql_type_name(t.element_type)
+        elif t.is_array_type:
+            return 'List<{}>'.format(lkql_type_name(t.element_type))
+        else:
+            return types_map[t.dsl_name] if t.dsl_name in types_map else t.dsl_name
+
+    return Template(nodes_prototypes_template)\
+        .render(ctx=ctx, lkql_type_name=lkql_type_name, types_map=types_map)\
+        .strip()
 
 
 def get_array_types(ctx):
@@ -99,3 +120,55 @@ def create_dir(dir):
 
 def get_pass():
     return GlobalPass("generating the interpreter", run)
+
+
+def adaize_string(text):
+    """
+    Return an Ada String literal representing the input text.
+    """
+    return " & LF &\n".join(['"{}"'.format(line) for line in text.split('\n')])
+
+
+nodes_prototypes_template = r"""
+% for n in ctx.astnode_types:
+${render_prototype(n)}
+% endfor
+
+<%def name="render_prototype(node)">\
+astnode ${node.dsl_name}: ${base_type(node)} {
+%if node.base is None:
+    field text() -> ${types_map['Character.array']}
+    field image() -> ${types_map['Character.array']}
+%endif
+${render_fields(node)}
+${render_properties(node)}\
+}
+</%def>
+
+<%def name="base_type(node)">${"ASTNode" if node.base is None else node.base.dsl_name}</%def>
+
+<%def name="render_fields(node)">\
+<% fields = (f for f in public_nonoverriding_fields(node)\
+             if not f.is_property) %>\
+% for f in fields:
+    field ${f._name.lower}() -> ${lkql_type_name(f.type)}
+% endfor
+</%def>
+
+<%def name="render_properties(node)">\
+<% fields = (f for f in public_nonoverriding_fields(node) if f.is_property) %>\
+% for f in fields:
+<% args = ", ".join(format_arg(a) for a in f.arguments)%>\
+    property ${f._name.lower}(${args}) -> ${lkql_type_name(f.type)}
+% endfor
+</%def>
+
+<%def name="public_nonoverriding_fields(node)">\
+<% return (f for f in node._fields.values() if f.is_public and not f.is_overriding) %>
+</%def>
+
+<%def name="format_arg(arg)">\
+<% return "{}: {}".format(arg.dsl_name, lkql_type_name(arg.type)) %>
+</%def>
+"""
+"""
