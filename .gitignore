@@ -40,3 +40,5 @@ lkql/lkql_repl/
 rapport\.pdf
 
 rapport\.synctex\.gz
+
+lkql/lkql_generated/
