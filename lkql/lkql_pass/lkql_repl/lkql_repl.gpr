@@ -8,6 +8,6 @@ project Lkql_Repl is
 
    package Compiler is
       for Default_Switches ("Ada") use ("-gnat12", "-g", "-O0", "-gnata",
-                                        "-gnatwa", "-gnatyg");
+                                        "-gnatwa");
    end Compiler;
 end Lkql_Repl;

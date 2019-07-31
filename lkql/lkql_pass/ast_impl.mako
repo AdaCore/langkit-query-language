@@ -2,9 +2,10 @@ with ${lib_name}.Common; use ${lib_name}.Common;
 with ${lib_name}.Introspection; use ${lib_name}.Introspection;
 
 with Ada.Unchecked_Conversion;
+with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
-package body Ext_AST_Nodes is
+package body ${lang_name}_AST_Nodes is
 
    subtype Built_In_LAL_Field is Node_Data_Reference
       range ${root_type}_Parent .. ${root_type}_Is_Ghost;
@@ -12,7 +13,7 @@ package body Ext_AST_Nodes is
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
 
-   function Data_Reference_For_Name (Receiver : Ext_AST_Node;
+   function Data_Reference_For_Name (Receiver : ${lang_name}_AST_Node;
                                      Name     : Text_Type)
                                      return Any_Node_Data_Reference;
    --  Return the node data type corresponding to 'Name' on the receiver
@@ -21,7 +22,7 @@ package body Ext_AST_Nodes is
    function Is_Built_In (Name : Text_Type) return Boolean;
    --  Return whether the property named 'Name' is built-in
 
-   function Built_In_Field (Receiver      : Ext_AST_Node;
+   function Built_In_Field (Receiver      : ${lang_name}_AST_Node;
                             Property_Name : Text_Type)
                             return Introspection_Value;
    --  Return the value of the built-in property named 'Property_Name' on
@@ -35,7 +36,7 @@ package body Ext_AST_Nodes is
      (Value : Value_Type) return Introspection_Value;
    --  Create an Introspection_value value from the given Value_type value
 
-   function Get_Property_Ref (Node          : Ext_AST_Node;
+   function Get_Property_Ref (Node          : ${lang_name}_AST_Node;
                               Property_Name : Text_Type)
                               return Property_Reference;
    --  Return the reference of the property named `Property_Name` on `Node`.
@@ -77,7 +78,7 @@ package body Ext_AST_Nodes is
         new AST_Node_Array (1 .. Nodes'Length);
    begin
       for I in Nodes'Range loop
-         Result (I) := new Ext_AST_Node'(Node => Nodes (I).As_${root_type});
+         Result (I) := new ${lang_name}_AST_Node'(Node => Nodes (I).As_${root_type});
       end loop;
 
       return (Kind => Kind_Node_Array, Node_Array_Val => Result);
@@ -104,7 +105,7 @@ package body Ext_AST_Nodes is
      (Nodes : AST_Node_Array) return Node_Array;
 
    function Introspection_Node_To_Ada_Node is new Ada.Unchecked_Conversion
-     (AST_Node_Access, Ext_AST_Node_Access);
+     (AST_Node_Access, ${lang_name}_AST_Node_Access);
 
    --------------------------
    -- Node_Array_From_List --
@@ -128,7 +129,7 @@ package body Ext_AST_Nodes is
       (${type.element_type.api_name},
        ${type.api_name},
        As_${type.element_type.api_name});
-   
+
    % endfor
 
    -----------------------------
@@ -136,13 +137,20 @@ package body Ext_AST_Nodes is
    -----------------------------
 
    function Data_Reference_For_Name
-     (Receiver : Ext_AST_Node; Name : Text_Type) return Any_Node_Data_Reference
+     (Receiver : ${lang_name}_AST_Node; Name : Text_Type) return Any_Node_Data_Reference
    is
       Receiver_Type_Id : constant Node_Type_Id :=
         Id_For_Kind (Receiver.Node.Kind);
    begin
       return Lookup_Node_Data (Receiver_Type_Id, To_UTF8 (Name));
    end Data_Reference_For_Name;
+
+   ---------------------
+   -- Node_Prototypes --
+   ---------------------
+
+   function Node_Prototypes (Node : ${lang_name}_AST_Node) return String is
+      (${node_prototypes_string});
 
    -----------------
    -- Is_Built_In --
@@ -155,7 +163,7 @@ package body Ext_AST_Nodes is
    -- Built_In_Field --
    --------------------
 
-   function Built_In_Field (Receiver      : Ext_AST_Node;
+   function Built_In_Field (Receiver      : ${lang_name}_AST_Node;
                             Property_Name : Text_Type)
                             return Introspection_Value
    is
@@ -194,7 +202,7 @@ package body Ext_AST_Nodes is
             return (Kind => Kind_Int, Int_Val => As_Integer (Value));
          when Node_Value =>
             return (Kind     => Kind_Node,
-                    Node_Val => new Ext_AST_Node'(Node => As_Node (Value)));
+                    Node_Val => new ${lang_name}_AST_Node'(Node => As_Node (Value)));
          when Text_Type_Value =>
             return (Kind     => Kind_Text,
                     Text_Val => To_Unbounded_Text (As_Text_Type (Value)));
@@ -220,7 +228,7 @@ package body Ext_AST_Nodes is
    -- Get_Property_Ref --
    ----------------------
 
-   function Get_Property_Ref (Node          : Ext_AST_Node;
+   function Get_Property_Ref (Node          : ${lang_name}_AST_Node;
                               Property_Name : Text_Type)
                               return Property_Reference
    is
@@ -323,7 +331,7 @@ package body Ext_AST_Nodes is
    -----------------------
 
    overriding function Matches_Kind_Name
-     (Node : Ada_AST_Node; Kind_Name : String) return Boolean
+     (Node : ${lang_name}_AST_Node; Kind_Name : String) return Boolean
    is
       Expected_Kind : constant Any_Node_Type_Id :=
         Lookup_DSL_Name (Kind_Name);
@@ -343,7 +351,7 @@ package body Ext_AST_Nodes is
    -------------------
 
    overriding function Is_Field_Name
-     (Node : Ext_AST_Node; Name : Text_Type) return Boolean
+     (Node : ${lang_name}_AST_Node; Name : Text_Type) return Boolean
    is
       Data_Ref : constant Any_Node_Data_Reference :=
         Data_Reference_For_Name (Node, Name);
@@ -358,7 +366,7 @@ package body Ext_AST_Nodes is
    ----------------------
 
    function Is_Property_Name
-     (Node : Ext_AST_Node; Name : Text_Type) return Boolean
+     (Node : ${lang_name}_AST_Node; Name : Text_Type) return Boolean
    is
      (Data_Reference_For_Name (Node, Name) in Property_Reference);
 
@@ -367,7 +375,7 @@ package body Ext_AST_Nodes is
    ------------------
 
    overriding function Access_Field
-     (Node : Ext_AST_Node; Field : Text_Type) return Introspection_Value
+     (Node : ${lang_name}_AST_Node; Field : Text_Type) return Introspection_Value
    is
       Data_Ref : constant Any_Node_Data_Reference :=
          Data_Reference_For_Name (Node, Field);
@@ -385,7 +393,7 @@ package body Ext_AST_Nodes is
    --------------------
 
    overriding function Property_Arity
-     (Node : Ext_AST_Node; Property_Name : Text_Type) return Natural
+     (Node : ${lang_name}_AST_Node; Property_Name : Text_Type) return Natural
    is
      (Property_Argument_Types
         (Get_Property_Ref (Node, Property_Name))'Length);
@@ -394,7 +402,7 @@ package body Ext_AST_Nodes is
    -- Default_Args_Value --
    ------------------------
 
-   overriding function Default_Arg_Value (Node          : Ext_AST_Node;
+   overriding function Default_Arg_Value (Node          : ${lang_name}_AST_Node;
                                           Property_Name : Text_Type;
                                           Arg_Position  : Positive)
                                           return Introspection_Value
@@ -408,7 +416,7 @@ package body Ext_AST_Nodes is
    ----------------------
 
    function Evaluate_Property
-     (Node          : Ext_AST_Node;
+     (Node          : ${lang_name}_AST_Node;
       Property_Name : Text_Type;
       Arguments     : Introspection_Value_Array)
       return Introspection_Value
@@ -435,4 +443,4 @@ package body Ext_AST_Nodes is
 
    end Evaluate_Property;
 
-end Ext_AST_Nodes;
+end ${lang_name}_AST_Nodes;
