@@ -3,23 +3,6 @@ from os.path import join, isdir, dirname, abspath
 from langkit.passes import GlobalPass
 from mako.template import Template
 
-"""
-This langkit plugin pass will recursively walk folders listed in
-'PROJECTS' and run mako on every visited file.
-Processed files will be stored in the the given output directory.
-
-Variables available in the mako templates are:
-  - lib_name: name of the Langkit library beeing generated
-  - lang_name: name of the language
-  - root_type: name of the root AST node class
-  - node_array_types: array types that can be stored in Value_Type values
-"""
-
-
-PROJECTS = [('lkql_repl_template', 'lkql_repl')]
-# List of template projects to be processed, of the form:
-# (PROJECT_TEMPLATE_PATH, OUTPUT_PATH)
-
 LKQL_GEN_ROOT = dirname(abspath(__file__))
 # Root of the `lkql_pass` directory.
 
