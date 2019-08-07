@@ -78,6 +78,9 @@ package LKQL.AST_Nodes is
      array (Positive range <>) of Introspection_Value;
    --  Array of Introspection values
 
+   function Node_Prototypes (Node : AST_Node) return String is abstract;
+   --  Return the LKQL prototypes of the target language's node types.
+
    function "=" (Left, Right : AST_Node) return Boolean is abstract;
    --  Checks for equality between two AST nodes
 
