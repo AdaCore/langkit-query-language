@@ -20,6 +20,8 @@ class Manage(ManageScript):
 
         ctx.add_with_clause('Implementation', ADA_BODY, 'Liblkqllang.Prelude',
                             use_clause=True)
+        ctx.add_with_clause('Implementation', ADA_BODY,
+                            'Langkit_Support.Adalog.Debug', use_clause=True)
 
         return ctx
 

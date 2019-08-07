@@ -3,17 +3,47 @@
 -- P_Create_Logic_Var --
 ------------------------
 
-function P_Create_Logic_Var
-  (Node : access Bare_LKQL_Node_Type'Class) return Logic_Var is
+function P_Create_Logic_Var (Node : access Bare_LKQL_Node_Type'Class;
+                             Name : Character_Type_Array_Access) 
+                             return Logic_Var
+is
+  Var      : Logic_Var := Entity_Vars.Create;
+  Dbg_Name : String_Access := new String'(To_UTF8 (Name.Items));
 begin
-   return Eq_Node.Refs.Create;
+   Var.Dbg_Name := Dbg_Name;
+   return Var;
 end P_Create_Logic_Var;
+
+----------------------------
+-- P_Enable_Solver_Traces --
+----------------------------
+
+function P_Enable_Solver_Traces
+   (Node : access Bare_LKQL_Node_Type'Class) return Integer
+is
+begin
+   GNATCOLL.Traces.Parse_Config_File;
+   Set_Debug_State (Trace);
+   return 0;
+end P_Enable_Solver_Traces;
+
+-----------------------------
+-- P_Disable_Solver_Traces --
+-----------------------------
+
+function P_Disable_Solver_Traces
+   (Node : access Bare_LKQL_Node_Type'Class) return Integer
+is
+begin
+   Set_Debug_State (None);
+   return 0;
+end P_Disable_Solver_Traces;
 
 ------------------------
 -- P_Lookup_Type_Name --
 ------------------------
 
-function P_Lookup_Type_Name (Node : access Bare_LKQL_Node_Type'Class;
+function P_Lookup_Type_Name (Node   : access Bare_LKQL_Node_Type'Class;
                              Name   : Character_Type_Array_Access;
                              E_Info : Internal_Entity_Info := No_Entity_Info)
                              return Internal_Entity_Type_Decl

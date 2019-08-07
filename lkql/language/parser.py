@@ -25,14 +25,19 @@ class LKQLNode(ASTNode):
 
     @langkit_property(public=False, return_type=LogicVar, external=True,
                       uses_entity_info=False, uses_envs=False)
-    def create_logic_var():
+    def enable_solver_traces():
         """
-        LogicVar constructor.
+        Activate logic solver traces.
         """
         pass
 
     @langkit_property(public=True, return_type=T.Int, external=True,
                       uses_entity_info=False, uses_envs=False)
+    def disable_solver_traces():
+        """
+        Deactivate logic solver traces.
+        """
+        pass
     def create_logic_var(name=T.String):
         """
         LogicVar constructor.
@@ -78,6 +83,8 @@ class Declaration(LKQLNode):
 
     type_eq = Property(Bind(Entity.type_var, Self.lookup_type("unit")))
 
+    type_var_dbg_name = Property(String("Declaration"))
+
 
 @abstract
 @has_abstract_list
@@ -87,6 +94,10 @@ class Expr(LKQLNode):
     """
 
     type_eq = Property(LogicFalse())
+
+    type_var_dbg_name = Property(
+        String("Expr(").concat(Self.text).concat(String(")"))
+    )
 
 
 class TopLevelList(LKQLNode.list):
@@ -107,6 +118,10 @@ class BoolLiteral(Expr):
         Bind(Entity.type_var, Self.lookup_type("bool"))
     )
 
+    type_var_dbg_name = Property(
+        String("Bool(").concat(Self.text).concat(String(")"))
+    )
+
 
 class Identifier(Expr):
     """
@@ -119,6 +134,10 @@ class Identifier(Expr):
             lambda ref: ref.type_eq & Bind(Entity.type_var, ref.type_var),
             LogicFalse()
         )
+    )
+
+    type_var_dbg_name = Property(
+        String("Identifier(").concat(Self.text).concat(String(")"))
     )
 
     @langkit_property(return_type=LKQLNode.entity, public=True)
@@ -228,6 +247,10 @@ class TypeRef(LKQLNode):
         )
     )
 
+    type_var_dbg_name = Property(
+        String("TypeRef(").concat(Entity.name).concat(String(")"))
+    )
+
     @langkit_property(return_type=T.String, kind=AbstractKind.abstract,
                       public=True)
     def name():
@@ -332,6 +355,10 @@ class Arg(LKQLNode):
         Bind(Entity.type_var, Entity.expr.type_var)
     )
 
+    type_var_dbg_name = Property(
+        String("Arg(").concat(Self.text).concat(String(")"))
+    )
+
     @langkit_property(return_type=Identifier, public=True)
     def name():
         """
@@ -358,6 +385,10 @@ class NamedArg(Arg):
     arg_name = Field(type=Identifier)
     expr = Field(type=Expr)
 
+    type_var_dbg_name = Property(
+        String("NamedArg(").concat(Self.text).concat(String(")"))
+    )
+
     @langkit_property()
     def name():
         return Self.arg_name
@@ -368,7 +399,12 @@ class SynthNamedArg(NamedArg):
     """
     Synthetic NamedArg node
     """
-    pass
+    type_var_dbg_name = Property(
+        String("SynthNamedArg(").concat(Self.arg_name.text)
+                                .concat(String(","))
+                                .concat(Self.expr.text)
+                                .concat(String(")"))
+    )
 
 
 class ExprArg(Arg):
@@ -376,6 +412,10 @@ class ExprArg(Arg):
     Argument that consists of an expression
     """
     expr = Field(type=Expr)
+
+    type_var_dbg_name = Property(
+        String("ExprArg(").concat(Self.text).concat(String(")"))
+    )
 
 
 class ParameterDecl(Declaration):
@@ -393,6 +433,10 @@ class ParameterDecl(Declaration):
     type_eq = Property(
         Entity.type_annotation.type_eq &
         Bind(Entity.type_var, Entity.type_annotation.type_var)
+    )
+
+    type_var_dbg_name = Property(
+        String("ParameterDecl(").concat(Self.text).concat(String(")"))
     )
 
     @langkit_property(return_type=T.Identifier, public=True)
@@ -422,7 +466,9 @@ class SynthParameterDecl(ParameterDecl):
     """
     Synthetic ParameterDecl node.
     """
-    pass
+    type_var_dbg_name = Property(
+        String("SynthParameterDecl(").concat(Self.text).concat(String(")"))
+    )
 
 
 class DefaultParam(ParameterDecl):
@@ -433,6 +479,10 @@ class DefaultParam(ParameterDecl):
        fun add(x, y=42) = ...
     """
     default_expr = Field(type=Expr)
+
+    type_var_dbg_name = Property(
+        String("DefaultParam(").concat(Self.text).concat(String(")"))
+    )
 
     @langkit_property()
     def default():
@@ -1035,6 +1085,10 @@ class FunDecl(Declaration):
         Bind(Entity.type_var, Self.lookup_type("unit"))
     )
 
+    type_var_dbg_name = Property(
+        String("FunDecl(").concat(Self.spec.name.text).concat(String(")"))
+    )
+
 
 class FunCall(Expr):
     """
@@ -1074,6 +1128,10 @@ class FunCall(Expr):
                                 # If the spec is null, don't resolve
                                 LogicFalse()
                                 )
+    )
+
+    type_var_dbg_name = Property(
+        String("FunCall(").concat(Self.name.text).concat(String(")"))
     )
 
     @langkit_property(return_type=T.Int, public=True)
@@ -1330,6 +1388,8 @@ class NodeKindPattern(NodePattern):
         Entity.lookup_type(Self.kind_name.symbol)
               .then(lambda t: Bind(Entity.type_var, t),
                     LogicFalse())
+    type_var_dbg_name = Property(
+        String("NodeKindPattern(").concat(Self.kind_name.text).concat(String(")"))
     )
 
 
@@ -1512,6 +1572,10 @@ class PrototypeBase(TypeDecl):
     """
     kind = Field(type=PrototypeKind)
     identifier = Field(type=Identifier)
+
+    type_var_dbg_name = Property(
+        String("PrototypeBase(").concat(Entity.name).concat(String(")"))
+    )
 
     @langkit_property()
     def name():
