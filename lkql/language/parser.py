@@ -31,11 +31,11 @@ class LKQLNode(ASTNode):
         """
         pass
 
-    @langkit_property(public=True, return_type=T.AnalysisUnit, external=True,
-                      uses_envs=False, uses_entity_info=False)
-    def prelude_unit():
+    @langkit_property(public=True, return_type=T.Int, external=True,
+                      uses_entity_info=False, uses_envs=False)
+    def create_logic_var(name=T.String):
         """
-        Retrieve the Prelude unit.
+        LogicVar constructor.
         """
         pass
 

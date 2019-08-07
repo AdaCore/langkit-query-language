@@ -42,7 +42,6 @@ package body Liblkqllang.Prelude is
                     Buffer   => Prelude_Content,
                     Rule     => Default_Grammar_Rule);
     begin
-       Prelude_Unit := Std;
        Populate_Lexical_Env (Std);
     end Fetch_Prelude;
 
