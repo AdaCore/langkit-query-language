@@ -16,16 +16,8 @@ package body LKQL.Functions is
    function Eval_Fun_Call
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive
    is
-      Fun_Def : L.Fun_Decl;
-   begin
-      if Call.P_Is_Builtin_Call then
-         return Eval_Builtin_Call (Ctx, Call);
-      end if;
-
-      Fun_Def := Call.P_Called_Function;
-
-      return Eval_User_Fun_Call (Ctx, Call, Fun_Def);
-   end Eval_Fun_Call;
+     (if Call.P_Is_Builtin_Call then Eval_Builtin_Call (Ctx, Call)
+      else Eval_User_Fun_Call (Ctx, Call, Call.P_Called_Function));
 
    ------------------------
    -- Eval_User_Fun_Call --
