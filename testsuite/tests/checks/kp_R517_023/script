@@ -1,6 +1,8 @@
-let result: List = query CallExpr(is_call(): true,
-                            any children(depth=2): p@ParamAssoc when isFlagArg(p)
-                   )
+let result: List =
+    query CallExpr(
+        is_call(): true,
+        any children(depth=2): p@ParamAssoc when isFlagArg(p)
+    )
 print(result)
 
 // Return whether the given 'ParamAssoc' represents an arg that must be flagged by
@@ -35,6 +37,6 @@ fun isInOutOrOut(spec: Node) -> bool =
 
 fun isUnConstrainedArrayWithPacked(decl: Node) -> bool =
     decl is TypeDecl(
-              type_def: ArrayTypeDef(any children(depth=6): BoxExpr),
-              get_attribute("Pack"): AdaNode
-            )
+        type_def: ArrayTypeDef(any children: UnconstrainedArrayIndices),
+        get_attribute("Pack"): AdaNode
+    )
