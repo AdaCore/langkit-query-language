@@ -5,12 +5,11 @@ from langkit.dsl import (
 )
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Let, If, Property,
-    Bind, LogicFalse, Entity, Not, Var, ArrayLiteral
+    Bind, LogicFalse, Entity, Not, Var, ArrayLiteral, Predicate
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec, add_env
 from lexer import Token
-
 
 @abstract
 @has_abstract_list
@@ -25,7 +24,7 @@ class LKQLNode(ASTNode):
 
     polymorphic_type_var = Property(Entity.get_type.type_var, public=False)
 
-    type_var_dbg_name = Property(String("default"))
+    type_var_dbg_name = Property(String("default"), public=False)
 
     type_var = Property(Entity.create_logic_var(Entity.type_var_dbg_name),
                         memoized=True)
@@ -225,6 +224,17 @@ class TypeDecl(Declaration):
     def list_type():
         return Self.lookup_type("List").cast(Prototype).apply_type_args(
             ArrayLiteral([Entity])
+        )
+
+    @langkit_property(public=True, return_type=T.Bool)
+    def is_indexable():
+        """
+        Return whether the current type is a subtype of Indexable.
+        """
+        return Entity.cast(PrototypeBase).then(lambda p:
+            (p.identifier.text == String("Indexable")) |
+            p.parent_prototype.then(lambda parent: parent.is_indexable, False),
+            False
         )
 
 
@@ -688,6 +698,17 @@ class Indexing(Expr):
     """
     collection_expr = Field(type=Expr)
     index_expr = Field(type=Expr)
+
+    type_eq = Property(
+        Entity.collection_expr.type_eq &
+        Entity.index_expr.type_eq &
+        Entity.collection_expr.get_type.cast(T.PrototypeBase).then(lambda t:
+            Predicate(T.TypeDecl.is_indexable, Entity.collection_expr.type_var)
+            & Bind(Entity.type_var,
+                   t.find_method(String("at")).return_type.as_entity.get_type),
+            LogicFalse()
+        )
+    )
 
 
 @abstract

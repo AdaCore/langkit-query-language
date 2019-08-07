@@ -2,10 +2,6 @@ astnode Bar {}
 astnode FooBase { }
 astnode Foo: FooBase { }
 
-prototype List<T> {
-    fun at(i: int) -> T
-}
-
 let result: List<Foo> = query Foo
 
 result.at(0) is Foo // OK

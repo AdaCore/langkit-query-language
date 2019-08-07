@@ -1,9 +1,3 @@
-prototype Indexable<T> {
-    fun at(i: int) -> T
-}
-
-prototype List<T>: Indexable<T> { }
-
 astnode SuperNode { }
 
 astnode Node: SuperNode {

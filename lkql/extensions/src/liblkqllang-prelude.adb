@@ -26,7 +26,11 @@ package body Liblkqllang.Prelude is
         ""                   & ASCII.LF &
         "selector children" & ASCII.LF &
         "   | AdaNode => rec *it.children" & ASCII.LF &
-        "   | _       => ()";   
+        "   | _       => ()" & ASCII.LF &
+        "prototype Indexable<T> {" & ASCII.LF &
+        "   fun at(n: int) -> T" & ASCII.LF &
+        "}" & ASCII.LF & 
+        "prototype List<T>: Indexable<T> { }";   
 
     -------------------
     -- Fetch_Prelude --

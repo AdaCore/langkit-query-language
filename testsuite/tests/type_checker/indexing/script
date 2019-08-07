@@ -1,0 +1,5 @@
+astnode Node: ASTNode { }
+
+let result: List<Node> = query Node
+
+result[0]

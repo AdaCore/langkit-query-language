@@ -1,7 +1,3 @@
-prototype List<T> {
-    fun at(i: int) -> T
-}
-
 astnode Foo {
     fun bar() -> bool
 }
