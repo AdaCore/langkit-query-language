@@ -6,7 +6,7 @@ IfThenElse
 |  |call:
 |  |  FunCall
 |  |  |name:
-|  |  |  Identifier: property
+|  |  |  Identifier: prop
 |  |  |arguments:
 |  |  |  ArgList: <empty list>
 |then_expr:

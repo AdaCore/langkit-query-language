@@ -4,7 +4,7 @@ IsClause
 |  |receiver:
 |  |  Identifier: node
 |  |member:
-|  |  Identifier: field
+|  |  Identifier: field1
 |pattern:
 |  NodeKindPattern
 |  |kind_name:

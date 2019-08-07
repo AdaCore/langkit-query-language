@@ -56,7 +56,7 @@ SelectorDecl
 |  |  |  |  |  |receiver:
 |  |  |  |  |  |  Identifier: it
 |  |  |  |  |  |member:
-|  |  |  |  |  |  Identifier: field
+|  |  |  |  |  |  Identifier: field3
 |  |  SelectorArm
 |  |  |pattern:
 |  |  |  UniversalPattern

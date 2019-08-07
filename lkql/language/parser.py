@@ -1,7 +1,7 @@
 from langkit.parsers import Grammar, Or, List, Pick, Opt
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic,
-    UserField, LogicVar, Symbol
+    UserField
 )
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Let, If, Property,
@@ -21,9 +21,16 @@ class LKQLNode(ASTNode):
 
     type_eq = Property(LogicFalse(), public=False)
 
-    type_var = Property(Entity.create_logic_var, memoized=True)
+    polymorphic_type_eq = Property(Entity.get_type.type_eq, public=False)
 
-    @langkit_property(public=False, return_type=LogicVar, external=True,
+    polymorphic_type_var = Property(Entity.get_type.type_var, public=False)
+
+    type_var_dbg_name = Property(String("default"))
+
+    type_var = Property(Entity.create_logic_var(Entity.type_var_dbg_name),
+                        memoized=True)
+
+    @langkit_property(public=True, return_type=T.Int, external=True,
                       uses_entity_info=False, uses_envs=False)
     def enable_solver_traces():
         """
@@ -38,6 +45,9 @@ class LKQLNode(ASTNode):
         Deactivate logic solver traces.
         """
         pass
+
+    @langkit_property(public=False, return_type=T.LogicVar, external=True,
+                      uses_entity_info=False, uses_envs=False)
     def create_logic_var(name=T.String):
         """
         LogicVar constructor.
@@ -242,7 +252,7 @@ class TypeRef(LKQLNode):
 
     type_eq = Property(
         Entity.referenced_type.then(
-            lambda t: Bind(Entity.type_var, t),
+            lambda t: t.type_eq & Bind(Entity.type_var, t),
             LogicFalse()
         )
     )
@@ -590,12 +600,6 @@ class BinOp(Expr):
             Bind(Entity.left.type_var, t) & Bind(Entity.right.type_var, t)
         )
 
-    @langkit_property()
-    def get_type():
-        return If(Entity.type_eq.solve,
-                  Entity.type_var.get_value.cast_or_raise(TypeDecl),
-                  Self.lookup_type('error'))
-
 
 class Unpack(Expr):
     """
@@ -825,6 +829,13 @@ class IsClause(Expr):
     node_expr = Field(type=Expr)
     pattern = Field(type=BasePattern)
 
+    type_eq = Property(
+        Entity.pattern.type_eq &
+        Entity.node_expr.polymorphic_type_eq &
+        Bind(Entity.node_expr.polymorphic_type_var, Entity.pattern.type_var) &
+        Bind(Entity.type_var, Entity.lookup_type("bool"))
+    )
+
 
 class UniversalPattern(ValuePattern):
     """
@@ -852,7 +863,7 @@ class Query(Expr):
 
     @langkit_property()
     def type_eq():
-        t = Var(Entity.pattern.get_type._.cast(T.Prototype))
+        t = Var(Entity.pattern.get_type.cast(T.Prototype))
 
         return If(t.is_null | Not(t.is_node_prototype),
                   LogicFalse(),
@@ -1074,7 +1085,10 @@ class FunDecl(Declaration):
     spec = Field(type=FunSpec)
     body_expr = Field(type=Expr)
 
-    env_spec = EnvSpec(add_to_env_kv(Self.spec.name.symbol, Self))
+    env_spec = EnvSpec(
+        add_to_env_kv(Self.spec.name.symbol, Self),
+        add_env()
+    )
 
     type_eq = Property(
         Entity.spec.parameters.logic_all(lambda p: p.type_eq) &
@@ -1103,31 +1117,28 @@ class FunCall(Expr):
 
     type_eq = Property(
         Entity.called_spec.then(lambda spec:
-            # type_check the function spec
-                                spec.type_eq &
-
-                                # type check the arguments & verrify that the number of arguments
-                                # matches the arity of the function
-                                Let(lambda args=Entity.resolved_arguments:
+            # type check the arguments & verrify that the number of arguments
+            # matches the arity of the function
+            Let(lambda args=Entity.resolved_arguments:
                 If(args.length != spec.arity,
                    LogicFalse(),
                    args.logic_all(lambda a:
-                       a.type_eq &
-                       spec.find_parameter(a.name.text)._.as_entity.then(
-                           lambda p: p.type_eq & Bind(a.type_var, p.type_var),
+                       spec.find_parameter(a.name.text).then(
+                           lambda p: Bind(a.polymorphic_type_var, p.as_entity.type_var) &
+                                     p.as_entity.type_eq &
+                                     a.polymorphic_type_eq,
                            LogicFalse()
                        )
                    ))) &
 
-                                # type_check the return type annotation and bind the call's type
-                                # varible to this type
-                                spec.return_type.as_entity.type_eq &
-                                Bind(Entity.type_var,
-                                     spec.return_type.as_entity.type_var),
+            # type_check the return type annotation and bind the call's type
+            # variable to this type
+            spec.return_type.as_entity.type_eq &
+            Bind(Entity.type_var, spec.return_type.as_entity.type_var),
 
-                                # If the spec is null, don't resolve
-                                LogicFalse()
-                                )
+            # If the spec is null, don't resolve
+            LogicFalse()
+        )
     )
 
     type_var_dbg_name = Property(
@@ -1385,9 +1396,12 @@ class NodeKindPattern(NodePattern):
     kind_name = Field(type=Identifier)
 
     type_eq = Property(
-        Entity.lookup_type(Self.kind_name.symbol)
-              .then(lambda t: Bind(Entity.type_var, t),
-                    LogicFalse())
+        Self.kind_name.referenced_node.cast(T.PrototypeBase).then(
+            lambda p: p.type_eq & Bind(Entity.type_var, p.type_var),
+            LogicFalse()
+        )
+    )
+
     type_var_dbg_name = Property(
         String("NodeKindPattern(").concat(Self.kind_name.text).concat(String(")"))
     )
@@ -1573,6 +1587,14 @@ class PrototypeBase(TypeDecl):
     kind = Field(type=PrototypeKind)
     identifier = Field(type=Identifier)
 
+    type_eq = Property(
+        Let(lambda t=Entity.lookup_type(Self.identifier.symbol)
+                        .cast(T.PrototypeBase)
+            : Entity.type_var.domain(
+                ArrayLiteral([t]).concat(Entity.supertypes)
+        ))
+    )
+
     type_var_dbg_name = Property(
         String("PrototypeBase(").concat(Entity.name).concat(String(")"))
     )
@@ -1582,6 +1604,16 @@ class PrototypeBase(TypeDecl):
         return Entity.format_name(Entity.type_parameters.map(
             lambda t: t.name
         ))
+
+    @langkit_property(return_type=T.PrototypeBase.entity.array, public=True)
+    def supertypes():
+        """
+        Return the prototypes of the supertypes, if any.
+        """
+        return Entity.parent_prototype.then(
+            lambda p: ArrayLiteral([p]).concat(p.supertypes),
+            ArrayLiteral([], element_type=T.PrototypeBase.entity)
+        )
 
     @langkit_property(return_type=TypeParameter.entity.array, public=True,
                       kind=AbstractKind.abstract)
@@ -1727,16 +1759,13 @@ class ParametrizedGenericBase(TypeRef):
 
     @langkit_property()
     def type_eq():
-        prototype_val = Entity.prototype_name.get_type.cast(Prototype)
-
-        return \
-            Entity.type_parameters.logic_all(lambda p: p.type_eq) & \
-            Entity.prototype_name.type_eq & \
-            If(prototype_val.is_null,
-               LogicFalse(),
-               Bind(Entity.type_var,
-                    prototype_val.apply_type_args(
-                        Entity.type_parameters.map(lambda p: p.get_type))))
+        return Entity.type_parameters.logic_all(lambda p: p.type_eq) & \
+               Entity.prototype_name.type_eq & \
+               Entity.prototype_name.get_type.cast(Prototype) \
+                   ._.apply_type_args(
+                          Entity.type_parameters.map(lambda t: t.get_type)
+                   ).then(lambda p: Bind(Entity.type_var, p),
+                          LogicFalse())
 
     @langkit_property(public=True, memoized=True, kind=AbstractKind.abstract,
                       return_type=T.TypeRef.entity.array)
@@ -2002,9 +2031,9 @@ lkql_grammar.add_rules(
                        Token.BigRArrow,
                        G.expr),
 
-    if_then_else=IfThenElse(
-        Token.If, G.expr, Token.Then, G.expr, Token.Else, G.expr
-    ),
+        if_then_else=IfThenElse(
+            Token.If, G.expr, Token.Then, G.expr, Token.Else, G.expr
+        ),
 
     type_name=TypeName(Identifier(Or(Token.Identifier, Token.KindName))),
 

@@ -12,4 +12,6 @@ concatInt("Hello ")
 
 concatInt(42)
 
+concatInt(42, "Hello")
+
 concatInt(nb="Hello", msg=42)

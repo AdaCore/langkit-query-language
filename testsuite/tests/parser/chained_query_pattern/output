@@ -17,7 +17,7 @@ Query
 |  |  |  |  |property:
 |  |  |  |  |  FunCall
 |  |  |  |  |  |name:
-|  |  |  |  |  |  Identifier: property
+|  |  |  |  |  |  Identifier: prop
 |  |  |  |  |  |arguments:
 |  |  |  |  |  |  ArgList: <empty list>
 |  |  |  |  |pattern:
@@ -44,7 +44,7 @@ Query
 |  |  |  |  |  |  |  Identifier: KindThree
 |  |  |  |  FieldLink
 |  |  |  |  |field:
-|  |  |  |  |  Identifier: field
+|  |  |  |  |  Identifier: field1
 |  |  |  |  |pattern:
 |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |kind_name:

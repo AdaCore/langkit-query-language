@@ -6,6 +6,6 @@ DotCall
 |call:
 |  FunCall
 |  |name:
-|  |  Identifier: property
+|  |  Identifier: property1
 |  |arguments:
 |  |  ArgList: <empty list>

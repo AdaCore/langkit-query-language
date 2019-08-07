@@ -1,1 +1,1 @@
-[x + y| x <- valuesList, y <- valuesList2, x.property == "Foo"]
+[x + y| x <- valuesList, y <- valuesList2, x.prop == "Foo"]

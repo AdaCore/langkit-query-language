@@ -6,5 +6,9 @@ prototype List<T>: Indexable<T> { }
 
 astnode SuperNode { }
 
-let result: List<SuperNode> = query SuperNode
-result.at(0)
+astnode Node: SuperNode {
+    fun foo(n: SuperNode) -> unit
+}
+
+let result: List<Node> = query Node
+result.at(0).foo(result.at(0))
