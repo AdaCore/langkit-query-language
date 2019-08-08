@@ -1,0 +1,19 @@
+--  Configure the traces format
+
+DEBUG.COLORS=yes
+DEBUG.ABSOLUTE_TIME=no
+DEBUG.ABSOLUTE_DATE=no
+DEBUG.ELAPSED_TIME=no
+DEBUG.STACK_TRACE=no
+DEBUG.LOCATION=no
+DEBUG.ENCLOSING_ENTITY=no
+DEBUG.COUNT=no
+DEBUG.MEMORY=no
+DEBUG.ADA_MEMORY=no
+
+--  Always show unexpected exceptions, no matter what other traces are active
+
+UNEXPECTED_EXCEPTIONS=yes
+*.EXCEPTIONS=yes
+
+LANGKIT.SOLVER.*=yes
