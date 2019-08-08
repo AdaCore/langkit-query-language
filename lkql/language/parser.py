@@ -11,6 +11,7 @@ import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec, add_env
 from lexer import Token
 
+
 @abstract
 @has_abstract_list
 class LKQLNode(ASTNode):
@@ -1443,12 +1444,22 @@ class DetailExpr(DetailValue):
     """
     expr_value = Field(type=Expr)
 
+    type_eq = Property(
+        Entity.expr_value.type_eq &
+        Bind(Entity.type_var, Entity.expr_value.type_var)
+    )
+
 
 class DetailPattern(DetailValue):
     """
     Pattern pattern data value
     """
     pattern_value = Field(type=BasePattern)
+
+    type_eq = Property(
+        Entity.pattern_value.type_eq &
+        Bind(Entity.type_var, Entity.pattern_value.type_var)
+    )
 
 
 @abstract
@@ -1712,10 +1723,53 @@ class PrototypeBase(TypeDecl):
         """
         Return the method named "name", if any.
         """
-        return Entity.fun_specs\
-            .find(lambda x: x.name.text == name)\
-            .then(lambda m: m,
-                  Entity.parent_prototype._.find_method(name))
+        return Self.find_member(name, Entity.methods)
+
+    @langkit_property(return_type=FunSpecBase.entity, public=True)
+    def find_property(name=T.String):
+        """
+        Return the property named "name", if any.
+        """
+        return Self.find_member(name, Entity.properties)
+
+    @langkit_property(return_type=FunSpecBase.entity, public=True)
+    def find_field(name=T.String):
+        """
+        Return the field named "name", if any.
+        """
+        return Self.find_member(name, Entity.fields)
+
+    @langkit_property(return_type=FunSpecBase.entity.array, public=True)
+    def methods(inherited=(T.Bool, True)):
+        m = Var(Entity.fun_specs
+                .filter(lambda f: f.fun_kind.is_a(FunKind.alt_function)))
+
+        return If(inherited,
+                  m.concat(Entity.parent_prototype._.methods),
+                  m)
+
+    @langkit_property(return_type=FunSpecBase.entity.array, public=True)
+    def properties(inherited=(T.Bool, True)):
+        p = Var(Entity.fun_specs
+                .filter(lambda f: f.fun_kind.is_a(FunKind.alt_property)))
+
+        return If(inherited,
+                  p.concat(Entity.parent_prototype._.properties),
+                  p)
+
+    @langkit_property(return_type=FunSpecBase.entity.array, public=True)
+    def fields(inherited=(T.Bool, True)):
+        f = Var(Entity.fun_specs
+                .filter(lambda f: f.fun_kind.is_a(FunKind.alt_field)))
+
+        return If(inherited,
+                  f.concat(Entity.parent_prototype._.methods),
+                  f)
+
+    @langkit_property(return_type=FunSpecBase.entity, public=False)
+    def find_member(name=T.String, members=T.FunSpecBase.entity.array):
+        return members.find(lambda m: m.name.text == name)
+
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_node_prototype():
