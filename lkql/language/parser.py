@@ -1300,6 +1300,14 @@ class SelectorArm(LKQLNode):
     pattern = Field(type=BasePattern)
     exprs_list = Field(type=SelectorExpr.list)
 
+    type_eq = Property(
+        Entity.pattern.type_eq &
+        Entity.exprs_list.logic_all(lambda e:
+            e.polymorphic_type_eq &
+            Bind(Entity.type_var, e.polymorphic_type_var)
+        )
+    )
+
 
 class SelectorDecl(Declaration):
     """
@@ -1309,6 +1317,10 @@ class SelectorDecl(Declaration):
     arms = Field(type=SelectorArm.list)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+
+    type_eq = Property(Entity.arms.logic_all(lambda a:
+        a.type_eq & Bind(Entity.type_var, a.type_var))
+    )
 
     @langkit_property(return_type=SelectorExpr.list, public=True)
     def nth_expressions(n=(T.Int, 0)):
@@ -1334,6 +1346,13 @@ class SelectorCall(LKQLNode):
     binding = Field(type=Identifier)
     selector_identifier = Field(type=Identifier)
     args = Field(type=NamedArg.list)
+
+    type_eq = Property(
+        Entity.called_selector.then(lambda s:
+            s.type_eq & Bind(Entity.type_var, s.type_var),
+            default_val=LogicFalse()
+        )
+    )
 
     @langkit_property(return_type=T.String, public=True)
     def name():
