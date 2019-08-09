@@ -5,7 +5,7 @@ from langkit.dsl import (
 )
 from langkit.expressions import (
     Self, String, No, langkit_property, AbstractKind, Let, If, Property,
-    Bind, LogicFalse, Entity, Not, Var, ArrayLiteral, Predicate
+    Bind, LogicFalse, LogicTrue, Entity, Not, Var, ArrayLiteral, Predicate
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec, add_env
@@ -249,6 +249,10 @@ class BuiltinTypeDecl(TypeDecl):
     identifier = Field(type=Identifier)
 
     env_spec = EnvSpec(add_to_env_kv(Self.identifier.symbol, Self))
+
+    type_var_dbg_name = Property(
+        String("BuiltinType(").concat(Self.identifier.text).concat(String(")"))
+    )
 
     @langkit_property()
     def name():
@@ -653,6 +657,17 @@ class DotAccess(Expr):
     receiver = Field(type=Expr)
     member = Field(type=Identifier)
 
+    type_eq = Property(
+        Entity.receiver.get_type.cast(T.PrototypeBase).then(lambda p:
+            p.find_field(Self.member.text).then(lambda s:
+                s.return_type.as_entity.type_eq &
+                Bind(Entity.type_var, s.return_type.as_entity.type_var),
+                default_val=LogicFalse()
+            ),
+            default_val=LogicFalse()
+        )
+    )
+
 
 class SafeAccess(DotAccess):
     """
@@ -841,6 +856,10 @@ class FullPattern(BindingPattern):
 
     env_spec = EnvSpec(
         add_to_env_kv(Self.binding.symbol, Self.value_pattern)
+    )
+
+    type_var_dbg_name = Property(
+        String("BindingPattern(").concat(Self.text).concat(String(")"))
     )
 
 
@@ -1288,6 +1307,15 @@ class SelectorExpr(LKQLNode):
     mode = Field(type=SelectorExprMode)
     expr = Field(type=Expr)
 
+    type_eq = Property(
+        Entity.expr.type_eq &
+        Bind(Entity.type_var, Entity.expr.type_var)
+    )
+
+    type_var_dbg_name = Property(
+        String("TypeExpr(").concat(Self.expr.text).concat(String(""))
+    )
+
 
 class SelectorArm(LKQLNode):
     """
@@ -1300,11 +1328,30 @@ class SelectorArm(LKQLNode):
     pattern = Field(type=BasePattern)
     exprs_list = Field(type=SelectorExpr.list)
 
+    type_var_dbg_name = Property(
+        String("SelectorArm(").concat(Self.pattern.text).concat(String(")"))
+    )
+
+    env_spec = EnvSpec(
+        add_env(),
+        add_to_env_kv("it", Self.pattern)
+    )
+
     type_eq = Property(
         Entity.pattern.type_eq &
         Entity.exprs_list.logic_all(lambda e:
-            e.polymorphic_type_eq &
-            Bind(Entity.type_var, e.polymorphic_type_var)
+            e.polymorphic_type_eq
+        )
+    )
+
+    type_domain = Property(
+        Entity.exprs_list.mapcat(lambda e:
+            e.expr.get_type.cast(T.PrototypeBase).then(lambda p:
+                ArrayLiteral([p]).concat(p.supertypes),
+                default_val=ArrayLiteral(
+                    [], element_type=T.PrototypeBase.entity
+                )
+            )
         )
     )
 
@@ -1318,8 +1365,17 @@ class SelectorDecl(Declaration):
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
 
-    type_eq = Property(Entity.arms.logic_all(lambda a:
-        a.type_eq & Bind(Entity.type_var, a.type_var))
+    type_eq = Property(
+        Entity.arms.logic_all(lambda a: a.type_eq) &
+        Bind(Entity.type_var, Self.lookup_type("unit"))
+    )
+
+    origin_type_domain = Property(
+        Entity.arms.map(lambda a: a.pattern.get_type)
+    )
+
+    result_type_domain = Property(
+        Entity.arms.mapcat(lambda a: a.type_domain)
     )
 
     @langkit_property(return_type=SelectorExpr.list, public=True)
@@ -1348,10 +1404,14 @@ class SelectorCall(LKQLNode):
     args = Field(type=NamedArg.list)
 
     type_eq = Property(
-        Entity.called_selector.then(lambda s:
-            s.type_eq & Bind(Entity.type_var, s.type_var),
-            default_val=LogicFalse()
-        )
+        Self.args.logic_all(lambda a:
+            If(Entity.check_argument(a.name.text), LogicTrue(), LogicFalse())
+        ) &
+        Bind(Entity.type_var, Self.lookup_type("unit"))
+    )
+
+    type_var_dbg_name = Property(
+        String("SectorCall(").concat(Self.text).concat(String(")"))
     )
 
     @langkit_property(return_type=T.String, public=True)
@@ -1420,6 +1480,19 @@ class SelectorCall(LKQLNode):
         """
         return Self.depth_expr.then(lambda e: e,
                                     Self.expr_for_arg(String('e')))
+
+    @langkit_property(return_type=T.Bool, public=False, memoized=False)
+    def check_argument(arg_name=T.String):
+        """
+        Return true if `arg_name` is a valid name (depth|min_depth|max_depth),
+        there is at most one argument with the given name, and it's type is int.
+        """
+        filtered_args = Var(Entity.args.filter(lambda a: a.name.text == arg_name))
+        return ((arg_name == String("depth")) |
+               (arg_name == String("max_depth")) |
+               (arg_name == String("min_depth"))) & \
+               (filtered_args.length <= 1) & \
+               (filtered_args.at(0).get_type == Self.lookup_type("int"))
 
 
 @abstract
@@ -1523,6 +1596,50 @@ class ExtendedNodePattern(NodePattern):
     node_pattern = Field(type=ValuePattern)
     details = Field(type=NodePatternDetail.list)
 
+    type_eq = Property(
+        Entity.node_pattern.polymorphic_type_eq &
+
+        Entity.details.logic_all(lambda detail:
+            detail.match(
+                lambda s=NodePatternSelector:
+                    # The selector call is well typed.
+                    s.call.type_eq &
+                    # The selector can be called from a node of the kind
+                    # denoted by the extended pattern.
+                    Entity.node_pattern.polymorphic_type_eq &
+                    Entity.node_pattern.polymorphic_type_var.domain(
+                        s.call.called_selector.origin_type_domain
+                    ) &
+                    # The expected pattern value matches the "output type"
+                    # of the selector.
+                    s.pattern.polymorphic_type_eq &
+                    s.pattern.polymorphic_type_var.domain(
+                        s.call.called_selector.result_type_domain
+                    ),
+                lambda s=NodePatternField:
+                    Entity.node_pattern.get_type.cast(T.PrototypeBase)._
+                        .find_field(s.identifier.text).then(lambda f:
+                            f.return_type.as_entity.polymorphic_type_eq &
+                            Bind(Entity.type_var,
+                                 f.return_type.as_entity.polymorphic_type_var),
+                            default_val=LogicFalse()),
+                lambda s=NodePatternProperty:
+                    Entity.node_pattern.get_type.cast(T.PrototypeBase)._
+                    .find_property(s.call.name.text).then(lambda f:
+                        f.return_type.as_entity.polymorphic_type_eq &
+                        Bind(Entity.type_var,
+                             f.return_type.as_entity.polymorphic_type_var),
+                        default_val=LogicFalse()
+                    )
+            )
+        ) &
+
+        Bind(Entity.type_var, Entity.node_pattern.get_type)
+    )
+
+    type_var_dbg_name = Property(
+        String("ExtPattern(").concat(Self.text).concat(String(")"))
+    )
 
 @abstract
 class ChainedPatternLink(LKQLNode):

@@ -1,0 +1,20 @@
+astnode Foo {
+    field f1() -> Bar
+}
+
+astnode Bar {
+    field f2() -> Foo
+    field f3() -> Bar
+}
+
+astnode Baz { }
+
+selector lorem
+    | f@Foo => f.f1
+    | Bar   => it.f2 <> it.f3
+
+query Foo(any lorem(depth=2): Bar) // OK
+query Foo(any lorem: Bar(any lorem: Foo)) // OK
+query Foo(any lorem: Baz) // Error: Baz cannot belong to the result set of lorem...
+query Foo(any lorem(invalid=2): Bar) // Error: invalid argument name in a selector...
+query Baz(any lorem: Foo) // Error: lorem cannot be "called" on a node of type 'Baz'
