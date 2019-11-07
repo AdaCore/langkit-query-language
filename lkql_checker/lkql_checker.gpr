@@ -1,15 +1,13 @@
+with "libadalang";
 with "../lkql_interpreter.gpr";
 
 project Lkql_Checker is
 
    for Source_Dirs use ("src");
-   for Object_Dir use "obj";
+   for Object_Dir use "obj/" & Libadalang.Build_Mode;
    for Main use ("checker.adb");
 
-   package Compiler is
-      for Default_Switches ("Ada") use ("-gnat12", "-g", "-O0", "-gnata",
-                                        "-gnatwa", "-gnatwe", "-gnatyg");
-   end Compiler;
+   package Compiler renames Libadalang.Compiler;
 
 end Lkql_Checker;
 

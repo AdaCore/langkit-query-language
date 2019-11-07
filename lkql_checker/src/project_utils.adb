@@ -52,7 +52,7 @@ package body Project_Utils is
       return LAL.Unit_Provider_Reference
    is
    begin
-      return LAL_GPR.Create_Project_Unit_Provider_Reference (Tree, Env);
+      return LAL_GPR.Create_Project_Unit_Provider (Tree, Env => Env);
    end Get_Project_Provider_Reference;
 
    -----------------------

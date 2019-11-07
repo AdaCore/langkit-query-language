@@ -117,9 +117,9 @@ package LKQL.Eval_Contexts is
    --  flag.
 
    procedure Free_Eval_Context (Ctx : in out Eval_Context);
-   --  Release the momery allocated for the evaluation context.
+   --  Release the memory allocated for the evaluation context.
    --  Raise an assertion error if Ctx is not the root context.
-   --  Use Release_Local_Frame to relealse the memory allocated for a local
+   --  Use Release_Local_Frame to release the memory allocated for a local
    --  environment.
 
 private

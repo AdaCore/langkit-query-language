@@ -24,8 +24,10 @@ package body Diagnostics is
         Load_Project (Self.Path_String, Context);
    begin
       return Result : Result_Vector.Vector do
-         for Rule of Self.Rules loop
-            Result.Append (Rule.Evaluate (Units));
+         for Unit of Units loop
+            for Rule of Self.Rules loop
+               Result.Append (Rule.Evaluate (Units));
+            end loop;
          end loop;
       end return;
    end Evaluate;

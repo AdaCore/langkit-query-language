@@ -1,0 +1,25 @@
+[
+    {
+        "name": "Deep_Inheritance",
+        "path": "deepInheritance.lkql",
+        "params": [
+            {
+                "name": "depth",
+                "type": "int",
+                "default": 2
+            }
+        ]
+    },
+
+    {
+        "name": "Multiple_Entries",
+        "path": "multipleEntries.lkql",
+        "params": []
+    },
+
+    {
+        "name": "GOTO_Statements",
+        "path": "gotoStatements.lkql",
+        "params": []
+    }
+]

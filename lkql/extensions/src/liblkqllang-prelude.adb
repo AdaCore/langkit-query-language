@@ -1,7 +1,6 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Liblkqllang.Common;     use Liblkqllang.Common;
-with Liblkqllang.Converters; use Liblkqllang.Converters;
 with Liblkqllang.Implementation; use Liblkqllang.Implementation;
 
 package body Liblkqllang.Prelude is

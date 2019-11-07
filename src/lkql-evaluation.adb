@@ -155,64 +155,64 @@ package body LKQL.Evaluation is
          else Ctx.Create_New_Frame (Local_Bindings));
    begin
 
-      Result :=
-        (case Node.Kind is
-            when LCO.LKQL_LKQL_Node_List =>
-              Eval_List (Local_Context, Node.As_LKQL_Node_List),
-            when LCO.LKQL_Assign =>
-              Eval_Assign (Local_Context, Node.As_Assign),
-            when LCO.LKQL_Identifier =>
-              Eval_Identifier (Local_Context, Node.As_Identifier),
-            when LCO.LKQL_Integer_Literal =>
-              Eval_Integer_Literal (Node.As_Integer_Literal),
-            when LCO.LKQL_String_Literal =>
-              Eval_String_Literal (Node.As_String_Literal),
-            when LCO.LKQL_Bool_Literal =>
-              Eval_Bool_Literal (Node.As_Bool_Literal),
-            when LCO.LKQL_Unit_Literal =>
-              Eval_Unit_Literal (Node.As_Unit_Literal),
-            when LCO.LKQL_If_Then_Else =>
-              Eval_If_Then_Else (Local_Context, Node.As_If_Then_Else),
-            when LCO.LKQL_Not_Node =>
-              Eval_Not (Local_Context, Node.As_Not_Node),
-            when LCO.LKQL_Bin_Op =>
-              Eval_Bin_Op (Local_Context, Node.As_Bin_Op),
-            when LCO.LKQL_Dot_Access =>
-              Eval_Dot_Access (Local_Context, Node.As_Dot_Access),
-            when LCO.LKQL_Safe_Access =>
-              Eval_Safe_Access (Local_Context, Node.As_Safe_Access),
-            when LCO.LKQL_Dot_Call =>
-              Eval_Dot_Call (Local_Context, Node.As_Dot_Call),
-            when LCO.LKQL_Safe_Call =>
-              Eval_Safe_Call (Local_Context, Node.As_Safe_Call),
-            when LCO.LKQL_Is_Clause =>
-              Eval_Is (Local_Context, Node.As_Is_Clause),
-            when LCO.LKQL_In_Clause =>
-              Eval_In (Local_Context, Node.As_In_Clause),
-            when LCO.LKQL_Query =>
-              Eval_Query (Local_Context, Node.As_Query),
-            when LCO.LKQL_Indexing =>
-              Eval_Indexing (Local_Context, Node.As_Indexing),
-            when LCO.LKQL_List_Comprehension =>
-              Eval_List_Comprehension
-                 (Local_Context, Node.As_List_Comprehension),
-            when LCO.LKQL_Val_Expr =>
-              Eval_Val_Expr (Local_Context, Node.As_Val_Expr),
-            when LCO.LKQL_Fun_Decl =>
-              Make_Unit_Primitive,
-            when LCO.LKQL_Fun_Call =>
-              Eval_Fun_Call (Local_Context, Node.As_Fun_Call),
-            when LCO.LKQL_Selector_Decl =>
-              Make_Unit_Primitive,
-            when LCO.LKQL_Match =>
-              Eval_Match (Local_Context, Node.As_Match),
-            when LCO.LKQL_Unwrap =>
-              Eval_Unwrap (Local_Context, Node.As_Unwrap),
-            when LCO.LKQL_Null_Literal =>
-              To_Primitive (Local_Context.Null_Node),
-            when others =>
-               raise Assertion_Error
-                 with "Invalid evaluation root kind: " & Node.Kind_Name);
+      case Node.Kind is
+         when LCO.LKQL_LKQL_Node_List =>
+            Result := Eval_List (Local_Context, Node.As_LKQL_Node_List);
+         when LCO.LKQL_Assign =>
+            Result := Eval_Assign (Local_Context, Node.As_Assign);
+         when LCO.LKQL_Identifier =>
+            Result := Eval_Identifier (Local_Context, Node.As_Identifier);
+         when LCO.LKQL_Integer_Literal =>
+            Result := Eval_Integer_Literal (Node.As_Integer_Literal);
+         when LCO.LKQL_String_Literal =>
+            Result := Eval_String_Literal (Node.As_String_Literal);
+         when LCO.LKQL_Bool_Literal =>
+            Result := Eval_Bool_Literal (Node.As_Bool_Literal);
+         when LCO.LKQL_Unit_Literal =>
+            Result := Eval_Unit_Literal (Node.As_Unit_Literal);
+         when LCO.LKQL_If_Then_Else =>
+            Result := Eval_If_Then_Else (Local_Context, Node.As_If_Then_Else);
+         when LCO.LKQL_Not_Node =>
+            Result := Eval_Not (Local_Context, Node.As_Not_Node);
+         when LCO.LKQL_Bin_Op =>
+            Result := Eval_Bin_Op (Local_Context, Node.As_Bin_Op);
+         when LCO.LKQL_Dot_Access =>
+            Result := Eval_Dot_Access (Local_Context, Node.As_Dot_Access);
+         when LCO.LKQL_Safe_Access =>
+            Result := Eval_Safe_Access (Local_Context, Node.As_Safe_Access);
+         when LCO.LKQL_Dot_Call =>
+            Result := Eval_Dot_Call (Local_Context, Node.As_Dot_Call);
+         when LCO.LKQL_Safe_Call =>
+            Result := Eval_Safe_Call (Local_Context, Node.As_Safe_Call);
+         when LCO.LKQL_Is_Clause =>
+            Result := Eval_Is (Local_Context, Node.As_Is_Clause);
+         when LCO.LKQL_In_Clause =>
+            Result := Eval_In (Local_Context, Node.As_In_Clause);
+         when LCO.LKQL_Query =>
+            Result := Eval_Query (Local_Context, Node.As_Query);
+         when LCO.LKQL_Indexing =>
+            Result := Eval_Indexing (Local_Context, Node.As_Indexing);
+         when LCO.LKQL_List_Comprehension =>
+            Result := Eval_List_Comprehension
+              (Local_Context, Node.As_List_Comprehension);
+         when LCO.LKQL_Val_Expr =>
+            Result := Eval_Val_Expr (Local_Context, Node.As_Val_Expr);
+         when LCO.LKQL_Fun_Decl =>
+            Result := Make_Unit_Primitive;
+         when LCO.LKQL_Fun_Call =>
+            Result := Eval_Fun_Call (Local_Context, Node.As_Fun_Call);
+         when LCO.LKQL_Selector_Decl =>
+            Result := Make_Unit_Primitive;
+         when LCO.LKQL_Match =>
+            Result := Eval_Match (Local_Context, Node.As_Match);
+         when LCO.LKQL_Unwrap =>
+            Result := Eval_Unwrap (Local_Context, Node.As_Unwrap);
+         when LCO.LKQL_Null_Literal =>
+            Result := To_Primitive (Local_Context.Null_Node);
+         when others =>
+            raise Assertion_Error
+              with "Invalid evaluation root kind: " & Node.Kind_Name;
+      end case;
 
       if Expected_Kind in Valid_Primitive_Kind then
          Check_Kind (Local_Context, Node.As_LKQL_Node, Expected_Kind, Result);

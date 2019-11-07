@@ -1,13 +1,2 @@
-selector prevSiblings
-    | AdaNode => rec it.previous_sibling
-
-selector parent
-    | AdaNode => rec it.parent
-
-fun parentIsProtected(entry) =
-    match entry
-        | AdaNode [parent] ProtectedDef => true
-        | _                              => false
-
 fun result() =
-    query e@EntryDecl [prevSiblings(depth > 0)] EntryDecl when parentIsProtected(e)
+    query ProtectedDef any children EntryDecl(any prevSiblings: EntryDecl)

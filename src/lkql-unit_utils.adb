@@ -67,7 +67,7 @@ package body LKQL.Unit_Utils is
       if Unit.Has_Diagnostics then
          raise Unit_Creation_Error with Format_Diagnostics (Unit);
       end if;
-
+      Unit.Populate_Lexical_Env;
       return Unit;
    end Unit_Or_Error;
 

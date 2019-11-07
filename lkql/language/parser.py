@@ -7,7 +7,8 @@ from langkit.expressions import (
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
-from lexer import Token
+from language.lexer import Token
+
 
 
 @abstract
@@ -21,7 +22,7 @@ class LKQLNode(ASTNode):
                       uses_envs=False, uses_entity_info=False)
     def prelude_unit():
         """
-        Retrive the Prelude unit.
+        Retrieve the Prelude unit.
         """
         pass
 

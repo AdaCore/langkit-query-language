@@ -8,5 +8,5 @@ selector superTypes
     | ParentList        => skip *it.children
     | _                 => ()
 
-fun result(n) = 
-    query TypeDecl [superTypes(depth > n)] _
+fun result(n) =
+    query TypeDecl(any superTypes(depth=n+1): _)
