@@ -11,28 +11,6 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package body Rules_Factory is
 
-   -----------------------------
-   -- Create_Deep_Inheritance --
-   -----------------------------
-
-   function Create_Deep_Inheritance (Depth : String := "1") return Rule_Command
-   is
-   begin
-      return Create_Rule_Command
-        (Name             => "Deep inheritance hierarchies",
-         Code        => "result(" & To_Text (Depth) & ")",
-         LKQL_Script_Path => Get_Rule_Path ("deepInheritance"));
-   end Create_Deep_Inheritance;
-
-   -----------------------------
-   -- Create_Multiple_Entries --
-   -----------------------------
-
-   function Create_Multiple_Entries return Rule_Command is
-     (Create_Rule_Command
-        (Name              => "Multiple Entries in protected declaration",
-         LKQL_Script_Path  => Get_Rule_Path ("multipleEntries")));
-
    ---------------
    -- All_Rules --
    ---------------
