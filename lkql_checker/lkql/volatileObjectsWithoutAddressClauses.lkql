@@ -1,0 +1,5 @@
+fun result() =
+    query o@ObjectDecl when (
+        o.has_aspect("volatile")
+        || o.type_expr?.designated_type_decl()?.has_aspect("volatile")
+    ) && not o.has_aspect("address")
