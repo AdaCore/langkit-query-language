@@ -105,21 +105,6 @@ class NullLiteral(Expr):
     token_node = True
 
 
-@abstract
-class TypeExpr(LKQLNode):
-    """
-    Reference to a type.
-    """
-    pass
-
-
-class TypeName(TypeExpr):
-    """
-    Named type annotation.
-    """
-    name = Field(type=Identifier)
-
-
 class IfThenElse(Expr):
     """
     Expression of the form: if CONDITION then EXPR1 else EXPR2
@@ -282,7 +267,6 @@ class Assign(Declaration):
        let message = "Hello World"
     """
     identifier = Field(type=Identifier)
-    type = Field(type=TypeExpr)
     value = Field(type=Expr)
 
 
@@ -1102,20 +1086,15 @@ lkql_grammar.add_rules(
     val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
                      G.expr, Token.SemiCol, G.expr),
 
-    assign=Assign(Token.Let,
-                  G.identifier,
-                  Token.Colon,
-                  G.type_expr,
-                  Token.Eq,
-                  G.expr),
+    assign=Assign(Token.Let, G.identifier, Token.Eq, G.expr),
 
     fun_decl=FunDecl(Token.Fun,
-                     G.identifier,
-                     Token.LPar,
-                     List(G.param, empty_valid=True, sep=Token.Coma),
-                     Token.RPar,
-                     Token.Eq,
-                     G.expr),
+                   G.identifier,
+                   Token.LPar,
+                   List(G.param, empty_valid=True, sep=Token.Coma),
+                   Token.RPar,
+                   Token.Eq,
+                   G.expr),
 
     fun_call=FunCall(G.identifier,
                      Token.LPar,
@@ -1149,8 +1128,6 @@ lkql_grammar.add_rules(
     if_then_else=IfThenElse(
         Token.If, G.expr, Token.Then, G.expr, Token.Else, G.expr
     ),
-
-    type_expr=TypeName(G.identifier),
 
     identifier=Identifier(Token.Identifier),
 
