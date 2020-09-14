@@ -1,0 +1,7 @@
+main.adb
+
+Error: Expected Int but got Bool
+
+print (true + 2)
+       ^^^^^^^^^
+

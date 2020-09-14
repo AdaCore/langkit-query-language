@@ -1,0 +1,7 @@
+main.adb
+
+Error: Expected Int but got Str
+
+15 + "Hello"
+^^^^^^^^^^^^
+

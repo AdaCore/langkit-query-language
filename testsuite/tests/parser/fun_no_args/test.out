@@ -1,0 +1,9 @@
+FunDecl
+|name:
+|  Identifier: allNodes
+|parameters:
+|  ParameterDeclList: <empty list>
+|body_expr:
+|  Query
+|  |pattern:
+|  |  UniversalPattern

@@ -1,0 +1,7 @@
+main.adb
+
+Error: Invalid index:  999999
+
+print (p[999999])
+       ^^^^^^^^^^
+

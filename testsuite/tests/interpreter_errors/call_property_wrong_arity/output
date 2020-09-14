@@ -1,4 +1,0 @@
-main.adb
-Error: Expected 1 arguments but got 2
-print(names[1].referenced_decl(true, 1))
-                               ^^^^^^^^

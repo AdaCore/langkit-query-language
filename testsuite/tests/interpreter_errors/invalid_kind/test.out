@@ -1,0 +1,7 @@
+main.adb
+
+Error: Invalid kind name: PreposterouslyInvalidKind
+
+query p when p is PreposterouslyInvalidKind
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+

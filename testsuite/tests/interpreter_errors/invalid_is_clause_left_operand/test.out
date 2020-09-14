@@ -1,0 +1,7 @@
+main.adb
+
+Error: Type error: expected Node but got Str
+
+query p when "Hello" is ObjectDecl
+             ^^^^^^^^             
+

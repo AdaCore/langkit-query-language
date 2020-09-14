@@ -1,0 +1,7 @@
+main.adb
+
+Error: Zero division
+
+print (84 / 0)
+       ^^^^^^^
+

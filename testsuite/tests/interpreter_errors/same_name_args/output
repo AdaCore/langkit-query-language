@@ -1,4 +1,0 @@
-main.adb
-Error: Multiple arguments with the same name
-add(x=21, x=21)
-          ^^^^^

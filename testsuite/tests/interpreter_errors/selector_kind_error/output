@@ -1,4 +1,0 @@
-main.adb
-Error: Cannot use values of kind Bool in a selector
-    | _ => true
-           ^^^^

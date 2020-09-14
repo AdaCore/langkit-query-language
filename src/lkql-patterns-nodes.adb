@@ -8,6 +8,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Assertions; use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 package body LKQL.Patterns.Nodes is
 
@@ -69,9 +70,15 @@ package body LKQL.Patterns.Nodes is
                                 Pattern : L.Node_Kind_Pattern;
                                 Node    : AST_Node_Rc) return Match_Result
    is
-     (if Node.Get.Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text))
-      then Make_Match_Success (To_Primitive (Node))
-      else Match_Failure);
+   begin
+      return
+        (if Node.Get.Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text))
+         then Make_Match_Success (To_Primitive (Node))
+         else Match_Failure);
+   exception
+      when E : Unsupported_Error =>
+         Raise_From_Exception (Ctx, E, Pattern);
+   end Match_Kind_pattern;
 
    ----------------------------
    -- Match_Extended_Pattern --

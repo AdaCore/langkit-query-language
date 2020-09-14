@@ -1,3 +1,4 @@
+with "libadalang";
 with "liblkqllang";
 
 library project Lkql_Interpreter is

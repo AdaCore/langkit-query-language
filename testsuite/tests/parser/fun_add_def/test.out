@@ -1,0 +1,19 @@
+FunDecl
+|name:
+|  Identifier: add
+|parameters:
+|  ParameterDeclList
+|  |  ParameterDecl
+|  |  |param_identifier:
+|  |  |  Identifier: x
+|  |  ParameterDecl
+|  |  |param_identifier:
+|  |  |  Identifier: y
+|body_expr:
+|  BinOp
+|  |left:
+|  |  Identifier: x
+|  |op:
+|  |  OpPlus
+|  |right:
+|  |  Identifier: y

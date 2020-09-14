@@ -1,4 +1,4 @@
-with Ada_AST_Node; use Ada_AST_Node;
+with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 with LKQL.Errors;        use LKQL.Errors;
 with LKQL.Evaluation;    use LKQL.Evaluation;
@@ -64,7 +64,7 @@ package body LKQL.Run is
       GPR.Initialize (Env);
       Project.Load (Project_File, Env);
       Provider :=
-        LAL_GPR.Create_Project_Unit_Provider_Reference (Project, Env);
+        LAL_GPR.Create_Project_Unit_Provider (Project, Env => Env);
       Ada_Context := Create_Context (Unit_Provider => Provider);
       Source_Files := Project.Root_Project.Source_Files (Recursive => False);
       Run_On_Files (LKQL_Script, Ada_Context, Source_Files, Recovery_Enabled);

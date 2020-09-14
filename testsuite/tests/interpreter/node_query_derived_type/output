@@ -1,4 +1,0 @@
-main.adb
-<SubpBody ["Main"] main.adb:3:1-8:10>
-<ObjectDecl ["Message"] main.adb:4:4-4:48>
-<ObjectDecl ["ConstantMessage"] main.adb:5:4-5:66>

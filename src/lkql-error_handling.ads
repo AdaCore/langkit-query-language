@@ -1,3 +1,5 @@
+with Ada.Exceptions; use Ada.Exceptions;
+
 with LKQL.Errors;        use LKQL.Errors;
 with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
@@ -15,6 +17,12 @@ private package LKQL.Error_Handling is
    --      user chooses to ignore the error
    --    * raise a Stop_Evaluation_Error if error recovery is disabled or the
    --      user chooses not to ignore the error
+
+   procedure Raise_From_Exception
+     (Ctx : Eval_Context; E : Exception_Occurrence; N : L.LKQL_Node'Class)
+     with No_Return;
+   --  Shortcut around ``Raise_And_Record_Error`` that raises from an exception
+   --  occurence.
 
    procedure Raise_Invalid_Member (Ctx      : Eval_Context;
                                    Node     : L.Dot_Access;

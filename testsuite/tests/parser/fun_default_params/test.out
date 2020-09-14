@@ -1,0 +1,32 @@
+FunDecl
+|name:
+|  Identifier: dummy
+|parameters:
+|  ParameterDeclList
+|  |  ParameterDecl
+|  |  |param_identifier:
+|  |  |  Identifier: a
+|  |  DefaultParam
+|  |  |param_identifier:
+|  |  |  Identifier: b
+|  |  |default_expr:
+|  |  |  IntegerLiteral: 40
+|  |  DefaultParam
+|  |  |param_identifier:
+|  |  |  Identifier: c
+|  |  |default_expr:
+|  |  |  IntegerLiteral: 2
+|body_expr:
+|  BinOp
+|  |left:
+|  |  BinOp
+|  |  |left:
+|  |  |  Identifier: a
+|  |  |op:
+|  |  |  OpPlus
+|  |  |right:
+|  |  |  Identifier: b
+|  |op:
+|  |  OpPlus
+|  |right:
+|  |  Identifier: c

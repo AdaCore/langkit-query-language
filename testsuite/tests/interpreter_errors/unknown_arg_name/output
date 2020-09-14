@@ -1,4 +1,0 @@
-main.adb
-Error: Unknown argument name: z
-add(x=21, z=21)
-          ^^

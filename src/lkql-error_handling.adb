@@ -44,6 +44,21 @@ package body LKQL.Error_Handling is
    end Raise_And_Record_Error;
 
    --------------------------
+   -- Raise_From_Exception --
+   --------------------------
+
+   procedure Raise_From_Exception
+     (Ctx : Eval_Context; E : Exception_Occurrence; N : L.LKQL_Node'Class) is
+   begin
+      Raise_And_Record_Error
+        (Ctx,
+         Error_Data'
+           (Eval_Error,
+            N.As_LKQL_Node,
+            To_Unbounded_Text (To_Text (Exception_Message (E)))));
+   end Raise_From_Exception;
+
+   --------------------------
    -- Raise_Invalid_Member --
    --------------------------
 

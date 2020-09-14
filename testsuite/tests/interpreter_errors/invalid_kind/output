@@ -1,2 +1,0 @@
-main.adb
-raised SYSTEM.ASSERTIONS.ASSERT_FAILURE : Invalid kind name: PreposterouslyInvalidKind

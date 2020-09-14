@@ -13,7 +13,7 @@ fun isFlagArg(actual) =
          isUnConstrainedArrayWithPacked(typeOfParamSpec(formal)) &&
          isReprRecordComponent(argumentDecl(actual.r_expr))
 
-fun getFormal(actual) = 
+fun getFormal(actual) =
     val params = actual.get_params();
     if params.length == 0 then null else params[1]?.parent?.parent
 

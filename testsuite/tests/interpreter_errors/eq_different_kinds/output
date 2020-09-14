@@ -1,2 +1,0 @@
-main.adb
-raised LKQL.PRIMITIVES.UNSUPPORTED_ERROR : Cannot check equality between a Str and a Bool

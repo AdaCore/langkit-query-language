@@ -1,5 +1,0 @@
-main.adb
-Error: Positional argument after named argument
-add(x=21, 21)
-          ^^^
-

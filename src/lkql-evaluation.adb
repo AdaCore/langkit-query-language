@@ -403,7 +403,10 @@ package body LKQL.Evaluation is
               when others =>
                  raise Assertion_Error with
                    "Not a non-short-cirtcuit operator kind: " &
-                   Node.F_Op.Kind_Name);
+                      Node.F_Op.Kind_Name);
+   exception
+      when E : Unsupported_Error =>
+         Raise_From_Exception (Ctx, E, Node);
    end Eval_Non_Short_Circuit_Op;
 
    ---------------------------
@@ -570,6 +573,9 @@ package body LKQL.Evaluation is
         Eval (Ctx, Node.F_Index_Expr, Kind_Int);
    begin
       return Get (List, Int_Val (Index));
+   exception
+      when E : Unsupported_Error =>
+         Raise_From_Exception (Ctx, E, Node);
    end Eval_Indexing;
 
    -----------------------------
