@@ -1,4 +1,11 @@
+with Ada.Directories; use Ada.Directories;
+with Ada.Text_IO;    use Ada.Text_IO;
+
 with Ada_AST_Nodes; use Ada_AST_Nodes;
+
+with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
+with Langkit_Support.Diagnostics.Output;
+with Langkit_Support.Text; use Langkit_Support.Text;
 
 with LKQL.Errors;        use LKQL.Errors;
 with LKQL.Evaluation;    use LKQL.Evaluation;
@@ -6,10 +13,6 @@ with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Primitives;    use LKQL.Primitives;
 
 with Libadalang.Project_Provider;
-
-with Ada.Text_IO;    use Ada.Text_IO;
-with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
-use  Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
 with GNAT.OS_Lib;
 with GNATCOLL.Projects;
@@ -40,7 +43,15 @@ package body LKQL.Run is
                         "error to the evaluation context");
 
          if not Context.Error_Recovery_Enabled then
-            Put_Line (Error_Description (Context.Last_Error));
+            declare
+               N : L.LKQL_Node renames Context.Last_Error.AST_Node;
+               D : constant Diagnostic := Langkit_Support.Diagnostics.Create
+                 (N.Sloc_Range,
+                  To_Text (Context.Last_Error.Short_Message));
+            begin
+               Output.Print_Diagnostic
+                 (D, N.Unit, Simple_Name (N.Unit.Get_Filename));
+            end;
          end if;
    end Evaluate;
 

@@ -1,7 +1,5 @@
 main.adb
-
-Error: Unknown argument name: z
-
-add(x=21, z=21)
-          ^^   
+script:3:11: error: Unknown argument name: z
+3 | add(x=21, z=21)
+  |           ^ 
 

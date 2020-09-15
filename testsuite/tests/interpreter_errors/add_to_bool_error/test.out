@@ -1,7 +1,5 @@
 main.adb
-
-Error: Expected Int but got Bool
-
-print (true + 2)
-       ^^^^^^^^^
+script:1:8: error: Expected Int but got Bool
+1 | print (true + 2)
+  |        ^^^^^^^^ 
 

@@ -1,7 +1,5 @@
 main.adb
-
-Error: Zero division
-
-print (84 / 0)
-       ^^^^^^^
+script:1:8: error: Zero division
+1 | print (84 / 0)
+  |        ^^^^^^ 
 

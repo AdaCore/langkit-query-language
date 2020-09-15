@@ -1,7 +1,5 @@
 main.adb
-
-Error: Type error: expected Bool but got Str
-
-let p = query p when "Hello"
-                     ^^^^^^^
+script:1:22: error: Type error: expected Bool but got Str
+1 | let p = query p when "Hello"
+  |                      ^^^^^^^ 
 

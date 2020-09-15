@@ -1,7 +1,5 @@
 main.adb
-
-Error: Cannot use values of kind Bool in a selector
-
-    | _ => true
-           ^^^^
+script:2:12: error: Cannot use values of kind Bool in a selector
+2 |     | _ => true
+  |            ^^^^ 
 

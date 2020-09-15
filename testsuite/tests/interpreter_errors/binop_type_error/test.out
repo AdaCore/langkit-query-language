@@ -1,7 +1,5 @@
 main.adb
-
-Error: Expected Int but got Str
-
-15 + "Hello"
-^^^^^^^^^^^^
+script:1:1: error: Expected Int but got Str
+1 | 15 + "Hello"
+  | ^^^^^^^^^^^^ 
 

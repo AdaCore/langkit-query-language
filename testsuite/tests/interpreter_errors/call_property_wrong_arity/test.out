@@ -1,7 +1,5 @@
 main.adb
-
-Error: Expected 1 arguments but got 2
-
-print(names[1].referenced_decl(true, 1))
-                               ^^^^^^^^ 
+script:2:32: error: Expected 1 arguments but got 2
+2 | print(names[1].referenced_decl(true, 1))
+  |                                ^^^^^^^ 
 

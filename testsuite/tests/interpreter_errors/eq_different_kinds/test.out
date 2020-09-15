@@ -1,7 +1,5 @@
 main.adb
-
-Error: Cannot check equality between a Str and a Bool
-
-print ("Hello" == true)
-       ^^^^^^^^^^^^^^^^
+script:1:8: error: Cannot check equality between a Str and a Bool
+1 | print ("Hello" == true)
+  |        ^^^^^^^^^^^^^^^ 
 

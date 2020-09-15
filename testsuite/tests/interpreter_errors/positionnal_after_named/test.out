@@ -1,7 +1,5 @@
 main.adb
-
-Error: Positional argument after named argument
-
-add(x=21, 21)
-          ^^^
+script:3:11: error: Positional argument after named argument
+3 | add(x=21, 21)
+  |           ^^ 
 
