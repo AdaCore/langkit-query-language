@@ -10,7 +10,6 @@ from langkit.envs import add_to_env_kv, EnvSpec
 from language.lexer import Token
 
 
-
 @abstract
 @has_abstract_list
 class LKQLNode(ASTNode):
@@ -25,6 +24,7 @@ class LKQLNode(ASTNode):
         Retrieve the Prelude unit.
         """
         pass
+
 
 @abstract
 class Declaration(LKQLNode):
@@ -253,7 +253,7 @@ class Unpack(Expr):
     Unpacking operator, written '*'.
 
     For instance::
-       \*listValue
+       \\*listValue
     """
     collection_expr = Field(type=Expr)
 
@@ -586,8 +586,10 @@ class FunCall(Expr):
             arg.match(
                 lambda e=ExprArg:
                 SynthNamedArg.new(arg_name=Self.called_function()
-                             .parameters.at(pos).identifier,
-                             value_expr=e.value_expr).cast(NamedArg).as_entity,
+                                  .parameters.at(pos).identifier,
+                                  value_expr=e.value_expr)
+                .cast(NamedArg).as_entity,
+
                 lambda n=NamedArg: n.as_entity,
             )
         )
@@ -599,21 +601,18 @@ class FunCall(Expr):
         Return the arguments of this call (default arguments included)
         as named arguments.
         """
-        return Let(
-            lambda call_args=Self.as_entity.call_args:
-            Let(lambda default_args=
-                       Self.called_function()
-                           .default_parameters()
-                           .filter(lambda p:
-                                   dsl_expr.Not(call_args.any(
-                                       lambda e: e.name().text == p.name())))
-                           .map(lambda param:
-                                SynthNamedArg.new(
-                                    arg_name=param.param_identifier.node,
-                                    value_expr=param.default_expr.node)
-                                .cast(NamedArg)
-                                .as_entity)
-                : call_args.concat(default_args)))
+        return Let(lambda call_args=Self.as_entity.call_args: Let(
+            lambda default_args=Self.called_function().default_parameters()
+            .filter(lambda p:
+                    dsl_expr.Not(call_args.any(
+                        lambda e: e.name().text == p.name())))
+            .map(lambda param:
+                 SynthNamedArg.new(
+                     arg_name=param.param_identifier.node,
+                     value_expr=param.default_expr.node)
+                 .cast(NamedArg)
+                 .as_entity): call_args.concat(default_args))
+        )
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_actual_call():
@@ -622,7 +621,6 @@ class FunCall(Expr):
         syntactic construct that looks like a function call bu isn't one).
         """
         return dsl_expr.Not(Self.parent.is_a(NodePatternProperty))
-
 
     @langkit_property(return_type=T.Bool, public=True)
     def is_builtin_call():
@@ -637,7 +635,8 @@ class SelectorExprMode(LKQLNode):
     """
     Modes for selector values:
         - default: add the value to the result set
-        - rec: add the value to the result set and call the selector recursively
+        - rec: add the value to the result set and call the selector
+               recursively
         - skip: call the selector recursively without adding the value to the
                 result set
     """
@@ -729,10 +728,13 @@ class SelectorCall(LKQLNode):
 
     @langkit_property(return_type=Expr)
     def expr_for_arg(name=T.String):
-        return Let(lambda x=Self.args.find(lambda a: a.arg_name.text == name)
-                   : If(x.is_null, No(Expr), x.expr))
+        return Let(
+            lambda x=Self.args.find(lambda a: a.arg_name.text == name):
+            If(x.is_null, No(Expr), x.expr)
+        )
 
-    @langkit_property(return_type=SelectorDecl.entity, public=True, memoized=True)
+    @langkit_property(return_type=SelectorDecl.entity, public=True,
+                      memoized=True)
     def called_selector():
         """
         Return the function definition that corresponds to the called function.
@@ -842,7 +844,9 @@ class NodePatternSelector(NodePatternDetail):
 
 class ExtendedNodePattern(NodePattern):
     """
-    Node pattern of the form: KindName(field: val, prop: val, selector: Pattern)
+    Node pattern of the form:
+
+    KindName(field: val, prop: val, selector: Pattern)
 
     For instance::
         ObjectDecl(children: AspectAssoc)
@@ -941,10 +945,10 @@ lkql_grammar.add_rules(
     main_rule=List(Or(G.decl, G.expr),
                    list_cls=TopLevelList),
 
-    query=Query(Token.QueryTok, G.pattern),
+    query=Query("query", G.pattern),
 
     pattern=Or(FilteredPattern(G.unfiltered_pattern_optional_chain,
-                               Token.When,
+                               "when",
                                G.expr),
                G.unfiltered_pattern_optional_chain),
 
@@ -958,14 +962,14 @@ lkql_grammar.add_rules(
         G.unfiltered_pattern
     ),
 
-    unfiltered_pattern=Or(FullPattern(G.identifier, Token.At, G.value_pattern),
+    unfiltered_pattern=Or(FullPattern(G.identifier, "@", G.value_pattern),
                           BindingPattern(G.identifier),
                           G.value_pattern),
 
     value_pattern=Or(G.node_pattern,
                      G.universal_pattern),
 
-    universal_pattern=UniversalPattern(Token.UnderScore),
+    universal_pattern=UniversalPattern("_"),
 
     node_pattern=Or(G.extended_node_pattern, G.node_kind_pattern),
 
@@ -975,177 +979,167 @@ lkql_grammar.add_rules(
 
     extended_node_pattern=ExtendedNodePattern(Or(G.universal_pattern,
                                                  G.node_kind_pattern),
-                                              Pick(Token.LPar,
+                                              Pick("(",
                                                    List(G.node_pattern_detail,
-                                                        sep=Token.Coma),
-                                                   Token.RPar)),
+                                                        sep=","),
+                                                   ")")),
 
-    node_pattern_detail=Or(NodePatternSelector(
-                               SelectorCall(G.identifier,
-                                            Opt(Pick(G.identifier, Token.At)),
-                                            G.identifier,
-                                            Opt(Token.LPar,
-                                                List(G.named_arg,
-                                                     sep=Token.Coma,
-                                                     empty_valid=False),
-                                                Token.RPar)),
-                               Token.Colon,
-                               G.pattern),
-                           NodePatternField(G.identifier,
-                                            Token.Colon,
-                                            G.detail_value),
-                           NodePatternProperty(G.fun_call,
-                                               Token.Colon,
-                                               G.detail_value)),
+    node_pattern_detail=Or(
+        NodePatternSelector(
+            SelectorCall(
+                G.identifier,
+                Opt(Pick(G.identifier, "@")),
+                G.identifier,
+                Opt("(",
+                    List(G.named_arg,
+                         sep=",",
+                         empty_valid=False),
+                    ")")
+            ), ":", G.pattern
+        ),
+        NodePatternField(G.identifier, ":", G.detail_value),
+        NodePatternProperty(G.fun_call, ":", G.detail_value)
+    ),
 
-    selector_call=SelectorCall(G.identifier,
-                               Opt(Pick(G.identifier, Token.At)),
-                               G.identifier,
-                               Opt(Token.LPar,
-                                   List(G.named_arg,
-                                        sep=Token.Coma,
-                                        empty_valid=False),
-                                   Token.RPar)),
+    selector_call=SelectorCall(
+        G.identifier,
+        Opt(Pick(G.identifier, "@")),
+        G.identifier,
+        Opt("(", List(G.named_arg, sep=",", empty_valid=False), ")")
+    ),
 
-    arrow_assoc=ArrowAssoc(G.identifier, Token.LArrow, G.expr),
+    arrow_assoc=ArrowAssoc(G.identifier, "<-", G.expr),
 
-    listcomp=ListComprehension(Token.LBrack,
-                               G.expr,
-                               Token.Pipe,
+    listcomp=ListComprehension("[", G.expr, "|",
                                List(G.arrow_assoc,
-                                    sep=Token.Coma, empty_valid=False),
-                               Opt(Token.Coma, G.expr),
-                               Token.RBrack),
+                                    sep=",", empty_valid=False),
+                               Opt(",", G.expr),
+                               "]"),
 
     decl=Or(G.fun_decl,
             G.selector_decl,
             G.assign),
 
     expr=Or(BinOp(G.expr,
-                  Or(Op.alt_and(Token.And),
-                     Op.alt_or(Token.Or)),
+                  Or(Op.alt_and("&&"),
+                     Op.alt_or("||")),
                   G.comp_expr),
             G.comp_expr,
             G.val_expr),
 
-    comp_expr=Or(IsClause(G.comp_expr, Token.Is, G.pattern),
-                 InClause(G.comp_expr, Token.In, G.expr),
-                 Not(Token.Not, G.expr),
+    comp_expr=Or(IsClause(G.comp_expr, "is", G.pattern),
+                 InClause(G.comp_expr, "in", G.expr),
+                 Not("not", G.expr),
                  BinOp(G.comp_expr,
-                       Or(Op.alt_eq(Token.EqEq),
-                          Op.alt_neq(Token.Neq),
-                          Op.alt_concat(Token.Amp),
-                          Op.alt_lt(Token.Lt),
-                          Op.alt_leq(Token.LEq),
-                          Op.alt_gt(Token.Gt),
-                          Op.alt_geq(Token.GEq)),
+                       Or(Op.alt_eq("=="),
+                          Op.alt_neq("!="),
+                          Op.alt_concat("&"),
+                          Op.alt_lt("<"),
+                          Op.alt_leq("<="),
+                          Op.alt_gt(">"),
+                          Op.alt_geq(">=")),
                        G.plus_expr),
                  G.plus_expr),
 
     plus_expr=Or(BinOp(G.plus_expr,
-                       Or(Op.alt_plus(Token.Plus),
-                          Op.alt_minus(Token.Minus)),
+                       Or(Op.alt_plus("+"),
+                          Op.alt_minus("-")),
                        G.prod_expr),
                  G.prod_expr),
 
     prod_expr=Or(BinOp(G.prod_expr,
-                       Or(Op.alt_mul(Token.Mul),
-                          Op.alt_div(Token.Div)),
+                       Or(Op.alt_mul("*"),
+                          Op.alt_div("/")),
                        G.value_expr),
                  G.value_expr),
 
-    value_expr=Or(Unwrap(G.value_expr, Token.ExclExcl),
-                  DotCall(G.value_expr,
-                          Token.Dot,
-                          G.identifier,
-                          Token.LPar,
-                          List(G.arg, sep=Token.Coma, empty_valid=True),
-                          Token.RPar),
-                  SafeCall(G.value_expr,
-                           Token.QuestionDot,
-                           G.identifier,
-                           Token.LPar,
-                           List(G.arg, sep=Token.Coma, empty_valid=True),
-                           Token.RPar),
-                  DotAccess(G.value_expr, Token.Dot, G.identifier),
-                  SafeAccess(G.value_expr, Token.QuestionDot, G.identifier),
-                  Indexing(G.value_expr, Token.LBrack, G.expr, Token.RBrack),
-                  G.fun_call,
-                  G.query,
-                  G.listcomp,
-                  G.match,
-                  G.identifier,
-                  G.string_literal,
-                  G.bool_literal,
-                  G.unit_literal,
-                  NullLiteral(Token.Null),
-                  G.integer,
-                  Pick(Token.LPar, G.expr, Token.RPar),
-                  G.if_then_else),
+    value_expr=Or(
+        Unwrap(G.value_expr, "!!"),
+        DotCall(
+            G.value_expr, ".", G.identifier,
+            "(", List(G.arg, sep=",", empty_valid=True), ")"
+        ),
 
-    val_expr=ValExpr(Token.Val, G.identifier, Token.Eq,
-                     G.expr, Token.SemiCol, G.expr),
+        SafeCall(
+            G.value_expr, "?.", G.identifier,
+            "(", List(G.arg, sep=",", empty_valid=True), ")"
+        ),
 
-    assign=Assign(Token.Let, G.identifier, Token.Eq, G.expr),
-
-    fun_decl=FunDecl(Token.Fun,
-                   G.identifier,
-                   Token.LPar,
-                   List(G.param, empty_valid=True, sep=Token.Coma),
-                   Token.RPar,
-                   Token.Eq,
-                   G.expr),
-
-    fun_call=FunCall(G.identifier,
-                     Token.LPar,
-                     List(G.arg, empty_valid=True, sep=Token.Coma),
-                     Token.RPar),
-
-    selector_decl=SelectorDecl(Token.Selector,
-                               G.identifier,
-                               List(G.selector_arm, empty_valid=False)),
-
-    selector_arm=SelectorArm(Token.Pipe,
-                             G.pattern,
-                             Token.BigRArrow,
-                             List(G.selector_expr,
-                                  empty_valid=False, sep=Token.Box)),
-
-    selector_expr=SelectorExpr(Or(SelectorExprMode.alt_rec(Token.Rec),
-                                  SelectorExprMode.alt_skip(Token.Skip),
-                                  SelectorExprMode.alt_default()),
-                               G.unpackable_expr),
-
-    unpackable_expr=Or(G.expr, Unpack(Token.Mul, G.expr)),
-
-    match=Match(Token.Match, G.expr, List(G.match_arm, empty_valid=False)),
-
-    match_arm=MatchArm(Token.Pipe,
-                       G.pattern,
-                       Token.BigRArrow,
-                       G.expr),
-
-    if_then_else=IfThenElse(
-        Token.If, G.expr, Token.Then, G.expr, Token.Else, G.expr
+        DotAccess(G.value_expr, ".", G.identifier),
+        SafeAccess(G.value_expr, "?.", G.identifier),
+        Indexing(G.value_expr, "[", G.expr, "]"),
+        G.fun_call,
+        G.query,
+        G.listcomp,
+        G.match,
+        G.identifier,
+        G.string_literal,
+        G.bool_literal,
+        G.unit_literal,
+        NullLiteral("null"),
+        G.integer,
+        Pick("(", G.expr, ")"),
+        G.if_then_else
     ),
 
+    val_expr=ValExpr("val", G.identifier, "=",
+                     G.expr, ";", G.expr),
+
+    assign=Assign("let", G.identifier, "=", G.expr),
+
+    fun_decl=FunDecl(
+        "fun", G.identifier,
+        "(", List(G.param, empty_valid=True, sep=","), ")",
+        "=", G.expr
+    ),
+
+    fun_call=FunCall(
+        G.identifier, "(", List(G.arg, empty_valid=True, sep=","), ")"
+    ),
+
+    selector_decl=SelectorDecl(
+        "selector",
+        G.identifier, List(G.selector_arm, empty_valid=False)
+    ),
+
+    selector_arm=SelectorArm(
+        "|",
+        G.pattern,
+        "=>",
+        List(G.selector_expr,
+             empty_valid=False, sep="<>")
+    ),
+
+    selector_expr=SelectorExpr(
+        Or(SelectorExprMode.alt_rec("rec"),
+           SelectorExprMode.alt_skip("skip"),
+           SelectorExprMode.alt_default()),
+        G.unpackable_expr
+    ),
+
+    unpackable_expr=Or(G.expr, Unpack("*", G.expr)),
+
+    match=Match("match", G.expr, List(G.match_arm, empty_valid=False)),
+
+    match_arm=MatchArm("|", G.pattern, "=>", G.expr),
+
+    if_then_else=IfThenElse("if", G.expr, "then", G.expr, "else", G.expr),
+
     identifier=Identifier(Token.Identifier),
-
     kind_name=Identifier(Token.KindName),
-
     integer=IntegerLiteral(Token.Integer),
 
-    bool_literal=Or(BoolLiteral.alt_true(Token.TrueLit),
-                    BoolLiteral.alt_false(Token.FalseLit)),
+    bool_literal=Or(BoolLiteral.alt_true("true"),
+                    BoolLiteral.alt_false("false")),
 
     string_literal=StringLiteral(Token.String),
 
-    unit_literal=UnitLiteral(Token.LPar, Token.RPar),
+    unit_literal=UnitLiteral("(", ")"),
 
-    arg=Or(NamedArg(G.identifier, Token.Eq, G.expr), ExprArg(G.expr)),
+    arg=Or(NamedArg(G.identifier, "=", G.expr), ExprArg(G.expr)),
 
-    named_arg=NamedArg(G.identifier, Token.Eq, G.expr),
+    named_arg=NamedArg(G.identifier, "=", G.expr),
 
-    param=Or(DefaultParam(G.identifier, Token.Eq, G.expr),
+    param=Or(DefaultParam(G.identifier, "=", G.expr),
              ParameterDecl(G.identifier))
 )
