@@ -6,25 +6,18 @@ from e3.testsuite.driver.diff import DiffTestDriver
 
 
 TESTSUITE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-INTERPRETER_PATH = os.path.join(TESTSUITE_ROOT_DIR, 'lkql_ada_interpreter',
+LKQL_ROOT_DIR = os.path.dirname(TESTSUITE_ROOT_DIR)
+INTERPRETER_PATH = os.path.join(LKQL_ROOT_DIR, 'lkql_ada_interpreter',
                                 'obj', 'main')
 
 
 def make_interpreter():
-
     from subprocess import check_call
-
     print("Compiling the interpreter")
-    build_dir = os.path.join(TESTSUITE_ROOT_DIR, 'build')
-    mkdir(build_dir)
-
-    # Compute gprbuild invocation
-    gprbuild = [
-        'gprbuild', os.path.join('..', 'lkql_ada_interpreter',
+    check_call([
+        'gprbuild', os.path.join(LKQL_ROOT_DIR, 'lkql_ada_interpreter',
                                  'lkql_ada_interpreter.gpr'), '-j0', '-p'
-    ]
-
-    check_call(gprbuild, cwd=build_dir)
+    ])
 
     # p = Run(gprbuild, cwd=build_dir, output=sys.stdout)
     # assert p.status == 0, (f"interpreter build failed:\n{p.out}")
@@ -67,23 +60,6 @@ class ParserDriver(DiffTestDriver):
         return os.path.join(
             project_root, 'build', 'bin', 'liblkqllang_parse'
         )
-
-
-def get_interpreter_path():
-    """
-    Return the path of the interpreter's binary.
-    The debug binary will be used if the release binary can't be located.
-    """
-    project_root = os.path.dirname(os.getcwd())
-    interpreter_bin = os.path.join(project_root, 'obj', 'main')
-    interpreter_debug_bin = os.path.join(project_root, 'obj', 'debug', 'main')
-    if os.path.exists(interpreter_bin):
-        return interpreter_bin
-    elif os.path.exists(interpreter_debug_bin):
-        return interpreter_debug_bin
-    else:
-        sys.stderr.write("Interpreter binary unavailable !")
-        sys.exit(1)
 
 
 # Path of the test Ada projects
