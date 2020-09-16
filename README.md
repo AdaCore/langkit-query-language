@@ -1,4 +1,4 @@
-# langkit-query-language
+# LKQL
 
 Query language for Libadalang and Langkit. Allows to run queries on Ada codebase using the query language.
 
