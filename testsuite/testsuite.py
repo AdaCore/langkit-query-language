@@ -1,5 +1,7 @@
 from e3.testsuite import Testsuite
-from drivers import ParserDriver, InterpreterDriver, make_interpreter
+from drivers import (
+    CheckerDriver, ParserDriver, InterpreterDriver, make_interpreter
+)
 import os
 
 TESTSUITE_ROOT_DIR = os.path.dirname(
@@ -11,7 +13,8 @@ OBJ_DIR = os.path.join('build', 'obj')
 
 class LKQLTestsuite(Testsuite):
     test_driver_map = {'parser': ParserDriver,
-                       'interpreter': InterpreterDriver}
+                       'interpreter': InterpreterDriver,
+                       'checker': CheckerDriver}
 
     def add_options(self, parser):
         parser.add_argument(

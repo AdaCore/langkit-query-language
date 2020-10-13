@@ -5,8 +5,12 @@ from e3.testsuite.driver.diff import DiffTestDriver
 
 TESTSUITE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 LKQL_ROOT_DIR = os.path.dirname(TESTSUITE_ROOT_DIR)
-INTERPRETER_PATH = os.path.join(LKQL_ROOT_DIR, 'lkql_ada_interpreter',
-                                'obj', 'main')
+INTERPRETER_PATH = os.path.join(
+    LKQL_ROOT_DIR, 'lkql_ada_interpreter', 'obj', 'main'
+)
+CHECKER_PATH = os.path.join(
+    LKQL_ROOT_DIR, 'lkql_checker', 'obj', 'dev', 'checker'
+)
 
 
 def make_interpreter():
@@ -87,6 +91,37 @@ class InterpreterDriver(DiffTestDriver):
 
         # Build the process's arguments list
         args = [a for a in [INTERPRETER_PATH, 'script', '-p', project_path]
+                if a != '']
+
+        # Run the interpreter
+        self.shell(args)
+
+
+class CheckerDriver(DiffTestDriver):
+    """
+    This driver runs the checker with the given arguments and compares the
+    checkers's output to the provided output file.
+
+    The LKQL script to run must be placed in a file called `script`.
+    The expected output must be written in a file called `output`.
+
+    Test arguments:
+        - project: relative path of the GPR build file to use (if any), from
+                   ADA_PROJECTS_PATH
+        - files: Ada files to analyze
+    """
+
+    def run(self):
+        # Put the absolute path of the test's project in project_path, if any
+        if self.test_env['project']:
+            project_path = os.path.join(ADA_PROJECTS_PATH,
+                                        self.test_env['project'])
+        else:
+            project_path = ''
+
+        # Build the process's arguments list
+        args = [a for a in
+                [CHECKER_PATH, '-P', project_path, '-r', self.test_env['rule_name']]
                 if a != '']
 
         # Run the interpreter
