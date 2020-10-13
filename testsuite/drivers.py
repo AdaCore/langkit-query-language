@@ -90,8 +90,9 @@ class InterpreterDriver(DiffTestDriver):
             project_path = ''
 
         # Build the process's arguments list
-        args = [a for a in [INTERPRETER_PATH, 'script', '-p', project_path]
-                if a != '']
+        args = [a for a in [
+            INTERPRETER_PATH, '--script-path', 'script', '-P', project_path
+        ] if a != '']
 
         # Run the interpreter
         self.shell(args)
