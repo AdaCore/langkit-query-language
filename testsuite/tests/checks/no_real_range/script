@@ -1,5 +1,5 @@
 let result = query t@BaseTypeDecl
-                 when isRealWithoutRange(t) ||
+                 when isRealWithoutRange(t) or
                       t is SubtypeDecl(any superTypes: s@_ when isRealWithoutRange(s))
 print(result)
 

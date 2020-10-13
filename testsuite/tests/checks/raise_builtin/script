@@ -4,6 +4,6 @@ print(result)
 
 fun isPredefinedName(id) =
     val name = id?.text;
-    name == "Program_Error" || name == "Constraint_Error" ||
-    name == "Numeric_Error" || name == "Storage_Error"    ||
+    name == "Program_Error" or name == "Constraint_Error" or
+    name == "Numeric_Error" or name == "Storage_Error"    or
     name == "Tasking_Error"
