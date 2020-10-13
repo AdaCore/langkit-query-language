@@ -77,8 +77,6 @@ class InterpreterDriver(DiffTestDriver):
     Test arguments:
         - project: relative path of the GPR build file to use (if any), from
                    ADA_PROJECTS_PATH
-        - failure (optional): True if the interpreter's execution must end with
-                              a non-zero exit code, False otherwise
     """
 
     def run(self):
