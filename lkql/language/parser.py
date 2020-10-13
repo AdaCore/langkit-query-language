@@ -1021,8 +1021,8 @@ lkql_grammar.add_rules(
             G.assign),
 
     expr=Or(BinOp(G.expr,
-                  Or(Op.alt_and("&&"),
-                     Op.alt_or("||")),
+                  Or(Op.alt_and("and"),
+                     Op.alt_or("or")),
                   G.comp_expr),
             G.comp_expr,
             G.val_expr),
