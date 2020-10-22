@@ -82,8 +82,6 @@ package body LKQL.Patterns.Match is
       (case Pattern.Kind is
           when LCO.LKQL_Value_Pattern =>
              Match_Value (Ctx, Pattern.As_Value_Pattern, Value),
-          when LCO.LKQL_Binding_Pattern =>
-             Match_Binding (Pattern.As_Binding_Pattern, Value),
           when LCO.LKQL_Full_Pattern =>
              Match_Full (Ctx, Pattern.As_Full_Pattern, Value),
           when others =>
@@ -119,21 +117,6 @@ package body LKQL.Patterns.Match is
       end case;
    end Match_Value;
 
-   -------------------
-   -- Match_Binding --
-   -------------------
-
-   function Match_Binding (Pattern : L.Binding_Pattern;
-                           Value   : Primitive) return Match_Result
-   is
-      Bindings     : Environment_Map;
-      Binding_Name : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Pattern.F_Binding.Text);
-   begin
-      Bindings.Insert (Binding_Name, Value);
-      return Make_Match_Success (Value, Bindings);
-   end Match_Binding;
-
    ----------------
    -- Match_Full --
    ----------------
@@ -142,11 +125,18 @@ package body LKQL.Patterns.Match is
                         Pattern : L.Full_Pattern;
                         Value   : Primitive) return Match_Result
    is
-      Binding_Match : constant Match_Result :=
-        Match_Binding (Pattern.As_Binding_Pattern, Value);
-      Local_Ctx     : Eval_Context :=
-        Ctx.Create_New_Frame (Binding_Match.Bindings);
+      Bindings     : Environment_Map;
+      Binding_Name : constant Unbounded_Text_Type :=
+        To_Unbounded_Text (Pattern.F_Binding.Text);
+
+      Binding_Match : Match_Result;
+      Local_Ctx     : Eval_Context;
    begin
+      Bindings.Insert (Binding_Name, Value);
+      Binding_Match := Make_Match_Success (Value, Bindings);
+
+      Local_Ctx := Ctx.Create_New_Frame (Binding_Match.Bindings);
+
       if Match_Value (Local_Ctx, Pattern.F_Value_Pattern, Value).Is_Success
       then
          Local_Ctx.Release_Current_Frame;

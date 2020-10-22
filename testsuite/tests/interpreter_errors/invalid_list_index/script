@@ -1,2 +1,2 @@
-let p = query p when true
+let p = query p @ _ when true
 print (p[999999])

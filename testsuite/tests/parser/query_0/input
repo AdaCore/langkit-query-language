@@ -1,2 +1,1 @@
-query n when n is NodeKind and
-             n.identifier == "Identifier"
+query n @ NodeKind when n.identifier == "Identifier"

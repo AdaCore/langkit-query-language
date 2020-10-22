@@ -415,19 +415,7 @@ class ValuePattern(UnfilteredPattern):
         return Self
 
 
-class BindingPattern(UnfilteredPattern):
-    """
-    Pattern comprising only an identifier.
-    """
-
-    binding = Field(type=Identifier)
-
-    @langkit_property()
-    def binding_name():
-        return Self.binding.text
-
-
-class FullPattern(BindingPattern):
+class FullPattern(UnfilteredPattern):
     """
     Pattern comprising a binding name and a value pattern.
 
@@ -435,8 +423,12 @@ class FullPattern(BindingPattern):
        o @ ObjectDecl
     """
 
+    binding = Field(type=Identifier)
     value_pattern = Field(type=ValuePattern)
 
+    @langkit_property()
+    def binding_name():
+        return Self.binding.text
 
 class IsClause(Expr):
     """
@@ -963,7 +955,6 @@ lkql_grammar.add_rules(
     ),
 
     unfiltered_pattern=Or(FullPattern(G.identifier, "@", G.value_pattern),
-                          BindingPattern(G.identifier),
                           G.value_pattern),
 
     value_pattern=Or(G.node_pattern,
