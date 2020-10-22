@@ -2,7 +2,7 @@ Query
 |pattern:
 |  FilteredPattern
 |  |pattern:
-|  |  FullPattern
+|  |  BindingPattern
 |  |  |binding:
 |  |  |  Identifier: n
 |  |  |value_pattern:
