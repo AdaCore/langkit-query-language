@@ -82,8 +82,8 @@ package body LKQL.Patterns.Match is
       (case Pattern.Kind is
           when LCO.LKQL_Value_Pattern =>
              Match_Value (Ctx, Pattern.As_Value_Pattern, Value),
-          when LCO.LKQL_Full_Pattern =>
-             Match_Full (Ctx, Pattern.As_Full_Pattern, Value),
+          when LCO.LKQL_Binding_Pattern =>
+             Match_Binding (Ctx, Pattern.As_Binding_Pattern, Value),
           when others =>
              raise Assertion_Error with
                "Not an unfiltered pattern kind: " & L.Kind_Name (Pattern));
@@ -117,12 +117,12 @@ package body LKQL.Patterns.Match is
       end case;
    end Match_Value;
 
-   ----------------
-   -- Match_Full --
-   ----------------
+   -------------------
+   -- Match_Binding --
+   -------------------
 
-   function Match_Full (Ctx     : Eval_Context;
-                        Pattern : L.Full_Pattern;
+   function Match_Binding (Ctx     : Eval_Context;
+                        Pattern : L.Binding_Pattern;
                         Value   : Primitive) return Match_Result
    is
       Bindings     : Environment_Map;
@@ -149,6 +149,6 @@ package body LKQL.Patterns.Match is
       when others =>
          Local_Ctx.Release_Current_Frame;
          raise;
-   end Match_Full;
+   end Match_Binding;
 
 end LKQL.Patterns.Match;

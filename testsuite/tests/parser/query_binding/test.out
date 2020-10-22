@@ -4,7 +4,7 @@ Assign
 |value:
 |  Query
 |  |pattern:
-|  |  FullPattern
+|  |  BindingPattern
 |  |  |binding:
 |  |  |  Identifier: o
 |  |  |value_pattern:

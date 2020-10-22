@@ -6,7 +6,7 @@ Assign
 |  |pattern:
 |  |  FilteredPattern
 |  |  |pattern:
-|  |  |  FullPattern
+|  |  |  BindingPattern
 |  |  |  |binding:
 |  |  |  |  Identifier: o
 |  |  |  |value_pattern:

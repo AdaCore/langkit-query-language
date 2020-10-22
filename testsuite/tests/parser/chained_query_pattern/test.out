@@ -4,7 +4,7 @@ Query
 |  |pattern:
 |  |  ChainedNodePattern
 |  |  |first_pattern:
-|  |  |  FullPattern
+|  |  |  BindingPattern
 |  |  |  |binding:
 |  |  |  |  Identifier: k
 |  |  |  |value_pattern:
@@ -35,7 +35,7 @@ Query
 |  |  |  |  |  |args:
 |  |  |  |  |  |  NamedArgList: <empty list>
 |  |  |  |  |pattern:
-|  |  |  |  |  FullPattern
+|  |  |  |  |  BindingPattern
 |  |  |  |  |  |binding:
 |  |  |  |  |  |  Identifier: l
 |  |  |  |  |  |value_pattern:
