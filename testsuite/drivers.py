@@ -91,7 +91,8 @@ class InterpreterDriver(DiffTestDriver):
 
         # Build the process's arguments list
         args = [a for a in [
-            INTERPRETER_PATH, '--script-path', 'script', '-P', project_path
+            INTERPRETER_PATH, '--script-path', 'script.lkql',
+            '-P', project_path
         ] if a != '']
 
         # Run the interpreter

@@ -1,5 +1,5 @@
 main.adb
-script:1:1: error: Expected Int but got Str
+script.lkql:1:1: error: Expected Int but got Str
 1 | 15 + "Hello"
   | ^^^^^^^^^^^^ 
 

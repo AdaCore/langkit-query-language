@@ -1,5 +1,5 @@
 main.adb
-script:2:16: error: Unsupported value type from the introspection API: ANALYSIS_UNIT_VALUE
+script.lkql:2:16: error: Unsupported value type from the introspection API: ANALYSIS_UNIT_VALUE
 2 | print(names[1].unit)
   |                ^^^^ 
 
