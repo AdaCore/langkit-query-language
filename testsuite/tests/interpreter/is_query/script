@@ -1,2 +1,2 @@
-let p = query p when p is ObjectDecl
+let p = query p @ ObjectDecl
 print (p)

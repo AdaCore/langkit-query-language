@@ -32,11 +32,6 @@ package LKQL.Patterns.Match is
    --  Match a Primitive value against a value pattern, i.e a pattern that
    --  doesn't contain a binding name.
 
-   function Match_Binding (Pattern : L.Binding_Pattern;
-                           Value   : Primitive) return Match_Result;
-   --  Match a Primitive value against a binding pattern, i.e a pattern that
-   --  only contains a binding name.
-
    function Match_Full (Ctx     : Eval_Context;
                         Pattern : L.Full_Pattern;
                         Value   : Primitive) return Match_Result;

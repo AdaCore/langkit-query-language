@@ -1,2 +1,1 @@
-let o = query o when o is ObjectDecl and
-                     o.random_field in filteredFields
+let o = query o @ ObjectDecl when o.random_field in filteredFields

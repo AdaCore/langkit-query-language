@@ -2,30 +2,22 @@ Query
 |pattern:
 |  FilteredPattern
 |  |pattern:
-|  |  BindingPattern
+|  |  FullPattern
 |  |  |binding:
 |  |  |  Identifier: n
+|  |  |value_pattern:
+|  |  |  NodeKindPattern
+|  |  |  |kind_name:
+|  |  |  |  Identifier: NodeKind
 |  |predicate:
 |  |  BinOp
 |  |  |left:
-|  |  |  IsClause
-|  |  |  |node_expr:
+|  |  |  DotAccess
+|  |  |  |receiver:
 |  |  |  |  Identifier: n
-|  |  |  |pattern:
-|  |  |  |  NodeKindPattern
-|  |  |  |  |kind_name:
-|  |  |  |  |  Identifier: NodeKind
+|  |  |  |member:
+|  |  |  |  Identifier: identifier
 |  |  |op:
-|  |  |  OpAnd
+|  |  |  OpEq
 |  |  |right:
-|  |  |  BinOp
-|  |  |  |left:
-|  |  |  |  DotAccess
-|  |  |  |  |receiver:
-|  |  |  |  |  Identifier: n
-|  |  |  |  |member:
-|  |  |  |  |  Identifier: identifier
-|  |  |  |op:
-|  |  |  |  OpEq
-|  |  |  |right:
-|  |  |  |  StringLiteral: "Identifier"
+|  |  |  StringLiteral: "Identifier"

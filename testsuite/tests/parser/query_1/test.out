@@ -6,28 +6,20 @@ Assign
 |  |pattern:
 |  |  FilteredPattern
 |  |  |pattern:
-|  |  |  BindingPattern
+|  |  |  FullPattern
 |  |  |  |binding:
 |  |  |  |  Identifier: o
+|  |  |  |value_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |kind_name:
+|  |  |  |  |  Identifier: ObjectDecl
 |  |  |predicate:
-|  |  |  BinOp
-|  |  |  |left:
-|  |  |  |  IsClause
-|  |  |  |  |node_expr:
+|  |  |  InClause
+|  |  |  |value_expr:
+|  |  |  |  DotAccess
+|  |  |  |  |receiver:
 |  |  |  |  |  Identifier: o
-|  |  |  |  |pattern:
-|  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |kind_name:
-|  |  |  |  |  |  Identifier: ObjectDecl
-|  |  |  |op:
-|  |  |  |  OpAnd
-|  |  |  |right:
-|  |  |  |  InClause
-|  |  |  |  |value_expr:
-|  |  |  |  |  DotAccess
-|  |  |  |  |  |receiver:
-|  |  |  |  |  |  Identifier: o
-|  |  |  |  |  |member:
-|  |  |  |  |  |  Identifier: random_field
-|  |  |  |  |list_expr:
-|  |  |  |  |  Identifier: filteredFields
+|  |  |  |  |member:
+|  |  |  |  |  Identifier: random_field
+|  |  |  |list_expr:
+|  |  |  |  Identifier: filteredFields

@@ -1,2 +1,2 @@
-let p = query p when "Hello"
+let p = query p @ _ when "Hello"
 print (p)
