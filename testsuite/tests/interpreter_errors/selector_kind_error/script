@@ -1,4 +1,4 @@
 selector badSelector
     | _ => true
 
-query _(any badSelector: _)
+query _(any badSelector match _)

@@ -420,7 +420,7 @@ class BindingPattern(UnfilteredPattern):
     Pattern comprising a binding name and a value pattern.
 
     For instance::
-       o @ ObjectDecl
+       o : ObjectDecl
     """
 
     binding = Field(type=Identifier)
@@ -987,10 +987,10 @@ lkql_grammar.add_rules(
                          sep=",",
                          empty_valid=False),
                     ")")
-            ), ":", G.pattern
+            ), "match", G.pattern
         ),
-        NodePatternField(G.identifier, ":", G.detail_value),
-        NodePatternProperty(G.fun_call, ":", G.detail_value)
+        NodePatternField(G.identifier, "=", G.detail_value),
+        NodePatternProperty(G.fun_call, "=", G.detail_value)
     ),
 
     selector_call=SelectorCall(

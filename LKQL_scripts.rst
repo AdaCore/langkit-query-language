@@ -140,7 +140,7 @@ The first entry of the definition will not be flagged.
 
 LKQL Script::
 
-    let result = query t@_
+    let result = query t @ _
                     when isRealWithoutRange(t) ||
                         t is SubtypeDecl(any superTypes: s@_ when isRealWithoutRange(s))
     print(result)

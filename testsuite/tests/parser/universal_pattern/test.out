@@ -5,12 +5,17 @@ Query
 |  |  UniversalPattern
 |  |details:
 |  |  NodePatternDetailList
-|  |  |  NodePatternField
-|  |  |  |identifier:
-|  |  |  |  Identifier: children
-|  |  |  |expected_value:
-|  |  |  |  DetailPattern
-|  |  |  |  |pattern_value:
-|  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |kind_name:
-|  |  |  |  |  |  Identifier: BasicDecl
+|  |  |  NodePatternSelector
+|  |  |  |call:
+|  |  |  |  SelectorCall
+|  |  |  |  |quantifier:
+|  |  |  |  |  Identifier: all
+|  |  |  |  |binding: <null>
+|  |  |  |  |selector_identifier:
+|  |  |  |  |  Identifier: children
+|  |  |  |  |args:
+|  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |kind_name:
+|  |  |  |  |  Identifier: BasicDecl

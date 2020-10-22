@@ -11,6 +11,7 @@ class Token(LexerToken):
     Let = WithSymbol()
     QueryTok = WithSymbol()
     When = WithSymbol()
+    Match = WithSymbol()
     Val = WithSymbol()
     Fun = WithSymbol()
     Selector = WithSymbol()
@@ -97,6 +98,7 @@ lkql_lexer.add_rules(
     (Literal("let"),                                        Token.Let),
     (Literal("query"),                                      Token.QueryTok),
     (Literal("when"),                                       Token.When),
+    (Literal("match"),                                      Token.Match),
     (Literal("val"),                                        Token.Val),
     (Literal("fun"),                                        Token.Fun),
     (Literal("selector"),                                   Token.Selector),

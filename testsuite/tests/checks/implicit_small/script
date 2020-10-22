@@ -1,4 +1,4 @@
 let result =
-    query t@TypeDecl(any children: OrdinaryFixedPointDef) when not t.has_aspect("Small")
+    query t@TypeDecl(any children match OrdinaryFixedPointDef) when not t.has_aspect("Small")
 
 print(result)

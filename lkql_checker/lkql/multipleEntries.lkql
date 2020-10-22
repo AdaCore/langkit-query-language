@@ -1,2 +1,2 @@
 fun result() =
-    query ProtectedDef any children EntryDecl(any prevSiblings: EntryDecl)
+    query ProtectedDef any children EntryDecl(any prevSiblings match EntryDecl)
