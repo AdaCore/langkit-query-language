@@ -13,7 +13,7 @@ package body Ada_AST_Nodes is
 
    package I renames Libadalang.Introspection;
 
-   subtype Built_In_LAL_Field is Node_Data_Reference
+   subtype Built_In_LAL_Field is Member_Reference
    range Ada_Node_Parent .. Ada_Node_Is_Ghost;
 
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
@@ -21,7 +21,7 @@ package body Ada_AST_Nodes is
 
    function Data_Reference_For_Name (Receiver : Ada_AST_Node;
                                      Name     : Text_Type)
-                                     return Any_Node_Data_Reference;
+                                     return Any_Member_Reference;
    --  Return the node data type corresponding to 'Name' on the receiver
    --  node. Return None if the name is invalid.
 
@@ -214,12 +214,12 @@ package body Ada_AST_Nodes is
    -----------------------------
 
    function Data_Reference_For_Name
-     (Receiver : Ada_AST_Node; Name : Text_Type) return Any_Node_Data_Reference
+     (Receiver : Ada_AST_Node; Name : Text_Type) return Any_Member_Reference
    is
       Receiver_Type_Id : constant Node_Type_Id :=
         Id_For_Kind (Receiver.Node.Kind);
    begin
-      return Lookup_Node_Data (Receiver_Type_Id, To_UTF8 (Name));
+      return Lookup_Member (Receiver_Type_Id, To_UTF8 (Name));
    end Data_Reference_For_Name;
 
    -----------------
@@ -316,7 +316,7 @@ package body Ada_AST_Nodes is
                               Property_Name : Text_Type)
                               return Property_Reference
    is
-      Ref : constant Any_Node_Data_Reference :=
+      Ref : constant Any_Member_Reference :=
         Data_Reference_For_Name (Node, Property_Name);
    begin
       if not (Ref in Property_Reference) then
@@ -460,10 +460,10 @@ package body Ada_AST_Nodes is
    overriding function Is_Field_Name
      (Node : Ada_AST_Node; Name : Text_Type) return Boolean
    is
-      Data_Ref : constant Any_Node_Data_Reference :=
+      Data_Ref : constant Any_Member_Reference :=
         Data_Reference_For_Name (Node, Name);
    begin
-      return (Data_Ref in Field_Reference) or else
+      return (Data_Ref in Member_Reference) or else
         (Data_Ref in Built_In_LAL_Field) or else
         Is_Built_In (Name);
    end Is_Field_Name;
@@ -484,7 +484,7 @@ package body Ada_AST_Nodes is
    overriding function Access_Field
      (Node : Ada_AST_Node; Field : Text_Type) return Introspection_Value
    is
-      Data_Ref : constant Any_Node_Data_Reference :=
+      Data_Ref : constant Any_Member_Reference :=
         Data_Reference_For_Name (Node, Field);
    begin
       if Is_Built_In (Field) then
@@ -492,7 +492,7 @@ package body Ada_AST_Nodes is
       end if;
 
       return Make_Introspection_Value
-        (Eval_Node_Data (Node.Node, Data_Ref, Empty_Value_Array));
+        (Eval_Member (Node.Node, Data_Ref, Empty_Value_Array));
    end Access_Field;
 
    --------------------
@@ -531,7 +531,7 @@ package body Ada_AST_Nodes is
       Property_Args : Value_Array (1 .. Arguments'Length);
       Property_Ref  : constant Property_Reference :=
         Get_Property_Ref (Node, Property_Name);
-      Contraints    : constant Value_Constraint_Array :=
+      Contraints    : constant Type_Constraint_Array :=
         Property_Argument_Types (Property_Ref);
    begin
       if Arguments'Length /= Contraints'Length then
@@ -546,7 +546,7 @@ package body Ada_AST_Nodes is
       end loop;
 
       return Make_Introspection_Value
-        (Eval_Node_Data (Node.Node, Property_Ref, Property_Args));
+        (Eval_Member (Node.Node, Property_Ref, Property_Args));
 
    end Evaluate_Property;
 
