@@ -1,6 +1,6 @@
 let result =
-    query p@ParamSpec(any nextSiblings:
-                          sib@ParamSpec when priority(sib) > priority(p)
+    query p@ParamSpec(any nextSiblings
+                      match sib @ ParamSpec when priority(sib) > priority(p)
           )
 
 print(result)
