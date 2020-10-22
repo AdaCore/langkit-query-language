@@ -1,5 +1,5 @@
 main.adb
-script:2:8: error: Invalid index:  999999
+script.lkql:2:8: error: Invalid index:  999999
 2 | print (p[999999])
   |        ^^^^^^^^^ 
 

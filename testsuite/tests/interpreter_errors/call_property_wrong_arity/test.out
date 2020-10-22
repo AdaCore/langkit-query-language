@@ -1,5 +1,5 @@
 main.adb
-script:2:32: error: Expected 1 arguments but got 2
+script.lkql:2:32: error: Expected 1 arguments but got 2
 2 | print(names[1].referenced_decl(true, 1))
   |                                ^^^^^^^ 
 
