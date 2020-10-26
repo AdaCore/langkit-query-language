@@ -1,18 +1,9 @@
-let result = select t@BaseTypeDecl
-                 when isRealWithoutRange(t) or
-                      t is SubtypeDecl(any superTypes match s@_ when isRealWithoutRange(s))
-print(result)
-
-selector superTypes
-    | TypeDecl          => skip it.type_def
-    | SubtypeDecl       => skip it.subtype
-    | InterfaceTypeDef  => skip it.interfaces
-    | RecordTypeDef     => ()
-    | DerivedTypeDef    => skip it.subtype_indication <> skip it.interfaces
-    | SubtypeIndication => skip it.name
-    | Name              => rec it.referenced_decl(true)
-    | ParentList        => skip *it.children
-    | _                 => ()
-
 fun isRealWithoutRange(decl) =
     decl is TypeDecl(type_def=RealTypeDef(no children match RangeSpec))
+
+let result =
+   select t @ BaseTypeDecl
+   when isRealWithoutRange(t)
+        or t is SubtypeDecl(get_type()=bt @ _ when isRealWithoutRange(bt))
+
+print(result)
