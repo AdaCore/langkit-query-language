@@ -1,2 +1,4 @@
-let inDottedInWith = query a @ AspectSpec any children match DottedName any children match Identifier
+let inDottedInWith =
+    query a @ AspectSpec any children match DottedName
+                         any children match Identifier
 print(inDottedInWith)
