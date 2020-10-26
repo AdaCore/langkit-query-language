@@ -6,6 +6,36 @@
     },
 
     {
+        "name": "Implicit_Small",
+        "path": "implicit_small.lkql",
+        "params": []
+    },
+
+    {
+        "name": "Deep_Library_Hierarchy",
+        "path": "deep_library_hierarchy.lkql",
+        "params": [
+            {
+                "name": "depth",
+                "type": "int",
+                "default": 5
+            }
+        ]
+    },
+
+    {
+        "name": "Raising_Predefined_Exceptions",
+        "path": "raising_predefined_exceptions.lkql",
+        "params": []
+    },
+
+    {
+        "name": "No_Explicit_Real_Range",
+        "path": "no_real_range.lkql",
+        "params": []
+    },
+
+    {
         "name": "Deep_Inheritance",
         "path": "deepInheritance.lkql",
         "params": [

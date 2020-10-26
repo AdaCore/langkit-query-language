@@ -1,5 +1,12 @@
-decls.ads
-<TypeDecl ["Invalid1"] decls.ads:4:4-4:30>
-<TypeDecl ["Invalid2"] decls.ads:5:4-5:41>
-<SubtypeDecl ["InvalidSub"] decls.ads:7:4-7:35>
+decls.ads:4:4: error: No_Explicit_Real_Range - rule violation
+4 |    type Invalid1 is digits 8;                           --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+decls.ads:5:4: error: No_Explicit_Real_Range - rule violation
+5 |    type Invalid2 is delta 0.01 digits 8;                --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+decls.ads:7:4: error: No_Explicit_Real_Range - rule violation
+7 |    subtype InvalidSub is Invalid2;                      --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

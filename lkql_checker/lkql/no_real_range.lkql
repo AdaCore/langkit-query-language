@@ -1,9 +1,7 @@
 fun isRealWithoutRange(decl) =
     decl is TypeDecl(type_def=RealTypeDef(no children match RangeSpec))
 
-let result =
+fun result() =
    select t @ BaseTypeDecl
    when isRealWithoutRange(t)
         or t is SubtypeDecl(get_type()=bt @ _ when isRealWithoutRange(bt))
-
-print(result)

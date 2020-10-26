@@ -1,4 +1,0 @@
-let result =
-    select t@TypeDecl(any children match OrdinaryFixedPointDef) when not t.has_aspect("Small")
-
-print(result)

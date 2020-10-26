@@ -1,3 +1,4 @@
-src.adb
-<RaiseStmt src.adb:5:4-5:39>
+src.adb:5:4: error: Raising_Predefined_Exceptions - rule violation
+5 |    raise Program_Error with "Message";
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
