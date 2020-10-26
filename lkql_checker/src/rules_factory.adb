@@ -25,14 +25,14 @@ package body Rules_Factory is
       Result : Rule_Vector;
    begin
       declare
-         begin
+      begin
          for I in 1 .. Length (Rules_JSON) loop
             declare
-               Rule : JSON_Value := Get (Rules_JSON, I);
-               Rule_Name : String := Rule.Get ("name");
-               Rule_Path : String := Rule.Get ("path");
+               Rule        : JSON_Value := Get (Rules_JSON, I);
+               Rule_Name   : String := Rule.Get ("name");
+               Rule_Path   : String := Rule.Get ("path");
                Rule_Params : JSON_Array := Rule.Get ("params");
-               Rule_Code : XString;
+               Rule_Code   : XString;
             begin
                Rule_Code.Append ("result(");
                for J in 1 .. Length (Rule_Params) loop
@@ -42,7 +42,6 @@ package body Rules_Factory is
                   end if;
                end loop;
                Rule_Code.Append (")");
-               Put_Line ("Rule code: " & Rule_Code.To_String);
                Result.Append
                  (Create_Rule_Command
                     (Name             => To_Text (Rule_Name),
