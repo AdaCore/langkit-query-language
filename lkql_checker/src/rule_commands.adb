@@ -50,9 +50,9 @@ package body Rule_Commands is
 
    function Evaluate
      (Self : Rule_Command;
-      Unit : LAL.Analysis_Unit) return Message_Vectors.Vector
+      Unit : LAL.Analysis_Unit) return Diagnostics_Vectors.Vector
    is
-      Result       : Message_Vectors.Vector;
+      Result       : Diagnostics_Vectors.Vector;
       Command_Name : constant Text_Type := To_Text (Self.Name);
       Nodes, Dummy : Primitive;
       Ctx     : Eval_Context :=
@@ -75,8 +75,9 @@ package body Rule_Commands is
             Node         : constant Ada_Node := Ada_Wrapped_Node.Node;
          begin
             Result.Append
-              (To_Unbounded_Text
-                 (Node.Full_Sloc_Image & Command_Name & " - rule violation"));
+              (Diagnostic'
+                 (Node.Sloc_Range,
+                  To_Unbounded_Text (Command_Name & " - rule violation")));
          end;
       end loop;
 
