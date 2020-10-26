@@ -10,6 +10,7 @@ package body LKQL.Checks is
    -----------
 
    procedure Check (Ctx : Eval_Context; Node : L.LKQL_Node'Class) is
+      use type LCO.LKQL_Node_Kind_Type;
    begin
       if Node.Is_Null then
          return;
@@ -17,6 +18,10 @@ package body LKQL.Checks is
 
       case Node.Kind is
          when LCO.LKQL_Fun_Call =>
+            --  Don't check funcalls that are part of property links
+            if Node.Parent.Kind = LCO.LKQL_Property_Link then
+               return;
+            end if;
             if not Node.As_Fun_Call.P_Is_Builtin_Call then
                Check_Fun_Call (Ctx, Node.As_Fun_Call);
             end if;
