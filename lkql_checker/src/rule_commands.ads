@@ -10,6 +10,7 @@ with Liblkqllang.Analysis;
 
 with Libadalang.Analysis;
 
+with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 --  A diagnostic is composed of a collection of individual rule commands
@@ -17,9 +18,6 @@ package Rule_Commands is
 
    package L renames Liblkqllang.Analysis;
    package LAL renames Libadalang.Analysis;
-
-   package Message_Vectors is new Ada.Containers.Vectors
-     (Positive, Unbounded_Text_Type);
 
    Rule_Error : exception;
 
@@ -37,7 +35,7 @@ package Rule_Commands is
    function Evaluate
      (Self : Rule_Command;
       Unit : LAL.Analysis_Unit)
-      return Message_Vectors.Vector;
+      return Diagnostics_Vectors.Vector;
    --  Execute the LKQL script of the rule and return a Rule_Result value
    --  containing the flagged nodes.
 
