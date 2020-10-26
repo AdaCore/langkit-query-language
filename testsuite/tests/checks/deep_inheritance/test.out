@@ -1,4 +1,4 @@
-definitions.ads:9:5: error: Deep_Inheritance - rule violation
+definitions.ads:9:10: error: Deep_Inheritance - rule violation
 9 |     type T3 is new T0 and I2 with null record; -- FLAG (if rule parameter is 2)
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |          ^^ 
 

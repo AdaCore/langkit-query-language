@@ -1,9 +1,11 @@
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 with LKQL.Unit_Utils; use LKQL.Unit_Utils;
-with Libadalang.Analysis; use Libadalang.Analysis;
 with Exec; use Exec;
 with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
+
+with Libadalang.Analysis; use Libadalang.Analysis;
+with Libadalang.Common; use Libadalang.Common;
 
 package body Rule_Commands is
 
@@ -72,8 +74,11 @@ package body Rule_Commands is
             Wrapped_Node : constant AST_Node_Rc := Node_Val (N);
             Ada_Wrapped_Node : constant Ada_AST_Node :=
               Ada_AST_Node (Wrapped_Node.Unchecked_Get.all);
-            Node         : constant Ada_Node := Ada_Wrapped_Node.Node;
+            Node         : Ada_Node := Ada_Wrapped_Node.Node;
          begin
+            if Node.Kind in Ada_Basic_Decl then
+               Node := Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node;
+            end if;
             Result.Append
               (Diagnostic'
                  (Node.Sloc_Range,
