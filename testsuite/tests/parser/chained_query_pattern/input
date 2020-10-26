@@ -1,2 +1,2 @@
-query k@KindOne property() KindTwo all sel l@KindThree field KindFour
+query k @ KindOne property() KindTwo all sel match l @ KindThree field KindFour
     when k.prop() and l.prop()
