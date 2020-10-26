@@ -1,0 +1,8 @@
+foo.ads:7:4: error: Volatile_Objects_Without_Address_Clauses - rule violation
+7 |    Variable1: Interfaces.Unsigned_8                                --  FLAG
+  |    ^^^^^^^^^ 
+
+foo.ads:12:4: error: Volatile_Objects_Without_Address_Clauses - rule violation
+12 |    Variable3 : My_Int;                                             --  FLAG
+   |    ^^^^^^^^^ 
+
