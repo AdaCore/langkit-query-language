@@ -948,9 +948,11 @@ lkql_grammar.add_rules(
     unfiltered_pattern_optional_chain=Or(
         ChainedNodePattern(
             G.unfiltered_pattern,
-            List(Or(SelectorLink(G.selector_call, G.unfiltered_pattern),
-                    FieldLink(G.identifier, G.unfiltered_pattern),
-                    PropertyLink(G.fun_call, G.unfiltered_pattern)))
+            List(Or(
+                SelectorLink(G.selector_call, "match", G.unfiltered_pattern),
+                FieldLink(G.identifier, G.unfiltered_pattern),
+                PropertyLink(G.fun_call, G.unfiltered_pattern)
+            ))
         ),
         G.unfiltered_pattern
     ),

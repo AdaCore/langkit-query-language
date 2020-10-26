@@ -1,5 +1,6 @@
 let result =
     query ProtectedDef
-          any children EntryDecl(any prevSiblings match EntryDecl)
+          any children
+          match EntryDecl(any prevSiblings match EntryDecl)
 
 print(result)
