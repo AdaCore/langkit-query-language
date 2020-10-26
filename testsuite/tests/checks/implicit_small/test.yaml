@@ -1,2 +1,3 @@
-driver: 'interpreter'
+driver: 'checker'
+rule_name: 'Implicit_Small'
 project: 'implicit_small/prj.gpr'

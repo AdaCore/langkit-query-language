@@ -1,8 +1,0 @@
-let targetDepth = 5
-
-let result =
-    select PackageDecl (
-        package_name=DefiningName(any children(depth=targetDepth) match Name)
-    )
-
-print(result)

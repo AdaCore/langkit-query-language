@@ -1,9 +1,7 @@
-let result = select r@RaiseStmt when isPredefinedName(r.exception_name)
-
-print(result)
-
 fun isPredefinedName(id) =
     val name = id?.text;
     name == "Program_Error" or name == "Constraint_Error" or
     name == "Numeric_Error" or name == "Storage_Error"    or
     name == "Tasking_Error"
+
+fun result() = select r@RaiseStmt when isPredefinedName(r.exception_name)
