@@ -1,2 +1,2 @@
-let declParent = query _(any children(depth=1) match BasicDecl)
+let declParent = select _(any children(depth=1) match BasicDecl)
 print(declParent)

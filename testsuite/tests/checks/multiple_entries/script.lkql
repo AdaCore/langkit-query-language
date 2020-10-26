@@ -1,5 +1,5 @@
 let result =
-    query ProtectedDef
+    select ProtectedDef
           any children
           match EntryDecl(any prevSiblings match EntryDecl)
 

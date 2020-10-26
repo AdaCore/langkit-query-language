@@ -1,2 +1,2 @@
-let declWithAssoc = query _(any children(depth=3) match AspectAssoc)
+let declWithAssoc = select _(any children(depth=3) match AspectAssoc)
 print(declWithAssoc)

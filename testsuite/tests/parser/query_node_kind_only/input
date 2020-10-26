@@ -1,1 +1,1 @@
-let o = query ObjectDecl
+let o = select ObjectDecl

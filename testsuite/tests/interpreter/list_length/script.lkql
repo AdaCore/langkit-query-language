@@ -1,2 +1,2 @@
-let o = query o @ ObjectDecl
+let o = select o @ ObjectDecl
 print(o.length)

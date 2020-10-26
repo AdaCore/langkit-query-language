@@ -1,1 +1,1 @@
-query p @ _ when "Hello" is ObjectDecl
+select p @ _ when "Hello" is ObjectDecl

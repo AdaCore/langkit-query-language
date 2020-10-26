@@ -9,4 +9,4 @@ selector superTypes
     | _                 => ()
 
 fun result(n) =
-    query TypeDecl(any superTypes(depth=n+1): _)
+    select TypeDecl(any superTypes(depth=n+1) match _)

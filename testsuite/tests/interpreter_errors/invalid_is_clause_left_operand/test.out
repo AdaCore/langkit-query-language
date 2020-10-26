@@ -1,5 +1,5 @@
 main.adb
-script.lkql:1:18: error: Type error: expected Node but got Str
-1 | query p @ _ when "Hello" is ObjectDecl
-  |                  ^^^^^^^ 
+script.lkql:1:19: error: Type error: expected Node but got Str
+1 | select p @ _ when "Hello" is ObjectDecl
+  |                   ^^^^^^^ 
 

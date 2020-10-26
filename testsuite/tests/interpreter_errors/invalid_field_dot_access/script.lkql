@@ -1,2 +1,2 @@
-let p = query p @ _ when p.nonExistingField is ObjectDecl
+let p = select p @ _ when p.nonExistingField is ObjectDecl
 print (p)

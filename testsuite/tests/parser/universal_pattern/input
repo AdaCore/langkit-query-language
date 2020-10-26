@@ -1,1 +1,1 @@
-query _(all children match BasicDecl)
+select _(all children match BasicDecl)

@@ -1,5 +1,5 @@
 let result =
-    query p@ParamSpec(any nextSiblings
+    select p@ParamSpec(any nextSiblings
                       match sib @ ParamSpec when priority(sib) > priority(p)
           )
 
