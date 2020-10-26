@@ -35,10 +35,10 @@ package body Liblkqllang.Prelude is
        use Liblkqllang.Analysis;
        Std : constant Internal_Unit :=
           (if Prelude_Unit = null
-           then Get_From_Buffer 
-                   (Context  => Context, 
-                    Filename => "prelude", 
-                    Charset  => "ascii", 
+           then Get_From_Buffer
+                   (Context  => Context,
+                    Filename => "prelude",
+                    Charset  => "ascii",
                     Buffer   => Prelude_Content,
                     Rule     => Default_Grammar_Rule)
            else Prelude_Unit);
