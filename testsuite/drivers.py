@@ -114,17 +114,16 @@ class CheckerDriver(DiffTestDriver):
     """
 
     def run(self):
+        args = [CHECKER_PATH]
         # Put the absolute path of the test's project in project_path, if any
-        if self.test_env['project']:
-            project_path = os.path.join(ADA_PROJECTS_PATH,
-                                        self.test_env['project'])
+        if self.test_env.get('project', None):
+            args += [
+                '-P', os.path.join(ADA_PROJECTS_PATH, self.test_env['project'])
+            ]
         else:
-            project_path = ''
+            args += self.test_env['input_sources']
 
-        # Build the process's arguments list
-        args = [a for a in
-                [CHECKER_PATH, '-P', project_path, '-r', self.test_env['rule_name']]
-                if a != '']
+        args += ['-r', self.test_env['rule_name']]
 
         # Run the interpreter
         self.shell(args)
