@@ -1,0 +1,11 @@
+let maxDeps = 5
+
+let result =
+    select CompilationUnit(any c @ children match Identifier(any parent(depth=2) match WithClause))
+            body
+                l@LibraryItem
+        when val semanticParent = l.item?.semantic_parent();
+             val deps = [x | x <- c, x.referenced_decl() != semanticParent];
+             deps.length > maxDeps
+
+print(result)
