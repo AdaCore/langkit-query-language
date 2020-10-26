@@ -20,7 +20,12 @@ package body Liblkqllang.Prelude is
         ""                   & ASCII.LF &
         "selector children" & ASCII.LF &
         "   | AdaNode => rec *it.children" & ASCII.LF &
-        "   | _       => ()";   
+        "   | _       => ()" & ASCII.LF &
+        ""                   & ASCII.LF &
+        "selector superTypes" & ASCII.LF &
+        "    | BaseTypeDecl      => rec *it.base_types()" & ASCII.LF &
+        "    | _                 => ()" & ASCII.LF;
+
 
     -------------------
     -- Fetch_Prelude --
