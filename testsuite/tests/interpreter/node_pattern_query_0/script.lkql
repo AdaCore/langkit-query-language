@@ -1,2 +1,2 @@
-let p = query ObjectDecl
+let p = select ObjectDecl
 print (p)

@@ -1,1 +1,1 @@
-query p @ PreposterouslyInvalidKind
+select p @ PreposterouslyInvalidKind

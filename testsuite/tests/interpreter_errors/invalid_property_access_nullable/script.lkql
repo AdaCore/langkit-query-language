@@ -1,2 +1,2 @@
-let objects = query o @ ObjectDecl
+let objects = select o @ ObjectDecl
 objects[1].has_constant.get_attribute("attribute")

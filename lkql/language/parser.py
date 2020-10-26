@@ -938,7 +938,7 @@ lkql_grammar.add_rules(
     main_rule=List(Or(G.decl, G.expr),
                    list_cls=TopLevelList),
 
-    query=Query("query", G.pattern),
+    query=Query("select", G.pattern),
 
     pattern=Or(FilteredPattern(G.unfiltered_pattern_optional_chain,
                                "when",

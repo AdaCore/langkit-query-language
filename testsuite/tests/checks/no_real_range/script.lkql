@@ -1,4 +1,4 @@
-let result = query t@BaseTypeDecl
+let result = select t@BaseTypeDecl
                  when isRealWithoutRange(t) or
                       t is SubtypeDecl(any superTypes match s@_ when isRealWithoutRange(s))
 print(result)

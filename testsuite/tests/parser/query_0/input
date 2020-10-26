@@ -1,1 +1,1 @@
-query n @ NodeKind when n.identifier == "Identifier"
+select n @ NodeKind when n.identifier == "Identifier"

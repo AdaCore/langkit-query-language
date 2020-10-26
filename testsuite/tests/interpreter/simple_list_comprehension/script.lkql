@@ -1,3 +1,3 @@
-let all = query p @ _
+let all = select p @ _
 let decls = [a | a <- all, a is ObjectDecl]
 print(decls)

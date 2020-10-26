@@ -1,5 +1,5 @@
 main.adb
-script.lkql:1:11: error: Invalid kind name: PreposterouslyInvalidKind
-1 | query p @ PreposterouslyInvalidKind
-  |           ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+script.lkql:1:12: error: Invalid kind name: PreposterouslyInvalidKind
+1 | select p @ PreposterouslyInvalidKind
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

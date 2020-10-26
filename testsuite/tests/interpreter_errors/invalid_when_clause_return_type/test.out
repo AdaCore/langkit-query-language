@@ -1,5 +1,5 @@
 main.adb
-script.lkql:1:26: error: Type error: expected Bool but got Str
-1 | let p = query p @ _ when "Hello"
-  |                          ^^^^^^^ 
+script.lkql:1:27: error: Type error: expected Bool but got Str
+1 | let p = select p @ _ when "Hello"
+  |                           ^^^^^^^ 
 

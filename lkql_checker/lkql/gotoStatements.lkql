@@ -1,1 +1,1 @@
-fun result() = query GotoStmt
+fun result() = select GotoStmt

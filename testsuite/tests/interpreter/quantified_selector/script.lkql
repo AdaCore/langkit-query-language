@@ -1,2 +1,2 @@
-let result = query AdaNodeList(all children(depth=1) match ObjectDecl)
+let result = select AdaNodeList(all children(depth=1) match ObjectDecl)
 print(result)
