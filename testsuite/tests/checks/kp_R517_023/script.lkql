@@ -3,8 +3,8 @@ let result = select CallExpr(is_call(): true,
                    )
 print(result)
 
-// Return whether the given 'ParamAssoc' represents an arg that must be flagged by
-// the R517-023 detector.
+# Return whether the given 'ParamAssoc' represents an arg that must be flagged by
+# the R517-023 detector.
 fun isFlagArg(actual) =
     val formal = getFormal(actual);
     if formal == null
