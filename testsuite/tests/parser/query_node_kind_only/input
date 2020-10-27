@@ -1,1 +1,1 @@
-let o = select ObjectDecl
+val o = select ObjectDecl

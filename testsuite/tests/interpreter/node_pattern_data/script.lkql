@@ -1,2 +1,2 @@
-let result = select BaseTypeDecl(is_access_type()= true)
+val result = select BaseTypeDecl(is_access_type()= true)
 print(result)

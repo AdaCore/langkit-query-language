@@ -1,2 +1,2 @@
-let p = select BasicDecl
+val p = select BasicDecl
 print (p)

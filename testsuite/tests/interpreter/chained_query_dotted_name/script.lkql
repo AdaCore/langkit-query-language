@@ -1,4 +1,4 @@
-let inDottedInWith =
+val inDottedInWith =
     select a @ AspectSpec any children match DottedName
                          any children match Identifier
 print(inDottedInWith)

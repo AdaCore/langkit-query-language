@@ -1,2 +1,2 @@
-let p = select p @ ObjectDecl
+val p = select p @ ObjectDecl
 print(p[1].has_constant is ConstantAbsent)

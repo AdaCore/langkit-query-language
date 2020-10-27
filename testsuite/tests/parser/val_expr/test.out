@@ -1,19 +1,21 @@
-ValExpr
-|binding_name:
-|  Identifier: x
-|binding_value:
-|  IntegerLiteral: 40
-|expr:
-|  ValExpr
-|  |binding_name:
-|  |  Identifier: y
-|  |binding_value:
-|  |  IntegerLiteral: 2
-|  |expr:
-|  |  BinOp
-|  |  |left:
+BlockExpr
+|vals:
+|  ValDeclList
+|  |  ValDecl
+|  |  |identifier:
 |  |  |  Identifier: x
-|  |  |op:
-|  |  |  OpPlus
-|  |  |right:
+|  |  |value:
+|  |  |  IntegerLiteral: 40
+|  |  ValDecl
+|  |  |identifier:
 |  |  |  Identifier: y
+|  |  |value:
+|  |  |  IntegerLiteral: 2
+|expr:
+|  BinOp
+|  |left:
+|  |  Identifier: x
+|  |op:
+|  |  OpPlus
+|  |right:
+|  |  Identifier: y

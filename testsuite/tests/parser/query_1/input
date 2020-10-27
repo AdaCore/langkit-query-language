@@ -1,1 +1,1 @@
-let o = select o @ ObjectDecl when o.random_field in filteredFields
+val o = select o @ ObjectDecl when o.random_field in filteredFields

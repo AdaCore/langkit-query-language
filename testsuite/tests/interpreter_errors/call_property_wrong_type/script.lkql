@@ -1,2 +1,2 @@
-let names = select Name
+val names = select Name
 print(names[1].referenced_decl(1))

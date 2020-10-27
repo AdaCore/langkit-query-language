@@ -1,2 +1,2 @@
-let declParent = select _(any children(depth=1) match BasicDecl)
+val declParent = select _(any children(depth=1) match BasicDecl)
 print(declParent)

@@ -1,4 +1,4 @@
-Assign
+ValDecl
 |identifier:
 |  Identifier: a
 |value:

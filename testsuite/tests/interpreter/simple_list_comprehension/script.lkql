@@ -1,3 +1,3 @@
-let all = select p @ _
-let decls = [a | a <- all, a is ObjectDecl]
+val all = select p @ _
+val decls = [a | a <- all, a is ObjectDecl]
 print(decls)

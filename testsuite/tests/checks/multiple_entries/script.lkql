@@ -1,4 +1,4 @@
-let result =
+val result =
     select ProtectedDef
           any children
           match EntryDecl(any prevSiblings match EntryDecl)
