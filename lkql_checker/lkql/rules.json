@@ -6,6 +6,12 @@
     },
 
     {
+        "name": "Specific_Pre_Post",
+        "path": "specific_pre_post.lkql",
+        "params": []
+    },
+
+    {
         "name": "Implicit_Small",
         "path": "implicit_small.lkql",
         "params": []
