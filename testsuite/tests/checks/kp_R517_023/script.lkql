@@ -1,4 +1,4 @@
-let result = select CallExpr(is_call(): true,
+val result = select CallExpr(is_call(): true,
                             any children(depth=2): p@ParamAssoc when isFlagArg(p)
                    )
 print(result)

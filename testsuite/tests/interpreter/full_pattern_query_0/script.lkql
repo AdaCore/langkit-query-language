@@ -1,5 +1,5 @@
 selector children
     | AdaNode => rec *it.children
 
-let withAspect = select ObjectDecl(any children match AspectAssoc)
+val withAspect = select ObjectDecl(any children match AspectAssoc)
 print (withAspect)

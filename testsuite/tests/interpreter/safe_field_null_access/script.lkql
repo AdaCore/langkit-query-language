@@ -1,4 +1,4 @@
-let specs = select SubpSpec
-let nullParams = specs[1].subp_params
+val specs = select SubpSpec
+val nullParams = specs[1].subp_params
 print(nullParams) # null
 print(nullParams?.params) # stil null

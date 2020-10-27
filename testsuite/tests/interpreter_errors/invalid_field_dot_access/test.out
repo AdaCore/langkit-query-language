@@ -1,5 +1,5 @@
 main.adb
 script.lkql:1:29: error: No field named nonExistingField on nodes of kind: CompilationUnit
-1 | let p = select p @ _ when p.nonExistingField is ObjectDecl
+1 | val p = select p @ _ when p.nonExistingField is ObjectDecl
   |                             ^^^^^^^^^^^^^^^^ 
 

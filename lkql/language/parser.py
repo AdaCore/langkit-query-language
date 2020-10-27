@@ -258,13 +258,13 @@ class Unpack(Expr):
     collection_expr = Field(type=Expr)
 
 
-class Assign(Declaration):
+class ValDecl(Declaration):
     """
-    Assign expression.
-    An assignment associates a name with a value, and returns Unit.
+    Value declaration
+    Associates a name with a value.
 
     For instance::
-       let message = "Hello World"
+       val message = "Hello World"
     """
     identifier = Field(type=Identifier)
     value = Field(type=Expr)
@@ -483,7 +483,7 @@ class ListComprehension(Expr):
     guard = Field(type=Expr)
 
 
-class ValExpr(Expr):
+class BlockExpr(Expr):
     """
     Expression of the form: val id = value; expr
 
@@ -493,8 +493,7 @@ class ValExpr(Expr):
        x + y
     """
 
-    binding_name = Field(type=Identifier)
-    binding_value = Field(type=Expr)
+    vals = Field(type=ValDecl.list)
     expr = Field(type=Expr)
 
 
@@ -1012,14 +1011,14 @@ lkql_grammar.add_rules(
 
     decl=Or(G.fun_decl,
             G.selector_decl,
-            G.assign),
+            G.val_decl),
 
     expr=Or(BinOp(G.expr,
                   Or(Op.alt_and("and"),
                      Op.alt_or("or")),
                   G.comp_expr),
             G.comp_expr,
-            G.val_expr),
+            G.block_expr),
 
     comp_expr=Or(IsClause(G.comp_expr, "is", G.pattern),
                  InClause(G.comp_expr, "in", G.expr),
@@ -1076,10 +1075,11 @@ lkql_grammar.add_rules(
         G.if_then_else
     ),
 
-    val_expr=ValExpr("val", G.identifier, "=",
-                     G.expr, ";", G.expr),
+    block_expr=BlockExpr(
+        "{", List(G.val_decl, sep=";", empty_valid=False), ";", G.expr, "}"
+    ),
 
-    assign=Assign("let", G.identifier, "=", G.expr),
+    val_decl=ValDecl("val", G.identifier, "=", G.expr),
 
     fun_decl=FunDecl(
         "fun", G.identifier,

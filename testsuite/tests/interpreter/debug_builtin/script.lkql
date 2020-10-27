@@ -1,7 +1,7 @@
-let x = 38
+val x = 38
 
-let y = 4
+val y = 4
 
-let result = debug(x + y)
+val result = debug(x + y)
 
 print(result)

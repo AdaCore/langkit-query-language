@@ -1,4 +1,4 @@
-let subtype = select SubtypeIndication
-let objects = select ObjectDecl
+val subtype = select SubtypeIndication
+val objects = select ObjectDecl
 print([ o.image & " " & st.image | o <- objects, st <- subtype,
                                    (o.image & " " & st.image).length != 64])

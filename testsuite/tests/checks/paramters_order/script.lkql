@@ -1,4 +1,4 @@
-let result =
+val result =
     select p@ParamSpec(any nextSiblings
                       match sib @ ParamSpec when priority(sib) > priority(p)
           )

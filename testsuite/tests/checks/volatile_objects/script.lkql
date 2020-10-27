@@ -1,6 +1,6 @@
-let maxDeps = 5
+val maxDeps = 5
 
-let result =
+val result =
     select CompilationUnit(any c @ children match Identifier(any parent(depth=2) match WithClause))
             body
                 l@LibraryItem

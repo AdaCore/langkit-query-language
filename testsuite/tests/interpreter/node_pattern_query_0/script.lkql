@@ -1,2 +1,2 @@
-let p = select ObjectDecl
+val p = select ObjectDecl
 print (p)

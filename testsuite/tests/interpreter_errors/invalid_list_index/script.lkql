@@ -1,2 +1,2 @@
-let p = select p @ _ when true
+val p = select p @ _ when true
 print (p[999999])

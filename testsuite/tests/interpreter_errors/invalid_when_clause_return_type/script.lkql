@@ -1,2 +1,2 @@
-let p = select p @ _ when "Hello"
+val p = select p @ _ when "Hello"
 print (p)

@@ -1,2 +1,2 @@
-let declWithAssoc = select _(any children(depth=3) match AspectAssoc)
+val declWithAssoc = select _(any children(depth=3) match AspectAssoc)
 print(declWithAssoc)

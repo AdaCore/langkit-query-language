@@ -53,6 +53,8 @@ class Token(LexerToken):
     RPar = WithText()
     LBrack = WithText()
     RBrack = WithText()
+    LCurl = WithText()
+    RCurl = WithText()
     At = WithText()
     Pipe = WithText()
     LArrow = WithText()
@@ -88,6 +90,8 @@ lkql_lexer.add_rules(
     (Literal("&"),                                         Token.Amp),
     (Literal("("),                                         Token.LPar),
     (Literal(")"),                                         Token.RPar),
+    (Literal("{"),                                         Token.LCurl),
+    (Literal("}"),                                         Token.RCurl),
     (Literal("["),                                         Token.LBrack),
     (Literal("]"),                                         Token.RBrack),
     (Literal("@"),                                         Token.At),

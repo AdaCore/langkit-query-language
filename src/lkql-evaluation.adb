@@ -17,8 +17,8 @@ package body LKQL.Evaluation is
    function Eval_List
      (Ctx : Eval_Context; Node : L.LKQL_Node_List) return Primitive;
 
-   function Eval_Assign
-     (Ctx : Eval_Context; Node : L.Assign) return Primitive;
+   function Eval_Val_Decl
+     (Ctx : Eval_Context; Node : L.Val_Decl) return Primitive;
 
    function Eval_Identifier
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive;
@@ -72,8 +72,8 @@ package body LKQL.Evaluation is
    function Eval_List_Comprehension
      (Ctx : Eval_Context; Node : L.List_Comprehension) return Primitive;
 
-   function Eval_Val_Expr
-     (Ctx : Eval_Context; Node : L.Val_Expr) return Primitive;
+   function Eval_Block_Expr
+     (Ctx : Eval_Context; Node : L.Block_Expr) return Primitive;
 
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
@@ -158,8 +158,8 @@ package body LKQL.Evaluation is
       case Node.Kind is
          when LCO.LKQL_LKQL_Node_List =>
             Result := Eval_List (Local_Context, Node.As_LKQL_Node_List);
-         when LCO.LKQL_Assign =>
-            Result := Eval_Assign (Local_Context, Node.As_Assign);
+         when LCO.LKQL_Val_Decl =>
+            Result := Eval_Val_Decl (Local_Context, Node.As_Val_Decl);
          when LCO.LKQL_Identifier =>
             Result := Eval_Identifier (Local_Context, Node.As_Identifier);
          when LCO.LKQL_Integer_Literal =>
@@ -195,8 +195,8 @@ package body LKQL.Evaluation is
          when LCO.LKQL_List_Comprehension =>
             Result := Eval_List_Comprehension
               (Local_Context, Node.As_List_Comprehension);
-         when LCO.LKQL_Val_Expr =>
-            Result := Eval_Val_Expr (Local_Context, Node.As_Val_Expr);
+         when LCO.LKQL_Block_Expr =>
+            Result := Eval_Block_Expr (Local_Context, Node.As_Block_Expr);
          when LCO.LKQL_Fun_Decl =>
             Result := Make_Unit_Primitive;
          when LCO.LKQL_Fun_Call =>
@@ -257,12 +257,12 @@ package body LKQL.Evaluation is
       return Result;
    end Eval_List;
 
-   -----------------
-   -- Eval_Assign --
-   -----------------
+   -------------------
+   -- Eval_Val_Decl --
+   -------------------
 
-   function Eval_Assign
-     (Ctx : Eval_Context; Node : L.Assign) return Primitive
+   function Eval_Val_Decl
+     (Ctx : Eval_Context; Node : L.Val_Decl) return Primitive
    is
       Identifier : constant Text_Type :=
         Node.F_Identifier.Text;
@@ -275,7 +275,7 @@ package body LKQL.Evaluation is
 
       Ctx.Add_Binding (Identifier, Eval (Ctx, Node.F_Value));
       return Make_Unit_Primitive;
-   end Eval_Assign;
+   end Eval_Val_Decl;
 
    ---------------------
    -- Eval_identifier --
@@ -611,22 +611,30 @@ package body LKQL.Evaluation is
       Nested : Comprehension_Env_Iter_Access)
       return Comprehension_Env_Iter_Access;
 
-   -------------------
-   -- Eval_Val_Expr --
-   -------------------
+   ---------------------
+   -- Eval_Block_Expr --
+   ---------------------
 
-   function Eval_Val_Expr
-     (Ctx : Eval_Context; Node : L.Val_Expr) return Primitive
+   function Eval_Block_Expr
+     (Ctx : Eval_Context; Node : L.Block_Expr) return Primitive
    is
-      Binding : Environment_Map;
-      Binding_Name  : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Node.F_Binding_Name.Text);
-      Binding_Value : constant Primitive :=
-        Eval (Ctx, Node.F_Binding_Value);
+      Local_Ctx : Eval_Context;
+      Dummy     : Primitive;
    begin
-      Binding.Include (Binding_Name, Binding_Value);
-      return Eval (Ctx, Node.F_Expr, Local_Bindings => Binding);
-   end Eval_Val_Expr;
+      --  Create a frame for the block
+      Local_Ctx := Ctx.Create_New_Frame;
+
+      --  Add Val_Decl bindings to the newly created frame
+      for V_Decl of Node.F_Vals loop
+         Dummy := Eval_Val_Decl (Local_Ctx, V_Decl.As_Val_Decl);
+      end loop;
+
+      --  Eval the expression in the context of the new frame, release the
+      --  frame, return.
+      return Ret : constant Primitive := Eval (Local_Ctx, Node.F_Expr) do
+         Local_Ctx.Release_Current_Frame;
+      end return;
+   end Eval_Block_Expr;
 
    ----------------
    -- Eval_Match --
