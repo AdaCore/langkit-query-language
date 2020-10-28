@@ -550,7 +550,14 @@ package body Ada_AST_Nodes is
 
    end Evaluate_Property;
 
+   --  TODO??? Magnificient hack because somehow elab of libadalang is not
+   --  called ..
+   procedure adalanginit;
+   pragma Import (C, adalanginit, "adalanginit");
 begin
+
+   adalanginit;
+
    for Type_Id in Node_Type_Id loop
       declare
          Type_Name : Unbounded_String :=

@@ -1,5 +1,5 @@
 with "libadalang";
-with "../lkql_interpreter.gpr";
+with "liblkqllang";
 
 project Lkql_Checker is
 

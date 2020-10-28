@@ -1,6 +1,6 @@
 from e3.testsuite import Testsuite
 from drivers import (
-    CheckerDriver, ParserDriver, InterpreterDriver, make_interpreter
+    CheckerDriver, ParserDriver, InterpreterDriver
 )
 import os
 
@@ -28,7 +28,6 @@ class LKQLTestsuite(Testsuite):
 
 
 if __name__ == "__main__":
-    make_interpreter()
     suite = LKQLTestsuite(os.path.dirname(__file__))
     suite.testsuite_main()
     for k, v in suite.test_status_counters.items():

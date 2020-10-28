@@ -6,23 +6,11 @@ from e3.testsuite.driver.diff import DiffTestDriver
 TESTSUITE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 LKQL_ROOT_DIR = os.path.dirname(TESTSUITE_ROOT_DIR)
 INTERPRETER_PATH = os.path.join(
-    LKQL_ROOT_DIR, 'lkql_ada_interpreter', 'obj', 'main'
+    LKQL_ROOT_DIR, 'build', 'bin', 'lkql_ada'
 )
 CHECKER_PATH = os.path.join(
     LKQL_ROOT_DIR, 'lkql_checker', 'obj', 'dev', 'checker'
 )
-
-
-def make_interpreter():
-    from subprocess import check_call
-    print("Compiling the interpreter")
-    check_call([
-        'gprbuild', os.path.join(LKQL_ROOT_DIR, 'lkql_ada_interpreter',
-                                 'lkql_ada_interpreter.gpr'), '-j0', '-p'
-    ])
-
-    # p = Run(gprbuild, cwd=build_dir, output=sys.stdout)
-    # assert p.status == 0, (f"interpreter build failed:\n{p.out}")
 
 
 def read_to_string(path):

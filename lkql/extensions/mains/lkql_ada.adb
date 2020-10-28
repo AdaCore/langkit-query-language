@@ -24,7 +24,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 -- Main --
 ----------
 
-procedure Main is
+procedure LKQL_Ada is
 
    package L renames Liblkqllang.Analysis;
 
@@ -147,4 +147,4 @@ procedure Main is
 
 begin
    App.Run;
-end Main;
+end LKQL_Ada;
