@@ -1,0 +1,6 @@
+fun is_visible(type_decl) =
+   type_decl?.parent?.parent is PublicPart
+
+fun result(n) =
+   select type @ BaseTypeDecl(is_tagged_type()=true)
+   when is_visible(type) and type.get_primitives().length > n

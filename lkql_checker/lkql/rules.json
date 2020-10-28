@@ -18,6 +18,18 @@
     },
 
     {
+        "name": "Too_Many_Primitives",
+        "path": "too_many_primitives.lkql",
+        "params": [
+            {
+                "name": "n",
+                "type": "int",
+                "default": 3
+            }
+        ]
+    },
+
+    {
         "name": "Deep_Library_Hierarchy",
         "path": "deep_library_hierarchy.lkql",
         "params": [
