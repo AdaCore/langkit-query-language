@@ -1,6 +1,0 @@
-val result =
-    select ProtectedDef
-          any children
-          is EntryDecl(any prevSiblings match EntryDecl)
-
-print(result)
