@@ -1,2 +1,2 @@
-select k @ KindOne.property() = KindTwo all sel match l @ KindThree.field = KindFour
+select k @ KindOne.property() = KindTwo all sel is l @ KindThree.field = KindFour
     when k.prop() and l.prop()

@@ -102,7 +102,6 @@ lkql_lexer.add_rules(
     (Literal("let"),                                       Token.Let),
     (Literal("select"),                                    Token.SelectTok),
     (Literal("when"),                                      Token.When),
-    (Literal("match"),                                     Token.Match),
     (Literal("val"),                                       Token.Val),
     (Literal("fun"),                                       Token.Fun),
     (Literal("selector"),                                  Token.Selector),

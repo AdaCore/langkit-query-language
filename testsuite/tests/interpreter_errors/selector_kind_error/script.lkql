@@ -1,4 +1,4 @@
 selector badSelector
     | _ => true
 
-select _(any badSelector match _)
+select _(any badSelector is _)
