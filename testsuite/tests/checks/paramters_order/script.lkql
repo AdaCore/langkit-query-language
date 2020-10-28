@@ -1,7 +1,6 @@
 val result =
-    select p@ParamSpec(any nextSiblings
-                      match sib @ ParamSpec when priority(sib) > priority(p)
-          )
+    select p @ ParamSpec(any nextSiblings
+                         is sib @ ParamSpec when priority(sib) > priority(p))
 
 print(result)
 

@@ -1,2 +1,2 @@
 fun result(n) =
-    select TypeDecl(any superTypes(depth=n+1) match _)
+    select TypeDecl(any superTypes(depth=n+1) is _)

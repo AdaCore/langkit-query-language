@@ -1,5 +1,5 @@
 fun isRealWithoutRange(decl) =
-    decl is TypeDecl(type_def=RealTypeDef(no children match RangeSpec))
+    decl is TypeDecl(type_def=RealTypeDef(no children is RangeSpec))
 
 fun result() =
    select t @ BaseTypeDecl

@@ -1,7 +1,7 @@
 val maxDeps = 5
 
 val result =
-    select CompilationUnit(any c @ children match Identifier(any parent(depth=2) match WithClause))
+    select CompilationUnit(any c @ children is Identifier(any parent(depth=2) match WithClause))
             body
                 l@LibraryItem
         when val semanticParent = l.item?.semantic_parent();

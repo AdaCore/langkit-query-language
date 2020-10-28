@@ -1,2 +1,2 @@
 fun result() =
-    select ProtectedDef any children match EntryDecl(any prevSiblings match EntryDecl)
+    select ProtectedDef any children is EntryDecl(any prevSiblings is EntryDecl)
