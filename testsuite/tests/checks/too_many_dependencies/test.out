@@ -1,7 +1,4 @@
-pack1-flag.ads
-<LibraryItem pack1-flag.ads:9:1-11:16>
-
-pack1-noflag.ads
-
-pack1.ads
+pack1-flag.ads:9:1: error: Too_Many_Dependencies - rule violation
+9 | package Pack1.Flag is
+  | ^^^^^^^^^^^^^^^ 
 
