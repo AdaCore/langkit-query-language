@@ -1,5 +1,0 @@
-driver: 'interpreter'
-project: 'kp_R517_023_simple_test/prj.gpr'
-control:
-    - [XFAIL, "True", "Bitrotted. Need investigation"]
-
