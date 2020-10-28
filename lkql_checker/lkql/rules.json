@@ -18,6 +18,12 @@
     },
 
     {
+        "name": "Parameters_Order",
+        "path": "parameters_order.lkql",
+        "params": []
+    },
+
+    {
         "name": "Too_Many_Dependencies",
         "path": "too_many_dependencies.lkql",
         "params": [

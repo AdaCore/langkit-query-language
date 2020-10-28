@@ -1,4 +1,8 @@
-decls.ads
-<ParamSpec ["Flag"] decls.ads:3:31-3:52>
-<ParamSpec ["Flag"] decls.ads:4:31-4:52>
+decls.ads:3:31: error: Parameters_Order - rule violation
+3 |     procedure Proc_Invalid_1 (Flag : in out Integer; B : Boolean);
+  |                               ^^^^ 
+
+decls.ads:4:31: error: Parameters_Order - rule violation
+4 |     procedure Proc_Invalid_2 (Flag: Boolean := True; B2 : Boolean);
+  |                               ^^^^ 
 
