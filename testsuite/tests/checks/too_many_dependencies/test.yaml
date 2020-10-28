@@ -1,2 +1,3 @@
-driver: 'interpreter'
+driver: 'checker'
+rule_name: 'Too_Many_Dependencies'
 project: 'too_many_dependencies/prj.gpr'

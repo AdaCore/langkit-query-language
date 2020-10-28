@@ -18,6 +18,18 @@
     },
 
     {
+        "name": "Too_Many_Dependencies",
+        "path": "too_many_dependencies.lkql",
+        "params": [
+            {
+                "name": "maxDeps",
+                "type": "int",
+                "default": 5
+            }
+        ]
+    },
+
+    {
         "name": "Too_Many_Primitives",
         "path": "too_many_primitives.lkql",
         "params": [
