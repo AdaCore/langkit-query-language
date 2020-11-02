@@ -19,6 +19,7 @@ class Manage(ManageScript):
         from language.parser import lkql_grammar
 
         ctx = CompileCtx(lang_name='LKQL',
+                         short_name='lkql',
                          lexer=lkql_lexer,
                          grammar=lkql_grammar)
 
