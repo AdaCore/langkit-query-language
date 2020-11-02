@@ -838,7 +838,7 @@ class ExtendedNodePattern(NodePattern):
     """
     Node pattern of the form:
 
-    KindName(field: val, prop: val, selector: Pattern)
+    KindName(field=val, prop() is val, any selector is Pattern)
 
     For instance::
         ObjectDecl(children: AspectAssoc)
