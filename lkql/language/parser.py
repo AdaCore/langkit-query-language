@@ -25,6 +25,35 @@ class LKQLNode(ASTNode):
         """
         pass
 
+    @langkit_property(public=True, return_type=T.Symbol.array,
+                      external=True, uses_envs=False, uses_entity_info=False)
+    def interp_complete():
+        """
+        Complete from node.
+        """
+        pass
+
+    @langkit_property(public=True, return_type=T.Bool,
+                      external=True, uses_envs=False, uses_entity_info=False)
+    def interp_init_from_project(project_file=T.String):
+        """
+        Context method.
+
+        Initialize the interpreter with given project file.
+
+        TODO: add other project options
+        """
+        pass
+
+    @langkit_property(public=True, return_type=T.Symbol,
+                      external=True, uses_envs=False, uses_entity_info=False)
+    def interp_eval():
+        """
+        Eval the given node and return the result of the evaluation as a
+        string.
+        """
+        pass
+
 
 @abstract
 class Declaration(LKQLNode):

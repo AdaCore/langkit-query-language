@@ -550,6 +550,41 @@ package body Ada_AST_Nodes is
 
    end Evaluate_Property;
 
+   ----------------
+   -- Kind_Names --
+   ----------------
+
+   function Kind_Names return Unbounded_String_Array is
+      Ret : Unbounded_String_Array
+        (1 .. Positive (Names_To_Node_Types.Length));
+      Idx : Positive := 1;
+   begin
+      for C in Names_To_Node_Types.Iterate loop
+         Ret (Idx) := Names_To_Node_Types_Maps.Key (C);
+         Idx := Idx + 1;
+      end loop;
+      return Ret;
+   end Kind_Names;
+
+   ----------
+   -- Kind --
+   ----------
+
+   function Kind (Name : String) return Node_Type_Id is
+   begin
+      return
+        Names_To_Node_Types.Element (To_Unbounded_String (Name));
+   end Kind;
+
+   ----------------------
+   -- Get_Node_Type_Id --
+   ----------------------
+
+   function Get_Node_Type_Id (Node : Ada_AST_Node) return Node_Type_Id is
+   begin
+      return Id_For_Kind (Node.Node.Kind);
+   end Get_Node_Type_Id;
+
    --  TODO??? Magnificient hack because somehow elab of libadalang is not
    --  called ..
    procedure adalanginit;
