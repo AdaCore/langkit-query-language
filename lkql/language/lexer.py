@@ -1,5 +1,5 @@
 from langkit.lexer import Lexer, LexerToken, WithText, WithSymbol, Pattern,\
-                            Literal, Ignore, WithTrivia
+                            Literal, WithTrivia
 
 
 class Token(LexerToken):
@@ -62,11 +62,12 @@ class Token(LexerToken):
     Box = WithText()
 
     Comment = WithTrivia()
+    Whitespace = WithTrivia()
 
 
 lkql_lexer = Lexer(Token)
 lkql_lexer.add_rules(
-    (Pattern(r"[ \t\n\r]"),                                Ignore()),
+    (Pattern(r"[ \t\n\r]"),                                Token.Whitespace),
     (Literal("."),                                         Token.Dot),
     (Literal("?."),                                        Token.QuestionDot),
     (Literal(","),                                         Token.Coma),
