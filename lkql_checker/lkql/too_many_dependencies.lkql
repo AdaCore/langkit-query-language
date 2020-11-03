@@ -1,0 +1,8 @@
+fun result(maxDeps) =
+    select
+        CompilationUnit(any c @ children is Identifier(any parent(depth=2) is WithClause))
+        .body = l @ LibraryItem when {
+            val semanticParent = l.item?.semantic_parent();
+            val deps = [x | x <- c, x.referenced_decl() != semanticParent];
+            deps.length > maxDeps
+        }
