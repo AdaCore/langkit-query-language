@@ -6,7 +6,7 @@ lkql_checker:
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
 	rm build -rf # We add that because of the lexer invalidation bug
-	lkql/manage.py --no-langkit-support make -P
+	lkql/manage.py make -P
 
 clean: clean_lkql_checker clean_lkql
 

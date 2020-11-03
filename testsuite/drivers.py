@@ -6,7 +6,7 @@ from e3.testsuite.driver.diff import DiffTestDriver
 TESTSUITE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 LKQL_ROOT_DIR = os.path.dirname(TESTSUITE_ROOT_DIR)
 INTERPRETER_PATH = os.path.join(
-    LKQL_ROOT_DIR, 'build', 'bin', 'lkql_ada'
+    LKQL_ROOT_DIR, 'lkql', 'build', 'obj-mains', 'lkql_ada'
 )
 CHECKER_PATH = os.path.join(
     LKQL_ROOT_DIR, 'lkql_checker', 'obj', 'dev', 'checker'
@@ -48,7 +48,7 @@ class ParserDriver(DiffTestDriver):
         """
         project_root = os.path.dirname(TESTSUITE_ROOT_DIR)
         return os.path.join(
-            project_root, 'build', 'bin', 'liblkqllang_parse'
+            project_root, 'lkql', 'build', 'obj-mains', 'lkql_parse'
         )
 
 
