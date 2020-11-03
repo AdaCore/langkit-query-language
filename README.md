@@ -1,19 +1,19 @@
 # LKQL
 
-Query language for Libadalang and Langkit. Allows to run queries on Ada codebase using the query language.
+Query language for Libadalang and Langkit. Allows to run queries on Ada
+codebase using a custom designed query language called LKQL.
 
 The syntax is not stable for now. Check-out [tests](testsuite/tests) for
 examples.
 
 ## Architecture
 
-[`lkql/`](lkql): Langkit language definition for the LKQL parser.
-
-`lkql_interpreter.gpr`: Interpreter for the LKQL query language. Library
-    project, usable as a library.
-
-[`lkql_ada_interpreter/`](lkql_ada_interpreter): LKQL command line interpreter,
-    that can run LKQL scripts on a given Ada codebase.
+[`lkql/`](lkql): Contains:
+* Langkit language definition for the LKQL parser
+* Implementation of the LKQL interpreter (in
+  [`lkql/extensions/src`](lkql/extensions/src)). Embedding the LKQL interpreter
+  only requires using the `lkql` project.
+* Command line app for the interpreter
 
 [`lkql_checker`](lkql_checker): LKQL command line checker. Can run "checks"
     that will flag specific    lines of code in a given Ada codebase.
@@ -27,24 +27,23 @@ paths.
 
 ### Build steps
 
-- Build LKQL:
+- Building LKQL is done via
 
 ```
 lkql/manage.py make
 ```
 
-- Make LKQL available
+- You can then make LKQL available (binaries, Ada libraries, and Python lib)
+  via:
 
 ```
 eval `lkql/manage.py setenv`
 ```
 
-- Build the projects you need:
+- LKQL checker (linter based on lkql) is built separately:
 
 ```
-gprbuild -Plkql_interpreter.gpr -p
-gprbuild -Plkql_ada_interpreter/lkql_ada_interpreter.gpr -p
-gprbuild -Plkql_checker/lkql_checker.gpr -p
+gprbuild -P lkql_checker/lkql_checker.gpr
 ```
 
 ### Running the testsuite
