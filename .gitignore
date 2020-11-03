@@ -37,3 +37,4 @@ lkql_library_obj/
 
 lkql/lkql_repl/
 misc/
+testsuite/tmp/
