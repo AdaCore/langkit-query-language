@@ -43,7 +43,7 @@ eval `lkql/manage.py setenv`
 - LKQL checker (linter based on lkql) is built separately:
 
 ```
-gprbuild -P lkql_checker/lkql_checker.gpr
+gprbuild -P lkql_checker/lkql_checker.gpr -p
 ```
 
 ### Running the testsuite
