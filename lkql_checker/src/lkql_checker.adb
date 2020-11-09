@@ -1,6 +1,6 @@
 with Checker_App;
 
-procedure Checker is
+procedure LKQL_Checker is
 begin
    Checker_App.App.Run;
-end Checker;
+end LKQL_Checker;

@@ -77,7 +77,7 @@ class CheckerDriver(DiffTestDriver):
     """
 
     def run(self):
-        args = ['checker']
+        args = ['lkql_checker']
         # Put the absolute path of the test's project in project_path, if any
         if self.test_env.get('project', None):
             args += [
