@@ -8,13 +8,13 @@ ListComprehension
 |  |right:
 |  |  Identifier: y
 |generators:
-|  ArrowAssocList
-|  |  ArrowAssoc
+|  ListCompAssocList
+|  |  ListCompAssoc
 |  |  |binding_name:
 |  |  |  Identifier: x
 |  |  |coll_expr:
 |  |  |  Identifier: valuesList
-|  |  ArrowAssoc
+|  |  ListCompAssoc
 |  |  |binding_name:
 |  |  |  Identifier: y
 |  |  |coll_expr:

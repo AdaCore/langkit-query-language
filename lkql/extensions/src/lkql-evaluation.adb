@@ -80,7 +80,7 @@ package body LKQL.Evaluation is
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive;
 
    function Make_Comprehension_Environment_Iter
-     (Ctx : Eval_Context; Node : L.Arrow_Assoc_List)
+     (Ctx : Eval_Context; Node : L.List_Comp_Assoc_List)
       return Comprehension_Env_Iter;
    --  Given a List of Arrow_Assoc, return an iterator that yields the
    --  environments produced by this list of Arrow_Assoc in the context of a
@@ -607,7 +607,7 @@ package body LKQL.Evaluation is
 
    function Environment_Iter_For_Assoc
      (Ctx    : Eval_Context;
-      Assoc  : L.Arrow_Assoc;
+      Assoc  : L.List_Comp_Assoc;
       Nested : Comprehension_Env_Iter_Access)
       return Comprehension_Env_Iter_Access;
 
@@ -677,7 +677,7 @@ package body LKQL.Evaluation is
    -----------------------------------------
 
    function Make_Comprehension_Environment_Iter
-     (Ctx : Eval_Context; Node : L.Arrow_Assoc_List)
+     (Ctx : Eval_Context; Node : L.List_Comp_Assoc_List)
       return Comprehension_Env_Iter
    is
       Current_Env : Comprehension_Env_Iter_Access := null;
@@ -685,8 +685,8 @@ package body LKQL.Evaluation is
    begin
       for I in reverse Node.Children'Range loop
          declare
-            Current_Assoc   : constant L.Arrow_Assoc :=
-              Node.Children (I).As_Arrow_Assoc;
+            Current_Assoc   : constant L.List_Comp_Assoc :=
+              Node.Children (I).As_List_Comp_Assoc;
          begin
             Current_Env :=
               Environment_Iter_For_Assoc (Ctx, Current_Assoc, Current_Env);
@@ -705,7 +705,7 @@ package body LKQL.Evaluation is
 
    function Environment_Iter_For_Assoc
      (Ctx    : Eval_Context;
-      Assoc  : L.Arrow_Assoc;
+      Assoc  : L.List_Comp_Assoc;
       Nested : Comprehension_Env_Iter_Access)
       return Comprehension_Env_Iter_Access
    is
