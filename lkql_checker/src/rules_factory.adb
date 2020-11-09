@@ -1,8 +1,8 @@
 with Ada.Command_Line;
 with Ada.Directories; use Ada.Directories;
-
 with Ada.Text_IO; use Ada.Text_IO;
 
+with GNAT.OS_Lib;
 with GNATCOLL.JSON; use GNATCOLL.JSON;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 with GNATCOLL.Strings; use GNATCOLL.Strings;
@@ -74,13 +74,26 @@ package body Rules_Factory is
    -------------------------
 
    function Get_Rules_Directory return String is
-      use Ada.Directories;
-      Executable  : constant String := Ada.Command_Line.Command_Name;
-      Root_Dir    : constant String :=
-        Containing_Directory
-          (Containing_Directory (Containing_Directory (Executable)));
+      use GNAT.OS_Lib;
+
+      --  Assuming this program is installed in $PREFIX/bin, this computes
+      --  $PREFIX/share/lkql.
+
+      Executable : String_Access := GNAT.OS_Lib.Locate_Exec_On_Path
+        (Ada.Command_Line.Command_Name);
    begin
-      return Compose (Root_Dir, "lkql");
+      if Executable = null then
+         raise Program_Error with
+            "cannot locate " & Ada.Command_Line.Command_Name;
+      end if;
+
+      declare
+         Prefix : constant String :=
+            Containing_Directory (Containing_Directory (Executable.all));
+      begin
+         Free (Executable);
+         return Compose (Compose (Prefix, "share"), "lkql");
+      end;
    end Get_Rules_Directory;
 
 end Rules_Factory;

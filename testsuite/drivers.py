@@ -9,7 +9,7 @@ INTERPRETER_PATH = os.path.join(
     LKQL_ROOT_DIR, 'lkql', 'build', 'obj-mains', 'lkql_ada'
 )
 CHECKER_PATH = os.path.join(
-    LKQL_ROOT_DIR, 'lkql_checker', 'obj', 'dev', 'checker'
+    LKQL_ROOT_DIR, 'lkql_checker', 'bin', 'checker'
 )
 
 
