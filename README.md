@@ -51,5 +51,5 @@ gprbuild -P lkql_checker/lkql_checker.gpr
 ```
 cd testsuite
 # Run the testsuite, keep the temp results in tmp
-python testsuite.py -Edtmp
+python testsuite.py -dtmp
 ```
