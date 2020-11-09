@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from collections import defaultdict
 import liblkqllang as lkql
 from prompt_toolkit import PromptSession
