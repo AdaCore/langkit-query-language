@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from e3.testsuite import Testsuite
 from drivers import (
     CheckerDriver, ParserDriver, InterpreterDriver
