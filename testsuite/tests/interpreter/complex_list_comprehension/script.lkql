@@ -1,4 +1,5 @@
-val subtype = select SubtypeIndication
+val subtypes = select SubtypeIndication
 val objects = select ObjectDecl
-print([ o.image & " " & st.image | o <- objects, st <- subtype,
-                                   (o.image & " " & st.image).length != 64])
+print([ o.image & " " & st.image
+       for o in objects, st in subtypes
+       if (o.image & " " & st.image).length != 64])

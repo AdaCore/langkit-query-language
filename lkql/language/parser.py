@@ -491,7 +491,7 @@ class Query(Expr):
     pattern = Field(type=BasePattern)
 
 
-class ArrowAssoc(LKQLNode):
+class ListCompAssoc(LKQLNode):
     """
     Arrow association of the form: id <- expr.
     This construction is meant to be used a part of a list comprehension
@@ -508,7 +508,7 @@ class ListComprehension(Expr):
     """
 
     expr = Field(type=Expr)
-    generators = Field(type=ArrowAssoc.list)
+    generators = Field(type=ListCompAssoc.list)
     guard = Field(type=Expr)
 
 
@@ -517,9 +517,11 @@ class BlockExpr(Expr):
     Expression of the form: val id = value; expr
 
     For instance::
+    {
        val x = 40;
        val y = 2;
        x + y
+    }
     """
 
     vals = Field(type=ValDecl.list)
@@ -1028,13 +1030,14 @@ lkql_grammar.add_rules(
         Opt("(", c(), List(G.named_arg, sep=",", empty_valid=False), ")")
     ),
 
-    arrow_assoc=ArrowAssoc(G.identifier, "<-", G.expr),
-
-    listcomp=ListComprehension("[", G.expr, "|",
-                               List(G.arrow_assoc,
-                                    sep=",", empty_valid=False),
-                               Opt(",", G.expr),
-                               "]"),
+    listcomp=ListComprehension(
+        "[",
+        G.expr, "for",
+        List(ListCompAssoc(G.identifier, "in", G.expr),
+             sep=",", empty_valid=False),
+        Opt("if", G.expr),
+        "]"
+    ),
 
     decl=Or(G.fun_decl,
             G.selector_decl,
@@ -1103,7 +1106,8 @@ lkql_grammar.add_rules(
     ),
 
     block_expr=BlockExpr(
-        "{", c(), List(G.val_decl, sep=";", empty_valid=False), ";", G.expr, "}"
+        "{", c(), List(G.val_decl, sep=";", empty_valid=False), ";", G.expr,
+        "}"
     ),
 
     val_decl=ValDecl("val", c(), G.identifier, "=", G.expr),
