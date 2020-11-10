@@ -284,6 +284,13 @@ class RelBinOp(BinOp):
     pass
 
 
+class ArithBinOp(BinOp):
+    """
+    Arithmetic binary operator.
+    """
+    pass
+
+
 class Unpack(Expr):
     """
     Unpacking operator, written '*'.
@@ -1050,12 +1057,15 @@ lkql_grammar.add_rules(
             G.selector_decl,
             G.val_decl),
 
-    expr=Or(BinOp(G.expr,
-                  Or(Op.alt_and("and"),
-                     Op.alt_or("or")),
-                  G.comp_expr),
-            G.comp_expr,
-            G.block_expr),
+    expr=Or(
+        BinOp(
+            G.expr,
+            Or(Op.alt_and("and"), Op.alt_or("or")),
+            G.comp_expr
+        ),
+        G.comp_expr,
+        G.block_expr
+    ),
 
     comp_expr=Or(
         IsClause(G.comp_expr, "is", G.pattern),
@@ -1065,7 +1075,6 @@ lkql_grammar.add_rules(
             G.comp_expr,
             Or(Op.alt_eq("=="),
                Op.alt_neq("!="),
-               Op.alt_concat("&"),
                Op.alt_lt("<"),
                Op.alt_leq("<="),
                Op.alt_gt(">"),
@@ -1075,17 +1084,26 @@ lkql_grammar.add_rules(
         G.plus_expr
     ),
 
-    plus_expr=Or(BinOp(G.plus_expr,
-                       Or(Op.alt_plus("+"),
-                          Op.alt_minus("-")),
-                       G.prod_expr),
-                 G.prod_expr),
+    plus_expr=Or(
 
-    prod_expr=Or(BinOp(G.prod_expr,
-                       Or(Op.alt_mul("*"),
-                          Op.alt_div("/")),
-                       G.value_expr),
-                 G.value_expr),
+        ArithBinOp(G.plus_expr,
+                   Or(Op.alt_plus("+"), Op.alt_minus("-")),
+                   G.prod_expr),
+
+        BinOp(G.plus_expr, Op.alt_concat("&"), G.prod_expr),
+
+        G.prod_expr
+    ),
+
+    prod_expr=Or(
+
+        ArithBinOp(G.prod_expr,
+                   Or(Op.alt_mul("*"), Op.alt_div("/")),
+                   G.value_expr),
+
+        G.value_expr
+
+    ),
 
     value_expr=Or(
         Unwrap(G.value_expr, "!!"),

@@ -2,7 +2,7 @@ ValDecl
 |identifier:
 |  Identifier: a
 |value:
-|  BinOp
+|  ArithBinOp
 |  |left:
 |  |  IntegerLiteral: 2
 |  |op:

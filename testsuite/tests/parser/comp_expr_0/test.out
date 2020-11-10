@@ -12,7 +12,7 @@ BinOp
 |right:
 |  RelBinOp
 |  |left:
-|  |  BinOp
+|  |  ArithBinOp
 |  |  |left:
 |  |  |  IntegerLiteral: 5
 |  |  |op:

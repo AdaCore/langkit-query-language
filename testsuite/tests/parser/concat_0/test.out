@@ -1,13 +1,13 @@
-RelBinOp
+ArithBinOp
 |left:
-|  StringLiteral: "Hello"
-|op:
-|  OpConcat
-|right:
 |  BinOp
 |  |left:
-|  |  IntegerLiteral: 39
+|  |  StringLiteral: "Hello"
 |  |op:
-|  |  OpPlus
+|  |  OpConcat
 |  |right:
-|  |  IntegerLiteral: 3
+|  |  IntegerLiteral: 39
+|op:
+|  OpPlus
+|right:
+|  IntegerLiteral: 3

@@ -1,12 +1,12 @@
-BinOp
+ArithBinOp
 |left:
-|  BinOp
+|  ArithBinOp
 |  |left:
 |  |  IntegerLiteral: 1
 |  |op:
 |  |  OpMul
 |  |right:
-|  |  BinOp
+|  |  ArithBinOp
 |  |  |left:
 |  |  |  IntegerLiteral: 2
 |  |  |op:
