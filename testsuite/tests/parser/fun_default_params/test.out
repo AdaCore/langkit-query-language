@@ -17,9 +17,9 @@ FunDecl
 |  |  |default_expr:
 |  |  |  IntegerLiteral: 2
 |body_expr:
-|  BinOp
+|  ArithBinOp
 |  |left:
-|  |  BinOp
+|  |  ArithBinOp
 |  |  |left:
 |  |  |  Identifier: a
 |  |  |op:

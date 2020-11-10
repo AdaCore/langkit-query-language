@@ -1,4 +1,4 @@
-BinOp
+ArithBinOp
 |left:
 |  IntegerLiteral: 46
 |op:

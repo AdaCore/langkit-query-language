@@ -1,6 +1,6 @@
 ListComprehension
 |expr:
-|  BinOp
+|  ArithBinOp
 |  |left:
 |  |  Identifier: x
 |  |op:

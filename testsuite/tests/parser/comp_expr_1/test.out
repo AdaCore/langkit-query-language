@@ -16,7 +16,7 @@ BinOp
 |  |  |right:
 |  |  |  RelBinOp
 |  |  |  |left:
-|  |  |  |  BinOp
+|  |  |  |  ArithBinOp
 |  |  |  |  |left:
 |  |  |  |  |  IntegerLiteral: 4
 |  |  |  |  |op:
@@ -42,7 +42,7 @@ BinOp
 |right:
 |  RelBinOp
 |  |left:
-|  |  BinOp
+|  |  ArithBinOp
 |  |  |left:
 |  |  |  IntegerLiteral: 5
 |  |  |op:

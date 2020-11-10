@@ -10,7 +10,7 @@ SafeCall
 |  |  |  StringLiteral: "arg1"
 |  |  ExprArg
 |  |  |value_expr:
-|  |  |  BinOp
+|  |  |  ArithBinOp
 |  |  |  |left:
 |  |  |  |  IntegerLiteral: 40
 |  |  |  |op:

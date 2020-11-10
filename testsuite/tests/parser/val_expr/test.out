@@ -12,7 +12,7 @@ BlockExpr
 |  |  |value:
 |  |  |  IntegerLiteral: 2
 |expr:
-|  BinOp
+|  ArithBinOp
 |  |left:
 |  |  Identifier: x
 |  |op:

@@ -10,7 +10,7 @@ FunDecl
 |  |  |param_identifier:
 |  |  |  Identifier: y
 |body_expr:
-|  BinOp
+|  ArithBinOp
 |  |left:
 |  |  Identifier: x
 |  |op:
