@@ -174,7 +174,7 @@ package body LKQL.Evaluation is
             Result := Eval_If_Then_Else (Local_Context, Node.As_If_Then_Else);
          when LCO.LKQL_Not_Node =>
             Result := Eval_Not (Local_Context, Node.As_Not_Node);
-         when LCO.LKQL_Bin_Op =>
+         when LCO.LKQL_Bin_Op_Range =>
             Result := Eval_Bin_Op (Local_Context, Node.As_Bin_Op);
          when LCO.LKQL_Dot_Access =>
             Result := Eval_Dot_Access (Local_Context, Node.As_Dot_Access);

@@ -20,7 +20,7 @@ ListComprehension
 |  |  |coll_expr:
 |  |  |  Identifier: valuesList2
 |guard:
-|  BinOp
+|  RelBinOp
 |  |left:
 |  |  DotAccess
 |  |  |receiver:

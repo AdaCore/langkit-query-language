@@ -10,7 +10,7 @@ Query
 |  |  |  |kind_name:
 |  |  |  |  Identifier: NodeKind
 |  |predicate:
-|  |  BinOp
+|  |  RelBinOp
 |  |  |left:
 |  |  |  DotAccess
 |  |  |  |receiver:

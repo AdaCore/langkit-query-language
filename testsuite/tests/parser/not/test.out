@@ -2,7 +2,7 @@ IfThenElse
 |condition:
 |  NotNode
 |  |value:
-|  |  BinOp
+|  |  RelBinOp
 |  |  |left:
 |  |  |  DotCall
 |  |  |  |receiver:

@@ -32,7 +32,7 @@ ValDecl
 |  |  |  |  |  |  |  |kind_name:
 |  |  |  |  |  |  |  |  Identifier: AspectAssoc
 |  |  |predicate:
-|  |  |  BinOp
+|  |  |  RelBinOp
 |  |  |  |left:
 |  |  |  |  DotAccess
 |  |  |  |  |receiver:
