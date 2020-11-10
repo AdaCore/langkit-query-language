@@ -1,4 +1,4 @@
-BinOp
+RelBinOp
 |left:
 |  StringLiteral: "Hello"
 |op:

@@ -277,6 +277,13 @@ class BinOp(Expr):
     right = Field(type=Expr)
 
 
+class RelBinOp(BinOp):
+    """
+    Relational (produces boolean) binary operator.
+    """
+    pass
+
+
 class Unpack(Expr):
     """
     Unpacking operator, written '*'.
@@ -1050,19 +1057,23 @@ lkql_grammar.add_rules(
             G.comp_expr,
             G.block_expr),
 
-    comp_expr=Or(IsClause(G.comp_expr, "is", G.pattern),
-                 InClause(G.comp_expr, "in", G.expr),
-                 Not("not", G.expr),
-                 BinOp(G.comp_expr,
-                       Or(Op.alt_eq("=="),
-                          Op.alt_neq("!="),
-                          Op.alt_concat("&"),
-                          Op.alt_lt("<"),
-                          Op.alt_leq("<="),
-                          Op.alt_gt(">"),
-                          Op.alt_geq(">=")),
-                       G.plus_expr),
-                 G.plus_expr),
+    comp_expr=Or(
+        IsClause(G.comp_expr, "is", G.pattern),
+        InClause(G.comp_expr, "in", G.expr),
+        Not("not", G.expr),
+        RelBinOp(
+            G.comp_expr,
+            Or(Op.alt_eq("=="),
+               Op.alt_neq("!="),
+               Op.alt_concat("&"),
+               Op.alt_lt("<"),
+               Op.alt_leq("<="),
+               Op.alt_gt(">"),
+               Op.alt_geq(">=")),
+            G.plus_expr
+        ),
+        G.plus_expr
+    ),
 
     plus_expr=Or(BinOp(G.plus_expr,
                        Or(Op.alt_plus("+"),

@@ -1,6 +1,6 @@
 BinOp
 |left:
-|  BinOp
+|  RelBinOp
 |  |left:
 |  |  IntegerLiteral: 5
 |  |op:
@@ -10,7 +10,7 @@ BinOp
 |op:
 |  OpAnd
 |right:
-|  BinOp
+|  RelBinOp
 |  |left:
 |  |  BinOp
 |  |  |left:
