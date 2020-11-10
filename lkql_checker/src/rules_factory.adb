@@ -1,6 +1,5 @@
 with Ada.Command_Line;
 with Ada.Directories; use Ada.Directories;
-with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib;
 with GNATCOLL.JSON; use GNATCOLL.JSON;
@@ -16,11 +15,11 @@ package body Rules_Factory is
    ---------------
 
    function All_Rules return Rule_Vector is
-      Rules_File_Path : String :=
+      Rules_File_Path : constant String :=
         Compose (Get_Rules_Directory, "rules", "json");
-      Rules_File : Virtual_File := Create (+Rules_File_Path);
-      Rules_Content : XString := Rules_File.Read_File;
-      Rules_JSON      : JSON_Array := Get
+      Rules_File      : constant Virtual_File := Create (+Rules_File_Path);
+      Rules_Content   : constant XString := Rules_File.Read_File;
+      Rules_JSON      : constant JSON_Array := Get
         (GNATCOLL.JSON.Read (Rules_Content.To_String));
       Result : Rule_Vector;
    begin
@@ -28,15 +27,16 @@ package body Rules_Factory is
       begin
          for I in 1 .. Length (Rules_JSON) loop
             declare
-               Rule        : JSON_Value := Get (Rules_JSON, I);
-               Rule_Name   : String := Rule.Get ("name");
-               Rule_Path   : String := Rule.Get ("path");
-               Rule_Params : JSON_Array := Rule.Get ("params");
+               Rule        : constant JSON_Value := Get (Rules_JSON, I);
+               Rule_Name   : constant String := Rule.Get ("name");
+               Rule_Path   : constant String := Rule.Get ("path");
+               Rule_Params : constant JSON_Array := Rule.Get ("params");
                Rule_Code   : XString;
             begin
                Rule_Code.Append ("result(");
                for J in 1 .. Length (Rule_Params) loop
-                  Rule_Code.Append (Get (Rule_Params, J).Get ("default").Write);
+                  Rule_Code.Append
+                    (Get (Rule_Params, J).Get ("default").Write);
                   if J < Length (Rule_Params) then
                      Rule_Code.Append (", ");
                   end if;
