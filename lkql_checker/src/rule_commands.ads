@@ -1,8 +1,3 @@
-with Ada.Containers.Vectors;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-
-with Project_Utils; use Project_Utils;
-
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
