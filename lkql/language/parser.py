@@ -1150,10 +1150,8 @@ lkql_grammar.add_rules(
         Or(SelectorExprMode.alt_rec("rec"),
            SelectorExprMode.alt_skip("skip"),
            SelectorExprMode.alt_default()),
-        G.unpackable_expr
+        Or(G.expr, Unpack("*", G.expr))
     ),
-
-    unpackable_expr=Or(G.expr, Unpack("*", G.expr)),
 
     match=Match("match", G.expr, List(G.match_arm, empty_valid=False)),
 
