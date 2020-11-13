@@ -91,7 +91,15 @@ class Op(LKQLNode):
     ]
 
 
-class BoolLiteral(Expr):
+@abstract
+class Literal(Expr):
+    """
+    Base class for literals
+    """
+    pass
+
+
+class BoolLiteral(Literal):
     """
     Boolean literal
     """
@@ -106,28 +114,28 @@ class Identifier(Expr):
     token_node = True
 
 
-class IntegerLiteral(Expr):
+class IntegerLiteral(Literal):
     """
     Integer literal.
     """
     token_node = True
 
 
-class StringLiteral(Expr):
+class StringLiteral(Literal):
     """
     String literal.
     """
     token_node = True
 
 
-class UnitLiteral(Expr):
+class UnitLiteral(Literal):
     """
     Literal representing the unit value.
     """
     pass
 
 
-class NullLiteral(Expr):
+class NullLiteral(Literal):
     """
     Literal representing a null node.
     """
