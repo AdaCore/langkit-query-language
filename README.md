@@ -3,10 +3,9 @@
 Query language for Libadalang and Langkit. Allows to run queries on Ada
 codebase using a custom designed query language called LKQL.
 
-The syntax is not stable for now. Check-out [tests](testsuite/tests) for
-examples.
+The syntax is not stable for now.
 
-## Architecture
+## High level overview
 
 [`lkql/`](lkql): Contains:
 * Langkit language definition for the LKQL parser
@@ -16,7 +15,7 @@ examples.
 * Command line app for the interpreter
 
 [`lkql_checker`](lkql_checker): LKQL command line checker. Can run "checks"
-    that will flag specific    lines of code in a given Ada codebase.
+    that will flag specific lines of code in a given Ada codebase.
 
 ## Building & using
 
