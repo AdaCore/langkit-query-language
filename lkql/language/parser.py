@@ -1035,10 +1035,7 @@ lkql_grammar.add_rules(
                 Opt(Pick(G.identifier, "@")),
                 G.identifier,
                 Opt("(", c(),
-                    List(G.named_arg,
-                         sep=",",
-                         empty_valid=False),
-                    ")")
+                    List(G.named_arg, sep=",", empty_valid=False), ")")
             ), "is", G.pattern
         ),
         NodePatternField(G.identifier, "=", c(), G.detail_value),
