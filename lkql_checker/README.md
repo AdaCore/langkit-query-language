@@ -29,5 +29,5 @@ Running the checker will run all checks. For the moment there is no way to
 select which checks are ran.
 
 ```
-obj/check [-P project | list of files]
+bin/lkql_checker [-P project | list of files]
 ```
