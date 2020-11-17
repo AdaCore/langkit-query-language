@@ -29,7 +29,7 @@ git checkout git@github.com:AdaCore/langkit.git
 4. Install python deps:
 
 ```sh
-pip install langkit/REQUIREMENTS.dev
+pip install -r langkit/REQUIREMENTS.dev
 pip install prompt_toolkit
 pip install ./langkit
 ```
@@ -56,7 +56,7 @@ anod printenv gnat >> path/to/env_script.sh
 anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster >> path/to/env_script.sh
 anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster >> path/to/env_script.sh
 
-# In lkql's dir
+# In langkit-query-language/
 lkql/manage.py setenv >> path/to/env_script.sh
 ```
 
