@@ -6,7 +6,7 @@ Internal dev guide (for AdaCore developers)
 ### Setup
 
 First step, which is one shot, is to setup a development environment. Follow
-those steps:
+these steps:
 
 1. Install dependencies via Anod
 
@@ -35,7 +35,7 @@ pip install prompt_toolkit
 ### Environment
 
 Second step is to put every tool and library in the path. You can either run
-those commands everytime:
+these commands every time:
 
 ```sh
 # In your sandbox dir

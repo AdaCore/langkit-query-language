@@ -19,7 +19,7 @@ package LKQL.Node_Data is
      with Pre => not Args.Is_Null;
    --  Evaluate the property designated by 'Property_Name' on 'Receiver'.
    --  An exception will be raised if there is no such property or if the call
-   --  artity doesn't match the arity of the property.
+   --  arity doesn't match the arity of the property.
 
 private
 

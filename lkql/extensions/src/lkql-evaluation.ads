@@ -30,7 +30,7 @@ package LKQL.Evaluation is
    is
      (if Node.Is_Null then Default
       else Eval (Ctx, Node, Expected_Kind, Local_Bindings));
-   --  If 'Node' is null return 'Default', otherwide call 'Eval' with the
+   --  If 'Node' is null return 'Default', otherwise call 'Eval' with the
    --  given arguments.
 
 private
@@ -46,14 +46,14 @@ private
    type Comprehension_Env_Iter is new Environment_Iters.Iterator_Interface with
       record
          Binding_Name    : Unbounded_Text_Type;
-         --  name ascoaited with th generator
+         --  Name associated with the generator
          Current_Element : Primitive_Options.Option;
          --  Value of the next element to be yielded
          Gen             : Primitive_Iters.Iterator_Access;
          --  Iterator that yields the generator values
          Nested          : Environment_Iters.Resetable_Access;
          --  'Nested' generator that appeared at the right-hand side of the
-         --  current geneartor in the generators list
+         --  current generator in the generators list
       end record;
 
    overriding function Next (Iter   : in out Comprehension_Env_Iter;
@@ -66,9 +66,9 @@ private
 
    type Comprehension_Env_Iter_Access is access all Comprehension_Env_Iter;
 
-   -----------------------------
-   -- Comprehesion evaluation --
-   -----------------------------
+   ------------------------------
+   -- Comprehension evaluation --
+   ------------------------------
 
    package Env_Primitive_Maps is
      new Iters.Maps (Environment_Iters, Primitive_Iters);

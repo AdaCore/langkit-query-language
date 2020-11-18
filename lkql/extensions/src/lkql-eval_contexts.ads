@@ -62,19 +62,19 @@ package LKQL.Eval_Contexts is
 
    function Exists_In_Local_Env (Ctx : Eval_Context;
                                  Key : Text_Type) return Boolean;
-   --  Return wether the given name is associated to a value in the local
+   --  Return whether the given name is associated to a value in the local
    --  environment.
 
    function Exists_In_Local_Env (Ctx : Eval_Context;
                                  Key : Unbounded_Text_Type) return Boolean;
-   --  Return wether the given name is associated to a value in the local
+   --  Return whether the given name is associated to a value in the local
    --  environment.
 
    function Null_Node (Ctx : Eval_Context) return AST_Node_Rc;
-   --  Return the node produced by a "null" litteral
+   --  Return the node produced by a "null" literal
 
    function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean;
-   --  Return wether the error recovery mecanism is enabled
+   --  Return whether the error recovery mechanism is enabled
 
    function AST_Root (Ctx : Eval_Context) return AST_Node_Rc;
    --  Return the evaluation context's AST root
@@ -130,16 +130,16 @@ private
 
    type Global_Data is record
       Ast_Root : AST_Node_Rc;
-      --  Root node of the tree in wich node queries will run.
+      --  Root node of the tree in which node queries will run.
 
       Null_Node : AST_Node_Rc;
-      --  Value produced by a "null" litteral
+      --  Value produced by a "null" literal
 
       Last_Error : Error_Data := Make_Empty_Error;
       --  Store data about the last error, if any.
 
       Error_Recovery_Enabled : Boolean := False;
-      --  If true, the user will be asked if he wants to resume execution uppon
+      --  If true, the user will be asked if he wants to resume execution upon
       --  encountering an error.
    end record;
    --  Stores the global data structures shared by every evaluation context
@@ -157,7 +157,7 @@ private
 
       Parent : Environment_Access;
       --  Parent environment
-      --  If this environment is non-null, it will be used as a fallback uppon
+      --  If this environment is non-null, it will be used as a fallback upon
       --  lookup failures.
    end record;
    --  Chainable map for symbol lookups

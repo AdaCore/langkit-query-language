@@ -15,7 +15,7 @@ package LKQL.Selector_Lists is
    --  selector.
 
    function Max_Depth (Self : Selector_List) return Natural;
-   --  Return de depth of the 'deepest' node return by the selector
+   --  Return the depth of the 'deepest' node return by the selector
 
    function Length (Self : Selector_List) return Natural;
    --  Return the number of nodes returned by the selector
@@ -38,11 +38,11 @@ package LKQL.Selector_Lists is
       Result          : out Selector_List)
       return Boolean;
    --  Given an filter iterator yielding the result of a selector call and a
-   --  quantifier name, return whether the quantifier is verrified (ie: if the
+   --  quantifier name, return whether the quantifier is verified (ie: if the
    --  quantifier is 'all', consume the iterator and check that the number of
    --  filtered elements is 0).
-   --  If the quantifier was verrified, the Selector_List containing the
-   --  selectors's result will be stored in 'Result'.
+   --  If the quantifier was verified, the Selector_List containing the
+   --  selectors' result will be stored in 'Result'.
    --  Valid quantifier names are: 'all', 'any', 'no'.
 
 private
@@ -56,15 +56,15 @@ private
    --  Verify the quantifier named 'Quantifier_Name' against the given list
 
    function Verify_All (List : in out Selector_List) return Boolean;
-   --  Return whether the 'all' quantifier could be verrified against this
+   --  Return whether the 'all' quantifier could be verified against this
    --  Selector_List.
 
    function Verify_Any (List : in out Selector_List) return Boolean;
-   --  Return whether the 'any' quantifier could be verrified against this
+   --  Return whether the 'any' quantifier could be verified against this
    --  Selector_List.
 
    function Verify_No (List : in out Selector_List) return Boolean;
-   --  Return whether the 'no' quantifier could be verrified against this
+   --  Return whether the 'no' quantifier could be verified against this
    --  Selector_List.
 
    --------------------------
@@ -72,7 +72,7 @@ private
    --------------------------
 
    subtype Optionnal_Natural is Integer range -1 .. Integer'Last;
-   --  Subtype used to represent optionnal Natural values.
+   --  Subtype used to represent optional Natural values.
    --  A value of -1 is equivalent to 'None'.
 
    type Selector_Shared_Data is new Refcounted with record
@@ -84,7 +84,7 @@ private
       --  Total number of elements that belong to the result set of the
       --  selector.
    end record;
-   --  Data shared by mutliple references to the same selector list
+   --  Data shared by multiple references to the same selector list
 
    function Values
      (Data : in out Selector_Shared_Data) return Depth_Node_Array;
@@ -97,7 +97,7 @@ private
    function Draw_N_From_Iter (Data : in out Selector_Shared_Data;
                               N    : Positive)
                               return Depth_Node_Iters.Element_Option;
-   --  Draw N nodes from the wrapped iterator and return the nth drawned node,
+   --  Draw N nodes from the wrapped iterator and return the nth drawn node,
    --  if any.
    --  All drawn nodes will be stored in the cache.
 

@@ -25,7 +25,7 @@ package Funcs is
    --  Perform a deep copy of the given Func
 
    procedure Release (Self : in out Func) is null;
-   --  Release ressources that belong to Self
+   --  Release resources that belong to Self
 
    procedure Release_Access (F : in out Func_Access);
    --  Release the resources of the function that is accessed through 'F',

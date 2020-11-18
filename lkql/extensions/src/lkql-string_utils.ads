@@ -36,7 +36,7 @@ private package LKQL.String_Utils is
    function Underline_From (Line  : Unbounded_Text_Type;
                             Start : Positive) return Unbounded_Text_Type;
    --  Return Line plus a new line character and a sequence characters so that
-   --  all non-whistapce columns from `Start` to the end of the line are
+   --  all non-whitespace columns from `Start` to the end of the line are
    --  '^' and the other columns are spaces.
    --
    --  The input must contain a single line of text.
@@ -44,7 +44,7 @@ private package LKQL.String_Utils is
    function Underline_To (Line : Unbounded_Text_Type;
                           Stop : Positive) return Unbounded_Text_Type;
    --  Return Line plus a new line character and a sequence characters so that
-   --  all non-whistapce columns from the begining of the line to `Stop` are
+   --  all non-whitespace columns from the beginning of the line to `Stop` are
    --  '^' and the other columns are spaces.
    --
    --  The input must contain a single line of text.

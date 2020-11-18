@@ -57,7 +57,7 @@ private
 
    type Chained_Pattern_Iterator is new Chained_Pattern_Iter with record
       Ctx                 : Eval_Context;
-      --  Context in whitch the patterns will be evaluated
+      --  Context in which the patterns will be evaluated
       Next_Values         : Match_Result_List;
       --  Next values to be yielded, along with the bindings created while
       --  matching the sub patterns.
@@ -95,7 +95,7 @@ private
                        return AST_Node_Rc_Array;
    --  Return the result of a link's evaluation.
    --  If the link introduces new bindings, they will be added to 'Bindings'.
-   --  If 'Link' is a selector link, the related pattern is used to verrify the
+   --  If 'Link' is a selector link, the related pattern is used to verify the
    --  quantifier.
 
    function Eval_Selector_Link (Ctx             : Eval_Context;

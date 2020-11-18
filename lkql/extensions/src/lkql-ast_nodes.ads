@@ -41,7 +41,7 @@ package LKQL.AST_Nodes is
    --  Denotes the kind of an Introspection value
 
    type Introspection_Value;
-   --  Wrapper arround Value_Type values exposed by the langkit library
+   --  Wrapper around Value_Type values exposed by the langkit library
    --  thought the introspection API.
 
    type Introspection_Value_Access is access all Introspection_Value;

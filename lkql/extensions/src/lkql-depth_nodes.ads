@@ -31,16 +31,16 @@ package LKQL.Depth_Nodes is
    --  Pointer to an iterator over Depth_Node values
 
    package Depth_Node_Options is new Options (Depth_Node);
-   --  Optionnal Depth_Node values
+   --  Optional Depth_Node values
 
    subtype Depth_Node_Option is Depth_Node_Options.Option;
-   --  Optionnal Depth_Node value
+   --  Optional Depth_Node value
 
    type Depth_Node_Array is array (Positive range <>) of Depth_Node;
 
    function Hash (Value : Depth_Node) return Ada.Containers.Hash_Type;
    --  Return the has of a Depth_Node value.
-   --  The hash is computedt by xoring the hash of the ast node and it's
+   --  The hash is computed by xoring the hash of the ast node and its
    --  depth value.
 
 end LKQL.Depth_Nodes;

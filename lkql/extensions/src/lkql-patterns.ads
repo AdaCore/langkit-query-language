@@ -9,7 +9,7 @@ private package LKQL.Patterns is
       Matched_Value  : Primitive_Option;
       --  True if the matching attempt succeeded
       Bindings : Environment_Map := String_Value_Maps.Empty_Map;
-      --  If the pattern contains a binding name and the match is successul,
+      --  If the pattern contains a binding name and the match is successful,
       --  the matched value will be stored in this environment, associated with
       --  the binding name.
    end record;
@@ -23,11 +23,11 @@ private package LKQL.Patterns is
    --  with the given binding(s).
 
    function Is_Success (Self : Match_Result) return Boolean;
-   --  Return whether the macth was successful
+   --  Return whether the match was successful
 
    function Get_Matched_Value (Self : Match_Result) return Primitive
      with Pre => Self.Is_Success;
-   --  If the match was successful, return the atched value.
+   --  If the match was successful, return the matched value.
    --  Otherwise, raise an exception.
 
    Match_Failure : constant Match_Result :=

@@ -12,7 +12,7 @@ package LKQL.Errors is
 
    type Error_Kind is
      (No_Error,
-      --  Asbence of error
+      --  Absence of error
       Eval_Error
       --  Error originating from the execution of the LKQL program
      );

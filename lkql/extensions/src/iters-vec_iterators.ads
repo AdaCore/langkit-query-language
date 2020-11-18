@@ -9,7 +9,7 @@ generic
    --  Type of vectors that we want to iterate over
 
    with package Iterators is new Iters.Iterators (Vectors.Element_Type);
-   --  Type of iterators in wich the vector will be wrapped
+   --  Type of iterators in which the vector will be wrapped
 
 package Iters.Vec_Iterators is
 
@@ -26,10 +26,10 @@ package Iters.Vec_Iterators is
    --  Make a deep copy of the iterator
 
    overriding procedure Release (Iter : in out Vec_Iterator);
-   --  Release ressources that belong to Iter
+   --  Release resources that belong to Iter
 
    function To_Iterator (Vec : Vectors.Vector) return Vec_Iterator;
-   --  Create a Vec_Iterator that wrapps 'Vec'
+   --  Create a Vec_Iterator that wraps 'Vec'
 
 private
 
