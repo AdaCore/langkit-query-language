@@ -797,8 +797,8 @@ class SelectorCall(LKQLNode):
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def max_depth_expr():
         """
-        If if the 'max_depth' arg is set and 'depth' is not set, return the
-        expression for 'max_depth'. If 'depth' is set return it's expression.
+        If the 'max_depth' arg is set and 'depth' is not set, return the
+        expression for 'max_depth'. If 'depth' is set return its expression.
         If neither 'depth' or 'max_depth' is set, return a null expression.
         """
         return If(Self.depth_expr.is_null,
@@ -808,8 +808,8 @@ class SelectorCall(LKQLNode):
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def min_depth_expr():
         """
-        If if the 'min_depth' arg is set and 'depth" is not set, return the
-        expression for 'min_depth'. If 'depth' is set return it's expression.
+        If the 'min_depth' arg is set and 'depth" is not set, return the
+        expression for 'min_depth'. If 'depth' is set return its expression.
         If neither 'depth' or 'min_depth' is set, return a null expression.
         """
         return If(Self.depth_expr.is_null,

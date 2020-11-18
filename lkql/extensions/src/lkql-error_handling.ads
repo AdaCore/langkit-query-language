@@ -22,7 +22,7 @@ private package LKQL.Error_Handling is
      (Ctx : Eval_Context; E : Exception_Occurrence; N : L.LKQL_Node'Class)
      with No_Return;
    --  Shortcut around ``Raise_And_Record_Error`` that raises from an exception
-   --  occurence.
+   --  occurrence.
 
    procedure Raise_Invalid_Member (Ctx      : Eval_Context;
                                    Node     : L.Dot_Access;
@@ -61,7 +61,7 @@ private package LKQL.Error_Handling is
    procedure Raise_Unknown_Symbol (Ctx  : Eval_Context;
                                    Node : L.Identifier)
      with No_Return;
-   --  Raise an exception signaling the use of an unknwown identifier,
+   --  Raise an exception signaling the use of an unknown identifier,
    --  and add an Error_Data describing the error to the evaluation context.
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
@@ -83,14 +83,14 @@ private package LKQL.Error_Handling is
    procedure Raise_Unknown_Argument (Ctx        : Eval_Context;
                                      Identifier : L.Identifier)
      with No_Return;
-   --  Raise an exception signaling an attempt to call a functon with an
+   --  Raise an exception signaling an attempt to call a function with an
    --  argument which name doesn't match the name of a parameter, and add an
    --  Error_Data describing the error to the evaluation context.
 
    procedure Raise_Positionnal_After_Named (Ctx         : Eval_Context;
                                             Positionnal : L.Expr_Arg)
      with No_Return;
-   --  Raise an exception signaling the use of a positonnal argument after a
+   --  Raise an exception signaling the use of a positional argument after a
    --  named argument, and add an Error_Data describing the error to the
    --  evaluation context.
 

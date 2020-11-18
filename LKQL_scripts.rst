@@ -116,7 +116,7 @@ The compiler generates wrong code for the call to a subprogram with an In Out or
 formal parameter of an unconstrained packed array type, when the actual parameter 
 is a component of a record subject to a representation clause. 
 
-This LKQL script lists the occurences of the aforementioned issue.
+This LKQL script lists the occurrences of the aforementioned issue.
 
 `KP R517_023 test <https://github.com/geoffreycopin/langkit-query-language/tree/checker/testsuite/tests/checks/kp_R517_023>`_
 

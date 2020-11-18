@@ -14,7 +14,7 @@ package LKQL.Patterns.Nodes is
    function Match_Node_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
                                 Node    : AST_Node_Rc) return Match_Result;
-   --  Match the given node againsta a node pattern
+   --  Match the given node against a node pattern
 
    function Match_Kind_pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Kind_Pattern;
@@ -34,8 +34,8 @@ package LKQL.Patterns.Nodes is
                                    Node    : AST_Node_Rc)
                                    return Match_Result
      with Pre => not Node.Get.Is_Null_Node;
-   --  Match a given node agains the 'details' (fields, properties & sekectors)
-   --  of a node pattern.
+   --  Match a given node against the 'details' (fields, properties &
+   --  selectors) of a node pattern.
    --  The 'Bindings' part of the Match result will contain references to the
    --  selector lists that are associated with a binding name in the pattern.
 
@@ -59,7 +59,7 @@ package LKQL.Patterns.Nodes is
                                     Property : L.Node_Pattern_Property)
                                     return Match_Result
      with Pre => not Node.Get.Is_Null_Node;
-   --  Match the exoected vaue specified in 'Property' agains the value of the
+   --  Match the expected value specified in 'Property' against the value of the
    --  property call described in 'Property' on 'Node'.
 
    function Match_Pattern_Selector (Ctx      : Eval_Context;
@@ -67,7 +67,7 @@ package LKQL.Patterns.Nodes is
                                     Selector : L.Node_Pattern_Selector)
                                     return Match_Result
      with Pre => not Node.Get.Is_Null_Node;
-   --  Match 'Node' againt a selector apearing as a node pattern detail.
+   --  Match 'Node' against a selector appearing as a node pattern detail.
    --  If the selector has a binding name, a binding associating the said name
    --  to the output of the selector will be added to the 'Bindings' part of
    --  the 'Match_Result'.
@@ -105,7 +105,7 @@ package LKQL.Patterns.Nodes is
    function Make_Node_Pattern_Predicate (Ctx     : Eval_Context;
                                          Pattern : L.Base_Pattern)
                                          return Node_Pattern_Predicate;
-   --  Create a Node_Pattern_Predicate with the given pattern and evalalution
+   --  Create a Node_Pattern_Predicate with the given pattern and evaluation
    --  context.
 
 private

@@ -22,10 +22,10 @@ package Iters.Iterators is
    --  Pointer to a vector of Element_Type values
 
    package Element_Options is new Options (Element_Type);
-   --  Optionnal Element_Type values
+   --  Optional Element_Type values
 
    subtype Element_Option is Element_Options.Option;
-   --  Optionnal Element_Type value
+   --  Optional Element_Type value
 
    --------------
    -- Iterator --
@@ -46,7 +46,7 @@ package Iters.Iterators is
    --  Make a deep copy of the iterator
 
    procedure Release (Iter : in out Iterator_Interface) is null;
-   --  Release ressources that belong to Iter
+   --  Release resources that belong to Iter
 
    function Consume (Iter : Iterator_Interface'Class) return Element_Array;
    --  Consume the iterator and return an array that contains the yielded

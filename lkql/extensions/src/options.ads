@@ -26,7 +26,7 @@ package Options is
 
    function Extract (Self : Option) return Value_Type
      with Pre => Self.Kind = Kind_Some;
-   --  Return the wraped value, if any.
+   --  Return the wrapped value, if any.
    --  An Assertion_Error will be raised if there is no value.
 
    function To_Option (Value : Value_Type) return Option;

@@ -73,7 +73,7 @@ procedure LKQL_Ada is
          Arg_Type => Unbounded_String,
          Help     => "Path of the LKQL script to evaluate",
          Default_Val => Null_Unbounded_String);
-      --  We use an option rt. a positional arg because we cannot add anymore
+      --  We use an option rt. a positional arg because we cannot add any more
       --  positional args to the App parser.
 
       package Recovery is new Parse_Flag

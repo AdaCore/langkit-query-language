@@ -99,10 +99,10 @@ package LKQL.Primitives is
    subtype Primitive is Primitive_Ptrs.Ref;
 
    package Primitive_Options is new Options (Primitive);
-   --  Optionnal Primitive values
+   --  Optional Primitive values
 
    subtype Primitive_Option is Primitive_Options.Option;
-   --  Optionnal primitive value
+   --  Optional primitive value
 
    ----------
    -- List --
@@ -157,7 +157,7 @@ package LKQL.Primitives is
    function To_Iterator (Value : Primitive) return Primitive_Iter'Class;
    --  Create an iterator that yields the elements of a List or
    --  Iterator Primitive.
-   --  Raise an Unsupported_Error if the value isn"t a List or an Iterator
+   --  Raise an Unsupported_Error if the value isn't a List or an Iterator
 
    procedure Free_Iterator_Primitive is
      new Ada.Unchecked_Deallocation
@@ -311,7 +311,7 @@ package LKQL.Primitives is
    --  Unsupported operations will raise an Unsupported_Error exception.
 
    function "-" (Left, Right : Primitive) return Primitive;
-   --  Substract two Primitive values.
+   --  Subtract two Primitive values.
    --  The only supported operation is Int - Int.
    --  Unsupported operations will raise an Unsupported_Error exception.
 

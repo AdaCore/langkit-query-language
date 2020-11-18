@@ -20,7 +20,7 @@ private package LKQL.Custom_Selectors is
                                        Root       : AST_Node_Rc)
                                        return Custom_Selector_Iter;
    --  Create an iterator that yields the nodes bound to 'Root' by
-   --  the given selector defitnion.
+   --  the given selector definition.
 
 private
 
@@ -39,10 +39,10 @@ private
       Ctx             : Eval_Context;
       --  Copy of the evaluation context
       Selector        : L.Selector_Decl;
-      --  LKQL definititon of the custom selector
+      --  LKQL definition of the custom selector
       Min_Depth       : Integer;
       --  Minimum depth of the nodes. If Min_Depth < 0, the minimum depth will
-      --  be ingored.
+      --  be ignored.
       Max_Depth       : Integer;
       --  Maximum depth of the nodes. If Max_Depth < 0, the maximum depth will
       --  be ignored.
@@ -54,7 +54,7 @@ private
       Already_Yielded : Depth_Node_Sets.Set;
       --  Nodes that have already been yielded
       Already_Visited : Depth_Node_Sets.Set;
-      --  Nodes that have laready been visited
+      --  Nodes that have already been visited
    end record;
 
    procedure Eval_Selector (Iter : in out Custom_Selector_Iter);
