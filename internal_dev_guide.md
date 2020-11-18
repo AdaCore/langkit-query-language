@@ -8,64 +8,61 @@ Internal dev guide (for AdaCore developers)
 First step, which is one shot, is to setup a development environment. Follow
 those steps:
 
-1. Install dependencies via ANOD
+1. Install dependencies via Anod
 
 ```sh
 anod install gnat
 anod install langkit_support -Qcompiler=bootstrap -Qlalmaster
 anod install libadalang -Qcompiler=bootstrap -Qlalmaster
+anod install lkql
 ```
 
-2. Checkout lkql and langkit
+2. Checkout LKQL
 
 ```sh
 git checkout git@github.com:AdaCore/langkit-query-language.git
-git checkout git@github.com:AdaCore/langkit.git
 ```
 
-3. Make sure you have Python 3.8+ and associated pip in your path, either via a
-   virtualenv, or via e3-distrib.
+3. Make sure you have Python 3.8+ and associated `pip` in your environment,
+   either via a `virtualenv`, or via `e3-distrib`.
 
-4. Install python deps:
+4. Install Python dependencies:
 
 ```sh
-pip install -r langkit/REQUIREMENTS.dev
 pip install prompt_toolkit
-pip install ./langkit
 ```
 
-### Env
+### Environment
 
-Second step is to put every tool and library in the path. You can either run those commands everytime:
+Second step is to put every tool and library in the path. You can either run
+those commands everytime:
 
 ```sh
 # In your sandbox dir
 eval `anod printenv gnat`
 eval `anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster`
 eval `anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster`
-
-# In lkql's dir
-eval `lkql/manage.py setenv`
+eval `anod printenv lkql`
 ```
 
-Or create an env script
+Or create an env script:
 
 ```sh
 # In your sandbox dir
-anod printenv gnat >> path/to/env_script.sh
-anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster >> path/to/env_script.sh
-anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster >> path/to/env_script.sh
-
-# In langkit-query-language/
-lkql/manage.py setenv >> path/to/env_script.sh
+(
+    anod printenv gnat
+    anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster
+    anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster
+    anod printenv lkql
+) >> path/to/env_script.sh
 ```
 
-and then run `source path/to/env_script.sh`
+and then run `source path/to/env_script.sh`.
 
-### Build
+### Build `lkql_checker`
 
-Just run `make` in lkql's dir.
+Just run `make lkql_checker` in LKQL's checkout.
 
 ## Adding checks
 
-To add checks to lkql_checker, go [here](lkql_checker/).
+To add checks to `lkql_checker`, go [here](lkql_checker/).
