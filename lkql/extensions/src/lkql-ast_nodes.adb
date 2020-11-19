@@ -114,8 +114,25 @@ package body LKQL.AST_Nodes is
          return False;
       end if;
 
-      Result := Iter.Next_Elements.First_Element;
-      Iter.Next_Elements.Delete_First;
+      --  This implements a DFS traversal, so that given the tree:
+      --
+      --  a __ b _ d
+      --  \    \__ e
+      --   \__ c
+      --
+      --  This will return the list [a, b, d, e, c]
+      --
+      --  This works by adding children on the "stack" in reverse order, and
+      --  picking the last one everytime:
+      --
+      -- [a]       elem=a (Initial state)
+      -- [c, b]    elem=b
+      -- [c, e, d] elem=d
+      -- [c, e]    elem=e
+      -- [c]       elem=c
+
+      Result := Iter.Next_Elements.Last_Element;
+      Iter.Next_Elements.Delete_Last;
       Add_Children (Iter, Result);
 
       return True;
@@ -127,7 +144,7 @@ package body LKQL.AST_Nodes is
 
    procedure Add_Children (Iter : in out Child_Iterator; Node : AST_Node_Rc) is
    begin
-      for I in 1 .. Node.Get.Children_Count loop
+      for I in reverse 1 .. Node.Get.Children_Count loop
          if not Node.Get.Nth_Child (I).Is_Null_Node then
             Iter.Next_Elements.Append
               (Make_AST_Node_Rc (Node.Get.Nth_Child (I)));
