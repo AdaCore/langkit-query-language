@@ -2,12 +2,15 @@
 
 Prototype checker/linter based on LKQL and Libadalang.
 
+The following instructions are to be interpreted in this `lkql_checker`
+repo subdirectory.
+
 ## Architecture
 
-Checks are written in the LKQL language, and put in the [`lkql`](share/lkql)
-directory. They then need to be registered in the `rules.json` file. Each entry
-in the top level JSON array represents a check. You can add a new one by adding
-an entry.  Here is an example:
+Checks are written in the LKQL language, and put in the
+[`share/lkql`](share/lkql) directory. They then need to be registered in the
+`share/lkql/rules.json` file. Each entry in the top level JSON array represents
+a check.  You can add a new one by adding an entry.  Here is an example:
 
 ```json
 {
