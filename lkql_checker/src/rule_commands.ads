@@ -1,3 +1,5 @@
+with Ada.Containers.Vectors;
+
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -27,10 +29,18 @@ package Rule_Commands is
       --  Analysis context that was used to create the LKQL AST
    end record;
 
+   type Eval_Diagnostic is record
+      Diag : Diagnostic;
+      Unit : Libadalang.Analysis.Analysis_Unit;
+   end record;
+
+   package Eval_Diagnostic_Vectors
+   is new Ada.Containers.Vectors (Positive, Eval_Diagnostic);
+
    function Evaluate
      (Self : Rule_Command;
-      Unit : LAL.Analysis_Unit)
-      return Diagnostics_Vectors.Vector;
+      Ctx  : Eval_Context)
+      return Eval_Diagnostic_Vectors.Vector;
    --  Execute the LKQL script of the rule and return a Rule_Result value
    --  containing the flagged nodes.
 

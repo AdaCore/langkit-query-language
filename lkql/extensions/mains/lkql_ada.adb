@@ -135,10 +135,12 @@ procedure LKQL_Ada is
       pragma Unreferenced (Context);
       Interpreter_Context : Eval_Context;
 
+      Unit_Vector : Unit_Vectors.Vector;
    begin
+      Unit_Vector.Append (Unit);
+
       Interpreter_Context :=
-        Make_Eval_Context (Make_Ada_AST_Node (Unit.Root),
-                           Make_Ada_AST_Node (No_Ada_Node),
+        Make_Eval_Context (Unit_Vector,
                            Err_Recovery => Args.Recovery.Get);
       Put_Line (Ada.Directories.Simple_Name (Unit.Get_Filename));
       Evaluate (Interpreter_Context, LKQL_Unit.Root);

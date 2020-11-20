@@ -2,6 +2,8 @@ with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Primitives;     use LKQL.Primitives;
 with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
+with Ada.Text_IO; use Ada.Text_IO;
+with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body LKQL.Queries is
 
@@ -27,7 +29,8 @@ package body LKQL.Queries is
    is
       Iter      : constant AST_Node_Iterator_Access :=
          new AST_Node_Iterator'Class'
-            (AST_Node_Iterator'Class (Make_Child_Iterator (Ctx.AST_Root)));
+          (AST_Node_Iterator'Class
+             (Make_Child_Iterator (Ctx.AST_Roots.all)));
       Predicate : constant AST_Node_Predicate_Access :=
         AST_Node_Predicate_Access (Make_Query_Predicate (Ctx, Pattern));
    begin
@@ -109,22 +112,28 @@ package body LKQL.Queries is
       Match            : Match_Result;
       Predicate_Result : Boolean;
    begin
-      if not Iter.Iter.Next (Match) then
-         return False;
-      end if;
+      --  Loop until we find a value that matches
+      loop
+         --  The inner iterator is empty: return false
+         if not Iter.Iter.Next (Match) then
+            return False;
+         end if;
 
-      Predicate_Result :=
-        (if Iter.Predicate.Is_Null then True
-         else Bool_Val (Eval (Iter.Ctx, Iter.Predicate,
-                              Local_Bindings => Match.Bindings,
-                              Expected_Kind => Kind_Bool)));
+         -- Check if the predicate matches the inner iterator's value
+         Predicate_Result :=
+           (if Iter.Predicate.Is_Null then True
+            else Bool_Val (Eval (Iter.Ctx, Iter.Predicate,
+              Local_Bindings => Match.Bindings,
+              Expected_Kind  => Kind_Bool)));
 
-      if Predicate_Result then
-         Result := Node_Val (Match.Get_Matched_Value);
-         return True;
-      else
-         return False;
-      end if;
+         --  If it matches, return
+         if Predicate_Result then
+            Result := Node_Val (Match.Get_Matched_Value);
+            return True;
+         end if;
+
+         --  Else continue searching for a matching result
+      end loop;
    end Next;
 
    -----------

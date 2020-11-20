@@ -992,10 +992,10 @@ lkql_grammar.add_rules(
 
     query=Query("select", c(), G.pattern),
 
-    pattern=Or(FilteredPattern(G.unfiltered_pattern_optional_chain,
-                               "when",
-                               G.expr),
-               G.unfiltered_pattern_optional_chain),
+    pattern=Or(
+        FilteredPattern(G.unfiltered_pattern_optional_chain, "when", G.expr),
+        G.unfiltered_pattern_optional_chain
+    ),
 
     unfiltered_pattern_optional_chain=Or(
         ChainedNodePattern(

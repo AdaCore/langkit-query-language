@@ -70,7 +70,7 @@ package body LKQL.Chained_Pattern is
    is
       Root_Iterator : constant AST_Node_Iterator_Access :=
         new AST_Node_Iterator'Class'
-          (AST_Node_Iterator'Class (Make_Child_Iterator (Ctx.AST_Root)));
+          (AST_Node_Iterator'Class (Make_Child_Iterator (Ctx.AST_Roots.all)));
    begin
       return (Ctx                    => Ctx.Clone_Frame,
               Pattern                => Pattern,

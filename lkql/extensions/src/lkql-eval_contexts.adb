@@ -55,12 +55,12 @@ package body LKQL.Eval_Contexts is
    function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean is
      (Ctx.Kernel.Error_Recovery_Enabled);
 
-   --------------
-   -- AST_Root --
-   --------------
+   ---------------
+   -- AST_Roots --
+   ---------------
 
-   function AST_Root (Ctx : Eval_Context) return AST_Node_Rc is
-     (Ctx.Kernel.Ast_Root);
+   function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access is
+     (Ctx.Kernel.Ast_Roots);
 
    -----------
    -- Clone --
@@ -126,13 +126,14 @@ package body LKQL.Eval_Contexts is
    -- Make_Eval_Context --
    -----------------------
 
-   function Make_Eval_Context (Ast_Root     : AST_Node_Rc;
+   function Make_Eval_Context (Ast_Roots    : AST_Node_Array;
                                Null_Node    : AST_Node_Rc;
                                Err_Recovery : Boolean := False)
                                return Eval_Context
    is
+      Roots : AST_Node_Array_Access := new AST_Node_Array'(Ast_Roots);
       Kernel : constant Global_Data_Access :=
-        new Global_Data'(Ast_Root, Null_Node, Make_Empty_Error, Err_Recovery);
+        new Global_Data'(Roots, Null_Node, Make_Empty_Error, Err_Recovery);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
    begin
@@ -147,6 +148,7 @@ package body LKQL.Eval_Contexts is
    begin
       pragma Assert (Ctx.Frames.Parent = null,
                      "Cannot free a non-root evaluation context");
+      Free_Ast_Node_Array (Ctx.Kernel.AST_Roots);
       Free_Environment (Ctx.Frames);
       Free_Global_Data (Ctx.Kernel);
    end Free_Eval_Context;

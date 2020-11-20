@@ -152,12 +152,29 @@ package body LKQL.AST_Nodes is
       end loop;
    end Add_Children;
 
+   ------------------------------
+   -- Initialize_Next_Elements --
+   ------------------------------
+
+   procedure Initialize_Next_Elements (Iter : in out Child_Iterator) is
+   begin
+      for El of Iter.Roots loop
+         if not El.Get.Is_Null_Node then
+            Iter.Next_Elements.Append (El);
+         end if;
+      end loop;
+   end Initialize_Next_Elements;
+
    -----------
    -- Clone --
    -----------
 
    overriding function Clone (Iter : Child_Iterator) return Child_Iterator is
-     (Make_Child_Iterator (Iter.Root));
+      Res : Child_Iterator := (Roots => Iter.Roots, others => <>);
+   begin
+      Initialize_Next_Elements (Res);
+      return Res;
+   end Clone;
 
    -------------------------
    -- Make_Child_Iterator --
@@ -165,12 +182,33 @@ package body LKQL.AST_Nodes is
 
    function Make_Child_Iterator (Node : AST_Node_Rc) return Child_Iterator
    is
-      Result : Child_Iterator := (Root => Node, others => <>);
+      Result : Child_Iterator;
    begin
       if not Node.Get.Is_Null_Node then
          Result.Next_Elements.Append (Node);
       end if;
       return Result;
    end Make_Child_Iterator;
+
+   -------------------------
+   -- Make_Child_Iterator --
+   -------------------------
+
+   function Make_Child_Iterator
+     (Nodes : AST_Node_Array) return Child_Iterator
+   is
+      Result       : Child_Iterator;
+   begin
+      for Node of Nodes loop
+         declare
+            Rc : AST_Node_Rc := Make_AST_Node_Rc (Node);
+         begin
+            Result.Roots.Append (Rc);
+         end;
+      end loop;
+      Initialize_Next_Elements (Result);
+      return Result;
+   end Make_Child_Iterator;
+
 
 end LKQL.AST_Nodes;

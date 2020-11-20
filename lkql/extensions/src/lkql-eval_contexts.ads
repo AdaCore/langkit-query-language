@@ -76,7 +76,7 @@ package LKQL.Eval_Contexts is
    function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean;
    --  Return whether the error recovery mechanism is enabled
 
-   function AST_Root (Ctx : Eval_Context) return AST_Node_Rc;
+   function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access;
    --  Return the evaluation context's AST root
 
    function Clone_Frame (Ctx : Eval_Context) return Eval_Context;
@@ -109,7 +109,7 @@ package LKQL.Eval_Contexts is
    --  Return the parent of the current local context.
    --  An Assertion_Error will be raised is 'Ctx' is the root context.
 
-   function Make_Eval_Context (Ast_Root     : AST_Node_Rc;
+   function Make_Eval_Context (Ast_Roots    : AST_Node_Array;
                                Null_Node    : AST_Node_Rc;
                                Err_Recovery : Boolean := False)
                                return Eval_Context;
@@ -129,8 +129,9 @@ private
    -----------------
 
    type Global_Data is record
-      Ast_Root : AST_Node_Rc;
-      --  Root node of the tree in which node queries will run.
+      Ast_Roots : AST_Node_Array_Access;
+      --  Root node for each libadalang analysis unit that will be analysed in
+      --  the context.
 
       Null_Node : AST_Node_Rc;
       --  Value produced by a "null" literal

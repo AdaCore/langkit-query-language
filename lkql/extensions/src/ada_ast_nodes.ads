@@ -7,6 +7,8 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers; use Ada.Containers;
 with GNATCOLL.Utils; use GNATCOLL.Utils;
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with Libadalang.Helpers; use Libadalang.Helpers;
 
 package Ada_AST_Nodes is
 
@@ -78,5 +80,9 @@ package Ada_AST_Nodes is
 
    function Kind (Name : String) return Node_Type_Id;
    --  Return the ``Node_Type_Id`` for a given ``Name``
+
+   function Make_Eval_Context
+     (Units        : Unit_Vectors.Vector;
+      Err_Recovery : Boolean := False) return Eval_Context;
 
 end Ada_AST_Nodes;

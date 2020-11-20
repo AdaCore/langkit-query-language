@@ -89,12 +89,7 @@ package body Liblkqllang.Implementation.Extensions is
       UFP := Project_To_Provider (Project);
       Ctx := Create_Context (Charset => "utf-8", Unit_Provider => UFP);
 
-      --  TODO: That's a really strange thing today, the LKQL context contains
-      --  only one unit ... We need to fix that in a later commit, but for the
-      --  moment we'll just take the first unit for testing purposes.
-      LKQL_Ctx := Make_Eval_Context
-        (Make_Ada_AST_Node (Units.Element (1).Root),
-         Make_Ada_AST_Node (No_Ada_Node));
+      LKQL_Ctx := Make_Eval_Context (Units);
 
       Init := True;
       return True;
