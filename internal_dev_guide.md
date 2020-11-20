@@ -20,7 +20,7 @@ anod install lkql
 2. Checkout LKQL
 
 ```sh
-git checkout git@github.com:AdaCore/langkit-query-language.git
+git clone git@github.com:AdaCore/langkit-query-language.git
 ```
 
 3. Make sure you have Python 3.8+ and associated `pip` in your environment,
