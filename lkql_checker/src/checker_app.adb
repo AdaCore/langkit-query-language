@@ -3,8 +3,14 @@ with Ada.Directories; use Ada.Directories;
 with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Libadalang.Analysis; use Libadalang.Analysis;
+
 with Rules_Factory; use Rules_Factory;
 with Rule_Commands; use Rule_Commands;
+
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.AST_Nodes;
+with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body Checker_App is
 
@@ -38,28 +44,24 @@ package body Checker_App is
       return Ret;
    end Rules;
 
-   ------------------
-   -- Process_Unit --
-   ------------------
-
-   procedure Process_Unit (Dummy : App_Job_Context; Unit : Analysis_Unit) is
-   begin
-      for Rule of Rules loop
-         for Diag of Rule.Evaluate (Unit) loop
-            Langkit_Support.Diagnostics.Output.Print_Diagnostic
-              (Diag, Unit, Simple_Name (Unit.Get_Filename));
-         end loop;
-      end loop;
-   end Process_Unit;
-
    ---------------------
    -- Process_Context --
    ---------------------
 
-   procedure Process_Context
-     (Ctx : Analysis_Context; Units : Unit_Vectors.Vector) is
+   procedure Job_Post_Process (Context : App_Job_Context)
+   is
    begin
-      null;
-   end Process_Context;
+      declare
+         Ctx : constant Eval_Context :=
+           Make_Eval_Context (Context.Units_Processed);
+      begin
+         for Rule of Rules loop
+            for Diag of Rule.Evaluate (Ctx) loop
+               Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                 (Diag.Diag, Diag.Unit, Simple_Name (Diag.Unit.Get_Filename));
+            end loop;
+         end loop;
+      end;
+   end Job_Post_Process;
 
 end Checker_App;

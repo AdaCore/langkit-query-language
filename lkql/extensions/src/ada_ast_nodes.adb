@@ -576,6 +576,26 @@ package body Ada_AST_Nodes is
         Names_To_Node_Types.Element (To_Unbounded_String (Name));
    end Kind;
 
+   -----------------------
+   -- Make_Eval_Context --
+   -----------------------
+
+   function Make_Eval_Context
+     (Units        : Unit_Vectors.Vector;
+      Err_Recovery : Boolean := False) return Eval_Context
+   is
+      Roots : AST_Node_Array (1 .. Units.Last_Index);
+   begin
+
+      for I in Units.First_Index .. Units.Last_Index
+      loop
+         Roots (I) := new Ada_AST_Node'(Node => Units.Element (I).Root);
+      end loop;
+
+      return Make_Eval_Context
+        (Roots, Make_Ada_AST_Node (No_Ada_Node), Err_Recovery);
+   end Make_Eval_Context;
+
    ----------------------
    -- Get_Node_Type_Id --
    ----------------------

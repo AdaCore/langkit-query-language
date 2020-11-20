@@ -1,21 +1,17 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Libadalang.Helpers; use Libadalang.Helpers;
-with Libadalang.Analysis; use Libadalang.Analysis;
 with GNATCOLL.Opt_Parse;
 
 package Checker_App is
 
-   procedure Process_Unit (Dummy : App_Job_Context; Unit : Analysis_Unit);
-
-   procedure Process_Context
-     (Ctx : Analysis_Context; Units : Unit_Vectors.Vector);
+   procedure Job_Post_Process (Context : App_Job_Context);
    --  This procedure will be called once after all units have been parsed.
 
    package App is new Libadalang.Helpers.App
-     (Name         => "lkql-checker",
-      Description  => "LKQL based rule checker",
-      Process_Unit => Process_Unit);
+     (Name             => "lkql-checker",
+      Description      => "LKQL based rule checker",
+      Job_Post_Process => Job_Post_Process);
 
    package Args is
       use GNATCOLL.Opt_Parse;

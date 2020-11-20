@@ -27,6 +27,8 @@ package LKQL.AST_Nodes is
    type AST_Node_Array is array (Positive range <>) of AST_Node_Access;
    --  Array of AST node pointers
 
+   Empty_Ast_Node_Array : constant AST_Node_Array (1 .. 0) := (others => <>);
+
    type AST_Node_Array_Access is access all AST_Node_Array;
    --  Pointer to an array of AST node pointers
 
@@ -274,12 +276,15 @@ package LKQL.AST_Nodes is
 
    overriding function Clone (Iter : Child_Iterator) return Child_Iterator;
 
-   function Make_Child_Iterator (Node : AST_Node_Rc) return Child_Iterator;
+   --  function Make_Child_Iterator (Node : AST_Node_Rc) return Child_Iterator;
+
+   function Make_Child_Iterator
+     (Nodes : AST_Node_Array) return Child_Iterator;
 
 private
 
    type Child_Iterator is new AST_Node_Iterator with record
-      Root          : AST_Node_Rc;
+      Roots         : AST_Node_Vector;
       Next_Elements : AST_Node_List;
    end record;
 

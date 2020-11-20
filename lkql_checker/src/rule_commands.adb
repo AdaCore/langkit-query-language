@@ -52,14 +52,11 @@ package body Rule_Commands is
 
    function Evaluate
      (Self : Rule_Command;
-      Unit : LAL.Analysis_Unit) return Diagnostics_Vectors.Vector
+      Ctx  : Eval_Context) return Eval_Diagnostic_Vectors.Vector
    is
-      Result       : Diagnostics_Vectors.Vector;
+      Result       : Eval_Diagnostic_Vectors.Vector;
       Command_Name : constant Text_Type := To_Text (Self.Name);
       Nodes, Dummy : Primitive;
-      Ctx     : Eval_Context :=
-        Make_Eval_Context (Make_Ada_AST_Node (Unit.Root),
-                           Make_Ada_AST_Node (No_Ada_Node));
    begin
       Dummy := Check_And_Eval (Ctx, Self.LKQL_Root);
       Nodes := LKQL_Eval (Ctx, Image (To_Text (Self.Code)), Self.LKQL_Context);
@@ -70,6 +67,7 @@ package body Rule_Commands is
          Check_Kind
            (Kind_Node, Kind (N), "Element from the result of "
             & To_UTF8 (Command_Name));
+
          declare
             Wrapped_Node : constant AST_Node_Rc := Node_Val (N);
             Ada_Wrapped_Node : constant Ada_AST_Node :=
@@ -79,14 +77,16 @@ package body Rule_Commands is
             if Node.Kind in Ada_Basic_Decl then
                Node := Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node;
             end if;
+
             Result.Append
-              (Diagnostic'
-                 (Node.Sloc_Range,
-                  To_Unbounded_Text (Command_Name & " - rule violation")));
+              (Eval_Diagnostic'
+                 (Diagnostic'
+                      (Node.Sloc_Range,
+                       To_Unbounded_Text (Command_Name & " - rule violation")),
+                  Node.Unit));
          end;
       end loop;
 
-      Free_Eval_Context (Ctx);
       return Result;
    end Evaluate;
 
