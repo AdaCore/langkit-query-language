@@ -60,6 +60,49 @@ package body LKQL.AST_Nodes is
    -- To_Introspection_Value --
    ----------------------------
 
+   function To_Introspection_Value (Val : Boolean) return Introspection_Value
+   is
+   begin
+      return (Kind => Kind_Bool, Bool_Val => Val);
+   end To_Introspection_Value;
+
+   ----------------------------
+   -- To_Introspection_Value --
+   ----------------------------
+
+   function To_Introspection_Value (Val : Integer) return Introspection_Value
+   is
+   begin
+      return (Kind => Kind_Int, Int_Val => Val);
+   end To_Introspection_Value;
+
+   ----------------------------
+   -- To_Introspection_Value --
+   ----------------------------
+
+   function To_Introspection_Value
+     (Val : Unbounded_Text_Type) return Introspection_Value
+   is
+   begin
+      return (Kind => Kind_Text, Text_Val => Val);
+   end To_Introspection_Value;
+
+   ----------------------------
+   -- To_Introspection_Value --
+   ----------------------------
+
+   function To_Introspection_Value
+     (Val : AST_Node_Rc) return Introspection_Value
+   is
+   begin
+      return (Kind     => Kind_Node,
+              Node_Val => new AST_Node'Class'(Val.Unchecked_Get.all));
+   end To_Introspection_Value;
+
+   ----------------------------
+   -- To_Introspection_Value --
+   ----------------------------
+
    function To_Introspection_Value
      (Val : LKQL.Primitives.Primitive_List_Access) return Introspection_Value
    is

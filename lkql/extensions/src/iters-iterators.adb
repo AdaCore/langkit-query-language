@@ -228,9 +228,13 @@ package body Iters.Iterators is
    function Get_Cached
      (Iter : Resetable_Iter; Pos : Positive) return Element_Option
    is
-     (if Pos <= Iter.Cache_Length
-      then Element_Options.To_Option (Iter.Cache.Element (Pos))
-      else Element_Options.None);
+   begin
+      if Pos <= Iter.Cache_Length then
+         return Element_Options.To_Option (Iter.Cache.Element (Pos));
+      else
+         return Element_Options.None;
+      end if;
+   end Get_Cached;
 
    -----------
    -- Reset --
@@ -245,14 +249,19 @@ package body Iters.Iterators is
    ---------------
 
    function Resetable (Iter : Iterator_Interface'Class) return Resetable_Iter
-   is (Resetable_Iter'
-         (Inner => new Iterator_Interface'Class'(Iter), others => <>));
+   is
+   begin
+      return Resetable_Iter'
+        (Inner => new Iterator_Interface'Class'(Iter), others => <>);
+   end Resetable;
 
    ---------------
    -- Resetable --
    ---------------
 
    function Resetable (Iter : Iterator_Access) return Resetable_Iter is
-     (Resetable_Iter'(Inner => Iter, others => <>));
+   begin
+      return Resetable_Iter'(Inner => Iter, others => <>);
+   end Resetable;
 
 end Iters.Iterators;

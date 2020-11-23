@@ -42,13 +42,17 @@ package body LKQL.Chained_Pattern is
 
    overriding function Clone (Iter : Chained_Pattern_Iterator)
                               return Chained_Pattern_Iterator
-   is (Ctx                    => Iter.Ctx.Clone_Frame,
-       Next_Values            => Iter.Next_Values,
-       Pattern                => Iter.Pattern,
-       Root_Nodes_Iterator =>
-          new AST_Node_Iterator'Class'
-         (AST_Node_Iterator'Class ((Iter.Root_Nodes_Iterator.Clone))),
-       Yielded_Elements       => Node_Sets.Empty_Set);
+   is
+   begin
+      return (Ctx                    => Iter.Ctx.Clone_Frame,
+              Next_Values            => Iter.Next_Values,
+              Pattern                => Iter.Pattern,
+              Root_Nodes_Iterator =>
+                new AST_Node_Iterator'Class'
+                  (AST_Node_Iterator'Class
+                    ((Iter.Root_Nodes_Iterator.Clone))),
+              Yielded_Elements       => Node_Sets.Empty_Set);
+   end Clone;
 
    -------------
    -- Release --
