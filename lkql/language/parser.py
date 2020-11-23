@@ -986,6 +986,7 @@ class Match(Expr):
 
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
+
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
     main_rule=List(Or(G.decl, G.expr),
@@ -1000,66 +1001,62 @@ lkql_grammar.add_rules(
     ),
 
     pattern=Or(
-        FilteredPattern(G.unfiltered_pattern_optional_chain, "when", G.expr),
-        G.unfiltered_pattern_optional_chain
+        FilteredPattern(G.chained_pattern, "when", G.expr),
+        G.chained_pattern
     ),
 
-    unfiltered_pattern_optional_chain=Or(
+    chained_pattern=Or(
         ChainedNodePattern(
-            G.unfiltered_pattern,
+            G.binding_pattern,
             List(Or(
-                SelectorLink(G.selector_call, "is", G.unfiltered_pattern),
-                FieldLink(".", G.identifier, "=", G.unfiltered_pattern),
-                PropertyLink(".", G.fun_call, "is", G.unfiltered_pattern)
+                SelectorLink(G.selector_call, "is", G.binding_pattern),
+                FieldLink(".", G.id, "=", G.binding_pattern),
+                PropertyLink(".", G.fun_call, "is", G.binding_pattern)
             ))
         ),
-        G.unfiltered_pattern
+        G.binding_pattern
     ),
 
-    unfiltered_pattern=Or(BindingPattern(G.identifier, "@", G.value_pattern),
-                          G.value_pattern),
-
-    value_pattern=Or(G.node_pattern,
-                     G.universal_pattern),
-
-    universal_pattern=UniversalPattern("_"),
-
-    node_pattern=Or(G.extended_node_pattern, G.node_kind_pattern),
-
-    node_kind_pattern=NodeKindPattern(G.kind_name),
-
-    detail_value=Or(DetailPattern(G.pattern), DetailExpr(G.expr)),
-
-    extended_node_pattern=ExtendedNodePattern(
-        Or(G.universal_pattern, G.node_kind_pattern),
-        Pick("(", c(), List(G.node_pattern_detail, sep=","), ")")
+    binding_pattern=Or(
+        BindingPattern(G.id, "@", G.value_pattern),
+        G.value_pattern
     ),
 
-    node_pattern_detail=Or(
+    value_pattern=Or(
+        ExtendedNodePattern(
+            Or(UniversalPattern("_"), NodeKindPattern(G.kind_name)),
+            Pick("(", c(), List(G.pattern_arg, sep=","), ")")
+        ),
+        NodeKindPattern(G.kind_name), UniversalPattern("_")
+    ),
+
+    pattern_arg=Or(
         NodePatternSelector(
             SelectorCall(
-                G.identifier,
-                Opt(Pick(G.identifier, "@")),
-                G.identifier,
+                G.id,
+                Opt(Pick(G.id, "@")),
+                G.id,
                 Opt("(", c(),
                     List(G.named_arg, sep=",", empty_valid=False), ")")
             ), "is", G.pattern
         ),
-        NodePatternField(G.identifier, "=", c(), G.detail_value),
+        NodePatternField(G.id, "=", c(), G.detail_value),
         NodePatternProperty(G.fun_call, "is", c(), G.detail_value)
     ),
 
+    detail_value=Or(DetailPattern(G.pattern), DetailExpr(G.expr)),
+
     selector_call=SelectorCall(
-        G.identifier,
-        Opt(Pick(G.identifier, "@")),
-        G.identifier,
+        G.id,
+        Opt(Pick(G.id, "@")),
+        G.id,
         Opt("(", c(), List(G.named_arg, sep=",", empty_valid=False), ")")
     ),
 
     listcomp=ListComprehension(
         "[",
         G.expr, "for",
-        List(ListCompAssoc(G.identifier, "in", G.expr),
+        List(ListCompAssoc(G.id, "in", G.expr),
              sep=",", empty_valid=False),
         Opt("if", G.expr),
         "]"
@@ -1120,23 +1117,23 @@ lkql_grammar.add_rules(
     value_expr=Or(
         Unwrap(G.value_expr, "!!"),
         DotCall(
-            G.value_expr, ".", G.identifier,
+            G.value_expr, ".", G.id,
             "(", List(G.arg, sep=",", empty_valid=True), ")"
         ),
 
         SafeCall(
-            G.value_expr, "?.", G.identifier,
+            G.value_expr, "?.", G.id,
             "(", List(G.arg, sep=",", empty_valid=True), ")"
         ),
 
-        DotAccess(G.value_expr, ".", c(), G.identifier),
-        SafeAccess(G.value_expr, "?.", c(), G.identifier),
+        DotAccess(G.value_expr, ".", c(), G.id),
+        SafeAccess(G.value_expr, "?.", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
         G.fun_call,
         G.query,
         G.listcomp,
         G.match,
-        G.identifier,
+        G.id,
         G.string_literal,
         G.bool_literal,
         G.unit_literal,
@@ -1151,21 +1148,21 @@ lkql_grammar.add_rules(
         "}"
     ),
 
-    val_decl=ValDecl("val", c(), G.identifier, "=", G.expr),
+    val_decl=ValDecl("val", c(), G.id, "=", G.expr),
 
     fun_decl=FunDecl(
-        "fun", c(), G.identifier,
+        "fun", c(), G.id,
         "(", List(G.param, empty_valid=True, sep=","), ")",
         "=", G.expr
     ),
 
     fun_call=FunCall(
-        G.identifier, "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
+        G.id, "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
     ),
 
     selector_decl=SelectorDecl(
         "selector", c(),
-        G.identifier, List(G.selector_arm, empty_valid=False)
+        G.id, List(G.selector_arm, empty_valid=False)
     ),
 
     selector_arm=SelectorArm(
@@ -1189,7 +1186,7 @@ lkql_grammar.add_rules(
 
     if_then_else=IfThenElse("if", G.expr, "then", G.expr, "else", G.expr),
 
-    identifier=Identifier(Token.Identifier),
+    id=Identifier(Token.Identifier),
     kind_name=Identifier(Token.KindName),
     integer=IntegerLiteral(Token.Integer),
 
@@ -1200,10 +1197,10 @@ lkql_grammar.add_rules(
 
     unit_literal=UnitLiteral("(", ")"),
 
-    arg=Or(NamedArg(G.identifier, "=", G.expr), ExprArg(G.expr)),
+    arg=Or(NamedArg(G.id, "=", G.expr), ExprArg(G.expr)),
 
-    named_arg=NamedArg(G.identifier, "=", G.expr),
+    named_arg=NamedArg(G.id, "=", G.expr),
 
-    param=Or(DefaultParam(G.identifier, "=", G.expr),
-             ParameterDecl(G.identifier))
+    param=Or(DefaultParam(G.id, "=", G.expr),
+             ParameterDecl(G.id))
 )
