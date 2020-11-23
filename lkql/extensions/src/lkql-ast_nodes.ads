@@ -236,25 +236,18 @@ package LKQL.AST_Nodes is
    -- Introspection_Value creation --
    -----------------------------------
 
-   function To_Introspection_Value (Val : Boolean) return Introspection_Value
-   is (Kind => Kind_Bool, Bool_Val => Val);
+   function To_Introspection_Value (Val : Boolean) return Introspection_Value;
    --  Create an Introspection value from the given Boolean value
 
-   function To_Introspection_Value (Val : Integer) return Introspection_Value
-   is (Kind => Kind_Int, Int_Val => Val);
+   function To_Introspection_Value (Val : Integer) return Introspection_Value;
    --  Create an Introspection value from the given Integer value
 
    function To_Introspection_Value
-     (Val : Unbounded_Text_Type) return Introspection_Value
-   is
-     (Kind => Kind_Text, Text_Val => Val);
+     (Val : Unbounded_Text_Type) return Introspection_Value;
    --  Create an Introspection value from the given Unbounded_Text_Type value
 
    function To_Introspection_Value
-     (Val : AST_Node_Rc) return Introspection_Value
-   is
-      (Kind     => Kind_Node,
-       Node_Val => new AST_Node'Class'(Val.Unchecked_Get.all));
+     (Val : AST_Node_Rc) return Introspection_Value;
    --  Create an Introspection value from the given AST_Node_Rc
 
    function To_Introspection_Value
