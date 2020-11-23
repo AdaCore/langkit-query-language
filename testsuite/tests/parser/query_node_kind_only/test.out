@@ -3,6 +3,7 @@ ValDecl
 |  Identifier: o
 |value:
 |  Query
+|  |from_expr: <null>
 |  |pattern:
 |  |  NodeKindPattern
 |  |  |kind_name:

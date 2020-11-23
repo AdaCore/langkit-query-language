@@ -5,5 +5,6 @@ FunDecl
 |  ParameterDeclList: <empty list>
 |body_expr:
 |  Query
+|  |from_expr: <null>
 |  |pattern:
 |  |  UniversalPattern

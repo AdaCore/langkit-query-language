@@ -3,6 +3,7 @@ ValDecl
 |  Identifier: declWihAspect
 |value:
 |  Query
+|  |from_expr: <null>
 |  |pattern:
 |  |  FilteredPattern
 |  |  |pattern:

@@ -510,6 +510,7 @@ class Query(Expr):
        let withAspects = query ObjectDecl [child] AspectAssoc
     """
 
+    from_expr = Field(type=Expr)
     pattern = Field(type=BasePattern)
 
 
@@ -990,7 +991,13 @@ lkql_grammar.add_rules(
     main_rule=List(Or(G.decl, G.expr),
                    list_cls=TopLevelList),
 
-    query=Query("select", c(), G.pattern),
+    query=Query(
+        Opt(
+            "from",
+            Or(G.expr, Unpack("*", G.expr))
+        ),
+        "select", c(), G.pattern
+    ),
 
     pattern=Or(
         FilteredPattern(G.unfiltered_pattern_optional_chain, "when", G.expr),
