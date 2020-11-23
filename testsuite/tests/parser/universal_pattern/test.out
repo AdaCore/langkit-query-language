@@ -1,4 +1,5 @@
 Query
+|from_expr: <null>
 |pattern:
 |  ExtendedNodePattern
 |  |node_pattern:
