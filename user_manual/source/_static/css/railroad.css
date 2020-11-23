@@ -1,3 +1,16 @@
 svg.railroad-diagram {
     background-color: transparent !important;
 }
+
+svg.railroad-diagram text {
+    font: bold 13px monospace !important;
+}
+
+svg.railroad-diagram rect {
+    stroke-width: 2.5 !important;
+    fill: hsl(182deg 26% 77%) !important;
+}
+
+svg.railroad-diagram path {
+    stroke-width: 2.5 !important;
+}
