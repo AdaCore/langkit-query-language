@@ -53,6 +53,7 @@ class LKQLPygmentsLexer(RegexLexer):
             (r"\"[^\"]*\"", token.String),
             (r'[0-9]+', token.Number),
             (r'_?[a-zA-Z][\w\']*', token.Name),
+            (r'_', token.Name),
             (r'\n', token.Text),
             (r'[^\S\n]+', token.Text),
         ]
