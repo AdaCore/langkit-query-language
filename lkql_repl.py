@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 
+import argparse
+
 from collections import defaultdict
 import liblkqllang as lkql
+
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.lexers import PygmentsLexer, Lexer
@@ -14,6 +17,14 @@ from pygments import token
 
 
 ctx = lkql.AnalysisContext()
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-P", "--project",
+    help="Ada project file to base the queries upon",
+    required=True
+)
 
 
 class LKQLPygmentsLexer(RegexLexer):
@@ -59,14 +70,13 @@ class LKQLCompleter(Completer):
 
 
 if __name__ == '__main__':
+    args, _ = parser.parse_known_args()
     our_history = FileHistory(".example-history-file")
     session = PromptSession(history=our_history, lexer=PygmentsLexer(LKQLPygmentsLexer),
                             completer=FuzzyCompleter(LKQLCompleter()))
 
     dummy_unit = ctx.get_from_buffer('<dummy>', '12')
-    dummy_unit.root.p_interp_init_from_project(
-        'testsuite/ada_projects/deep_library/prj.gpr'
-    )
+    dummy_unit.root.p_interp_init_from_project(args.project)
 
     while True:
         try:
