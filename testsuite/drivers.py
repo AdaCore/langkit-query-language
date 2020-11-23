@@ -1,5 +1,6 @@
 import os
 
+from e3.fs import mkdir
 from e3.testsuite.driver.diff import DiffTestDriver
 
 
@@ -9,7 +10,43 @@ def read_to_string(path):
     return text.strip()
 
 
-class ParserDriver(DiffTestDriver):
+class BaseTestDriver(DiffTestDriver):
+    """
+    Common code for all test drivers.
+    """
+
+    def set_up(self):
+        super().set_up()
+
+        if self.env.options.coverage:
+            # Unique number to generate separate trace files in the "shell"
+            # method.
+            self.trace_counter = 0
+
+            # Create a subdirectory in the global testsuite traces directory
+            # and put traces there.
+            self.traces_dir = os.path.join(
+                self.env.traces_dir, os.path.basename(self.working_dir())
+            )
+            mkdir(self.traces_dir)
+
+    def shell(self, args):
+        env = dict(os.environ)
+
+        # If code coverage is enabled, put trace files in the dedicated
+        # directory.
+        if self.env.options.coverage:
+            env['LIBLKQLLANG_TRACE_FILE'] = os.path.join(
+                self.traces_dir, f'lkql-{self.trace_counter}.srctrace'
+            )
+            env['GNATCOV_TRACE_FILE'] = os.path.join(
+                self.traces_dir, f'prog-{self.trace_counter}.srctrace'
+            )
+
+        return super().shell(args, env=env)
+
+
+class ParserDriver(BaseTestDriver):
     """
     Compare the output of LKQL's `parse` program on the script in the `input`
     file to the expected output in the `output` text file. Tests pass iff the
@@ -31,7 +68,7 @@ class ParserDriver(DiffTestDriver):
         self.shell(['lkql_parse', '-f', 'input', '-r', rule, '--hide-slocs'])
 
 
-class InterpreterDriver(DiffTestDriver):
+class InterpreterDriver(BaseTestDriver):
     """
     This driver runs the interpreter with the given arguments and compares the
     interpreter's output to the provided output file.
@@ -62,7 +99,7 @@ class InterpreterDriver(DiffTestDriver):
         self.shell(args)
 
 
-class CheckerDriver(DiffTestDriver):
+class CheckerDriver(BaseTestDriver):
     """
     This driver runs the checker with the given arguments and compares the
     checkers's output to the provided output file.

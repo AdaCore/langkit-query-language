@@ -1,10 +1,13 @@
 #! /usr/bin/env python
 
+from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite
 from drivers import (
     CheckerDriver, ParserDriver, InterpreterDriver
 )
+import glob
 import os
+import subprocess
 import sys
 
 
@@ -23,6 +26,11 @@ class LKQLTestsuite(Testsuite):
         parser.add_argument(
             '--rewrite', '-r', action='store_true',
             help='Rewrite test baselines according to current output.'
+        )
+        parser.add_argument(
+            '--coverage',
+            help='Compute code coverage. Argument is the output directory for'
+                 ' the coverage report.'
         )
 
     def set_up(self):
@@ -46,6 +54,40 @@ class LKQLTestsuite(Testsuite):
                 in_repo('lkql_checker', 'bin'),
                 os.environ['PATH'],
             ])
+
+        # Ensure the testsuite starts with an empty directory to store source
+        # trace files.
+        self.env.traces_dir = os.path.join(self.working_dir, 'traces')
+        if self.env.options.coverage:
+            rm(self.env.traces_dir)
+            mkdir(self.env.traces_dir)
+
+    def tear_down(self):
+        # Generate code coverage report if requested
+        if self.env.options.coverage:
+            # Create a response file to contain the list of traces
+            traces_list = os.path.join(self.working_dir, "traces.txt")
+            with open(traces_list, "w") as f:
+                for filename in glob.glob(
+                    os.path.join(self.env.traces_dir, "*", "*.srctrace")
+                ):
+                    f.write(f"{filename}\n")
+
+            subprocess.check_call([
+                'gnatcov',
+                'coverage',
+                '-Plkql_checker.gpr',
+                '--externally-built-projects',
+                '--no-subprojects',
+                '--projects=lkql_checker',
+                '--projects=liblkqllang',
+                '--level=stmt',
+                '--annotate=dhtml',
+                f'--output-dir={self.env.options.coverage}',
+                f'@{traces_list}',
+            ])
+
+        super().tear_down()
 
 
 if __name__ == "__main__":
