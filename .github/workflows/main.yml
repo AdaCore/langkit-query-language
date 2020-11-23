@@ -1,0 +1,86 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+name: Linux CI
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Linux build & test
+    env:
+      PROCESSORS: 0
+      PREFIX: /tmp/ADALIB_DIR
+      GPR_PROJECT_PATH: /tmp/ADALIB_DIR/share/gpr
+    steps:
+      - name: Get lkql
+        uses: actions/checkout@v2
+
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Get langkit
+        uses: actions/checkout@v2
+        with:
+          repository: AdaCore/langkit
+          path: langkit
+          fetch-depth: 0  # all branches
+
+      - name: Install python dependencies
+        run: |
+            pip install -r langkit/REQUIREMENTS.dev
+            pip install jsonschema
+            pip install ./langkit
+
+      - uses: actions/cache@v2
+        with:
+          path: ./cached_gnat
+          key: ${{ runner.os }}-gnat-ce-2020
+      - name: Get GNAT Community 2020 toolchain
+        uses: ada-actions/toolchain@52618bd
+        with:
+          distrib: community
+          install_dir: ./cached_gnat
+      - name: Clean up GNAT
+        # TODO: For unknown reasons, even with all caches disabled, there are
+        # sometimes spurious installs of dependencies (gnatcoll-iconv, -gmp and
+        # langkit_support) in cached_gnat's install. Try to uninstall them to
+        # workaround this issue. We need to uninstall gpr and gnatcoll anyway,
+        # as we want their latest versions.
+        run: |
+            sh langkit/.github/helpers/clean_up_gnat.sh
+
+      - name: Fetch & install dependencies
+        run: |
+            mkdir -p $PREFIX
+            wget -nv -O- https://dl.bintray.com/reznikmm/libadalang/libadalang-master-linux.tar.gz \
+                | tar xzf - -C $PREFIX
+
+      - name: Build Langkit
+        run: |
+            langkit/manage.py make --no-langkit-support
+
+      - name: Build LKQL
+        run: |
+            eval `lkql/manage.py setenv`
+            GPR_ARGS=-XLIBRARY_TYPE=relocatable make
+
+      - name: Build documentation
+        run: |
+            eval `lkql/manage.py setenv`
+            cd user_manual
+            make html
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./user_manual/build/html
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+

@@ -2,7 +2,7 @@ all: lkql lkql_checker
 lkql: build/bin/liblkqllang_parse
 
 lkql_checker:
-	gprbuild -P lkql_checker/lkql_checker.gpr -p
+	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
 	lkql/manage.py make -P

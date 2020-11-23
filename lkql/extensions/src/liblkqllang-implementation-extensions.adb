@@ -50,7 +50,7 @@ package body Liblkqllang.Implementation.Extensions is
       Ret : Unit_Vectors.Vector;
    begin
       for F of Files loop
-         Ret.Append_One (Ctx.Get_From_File (To_String (F)));
+         Ret.Append (Ctx.Get_From_File (To_String (F)));
       end loop;
       return Ret;
    end Units;
