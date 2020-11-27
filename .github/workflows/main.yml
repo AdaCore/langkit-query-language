@@ -70,11 +70,10 @@ jobs:
             eval `lkql/manage.py setenv`
             GPR_ARGS=-XLIBRARY_TYPE=relocatable make
 
-      - name: Build documentation
+      - name: Test LKQL
         run: |
             eval `lkql/manage.py setenv`
-            cd user_manual
-            make html
+            make test
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
