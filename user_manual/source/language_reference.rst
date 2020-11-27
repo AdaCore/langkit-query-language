@@ -66,10 +66,10 @@ Function declaration
 .. lkql_doc_class:: ParameterDecl
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/fun_decl.svg
+    :file: ../../lkql/build/railroad-diagrams/fun_decl.svg
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/param.svg
+    :file: ../../lkql/build/railroad-diagrams/param.svg
 
 Allows the user to declare an LKQL function that can be used to factor some
 computation.
@@ -97,7 +97,7 @@ Value declaration
 .. lkql_doc_class:: ValDecl
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/val_decl.svg
+    :file: ../../lkql/build/railroad-diagrams/val_decl.svg
 
 
 Declare a named value (often called a variable or constant in other languages).
@@ -114,7 +114,7 @@ Block expression
 ^^^^^^^^^^^^^^^^
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/block_expr.svg
+    :file: ../../lkql/build/railroad-diagrams/block_expr.svg
 
 .. lkql_doc_class:: BlockExpr
 
@@ -179,7 +179,7 @@ Function call
 .. lkql_doc_class:: Arg
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/fun_call.svg
+    :file: ../../lkql/build/railroad-diagrams/fun_call.svg
 
 
 :ref:`Functions <Function declaration>` defined in LKQL can be called with the
@@ -219,7 +219,7 @@ Comparison expression
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/comp_expr.svg
+    :file: ../../lkql/build/railroad-diagrams/comp_expr.svg
 
 Comparison expressions are used to compare an object to another object, or
 pattern.
@@ -269,7 +269,7 @@ List comprehension
 .. lkql_doc_class:: ListComprehension
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/listcomp.svg
+    :file: ../../lkql/build/railroad-diagrams/listcomp.svg
 
 A list comprehension allows the user to create a new list by iterating on an
 existing collection, applying a mapping operation, and eventually a filtering
@@ -299,7 +299,7 @@ If expression
 .. lkql_doc_class:: IfThenElse
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/if_then_else.svg
+    :file: ../../lkql/build/railroad-diagrams/if_then_else.svg
 
 If expressions are traditional conditional expressions composed of a condition,
 an expression executed when the condition is true, and and expression executed
@@ -316,7 +316,7 @@ Match expression
 .. lkql_doc_class:: Match
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/match.svg
+    :file: ../../lkql/build/railroad-diagrams/match.svg
 
 Pattern matching expression. Matchers will be evaluated in order against the
 match's target expression. The first matcher to match the object will trigger
@@ -449,7 +449,7 @@ Query expression
 ----------------
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/query.svg
+    :file: ../../lkql/build/railroad-diagrams/query.svg
 
 The query expression is extremely simple, and most of the complexity lies in
 the upcoming sections about patterns.
@@ -461,13 +461,13 @@ Pattern
 -------
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/pattern.svg
+    :file: ../../lkql/build/railroad-diagrams/pattern.svg
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/chained_pattern.svg
+    :file: ../../lkql/build/railroad-diagrams/chained_pattern.svg
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/binding_pattern.svg
+    :file: ../../lkql/build/railroad-diagrams/binding_pattern.svg
 
 Patterns are by far the most complex part of the tree query language subset,
 but at its core, the concept of a pattern is very simple:
@@ -510,7 +510,7 @@ Simple value patterns
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/value_pattern.svg
+    :file: ../../lkql/build/railroad-diagrams/value_pattern.svg
 
 A value pattern is the simplest atom for node patterns.
 
@@ -533,7 +533,7 @@ Nested sub patterns
 ^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/node_pattern_detail.svg
+    :file: ../../lkql/build/railroad-diagrams/pattern_arg.svg
 
 Inside the optional parentheses of value patterns, the user can add
 sub-patterns that will help refine the query. Those patterns can be of three
@@ -654,13 +654,13 @@ Selector declaration
 --------------------
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/selector_decl.svg
+    :file: ../../lkql/build/railroad-diagrams/selector_decl.svg
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/selector_arm.svg
+    :file: ../../lkql/build/railroad-diagrams/selector_arm.svg
 
 .. raw:: html
-    :file: ../../lkql/build/doc/svg/selector_expr.svg
+    :file: ../../lkql/build/railroad-diagrams/selector_expr.svg
 
 Selectors are a special form of functions that return a lazy stream of node
 values. They're at the basis of the query DSL of LKQL, allowing the easy
