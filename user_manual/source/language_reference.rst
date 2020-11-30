@@ -139,13 +139,28 @@ Field access
 
 .. lkql_doc_class:: DotAccess
 
-A field access returns the contents of the syntax field ``type_expr``.
-.. code-block:: lkql object_decl.type_expr
+A field access returns the contents of a field. In the following example, we
+get the content of the  ``type_expr`` syntax field on a node of type
+``ObjectDecl``.
+
+.. code-block:: lkql
+
+    object_decl.type_expr
 
 .. note::
 
     Ultimately, this construction will be extended to allow access to struct
     fields, but structs are not yet supported.
+
+A regular field access on a nullable variable is illegal, which is why field
+access has a variant, which is called a "safe access":
+
+.. code-block:: lkql
+
+    object_decl?.type_expr
+
+The safe access will return null if the left hand side is null. This allows
+users to chain accesses without having to checks for nulls at every step.
 
 For a
 reference of the existing fields for syntax nodes for Ada, look at the
@@ -158,6 +173,7 @@ Property call
 ^^^^^^^^^^^^^
 
 .. lkql_doc_class:: DotCall
+.. lkql_doc_class:: SafeCall
 
 Properties are methods on syntax nodes, returning results of high level
 queries, possibly answering semantic questions about the syntax tree. For a
@@ -171,6 +187,27 @@ they're callable without the prefix in LKQL.
 
     object_decl.is_static_decl()
 
+Just as for field accesses, property calls have their "safe property calls"
+variant that can be used to call a property on a nullable object, and return
+null if the object is null.
+
+.. code-block:: lkql
+
+    object_decl?.is_static_decl()
+
+Unwrap expression
+^^^^^^^^^^^^^^^^^
+
+.. lkql_doc_class:: Unwrap
+
+When you have a nullable object and you want to make it non nullable, you can
+use the unwrap expression. This is useful after a chain of safe accesses/calls,
+for example.
+
+.. code-block:: lkql
+    object_decl?.type_expr?.designated_type_decl!!
+
+Unwrap will raise an error if the value is null.
 
 Function call
 ^^^^^^^^^^^^^
@@ -197,7 +234,7 @@ Parameters can be passed via positional or named associations.
 Indexing expression
 ^^^^^^^^^^^^^^^^^^^
 
-.. lkql_doc_class:: DotCall
+.. lkql_doc_class:: Indexing
 
 Indexing expressions allow the user to access elements of a list, array, or
 string.
@@ -267,6 +304,7 @@ List comprehension
 ^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ListComprehension
+.. lkql_doc_class:: ListCompAssoc
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/listcomp.svg
@@ -314,6 +352,7 @@ Match expression
 ^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Match
+.. lkql_doc_class:: MatchArm
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/match.svg
@@ -343,6 +382,7 @@ Literals and Operators
 .. lkql_doc_class:: Literal
 
 .. lkql_doc_class:: ArithBinOp
+.. lkql_doc_class:: NotNode
 
 LKQL has literals for booleans, integers, strings, and null values:
 
@@ -367,7 +407,7 @@ LKQL has a few built-in operators available:
 
 .. code-block:: lkql
 
-    true and false or (a = b)
+    true and false or (a = b) and (not c)
 
 - String concatenation
 
@@ -451,6 +491,8 @@ Query expression
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/query.svg
 
+.. lkql_doc_class:: Query
+
 The query expression is extremely simple, and most of the complexity lies in
 the upcoming sections about patterns.
 
@@ -459,6 +501,9 @@ applying the pattern on every node. It yields all matching nodes.
 
 Pattern
 -------
+
+.. lkql_doc_class:: UnfilteredPattern
+.. lkql_doc_class:: ValuePattern
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/pattern.svg
@@ -532,6 +577,9 @@ parentheses:
 Nested sub patterns
 ^^^^^^^^^^^^^^^^^^^
 
+.. lkql_doc_class:: NodePatternDetail
+.. lkql_doc_class:: DetailValue
+
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/pattern_arg.svg
 
@@ -582,6 +630,9 @@ this is denoted by the parentheses after the property name.
 Chained sub patterns
 ^^^^^^^^^^^^^^^^^^^^
 
+.. lkql_doc_class:: ChainedPatternLink
+.. lkql_doc_class:: SelectorCall
+
 Chained sub patterns are roughly similar to nested sub patterns, and come in
 similar flavours. The big difference between the two kind of patterns, is which
 nodes are yielded when the pattern is used in a query. Chained patterns will
@@ -631,6 +682,9 @@ by the parentheses after the property name.
 Filtered patterns and binding patterns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. lkql_doc_class:: FilteredPattern
+.. lkql_doc_class:: BindingPattern
+
 While you can express a lot of things via the regular pattern syntax mentioned
 above, sometimes it is necessary to be able to express an arbitrary boolean
 condition in patterns. This is done via the `when` clause.
@@ -652,6 +706,11 @@ This is done via binding patterns:
 
 Selector declaration
 --------------------
+
+.. lkql_doc_class:: SelectorDecl
+.. lkql_doc_class:: SelectorExpr
+.. lkql_doc_class:: SelectorExprMode
+.. lkql_doc_class:: SelectorArm
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/selector_decl.svg
@@ -695,6 +754,10 @@ In the branch of a selector, you have three choices:
 
 * You can **return but not recurse**: This is the default action (requires no
   keyword), and will yield the node(s), but not recurse on them.
+
+.. code-block:: lkql
+
+    selector 
 
 Built-in selectors
 ^^^^^^^^^^^^^^^^^^
