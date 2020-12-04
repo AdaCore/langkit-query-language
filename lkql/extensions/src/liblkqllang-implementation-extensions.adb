@@ -4,6 +4,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 
+with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 
@@ -101,7 +102,19 @@ package body Liblkqllang.Implementation.Extensions is
 
    function LKQL_Node_P_Interp_Eval (Node : Bare_LKQL_Node) return Symbol_Type
    is
+      Public_Unit : Analysis.Analysis_Unit
+        := Public_Converters.Wrap_Unit(Node.Unit);
    begin
+      if Node.Unit.Diagnostics.Length > 0 then
+         for Diag of Node.Unit.Diagnostics loop
+            Langkit_Support.Diagnostics.Output.Print_Diagnostic
+              (Diag,
+               Public_Unit,
+               Simple_Name (Public_Unit.Get_Filename));
+         end loop;
+         return null;
+      end if;
+
       return Find
            (Node.Unit.Context.Symbols,
             To_Text
