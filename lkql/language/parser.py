@@ -907,7 +907,7 @@ class ChainedPatternLink(LKQLNode):
     Element of a chained pattern of the form:
         (selector|field|property) pattern
     """
-    pattern = AbstractField(type=UnfilteredPattern)
+    pattern = AbstractField(type=BasePattern)
 
 
 class SelectorLink(ChainedPatternLink):
@@ -916,7 +916,7 @@ class SelectorLink(ChainedPatternLink):
         quantifier selector_name pattern
     """
     selector = Field(type=SelectorCall)
-    pattern = Field(type=UnfilteredPattern)
+    pattern = Field(type=BasePattern)
 
 
 class FieldLink(ChainedPatternLink):
@@ -925,7 +925,7 @@ class FieldLink(ChainedPatternLink):
        field pattern
     """
     field = Field(type=Identifier)
-    pattern = Field(type=UnfilteredPattern)
+    pattern = Field(type=BasePattern)
 
 
 class PropertyLink(ChainedPatternLink):
@@ -934,7 +934,7 @@ class PropertyLink(ChainedPatternLink):
        property(args) pattern
     """
     property = Field(type=FunCall)
-    pattern = Field(type=UnfilteredPattern)
+    pattern = Field(type=BasePattern)
 
 
 class ChainedNodePattern(ValuePattern):
@@ -942,7 +942,7 @@ class ChainedNodePattern(ValuePattern):
     Node pattern of the form:
         Kind1(details...) selector1 Kind2(details...) selector2 ... KindN
     """
-    first_pattern = Field(type=UnfilteredPattern)
+    first_pattern = Field(type=BasePattern)
     chain = Field(type=ChainedPatternLink.list)
 
 
@@ -1001,20 +1001,21 @@ lkql_grammar.add_rules(
     ),
 
     pattern=Or(
-        FilteredPattern(G.chained_pattern, "when", G.expr),
-        G.chained_pattern
-    ),
-
-    chained_pattern=Or(
         ChainedNodePattern(
-            G.binding_pattern,
+            G.filtered_pattern,
             List(Or(
-                SelectorLink(G.selector_call, "is", G.binding_pattern),
-                FieldLink(".", G.id, "=", G.binding_pattern),
-                PropertyLink(".", G.fun_call, "is", G.binding_pattern)
+                SelectorLink(G.selector_call, "is", G.filtered_pattern),
+                FieldLink(".", G.id, "=", G.filtered_pattern),
+                PropertyLink(".", G.fun_call, "is", G.filtered_pattern)
             ))
         ),
+        G.filtered_pattern
+    ),
+
+    filtered_pattern=Or(
+        FilteredPattern(G.binding_pattern, "when", G.expr),
         G.binding_pattern
+
     ),
 
     binding_pattern=Or(

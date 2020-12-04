@@ -8,16 +8,11 @@ private package LKQL.Patterns is
    type Match_Result is tagged record
       Matched_Value  : Primitive_Option;
       --  True if the matching attempt succeeded
-      Bindings : Environment_Map := String_Value_Maps.Empty_Map;
-      --  If the pattern contains a binding name and the match is successful,
-      --  the matched value will be stored in this environment, associated with
-      --  the binding name.
    end record;
    --  Represents that result of a matching attempt
 
    function Make_Match_Success
-     (Matched_Value : Primitive;
-      Bindings      : Environment_Map := String_Value_Maps.Empty_Map)
+     (Matched_Value : Primitive)
       return Match_Result;
    --  Create a Match_Result value representing a successful matching attempt
    --  with the given binding(s).
@@ -41,8 +36,6 @@ private package LKQL.Patterns is
       --  If the match was successful, stores the matched value
       Index    :  Match_Index := Match_Index'First;
       --  Index of the first matched pattern
-      Bindings : Environment_Map := String_Value_Maps.Empty_Map;
-      --  Bindings from the pattern, if any.
    end record;
    --  Represents the result of a matching attempt against a sequence of
    --  patterns.

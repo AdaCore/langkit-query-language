@@ -9,7 +9,6 @@ with Rules_Factory; use Rules_Factory;
 with Rule_Commands; use Rule_Commands;
 
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-with LKQL.AST_Nodes;
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body Checker_App is

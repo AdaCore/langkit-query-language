@@ -120,14 +120,9 @@ package body LKQL.Patterns.Nodes is
             return Match_Failure;
          end if;
 
-         if not Current_Match.Bindings.Is_Empty then
-            for C in Current_Match.Bindings.Iterate loop
-               Bindings.Insert (Key (C), Element (C));
-            end loop;
-         end if;
       end loop;
 
-      return Make_Match_Success (To_Primitive (Node), Bindings);
+      return Make_Match_Success (To_Primitive (Node));
    end Match_Pattern_Details;
 
    --------------------------
@@ -200,7 +195,6 @@ package body LKQL.Patterns.Nodes is
                                     return Match_Result
    is
       S_List       : Selector_List;
-      Bindings     : Environment_Map;
       Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Selector.F_Call.P_Binding_Name);
    begin
@@ -211,10 +205,10 @@ package body LKQL.Patterns.Nodes is
       end if;
 
       if Length (Binding_Name) /= 0 then
-         Bindings.Include (Binding_Name, To_Primitive (S_List));
+         Ctx.Add_Binding (To_Text (Binding_Name), To_Primitive (S_List));
       end if;
 
-      return Make_Match_Success (To_Primitive (Node), Bindings);
+      return Make_Match_Success (To_Primitive (Node));
    end Match_Pattern_Selector;
 
    -------------------

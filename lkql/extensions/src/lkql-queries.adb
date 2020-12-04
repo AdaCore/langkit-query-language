@@ -31,6 +31,7 @@ package body LKQL.Queries is
          new AST_Node_Iterator'Class'
           (AST_Node_Iterator'Class
              (Make_Child_Iterator (Ctx.AST_Roots.all)));
+
       Predicate : constant AST_Node_Predicate_Access :=
         AST_Node_Predicate_Access (Make_Query_Predicate (Ctx, Pattern));
    begin
@@ -121,10 +122,10 @@ package body LKQL.Queries is
 
          -- Check if the predicate matches the inner iterator's value
          Predicate_Result :=
-           (if Iter.Predicate.Is_Null then True
-            else Bool_Val (Eval (Iter.Ctx, Iter.Predicate,
-              Local_Bindings => Match.Bindings,
-              Expected_Kind  => Kind_Bool)));
+           (if Iter.Predicate.Is_Null
+            then True
+            else Bool_Val
+              (Eval (Iter.Ctx, Iter.Predicate, Expected_Kind  => Kind_Bool)));
 
          --  If it matches, return
          if Predicate_Result then

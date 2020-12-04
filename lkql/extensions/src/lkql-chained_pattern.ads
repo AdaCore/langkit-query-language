@@ -77,21 +77,17 @@ private
 
    procedure Eval_Chain_From (Iter        : in out Chained_Pattern_Iterator;
                               Root        : AST_Node_Rc;
-                              Current_Env : Environment_Map;
                               Link_Nb     : Positive);
 
    procedure Eval_Chain_From_Link
      (Iter        : in out Chained_Pattern_Iterator;
       Root        : AST_Node_Rc;
-      Current_Env : Environment_Map;
       Link_Nb     : Positive)
      with Pre => Link_Nb <= Iter.Pattern.F_Chain.Children_Count;
 
    function Eval_Link (Ctx             : Eval_Context;
                        Root            : AST_Node_Rc;
-                       Link            : L.Chained_Pattern_Link;
-                       Related_Pattern : L.Unfiltered_Pattern;
-                       Bindings        : in out Environment_Map)
+                       Link            : L.Chained_Pattern_Link)
                        return AST_Node_Rc_Array;
    --  Return the result of a link's evaluation.
    --  If the link introduces new bindings, they will be added to 'Bindings'.
@@ -100,9 +96,7 @@ private
 
    function Eval_Selector_Link (Ctx             : Eval_Context;
                                 Root            : AST_Node_Rc;
-                                Selector        : L.Selector_Link;
-                                Related_Pattern : L.Unfiltered_Pattern;
-                                Bindings        : in out Environment_Map)
+                                Selector        : L.Selector_Link)
                                 return AST_Node_Rc_Array;
 
    function Eval_Field_Link (Ctx   : Eval_Context;

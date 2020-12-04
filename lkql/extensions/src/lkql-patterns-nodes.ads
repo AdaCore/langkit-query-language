@@ -11,7 +11,7 @@ package LKQL.Patterns.Nodes is
    --  Return a node array that only contains the nodes from 'Nodes' that match
    --  'Pattern'.
 
-   function Match_Node_pattern (Ctx     : Eval_Context;
+   function Match_Node_Pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
                                 Node    : AST_Node_Rc) return Match_Result;
    --  Match the given node against a node pattern
