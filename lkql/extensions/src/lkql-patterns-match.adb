@@ -24,7 +24,7 @@ package body LKQL.Patterns.Match is
 
          if Current_Result.Is_Success then
             return Match_Array_Result'
-              (Current_Result.Matched_Value, I, Current_Result.Bindings);
+              (Current_Result.Matched_Value, I);
          end if;
       end loop;
 
@@ -61,8 +61,7 @@ package body LKQL.Patterns.Match is
          return Match_Failure;
       end if;
 
-      Predicate_Result := Eval (Ctx, Pattern.F_Predicate, Kind_Bool,
-                                Local_Bindings => Result.Bindings);
+      Predicate_Result := Eval (Ctx, Pattern.F_Predicate, Kind_Bool);
 
       if not Bool_Val (Predicate_Result) then
          return Match_Failure;
@@ -122,33 +121,24 @@ package body LKQL.Patterns.Match is
    -------------------
 
    function Match_Binding (Ctx     : Eval_Context;
-                        Pattern : L.Binding_Pattern;
-                        Value   : Primitive) return Match_Result
+                           Pattern : L.Binding_Pattern;
+                           Value   : Primitive) return Match_Result
    is
       Bindings     : Environment_Map;
       Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.F_Binding.Text);
 
       Binding_Match : Match_Result;
-      Local_Ctx     : Eval_Context;
    begin
-      Bindings.Insert (Binding_Name, Value);
-      Binding_Match := Make_Match_Success (Value, Bindings);
+      Ctx.Add_Binding (To_Text (Binding_Name), Value);
+      Binding_Match := Make_Match_Success (Value);
 
-      Local_Ctx := Ctx.Create_New_Frame (Binding_Match.Bindings);
-
-      if Match_Value (Local_Ctx, Pattern.F_Value_Pattern, Value).Is_Success
+      if Match_Value (Ctx, Pattern.F_Value_Pattern, Value).Is_Success
       then
-         Local_Ctx.Release_Current_Frame;
          return Binding_Match;
       else
          return Match_Failure;
       end if;
-
-   exception
-      when others =>
-         Local_Ctx.Release_Current_Frame;
-         raise;
    end Match_Binding;
 
 end LKQL.Patterns.Match;

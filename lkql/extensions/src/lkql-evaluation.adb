@@ -645,19 +645,27 @@ package body LKQL.Evaluation is
       Result        : Primitive;
       Local_Context : Eval_Context;
       Matched_Value : constant Primitive := Eval (Ctx, Node.F_Matched_Val);
-      Match_Data    : constant Match_Array_Result :=
-        Match_Pattern_Array (Ctx, Node.P_Patterns, Matched_Value);
+
    begin
-      if Match_Data.Index = Match_Index'First then
-         return Make_Unit_Primitive;
-      end if;
 
-      Local_Context := Ctx.Create_New_Frame (Match_Data.Bindings);
-      Local_Context.Add_Binding ("it", Extract (Match_Data.Matched_Value));
-      Result := Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));
-      Local_Context.Release_Current_Frame;
+      Local_Context := Ctx.Create_New_Frame;
 
-      return Result;
+      declare
+         Match_Data    : constant Match_Array_Result :=
+           Match_Pattern_Array (Ctx, Node.P_Patterns, Matched_Value);
+      begin
+
+         if Match_Data.Index = Match_Index'First then
+            Local_Context.Release_Current_Frame;
+            return Make_Unit_Primitive;
+         end if;
+
+         Local_Context.Add_Binding ("it", Extract (Match_Data.Matched_Value));
+         Result := Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));
+         Local_Context.Release_Current_Frame;
+
+         return Result;
+      end;
    end Eval_Match;
 
    -----------------

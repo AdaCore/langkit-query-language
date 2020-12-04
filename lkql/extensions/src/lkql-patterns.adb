@@ -19,10 +19,9 @@ package body LKQL.Patterns is
    ------------------------
 
    function Make_Match_Success
-     (Matched_Value : Primitive;
-      Bindings      : Environment_Map := String_Value_Maps.Empty_Map)
+     (Matched_Value : Primitive)
       return Match_Result
    is
-      (Match_Result'(To_Option (Matched_Value), Bindings));
+      (Match_Result'(Matched_Value => To_Option (Matched_Value)));
 
 end LKQL.Patterns;

@@ -1,72 +1,72 @@
 Query
 |from_expr: <null>
 |pattern:
-|  FilteredPattern
-|  |pattern:
-|  |  ChainedNodePattern
-|  |  |first_pattern:
-|  |  |  BindingPattern
-|  |  |  |binding:
-|  |  |  |  Identifier: k
-|  |  |  |value_pattern:
+|  ChainedNodePattern
+|  |first_pattern:
+|  |  BindingPattern
+|  |  |binding:
+|  |  |  Identifier: k
+|  |  |value_pattern:
+|  |  |  NodeKindPattern
+|  |  |  |kind_name:
+|  |  |  |  Identifier: KindOne
+|  |chain:
+|  |  ChainedPatternLinkList
+|  |  |  PropertyLink
+|  |  |  |property:
+|  |  |  |  FunCall
+|  |  |  |  |name:
+|  |  |  |  |  Identifier: property
+|  |  |  |  |arguments:
+|  |  |  |  |  ArgList: <empty list>
+|  |  |  |pattern:
 |  |  |  |  NodeKindPattern
 |  |  |  |  |kind_name:
-|  |  |  |  |  Identifier: KindOne
-|  |  |chain:
-|  |  |  ChainedPatternLinkList
-|  |  |  |  PropertyLink
-|  |  |  |  |property:
-|  |  |  |  |  FunCall
-|  |  |  |  |  |name:
-|  |  |  |  |  |  Identifier: property
-|  |  |  |  |  |arguments:
-|  |  |  |  |  |  ArgList: <empty list>
-|  |  |  |  |pattern:
+|  |  |  |  |  Identifier: KindTwo
+|  |  |  SelectorLink
+|  |  |  |selector:
+|  |  |  |  SelectorCall
+|  |  |  |  |quantifier:
+|  |  |  |  |  Identifier: all
+|  |  |  |  |binding: <null>
+|  |  |  |  |selector_identifier:
+|  |  |  |  |  Identifier: sel
+|  |  |  |  |args:
+|  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |pattern:
+|  |  |  |  BindingPattern
+|  |  |  |  |binding:
+|  |  |  |  |  Identifier: l
+|  |  |  |  |value_pattern:
 |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |kind_name:
-|  |  |  |  |  |  Identifier: KindTwo
-|  |  |  |  SelectorLink
-|  |  |  |  |selector:
-|  |  |  |  |  SelectorCall
-|  |  |  |  |  |quantifier:
-|  |  |  |  |  |  Identifier: all
-|  |  |  |  |  |binding: <null>
-|  |  |  |  |  |selector_identifier:
-|  |  |  |  |  |  Identifier: sel
-|  |  |  |  |  |args:
-|  |  |  |  |  |  NamedArgList: <empty list>
-|  |  |  |  |pattern:
-|  |  |  |  |  BindingPattern
-|  |  |  |  |  |binding:
-|  |  |  |  |  |  Identifier: l
-|  |  |  |  |  |value_pattern:
-|  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |kind_name:
-|  |  |  |  |  |  |  Identifier: KindThree
-|  |  |  |  FieldLink
-|  |  |  |  |field:
-|  |  |  |  |  Identifier: field
+|  |  |  |  |  |  Identifier: KindThree
+|  |  |  FieldLink
+|  |  |  |field:
+|  |  |  |  Identifier: field
+|  |  |  |pattern:
+|  |  |  |  FilteredPattern
 |  |  |  |  |pattern:
 |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |kind_name:
 |  |  |  |  |  |  Identifier: KindFour
-|  |predicate:
-|  |  BinOp
-|  |  |left:
-|  |  |  DotCall
-|  |  |  |receiver:
-|  |  |  |  Identifier: k
-|  |  |  |member:
-|  |  |  |  Identifier: prop
-|  |  |  |arguments:
-|  |  |  |  ArgList: <empty list>
-|  |  |op:
-|  |  |  OpAnd
-|  |  |right:
-|  |  |  DotCall
-|  |  |  |receiver:
-|  |  |  |  Identifier: l
-|  |  |  |member:
-|  |  |  |  Identifier: prop
-|  |  |  |arguments:
-|  |  |  |  ArgList: <empty list>
+|  |  |  |  |predicate:
+|  |  |  |  |  BinOp
+|  |  |  |  |  |left:
+|  |  |  |  |  |  DotCall
+|  |  |  |  |  |  |receiver:
+|  |  |  |  |  |  |  Identifier: k
+|  |  |  |  |  |  |member:
+|  |  |  |  |  |  |  Identifier: prop
+|  |  |  |  |  |  |arguments:
+|  |  |  |  |  |  |  ArgList: <empty list>
+|  |  |  |  |  |op:
+|  |  |  |  |  |  OpAnd
+|  |  |  |  |  |right:
+|  |  |  |  |  |  DotCall
+|  |  |  |  |  |  |receiver:
+|  |  |  |  |  |  |  Identifier: l
+|  |  |  |  |  |  |member:
+|  |  |  |  |  |  |  Identifier: prop
+|  |  |  |  |  |  |arguments:
+|  |  |  |  |  |  |  ArgList: <empty list>

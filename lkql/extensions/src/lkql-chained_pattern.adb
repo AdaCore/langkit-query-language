@@ -90,14 +90,14 @@ package body LKQL.Chained_Pattern is
                            Root : AST_Node_Rc)
    is
       Match : constant Match_Result :=
-        Match_Unfiltered
+        Match_Pattern
           (Iter.Ctx, Iter.Pattern.F_First_Pattern, To_Primitive (Root));
    begin
       if not Match.Is_Success then
          return;
       end if;
 
-      Iter.Eval_Chain_From (Root, Match.Bindings, Link_Nb => 1);
+      Iter.Eval_Chain_From (Root, Link_Nb => 1);
    end Eval_Element;
 
    ---------------------
@@ -106,7 +106,6 @@ package body LKQL.Chained_Pattern is
 
    procedure Eval_Chain_From (Iter        : in out Chained_Pattern_Iterator;
                               Root        : AST_Node_Rc;
-                              Current_Env : Environment_Map;
                               Link_Nb     : Positive)
    is
    begin
@@ -114,10 +113,10 @@ package body LKQL.Chained_Pattern is
         not (Iter.Yielded_Elements.Contains (Root))
       then
          Iter.Next_Values.Append
-           (Make_Match_Success (To_Primitive (Root), Current_Env));
+           (Make_Match_Success (To_Primitive (Root)));
          Iter.Yielded_Elements.Insert (Root);
       elsif Link_Nb <= Iter.Pattern.F_Chain.Children_Count then
-         Iter.Eval_Chain_From_Link (Root, Current_Env, Link_Nb);
+         Iter.Eval_Chain_From_Link (Root, Link_Nb);
       end if;
    end Eval_Chain_From;
 
@@ -128,17 +127,14 @@ package body LKQL.Chained_Pattern is
    procedure Eval_Chain_From_Link
      (Iter        : in out Chained_Pattern_Iterator;
       Root        : AST_Node_Rc;
-      Current_Env : Environment_Map;
       Link_Nb     : Positive)
    is
-      Env              : Environment_Map := Current_Env;
       Link             : constant L.Chained_Pattern_Link :=
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
-      Pattern          : constant L.Unfiltered_Pattern := Link.F_Pattern;
       Nodes            : constant AST_Node_Rc_Array :=
-        Eval_Link (Iter.Ctx, Root, Link, Pattern, Env);
+        Eval_Link (Iter.Ctx, Root, Link);
       Pattern_Binding  : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Pattern.P_Binding_Name);
+        To_Unbounded_Text (Link.F_Pattern.P_Binding_Name);
    begin
       if Nodes'Length = 0 then
          return;
@@ -146,10 +142,10 @@ package body LKQL.Chained_Pattern is
 
       for E of Nodes loop
          if Length (Pattern_Binding) /= 0 then
-            Env.Include (Pattern_Binding, To_Primitive (E));
+            Iter.Ctx.Add_Binding (To_Text (Pattern_Binding), To_Primitive (E));
          end if;
 
-         Eval_Chain_From (Iter, E, Env, Link_Nb + 1);
+         Eval_Chain_From (Iter, E, Link_Nb + 1);
       end loop;
    end Eval_Chain_From_Link;
 
@@ -159,23 +155,22 @@ package body LKQL.Chained_Pattern is
 
    function Eval_Link (Ctx             : Eval_Context;
                        Root            : AST_Node_Rc;
-                       Link            : L.Chained_Pattern_Link;
-                       Related_Pattern : L.Unfiltered_Pattern;
-                       Bindings        : in out Environment_Map)
+                       Link            : L.Chained_Pattern_Link)
                        return AST_Node_Rc_Array
    is
+      Pattern : L.Base_Pattern renames Link.F_Pattern;
    begin
       case Link.Kind is
          when LCO.LKQL_Selector_Link =>
             return Eval_Selector_Link
-              (Ctx, Root, Link.As_Selector_Link, Related_Pattern, Bindings);
+              (Ctx, Root, Link.As_Selector_Link);
          when LCO.LKQL_Field_Link =>
             return Filter_Node_Array
-              (Ctx, Related_Pattern.As_Base_Pattern,
+              (Ctx, Pattern,
                Eval_Field_Link (Ctx, Root, Link.As_Field_Link));
          when LCO.LKQL_Property_Link =>
             return Filter_Node_Array
-              (Ctx, Related_Pattern.As_Base_Pattern,
+              (Ctx, Pattern,
                Eval_Property_Link (Ctx, Root, Link.As_Property_Link));
          when others =>
             raise Assertion_Error with
@@ -189,9 +184,7 @@ package body LKQL.Chained_Pattern is
 
    function Eval_Selector_Link (Ctx             : Eval_Context;
                                 Root            : AST_Node_Rc;
-                                Selector        : L.Selector_Link;
-                                Related_Pattern : L.Unfiltered_Pattern;
-                                Bindings        : in out Environment_Map)
+                                Selector        : L.Selector_Link)
                                 return AST_Node_Rc_Array
    is
       S_List       : Selector_List;
@@ -201,13 +194,14 @@ package body LKQL.Chained_Pattern is
       Empty_Array  : AST_Node_Rc_Array (1 .. 0);
    begin
       if not Eval_Selector
-        (Ctx, Root, Call, Related_Pattern.As_Base_Pattern, S_List)
+        (Ctx, Root, Call, Selector.F_Pattern, S_List)
       then
          return Empty_Array;
       end if;
 
       if Length (Binding_Name) /= 0 then
-         Bindings.Insert (Binding_Name, To_Primitive (S_List.Clone));
+         Ctx.Add_Binding (To_Text (Binding_Name),
+                          To_Primitive (S_List.Clone));
       end if;
 
       return S_List.Nodes;
