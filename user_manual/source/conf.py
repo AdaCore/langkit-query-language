@@ -27,7 +27,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
 
 project = 'LKQL'
-copyright = '2020, Raphael Amiard'
+copyright = '2020, AdaCore'
 author = 'Raphael Amiard'
 
 
