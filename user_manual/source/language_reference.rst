@@ -367,7 +367,7 @@ the evaluation of the associated expression in the match arm.
    match nodes[0]
      | ObjectDecl(has_aliased=aliased @ _) => aliased
      | ParamSpec(has_aliased=aliased @ _) => aliased
-     | _ => False
+     | _ => false
 
 .. note:: For the moment, there is no check that the matcher is complete. A
    match expression where no arm has matched will raise an exception at
@@ -400,15 +400,15 @@ LKQL has a few built-in operators available:
 
 .. code-block:: lkql
 
-    a + 2 * 3 / 4 = b
-    a <= b
-    b >= c
+    val calc = a + 2 * 3 / 4 == b
+    val smaller_or_eq = a <= b
+    val greater_or_eq = b >= c
 
 - Basic relational operators on booleans
 
 .. code-block:: lkql
 
-    true and false or (a = b) and (not c)
+    true and false or (a == b) and (not c)
 
 - String concatenation
 
@@ -440,13 +440,8 @@ declarations that have the aliased qualifier.
 
 .. code-block:: lkql
 
-   ObjectDecl(has_aliased=true)
-
-And here is its use in a query:
-
-.. code-block:: lkql
-
-   select ObjectDecl(has_aliased=true)
+    select ObjectDecl(has_aliased=true)
+    #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Selector
 
 This will query every source file in the LKQL context, and filter according to
 the pattern.
@@ -535,7 +530,7 @@ illustrate:
 
 .. code-block:: lkql
 
-   select ObjectDecl(default_expr is IntLiteral)
+   select ObjectDecl(default_expr=IntLiteral)
 
 This query uses a nested pattern, it will return every ``ObjectDecl`` that has
 an ``IntLiteral`` node in the default expression.
@@ -569,11 +564,7 @@ will match everything, or a node name:
    select BasicDecl # Will select every basic declaration
 
 In its more complex form, it can have sub-patterns in an optional part between
-parentheses:
-
-.. code-block:: lkql
-
-   select BasicDecl(...)
+parentheses, which brings us to the next section.
 
 Nested sub patterns
 ^^^^^^^^^^^^^^^^^^^
@@ -615,7 +606,7 @@ construct in the introduction, and it's one of the simplest kind of patterns.
 
 .. code-block:: lkql
 
-   select ObjectDecl(default_val is IntLiteral)
+   select ObjectDecl(default_val=IntLiteral)
 
 Property call predicate
 """""""""""""""""""""""
@@ -703,7 +694,7 @@ This is done via binding patterns:
 .. code-block:: lkql
 
    val a = select BasicDecl
-   select b @ BaseId when b.referenced_decl() = a
+   select b @ BaseId when b.referenced_decl() == a
 
 Selector declaration
 --------------------
@@ -712,6 +703,7 @@ Selector declaration
 .. lkql_doc_class:: SelectorExpr
 .. lkql_doc_class:: SelectorExprMode
 .. lkql_doc_class:: SelectorArm
+.. lkql_doc_class:: Unpack
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/selector_decl.svg
@@ -756,9 +748,15 @@ In the branch of a selector, you have three choices:
 * You can **return but not recurse**: This is the default action (requires no
   keyword), and will yield the node(s), but not recurse on them.
 
+In ``rec`` or in the regular return branch, you can use the unpack operator, or
+``*expr`` to "unpack" an expression, eg. return each of its values. Here is for
+example how the ``superTypes`` selector is expressed:
+
 .. code-block:: lkql
 
-    selector 
+    selector superTypes
+        | BaseTypeDecl      => rec *it.base_types()
+        | _                 => ()
 
 Built-in selectors
 ^^^^^^^^^^^^^^^^^^
