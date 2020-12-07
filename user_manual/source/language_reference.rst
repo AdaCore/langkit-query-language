@@ -205,6 +205,7 @@ use the unwrap expression. This is useful after a chain of safe accesses/calls,
 for example.
 
 .. code-block:: lkql
+
     object_decl?.type_expr?.designated_type_decl!!
 
 Unwrap will raise an error if the value is null.
