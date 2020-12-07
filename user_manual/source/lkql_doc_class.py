@@ -90,9 +90,45 @@ def process_lkql_classes_coverage(app, doctree, fromdocname):
         traceback.print_exception(type(e), e, e.__traceback__)
 
 
+def check_lkql_code(app, doctree, fromdocname):
+    """
+    Visit code blocks and check if they're valid LKQL code.
+    """
+
+    class MyVisitor(nodes.NodeVisitor):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.lkql_context = liblkqllang.AnalysisContext()
+            self.ipython = True
+
+        def visit_literal_block(self, node) -> None:
+            """
+            Visit code blocks and check if they're valid LKQL code.
+            """
+            text = node[0].astext()
+            unit = self.lkql_context.get_from_buffer('<buffer>', text)
+            if unit.diagnostics:
+                for diag in unit.diagnostics:
+                    doctree.reporter.warning(
+                        f"LKQL syntax error: {diag.message}",
+                        line=node.line + 1 + diag.sloc_range.start.line
+                    )
+
+        def unknown_visit(self, node) -> None:
+            """
+            Visit every other node type. Mandatory in docutils visitors
+            apparently.
+            """
+            pass
+
+    doctree.walk(MyVisitor(doctree))
+
+
 def setup(app):
     app.add_directive('lkql_doc_class', LKQLDocClassDirective)
     app.connect('doctree-resolved', process_lkql_classes_coverage)
+    app.connect('doctree-resolved', check_lkql_code)
 
     return {
         'version': '0.1',
