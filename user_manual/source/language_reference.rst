@@ -49,15 +49,15 @@ current data types:
 * Nodes: Coming from the queried language (in the common case, Ada), those are
   the only composite data types for the moment. They correspond to the syntax
   nodes of the source files being queried. They can be explored as part of the
-  general language subset, through :ref:`Field access`, or via the :ref:`Tree
-  query language subset`.
+  general language subset, through :ref:`Field access`_, or via the `Tree
+  query language subset`_.
 
 Declarations
 ------------
 
 Declarations in LKQL only belong at the top level. There is no support
-currently for nested declarations, except for
-:ref:`Value declarations<Value declaration>` in the :ref:`Block expression`.
+currently for nested declarations, except for `Value declarations <Value
+declaration>`_ in the `Block expression`_.
 
 Function declaration
 ^^^^^^^^^^^^^^^^^^^^
@@ -82,7 +82,7 @@ The syntax is simple, you only declare argument names and an expression after
 the ``=``.
 
 If you need to declare temporary named values in the body of your function, you
-can use a :ref:`Block expression`.
+can use a `Block expression`_.
 
 .. code-block:: lkql
 
@@ -219,7 +219,7 @@ Function call
     :file: ../../lkql/build/railroad-diagrams/fun_call.svg
 
 
-:ref:`Functions <Function declaration>` defined in LKQL can be called with the
+`Functions <Function declaration>`_ defined in LKQL can be called with the
 function call expression.
 
 .. code-block:: lkql
@@ -279,7 +279,7 @@ Is expression
 .. lkql_doc_class:: IsClause
 
 
-The "is" expression verifies if a node object matches a :ref:`Pattern`.
+The "is" expression verifies if a node object matches a `Pattern`_.
 
 .. code-block:: lkql
 
@@ -603,7 +603,7 @@ alter how the sub-pattern matches:
 * ``all`` will match only if all nodes returned by the selector match the condition
 * ``any`` will match as soon as at least one child matches the condition.
 
-Any of the :ref:`Built-in selectors` can be used, or even custom selectors.
+Any of the `Built-in selectors`_ can be used, or even custom selectors.
 
 Field predicate
 """""""""""""""
@@ -725,7 +725,7 @@ Selectors are a special form of functions that return a lazy stream of node
 values. They're at the basis of the query DSL of LKQL, allowing the easy
 expression of traversal blueprints.
 
-For example, by default, the :ref:`Query expression` explores the tree via the
+For example, by default, the `Query expression`_ explores the tree via the
 default ``children`` selector.
 
 You've already seen selectors used in previous sections, and, most of the time,
@@ -736,8 +736,8 @@ Defining a selector
 ^^^^^^^^^^^^^^^^^^^
 
 A selector is a recursive function. It has a single implicit `it` argument that
-represents the current node. A selector has an implicit top level :ref:`Match
-expression` matching on `it`.
+represents the current node. A selector has an implicit top level `Match
+expression`_ matching on `it`.
 
 .. note:: The principle of selectors is more general than nodes, but is for the
    moment only usable with an ``it`` argument that is of type node.
