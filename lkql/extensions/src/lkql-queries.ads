@@ -59,7 +59,6 @@ private
 
    type Chained_Pattern_Query_Iter is new AST_Node_Iterator with record
       Ctx       : Eval_Context;
-      Predicate : L.Expr;
       Iter      : Chained_Pattern_Iterator;
    end record;
 

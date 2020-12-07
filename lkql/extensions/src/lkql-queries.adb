@@ -52,7 +52,6 @@ package body LKQL.Queries is
    begin
       return Chained_Pattern_Query_Iter'
         (Ctx       => Ctx.Clone_Frame,
-         Predicate => Node.F_Pattern.P_Predicate_Part,
          Iter      => Chained);
    end Make_Chained_Pattern_Query_Iterator;
 
@@ -111,30 +110,14 @@ package body LKQL.Queries is
                              Result : out AST_Node_Rc) return Boolean
    is
       Match            : Match_Result;
-      Predicate_Result : Boolean;
    begin
-      --  Loop until we find a value that matches
-      loop
-         --  The inner iterator is empty: return false
-         if not Iter.Iter.Next (Match) then
-            return False;
-         end if;
+      --  The inner iterator is empty: return false
+      if not Iter.Iter.Next (Match) then
+         return False;
+      end if;
 
-         -- Check if the predicate matches the inner iterator's value
-         Predicate_Result :=
-           (if Iter.Predicate.Is_Null
-            then True
-            else Bool_Val
-              (Eval (Iter.Ctx, Iter.Predicate, Expected_Kind  => Kind_Bool)));
-
-         --  If it matches, return
-         if Predicate_Result then
-            Result := Node_Val (Match.Get_Matched_Value);
-            return True;
-         end if;
-
-         --  Else continue searching for a matching result
-      end loop;
+      Result := Node_Val (Match.Get_Matched_Value);
+      return True;
    end Next;
 
    -----------
@@ -144,7 +127,7 @@ package body LKQL.Queries is
    overriding function Clone (Iter : Chained_Pattern_Query_Iter)
                               return Chained_Pattern_Query_Iter
    is
-     (Iter.Ctx.Clone_Frame, Iter.Predicate, Iter.Iter.Clone);
+     (Iter.Ctx.Clone_Frame, Iter.Iter.Clone);
 
    -------------
    -- Release --
