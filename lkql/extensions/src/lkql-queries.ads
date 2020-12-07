@@ -11,18 +11,6 @@ private package LKQL.Queries is
    --  Returns an iterator over the AST nodes, yielding only the elements that
    --  belong to the result of the given query.
 
-   function Make_Query_Iterator (Ctx     : Eval_Context;
-                                 Pattern : L.Base_Pattern)
-                                 return AST_Node_Iterator'Class;
-   --  Returns an iterator over the AST nodes, yielding only the elements that
-   --  match the given pattern.
-
-private
-
-   function Make_Chained_Pattern_Query_Iterator
-     (Ctx : Eval_Context;
-      Node : L.Query) return AST_Node_Iterator'Class;
-
    ---------------------
    -- Query_Predicate --
    ---------------------

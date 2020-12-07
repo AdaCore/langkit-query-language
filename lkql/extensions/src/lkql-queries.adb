@@ -15,45 +15,32 @@ package body LKQL.Queries is
                                  Node : L.Query)
                                  return AST_Node_Iterator'Class
    is
-      (if Node.F_Pattern.P_Contains_Chained
-       then Make_Chained_Pattern_Query_Iterator (Ctx, Node)
-       else Make_Query_Iterator (Ctx, Node.F_Pattern));
-
-   -------------------------
-   -- Make_Query_Iterator --
-   -------------------------
-
-   function Make_Query_Iterator (Ctx     : Eval_Context;
-                                 Pattern : L.Base_Pattern)
-                                 return AST_Node_Iterator'Class
-   is
-      Iter      : constant AST_Node_Iterator_Access :=
-         new AST_Node_Iterator'Class'
-          (AST_Node_Iterator'Class
-             (Make_Child_Iterator (Ctx.AST_Roots.all)));
-
-      Predicate : constant AST_Node_Predicate_Access :=
-        AST_Node_Predicate_Access (Make_Query_Predicate (Ctx, Pattern));
    begin
-      return AST_Node_Iterators.Filter (Iter, Predicate);
+      if Node.F_Pattern.P_Contains_Chained then
+         declare
+            Chained : constant Chained_Pattern_Iterator :=
+              Make_Chained_Pattern_Iterator
+                (Ctx, Node.F_Pattern.P_Value_Part.As_Chained_Node_Pattern);
+         begin
+            return Chained_Pattern_Query_Iter'
+              (Ctx       => Ctx.Clone_Frame,
+               Iter      => Chained);
+         end;
+      else
+         declare
+            Iter      : constant AST_Node_Iterator_Access :=
+              new AST_Node_Iterator'Class'
+                (AST_Node_Iterator'Class
+                   (Make_Child_Iterator (Ctx.AST_Roots.all)));
+
+            Predicate : constant AST_Node_Predicate_Access :=
+              AST_Node_Predicate_Access
+                (Make_Query_Predicate (Ctx, Node.F_Pattern));
+         begin
+            return AST_Node_Iterators.Filter (Iter, Predicate);
+         end;
+      end if;
    end Make_Query_Iterator;
-
-   -----------------------------------------
-   -- Make_Chained_Pattern_Query_Iterator --
-   -----------------------------------------
-
-   function Make_Chained_Pattern_Query_Iterator
-     (Ctx  : Eval_Context;
-      Node : L.Query) return AST_Node_Iterator'Class
-   is
-      Chained : constant Chained_Pattern_Iterator :=
-        Make_Chained_Pattern_Iterator
-          (Ctx, Node.F_Pattern.P_Value_Part.As_Chained_Node_Pattern);
-   begin
-      return Chained_Pattern_Query_Iter'
-        (Ctx       => Ctx.Clone_Frame,
-         Iter      => Chained);
-   end Make_Chained_Pattern_Query_Iterator;
 
    --------------------------
    -- Make_Query_Predicate --
