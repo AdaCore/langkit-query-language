@@ -400,13 +400,6 @@ class BasePattern(LKQLNode):
         """
         return No(ValuePattern)
 
-    @langkit_property(return_type=T.Expr, public=True)
-    def predicate_part():
-        """
-        Return the filtering predicate associated with this pattern, if any.
-        """
-        return No(Expr)
-
     @langkit_property(return_type=T.Bool, public=True)
     def contains_chained():
         """
@@ -443,10 +436,6 @@ class FilteredPattern(BasePattern):
     @langkit_property()
     def value_part():
         return Self.pattern.value_part()
-
-    @langkit_property()
-    def predicate_part():
-        return Self.predicate
 
 
 @abstract
