@@ -62,9 +62,6 @@ class LKQLDocClassDirective(SphinxDirective):
     optional_arguments = 0
 
     def run(self):
-        targetid = 'lkqldocclass-%d' % self.env.new_serialno('lkqldocclass')
-        targetnode = nodes.target('', '', ids=[targetid])
-
         cls_name = self.arguments[0]
 
         if not hasattr(self.env, 'documented_classes'):
@@ -87,8 +84,6 @@ def process_lkql_classes_coverage(app, doctree, fromdocname):
     """
     try:
         for cls in lkql_classes:
-            if issubclass(cls, liblkqllang.LKQLNodeBaseList):
-                continue
             if not is_class_documented(cls):
                 print(f"Class not documented: {cls}")
     except Exception as e:
