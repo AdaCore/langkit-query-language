@@ -41,6 +41,8 @@ def is_class_documented(lkql_class):
     account (if all subclasses of a class are documented, then the class is
     documented).
     """
+    if issubclass(lkql_class, liblkqllang.LKQLNodeBaseList):
+        return True
     subclasses = lkql_cls_subclasses()[lkql_class]
     return (
         getattr(lkql_class, "documented", False)
