@@ -400,16 +400,6 @@ class BasePattern(LKQLNode):
         """
         return No(ValuePattern)
 
-    @langkit_property(return_type=T.Bool, public=True)
-    def contains_chained():
-        """
-        Return whether this pattern contains a value part
-        that is a chained pattern.
-        """
-        return If(Self.value_part.is_null,
-                  False,
-                  Self.value_part.is_a(ChainedNodePattern))
-
 
 @abstract
 class UnfilteredPattern(BasePattern):

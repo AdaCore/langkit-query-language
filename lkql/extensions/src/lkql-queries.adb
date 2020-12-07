@@ -16,7 +16,8 @@ package body LKQL.Queries is
                                  return AST_Node_Iterator'Class
    is
    begin
-      if Node.F_Pattern.P_Contains_Chained then
+      case Node.F_Pattern.Kind is
+      when LCO.LKQL_Chained_Node_Pattern_Range =>
          declare
             Chained : constant Chained_Pattern_Iterator :=
               Make_Chained_Pattern_Iterator
@@ -26,7 +27,7 @@ package body LKQL.Queries is
               (Ctx       => Ctx.Clone_Frame,
                Iter      => Chained);
          end;
-      else
+      when others =>
          declare
             Iter      : constant AST_Node_Iterator_Access :=
               new AST_Node_Iterator'Class'
@@ -39,7 +40,7 @@ package body LKQL.Queries is
          begin
             return AST_Node_Iterators.Filter (Iter, Predicate);
          end;
-      end if;
+      end case;
    end Make_Query_Iterator;
 
    --------------------------
