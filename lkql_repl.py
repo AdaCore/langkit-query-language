@@ -25,30 +25,6 @@ parser.add_argument(
 )
 
 
-class LKQLPygmentsLexer(RegexLexer):
-    """
-    Pygments lexer for LKQL
-    """
-    name = 'LKQL'
-    filenames = ['*.lkql']
-
-    tokens = {
-        'root': [
-            (words(('select', 'let', 'when', 'val', 'fun', 'selector',
-                    'match', 'rec', 'skip', 'is', 'in', 'true', 'false',
-                    'if', 'else', 'then', 'not', 'null'),
-                   prefix=r'\b', suffix=r'\b'),
-             token.Keyword),
-            (r"#(.?)+", token.Comment),
-            (r"\b(\-\>|\=\>|\<\=|\>\=|\=|\!\=|and|or|not|\+|\-|\*|\/|\&|"
-             r"\@|\||\>|\<)\b", token.Operator),
-            (r"\{|\}|\(|\)", token.Punctuation),
-            (r"\"[^\"]*\"", token.String),
-            (r'[0-9]+', token.Number),
-        ]
-    }
-
-
 class LKQLCompleter(Completer):
     """
     LKQL completer, based on p_interp_complete.
@@ -71,7 +47,7 @@ if __name__ == '__main__':
     args, _ = parser.parse_known_args()
     our_history = FileHistory(".example-history-file")
     session = PromptSession(
-        history=our_history, lexer=PygmentsLexer(LKQLPygmentsLexer),
+        history=our_history, lexer=PygmentsLexer(lkql.LKQLPygmentsLexer),
         completer=FuzzyCompleter(LKQLCompleter())
     )
 

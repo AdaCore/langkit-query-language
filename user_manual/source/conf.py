@@ -22,6 +22,7 @@ import sys
 from pygments.lexer import RegexLexer, words
 from pygments import token
 from sphinx.highlighting import lexers
+from liblkqllang import LKQLPygmentsLexer
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
@@ -29,35 +30,6 @@ sys.path.append(dir_path)
 project = 'LKQL'
 copyright = '2020, AdaCore'
 author = 'Raphael Amiard'
-
-
-class LKQLPygmentsLexer(RegexLexer):
-    """
-    Pygments lexer for LKQL
-    """
-    name = 'LKQL'
-    filenames = ['*.lkql']
-
-    tokens = {
-        'root': [
-            (words(('select', 'let', 'when', 'val', 'fun', 'selector',
-                    'match', 'rec', 'skip', 'is', 'in', 'true', 'false',
-                    'if', 'else', 'then', 'not', 'null'),
-                   prefix=r'\b', suffix=r'\b'),
-             token.Keyword),
-            (r"#(.?)+", token.Comment),
-            (r"(\-\>|=|\=\>|\<\=|\>\=|\=|\!\=|\+|\-|\*|\/|\&|"
-             r"\@|\||\>|\<)", token.Operator),
-            (r"\b(and|or|not)\b", token.Operator),
-            (r"\{|\}|\(|\)|\[|\]|;|\.|,", token.Punctuation),
-            (r"\"[^\"]*\"", token.String),
-            (r'[0-9]+', token.Number),
-            (r'_?[a-zA-Z][\w\']*', token.Name),
-            (r'_', token.Name),
-            (r'\n', token.Text),
-            (r'[^\S\n]+', token.Text),
-        ]
-    }
 
 lexers['lkql'] = LKQLPygmentsLexer()
 
