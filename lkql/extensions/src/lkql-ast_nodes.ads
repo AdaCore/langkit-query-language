@@ -171,6 +171,9 @@ package LKQL.AST_Nodes is
    type AST_Node_Rc_Array is array (Positive range <>) of AST_Node_Rc;
    --  Array of refcounted AST node pointers
 
+   Empty_Ast_Node_Rc_Array : constant AST_Node_Rc_Array (1 .. 0) :=
+     (others => <>);
+
    function Hash_Rc (Node : AST_Node_Rc) return Ada.Containers.Hash_Type is
      (Node.Get.Hash);
    --  Return the hash of the AST node referenced by a refcounted pointer
@@ -273,6 +276,9 @@ package LKQL.AST_Nodes is
 
    function Make_Child_Iterator
      (Nodes : AST_Node_Array) return Child_Iterator;
+
+   function Make_Child_Iterator
+     (Nodes : AST_Node_Vector) return Child_Iterator;
 
 private
 

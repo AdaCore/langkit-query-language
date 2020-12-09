@@ -37,9 +37,10 @@ private package LKQL.Chained_Pattern is
 
    overriding procedure Release (Iter : in out Chained_Pattern_Iterator);
 
-   function Make_Chained_Pattern_Iterator (Ctx     : Eval_Context;
-                                           Pattern : L.Chained_Node_Pattern)
-                                           return Chained_Pattern_Iterator;
+   function Make_Chained_Pattern_Iterator
+     (Ctx           : Eval_Context;
+      Root_Iterator : AST_Node_Iterator_Access;
+      Pattern       : L.Chained_Node_Pattern) return Chained_Pattern_Iterator;
    --  Return an iterator that yields every node that matches the given
    --  chained pattern.
 

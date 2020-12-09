@@ -1,0 +1,2 @@
+# Invalid: the element in the "from" clause is not a node
+print(from 2 select _)

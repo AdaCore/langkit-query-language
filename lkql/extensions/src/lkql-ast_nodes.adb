@@ -253,5 +253,18 @@ package body LKQL.AST_Nodes is
       return Result;
    end Make_Child_Iterator;
 
+   -------------------------
+   -- Make_Child_Iterator --
+   -------------------------
+
+   function Make_Child_Iterator
+     (Nodes : AST_Node_Vector) return Child_Iterator
+   is
+      Result       : Child_Iterator;
+   begin
+      Result.Roots := Nodes;
+      Initialize_Next_Elements (Result);
+      return Result;
+   end Make_Child_Iterator;
 
 end LKQL.AST_Nodes;

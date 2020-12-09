@@ -4,7 +4,8 @@ package LKQL.Errors is
 
    Stop_Evaluation_Error : exception;
    --  This type of exception is used to signal that the execution should not
-   --  be resumed.
+   --  be resumed. WARNING: THIS SHOULD NEVER BE RAISED MANUALLY but instead
+   --  be raised via ``Raise_And_Record_Error``.
 
    Recoverable_Error : exception;
    --  This type of exception is used to indicate that the evaluator should
