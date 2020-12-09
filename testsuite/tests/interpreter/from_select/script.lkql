@@ -1,0 +1,7 @@
+val a = select ObjectDecl
+
+#  from .. select where the from object is a val
+print(from a select Name)
+
+#  from .. select where the from object is a sub-expr
+print(from (select SubpBody) select Name)

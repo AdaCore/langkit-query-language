@@ -1,8 +1,14 @@
+with Ada.Text_IO; use Ada.Text_IO;
+
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Primitives;     use LKQL.Primitives;
 with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
-with Ada.Text_IO; use Ada.Text_IO;
+with LKQL.Error_Handling; use LKQL.Error_Handling;
+with LKQL.Errors;         use LKQL.Errors;
+
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body LKQL.Queries is
@@ -15,13 +21,86 @@ package body LKQL.Queries is
                                  Node : L.Query)
                                  return AST_Node_Iterator'Class
    is
+      -----------
+      -- Roots --
+      -----------
+
+      function Roots return AST_Node_Iterator_Access is
+      begin
+         if Node.F_From_Expr.Is_Null then
+
+            --  First case, there is no "from" in the query. In that case, the
+            --  implicit roots of the query are the roots of the LKQL eval
+            --  context.
+
+            return new AST_Node_Iterator'Class'
+              (AST_Node_Iterator'Class
+                 (Make_Child_Iterator (Ctx.AST_Roots.all)));
+         else
+
+            --  Second case, there is a "from" clause in the query.
+
+            declare
+               --  First, eval the expression.
+               Eval_From_Expr : Primitive := Eval (Ctx, Node.F_From_Expr);
+
+               Vec : AST_Node_Vector;
+            begin
+               case Eval_From_Expr.Get.Kind is
+
+                  --  If it's a single node, create an array with just this
+                  --  element.
+                  when Kind_Node =>
+                     Vec.Append (Eval_From_Expr.Get.Node_Val);
+
+                  --  If it's a list, it needs to be a list of nodes. Create a
+                  --  vector from it to create the iterator from.
+                  when Kind_List =>
+                     for El of Eval_From_Expr.Get.List_Val.Elements loop
+                        if El.Get.Kind /= Kind_Node then
+                           --  TODO: For the moment it's impossible to exert
+                           --  this check in queries, because only queries
+                           --  return lists (comprehensions return iterators
+                           --  and selectors selector lists). We need to unify
+                           --  the sequence types somehow, because having a
+                           --  list comprehension in a "from" appears
+                           --  potentially useful, and is not possible yet.
+                           Raise_And_Record_Error
+                             (Ctx,
+                              (Eval_Error,
+                               Node.F_From_Expr.As_LKQL_Node,
+                               To_Unbounded_Text
+                                 ("Wrong kind of element in list for "
+                                  & "`from clause`")));
+                        end if;
+                        Vec.Append (El.Get.Node_Val);
+                     end loop;
+
+                  --  If it's any other kind of node, then it's an error
+                  when others =>
+                     Raise_And_Record_Error
+                       (Ctx,
+                        (Eval_Error,
+                         Node.F_From_Expr.As_LKQL_Node,
+                         To_Unbounded_Text
+                           ("Wrong kind of element in `from clause`")));
+               end case;
+
+            return new AST_Node_Iterator'Class'
+              (AST_Node_Iterator'Class
+                 (Make_Child_Iterator (Vec)));
+            end;
+         end if;
+      end Roots;
    begin
       case Node.F_Pattern.Kind is
       when LCO.LKQL_Chained_Node_Pattern_Range =>
          declare
             Chained : constant Chained_Pattern_Iterator :=
               Make_Chained_Pattern_Iterator
-                (Ctx, Node.F_Pattern.P_Value_Part.As_Chained_Node_Pattern);
+                (Ctx,
+                 Roots,
+                 Node.F_Pattern.P_Value_Part.As_Chained_Node_Pattern);
          begin
             return Chained_Pattern_Query_Iter'
               (Ctx       => Ctx.Clone_Frame,
@@ -29,16 +108,11 @@ package body LKQL.Queries is
          end;
       when others =>
          declare
-            Iter      : constant AST_Node_Iterator_Access :=
-              new AST_Node_Iterator'Class'
-                (AST_Node_Iterator'Class
-                   (Make_Child_Iterator (Ctx.AST_Roots.all)));
-
             Predicate : constant AST_Node_Predicate_Access :=
               AST_Node_Predicate_Access
                 (Make_Query_Predicate (Ctx, Node.F_Pattern));
          begin
-            return AST_Node_Iterators.Filter (Iter, Predicate);
+            return AST_Node_Iterators.Filter (Roots, Predicate);
          end;
       end case;
    end Make_Query_Iterator;

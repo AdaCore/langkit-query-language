@@ -68,13 +68,11 @@ package body LKQL.Chained_Pattern is
    -- Make_Chained_Pattern_Iter --
    -------------------------------
 
-   function Make_Chained_Pattern_Iterator (Ctx     : Eval_Context;
-                                           Pattern : L.Chained_Node_Pattern)
-                                           return Chained_Pattern_Iterator
+   function Make_Chained_Pattern_Iterator
+     (Ctx           : Eval_Context;
+      Root_Iterator : AST_Node_Iterator_Access;
+      Pattern       : L.Chained_Node_Pattern) return Chained_Pattern_Iterator
    is
-      Root_Iterator : constant AST_Node_Iterator_Access :=
-        new AST_Node_Iterator'Class'
-          (AST_Node_Iterator'Class (Make_Child_Iterator (Ctx.AST_Roots.all)));
    begin
       return (Ctx                    => Ctx.Clone_Frame,
               Pattern                => Pattern,
