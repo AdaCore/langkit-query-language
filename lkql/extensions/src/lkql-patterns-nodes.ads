@@ -1,6 +1,7 @@
 with LKQL.AST_Nodes;              use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes;            use LKQL.Depth_Nodes;
 with LKQL.Selector_Lists;         use LKQL.Selector_Lists;
+with LKQL.Eval_Contexts;          use LKQL.Eval_Contexts;
 
 package LKQL.Patterns.Nodes is
 
@@ -59,8 +60,8 @@ package LKQL.Patterns.Nodes is
                                     Property : L.Node_Pattern_Property)
                                     return Match_Result
      with Pre => not Node.Get.Is_Null_Node;
-   --  Match the expected value specified in 'Property' against the value of the
-   --  property call described in 'Property' on 'Node'.
+   --  Match the expected value specified in 'Property' against the value of
+   --  the property call described in 'Property' on 'Node'.
 
    function Match_Pattern_Selector (Ctx      : Eval_Context;
                                     Node     : AST_Node_Rc;

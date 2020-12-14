@@ -5,7 +5,6 @@ with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Functions;      use LKQL.Functions;
 with LKQL.AST_Nodes;      use LKQL.AST_Nodes;
 with LKQL.Node_Data;
-with LKQL.Depth_Nodes;    use LKQL.Depth_Nodes;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
@@ -660,8 +659,12 @@ package body LKQL.Evaluation is
             return Make_Unit_Primitive;
          end if;
 
-         Local_Context.Add_Binding ("it", Extract (Match_Data.Matched_Value));
-         Result := Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));
+         Local_Context.Add_Binding
+           ("it", Extract (Match_Data.Matched_Value));
+
+         Result :=
+           Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));
+
          Local_Context.Release_Current_Frame;
 
          return Result;

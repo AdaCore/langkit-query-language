@@ -104,7 +104,7 @@ package body LKQL.Patterns.Match is
                  (Ctx, Pattern.As_LKQL_Node, Kind_Node, Value);
             end if;
 
-            return Match_Node_pattern
+            return Match_Node_Pattern
               (Ctx, Pattern.As_Node_Pattern, Node_Val (Value));
 
          when LCO.LKQL_Universal_Pattern =>
@@ -124,7 +124,6 @@ package body LKQL.Patterns.Match is
                            Pattern : L.Binding_Pattern;
                            Value   : Primitive) return Match_Result
    is
-      Bindings     : Environment_Map;
       Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.F_Binding.Text);
 
