@@ -13,4 +13,3 @@ package Liblkqllang.Implementation.Extensions is
      (Node : Bare_LKQL_Node) return Symbol_Type_Array_Access;
 
 end Liblkqllang.Implementation.Extensions;
-

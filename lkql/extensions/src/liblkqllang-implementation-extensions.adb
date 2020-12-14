@@ -1,6 +1,5 @@
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
-with Ada.Text_IO; use Ada.Text_IO;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 with GNATCOLL.Utils; use GNATCOLL.Utils;
@@ -74,6 +73,7 @@ package body Liblkqllang.Implementation.Extensions is
      (Node         : Bare_LKQL_Node;
       Project_File : Character_Type_Array_Access) return Boolean
    is
+      pragma Unreferenced (Node);
       Project : Project_Tree_Access;
       Env     : Project_Environment_Access;
 
@@ -103,8 +103,8 @@ package body Liblkqllang.Implementation.Extensions is
 
    function LKQL_Node_P_Interp_Eval (Node : Bare_LKQL_Node) return Symbol_Type
    is
-      Public_Unit : Analysis.Analysis_Unit
-        := Public_Converters.Wrap_Unit(Node.Unit);
+      Public_Unit : constant Analysis.Analysis_Unit
+        := Public_Converters.Wrap_Unit (Node.Unit);
    begin
       if Node.Unit.Diagnostics.Length > 0 then
          for Diag of Node.Unit.Diagnostics loop
@@ -123,7 +123,7 @@ package body Liblkqllang.Implementation.Extensions is
                    (Check_And_Eval
                         (LKQL_Ctx, Public_Converters.Wrap_Node (Node)))));
    exception
-      when E : LKQL.Errors.Stop_Evaluation_Error=>
+      when E : LKQL.Errors.Stop_Evaluation_Error =>
          return Find (Node.Unit.Context.Symbols,
                       To_Text ("<ERROR>: " & Exception_Message (E)));
    end LKQL_Node_P_Interp_Eval;
@@ -136,8 +136,9 @@ package body Liblkqllang.Implementation.Extensions is
      (Id : Ada_AST_Nodes.Node_Type_Id;
       In_Pattern : Boolean := False) return Unbounded_String_Array
    is
-      Props  : LALCO.Property_Reference_Array := Properties (Id);
-      Fields : LALCO.Syntax_Field_Reference_Array := Syntax_Fields (Id);
+      Props  : constant LALCO.Property_Reference_Array := Properties (Id);
+      Fields : constant LALCO.Syntax_Field_Reference_Array
+        := Syntax_Fields (Id);
       Ret    : Unbounded_String_Array (1 .. Props'Length + Fields'Length);
       Idx    : Positive := 1;
    begin
@@ -194,7 +195,7 @@ package body Liblkqllang.Implementation.Extensions is
       function Make_Sym_Array
         (Strings : Unbounded_String_Array) return Symbol_Type_Array_Access
       is
-         Ret : Symbol_Type_Array_Access :=
+         Ret : constant Symbol_Type_Array_Access :=
            Create_Symbol_Type_Array (Strings'Length);
 
          Idx : Positive := 1;
@@ -210,8 +211,8 @@ package body Liblkqllang.Implementation.Extensions is
 
       use Liblkqllang.Analysis;
 
-      PNode : LKQL_Node := Public_Converters.Wrap_Node (Node);
-      Last_Token : Token_Kind := Kind (Data (PNode.Token_End));
+      PNode      : constant LKQL_Node := Public_Converters.Wrap_Node (Node);
+      Last_Token : constant Token_Kind := Kind (Data (PNode.Token_End));
 
    begin
 
@@ -229,7 +230,6 @@ package body Liblkqllang.Implementation.Extensions is
          end if;
 
          return Make_Sym_Array (Kind_Names);
-
 
       when LKQL_Node_Pattern_Property
          | LKQL_Node_Pattern_Field =>
@@ -252,7 +252,7 @@ package body Liblkqllang.Implementation.Extensions is
          end if;
 
          declare
-            VP : Value_Pattern :=
+            VP : constant Value_Pattern :=
               PNode.As_Extended_Node_Pattern.F_Node_Pattern;
          begin
             if VP.Kind = LKQL_Node_Kind_Pattern then
@@ -266,7 +266,7 @@ package body Liblkqllang.Implementation.Extensions is
 
       when LKQL_Dot_Access =>
          declare
-            LHS : Analysis.Expr := PNode.As_Dot_Access.F_Receiver;
+            LHS : constant Analysis.Expr := PNode.As_Dot_Access.F_Receiver;
          begin
 
             --  a.|
@@ -280,13 +280,13 @@ package body Liblkqllang.Implementation.Extensions is
             end if;
 
             declare
-               Val : Primitive := Check_And_Eval (LKQL_Ctx, LHS);
+               Val : constant Primitive := Check_And_Eval (LKQL_Ctx, LHS);
             begin
                if Val.Get.Kind = Kind_Node then
                   return Make_Sym_Array
                     (Get_All_Completions_For_Id
                        (Get_Node_Type_Id
-                            (Ada_Ast_Node
+                            (Ada_AST_Node
                                  (Val.Get.Node_Val.Unchecked_Get.all))));
                end if;
             end;

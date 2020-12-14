@@ -1,3 +1,4 @@
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 package LKQL.Patterns.Match is
 

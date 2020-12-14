@@ -55,6 +55,7 @@ package body LKQL.AST_Nodes is
    end Release_Introspection_Value;
 
    procedure Add_Children (Iter : in out Child_Iterator; Node : AST_Node_Rc);
+   procedure Initialize_Next_Elements (Iter : in out Child_Iterator);
 
    ----------------------------
    -- To_Introspection_Value --
@@ -168,11 +169,11 @@ package body LKQL.AST_Nodes is
       --  This works by adding children on the "stack" in reverse order, and
       --  picking the last one everytime:
       --
-      -- [a]       elem=a (Initial state)
-      -- [c, b]    elem=b
-      -- [c, e, d] elem=d
-      -- [c, e]    elem=e
-      -- [c]       elem=c
+      --  [a]       elem=a (Initial state)
+      --  [c, b]    elem=b
+      --  [c, e, d] elem=d
+      --  [c, e]    elem=e
+      --  [c]       elem=c
 
       Result := Iter.Next_Elements.Last_Element;
       Iter.Next_Elements.Delete_Last;
@@ -223,20 +224,6 @@ package body LKQL.AST_Nodes is
    -- Make_Child_Iterator --
    -------------------------
 
-   function Make_Child_Iterator (Node : AST_Node_Rc) return Child_Iterator
-   is
-      Result : Child_Iterator;
-   begin
-      if not Node.Get.Is_Null_Node then
-         Result.Next_Elements.Append (Node);
-      end if;
-      return Result;
-   end Make_Child_Iterator;
-
-   -------------------------
-   -- Make_Child_Iterator --
-   -------------------------
-
    function Make_Child_Iterator
      (Nodes : AST_Node_Array) return Child_Iterator
    is
@@ -244,7 +231,7 @@ package body LKQL.AST_Nodes is
    begin
       for Node of Nodes loop
          declare
-            Rc : AST_Node_Rc := Make_AST_Node_Rc (Node);
+            Rc : constant AST_Node_Rc := Make_AST_Node_Rc (Node);
          begin
             Result.Roots.Append (Rc);
          end;

@@ -1,5 +1,3 @@
-with Ada.Text_IO; use Ada.Text_IO;
-
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with LKQL.Patterns;       use LKQL.Patterns;
@@ -8,8 +6,6 @@ with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
-
-with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body LKQL.Queries is
 
@@ -21,6 +17,9 @@ package body LKQL.Queries is
                                  Node : L.Query)
                                  return AST_Node_Iterator'Class
    is
+
+      function Roots return AST_Node_Iterator_Access;
+
       -----------
       -- Roots --
       -----------
@@ -42,7 +41,8 @@ package body LKQL.Queries is
 
             declare
                --  First, eval the expression.
-               Eval_From_Expr : Primitive := Eval (Ctx, Node.F_From_Expr);
+               Eval_From_Expr : constant Primitive :=
+                 Eval (Ctx, Node.F_From_Expr);
 
                Vec : AST_Node_Vector;
             begin
@@ -86,9 +86,9 @@ package body LKQL.Queries is
                            ("Wrong kind of element in `from clause`")));
                end case;
 
-            return new AST_Node_Iterator'Class'
-              (AST_Node_Iterator'Class
-                 (Make_Child_Iterator (Vec)));
+               return new AST_Node_Iterator'Class'
+                 (AST_Node_Iterator'Class
+                    (Make_Child_Iterator (Vec)));
             end;
          end if;
       end Roots;

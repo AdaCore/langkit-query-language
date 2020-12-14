@@ -40,7 +40,7 @@ package body LKQL.Patterns.Nodes is
    -- Match_Node_Pattern --
    ------------------------
 
-   function Match_Node_pattern (Ctx     : Eval_Context;
+   function Match_Node_Pattern (Ctx     : Eval_Context;
                                 Pattern : L.Node_Pattern;
                                 Node    : AST_Node_Rc) return Match_Result
    is
@@ -60,7 +60,7 @@ package body LKQL.Patterns.Nodes is
             raise Assertion_Error
               with "Invalid node pattern kind: " & L.Kind_Name (Pattern);
       end case;
-   end Match_Node_pattern;
+   end Match_Node_Pattern;
 
    ------------------------
    -- Match_Kind_Pattern --
@@ -109,8 +109,6 @@ package body LKQL.Patterns.Nodes is
                                    Node    : AST_Node_Rc)
                                    return Match_Result
    is
-      use String_Value_Maps;
-      Bindings      : Environment_Map;
       Current_Match : Match_Result;
    begin
       for D of Details loop

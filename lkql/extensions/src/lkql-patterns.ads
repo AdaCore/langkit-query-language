@@ -1,5 +1,4 @@
 with LKQL.Primitives;    use LKQL.Primitives;
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 private package LKQL.Patterns is
 
@@ -26,7 +25,7 @@ private package LKQL.Patterns is
    --  Otherwise, raise an exception.
 
    Match_Failure : constant Match_Result :=
-     Match_Result'(Matched_Value => None, others => <>);
+     Match_Result'(Matched_Value => None);
    --  Special value representing the failure of a matching attempt
 
    subtype Match_Index is Integer range Positive'First - 1 .. Positive'Last;
