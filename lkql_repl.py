@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import argparse
+import itertools
 
 import liblkqllang as lkql
 
@@ -54,14 +55,21 @@ if __name__ == '__main__':
     dummy_unit = ctx.get_from_buffer('<dummy>', '12')
     dummy_unit.root.p_interp_init_from_project(args.project)
 
-    while True:
+    for i in itertools.count(start=1):
+
+        # We have a new buffer name at each iteration, to create a new buffer
+        # for each repl input, so that references to old buffers are still valid.
+        # Due to the way LKQL is interpreted, references to old code can still
+        # be made, so we must make sure we don't deallocate old buffers.
+        buffer_name = f'<repl_input_{i}>'
+
         try:
             with patch_stdout():
                 cmd = session.prompt('> ')
             if cmd == 'exit':
                 break
 
-            cmd_unit = ctx.get_from_buffer('<repl_input>', cmd)
+            cmd_unit = ctx.get_from_buffer(buffer_name, cmd)
 
             print(cmd_unit.root.p_interp_eval)
 
