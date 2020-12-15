@@ -1,18 +1,2 @@
 aspect_decls.ads
-<ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:4:15-4:36>
-<ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:7:16-7:37>
-<ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:12:17-12:23>
-<ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:14:17-14:23>
-<ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:4:15-4:36>
-<ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:7:16-7:37>
-<ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:12:17-12:23>
-<ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:14:17-14:23>
-<ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:4:15-4:36>
-<ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:7:16-7:37>
-<ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:12:17-12:23>
-<ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:14:17-14:23>
-<ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:4:15-4:36>
-<ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:7:16-7:37>
-<ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:12:17-12:23>
-<ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:14:17-14:23>
-
+[<ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:4:15-4:36>, <ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:7:16-7:37>, <ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:12:17-12:23>, <ObjectDecl ["Variable"] aspect_decls.ads:4:5-5:74> <SubtypeIndication aspect_decls.ads:14:17-14:23>, <ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:4:15-4:36>, <ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:7:16-7:37>, <ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:12:17-12:23>, <ObjectDecl ["Variable1"] aspect_decls.ads:7:5-8:23> <SubtypeIndication aspect_decls.ads:14:17-14:23>, <ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:4:15-4:36>, <ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:7:16-7:37>, <ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:12:17-12:23>, <ObjectDecl ["Variable3"] aspect_decls.ads:12:5-12:24> <SubtypeIndication aspect_decls.ads:14:17-14:23>, <ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:4:15-4:36>, <ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:7:16-7:37>, <ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:12:17-12:23>, <ObjectDecl ["Variable4"] aspect_decls.ads:14:5-15:43> <SubtypeIndication aspect_decls.ads:14:17-14:23>]
