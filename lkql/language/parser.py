@@ -64,7 +64,6 @@ class Declaration(LKQLNode):
 
 
 @abstract
-@has_abstract_list
 class Expr(LKQLNode):
     """
     Root node class for LKQL expressions.
@@ -963,6 +962,13 @@ class Match(Expr):
         return Self.arms.map(lambda x: x.pattern.as_entity)
 
 
+class Tuple(Expr):
+    """
+    Tuple expression.
+    """
+    exprs = Field(type=Expr.list)
+
+
 lkql_grammar = Grammar('main_rule')
 G = lkql_grammar
 
@@ -1053,7 +1059,12 @@ lkql_grammar.add_rules(
             G.comp_expr
         ),
         G.comp_expr,
-        G.block_expr
+        G.block_expr,
+        G.tuple_expr,
+    ),
+
+    tuple_expr=Tuple(
+        "(", List(G.expr, sep=","), ")"
     ),
 
     comp_expr=Or(
@@ -1182,5 +1193,6 @@ lkql_grammar.add_rules(
     named_arg=NamedArg(G.id, "=", G.expr),
 
     param=Or(DefaultParam(G.id, "=", G.expr),
-             ParameterDecl(G.id))
+             ParameterDecl(G.id)),
+
 )

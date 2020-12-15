@@ -377,6 +377,29 @@ the evaluation of the associated expression in the match arm.
 
    Verify that bindings of names to matched values work correctly
 
+Tuple expression
+^^^^^^^^^^^^^^^^
+
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/tuple_expr.svg
+
+.. lkql_doc_class:: Tuple
+
+The tuple expression is used to create a tuple, which is an anonymous immutable
+data structure composed of several elements of distinct types:
+
+.. code-block:: lkql
+
+    val t = (1, 2);
+    val tt = ("hello", "world");
+    val ttt = (t[1], tt[1]);
+    print(t)
+    print(tt)
+    print(ttt)
+
+Tuples are useful as function return values, or to aggregate data, since LKQL
+doesn't have structs yet.
+
 Literals and Operators
 ^^^^^^^^^^^^^^^^^^^^^^
 

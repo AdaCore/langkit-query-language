@@ -48,6 +48,9 @@ package LKQL.Primitives is
       Kind_List,
       --  List of Primitive values
 
+      Kind_Tuple,
+      --  Tuple of primitive values
+
       Kind_Selector_List,
       --  Lazy 'list' returned by a selector
 
@@ -60,7 +63,11 @@ package LKQL.Primitives is
       range Kind_Unit .. Kind_Selector_List;
 
    subtype Sequence_Kind is Valid_Primitive_Kind
-      range Kind_Iterator .. Kind_List;
+   range Kind_Iterator .. Kind_List;
+
+   subtype Introspectable_Kind is Valid_Primitive_Kind
+     with Static_Predicate =>
+       Introspectable_Kind not in Kind_Tuple | Kind_Unit;
 
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
@@ -78,7 +85,7 @@ package LKQL.Primitives is
             Nullable : Boolean := False;
          when Kind_Iterator =>
             Iter_Val : Iterator_Primitive_Access;
-         when Kind_List =>
+         when Kind_List | Kind_Tuple =>
             List_Val : Primitive_List_Access;
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
@@ -97,6 +104,14 @@ package LKQL.Primitives is
    use Primitive_Ptrs;
 
    subtype Primitive is Primitive_Ptrs.Ref;
+
+   subtype Introspectable_Primitive is Primitive
+     with Predicate =>
+       Introspectable_Primitive.Unchecked_Get.Kind
+         in Introspectable_Kind
+         or else raise Constraint_Error
+           with "Wrong kind for Introspectable_Primitive: "
+           & Introspectable_Primitive.Unchecked_Get.Kind'Image;
 
    package Primitive_Options is new Options (Primitive);
    --  Optional Primitive values
@@ -245,12 +260,14 @@ package LKQL.Primitives is
    --  Return a Primitive value storing an empty list of Primitive values
    --  of kind `Kind`.
 
+   function Make_Empty_Tuple return Primitive;
+
    -------------------------------------------------
    -- Primitive to Introspection value conversion --
    -------------------------------------------------
 
    function To_Introspection_Value
-     (Value : Primitive) return Introspection_Value;
+     (Value : Introspectable_Primitive) return Introspection_Value;
    --  Create an introspection value from the given Primitive value
 
    --------------------

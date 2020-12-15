@@ -1,0 +1,11 @@
+val a = (1, 2)
+val b = ("hello", "world")
+val c = ("hello", "world")
+val d = ("hellow", "orld")
+
+print(a)
+print(b)
+print(c)
+print(b == c)
+print(c == d)
+print(c[1])
