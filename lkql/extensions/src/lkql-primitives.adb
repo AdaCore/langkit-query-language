@@ -21,7 +21,9 @@ package body LKQL.Primitives is
      (Value : Selector_List) return Unbounded_Text_Type;
    --  Return a String representation of the given Selector_List
 
-   function List_Image (Value : Primitive_List) return Unbounded_Text_Type;
+   function List_Image (Value : Primitive_List;
+                        Open  : Text_Type := "[";
+                        Close : Text_Type := "]") return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
    procedure Check_Kind
@@ -106,13 +108,23 @@ package body LKQL.Primitives is
    -- List_Image --
    ----------------
 
-   function List_Image (Value : Primitive_List) return Unbounded_Text_Type is
-      use Langkit_Support.Text.Chars;
+   function List_Image (Value : Primitive_List;
+                        Open  : Text_Type := "[";
+                        Close : Text_Type := "]") return Unbounded_Text_Type
+   is
       Image : Unbounded_Text_Type;
    begin
-      for Element of Value.Elements loop
-         Append (Image, To_Unbounded_Text (Element) & LF);
+      Append (Image, Open);
+
+      for I in Value.Elements.First_Index .. Value.Elements.Last_Index loop
+         Append (Image, To_Unbounded_Text (Value.Elements (I)));
+
+         if I < Value.Elements.Last_Index then
+            Append (Image, ", ");
+         end if;
       end loop;
+
+      Append (Image, Close);
 
       return Image;
    end List_Image;
