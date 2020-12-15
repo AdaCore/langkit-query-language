@@ -684,7 +684,13 @@ package body LKQL.Primitives is
                  when Kind_Int  =>
                    Int_Image (Int_Val (Val)),
                  when Kind_Str  =>
-                   Str_Val (Val),
+                    --  TODO ??? We use Langkit_Support.Text.Image to quote the
+                    --  string and potentially escape chars in it, but we have
+                    --  to convert it back & forth from string. We should add
+                    --  an overload in langkit that returns a Text_Type.
+                   To_Unbounded_Text
+                     (To_Text (Image (To_Text (Str_Val (Val)),
+                                      With_Quotes => True))),
                  when Kind_Bool =>
                    Bool_Image (Bool_Val (Val)),
                  when Kind_Node =>
