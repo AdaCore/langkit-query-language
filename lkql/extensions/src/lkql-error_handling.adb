@@ -98,6 +98,22 @@ package body LKQL.Error_Handling is
    end Raise_Null_Root;
 
    ------------------------
+   -- Raise_Invalid_Type --
+   ------------------------
+
+   procedure Raise_Invalid_Type (Ctx      : Eval_Context;
+                                 Node     : L.LKQL_Node;
+                                 Expected : Text_Type;
+                                 Value    : Primitive)
+   is
+      Message : constant Text_Type :=
+        "Type error: expected " & Expected &
+        " but got " & To_Text (Kind_Name (Value));
+   begin
+      Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
+   end Raise_Invalid_Type;
+
+   ------------------------
    -- Raise_Invalid_Kind --
    ------------------------
 

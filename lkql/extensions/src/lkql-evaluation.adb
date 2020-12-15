@@ -24,6 +24,8 @@ package body LKQL.Evaluation is
 
    function Eval_Integer_Literal (Node : L.Integer_Literal) return Primitive;
 
+   function Eval_Tuple (Ctx : Eval_Context; Node : L.Tuple) return Primitive;
+
    function Eval_String_Literal (Node : L.String_Literal) return Primitive;
 
    function Eval_Bool_Literal (Node : L.Bool_Literal) return Primitive;
@@ -163,6 +165,8 @@ package body LKQL.Evaluation is
             Result := Eval_Identifier (Local_Context, Node.As_Identifier);
          when LCO.LKQL_Integer_Literal =>
             Result := Eval_Integer_Literal (Node.As_Integer_Literal);
+         when LCO.LKQL_Tuple =>
+            Result := Eval_Tuple (Ctx, Node.As_Tuple);
          when LCO.LKQL_String_Literal =>
             Result := Eval_String_Literal (Node.As_String_Literal);
          when LCO.LKQL_Bool_Literal =>
@@ -301,6 +305,20 @@ package body LKQL.Evaluation is
    begin
       return To_Primitive (Integer'Wide_Wide_Value (Node.Text));
    end Eval_Integer_Literal;
+
+   ----------------
+   -- Eval_Tuple --
+   ----------------
+
+   function Eval_Tuple (Ctx : Eval_Context; Node : L.Tuple) return Primitive is
+      Ret : constant Primitive := Make_Empty_Tuple;
+   begin
+      for Sub_Expr of Node.F_Exprs loop
+         Ret.Get.List_Val.Elements.Append (Eval (Ctx, Sub_Expr));
+      end loop;
+
+      return Ret;
+   end Eval_Tuple;
 
    -------------------------
    -- Eval_String_Literal --
@@ -567,11 +585,18 @@ package body LKQL.Evaluation is
      (Ctx : Eval_Context; Node : L.Indexing) return Primitive
    is
       List  : constant Primitive :=
-        Eval (Ctx, Node.F_Collection_Expr, Kind_List);
-      Index : constant Primitive :=
-        Eval (Ctx, Node.F_Index_Expr, Kind_Int);
+        Eval (Ctx, Node.F_Collection_Expr);
    begin
-      return Get (List, Int_Val (Index));
+      if Kind (List) not in Kind_List | Kind_Tuple then
+         Raise_Invalid_Type (Ctx, Node.As_LKQL_Node, "list or tuple", List);
+      end if;
+
+      declare
+         Index : constant Primitive :=
+           Eval (Ctx, Node.F_Index_Expr, Kind_Int);
+      begin
+         return Get (List, Int_Val (Index));
+      end;
    exception
       when E : Unsupported_Error =>
          Raise_From_Exception (Ctx, E, Node);

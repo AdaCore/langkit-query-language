@@ -44,6 +44,14 @@ private package LKQL.Error_Handling is
    --  trying to execute a query, and add an Error_Data describing the error
    --  to the evaluation context.
 
+   procedure Raise_Invalid_Type (Ctx      : Eval_Context;
+                                 Node     : L.LKQL_Node;
+                                 Expected : Text_Type;
+                                 Value    : Primitive)
+      with No_Return;
+   --  Raise an exception signaling a type error, and add an Error_Data
+   --  describing the error to the evaluation context.
+
    procedure Raise_Invalid_Kind (Ctx      : Eval_Context;
                                  Node     : L.LKQL_Node;
                                  Expected : Valid_Primitive_Kind;

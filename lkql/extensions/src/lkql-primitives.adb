@@ -517,18 +517,29 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Empty_List;
 
+   ----------------------
+   -- Make_Empty_Tuple --
+   ----------------------
+
+   function Make_Empty_Tuple return Primitive is
+      Ref  : Primitive;
+      List : constant Primitive_List_Access :=
+        new Primitive_List'(Elements => Primitive_Vectors.Empty_Vector);
+   begin
+      Ref.Set (Primitive_Data'(Refcounted with Kind     => Kind_Tuple,
+                                               List_Val => List));
+      return Ref;
+   end Make_Empty_Tuple;
+
    ----------------------------
    -- To_Introspection_Value --
    ----------------------------
 
    function To_Introspection_Value
-     (Value : Primitive) return Introspection_Value
+     (Value : Introspectable_Primitive) return Introspection_Value
    is
    begin
-      case Kind (Value) is
-         when Kind_Unit =>
-            raise Assertion_Error with "Cannot create an Introspection value" &
-              " from: ()";
+      case Introspectable_Kind (Kind (Value)) is
          when Kind_Int =>
             return To_Introspection_Value (Int_Val (Value));
          when Kind_Str =>
@@ -641,7 +652,6 @@ package body LKQL.Primitives is
    function Get (List : Primitive; Index : Integer) return Primitive is
       Vec : Primitive_Vector_Access;
    begin
-      Check_Kind (Kind_List, List);
       Vec := Elements (List);
 
       if Index not in Vec.First_Index .. Vec.Last_Index then
@@ -685,6 +695,8 @@ package body LKQL.Primitives is
                    Iterator_Image (Iter_Val (Val).all),
                  when Kind_List =>
                    List_Image (Val.Get.List_Val.all),
+                 when Kind_Tuple =>
+                   List_Image (Val.Get.List_Val.all, "(", ")"),
                  when Kind_Selector_List =>
                    Selector_List_Image (Selector_List_Val (Val)));
    end To_Unbounded_Text;
@@ -703,7 +715,8 @@ package body LKQL.Primitives is
                  when Kind_Node          => "Node",
                  when Kind_Iterator      => "Iterator",
                  when Kind_List          => "List",
-                 when Kind_Selector_List => "Selector List");
+                 when Kind_Tuple          => "Tuple",
+                 when Kind_Selector_List  => "Selector List");
    end To_String;
 
    ---------------
@@ -798,7 +811,7 @@ package body LKQL.Primitives is
       end if;
 
       return (case Kind (Left) is
-                 when Kind_List =>
+                 when Kind_List | Kind_Tuple =>
                    Deep_Equals (List_Val (Left), List_Val (Right)),
                  when Kind_Node =>
                    LKQL.AST_Nodes."="
