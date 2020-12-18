@@ -63,15 +63,17 @@ jobs:
 
       - name: Build Langkit
         run: |
-            langkit/manage.py make --no-langkit-support
+            langkit/manage.py make
 
       - name: Build LKQL
         run: |
+            eval `langkit/manage.py setenv`
             eval `lkql/manage.py setenv`
             GPR_ARGS=-XLIBRARY_TYPE=relocatable make
 
       - name: Test LKQL
         run: |
+            eval `langkit/manage.py setenv`
             eval `lkql/manage.py setenv`
             make test
 
