@@ -76,6 +76,7 @@ jobs:
             make test
 
       - name: Deploy
+        if: ${{github.repository != 'AdaCore/langkit-query-language'}}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
