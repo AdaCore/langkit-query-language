@@ -407,6 +407,21 @@ package body LKQL.Primitives is
    function Is_Nullable (Value : Primitive) return Boolean is
       (Kind (Value) = Kind_Node and then Value.Get.Nullable);
 
+   ----------------
+   -- Booleanize --
+   ----------------
+
+   function Booleanize (Value : Primitive) return Boolean is
+   begin
+      return (if (Value.Get.Kind = Kind_Bool
+              and then not Value.Get.Bool_Val)
+              or else Value.Get.Kind = Kind_Unit
+              or else (Value.Get.Kind = Kind_Node
+                and then Value.Get.Node_Val.Get.Is_Null_Node)
+              then False
+              else True);
+   end Booleanize;
+
    -------------------------
    -- Make_Unit_Primitive --
    -------------------------
