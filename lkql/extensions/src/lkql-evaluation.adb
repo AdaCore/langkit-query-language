@@ -94,12 +94,6 @@ package body LKQL.Evaluation is
    --  Raise an exception and register an error in the evaluation context if
    --  `Value` doesn't have the expected kind.
 
-   function Bool_Eval
-     (Ctx : Eval_Context; Node : L.LKQL_Node) return Boolean;
-   --  Evalaluate the given node and convert to result to an Ada Boolean.
-   --  Raise an exception if the result of the node's evaluation is not a
-   --  boolean.
-
    ----------------
    -- Check_Kind --
    ----------------
@@ -114,18 +108,6 @@ package body LKQL.Evaluation is
          Raise_Invalid_Kind (Ctx, Node, Expected_Kind, Value);
       end if;
    end Check_Kind;
-
-   ---------------
-   -- Bool_Eval --
-   ---------------
-
-   function Bool_Eval
-     (Ctx : Eval_Context; Node : L.LKQL_Node) return Boolean
-   is
-      Result : constant Primitive := Eval (Ctx, Node, Kind_Bool);
-   begin
-      return Bool_Val (Result);
-   end Bool_Eval;
 
    --------------------
    -- Check_And_Eval --
@@ -436,19 +418,23 @@ package body LKQL.Evaluation is
       Result  : Boolean;
       Left    : constant L.LKQL_Node := Node.F_Left.As_LKQL_Node;
       Right   : constant L.LKQL_Node := Node.F_Right.As_LKQL_Node;
-   begin
-      case Node.F_Op.Kind is
-      when LCO.LKQL_Op_And =>
-         Result :=
-           Bool_Eval (Ctx, Left) and then Bool_Eval (Ctx, Right);
-      when LCO.LKQL_Op_Or =>
-         Result :=
-           Bool_Eval (Ctx, Left) or else Bool_Eval (Ctx, Right);
-      when others =>
-         raise Assertion_Error
-           with "Not a short-circuit operator kind: " & Node.F_Op.Kind_Name;
-      end case;
 
+      Left_Result  : constant Boolean := Booleanize (Eval (Ctx, Left));
+   begin
+
+      --  We eval the result of the right side expression inline to keep the
+      --  operators short circuit.
+
+      Result :=
+        (case Node.F_Op.Kind is
+            when LCO.LKQL_Op_And =>
+              Left_Result and then Booleanize (Eval (Ctx, Right)),
+            when LCO.LKQL_Op_Or  =>
+              Left_Result or else Booleanize (Eval (Ctx, Right)),
+            when others          =>
+               raise Assertion_Error
+                 with "Not a short-circuit operator kind: "
+         & Node.F_Op.Kind_Name);
       return To_Primitive (Result);
    end Eval_Short_Circuit_Op;
 

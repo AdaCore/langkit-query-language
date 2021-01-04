@@ -228,6 +228,12 @@ package LKQL.Primitives is
    function Is_Nullable (Value : Primitive) return Boolean;
    --  Return whether the given Primitive value is nullable
 
+   function Booleanize (Value : Primitive) return Boolean;
+   --  Turn the value into an Ada boolean value, according to the logic:
+   --
+   --  * ``false``, the unit value and the null node are False
+   --  * Everything else is True
+
    ----------------------------------
    -- Creation of Primitive values --
    ----------------------------------

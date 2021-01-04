@@ -1,0 +1,13 @@
+val decl = null
+
+fun false_with_side_effect() = {
+    val a = print("in false_with_side_effect");
+    false
+}
+
+# 1. lkql should not crash on the use of a null-ish value in a short circuit
+# operator.
+#
+# 2. Since the LHS is False, RHS should not be evaluated, and nothing should be
+# printed.
+print(decl?.has_aspect("volatile") and false_with_side_effect())
