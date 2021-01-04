@@ -748,8 +748,11 @@ package body LKQL.Primitives is
    begin
       return (case Value.Get.Kind is
                  when Kind_Node =>
+                (if Value.Get.Node_Val.Get.Is_Null_Node
+                 then "No_Kind"
+                 else
                    (Value.Get.Node_Val.Get.Kind_Name) &
-                   (if Value.Get.Nullable then "?" else ""),
+                 (if Value.Get.Nullable then "?" else "")),
                  when others =>
                    To_String (Kind (Value)));
    end Kind_Name;
