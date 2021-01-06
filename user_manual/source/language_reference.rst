@@ -237,8 +237,11 @@ Indexing expression
 
 .. lkql_doc_class:: Indexing
 
-Indexing expressions allow the user to access elements of a list, array, or
-string.
+Indexing expressions allow the user to access elements of a list, array,
+string, or node.
+
+For list nodes, it will access the different elements of the list. For regular
+nodes, it will access children in lexical order.
 
 Here are examples of indexing expressions:
 

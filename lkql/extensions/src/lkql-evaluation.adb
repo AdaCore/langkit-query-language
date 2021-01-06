@@ -570,18 +570,25 @@ package body LKQL.Evaluation is
    function Eval_Indexing
      (Ctx : Eval_Context; Node : L.Indexing) return Primitive
    is
-      List  : constant Primitive :=
-        Eval (Ctx, Node.F_Collection_Expr);
+      List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
    begin
-      if Kind (List) not in Kind_List | Kind_Tuple then
-         Raise_Invalid_Type (Ctx, Node.As_LKQL_Node, "list or tuple", List);
+      if Kind (List) not in Kind_List | Kind_Tuple | Kind_Node then
+            Raise_Invalid_Type
+              (Ctx, Node.As_LKQL_Node, "list, tuple or node", List);
       end if;
 
       declare
          Index : constant Primitive :=
            Eval (Ctx, Node.F_Index_Expr, Kind_Int);
       begin
-         return Get (List, Int_Val (Index));
+         if Kind (List) = Kind_Node then
+            return To_Primitive
+              (Make_AST_Node_Rc
+                 (Nth_Child (List.Get.Node_Val.Get, Int_Val (Index))));
+
+         else
+            return Get (List, Int_Val (Index));
+         end if;
       end;
    exception
       when E : Unsupported_Error =>
