@@ -18,6 +18,12 @@
     },
 
     {
+        "name": "Downward_View_Conversions",
+        "path": "downwardViewConversions.lkql",
+        "params": []
+    },
+
+    {
         "name": "Parameters_Order",
         "path": "parameters_order.lkql",
         "params": []

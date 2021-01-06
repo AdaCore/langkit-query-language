@@ -1,0 +1,12 @@
+fun result() =
+    select c @ CallExpr(
+        # Select type conversions
+        referenced_decl() is BaseTypeDecl(
+            base_subtype() is target_type @ BaseTypeDecl(is_tagged_type() is true)
+        )
+    ) when {
+        # Where the target type is derived from the type of the conversion
+        # argument
+        val argument_type = c.suffix[1].r_expr?.expression_type;
+        target_type?.is_derived_type(argument_type)
+    }

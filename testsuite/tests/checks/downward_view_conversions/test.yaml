@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: 'Downward_View_Conversions'
+input_sources: ['test_downwardconv.adb']
