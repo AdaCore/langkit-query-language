@@ -1,0 +1,2 @@
+val p = (select p @ ObjectDecl)[1]
+print(p[1])
