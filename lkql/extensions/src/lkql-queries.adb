@@ -1,5 +1,7 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Langkit_Support.Errors; use Langkit_Support.Errors;
+
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Primitives;     use LKQL.Primitives;
 with LKQL.Evaluation;     use LKQL.Evaluation;
@@ -136,12 +138,24 @@ package body LKQL.Queries is
    overriding function Evaluate
      (Self : in out Query_Predicate; Node : AST_Node_Rc) return Boolean
    is
-      Match : constant Match_Result :=
-        Match_Pattern (Self.Ctx,
-                       Self.Pattern,
-                       To_Primitive (Node));
    begin
-      return Match.Is_Success;
+      declare
+         Match : constant Match_Result :=
+           Match_Pattern (Self.Ctx,
+                          Self.Pattern,
+                          To_Primitive (Node));
+      begin
+         return Match.Is_Success;
+      end;
+
+   exception
+      when P : Property_Error =>
+         Eval_Trace.Trace ("Evaluating query predicate failed");
+         Eval_Trace.Increase_Indent;
+         Eval_Trace.Trace ("pattern => " & Self.Pattern.Image);
+         Eval_Trace.Trace ("ada node => " & Image (Node.Get.Text_Image));
+         Eval_Trace.Decrease_Indent;
+         return False;
    end Evaluate;
 
    -----------
