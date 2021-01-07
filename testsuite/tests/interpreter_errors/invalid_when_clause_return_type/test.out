@@ -1,5 +1,5 @@
 main.adb
 script.lkql:1:27: error: Type error: expected Bool but got Str
-1 | val p = select p @ _ when "Hello"
+1 | val p = select p @ * when "Hello"
   |                           ^^^^^^^ 
 

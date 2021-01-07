@@ -4,4 +4,4 @@ fun isRealWithoutRange(decl) =
 fun result() =
    select t @ BaseTypeDecl
    when isRealWithoutRange(t)
-        or t is SubtypeDecl(get_type() is bt @ _ when isRealWithoutRange(bt))
+        or t is SubtypeDecl(get_type() is bt @ * when isRealWithoutRange(bt))

@@ -1,2 +1,2 @@
-val p = select p @ _ when true
+val p = select p @ * when true
 print (p[999999])

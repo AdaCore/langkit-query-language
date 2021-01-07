@@ -19,9 +19,9 @@ LKQL Script::
         | SubtypeIndication => skip it.name
         | Name              => rec it.referenced_decl(true)
         | ParentList        => skip *it.children
-        | _                 => ()
+        | *                 => ()
 
-    let result = query TypeDecl(any supertypes(depth=3): _)
+    let result = query TypeDecl(any supertypes(depth=3): *)
 
     print(result)
 
@@ -98,7 +98,7 @@ LKQL Script::
     fun argumentDecl(argExpr) =
         match argExpr
             | DottedName => it.referenced_decl()
-            | _          => null
+            | *          => null
 
     fun typeOfParamSpec(spec) =
         spec?.type_expr?.name?.referenced_decl()
@@ -140,7 +140,7 @@ The first entry of the definition will not be flagged.
 
 LKQL Script::
 
-    let result = query t @ _
+    let result = query t @ *
                     when isRealWithoutRange(t) ||
                         t is SubtypeDecl(any superTypes: s@_ when isRealWithoutRange(s))
     print(result)

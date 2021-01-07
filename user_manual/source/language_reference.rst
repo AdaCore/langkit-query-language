@@ -368,9 +368,9 @@ the evaluation of the associated expression in the match arm.
 .. code-block:: lkql
 
    match nodes[0]
-     | ObjectDecl(has_aliased=aliased @ _) => aliased
-     | ParamSpec(has_aliased=aliased @ _) => aliased
-     | _ => false
+     | ObjectDecl(has_aliased=aliased @ *) => aliased
+     | ParamSpec(has_aliased=aliased @ *) => aliased
+     | * => false
 
 .. note:: For the moment, there is no check that the matcher is complete. A
    match expression where no arm has matched will raise an exception at
@@ -505,7 +505,7 @@ chain.
 
    selector parent
       | AdaNode => rec *it.parent
-      | _       => ()
+      | *       => ()
 
 Query expression
 ----------------
@@ -586,7 +586,7 @@ will match everything, or a node name:
 
 .. code-block:: lkql
 
-   select _ # Will select every node
+   select * # Will select every node
    select BasicDecl # Will select every basic declaration
 
 In its more complex form, it can have sub-patterns in an optional part between
@@ -782,7 +782,7 @@ example how the ``superTypes`` selector is expressed:
 
     selector superTypes
         | BaseTypeDecl      => rec *it.base_types()
-        | _                 => ()
+        | *                 => ()
 
 Built-in selectors
 ^^^^^^^^^^^^^^^^^^

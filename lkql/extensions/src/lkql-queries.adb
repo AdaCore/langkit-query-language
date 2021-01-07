@@ -149,7 +149,7 @@ package body LKQL.Queries is
       end;
 
    exception
-      when P : Property_Error =>
+      when Property_Error =>
          Eval_Trace.Trace ("Evaluating query predicate failed");
          Eval_Trace.Increase_Indent;
          Eval_Trace.Trace ("pattern => " & Self.Pattern.Image);

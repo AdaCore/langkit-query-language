@@ -12,7 +12,7 @@ syn match   lkqlEntity	"\h\w*" display contained
 syn keyword lkqlKeyword when rec for skip is in true false if else then not null
 syn match   lkqlQualifier "\<[A-Z]\w*"
 
-syn keyword lkqlQuantifier no all any _
+syn keyword lkqlQuantifier no all any *
 
 syn region  lkqlString  start=+"+ skip=+\\"+ end=+"+
 syn region  lkqlChar  start=+'+ skip=+\\"+ end=+'+
