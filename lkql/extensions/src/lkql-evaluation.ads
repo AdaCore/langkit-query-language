@@ -1,3 +1,5 @@
+with GNATCOLL.Traces;
+
 with Iters.Maps;
 with Iters.Iterators;
 with LKQL.Primitives;       use LKQL.Primitives;
@@ -32,6 +34,9 @@ package LKQL.Evaluation is
       else Eval (Ctx, Node, Expected_Kind, Local_Bindings));
    --  If 'Node' is null return 'Default', otherwise call 'Eval' with the
    --  given arguments.
+
+   Eval_Trace : GNATCOLL.Traces.Trace_Handle
+     := GNATCOLL.Traces.Create ("LKQL.EVAL");
 
 private
 
