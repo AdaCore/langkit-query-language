@@ -1,1 +1,1 @@
-fun allNodes() = select _
+fun allNodes() = select *

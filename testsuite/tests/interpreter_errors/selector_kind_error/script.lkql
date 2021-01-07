@@ -1,4 +1,4 @@
 selector badSelector
-    | _ => true
+    | * => true
 
-select _(any badSelector is _)
+select *(any badSelector is *)

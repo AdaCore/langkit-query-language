@@ -1,2 +1,2 @@
-val p = select p @ _ when "Hello"
+val p = select p @ * when "Hello"
 print (p)

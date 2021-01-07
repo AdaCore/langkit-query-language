@@ -473,7 +473,7 @@ class UniversalPattern(ValuePattern):
     Universal pattern that matches any value.
 
     For instance::
-       let declParent = query _ [children(depth==1)] BasicDecl
+       let declParent = query * [children(depth==1)] BasicDecl
     """
     pass
 
@@ -941,7 +941,7 @@ class Match(Expr):
     For instance::
        match nodes[0]
            | ObjectDecl => true
-           | _          => false
+           | *          => false
     """
     matched_val = Field(type=Expr)
     arms = Field(type=MatchArm.list)
@@ -1010,10 +1010,10 @@ lkql_grammar.add_rules(
 
     value_pattern=Or(
         ExtendedNodePattern(
-            Or(UniversalPattern("_"), NodeKindPattern(G.kind_name)),
+            Or(UniversalPattern("*"), NodeKindPattern(G.kind_name)),
             Pick("(", c(), List(G.pattern_arg, sep=","), ")")
         ),
-        NodeKindPattern(G.kind_name), UniversalPattern("_")
+        NodeKindPattern(G.kind_name), UniversalPattern("*")
     ),
 
     pattern_arg=Or(
