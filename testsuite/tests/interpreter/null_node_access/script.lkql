@@ -1,0 +1,2 @@
+val n = null
+print(n.pouet)
