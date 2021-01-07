@@ -136,7 +136,7 @@ private package LKQL.Error_Handling is
                                 Node        : Primitive;
                                 Member_Name : L.Identifier)
      with No_Return,
-          Pre => Kind (Node) = Kind_Node and then Is_Nullable (Node);
+          Pre => Kind (Node) = Kind_Node;
    --  Raise an exception signaling an attempt to directly access a
    --  field/property on a nullable node, and add an Error_Data describing the
    --  error to the evaluation context.

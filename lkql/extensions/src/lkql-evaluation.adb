@@ -450,7 +450,9 @@ package body LKQL.Evaluation is
    begin
       if Kind (Receiver) /= Kind_Node then
          return Primitives.Data (Receiver, Member_Name);
-      elsif Is_Nullable (Receiver) then
+      elsif Is_Nullable (Receiver)
+        or else Is_Null_Node (Node_Val (Receiver).Get)
+      then
          Raise_Null_Access (Ctx, Receiver, Node.F_Member);
       else
          return Node_Data.Access_Node_Field
