@@ -50,6 +50,10 @@ package body Checker_App is
    procedure Job_Post_Process (Context : App_Job_Context)
    is
    begin
+
+      --  Set property error recovery with the value of the command line flag.
+      LKQL.Errors.Property_Error_Recovery := Args.Property_Error_Recovery.Get;
+
       declare
          Ctx : constant Eval_Context :=
            Make_Eval_Context (Context.Units_Processed);
