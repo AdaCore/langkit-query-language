@@ -1,5 +1,8 @@
-with Langkit_Support.Text; use Langkit_Support.Text;
+with GNAT.Traceback.Symbolic;
 
+with Ada.Text_IO; use Ada.Text_IO;
+
+with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Errors; use Langkit_Support.Errors;
 
 with LKQL.Patterns;       use LKQL.Patterns;
@@ -8,6 +11,7 @@ with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
+with Ada.Exceptions; use Ada.Exceptions;
 
 package body LKQL.Queries is
 
@@ -149,12 +153,28 @@ package body LKQL.Queries is
       end;
 
    exception
-      when Property_Error =>
-         Eval_Trace.Trace ("Evaluating query predicate failed");
-         Eval_Trace.Increase_Indent;
-         Eval_Trace.Trace ("pattern => " & Self.Pattern.Image);
-         Eval_Trace.Trace ("ada node => " & Image (Node.Get.Text_Image));
-         Eval_Trace.Decrease_Indent;
+      when E : Property_Error =>
+         case Property_Error_Recovery is
+            when Continue_And_Log =>
+               Eval_Trace.Trace ("Evaluating query predicate failed");
+               Eval_Trace.Trace ("pattern => " & Self.Pattern.Image);
+               Eval_Trace.Trace ("ada node => " & Image (Node.Get.Text_Image));
+
+               Eval_Trace.Trace (Exception_Information (E));
+               Eval_Trace.Trace
+                 (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+
+            when Continue_And_Warn =>
+               --  TODO: Use Langkit_Support.Diagnostics.Output
+               Put_Line (Standard_Error, "Evaluating query predicate failed");
+               Put_Line (Standard_Error, "pattern => " & Self.Pattern.Image);
+               Put_Line
+                 (Standard_Error, "ada node => "
+                  & Image (Node.Get.Text_Image));
+            when Raise_Error =>
+               raise;
+         end case;
+
          return False;
    end Evaluate;
 

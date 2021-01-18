@@ -2,6 +2,22 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package LKQL.Errors is
 
+   type Property_Error_Recovery_Kind is
+     (Continue_And_Warn, Continue_And_Log, Raise_Error);
+   --  Type to describe the behavior of LKQL when a property error happens
+   --  inside a query.
+   --
+   --  * Continue_And_Warn will emit a warning/diagnostic on stderr and
+   --    continue.
+   --
+   --  * Continue_And_Log will just log the error on a trace and continue. Use
+   --  it in cases where LKQL is embedded and you don't want to emit anything
+   --  on stderr.
+   --
+   --  * Raise_Error will bubble up the error.
+
+   Property_Error_Recovery : Property_Error_Recovery_Kind := Continue_And_Log;
+
    Stop_Evaluation_Error : exception;
    --  This type of exception is used to signal that the execution should not
    --  be resumed. WARNING: THIS SHOULD NEVER BE RAISED MANUALLY but instead
