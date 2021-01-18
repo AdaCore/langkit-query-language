@@ -41,6 +41,8 @@ package body Liblkqllang.Implementation.Extensions is
    Ctx      : Libadalang.Analysis.Analysis_Context;
    Files    : String_Vectors.Vector;
    LKQL_Ctx : Eval_Context;
+   Project : Project_Tree_Access;
+   Env     : Project_Environment_Access;
    Init     : Boolean := False;
 
    -----------
@@ -74,13 +76,19 @@ package body Liblkqllang.Implementation.Extensions is
       Project_File : Character_Type_Array_Access) return Boolean
    is
       pragma Unreferenced (Node);
-      Project : Project_Tree_Access;
-      Env     : Project_Environment_Access;
-
       UFP     : Unit_Provider_Reference;
    begin
+      --  If already init, it means this is called for a second time: In that
+      --  case we want to reinitialize.
       if Init then
-         return False;
+         --  No need to explicitly finalize Analysis context, since it's a
+         --  controlled type.
+
+         --  Free the LKQL eval context
+         Free_Eval_Context (LKQL_Ctx);
+
+         Free (Project);
+         Free (Env);
       end if;
 
       Libadalang.Helpers.Load_Project
