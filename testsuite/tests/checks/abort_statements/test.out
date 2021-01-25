@@ -1,0 +1,4 @@
+abort_statements.adb:10:7: error: abort_statements - rule violation
+10 |       abort T; -- FLAG
+   |       ^^^^^^^^ 
+

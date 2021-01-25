@@ -1,3 +1,4 @@
+with Abort_Statements;
 with Goto_Statements;
 
 procedure Main is
