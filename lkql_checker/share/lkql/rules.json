@@ -1,5 +1,11 @@
 [
     {
+        "name": "Abort_Statements",
+        "path" : "abort_statements.lkql",
+        "params": []
+    },
+
+    {
         "name": "Volatile_Objects_Without_Address_Clauses",
         "path": "volatileObjectsWithoutAddressClauses.lkql",
         "params": []
