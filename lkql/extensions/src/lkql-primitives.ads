@@ -10,6 +10,7 @@ with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
 
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
+limited with LKQL.Eval_Contexts;
 
 package LKQL.Primitives is
 
@@ -54,20 +55,25 @@ package LKQL.Primitives is
       Kind_Selector_List,
       --  Lazy 'list' returned by a selector
 
+      Kind_Function,
+      --  Functions objects
+
       No_Kind
       --  Special value that allows using this enum as an option type
    );
    --  Denotes the kind of a primitive value
 
    subtype Valid_Primitive_Kind is Base_Primitive_Kind
-      range Kind_Unit .. Kind_Selector_List;
+      range Kind_Unit .. Kind_Function;
 
    subtype Sequence_Kind is Valid_Primitive_Kind
    range Kind_Iterator .. Kind_List;
 
    subtype Introspectable_Kind is Valid_Primitive_Kind
      with Static_Predicate =>
-       Introspectable_Kind not in Kind_Tuple | Kind_Unit;
+       Introspectable_Kind not in Kind_Tuple | Kind_Unit | Kind_Function;
+
+   type Environment_Access is access all LKQL.Eval_Contexts.Environment;
 
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
@@ -75,20 +81,23 @@ package LKQL.Primitives is
          when Kind_Unit =>
             null;
          when Kind_Int =>
-            Int_Val : Integer;
+            Int_Val           : Integer;
          when Kind_Str =>
-            Str_Val : Unbounded_Text_Type;
+            Str_Val           : Unbounded_Text_Type;
          when Kind_Bool =>
-            Bool_Val : Boolean;
+            Bool_Val          : Boolean;
          when Kind_Node =>
-            Node_Val : AST_Node_Rc;
-            Nullable : Boolean := False;
+            Node_Val          : AST_Node_Rc;
+            Nullable          : Boolean := False;
          when Kind_Iterator =>
-            Iter_Val : Iterator_Primitive_Access;
+            Iter_Val          : Iterator_Primitive_Access;
          when Kind_List | Kind_Tuple =>
-            List_Val : Primitive_List_Access;
+            List_Val          : Primitive_List_Access;
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
+         when Kind_Function =>
+            Fun_Node          : L.Base_Function;
+            Frame             : Environment_Access;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -267,6 +276,13 @@ package LKQL.Primitives is
    --  of kind `Kind`.
 
    function Make_Empty_Tuple return Primitive;
+
+   ---------------------
+   -- Function values --
+   ---------------------
+
+   function Make_Function
+     (Node : L.Base_Function; Env : Environment_Access) return Primitive;
 
    -------------------------------------------------
    -- Primitive to Introspection value conversion --

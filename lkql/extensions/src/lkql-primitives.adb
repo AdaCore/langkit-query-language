@@ -546,6 +546,24 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Empty_Tuple;
 
+   -------------------
+   -- Make_Function --
+   -------------------
+
+   function Make_Function
+     (Node : L.Base_Function; Env : Environment_Access) return Primitive
+   is
+      Ref : Primitive;
+   begin
+      Ref.Set
+        (Primitive_Data'
+           (Refcounted
+            with Kind => Kind_Function,
+                 Fun_Node  => Node,
+                 Frame     => Env));
+      return Ref;
+   end Make_Function;
+
    ----------------------------
    -- To_Introspection_Value --
    ----------------------------
@@ -719,7 +737,9 @@ package body LKQL.Primitives is
                  when Kind_Tuple =>
                    List_Image (Val.Get.List_Val.all, "(", ")"),
                  when Kind_Selector_List =>
-                   Selector_List_Image (Selector_List_Val (Val)));
+                   Selector_List_Image (Selector_List_Val (Val)),
+                 when Kind_Function      => "function "
+              & To_Unbounded_Text (To_Text (Val.Get.Fun_Node.Image)));
    end To_Unbounded_Text;
 
    ---------------
@@ -737,7 +757,8 @@ package body LKQL.Primitives is
                  when Kind_Iterator      => "Iterator",
                  when Kind_List          => "List",
                  when Kind_Tuple          => "Tuple",
-                 when Kind_Selector_List  => "Selector List");
+                 when Kind_Selector_List  => "Selector List",
+                 when Kind_Function       => "Function");
    end To_String;
 
    ---------------
