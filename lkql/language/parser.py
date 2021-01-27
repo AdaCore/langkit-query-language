@@ -529,19 +529,13 @@ class BlockExpr(Expr):
     expr = Field(type=Expr)
 
 
-class FunDecl(Declaration):
+@abstract
+class BaseFunction(Expr):
     """
-    Function definition
-
-    For instance::
-       fun add(x, y) = x + y
+    Base class for a function expression.
     """
-
-    name = Field(type=Identifier)
     parameters = Field(type=ParameterDecl.list)
     body_expr = Field(type=Expr)
-
-    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
 
     @langkit_property(return_type=T.Int, public=True)
     def arity():
@@ -573,6 +567,35 @@ class FunDecl(Declaration):
             lambda p: p.cast(DefaultParam).as_entity,
             lambda p: p.is_a(DefaultParam)
         )
+
+
+class NamedFunction(BaseFunction):
+    """
+    Function expression that is part of a named function declaration (see
+    ``FunDecl``).
+    """
+    pass
+
+
+class AnonymousFunction(BaseFunction):
+    """
+    Anonymous function expression.
+    """
+    pass
+
+
+class FunDecl(Declaration):
+    """
+    Function definition
+
+    For instance::
+       fun add(x, y) = x + y
+    """
+
+    name = Field(type=Identifier)
+    fun_expr = Field(type=NamedFunction)
+
+    env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
 
 
 class FunCall(Expr):
@@ -610,7 +633,7 @@ class FunCall(Expr):
             arg.match(
                 lambda e=ExprArg:
                 SynthNamedArg.new(arg_name=Self.called_function()
-                                  .parameters.at(pos).identifier,
+                                  .fun_expr.parameters.at(pos).identifier,
                                   value_expr=e.value_expr)
                 .cast(NamedArg).as_entity,
 
@@ -626,7 +649,8 @@ class FunCall(Expr):
         as named arguments.
         """
         return Let(lambda call_args=Self.as_entity.call_args: Let(
-            lambda default_args=Self.called_function().default_parameters()
+            lambda default_args=Self.called_function()
+            .fun_expr.default_parameters()
             .filter(lambda p:
                     dsl_expr.Not(call_args.any(
                         lambda e: e.name().text == p.name())))
@@ -1130,8 +1154,14 @@ lkql_grammar.add_rules(
         G.unit_literal,
         NullLiteral("null"),
         G.integer,
+        G.anonymous_function,
         Pick("(", G.expr, ")"),
         G.if_then_else
+    ),
+
+    anonymous_function=AnonymousFunction(
+        "(", List(G.param, empty_valid=True, sep=","), ")",
+        "=>", G.expr
     ),
 
     block_expr=BlockExpr(
@@ -1143,8 +1173,10 @@ lkql_grammar.add_rules(
 
     fun_decl=FunDecl(
         "fun", c(), G.id,
-        "(", List(G.param, empty_valid=True, sep=","), ")",
-        "=", G.expr
+        NamedFunction(
+            "(", List(G.param, empty_valid=True, sep=","), ")",
+            "=", G.expr
+        )
     ),
 
     fun_call=FunCall(

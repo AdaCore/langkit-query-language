@@ -41,7 +41,7 @@ package body LKQL.Functions is
            (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
    begin
       return Eval
-        (Fun_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
+        (Fun_Ctx, Def.F_Fun_Expr.F_Body_Expr, Local_Bindings => Args_Bindings);
    end Eval_User_Fun_Call;
 
    --------------------
