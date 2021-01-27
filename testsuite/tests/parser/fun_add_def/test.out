@@ -1,19 +1,21 @@
 FunDecl
 |name:
 |  Identifier: add
-|parameters:
-|  ParameterDeclList
-|  |  ParameterDecl
-|  |  |param_identifier:
+|fun_expr:
+|  NamedFunction
+|  |parameters:
+|  |  ParameterDeclList
+|  |  |  ParameterDecl
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: x
+|  |  |  ParameterDecl
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: y
+|  |body_expr:
+|  |  ArithBinOp
+|  |  |left:
 |  |  |  Identifier: x
-|  |  ParameterDecl
-|  |  |param_identifier:
+|  |  |op:
+|  |  |  OpPlus
+|  |  |right:
 |  |  |  Identifier: y
-|body_expr:
-|  ArithBinOp
-|  |left:
-|  |  Identifier: x
-|  |op:
-|  |  OpPlus
-|  |right:
-|  |  Identifier: y

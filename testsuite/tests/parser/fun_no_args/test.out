@@ -1,10 +1,12 @@
 FunDecl
 |name:
 |  Identifier: allNodes
-|parameters:
-|  ParameterDeclList: <empty list>
-|body_expr:
-|  Query
-|  |from_expr: <null>
-|  |pattern:
-|  |  UniversalPattern
+|fun_expr:
+|  NamedFunction
+|  |parameters:
+|  |  ParameterDeclList: <empty list>
+|  |body_expr:
+|  |  Query
+|  |  |from_expr: <null>
+|  |  |pattern:
+|  |  |  UniversalPattern
