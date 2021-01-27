@@ -22,6 +22,9 @@ package body LKQL.Evaluation is
    function Eval_Fun_Decl
      (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive;
 
+   function Eval_Fun_Expr
+     (Ctx : Eval_Context; Node : L.Base_Function) return Primitive;
+
    function Eval_Identifier
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive;
 
@@ -186,7 +189,9 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Block_Expr =>
             Result := Eval_Block_Expr (Local_Context, Node.As_Block_Expr);
          when LCO.LKQL_Fun_Decl =>
-            Result := Make_Unit_Primitive;
+            Result := Eval_Fun_Decl (Ctx, Node.As_Fun_Decl);
+         when LCO.LKQL_Anonymous_Function =>
+            Result := Eval_Fun_Expr (Ctx, Node.As_Base_Function);
          when LCO.LKQL_Fun_Call =>
             Result := Eval_Fun_Call (Local_Context, Node.As_Fun_Call);
          when LCO.LKQL_Selector_Decl =>
@@ -270,10 +275,34 @@ package body LKQL.Evaluation is
    -------------------
 
    function Eval_Fun_Decl
-     (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive is
+     (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive
+   is
+      Identifier : constant Text_Type :=
+        Node.F_Name.Text;
    begin
-      null;
+      if Ctx.Exists_In_Local_Env (Identifier) then
+         Raise_Already_Existing_Symbol (Ctx,
+                                        To_Unbounded_Text (Identifier),
+                                        Node.F_Name.As_LKQL_Node);
+      end if;
+
+      Ctx.Add_Binding
+        (Identifier,
+         Eval_Fun_Expr (Ctx, Node.F_Fun_Expr.As_Base_Function));
+
+      return Make_Unit_Primitive;
+
    end Eval_Fun_Decl;
+
+   -------------------
+   -- Eval_Fun_Expr --
+   -------------------
+
+   function Eval_Fun_Expr
+     (Ctx : Eval_Context; Node : L.Base_Function) return Primitive is
+   begin
+      return Make_Function (Node, Primitives.Environment_Access (Ctx.Frames));
+   end Eval_Fun_Expr;
 
    ---------------------
    -- Eval_identifier --
