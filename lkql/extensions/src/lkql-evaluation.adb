@@ -19,6 +19,9 @@ package body LKQL.Evaluation is
    function Eval_Val_Decl
      (Ctx : Eval_Context; Node : L.Val_Decl) return Primitive;
 
+   function Eval_Fun_Decl
+     (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive;
+
    function Eval_Identifier
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive;
 
@@ -261,6 +264,16 @@ package body LKQL.Evaluation is
       Ctx.Add_Binding (Identifier, Eval (Ctx, Node.F_Value));
       return Make_Unit_Primitive;
    end Eval_Val_Decl;
+
+   -------------------
+   -- Eval_Fun_Decl --
+   -------------------
+
+   function Eval_Fun_Decl
+     (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive is
+   begin
+      null;
+   end Eval_Fun_Decl;
 
    ---------------------
    -- Eval_identifier --

@@ -1,32 +1,34 @@
 FunDecl
 |name:
 |  Identifier: dummy
-|parameters:
-|  ParameterDeclList
-|  |  ParameterDecl
-|  |  |param_identifier:
-|  |  |  Identifier: a
-|  |  DefaultParam
-|  |  |param_identifier:
-|  |  |  Identifier: b
-|  |  |default_expr:
-|  |  |  IntegerLiteral: 40
-|  |  DefaultParam
-|  |  |param_identifier:
-|  |  |  Identifier: c
-|  |  |default_expr:
-|  |  |  IntegerLiteral: 2
-|body_expr:
-|  ArithBinOp
-|  |left:
+|fun_expr:
+|  NamedFunction
+|  |parameters:
+|  |  ParameterDeclList
+|  |  |  ParameterDecl
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: a
+|  |  |  DefaultParam
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: b
+|  |  |  |default_expr:
+|  |  |  |  IntegerLiteral: 40
+|  |  |  DefaultParam
+|  |  |  |param_identifier:
+|  |  |  |  Identifier: c
+|  |  |  |default_expr:
+|  |  |  |  IntegerLiteral: 2
+|  |body_expr:
 |  |  ArithBinOp
 |  |  |left:
-|  |  |  Identifier: a
+|  |  |  ArithBinOp
+|  |  |  |left:
+|  |  |  |  Identifier: a
+|  |  |  |op:
+|  |  |  |  OpPlus
+|  |  |  |right:
+|  |  |  |  Identifier: b
 |  |  |op:
 |  |  |  OpPlus
 |  |  |right:
-|  |  |  Identifier: b
-|  |op:
-|  |  OpPlus
-|  |right:
-|  |  Identifier: c
+|  |  |  Identifier: c
