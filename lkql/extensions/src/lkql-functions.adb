@@ -7,6 +7,8 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
+with LKQL.String_Utils; use LKQL.String_Utils;
+
 package body LKQL.Functions is
 
    -------------------
@@ -16,15 +18,15 @@ package body LKQL.Functions is
    function Eval_Fun_Call
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive
    is
-      Fun_Def : L.Fun_Decl;
+      Func : Primitive;
    begin
       if Call.P_Is_Builtin_Call then
          return Eval_Builtin_Call (Ctx, Call);
       end if;
 
-      Fun_Def := Call.P_Called_Function;
+      Func := Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Function);
 
-      return Eval_User_Fun_Call (Ctx, Call, Fun_Def);
+      return Eval_User_Fun_Call (Ctx, Call, Func.Get.Fun_Node);
    end Eval_Fun_Call;
 
    ------------------------
@@ -33,24 +35,55 @@ package body LKQL.Functions is
 
    function Eval_User_Fun_Call (Ctx  : Eval_Context;
                                 Call : L.Fun_Call;
-                                Def  : L.Fun_Decl) return Primitive
+                                Def  : L.Base_Function) return Primitive
    is
-      Args_Bindings : constant Environment_Map :=
-        Eval_Arguments (Ctx, Call.P_Resolved_Arguments);
-      Fun_Ctx       : constant Eval_Context :=
-           (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
+      Resolved_Arguments : constant L.Named_Arg_Array
+        := Call.P_Resolved_Arguments (Def);
+
+      Names_Seen         : String_Set;
+      --  TODO: This check for names seen could/should be done at the same time
+      --  as resolution of arguments probably.
+      Expected_Arity : constant Integer := Def.P_Arity;
+
    begin
-      return Eval
-        (Fun_Ctx, Def.F_Fun_Expr.F_Body_Expr, Local_Bindings => Args_Bindings);
+      if Resolved_Arguments'Length /= Expected_Arity then
+         Raise_Invalid_Arity (Ctx, Expected_Arity, Call.F_Arguments);
+      end if;
+
+      for Arg of Call.F_Arguments loop
+         if Arg.P_Has_Name then
+            if not Def.P_Has_Parameter (Arg.P_Name.Text) then
+               Raise_Unknown_Argument (Ctx, Arg.P_Name);
+            end if;
+
+            if Names_Seen.Contains (To_Unbounded_Text (Arg.P_Name.Text)) then
+               Raise_Already_Seen_Arg (Ctx, Arg.As_Named_Arg);
+            end if;
+
+            Names_Seen.Insert (To_Unbounded_Text (Arg.P_Name.Text));
+         elsif not Names_Seen.Is_Empty then
+               Raise_Positionnal_After_Named (Ctx, Arg.As_Expr_Arg);
+         end if;
+      end loop;
+
+      declare
+         Args_Bindings : constant Environment_Map :=
+           Eval_Arguments (Ctx, Resolved_Arguments);
+         Fun_Ctx       : constant Eval_Context :=
+           (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
+      begin
+         return Eval
+           (Fun_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
+      end;
    end Eval_User_Fun_Call;
 
    --------------------
    -- Eval_Arguments --
    --------------------
 
-   function Eval_Arguments (Ctx       : Eval_Context;
-                            Arguments : L.Named_Arg_Array)
-                            return Environment_Map
+   function Eval_Arguments
+     (Ctx       : Eval_Context;
+      Arguments : L.Named_Arg_Array) return Environment_Map
    is
       Args_Bindings : Environment_Map;
    begin

@@ -1,4 +1,3 @@
-with LKQL.Checks;         use LKQL.Checks;
 with LKQL.Errors;         use LKQL.Errors;
 with LKQL.Queries;        use LKQL.Queries;
 with LKQL.Patterns;       use LKQL.Patterns;
@@ -123,7 +122,6 @@ package body LKQL.Evaluation is
      (Ctx  : Eval_Context; Node : L.LKQL_Node'Class) return Primitive
    is
    begin
-      Check (Ctx, Node);
       return Eval (Ctx, Node);
    end Check_And_Eval;
 

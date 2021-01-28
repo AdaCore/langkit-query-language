@@ -616,15 +616,8 @@ class FunCall(Expr):
         """
         return Self.arguments.length
 
-    @langkit_property(return_type=FunDecl.entity, public=True)
-    def called_function():
-        """
-        Return the function definition that corresponds to the called function.
-        """
-        return Self.node_env.get_first(Self.name.symbol).cast(FunDecl)
-
     @langkit_property(return_type=NamedArg.entity.array, memoized=True)
-    def call_args():
+    def call_args(called_fn=BaseFunction.entity):
         """
         Return the explicit arguments of this call as named arguments.
         """
@@ -632,8 +625,8 @@ class FunCall(Expr):
             lambda pos, arg:
             arg.match(
                 lambda e=ExprArg:
-                SynthNamedArg.new(arg_name=Self.called_function()
-                                  .fun_expr.parameters.at(pos).identifier,
+                SynthNamedArg.new(arg_name=called_fn
+                                  .parameters.at(pos).identifier,
                                   value_expr=e.value_expr)
                 .cast(NamedArg).as_entity,
 
@@ -643,14 +636,13 @@ class FunCall(Expr):
 
     @langkit_property(return_type=NamedArg.entity.array, public=True,
                       memoized=True)
-    def resolved_arguments():
+    def resolved_arguments(called_fn=BaseFunction.entity):
         """
         Return the arguments of this call (default arguments included)
         as named arguments.
         """
-        return Let(lambda call_args=Self.as_entity.call_args: Let(
-            lambda default_args=Self.called_function()
-            .fun_expr.default_parameters()
+        return Let(lambda call_args=Self.as_entity.call_args(called_fn): Let(
+            lambda default_args=called_fn.default_parameters()
             .filter(lambda p:
                     dsl_expr.Not(call_args.any(
                         lambda e: e.name().text == p.name())))
