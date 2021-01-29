@@ -49,7 +49,7 @@ current data types:
 * Nodes: Coming from the queried language (in the common case, Ada), those are
   the only composite data types for the moment. They correspond to the syntax
   nodes of the source files being queried. They can be explored as part of the
-  general language subset, through :ref:`Field access`_, or via the `Tree
+  general language subset, through `Field access`_, or via the `Tree
   query language subset`_.
 
 Declarations
@@ -393,15 +393,30 @@ data structure composed of several elements of distinct types:
 
 .. code-block:: lkql
 
-    val t = (1, 2);
-    val tt = ("hello", "world");
-    val ttt = (t[1], tt[1]);
+    val t = (1, 2)
+    val tt = ("hello", "world")
+    val ttt = (t[1], tt[1])
     print(t)
     print(tt)
     print(ttt)
 
 Tuples are useful as function return values, or to aggregate data, since LKQL
 doesn't have structs yet.
+
+Anonymous functions
+^^^^^^^^^^^^^^^^^^^
+
+.. lkql_doc_class:: BaseFunction
+
+LKQL has first class functions, and anonymous functions expressions (or
+lambdas). Anonymous functions have the following form:
+
+.. code-block:: lkql
+
+    fun mul_y(y) = (x) => x * y
+    val mul_2 = mul_y (2)
+    val four = mul_2 (2)
+
 
 Literals and Operators
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -531,7 +546,7 @@ Pattern
     :file: ../../lkql/build/railroad-diagrams/pattern.svg
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/chained_pattern.svg
+    :file: ../../lkql/build/railroad-diagrams/filtered_pattern.svg
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/binding_pattern.svg
