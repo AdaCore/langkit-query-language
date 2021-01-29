@@ -177,7 +177,9 @@ package body LKQL.Patterns.Nodes is
       use LKQL.Node_Data;
       Property_Value : constant Primitive :=
         Eval_Node_Property
-          (Ctx, Node, Property.F_Call.F_Name, Property.F_Call.F_Arguments);
+          (Ctx, Node,
+           Property.F_Call.F_Name.As_Identifier,
+           Property.F_Call.F_Arguments);
    begin
       return Match_Detail_Value
         (Ctx, Property_Value, Property.F_Expected_Value);
