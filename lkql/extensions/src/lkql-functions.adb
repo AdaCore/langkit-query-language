@@ -8,6 +8,7 @@ with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
 with LKQL.String_Utils; use LKQL.String_Utils;
+with Ada.Assertions; use Ada.Assertions;
 
 package body LKQL.Functions is
 
@@ -118,7 +119,7 @@ package body LKQL.Functions is
          return Eval_Debug (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
       end if;
 
-      Raise_Unknown_Symbol (Ctx, Call.F_Name);
+      raise Assertion_Error with "should never happen";
    end Eval_Builtin_Call;
 
    ----------------

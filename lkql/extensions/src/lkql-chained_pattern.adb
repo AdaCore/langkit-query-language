@@ -240,7 +240,8 @@ package body LKQL.Chained_Pattern is
       use LKQL.Node_Data;
       Call        : constant L.Fun_Call := Property.F_Property;
       Property_Value : constant Primitive :=
-        Eval_Node_Property (Ctx, Root, Call.F_Name, Call.F_Arguments);
+        Eval_Node_Property
+          (Ctx, Root, Call.F_Name.As_Identifier, Call.F_Arguments);
    begin
       if Kind (Property_Value) /= Kind_Node
         and then Kind (Property_Value) /= Kind_List

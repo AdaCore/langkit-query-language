@@ -606,7 +606,7 @@ class FunCall(Expr):
        add(2, 40)
     """
 
-    name = Field(type=Identifier)
+    name = Field(type=Expr)
     arguments = Field(type=Arg.list)
 
     @langkit_property(return_type=T.Int, public=True)
@@ -1136,7 +1136,9 @@ lkql_grammar.add_rules(
         DotAccess(G.value_expr, ".", c(), G.id),
         SafeAccess(G.value_expr, "?.", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
-        G.fun_call,
+        FunCall(
+            G.value_expr, "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
+        ),
         G.query,
         G.listcomp,
         G.match,
