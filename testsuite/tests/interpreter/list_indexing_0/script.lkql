@@ -1,2 +1,2 @@
 val p = select p @ ObjectDecl
-print(p[1].has_constant is ConstantAbsent)
+print(p[1].f_has_constant is ConstantAbsent)

@@ -17,6 +17,14 @@ package body LKQL.Node_Data is
      (Value : Unbounded_Text_Array_Access) return Primitive;
    --  Create a Primitive value from the given text array
 
+   function Check_And_Remove_Prefix
+     (Ctx       : Eval_Context;
+      Name_Node : L.Identifier;
+      Prefix    : Text_Type;
+      White_List : String_Set) return Text_Type;
+   --  Helper function to check a prefix on an LKQL identifier, and return the
+   --  text without the prefix.
+
    ------------------
    -- To_Primitive --
    ------------------
@@ -82,12 +90,15 @@ package body LKQL.Node_Data is
                                Field_Name : L.Identifier) return Primitive
    is
       Result : Introspection_Value;
+
+      Real_Name : constant Text_Type :=
+        Check_And_Remove_Prefix (Ctx, Field_Name, "f_", Builtin_Fields);
    begin
-      if not Receiver.Get.Is_Field_Name (Field_Name.Text) then
+      if not Receiver.Get.Is_Field_Name (Real_Name) then
          Raise_No_Such_Field (Ctx, Receiver, Field_Name);
       end if;
 
-      Result := Receiver.Get.Access_Field (Field_Name.Text);
+      Result := Receiver.Get.Access_Field (Real_Name);
 
       return To_Primitive (Result);
 
@@ -97,6 +108,48 @@ package body LKQL.Node_Data is
            (Ctx, Make_Eval_Error (Field_Name,
                                   To_Text (Exception_Message (Error))));
    end Access_Node_Field;
+
+   -----------------------------
+   -- Check_And_Remove_Prefix --
+   -----------------------------
+
+   function Check_And_Remove_Prefix
+     (Ctx        : Eval_Context;
+      Name_Node  : L.Identifier;
+      Prefix     : Text_Type;
+      White_List : String_Set) return Text_Type
+   is
+      Text_Name : constant Text_Type := Name_Node.Text;
+
+      function Name_Prefix return Text_Type is
+        (Text_Name (Text_Name'First .. Text_Name'First + Prefix'Length - 1));
+
+   begin
+      if White_List.Contains (To_Unbounded_Text (Text_Name)) then
+         return Text_Name;
+      end if;
+
+      if Text_Name'Length <= Prefix'Length + 1 then
+         Raise_And_Record_Error
+           (Ctx, Make_Eval_Error (Name_Node, "Invalid name"));
+
+      elsif Name_Prefix /= Prefix then
+         Raise_And_Record_Error
+           (Ctx,
+            Make_Eval_Error
+              (Name_Node, "Invalid prefix: " & Name_Prefix));
+      end if;
+
+      return Ret : constant Text_Type :=
+        Text_Name (Text_Name'First + Prefix'Length .. Text_Name'Last)
+      do
+         if White_List.Contains (To_Unbounded_Text (Ret)) then
+            Raise_And_Record_Error
+              (Ctx, Make_Eval_Error (Name_Node, "Invalid name"));
+         end if;
+      end return;
+
+   end Check_And_Remove_Prefix;
 
    ------------------------
    -- Eval_Node_Property --
@@ -108,22 +161,27 @@ package body LKQL.Node_Data is
                                 Args          : L.Arg_List) return Primitive
    is
       Result        : Introspection_Value;
+
+      Real_Name     : constant Text_Type :=
+        Check_And_Remove_Prefix (Ctx, Property_Name, "p_", Builtin_Properties);
+
       Property_Args : constant Introspection_Value_Array :=
         Introspection_Value_Array_From_Args
-          (Ctx, Receiver, Property_Name.Text, Args);
+          (Ctx, Receiver, Real_Name, Args);
+
    begin
-      if not Receiver.Get.Is_Property_Name (Property_Name.Text) then
+      if not Receiver.Get.Is_Property_Name (Real_Name) then
          Raise_No_Such_Property (Ctx, Receiver, Property_Name);
       end if;
 
-      if Args.Children_Count > Receiver.Get.Property_Arity (Property_Name.Text)
+      if Args.Children_Count > Receiver.Get.Property_Arity (Real_Name)
       then
          Raise_Invalid_Arity
-           (Ctx, Receiver.Get.Property_Arity (Property_Name.Text), Args);
+           (Ctx, Receiver.Get.Property_Arity (Real_Name), Args);
       end if;
 
       Result :=
-        Receiver.Get.Evaluate_Property (Property_Name.Text, Property_Args);
+        Receiver.Get.Evaluate_Property (Real_Name, Property_Args);
 
       return To_Primitive (Result);
 
@@ -159,4 +217,12 @@ package body LKQL.Node_Data is
       return Result;
    end Introspection_Value_Array_From_Args;
 
+begin
+   Builtin_Fields.Include (To_Unbounded_Text ("parent"));
+   Builtin_Fields.Include (To_Unbounded_Text ("previous_sibling"));
+   Builtin_Fields.Include (To_Unbounded_Text ("next_sibling"));
+   Builtin_Fields.Include (To_Unbounded_Text ("children"));
+   Builtin_Fields.Include (To_Unbounded_Text ("text"));
+   Builtin_Fields.Include (To_Unbounded_Text ("image"));
+   Builtin_Fields.Include (To_Unbounded_Text ("unit"));
 end LKQL.Node_Data;

@@ -1,2 +1,2 @@
-val result = select BaseTypeDecl(is_access_type() is true)
+val result = select BaseTypeDecl(p_is_access_type() is true)
 print(result)

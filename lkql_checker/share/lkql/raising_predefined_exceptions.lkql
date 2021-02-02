@@ -5,4 +5,4 @@ fun isPredefinedName(id) = {
     name == "Tasking_Error"
 }
 
-fun result() = select r@RaiseStmt when isPredefinedName(r.exception_name)
+fun result() = select r@RaiseStmt when isPredefinedName(r.f_exception_name)

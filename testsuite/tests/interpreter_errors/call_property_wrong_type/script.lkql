@@ -1,2 +1,2 @@
 val names = select Name
-print(names[1].referenced_decl(1))
+print(names[1].p_referenced_decl(1))

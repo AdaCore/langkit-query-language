@@ -547,7 +547,6 @@ package body Ada_AST_Nodes is
 
       return Make_Introspection_Value
         (Eval_Member (Node.Node, Property_Ref, Property_Args));
-
    end Evaluate_Property;
 
    ----------------

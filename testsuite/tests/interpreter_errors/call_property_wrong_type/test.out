@@ -1,5 +1,5 @@
 main.adb
 script.lkql:2:16: error: Cannot convert a KIND_INT to a BOOLEAN_VALUE
-2 | print(names[1].referenced_decl(1))
-  |                ^^^^^^^^^^^^^^^ 
+2 | print(names[1].p_referenced_decl(1))
+  |                ^^^^^^^^^^^^^^^^^ 
 
