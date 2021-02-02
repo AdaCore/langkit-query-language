@@ -187,9 +187,9 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Block_Expr =>
             Result := Eval_Block_Expr (Local_Context, Node.As_Block_Expr);
          when LCO.LKQL_Fun_Decl =>
-            Result := Eval_Fun_Decl (Ctx, Node.As_Fun_Decl);
+            Result := Eval_Fun_Decl (Local_Context, Node.As_Fun_Decl);
          when LCO.LKQL_Anonymous_Function =>
-            Result := Eval_Fun_Expr (Ctx, Node.As_Base_Function);
+            Result := Eval_Fun_Expr (Local_Context, Node.As_Base_Function);
          when LCO.LKQL_Fun_Call =>
             Result := Eval_Fun_Call (Local_Context, Node.As_Fun_Call);
          when LCO.LKQL_Selector_Decl =>
@@ -299,6 +299,7 @@ package body LKQL.Evaluation is
    function Eval_Fun_Expr
      (Ctx : Eval_Context; Node : L.Base_Function) return Primitive is
    begin
+      LKQL.Eval_Contexts.Inc_Ref (Ctx.Frames);
       return Make_Function (Node, Primitives.Environment_Access (Ctx.Frames));
    end Eval_Fun_Expr;
 

@@ -3,6 +3,7 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+with LKQL.Eval_Contexts;
 
 with GNAT.Case_Util;
 
@@ -179,6 +180,9 @@ package body LKQL.Primitives is
          when Kind_Iterator =>
             Primitive_Iters.Free_Iterator (Data.Iter_Val.Iter);
             Free_Iterator_Primitive (Data.Iter_Val);
+         when Kind_Function =>
+            LKQL.Eval_Contexts.Dec_Ref
+              (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
          when others =>
             null;
       end case;

@@ -27,23 +27,30 @@ package body LKQL.Functions is
 
       Func := Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Function);
 
-      return Eval_User_Fun_Call (Ctx, Call, Func.Get.Fun_Node);
+      return Eval_User_Fun_Call (Ctx, Call, Func);
    end Eval_Fun_Call;
 
    ------------------------
    -- Eval_User_Fun_Call --
    ------------------------
 
-   function Eval_User_Fun_Call (Ctx  : Eval_Context;
-                                Call : L.Fun_Call;
-                                Def  : L.Base_Function) return Primitive
+   function Eval_User_Fun_Call
+     (Ctx  : Eval_Context;
+      Call : L.Fun_Call;
+      Func : Primitive) return Primitive
    is
+
+      Def : constant L.Base_Function := Func.Get.Fun_Node;
+      Env : constant LKQL.Primitives.Environment_Access :=
+        Func.Get.Frame;
+
       Resolved_Arguments : constant L.Named_Arg_Array
         := Call.P_Resolved_Arguments (Def);
 
       Names_Seen         : String_Set;
       --  TODO: This check for names seen could/should be done at the same time
       --  as resolution of arguments probably.
+
       Expected_Arity : constant Integer := Def.P_Arity;
 
    begin
@@ -68,13 +75,13 @@ package body LKQL.Functions is
       end loop;
 
       declare
+         Eval_Ctx : constant Eval_Context :=
+           Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
          Args_Bindings : constant Environment_Map :=
            Eval_Arguments (Ctx, Resolved_Arguments);
-         Fun_Ctx       : constant Eval_Context :=
-           (if Ctx.Is_Root_Context then Ctx else Ctx.Parent_Context);
       begin
          return Eval
-           (Fun_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
+           (Eval_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
       end;
    end Eval_User_Fun_Call;
 
