@@ -1,0 +1,9 @@
+fun map(fn, coll) = [fn(el) for el in coll]
+
+print(map((x) => x.text, select BasicDecl))
+
+fun make_adder(to_add) = (x) => x + to_add
+
+val a = make_adder(12)
+print(a(15))
+print(a(2))
