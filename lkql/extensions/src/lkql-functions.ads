@@ -9,9 +9,10 @@ private package LKQL.Functions is
 
 private
 
-   function Eval_User_Fun_Call (Ctx  : Eval_Context;
-                                Call : L.Fun_Call;
-                                Def  : L.Base_Function) return Primitive;
+   function Eval_User_Fun_Call
+     (Ctx  : Eval_Context;
+      Call : L.Fun_Call;
+      Func : Primitive) return Primitive;
    --  Evaluate a call to a user-defined function
 
    function Eval_Arguments

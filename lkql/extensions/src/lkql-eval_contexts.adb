@@ -1,4 +1,8 @@
+
 package body LKQL.Eval_Contexts is
+
+   procedure Free_Environment is new Ada.Unchecked_Deallocation
+     (Environment, Environment_Access);
 
    ---------------
    -- Add_Error --
@@ -15,7 +19,7 @@ package body LKQL.Eval_Contexts is
 
    procedure Release_Current_Frame (Ctx : in out Eval_Context) is
    begin
-      Free_Environment (Ctx.Frames);
+      Dec_Ref (Ctx.Frames);
    end Release_Current_Frame;
 
    ----------------
@@ -79,7 +83,7 @@ package body LKQL.Eval_Contexts is
                               return Eval_Context
    is
       New_Env     : constant Environment_Access :=
-        new Environment'(Local_Bindings, Ctx.Frames);
+        new Environment'(Local_Bindings, Ctx.Frames, Ref_Count => <>);
    begin
       return Eval_Context'(Ctx.Kernel, New_Env);
    end Create_New_Frame;
@@ -175,7 +179,7 @@ package body LKQL.Eval_Contexts is
 
    function Make_Empty_Environment (Parent : Environment_Access := null)
                                     return Environment
-   is (Environment'(String_Value_Maps.Empty_Map, Parent));
+   is (Environment'(String_Value_Maps.Empty_Map, Parent, Ref_Count => 1));
 
    ------------------
    -- Add_Bindings --
@@ -234,5 +238,52 @@ package body LKQL.Eval_Contexts is
          end;
       end if;
    end Merge_Item_Into;
+
+   -------------
+   -- Inc_Ref --
+   -------------
+
+   procedure Inc_Ref (Self : Environment_Access) is
+   begin
+      Self.Ref_Count := Self.Ref_Count + 1;
+   end Inc_Ref;
+
+   -------------
+   -- Dec_Ref --
+   -------------
+
+   procedure Dec_Ref (Self : in out Environment_Access) is
+   begin
+      Self.Ref_Count := Self.Ref_Count - 1;
+      if Self.Ref_Count = 0 then
+         Free_Environment (Self);
+      end if;
+   end Dec_Ref;
+
+   -------------------
+   -- Env_Map_Image --
+   -------------------
+
+   function Env_Map_Image (Self : Environment_Map) return String is
+      Ret : Unbounded_Text_Type;
+      Cur : String_Value_Maps.Cursor := Self.First;
+      Is_First : Boolean := True;
+   begin
+      Append (Ret, "{");
+      loop
+         exit when not String_Value_Maps.Has_Element (Cur);
+         if not Is_First then
+            Append (Ret, ", ");
+         else
+            Is_First := False;
+         end if;
+
+         Append (Ret, """" & String_Value_Maps.Key (Cur) & """");
+         Append (Ret, To_Unbounded_Text (String_Value_Maps.Element (Cur)));
+         String_Value_Maps.Next (Cur);
+      end loop;
+      Append (Ret, "}");
+      return Image (To_Text (Ret));
+   end Env_Map_Image;
 
 end LKQL.Eval_Contexts;

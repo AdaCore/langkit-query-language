@@ -38,6 +38,10 @@ package LKQL.Eval_Contexts is
 
    type Environment_Access is access all Environment;
 
+   procedure Inc_Ref (Self : Environment_Access);
+   procedure Dec_Ref (Self : in out Environment_Access);
+   function Env_Map_Image (Self : Environment_Map) return String;
+
    ------------------
    -- Eval_Context --
    ------------------
@@ -160,6 +164,8 @@ private
       --  Parent environment
       --  If this environment is non-null, it will be used as a fallback upon
       --  lookup failures.
+
+      Ref_Count : Natural := 1;
    end record;
    --  Chainable map for symbol lookups
 
@@ -168,9 +174,6 @@ private
    --  Lookup the given key in the local environment.
    --  If the local environment doesn't contain the given key, the lookup will
    --  be attempted on the parent env, if any.
-
-   procedure Free_Environment is new Ada.Unchecked_Deallocation
-     (Environment, Environment_Access);
 
    function Make_Empty_Environment
      (Parent : Environment_Access := null) return Environment;
