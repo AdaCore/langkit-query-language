@@ -1,7 +1,7 @@
 fun isRealWithoutRange(decl) =
-    decl is TypeDecl(type_def=RealTypeDef(no children is RangeSpec))
+    decl is TypeDecl(f_type_def=RealTypeDef(no children is RangeSpec))
 
 fun result() =
    select t @ BaseTypeDecl
    when isRealWithoutRange(t)
-        or t is SubtypeDecl(get_type() is bt @ * when isRealWithoutRange(bt))
+        or t is SubtypeDecl(p_get_type() is bt @ * when isRealWithoutRange(bt))

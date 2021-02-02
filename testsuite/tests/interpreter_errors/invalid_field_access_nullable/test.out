@@ -1,5 +1,5 @@
 main.adb
-script.lkql:2:25: error: Invalid direct access on node of kind ConstantAbsent?
-2 | objects[1].has_constant.text
-  |                         ^^^^ 
+script.lkql:2:27: error: Invalid direct access on node of kind ConstantAbsent?
+2 | objects[1].f_has_constant.text
+  |                           ^^^^ 
 

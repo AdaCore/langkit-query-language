@@ -1,2 +1,2 @@
 val objects = select ObjectDecl
-print(objects[1]?.has_constant is ConstantAbsent)
+print(objects[1]?.f_has_constant is ConstantAbsent)

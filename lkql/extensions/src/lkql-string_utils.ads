@@ -5,7 +5,7 @@ with Ada.Containers.Indefinite_Vectors; use Ada.Containers;
 with Ada.Strings.Wide_Wide_Unbounded;   use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 
-private package LKQL.String_Utils is
+package LKQL.String_Utils is
 
    package String_Vectors is new
      Indefinite_Vectors (Positive, Unbounded_Text_Type);

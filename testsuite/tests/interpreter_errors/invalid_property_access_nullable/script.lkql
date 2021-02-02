@@ -1,2 +1,2 @@
 val objects = select o @ ObjectDecl
-objects[1].has_constant.get_attribute("attribute")
+objects[1].f_has_constant.p_get_attribute("attribute")

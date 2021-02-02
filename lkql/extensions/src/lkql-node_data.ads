@@ -1,6 +1,7 @@
 with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.String_Utils;   use LKQL.String_Utils;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -20,6 +21,13 @@ package LKQL.Node_Data is
    --  Evaluate the property designated by 'Property_Name' on 'Receiver'.
    --  An exception will be raised if there is no such property or if the call
    --  arity doesn't match the arity of the property.
+
+   Builtin_Fields, Builtin_Properties : LKQL.String_Utils.String_Set;
+   --  Builtin fields and properties. Public because used in completion.
+   --  TODO: The whole white list thing is a kludge that we want to remove
+   --  as soon as the Langkit introspection API handles mapping properties
+   --  to their prefixed names, and so handles built-in properties and
+   --  fields.
 
 private
 

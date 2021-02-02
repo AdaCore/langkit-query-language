@@ -20,7 +20,7 @@ package body Liblkqllang.Prelude is
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector superTypes" & ASCII.LF &
-        "    | BaseTypeDecl      => rec *it.base_types()" & ASCII.LF &
+        "    | BaseTypeDecl      => rec *it.p_base_types()" & ASCII.LF &
         "    | *                 => ()" & ASCII.LF;
 
     -------------------

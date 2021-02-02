@@ -1,4 +1,4 @@
 val specs = select SubpSpec
-val nullParams = specs[1].subp_params
+val nullParams = specs[1].f_subp_params
 print(nullParams) # null
-print(nullParams?.params) # stil null
+print(nullParams?.f_params) # stil null

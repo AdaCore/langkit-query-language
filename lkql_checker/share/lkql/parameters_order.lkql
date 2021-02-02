@@ -1,7 +1,7 @@
 fun priority(paramSpec) =
-    if paramSpec.default_expr != null
+    if paramSpec.f_default_expr != null
     then 0
-    else match paramSpec.mode
+    else match paramSpec.f_mode
             | ModeOut     => 1
             | ModeInOut   => 2
             | ModeIn      => 3

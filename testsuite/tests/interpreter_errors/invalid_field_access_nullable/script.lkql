@@ -1,2 +1,2 @@
 val objects = select o @ * when o is ObjectDecl
-objects[1].has_constant.text
+objects[1].f_has_constant.text

@@ -22,6 +22,7 @@ with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Errors;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.Node_Data; use LKQL.Node_Data;
 
 package body Liblkqllang.Implementation.Extensions is
 
@@ -155,6 +156,12 @@ package body Liblkqllang.Implementation.Extensions is
             Val : Unbounded_String :=
               To_Unbounded_String (Member_Name (Field));
          begin
+            if not Builtin_Fields.Contains
+              (To_Unbounded_Text (To_Text (Member_Name (Field))))
+            then
+               Insert (Val, 1, "f_");
+            end if;
+
             if In_Pattern then
                Append (Val, "=");
             end if;
@@ -169,6 +176,12 @@ package body Liblkqllang.Implementation.Extensions is
             Val : Unbounded_String :=
               To_Unbounded_String (Member_Name (Prop));
          begin
+            if not Builtin_Fields.Contains
+              (To_Unbounded_Text (To_Text (Member_Name (Prop))))
+            then
+               Insert (Val, 1, "p_");
+            end if;
+
             if In_Pattern then
                if Property_Argument_Types (Prop)'Length > 0 then
                   Append (Val, "(");
