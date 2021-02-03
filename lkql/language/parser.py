@@ -3,7 +3,7 @@ from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
 )
 from langkit.expressions import (
-    Self, String, No, langkit_property, AbstractKind, Let, If
+    Entity, Self, String, No, langkit_property, AbstractKind, Let, If
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
@@ -74,7 +74,7 @@ class Declaration(LKQLNode):
 @abstract
 class AnnotatedDeclaration(Declaration):
     """
-    Declaration that can have an annotation.
+    Declaration that can have an annotation. For the moment, only functions.
     """
     annotation = Field(type=DeclAnnotation)
 
@@ -247,6 +247,8 @@ class ParameterDecl(Declaration):
     """
 
     param_identifier = Field(type=Identifier)
+    type_annotation = Field(type=Identifier)
+    default_expr = Field(type=Expr)
 
     @langkit_property(return_type=T.Identifier, public=True)
     def identifier():
@@ -261,27 +263,6 @@ class ParameterDecl(Declaration):
         Return the name of the parameter.
         """
         return Self.param_identifier.text
-
-    @langkit_property(return_type=Expr, public=True)
-    def default():
-        """
-        Return the default value of the parameter.
-        """
-        return No(Expr)
-
-
-class DefaultParam(ParameterDecl):
-    """
-    Parameter with a default value.
-
-    For instance::
-       fun add(x, y=42) = ...
-    """
-    default_expr = Field(type=Expr)
-
-    @langkit_property()
-    def default():
-        return Self.default_expr
 
 
 class Not(Expr):
@@ -574,14 +555,13 @@ class BaseFunction(Expr):
         """
         return dsl_expr.Not(Self.find_parameter(name).is_null)
 
-    @langkit_property(return_type=DefaultParam.entity.array, public=True)
+    @langkit_property(return_type=ParameterDecl.entity.array, public=True)
     def default_parameters():
         """
         Return the defaults parameters of the function, if any.
         """
-        return Self.parameters.filtermap(
-            lambda p: p.cast(DefaultParam).as_entity,
-            lambda p: p.is_a(DefaultParam)
+        return Entity.parameters.filter(
+            lambda p: dsl_expr.Not(p.default_expr.is_null)
         )
 
 
@@ -1236,8 +1216,7 @@ lkql_grammar.add_rules(
 
     named_arg=NamedArg(G.id, "=", G.expr),
 
-    param=Or(DefaultParam(G.id, "=", G.expr),
-             ParameterDecl(G.id)),
+    param=ParameterDecl(G.id, Opt(":", G.id), Opt("=", G.expr)),
 
     decl_annotation=DeclAnnotation("@", G.id, Opt("(", G.arg_list, ")"))
 

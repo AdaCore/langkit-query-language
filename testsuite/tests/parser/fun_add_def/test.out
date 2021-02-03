@@ -9,9 +9,13 @@ FunDecl
 |  |  |  ParameterDecl
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: x
+|  |  |  |f_type_annotation: <null>
+|  |  |  |f_default_expr: <null>
 |  |  |  ParameterDecl
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: y
+|  |  |  |f_type_annotation: <null>
+|  |  |  |f_default_expr: <null>
 |  |f_body_expr:
 |  |  ArithBinOp
 |  |  |f_left:

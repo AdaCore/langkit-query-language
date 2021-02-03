@@ -1,0 +1,11 @@
+@check
+fun too_many_dependencies(max_deps : int) =
+    select
+        CompilationUnit(
+            any c @ children is Identifier(any parent(depth=2) is WithClause)
+        )
+        .f_body is l @ LibraryItem when {
+            val semanticParent = l.f_item?.p_semantic_parent();
+            val deps = [x for x in c if x.p_referenced_decl() != semanticParent];
+            deps.length > max_deps
+        }

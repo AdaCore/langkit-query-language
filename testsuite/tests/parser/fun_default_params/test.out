@@ -9,14 +9,18 @@ FunDecl
 |  |  |  ParameterDecl
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: a
-|  |  |  DefaultParam
+|  |  |  |f_type_annotation: <null>
+|  |  |  |f_default_expr: <null>
+|  |  |  ParameterDecl
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: b
+|  |  |  |f_type_annotation: <null>
 |  |  |  |f_default_expr:
 |  |  |  |  IntegerLiteral: 40
-|  |  |  DefaultParam
+|  |  |  ParameterDecl
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: c
+|  |  |  |f_type_annotation: <null>
 |  |  |  |f_default_expr:
 |  |  |  |  IntegerLiteral: 2
 |  |f_body_expr:
