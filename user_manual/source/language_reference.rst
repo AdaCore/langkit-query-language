@@ -63,6 +63,7 @@ Function declaration
 ^^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: FunDecl
+.. lkql_doc_class:: DeclAnnotation
 .. lkql_doc_class:: ParameterDecl
 
 .. raw:: html
@@ -90,6 +91,16 @@ can use a `Block expression`_.
         val ret = x + y;
         ret
     }
+
+
+.. note:: Function can have annotations. For the moment, this is used only in
+    the context of LKQL checkers, so not documented further:
+
+    .. code-block:: lkql
+
+        @checker
+        fun check_bla() = select Bla
+
 
 Value declaration
 ^^^^^^^^^^^^^^^^^
