@@ -1,0 +1,62 @@
+FunDecl
+|f_annotation:
+|  DeclAnnotation
+|  |f_name:
+|  |  Identifier: check
+|  |f_arguments:
+|  |  ArgList
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: custom_name
+|  |  |  |f_value_expr:
+|  |  |  |  StringLiteral: "Implicit_Small"
+|f_name:
+|  Identifier: implicit_small
+|f_fun_expr:
+|  NamedFunction
+|  |f_parameters:
+|  |  ParameterDeclList: <empty list>
+|  |f_body_expr:
+|  |  Query
+|  |  |f_from_expr: <null>
+|  |  |f_pattern:
+|  |  |  FilteredPattern
+|  |  |  |f_pattern:
+|  |  |  |  BindingPattern
+|  |  |  |  |f_binding:
+|  |  |  |  |  Identifier: t
+|  |  |  |  |f_value_pattern:
+|  |  |  |  |  ExtendedNodePattern
+|  |  |  |  |  |f_node_pattern:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: TypeDecl
+|  |  |  |  |  |f_details:
+|  |  |  |  |  |  NodePatternDetailList
+|  |  |  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |  |  |f_call:
+|  |  |  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |  |  |f_quantifier:
+|  |  |  |  |  |  |  |  |  Identifier: any
+|  |  |  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |  |  |f_selector_identifier:
+|  |  |  |  |  |  |  |  |  Identifier: children
+|  |  |  |  |  |  |  |  |f_args:
+|  |  |  |  |  |  |  |  |  NamedArgList: <empty list>
+|  |  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  |  Identifier: OrdinaryFixedPointDef
+|  |  |  |f_predicate:
+|  |  |  |  NotNode
+|  |  |  |  |f_value:
+|  |  |  |  |  DotCall
+|  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  Identifier: t
+|  |  |  |  |  |f_member:
+|  |  |  |  |  |  Identifier: p_has_aspect
+|  |  |  |  |  |f_arguments:
+|  |  |  |  |  |  ArgList
+|  |  |  |  |  |  |  ExprArg
+|  |  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  |  StringLiteral: "Small"

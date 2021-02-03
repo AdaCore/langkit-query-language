@@ -55,12 +55,28 @@ class LKQLNode(ASTNode):
         pass
 
 
+class DeclAnnotation(LKQLNode):
+    """
+    Compile time annotation attached to a declaration. For the moment, only
+    used for @checker annotation in lkql_checker.
+    """
+    name = Field(type=T.Identifier)
+    arguments = Field(type=T.Arg.list)
+
+
 @abstract
 class Declaration(LKQLNode):
     """
     Root node class for LKQL declarations.
     """
-    pass
+
+
+@abstract
+class AnnotatedDeclaration(Declaration):
+    """
+    Declaration that can have an annotation.
+    """
+    annotation = Field(type=DeclAnnotation)
 
 
 @abstract
@@ -584,7 +600,7 @@ class AnonymousFunction(BaseFunction):
     pass
 
 
-class FunDecl(Declaration):
+class FunDecl(AnnotatedDeclaration):
     """
     Function definition
 
@@ -1166,7 +1182,7 @@ lkql_grammar.add_rules(
     val_decl=ValDecl("val", c(), G.id, "=", G.expr),
 
     fun_decl=FunDecl(
-        "fun", c(), G.id,
+        Opt(G.decl_annotation), "fun", c(), G.id,
         NamedFunction(
             "(", List(G.param, empty_valid=True, sep=","), ")",
             "=", G.expr
@@ -1174,8 +1190,10 @@ lkql_grammar.add_rules(
     ),
 
     fun_call=FunCall(
-        G.id, "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
+        G.id, "(", c(), G.arg_list, ")"
     ),
+
+    arg_list=List(G.arg, empty_valid=True, sep=","),
 
     selector_decl=SelectorDecl(
         "selector", c(),
@@ -1220,5 +1238,7 @@ lkql_grammar.add_rules(
 
     param=Or(DefaultParam(G.id, "=", G.expr),
              ParameterDecl(G.id)),
+
+    decl_annotation=DeclAnnotation("@", G.id, Opt("(", G.arg_list, ")"))
 
 )

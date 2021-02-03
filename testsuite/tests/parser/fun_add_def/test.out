@@ -1,4 +1,5 @@
 FunDecl
+|f_annotation: <null>
 |f_name:
 |  Identifier: add
 |f_fun_expr:
