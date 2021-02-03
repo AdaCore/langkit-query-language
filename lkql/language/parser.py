@@ -1006,7 +1006,7 @@ lkql_grammar.add_rules(
             G.filtered_pattern,
             List(Or(
                 SelectorLink(G.selector_call, "is", G.filtered_pattern),
-                FieldLink(".", G.id, "=", G.filtered_pattern),
+                FieldLink(".", G.id, "is", G.filtered_pattern),
                 PropertyLink(".", G.fun_call, "is", G.filtered_pattern)
             ))
         ),
@@ -1042,7 +1042,7 @@ lkql_grammar.add_rules(
                     List(G.named_arg, sep=",", empty_valid=False), ")")
             ), "is", G.pattern
         ),
-        NodePatternField(G.id, "=", c(), G.detail_value),
+        NodePatternField(G.id, "is", c(), G.detail_value),
         NodePatternProperty(G.fun_call, "is", c(), G.detail_value)
     ),
 

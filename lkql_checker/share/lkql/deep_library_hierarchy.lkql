@@ -1,4 +1,4 @@
 fun result(depth) =
     select PackageDecl(
-        f_package_name=DefiningName(any children(depth=depth) is Name)
+        f_package_name is DefiningName(any children(depth=depth) is Name)
     )

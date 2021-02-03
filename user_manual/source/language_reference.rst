@@ -368,8 +368,8 @@ the evaluation of the associated expression in the match arm.
 .. code-block:: lkql
 
    match nodes[0]
-     | ObjectDecl(has_aliased=aliased @ *) => aliased
-     | ParamSpec(has_aliased=aliased @ *) => aliased
+     | ObjectDecl(has_aliased is aliased @ *) => aliased
+     | ParamSpec(has_aliased is aliased @ *) => aliased
      | * => false
 
 .. note:: For the moment, there is no check that the matcher is complete. A
@@ -481,7 +481,7 @@ declarations that have the aliased qualifier.
 
 .. code-block:: lkql
 
-    select ObjectDecl(has_aliased=true)
+    select ObjectDecl(has_aliased is true)
     #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Selector
 
 This will query every source file in the LKQL context, and filter according to
@@ -491,7 +491,7 @@ the pattern.
 
    .. code-block:: lkql
 
-      val a = select ObjectDecl(has_aliased=true)
+      val a = select ObjectDecl(has_aliased is true)
 
 .. admonition:: todo
 
@@ -571,7 +571,7 @@ illustrate:
 
 .. code-block:: lkql
 
-   select ObjectDecl(default_expr=IntLiteral)
+   select ObjectDecl(default_expr is IntLiteral)
 
 This query uses a nested pattern, it will return every ``ObjectDecl`` that has
 an ``IntLiteral`` node in the default expression.
@@ -647,7 +647,7 @@ construct in the introduction, and it's one of the simplest kind of patterns.
 
 .. code-block:: lkql
 
-   select ObjectDecl(default_val=IntLiteral)
+   select ObjectDecl(default_val is IntLiteral)
 
 Property call predicate
 """""""""""""""""""""""
