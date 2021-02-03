@@ -1,7 +1,7 @@
 [
     {
         "name": "Volatile_Objects_Without_Address_Clauses",
-        "path": "volatileObjectsWithoutAddressClauses.lkql",
+        "path": "volatile_objects_without_address_clauses.lkql",
         "params": []
     },
 
@@ -19,7 +19,7 @@
 
     {
         "name": "Downward_View_Conversions",
-        "path": "downwardViewConversions.lkql",
+        "path": "downward_view_conversions.lkql",
         "params": []
     },
 
@@ -79,7 +79,7 @@
 
     {
         "name": "Deep_Inheritance",
-        "path": "deepInheritance.lkql",
+        "path": "deep_inheritance.lkql",
         "params": [
             {
                 "name": "depth",
@@ -91,13 +91,13 @@
 
     {
         "name": "Multiple_Entries",
-        "path": "multipleEntries.lkql",
+        "path": "multiple_entries.lkql",
         "params": []
     },
 
     {
         "name": "GOTO_Statements",
-        "path": "gotoStatements.lkql",
+        "path": "goto_statements.lkql",
         "params": []
     }
 ]
