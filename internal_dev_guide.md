@@ -13,8 +13,8 @@ these steps:
 ```sh
 anod install gnat
 anod install langkit_support -Qcompiler=bootstrap -Qlalmaster
+anod install langkit -Qcompiler=bootstrap -Qlalmaster
 anod install libadalang -Qcompiler=bootstrap -Qlalmaster
-anod install lkql
 ```
 
 2. Checkout LKQL
@@ -30,6 +30,7 @@ git clone git@github.com:AdaCore/langkit-query-language.git
 
 ```sh
 pip install prompt_toolkit
+pip install railroad-diagrams
 ```
 
 ### Environment
@@ -41,27 +42,51 @@ these commands every time:
 # In your sandbox dir
 eval `anod printenv gnat`
 eval `anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster`
+eval `anod printenv langkit -Qcompiler=bootstrap -Qlalmaster`
 eval `anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster`
-eval `anod printenv lkql`
 ```
+
+You also need to define the following environment variables:
+
+```sh
+# In your langkit-query-language checkout
+GPR_PROJECT_PATH="$PWD/lkql/build:$GPR_PROJECT_PATH"
+export GPR_PROJECT_PATH
+
+LD_LIBRARY_PATH="$PWD/lkql/build/lib/relocatable/dev:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
+
+PYTHONPATH="$PWD/lkql/build/python:$PYTHONPATH"
+export PYTHONPATH
+``
 
 Or create an env script:
 
 ```sh
-# In your sandbox dir
 (
+    cd /path/to/your/sandbox
     anod printenv gnat
     anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster
+    anod printenv langkit -Qcompiler=bootstrap -Qlalmaster
     anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster
-    anod printenv lkql
+
+    cd /path/to/your/lkql/checkout
+    GPR_PROJECT_PATH="$PWD/lkql/build:$GPR_PROJECT_PATH"
+    export GPR_PROJECT_PATH
+
+    LD_LIBRARY_PATH="$PWD/lkql/build/lib/relocatable/dev:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH
+
+    PYTHONPATH="$PWD/lkql/build/python:$PYTHONPATH"
+    export PYTHONPATH
 ) >> path/to/env_script.sh
 ```
 
 and then run `source path/to/env_script.sh`.
 
-### Build `lkql_checker`
+### Build `liblkqllang` and `lkql_checker`
 
-Just run `make lkql_checker` in LKQL's checkout.
+Just run `make` in LKQL's checkout.
 
 ## Adding checks
 
