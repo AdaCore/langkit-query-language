@@ -55,7 +55,7 @@ package body LKQL.Error_Handling is
          Error_Data'
            (Eval_Error,
             N.As_LKQL_Node,
-            To_Unbounded_Text (To_Text (Exception_Message (E)))));
+            To_Unbounded_Text (Exception_Message (E))));
    end Raise_From_Exception;
 
    --------------------------

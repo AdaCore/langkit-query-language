@@ -85,7 +85,7 @@ package body LKQL.Primitives is
       Image : String := Boolean'Image (Value);
    begin
       To_Lower (Image);
-      return To_Unbounded_Text (To_Text (Image));
+      return To_Unbounded_Text (Image);
    end Bool_Image;
 
    -------------------------
@@ -717,7 +717,7 @@ package body LKQL.Primitives is
    begin
       return (case Kind (Val) is
                  when Kind_Unit =>
-                   To_Unbounded_Text (To_Text ("()")),
+                   To_Unbounded_Text (Text_Type'("()")),
                  when Kind_Int  =>
                    Int_Image (Int_Val (Val)),
                  when Kind_Str  =>
@@ -726,8 +726,8 @@ package body LKQL.Primitives is
                     --  to convert it back & forth from string. We should add
                     --  an overload in langkit that returns a Text_Type.
                    To_Unbounded_Text
-                     (To_Text (Image (To_Text (Str_Val (Val)),
-                                      With_Quotes => True))),
+                     (Image (To_Text (Str_Val (Val)),
+                             With_Quotes => True)),
                  when Kind_Bool =>
                    Bool_Image (Bool_Val (Val)),
                  when Kind_Node =>
@@ -743,7 +743,7 @@ package body LKQL.Primitives is
                  when Kind_Selector_List =>
                    Selector_List_Image (Selector_List_Val (Val)),
                  when Kind_Function      => "function "
-              & To_Unbounded_Text (To_Text (Val.Get.Fun_Node.Image)));
+              & To_Unbounded_Text (Val.Get.Fun_Node.Image));
    end To_Unbounded_Text;
 
    ---------------

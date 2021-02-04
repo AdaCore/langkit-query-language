@@ -11,7 +11,7 @@ package body Diagnostics is
    is
    begin
       return Diagnostic'
-        (To_Unbounded_Text (To_Text (Project_Path)), Rules);
+        (To_Unbounded_Text (Project_Path), Rules);
    end Make_Diagnostic_For_Project;
 
    --------------

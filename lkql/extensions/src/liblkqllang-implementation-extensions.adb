@@ -157,7 +157,7 @@ package body Liblkqllang.Implementation.Extensions is
               To_Unbounded_String (Member_Name (Field));
          begin
             if not Builtin_Fields.Contains
-              (To_Unbounded_Text (To_Text (Member_Name (Field))))
+              (To_Unbounded_Text (Member_Name (Field)))
             then
                Insert (Val, 1, "f_");
             end if;
@@ -177,7 +177,7 @@ package body Liblkqllang.Implementation.Extensions is
               To_Unbounded_String (Member_Name (Prop));
          begin
             if not Builtin_Fields.Contains
-              (To_Unbounded_Text (To_Text (Member_Name (Prop))))
+              (To_Unbounded_Text (Member_Name (Prop)))
             then
                Insert (Val, 1, "p_");
             end if;
