@@ -21,7 +21,7 @@ package body LKQL.Node_Data is
      (Ctx       : Eval_Context;
       Name_Node : L.Identifier;
       Prefix    : Text_Type;
-      White_List : String_Set) return Text_Type;
+      White_List : Unbounded_Text_Set) return Text_Type;
    --  Helper function to check a prefix on an LKQL identifier, and return the
    --  text without the prefix.
 
@@ -117,7 +117,7 @@ package body LKQL.Node_Data is
      (Ctx        : Eval_Context;
       Name_Node  : L.Identifier;
       Prefix     : Text_Type;
-      White_List : String_Set) return Text_Type
+      White_List : Unbounded_Text_Set) return Text_Type
    is
       Text_Name : constant Text_Type := Name_Node.Text;
 

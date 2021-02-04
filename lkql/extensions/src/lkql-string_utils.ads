@@ -13,12 +13,12 @@ package LKQL.String_Utils is
    subtype String_Vector is String_Vectors.Vector;
    --  Vector of Unbouted_Text_type values
 
-   package String_Sets is new Ada.Containers.Hashed_Sets
+   package Unbounded_Text_Sets is new Ada.Containers.Hashed_Sets
      (Element_Type        => Unbounded_Text_Type,
       Hash                => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
       Equivalent_Elements => Ada.Strings.Wide_Wide_Unbounded."=");
 
-   subtype String_Set is String_Sets.Set;
+   subtype Unbounded_Text_Set is Unbounded_Text_Sets.Set;
    --  Set of Unbounded_Text_Type values
 
    function Split_Lines (Str : Text_Type) return String_Vectors.Vector;

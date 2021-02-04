@@ -47,7 +47,7 @@ package body LKQL.Functions is
       Resolved_Arguments : constant L.Named_Arg_Array
         := Call.P_Resolved_Arguments (Def);
 
-      Names_Seen         : String_Set;
+      Names_Seen         : Unbounded_Text_Set;
       --  TODO: This check for names seen could/should be done at the same time
       --  as resolution of arguments probably.
 

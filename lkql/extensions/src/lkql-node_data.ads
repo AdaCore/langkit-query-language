@@ -22,7 +22,7 @@ package LKQL.Node_Data is
    --  An exception will be raised if there is no such property or if the call
    --  arity doesn't match the arity of the property.
 
-   Builtin_Fields, Builtin_Properties : LKQL.String_Utils.String_Set;
+   Builtin_Fields, Builtin_Properties : LKQL.String_Utils.Unbounded_Text_Set;
    --  Builtin fields and properties. Public because used in completion.
    --  TODO: The whole white list thing is a kludge that we want to remove
    --  as soon as the Langkit introspection API handles mapping properties
