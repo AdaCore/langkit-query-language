@@ -1,4 +1,5 @@
-fun result(depth) =
+@check
+fun deep_library_hierarchy(depth: int = 5) =
     select PackageDecl(
         f_package_name is DefiningName(any children(depth=depth) is Name)
     )

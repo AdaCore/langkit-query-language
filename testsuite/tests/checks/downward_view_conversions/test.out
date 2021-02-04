@@ -1,8 +1,8 @@
-test_downwardconv.adb:20:22: error: Downward_View_Conversions - rule violation
+test_downwardconv.adb:20:22: error: downward_view_conversions - rule violation
 20 |          Var : T2 := T2 (X);                   --  FLAG
    |                      ^^^^^^ 
 
-test_downwardconv.adb:22:17: error: Downward_View_Conversions - rule violation
+test_downwardconv.adb:22:17: error: downward_view_conversions - rule violation
 22 |          Proc2 (T2'Class (X));                 --  FLAG
    |                 ^^^^^^^^^^^^ 
 

@@ -1,5 +1,5 @@
 with Ada.Directories; use Ada.Directories;
-
+with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -32,7 +32,8 @@ package body Checker_App is
          --  Some rules passed by the user: only return the ones specified
          for R of All_Rules loop
             for Explicit_Rule_Name of Explicit_Rules_Names loop
-               if To_Text (To_String (Explicit_Rule_Name)) = To_Text (R.Name)
+               if To_Lower (To_Text (To_String (Explicit_Rule_Name)))
+                 = To_Lower (To_Text (R.Name))
                then
                   Ret.Append (R);
                end if;

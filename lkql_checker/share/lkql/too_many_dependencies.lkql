@@ -1,4 +1,5 @@
-fun result(maxDeps) =
+@check
+fun too_many_dependencies(maxDeps : int = 5) =
     select
         CompilationUnit(
             any c @ children is Identifier(any parent(depth=2) is WithClause)

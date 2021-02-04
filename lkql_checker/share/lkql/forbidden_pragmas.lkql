@@ -1,2 +1,0 @@
-fun result() =
-    select Pragma(id=*(canonical_text="pack"))

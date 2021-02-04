@@ -1,4 +1,4 @@
-decls.ads:5:11: error: Multiple_Entries - rule violation
+decls.ads:5:11: error: multiple_entries - rule violation
 5 |     entry Put (I: out Integer);
   |           ^^^ 
 

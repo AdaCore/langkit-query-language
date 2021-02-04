@@ -2,11 +2,7 @@ with Ada.Command_Line;
 with Ada.Directories; use Ada.Directories;
 
 with GNAT.OS_Lib;
-with GNATCOLL.JSON; use GNATCOLL.JSON;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
-with GNATCOLL.Strings; use GNATCOLL.Strings;
-
-with Langkit_Support.Text; use Langkit_Support.Text;
 
 package body Rules_Factory is
 
@@ -15,59 +11,24 @@ package body Rules_Factory is
    ---------------
 
    function All_Rules return Rule_Vector is
-      Rules_File_Path : constant String :=
-        Compose (Get_Rules_Directory, "rules", "json");
-      Rules_File      : constant Virtual_File := Create (+Rules_File_Path);
-      Rules_Content   : constant XString := Rules_File.Read_File;
-      Rules_JSON      : constant JSON_Array := Get
-        (GNATCOLL.JSON.Read (Rules_Content.To_String));
-      Result : Rule_Vector;
+      Rules_Dir       : constant Virtual_File := Create (+Get_Rules_Directory);
+      Rules_Dir_Files : constant File_Array_Access := Read_Dir (Rules_Dir);
+      Result          : Rule_Vector;
    begin
-      declare
-      begin
-         for I in 1 .. Length (Rules_JSON) loop
-            declare
-               Rule        : constant JSON_Value := Get (Rules_JSON, I);
-               Rule_Name   : constant String := Rule.Get ("name");
-               Rule_Path   : constant String := Rule.Get ("path");
-               Rule_Params : constant JSON_Array := Rule.Get ("params");
-               Rule_Code   : XString;
-            begin
-               Rule_Code.Append ("result(");
-               for J in 1 .. Length (Rule_Params) loop
-                  Rule_Code.Append
-                    (Get (Rule_Params, J).Get ("default").Write);
-                  if J < Length (Rule_Params) then
-                     Rule_Code.Append (", ");
-                  end if;
-               end loop;
-               Rule_Code.Append (")");
-               Result.Append
-                 (Create_Rule_Command
-                    (Name             => To_Text (Rule_Name),
-                     LKQL_Script_Path => Get_Rule_Path (Rule_Path),
-                     Code             => To_Text (Rule_Code.To_String)));
-            end;
-         end loop;
-      end;
+
+      --  We search (non recursively) for all .lkql files in the Rules_Dir.
+      --  Each file should contain the definition of one rule, and the needed
+      --  helper functions.
+
+      for File of Rules_Dir_Files.all loop
+         if File.File_Extension = +".lkql" then
+            Result.Append (Create_Rule_Command (+File.Full_Name));
+         end if;
+      end loop;
 
       return Result;
 
    end All_Rules;
-
-   -------------------
-   -- Get_Rule_Path --
-   -------------------
-
-   function Get_Rule_Path (Rule_Name : String) return String is
-   begin
-      declare
-         Ret : constant String :=
-           Compose (Get_Rules_Directory, Rule_Name);
-      begin
-         return Ret;
-      end;
-   end Get_Rule_Path;
 
    -------------------------
    -- Get_Rules_Directory --

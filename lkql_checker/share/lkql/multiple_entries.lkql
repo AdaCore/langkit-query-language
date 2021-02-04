@@ -1,2 +1,3 @@
-fun result() =
+@check
+fun multiple_entries() =
     select ProtectedDef any children is EntryDecl(any prevSiblings is EntryDecl)

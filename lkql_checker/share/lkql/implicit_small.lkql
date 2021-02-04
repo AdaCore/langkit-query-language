@@ -1,3 +1,4 @@
-fun result() =
+@check
+fun implicit_small() =
    select t @ TypeDecl(any children is OrdinaryFixedPointDef)
    when not t.p_has_aspect("Small")
