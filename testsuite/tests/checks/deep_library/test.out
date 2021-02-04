@@ -1,4 +1,4 @@
-realy-realy-realy-deep-pkg.ads:1:9: error: Deep_Library_Hierarchy - rule violation
+realy-realy-realy-deep-pkg.ads:1:9: error: deep_library_hierarchy - rule violation
 1 | package Realy.Realy.Realy.Deep.Pkg is
   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

@@ -7,7 +7,12 @@ with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Common; use Libadalang.Common;
 
+with Liblkqllang.Common;
+with Liblkqllang.Iterators; use Liblkqllang.Iterators;
+
 package body Rule_Commands is
+
+   package LCO renames Liblkqllang.Common;
 
    ----------------
    -- Check_Kind --
@@ -29,21 +34,30 @@ package body Rule_Commands is
    -- Create_Rule_Command --
    -------------------------
 
-   function Create_Rule_Command
-     (Name                : Text_Type;
-      LKQL_Script_Path    : String;
-      Code                : Text_Type := "result()")
-      return Rule_Command
+   function Create_Rule_Command (LKQL_File_Path : String) return Rule_Command
    is
       Context : L.Analysis_Context;
       Root    : constant L.LKQL_Node :=
-        Make_LKQL_Unit (LKQL_Script_Path, Context).Root;
+        Make_LKQL_Unit (LKQL_File_Path, Context).Root;
+      Check_Annotation : constant L.Decl_Annotation :=
+        Find_First
+          (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
    begin
-      return Rule_Command'
-        (Name          => To_Unbounded_Text (Name),
-         Code          => To_Unbounded_Text (Code),
-         LKQL_Root     => Root,
-         LKQL_Context  => Context);
+      if Check_Annotation.Is_Null then
+         raise Rule_Error
+           with "No @check annotated function in " & LKQL_File_Path;
+      end if;
+
+      declare
+         Fn   : constant L.Fun_Decl := Check_Annotation.Parent.As_Fun_Decl;
+         Name : constant Text_Type := Fn.F_Name.Text;
+      begin
+         return Rule_Command'
+           (Name          => To_Unbounded_Text (Name),
+            --  TODO: Can be removed since it's redundant with "Name" now.
+            LKQL_Root     => Root,
+            LKQL_Context  => Context);
+      end;
    end Create_Rule_Command;
 
    --------------
@@ -59,7 +73,8 @@ package body Rule_Commands is
       Nodes, Dummy : Primitive;
    begin
       Dummy := Check_And_Eval (Ctx, Self.LKQL_Root);
-      Nodes := LKQL_Eval (Ctx, Image (To_Text (Self.Code)), Self.LKQL_Context);
+      Nodes := LKQL_Eval
+        (Ctx, Image (To_Text (Self.Name) & "()"), Self.LKQL_Context);
       Check_Kind (Kind_List,
                   Kind (Nodes), "Result of " & To_UTF8 (Command_Name));
 

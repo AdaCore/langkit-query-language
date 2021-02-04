@@ -18,11 +18,6 @@ package Rules_Factory is
 
 private
 
-   function Get_Rule_Path (Rule_Name : String) return String;
-   --  Return a String of the form: SCRIPS_DIR/Rule_Name.lkql, where
-   --  SCRIPT_DIR is the absolute path of th
-   --  directory containing the LKQL programs.
-
    function Get_Rules_Directory return String;
    --  Return the absolute path of the directory containing the LKQL programs
 

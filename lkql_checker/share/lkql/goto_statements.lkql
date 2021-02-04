@@ -1,1 +1,2 @@
-fun result() = select GotoStmt
+@check
+fun goto_statements() = select GotoStmt

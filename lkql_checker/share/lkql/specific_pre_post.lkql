@@ -6,7 +6,8 @@ fun has_aspect(decl, aspect_name) =
 fun has_prepost(decl) =
    has_aspect(decl, "pre") or has_aspect(decl, "post")
 
-fun result() =
+@check
+fun specific_pre_post() =
    select decl @ BasicSubpDecl ( # Get subprogram declarations
       p_subp_spec_or_null() is AdaNode(p_primitive_subp_tagged_type() is AdaNode)
    ) # primitive of a tagged type

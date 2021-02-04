@@ -21,10 +21,10 @@ package Rule_Commands is
    type Rule_Command is tagged record
       Name          : Unbounded_Text_Type;
       --  Name of the Rule
-      Code          : Unbounded_Text_Type;
-      --  Code for the rule
+
       LKQL_Root     : L.LKQL_Node;
       --  Root of the LKQL AST
+
       LKQL_Context  : L.Analysis_Context;
       --  Analysis context that was used to create the LKQL AST
    end record;
@@ -44,11 +44,7 @@ package Rule_Commands is
    --  Execute the LKQL script of the rule and return a Rule_Result value
    --  containing the flagged nodes.
 
-   function Create_Rule_Command
-     (Name                : Text_Type;
-      LKQL_Script_Path    : String;
-      Code                : Text_Type := "result()")
-      return Rule_Command;
+   function Create_Rule_Command (LKQL_File_Path : String) return Rule_Command;
    --  Create a Rule_Command value with the given name and arguments
 
    procedure Check_Kind

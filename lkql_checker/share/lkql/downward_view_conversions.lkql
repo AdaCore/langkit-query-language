@@ -1,4 +1,5 @@
-fun result() =
+@check
+fun downward_view_conversions() =
     select c @ CallExpr(
         # Select type conversions
         p_referenced_decl() is BaseTypeDecl(
