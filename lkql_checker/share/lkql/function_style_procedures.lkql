@@ -1,0 +1,9 @@
+fun params_in_out(s) =
+    [p for p in s.f_params if p?.f_mode is ModeInOut]
+
+fun params_out(s) =
+    [p for p in s.f_params if p?.f_mode is ModeOut]
+
+fun result() =
+    select sub @ SubpSpec
+    when params_out(sub).length == 1 and params_in_out(sub).length == 0
