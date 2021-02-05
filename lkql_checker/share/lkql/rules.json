@@ -18,6 +18,12 @@
     },
 
     {
+        "name": "Controlled_Type_Declarations",
+        "path": "controlled_type_declarations.lkql",
+        "params": []
+    },
+
+    {
         "name": "Function_Style_Procedures",
         "path": "function_style_procedures.lkql",
         "params": []

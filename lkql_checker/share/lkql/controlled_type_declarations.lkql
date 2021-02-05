@@ -1,0 +1,16 @@
+fun canonical_fully_qualified_name(t) =
+    t.f_name?.p_basic_decl()?.p_canonical_fully_qualified_name()
+
+selector complete_super_types
+    | BaseTypeDecl when p_is_private() =>
+        rec *it.p_next_part().p_base_types()
+    | BaseTypeDecl =>
+        rec *it.p_base_types()
+    | * => ()
+
+@check
+fun controlled_type_declarations() =
+    select BaseTypeDecl (
+        any complete_super_types is b @ *
+        when canonical_fully_qualified_name(b) == "ada.finalization.controlled"
+    )
