@@ -76,7 +76,7 @@ package body LKQL.Errors is
    function Error_Description (Error : Error_Data) return Unbounded_Text_Type
    is (case Error.Kind is
           when No_Error =>
-             To_Unbounded_Text ("No error"),
+             To_Unbounded_Text (Text_Type'("No error")),
           when Eval_Error =>
              Error_Description (Error.AST_Node, Error.Short_Message));
 

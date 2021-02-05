@@ -76,8 +76,9 @@ package body LKQL.Queries is
                               (Eval_Error,
                                Node.F_From_Expr.As_LKQL_Node,
                                To_Unbounded_Text
+                                (Text_Type'
                                  ("Wrong kind of element in list for "
-                                  & "`from clause`")));
+                                  & "`from clause`"))));
                         end if;
                         Vec.Append (El.Get.Node_Val);
                      end loop;
@@ -89,7 +90,8 @@ package body LKQL.Queries is
                         (Eval_Error,
                          Node.F_From_Expr.As_LKQL_Node,
                          To_Unbounded_Text
-                           ("Wrong kind of element in `from clause`")));
+                          (Text_Type'
+                           ("Wrong kind of element in `from clause`"))));
                end case;
 
                return new AST_Node_Iterator'Class'

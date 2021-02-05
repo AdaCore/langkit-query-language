@@ -217,12 +217,14 @@ package body LKQL.Node_Data is
       return Result;
    end Introspection_Value_Array_From_Args;
 
+   function Unbounded_Text (S : Text_Type) return Unbounded_Text_Type
+      renames To_Unbounded_Text;
 begin
-   Builtin_Fields.Include (To_Unbounded_Text ("parent"));
-   Builtin_Fields.Include (To_Unbounded_Text ("previous_sibling"));
-   Builtin_Fields.Include (To_Unbounded_Text ("next_sibling"));
-   Builtin_Fields.Include (To_Unbounded_Text ("children"));
-   Builtin_Fields.Include (To_Unbounded_Text ("text"));
-   Builtin_Fields.Include (To_Unbounded_Text ("image"));
-   Builtin_Fields.Include (To_Unbounded_Text ("unit"));
+   Builtin_Fields.Include (Unbounded_Text ("parent"));
+   Builtin_Fields.Include (Unbounded_Text ("previous_sibling"));
+   Builtin_Fields.Include (Unbounded_Text ("next_sibling"));
+   Builtin_Fields.Include (Unbounded_Text ("children"));
+   Builtin_Fields.Include (Unbounded_Text ("text"));
+   Builtin_Fields.Include (Unbounded_Text ("image"));
+   Builtin_Fields.Include (Unbounded_Text ("unit"));
 end LKQL.Node_Data;
