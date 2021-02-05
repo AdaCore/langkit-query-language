@@ -1,0 +1,11 @@
+fun has_abstract (type_def) =
+    match type_def
+    | r @ RecordTypeDef => r.f_has_abstract?.p_as_bool()
+    | d @ DerivedTypeDef => d.f_has_abstract?.p_as_bool()
+    | p @ PrivateTypeDef => p.f_has_abstract?.p_as_bool()
+    | * => false
+
+@check
+fun abstract_types() =
+    select type @ TypeDef when has_abstract(type)
+
