@@ -1,0 +1,3 @@
+@check
+fun blocks() =
+    select BlockStmt
