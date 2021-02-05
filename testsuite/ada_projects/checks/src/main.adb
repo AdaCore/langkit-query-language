@@ -1,3 +1,5 @@
+with Goto_Statements;
+
 procedure Main is
 
 begin

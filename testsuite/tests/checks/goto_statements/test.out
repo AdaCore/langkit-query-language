@@ -1,0 +1,4 @@
+goto_statements.adb:6:7: error: goto_statements - rule violation
+6 |       goto A;
+  |       ^^^^^^^ 
+
