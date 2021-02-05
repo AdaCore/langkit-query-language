@@ -6,6 +6,12 @@
     },
 
     {
+        "name": "Abstract_Types",
+        "path" : "abstract_types.lkql",
+        "params": []
+    },
+
+    {
         "name": "Volatile_Objects_Without_Address_Clauses",
         "path": "volatileObjectsWithoutAddressClauses.lkql",
         "params": []
