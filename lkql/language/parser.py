@@ -499,6 +499,15 @@ class ListCompAssoc(LKQLNode):
     coll_expr = Field(type=Expr)
 
 
+class ListLiteral(Expr):
+    """
+    List literal of the form:
+        [ expr1, expr2, ..., exprn ]
+    """
+
+    exprs = Field(type=Expr.list)
+
+
 class ListComprehension(Expr):
     """
     List comprehension of the form:
@@ -1060,6 +1069,8 @@ lkql_grammar.add_rules(
         "]"
     ),
 
+    listlit=ListLiteral("[", List(G.expr, empty_valid=True, sep=","), "]"),
+
     decl=Or(G.fun_decl,
             G.selector_decl,
             G.val_decl),
@@ -1137,6 +1148,7 @@ lkql_grammar.add_rules(
         ),
         G.query,
         G.listcomp,
+        G.listlit,
         G.match,
         G.id,
         G.string_literal,
