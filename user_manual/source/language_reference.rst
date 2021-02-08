@@ -315,6 +315,25 @@ The usual comparison operators are available. Order dependent operators
    a == b
    b != c
 
+List literals
+^^^^^^^^^^^^^
+
+.. lkql_doc_class:: ListLiteral
+
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/listlit.svg
+
+A list literal is simply a literal representation of a list.
+
+.. code-block:: lkql
+
+    # Simple list literal
+    [1, 2, 3, 4]
+
+Lists being immutable, lists literals are the primary way to create new lists
+from nothing, with list comprehensions being the way to create new lists from
+existing lists.
+
 List comprehension
 ^^^^^^^^^^^^^^^^^^
 

@@ -81,6 +81,9 @@ package body LKQL.Evaluation is
    function Eval_Block_Expr
      (Ctx : Eval_Context; Node : L.Block_Expr) return Primitive;
 
+   function Eval_List_Literal
+     (Ctx : Eval_Context; Node : L.List_Literal) return Primitive;
+
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive;
@@ -200,6 +203,8 @@ package body LKQL.Evaluation is
             Result := Eval_Unwrap (Local_Context, Node.As_Unwrap);
          when LCO.LKQL_Null_Literal =>
             Result := To_Primitive (Local_Context.Null_Node);
+         when LCO.LKQL_List_Literal =>
+            Result := Eval_List_Literal (Local_Context, Node.As_List_Literal);
          when others =>
             raise Assertion_Error
               with "Invalid evaluation root kind: " & Node.Kind_Name;
@@ -731,6 +736,21 @@ package body LKQL.Evaluation is
          return Result;
       end;
    end Eval_Match;
+
+   -----------------------
+   -- Eval_List_Literal --
+   -----------------------
+
+   function Eval_List_Literal
+     (Ctx : Eval_Context; Node : L.List_Literal) return Primitive
+   is
+      Res : constant Primitive := Make_Empty_List;
+   begin
+      for Expr of Node.F_Exprs loop
+         Res.Get.List_Val.Elements.Append (Eval (Ctx, Expr));
+      end loop;
+      return Res;
+   end Eval_List_Literal;
 
    -----------------
    -- Eval_Unwrap --
