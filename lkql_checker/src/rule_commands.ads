@@ -18,6 +18,17 @@ package Rule_Commands is
 
    Rule_Error : exception;
 
+   type Rule_Argument is record
+      Name  : Unbounded_Text_Type;
+      --  Name of the argument
+
+      Value : Unbounded_Text_Type;
+      --  Value of the argument, as a string.
+   end record;
+
+   package Rule_Argument_Vectors
+   is new Ada.Containers.Vectors (Positive, Rule_Argument);
+
    type Rule_Command is tagged record
       Name          : Unbounded_Text_Type;
       --  Name of the Rule
@@ -27,6 +38,9 @@ package Rule_Commands is
 
       LKQL_Context  : L.Analysis_Context;
       --  Analysis context that was used to create the LKQL AST
+
+      Rule_Args    : Rule_Argument_Vectors.Vector;
+      --  Optional arguments to pass to the rule. Empty by default.
    end record;
 
    type Eval_Diagnostic is record
