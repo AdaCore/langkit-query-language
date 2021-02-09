@@ -124,6 +124,9 @@ class CheckerDriver(BaseTestDriver):
         else:
             args += self.test_env['input_sources']
 
+        for k, v in self.test_env.get('rule_arguments', {}).items():
+            args += ['--rule-arg', '{}={}'.format(k, v)]
+
         args += ['-r', self.test_env['rule_name']]
 
         # Run the interpreter

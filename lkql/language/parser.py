@@ -555,7 +555,7 @@ class BaseFunction(Expr):
         """
         Return the parameter associated with the given name, if any.
         """
-        return Self.parameters.find(lambda p: p.text == name)
+        return Self.parameters.find(lambda p: p.param_identifier.text == name)
 
     @langkit_property(return_type=T.Bool, public=True)
     def has_parameter(name=T.String):
