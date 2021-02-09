@@ -1,13 +1,13 @@
 ArithBinOp
-|left:
+|f_left:
 |  BinOp
-|  |left:
+|  |f_left:
 |  |  StringLiteral: "Hello"
-|  |op:
+|  |f_op:
 |  |  OpConcat
-|  |right:
+|  |f_right:
 |  |  IntegerLiteral: 39
-|op:
+|f_op:
 |  OpPlus
-|right:
+|f_right:
 |  IntegerLiteral: 3

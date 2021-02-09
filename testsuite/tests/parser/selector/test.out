@@ -1,69 +1,69 @@
 SelectorDecl
-|name:
+|f_name:
 |  Identifier: testSelector
-|arms:
+|f_arms:
 |  SelectorArmList
 |  |  SelectorArm
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  NodeKindPattern
-|  |  |  |kind_name:
+|  |  |  |f_kind_name:
 |  |  |  |  Identifier: FirstNodeKind
-|  |  |exprs_list:
+|  |  |f_exprs_list:
 |  |  |  SelectorExprList
 |  |  |  |  SelectorExpr
-|  |  |  |  |mode:
+|  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeSkip
-|  |  |  |  |expr:
+|  |  |  |  |f_expr:
 |  |  |  |  |  DotAccess
-|  |  |  |  |  |receiver:
+|  |  |  |  |  |f_receiver:
 |  |  |  |  |  |  Identifier: it
-|  |  |  |  |  |member:
+|  |  |  |  |  |f_member:
 |  |  |  |  |  |  Identifier: field1
 |  |  |  |  SelectorExpr
-|  |  |  |  |mode:
+|  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeRec
-|  |  |  |  |expr:
+|  |  |  |  |f_expr:
 |  |  |  |  |  DotAccess
-|  |  |  |  |  |receiver:
+|  |  |  |  |  |f_receiver:
 |  |  |  |  |  |  Identifier: it
-|  |  |  |  |  |member:
+|  |  |  |  |  |f_member:
 |  |  |  |  |  |  Identifier: field2
 |  |  SelectorArm
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  ExtendedNodePattern
-|  |  |  |node_pattern:
+|  |  |  |f_node_pattern:
 |  |  |  |  NodeKindPattern
-|  |  |  |  |kind_name:
+|  |  |  |  |f_kind_name:
 |  |  |  |  |  Identifier: SecondNodeKind
-|  |  |  |details:
+|  |  |  |f_details:
 |  |  |  |  NodePatternDetailList
 |  |  |  |  |  NodePatternField
-|  |  |  |  |  |identifier:
+|  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  Identifier: children
-|  |  |  |  |  |expected_value:
+|  |  |  |  |  |f_expected_value:
 |  |  |  |  |  |  DetailPattern
-|  |  |  |  |  |  |pattern_value:
+|  |  |  |  |  |  |f_pattern_value:
 |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |kind_name:
+|  |  |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  |  |  Identifier: ThirdNodeKind
-|  |  |exprs_list:
+|  |  |f_exprs_list:
 |  |  |  SelectorExprList
 |  |  |  |  SelectorExpr
-|  |  |  |  |mode:
+|  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeDefault
-|  |  |  |  |expr:
+|  |  |  |  |f_expr:
 |  |  |  |  |  DotAccess
-|  |  |  |  |  |receiver:
+|  |  |  |  |  |f_receiver:
 |  |  |  |  |  |  Identifier: it
-|  |  |  |  |  |member:
+|  |  |  |  |  |f_member:
 |  |  |  |  |  |  Identifier: field
 |  |  SelectorArm
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  UniversalPattern
-|  |  |exprs_list:
+|  |  |f_exprs_list:
 |  |  |  SelectorExprList
 |  |  |  |  SelectorExpr
-|  |  |  |  |mode:
+|  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeDefault
-|  |  |  |  |expr:
+|  |  |  |  |f_expr:
 |  |  |  |  |  UnitLiteral

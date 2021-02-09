@@ -1,9 +1,9 @@
 DotCall
-|receiver:
+|f_receiver:
 |  Unwrap
-|  |node_expr:
+|  |f_node_expr:
 |  |  Identifier: receiver
-|member:
+|f_member:
 |  Identifier: property
-|arguments:
+|f_arguments:
 |  ArgList: <empty list>

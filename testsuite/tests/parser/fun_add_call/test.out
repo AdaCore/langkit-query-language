@@ -1,11 +1,11 @@
 FunCall
-|name:
+|f_name:
 |  Identifier: add
-|arguments:
+|f_arguments:
 |  ArgList
 |  |  ExprArg
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  IntegerLiteral: 2
 |  |  ExprArg
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  IntegerLiteral: 40

@@ -17,14 +17,6 @@ package body LKQL.Node_Data is
      (Value : Unbounded_Text_Array_Access) return Primitive;
    --  Create a Primitive value from the given text array
 
-   function Check_And_Remove_Prefix
-     (Ctx       : Eval_Context;
-      Name_Node : L.Identifier;
-      Prefix    : Text_Type;
-      White_List : String_Set) return Text_Type;
-   --  Helper function to check a prefix on an LKQL identifier, and return the
-   --  text without the prefix.
-
    ------------------
    -- To_Primitive --
    ------------------
@@ -91,8 +83,7 @@ package body LKQL.Node_Data is
    is
       Result : Introspection_Value;
 
-      Real_Name : constant Text_Type :=
-        Check_And_Remove_Prefix (Ctx, Field_Name, "f_", Builtin_Fields);
+      Real_Name : constant Text_Type := Field_Name.Text;
    begin
       if not Receiver.Get.Is_Field_Name (Real_Name) then
          Raise_No_Such_Field (Ctx, Receiver, Field_Name);
@@ -109,48 +100,6 @@ package body LKQL.Node_Data is
                                   To_Text (Exception_Message (Error))));
    end Access_Node_Field;
 
-   -----------------------------
-   -- Check_And_Remove_Prefix --
-   -----------------------------
-
-   function Check_And_Remove_Prefix
-     (Ctx        : Eval_Context;
-      Name_Node  : L.Identifier;
-      Prefix     : Text_Type;
-      White_List : String_Set) return Text_Type
-   is
-      Text_Name : constant Text_Type := Name_Node.Text;
-
-      function Name_Prefix return Text_Type is
-        (Text_Name (Text_Name'First .. Text_Name'First + Prefix'Length - 1));
-
-   begin
-      if White_List.Contains (To_Unbounded_Text (Text_Name)) then
-         return Text_Name;
-      end if;
-
-      if Text_Name'Length <= Prefix'Length + 1 then
-         Raise_And_Record_Error
-           (Ctx, Make_Eval_Error (Name_Node, "Invalid name"));
-
-      elsif Name_Prefix /= Prefix then
-         Raise_And_Record_Error
-           (Ctx,
-            Make_Eval_Error
-              (Name_Node, "Invalid prefix: " & Name_Prefix));
-      end if;
-
-      return Ret : constant Text_Type :=
-        Text_Name (Text_Name'First + Prefix'Length .. Text_Name'Last)
-      do
-         if White_List.Contains (To_Unbounded_Text (Ret)) then
-            Raise_And_Record_Error
-              (Ctx, Make_Eval_Error (Name_Node, "Invalid name"));
-         end if;
-      end return;
-
-   end Check_And_Remove_Prefix;
-
    ------------------------
    -- Eval_Node_Property --
    ------------------------
@@ -162,9 +111,7 @@ package body LKQL.Node_Data is
    is
       Result        : Introspection_Value;
 
-      Real_Name     : constant Text_Type :=
-        Check_And_Remove_Prefix (Ctx, Property_Name, "p_", Builtin_Properties);
-
+      Real_Name     : constant Text_Type := Property_Name.Text;
       Property_Args : constant Introspection_Value_Array :=
         Introspection_Value_Array_From_Args
           (Ctx, Receiver, Real_Name, Args);
@@ -217,12 +164,4 @@ package body LKQL.Node_Data is
       return Result;
    end Introspection_Value_Array_From_Args;
 
-begin
-   Builtin_Fields.Include (To_Unbounded_Text ("parent"));
-   Builtin_Fields.Include (To_Unbounded_Text ("previous_sibling"));
-   Builtin_Fields.Include (To_Unbounded_Text ("next_sibling"));
-   Builtin_Fields.Include (To_Unbounded_Text ("children"));
-   Builtin_Fields.Include (To_Unbounded_Text ("text"));
-   Builtin_Fields.Include (To_Unbounded_Text ("image"));
-   Builtin_Fields.Include (To_Unbounded_Text ("unit"));
 end LKQL.Node_Data;

@@ -1,8 +1,8 @@
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
-with GNATCOLL.Utils; use GNATCOLL.Utils;
 
 with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Text; use Langkit_Support.Text;
@@ -22,7 +22,7 @@ with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Errors;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-with LKQL.Node_Data; use LKQL.Node_Data;
+with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 
 package body Liblkqllang.Implementation.Extensions is
 
@@ -30,7 +30,7 @@ package body Liblkqllang.Implementation.Extensions is
 
    function Get_All_Completions_For_Id
      (Id : Ada_AST_Nodes.Node_Type_Id;
-      In_Pattern : Boolean := False) return Unbounded_String_Array;
+      In_Pattern : Boolean := False) return Unbounded_Text_Array;
    --  Get all valid completions (fields & properties) for a given
    --  Node_Type_Id.
 
@@ -143,25 +143,19 @@ package body Liblkqllang.Implementation.Extensions is
 
    function Get_All_Completions_For_Id
      (Id : Ada_AST_Nodes.Node_Type_Id;
-      In_Pattern : Boolean := False) return Unbounded_String_Array
+      In_Pattern : Boolean := False) return Unbounded_Text_Array
    is
       Props  : constant LALCO.Property_Reference_Array := Properties (Id);
       Fields : constant LALCO.Syntax_Field_Reference_Array
         := Syntax_Fields (Id);
-      Ret    : Unbounded_String_Array (1 .. Props'Length + Fields'Length);
+      Ret    : Unbounded_Text_Array (1 .. Props'Length + Fields'Length);
       Idx    : Positive := 1;
    begin
       for Field of Fields loop
          declare
-            Val : Unbounded_String :=
-              To_Unbounded_String (Member_Name (Field));
+            Val : Unbounded_Text_Type :=
+              To_Unbounded_Text (Member_Name (Field));
          begin
-            if not Builtin_Fields.Contains
-              (To_Unbounded_Text (To_Text (Member_Name (Field))))
-            then
-               Insert (Val, 1, "f_");
-            end if;
-
             if In_Pattern then
                Append (Val, "=");
             end if;
@@ -173,15 +167,9 @@ package body Liblkqllang.Implementation.Extensions is
 
       for Prop of Props loop
          declare
-            Val : Unbounded_String :=
-              To_Unbounded_String (Member_Name (Prop));
+            Val : Unbounded_Text_Type :=
+              To_Unbounded_Text (Member_Name (Prop));
          begin
-            if not Builtin_Fields.Contains
-              (To_Unbounded_Text (To_Text (Member_Name (Prop))))
-            then
-               Insert (Val, 1, "p_");
-            end if;
-
             if In_Pattern then
                if Property_Argument_Types (Prop)'Length > 0 then
                   Append (Val, "(");
@@ -207,14 +195,14 @@ package body Liblkqllang.Implementation.Extensions is
    is
 
       function Make_Sym_Array
-        (Strings : Unbounded_String_Array) return Symbol_Type_Array_Access;
+        (Strings : Unbounded_Text_Array) return Symbol_Type_Array_Access;
 
       --------------------
       -- Make_Sym_Array --
       --------------------
 
       function Make_Sym_Array
-        (Strings : Unbounded_String_Array) return Symbol_Type_Array_Access
+        (Strings : Unbounded_Text_Array) return Symbol_Type_Array_Access
       is
          Ret : constant Symbol_Type_Array_Access :=
            Create_Symbol_Type_Array (Strings'Length);
@@ -223,7 +211,7 @@ package body Liblkqllang.Implementation.Extensions is
       begin
          for S of Strings loop
             Ret.Items (Idx)
-              := Find (Node.Unit.Context.Symbols, To_Text (To_String (S)));
+              := Find (Node.Unit.Context.Symbols, To_Text (S));
             Idx := Idx + 1;
          end loop;
 
@@ -279,7 +267,7 @@ package body Liblkqllang.Implementation.Extensions is
             if VP.Kind = LKQL_Node_Kind_Pattern then
                return Make_Sym_Array
                  (Get_All_Completions_For_Id
-                    (Kind (Image (VP.As_Node_Kind_Pattern.F_Kind_Name.Text))));
+                    (Kind (VP.As_Node_Kind_Pattern.F_Kind_Name.Text)));
             else
                return No_Symbol_Type_Array_Type;
             end if;

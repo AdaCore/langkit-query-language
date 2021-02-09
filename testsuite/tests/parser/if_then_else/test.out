@@ -1,13 +1,13 @@
 IfThenElse
-|condition:
+|f_condition:
 |  DotCall
-|  |receiver:
+|  |f_receiver:
 |  |  Identifier: node
-|  |member:
+|  |f_member:
 |  |  Identifier: property
-|  |arguments:
+|  |f_arguments:
 |  |  ArgList: <empty list>
-|then_expr:
+|f_then_expr:
 |  IntegerLiteral: 1
-|else_expr:
+|f_else_expr:
 |  IntegerLiteral: 0

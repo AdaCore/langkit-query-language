@@ -1,50 +1,50 @@
 ValDecl
-|identifier:
+|f_identifier:
 |  Identifier: declWihAspect
-|value:
+|f_value:
 |  Query
-|  |from_expr: <null>
-|  |pattern:
+|  |f_from_expr: <null>
+|  |f_pattern:
 |  |  FilteredPattern
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  BindingPattern
-|  |  |  |binding:
+|  |  |  |f_binding:
 |  |  |  |  Identifier: o
-|  |  |  |value_pattern:
+|  |  |  |f_value_pattern:
 |  |  |  |  ExtendedNodePattern
-|  |  |  |  |node_pattern:
+|  |  |  |  |f_node_pattern:
 |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |kind_name:
+|  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  Identifier: ObjectDecl
-|  |  |  |  |details:
+|  |  |  |  |f_details:
 |  |  |  |  |  NodePatternDetailList
 |  |  |  |  |  |  NodePatternSelector
-|  |  |  |  |  |  |call:
+|  |  |  |  |  |  |f_call:
 |  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |quantifier:
+|  |  |  |  |  |  |  |f_quantifier:
 |  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |binding: <null>
-|  |  |  |  |  |  |  |selector_identifier:
+|  |  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |  |f_selector_identifier:
 |  |  |  |  |  |  |  |  Identifier: children
-|  |  |  |  |  |  |  |args:
+|  |  |  |  |  |  |  |f_args:
 |  |  |  |  |  |  |  |  NamedArgList: <empty list>
-|  |  |  |  |  |  |pattern:
+|  |  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |kind_name:
+|  |  |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  |  |  Identifier: AspectAssoc
-|  |  |predicate:
+|  |  |f_predicate:
 |  |  |  RelBinOp
-|  |  |  |left:
+|  |  |  |f_left:
 |  |  |  |  DotAccess
-|  |  |  |  |receiver:
+|  |  |  |  |f_receiver:
 |  |  |  |  |  DotAccess
-|  |  |  |  |  |receiver:
+|  |  |  |  |  |f_receiver:
 |  |  |  |  |  |  Identifier: o
-|  |  |  |  |  |member:
+|  |  |  |  |  |f_member:
 |  |  |  |  |  |  Identifier: identifier
-|  |  |  |  |member:
+|  |  |  |  |f_member:
 |  |  |  |  |  Identifier: length
-|  |  |  |op:
+|  |  |  |f_op:
 |  |  |  |  OpEq
-|  |  |  |right:
+|  |  |  |f_right:
 |  |  |  |  IntegerLiteral: 42

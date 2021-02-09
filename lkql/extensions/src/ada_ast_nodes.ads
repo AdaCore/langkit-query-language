@@ -6,7 +6,6 @@ with Libadalang.Common;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers; use Ada.Containers;
-with GNATCOLL.Utils; use GNATCOLL.Utils;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with Libadalang.Helpers; use Libadalang.Helpers;
 
@@ -47,7 +46,7 @@ package Ada_AST_Nodes is
      (Ada_AST_Node'(Node => Node.Node.Child (N)));
 
    overriding function Matches_Kind_Name
-     (Node : Ada_AST_Node; Kind_Name : String) return Boolean;
+     (Node : Ada_AST_Node; Kind_Name : Text_Type) return Boolean;
 
    overriding function Is_Field_Name
      (Node : Ada_AST_Node; Name : Text_Type) return Boolean;
@@ -75,10 +74,10 @@ package Ada_AST_Nodes is
    function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc
    is (Make_AST_Node_Rc (Ada_AST_Node'(Node => Node)));
 
-   function Kind_Names return Unbounded_String_Array;
+   function Kind_Names return Unbounded_Text_Array;
    --  List of all the node kinds' names
 
-   function Kind (Name : String) return Node_Type_Id;
+   function Kind (Name : Text_Type) return Node_Type_Id;
    --  Return the ``Node_Type_Id`` for a given ``Name``
 
    function Make_Eval_Context

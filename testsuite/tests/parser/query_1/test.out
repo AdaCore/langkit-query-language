@@ -1,26 +1,26 @@
 ValDecl
-|identifier:
+|f_identifier:
 |  Identifier: o
-|value:
+|f_value:
 |  Query
-|  |from_expr: <null>
-|  |pattern:
+|  |f_from_expr: <null>
+|  |f_pattern:
 |  |  FilteredPattern
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  BindingPattern
-|  |  |  |binding:
+|  |  |  |f_binding:
 |  |  |  |  Identifier: o
-|  |  |  |value_pattern:
+|  |  |  |f_value_pattern:
 |  |  |  |  NodeKindPattern
-|  |  |  |  |kind_name:
+|  |  |  |  |f_kind_name:
 |  |  |  |  |  Identifier: ObjectDecl
-|  |  |predicate:
+|  |  |f_predicate:
 |  |  |  InClause
-|  |  |  |value_expr:
+|  |  |  |f_value_expr:
 |  |  |  |  DotAccess
-|  |  |  |  |receiver:
+|  |  |  |  |f_receiver:
 |  |  |  |  |  Identifier: o
-|  |  |  |  |member:
+|  |  |  |  |f_member:
 |  |  |  |  |  Identifier: random_field
-|  |  |  |list_expr:
+|  |  |  |f_list_expr:
 |  |  |  |  Identifier: filteredFields

@@ -1,9 +1,9 @@
 DotAccess
-|receiver:
+|f_receiver:
 |  DotAccess
-|  |receiver:
+|  |f_receiver:
 |  |  Identifier: receiver
-|  |member:
+|  |f_member:
 |  |  Identifier: member1
-|member:
+|f_member:
 |  Identifier: member2

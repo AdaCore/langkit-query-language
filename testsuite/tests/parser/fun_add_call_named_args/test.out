@@ -1,15 +1,15 @@
 FunCall
-|name:
+|f_name:
 |  Identifier: add
-|arguments:
+|f_arguments:
 |  ArgList
 |  |  NamedArg
-|  |  |arg_name:
+|  |  |f_arg_name:
 |  |  |  Identifier: x
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  IntegerLiteral: 2
 |  |  NamedArg
-|  |  |arg_name:
+|  |  |f_arg_name:
 |  |  |  Identifier: y
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  IntegerLiteral: 40

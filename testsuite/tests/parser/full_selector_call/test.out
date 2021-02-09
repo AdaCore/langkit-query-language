@@ -1,19 +1,19 @@
 SelectorCall
-|quantifier:
+|f_quantifier:
 |  Identifier: all
-|binding:
+|f_binding:
 |  Identifier: c
-|selector_identifier:
+|f_selector_identifier:
 |  Identifier: children
-|args:
+|f_args:
 |  NamedArgList
 |  |  NamedArg
-|  |  |arg_name:
+|  |  |f_arg_name:
 |  |  |  Identifier: min_depth
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  IntegerLiteral: 1
 |  |  NamedArg
-|  |  |arg_name:
+|  |  |f_arg_name:
 |  |  |  Identifier: max_depth
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  IntegerLiteral: 3

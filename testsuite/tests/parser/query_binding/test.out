@@ -1,14 +1,14 @@
 ValDecl
-|identifier:
+|f_identifier:
 |  Identifier: o
-|value:
+|f_value:
 |  Query
-|  |from_expr: <null>
-|  |pattern:
+|  |f_from_expr: <null>
+|  |f_pattern:
 |  |  BindingPattern
-|  |  |binding:
+|  |  |f_binding:
 |  |  |  Identifier: o
-|  |  |value_pattern:
+|  |  |f_value_pattern:
 |  |  |  NodeKindPattern
-|  |  |  |kind_name:
+|  |  |  |f_kind_name:
 |  |  |  |  Identifier: ObjectDecl

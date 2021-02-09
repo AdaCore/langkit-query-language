@@ -1,25 +1,25 @@
 BinOp
-|left:
+|f_left:
 |  RelBinOp
-|  |left:
+|  |f_left:
 |  |  IntegerLiteral: 5
-|  |op:
+|  |f_op:
 |  |  OpEq
-|  |right:
+|  |f_right:
 |  |  IntegerLiteral: 5
-|op:
+|f_op:
 |  OpAnd
-|right:
+|f_right:
 |  RelBinOp
-|  |left:
+|  |f_left:
 |  |  ArithBinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  IntegerLiteral: 5
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpPlus
-|  |  |right:
+|  |  |f_right:
 |  |  |  IntegerLiteral: 1
-|  |op:
+|  |f_op:
 |  |  OpNeq
-|  |right:
+|  |f_right:
 |  |  IntegerLiteral: 5

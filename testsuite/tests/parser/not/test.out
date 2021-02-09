@@ -1,21 +1,21 @@
 IfThenElse
-|condition:
+|f_condition:
 |  NotNode
-|  |value:
+|  |f_value:
 |  |  RelBinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  DotCall
-|  |  |  |receiver:
+|  |  |  |f_receiver:
 |  |  |  |  Identifier: node
-|  |  |  |member:
+|  |  |  |f_member:
 |  |  |  |  Identifier: prop
-|  |  |  |arguments:
+|  |  |  |f_arguments:
 |  |  |  |  ArgList: <empty list>
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpGt
-|  |  |right:
+|  |  |f_right:
 |  |  |  IntegerLiteral: 0
-|then_expr:
+|f_then_expr:
 |  BoolLiteralTrue
-|else_expr:
+|f_else_expr:
 |  BoolLiteralFalse

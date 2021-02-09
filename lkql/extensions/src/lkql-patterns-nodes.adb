@@ -72,7 +72,7 @@ package body LKQL.Patterns.Nodes is
    is
    begin
       return
-        (if Node.Get.Matches_Kind_Name (To_UTF8 (Pattern.F_Kind_Name.Text))
+        (if Node.Get.Matches_Kind_Name (Pattern.F_Kind_Name.Text)
          then Make_Match_Success (To_Primitive (Node))
          else Match_Failure);
    exception

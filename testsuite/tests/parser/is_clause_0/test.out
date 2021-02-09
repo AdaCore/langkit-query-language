@@ -1,11 +1,11 @@
 IsClause
-|node_expr:
+|f_node_expr:
 |  DotAccess
-|  |receiver:
+|  |f_receiver:
 |  |  Identifier: node
-|  |member:
+|  |f_member:
 |  |  Identifier: field
-|pattern:
+|f_pattern:
 |  NodeKindPattern
-|  |kind_name:
+|  |f_kind_name:
 |  |  Identifier: FieldKind
