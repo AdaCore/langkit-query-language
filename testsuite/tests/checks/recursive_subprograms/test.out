@@ -1,0 +1,12 @@
+recursive_subprograms.ads:3:14: error: Recursive_Subprograms - rule violation
+3 |   procedure P1_Call_P2 (N : Integer); -- FLAG
+  |             ^^^^^^^^^^ 
+
+recursive_subprograms.ads:4:14: error: Recursive_Subprograms - rule violation
+4 |   procedure P2_Call_P3 (N : Integer); -- FLAG
+  |             ^^^^^^^^^^ 
+
+recursive_subprograms.ads:5:14: error: Recursive_Subprograms - rule violation
+5 |   procedure P3_Call_P1 (N : Integer); -- FLAG
+  |             ^^^^^^^^^^ 
+
