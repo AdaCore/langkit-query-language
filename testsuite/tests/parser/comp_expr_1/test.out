@@ -1,55 +1,55 @@
 BinOp
-|left:
+|f_left:
 |  BinOp
-|  |left:
+|  |f_left:
 |  |  BinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  RelBinOp
-|  |  |  |left:
+|  |  |  |f_left:
 |  |  |  |  IntegerLiteral: 4
-|  |  |  |op:
+|  |  |  |f_op:
 |  |  |  |  OpLt
-|  |  |  |right:
+|  |  |  |f_right:
 |  |  |  |  IntegerLiteral: 5
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpAnd
-|  |  |right:
+|  |  |f_right:
 |  |  |  RelBinOp
-|  |  |  |left:
+|  |  |  |f_left:
 |  |  |  |  ArithBinOp
-|  |  |  |  |left:
+|  |  |  |  |f_left:
 |  |  |  |  |  IntegerLiteral: 4
-|  |  |  |  |op:
+|  |  |  |  |f_op:
 |  |  |  |  |  OpPlus
-|  |  |  |  |right:
+|  |  |  |  |f_right:
 |  |  |  |  |  IntegerLiteral: 1
-|  |  |  |op:
+|  |  |  |f_op:
 |  |  |  |  OpLeq
-|  |  |  |right:
+|  |  |  |f_right:
 |  |  |  |  IntegerLiteral: 5
-|  |op:
+|  |f_op:
 |  |  OpAnd
-|  |right:
+|  |f_right:
 |  |  RelBinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  IntegerLiteral: 5
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpGt
-|  |  |right:
+|  |  |f_right:
 |  |  |  IntegerLiteral: 4
-|op:
+|f_op:
 |  OpAnd
-|right:
+|f_right:
 |  RelBinOp
-|  |left:
+|  |f_left:
 |  |  ArithBinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  IntegerLiteral: 5
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpMinus
-|  |  |right:
+|  |  |f_right:
 |  |  |  IntegerLiteral: 1
-|  |op:
+|  |f_op:
 |  |  OpGeq
-|  |right:
+|  |f_right:
 |  |  IntegerLiteral: 4

@@ -1,7 +1,7 @@
 ArithBinOp
-|left:
+|f_left:
 |  IntegerLiteral: 46
-|op:
+|f_op:
 |  OpMinus
-|right:
+|f_right:
 |  IntegerLiteral: 4

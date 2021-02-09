@@ -1,33 +1,33 @@
 ListComprehension
-|expr:
+|f_expr:
 |  ArithBinOp
-|  |left:
+|  |f_left:
 |  |  Identifier: x
-|  |op:
+|  |f_op:
 |  |  OpPlus
-|  |right:
+|  |f_right:
 |  |  Identifier: y
-|generators:
+|f_generators:
 |  ListCompAssocList
 |  |  ListCompAssoc
-|  |  |binding_name:
+|  |  |f_binding_name:
 |  |  |  Identifier: x
-|  |  |coll_expr:
+|  |  |f_coll_expr:
 |  |  |  Identifier: valuesList
 |  |  ListCompAssoc
-|  |  |binding_name:
+|  |  |f_binding_name:
 |  |  |  Identifier: y
-|  |  |coll_expr:
+|  |  |f_coll_expr:
 |  |  |  Identifier: valuesList2
-|guard:
+|f_guard:
 |  RelBinOp
-|  |left:
+|  |f_left:
 |  |  DotAccess
-|  |  |receiver:
+|  |  |f_receiver:
 |  |  |  Identifier: x
-|  |  |member:
+|  |  |f_member:
 |  |  |  Identifier: property
-|  |op:
+|  |f_op:
 |  |  OpEq
-|  |right:
+|  |f_right:
 |  |  StringLiteral: "Foo"

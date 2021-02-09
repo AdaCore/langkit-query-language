@@ -1,19 +1,19 @@
 ArithBinOp
-|left:
+|f_left:
 |  ArithBinOp
-|  |left:
+|  |f_left:
 |  |  IntegerLiteral: 1
-|  |op:
+|  |f_op:
 |  |  OpPlus
-|  |right:
+|  |f_right:
 |  |  ArithBinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  IntegerLiteral: 2
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpMul
-|  |  |right:
+|  |  |f_right:
 |  |  |  IntegerLiteral: 3
-|op:
+|f_op:
 |  OpPlus
-|right:
+|f_right:
 |  IntegerLiteral: 4

@@ -1,5 +1,5 @@
 DotAccess
-|receiver:
+|f_receiver:
 |  Identifier: receiver
-|member:
+|f_member:
 |  Identifier: member

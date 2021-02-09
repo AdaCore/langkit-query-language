@@ -1,15 +1,15 @@
 ValDecl
-|identifier:
+|f_identifier:
 |  Identifier: a
-|value:
+|f_value:
 |  ArithBinOp
-|  |left:
+|  |f_left:
 |  |  IntegerLiteral: 3
-|  |op:
+|  |f_op:
 |  |  OpMul
-|  |right:
+|  |f_right:
 |  |  Indexing
-|  |  |collection_expr:
+|  |  |f_collection_expr:
 |  |  |  Identifier: value
-|  |  |index_expr:
+|  |  |f_index_expr:
 |  |  |  IntegerLiteral: 0

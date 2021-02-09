@@ -1,19 +1,19 @@
 SafeCall
-|receiver:
+|f_receiver:
 |  Identifier: value
-|member:
+|f_member:
 |  Identifier: propertyWithArgs
-|arguments:
+|f_arguments:
 |  ArgList
 |  |  ExprArg
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  StringLiteral: "arg1"
 |  |  ExprArg
-|  |  |value_expr:
+|  |  |f_value_expr:
 |  |  |  ArithBinOp
-|  |  |  |left:
+|  |  |  |f_left:
 |  |  |  |  IntegerLiteral: 40
-|  |  |  |op:
+|  |  |  |f_op:
 |  |  |  |  OpPlus
-|  |  |  |right:
+|  |  |  |f_right:
 |  |  |  |  IntegerLiteral: 2

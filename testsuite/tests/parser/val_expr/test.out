@@ -1,21 +1,21 @@
 BlockExpr
-|vals:
+|f_vals:
 |  ValDeclList
 |  |  ValDecl
-|  |  |identifier:
+|  |  |f_identifier:
 |  |  |  Identifier: x
-|  |  |value:
+|  |  |f_value:
 |  |  |  IntegerLiteral: 40
 |  |  ValDecl
-|  |  |identifier:
+|  |  |f_identifier:
 |  |  |  Identifier: y
-|  |  |value:
+|  |  |f_value:
 |  |  |  IntegerLiteral: 2
-|expr:
+|f_expr:
 |  ArithBinOp
-|  |left:
+|  |f_left:
 |  |  Identifier: x
-|  |op:
+|  |f_op:
 |  |  OpPlus
-|  |right:
+|  |f_right:
 |  |  Identifier: y

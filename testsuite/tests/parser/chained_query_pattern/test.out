@@ -1,72 +1,72 @@
 Query
-|from_expr: <null>
-|pattern:
+|f_from_expr: <null>
+|f_pattern:
 |  ChainedNodePattern
-|  |first_pattern:
+|  |f_first_pattern:
 |  |  BindingPattern
-|  |  |binding:
+|  |  |f_binding:
 |  |  |  Identifier: k
-|  |  |value_pattern:
+|  |  |f_value_pattern:
 |  |  |  NodeKindPattern
-|  |  |  |kind_name:
+|  |  |  |f_kind_name:
 |  |  |  |  Identifier: KindOne
-|  |chain:
+|  |f_chain:
 |  |  ChainedPatternLinkList
 |  |  |  PropertyLink
-|  |  |  |property:
+|  |  |  |f_property:
 |  |  |  |  FunCall
-|  |  |  |  |name:
+|  |  |  |  |f_name:
 |  |  |  |  |  Identifier: property
-|  |  |  |  |arguments:
+|  |  |  |  |f_arguments:
 |  |  |  |  |  ArgList: <empty list>
-|  |  |  |pattern:
+|  |  |  |f_pattern:
 |  |  |  |  NodeKindPattern
-|  |  |  |  |kind_name:
+|  |  |  |  |f_kind_name:
 |  |  |  |  |  Identifier: KindTwo
 |  |  |  SelectorLink
-|  |  |  |selector:
+|  |  |  |f_selector:
 |  |  |  |  SelectorCall
-|  |  |  |  |quantifier:
+|  |  |  |  |f_quantifier:
 |  |  |  |  |  Identifier: all
-|  |  |  |  |binding: <null>
-|  |  |  |  |selector_identifier:
+|  |  |  |  |f_binding: <null>
+|  |  |  |  |f_selector_identifier:
 |  |  |  |  |  Identifier: sel
-|  |  |  |  |args:
+|  |  |  |  |f_args:
 |  |  |  |  |  NamedArgList: <empty list>
-|  |  |  |pattern:
+|  |  |  |f_pattern:
 |  |  |  |  BindingPattern
-|  |  |  |  |binding:
+|  |  |  |  |f_binding:
 |  |  |  |  |  Identifier: l
-|  |  |  |  |value_pattern:
+|  |  |  |  |f_value_pattern:
 |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |kind_name:
+|  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  Identifier: KindThree
 |  |  |  FieldLink
-|  |  |  |field:
+|  |  |  |f_field:
 |  |  |  |  Identifier: field
-|  |  |  |pattern:
+|  |  |  |f_pattern:
 |  |  |  |  FilteredPattern
-|  |  |  |  |pattern:
+|  |  |  |  |f_pattern:
 |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |kind_name:
+|  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  Identifier: KindFour
-|  |  |  |  |predicate:
+|  |  |  |  |f_predicate:
 |  |  |  |  |  BinOp
-|  |  |  |  |  |left:
+|  |  |  |  |  |f_left:
 |  |  |  |  |  |  DotCall
-|  |  |  |  |  |  |receiver:
+|  |  |  |  |  |  |f_receiver:
 |  |  |  |  |  |  |  Identifier: k
-|  |  |  |  |  |  |member:
+|  |  |  |  |  |  |f_member:
 |  |  |  |  |  |  |  Identifier: prop
-|  |  |  |  |  |  |arguments:
+|  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  ArgList: <empty list>
-|  |  |  |  |  |op:
+|  |  |  |  |  |f_op:
 |  |  |  |  |  |  OpAnd
-|  |  |  |  |  |right:
+|  |  |  |  |  |f_right:
 |  |  |  |  |  |  DotCall
-|  |  |  |  |  |  |receiver:
+|  |  |  |  |  |  |f_receiver:
 |  |  |  |  |  |  |  Identifier: l
-|  |  |  |  |  |  |member:
+|  |  |  |  |  |  |f_member:
 |  |  |  |  |  |  |  Identifier: prop
-|  |  |  |  |  |  |arguments:
+|  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  ArgList: <empty list>

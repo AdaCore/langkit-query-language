@@ -3,11 +3,10 @@ with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Unchecked_Conversion;
 with Ada.Containers.Hashed_Maps;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Strings.Unbounded.Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with LKQL.Primitives; use LKQL.Primitives;
-with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
 package body Ada_AST_Nodes is
 
@@ -219,7 +218,7 @@ package body Ada_AST_Nodes is
       Receiver_Type_Id : constant Node_Type_Id :=
         Id_For_Kind (Receiver.Node.Kind);
    begin
-      return Lookup_Member (Receiver_Type_Id, To_UTF8 (Name));
+      return Lookup_Member (Receiver_Type_Id, Name);
    end Data_Reference_For_Name;
 
    -----------------
@@ -423,10 +422,10 @@ package body Ada_AST_Nodes is
    end String_To_Value_Type;
 
    package Names_To_Node_Types_Maps is new Ada.Containers.Hashed_Maps
-     (Key_Type        => Unbounded_String,
+     (Key_Type        => Unbounded_Text_Type,
       Element_Type    => Node_Type_Id,
       Equivalent_Keys => "=",
-      Hash            => Hash);
+      Hash            => Wide_Wide_Hash);
 
    Names_To_Node_Types : Names_To_Node_Types_Maps.Map;
 
@@ -435,7 +434,7 @@ package body Ada_AST_Nodes is
    -----------------------
 
    overriding function Matches_Kind_Name
-     (Node : Ada_AST_Node; Kind_Name : String) return Boolean
+     (Node : Ada_AST_Node; Kind_Name : Text_Type) return Boolean
    is
       Expected_Kind : Any_Node_Type_Id;
       Actual_Kind   : constant Any_Node_Type_Id :=
@@ -443,10 +442,11 @@ package body Ada_AST_Nodes is
    begin
       begin
          Expected_Kind :=
-           Names_To_Node_Types.Element (To_Unbounded_String (Kind_Name));
+           Names_To_Node_Types.Element (To_Unbounded_Text (Kind_Name));
       exception
          when Constraint_Error =>
-            raise Unsupported_Error with "Invalid kind name: " & Kind_Name;
+            raise Unsupported_Error
+              with "Invalid kind name: " & Image (Kind_Name);
       end;
 
       return Actual_Kind = Expected_Kind or else
@@ -553,8 +553,8 @@ package body Ada_AST_Nodes is
    -- Kind_Names --
    ----------------
 
-   function Kind_Names return Unbounded_String_Array is
-      Ret : Unbounded_String_Array
+   function Kind_Names return Unbounded_Text_Array is
+      Ret : Unbounded_Text_Array
         (1 .. Positive (Names_To_Node_Types.Length));
       Idx : Positive := 1;
    begin
@@ -569,10 +569,10 @@ package body Ada_AST_Nodes is
    -- Kind --
    ----------
 
-   function Kind (Name : String) return Node_Type_Id is
+   function Kind (Name : Text_Type) return Node_Type_Id is
    begin
       return
-        Names_To_Node_Types.Element (To_Unbounded_String (Name));
+        Names_To_Node_Types.Element (To_Unbounded_Text (Name));
    end Kind;
 
    -----------------------
@@ -614,8 +614,8 @@ begin
 
    for Type_Id in Node_Type_Id loop
       declare
-         Type_Name : Unbounded_String :=
-           To_Unbounded_String (DSL_Name (Type_Id));
+         Type_Name : Unbounded_Text_Type :=
+           To_Unbounded_Text (DSL_Name (Type_Id));
          I : Positive := 1;
       begin
          --  Remove dots

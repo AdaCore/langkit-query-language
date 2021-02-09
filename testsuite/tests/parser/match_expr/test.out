@@ -1,17 +1,17 @@
 Match
-|matched_val:
+|f_matched_val:
 |  Identifier: node
-|arms:
+|f_arms:
 |  MatchArmList
 |  |  MatchArm
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  NodeKindPattern
-|  |  |  |kind_name:
+|  |  |  |f_kind_name:
 |  |  |  |  Identifier: ObjectDecl
-|  |  |expr:
+|  |  |f_expr:
 |  |  |  BoolLiteralTrue
 |  |  MatchArm
-|  |  |pattern:
+|  |  |f_pattern:
 |  |  |  UniversalPattern
-|  |  |expr:
+|  |  |f_expr:
 |  |  |  BoolLiteralFalse

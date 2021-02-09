@@ -1,12 +1,12 @@
 FunDecl
-|name:
+|f_name:
 |  Identifier: allNodes
-|fun_expr:
+|f_fun_expr:
 |  NamedFunction
-|  |parameters:
+|  |f_parameters:
 |  |  ParameterDeclList: <empty list>
-|  |body_expr:
+|  |f_body_expr:
 |  |  Query
-|  |  |from_expr: <null>
-|  |  |pattern:
+|  |  |f_from_expr: <null>
+|  |  |f_pattern:
 |  |  |  UniversalPattern

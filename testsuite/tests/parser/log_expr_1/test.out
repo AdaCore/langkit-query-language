@@ -1,7 +1,7 @@
 BinOp
-|left:
+|f_left:
 |  BoolLiteralTrue
-|op:
+|f_op:
 |  OpAnd
-|right:
+|f_right:
 |  BoolLiteralFalse

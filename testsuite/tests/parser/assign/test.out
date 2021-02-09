@@ -1,11 +1,11 @@
 ValDecl
-|identifier:
+|f_identifier:
 |  Identifier: a
-|value:
+|f_value:
 |  ArithBinOp
-|  |left:
+|  |f_left:
 |  |  IntegerLiteral: 2
-|  |op:
+|  |f_op:
 |  |  OpMul
-|  |right:
+|  |f_right:
 |  |  IntegerLiteral: 3

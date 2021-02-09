@@ -1,24 +1,24 @@
 Query
-|from_expr: <null>
-|pattern:
+|f_from_expr: <null>
+|f_pattern:
 |  FilteredPattern
-|  |pattern:
+|  |f_pattern:
 |  |  BindingPattern
-|  |  |binding:
+|  |  |f_binding:
 |  |  |  Identifier: n
-|  |  |value_pattern:
+|  |  |f_value_pattern:
 |  |  |  NodeKindPattern
-|  |  |  |kind_name:
+|  |  |  |f_kind_name:
 |  |  |  |  Identifier: NodeKind
-|  |predicate:
+|  |f_predicate:
 |  |  RelBinOp
-|  |  |left:
+|  |  |f_left:
 |  |  |  DotAccess
-|  |  |  |receiver:
+|  |  |  |f_receiver:
 |  |  |  |  Identifier: n
-|  |  |  |member:
+|  |  |  |f_member:
 |  |  |  |  Identifier: identifier
-|  |  |op:
+|  |  |f_op:
 |  |  |  OpEq
-|  |  |right:
+|  |  |f_right:
 |  |  |  StringLiteral: "Identifier"

@@ -103,7 +103,7 @@ package LKQL.AST_Nodes is
    --  Return the Nth child of 'Node'
 
    function Matches_Kind_Name
-     (Node : AST_Node; Kind_Name : String) return Boolean is abstract;
+     (Node : AST_Node; Kind_Name : Text_Type) return Boolean is abstract;
    --  Return True if 'Node's kind name is 'Kind_Name' or 'Node's type is a
    --  subtype of a type which kind name is 'Kind_Name'.
 
