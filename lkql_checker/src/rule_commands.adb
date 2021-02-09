@@ -9,6 +9,8 @@ with Libadalang.Common; use Libadalang.Common;
 
 with Liblkqllang.Common;
 with Liblkqllang.Iterators; use Liblkqllang.Iterators;
+with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body Rule_Commands is
 
@@ -53,10 +55,10 @@ package body Rule_Commands is
          Name : constant Text_Type := Fn.F_Name.Text;
       begin
          return Rule_Command'
-           (Name          => To_Unbounded_Text (Name),
-            --  TODO: Can be removed since it's redundant with "Name" now.
+           (Name          => To_Unbounded_Text (To_Lower (Name)),
             LKQL_Root     => Root,
-            LKQL_Context  => Context);
+            LKQL_Context  => Context,
+            Rule_Args     => <>);
       end;
    end Create_Rule_Command;
 
@@ -71,10 +73,31 @@ package body Rule_Commands is
       Result       : Eval_Diagnostic_Vectors.Vector;
       Command_Name : constant Text_Type := To_Text (Self.Name);
       Nodes, Dummy : Primitive;
+      Code         : Unbounded_Text_Type;
    begin
+
+      --  Create the code snippet that will be passed to LKQL_Eval, along with
+      --  the optional arguments passed to the rule via the command line.
+
+      Append (Code, To_Text (Self.Name));
+      Append (Code, "(");
+      for I in Self.Rule_Args.First_Index .. Self.Rule_Args.Last_Index loop
+         Append (Code,
+                 To_Text (Self.Rule_Args (I).Name)
+                 & "="
+                 & To_Text (Self.Rule_Args (I).Value));
+         if I < Self.Rule_Args.Last_Index then
+            Append (Code, ", ");
+         end if;
+      end loop;
+      Append (Code, ")");
+
+      --  Eval the rule's code (which should contain only definitions)
       Dummy := Check_And_Eval (Ctx, Self.LKQL_Root);
-      Nodes := LKQL_Eval
-        (Ctx, Image (To_Text (Self.Name) & "()"), Self.LKQL_Context);
+
+      --  Eval the call to the check function
+      Nodes := LKQL_Eval (Ctx, Image (To_Text (Code)), Self.LKQL_Context);
+
       Check_Kind (Kind_List,
                   Kind (Nodes), "Result of " & To_UTF8 (Command_Name));
 
