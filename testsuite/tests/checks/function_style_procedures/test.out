@@ -1,0 +1,8 @@
+function_style_procedures.ads:3:4: error: function_style_procedures - rule violation
+3 |    procedure P (R : out Integer); -- FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+function_style_procedures.adb:4:4: error: function_style_procedures - rule violation
+4 |    procedure P (R : out Integer) is
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
