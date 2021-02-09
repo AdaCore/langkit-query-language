@@ -12,9 +12,9 @@ these steps:
 
 ```sh
 anod install gnat
-anod install langkit_support -Qcompiler=bootstrap -Qlalmaster
-anod install langkit -Qcompiler=bootstrap -Qlalmaster
-anod install libadalang -Qcompiler=bootstrap -Qlalmaster
+anod install langkit_support -Qlalmaster
+anod install langkit -Qlalmaster
+anod install libadalang -Qlalmaster
 ```
 
 2. Checkout LKQL
@@ -41,9 +41,9 @@ these commands every time:
 ```sh
 # In your sandbox dir
 eval `anod printenv gnat`
-eval `anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster`
-eval `anod printenv langkit -Qcompiler=bootstrap -Qlalmaster`
-eval `anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster`
+eval `anod printenv langkit_support -Qlalmaster`
+eval `anod printenv langkit -Qlalmaster`
+eval `anod printenv libadalang -Qlalmaster`
 ```
 
 You also need to define the following environment variables:
@@ -66,9 +66,9 @@ Or create an env script:
 (
     cd /path/to/your/sandbox
     anod printenv gnat
-    anod printenv langkit_support -Qcompiler=bootstrap -Qlalmaster
-    anod printenv langkit -Qcompiler=bootstrap -Qlalmaster
-    anod printenv libadalang -Qcompiler=bootstrap -Qlalmaster
+    anod printenv langkit_support -Qlalmaster
+    anod printenv langkit -Qlalmaster
+    anod printenv libadalang -Qlalmaster
 
     cd /path/to/your/lkql/checkout
     GPR_PROJECT_PATH="$PWD/lkql/build:$GPR_PROJECT_PATH"
