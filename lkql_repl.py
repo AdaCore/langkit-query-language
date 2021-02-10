@@ -29,6 +29,7 @@ parser.add_argument(
     help="Ada project file to base the queries upon",
     required=True
 )
+parser.add_argument("-s", "--script", help="LKQL script to load")
 
 
 class LKQLCompleter(Completer):
@@ -55,6 +56,8 @@ global dummy_unit
 HELP_MESSAGE = """
 LKQL read eval print loop. You can use it to evaluate LKQL statements on an Ada
 project
+
+Here are the list of built-in commands:
 """.strip()
 
 WELCOME_PROMPT = r"""
@@ -88,13 +91,24 @@ def reload():
 
 
 @register_builtin
+def load_file(file_path):
+    """
+    Load lkql file given in argument.
+    """
+    print(file_path)
+    unit = ctx.get_from_file(file_path)
+    print(unit.root.p_interp_eval)
+    del unit
+
+
+@register_builtin
 def help():
     """
     Print the help
     """
 
     commands_help = "\n".join(
-        f"{fn.__name__}: {fn.__doc__}" for fn in builtins.values()
+        f"%{fn.__name__}: {fn.__doc__}" for fn in builtins.values()
     )
     print(f"{HELP_MESSAGE}\n\n{commands_help}")
 
@@ -112,6 +126,9 @@ if __name__ == '__main__':
     dummy_unit = ctx.get_from_buffer('<dummy>', '12')
     dummy_unit.root.p_interp_init_from_project(args.project)
 
+    if args.script:
+        cmd_unit = ctx.get_from_file(args.script)
+        cmd_unit.root.p_interp_eval
     for i in itertools.count(start=1):
 
         # We have a new buffer name at each iteration, to create a new buffer
@@ -125,8 +142,9 @@ if __name__ == '__main__':
             with patch_stdout():
                 cmd = session.prompt(HTML("<prompt> > </prompt>"), style=style)
 
-            if cmd.strip() in builtins.keys():
-                builtins[cmd.strip()]()
+            if cmd.startswith("%"):
+                cmd, *args = cmd[1:].split(' ')
+                builtins[cmd](*args)
             else:
                 cmd_unit = ctx.get_from_buffer(buffer_name, cmd)
                 print(cmd_unit.root.p_interp_eval)
