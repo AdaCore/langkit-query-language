@@ -11,7 +11,7 @@ This document presents a *florilège* of LKQL-based checks inspired on **GNATChe
 
 LKQL Script::
     
-    selector supertypes
+    selector super_types
         | TypeDecl          => skip it.type_def
         | InterfaceTypeDef  => skip it.interfaces
         | RecordTypeDef     => ()
@@ -21,7 +21,7 @@ LKQL Script::
         | ParentList        => skip *it.children
         | *                 => ()
 
-    let result = query TypeDecl(any supertypes(depth=3): *)
+    let result = query TypeDecl(any super_types(depth=3): *)
 
     print(result)
 
@@ -126,7 +126,7 @@ This LKQL script lists the occurrences of the aforementioned issue.
 
 LKQL Script::
 
-    let result = query ProtectedDef any children EntryDecl(any prevSiblings: EntryDecl)
+    let result = query ProtectedDef any children EntryDecl(any prev_siblings is EntryDecl)
     print(result)
 
 Lists the entries that belong to a protected definition containing multiple entries.
@@ -142,7 +142,7 @@ LKQL Script::
 
     let result = query t @ *
                     when isRealWithoutRange(t) ||
-                        t is SubtypeDecl(any superTypes: s@_ when isRealWithoutRange(s))
+                        t is SubtypeDecl(any super_types: s@_ when isRealWithoutRange(s))
     print(result)
 
     fun isRealWithoutRange(decl) =
@@ -159,7 +159,7 @@ Lists the floating point type definitions that do not include an explicit range.
 LKQL Script::
 
     let result =
-        query p@ParamSpec(any nextSiblings: sib@ParamSpec when priority(sib) > priority(p))
+        query p@ParamSpec(any next_siblings is sib@ParamSpec when priority(sib) > priority(p))
 
     print(result)
 
