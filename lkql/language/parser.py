@@ -673,7 +673,8 @@ class FunCall(Expr):
         Return whether this is a call to a built-in property.
         """
         return (Self.name.text == String("print")) | \
-               (Self.name.text == String("debug"))
+               (Self.name.text == String("debug")) | \
+               (Self.name.text == String("list"))
 
 
 class SelectorExprMode(LKQLNode):
