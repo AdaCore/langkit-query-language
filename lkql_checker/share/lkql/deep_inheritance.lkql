@@ -1,3 +1,3 @@
 @check
 fun deep_inheritance(depth: int = 2) =
-    select TypeDecl(any superTypes(depth=depth+1) is *)
+    select TypeDecl(any super_types(depth=depth+1) is *)

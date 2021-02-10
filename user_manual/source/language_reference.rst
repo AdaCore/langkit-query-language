@@ -821,11 +821,11 @@ In the branch of a selector, you have three choices:
 
 In ``rec`` or in the regular return branch, you can use the unpack operator, or
 ``*expr`` to "unpack" an expression, eg. return each of its values. Here is for
-example how the ``superTypes`` selector is expressed:
+example how the ``super_types`` selector is expressed:
 
 .. code-block:: lkql
 
-    selector superTypes
+    selector super_types
         | BaseTypeDecl      => rec *it.base_types()
         | *                 => ()
 
@@ -836,9 +836,9 @@ The built-in selectors are:
 
 * ``parent``: parent nodes.
 * ``children``: child nodes.
-* ``prevSiblings``: sibling nodes that are before the current node.
-* ``nextSiblings``: sibling nodes that are after the current node.
-* ``superTypes``: if the current node is a type, then all its supertypes.
+* ``prev_siblings``: sibling nodes that are before the current node.
+* ``next_siblings``: sibling nodes that are after the current node.
+* ``super_types``: if the current node is a type, then all its parent types.
 
 ..
    * Operators need not be documented, since they're documented as part of the

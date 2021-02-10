@@ -9,5 +9,5 @@ fun priority(paramSpec) =
 
 @check
 fun parameters_order() =
-    select p @ ParamSpec(any nextSiblings
+    select p @ ParamSpec(any next_siblings
                          is sib @ ParamSpec when priority(sib) > priority(p))
