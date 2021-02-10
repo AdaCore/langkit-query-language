@@ -3,11 +3,11 @@ with Liblkqllang.Common;     use Liblkqllang.Common;
 package body Liblkqllang.Prelude is
 
    Prelude_Content : constant String :=
-        "selector nextSiblings" & ASCII.LF &
+        "selector next_siblings" & ASCII.LF &
         "   | AdaNode => rec it.next_sibling" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
-        "selector prevSiblings" & ASCII.LF &
+        "selector prev_siblings" & ASCII.LF &
         "   | AdaNode => rec it.previous_sibling" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
@@ -19,7 +19,7 @@ package body Liblkqllang.Prelude is
         "   | AdaNode => rec *it.children" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
-        "selector superTypes" & ASCII.LF &
+        "selector super_types" & ASCII.LF &
         "    | BaseTypeDecl      => rec *it.p_base_types()" & ASCII.LF &
         "    | *                 => ()" & ASCII.LF;
 
