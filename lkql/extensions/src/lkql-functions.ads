@@ -25,10 +25,4 @@ private
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive;
    --  Evaluate a call to a built-in function
 
-   function Eval_Print (Ctx : Eval_Context; Expr : L.Expr) return Primitive;
-   --  Evaluate a call to the 'print' built-in function
-
-   function Eval_Debug (Ctx : Eval_Context; Node : L.Expr) return Primitive;
-   --  Evaluate a call to the 'debug' built-in function
-
 end LKQL.Functions;
