@@ -183,15 +183,15 @@ package body LKQL.Custom_Selectors is
 
    procedure Add_If_Unseen
      (Node        : Depth_Node;
-      Cache       : in out Depth_Node_Sets.Set;
+      Cache       : in out Node_Sets.Set;
       Target_List : out Depth_Node_Lists.List)
    is
    begin
-      if Cache.Contains (Node) then
+      if Cache.Contains (Node.Node) then
          return;
       end if;
 
-      Cache.Insert (Node);
+      Cache.Insert (Node.Node);
       Target_List.Append (Node);
    end Add_If_Unseen;
 
