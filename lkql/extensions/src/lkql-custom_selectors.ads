@@ -28,9 +28,9 @@ private
      (Depth_Node);
    --  List of Depth_Node values
 
-   package Depth_Node_Sets is new Ada.Containers.Hashed_Sets
-     (Element_Type        => Depth_Node,
-      Hash                => Hash,
+   package Node_Sets is new Ada.Containers.Hashed_Sets
+     (Element_Type        => AST_Node_Rc,
+      Hash                => Hash_Rc,
       Equivalent_Elements => "=",
       "="                 => "=");
    --  Set of Depth_Node values
@@ -51,9 +51,9 @@ private
       Next_To_Visit   : Depth_Node_Lists.List;
       --  Nodes that will be used as an evaluation root for the selector in
       --  order to find new nodes to yield.
-      Already_Yielded : Depth_Node_Sets.Set;
+      Already_Yielded : Node_Sets.Set;
       --  Nodes that have already been yielded
-      Already_Visited : Depth_Node_Sets.Set;
+      Already_Visited : Node_Sets.Set;
       --  Nodes that have already been visited
    end record;
 
@@ -87,7 +87,7 @@ private
 
    procedure Add_If_Unseen
      (Node        : Depth_Node;
-      Cache       : in out Depth_Node_Sets.Set;
+      Cache       : in out Node_Sets.Set;
       Target_List : out Depth_Node_Lists.List);
    --  Add 'Node' to the target list if it's node value is not already in the
    --  cache, and cache it.
