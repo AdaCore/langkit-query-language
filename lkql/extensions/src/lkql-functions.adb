@@ -18,6 +18,9 @@ package body LKQL.Functions is
    function Eval_Debug (Ctx : Eval_Context; Node : L.Expr) return Primitive;
    --  Evaluate a call to the 'debug' built-in function
 
+   function Eval_To_List (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+   --  Evaluate a call to the 'debug' built-in function
+
    -------------------
    -- Eval_Fun_Call --
    -------------------
@@ -130,6 +133,8 @@ package body LKQL.Functions is
          return Eval_Print (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
       elsif Call.F_Name.Text = "debug" then
          return Eval_Debug (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
+      elsif Call.F_Name.Text = "list" then
+         return Eval_To_List (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
       end if;
 
       raise Assertion_Error with "should never happen";
@@ -158,5 +163,16 @@ package body LKQL.Functions is
       Put_Line (Message);
       return Value;
    end Eval_Debug;
+
+   ------------------
+   -- Eval_To_List --
+   ------------------
+
+   function Eval_To_List (Ctx : Eval_Context; Node : L.Expr) return Primitive
+   is
+      Value : constant Primitive := Eval (Ctx, Node, Kind_Iterator);
+   begin
+      return To_List (Value.Get.Iter_Val.all);
+   end Eval_To_List;
 
 end LKQL.Functions;
