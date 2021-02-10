@@ -1,0 +1,4 @@
+foo.ads:2:9: error: too_many_primitives - rule violation
+2 |    type T is tagged null record;
+  |         ^ 
+
