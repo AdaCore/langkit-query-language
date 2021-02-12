@@ -1,5 +1,2 @@
-selector children
-    | AdaNode => rec *it.children
-
 val withAspect = select ObjectDecl(any children is AspectAssoc)
 print (withAspect)

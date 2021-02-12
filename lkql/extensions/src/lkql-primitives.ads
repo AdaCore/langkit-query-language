@@ -58,20 +58,24 @@ package LKQL.Primitives is
       Kind_Function,
       --  Functions objects
 
+      Kind_Selector,
+      --  Selector objects
+
       No_Kind
       --  Special value that allows using this enum as an option type
    );
    --  Denotes the kind of a primitive value
 
    subtype Valid_Primitive_Kind is Base_Primitive_Kind
-      range Kind_Unit .. Kind_Function;
+      range Kind_Unit .. Kind_Selector;
 
    subtype Sequence_Kind is Valid_Primitive_Kind
    range Kind_Iterator .. Kind_List;
 
    subtype Introspectable_Kind is Valid_Primitive_Kind
      with Static_Predicate =>
-       Introspectable_Kind not in Kind_Tuple | Kind_Unit | Kind_Function;
+       Introspectable_Kind not in
+         Kind_Tuple | Kind_Unit | Kind_Function | Kind_Selector;
 
    type Environment_Access is access all LKQL.Eval_Contexts.Environment;
 
@@ -95,9 +99,15 @@ package LKQL.Primitives is
             List_Val          : Primitive_List_Access;
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
-         when Kind_Function =>
-            Fun_Node          : L.Base_Function;
+
+         --  TODO: At some stage we want selectors to be regular functions.
+         when Kind_Function | Kind_Selector =>
             Frame             : Environment_Access;
+            case Kind is
+               when Kind_Function => Fun_Node : L.Base_Function;
+               when Kind_Selector => Sel_Node : L.Selector_Decl;
+               when others => null;
+            end case;
       end case;
    end record;
    --  Store a primitive value, which can be an atomic type
@@ -283,6 +293,9 @@ package LKQL.Primitives is
 
    function Make_Function
      (Node : L.Base_Function; Env : Environment_Access) return Primitive;
+
+   function Make_Selector
+     (Node : L.Selector_Decl; Env : Environment_Access) return Primitive;
 
    -------------------------------------------------
    -- Primitive to Introspection value conversion --

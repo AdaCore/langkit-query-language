@@ -180,7 +180,7 @@ package body LKQL.Primitives is
          when Kind_Iterator =>
             Primitive_Iters.Free_Iterator (Data.Iter_Val.Iter);
             Free_Iterator_Primitive (Data.Iter_Val);
-         when Kind_Function =>
+         when Kind_Function | Kind_Selector =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
          when others =>
@@ -568,6 +568,24 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Function;
 
+   -------------------
+   -- Make_Selector --
+   -------------------
+
+   function Make_Selector
+     (Node : L.Selector_Decl; Env : Environment_Access) return Primitive
+   is
+      Ref : Primitive;
+   begin
+      Ref.Set
+        (Primitive_Data'
+           (Refcounted
+            with Kind => Kind_Selector,
+                 Sel_Node  => Node,
+                 Frame     => Env));
+      return Ref;
+   end Make_Selector;
+
    ----------------------------
    -- To_Introspection_Value --
    ----------------------------
@@ -715,35 +733,40 @@ package body LKQL.Primitives is
 
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type is
    begin
-      return (case Kind (Val) is
-                 when Kind_Unit =>
-                   To_Unbounded_Text (To_Text ("()")),
-                 when Kind_Int  =>
-                   Int_Image (Int_Val (Val)),
-                 when Kind_Str  =>
-                    --  TODO ??? We use Langkit_Support.Text.Image to quote the
-                    --  string and potentially escape chars in it, but we have
-                    --  to convert it back & forth from string. We should add
-                    --  an overload in langkit that returns a Text_Type.
-                   To_Unbounded_Text
-                     (To_Text (Image (To_Text (Str_Val (Val)),
-                                      With_Quotes => True))),
-                 when Kind_Bool =>
-                   Bool_Image (Bool_Val (Val)),
-                 when Kind_Node =>
-                   (if Node_Val (Val).Get.Is_Null_Node
-                    then To_Unbounded_Text ("null")
-                    else To_Unbounded_Text (Val.Get.Node_Val.Get.Text_Image)),
-                 when Kind_Iterator =>
-                   Iterator_Image (Iter_Val (Val).all),
-                 when Kind_List =>
-                   List_Image (Val.Get.List_Val.all),
-                 when Kind_Tuple =>
-                   List_Image (Val.Get.List_Val.all, "(", ")"),
-                 when Kind_Selector_List =>
-                   Selector_List_Image (Selector_List_Val (Val)),
-                 when Kind_Function      => "function "
-              & To_Unbounded_Text (To_Text (Val.Get.Fun_Node.Image)));
+      return
+        (case Kind (Val) is
+            when Kind_Unit          =>
+              To_Unbounded_Text (To_Text ("()")),
+            when Kind_Int           =>
+              Int_Image (Int_Val (Val)),
+            when Kind_Str           =>
+            --  TODO ??? We use Langkit_Support.Text.Image to quote the
+            --  string and potentially escape chars in it, but we have
+            --  to convert it back & forth from string. We should add
+            --  an overload in langkit that returns a Text_Type.
+           To_Unbounded_Text
+             (To_Text (Image (To_Text (Str_Val (Val)),
+              With_Quotes => True))),
+            when Kind_Bool          =>
+              Bool_Image (Bool_Val (Val)),
+            when Kind_Node          =>
+           (if Node_Val (Val).Get.Is_Null_Node
+            then To_Unbounded_Text ("null")
+            else To_Unbounded_Text (Val.Get.Node_Val.Get.Text_Image)),
+            when Kind_Iterator      =>
+              Iterator_Image (Iter_Val (Val).all),
+            when Kind_List          =>
+              List_Image (Val.Get.List_Val.all),
+            when Kind_Tuple         =>
+              List_Image (Val.Get.List_Val.all, "(", ")"),
+            when Kind_Selector_List =>
+              Selector_List_Image (Selector_List_Val (Val)),
+            when Kind_Function      =>
+              "function "
+              & To_Unbounded_Text (To_Text (Val.Get.Fun_Node.Image)),
+            when Kind_Selector      =>
+              "selector "
+              & To_Unbounded_Text (To_Text (Val.Get.Sel_Node.Image)));
    end To_Unbounded_Text;
 
    ---------------
@@ -753,16 +776,17 @@ package body LKQL.Primitives is
    function To_String (Val : Valid_Primitive_Kind) return String is
    begin
       return (case Val is
-                 when Kind_Unit          => "Unit",
-                 when Kind_Int           => "Int",
-                 when Kind_Str           => "Str",
-                 when Kind_Bool          => "Bool",
-                 when Kind_Node          => "Node",
-                 when Kind_Iterator      => "Iterator",
-                 when Kind_List          => "List",
+                 when Kind_Unit           => "Unit",
+                 when Kind_Int            => "Int",
+                 when Kind_Str            => "Str",
+                 when Kind_Bool           => "Bool",
+                 when Kind_Node           => "Node",
+                 when Kind_Iterator       => "Iterator",
+                 when Kind_List           => "List",
                  when Kind_Tuple          => "Tuple",
                  when Kind_Selector_List  => "Selector List",
-                 when Kind_Function       => "Function");
+                 when Kind_Function       => "Function",
+                 when Kind_Selector       => "Selector");
    end To_String;
 
    ---------------

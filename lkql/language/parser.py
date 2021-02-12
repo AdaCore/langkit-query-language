@@ -17,14 +17,6 @@ class LKQLNode(ASTNode):
     Root node class for LKQL AST nodes.
     """
 
-    @langkit_property(public=True, return_type=T.AnalysisUnit, external=True,
-                      uses_envs=False, uses_entity_info=False)
-    def prelude_unit():
-        """
-        Retrieve the Prelude unit.
-        """
-        pass
-
     @langkit_property(public=True, return_type=T.Symbol.array,
                       external=True, uses_envs=False, uses_entity_info=False)
     def interp_complete():
@@ -778,15 +770,6 @@ class SelectorCall(LKQLNode):
             lambda x=Self.args.find(lambda a: a.arg_name.text == name):
             If(x.is_null, No(Expr), x.expr)
         )
-
-    @langkit_property(return_type=SelectorDecl.entity, public=True,
-                      memoized=True)
-    def called_selector():
-        """
-        Return the function definition that corresponds to the called function.
-        """
-        return Self.node_env.get_first(Self.selector_identifier.symbol)\
-                            .cast(SelectorDecl)
 
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def depth_expr():

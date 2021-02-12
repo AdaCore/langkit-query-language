@@ -9,7 +9,6 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 
 with Liblkqllang.Analysis;
-with Liblkqllang.Prelude;
 with Liblkqllang.Public_Converters;
 
 with Libadalang.Helpers; use Libadalang.Helpers;
@@ -58,15 +57,6 @@ package body Liblkqllang.Implementation.Extensions is
       end loop;
       return Ret;
    end Units;
-
-   ------------------------------
-   -- LKQL_Node_P_Prelude_Unit --
-   ------------------------------
-
-   function LKQL_Node_P_Prelude_Unit
-     (Node : Bare_LKQL_Node) return Internal_Unit
-   is
-     (Liblkqllang.Prelude.Prelude_Unit);
 
    ------------------------------------------
    -- LKQL_Node_P_Interp_Init_From_Project --
