@@ -1,12 +1,7 @@
-with Liblkqllang.Implementation; use Liblkqllang.Implementation;
+with Liblkqllang.Analysis; use Liblkqllang.Analysis;
 
-private package Liblkqllang.Prelude is
+package Liblkqllang.Prelude is
 
-   Prelude_Unit : Internal_Unit :=
-     No_Analysis_Unit;
-   --  Analysis_Unit containing the Prelude's declarations
-
-   procedure Fetch_Prelude (Context : Internal_Context);
-   --  Load symbols from LKQL's "standard library".
+   function Prelude_Unit (Context : Analysis_Context) return Analysis_Unit;
 
 end Liblkqllang.Prelude;

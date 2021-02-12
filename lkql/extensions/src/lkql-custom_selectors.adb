@@ -45,7 +45,9 @@ package body LKQL.Custom_Selectors is
                                        Root       : AST_Node_Rc)
                                        return Custom_Selector_Iter
    is
-      Definition    : constant L.Selector_Decl := Call.P_Called_Selector;
+      Selector      : constant Primitive :=
+        Eval (Ctx, Call.F_Selector_Identifier, Kind_Selector);
+
       Default_Min   : constant Primitive := To_Primitive (1);
       Min_Depth     : constant Integer :=
         Int_Val (Eval_Default (Ctx, Call.P_Min_Depth_Expr, Default_Min,
@@ -56,10 +58,15 @@ package body LKQL.Custom_Selectors is
                                Expected_Kind => Kind_Int));
       Root_Node     : constant Depth_Node :=
         Depth_Node'(0, Root);
+
+      Eval_Ctx      : constant Eval_Context :=
+        Eval_Context'(Ctx.Kernel,
+                      Eval_Contexts.Environment_Access (Selector.Get.Frame));
    begin
       return Result : Custom_Selector_Iter do
          Result := Custom_Selector_Iter'
-           (Ctx, Definition, Min_Depth, Max_Depth, others => <>);
+           (Eval_Ctx, Selector.Get.Sel_Node,
+            Min_Depth, Max_Depth, others => <>);
 
          Result.Next_To_Visit.Append (Root_Node);
 

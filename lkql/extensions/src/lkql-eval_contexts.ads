@@ -146,6 +146,9 @@ private
       Error_Recovery_Enabled : Boolean := False;
       --  If true, the user will be asked if he wants to resume execution upon
       --  encountering an error.
+
+      Prelude_Context : L.Analysis_Context;
+      --  LKQL analysis context, used to hold data of the prelude
    end record;
    --  Stores the global data structures shared by every evaluation context
 

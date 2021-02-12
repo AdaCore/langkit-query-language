@@ -1,3 +1,5 @@
+with Liblkqllang.Prelude; use Liblkqllang.Prelude;
+with LKQL.Evaluation; use LKQL.Evaluation;
 
 package body LKQL.Eval_Contexts is
 
@@ -137,11 +139,21 @@ package body LKQL.Eval_Contexts is
    is
       Roots : constant AST_Node_Array_Access := new AST_Node_Array'(Ast_Roots);
       Kernel : constant Global_Data_Access :=
-        new Global_Data'(Roots, Null_Node, Make_Empty_Error, Err_Recovery);
+        new Global_Data'
+          (Roots, Null_Node, Make_Empty_Error, Err_Recovery,
+           L.Create_Context);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
+      Ret    : constant Eval_Context := Eval_Context'(Kernel, Env);
+
    begin
-      return Eval_Context'(Kernel, Env);
+      declare
+         U      : constant L.Analysis_Unit :=
+           Prelude_Unit (Kernel.Prelude_Context);
+         Dummy  : constant Primitive := Check_And_Eval (Ret, U.Root);
+      begin
+         return Ret;
+      end;
    end Make_Eval_Context;
 
    -----------------------

@@ -1,5 +1,3 @@
-with Liblkqllang.Common;     use Liblkqllang.Common;
-
 package body Liblkqllang.Prelude is
 
    Prelude_Content : constant String :=
@@ -23,22 +21,14 @@ package body Liblkqllang.Prelude is
         "    | BaseTypeDecl      => rec *it.p_base_types()" & ASCII.LF &
         "    | *                 => ()" & ASCII.LF;
 
-    -------------------
-    -- Fetch_Prelude --
-    -------------------
+   ------------------
+   -- Prelude_Unit --
+   ------------------
 
-   procedure Fetch_Prelude (Context : Internal_Context) is
-      Std : constant Internal_Unit :=
-        (if Prelude_Unit = null
-         then Get_From_Buffer
-           (Context  => Context,
-            Filename => "prelude",
-            Charset  => "ascii",
-            Buffer   => Prelude_Content,
-            Rule     => Default_Grammar_Rule)
-         else Prelude_Unit);
+   function Prelude_Unit (Context : Analysis_Context) return Analysis_Unit is
    begin
-      Populate_Lexical_Env (Std);
-   end Fetch_Prelude;
+      return Context.Get_From_Buffer
+        (Filename => "prelude", Buffer => Prelude_Content);
+   end Prelude_Unit;
 
 end Liblkqllang.Prelude;
