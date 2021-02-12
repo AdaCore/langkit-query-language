@@ -21,6 +21,9 @@ package body LKQL.Evaluation is
    function Eval_Fun_Decl
      (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive;
 
+   function Eval_Selector_Decl
+     (Ctx : Eval_Context; Node : L.Selector_Decl) return Primitive;
+
    function Eval_Fun_Expr
      (Ctx : Eval_Context; Node : L.Base_Function) return Primitive;
 
@@ -191,12 +194,13 @@ package body LKQL.Evaluation is
             Result := Eval_Block_Expr (Local_Context, Node.As_Block_Expr);
          when LCO.LKQL_Fun_Decl =>
             Result := Eval_Fun_Decl (Local_Context, Node.As_Fun_Decl);
+         when LCO.LKQL_Selector_Decl =>
+            Result :=
+              Eval_Selector_Decl (Local_Context, Node.As_Selector_Decl);
          when LCO.LKQL_Anonymous_Function =>
             Result := Eval_Fun_Expr (Local_Context, Node.As_Base_Function);
          when LCO.LKQL_Fun_Call =>
             Result := Eval_Fun_Call (Local_Context, Node.As_Fun_Call);
-         when LCO.LKQL_Selector_Decl =>
-            Result := Make_Unit_Primitive;
          when LCO.LKQL_Match =>
             Result := Eval_Match (Local_Context, Node.As_Match);
          when LCO.LKQL_Unwrap =>
@@ -296,6 +300,33 @@ package body LKQL.Evaluation is
       return Make_Unit_Primitive;
 
    end Eval_Fun_Decl;
+
+   ------------------------
+   -- Eval_Selector_Decl --
+   ------------------------
+
+   function Eval_Selector_Decl
+     (Ctx : Eval_Context; Node : L.Selector_Decl) return Primitive
+   is
+      Identifier : constant Text_Type :=
+        Node.F_Name.Text;
+   begin
+      if Ctx.Exists_In_Local_Env (Identifier) then
+         Raise_Already_Existing_Symbol (Ctx,
+                                        To_Unbounded_Text (Identifier),
+                                        Node.F_Name.As_LKQL_Node);
+      end if;
+
+      --  The selector declaration will hold a reference to its original env,
+      --  and can reference vars coming from it, so hold a reference on it.
+      LKQL.Eval_Contexts.Inc_Ref (Ctx.Frames);
+
+      Ctx.Add_Binding
+        (Identifier,
+         Make_Selector (Node, Primitives.Environment_Access (Ctx.Frames)));
+
+      return Make_Unit_Primitive;
+   end Eval_Selector_Decl;
 
    -------------------
    -- Eval_Fun_Expr --
