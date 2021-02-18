@@ -1,0 +1,3 @@
+@check
+fun anonymous_subtypes() =
+    select BinOp(any children is OpDoubleDot)

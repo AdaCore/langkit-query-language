@@ -1,0 +1,12 @@
+anonymous_subtypes.ads:4:42: error: Anonymous_Subtypes - rule violation
+4 |               return Boolean is (I in 0 .. 10); -- FLAG
+  |                                       ^^^^^^^
+
+anonymous_subtypes.ads:7:46: error: Anonymous_Subtypes - rule violation
+7 |                                      when 0 .. 10 => True, -- FLAG
+  |                                           ^^^^^^^
+
+anonymous_subtypes.ads:10:52: error: Anonymous_Subtypes - rule violation
+10 |                return Boolean is (for some J in 0 .. 10 => J > I); -- FLAG
+   |                                                 ^^^^^^^
+
