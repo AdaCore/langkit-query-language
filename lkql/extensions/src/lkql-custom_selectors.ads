@@ -4,6 +4,7 @@ with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Containers.Hashed_Sets;
+with LKQL.Primitives; use LKQL.Primitives;
 
 private package LKQL.Custom_Selectors is
 
@@ -15,10 +16,12 @@ private package LKQL.Custom_Selectors is
 
    function Clone (Iter : Custom_Selector_Iter) return Custom_Selector_Iter;
 
-   function Make_Custom_Selector_Iter (Ctx        : Eval_Context;
-                                       Call       : L.Selector_Call;
-                                       Root       : AST_Node_Rc)
-                                       return Custom_Selector_Iter;
+   function Make_Custom_Selector_Iter
+     (Ctx                            : Eval_Context;
+      Selector                       : Primitive;
+      Min_Depth_Expr, Max_Depth_Expr : L.Expr;
+      Root                           : AST_Node_Rc)
+      return Custom_Selector_Iter;
    --  Create an iterator that yields the nodes bound to 'Root' by
    --  the given selector definition.
 

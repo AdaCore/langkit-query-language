@@ -29,11 +29,11 @@ package LKQL.Selector_Lists is
       not null access all Depth_Node_Iters.Filter_Iter;
 
    function Make_Selector_List
-     (Iter : Depth_Node_Filter_Access) return Selector_List;
+     (Iter : Depth_Node_Iter_Access) return Selector_List;
    --  Return a Selector_List wrapping the given iterator
 
    function Make_Selector_List
-     (Iter            : Depth_Node_Filter_Access;
+     (Iter            : Depth_Node_Iter_Access;
       Quantifier_Name : String;
       Result          : out Selector_List)
       return Boolean;
@@ -122,7 +122,7 @@ private
    subtype Shared_Data_Ref is Shared_Data_Ptrs.Ref;
 
    function Make_Shared_Data
-     (Iter : Depth_Node_Filter_Access) return Shared_Data_Ref;
+     (Iter : Depth_Node_Iter_Access) return Shared_Data_Ref;
 
    -------------------
    -- Selector_List --

@@ -200,7 +200,7 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Anonymous_Function =>
             Result := Eval_Fun_Expr (Local_Context, Node.As_Base_Function);
          when LCO.LKQL_Fun_Call =>
-            Result := Eval_Fun_Call (Local_Context, Node.As_Fun_Call);
+            Result := Eval_Call (Local_Context, Node.As_Fun_Call);
          when LCO.LKQL_Match =>
             Result := Eval_Match (Local_Context, Node.As_Match);
          when LCO.LKQL_Unwrap =>
