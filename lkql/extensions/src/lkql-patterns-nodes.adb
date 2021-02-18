@@ -223,15 +223,22 @@ package body LKQL.Patterns.Nodes is
    is
       Quantifier_Name   : constant String :=
         To_UTF8 (Call.P_Quantifier_Name);
+
+      Selector      : constant Primitive :=
+        Eval (Ctx, Call.F_Selector_Identifier, Kind_Selector);
+
       Selector_Iterator : constant Depth_Node_Iter_Access :=
         new Depth_Node_Iter'Class'
           (Depth_Node_Iter'Class
-             (Make_Custom_Selector_Iter (Ctx, Call, Node)));
+             (Make_Custom_Selector_Iter
+                (Ctx, Selector,
+                 Call.P_Min_Depth_Expr, Call.P_Max_Depth_Expr,
+                 Node)));
       Pattern_Predicate : constant Depth_Node_Iters.Predicate_Access :=
         new Depth_Node_Iters.Predicates.Func'Class'
           (Depth_Node_Iters.Predicates.Func'Class
              (Make_Node_Pattern_Predicate (Ctx, Pattern)));
-      Filtered_Iter     : constant Depth_Node_Filter_Access :=
+      Filtered_Iter     : constant Depth_Node_Iter_Access :=
         new Depth_Node_Iters.Filter_Iter'
           (Depth_Node_Iters.Filter (Selector_Iterator, Pattern_Predicate));
    begin

@@ -70,7 +70,7 @@ package body LKQL.Selector_Lists is
    ------------------------
 
    function Make_Selector_List
-     (Iter : Depth_Node_Filter_Access) return Selector_List
+     (Iter : Depth_Node_Iter_Access) return Selector_List
    is
      (Data     => Make_Shared_Data (Iter),
       Next_Pos => Positive'First);
@@ -80,7 +80,7 @@ package body LKQL.Selector_Lists is
    ------------------------
 
    function Make_Selector_List
-     (Iter            : Depth_Node_Filter_Access;
+     (Iter            : Depth_Node_Iter_Access;
       Quantifier_Name : String;
       Result          : out Selector_List)
       return Boolean
@@ -270,12 +270,12 @@ package body LKQL.Selector_Lists is
    ----------------------
 
    function Make_Shared_Data
-     (Iter : Depth_Node_Filter_Access) return Shared_Data_Ref
+     (Iter : Depth_Node_Iter_Access) return Shared_Data_Ref
    is
       Resetable : constant Depth_Node_Iters.Resetable_Iter :=
         Depth_Node_Iters.Resetable (Depth_Node_Iters.Iterator_Access (Iter));
       Data : constant Selector_Shared_Data :=
-        (Refcounted with Iter   => Resetable, others => <>);
+        (Refcounted with Iter => Resetable, others => <>);
    begin
       return Result : Shared_Data_Ref do
          Result.Set (Data);
