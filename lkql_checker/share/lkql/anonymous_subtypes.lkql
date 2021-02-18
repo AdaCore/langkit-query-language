@@ -1,0 +1,62 @@
+# Flag all uses of anonymous subtypes except for the following:
+# - when the subtype indication depends on a discriminant, this includes the
+#   cases of a record component definitions when a component depends on a
+#   discriminant, and using the discriminant of the derived type to constraint
+#   the parent type;
+# - when a self-referenced data structure is defined, and a discriminant is
+#   constrained by the reference to the current instance of a type;
+#
+# A use of an anonymous subtype is any instance of a subtype indication
+# with a constraint, other than one that occurs immediately within a
+# subtype declaration. Any use of a range other than as a constraint used
+# immediately within a subtype declaration is considered as an anonymous
+# subtype.
+#
+# The rule does not flag ranges in the component clauses from a record
+# representation clause, because the language rules do not allow to use
+# subtype names there.
+
+# Any part of the tree is a discriminant of the enclosing type decl
+fun is_using_discriminant(node, type_decl) =
+    node is *(any children is id@BaseId
+              when type_decl is TypeDecl(
+                 any children(depth=3) is DiscriminantSpec(
+                    f_ids is DefiningNameList(
+                        any children is i@BaseId when i.p_name_matches(id)))))
+
+fun get_type_decl(t) =
+    match t
+    | null     => null
+    | TypeDecl => t
+    | *        => get_type_decl(t?.parent)
+
+# A self-reference has the form Type'Access
+fun is_self_referencing(expr, type_decl) =
+    type_decl != null and
+    expr is *(any children is at@AttributeRef
+              when at.f_attribute?.p_name_is("Access")
+               and at.f_prefix?.p_name_matches(type_decl?.f_name?.f_name))
+
+fun is_anonymous_subtype(p) =
+    match p
+    # We should never get null but better be safe and conservative if we do
+    | null             => true
+    | ArrayTypeDef     => true
+    | ComponentDef     => true
+    | TypeAccessDef    => true
+    | IndexConstraint  => true
+    | AlternativesList => true
+    | DerivedTypeDef   => true
+    | TypeDecl         => false
+    | SubtypeDecl      => false
+    | *                => is_anonymous_subtype(p?.parent)
+
+@check(message="anonymous subtype")
+fun anonymous_subtypes(node) =
+    (match node
+     | BinOp(f_op is OpDoubleDot) => true
+     | DiscriminantConstraint     =>
+         not is_self_referencing(node, get_type_decl(node.parent))
+     | *                          => false)
+    and is_anonymous_subtype(node.parent)
+    and not is_using_discriminant(node, get_type_decl(node.parent))
