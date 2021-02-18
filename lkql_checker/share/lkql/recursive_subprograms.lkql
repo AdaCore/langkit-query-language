@@ -1,0 +1,31 @@
+# Given a name, return the body of the decl referenced by the name
+fun body(name) = match name.p_referenced_decl()
+    | b @ BaseSubpBody => b
+    | d @ BasicDecl when d?.p_is_subprogram() =>
+        d?.p_body_part()
+    | * => null# Get the statements for a given body
+
+fun statements(body) = match body
+    | f @ ExprFunction => f.f_expr
+    | NullSubpDecl => null
+    | SubpRenamingDecl => null
+    | b @ SubpBody => b.f_stmts
+    | b @ EntryBody => b.f_stmts# Get the bodies of the functions called by a given function body
+
+selector calls
+    | b @ Body => rec *
+        list([
+            body(n)
+            for n in (from statements(b)
+                      select n @ Name when n.p_is_call())
+        ])
+    | * => ()
+
+@check
+fun is_recursive() =
+    # Select subprograms
+    select b @ BaseSubpBody(
+        # Where any of the chain of calls refers to the base subprogram
+        # itself
+        any calls is c @ AdaNode when b == c
+    )
