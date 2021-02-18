@@ -1,7 +1,6 @@
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Evaluation;     use LKQL.Evaluation;
-with LKQL.Primitives;     use LKQL.Primitives;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 package body LKQL.Custom_Selectors is
@@ -40,21 +39,20 @@ package body LKQL.Custom_Selectors is
    -- Make_Custom_Selector_Iter --
    -------------------------------
 
-   function Make_Custom_Selector_Iter (Ctx        : Eval_Context;
-                                       Call       : L.Selector_Call;
-                                       Root       : AST_Node_Rc)
-                                       return Custom_Selector_Iter
+   function Make_Custom_Selector_Iter
+     (Ctx                            : Eval_Context;
+      Selector                       : Primitive;
+      Min_Depth_Expr, Max_Depth_Expr : L.Expr;
+      Root                           : AST_Node_Rc) return Custom_Selector_Iter
    is
-      Selector      : constant Primitive :=
-        Eval (Ctx, Call.F_Selector_Identifier, Kind_Selector);
 
       Default_Min   : constant Primitive := To_Primitive (1);
       Min_Depth     : constant Integer :=
-        Int_Val (Eval_Default (Ctx, Call.P_Min_Depth_Expr, Default_Min,
+        Int_Val (Eval_Default (Ctx, Min_Depth_Expr, Default_Min,
                                Expected_Kind => Kind_Int));
       Default_Max   : constant Primitive := To_Primitive (-1);
       Max_Depth     : constant Integer :=
-        Int_Val (Eval_Default (Ctx, Call.P_Max_Depth_Expr, Default_Max,
+        Int_Val (Eval_Default (Ctx, Max_Depth_Expr, Default_Max,
                                Expected_Kind => Kind_Int));
       Root_Node     : constant Depth_Node :=
         Depth_Node'(0, Root);

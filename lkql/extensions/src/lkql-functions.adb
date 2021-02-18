@@ -1,14 +1,18 @@
-with LKQL.Evaluation;     use LKQL.Evaluation;
-with LKQL.Error_Handling; use LKQL.Error_Handling;
-
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
-with LKQL.String_Utils; use LKQL.String_Utils;
-with Ada.Assertions; use Ada.Assertions;
+with LKQL.String_Utils;     use LKQL.String_Utils;
+with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
+with LKQL.AST_Nodes;        use LKQL.AST_Nodes;
+with LKQL.Depth_Nodes;      use LKQL.Depth_Nodes;
+with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
+with LKQL.Errors;           use LKQL.Errors;
+with LKQL.Evaluation;       use LKQL.Evaluation;
+with LKQL.Error_Handling;   use LKQL.Error_Handling;
 
 package body LKQL.Functions is
 
@@ -21,23 +25,47 @@ package body LKQL.Functions is
    function Eval_To_List (Ctx : Eval_Context; Node : L.Expr) return Primitive;
    --  Evaluate a call to the 'debug' built-in function
 
-   -------------------
-   -- Eval_Fun_Call --
-   -------------------
+   function Eval_User_Selector_Call
+     (Ctx  : Eval_Context;
+      Call : L.Fun_Call;
+      Sel  : Primitive) return Primitive;
+   --  Eval a call to a selector
 
-   function Eval_Fun_Call
+   ---------------
+   -- Eval_Call --
+   ---------------
+
+   function Eval_Call
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive
    is
       Func : Primitive;
    begin
+      --  If the call is a built-in function call, then eval this built-in
+      --  call.
       if Call.P_Is_Builtin_Call then
          return Eval_Builtin_Call (Ctx, Call);
       end if;
 
-      Func := Eval (Ctx, Call.F_Name, Expected_Kind => Kind_Function);
+      --  Else, eval the name to fetch the called entity
+      Func := Eval (Ctx, Call.F_Name);
 
-      return Eval_User_Fun_Call (Ctx, Call, Func);
-   end Eval_Fun_Call;
+      --  Called entity should be a function or a selector
+      if Kind (Func) not in Kind_Function | Kind_Selector then
+         Raise_Invalid_Type (Ctx, Call.As_LKQL_Node,
+                             "function or selector", Func);
+      end if;
+
+      --  Call the proper eval sub function depending on the kind of the called
+      --  entity.
+      if Kind (Func) = Kind_Function then
+         return Eval_User_Fun_Call (Ctx, Call, Func);
+      elsif Kind (Func) = Kind_Selector then
+         return Eval_User_Selector_Call (Ctx, Call, Func);
+      end if;
+
+      raise Program_Error with "unreachable";
+
+   end Eval_Call;
 
    ------------------------
    -- Eval_User_Fun_Call --
@@ -93,6 +121,49 @@ package body LKQL.Functions is
            (Eval_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
       end;
    end Eval_User_Fun_Call;
+
+   -----------------------------
+   -- Eval_User_Selector_Call --
+   -----------------------------
+
+   function Eval_User_Selector_Call
+     (Ctx  : Eval_Context;
+      Call : L.Fun_Call;
+      Sel  : Primitive) return Primitive
+   is
+      pragma Warnings (Off);
+      Def : constant L.Selector_Decl := Sel.Get.Sel_Node;
+      Env : constant LKQL.Primitives.Environment_Access :=
+        Sel.Get.Frame;
+      S_List : Selector_List;
+      Eval_Ctx      : constant Eval_Context :=
+        Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
+   begin
+      if Call.F_Arguments.Last_Child_Index = 0 then
+         Raise_And_Record_Error
+           (Ctx,
+            Make_Eval_Error
+              (Call, "Selector call should have a node argument"));
+      end if;
+
+      declare
+         Root_Node_Arg : Primitive := Eval
+           (Ctx,
+            Call.F_Arguments.Child (1).As_Expr_Arg.F_Value_Expr,
+            Kind_Node);
+
+         Root          : AST_Node_Rc := Root_Node_Arg.Get.Node_Val;
+
+         Selector_Iterator : constant Depth_Node_Iter_Access :=
+           new Depth_Node_Iter'Class'
+             (Depth_Node_Iter'Class
+                (Make_Custom_Selector_Iter
+                   (Ctx, Sel, L.No_Expr, L.No_Expr, Root)));
+      begin
+         return To_Primitive (Make_Selector_List (Selector_Iterator));
+      end;
+
+   end Eval_User_Selector_Call;
 
    --------------------
    -- Eval_Arguments --
