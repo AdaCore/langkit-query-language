@@ -49,7 +49,10 @@ class LKQLCompleter(Completer):
             yield Completion(sym)
 
 
-builtins = {}
+builtins = {
+    # No-Op on empty strings
+    '' : lambda: None,
+}
 global dummy_unit
 
 HELP_MESSAGE = """
