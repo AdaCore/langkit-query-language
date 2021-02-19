@@ -31,6 +31,7 @@ git clone git@github.com:AdaCore/langkit-query-language.git
 ```sh
 pip install prompt_toolkit
 pip install railroad-diagrams
+pip install pygments
 ```
 
 ### Environment
