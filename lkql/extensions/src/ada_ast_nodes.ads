@@ -19,31 +19,23 @@ package Ada_AST_Nodes is
 
    type Ada_AST_Node_Access is access all Ada_AST_Node;
 
-   overriding function "=" (Left, Right : Ada_AST_Node) return Boolean is
-     (Left.Node = Right.Node);
+   overriding function "=" (Left, Right : Ada_AST_Node) return Boolean;
 
-   overriding function Hash (Node : Ada_AST_Node) return Hash_Type is
-     (Hash (Node.Node));
+   overriding function Hash (Node : Ada_AST_Node) return Hash_Type;
 
-   overriding function Text_Image (Node : Ada_AST_Node) return Text_Type is
-      (To_Text (Node.Node.Image));
+   overriding function Text_Image (Node : Ada_AST_Node) return Text_Type;
 
-   overriding function Kind_Name (Node : Ada_AST_Node) return String is
-     (Kind_Name (Node.Node));
+   overriding function Kind_Name (Node : Ada_AST_Node) return String;
 
-   overriding function Is_Null_Node (Node : Ada_AST_Node) return Boolean is
-     (Node.Node.Is_Null);
+   overriding function Is_Null_Node (Node : Ada_AST_Node) return Boolean;
 
-   overriding function Children_Count (Node : Ada_AST_Node) return Natural is
-     (Node.Node.Children_Count);
+   overriding function Children_Count (Node : Ada_AST_Node) return Natural;
 
    function Get_Node_Type_Id (Node : Ada_AST_Node) return Node_Type_Id;
    --  Return the ``Node_Type_Id`` of ``Node``
 
    overriding function Nth_Child
-     (Node : Ada_AST_Node; N : Positive) return Ada_AST_Node
-   is
-     (Ada_AST_Node'(Node => Node.Node.Child (N)));
+     (Node : Ada_AST_Node; N : Positive) return Ada_AST_Node;
 
    overriding function Matches_Kind_Name
      (Node : Ada_AST_Node; Kind_Name : Text_Type) return Boolean;
@@ -71,8 +63,7 @@ package Ada_AST_Nodes is
       Arguments     : Introspection_Value_Array)
       return Introspection_Value;
 
-   function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc
-   is (Make_AST_Node_Rc (Ada_AST_Node'(Node => Node)));
+   function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc;
 
    function Kind_Names return Unbounded_Text_Array;
    --  List of all the node kinds' names
