@@ -1,0 +1,14 @@
+fun local_scope(e) =
+    match e
+        | SubpBody => true
+        | * => false
+
+fun is_local_object(o) =
+    [p for p in o?.parents if local_scope(p)].length > 0
+
+
+@check
+fun access_to_local_objects() =
+    select a@AttributeRef
+    when a.f_attribute?.p_canonical_text() == "access"
+    and  is_local_object(a.f_prefix?.p_referenced_decl())

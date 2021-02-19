@@ -1,0 +1,3 @@
+driver: 'checker'
+project: 'checks/checks.gpr'
+rule_name: Access_To_Local_Objects
