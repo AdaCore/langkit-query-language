@@ -45,9 +45,12 @@ package body Rule_Commands is
         Find_First
           (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
    begin
-      if Check_Annotation.Is_Null then
+      if Check_Annotation.Is_Null
+        or else Check_Annotation.F_Name.Text not in "check" | "node_check"
+      then
          raise Rule_Error
-           with "No @check annotated function in " & LKQL_File_Path;
+           with "No @check or @node_check annotated function in "
+           & LKQL_File_Path;
       end if;
 
       declare
@@ -58,24 +61,19 @@ package body Rule_Commands is
            (Name          => To_Unbounded_Text (To_Lower (Name)),
             LKQL_Root     => Root,
             LKQL_Context  => Context,
-            Rule_Args     => <>);
+            Rule_Args     => <>,
+            Is_Node_Check => Check_Annotation.F_Name.Text = "node_check",
+            Code          => <>);
       end;
    end Create_Rule_Command;
 
-   --------------
-   -- Evaluate --
-   --------------
+   -------------
+   -- Prepare --
+   -------------
 
-   function Evaluate
-     (Self : Rule_Command;
-      Ctx  : Eval_Context) return Eval_Diagnostic_Vectors.Vector
-   is
-      Result       : Eval_Diagnostic_Vectors.Vector;
-      Command_Name : constant Text_Type := To_Text (Self.Name);
-      Nodes, Dummy : Primitive;
-      Code         : Unbounded_Text_Type;
+   procedure Prepare (Self : in out Rule_Command) is
+      Code : Unbounded_Text_Type;
    begin
-
       --  Create the code snippet that will be passed to LKQL_Eval, along with
       --  the optional arguments passed to the rule via the command line.
 
@@ -92,8 +90,28 @@ package body Rule_Commands is
       end loop;
       Append (Code, ")");
 
+      Self.Code :=
+        Make_LKQL_Unit_From_Code
+          (Self.LKQL_Context, Image (To_Text (Code))).Root;
+
+   end Prepare;
+
+   --------------
+   -- Evaluate --
+   --------------
+
+   function Evaluate
+     (Self : Rule_Command;
+      Ctx  : Eval_Context) return Eval_Diagnostic_Vectors.Vector
+   is
+      Result       : Eval_Diagnostic_Vectors.Vector;
+      Command_Name : constant Text_Type := To_Text (Self.Name);
+      Nodes, Dummy : Primitive;
+      Code         : Unbounded_Text_Type;
+   begin
+
       --  Eval the rule's code (which should contain only definitions)
-      Dummy := Check_And_Eval (Ctx, Self.LKQL_Root);
+      Dummy := Eval (Ctx, Self.LKQL_Root);
 
       --  Eval the call to the check function
       Nodes := LKQL_Eval (Ctx, Image (To_Text (Code)), Self.LKQL_Context);

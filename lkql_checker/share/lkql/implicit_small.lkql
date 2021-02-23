@@ -1,4 +1,4 @@
 @check
-fun implicit_small() =
-   select t @ TypeDecl(any children is OrdinaryFixedPointDef)
+fun implicit_small(node) =
+   node is t @ TypeDecl(any children is OrdinaryFixedPointDef)
    when not t.p_has_aspect("Small")

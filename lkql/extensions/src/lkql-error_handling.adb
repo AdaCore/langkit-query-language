@@ -172,7 +172,7 @@ package body LKQL.Error_Handling is
    -------------------------
 
    procedure Raise_Invalid_Arity (Ctx            : Eval_Context;
-                                  Expected_Arity : Positive;
+                                  Expected_Arity : Natural;
                                   Arguments      : L.Arg_List)
    is
       Expected : constant Text_Type :=

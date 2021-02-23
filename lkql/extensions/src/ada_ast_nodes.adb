@@ -86,6 +86,15 @@ package body Ada_AST_Nodes is
    function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc
    is (Make_AST_Node_Rc (Ada_AST_Node'(Node => Node)));
 
+   ----------------------
+   -- Set_Ada_Ast_Node --
+   ----------------------
+
+   procedure Set_Ada_Ast_Node (Rc : in out AST_Node_Rc; Node : Ada_Node) is
+   begin
+      Rc.Set (Ada_AST_Node'(Node => Node));
+   end Set_Ada_Ast_Node;
+
    --------------------------------------------------
    -- Node array to introspection value conversion --
    --------------------------------------------------

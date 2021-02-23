@@ -1,6 +1,6 @@
 @check
-fun volatile_objects_without_address_clauses() =
-    select o @ ObjectDecl when (
+fun volatile_objects_without_address_clauses(node) =
+    node is o @ ObjectDecl when (
         o.p_has_aspect("volatile")
         or o.f_type_expr?.p_designated_type_decl()?.p_has_aspect("volatile")
     ) and not o.p_has_aspect("address")

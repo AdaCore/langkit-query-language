@@ -2,7 +2,7 @@ with Ada.Directories; use Ada.Directories;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with Langkit_Support.Diagnostics.Output;
 
-with Libadalang.Analysis; use Libadalang.Analysis;
+with Libadalang.Common; use Libadalang.Common;
 
 with Rules_Factory; use Rules_Factory;
 
@@ -11,8 +11,16 @@ with Ada_AST_Nodes; use Ada_AST_Nodes;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Containers.Hashed_Maps;
+with LKQL.Primitives; use LKQL.Primitives;
+with LKQL.Evaluation; use LKQL.Evaluation;
+
+with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
+with LKQL.AST_Nodes; use LKQL.AST_Nodes;
+with LKQL.Errors; use LKQL.Errors;
 
 package body Checker_App is
+
+   Ctx : Eval_Context;
 
    package Rules_Args_Maps is new Ada.Containers.Hashed_Maps
      (Key_Type        => Unbounded_Text_Type,
@@ -23,6 +31,8 @@ package body Checker_App is
 
    function Rules return Rule_Vector;
 
+   Cached_Rules : Rule_Vector := Rule_Vectors.Empty_Vector;
+
    -----------
    -- Rules --
    -----------
@@ -31,11 +41,14 @@ package body Checker_App is
       Explicit_Rules_Names : constant Args.Rules.Result_Array
         := Args.Rules.Get;
 
-      Ret : Rule_Vector;
-
       Rules_Args_Map : Rules_Args_Maps.Map;
       --  Map from argument names to argument values.
+
+      use Rule_Vectors;
    begin
+      if Cached_Rules /= Empty_Vector then
+         return Cached_Rules;
+      end if;
 
       --  Compute the map of argument names to values.
 
@@ -58,7 +71,7 @@ package body Checker_App is
 
       if Explicit_Rules_Names'Length = 0 then
          --  No rules passed by the user: return all rules
-         Ret := All_Rules;
+         Cached_Rules := All_Rules;
       else
          --  Some rules passed by the user: only return the ones specified
 
@@ -67,7 +80,7 @@ package body Checker_App is
                if To_Lower
                  (To_Text (To_String (Explicit_Rule_Name))) = To_Text (R.Name)
                then
-                  Ret.Append (R);
+                  Cached_Rules.Append (R);
                end if;
             end loop;
          end loop;
@@ -75,7 +88,7 @@ package body Checker_App is
 
       --  Then, process potential arguments for those rules
 
-      for Rule of Ret loop
+      for Rule of Cached_Rules loop
          declare
             Rule_Name : constant Unbounded_Text_Type := Rule.Name;
             C         : constant Rules_Args_Maps.Cursor
@@ -84,40 +97,134 @@ package body Checker_App is
             --  Modify the rule command in place, by appending an argument to
             --  the Rule_Command's arg vector.
 
+            Rule.Rule_Args.Append
+              (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
+                              Value => To_Unbounded_Text ("node")));
+
             if Rules_Args_Maps.Has_Element (C) then
                for Arg of Rules_Args_Map.Reference (C) loop
                   Rule.Rule_Args.Append (Arg);
                end loop;
             end if;
          end;
+
+         --  Call prepare *after* processing the arguments, since it needs the
+         --  arguments processed.
+         Rule.Prepare;
       end loop;
 
-      return Ret;
+      return Cached_Rules;
    end Rules;
 
-   ---------------------
-   -- Process_Context --
-   ---------------------
+   ---------------
+   -- Job_Setup --
+   ---------------
 
-   procedure Job_Post_Process (Context : App_Job_Context)
-   is
+   procedure Job_Setup (Context : App_Job_Context) is
+      Dummy : Primitive;
    begin
+
+      Ctx := Make_Eval_Context (Context.Units_Processed);
+
+      for Rule of Rules loop
+         --  Eval the rule's code (which should contain only definitions)
+         Dummy := Eval (Ctx, Rule.LKQL_Root);
+      end loop;
 
       --  Set property error recovery with the value of the command line flag.
       LKQL.Errors.Property_Error_Recovery := Args.Property_Error_Recovery.Get;
+   end Job_Setup;
 
-      declare
-         Ctx : constant Eval_Context :=
-           Make_Eval_Context (Context.Units_Processed);
+   ------------------
+   -- Process_Unit --
+   ------------------
+
+   procedure Process_Unit
+     (Context : App_Job_Context; Unit : Analysis_Unit)
+   is
+      pragma Unreferenced (Context);
+      Eval_Ctx : constant Eval_Context := Ctx.Create_New_Frame;
+
+      function Visit (Node : Ada_Node'Class) return Visit_Status;
+
+      -----------
+      -- Visit --
+      -----------
+
+      -----------
+      -- Visit --
+      -----------
+
+      function Visit (Node : Ada_Node'Class) return Visit_Status is
+         Result  : Primitive;
+         Rc_Node : constant AST_Node_Rc :=
+           Make_Ada_AST_Node (Node.As_Ada_Node);
       begin
+         Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
          for Rule of Rules loop
-            for Diag of Rule.Evaluate (Ctx) loop
-               Langkit_Support.Diagnostics.Output.Print_Diagnostic
-                 (Diag.Diag, Diag.Unit, Simple_Name (Diag.Unit.Get_Filename));
-            end loop;
+            declare
+               Result_Node : Ada_Node;
+            begin
+
+               if Rule.Is_Node_Check then
+
+                  --  The check is a "node check", ie. a check that returns a
+                  --  node on which to put the diagnostic, rather than a
+                  --  boolean: The result node is the node directly returned by
+                  --  the function
+
+                  Result_Node :=
+                    Ada_AST_Node
+                      (Node_Val (Eval (Eval_Ctx, Rule.Code, Kind_Node))
+                       .Unchecked_Get.all).Node;
+               else
+
+                  --  The check is a "bool check", ie. a check that returns a
+                  --  boolean.  Eval the call to the check function
+                  Result := Eval (Eval_Ctx, Rule.Code, Kind_Bool);
+
+                  --  The result node is the current node, if the check
+                  --  returned true.
+                  Result_Node :=
+                    (if Bool_Val (Result)
+                     then Node.As_Ada_Node
+                     else No_Ada_Node);
+               end if;
+
+               if Result_Node /= No_Ada_Node then
+
+                  --  If the result node is a decl, grab its defining
+                  --  identifier, so that the diagnostic spans only one line.
+                  --  TODO: this logic could somehow be hoisted directly into
+                  --  langkit diagnostics.
+
+                  Result_Node :=
+                    (if Result_Node.Kind in Ada_Basic_Decl
+                     then Result_Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node
+                     else Result_Node.As_Ada_Node);
+
+                  declare
+                     Diag : constant Eval_Diagnostic := Eval_Diagnostic'
+                       (Diagnostic'
+                          (Result_Node.Sloc_Range,
+                           To_Unbounded_Text
+                             (To_Text (Rule.Name) & " - rule violation")),
+                        Result_Node.Unit);
+                  begin
+                     Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                       (Diag.Diag,
+                        Diag.Unit,
+                        Simple_Name (Diag.Unit.Get_Filename));
+                  end;
+               end if;
+            end;
          end loop;
-      end;
-   end Job_Post_Process;
+
+         return Into;
+      end Visit;
+   begin
+      Traverse (Unit.Root, Visit'Access);
+   end Process_Unit;
 
    package body Args is
 
@@ -130,7 +237,7 @@ package body Checker_App is
            Index (Raw_Arg, Pattern => ".");
          First_Equal : constant Natural :=
            Index (Raw_Arg, Pattern => "=", From => First_Dot);
-         Ret : Qualified_Rule_Argument;
+         Ret         : Qualified_Rule_Argument;
       begin
          if First_Dot = 0 or First_Equal = 0 then
             raise Opt_Parse_Error

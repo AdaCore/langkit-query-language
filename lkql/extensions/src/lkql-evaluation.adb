@@ -98,13 +98,6 @@ package body LKQL.Evaluation is
    --  environments produced by this list of Arrow_Assoc in the context of a
    --  list comprehension.
 
-   procedure Check_Kind (Ctx           : Eval_Context;
-                         Node          : L.LKQL_Node;
-                         Expected_Kind : Valid_Primitive_Kind;
-                         Value         : Primitive);
-   --  Raise an exception and register an error in the evaluation context if
-   --  `Value` doesn't have the expected kind.
-
    ----------------
    -- Check_Kind --
    ----------------
@@ -119,17 +112,6 @@ package body LKQL.Evaluation is
          Raise_Invalid_Kind (Ctx, Node, Expected_Kind, Value);
       end if;
    end Check_Kind;
-
-   --------------------
-   -- Check_And_Eval --
-   --------------------
-
-   function Check_And_Eval
-     (Ctx  : Eval_Context; Node : L.LKQL_Node'Class) return Primitive
-   is
-   begin
-      return Eval (Ctx, Node);
-   end Check_And_Eval;
 
    ----------
    -- Eval --

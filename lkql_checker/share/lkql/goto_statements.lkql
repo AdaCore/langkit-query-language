@@ -1,2 +1,2 @@
 @check
-fun goto_statements() = select GotoStmt
+fun goto_statements(node) = node is GotoStmt

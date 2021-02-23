@@ -2,6 +2,6 @@ fun is_visible(type_decl) =
    type_decl?.parent?.parent is PublicPart
 
 @check
-fun too_many_primitives(n : int = 5) =
-   select type @ TypeDecl(p_is_tagged_type() is true)
+fun too_many_primitives(node, n : int = 5) =
+   node is type @ TypeDecl(p_is_tagged_type() is true)
    when is_visible(type) and type.p_get_primitives().length > n

@@ -6,5 +6,5 @@ fun isPredefinedName(id) = {
 }
 
 @check
-fun raising_predefined_exceptions() =
-    select r@RaiseStmt when isPredefinedName(r.f_exception_name)
+fun raising_predefined_exceptions(node) =
+    node is r@RaiseStmt when isPredefinedName(r.f_exception_name)

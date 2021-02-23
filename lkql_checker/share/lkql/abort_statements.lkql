@@ -1,2 +1,2 @@
 @check
-fun abort_statements() = select AbortStmt
+fun abort_statements(node) = node is AbortStmt

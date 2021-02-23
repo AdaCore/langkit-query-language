@@ -41,6 +41,14 @@ package Rule_Commands is
 
       Rule_Args    : Rule_Argument_Vectors.Vector;
       --  Optional arguments to pass to the rule. Empty by default.
+
+      Code          : L.LKQL_Node;
+      --  Store (cache) the code for the rule, so as to not recompute it
+      --  everytime we want to evaluate it.
+
+      Is_Node_Check : Boolean;
+      --  Whether the rule is expressed via a boolean check (function that
+      --  returns a boolean) or a node check (function that returns a node).
    end record;
 
    type Eval_Diagnostic is record
@@ -57,6 +65,8 @@ package Rule_Commands is
       return Eval_Diagnostic_Vectors.Vector;
    --  Execute the LKQL script of the rule and return a Rule_Result value
    --  containing the flagged nodes.
+
+   procedure Prepare (Self : in out Rule_Command);
 
    function Create_Rule_Command (LKQL_File_Path : String) return Rule_Command;
    --  Create a Rule_Command value with the given name and arguments
