@@ -1,3 +1,4 @@
-@check
-fun multiple_entries() =
-    select ProtectedDef any children is EntryDecl(any prev_siblings is EntryDecl)
+@node_check
+fun multiple_entries(node) = match node
+    | p @ ProtectedDef => from p select first EntryDecl(any prev_siblings is EntryDecl)
+    | * => null

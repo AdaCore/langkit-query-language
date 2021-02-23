@@ -487,7 +487,7 @@ package body LKQL.Primitives is
    function To_Primitive
      (Node : AST_Node_Rc; Nullable : Boolean := False) return Primitive
    is
-      Ref       : Primitive;
+      Ref : Primitive;
    begin
       Ref.Set
         (Primitive_Data'(Refcounted with Kind_Node, Node, Nullable));

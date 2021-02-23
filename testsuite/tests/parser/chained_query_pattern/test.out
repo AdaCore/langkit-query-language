@@ -1,5 +1,7 @@
 Query
 |f_from_expr: <null>
+|f_query_kind:
+|  QueryKindAll
 |f_pattern:
 |  ChainedNodePattern
 |  |f_first_pattern:

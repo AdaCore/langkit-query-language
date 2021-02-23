@@ -119,8 +119,7 @@ package body Liblkqllang.Implementation.Extensions is
            (Node.Unit.Context.Symbols,
             To_Text
               (To_Unbounded_Text
-                   (Check_And_Eval
-                        (LKQL_Ctx, Public_Converters.Wrap_Node (Node)))));
+                   (Eval (LKQL_Ctx, Public_Converters.Wrap_Node (Node)))));
    exception
       when E : LKQL.Errors.Stop_Evaluation_Error =>
          return Find (Node.Unit.Context.Symbols,
@@ -279,7 +278,7 @@ package body Liblkqllang.Implementation.Extensions is
             end if;
 
             declare
-               Val : constant Primitive := Check_And_Eval (LKQL_Ctx, LHS);
+               Val : constant Primitive := Eval (LKQL_Ctx, LHS);
             begin
                if Val.Get.Kind = Kind_Node then
                   return Make_Sym_Array

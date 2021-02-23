@@ -1,6 +1,6 @@
 @check
-fun downward_view_conversions() =
-    select c @ CallExpr(
+fun downward_view_conversions(node) =
+    node is c @ CallExpr(
         # Select type conversions
         p_referenced_decl() is BaseTypeDecl(
             p_base_subtype() is target_type @ BaseTypeDecl(p_is_tagged_type() is true)

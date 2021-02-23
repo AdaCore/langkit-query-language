@@ -1,7 +1,9 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Libadalang.Helpers; use Libadalang.Helpers;
 with GNATCOLL.Opt_Parse;
+
+with Libadalang.Analysis; use Libadalang.Analysis;
+with Libadalang.Helpers; use Libadalang.Helpers;
 
 with LKQL.Errors;
 with Rule_Commands; use Rule_Commands;
@@ -9,13 +11,17 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Checker_App is
 
-   procedure Job_Post_Process (Context : App_Job_Context);
+   procedure Job_Setup (Context : App_Job_Context);
+
+   procedure Process_Unit
+     (Context : App_Job_Context; Unit : Analysis_Unit);
    --  This procedure will be called once after all units have been parsed.
 
    package App is new Libadalang.Helpers.App
      (Name             => "lkql-checker",
       Description      => "LKQL based rule checker",
-      Job_Post_Process => Job_Post_Process);
+      Process_Unit     => Process_Unit,
+      Job_Setup        => Job_Setup);
 
    package Args is
       use GNATCOLL.Opt_Parse;

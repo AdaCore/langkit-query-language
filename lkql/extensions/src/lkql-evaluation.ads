@@ -9,10 +9,6 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package LKQL.Evaluation is
 
-   function Check_And_Eval
-     (Ctx  : Eval_Context; Node : L.LKQL_Node'Class) return Primitive;
-   --  Check 'Node' and then evaluate it.
-
    function Eval (Ctx            : Eval_Context;
                   Node           : L.LKQL_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
@@ -34,6 +30,13 @@ package LKQL.Evaluation is
       else Eval (Ctx, Node, Expected_Kind, Local_Bindings));
    --  If 'Node' is null return 'Default', otherwise call 'Eval' with the
    --  given arguments.
+
+   procedure Check_Kind (Ctx           : Eval_Context;
+                         Node          : L.LKQL_Node;
+                         Expected_Kind : Valid_Primitive_Kind;
+                         Value         : Primitive);
+   --  Raise an exception and register an error in the evaluation context if
+   --  `Value` doesn't have the expected kind.
 
    Eval_Trace : GNATCOLL.Traces.Trace_Handle
      := GNATCOLL.Traces.Create ("LKQL.EVAL");

@@ -105,7 +105,7 @@ procedure LKQL_Ada is
    is
       Ignore : Primitive;
    begin
-      Ignore := Check_And_Eval (Context, LKQL_Script);
+      Ignore := Eval (Context, LKQL_Script);
    exception
       when Stop_Evaluation_Error =>
          pragma Assert (Is_Error (Context.Last_Error),

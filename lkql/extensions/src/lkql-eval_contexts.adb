@@ -150,7 +150,7 @@ package body LKQL.Eval_Contexts is
       declare
          U      : constant L.Analysis_Unit :=
            Prelude_Unit (Kernel.Prelude_Context);
-         Dummy  : constant Primitive := Check_And_Eval (Ret, U.Root);
+         Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
          return Ret;
       end;

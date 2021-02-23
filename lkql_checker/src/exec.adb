@@ -15,12 +15,14 @@ package body Exec is
      (Context      : Eval_Context;
       LKQL_Script  : String;
       LKQL_Context : L.Analysis_Context :=
-        L.No_Analysis_Context) return Primitive
+        L.No_Analysis_Context;
+      Expected_Kind  : Base_Primitive_Kind := No_Kind) return Primitive
    is
    begin
-      return Check_And_Eval
+      return Eval
         (Context,
-         Make_LKQL_Unit_From_Code (LKQL_Context, LKQL_Script).Root);
+         Make_LKQL_Unit_From_Code (LKQL_Context, LKQL_Script).Root,
+         Expected_Kind);
    end LKQL_Eval;
 
    ---------------

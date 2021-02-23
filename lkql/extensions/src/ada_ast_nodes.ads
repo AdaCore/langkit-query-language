@@ -65,6 +65,8 @@ package Ada_AST_Nodes is
 
    function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc;
 
+   procedure Set_Ada_Ast_Node (Rc : in out AST_Node_Rc; Node : Ada_Node);
+
    function Kind_Names return Unbounded_Text_Array;
    --  List of all the node kinds' names
 
