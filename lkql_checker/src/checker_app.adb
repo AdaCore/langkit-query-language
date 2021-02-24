@@ -71,11 +71,11 @@ package body Checker_App is
 
       if Explicit_Rules_Names'Length = 0 then
          --  No rules passed by the user: return all rules
-         Cached_Rules := All_Rules;
+         Cached_Rules := All_Rules (Ctx);
       else
          --  Some rules passed by the user: only return the ones specified
 
-         for R of All_Rules loop
+         for R of All_Rules (Ctx) loop
             for Explicit_Rule_Name of Explicit_Rules_Names loop
                if To_Lower
                  (To_Text (To_String (Explicit_Rule_Name))) = To_Text (R.Name)

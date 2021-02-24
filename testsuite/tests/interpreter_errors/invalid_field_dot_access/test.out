@@ -1,4 +1,3 @@
-main.adb
 script.lkql:1:29: error: No field named f_nonExistingField on nodes of kind: CompilationUnit
 1 | val p = select p @ * when p.f_nonExistingField is ObjectDecl
   |                             ^^^^^^^^^^^^^^^^^^ 

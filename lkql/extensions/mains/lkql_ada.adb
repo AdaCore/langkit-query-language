@@ -1,16 +1,12 @@
 with Ada.Directories; use Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Text_IO; use Ada.Text_IO;
 with Ada_AST_Nodes; use Ada_AST_Nodes;
-
-with GNAT.OS_Lib;
 
 with GNATCOLL.Opt_Parse;
 
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Diagnostics.Output;
 
-with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Helpers;  use Libadalang.Helpers;
 
 with Liblkqllang.Analysis;
@@ -20,6 +16,8 @@ with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Errors; use LKQL.Errors;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with LKQL.Unit_Utils; use LKQL.Unit_Utils;
+
 ----------
 -- Main --
 ----------
@@ -28,13 +26,10 @@ procedure LKQL_Ada is
 
    package L renames Liblkqllang.Analysis;
 
-   procedure Process_Unit
-     (Context : App_Job_Context; Unit : Analysis_Unit);
+   procedure Job_Setup (Context : App_Job_Context);
 
-   function Make_LKQL_Unit (Script_Path : String) return L.Analysis_Unit;
-
-   procedure App_Setup
-     (Context : App_Context; Jobs : App_Job_Context_Array);
+   procedure Job_Post_Process
+     (Context : App_Job_Context);
 
    procedure Evaluate
      (Context : Eval_Context; LKQL_Script : L.LKQL_Node);
@@ -43,23 +38,8 @@ procedure LKQL_Ada is
      (Name               => "lkql_ada_interpreter",
       Description        => "LKQL Ada interpreter",
       Enable_Parallelism => True,
-      Process_Unit       => Process_Unit,
-      App_Setup          => App_Setup);
-
-   function Make_LKQL_Unit (Script_Path : String) return L.Analysis_Unit is
-      Context : constant L.Analysis_Context := L.Create_Context;
-      Unit    : constant L.Analysis_Unit :=
-        Context.Get_From_File (Script_Path);
-   begin
-      if Unit.Has_Diagnostics then
-         for D of Unit.Diagnostics loop
-            Put_Line (Unit.Format_GNU_Diagnostic (D));
-         end loop;
-         GNAT.OS_Lib.OS_Exit (1);
-      end if;
-
-      return Unit;
-   end Make_LKQL_Unit;
+      Job_Post_Process   => Job_Post_Process,
+      Job_Setup          => Job_Setup);
 
    LKQL_Unit           : L.Analysis_Unit;
 
@@ -75,26 +55,18 @@ procedure LKQL_Ada is
          Default_Val => Null_Unbounded_String);
       --  We use an option rt. a positional arg because we cannot add any more
       --  positional args to the App parser.
-
-      package Recovery is new Parse_Flag
-        (Parser => App.Args.Parser,
-         Long   => "--recovery",
-         Short  => "-r",
-         Help   => "Path of the LKQL script to evaluate");
-
    end Args;
 
+   Interpreter_Context : Eval_Context;
+
    ---------------
-   -- App_Setup --
+   -- Job_Setup --
    ---------------
 
-   procedure App_Setup
-     (Context : App_Context; Jobs : App_Job_Context_Array)
-   is
-      pragma Unreferenced (Jobs, Context);
+   procedure Job_Setup (Context : App_Job_Context) is
    begin
-      LKQL_Unit := Make_LKQL_Unit (To_String (Args.Script_Path.Get));
-   end App_Setup;
+      null;
+   end Job_Setup;
 
    --------------
    -- Evaluate --
@@ -125,27 +97,19 @@ procedure LKQL_Ada is
          end if;
    end Evaluate;
 
-   ------------------
-   -- Process_Unit --
-   ------------------
+   ----------------------
+   -- App_Post_Process --
+   ----------------------
 
-   procedure Process_Unit
-     (Context : App_Job_Context; Unit : Analysis_Unit)
-   is
-      pragma Unreferenced (Context);
-      Interpreter_Context : Eval_Context;
-
-      Unit_Vector : Unit_Vectors.Vector;
+   procedure Job_Post_Process (Context : App_Job_Context) is
    begin
-      Unit_Vector.Append (Unit);
-
-      Interpreter_Context :=
-        Make_Eval_Context (Unit_Vector,
-                           Err_Recovery => Args.Recovery.Get);
-      Put_Line (Ada.Directories.Simple_Name (Unit.Get_Filename));
+      Interpreter_Context := Make_Eval_Context (Context.Units_Processed);
+      LKQL_Unit := Make_LKQL_Unit
+        (Get_Context (Interpreter_Context.Kernel.all),
+         To_String (Args.Script_Path.Get));
       Evaluate (Interpreter_Context, LKQL_Unit.Root);
       Interpreter_Context.Free_Eval_Context;
-   end Process_Unit;
+   end Job_Post_Process;
 
 begin
    App.Run;

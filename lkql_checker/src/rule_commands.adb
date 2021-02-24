@@ -36,11 +36,12 @@ package body Rule_Commands is
    -- Create_Rule_Command --
    -------------------------
 
-   function Create_Rule_Command (LKQL_File_Path : String) return Rule_Command
+   function Create_Rule_Command
+     (LKQL_File_Path : String;
+      Ctx            : L.Analysis_Context) return Rule_Command
    is
-      Context : L.Analysis_Context;
       Root    : constant L.LKQL_Node :=
-        Make_LKQL_Unit (LKQL_File_Path, Context).Root;
+        Make_LKQL_Unit (Ctx, LKQL_File_Path).Root;
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
           (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
@@ -60,7 +61,7 @@ package body Rule_Commands is
          return Rule_Command'
            (Name          => To_Unbounded_Text (To_Lower (Name)),
             LKQL_Root     => Root,
-            LKQL_Context  => Context,
+            LKQL_Context  => Ctx,
             Rule_Args     => <>,
             Is_Node_Check => Check_Annotation.F_Name.Text = "node_check",
             Code          => <>);
@@ -92,7 +93,9 @@ package body Rule_Commands is
 
       Self.Code :=
         Make_LKQL_Unit_From_Code
-          (Self.LKQL_Context, Image (To_Text (Code))).Root;
+          (Self.LKQL_Context,
+           Image (To_Text (Code)),
+           "[" & Image (To_Text (Self.Name)) & " inline code]").Root;
 
    end Prepare;
 

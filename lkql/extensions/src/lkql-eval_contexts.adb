@@ -1,6 +1,8 @@
 with Liblkqllang.Prelude; use Liblkqllang.Prelude;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+
 package body LKQL.Eval_Contexts is
 
    procedure Free_Environment is new Ada.Unchecked_Deallocation
@@ -36,15 +38,7 @@ package body LKQL.Eval_Contexts is
    -------------------------
 
    function Exists_In_Local_Env (Ctx : Eval_Context;
-                                 Key : Text_Type) return Boolean
-   is (Ctx.Exists_In_Local_Env (To_Unbounded_Text (Key)));
-
-   -------------------------
-   -- Exists_In_Local_Env --
-   -------------------------
-
-   function Exists_In_Local_Env (Ctx : Eval_Context;
-                                 Key : Unbounded_Text_Type) return Boolean
+                                 Key : Symbol_Type) return Boolean
    is (Ctx.Frames.Local_Bindings.Contains (Key));
 
    ---------------
@@ -95,7 +89,7 @@ package body LKQL.Eval_Contexts is
    ------------
 
    function Lookup (Ctx : Eval_Context;
-                    Key : Unbounded_Text_Type) return String_Value_Maps.Cursor
+                    Key : Symbol_Type) return String_Value_Maps.Cursor
    is (Lookup (Ctx.Frames.all, Key));
 
    -----------------
@@ -107,7 +101,20 @@ package body LKQL.Eval_Contexts is
                           Value : Primitive)
    is
    begin
-      Ctx.Frames.Local_Bindings.Include (To_Unbounded_Text (Key), Value);
+      Add_Binding
+        (Ctx, Find (Ctx.Kernel.Context.Get_Symbol_Table, Key), Value);
+   end Add_Binding;
+
+   -----------------
+   -- Add_Binding --
+   -----------------
+
+   procedure Add_Binding (Ctx   : Eval_Context;
+                          Key   : Symbol_Type;
+                          Value : Primitive)
+   is
+   begin
+      Ctx.Frames.Local_Bindings.Include (Key, Value);
    end Add_Binding;
 
    ---------------------
@@ -140,8 +147,7 @@ package body LKQL.Eval_Contexts is
       Roots : constant AST_Node_Array_Access := new AST_Node_Array'(Ast_Roots);
       Kernel : constant Global_Data_Access :=
         new Global_Data'
-          (Roots, Null_Node, Make_Empty_Error, Err_Recovery,
-           L.Create_Context);
+          (Roots, Null_Node, Make_Empty_Error, Err_Recovery, L.Create_Context);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
       Ret    : constant Eval_Context := Eval_Context'(Kernel, Env);
@@ -149,7 +155,7 @@ package body LKQL.Eval_Contexts is
    begin
       declare
          U      : constant L.Analysis_Unit :=
-           Prelude_Unit (Kernel.Prelude_Context);
+           Prelude_Unit (Kernel.Context);
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
          return Ret;
@@ -174,7 +180,7 @@ package body LKQL.Eval_Contexts is
    ------------
 
    function Lookup (Env : Environment;
-                    Key : Unbounded_Text_Type) return String_Value_Maps.Cursor
+                    Key : Symbol_Type) return String_Value_Maps.Cursor
    is
       Lookup_Result : constant Cursor := Env.Local_Bindings.Find (Key);
    begin
@@ -207,7 +213,7 @@ package body LKQL.Eval_Contexts is
    end Add_Bindings;
 
    procedure Merge_Item_Into (Env   : in out Environment_Map;
-                              Key   : Unbounded_Text_Type;
+                              Key   : Symbol_Type;
                               Value : Primitive);
 
    ----------------
@@ -228,7 +234,7 @@ package body LKQL.Eval_Contexts is
    ---------------------
 
    procedure Merge_Item_Into (Env   : in out Environment_Map;
-                              Key   : Unbounded_Text_Type;
+                              Key   : Symbol_Type;
                               Value : Primitive)
    is
       Pos : constant Cursor := Env.Find (Key);
@@ -260,6 +266,15 @@ package body LKQL.Eval_Contexts is
       Self.Ref_Count := Self.Ref_Count + 1;
    end Inc_Ref;
 
+   -----------------
+   -- Get_Context --
+   -----------------
+
+   function Get_Context (Self : Global_Data) return L.Analysis_Context is
+   begin
+      return Self.Context;
+   end Get_Context;
+
    -------------
    -- Dec_Ref --
    -------------
@@ -290,7 +305,7 @@ package body LKQL.Eval_Contexts is
             Is_First := False;
          end if;
 
-         Append (Ret, """" & String_Value_Maps.Key (Cur) & """");
+         Append (Ret, """" & String_Value_Maps.Key (Cur).all & """");
          Append (Ret, To_Unbounded_Text (String_Value_Maps.Element (Cur)));
          String_Value_Maps.Next (Cur);
       end loop;

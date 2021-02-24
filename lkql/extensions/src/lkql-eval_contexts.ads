@@ -7,14 +7,12 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
-with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package LKQL.Eval_Contexts is
    package String_Value_Maps is new Ada.Containers.Hashed_Maps
-     (Key_Type        => Unbounded_Text_Type,
+     (Key_Type        => Symbol_Type,
       Element_Type    => Primitive,
-      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
+      Hash            => Hash,
       Equivalent_Keys => "=");
    use String_Value_Maps;
 
@@ -33,6 +31,8 @@ package LKQL.Eval_Contexts is
    type Global_Data is private;
 
    type Global_Data_Access is access all Global_Data;
+
+   function Get_Context (Self : Global_Data) return L.Analysis_Context;
 
    type Environment is private;
 
@@ -65,12 +65,7 @@ package LKQL.Eval_Contexts is
    --  Return the value of the last registered error
 
    function Exists_In_Local_Env (Ctx : Eval_Context;
-                                 Key : Text_Type) return Boolean;
-   --  Return whether the given name is associated to a value in the local
-   --  environment.
-
-   function Exists_In_Local_Env (Ctx : Eval_Context;
-                                 Key : Unbounded_Text_Type) return Boolean;
+                                 Key : Symbol_Type) return Boolean;
    --  Return whether the given name is associated to a value in the local
    --  environment.
 
@@ -95,10 +90,13 @@ package LKQL.Eval_Contexts is
    --  environment.
 
    function Lookup (Ctx : Eval_Context;
-                    Key : Unbounded_Text_Type) return String_Value_Maps.Cursor;
+                    Key : Symbol_Type) return String_Value_Maps.Cursor;
    --  Return a cursor to the element associated with the given key in the
    --  evaluation context's frames.
 
+   procedure Add_Binding (Ctx   : Eval_Context;
+                          Key   : Symbol_Type;
+                          Value : Primitive);
    procedure Add_Binding (Ctx   : Eval_Context;
                           Key   : Text_Type;
                           Value : Primitive);
@@ -147,7 +145,7 @@ private
       --  If true, the user will be asked if he wants to resume execution upon
       --  encountering an error.
 
-      Prelude_Context : L.Analysis_Context;
+      Context : L.Analysis_Context;
       --  LKQL analysis context, used to hold data of the prelude
    end record;
    --  Stores the global data structures shared by every evaluation context
@@ -173,7 +171,7 @@ private
    --  Chainable map for symbol lookups
 
    function Lookup (Env : Environment;
-                    Key : Unbounded_Text_Type) return String_Value_Maps.Cursor;
+                    Key : Symbol_Type) return String_Value_Maps.Cursor;
    --  Lookup the given key in the local environment.
    --  If the local environment doesn't contain the given key, the lookup will
    --  be attempted on the parent env, if any.

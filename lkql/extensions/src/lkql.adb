@@ -9,4 +9,16 @@ package body LKQL is
    begin
       return Image (L.Text (Self));
    end Node_Text;
+
+   ------------
+   -- Symbol --
+   ------------
+
+   function Symbol (Node : L.Identifier) return Symbol_Type is
+   begin
+      return (if Node.Is_Null
+              then null
+              else LCO.Get_Symbol (Node.Token_Start));
+   end Symbol;
+
 end LKQL;

@@ -1,4 +1,3 @@
-main.adb
 script.lkql:2:9: error: Invalid direct access on node of kind No_Kind
 2 | print(n.pouet)
   |         ^^^^^ 

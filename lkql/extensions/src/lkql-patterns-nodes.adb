@@ -7,7 +7,6 @@ with LKQL.Evaluation;       use LKQL.Evaluation;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Assertions; use Ada.Assertions;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 package body LKQL.Patterns.Nodes is
@@ -195,8 +194,8 @@ package body LKQL.Patterns.Nodes is
                                     return Match_Result
    is
       S_List       : Selector_List;
-      Binding_Name : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Selector.F_Call.P_Binding_Name);
+      Binding_Name : constant Symbol_Type :=
+        Symbol (Selector.F_Call.P_Binding_Name);
    begin
       if not Eval_Selector
         (Ctx, Node, Selector.F_Call, Selector.F_Pattern, S_List)
@@ -204,8 +203,8 @@ package body LKQL.Patterns.Nodes is
          return Match_Failure;
       end if;
 
-      if Length (Binding_Name) /= 0 then
-         Ctx.Add_Binding (To_Text (Binding_Name), To_Primitive (S_List));
+      if Binding_Name /= null then
+         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List));
       end if;
 
       return Make_Match_Success (To_Primitive (Node));

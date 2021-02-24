@@ -1,4 +1,3 @@
-main.adb
 script.lkql:2:12: error: Wrong kind of element in `from clause`
 2 | print(from 2 select *)
   |            ^ 

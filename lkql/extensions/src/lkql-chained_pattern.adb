@@ -4,10 +4,7 @@ with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Patterns.Nodes; use LKQL.Patterns.Nodes;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 with Ada.Assertions;                  use Ada.Assertions;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 package body LKQL.Chained_Pattern is
 
@@ -131,16 +128,16 @@ package body LKQL.Chained_Pattern is
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
       Nodes            : constant AST_Node_Rc_Array :=
         Eval_Link (Iter.Ctx, Root, Link);
-      Pattern_Binding  : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Link.F_Pattern.P_Binding_Name);
+      Pattern_Binding  : constant Symbol_Type :=
+        Symbol (Link.F_Pattern.P_Binding_Name);
    begin
       if Nodes'Length = 0 then
          return;
       end if;
 
       for E of Nodes loop
-         if Length (Pattern_Binding) /= 0 then
-            Iter.Ctx.Add_Binding (To_Text (Pattern_Binding), To_Primitive (E));
+         if Pattern_Binding /= null then
+            Iter.Ctx.Add_Binding (Pattern_Binding, To_Primitive (E));
          end if;
 
          Eval_Chain_From (Iter, E, Link_Nb + 1);
@@ -187,8 +184,7 @@ package body LKQL.Chained_Pattern is
    is
       S_List       : Selector_List;
       Call         : constant L.Selector_Call := Selector.F_Selector;
-      Binding_Name : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Call.P_Binding_Name);
+      Binding_Name : constant Symbol_Type := Symbol (Call.P_Binding_Name);
       Empty_Array  : AST_Node_Rc_Array (1 .. 0);
    begin
       if not Eval_Selector
@@ -197,9 +193,8 @@ package body LKQL.Chained_Pattern is
          return Empty_Array;
       end if;
 
-      if Length (Binding_Name) /= 0 then
-         Ctx.Add_Binding (To_Text (Binding_Name),
-                          To_Primitive (S_List.Clone));
+      if Binding_Name /= null then
+         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List.Clone));
       end if;
 
       return S_List.Nodes;

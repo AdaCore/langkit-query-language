@@ -177,8 +177,9 @@ package body LKQL.Functions is
    begin
       for Arg of Arguments loop
          declare
-            Arg_Name  : constant Unbounded_Text_Type :=
-              To_Unbounded_Text (Arg.P_Name.Text);
+            Id : constant L.Identifier := Arg.P_Name;
+            Arg_Name  : constant Symbol_Type :=
+              LCO.Get_Symbol (Id.Token_Start);
             Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
          begin
             Args_Bindings.Insert (Arg_Name, Arg_Value);
