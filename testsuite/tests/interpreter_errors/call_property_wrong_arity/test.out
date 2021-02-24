@@ -1,4 +1,3 @@
-main.adb
 script.lkql:2:34: error: Expected 1 arguments but got 2
 2 | print(names[1].p_referenced_decl(true, 1))
   |                                  ^^^^^^^ 

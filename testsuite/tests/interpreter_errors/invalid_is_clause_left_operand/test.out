@@ -1,4 +1,3 @@
-main.adb
 script.lkql:1:19: error: Type error: expected Node but got Str
 1 | select p @ * when "Hello" is ObjectDecl
   |                   ^^^^^^^ 

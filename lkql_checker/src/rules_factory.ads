@@ -3,6 +3,7 @@ with Rule_Commands; use Rule_Commands;
 with Liblkqllang.Analysis;
 
 with Ada.Containers.Vectors;
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 package Rules_Factory is
 
@@ -12,7 +13,7 @@ package Rules_Factory is
    subtype Rule_Vector is Rule_Vectors.Vector;
    --  Vector of Rule_Command values
 
-   function All_Rules return Rule_Vector;
+   function All_Rules (Ctx : Eval_Context) return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
 

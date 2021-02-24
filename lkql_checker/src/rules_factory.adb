@@ -10,7 +10,7 @@ package body Rules_Factory is
    -- All_Rules --
    ---------------
 
-   function All_Rules return Rule_Vector is
+   function All_Rules (Ctx : Eval_Context) return Rule_Vector is
       Rules_Dir       : constant Virtual_File := Create (+Get_Rules_Directory);
       Rules_Dir_Files : constant File_Array_Access := Read_Dir (Rules_Dir);
       Result          : Rule_Vector;
@@ -22,7 +22,9 @@ package body Rules_Factory is
 
       for File of Rules_Dir_Files.all loop
          if File.File_Extension = +".lkql" then
-            Result.Append (Create_Rule_Command (+File.Full_Name));
+            Result.Append
+              (Create_Rule_Command
+                 (+File.Full_Name, Get_Context (Ctx.Kernel.all)));
          end if;
       end loop;
 

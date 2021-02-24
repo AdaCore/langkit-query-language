@@ -9,6 +9,7 @@ with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Langkit_Support.Text; use Langkit_Support.Text;
 
 package body LKQL.Evaluation is
 
@@ -246,12 +247,11 @@ package body LKQL.Evaluation is
    function Eval_Val_Decl
      (Ctx : Eval_Context; Node : L.Val_Decl) return Primitive
    is
-      Identifier : constant Text_Type :=
-        Node.F_Identifier.Text;
+      Identifier : constant Symbol_Type := Symbol (Node.F_Identifier);
    begin
       if Ctx.Exists_In_Local_Env (Identifier) then
          Raise_Already_Existing_Symbol (Ctx,
-                                        To_Unbounded_Text (Identifier),
+                                        Identifier,
                                         Node.F_Identifier.As_LKQL_Node);
       end if;
 
@@ -266,12 +266,11 @@ package body LKQL.Evaluation is
    function Eval_Fun_Decl
      (Ctx : Eval_Context; Node : L.Fun_Decl) return Primitive
    is
-      Identifier : constant Text_Type :=
-        Node.F_Name.Text;
+      Identifier : constant Symbol_Type := Symbol (Node.F_Name);
    begin
       if Ctx.Exists_In_Local_Env (Identifier) then
          Raise_Already_Existing_Symbol (Ctx,
-                                        To_Unbounded_Text (Identifier),
+                                        Identifier,
                                         Node.F_Name.As_LKQL_Node);
       end if;
 
@@ -290,12 +289,11 @@ package body LKQL.Evaluation is
    function Eval_Selector_Decl
      (Ctx : Eval_Context; Node : L.Selector_Decl) return Primitive
    is
-      Identifier : constant Text_Type :=
-        Node.F_Name.Text;
+      Identifier : constant Symbol_Type := Symbol (Node.F_Name);
    begin
       if Ctx.Exists_In_Local_Env (Identifier) then
          Raise_Already_Existing_Symbol (Ctx,
-                                        To_Unbounded_Text (Identifier),
+                                        Identifier,
                                         Node.F_Name.As_LKQL_Node);
       end if;
 
@@ -329,7 +327,7 @@ package body LKQL.Evaluation is
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive
    is
       use String_Value_Maps;
-      Position : constant Cursor := Ctx.Lookup (To_Unbounded_Text (Node.Text));
+      Position : constant Cursor := Ctx.Lookup (Symbol (Node));
    begin
       if Has_Element (Position) then
          return Element (Position);
@@ -831,8 +829,8 @@ package body LKQL.Evaluation is
         Eval (Ctx, Assoc.F_Coll_Expr);
       Generator_Iter   : constant Primitive_Iter_Access :=
         new Primitive_Iter'Class'(To_Iterator (Generator_Value));
-      Binding_Name     : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Assoc.F_Binding_Name.Text);
+      Binding_Name     : constant Symbol_Type :=
+        Symbol (Assoc.F_Binding_Name);
       Nested_Resetable : constant Environment_Iters.Resetable_Access :=
         (if Nested = null then null
          else new Environment_Iters.Resetable_Iter'

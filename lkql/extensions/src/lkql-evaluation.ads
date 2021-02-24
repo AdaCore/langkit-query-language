@@ -5,8 +5,6 @@ with Iters.Iterators;
 with LKQL.Primitives;       use LKQL.Primitives;
 with LKQL.Eval_Contexts;    use LKQL.Eval_Contexts;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 package LKQL.Evaluation is
 
    function Eval (Ctx            : Eval_Context;
@@ -53,7 +51,7 @@ private
 
    type Comprehension_Env_Iter is new Environment_Iters.Iterator_Interface with
       record
-         Binding_Name    : Unbounded_Text_Type;
+         Binding_Name    : Symbol_Type;
          --  Name associated with the generator
          Current_Element : Primitive_Options.Option;
          --  Value of the next element to be yielded

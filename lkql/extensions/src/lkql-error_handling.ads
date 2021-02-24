@@ -73,7 +73,7 @@ private package LKQL.Error_Handling is
    --  and add an Error_Data describing the error to the evaluation context.
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
-                                            Identifier : Unbounded_Text_Type;
+                                            Identifier : Symbol_Type;
                                             Node       : L.LKQL_Node)
      with No_Return;
    --  Raise an exception signaling an attempt to create a binding using a name

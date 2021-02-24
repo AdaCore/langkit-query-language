@@ -120,6 +120,13 @@ class Identifier(Expr):
     """
     token_node = True
 
+    @langkit_property(return_type=T.Symbol, public=True)
+    def sym():
+        """
+        Return the symbol for this identifier.
+        """
+        return Self.symbol
+
 
 class IntegerLiteral(Literal):
     """
@@ -365,7 +372,7 @@ class BasePattern(LKQLNode):
     Root node class for patterns.
     """
 
-    @langkit_property(return_type=T.String, public=True,
+    @langkit_property(return_type=T.Identifier, public=True,
                       kind=AbstractKind.abstract)
     def binding_name():
         """
@@ -379,7 +386,7 @@ class BasePattern(LKQLNode):
         """
         Return whether the node pattern contains a binding name.
         """
-        return Self.binding_name.length > 0
+        return dsl_expr.Not(Self.binding_name.is_null)
 
     @langkit_property(return_type=T.ValuePattern, public=True)
     def value_part():
@@ -426,7 +433,7 @@ class ValuePattern(UnfilteredPattern):
 
     @langkit_property()
     def binding_name():
-        return String("")
+        return dsl_expr.No(T.Identifier)
 
     @langkit_property()
     def value_part():
@@ -446,7 +453,7 @@ class BindingPattern(UnfilteredPattern):
 
     @langkit_property()
     def binding_name():
-        return Self.binding.text
+        return Self.binding
 
 
 class IsClause(Expr):
@@ -765,14 +772,12 @@ class SelectorCall(LKQLNode):
                   String("all"),
                   Self.quantifier.text)
 
-    @langkit_property(return_type=T.String, public=True)
+    @langkit_property(return_type=T.Identifier, public=True)
     def binding_name():
         """
         Return the binding name associated with this selector call, if any.
         """
-        return If(Self.binding.is_null,
-                  String(""),
-                  Self.binding.text)
+        return Self.binding
 
     @langkit_property(return_type=Expr)
     def expr_for_arg(name=T.String):

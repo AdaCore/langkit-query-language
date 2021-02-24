@@ -37,7 +37,6 @@ package Rule_Commands is
       --  Root of the LKQL AST
 
       LKQL_Context  : L.Analysis_Context;
-      --  Analysis context that was used to create the LKQL AST
 
       Rule_Args    : Rule_Argument_Vectors.Vector;
       --  Optional arguments to pass to the rule. Empty by default.
@@ -68,7 +67,9 @@ package Rule_Commands is
 
    procedure Prepare (Self : in out Rule_Command);
 
-   function Create_Rule_Command (LKQL_File_Path : String) return Rule_Command;
+   function Create_Rule_Command
+     (LKQL_File_Path : String;
+      Ctx            : L.Analysis_Context) return Rule_Command;
    --  Create a Rule_Command value with the given name and arguments
 
    procedure Check_Kind

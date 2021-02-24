@@ -158,11 +158,11 @@ package body LKQL.Error_Handling is
    -----------------------------------
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
-                                            Identifier : Unbounded_Text_Type;
+                                            Identifier : Symbol_Type;
                                             Node       : L.LKQL_Node)
    is
       Message : constant Text_Type :=
-        "Already existing symbol: " & To_Text (Identifier);
+        "Already existing symbol: " & Identifier.all;
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Already_Existing_Symbol;
