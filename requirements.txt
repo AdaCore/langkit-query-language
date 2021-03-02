@@ -1,0 +1,5 @@
+-e git+https://github.com/AdaCore/langkit.git#egg=langkit
+Pygments==2.8.0
+Sphinx==3.5.1
+prompt-toolkit==3.0.6
+railroad-diagrams==1.1.0
