@@ -5,52 +5,48 @@ Internal dev guide (for AdaCore developers)
 
 ### Setup
 
-First step, which is one shot, is to setup a development environment. Follow
-these steps:
-
-1. Install dependencies via Anod
-
-```sh
-anod install gnat
-anod install langkit_support -Qlalmaster
-anod install langkit -Qlalmaster
-anod install libadalang -Qlalmaster
-```
+1. Make sure you have a Python 3.7+ distribution (with `pip3`) available in
+   your environment. AdaCore's `e3-distrib` package is completely fine.
 
 2. Checkout LKQL
 
 ```sh
 git clone git@github.com:AdaCore/langkit-query-language.git
+cd langkit-query-language
 ```
 
-3. Make sure you have Python 3.8+ and associated `pip` in your environment,
-   either via a `virtualenv`, or via `e3-distrib`.
-
-4. Install Python dependencies:
+3. Install Python dependencies via `pip`:
 
 ```sh
-pip install prompt_toolkit
-pip install railroad-diagrams
-pip install pygments
+pip3 install -r requirements.txt
+```
+
+2. Install other dependencies via Anod
+
+```sh
+# In your sandbox dir
+anod install gnat
+anod install langkit_support -Qlalmaster
+anod install libadalang -Qlalmaster
 ```
 
 ### Environment
 
-Second step is to put every tool and library in the path. You can either run
-these commands every time:
+Everytime you want to work with the query language, you need to make tools and
+libraries available in your environment. To achieve this, you need to run these
+commands:
 
 ```sh
 # In your sandbox dir
 eval `anod printenv gnat`
 eval `anod printenv langkit_support -Qlalmaster`
-eval `anod printenv langkit -Qlalmaster`
 eval `anod printenv libadalang -Qlalmaster`
 ```
 
-You also need to define the following environment variables:
+And you also need to define the following environment variables:
 
 ```sh
-# In your langkit-query-language checkout
+# In your langkit-query-language checkout:
 GPR_PROJECT_PATH="$PWD/lkql/build:$GPR_PROJECT_PATH"
 export GPR_PROJECT_PATH
 
@@ -68,7 +64,6 @@ Or create an env script:
     cd /path/to/your/sandbox
     anod printenv gnat
     anod printenv langkit_support -Qlalmaster
-    anod printenv langkit -Qlalmaster
     anod printenv libadalang -Qlalmaster
 
     cd /path/to/your/lkql/checkout
