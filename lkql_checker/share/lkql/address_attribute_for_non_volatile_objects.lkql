@@ -1,0 +1,18 @@
+# Flag any ‘Address attribute reference if its prefix denotes a data
+# object defined by a variable object declaration and this object is not
+# marked as Volatile.
+#
+# An entity is considered as being marked volatile if it has an aspect Volatile,
+# Atomic or Shared declared for it.
+
+fun is_volatile(o) =
+       o?.p_get_aspect_assoc("Volatile") != null
+    or o?.p_get_aspect_assoc("Atomic") != null
+    or o?.p_get_aspect_assoc("Shared") != null
+
+
+@check
+fun address_attribute_for_non_volatile_objects(node) =
+    node is AttributeRef
+    when node.f_attribute?.p_name_is("Address")
+    and not is_volatile(node.f_prefix?.p_referenced_decl())

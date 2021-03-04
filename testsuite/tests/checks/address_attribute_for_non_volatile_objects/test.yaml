@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Address_Attribute_For_Non_Volatile_Objects
+input_sources: ['address_attribute_for_non_volatile_objects.ads']
