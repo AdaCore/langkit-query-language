@@ -1,0 +1,32 @@
+# Flag address clauses and address aspect definitions if they are applied
+# to object declarations with explicit initializations.
+
+@check
+fun address_specifications_for_initialized_objects(node) =
+    node is AdaNode when (
+        node is a@AttributeDefClause(
+            # for X'Address use ...
+            f_attribute_expr is ar@AttributeRef(
+                # X has a default value
+                f_prefix is Name(
+                    p_referenced_decl() is o@ObjectDecl
+                    when o?.f_default_expr != null
+                ),
+                # Defined attribute is Address
+                f_attribute is n@Name
+                when n?.p_name_is("Address")
+            )
+        )
+    # FIXME: [U311-008] Use `or` patterns operator
+    ) or (
+        # X := ... with Address => ...
+        node is AspectAssoc(
+            # X has a default value
+            any parent is o@ObjectDecl
+            when o.f_default_expr != null,
+            # Associated aspect is Address
+            f_id is n@Name
+            when n?.p_name_is("Address")
+        )
+    )
+
