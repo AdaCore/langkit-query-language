@@ -1,0 +1,3 @@
+driver: 'checker'
+project: 'checks/checks.gpr'
+rule_name: Address_Attribute_For_Non_Volatile_Objects

@@ -1,0 +1,4 @@
+address_attribute_for_non_volatile_objects.ads:7:33: error: address_attribute_for_non_volatile_objects - rule violation
+7 |     Y : Integer with Address => Var2'Address;   --  FLAG
+  |                                 ^^^^^^^^^^^^ 
+
