@@ -1,5 +1,6 @@
 +R Abort_Statements
 +R Abstract_Type_Declarations
++R Binary_Case_Statements
 +R Blocks
 +R Function_Style_Procedures
 +R Goto_Statements

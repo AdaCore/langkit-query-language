@@ -1,0 +1,3 @@
+@check
+fun binary_case_statements() =
+	select
