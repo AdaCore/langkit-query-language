@@ -58,6 +58,8 @@ package LKQL.Primitives is
       Kind_Function,
       --  Functions objects
 
+      Kind_Builtin_Function,
+
       Kind_Selector,
       --  Selector objects
 
@@ -75,9 +77,21 @@ package LKQL.Primitives is
    subtype Introspectable_Kind is Valid_Primitive_Kind
      with Static_Predicate =>
        Introspectable_Kind not in
-         Kind_Tuple | Kind_Unit | Kind_Function | Kind_Selector;
+         Kind_Tuple | Kind_Unit | Kind_Function
+           | Kind_Selector | Kind_Builtin_Function;
 
    type Environment_Access is access all LKQL.Eval_Contexts.Environment;
+
+   type Builtin_Function_Access;
+   --  Forward definition of the Builtin_Function_Access type.
+
+   type Builtin_Fn_Access_Access is access all Builtin_Function_Access;
+   --  This is a painful indirection due to the fact that we cannot declare an
+   --  access to function returning a primitive before the primitive type is
+   --  defined, but that we need to store it in Primitive_Data. This incurs
+   --  a performance penalty since we have to dynamically allocate those, but
+   --  since builtin functions will be allocated only once this is better than
+   --  storing an address and coercing, because it will allow a friendlier API.
 
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
@@ -99,8 +113,8 @@ package LKQL.Primitives is
             List_Val          : Primitive_List_Access;
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
-
-         --  TODO: At some stage we want selectors to be regular functions.
+         when Kind_Builtin_Function =>
+            Fn_Access         : Builtin_Fn_Access_Access;
          when Kind_Function | Kind_Selector =>
             Frame             : Environment_Access;
             case Kind is
@@ -137,6 +151,10 @@ package LKQL.Primitives is
 
    subtype Primitive_Option is Primitive_Options.Option;
    --  Optional primitive value
+
+   type Builtin_Function_Access is access function
+     (Ctx : access constant LKQL.Eval_Contexts.Eval_Context;
+      Arg : L.Expr) return Primitive;
 
    ----------
    -- List --
@@ -290,6 +308,9 @@ package LKQL.Primitives is
    ---------------------
    -- Function values --
    ---------------------
+
+   function Make_Builtin_Function
+     (Fn : Builtin_Function_Access) return Primitive;
 
    function Make_Function
      (Node : L.Base_Function; Env : Environment_Access) return Primitive;

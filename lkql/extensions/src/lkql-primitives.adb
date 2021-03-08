@@ -173,6 +173,8 @@ package body LKQL.Primitives is
    -------------
 
    procedure Release (Data : in out Primitive_Data) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Builtin_Function_Access, Builtin_Fn_Access_Access);
    begin
       case Data.Kind is
          when Kind_List =>
@@ -183,6 +185,8 @@ package body LKQL.Primitives is
          when Kind_Function | Kind_Selector =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
+         when Kind_Builtin_Function =>
+            Free (Data.Fn_Access);
          when others =>
             null;
       end case;
@@ -568,6 +572,22 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Function;
 
+   ---------------------------
+   -- Make_Builtin_Function --
+   ---------------------------
+
+   function Make_Builtin_Function
+     (Fn : Builtin_Function_Access) return Primitive
+   is
+      Ref : Primitive;
+   begin
+      Ref.Set
+        (Primitive_Data'
+           (Refcounted with Kind_Builtin_Function,
+            new Builtin_Function_Access'(Fn)));
+      return Ref;
+   end Make_Builtin_Function;
+
    -------------------
    -- Make_Selector --
    -------------------
@@ -766,7 +786,10 @@ package body LKQL.Primitives is
               & To_Unbounded_Text (To_Text (Val.Get.Fun_Node.Image)),
             when Kind_Selector      =>
               "selector "
-              & To_Unbounded_Text (To_Text (Val.Get.Sel_Node.Image)));
+              & To_Unbounded_Text (To_Text (Val.Get.Sel_Node.Image)),
+            when Kind_Builtin_Function =>
+              To_Unbounded_Text ("builtin function")
+        );
    end To_Unbounded_Text;
 
    ---------------
@@ -776,17 +799,18 @@ package body LKQL.Primitives is
    function To_String (Val : Valid_Primitive_Kind) return String is
    begin
       return (case Val is
-                 when Kind_Unit           => "Unit",
-                 when Kind_Int            => "Int",
-                 when Kind_Str            => "Str",
-                 when Kind_Bool           => "Bool",
-                 when Kind_Node           => "Node",
-                 when Kind_Iterator       => "Iterator",
-                 when Kind_List           => "List",
-                 when Kind_Tuple          => "Tuple",
-                 when Kind_Selector_List  => "Selector List",
-                 when Kind_Function       => "Function",
-                 when Kind_Selector       => "Selector");
+                 when Kind_Unit             => "Unit",
+                 when Kind_Int              => "Int",
+                 when Kind_Str              => "Str",
+                 when Kind_Bool             => "Bool",
+                 when Kind_Node             => "Node",
+                 when Kind_Iterator         => "Iterator",
+                 when Kind_List             => "List",
+                 when Kind_Tuple            => "Tuple",
+                 when Kind_Selector_List    => "Selector List",
+                 when Kind_Function         => "Function",
+                 when Kind_Builtin_Function => "Builtin Function",
+                 when Kind_Selector         => "Selector");
    end To_String;
 
    ---------------

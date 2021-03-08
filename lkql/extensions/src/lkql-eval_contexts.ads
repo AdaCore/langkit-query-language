@@ -9,6 +9,7 @@ with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 
 package LKQL.Eval_Contexts is
+
    package String_Value_Maps is new Ada.Containers.Hashed_Maps
      (Key_Type        => Symbol_Type,
       Element_Type    => Primitive,
@@ -125,7 +126,6 @@ package LKQL.Eval_Contexts is
    --  environment.
 
 private
-
    -----------------
    -- Global_Data --
    -----------------

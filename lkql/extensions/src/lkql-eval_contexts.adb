@@ -1,7 +1,9 @@
-with Liblkqllang.Prelude; use Liblkqllang.Prelude;
-with LKQL.Evaluation; use LKQL.Evaluation;
-
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+
+with Liblkqllang.Prelude; use Liblkqllang.Prelude;
+
+with LKQL.Evaluation; use LKQL.Evaluation;
+with LKQL.Builtin_Functions; use LKQL.Builtin_Functions;
 
 package body LKQL.Eval_Contexts is
 
@@ -153,10 +155,15 @@ package body LKQL.Eval_Contexts is
       Ret    : constant Eval_Context := Eval_Context'(Kernel, Env);
 
    begin
+
       declare
          U      : constant L.Analysis_Unit := Prelude_Unit (Kernel.Context);
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
+         Ret.Add_Binding ("print", Make_Builtin_Function (Eval_Print'Access));
+         Ret.Add_Binding ("debug", Make_Builtin_Function (Eval_Debug'Access));
+         Ret.Add_Binding
+           ("to_list", Make_Builtin_Function (Eval_To_List'Access));
          return Ret;
       end;
    end Make_Eval_Context;
