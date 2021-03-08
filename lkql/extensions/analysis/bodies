@@ -1,0 +1,28 @@
+##  vim: ft=makoada
+
+function Get_Extension (Node : LKQL_Node'Class) return Extension_Type_Access is
+   Ret : Extension_Type_Access;
+   pragma Import (C, Ret);
+   for Ret'Address use Unwrap_Node (Node).Ext'Address;
+begin
+   --  Allocate the extension record if the field is null
+   if Ret = null then
+      Ret := new Extension_Type;
+   end if;
+
+   return Ret;
+end Get_Extension;
+
+procedure Init_Extension (Node : LKQL_Node'Class) is
+   --  Define a dummy access type ..
+   type Dummy_Access is access all Integer;
+
+   --  .. and create an overlay variable ..
+   Ret : Dummy_Access;
+   pragma Import (C, Ret);
+   for Ret'Address use Unwrap_Node (Node).Ext'Address;
+begin
+   --  In order to initialize the address field to null without adding an import
+   --  to System.Null_Address.
+   Ret := null;
+end Init_Extension;

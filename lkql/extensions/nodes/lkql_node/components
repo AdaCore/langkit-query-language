@@ -1,0 +1,2 @@
+Ext : System.Address := System.Null_Address;
+--  Untyped pointer to the extension record
