@@ -1,0 +1,14 @@
+##  vim: ft=makoada
+
+type Extension_Base is tagged null record;
+
+generic
+   type Extension_Type is new Extension_Base with private;
+   type Extension_Type_Access is access all Extension_Type;
+function Get_Extension (Node : LKQL_Node'Class) return Extension_Type_Access;
+--  Internal ``Get_Extension`` function: allocate and return a record derived
+--  from ``Extension_Base``.
+
+procedure Init_Extension (Node : LKQL_Node'Class);
+--  Initialization function, needed because the raw pointer field is not
+--  actually initialized during node allocation.
