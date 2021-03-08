@@ -632,11 +632,23 @@ package body LKQL.Evaluation is
       Current_Node : AST_Node_Rc;
       Iter         : AST_Node_Iterator'Class :=
         Make_Query_Iterator (Ctx, Node);
-      Result       : constant Primitive :=  Make_Empty_List;
+      Result       : Primitive;
+
+      use LCO;
    begin
-      while Iter.Next (Current_Node) loop
-         Append (Result, To_Primitive (Current_Node));
-      end loop;
+      if Node.F_Query_Kind.Kind = LKQL_Query_Kind_First then
+         if Iter.Next (Current_Node) then
+            Result := To_Primitive (Current_Node);
+         else
+            Result := To_Primitive (AST_Node_Ptrs.Null_Ref);
+         end if;
+      else
+         Result := Make_Empty_List;
+
+         while Iter.Next (Current_Node) loop
+            Append (Result, To_Primitive (Current_Node));
+         end loop;
+      end if;
 
       Iter.Release;
       return Result;
