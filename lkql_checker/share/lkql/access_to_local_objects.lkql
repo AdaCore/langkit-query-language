@@ -1,6 +1,7 @@
 fun local_scope(e) =
     match e
         | SubpBody => true
+        | TaskBody => true
         | * => false
 
 fun is_local_object(o) =
