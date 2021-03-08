@@ -1,3 +1,5 @@
+BUILD_MODE=dev
+
 all: lkql lkql_checker doc
 lkql: build/bin/liblkqllang_parse
 
@@ -5,10 +7,10 @@ doc:
 	cd user_manual && make clean html
 
 lkql_checker:
-	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS)
+	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings
+	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE)
 
 test:
 	testsuite/testsuite.py -Edtmp
