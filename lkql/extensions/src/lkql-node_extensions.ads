@@ -1,8 +1,34 @@
+with Ada.Containers.Hashed_Maps;
+
 --  This package is the user facing parts of the LKQL node extension mechanism.
 --  It allows us to extend nodes with pre-computed information stored in
 --  ``Node_Ext`` records that are allocated and attached to LKQL nodes.
 
 package LKQL.Node_Extensions is
+
+   ------------------
+   -- Custom data  --
+   ------------------
+
+   --  This section contains all the custom data types used to store
+   --  information on nodes in different cases.
+
+   type Formal_Param_Info is record
+      Param : L.Parameter_Decl;
+      --  Referenced parameter decl
+
+      Pos   : Positive;
+      --  Position of the parameter in the function profile
+   end record;
+   --  Store information about a formal parameter
+
+   package Params_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Symbol_Type,
+      Element_Type    => Formal_Param_Info,
+      Hash            => Hash,
+      Equivalent_Keys => "=");
+   --  Mapping of name to formal parameter information. Used to speed up lookup
+   --  of parameters in function calls.
 
    ------------------------
    -- Node extension API --
@@ -15,6 +41,10 @@ package LKQL.Node_Extensions is
    type Node_Ext (Kind : LCO.LKQL_Node_Kind_Type := LCO.LKQL_Expr_Arg)
    is record
       case Kind is
+         when LCO.LKQL_Base_Function =>
+            Params : Params_Maps.Map;
+            --  Param_Map for the function, used to speedup lookup of
+            --  parameters in calls.
          when others => null;
       end case;
    end record;

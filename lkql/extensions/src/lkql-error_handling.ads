@@ -102,8 +102,7 @@ private package LKQL.Error_Handling is
    --  named argument, and add an Error_Data describing the error to the
    --  evaluation context.
 
-   procedure Raise_Already_Seen_Arg (Ctx : Eval_Context;
-                                     Arg : L.Named_Arg)
+   procedure Raise_Already_Seen_Arg (Ctx : Eval_Context; Arg : L.Arg)
      with No_Return;
    --  Raise an exception signaling an attempt to call a function with
    --  at least two identically-named arguments.

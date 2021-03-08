@@ -630,44 +630,6 @@ class FunCall(Expr):
         """
         return Self.arguments.length
 
-    @langkit_property(return_type=NamedArg.entity.array, memoized=True)
-    def call_args(called_fn=BaseFunction.entity):
-        """
-        Return the explicit arguments of this call as named arguments.
-        """
-        return Self.arguments.map(
-            lambda pos, arg:
-            arg.match(
-                lambda e=ExprArg:
-                SynthNamedArg.new(arg_name=called_fn
-                                  .parameters.at(pos).identifier,
-                                  value_expr=e.value_expr)
-                .cast(NamedArg).as_entity,
-
-                lambda n=NamedArg: n.as_entity,
-            )
-        )
-
-    @langkit_property(return_type=NamedArg.entity.array, public=True,
-                      memoized=True)
-    def resolved_arguments(called_fn=BaseFunction.entity):
-        """
-        Return the arguments of this call (default arguments included)
-        as named arguments.
-        """
-        return Let(lambda call_args=Self.as_entity.call_args(called_fn): Let(
-            lambda default_args=called_fn.default_parameters()
-            .filter(lambda p:
-                    dsl_expr.Not(call_args.any(
-                        lambda e: e.name().text == p.name())))
-            .map(lambda param:
-                 SynthNamedArg.new(
-                     arg_name=param.param_identifier.node,
-                     value_expr=param.default_expr.node)
-                 .cast(NamedArg)
-                 .as_entity): call_args.concat(default_args))
-        )
-
     @langkit_property(return_type=T.Bool, public=True)
     def is_actual_call():
         """
