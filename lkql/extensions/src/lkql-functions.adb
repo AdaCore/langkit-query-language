@@ -5,7 +5,6 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 
-with LKQL.String_Utils;     use LKQL.String_Utils;
 with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
 with LKQL.AST_Nodes;        use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes;      use LKQL.Depth_Nodes;
@@ -13,6 +12,7 @@ with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Errors;           use LKQL.Errors;
 with LKQL.Evaluation;       use LKQL.Evaluation;
 with LKQL.Error_Handling;   use LKQL.Error_Handling;
+with LKQL.Node_Extensions; use LKQL.Node_Extensions;
 
 package body LKQL.Functions is
 
@@ -77,45 +77,115 @@ package body LKQL.Functions is
       Func : Primitive) return Primitive
    is
 
+      type Has_Arg_Array is array (Positive range <>) of Boolean;
+      --  Array of booleans, used to check whether an arg was passed.
+
       Def : constant L.Base_Function := Func.Get.Fun_Node;
       Env : constant LKQL.Primitives.Environment_Access :=
         Func.Get.Frame;
 
-      Resolved_Arguments : constant L.Named_Arg_Array
-        := Call.P_Resolved_Arguments (Def);
+      Def_Ext           : constant Ext := Get_Ext (Def);
 
-      Names_Seen         : String_Set;
-      --  TODO: This check for names seen could/should be done at the same time
-      --  as resolution of arguments probably.
+      Args_Bindings : Environment_Map;
 
-      Expected_Arity : constant Integer := Def.P_Arity;
-
+      Has_Arg  : Has_Arg_Array
+        (Def.F_Parameters.First_Child_Index
+         .. Def.F_Parameters.Last_Child_Index)
+        := (others => False);
    begin
-      if Resolved_Arguments'Length /= Expected_Arity then
-         Raise_Invalid_Arity (Ctx, Expected_Arity, Call.F_Arguments);
-      end if;
 
-      for Arg of Call.F_Arguments loop
-         if Arg.P_Has_Name then
-            if not Def.P_Has_Parameter (Arg.P_Name.Text) then
-               Raise_Unknown_Argument (Ctx, Arg.P_Name);
+      --  Do the argument evaluation and checking in the same pass
+      for I in
+        Call.F_Arguments.First_Child_Index .. Call.F_Arguments.Last_Child_Index
+      loop
+         declare
+            Arg : constant L.Arg := Call.F_Arguments.Child (I).As_Arg;
+            Arg_Name : constant Symbol_Type := Symbol (Arg.P_Name);
+         begin
+            if Arg_Name /= null then
+
+               --  Named arg: check if the name exists in the definition's
+               --  profile.
+               declare
+                  Cur : constant Params_Maps.Cursor :=
+                    Def_Ext.Content.Params.Find (Arg_Name);
+               begin
+                  if Params_Maps.Has_Element (Cur) then
+                     declare
+                        FPI      : constant Formal_Param_Info :=
+                          Params_Maps.Element (Cur);
+                        Dummy    : String_Value_Maps.Cursor;
+                        Inserted : Boolean;
+                     begin
+
+                        --  All is good, mark the arg as passed and insert the
+                        --  value in the args env map.
+
+                        Has_Arg (FPI.Pos) := True;
+                        Args_Bindings.Insert
+                          (Arg_Name, Eval (Ctx, Arg.P_Expr), Dummy, Inserted);
+                        if not Inserted then
+                           Raise_Already_Seen_Arg (Ctx, Arg);
+                        end if;
+                     end;
+                  else
+                     --  No parameter for this arg: raise
+                     Raise_Unknown_Argument (Ctx, Arg.P_Name);
+                  end if;
+               end;
+            else
+
+               --  Positional arg: check if there is an arg at this position.
+               if I > Def.P_Arity then
+
+                  --  No arg at this pos: raise
+                  Raise_Invalid_Arity (Ctx, Def.P_Arity, Call.F_Arguments);
+               else
+
+                  --  All is good, mark the arg as passed and insert the value
+                  --  in the args env map.
+
+                  Args_Bindings.Insert
+                    (Symbol (Def.F_Parameters.Child (I)
+                             .As_Parameter_Decl.P_Identifier),
+                     Eval (Ctx, Arg.P_Expr));
+                  Has_Arg (I) := True;
+               end if;
             end if;
+         end;
+      end loop;
 
-            if Names_Seen.Contains (To_Unbounded_Text (Arg.P_Name.Text)) then
-               Raise_Already_Seen_Arg (Ctx, Arg.As_Named_Arg);
-            end if;
+      --  Second step: check that every arg has been passed, and evaluate
+      --  default values for parameters that were passed no value.
+      for I in Has_Arg'Range loop
+         --  We have no argument at position I
+         if not Has_Arg (I) then
+            declare
+               Param : constant L.Parameter_Decl :=
+                 Def.F_Parameters.Child (I).As_Parameter_Decl;
+            begin
+               --  It could be an arg with a default value ..
+               if not Param.F_Default_Expr.Is_Null then
 
-            Names_Seen.Insert (To_Unbounded_Text (Arg.P_Name.Text));
-         elsif not Names_Seen.Is_Empty then
-               Raise_Positionnal_After_Named (Ctx, Arg.As_Expr_Arg);
+                  --  In that case eval the default value and add it to the
+                  --  args map.
+                  Args_Bindings.Include
+                    (Symbol (Param.P_Identifier),
+                     Eval (Ctx, Param.F_Default_Expr));
+               else
+                  --  But if not, raise
+                  Raise_And_Record_Error
+                    (Ctx,
+                     Make_Eval_Error
+                       (Call, "Missing value for param in call"));
+               end if;
+            end;
          end if;
       end loop;
 
       declare
          Eval_Ctx : constant Eval_Context :=
            Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
-         Args_Bindings : constant Environment_Map :=
-           Eval_Arguments (Ctx, Resolved_Arguments);
       begin
          return Eval
            (Eval_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
@@ -164,30 +234,6 @@ package body LKQL.Functions is
       end;
 
    end Eval_User_Selector_Call;
-
-   --------------------
-   -- Eval_Arguments --
-   --------------------
-
-   function Eval_Arguments
-     (Ctx       : Eval_Context;
-      Arguments : L.Named_Arg_Array) return Environment_Map
-   is
-      Args_Bindings : Environment_Map;
-   begin
-      for Arg of Arguments loop
-         declare
-            Id : constant L.Identifier := Arg.P_Name;
-            Arg_Name  : constant Symbol_Type :=
-              LCO.Get_Symbol (Id.Token_Start);
-            Arg_Value : constant Primitive := Eval (Ctx, Arg.P_Expr);
-         begin
-            Args_Bindings.Insert (Arg_Name, Arg_Value);
-         end;
-      end loop;
-
-      return Args_Bindings;
-   end Eval_Arguments;
 
    -----------------------
    -- Eval_Builtin_Call --

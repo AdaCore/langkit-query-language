@@ -23,11 +23,6 @@ package LKQL.Unit_Utils is
    --  Create an LKQL analysis unit in the context 'Context' from the given
    --  LKQL_Code.
 
-   function Format_Diagnostics (Unit : L.Analysis_Unit) return String
-     with Pre => Unit.Has_Diagnostics;
-   --  Return a String containing all the diagnostics from 'Unit' separated by
-   --  line terminators.
-
 private
 
    function Unit_Or_Error (Unit : L.Analysis_Unit) return L.Analysis_Unit;

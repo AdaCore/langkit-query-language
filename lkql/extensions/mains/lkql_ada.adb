@@ -109,6 +109,8 @@ procedure LKQL_Ada is
          To_String (Args.Script_Path.Get));
       Evaluate (Interpreter_Context, LKQL_Unit.Root);
       Interpreter_Context.Free_Eval_Context;
+   exception
+      when Unit_Creation_Error => null;
    end Job_Post_Process;
 
 begin

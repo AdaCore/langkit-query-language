@@ -215,8 +215,7 @@ package body LKQL.Error_Handling is
    -- Raise_Already_Seen_Arg --
    ----------------------------
 
-   procedure Raise_Already_Seen_Arg (Ctx : Eval_Context;
-                                     Arg : L.Named_Arg)
+   procedure Raise_Already_Seen_Arg (Ctx : Eval_Context; Arg : L.Arg)
    is
       Message : constant Text_Type :=
         "Multiple arguments with the same name";
