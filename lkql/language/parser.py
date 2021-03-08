@@ -7,7 +7,7 @@ from langkit.expressions import (
 )
 import langkit.expressions as dsl_expr
 from langkit.envs import add_to_env_kv, EnvSpec
-from language.lexer import Token
+from language.lexer import Token, lkql_lexer as L
 
 
 @abstract
@@ -467,6 +467,15 @@ class UniversalPattern(ValuePattern):
     pass
 
 
+@abstract
+class QueryKind(LKQLNode):
+    """
+    Base class for operators.
+    """
+    enum_node = True
+    alternatives = ['all', 'first']
+
+
 class Query(Expr):
     """
     Query against a pattern.
@@ -478,6 +487,7 @@ class Query(Expr):
     """
 
     from_expr = Field(type=Expr)
+    query_kind = Field(type=QueryKind)
     pattern = Field(type=BasePattern)
 
 
@@ -987,7 +997,10 @@ lkql_grammar.add_rules(
             "from",
             Or(G.expr, Unpack("*", G.expr))
         ),
-        "select", c(), G.pattern
+        "select", c(), Or(
+            QueryKind.alt_first(L.Identifier(match_text="first")),
+            QueryKind.alt_all(),
+        ), G.pattern
     ),
 
     pattern=Or(
