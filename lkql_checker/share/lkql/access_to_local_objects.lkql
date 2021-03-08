@@ -2,6 +2,9 @@ fun local_scope(e) =
     match e
         | SubpBody => true
         | TaskBody => true
+        | BlockStmt => true
+        | EntryBody => true
+        | ProtectedBody => true
         | * => false
 
 fun is_local_object(o) =
