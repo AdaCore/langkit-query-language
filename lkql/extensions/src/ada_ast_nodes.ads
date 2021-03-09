@@ -1,3 +1,4 @@
+with LKQL; use LKQL;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
@@ -75,6 +76,7 @@ package Ada_AST_Nodes is
 
    function Make_Eval_Context
      (Units        : Unit_Vectors.Vector;
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
       Err_Recovery : Boolean := False) return Eval_Context;
 
 end Ada_AST_Nodes;

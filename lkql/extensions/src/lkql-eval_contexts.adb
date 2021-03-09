@@ -141,21 +141,26 @@ package body LKQL.Eval_Contexts is
    -- Make_Eval_Context --
    -----------------------
 
-   function Make_Eval_Context (Ast_Roots    : AST_Node_Array;
-                               Null_Node    : AST_Node_Rc;
-                               Err_Recovery : Boolean := False)
-                               return Eval_Context
+   function Make_Eval_Context
+     (Ast_Roots    : AST_Node_Array;
+      Null_Node    : AST_Node_Rc;
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
+      Err_Recovery : Boolean := False) return Eval_Context
    is
+      use L;
+
       Roots : constant AST_Node_Array_Access := new AST_Node_Array'(Ast_Roots);
       Kernel : constant Global_Data_Access :=
         new Global_Data'
-          (Roots, Null_Node, Make_Empty_Error, Err_Recovery, L.Create_Context);
+          (Roots, Null_Node, Make_Empty_Error, Err_Recovery,
+           (if Analysis_Ctx = L.No_Analysis_Context
+            then L.Create_Context
+            else Analysis_Ctx));
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
       Ret    : constant Eval_Context := Eval_Context'(Kernel, Env);
 
    begin
-
       declare
          U      : constant L.Analysis_Unit := Prelude_Unit (Kernel.Context);
          Dummy  : constant Primitive := Eval (Ret, U.Root);
@@ -164,6 +169,7 @@ package body LKQL.Eval_Contexts is
          Ret.Add_Binding ("debug", Make_Builtin_Function (Eval_Debug'Access));
          Ret.Add_Binding
            ("to_list", Make_Builtin_Function (Eval_To_List'Access));
+
          return Ret;
       end;
    end Make_Eval_Context;

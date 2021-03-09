@@ -112,12 +112,13 @@ package LKQL.Eval_Contexts is
    --  Return the parent of the current local context.
    --  An Assertion_Error will be raised is 'Ctx' is the root context.
 
-   function Make_Eval_Context (Ast_Roots    : AST_Node_Array;
-                               Null_Node    : AST_Node_Rc;
-                               Err_Recovery : Boolean := False)
-                               return Eval_Context;
+   function Make_Eval_Context
+     (Ast_Roots    : AST_Node_Array;
+      Null_Node    : AST_Node_Rc;
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
+      Err_Recovery : Boolean := False) return Eval_Context;
    --  Create a new Eval_Context with the given Ast_Root and error recovery
-   --  flag.
+   --  flag. If passed an analysis context, use this instead of creating one.
 
    procedure Free_Eval_Context (Ctx : in out Eval_Context);
    --  Release the memory allocated for the evaluation context.

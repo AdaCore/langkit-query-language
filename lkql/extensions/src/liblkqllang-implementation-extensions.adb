@@ -41,8 +41,8 @@ package body Liblkqllang.Implementation.Extensions is
    Ctx      : Libadalang.Analysis.Analysis_Context;
    Files    : String_Vectors.Vector;
    LKQL_Ctx : Eval_Context;
-   Project : Project_Tree_Access;
-   Env     : Project_Environment_Access;
+   Project  : Project_Tree_Access;
+   Env      :  Project_Environment_Access;
    Init     : Boolean := False;
 
    -----------
@@ -66,7 +66,6 @@ package body Liblkqllang.Implementation.Extensions is
      (Node         : Bare_LKQL_Node;
       Project_File : Character_Type_Array_Access) return Boolean
    is
-      pragma Unreferenced (Node);
       UFP     : Unit_Provider_Reference;
    begin
       --  If already init, it means this is called for a second time: In that
@@ -90,7 +89,9 @@ package body Liblkqllang.Implementation.Extensions is
       UFP := Project_To_Provider (Project);
       Ctx := Create_Context (Charset => "utf-8", Unit_Provider => UFP);
 
-      LKQL_Ctx := Make_Eval_Context (Units);
+      --  Use the context from this node to create the LKQL context.
+      LKQL_Ctx := Make_Eval_Context
+        (Units, Public_Converters.Wrap_Context (Node.Unit.Context));
 
       Init := True;
       return True;
