@@ -2,6 +2,7 @@ with LKQL.Evaluation; use LKQL.Evaluation;
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body LKQL.Builtin_Functions is
 
@@ -44,5 +45,18 @@ package body LKQL.Builtin_Functions is
    begin
       return To_List (Value.Get.Iter_Val.all);
    end Eval_To_List;
+
+   ---------------
+   -- Eval_Dump --
+   ---------------
+
+   function Eval_Dump
+     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+   is
+      Value : constant Primitive := Eval (Ctx.all, Node, Kind_Node);
+   begin
+      Ada_AST_Node (Value.Get.Node_Val.Unchecked_Get.all).Node.Print;
+      return Make_Unit_Primitive;
+   end Eval_Dump;
 
 end LKQL.Builtin_Functions;
