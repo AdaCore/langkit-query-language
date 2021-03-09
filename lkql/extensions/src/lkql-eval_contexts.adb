@@ -169,7 +169,8 @@ package body LKQL.Eval_Contexts is
          Ret.Add_Binding ("debug", Make_Builtin_Function (Eval_Debug'Access));
          Ret.Add_Binding
            ("to_list", Make_Builtin_Function (Eval_To_List'Access));
-
+         Ret.Add_Binding
+           ("dump", Make_Builtin_Function (Eval_Dump'Access));
          return Ret;
       end;
    end Make_Eval_Context;
