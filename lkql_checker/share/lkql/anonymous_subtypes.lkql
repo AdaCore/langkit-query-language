@@ -1,3 +1,6 @@
 @check
 fun anonymous_subtypes() =
-    select BinOp(any children is OpDoubleDot)
+    select b@BinOp (any parent is
+        # not TypeDecl nor SubtypeDecl
+    )
+    when b.f_op is OpDoubleDot
