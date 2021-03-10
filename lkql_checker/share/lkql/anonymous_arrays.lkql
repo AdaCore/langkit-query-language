@@ -1,0 +1,7 @@
+# Flag all anonymous array type definitions (by Ada semantics these can
+# only occur in object declarations).
+
+@check
+fun anonymous_arrays() =
+    select t@AnonymousTypeDecl
+    when t.f_type_def is ArrayTypeDef
