@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Declarations_In_Blocks
+input_sources: ['declarations_in_blocks.adb']

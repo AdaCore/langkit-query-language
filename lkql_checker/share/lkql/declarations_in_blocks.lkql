@@ -1,0 +1,15 @@
+# Flag all block statements containing local declarations. A `declare'
+# block with an empty `declarative_part' or with a `declarative part'
+# containing only pragmas and/or `use' clauses is not flagged.
+
+@check(message="block statement with local declaration")
+fun declarations_in_blocks(node) =
+    node is DeclBlock(
+        any children(depth=1) is DeclarativePart(
+            f_decls is AdaNodeList(
+                all children(depth=2) is a@*
+                # FIXME: [U311-008] Replace with proper `not` and `or` pattern op
+                when not (a is UseClause or a is Pragma)
+            )
+        )
+    )
