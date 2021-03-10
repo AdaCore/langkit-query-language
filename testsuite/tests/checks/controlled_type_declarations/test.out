@@ -1,0 +1,8 @@
+controlled_type_declarations.ads:3:9: error: declaration of controlled type
+3 |    type Resource is new Ada.Finalization.Controlled with private;  --  FLAG
+  |         ^^^^^^^^ 
+
+controlled_type_declarations.ads:5:9: error: declaration of controlled type
+5 |    type Resource is new Ada.Finalization.Controlled with null record; -- FLAG
+  |         ^^^^^^^^ 
+

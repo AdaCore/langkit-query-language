@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Controlled_Type_Declarations
+input_sources: ['controlled_type_declarations.ads']
