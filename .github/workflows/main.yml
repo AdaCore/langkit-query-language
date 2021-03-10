@@ -77,10 +77,10 @@ jobs:
       - name: Smoke-test LKQL checks project
         run: |
             set -ex
-            for f in ada/src/*.adb; do
+            for f in testsuite/ada_projects/checks/src/*.adb; do
                 gnat compile -o /dev/null $f
             done
-            ! ( for f in ada/src/*.ads; do
+            ! ( for f in testsuite/ada_projects/checks/src/*.ads; do
                 gcc -c -gnatc $f 2>&1
             done | grep ": warning:" )
 
