@@ -1,0 +1,4 @@
+anonymous_arrays.ads:4:12: error: anonymous array types
+4 |     Var2 : array (1 .. 10) of Integer;      --  FLAG
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+

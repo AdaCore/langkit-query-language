@@ -1,0 +1,9 @@
+# Flag all anonymous array type definitions (by Ada semantics these can
+# only occur in object declarations).
+
+@check(message="anonymous array types")
+fun anonymous_arrays(node) =
+    node is AnonymousTypeDecl(
+        any parent is ObjectDecl,
+        f_type_def is ArrayTypeDef
+    )
