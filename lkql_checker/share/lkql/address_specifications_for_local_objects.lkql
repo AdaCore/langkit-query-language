@@ -1,0 +1,11 @@
+# Flag address clauses and address aspect definitions if they are applied
+# to data objects declared in local subprogram bodies. Data objects
+# declared in library subprogram bodies are not flagged.
+
+@check
+fun address_specifications_for_local_objects(node) =
+    node is ObjectDecl (
+        any parent is s@SubpBody
+        when not s.parent is LibraryItem
+    )
+    when node.p_get_aspect_assoc("address") != null

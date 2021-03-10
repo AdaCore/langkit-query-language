@@ -1,0 +1,8 @@
+driver: 'checker'
+rule_name: Address_Specifications_For_Local_Objects
+input_sources: [
+    'address_specifications_for_local_objects.adb',
+    'address_specifications_for_local_objects.ads',
+    'address_specifications_for_local_objects_except_library.ads',
+    'address_specifications_for_local_objects_except_library.ads'
+]
