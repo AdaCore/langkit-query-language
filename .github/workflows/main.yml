@@ -74,6 +74,16 @@ jobs:
             eval `lkql/manage.py setenv`
             make test
 
+      - name: Smoke-test LKQL checks project
+        run: |
+            set -ex
+            for f in ada/src/*.adb; do
+                gnat compile -o /dev/null $f
+            done
+            ! ( for f in ada/src/*.ads; do
+                gcc -c -gnatc $f 2>&1
+            done | grep ": warning:" )
+
       - name: Deploy
         if: ${{github.repository != 'AdaCore/langkit-query-language'}}
         uses: peaceiris/actions-gh-pages@v3
