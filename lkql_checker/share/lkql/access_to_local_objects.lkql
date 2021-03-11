@@ -12,7 +12,7 @@ fun is_local_object(o) =
 
 
 @check
-fun access_to_local_objects() =
-    select a@AttributeRef
-    when a.f_attribute?.p_canonical_text() == "access"
-    and  is_local_object(a.f_prefix?.p_referenced_decl())
+fun access_to_local_objects(node) =
+    node is AttributeRef
+    when node.f_attribute?.p_canonical_text() == "access"
+    and  is_local_object(node.f_prefix?.p_referenced_decl())
