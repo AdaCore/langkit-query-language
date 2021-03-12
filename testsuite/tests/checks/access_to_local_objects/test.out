@@ -1,0 +1,12 @@
+access_to_local_objects.adb:8:32: error: access_to_local_objects - rule violation
+8 |        Var2 :         Int_A := Var1'Access;  --  FLAG
+  |                                ^^^^^^^^^^^ 
+
+access_to_local_objects.adb:18:24: error: access_to_local_objects - rule violation
+18 |        Var5 : Int_A := Var4'Access;   -- FLAG
+   |                        ^^^^^^^^^^^ 
+
+access_to_local_objects.adb:32:25: error: access_to_local_objects - rule violation
+32 |            P : Int_A := Local'Access; -- FLAG
+   |                         ^^^^^^^^^^^^ 
+

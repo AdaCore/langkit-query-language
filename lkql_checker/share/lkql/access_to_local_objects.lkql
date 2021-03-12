@@ -1,0 +1,18 @@
+fun local_scope(e) =
+    match e
+        | SubpBody => true
+        | TaskBody => true
+        | BlockStmt => true
+        | EntryBody => true
+        | ProtectedBody => true
+        | * => false
+
+fun is_local_object(o) =
+    [p for p in o?.parents if local_scope(p)].length > 0
+
+
+@check
+fun access_to_local_objects(node) =
+    node is AttributeRef
+    when node.f_attribute?.p_canonical_text() == "access"
+    and  is_local_object(node.f_prefix?.p_referenced_decl())
