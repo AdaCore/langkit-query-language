@@ -1,4 +1,4 @@
-package body Function_Style_Procedure is
+package body Function_Style_Procedures is
 
 
    procedure P (R : out Integer) is
@@ -13,4 +13,4 @@ package body Function_Style_Procedure is
    end P2;
    
 
-end Function_Style_Procedure;
+end Function_Style_Procedures;
