@@ -338,8 +338,12 @@ package body LKQL.Evaluation is
    function Eval_Fun_Expr
      (Ctx : Eval_Context; Node : L.Base_Function) return Primitive is
    begin
+      --  The function will hold a reference to its original env, and can
+      --  reference vars coming from it, so hold a reference on it.
       LKQL.Eval_Contexts.Inc_Ref (Ctx.Frames);
-      return Make_Function (Node, Primitives.Environment_Access (Ctx.Frames));
+
+      return Make_Function
+        (Node, Primitives.Environment_Access (Ctx.Frames));
    end Eval_Fun_Expr;
 
    ---------------------
@@ -736,8 +740,12 @@ package body LKQL.Evaluation is
       Local_Ctx := Ctx.Create_New_Frame;
 
       --  Add Val_Decl bindings to the newly created frame
-      for V_Decl of Node.F_Vals loop
-         Dummy := Eval_Val_Decl (Local_Ctx, V_Decl.As_Val_Decl);
+      for Decl of Node.F_Vals loop
+         declare
+            Dummy : Primitive := Eval (Local_Ctx, Decl);
+         begin
+            null;
+         end;
       end loop;
 
       --  Eval the expression in the context of the new frame, release the

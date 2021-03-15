@@ -27,11 +27,24 @@ with Liblkqllang.Prelude; use Liblkqllang.Prelude;
 
 with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Builtin_Functions; use LKQL.Builtin_Functions;
+with LKQL.String_Utils; use LKQL.String_Utils;
 
 package body LKQL.Eval_Contexts is
 
-   procedure Free_Environment is new Ada.Unchecked_Deallocation
-     (Environment, Environment_Access);
+   procedure Free_Environment (Self : in out Environment_Access);
+
+   ----------------------
+   -- Free_Environment --
+   ----------------------
+
+   procedure Free_Environment (Self : in out Environment_Access) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Environment, Environment_Access);
+   begin
+      --  Give up the reference we have on the parent env.
+      Dec_Ref (Self.Parent);
+      Free (Self);
+   end Free_Environment;
 
    ---------------
    -- Add_Error --
@@ -92,8 +105,17 @@ package body LKQL.Eval_Contexts is
    -----------
 
    function Clone_Frame (Ctx : Eval_Context) return Eval_Context is
-     ((Kernel => Ctx.Kernel,
-       Frames => new Environment'(Ctx.Frames.all)));
+   begin
+      --  The cloned env holds a reference to its parent, so increment the ref
+      --  count.
+      if Ctx.Frames.Parent /= null then
+         Inc_Ref (Ctx.Frames.Parent);
+      end if;
+
+      return
+        (Kernel => Ctx.Kernel,
+         Frames => new Environment'(Ctx.Frames.all));
+   end Clone_Frame;
 
    ----------------------
    -- Create_New_Frame --
@@ -104,8 +126,14 @@ package body LKQL.Eval_Contexts is
                               return Eval_Context
    is
       New_Env     : constant Environment_Access :=
-        new Environment'(Local_Bindings, Ctx.Frames, Ref_Count => <>);
+        new Environment'
+          (Local_Bindings => Local_Bindings,
+           Parent         => Ctx.Frames,
+           Ref_Count      => <>);
    begin
+      --  The new env holds a reference to its parent, so increment the
+      --  reference count.
+      Inc_Ref (New_Env.Parent);
       return Eval_Context'(Ctx.Kernel, New_Env);
    end Create_New_Frame;
 
@@ -206,8 +234,12 @@ package body LKQL.Eval_Contexts is
    begin
       pragma Assert (Ctx.Frames.Parent = null,
                      "Cannot free a non-root evaluation context");
+      for Root of Ctx.Kernel.Ast_Roots.all loop
+         Free_AST_Node (Root);
+      end loop;
+
       Free_Ast_Node_Array (Ctx.Kernel.Ast_Roots);
-      Free_Environment (Ctx.Frames);
+      Dec_Ref (Ctx.Frames);
       Free_Global_Data (Ctx.Kernel);
    end Free_Eval_Context;
 
@@ -317,9 +349,19 @@ package body LKQL.Eval_Contexts is
 
    procedure Dec_Ref (Self : in out Environment_Access) is
    begin
-      Self.Ref_Count := Self.Ref_Count - 1;
-      if Self.Ref_Count = 0 then
-         Free_Environment (Self);
+      if Self /= null then
+         --  TODO U315-023: Because of the fact that we have non-handled cycles
+         --  in the environments, due to closures, package level finalization
+         --  will try to free those cycles and might reach a point where this
+         --  is called twice in a cycle, so Ref_Count is already equal to zero.
+         --  In those cases, just no-op.
+         if Self.Ref_Count > 0 then
+            Self.Ref_Count := Self.Ref_Count - 1;
+
+            if Self.Ref_Count = 0 then
+               Free_Environment (Self);
+            end if;
+         end if;
       end if;
    end Dec_Ref;
 

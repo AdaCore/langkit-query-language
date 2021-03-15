@@ -61,6 +61,10 @@ package LKQL.Eval_Contexts is
    type Environment is private;
 
    type Environment_Access is access all Environment;
+   pragma No_Heap_Finalization (Environment_Access);
+   --  U315-023: This is needed because it works around obscure library level
+   --  finalization issues that cause double free/use after free issues. At
+   --  some point, we need to investigate those issues a bit further.
 
    procedure Inc_Ref (Self : Environment_Access);
    procedure Dec_Ref (Self : in out Environment_Access);

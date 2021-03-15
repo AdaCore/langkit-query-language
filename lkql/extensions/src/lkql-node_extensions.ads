@@ -84,7 +84,11 @@ package LKQL.Node_Extensions is
    type Ext is access all LKQL_Node_Extension;
    --  Access to an extension record.
 
-   function Get_Ext is new L.Get_Extension
+   procedure Destroy (Self : in out Ext);
+   --  Destroy an extension through its pointer.
+
+   function Get_Ext
+     is new L.Get_Extension
      (LKQL_Node_Extension, Ext);
    --  Main entry point. Returns the extension for a given node.
 

@@ -101,6 +101,21 @@ can use a `Block expression`_.
         @checker
         fun check_bla() = select Bla
 
+Functions can also be nested in other functions, and closures are allowed, ie.
+you can return a function that references the environment in which it was
+declared:
+
+.. code-block:: lkql
+
+    fun make_closure(closure_var) = {
+        fun use_closure() = closure_var + 1;
+        use_closure
+    }
+
+    print(make_closure(12))
+
+.. attention:: Due to an implementation problem, closures leak memory for the
+    moment. Be careful about that when using them.
 
 Value declaration
 ^^^^^^^^^^^^^^^^^
