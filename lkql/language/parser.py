@@ -540,7 +540,7 @@ class BlockExpr(Expr):
     }
     """
 
-    vals = Field(type=ValDecl.list)
+    vals = Field(type=Declaration.list)
     expr = Field(type=Expr)
 
 
@@ -1131,7 +1131,7 @@ lkql_grammar.add_rules(
     ),
 
     block_expr=BlockExpr(
-        "{", c(), List(G.val_decl, sep=";", empty_valid=False), ";", G.expr,
+        "{", c(), List(G.decl, sep=";", empty_valid=False), ";", G.expr,
         "}"
     ),
 

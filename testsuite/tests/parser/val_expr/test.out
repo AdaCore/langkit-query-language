@@ -1,6 +1,6 @@
 BlockExpr
 |f_vals:
-|  ValDeclList
+|  DeclarationList
 |  |  ValDecl
 |  |  |f_identifier:
 |  |  |  Identifier: x
