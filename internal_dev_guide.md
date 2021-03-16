@@ -11,7 +11,7 @@ Internal dev guide (for AdaCore developers)
 2. Checkout LKQL
 
 ```sh
-git clone git@github.com:AdaCore/langkit-query-language.git
+git clone git.adacore.com:langkit-query-language
 cd langkit-query-language
 ```
 
