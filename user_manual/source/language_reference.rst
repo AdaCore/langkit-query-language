@@ -574,12 +574,37 @@ Query expression
     :file: ../../lkql/build/railroad-diagrams/query.svg
 
 .. lkql_doc_class:: Query
+.. lkql_doc_class:: QueryKind
 
 The query expression is extremely simple, and most of the complexity lies in
 the upcoming sections about patterns.
 
 A query traverses one or several trees, from one or several root nodes,
 applying the pattern on every node. It yields all matching nodes.
+
+.. code-block:: lkql
+
+    # Will select all non null nodes
+    select AdaNode
+
+By default the query's roots are implicit and set by the context. However, you
+can specify them with the ``from`` keyword, followed either by a node
+expression, or a list expression.
+
+.. code-block:: lkql
+
+    # Select all non null nodes starting from node a
+    from a select AdaNode
+
+    # Select all non null nodes starting from all nodes in list
+    from [a, b, c] select AdaNode
+
+You can also run a query that will only select the first element
+
+.. code-block:: lkql
+
+    # Select first basic declaration
+    select first BasicDecl
 
 Pattern
 -------
