@@ -1,3 +1,3 @@
 driver: 'checker'
-project: 'checks/checks.gpr'
 rule_name: Access_To_Local_Objects
+input_sources: ['access_to_local_objects.ads', 'access_to_local_objects.adb']

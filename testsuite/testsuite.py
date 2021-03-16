@@ -38,9 +38,10 @@ class LKQLTestsuite(Testsuite):
         self.env.rewrite_baselines = self.env.options.rewrite
 
         # Directory that contains GPR files, shared by testcases
-        self.env.ada_projects_path = os.path.join(
-            self.root_dir, 'ada_projects'
-        )
+        os.environ['GPR_PROJECT_PATH'] = os.path.pathsep.join([
+            os.path.join(self.root_dir, 'ada_projects'),
+            os.environ.get('GPR_PROJECT_PATH', ''),
+        ])
 
         # Unless specifically told not to, add test programs to the environment
         if not self.env.options.no_auto_path:

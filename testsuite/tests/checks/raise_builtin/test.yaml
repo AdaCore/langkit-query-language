@@ -1,3 +1,3 @@
 driver: 'checker'
 rule_name: 'Raising_Predefined_Exceptions'
-project: 'raise_builtin_exception/prj.gpr'
+project: 'prj.gpr'

@@ -1,3 +1,3 @@
 driver: 'checker'
 rule_name: 'No_Explicit_Real_Range'
-project: 'no_real_range/prj.gpr'
+project: 'prj.gpr'

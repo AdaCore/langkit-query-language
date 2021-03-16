@@ -1,0 +1,2 @@
+testsuite/tests/*/*/*.ad[bs] no-precommit-check
+testsuite/ada_projects/*/*.ad[bs] no-precommit-check

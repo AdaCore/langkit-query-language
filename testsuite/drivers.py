@@ -77,23 +77,15 @@ class InterpreterDriver(BaseTestDriver):
     The expected output must be written in a file called `output`.
 
     Test arguments:
-        - project: relative path of the GPR build file to use (if any), from
-                   $root_dir/ada_projects.
+        - project: GPR build file to use (if any)
     """
 
     def run(self):
-        # Put the absolute path of the test's project in project_path, if any
-        if self.test_env['project']:
-            project_path = os.path.join(self.env.ada_projects_path,
-                                        self.test_env['project'])
-        else:
-            project_path = ''
-
         # Build the process's arguments list
-        args = [a for a in [
-            'lkql_ada', '--script-path', 'script.lkql',
-            '-P', project_path
-        ] if a != '']
+        args = ['lkql_ada', '--script-path', 'script.lkql']
+
+        if self.test_env['project']:
+            args += ['-P', self.test_env['project']]
 
         # Run the interpreter
         self.shell(args)
@@ -108,19 +100,15 @@ class CheckerDriver(BaseTestDriver):
     The expected output must be written in a file called `output`.
 
     Test arguments:
-        - project: relative path of the GPR build file to use (if any), from
-                   $root_dir/ada_projects.
+        - project: GPR build file to use (if any)
         - files: Ada files to analyze
     """
 
     def run(self):
         args = ['lkql_checker']
-        # Put the absolute path of the test's project in project_path, if any
+        # Use the test's project, if any
         if self.test_env.get('project', None):
-            args += [
-                '-P', os.path.join(self.env.ada_projects_path,
-                                   self.test_env['project'])
-            ]
+            args += ['-P', self.test_env['project']]
         else:
             args += self.test_env['input_sources']
 
