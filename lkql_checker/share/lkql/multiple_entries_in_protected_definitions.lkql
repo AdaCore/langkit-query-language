@@ -1,4 +1,4 @@
 @node_check
-fun multiple_entries(node) = match node
+fun multiple_entries_in_protected_definitions(node) = match node
     | p @ ProtectedDef => from p select first EntryDecl(any prev_siblings is EntryDecl)
     | * => null

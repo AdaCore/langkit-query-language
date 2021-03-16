@@ -6,6 +6,6 @@ fun has_abstract (type_def) =
     | * => false
 
 @check
-fun abstract_types(node) =
+fun abstract_type_declarations(node) =
     node is type @ TypeDef when has_abstract(type)
 

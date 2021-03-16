@@ -1,4 +1,4 @@
-decls.ads:5:11: error: multiple_entries - rule violation
+decls.ads:5:11: error: multiple_entries_in_protected_definitions - rule violation
 5 |     entry Put (I: out Integer);
   |           ^^^ 
 
