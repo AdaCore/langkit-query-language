@@ -83,6 +83,7 @@ package body Rule_Commands is
       begin
          return Rule_Command'
            (Name          => To_Unbounded_Text (To_Lower (Name)),
+            Message       => To_Unbounded_Text (To_Lower (Name)),
             LKQL_Root     => Root,
             LKQL_Context  => Ctx,
             Rule_Args     => <>,

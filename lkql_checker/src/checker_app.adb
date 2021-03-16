@@ -22,7 +22,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories; use Ada.Directories;
+with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
+
+with Langkit_Support.Images; use Langkit_Support.Images;
 with Langkit_Support.Diagnostics.Output;
 
 with Libadalang.Common; use Libadalang.Common;
@@ -32,6 +36,7 @@ with Rules_Factory; use Rules_Factory;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
 with Ada.Containers.Hashed_Maps;
 with LKQL.Primitives; use LKQL.Primitives;
@@ -226,19 +231,34 @@ package body Checker_App is
                      then Result_Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node
                      else Result_Node.As_Ada_Node);
 
-                  declare
-                     Diag : constant Eval_Diagnostic := Eval_Diagnostic'
-                       (Diagnostic'
-                          (Result_Node.Sloc_Range,
-                           To_Unbounded_Text
-                             (To_Text (Rule.Name) & " - rule violation")),
-                        Result_Node.Unit);
-                  begin
-                     Langkit_Support.Diagnostics.Output.Print_Diagnostic
-                       (Diag.Diag,
-                        Diag.Unit,
-                        Simple_Name (Diag.Unit.Get_Filename));
-                  end;
+                  case Args.Output_Style.Get is
+                     when GNATcheck =>
+                        Put
+                          (Simple_Name (Result_Node.Unit.Get_Filename) & ":"
+                           & Stripped_Image
+                               (Integer (Result_Node.Sloc_Range.Start_Line))
+                           & ":"
+                           & Stripped_Image
+                               (Integer (Result_Node.Sloc_Range.Start_Column))
+                           & ": ");
+                        Put_Line (To_Wide_Wide_String (Rule.Message));
+
+                     when Default =>
+                        declare
+                           Diag : constant Eval_Diagnostic := Eval_Diagnostic'
+                             (Diagnostic'
+                                (Result_Node.Sloc_Range,
+                                 To_Unbounded_Text
+                                   (To_Text (Rule.Name)
+                                    & " - rule violation")),
+                              Result_Node.Unit);
+                        begin
+                           Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                             (Diag.Diag,
+                              Diag.Unit,
+                              Simple_Name (Diag.Unit.Get_Filename));
+                        end;
+                  end case;
                end if;
             end;
          end loop;

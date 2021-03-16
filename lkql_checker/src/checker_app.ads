@@ -90,6 +90,13 @@ package Checker_App is
             & "inside of a LKQL query",
          Arg_Type => LKQL.Errors.Property_Error_Recovery_Kind,
          Default_Val => LKQL.Errors.Continue_And_Warn);
+
+      package Output_Style is new Parse_Enum_Option
+        (Parser      => App.Args.Parser,
+         Long        => "--output-style",
+         Help        => "Output style for the diagnostic messages",
+         Arg_Type    => Output_Style,
+         Default_Val => Default);
    end Args;
 
 end Checker_App;

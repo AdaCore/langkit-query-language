@@ -56,6 +56,10 @@ package Rule_Commands is
       Name          : Unbounded_Text_Type;
       --  Name of the Rule
 
+      Message       : Unbounded_Text_Type;
+      --  Diagnostic messages associated with the rule.
+      --  Defaults to Name if not specified.
+
       LKQL_Root     : L.LKQL_Node;
       --  Root of the LKQL AST
 
@@ -72,6 +76,11 @@ package Rule_Commands is
       --  Whether the rule is expressed via a boolean check (function that
       --  returns a boolean) or a node check (function that returns a node).
    end record;
+
+   type Output_Style is (Default, GNATcheck);
+   --  Style of output messages.
+   --  Default: gcc style colored output with source highlighting.
+   --  GNATcheck: gnatcheck default output with one line per detection.
 
    type Eval_Diagnostic is record
       Diag : Diagnostic;
