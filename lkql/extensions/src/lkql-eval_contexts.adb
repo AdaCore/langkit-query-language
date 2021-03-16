@@ -365,6 +365,26 @@ package body LKQL.Eval_Contexts is
       end if;
    end Dec_Ref;
 
+   ---------------
+   -- Env_Image --
+   ---------------
+
+   function Env_Image (Env : Environment_Access) return String is
+   begin
+      return "<Env: " & Address_Image (Env.all'Address)
+        & " rc=" & Env.Ref_Count'Image & " "
+        & " " & Env_Map_Image (Env.Local_Bindings)
+        & " parent:" & Address_Image (Env.Parent.all'Address)
+        & (if Env.Parent /= null
+           then " rc=" & Env.Parent.Ref_Count'Image & " "
+           else "")
+        & " " & (if Env.Parent /= null
+           then (if Env.Parent.Parent = null
+             then "root"
+             else Env_Map_Image (Env.Parent.Local_Bindings))
+           else "");
+   end Env_Image;
+
    -------------------
    -- Env_Map_Image --
    -------------------
@@ -383,7 +403,7 @@ package body LKQL.Eval_Contexts is
             Is_First := False;
          end if;
 
-         Append (Ret, """" & String_Value_Maps.Key (Cur).all & """");
+         Append (Ret, """" & String_Value_Maps.Key (Cur).all & """: ");
          Append (Ret, To_Unbounded_Text (String_Value_Maps.Element (Cur)));
          String_Value_Maps.Next (Cur);
       end loop;

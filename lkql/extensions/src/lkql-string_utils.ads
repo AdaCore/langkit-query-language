@@ -26,6 +26,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 with Ada.Containers.Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors; use Ada.Containers;
 with Ada.Strings.Wide_Wide_Unbounded;   use Ada.Strings.Wide_Wide_Unbounded;
+with System;
 
 package LKQL.String_Utils is
 
@@ -74,5 +75,10 @@ package LKQL.String_Utils is
    function Underline (Line : Unbounded_Text_Type) return Unbounded_Text_Type;
    --  Underline all the text in the input String. The input must contain a
    --  single line of text.
+
+   function Address_Image (Addr : System.Address) return String;
+   --  "Better" version of ``System.Address_Image``, that will strip leading
+   --  zeros, and put hex letters in lowercase, yielding shorter & more
+   --  readable addresses.
 
 end LKQL.String_Utils;

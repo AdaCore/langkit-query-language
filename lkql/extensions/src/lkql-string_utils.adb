@@ -23,6 +23,8 @@
 
 with Ada.Strings;
 with Ada.Wide_Wide_Characters.Unicode; use Ada.Wide_Wide_Characters.Unicode;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
+with System.Address_Image;
 
 package body LKQL.String_Utils is
 
@@ -125,5 +127,21 @@ package body LKQL.String_Utils is
       return (if Start < 1 or else Stop < 1 or else Stop <= Start then Line
               else Underline_Range (Line, Start, Stop));
    end Underline;
+
+   -------------------
+   -- Address_Image --
+   -------------------
+
+   function Address_Image (Addr : System.Address) return String is
+      Ret : constant String := System.Address_Image (Addr);
+      I : Natural := 0;
+   begin
+      for C of Ret loop
+         exit when C /= '0';
+         I := I + 1;
+      end loop;
+
+      return To_Lower (Ret (Natural'Min (Ret'Last, I + 1) .. Ret'Last));
+   end Address_Image;
 
 end LKQL.String_Utils;
