@@ -50,6 +50,9 @@ package LKQL.Builtin_Functions is
    function Eval_Dump
      (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
 
+   function Eval_Image
+     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+
    type Builtin_Fn_Desc is record
       Name : Unbounded_Text_Type;
       Fn   : Builtin_Function_Access;
@@ -62,6 +65,7 @@ package LKQL.Builtin_Functions is
      ((To_Unbounded_Text ("print"), Eval_Print'Access),
       (To_Unbounded_Text ("debug"), Eval_Debug'Access),
       (To_Unbounded_Text ("to_list"), Eval_To_List'Access),
-      (To_Unbounded_Text ("dump"), Eval_Dump'Access));
+      (To_Unbounded_Text ("dump"), Eval_Dump'Access),
+      (To_Unbounded_Text ("img"), Eval_Image'Access));
 
 end LKQL.Builtin_Functions;

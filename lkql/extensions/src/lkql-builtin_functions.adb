@@ -81,4 +81,14 @@ package body LKQL.Builtin_Functions is
       return Make_Unit_Primitive;
    end Eval_Dump;
 
+   ----------------
+   -- Eval_Image --
+   ----------------
+
+   function Eval_Image
+     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive is
+   begin
+      return To_Primitive (To_Unbounded_Text (Eval (Ctx.all, Node)));
+   end Eval_Image;
+
 end LKQL.Builtin_Functions;
