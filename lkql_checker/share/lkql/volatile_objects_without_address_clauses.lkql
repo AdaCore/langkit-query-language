@@ -1,4 +1,4 @@
-@check
+@check(message="volatile object with no address clause")
 fun volatile_objects_without_address_clauses(node) =
     node is o @ ObjectDecl when (
         o.p_has_aspect("volatile")

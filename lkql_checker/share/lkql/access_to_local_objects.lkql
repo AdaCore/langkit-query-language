@@ -10,8 +10,7 @@ fun local_scope(e) =
 fun is_local_object(o) =
     [p for p in o?.parents if local_scope(p)].length > 0
 
-
-@check
+@check(message="access attribute for local objects")
 fun access_to_local_objects(node) =
     node is AttributeRef
     when node.f_attribute?.p_canonical_text() == "access"

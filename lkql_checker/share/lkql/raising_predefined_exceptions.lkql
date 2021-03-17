@@ -5,6 +5,6 @@ fun isPredefinedName(id) = {
     name == "Tasking_Error"
 }
 
-@check
+@check(message="explicit raise of a predefined exception")
 fun raising_predefined_exceptions(node) =
     node is r@RaiseStmt when isPredefinedName(r.f_exception_name)

@@ -1,4 +1,4 @@
-@check
+@check(message="downward view conversion")
 fun downward_view_conversions(node) =
     node is c @ CallExpr(
         # Select type conversions

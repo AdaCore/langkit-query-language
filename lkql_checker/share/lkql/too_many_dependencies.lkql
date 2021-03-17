@@ -1,4 +1,4 @@
-@node_check
+@node_check(message="unit has too many dependencies")
 fun too_many_dependencies(node, maxDeps : int = 5) = match node
     | c @ CompilationUnit(
           any c @ children is Identifier(any parent(depth=2) is WithClause),

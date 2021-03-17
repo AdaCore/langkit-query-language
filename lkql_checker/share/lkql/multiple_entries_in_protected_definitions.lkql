@@ -1,4 +1,4 @@
-@node_check
+@node_check(message="more than one entry in protected definition")
 fun multiple_entries_in_protected_definitions(node) = match node
     | p @ ProtectedDef => from p select first EntryDecl(any prev_siblings is EntryDecl)
     | * => null

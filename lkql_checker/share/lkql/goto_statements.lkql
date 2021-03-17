@@ -1,2 +1,2 @@
-@check
+@check(message="goto statement")
 fun goto_statements(node) = node is GotoStmt

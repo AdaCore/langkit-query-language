@@ -5,7 +5,7 @@ fun has_abstract (type_def) =
     | p @ PrivateTypeDef => p.f_has_abstract?.p_as_bool()
     | * => false
 
-@check
+@check(message="declaration of abstract type")
 fun abstract_type_declarations(node) =
     node is type @ TypeDef when has_abstract(type)
 

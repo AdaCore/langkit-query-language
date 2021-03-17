@@ -6,7 +6,7 @@ fun has_aspect(decl, aspect_name) =
 fun has_prepost(decl) =
    has_aspect(decl, "pre") or has_aspect(decl, "post")
 
-@check
+@check(message="definition of non class-wide aspect")
 fun specific_pre_post(node) =
    node is decl @ BasicSubpDecl ( # Get subprogram declarations
       p_subp_spec_or_null() is AdaNode(p_primitive_subp_tagged_type() is AdaNode)

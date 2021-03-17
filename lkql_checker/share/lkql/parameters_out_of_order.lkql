@@ -7,7 +7,7 @@ fun priority(paramSpec) =
             | ModeIn      => 3
             | ModeDefault => 3
 
-@check
+@check(message="parameter out of order")
 fun parameters_out_of_order(node) =
     node is p @ ParamSpec(any next_siblings
                          is sib @ ParamSpec when priority(sib) > priority(p))

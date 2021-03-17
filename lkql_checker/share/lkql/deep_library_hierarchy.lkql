@@ -1,4 +1,4 @@
-@check
+@check(message="unit has too many ancestors")
 fun deep_library_hierarchy(node, depth: int = 5) =
     node is PackageDecl(
         f_package_name is DefiningName(any children(depth=depth) is Name)

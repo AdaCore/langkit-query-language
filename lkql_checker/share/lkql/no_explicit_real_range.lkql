@@ -1,7 +1,7 @@
 fun isRealWithoutRange(decl) =
     decl is TypeDecl(f_type_def is RealTypeDef(no children is RangeSpec))
 
-@check
+@check(message="real type with no range definition")
 fun no_explicit_real_range(node) =
    node is t @ BaseTypeDecl
    when isRealWithoutRange(t)
