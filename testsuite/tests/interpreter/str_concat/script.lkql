@@ -1,3 +1,3 @@
 print("Hello " & "world !")
-print("Hello " & 42)
-print("Hello " & true)
+print("Hello " & img(42))
+print("Hello " & img(true))

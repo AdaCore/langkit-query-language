@@ -974,21 +974,14 @@ package body LKQL.Primitives is
    ---------
 
    function "&" (Left, Right : Primitive) return Primitive is
-      Left_Str  : Unbounded_Text_Type;
-      Right_Str : Unbounded_Text_Type;
    begin
-      Check_Kind (Kind_Str, Left);
-      Left_Str := Str_Val (Left);
-
-      Right_Str := (case Kind (Right) is
-                    when Kind_Int  => Int_Image (Int_Val (Right)),
-                    when Kind_Str  => Str_Val (Right),
-                    when Kind_Bool => Bool_Image (Bool_Val (Right)),
-                    when others =>
-                       raise Unsupported_Error with
-                         "Cannot add a " & Kind_Name (Right) & " to a Str");
-
-      return To_Primitive (Left_Str & Right_Str);
+      case Kind (Left) is
+         when Kind_Str =>
+            Check_Kind (Kind_Str, Right);
+            return To_Primitive (Str_Val (Left) & Str_Val (Right));
+         when others =>
+            raise Unsupported_Error with "Wrong kind " & Kind_Name (Right);
+      end case;
    end "&";
 
    ---------
