@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: EXIT_Statements_With_No_Loop_Name
+input_sources: ['exit_stmt_no_loop_name.adb']

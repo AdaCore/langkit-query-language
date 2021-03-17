@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: EXIT_Statements_With_No_Loop_Name
+input_sources: ['nested.adb']
+rule_arguments:
+    exit_statements_with_no_loop_name.nested_only: "true"

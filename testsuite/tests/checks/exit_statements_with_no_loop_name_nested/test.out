@@ -1,0 +1,4 @@
+nested.adb:5:10: error: exit statement with no loop name
+5 |          exit when I < J;  --  FLAG
+  |          ^^^^^^^^^^^^^^^^ 
+
