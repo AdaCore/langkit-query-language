@@ -1,0 +1,1 @@
+print(select ObjectDecl(f_default_expr is null))

@@ -471,6 +471,13 @@ class IsClause(Expr):
     pattern = Field(type=BasePattern)
 
 
+class NullPattern(ValuePattern):
+    """
+    Null pattern. Will only match the null node.
+    """
+    pass
+
+
 class UniversalPattern(ValuePattern):
     """
     Universal pattern that matches any value.
@@ -1002,10 +1009,15 @@ lkql_grammar.add_rules(
 
     value_pattern=Or(
         ExtendedNodePattern(
-            Or(UniversalPattern("*"), NodeKindPattern(G.kind_name)),
+
+            Or(UniversalPattern("*"),
+               NodeKindPattern(G.kind_name)),
+
             Pick("(", c(), List(G.pattern_arg, sep=","), ")")
         ),
-        NodeKindPattern(G.kind_name), UniversalPattern("*")
+        NodeKindPattern(G.kind_name),
+        UniversalPattern("*"),
+        NullPattern("null")
     ),
 
     pattern_arg=Or(

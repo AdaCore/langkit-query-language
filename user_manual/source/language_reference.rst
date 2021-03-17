@@ -670,16 +670,21 @@ Simple value patterns
 
 A value pattern is the simplest atom for node patterns.
 
-In its simple form, it can be either ``_``, which is the wildcard pattern, and
-will match everything, or a node name:
+In its simple form, it can be either ``*``, which is the wildcard pattern, and
+will match everything, or a node name, or ``null`` (which will match only null
+nodes):
 
 .. code-block:: lkql
 
    select * # Will select every node
+   select null # Will select only null nodes
    select BasicDecl # Will select every basic declaration
 
 In its more complex form, it can have sub-patterns in an optional part between
 parentheses, which brings us to the next section.
+
+The ``null`` pattern is a shortcut, which doesn't seem very useful in the query
+above, but is useful in nested queries.
 
 Nested sub patterns
 ^^^^^^^^^^^^^^^^^^^

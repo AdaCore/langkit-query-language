@@ -133,6 +133,13 @@ package body LKQL.Patterns.Match is
          when LCO.LKQL_Universal_Pattern =>
             return Make_Match_Success (Value);
 
+         when LCO.LKQL_Null_Pattern =>
+            if Value.Get.Node_Val.Get.Is_Null_Node then
+               return Make_Match_Success (Value);
+            else
+               return Match_Failure;
+            end if;
+
          when others =>
             raise Assertion_Error with
               "Invalid pattern kind: " & L.Kind_Name (Pattern);
