@@ -1,8 +1,8 @@
-foo.ads:7:4: error: volatile_objects_without_address_clauses - rule violation
+foo.ads:7:4: error: volatile object with no address clause
 7 |    Variable1: Interfaces.Unsigned_8                                --  FLAG
   |    ^^^^^^^^^ 
 
-foo.ads:12:4: error: volatile_objects_without_address_clauses - rule violation
+foo.ads:12:4: error: volatile object with no address clause
 12 |    Variable3 : My_Int;                                             --  FLAG
    |    ^^^^^^^^^ 
 

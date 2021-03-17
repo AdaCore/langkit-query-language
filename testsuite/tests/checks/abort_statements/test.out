@@ -1,4 +1,4 @@
-abort_statements.adb:10:7: error: abort_statements - rule violation
+abort_statements.adb:10:7: error: abort statement
 10 |       abort T; -- FLAG
    |       ^^^^^^^^ 
 

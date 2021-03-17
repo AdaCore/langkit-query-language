@@ -1,4 +1,4 @@
-blocks.adb:6:7: error: blocks - rule violation
+blocks.adb:6:7: error: block statement
 6 |       declare
   |       ^^^^ 
 

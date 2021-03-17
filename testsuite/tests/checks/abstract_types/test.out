@@ -1,8 +1,8 @@
-abstract_type_declarations.ads:3:19: error: abstract_type_declarations - rule violation
+abstract_type_declarations.ads:3:19: error: declaration of abstract type
 3 |    type Figure is abstract tagged private;              --  FLAG
   |                   ^^^^^^^^^^^^^^^^^^^^^^^ 
 
-abstract_type_declarations.ads:6:19: error: abstract_type_declarations - rule violation
+abstract_type_declarations.ads:6:19: error: declaration of abstract type
 6 |    type Figure is abstract tagged null record;          --  FLAG
   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

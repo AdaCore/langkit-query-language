@@ -1,4 +1,4 @@
-src.adb:5:4: error: raising_predefined_exceptions - rule violation
+src.adb:5:4: error: explicit raise of a predefined exception
 5 |    raise Program_Error with "Message";
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

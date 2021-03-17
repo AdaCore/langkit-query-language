@@ -55,6 +55,13 @@ class DeclAnnotation(LKQLNode):
     name = Field(type=T.Identifier)
     arguments = Field(type=T.Arg.list)
 
+    @langkit_property(public=True)
+    def arg_with_name(name=T.Symbol):
+        """
+        Find argument with name "name"
+        """
+        return Entity.arguments.find(lambda a: a.name.symbol == name)
+
 
 @abstract
 class Declaration(LKQLNode):

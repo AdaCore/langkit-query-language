@@ -1,12 +1,12 @@
-decls.ads:4:9: error: no_explicit_real_range - rule violation
+decls.ads:4:9: error: real type with no range definition
 4 |    type Invalid1 is digits 8;                           --  FLAG
   |         ^^^^^^^^ 
 
-decls.ads:5:9: error: no_explicit_real_range - rule violation
+decls.ads:5:9: error: real type with no range definition
 5 |    type Invalid2 is delta 0.01 digits 8;                --  FLAG
   |         ^^^^^^^^ 
 
-decls.ads:7:12: error: no_explicit_real_range - rule violation
+decls.ads:7:12: error: real type with no range definition
 7 |    subtype InvalidSub is Invalid2;                      --  FLAG
   |            ^^^^^^^^^^ 
 

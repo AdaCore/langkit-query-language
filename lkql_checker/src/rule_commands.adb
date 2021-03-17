@@ -79,11 +79,34 @@ package body Rule_Commands is
 
       declare
          Fn   : constant L.Fun_Decl := Check_Annotation.Parent.As_Fun_Decl;
-         Name : constant Text_Type := Fn.F_Name.Text;
+         Msg_Arg  : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
+         Msg : Unbounded_Text_Type;
+         Name     : constant Text_Type := Fn.F_Name.Text;
+
+         use LCO;
       begin
+         --  Get the message from the annotation if it exists
+
+         if not Msg_Arg.Is_Null then
+            --  Make sure that the message is a string literal
+            if Msg_Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
+               raise Rule_Error
+                 with "message argument for @check/@node_check must be a " &
+                 "string literal";
+            end if;
+
+            --  Store the literal, getting rid of the starting and end quotes
+            Msg := To_Unbounded_Text (Msg_Arg.P_Expr.As_String_Literal.Text);
+            Delete (Msg, Length (Msg), Length (Msg));
+            Delete (Msg, 1, 1);
+         else
+            Msg := To_Unbounded_Text (To_Lower (Name));
+         end if;
+
          return Rule_Command'
            (Name          => To_Unbounded_Text (To_Lower (Name)),
-            Message       => To_Unbounded_Text (To_Lower (Name)),
+            Message       => Msg,
             LKQL_Root     => Root,
             LKQL_Context  => Ctx,
             Rule_Args     => <>,

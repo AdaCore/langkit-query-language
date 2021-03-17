@@ -249,8 +249,7 @@ package body Checker_App is
                              (Diagnostic'
                                 (Result_Node.Sloc_Range,
                                  To_Unbounded_Text
-                                   (To_Text (Rule.Name)
-                                    & " - rule violation")),
+                                   (To_Text (Rule.Message))),
                               Result_Node.Unit);
                         begin
                            Langkit_Support.Diagnostics.Output.Print_Diagnostic
