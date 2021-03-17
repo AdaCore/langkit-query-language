@@ -1,0 +1,16 @@
+simple.adb:1:10: error: recursive subprogram
+1 | function Factorial (N : Natural) return Positive is  --  FLAG
+  |          ^^^^^^^^^ 
+
+transitive.adb:2:14: error: recursive subprogram
+2 |    procedure Foo;  --  FLAG
+  |              ^^^ 
+
+transitive.adb:3:14: error: recursive subprogram
+3 |    procedure Bar;  --  FLAG
+  |              ^^^ 
+
+transitive.adb:4:14: error: recursive subprogram
+4 |    procedure Baz;  --  FLAG
+  |              ^^^ 
+

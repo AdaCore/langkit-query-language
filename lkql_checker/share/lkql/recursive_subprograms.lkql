@@ -1,0 +1,34 @@
+# Given a name, return the body of the decl referenced by the name
+fun body(name) = match name.p_referenced_decl()
+    | b @ BaseSubpBody => b
+    | d @ BasicDecl when d?.p_is_subprogram() =>
+        d?.p_body_part()
+    | * => null
+
+# Return all children nodes starting from a base subprogram body, but not
+# entering in nested subprogram bodies.
+selector children_no_nested_subps
+    | SubpBody =>
+        # Don't recurse on subp bodys except if it's the root node (depth == 0)
+        rec *(if depth == 0 then it.children else [])
+    | * => rec *it.children
+
+# Get the bodies of the functions called by a given function body
+selector calls
+    | b @ Body => rec *
+        # Grab the bodies for every explicit call
+        to_list([body(a) for a in children_no_nested_subps(b)
+                 if a is n @ Name when n.p_is_call()])
+
+    | * => ()
+
+@node_check(message="recursive subprogram")
+fun recursive_subprograms(node) = match node
+    # Subprograms bodies
+    | b @ BaseSubpBody(
+        # Where any of the chain of calls refers to the base subprogram
+        # itself
+        any calls is c @ AdaNode when b == c
+    ) => b.p_canonical_part()
+
+    | * => null
