@@ -7,6 +7,10 @@ package body Access_To_Local_Objects is
        Var1 : aliased Integer;
        Var2 :         Int_A := Var1'Access;  --  FLAG
        Var3 :         Int_A := Var0'Access;  --  NO FLAG
+
+       type Procedure_Access is access procedure;
+       procedure P_Local is null;
+       Var4 : Procedure_Access := P_Local'Access; -- NO FLAG
     begin
        null;
     end P;

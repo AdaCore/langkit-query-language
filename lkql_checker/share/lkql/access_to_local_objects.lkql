@@ -1,3 +1,15 @@
+# Flag any `'Access' attribute reference if its prefix denotes an
+# identifier defined by a local object declaration or a subcomponent
+# thereof.
+#
+# An object declaration is considered as local if it is located
+# anywhere except library-level packages or bodies of library-level
+# packages (including packages nested in those). Here both package
+# declarations and package instantiations are considered as packages.
+#
+# If the attribute prefix is a dereference or a subcomponent thereof, the
+# attribute reference is not flagged.
+
 fun local_scope(e) =
     match e
         | SubpBody => true
@@ -8,7 +20,8 @@ fun local_scope(e) =
         | * => false
 
 fun is_local_object(o) =
-    [p for p in o?.parents if local_scope(p)].length > 0
+    o is ObjectDecl
+    when [p for p in o?.parents if local_scope(p)].length > 0
 
 @check(message="access attribute for local objects")
 fun access_to_local_objects(node) =
