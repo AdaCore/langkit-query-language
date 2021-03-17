@@ -161,7 +161,10 @@ package body LKQL.Custom_Selectors is
 
       if Kind (Expr_Value) = Kind_Node then
          Add_Node (Iter, Depth, Node_Val (Expr_Value), Expr.F_Mode);
-      elsif Kind (Expr_Value) in Sequence_Kind and then
+
+      --  TODO: This only handles lists, we should handle any kind of sequence
+      --  here.
+      elsif Kind (Expr_Value) = Kind_List and then
         Expr.F_Expr.Kind = LCO.LKQL_Unpack
       then
          for N of List_Val (Expr_Value).Elements loop
