@@ -22,7 +22,6 @@
 ------------------------------------------------------------------------------
 
 with LKQL.Evaluation; use LKQL.Evaluation;
-with Langkit_Support.Text; use Langkit_Support.Text;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada_AST_Nodes; use Ada_AST_Nodes;

@@ -216,12 +216,12 @@ package body LKQL.Eval_Contexts is
          U      : constant L.Analysis_Unit := Prelude_Unit (Kernel.Context);
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
-         Ret.Add_Binding ("print", Make_Builtin_Function (Eval_Print'Access));
-         Ret.Add_Binding ("debug", Make_Builtin_Function (Eval_Debug'Access));
-         Ret.Add_Binding
-           ("to_list", Make_Builtin_Function (Eval_To_List'Access));
-         Ret.Add_Binding
-           ("dump", Make_Builtin_Function (Eval_Dump'Access));
+         --  Adding built-in functions to the context.
+         for Fn_Desc of Builtin_Functions.Builtin_Functions loop
+            Ret.Add_Binding
+              (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc.Fn));
+         end loop;
+
          return Ret;
       end;
    end Make_Eval_Context;
