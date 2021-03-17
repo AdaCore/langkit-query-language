@@ -496,11 +496,12 @@ LKQL has a few built-in operators available:
 
     true and false or (a == b) and (not c)
 
-- String concatenation
+- String and list concatenation
 
 .. code-block:: lkql
 
     "Hello" & name
+    [1, 2, 3] & [4, 5, 6]
 
 Tree query language subset
 ==========================

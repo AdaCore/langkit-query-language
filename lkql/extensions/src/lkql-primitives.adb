@@ -979,6 +979,19 @@ package body LKQL.Primitives is
          when Kind_Str =>
             Check_Kind (Kind_Str, Right);
             return To_Primitive (Str_Val (Left) & Str_Val (Right));
+         when Kind_List =>
+            Check_Kind (Kind_List, Right);
+            declare
+               Ret : constant Primitive := Make_Empty_List;
+            begin
+               for El of Left.Get.List_Val.Elements loop
+                  Ret.Get.List_Val.Elements.Append (El);
+               end loop;
+               for El of Right.Get.List_Val.Elements loop
+                  Ret.Get.List_Val.Elements.Append (El);
+               end loop;
+               return Ret;
+            end;
          when others =>
             raise Unsupported_Error with "Wrong kind " & Kind_Name (Right);
       end case;
