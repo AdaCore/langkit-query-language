@@ -501,6 +501,9 @@ LKQL has a few built-in operators available:
 .. code-block:: lkql
 
     "Hello" & name
+
+.. code-block:: lkql
+
     [1, 2, 3] & [4, 5, 6]
 
 Tree query language subset
