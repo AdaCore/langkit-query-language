@@ -1,0 +1,21 @@
+@check(message="global variable")
+fun global_variables(node, only_public=false) =
+    node is ObjectDecl(p_semantic_parent() is s @ * when {
+
+        # Grab the enclosing package when the semantic parent is either
+        val pkg = match s
+            # 1. A private part and we're not looking only for public variables
+            | p @ PrivatePart when not only_public => p?.p_semantic_parent()
+            # 2. A package decl
+            | p @ BasePackageDecl when not (
+                #  (if only public, filter private packages)
+                only_public
+                and p?.parent is LibraryItem(f_has_private is PrivatePresent)
+            ) => p
+            | * => null;
+
+        # Filter out variables declared in nested packages
+        pkg is BasePackageDecl(
+            all parent is p @ * when not p is BasePackageDecl
+        )
+    })
