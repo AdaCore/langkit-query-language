@@ -1,0 +1,12 @@
+exc_as_cf.adb:5:7: error: exception used as control flow
+5 |       raise Constraint_Error;    --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^^^ 
+
+test.adb:3:4: error: exception used as control flow
+3 |    raise Constraint_Error;  --  FLAG;
+  |    ^^^^^^^^^^^^^^^^^^^^^^^ 
+
+test2.adb:4:7: error: exception used as control flow
+4 |       raise Constraint_Error;  --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^^^ 
+

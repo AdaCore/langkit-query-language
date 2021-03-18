@@ -1,0 +1,45 @@
+# Flag each place where an exception is explicitly raised and handled in the
+# same subprogram body. A raise statement in an exception handler, package
+# body, task body or entry body is not flagged.
+
+fun enclosing_body(node) = {
+   val parent_bodies = to_list([p for p in parent(node) if p is Body]);
+   if parent_bodies.length == 0 then null else parent_bodies[1]
+}
+
+fun canonical_exception(name) = {
+   fun internal(exception_decl) =
+      if exception_decl?.f_renames == null
+      then exception_decl
+      else exception_decl?.f_renames?.f_renamed_object?.p_referenced_decl();
+
+   internal(name?.p_referenced_decl())
+}
+
+@check(message="exception used as control flow")
+fun exceptions_as_control_flow(node) =
+
+   # Select raise statements that are directly part of a subprogram body
+   node is r @ RaiseStmt when enclosing_body(r) is BaseSubpBody(
+      any children is exc_handler @ ExceptionHandler when {
+          val exc_block = exc_handler.parent;
+          val stmt_block = exc_block?.parent;
+
+          # Where there is a handler that handles this same exception (either
+          # via an others clause, or a direct name handling)
+          # TODO: having an OR pattern here would simplify this clause greatly
+          {
+            val e = exc_handler.f_handled_exceptions;
+            e is *(any children is i @ BaseId
+                   when canonical_exception(i) == canonical_exception(r.f_exception_name))
+            or e is *(any children is OthersDesignator)
+          }
+
+          # And the handler belongs to a block that encloses this raise statement
+          and r is *(any parent is p @ * when p.parent == stmt_block)
+
+          # But the raise statement is not directly part of the handler
+          and not r is *(any parent is p @ * when p.parent == exc_block)
+      }
+   )
+
