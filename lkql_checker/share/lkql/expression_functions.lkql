@@ -1,0 +1,6 @@
+# Flag each expression function declared in a package specification (including
+# specification of local packages and generic package specifications).
+
+@check(message="expression function")
+fun expression_functions(node) =
+   node is ExprFunction when node.p_semantic_parent is BasePackageDecl

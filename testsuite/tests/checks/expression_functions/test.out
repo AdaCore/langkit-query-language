@@ -1,0 +1,4 @@
+foo.ads:2:13: error: expression function
+2 |    function F (I : Integer) return Integer is   --  FLAG
+  |             ^ 
+
