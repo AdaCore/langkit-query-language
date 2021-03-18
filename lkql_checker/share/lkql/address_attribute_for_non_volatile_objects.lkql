@@ -11,7 +11,7 @@ fun is_volatile(o) =
     or o?.p_get_aspect_assoc("Shared") != null
 
 
-@check
+@check(message="address attribute for non-volatile data object")
 fun address_attribute_for_non_volatile_objects(node) =
     node is AttributeRef
     when node.f_attribute?.p_name_is("Address")
