@@ -1,12 +1,12 @@
-exc_as_cf.adb:5:7: error: exception used as control flow
+exc_as_cf.adb:5:7: error: this exception will be handled in the same body
 5 |       raise Constraint_Error;    --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^^^^^ 
 
-test.adb:3:4: error: exception used as control flow
+test.adb:3:4: error: this exception will be handled in the same body
 3 |    raise Constraint_Error;  --  FLAG;
   |    ^^^^^^^^^^^^^^^^^^^^^^^ 
 
-test2.adb:4:7: error: exception used as control flow
+test2.adb:4:7: error: this exception will be handled in the same body
 4 |       raise Constraint_Error;  --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^^^^^ 
 

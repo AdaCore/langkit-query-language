@@ -16,7 +16,7 @@ fun canonical_exception(name) = {
    internal(name?.p_referenced_decl())
 }
 
-@check(message="exception used as control flow")
+@check(message="this exception will be handled in the same body")
 fun exceptions_as_control_flow(node) =
 
    # Select raise statements that are directly part of a subprogram body
