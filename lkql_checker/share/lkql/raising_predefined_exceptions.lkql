@@ -5,6 +5,15 @@ fun isPredefinedName(id) = {
     name == "Tasking_Error"
 }
 
+fun canonical_exception_name(name) = {
+   val ren = name?.p_referenced_decl()?.f_renames;
+
+   if ren == null
+   then name
+   else canonical_exception_name(ren?.f_renamed_object)
+}
+
 @check(message="explicit raise of a predefined exception")
 fun raising_predefined_exceptions(node) =
-    node is r@RaiseStmt when isPredefinedName(r.f_exception_name)
+    node is r@RaiseStmt
+    when isPredefinedName(canonical_exception_name(r.f_exception_name))
