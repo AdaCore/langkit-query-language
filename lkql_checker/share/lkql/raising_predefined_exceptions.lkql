@@ -1,3 +1,7 @@
+# Flag each raise statement that raises a predefined exception (i.e., one
+# of the exceptions Constraint_Error, Numeric_Error, Program_Error,
+# Storage_Error, or Tasking_Error).
+
 fun isPredefinedName(id) = {
     val name = id?.text;
     name == "Program_Error" or name == "Constraint_Error" or
