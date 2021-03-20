@@ -1,0 +1,4 @@
+exits.adb:8:10: error: exit statement does not contain condition
+8 |          exit;             --  FLAG
+  |          ^^^^^ 
+

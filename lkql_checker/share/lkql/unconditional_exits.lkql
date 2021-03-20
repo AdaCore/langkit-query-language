@@ -1,0 +1,5 @@
+# Flag unconditional exit statements.
+
+@check(message="exit statement does not contain condition")
+fun unconditional_exits(node) =
+    node is ExitStmt when node.f_cond_expr == null
