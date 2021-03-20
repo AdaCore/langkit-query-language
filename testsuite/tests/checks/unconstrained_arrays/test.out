@@ -1,0 +1,4 @@
+arrays.ads:5:18: error: unconstrained array definition
+5 |    type U_Arr is array (Idx range <>) of Integer;   --  FLAG
+  |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
