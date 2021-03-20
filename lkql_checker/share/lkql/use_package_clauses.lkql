@@ -1,0 +1,4 @@
+# Flag all use clauses for packages; use type clauses are not flagged.
+
+@check(message="use clause for package")
+fun use_package_clauses(node) = node is UsePackageClause

@@ -1,0 +1,8 @@
+pack2.ads:2:1: error: use clause for package
+2 | use Pack1;   --  FLAG
+  | ^^^^^^^^^^ 
+
+pack2.ads:5:4: error: use clause for package
+5 |    use Pack1;          --  FLAG
+  |    ^^^^^^^^^^ 
+
