@@ -8,12 +8,12 @@ fun enclosing_body(node) = {
 }
 
 fun canonical_exception(name) = {
-   fun internal(exception_decl) =
-      if exception_decl?.f_renames == null
-      then exception_decl
-      else exception_decl?.f_renames?.f_renamed_object?.p_referenced_decl();
+   val exception_decl = name?.p_referenced_decl();
+   val ren = exception_decl?.f_renames;
 
-   internal(name?.p_referenced_decl())
+   if ren == null
+   then exception_decl
+   else canonical_exception(ren?.f_renamed_object)
 }
 
 @check(message="this exception will be handled in the same body")
