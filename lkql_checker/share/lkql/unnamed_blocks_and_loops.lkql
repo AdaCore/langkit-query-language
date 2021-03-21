@@ -1,0 +1,11 @@
+# Flag each unnamed block statement. Flag a unnamed loop statement if this
+# statement is enclosed by another loop statement or if it encloses another
+# loop statement.
+
+@check(message="non-named block/loop statement")
+fun unnamed_blocks_and_loops(node) =
+    node is CompositeStmt
+    when (not node.parent is NamedStmt)
+        and (node is BlockStmt
+             or node is BaseLoopStmt (any children is BaseLoopStmt)
+             or node is BaseLoopStmt (any parent is BaseLoopStmt))
