@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Uninitialized_Global_Variables
+input_sources: ['pack.ads', 'pack.adb']
