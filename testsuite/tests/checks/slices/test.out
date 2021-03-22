@@ -1,0 +1,4 @@
+slices.adb:2:20: error: slice
+2 |    Tmp : String := S (L .. R);        --  FLAG
+  |                    ^^^^^^^^^^ 
+
