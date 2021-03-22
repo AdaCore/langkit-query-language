@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Single_Value_Enumeration_Types
+input_sources: ['enum.ads']
