@@ -1,0 +1,8 @@
+comp.ads:10:9: error: type defines publicly accessible components
+10 |    type Tagged_Not_Null_Record is tagged record  --  FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^ 
+
+comp.ads:17:9: error: type defines publicly accessible components
+17 |    type NoN_Private_Extension is new Types.Tagged_Private with record  --  FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^ 
+

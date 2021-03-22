@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: Visible_Components
+project: 'prj.gpr'
+rule_arguments:
+    visible_components.tagged_only: "true"
+

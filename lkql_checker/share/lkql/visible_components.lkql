@@ -1,0 +1,26 @@
+# Flag all the type declarations located in the visible part of a library
+# package or a library generic package that can declare a visible component. A
+# visible component can be declared in a record definition which appears on its
+# own or as part of a record extension. The record definition is flagged even
+# if it contains no components.
+#
+# Record definitions located in private parts of library (generic) packages or
+# in local (generic) packages are not flagged. Record definitions in private
+# packages, in package bodies, and in the main subprogram body are not flagged.
+#
+# This rule has the optional parameter Tagged_Only: only declarations of tagged
+# types are flagged.
+
+fun has_visible_components(t) =
+    match t
+    | RecordTypeDef      => true
+    | d @ DerivedTypeDef => not d?.f_has_with_private?.p_as_bool()
+    | *                  => false
+
+@check(message="type defines publicly accessible components")
+fun visible_components(node, tagged_only=false) =
+    node is TypeDecl(any parent(depth=2) is PublicPart(
+        any parent(depth=2) is LibraryItem))
+    when node.p_is_record_type()
+      and ((not tagged_only) or node.p_is_tagged_type())
+      and has_visible_components(node.f_type_def)
