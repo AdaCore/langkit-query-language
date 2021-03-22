@@ -1,0 +1,27 @@
+# Flag each exception handler that contains a choice for the predefined
+# Constraint_Error exception, but does not contain the choice for the
+# predefined Numeric_Error exception, or that contains the choice for
+# Numeric_Error, but does not contain the choice for Constraint_Error.
+
+fun decl_name(n) = {
+    val decl = n?.p_referenced_decl();
+
+    # TODO: workaround for a name resolution bug, see U322-025
+    if decl == null
+    then "standard." & n?.p_canonical_text()
+    else decl?.p_canonical_fully_qualified_name()
+}
+
+@check(message="Constraint_Error is handled separately from Numeric_Error")
+fun separate_numeric_error_handlers(node) =
+    node is BaseId(parent is l @ AlternativesList(parent is ExceptionHandler))
+    when (
+        decl_name(node) == "standard.constraint_error"
+        and not l is *(any children(depth=1) is e@*
+                       when decl_name(e) == "standard.numeric_error")
+    )
+    or (
+        decl_name(node) == "standard.numeric_error"
+        and not l is *(any children(depth=1) is e@*
+                       when decl_name(e) == "standard.constraint_error")
+    )
