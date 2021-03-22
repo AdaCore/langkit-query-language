@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Size_Attribute_For_Types
+input_sources: ['pack.ads', 'main.adb']

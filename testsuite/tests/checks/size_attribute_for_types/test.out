@@ -1,0 +1,16 @@
+main.adb:3:19: error: Size attribute for type
+3 |    I : Integer := Pack.Rec'Size;            --  FLAG
+  |                   ^^^^^^^^^^^^^ 
+
+main.adb:4:19: error: Size attribute for type
+4 |    J : Integer := Pack.S_Int'Size;          --  FLAG
+  |                   ^^^^^^^^^^^^^^^ 
+
+main.adb:9:9: error: Size attribute for type
+9 |    I := Rec'Size;            --  FLAG
+  |         ^^^^^^^^ 
+
+main.adb:10:9: error: Size attribute for type
+10 |    J := S_Int'Size;          --  FLAG
+   |         ^^^^^^^^^^ 
+
