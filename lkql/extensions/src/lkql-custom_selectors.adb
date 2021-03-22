@@ -133,7 +133,7 @@ package body LKQL.Custom_Selectors is
       end if;
 
       Local_Ctx := Iter.Ctx.Create_New_Frame;
-      Local_Ctx.Add_Binding ("it", Node_Value);
+      Local_Ctx.Add_Binding ("this", Node_Value);
       Local_Ctx.Add_Binding ("depth", To_Primitive (Node.Depth));
 
       for E of Iter.Selector.P_Nth_Expressions (Match_Data.Index) loop

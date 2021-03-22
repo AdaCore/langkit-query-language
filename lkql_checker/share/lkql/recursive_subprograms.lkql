@@ -32,8 +32,8 @@ fun body(name) = match name.p_referenced_decl()
 selector children_no_nested_subps
     | SubpBody =>
         # Don't recurse on subp bodies except if it's the root node (depth == 0)
-        rec *(if depth == 0 then it.children else [])
-    | * => rec *it.children
+        rec *(if depth == 0 then this.children else [])
+    | * => rec *this.children
 
 # Get the bodies of the functions called by a given function body
 selector calls

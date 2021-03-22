@@ -25,23 +25,23 @@ package body Liblkqllang.Prelude is
 
    Prelude_Content : constant String :=
         "selector next_siblings" & ASCII.LF &
-        "   | AdaNode => rec it.next_sibling" & ASCII.LF &
+        "   | AdaNode => rec this.next_sibling" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector prev_siblings" & ASCII.LF &
-        "   | AdaNode => rec it.previous_sibling" & ASCII.LF &
+        "   | AdaNode => rec this.previous_sibling" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector parent" & ASCII.LF &
-        "   | AdaNode => rec *it.parent" & ASCII.LF &
+        "   | AdaNode => rec *this.parent" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector children" & ASCII.LF &
-        "   | AdaNode => rec *it.children" & ASCII.LF &
+        "   | AdaNode => rec *this.children" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector super_types" & ASCII.LF &
-        "    | BaseTypeDecl      => rec *it.p_base_types()" & ASCII.LF &
+        "    | BaseTypeDecl      => rec *this.p_base_types()" & ASCII.LF &
         "    | *                 => ()" & ASCII.LF;
 
    ------------------

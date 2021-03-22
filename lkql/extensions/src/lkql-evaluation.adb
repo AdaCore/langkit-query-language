@@ -780,7 +780,7 @@ package body LKQL.Evaluation is
          end if;
 
          Local_Context.Add_Binding
-           ("it", Extract (Match_Data.Matched_Value));
+           ("this", Extract (Match_Data.Matched_Value));
 
          Result :=
            Eval (Local_Context, Node.P_Nth_Expression (Match_Data.Index));

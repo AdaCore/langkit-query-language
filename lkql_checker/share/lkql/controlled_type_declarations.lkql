@@ -13,9 +13,9 @@ fun canonical_fully_qualified_name(t) =
 
 selector complete_super_types
     | b@BaseTypeDecl when b.p_is_private() =>
-        rec *it.p_next_part()?.p_base_types()
+        rec *this.p_next_part()?.p_base_types()
     | BaseTypeDecl =>
-        rec *it.p_base_types()
+        rec *this.p_base_types()
     | * => ()
 
 @check(message="declaration of controlled type")
