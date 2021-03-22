@@ -1,0 +1,20 @@
+# Flag call to instantiation of Ada.Unchecked_Conversion if it is an actual in
+# procedure or entry call or if it is a default value in a subprogram or entry
+# parameter specification.
+
+fun is_instance_of_uc(d) =
+    d is GenericSubpInstantiation
+    when d?.p_designated_subp()?.p_canonical_fully_qualified_name()
+        == "ada.unchecked_conversion"
+
+@check(message="instance of Unchecked_Conversion")
+fun unchecked_conversions_as_actuals(node) =
+    node is CallExpr
+    when (
+        # actual in a call
+        (node is *(any parent is CallStmt))
+      or
+        # default value in a parameter specification
+        (node is *(any parent is SubpSpec))
+    )
+    and is_instance_of_uc(node.p_referenced_decl())

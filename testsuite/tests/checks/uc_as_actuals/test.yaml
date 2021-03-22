@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Unchecked_Conversions_As_Actuals
+input_sources: ['uc.adb']
