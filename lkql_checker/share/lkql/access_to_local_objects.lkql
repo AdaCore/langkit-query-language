@@ -10,6 +10,7 @@
 # If the attribute prefix is a dereference or a subcomponent thereof, the
 # attribute reference is not flagged.
 
+# TODO: share local_scope
 fun local_scope(e) =
     match e
         | SubpBody => true

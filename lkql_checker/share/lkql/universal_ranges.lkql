@@ -16,7 +16,7 @@ fun universal_ranges(node) =
         node is IndexConstraint
         when node.f_constraints[1] is r@BinOp(f_op is OpDoubleDot)
             when is_universal_int(r.f_right) and is_universal_int(r.f_left)
-    # FIXME: [U311-008] Use `or` patterns operator
+    # TODO: [U311-008] Use `or` patterns operator
     ) or
         # range of a "for of" loop
         node is r@BinOp (parent is ForLoopSpec, f_op is OpDoubleDot)

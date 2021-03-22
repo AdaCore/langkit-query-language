@@ -2,7 +2,7 @@
 # containing exactly one choice, the other containing exactly one choice
 # or the `OTHERS' choice.
 
-# FIXME: [U317-058] Use a dedicated length operator on is_list_type Nodes
+# TODO: [U317-058] Use a dedicated length operator on is_list_type Nodes
 fun count_next(l, n) =
     if l[n + 1] != null then count_next(l, n+1) else n
 

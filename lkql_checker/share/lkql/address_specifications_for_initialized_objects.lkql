@@ -17,7 +17,7 @@ fun address_specifications_for_initialized_objects(node) =
                 when n?.p_name_is("Address")
             )
         )
-    # FIXME: [U311-008] Use `or` patterns operator
+    # TODO: [U311-008] Use `or` patterns operator
     ) or (
         # X := ... with Address => ...
         node is AspectAssoc(
