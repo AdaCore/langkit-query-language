@@ -374,9 +374,9 @@ package body LKQL.Eval_Contexts is
       return "<Env: " & Address_Image (Env.all'Address)
         & " rc=" & Env.Ref_Count'Image & " "
         & " " & Env_Map_Image (Env.Local_Bindings)
-        & " parent:" & Address_Image (Env.Parent.all'Address)
         & (if Env.Parent /= null
-           then " rc=" & Env.Parent.Ref_Count'Image & " "
+           then " parent:" & Address_Image (Env.Parent.all'Address)
+           & " rc=" & Env.Parent.Ref_Count'Image & " "
            else "")
         & " " & (if Env.Parent /= null
            then (if Env.Parent.Parent = null
