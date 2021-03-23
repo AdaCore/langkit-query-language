@@ -63,8 +63,6 @@ package Rule_Commands is
       LKQL_Root     : L.LKQL_Node;
       --  Root of the LKQL AST
 
-      LKQL_Context  : L.Analysis_Context;
-
       Rule_Args    : Rule_Argument_Vectors.Vector;
       --  Optional arguments to pass to the rule. Empty by default.
 
@@ -75,6 +73,11 @@ package Rule_Commands is
       Is_Node_Check : Boolean;
       --  Whether the rule is expressed via a boolean check (function that
       --  returns a boolean) or a node check (function that returns a node).
+
+      Eval_Ctx      : Eval_Context;
+      --  LKQL eval context in which to eval the rule. Each rule will have a
+      --  separate frame, so as to not leak identifier from one rule to the
+      --  other.
    end record;
 
    type Output_Style is (Default, GNATcheck);
@@ -101,7 +104,7 @@ package Rule_Commands is
 
    function Create_Rule_Command
      (LKQL_File_Path : String;
-      Ctx            : L.Analysis_Context) return Rule_Command;
+      Ctx            : Eval_Context) return Rule_Command;
    --  Create a Rule_Command value with the given name and arguments
 
    procedure Check_Kind
@@ -109,5 +112,8 @@ package Rule_Commands is
       Context       : String);
    --  Raise a Rule_error if 'Expected_Kind' is different from 'Actual_Kind'.
    --  The error message will start with the context String.
+
+   procedure Destroy (Self : in out Rule_Command);
+   --  Destroy the rule and associated data
 
 end Rule_Commands;

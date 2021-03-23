@@ -158,8 +158,9 @@ package body Checker_App is
       Ctx := Make_Eval_Context (Context.Units_Processed);
 
       for Rule of Rules loop
-         --  Eval the rule's code (which should contain only definitions)
-         Dummy := Eval (Ctx, Rule.LKQL_Root);
+         --  Eval the rule's code (which should contain only definitions). TODO
+         --  this should be encapsulated.
+         Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
       end loop;
 
       --  Set property error recovery with the value of the command line flag.
@@ -174,7 +175,6 @@ package body Checker_App is
      (Context : App_Job_Context; Unit : Analysis_Unit)
    is
       pragma Unreferenced (Context);
-      Eval_Ctx : constant Eval_Context := Ctx.Create_New_Frame;
 
       function Visit (Node : Ada_Node'Class) return Visit_Status;
 
@@ -191,7 +191,11 @@ package body Checker_App is
          Rc_Node : constant AST_Node_Rc :=
            Make_Ada_AST_Node (Node.As_Ada_Node);
       begin
-         Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
+         --  We add the binding to "node" to the root frame, so that it's
+         --  accessible to every rule in its sub context. This is a bit
+         --  hackish admittedly.
+         Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
+
          for Rule of Rules loop
             declare
                Result_Node : Ada_Node;
@@ -206,16 +210,18 @@ package body Checker_App is
 
                   Result_Node :=
                     Ada_AST_Node
-                      (Node_Val (Eval (Eval_Ctx, Rule.Code, Kind_Node))
+                      (Node_Val (Eval (Rule.Eval_Ctx, Rule.Code, Kind_Node))
                        .Unchecked_Get.all).Node;
                else
 
                   --  The check is a "bool check", ie. a check that returns a
                   --  boolean.  Eval the call to the check function
-                  Result := Eval (Eval_Ctx, Rule.Code, Kind_Bool);
+
+                  Result := Eval (Rule.Eval_Ctx, Rule.Code, Kind_Bool);
 
                   --  The result node is the current node, if the check
                   --  returned true.
+
                   Result_Node :=
                     (if Bool_Val (Result)
                      then Node.As_Ada_Node
@@ -273,6 +279,19 @@ package body Checker_App is
    begin
       Traverse (Unit.Root, Visit'Access);
    end Process_Unit;
+
+   ----------------------
+   -- App_Post_Process --
+   ----------------------
+
+   procedure App_Post_Process
+     (Context : App_Context;
+      Jobs    : App_Job_Context_Array)
+   is
+      pragma Unreferenced (Context, Jobs);
+   begin
+      Finalize_Rules (Ctx);
+   end App_Post_Process;
 
    package body Args is
 

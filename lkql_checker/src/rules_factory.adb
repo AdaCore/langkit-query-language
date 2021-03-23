@@ -49,7 +49,7 @@ package body Rules_Factory is
             if File.File_Extension = +".lkql" then
                Result.Append
                  (Create_Rule_Command
-                    (+File.Full_Name, Get_Context (Ctx.Kernel.all)));
+                    (+File.Full_Name, Ctx));
             end if;
          end loop;
       end loop;
@@ -96,5 +96,20 @@ package body Rules_Factory is
          return Builtin_Checkers_Dir & Custom_Checkers_Dirs;
       end;
    end Get_Rules_Directories;
+
+   --------------------
+   -- Finalize_Rules --
+   --------------------
+
+   procedure Finalize_Rules (Ctx : Eval_Context) is
+   begin
+      for Rule of All_Rules (Ctx) loop
+         declare
+            R : Rule_Command := Rule;
+         begin
+            Destroy (R);
+         end;
+      end loop;
+   end Finalize_Rules;
 
 end Rules_Factory;

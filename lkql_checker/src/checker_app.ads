@@ -40,11 +40,16 @@ package Checker_App is
      (Context : App_Job_Context; Unit : Analysis_Unit);
    --  This procedure will be called once after all units have been parsed.
 
+   procedure App_Post_Process
+     (Context : App_Context; Jobs : App_Job_Context_Array);
+   --  Procedure called to deallocate rules after the app has finished running.
+
    package App is new Libadalang.Helpers.App
      (Name             => "lkql-checker",
       Description      => "LKQL based rule checker",
       Process_Unit     => Process_Unit,
-      Job_Setup        => Job_Setup);
+      Job_Setup        => Job_Setup,
+      App_Post_Process => App_Post_Process);
 
    package Args is
       use GNATCOLL.Opt_Parse;

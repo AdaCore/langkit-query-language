@@ -50,6 +50,10 @@ package Rules_Factory is
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
 
+   procedure Finalize_Rules (Ctx : Eval_Context);
+   --  Free memory associated to rules. Needs to be called at the end of the
+   --  program.
+
 private
    Empty_Path_Array : constant Path_Array := (1 .. 0 => <>);
 

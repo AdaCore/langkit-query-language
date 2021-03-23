@@ -61,10 +61,10 @@ package body Rule_Commands is
 
    function Create_Rule_Command
      (LKQL_File_Path : String;
-      Ctx            : L.Analysis_Context) return Rule_Command
+      Ctx            : Eval_Context) return Rule_Command
    is
       Root    : constant L.LKQL_Node :=
-        Make_LKQL_Unit (Ctx, LKQL_File_Path).Root;
+        Make_LKQL_Unit (Get_Context (Ctx.Kernel.all), LKQL_File_Path).Root;
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
           (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
@@ -108,7 +108,7 @@ package body Rule_Commands is
            (Name          => To_Unbounded_Text (To_Lower (Name)),
             Message       => Msg,
             LKQL_Root     => Root,
-            LKQL_Context  => Ctx,
+            Eval_Ctx      => Ctx.Create_New_Frame,
             Rule_Args     => <>,
             Is_Node_Check => Check_Annotation.F_Name.Text = "node_check",
             Code          => <>);
@@ -140,7 +140,7 @@ package body Rule_Commands is
 
       Self.Code :=
         Make_LKQL_Unit_From_Code
-          (Self.LKQL_Context,
+          (Get_Context (Self.Eval_Ctx.Kernel.all),
            Image (To_Text (Code)),
            "[" & Image (To_Text (Self.Name)) & " inline code]").Root;
 
@@ -164,7 +164,8 @@ package body Rule_Commands is
       Dummy := Eval (Ctx, Self.LKQL_Root);
 
       --  Eval the call to the check function
-      Nodes := LKQL_Eval (Ctx, Image (To_Text (Code)), Self.LKQL_Context);
+      Nodes := LKQL_Eval (Ctx, Image (To_Text (Code)),
+                          Get_Context (Self.Eval_Ctx.Kernel.all));
 
       Check_Kind (Kind_List,
                   Kind (Nodes), "Result of " & To_UTF8 (Command_Name));
@@ -195,5 +196,14 @@ package body Rule_Commands is
 
       return Result;
    end Evaluate;
+
+   -------------
+   -- Destroy --
+   -------------
+
+   procedure Destroy (Self : in out Rule_Command) is
+   begin
+      Self.Eval_Ctx.Release_Current_Frame;
+   end Destroy;
 
 end Rule_Commands;
