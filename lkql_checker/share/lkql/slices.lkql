@@ -2,5 +2,7 @@
 
 @check(message="slice")
 fun slices(node) =
-    node is CallExpr(f_suffix is BinOp)
-    when node.f_suffix?.f_op is OpDoubleDot
+    node is CallExpr
+    when (node.f_suffix is BinOp and (node.f_suffix?.f_op is OpDoubleDot))
+      or (node.f_suffix is AssocList(any children is p@ParamAssoc
+          when p.f_r_expr?.p_referenced_decl() is BaseTypeDecl))

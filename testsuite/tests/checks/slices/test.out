@@ -2,3 +2,7 @@ slices.adb:2:20: error: slice
 2 |    Tmp : String := S (L .. R);        --  FLAG
   |                    ^^^^^^^^^^ 
 
+slices.adb:8:18: error: slice
+8 |    X : String := T (Ind);             --  FLAG
+  |                  ^^^^^^^ 
+
