@@ -1,3 +1,11 @@
+# Flag any library package declaration, library generic package declaration or
+# library package instantiation that has more than depth parents and
+# grandparents (that is, the name of such a library unit contains more than
+# depth dots). Child subprograms, generic subprograms subprogram instantiations
+# and package bodies are not flagged.
+# This rule has the parameter depth: Positive integer specifying the maximal
+# number of ancestors when the unit is not flagged.
+
 @check(message="unit has too many ancestors")
 fun deep_library_hierarchy(node, depth: int = 5) =
     node is PackageDecl(

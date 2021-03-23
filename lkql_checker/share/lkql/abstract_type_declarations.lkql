@@ -1,3 +1,7 @@
+# Flag all declarations of abstract types, including generic formal types. For
+# an abstract private type, the full type declarations is flagged only if it is
+# itself declared as abstract. Interface types are not flagged.
+
 fun has_abstract (type_def) =
     match type_def
     | r @ RecordTypeDef => r.f_has_abstract?.p_as_bool()

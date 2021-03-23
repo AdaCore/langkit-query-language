@@ -1,3 +1,10 @@
+# Flag a library item or a subunit that immediately depends on more than N
+# library units (N is a rule parameter). In case of a dependency on child
+# units, implicit or explicit dependencies on all their parents are not
+# counted.
+# This rule has the parameter maxDeps: Positive integer specifying the maximal
+# number of dependencies when the library item or subunit is not flagged.
+
 @node_check(message="unit has too many dependencies")
 fun too_many_dependencies(node, maxDeps : int = 5) = match node
     | c @ CompilationUnit(

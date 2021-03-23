@@ -1,3 +1,8 @@
+# Flag each volatile object that does not have an address specification. Only
+# variable declarations are checked.
+# An object is considered as being volatile if a pragma or aspect Volatile is
+# applied to the object or to its type, or if the object is atomic.
+
 @check(message="volatile object with no address clause")
 fun volatile_objects_without_address_clauses(node) =
     node is o @ ObjectDecl when (

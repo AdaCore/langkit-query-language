@@ -1,4 +1,4 @@
-# Flag any ‘Address attribute reference if its prefix denotes a data
+# Flag any 'Address attribute reference if its prefix denotes a data
 # object defined by a variable object declaration and this object is not
 # marked as Volatile.
 #

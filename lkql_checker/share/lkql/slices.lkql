@@ -1,4 +1,4 @@
-# Flag all uses of array slicing
+# Flag all uses of array slicing.
 
 @check(message="slice")
 fun slices(node) =

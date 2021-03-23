@@ -1,3 +1,25 @@
+# Flags specs (and bodies that act as specs) of recursive subprograms. A
+# subprogram is considered as recursive in a given context if there exists a
+# chain of direct calls starting from the body of, and ending at this
+# subprogram within this context. A context is provided by the set of Ada
+# sources specified as arguments of a given gnatcheck call. Neither dispatching
+# calls nor calls through access-to-subprograms are considered as direct calls
+# by this rule. If Skip_Dispatching_Calls is not set, gnatcheck considers a
+# dispatching call as a set of calls to all the subprograms the dispatching
+# call may dispatch to.
+#
+# This rule does not take into account calls that may happen as the result of
+# subprogram import and export.
+#
+# Generic subprograms and subprograms detected in generic units are not
+# flagged. Recursive subprograms in expanded generic instantiations are
+# flagged.
+#
+# This rule does not take into account subprogram calls in aspect definitions.
+#
+# The rule has a parameter Skip_Dispatching_Calls: Do not take into account
+# dispatching calls when building and analyzing call chains.
+
 # Given a name, return the body of the decl referenced by the name
 fun body(name) = match name.p_referenced_decl()
     | b @ BaseSubpBody => b

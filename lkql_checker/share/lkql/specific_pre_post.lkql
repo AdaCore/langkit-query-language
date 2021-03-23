@@ -1,3 +1,6 @@
+# Flag a declaration of a primitive operation of a tagged type if this
+# declaration contains specification of Pre or/and Post aspect.
+
 fun has_aspect(decl, aspect_name) =
    # TODO: using get_aspect assoc rt. get_aspect because get_aspect returns a
    # struct, not yet supported

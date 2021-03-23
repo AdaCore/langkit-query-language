@@ -1,2 +1,4 @@
+# Flag abort statements.
+
 @check(message="abort statement")
 fun abort_statements(node) = node is AbortStmt

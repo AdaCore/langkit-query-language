@@ -1,5 +1,11 @@
-fun is_visible(type_decl) =
-   type_decl?.parent?.parent is PublicPart
+# Flag any tagged type declaration that has more than N user-defined primitive
+# operations (counting both inherited and not overridden and explicitly
+# declared, not counting predefined operators). Only types declared in visible
+# parts of packages, generic packages and package instantiations are flagged.
+# This rule has the parameter N: Positive integer specifying the maximal number
+# of primitives when the type is not flagged.
+
+fun is_visible(type_decl) = type_decl?.parent?.parent is PublicPart
 
 @check(message="tagged type has too many primitives")
 fun too_many_primitives(node, n : int = 5) =

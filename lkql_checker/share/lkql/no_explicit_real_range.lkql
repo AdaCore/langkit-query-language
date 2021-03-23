@@ -1,3 +1,7 @@
+# Flag a declaration of a floating point type or a decimal fixed point type,
+# including types derived from them if no explicit range specification is
+# provided for the type.
+
 fun isRealWithoutRange(decl) =
     decl is TypeDecl(f_type_def is RealTypeDef(no children is RangeSpec))
 

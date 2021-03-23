@@ -1,3 +1,14 @@
+# Flag each procedure that can be rewritten as a function. A procedure can be
+# converted into a function if it has exactly one parameter of mode out and no
+# parameters of mode in out. Procedure declarations, formal procedure
+# declarations, and generic procedure declarations are always checked.
+# Procedure bodies and body stubs are flagged only if they do not have
+# corresponding separate declarations. Procedure renamings and procedure
+# instantiations are not flagged.
+# If a procedure can be rewritten as a function, but its out parameter is of a
+# limited type, it is not flagged.
+# Protected procedures are not flagged. Null procedures also are not flagged.
+
 fun params_in_out(s) =
     [p for p in s.p_params() if p?.f_mode is ModeInOut]
 

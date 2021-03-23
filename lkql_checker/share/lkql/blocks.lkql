@@ -1,3 +1,4 @@
+# Flag each block statement.
+
 @check(message="block statement")
-fun blocks(node) =
-   node is BlockStmt
+fun blocks(node) = node is BlockStmt

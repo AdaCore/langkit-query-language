@@ -1,3 +1,22 @@
+# Flag each subprogram and entry declaration whose formal parameters are not
+# ordered according to the following scheme:
+# - in and access parameters first, then in out parameters, and then out
+#   parameters;
+# - for in mode, parameters with default initialization expressions occur last
+#
+# Only the first violation of the described order is flagged.
+#
+# The following constructs are checked:
+#
+# - subprogram declarations (including null procedures);
+# - generic subprogram declarations;
+# - formal subprogram declarations;
+# - entry declarations;
+# - subprogram bodies and subprogram body stubs that do not have separate
+#   specifications
+#
+# Subprogram renamings are not checked.
+
 fun priority(paramSpec) =
     if paramSpec.f_default_expr != null
     then 0
@@ -10,4 +29,4 @@ fun priority(paramSpec) =
 @check(message="parameter out of order")
 fun parameters_out_of_order(node) =
     node is p @ ParamSpec(any next_siblings
-                         is sib @ ParamSpec when priority(sib) > priority(p))
+                          is sib @ ParamSpec when priority(sib) > priority(p))

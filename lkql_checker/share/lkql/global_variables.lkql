@@ -1,3 +1,10 @@
+# Flag any variable declaration that appears immediately within the
+# specification of a library package or library generic package. Variable
+# declarations in nested packages and inside package instantiations are not
+# flagged.
+# This rule has parameter Only_Public: Do not flag variable declarations in
+# private library (generic) packages and in package private parts.
+
 @check(message="global variable")
 fun global_variables(node, only_public=false) =
     node is ObjectDecl(p_semantic_parent() is s @ * when {
