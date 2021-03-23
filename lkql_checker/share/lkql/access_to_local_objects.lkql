@@ -10,22 +10,59 @@
 # If the attribute prefix is a dereference or a subcomponent thereof, the
 # attribute reference is not flagged.
 
-# TODO: share local_scope
+fun ultimate_alias(name) = {
+    val decl = name?.p_referenced_decl();
+    val ren = match decl
+        | ObjectDecl => decl?.f_renaming_clause
+        | *          => null;
+
+    if ren == null
+    then decl
+    else ultimate_alias(ren?.f_renamed_object)
+}
+
 fun local_scope(e) =
     match e
-        | SubpBody => true
-        | TaskBody => true
-        | BlockStmt => true
-        | EntryBody => true
-        | ProtectedBody => true
-        | * => false
+    | SubpBody      => true
+    | TaskBody      => true
+    | BlockStmt     => true
+    | ProtectedBody => true
+    | *             => false
+
+fun has_local_scope(n) =
+    [p for p in n?.parents if local_scope(p)].length > 0
 
 fun is_local_object(o) =
-    o is ObjectDecl
-    when [p for p in o?.parents if local_scope(p)].length > 0
+    match o
+    | ParamSpec  => true
+    | ObjectDecl => has_local_scope(o)
+
+fun denotes_local_object(n) = {
+    fun dotted_prefix(n) =
+        match n?.f_prefix?.p_referenced_decl()
+        | BasicSubpDecl                 => true
+        | SubpBody                      => true
+        | GenericSubpInstantiation      => true
+        | p@BasePackageDecl             => has_local_scope(p) or denotes_local_object(n?.f_prefix)
+
+        | p@PackageBody                 => has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | p@GenericPackageInstantiation => has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | r@*                           =>
+          if r?.p_type_expression?.p_designated_type_decl()?.p_is_access_type()
+          then false
+          else denotes_local_object(n?.f_prefix);
+
+    match n
+    | DottedName => dotted_prefix(n)
+    | QualExpr   => denotes_local_object(n?.f_suffix)
+    | ParenExpr  => denotes_local_object(n?.f_expr)
+    | CallExpr   => denotes_local_object(n?.f_name)
+    | BaseId     => is_local_object(ultimate_alias(n))
+    | *          => false
+}
 
 @check(message="access attribute for local objects")
 fun access_to_local_objects(node) =
     node is AttributeRef
-    when node.f_attribute?.p_canonical_text() == "access"
-    and  is_local_object(node.f_prefix?.p_referenced_decl())
+    when node.f_attribute?.p_name_is("Access")
+     and denotes_local_object(node.f_prefix)
