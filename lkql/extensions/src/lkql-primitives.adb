@@ -26,7 +26,7 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
-with LKQL.Eval_Contexts;
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 with GNAT.Case_Util;
 
@@ -577,6 +577,18 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Empty_Tuple;
 
+   --------------------
+   -- Make_Namespace --
+   --------------------
+
+   function Make_Namespace (N : Environment_Access) return Primitive is
+      Ref : Primitive;
+   begin
+      Ref.Set (Primitive_Data'(Refcounted with Kind => Kind_Namespace,
+                               Namespace            => N));
+      return Ref;
+   end Make_Namespace;
+
    -------------------
    -- Make_Function --
    -------------------
@@ -811,7 +823,11 @@ package body LKQL.Primitives is
               "selector "
               & To_Unbounded_Text (To_Text (Val.Get.Sel_Node.Image)),
             when Kind_Builtin_Function =>
-              To_Unbounded_Text ("builtin function")
+              To_Unbounded_Text ("builtin function"),
+            when Kind_Namespace        =>
+              To_Unbounded_Text
+               (To_Text (Env_Image
+                (Eval_Contexts.Environment_Access (Val.Get.Namespace))))
         );
    end To_Unbounded_Text;
 
@@ -833,7 +849,8 @@ package body LKQL.Primitives is
                  when Kind_Selector_List    => "Selector List",
                  when Kind_Function         => "Function",
                  when Kind_Builtin_Function => "Builtin Function",
-                 when Kind_Selector         => "Selector");
+                 when Kind_Selector         => "Selector",
+                 when Kind_Namespace        => "Namespace");
    end To_String;
 
    ---------------

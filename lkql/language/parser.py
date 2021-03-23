@@ -986,6 +986,14 @@ class Match(Expr):
         return Self.arms.map(lambda x: x.pattern.as_entity)
 
 
+class Import(LKQLNode):
+    """
+    Import.
+    """
+
+    name = Field(type=Identifier)
+
+
 class Tuple(Expr):
     """
     Tuple expression.
@@ -998,8 +1006,10 @@ G = lkql_grammar
 
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
-    main_rule=List(Or(G.decl, G.expr),
+    main_rule=List(Or(G.import_clause, G.decl, G.expr),
                    list_cls=TopLevelList),
+
+    import_clause=Import("import", G.id),
 
     query=Query(
         Opt(

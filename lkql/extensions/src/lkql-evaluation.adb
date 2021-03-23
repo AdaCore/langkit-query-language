@@ -115,6 +115,9 @@ package body LKQL.Evaluation is
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive;
 
+   function Eval_Import
+     (Ctx : Eval_Context; Node : L.Import) return Primitive;
+
    function Make_Comprehension_Environment_Iter
      (Ctx : Eval_Context; Node : L.List_Comp_Assoc_List)
       return Comprehension_Env_Iter;
@@ -159,6 +162,9 @@ package body LKQL.Evaluation is
             Result := Eval_List (Local_Context, Node.As_LKQL_Node_List);
          when LCO.LKQL_Val_Decl =>
             Result := Eval_Val_Decl (Local_Context, Node.As_Val_Decl);
+
+         when LCO.LKQL_Import =>
+            Result := Eval_Import (Local_Context, Node.As_Import);
          when LCO.LKQL_Identifier =>
             Result := Eval_Identifier (Local_Context, Node.As_Identifier);
          when LCO.LKQL_Integer_Literal =>
@@ -532,17 +538,36 @@ package body LKQL.Evaluation is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
-      if Kind (Receiver) /= Kind_Node then
-         return Primitives.Data (Receiver, Member_Name);
-      elsif Is_Nullable (Receiver)
-        or else Is_Null_Node (Node_Val (Receiver).Get)
-      then
-         Raise_Null_Access (Ctx, Receiver, Node.F_Member);
-      else
-         return Node_Data.Access_Node_Field
-           (Ctx, Node_Val (Receiver), Node.F_Member);
-      end if;
+      case Kind (Receiver) is
+         when Kind_Node =>
+            if Is_Nullable (Receiver)
+              or else Is_Null_Node (Node_Val (Receiver).Get)
+            then
+               Raise_Null_Access (Ctx, Receiver, Node.F_Member);
+            else
+               return Node_Data.Access_Node_Field
+                 (Ctx, Node_Val (Receiver), Node.F_Member);
+            end if;
 
+         when Kind_Namespace =>
+            declare
+               R : constant String_Value_Maps.Cursor :=
+                 Lookup
+                   (Eval_Contexts.Environment_Access
+                      (Receiver.Get.Namespace).all,
+                    Symbol (Node.F_Member));
+            begin
+               if String_Value_Maps.Has_Element (R) then
+                  return String_Value_Maps.Element (R);
+               else
+                  Raise_And_Record_Error
+                    (Ctx, Make_Eval_Error (Node, "No such member"));
+               end if;
+            end;
+
+         when others =>
+            return Primitives.Data (Receiver, Member_Name);
+      end case;
    exception
       when Unsupported_Error =>
          Raise_Invalid_Member (Ctx, Node, Receiver);
@@ -790,6 +815,25 @@ package body LKQL.Evaluation is
          return Result;
       end;
    end Eval_Match;
+
+   -----------------
+   -- Eval_Import --
+   -----------------
+
+   function Eval_Import
+     (Ctx : Eval_Context; Node : L.Import) return Primitive
+   is
+      Package_Name : constant String := Image (Node.F_Name.Text);
+      Unit         : constant L.Analysis_Unit :=
+        Ctx.Get_LKQL_Unit (Package_Name, From => Node.Unit);
+      Frame        : constant Eval_Context := Ctx.Create_New_Frame;
+      Dummy        : constant Primitive := Eval (Frame, Unit.Root);
+      NS           : constant Primitive :=
+        Make_Namespace (Primitives.Environment_Access (Frame.Frames));
+   begin
+      Ctx.Add_Binding (Symbol (Node.F_Name), NS);
+      return Make_Unit_Primitive;
+   end Eval_Import;
 
    -----------------------
    -- Eval_List_Literal --

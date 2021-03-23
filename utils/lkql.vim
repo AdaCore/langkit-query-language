@@ -5,7 +5,7 @@ if exists("b:current_syntax")
   finish
 endif
 
-syn keyword lkqlKeyword let select val match nextgroup=lkqlEntity skipwhite
+syn keyword lkqlKeyword let select val match import nextgroup=lkqlEntity skipwhite
 syn keyword lkqlKeyword fun selector nextgroup=lkqlFunction skipwhite
 syn match   lkqlFunction	"\h\w*" display contained
 syn match   lkqlEntity	"\h\w*" display contained

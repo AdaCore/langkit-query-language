@@ -21,6 +21,9 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Vectors;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
 with LKQL.Errors;     use LKQL.Errors;
 with LKQL.AST_Nodes;  use LKQL.AST_Nodes;
 with LKQL.Primitives; use LKQL.Primitives;
@@ -59,6 +62,12 @@ package LKQL.Eval_Contexts is
    function Get_Context (Self : Global_Data) return L.Analysis_Context;
 
    type Environment is private;
+
+   function Lookup (Env : Environment;
+                    Key : Symbol_Type) return String_Value_Maps.Cursor;
+   --  Lookup the given key in the local environment.
+   --  If the local environment doesn't contain the given key, the lookup will
+   --  be attempted on the parent env, if any.
 
    type Environment_Access is access all Environment;
    pragma No_Heap_Finalization (Environment_Access);
@@ -156,7 +165,21 @@ package LKQL.Eval_Contexts is
    --  Use Release_Local_Frame to release the memory allocated for a local
    --  environment.
 
+   function Get_LKQL_Unit
+     (Ctx          : Eval_Context;
+      Package_Name : String;
+      From         : L.Analysis_Unit := L.No_Analysis_Unit)
+      return L.Analysis_Unit;
+   --  Get a LKQL unit, searching on the context's LKQL_PATH
+
+   procedure Add_LKQL_Path (Ctx : in out Eval_Context; Path : String);
+   --  Add a path to the LKQL_PATH
+
 private
+
+   package String_Vectors
+   is new Ada.Containers.Vectors (Positive, Unbounded_String);
+
    -----------------
    -- Global_Data --
    -----------------
@@ -178,6 +201,8 @@ private
 
       Context : L.Analysis_Context;
       --  LKQL analysis context, used to hold data of the prelude
+
+      LKQL_Path_List : String_Vectors.Vector;
    end record;
    --  Stores the global data structures shared by every evaluation context
 
@@ -200,12 +225,6 @@ private
       Ref_Count : Natural := 1;
    end record;
    --  Chainable map for symbol lookups
-
-   function Lookup (Env : Environment;
-                    Key : Symbol_Type) return String_Value_Maps.Cursor;
-   --  Lookup the given key in the local environment.
-   --  If the local environment doesn't contain the given key, the lookup will
-   --  be attempted on the parent env, if any.
 
    function Make_Empty_Environment
      (Parent : Environment_Access := null) return Environment;

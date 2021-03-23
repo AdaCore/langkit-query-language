@@ -29,6 +29,7 @@ class Token(LexerToken):
     Else = WithSymbol()
     Not = WithSymbol()
     Null = WithSymbol()
+    Import = WithSymbol()
 
     Dot = WithText()
     QuestionDot = WithText()
@@ -108,6 +109,7 @@ lkql_lexer.add_rules(
     (Literal("when"),                                      Token.When),
     (Literal("val"),                                       Token.Val),
     (Literal("fun"),                                       Token.Fun),
+    (Literal("import"),                                    Token.Import),
     (Literal("selector"),                                  Token.Selector),
     (Literal("match"),                                     Token.Match),
     (Literal("rec"),                                       Token.Rec),

@@ -82,6 +82,10 @@ package LKQL.Primitives is
       --  Functions objects
 
       Kind_Builtin_Function,
+      --  Builtin function objects
+
+      Kind_Namespace,
+      --  Namespace objects
 
       Kind_Selector,
       --  Selector objects
@@ -101,7 +105,7 @@ package LKQL.Primitives is
      with Static_Predicate =>
        Introspectable_Kind not in
          Kind_Tuple | Kind_Unit | Kind_Function
-           | Kind_Selector | Kind_Builtin_Function;
+           | Kind_Selector | Kind_Builtin_Function | Kind_Namespace;
 
    type Environment_Access is access all LKQL.Eval_Contexts.Environment;
 
@@ -138,6 +142,8 @@ package LKQL.Primitives is
             Selector_List_Val : Selector_List;
          when Kind_Builtin_Function =>
             Fn_Access         : Builtin_Fn_Access_Access;
+         when Kind_Namespace =>
+            Namespace         : Environment_Access;
          when Kind_Function | Kind_Selector =>
             Frame             : Environment_Access;
             case Kind is
@@ -327,6 +333,8 @@ package LKQL.Primitives is
    --  of kind `Kind`.
 
    function Make_Empty_Tuple return Primitive;
+
+   function Make_Namespace (N : Environment_Access) return Primitive;
 
    ---------------------
    -- Function values --

@@ -21,13 +21,19 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Environment_Variables;
+with Ada.Directories;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+
+with GNAT.OS_Lib;
+with GNATCOLL.Utils;
 
 with Liblkqllang.Prelude; use Liblkqllang.Prelude;
 
 with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Builtin_Functions; use LKQL.Builtin_Functions;
 with LKQL.String_Utils; use LKQL.String_Utils;
+with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 
 package body LKQL.Eval_Contexts is
 
@@ -206,24 +212,45 @@ package body LKQL.Eval_Contexts is
           (Roots, Null_Node, Make_Empty_Error, Err_Recovery,
            (if Analysis_Ctx = L.No_Analysis_Context
             then L.Create_Context
-            else Analysis_Ctx));
+            else Analysis_Ctx), LKQL_Path_List => <>);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
-      Ret    : constant Eval_Context := Eval_Context'(Kernel, Env);
+      Ret    : Eval_Context := Eval_Context'(Kernel, Env);
 
+      package E renames Ada.Environment_Variables;
    begin
+      --  Adding Ada built-in functions + prelude to the context.
       declare
          U      : constant L.Analysis_Unit := Prelude_Unit (Kernel.Context);
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
-         --  Adding built-in functions to the context.
          for Fn_Desc of Builtin_Functions.Builtin_Functions loop
             Ret.Add_Binding
               (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc.Fn));
          end loop;
-
-         return Ret;
       end;
+
+      --  Set up LKQL_PATH for the context
+      if E.Exists ("LKQL_PATH") then
+         declare
+            function Add_Path (Path : String) return Boolean;
+
+            LKQL_Path_Content : constant String := E.Value ("LKQL_PATH");
+
+            function Add_Path (Path : String) return Boolean is
+            begin
+               Add_LKQL_Path (Ret, Path);
+               return True;
+            end Add_Path;
+         begin
+            GNATCOLL.Utils.Split
+              (LKQL_Path_Content,
+               GNAT.OS_Lib.Path_Separator & "",
+               Add_Path'Access);
+         end;
+      end if;
+
+      return Ret;
    end Make_Eval_Context;
 
    -----------------------
@@ -410,5 +437,65 @@ package body LKQL.Eval_Contexts is
       Append (Ret, "}");
       return Image (To_Text (Ret));
    end Env_Map_Image;
+
+   -------------------
+   -- Get_LKQL_Unit --
+   -------------------
+
+   function Get_LKQL_Unit
+     (Ctx          : Eval_Context;
+      Package_Name : String;
+      From         : L.Analysis_Unit := L.No_Analysis_Unit)
+      return L.Analysis_Unit
+   is
+      function Get_Unit_From_Dir (Dir : String) return L.Analysis_Unit;
+
+      package D renames Ada.Directories;
+
+      From_Path : constant String :=
+        D.Containing_Directory (From.Get_Filename);
+
+      function Get_Unit_From_Dir (Dir : String) return L.Analysis_Unit is
+         Tentative_File_Name : constant String :=
+           D.Compose (Dir, Package_Name, "lkql");
+      begin
+         if D.Exists (Tentative_File_Name) then
+            return Make_LKQL_Unit (Ctx.Kernel.Context, Tentative_File_Name);
+         else
+            return L.No_Analysis_Unit;
+         end if;
+      end Get_Unit_From_Dir;
+
+      Unit : L.Analysis_Unit;
+
+      use type L.Analysis_Unit;
+   begin
+      --  First, check into the current directory (directory containing the
+      --  lkql file from which the package is requested).
+      Unit := Get_Unit_From_Dir (From_Path);
+
+      if Unit /= L.No_Analysis_Unit then
+         return Unit;
+      end if;
+
+      --  Then check the LKQL path.
+      for Path of Ctx.Kernel.LKQL_Path_List loop
+         Unit := Get_Unit_From_Dir (To_String (Path));
+         if Unit /= L.No_Analysis_Unit then
+            return Unit;
+         end if;
+      end loop;
+
+      return L.No_Analysis_Unit;
+   end Get_LKQL_Unit;
+
+   -------------------
+   -- Add_LKQL_Path --
+   -------------------
+
+   procedure Add_LKQL_Path (Ctx : in out Eval_Context; Path : String) is
+   begin
+      Ctx.Kernel.LKQL_Path_List.Append (To_Unbounded_String (Path));
+   end Add_LKQL_Path;
 
 end LKQL.Eval_Contexts;
