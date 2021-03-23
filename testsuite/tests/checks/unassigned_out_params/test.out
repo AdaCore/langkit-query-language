@@ -1,0 +1,28 @@
+params.adb:4:24: error: unassigned out parameter
+4 |                     B, B2 : out Boolean;   --  FLAG B2
+  |                        ^^ 
+
+params.adb:30:7: error: unassigned out parameter
+30 |       P2 : out Rec;                        --  FLAG
+   |       ^^ 
+
+params.adb:31:7: error: unassigned out parameter
+31 |       P3 : out Boolean)                    --  FLAG
+   |       ^^ 
+
+params.adb:47:11: error: unassigned out parameter
+47 |      (P1, P2, P3 : out Access_Arr;         --  FLAG P2
+   |           ^^ 
+
+params.adb:48:7: error: unassigned out parameter
+48 |       P4         : out Integer;            --  FLAG P4
+   |       ^^ 
+
+params.adb:61:20: error: unassigned out parameter
+61 |    procedure Proc (X : out Integer) is     -- FLAG X
+   |                    ^ 
+
+params.adb:81:7: error: unassigned out parameter
+81 |      (A,                                   --  FLAG A
+   |       ^ 
+

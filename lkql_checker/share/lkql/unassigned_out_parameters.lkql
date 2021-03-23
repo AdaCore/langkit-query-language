@@ -1,0 +1,63 @@
+# Flag procedures' out parameters that are not assigned.
+# An out parameter is flagged if the sequence of statements of the procedure
+# body (before the procedure body's exception part, if any) contains no
+# assignment to the parameter.
+# An out parameter is also flagged if an exception handler contains neither an
+# assignment to the parameter nor a raise statement.
+# Bodies of generic procedures are also considered.
+#
+# The following are treated as assignments to an out parameter:
+# - an assignment statement, with the parameter or some component as the target
+# - passing the parameter (or one of its components) as an out or in out
+#   parameter.
+
+fun ultimate_prefix(n) =
+    match n
+    | DottedName => ultimate_prefix(n?.f_prefix)
+    | QualExpr   => ultimate_prefix(n?.f_suffix)
+    | ParenExpr  => ultimate_prefix(n?.f_expr)
+    | CallExpr   => ultimate_prefix(n?.f_name)
+    | *          => n
+
+# Return true if the list of stmts s contains any assignment to param as
+# defined above.
+fun check_stmts(param, s) =
+    (s is *
+     # Find assignments referring to param
+     (any children is a@AssignStmt
+      when (ultimate_prefix(a.f_dest) is id@BaseId
+            when param?.p_name_matches(id))))
+    or s is *
+     # Find all calls
+     (any children is c@CallExpr
+         (f_suffix is AssocList
+             # Find all "out" parameters
+             (any children(depth=1) is p@ParamAssoc
+              when [param for param in p.p_get_params() if param is *
+                    (any parent(depth=2) is pspec@ParamSpec
+                     when (pspec.f_mode is ModeOut)
+                        or pspec.f_mode is ModeInOut)].length != 0
+                  # Does this out parameter refer to param?
+                  and (ultimate_prefix(p.f_r_expr) is id@BaseId
+                       when param?.p_name_matches(id)))))
+
+# Return true if the exception handler h contains a raise statement or an
+# assignment to param as defined above.
+fun check_exception_handler(param, h) =
+    (h.f_stmts is *(any children is RaiseStmt)) or check_stmts(param, h)
+
+# Return the SubpBody enclosing node
+fun enclosing_subp_body(node) =
+   to_list([p for p in parent(node) if p is SubpBody])[1]
+
+@check(message="unassigned out parameter")
+fun unassigned_out_parameters(node) =
+    node is DefiningName(parent is DefiningNameList(parent is ParamSpec(
+        f_mode is ModeOut)))
+    when {
+        val f = enclosing_subp_body(node).f_stmts;
+        not (check_stmts(node.f_name, f?.f_stmts)
+             and [m for m in (from f?.f_exceptions select h@ExceptionHandler
+                  when not check_exception_handler(node.f_name, h))].length == 0
+        )
+    }
