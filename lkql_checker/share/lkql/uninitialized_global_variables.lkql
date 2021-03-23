@@ -1,6 +1,7 @@
-# Flag an object declaration located immediately within a library level
-# package declaration, a library level generic package declaration or a
-# library level package body if it does not have an explicit initialization.
+# Flag an object declaration that does not have an explicit initialization if
+# it is located in a library-level package or generic package or bodies of
+# library-level package or generic package (including packages and generic
+# packages nested in those).
 # Do not flag deferred constant declarations.
 
 # TODO: share local_scope*
