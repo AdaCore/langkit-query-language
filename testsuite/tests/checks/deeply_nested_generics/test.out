@@ -1,0 +1,12 @@
+deeply_nested_generics.ads:8:25: error: deeply nested generic
+8 |       generic procedure P;
+  |                         ^ 
+
+deeply_nested_generics.ads:12:15: error: deeply nested generic
+12 |       package P_G_1 is --  FLAG (depth=1)
+   |               ^^^^^ 
+
+deeply_nested_generics.ads:14:18: error: deeply nested generic
+14 |          package P_G_2 is -- FLAG (depth=2)
+   |                  ^^^^^ 
+

@@ -1,0 +1,13 @@
+# Flag a generic declaration nested in another generic declaration if the
+# nesting level of the inner generic exceeds the value specified by the
+# `depth' rule parameter.
+#
+# The nesting level is the number of generic declarations that enclose the
+# given (generic) declaration.
+#
+# Formal packages are not flagged by this rule.
+
+@check(message="deeply nested generic")
+fun deeply_nested_generics(node, depth) =
+    node is GenericDecl
+    when [n for n in node.parent?.parents if n is GenericDecl].length >= depth
