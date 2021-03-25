@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Too_Many_Parents
+input_sources: ['parents.ads']
+rule_arguments:
+    too_many_parents.n: 2

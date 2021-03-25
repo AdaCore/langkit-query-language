@@ -1,0 +1,24 @@
+parents.ads:12:9: error: too many parents
+12 |    type T_3 is new T_Root and I1 and I2 with null record;   --  FLAG
+   |         ^^^ 
+
+parents.ads:13:9: error: too many parents
+13 |    type T_4 is new T_Root and I1 and I2 and I3 with null record;   --  FLAG
+   |         ^^^ 
+
+parents.ads:16:19: error: too many parents
+16 |    protected type PT is new I1 and I2 and I3 with  --  FLAG
+   |                   ^^ 
+
+parents.ads:21:14: error: too many parents
+21 |    protected P01 is new I1 and I2 and I3 with --  FLAG
+   |              ^^^ 
+
+parents.ads:26:14: error: too many parents
+26 |    task type TT1 is new I1 and I2 and I3 with  --  FLAG
+   |              ^^^ 
+
+parents.ads:31:9: error: too many parents
+31 |    task TO1 is new I1 and I2 and I3 with  --  FLAG
+   |         ^^^ 
+
