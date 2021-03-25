@@ -1,0 +1,28 @@
+# Flag any raise statement, in a program unit declared in a library package or
+# in a generic library package, for an exception that is neither a predefined
+# exception nor an exception that is also declared (or renamed) in the visible
+# part of the package.
+
+# TODO: share is_predefined_exception with raising_predefined_exception
+fun is_predefined_exception(e) = {
+    val name = e?.p_canonical_fully_qualified_name();
+
+    name == "standard.program_error" or name == "standard.constraint_error" or
+    name == "standard.numeric_error" or name == "standard.storage_error"    or
+    name == "standard.tasking_error"
+}
+
+fun check_raise(n, lib) = {
+    val e = n.f_exception_name?.p_referenced_decl();
+    not (is_predefined_exception(e)
+         or e is *(any parent is exc_lib@LibraryItem when exc_lib == lib))
+}
+
+@check(message="raised exception is not declared in visible part of enclosing library package")
+fun raising_external_exceptions(node) =
+    node is RaiseStmt
+    (any parent is lib@LibraryItem
+     when match lib.f_item
+       | BasePackageDecl => check_raise(node, lib)
+       | PackageBody     => check_raise(node, lib.f_item?.p_decl_part()?.parent)
+       | *               => ())

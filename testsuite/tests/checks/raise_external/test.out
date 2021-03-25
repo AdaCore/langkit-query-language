@@ -1,0 +1,4 @@
+foo.adb:6:10: error: raised exception is not declared in visible part of enclosing library package
+6 |          raise Exception_Declarations.Ex;   --  FLAG
+  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
