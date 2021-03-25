@@ -875,7 +875,7 @@ example how the ``super_types`` selector is expressed:
 .. code-block:: lkql
 
     selector super_types
-        | BaseTypeDecl      => rec *it.base_types()
+        | BaseTypeDecl      => rec *it.p_base_types()
         | *                 => ()
 
 Built-in selectors
