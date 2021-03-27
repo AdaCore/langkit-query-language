@@ -1,0 +1,16 @@
+proc.adb:6:7: error: comparison of Boolean values
+6 |    if Flag_1 >= Flag_2 then     --  FLAG
+  |       ^^^^^^^^^^^^^^^^ 
+
+proc.adb:18:13: error: comparison of Boolean values
+18 |    A := (if "<" (Flag_1, Flag_2) then   --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^^^ 
+
+proc.adb:21:18: error: comparison of Boolean values
+21 |                  Flag_1 > Flag_2,       --  FLAG
+   |                  ^^^^^^^^^^^^^^^ 
+
+proc.adb:23:18: error: comparison of Boolean values
+23 |                  Flag_1 = Flag_2));     --  FLAG
+   |                  ^^^^^^^^^^^^^^^ 
+

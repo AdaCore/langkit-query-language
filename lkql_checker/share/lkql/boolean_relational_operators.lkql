@@ -1,0 +1,23 @@
+# Flag each call to a predefined relational operator for the predefined Boolean
+# type.
+# Calls to predefined relational operators of any type derived from
+# Standard.Boolean are not detected. Calls to user-defined functions with these
+# designators, and uses of operators that are renamings of the predefined
+# relational operators for Standard.Boolean, are likewise not detected.
+
+fun is_std_bool(n) = {
+     val typ=n?.p_expression_type();
+     typ == null
+     or typ?.p_base_subtype()?.p_fully_qualified_name() == "Standard.Boolean"
+}
+
+@check(message="comparison of Boolean values")
+fun boolean_relational_operators(node) =
+    (node is RelationOp
+     when node.f_op?.p_referenced_decl() == null
+      and is_std_bool(node)
+      and is_std_bool(node.f_left))
+    or (node is CallExpr
+        when node.p_referenced_decl() == null
+         and is_std_bool(node)
+         and is_std_bool(node.f_suffix[1]?.f_r_expr))
