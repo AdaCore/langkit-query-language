@@ -3,4 +3,6 @@ package Expr_P is
 
 private
    function F return Boolean is (G);   --  FLAG
+   function F2 return Boolean is       --  NO FLAG
+     (True);
 end Expr_P;

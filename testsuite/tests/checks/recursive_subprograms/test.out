@@ -1,3 +1,15 @@
+expr_p.adb:3:13: error: recursive subprogram
+3 |    function Expr return Boolean is  --  FLAG
+  |             ^^^^ 
+
+expr_p.ads:2:13: error: recursive subprogram
+2 |    function G return Boolean;          --  FLAG
+  |             ^ 
+
+expr_p.ads:5:13: error: recursive subprogram
+5 |    function F return Boolean is (G);   --  FLAG
+  |             ^ 
+
 simple.adb:1:10: error: recursive subprogram
 1 | function Factorial (N : Natural) return Positive is  --  FLAG
   |          ^^^^^^^^^ 
