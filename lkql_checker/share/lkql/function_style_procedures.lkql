@@ -10,12 +10,27 @@
 # Protected procedures are not flagged. Null procedures also are not flagged.
 
 fun params_in_out(s) =
-    [p for p in s.p_params() if p?.f_mode is ModeInOut]
+    [p for p in s?.p_params() if p?.f_mode is ModeInOut]
 
 fun params_out(s) =
-    [p for p in s.p_params() if p?.f_mode is ModeOut]
+    [p for p in s?.p_params() if p?.f_mode is ModeOut]
+
+fun is_limited(t) = t?.f_has_limited?.p_as_bool()
 
 @check(message="procedure can be rewritten as function")
 fun function_style_procedures(node) =
-    node is sub @ SubpSpec
-    when params_out(sub).length == 1 and params_in_out(sub).length == 0
+    node is sub @ SubpDecl
+    when (sub.f_subp_spec?.f_subp_kind is SubpKindProcedure)
+     and params_in_out(sub.f_subp_spec).length == 0
+     and ({
+         # Check for 1 out parameter of a non limited type
+         val p_out=params_out(sub.f_subp_spec);
+         p_out.length == 1
+         and [p for p in p_out
+              # TODO: missing or-pattern: t@(Derived or Private or Record)
+              if (match p?.f_type_expr?.p_designated_type_decl()?.f_type_def
+                  | t@DerivedTypeDef => is_limited(t)
+                  | t@PrivateTypeDef => is_limited(t)
+                  | t@RecordTypeDef  => is_limited(t)
+                  | *                => false)].length == 0
+     })

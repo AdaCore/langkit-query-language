@@ -1,8 +1,4 @@
-function_style_procedures.adb:4:4: error: procedure can be rewritten as function
-4 |    procedure P (R : out Integer) is
-  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-
-function_style_procedures.ads:3:4: error: procedure can be rewritten as function
-3 |    procedure P (R : out Integer); -- FLAG
-  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+function_style_procedures.ads:3:14: error: procedure can be rewritten as function
+3 |    procedure P (R : out Integer);  -- FLAG
+  |              ^ 
 
