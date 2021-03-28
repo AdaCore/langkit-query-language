@@ -1,0 +1,24 @@
+overlay.adb:5:4: error: non-constant object overlays a constant object
+5 |    for V'Address use C'Address;           --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+overlay.adb:7:21: error: non-constant object overlays a constant object
+7 |    W : Integer with Address => C'Address; --  FLAG
+  |                     ^^^^^^^^^^^^^^^^^^^^ 
+
+overlay.adb:15:4: error: non-constant object overlays a constant object
+15 |    for V2'Address use C2'Address;         --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+overlay.adb:21:9: error: non-constant object overlays a constant object
+21 |         Address => Var'Address;           --  FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^ 
+
+overlay.adb:25:4: error: non-constant object overlays a constant object
+25 |    for Var_Int_1'Address use I'Address;   --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+overlay.adb:30:26: error: non-constant object overlays a constant object
+30 |    V3     : Integer with Address => Ren2'Address;   --  FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^ 
+
