@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Complex_Inlined_Subprograms
+input_sources: ['complex.ads', 'complex.adb']

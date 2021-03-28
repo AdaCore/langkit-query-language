@@ -1,0 +1,49 @@
+# Flag a subprogram (or generic subprogram, or instantiation of a subprogram)
+# if pragma Inline is applied to it and at least one of the following
+# conditions is met:
+# - it contains at least one complex declaration such as a subprogram body,
+#   package, task, protected declaration, or a generic instantiation (except
+#   instantiation of Ada.Unchecked_Conversion);
+# - it contains at least one complex statement such as a loop, a case or an if
+#   statement;
+# - the number of statements exceeds a value specified by the N rule parameter;
+# Subprogram renamings are also considered.
+
+fun is_complex_subp(node, n) =
+    # Check for complex declarations
+    (node?.f_decls is *(any children is c@*
+     when match c
+     | SubpBody                    => true
+     | PackageDecl                 => true
+     | TaskBody                    => true
+     | ProtectedBody               => true
+     | GenericPackageInstantiation => true
+     | g@GenericSubpInstantiation  =>
+         g.p_designated_subp()?.p_canonical_fully_qualified_name() !=
+         "ada.unchecked_conversion"
+     | * => false))
+  or
+    # Check for complex statements
+    (node?.f_stmts is *(any children is c@Stmt
+     when match c
+     | BaseLoopStmt => true
+     | CaseStmt     => true
+     | IfStmt       => true
+     | *            => false))
+  or
+    # Check for number of statements
+    [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n
+
+@check(message="complex inlined subprogram")
+fun complex_inlined_subprograms(node, n : int = 5) = match node
+    | SubpBody
+      when (node.p_has_aspect("Inline")
+            or node.p_decl_part()?.p_has_aspect("Inline"))
+        and is_complex_subp(node, n) => true
+
+    | g@GenericSubpInstantiation
+      when node.p_has_aspect("Inline")
+       and is_complex_subp(g.f_generic_subp_name?.p_referenced_decl()?.
+                           p_body_part(), n) => true
+
+    | * => false
