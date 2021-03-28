@@ -8,14 +8,7 @@ fun is_mod_type(n) =
 @check(message="bit record without layout definition")
 fun bit_records_without_layout_definition(node) =
     node is RecordTypeDef
-    # TODO once we can call p_get_aspect we can simplify the code below
-    when (node.parent?.p_get_aspect_assoc("Pack") != null
-          or (node.parent is parent@*
-                  (any next_siblings is pr@Pragma
-                   when pr.f_id?.p_name_is("Pack")
-                    and pr.f_args is *
-                        (any children(depth=2) is c@BaseId
-                         when c.p_name_matches(parent?.f_name?.f_name)))))
+    when node.parent?.p_has_aspect("Pack")
      and (node.f_record_def?.f_components is *
             (any children is c@ComponentDef when is_mod_type(c)))
      and not (node.parent is parent@*
