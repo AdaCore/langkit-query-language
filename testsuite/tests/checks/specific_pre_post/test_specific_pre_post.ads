@@ -25,4 +25,7 @@ package Test_Specific_Pre_Post is
            Post'Class => Check2 (X),
            Pre        => Check1 (X),
            Post       => Check2 (X);
+
+private
+   type T is tagged null record;
 end Test_Specific_Pre_Post;
