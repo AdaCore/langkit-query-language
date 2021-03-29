@@ -1,0 +1,57 @@
+# Flag an overlay definition that has a form of an attribute definition clause
+# for Overlaying'Address use Overlaid'Address; or a form of aspect definition
+# Address => Overlaid'Address, and Overlaid is a data object defined by a
+# variable declaration, a formal parameter of mode IN OUT or OUT or a generic
+# formal parameter of mode IN OUT if at least one of the following is true:
+# - the overlaying object is a constant object;
+# - overlaying object is not marked as Volatile;
+# - if overlaid object is not a parameter, it is not marked as Volatile.
+
+# This rule is basically the mirror of the Constant_Overlays rule and will
+# trigger on the same nodes.
+
+# TODO: share this function
+fun ultimate_alias_rename2(name) = {
+    val decl = name?.p_referenced_decl();
+    val ren = match decl
+        | ObjectDecl => decl?.f_renaming_clause
+        | *          => null;
+
+    if ren == null
+    then decl
+    else ultimate_alias_rename2(ren?.f_renamed_object)
+}
+
+fun check_non_const_overlay(decl, overlaid) =
+    # Check overlaid'Address
+    overlaid is AttributeRef
+    when overlaid?.f_attribute?.p_name_is("address")
+     # Check that overlaid is a variable object or formal of mode [IN] OUT
+     and ({
+         val overlaid_object = ultimate_alias_rename2(overlaid?.f_prefix);
+         # TODO use o?.p_is_constant_object() once available, see U330-040
+         (match overlaid_object
+          | o@ObjectDecl =>
+              o?.f_mode is ModeOut or o?.f_mode is ModeInOut
+              or not o?.f_has_constant?.p_as_bool()
+          | p@ParamSpec  => p?.f_mode is ModeOut or p?.f_mode is ModeInOut
+          | *            => false)
+         # Check that overlaying is constant
+         and (decl?.f_has_constant?.p_as_bool()
+              # or overlaying object is not marked volatile
+              or decl?.p_has_aspect("Volatile")
+              # or if overlaid object is not a parameter, it is not marked as
+              # Volatile
+              or (overlaid_object is ParamSpec
+                  or not overlaid_object?.p_has_aspect("Volatile")))})
+
+@check(message="constant object overlays a non-constant object")
+fun non_constant_overlays(node) = match node
+    | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
+        when id?.p_name_is("address")
+         and check_non_const_overlay(o, node.f_expr)) => true
+    | AttributeDefClause(f_attribute_expr is at@AttributeRef
+        when at?.f_attribute?.p_name_is("address")
+         and check_non_const_overlay(at?.f_prefix?.p_referenced_decl(),
+                           node.f_expr)) => true
+    | * => false

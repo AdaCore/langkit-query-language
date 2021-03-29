@@ -1,0 +1,8 @@
+overlay.adb:5:4: error: constant object overlays a non-constant object
+5 |    for C'Address use V'Address;    --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+overlay.adb:9:4: error: constant object overlays a non-constant object
+9 |    for V'Address use C'Address;           --  FLAG: C is not Volatile
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
