@@ -116,6 +116,7 @@ class CheckerDriver(BaseTestDriver):
             args += ['--rule-arg', '{}={}'.format(k, v)]
 
         args += ['-r', self.test_env['rule_name']]
+        args += ['--add-rules-dir', self.test_env['test_dir']]
 
         # Run the interpreter
         self.shell(args)

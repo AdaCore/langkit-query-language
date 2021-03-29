@@ -60,6 +60,13 @@ package Checker_App is
       --  Convert a string of the form "rule_name.arg_name=val" into a
       --  ``Qualified_Rule_Argument``.
 
+      package Rules_Dirs is new Parse_Option_List
+        (Parser     => App.Args.Parser,
+         Long       => "--add-rules-dir",
+         Help       => "Add a directory in which rules will be searched",
+         Accumulate => True,
+         Arg_Type   => Unbounded_String);
+
       package Rules is new Parse_Option_List
         (Parser     => App.Args.Parser,
          Short      => "-r",

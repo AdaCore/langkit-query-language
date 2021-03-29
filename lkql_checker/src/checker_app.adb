@@ -66,8 +66,11 @@ package body Checker_App is
    -----------
 
    function Rules return Rule_Vector is
-      Explicit_Rules_Names : constant Args.Rules.Result_Array
-        := Args.Rules.Get;
+      Explicit_Rules_Names : constant Args.Rules.Result_Array :=
+         Args.Rules.Get;
+
+      Additional_Rules_Dirs : constant Path_Array :=
+         Path_Array (Args.Rules_Dirs.Get);
 
       Rules_Args_Map : Rules_Args_Maps.Map;
       --  Map from argument names to argument values.
@@ -99,11 +102,11 @@ package body Checker_App is
 
       if Explicit_Rules_Names'Length = 0 then
          --  No rules passed by the user: return all rules
-         Cached_Rules := All_Rules (Ctx);
+         Cached_Rules := All_Rules (Ctx, Additional_Rules_Dirs);
       else
          --  Some rules passed by the user: only return the ones specified
 
-         for R of All_Rules (Ctx) loop
+         for R of All_Rules (Ctx, Additional_Rules_Dirs) loop
             for Explicit_Rule_Name of Explicit_Rules_Names loop
                if To_Lower
                  (To_Text (To_String (Explicit_Rule_Name))) = To_Text (R.Name)

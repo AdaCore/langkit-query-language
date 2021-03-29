@@ -26,7 +26,11 @@ with Rule_Commands; use Rule_Commands;
 with Liblkqllang.Analysis;
 
 with Ada.Containers.Vectors;
+with Ada.Strings.Unbounded;
+
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package Rules_Factory is
 
@@ -36,13 +40,23 @@ package Rules_Factory is
    subtype Rule_Vector is Rule_Vectors.Vector;
    --  Vector of Rule_Command values
 
-   function All_Rules (Ctx : Eval_Context) return Rule_Vector;
+   type Path_Array is
+      array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String;
+   Empty_Path_Array : constant Path_Array;
+
+   function All_Rules
+     (Ctx : Eval_Context; Dirs : Path_Array := Empty_Path_Array)
+      return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
 
 private
+   Empty_Path_Array : constant Path_Array := (1 .. 0 => <>);
 
-   function Get_Rules_Directory return String;
+   type Virtual_File_Array is array (Positive range <>) of Virtual_File;
+
+   function Get_Rules_Directories
+     (Dirs : Path_Array) return Virtual_File_Array;
    --  Return the absolute path of the directory containing the LKQL programs
 
 end Rules_Factory;

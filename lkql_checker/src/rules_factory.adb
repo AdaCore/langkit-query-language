@@ -25,7 +25,6 @@ with Ada.Command_Line;
 with Ada.Directories; use Ada.Directories;
 
 with GNAT.OS_Lib;
-with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package body Rules_Factory is
 
@@ -33,22 +32,26 @@ package body Rules_Factory is
    -- All_Rules --
    ---------------
 
-   function All_Rules (Ctx : Eval_Context) return Rule_Vector is
-      Rules_Dir       : constant Virtual_File := Create (+Get_Rules_Directory);
-      Rules_Dir_Files : constant File_Array_Access := Read_Dir (Rules_Dir);
-      Result          : Rule_Vector;
+   function All_Rules
+     (Ctx : Eval_Context; Dirs : Path_Array := Empty_Path_Array)
+      return Rule_Vector
+   is
+      Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
+      Result     : Rule_Vector;
    begin
 
       --  We search (non recursively) for all .lkql files in the Rules_Dir.
       --  Each file should contain the definition of one rule, and the needed
       --  helper functions.
 
-      for File of Rules_Dir_Files.all loop
-         if File.File_Extension = +".lkql" then
-            Result.Append
-              (Create_Rule_Command
-                 (+File.Full_Name, Get_Context (Ctx.Kernel.all)));
-         end if;
+      for Rules_Dir of Rules_Dirs loop
+         for File of Read_Dir (Rules_Dir).all loop
+            if File.File_Extension = +".lkql" then
+               Result.Append
+                 (Create_Rule_Command
+                    (+File.Full_Name, Get_Context (Ctx.Kernel.all)));
+            end if;
+         end loop;
       end loop;
 
       return Result;
@@ -59,7 +62,10 @@ package body Rules_Factory is
    -- Get_Rules_Directory --
    -------------------------
 
-   function Get_Rules_Directory return String is
+   function Get_Rules_Directories
+     (Dirs : Path_Array) return Virtual_File_Array
+   is
+      use Ada;
       use GNAT.OS_Lib;
 
       --  Assuming this program is installed in $PREFIX/bin, this computes
@@ -76,10 +82,19 @@ package body Rules_Factory is
       declare
          Prefix : constant String :=
             Containing_Directory (Containing_Directory (Executable.all));
+
+         Builtin_Checkers_Dir : constant Virtual_File_Array :=
+           (1 => Create (+Compose (Compose (Prefix, "share"), "lkql")));
+
+         Custom_Checkers_Dirs : Virtual_File_Array (Dirs'Range);
       begin
+         for I in Dirs'Range loop
+            Custom_Checkers_Dirs (I) :=
+               Create (+Ada.Strings.Unbounded.To_String (Dirs (I)));
+         end loop;
          Free (Executable);
-         return Compose (Compose (Prefix, "share"), "lkql");
+         return Builtin_Checkers_Dir & Custom_Checkers_Dirs;
       end;
-   end Get_Rules_Directory;
+   end Get_Rules_Directories;
 
 end Rules_Factory;
