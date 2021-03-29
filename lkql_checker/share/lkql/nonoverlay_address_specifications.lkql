@@ -1,0 +1,28 @@
+# Flag an overlay definition if it has neither the form of an attribute
+# definition clause "for Overlaying'Address use Overlaid'Address;" nor the form
+# of aspect definition "Address => Overlaid'Address", where Overlaid is an
+# identifier defined either by an object declaration or a parameter
+# specification.
+
+fun check_nonoverlay(overlaid) =
+    # Check overlaid'Address
+    overlaid is AttributeRef
+    when overlaid?.f_attribute?.p_name_is("address")
+     # Check that overlaid is NOT an identifier defined either by an object
+     # declaration or a parameter specification.
+     and not (overlaid?.f_prefix is id@Identifier
+              # TODO "or" pattern: when decl is ObjectDecl | ParamSpec
+              when match id?.p_referenced_decl()
+                   | ObjectDecl => true
+                   | ParamSpec  => true
+                   | *          => false)
+
+@check(message="nonoverlay address specification")
+fun nonoverlay_address_specifications(node) = match node
+    | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is ObjectDecl
+        when id?.p_name_is("address")
+         and check_nonoverlay (node.f_expr)) => true
+    | AttributeDefClause(f_attribute_expr is at@AttributeRef
+        when at?.f_attribute?.p_name_is("address")
+         and check_nonoverlay(node.f_expr))  => true
+    | * => false

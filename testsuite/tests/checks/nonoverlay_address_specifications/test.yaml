@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Nonoverlay_Address_Specifications
+input_sources: ['overlay.adb']
