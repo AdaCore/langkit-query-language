@@ -1,0 +1,4 @@
+test.ads:2:8: error: Anonymous type decl
+2 |    X : array (1 .. 10) of Integer := (others => 0);
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+

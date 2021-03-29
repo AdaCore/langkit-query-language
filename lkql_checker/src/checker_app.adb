@@ -230,7 +230,10 @@ package body Checker_App is
                   --  langkit diagnostics.
 
                   Result_Node :=
-                    (if Result_Node.Kind in Ada_Basic_Decl
+                    (if Result_Node.Kind in Ada_Basic_Decl and then
+                        --  Some basic decls don't have a defining name,
+                        --  e.g. Anonymous_Type_Decl.
+                        not Result_Node.As_Basic_Decl.P_Defining_Name.Is_Null
                      then Result_Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node
                      else Result_Node.As_Ada_Node);
 

@@ -1,0 +1,2 @@
+@check(message="Anonymous type decl")
+fun anonymous_type_decl(node) = node is AnonymousTypeDecl
