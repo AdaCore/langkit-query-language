@@ -1,0 +1,55 @@
+# Flag all declarations of record types with discriminants. Only the
+# declarations of record and record extension types are checked.
+#
+# Incomplete, formal, private and private extension type
+# declarations are not checked.
+#
+# Task and protected type declarations also are not checked.
+#
+# Derived type declaration are flagged if they are not using
+# the discriminant in the type derivation.
+
+# Check wether the given Identifier or string is present as a
+# BaseId in the list elements.
+#
+# U407-040 for list iterators
+# U407-032 for in list checks
+fun nodelist_contains_id(l, id) =
+    l is *(
+        any children is i@BaseId
+        when i?.p_name_matches(id)
+    )
+
+# Return true iff id identifies a discriminant of type_def
+fun id_is_a_discriminant(id, type_def) =
+    type_def is DerivedTypeDef(
+        any children is assoc@DiscriminantAssoc(
+            f_discr_expr is i@BaseId
+            when i?.p_name_matches(id)
+        )
+        # f_ids contains the defining name (named assoc.) or is null (positional)
+        when (nodelist_contains_id(assoc.f_ids, id)
+           or assoc.f_ids[1] == null)
+    )
+
+# Return true iff type_decl has discriminant it uses in its own declaration
+# (eg to initialize a component, array size...).
+fun is_using_discriminant_in_declaration(type_decl) =
+    type_decl.f_discriminants?.f_discr_specs is *(
+        all children(depth=1) is DiscriminantSpec(
+            f_ids is DefiningNameList(
+                all children(depth=2) is decl@BaseId
+                when id_is_a_discriminant(decl, type_decl?.f_type_def)
+            )
+        )
+    )
+
+@check(message="declaration of discriminated record")
+fun discriminated_records(node) =
+   node is TypeDecl(
+      any children(depth=2) is DiscriminantSpecList
+      when not (
+         node.f_type_def is PrivateTypeDef
+         or is_using_discriminant_in_declaration(node)
+      )
+   )

@@ -1,0 +1,16 @@
+discriminated_records.ads:6:10: error: declaration of discriminated record
+6 |     type Rec_1 (D : Idx) is record        --  FLAG
+  |          ^^^^^ 
+
+discriminated_records.ads:10:10: error: declaration of discriminated record
+10 |     type Rec_2 (D : Idx) is record        --  FLAG
+   |          ^^^^^ 
+
+discriminated_records.ads:19:10: error: declaration of discriminated record
+19 |     type Rec_3_Deriv (D_Other : Idx) is new Rec_2(D => D_Other); -- FLAG
+   |          ^^^^^^^^^^^ 
+
+discriminated_records.ads:24:10: error: declaration of discriminated record
+24 |     type Pv_Rec (D : Idx) is null record; -- FLAG
+   |          ^^^^^^ 
+
