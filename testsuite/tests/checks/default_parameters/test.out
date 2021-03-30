@@ -1,0 +1,4 @@
+default_parameters.ads:1:34: error: parameter with default value
+1 | procedure P (I : in out Integer; J : Integer := 0);   --  FLAG
+  |                                  ^ 
+

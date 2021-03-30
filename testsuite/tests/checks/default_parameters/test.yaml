@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: 'Default_Parameters'
+project: 'prj.gpr'
