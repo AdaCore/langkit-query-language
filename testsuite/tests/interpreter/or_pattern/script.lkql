@@ -1,0 +1,2 @@
+val test = select ObjectDecl or CallExpr
+print (test)

@@ -488,6 +488,17 @@ class UniversalPattern(ValuePattern):
     pass
 
 
+class OrPattern(ValuePattern):
+    """
+    Pattern that matches if any of its subpatterns matches.
+
+    For instance::
+        let value_decls = select ObjectDecl or ParamSpec
+    """
+    left = Field(type=BasePattern)
+    right = Field(type=BasePattern)
+
+
 @abstract
 class QueryKind(LKQLNode):
     """
@@ -985,6 +996,15 @@ lkql_grammar.add_rules(
     ),
 
     pattern=Or(
+        OrPattern(
+            G.chained_node_pattern,
+            "or",
+            G.pattern
+        ),
+        G.chained_node_pattern
+    ),
+
+    chained_node_pattern=Or(
         ChainedNodePattern(
             G.filtered_pattern,
             List(Or(

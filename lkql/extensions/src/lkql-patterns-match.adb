@@ -121,6 +121,19 @@ package body LKQL.Patterns.Match is
       use LKQL.Error_Handling;
    begin
       case Pattern.Kind is
+         when LCO.LKQL_Or_Pattern =>
+            declare
+               Or_Pat   : constant L.Or_Pattern := Pattern.As_Or_Pattern;
+               Left_Res : constant Match_Result :=
+                  Match_Pattern (Ctx, Or_Pat.F_Left, Value);
+            begin
+               if Left_Res.Is_Success then
+                  return Left_Res;
+               else
+                  return Match_Pattern (Ctx, Or_Pat.F_Right, Value);
+               end if;
+            end;
+
          when LCO.LKQL_Node_Pattern =>
             if not (Kind (Value) = Kind_Node) then
                Raise_Invalid_Kind
