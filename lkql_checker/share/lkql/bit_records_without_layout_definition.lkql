@@ -2,7 +2,8 @@
 # modular type and the record type is packed but does not have a record
 # representation clause applied to it.
 
-fun is_mod_type(n) =
+# TODO: move this function to libadalang
+fun lal_is_mod_type(n) =
     n?.f_type_expr?.p_designated_type_decl()?.f_type_def is ModIntTypeDef
 
 @check(message="bit record without layout definition")
@@ -10,7 +11,7 @@ fun bit_records_without_layout_definition(node) =
     node is RecordTypeDef
     when node.parent?.p_has_aspect("Pack")
      and (node.f_record_def?.f_components is *
-            (any children is c@ComponentDef when is_mod_type(c)))
+            (any children is c@ComponentDef when lal_is_mod_type(c)))
      and not (node.parent is parent@*
               (any next_siblings is rep@RecordRepClause
                when rep.f_name?.p_name_matches(parent?.f_name?.f_name)))
