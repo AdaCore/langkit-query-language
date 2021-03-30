@@ -26,10 +26,6 @@ package LKQL.Unit_Utils is
    Unit_Creation_Error : exception;
 
    function Make_LKQL_Unit
-     (Path : String; Context : out L.Analysis_Context) return L.Analysis_Unit;
-   --  Create an LKQL analysis Unit from the given file
-
-   function Make_LKQL_Unit
      (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit;
    --  Create an LKQL analysis unit in the context 'Context' from the given
    --  file.

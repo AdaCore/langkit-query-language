@@ -126,18 +126,6 @@ package body LKQL.Unit_Utils is
    --------------------
 
    function Make_LKQL_Unit
-     (Path : String; Context : out L.Analysis_Context) return L.Analysis_Unit
-   is
-   begin
-      Context := L.Create_Context;
-      return Make_LKQL_Unit (Context, Path);
-   end Make_LKQL_Unit;
-
-   --------------------
-   -- Make_LKQL_Unit --
-   --------------------
-
-   function Make_LKQL_Unit
      (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit
    is
 
