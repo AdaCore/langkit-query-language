@@ -1,0 +1,33 @@
+# Flag each record representation clause, enumeration representation clause and
+# declarations with a representation aspect (including attribute clauses and
+# pragmas).
+# The rule has a parameter Record_Rep_Clauses_Only: Only record representation
+# clauses are flagged.
+
+fun has_rep_aspect(node) =
+   node?.p_has_aspect("Address") or
+   node?.p_has_aspect("Size") or
+   node?.p_has_aspect("Component_Size") or
+   node?.p_has_aspect("External_Tag") or
+   node?.p_has_aspect("Asynchronous") or
+   node?.p_has_aspect("Convention") or
+   node?.p_has_aspect("Import") or
+   node?.p_has_aspect("Export") or
+   node?.p_has_aspect("No_Return") or
+   node?.p_has_aspect("Atomic") or
+   node?.p_has_aspect("Atomic_Components") or
+   node?.p_has_aspect("Discard_Names") or
+   node?.p_has_aspect("Independent") or
+   node?.p_has_aspect("Independent_Components") or
+   node?.p_has_aspect("Pack") or
+   node?.p_has_aspect("Unchecked_Union") or
+   node?.p_has_aspect("Volatile") or
+   node?.p_has_aspect("Volatile_Components")
+
+@check(message="representation specification")
+fun representation_specifications(node, record_rep_clauses_only=false) =
+    match node
+    | RecordRepClause => true
+    | EnumRepClause   => not record_rep_clauses_only
+    | BasicDecl       => (not record_rep_clauses_only) and has_rep_aspect(node)
+    | *               => false

@@ -1,0 +1,24 @@
+repr.ads:1:9: error: representation specification
+1 | package Repr is
+  |         ^^^^ 
+
+repr.ads:4:4: error: representation specification
+4 |    for State use (A => 1, M => 2, W => 3, P => 4); --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+repr.ads:6:9: error: representation specification
+6 |    type Byte_Mask     is array (0..7)  of Boolean; --  FLAG
+  |         ^^^^^^^^^ 
+
+repr.ads:9:9: error: representation specification
+9 |    type State_Mask    is array (State) of Boolean  --  FLAG
+  |         ^^^^^^^^^^ 
+
+repr.ads:12:4: error: representation specification
+12 |    Var : Integer;                                  --  FLAG
+   |    ^^^ 
+
+repr.ads:15:13: error: representation specification
+15 |    function F return Boolean with No_Return;       --  FLAG
+   |             ^ 
+
