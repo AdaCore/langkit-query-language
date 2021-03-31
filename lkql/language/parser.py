@@ -506,6 +506,16 @@ class OrPattern(ValuePattern):
     right = Field(type=BasePattern)
 
 
+class NotPattern(ValuePattern):
+    """
+    Pattern that matches if its inner pattern doesn't match.
+
+    For instance::
+       let non_objects = select not ObjectDecl
+    """
+    pattern = Field(type=ValuePattern)
+
+
 @abstract
 class QueryKind(LKQLNode):
     """
@@ -1045,6 +1055,7 @@ lkql_grammar.add_rules(
         NodeKindPattern(G.kind_name),
         UniversalPattern("*"),
         NullPattern("null"),
+        NotPattern("not", G.value_pattern),
         ParenPattern("(", G.pattern, ")")
     ),
 

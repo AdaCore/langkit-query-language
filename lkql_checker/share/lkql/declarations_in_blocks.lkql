@@ -7,9 +7,7 @@ fun declarations_in_blocks(node) =
     node is DeclBlock(
         any children(depth=1) is DeclarativePart(
             f_decls is AdaNodeList(
-                all children(depth=2) is a@*
-                # TODO: [U311-008] Replace with proper `not` and `or` pattern op
-                when not (a is UseClause or a is Pragma)
+                all children(depth=2) is not (UseClause or Pragma)
             )
         )
     )

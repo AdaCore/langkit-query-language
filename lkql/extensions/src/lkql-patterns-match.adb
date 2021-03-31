@@ -138,6 +138,18 @@ package body LKQL.Patterns.Match is
                end if;
             end;
 
+         when LCO.LKQL_Not_Pattern =>
+            declare
+               Res : constant Match_Result :=
+                  Match_Value (Ctx, Pattern.As_Not_Pattern.F_Pattern, Value);
+            begin
+               if Res.Is_Success then
+                  return Match_Failure;
+               else
+                  return Make_Match_Success (Value);
+               end if;
+            end;
+
          when LCO.LKQL_Node_Pattern =>
             if not (Kind (Value) = Kind_Node) then
                Raise_Invalid_Kind
