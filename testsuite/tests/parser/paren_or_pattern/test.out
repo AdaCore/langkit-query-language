@@ -1,0 +1,65 @@
+TopLevelList
+|  Query
+|  |f_from_expr: <null>
+|  |f_query_kind:
+|  |  QueryKindAll
+|  |f_pattern:
+|  |  BindingPattern
+|  |  |f_binding:
+|  |  |  Identifier: x
+|  |  |f_value_pattern:
+|  |  |  ParenPattern
+|  |  |  |f_pattern:
+|  |  |  |  OrPattern
+|  |  |  |  |f_left:
+|  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  Identifier: A
+|  |  |  |  |f_right:
+|  |  |  |  |  OrPattern
+|  |  |  |  |  |f_left:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: B
+|  |  |  |  |  |f_right:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: C
+|  Query
+|  |f_from_expr: <null>
+|  |f_query_kind:
+|  |  QueryKindAll
+|  |f_pattern:
+|  |  OrPattern
+|  |  |f_left:
+|  |  |  ParenPattern
+|  |  |  |f_pattern:
+|  |  |  |  BindingPattern
+|  |  |  |  |f_binding:
+|  |  |  |  |  Identifier: x
+|  |  |  |  |f_value_pattern:
+|  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  Identifier: A
+|  |  |f_right:
+|  |  |  OrPattern
+|  |  |  |f_left:
+|  |  |  |  ParenPattern
+|  |  |  |  |f_pattern:
+|  |  |  |  |  BindingPattern
+|  |  |  |  |  |f_binding:
+|  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |f_value_pattern:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: B
+|  |  |  |f_right:
+|  |  |  |  ParenPattern
+|  |  |  |  |f_pattern:
+|  |  |  |  |  BindingPattern
+|  |  |  |  |  |f_binding:
+|  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |f_value_pattern:
+|  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  Identifier: C

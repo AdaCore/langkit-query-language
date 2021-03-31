@@ -27,13 +27,12 @@ fun exceptions_as_control_flow(node) =
 
           # Where there is a handler that handles this same exception (either
           # via an others clause, or a direct name handling)
-          # TODO: having an OR pattern here would simplify this clause greatly
-          {
-            val e = exc_handler.f_handled_exceptions;
-            e is *(any children is i @ BaseId
-                   when canonical_exception(i) == canonical_exception(r.f_exception_name))
-            or e is *(any children is OthersDesignator)
-          }
+          exc_handler.f_handled_exceptions is *(
+             any children is
+                (i @ BaseId
+                    when canonical_exception(i) == canonical_exception(r.f_exception_name))
+                or OthersDesignator
+          )
 
           # And the handler belongs to a block that encloses this raise statement
           and r is *(any parent is p @ * when p.parent == stmt_block)

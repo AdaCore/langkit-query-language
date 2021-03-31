@@ -10,6 +10,8 @@ package body Function_Style_Procedures is
       null;
    end P_Limited;
 
+   procedure P_Non_Limited_Rec (R : out Non_Limited_Rec) is null;
+
    procedure P2 (R : out Integer; R2: in out Integer) is
    begin
       R := R2;

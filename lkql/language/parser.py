@@ -488,6 +488,13 @@ class UniversalPattern(ValuePattern):
     pass
 
 
+class ParenPattern(ValuePattern):
+    """
+    A parenthesized pattern.
+    """
+    pattern = Field(type=BasePattern)
+
+
 class OrPattern(ValuePattern):
     """
     Pattern that matches if any of its subpatterns matches.
@@ -1037,7 +1044,8 @@ lkql_grammar.add_rules(
         ),
         NodeKindPattern(G.kind_name),
         UniversalPattern("*"),
-        NullPattern("null")
+        NullPattern("null"),
+        ParenPattern("(", G.pattern, ")")
     ),
 
     pattern_arg=Or(

@@ -26,11 +26,10 @@ fun function_style_procedures(node) =
          # Check for 1 out parameter of a non limited type
          val p_out=params_out(sub.f_subp_spec);
          p_out.length == 1
-         and [p for p in p_out
-              # TODO: missing or-pattern: t@(Derived or Private or Record)
-              if (match p?.f_type_expr?.p_designated_type_decl()?.f_type_def
-                  | t@DerivedTypeDef => is_limited(t)
-                  | t@PrivateTypeDef => is_limited(t)
-                  | t@RecordTypeDef  => is_limited(t)
-                  | *                => false)].length == 0
+         and [
+            p for p in p_out
+            if p?.f_type_expr?.p_designated_type_decl()?.f_type_def
+                  is t@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
+                     when is_limited(t)
+         ].length == 0
      })

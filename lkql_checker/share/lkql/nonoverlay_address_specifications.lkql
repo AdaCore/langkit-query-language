@@ -11,11 +11,7 @@ fun check_nonoverlay(overlaid) =
      # Check that overlaid is NOT an identifier defined either by an object
      # declaration or a parameter specification.
      and not (overlaid?.f_prefix is id@Identifier
-              # TODO "or" pattern: when decl is ObjectDecl | ParamSpec
-              when match id?.p_referenced_decl()
-                   | ObjectDecl => true
-                   | ParamSpec  => true
-                   | *          => false)
+              when id?.p_referenced_decl() is ObjectDecl or ParamSpec)
 
 @check(message="nonoverlay address specification")
 fun nonoverlay_address_specifications(node) = match node

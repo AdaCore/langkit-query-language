@@ -121,6 +121,10 @@ package body LKQL.Patterns.Match is
       use LKQL.Error_Handling;
    begin
       case Pattern.Kind is
+         when LCO.LKQL_Paren_Pattern =>
+            return Match_Pattern
+              (Ctx, Pattern.As_Paren_Pattern.F_Pattern, Value);
+
          when LCO.LKQL_Or_Pattern =>
             declare
                Or_Pat   : constant L.Or_Pattern := Pattern.As_Or_Pattern;
