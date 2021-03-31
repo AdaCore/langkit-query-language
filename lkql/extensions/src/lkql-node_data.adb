@@ -26,6 +26,7 @@ with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 with Ada.Exceptions; use Ada.Exceptions;
+with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body LKQL.Node_Data is
 
@@ -108,13 +109,18 @@ package body LKQL.Node_Data is
 
       Real_Name : constant Text_Type := Field_Name.Text;
    begin
-      if not Receiver.Get.Is_Field_Name (Real_Name) then
+      if Receiver.Get.Is_Field_Name (Real_Name) then
+         Result := Receiver.Get.Access_Field (Real_Name);
+         return To_Primitive (Result);
+      elsif Receiver.Get.Is_Property_Name (Real_Name) then
+         return Make_Property_Reference
+           (To_Primitive (Receiver),
+            Data_Reference_For_Name
+              (Ada_AST_Node (Receiver.Unchecked_Get.all),
+               Real_Name));
+      else
          Raise_No_Such_Field (Ctx, Receiver, Field_Name);
       end if;
-
-      Result := Receiver.Get.Access_Field (Real_Name);
-
-      return To_Primitive (Result);
 
    exception
       when Error : Introspection_Error =>

@@ -25,7 +25,7 @@ with LKQL; use LKQL;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
-with Libadalang.Common;
+with Libadalang.Common; use Libadalang.Common;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -101,5 +101,11 @@ package Ada_AST_Nodes is
      (Units        : Unit_Vectors.Vector;
       Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
       Err_Recovery : Boolean := False) return Eval_Context;
+
+   function Data_Reference_For_Name (Receiver : Ada_AST_Node;
+                                     Name     : Text_Type)
+                                     return Any_Member_Reference;
+   --  Return the node data type corresponding to 'Name' on the receiver
+   --  node. Return None if the name is invalid.
 
 end Ada_AST_Nodes;

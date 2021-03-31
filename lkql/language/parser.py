@@ -338,22 +338,6 @@ class SafeAccess(DotAccess):
     pass
 
 
-class DotCall(Expr):
-    """
-    Call a property with arguments using dot notation
-    """
-    receiver = Field(type=Expr)
-    member = Field(type=Identifier)
-    arguments = Field(type=Arg.list)
-
-
-class SafeCall(DotCall):
-    """
-    Call a property using the ?. operator
-    """
-    pass
-
-
 class InClause(Expr):
     """
     Check that a list contains a given value using the 'in' keyword
@@ -1162,15 +1146,6 @@ lkql_grammar.add_rules(
 
     value_expr=Or(
         Unwrap(G.value_expr, "!!"),
-        DotCall(
-            G.value_expr, ".", G.id,
-            "(", List(G.arg, sep=",", empty_valid=True), ")"
-        ),
-
-        SafeCall(
-            G.value_expr, "?.", G.id,
-            "(", List(G.arg, sep=",", empty_valid=True), ")"
-        ),
 
         DotAccess(G.value_expr, ".", c(), G.id),
         SafeAccess(G.value_expr, "?.", c(), G.id),

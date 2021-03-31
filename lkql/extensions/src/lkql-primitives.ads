@@ -35,6 +35,8 @@ with Ada.Unchecked_Deallocation;
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 limited with LKQL.Eval_Contexts;
 
+with Libadalang.Common;
+
 package LKQL.Primitives is
 
    Unsupported_Error : exception;
@@ -87,6 +89,9 @@ package LKQL.Primitives is
       Kind_Namespace,
       --  Namespace objects
 
+      Kind_Property_Reference,
+      --  Reference to a Langkit property
+
       Kind_Selector,
       --  Selector objects
 
@@ -105,7 +110,8 @@ package LKQL.Primitives is
      with Static_Predicate =>
        Introspectable_Kind not in
          Kind_Tuple | Kind_Unit | Kind_Function
-           | Kind_Selector | Kind_Builtin_Function | Kind_Namespace;
+           | Kind_Selector | Kind_Builtin_Function | Kind_Namespace
+             | Kind_Property_Reference;
 
    type Environment_Access is access all LKQL.Eval_Contexts.Environment;
 
@@ -142,6 +148,13 @@ package LKQL.Primitives is
             Selector_List_Val : Selector_List;
          when Kind_Builtin_Function =>
             Fn_Access         : Builtin_Fn_Access_Access;
+         when Kind_Property_Reference =>
+            --  NOTE: we don't use the obsolete LKQL abstraction layer that
+            --  isn't usable anyway, instead we use LAL directly, and will
+            --  replace by the langkit introspection layer when it's ready.
+            Ref               : Libadalang.Common.Property_Reference;
+            Property_Node     : AST_Node_Rc;
+
          when Kind_Namespace =>
             Namespace         : Environment_Access;
          when Kind_Function | Kind_Selector =>
@@ -348,6 +361,10 @@ package LKQL.Primitives is
 
    function Make_Selector
      (Node : L.Selector_Decl; Env : Environment_Access) return Primitive;
+
+   function Make_Property_Reference
+     (Node_Val     : Primitive;
+      Property_Ref : Libadalang.Common.Property_Reference) return Primitive;
 
    -------------------------------------------------
    -- Primitive to Introspection value conversion --

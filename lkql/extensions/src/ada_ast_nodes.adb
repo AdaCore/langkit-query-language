@@ -21,7 +21,6 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Libadalang.Common; use Libadalang.Common;
 with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Unchecked_Conversion;
@@ -40,12 +39,6 @@ package body Ada_AST_Nodes is
 
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
-
-   function Data_Reference_For_Name (Receiver : Ada_AST_Node;
-                                     Name     : Text_Type)
-                                     return Any_Member_Reference;
-   --  Return the node data type corresponding to 'Name' on the receiver
-   --  node. Return None if the name is invalid.
 
    function Is_Built_In (Name : Text_Type) return Boolean;
    --  Return whether the property named 'Name' is built-in
@@ -521,7 +514,7 @@ package body Ada_AST_Nodes is
       Data_Ref : constant Any_Member_Reference :=
         Data_Reference_For_Name (Node, Name);
    begin
-      return (Data_Ref in Member_Reference) or else
+      return (Data_Ref in Syntax_Field_Reference) or else
         (Data_Ref in Built_In_LAL_Field) or else
         Is_Built_In (Name);
    end Is_Field_Name;

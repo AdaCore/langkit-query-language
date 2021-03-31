@@ -607,6 +607,26 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Function;
 
+   -----------------------------
+   -- Make_Property_Reference --
+   -----------------------------
+
+   function Make_Property_Reference
+     (Node_Val     : Primitive;
+      Property_Ref : Libadalang.Common.Property_Reference) return Primitive
+   is
+      Ref : Primitive;
+   begin
+      Ref.Set
+        (Primitive_Data'
+           (Refcounted
+            with Kind           => Kind_Property_Reference,
+                 Ref            => Property_Ref,
+                 Property_Node  => Node_Val.Get.Node_Val));
+
+      return Ref;
+   end Make_Property_Reference;
+
    ---------------------------
    -- Make_Builtin_Function --
    ---------------------------
@@ -787,6 +807,12 @@ package body LKQL.Primitives is
    -----------------------
 
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type is
+      function Node_Image (N : AST_Node_Rc) return Text_Type
+      is
+         (if N.Get.Is_Null_Node
+          then "null"
+          else N.Get.Text_Image);
+
    begin
       return
         (case Kind (Val) is
@@ -805,9 +831,7 @@ package body LKQL.Primitives is
             when Kind_Bool          =>
               Bool_Image (Bool_Val (Val)),
             when Kind_Node          =>
-           (if Node_Val (Val).Get.Is_Null_Node
-            then To_Unbounded_Text ("null")
-            else To_Unbounded_Text (Val.Get.Node_Val.Get.Text_Image)),
+              To_Unbounded_Text (Node_Image (Val.Get.Node_Val)),
             when Kind_Iterator      =>
               Iterator_Image (Iter_Val (Val).all),
             when Kind_List          =>
@@ -824,6 +848,10 @@ package body LKQL.Primitives is
               & To_Unbounded_Text (To_Text (Val.Get.Sel_Node.Image)),
             when Kind_Builtin_Function =>
               To_Unbounded_Text ("builtin function"),
+            when Kind_Property_Reference =>
+              To_Unbounded_Text
+                ("<PropertyRef " & Node_Image (Val.Get.Property_Node)
+                 & Val.Get.Ref'Wide_Wide_Image & ">"),
             when Kind_Namespace        =>
               To_Unbounded_Text
                (To_Text (Env_Image
@@ -838,19 +866,20 @@ package body LKQL.Primitives is
    function To_String (Val : Valid_Primitive_Kind) return String is
    begin
       return (case Val is
-                 when Kind_Unit             => "Unit",
-                 when Kind_Int              => "Int",
-                 when Kind_Str              => "Str",
-                 when Kind_Bool             => "Bool",
-                 when Kind_Node             => "Node",
-                 when Kind_Iterator         => "Iterator",
-                 when Kind_List             => "List",
-                 when Kind_Tuple            => "Tuple",
-                 when Kind_Selector_List    => "Selector List",
-                 when Kind_Function         => "Function",
-                 when Kind_Builtin_Function => "Builtin Function",
-                 when Kind_Selector         => "Selector",
-                 when Kind_Namespace        => "Namespace");
+                 when Kind_Unit               => "Unit",
+                 when Kind_Int                => "Int",
+                 when Kind_Str                => "Str",
+                 when Kind_Bool               => "Bool",
+                 when Kind_Node               => "Node",
+                 when Kind_Iterator           => "Iterator",
+                 when Kind_List               => "List",
+                 when Kind_Tuple              => "Tuple",
+                 when Kind_Selector_List      => "Selector List",
+                 when Kind_Function           => "Function",
+                 when Kind_Builtin_Function   => "Builtin Function",
+                 when Kind_Selector           => "Selector",
+                 when Kind_Namespace          => "Namespace",
+                 when Kind_Property_Reference => "Property_Reference");
    end To_String;
 
    ---------------
