@@ -1,0 +1,64 @@
+# Flag a subtype mark if it denotes a subtype defined with (static or dynamic)
+# subtype predicate and is used as a membership choice in a membership test
+# expression.
+# Flags 'Valid attribute reference if the nominal subtype of the attribute
+# prefix has (static or dynamic) subtype predicate.
+# This rule has the parameter Except_Assertions: Do not flag a construct
+# described above if it is a subcomponent of the following constructs[...]
+
+# TODO: share these functions
+fun is_assert_pragma3(s) =
+    s == "assert" or
+    s == "assert_and_cut" or
+    s == "assume" or
+    s == "contract_cases" or
+    s == "debug" or
+    s == "invariant" or
+    s == "loop_invariant" or
+    s == "loop_variant" or
+    s == "postcondition" or
+    s == "precondition" or
+    s == "predicate" or
+    s == "refined_post"
+
+fun is_assert_aspect3(s) =
+    s == "static_predicate" or
+    s == "dynamic_predicate" or
+    s == "pre" or
+    s == "post" or
+    s == "type_invariant" or
+    s == "contract_cases" or
+    s == "invariant" or
+    s == "predicate" or
+    s == "refined_post"
+
+# Return true if t represents a SubtypeDecl with a predicate (directly or via
+# a parent type).
+fun has_predicate(t) =
+    t is SubtypeDecl
+    when t?.p_has_aspect("Predicate")
+      or t?.p_has_aspect("Static_Predicate")
+      or t?.p_has_aspect("Dynamic_Predicate")
+      or has_predicate(t?.f_subtype?.f_name?.p_referenced_decl())
+
+@check(message="expression needs subtype predicate evaluation")
+fun predicate_testing(node, except_assertions=false) =
+    (match node
+     # Flags a subtype mark[...]
+     | Identifier(any parent(depth=2) is MembershipExpr) =>
+         has_predicate(node?.p_referenced_decl())
+     # Flags 'Valid attribute reference[...]
+     | AttributeRef => (node?.f_attribute?.p_canonical_text() == "valid")
+         and has_predicate(node?.f_prefix?.p_expression_type())
+     | *                   => false)
+    # Exclude assert pragmas/aspect if except_assertions is set
+    and ((not except_assertions)
+      or not ((node is *(any parent is p@Pragma
+               when is_assert_pragma3(p.f_id?.p_canonical_text())))
+              or node is *(any parent is a@AspectAssoc
+                 when (match a.f_id
+                       | id@Identifier   =>
+                           is_assert_aspect3(id?.p_canonical_text())
+                       | at@AttributeRef =>
+                           at?.f_attribute?.p_canonical_text() == "class"
+                       | *               => false))))

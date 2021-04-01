@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Predicate_Testing
+input_sources: ['predicates.ads']
