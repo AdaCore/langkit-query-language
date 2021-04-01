@@ -1,0 +1,8 @@
+pos.adb:10:7: error: positional generic association
+10 |      (My_Int, Integer);                                --  FLAG (twice)
+   |       ^^^^^^ 
+
+pos.adb:10:15: error: positional generic association
+10 |      (My_Int, Integer);                                --  FLAG (twice)
+   |               ^^^^^^^ 
+

@@ -1,0 +1,8 @@
+# Flag each positional actual generic parameter except for the case when the
+# generic unit being instantiated has exactly one generic formal parameter.
+
+@check(message="positional generic association")
+fun positional_generic_parameters(node) =
+    node is ParamAssoc(f_designator is null,
+                       parent is l@AssocList(parent is GenericInstantiation))
+    when children_count(l) > 1
