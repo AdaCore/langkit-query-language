@@ -198,9 +198,6 @@ they're accessible without the prefix in LKQL.
 Property call
 ^^^^^^^^^^^^^
 
-.. lkql_doc_class:: DotCall
-.. lkql_doc_class:: SafeCall
-
 Properties are methods on syntax nodes, returning results of high level
 queries, possibly answering semantic questions about the syntax tree. For a
 reference of the existing properties for Ada, look at the
@@ -257,6 +254,18 @@ function call expression.
     val d = add(a=12, b=15)
 
 Parameters can be passed via positional or named associations.
+
+Functions are first class entities in LKQL, and can be stored in
+variables/passed as parameters.
+
+Like field accesses, calls have a "safe" variant, that will return ``null`` if
+the callee is null:
+
+.. code-block:: lkql
+
+    fun add(a, b) = a + b
+    val fn = if true then null else add
+    fn?(1, 2) # Returns null
 
 Indexing expression
 ^^^^^^^^^^^^^^^^^^^

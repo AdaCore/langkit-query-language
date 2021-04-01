@@ -1,8 +1,12 @@
-DotCall
-|f_receiver:
-|  Identifier: value
-|f_member:
-|  Identifier: propertyWithArgs
+FunCall
+|f_name:
+|  DotAccess
+|  |f_receiver:
+|  |  Identifier: value
+|  |f_member:
+|  |  Identifier: propertyWithArgs
+|f_has_safe:
+|  SafeAbsent
 |f_arguments:
 |  ArgList
 |  |  ExprArg

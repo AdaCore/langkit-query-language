@@ -1,9 +1,13 @@
-DotCall
-|f_receiver:
-|  Unwrap
-|  |f_node_expr:
-|  |  Identifier: receiver
-|f_member:
-|  Identifier: property
+FunCall
+|f_name:
+|  DotAccess
+|  |f_receiver:
+|  |  Unwrap
+|  |  |f_node_expr:
+|  |  |  Identifier: receiver
+|  |f_member:
+|  |  Identifier: property
+|f_has_safe:
+|  SafeAbsent
 |f_arguments:
 |  ArgList: <empty list>

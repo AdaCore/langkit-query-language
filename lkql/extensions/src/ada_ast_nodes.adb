@@ -40,15 +40,6 @@ package body Ada_AST_Nodes is
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
 
-   function Is_Built_In (Name : Text_Type) return Boolean;
-   --  Return whether the property named 'Name' is built-in
-
-   function Built_In_Field (Receiver      : Ada_AST_Node;
-                            Property_Name : Text_Type)
-                            return Introspection_Value;
-   --  Return the value of the built-in property named 'Property_Name' on
-   --  'Receiver'.
-
    function Make_Introspection_Value
      (Value : Text_Type) return Introspection_Value;
    --  Create an Introspection value from the given Text_Type value
@@ -56,12 +47,6 @@ package body Ada_AST_Nodes is
    function Make_Introspection_Value
      (Value : I.Value_Type) return Introspection_Value;
    --  Create an Introspection_value value from the given Value_type value
-
-   function Get_Property_Ref (Node          : Ada_AST_Node;
-                              Property_Name : Text_Type)
-                              return Property_Reference;
-   --  Return the reference of the property named `Property_Name` on `Node`.
-   --  Raise an exception if there is no such property.
 
    function Make_Value_Type (Value       : Introspection_Value;
                              Target_Kind : Value_Kind)
@@ -83,7 +68,10 @@ package body Ada_AST_Nodes is
      (Hash (Node.Node));
 
    overriding function Text_Image (Node : Ada_AST_Node) return Text_Type is
-      (To_Text (Node.Node.Image));
+     (To_Text (Node.Node.Image));
+
+   overriding function Text (Node : Ada_AST_Node) return Text_Type is
+     (Node.Node.Text);
 
    overriding function Kind_Name (Node : Ada_AST_Node) return String is
      (Kind_Name (Node.Node));
@@ -272,32 +260,6 @@ package body Ada_AST_Nodes is
       return Lookup_Member (Receiver_Type_Id, Name);
    end Data_Reference_For_Name;
 
-   -----------------
-   -- Is_Built_In --
-   -----------------
-
-   function Is_Built_In (Name : Text_Type) return Boolean is
-     (Name = "image" or else Name = "text");
-
-   --------------------
-   -- Built_In_Field --
-   --------------------
-
-   function Built_In_Field (Receiver      : Ada_AST_Node;
-                            Property_Name : Text_Type)
-                            return Introspection_Value
-   is
-   begin
-      if Property_Name = "image" then
-         return Make_Introspection_Value (To_Text (Receiver.Node.Image));
-      elsif Property_Name = "text" then
-         return Make_Introspection_Value (Receiver.Node.Text);
-      end if;
-
-      raise Introspection_Error with
-        "Invalid built-in property: " & To_UTF8 (Property_Name);
-   end Built_In_Field;
-
    ------------------------------
    -- Make_Introspection_Value --
    ------------------------------
@@ -357,25 +319,6 @@ package body Ada_AST_Nodes is
               Value_Kind'Image (Kind (Value));
       end case;
    end Make_Introspection_Value;
-
-   ----------------------
-   -- Get_Property_Ref --
-   ----------------------
-
-   function Get_Property_Ref (Node          : Ada_AST_Node;
-                              Property_Name : Text_Type)
-                              return Property_Reference
-   is
-      Ref : constant Any_Member_Reference :=
-        Data_Reference_For_Name (Node, Property_Name);
-   begin
-      if not (Ref in Property_Reference) then
-         raise Introspection_Error with "No property named: "
-           & To_UTF8 (Property_Name);
-      end if;
-
-      return Property_Reference (Ref);
-   end Get_Property_Ref;
 
    ---------------------
    -- Make_Value_Type --
@@ -515,8 +458,7 @@ package body Ada_AST_Nodes is
         Data_Reference_For_Name (Node, Name);
    begin
       return (Data_Ref in Syntax_Field_Reference) or else
-        (Data_Ref in Built_In_LAL_Field) or else
-        Is_Built_In (Name);
+        (Data_Ref in Built_In_LAL_Field);
    end Is_Field_Name;
 
    ----------------------
@@ -533,17 +475,12 @@ package body Ada_AST_Nodes is
    ------------------
 
    overriding function Access_Field
-     (Node : Ada_AST_Node; Field : Text_Type) return Introspection_Value
+     (Node  : AST_Node'Class;
+      Ref   : Ada_Member_Reference) return Introspection_Value
    is
-      Data_Ref : constant Any_Member_Reference :=
-        Data_Reference_For_Name (Node, Field);
    begin
-      if Is_Built_In (Field) then
-         return Built_In_Field (Node, Field);
-      end if;
-
       return Make_Introspection_Value
-        (Eval_Member (Node.Node, Data_Ref, Empty_Value_Array));
+        (Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Empty_Value_Array));
    end Access_Field;
 
    --------------------
@@ -551,39 +488,43 @@ package body Ada_AST_Nodes is
    --------------------
 
    overriding function Property_Arity
-     (Node : Ada_AST_Node; Property_Name : Text_Type) return Natural
+     (Ref   : Ada_Member_Reference) return Natural
    is
-     (Property_Argument_Types
-        (Get_Property_Ref (Node, Property_Name))'Length);
+     (Property_Argument_Types (Ref.Ref)'Length);
+
+   ----------
+   -- Name --
+   ----------
+
+   overriding function Name
+     (Ref : Ada_Member_Reference) return Text_Type
+   is
+      (Ref.Ref'Wide_Wide_Image);
 
    ------------------------
    -- Default_Args_Value --
    ------------------------
 
-   overriding function Default_Arg_Value (Node          : Ada_AST_Node;
-                                          Property_Name : Text_Type;
-                                          Arg_Position  : Positive)
-                                          return Introspection_Value
+   overriding function Default_Arg_Value
+     (Ref           : Ada_Member_Reference;
+      Arg_Position  : Positive) return Introspection_Value
    is
      (Make_Introspection_Value
-        (Property_Argument_Default_Value
-             (Get_Property_Ref (Node, Property_Name), Arg_Position)));
+        (Property_Argument_Default_Value (Ref.Ref, Arg_Position)));
 
    ----------------------
    -- Evalute_Property --
    ----------------------
 
    function Evaluate_Property
-     (Node          : Ada_AST_Node;
-      Property_Name : Text_Type;
+     (Ref           : Ada_Member_Reference;
+      Node          : AST_Node'Class;
       Arguments     : Introspection_Value_Array)
       return Introspection_Value
    is
       Property_Args : Value_Array (1 .. Arguments'Length);
-      Property_Ref  : constant Property_Reference :=
-        Get_Property_Ref (Node, Property_Name);
       Contraints    : constant Type_Constraint_Array :=
-        Property_Argument_Types (Property_Ref);
+        Property_Argument_Types (Ref.Ref);
    begin
       if Arguments'Length /= Contraints'Length then
          raise Introspection_Error with "Expected " &
@@ -597,8 +538,21 @@ package body Ada_AST_Nodes is
       end loop;
 
       return Make_Introspection_Value
-        (Eval_Member (Node.Node, Property_Ref, Property_Args));
+        (Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Property_Args));
    end Evaluate_Property;
+
+   --------------------------
+   -- Get_Member_Reference --
+   --------------------------
+
+   overriding function Get_Member_Reference
+     (Node : Ada_AST_Node;
+      Name : Text_Type) return AST_Node_Member_Reference'Class
+   is
+   begin
+      return Ada_Member_Reference'
+        (Ref => Data_Reference_For_Name (Node, Name));
+   end Get_Member_Reference;
 
    ----------------
    -- Kind_Names --

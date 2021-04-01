@@ -52,11 +52,15 @@ FunDecl
 |  |  |  |f_predicate:
 |  |  |  |  NotNode
 |  |  |  |  |f_value:
-|  |  |  |  |  DotCall
-|  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  Identifier: t
-|  |  |  |  |  |f_member:
-|  |  |  |  |  |  Identifier: p_has_aspect
+|  |  |  |  |  FunCall
+|  |  |  |  |  |f_name:
+|  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  Identifier: t
+|  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  Identifier: p_has_aspect
+|  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  SafeAbsent
 |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  ArgList
 |  |  |  |  |  |  |  ExprArg

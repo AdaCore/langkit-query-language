@@ -638,6 +638,14 @@ class FunDecl(AnnotatedDeclaration):
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
 
 
+class Safe(LKQLNode):
+    """
+    Qualifier for safe accesses.
+    """
+    enum_node = True
+    qualifier = True
+
+
 class FunCall(Expr):
     """
     Function call.
@@ -647,6 +655,7 @@ class FunCall(Expr):
     """
 
     name = Field(type=Expr)
+    has_safe = Field(type=Safe)
     arguments = Field(type=Arg.list)
 
     @langkit_property(return_type=T.Int, public=True)
@@ -1151,7 +1160,8 @@ lkql_grammar.add_rules(
         SafeAccess(G.value_expr, "?.", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
         FunCall(
-            G.value_expr, "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
+            G.value_expr, Safe("?"),
+            "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
         ),
         G.query,
         G.listcomp,
@@ -1189,7 +1199,7 @@ lkql_grammar.add_rules(
     ),
 
     fun_call=FunCall(
-        G.id, "(", c(), G.arg_list, ")"
+        G.id, Safe("?"), "(", c(), G.arg_list, ")"
     ),
 
     arg_list=List(G.arg, empty_valid=True, sep=","),

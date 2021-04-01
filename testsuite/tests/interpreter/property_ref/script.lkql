@@ -1,0 +1,2 @@
+val prop = (select first BaseId).p_semantic_parent
+print(prop())

@@ -1,6 +1,8 @@
 FunCall
 |f_name:
 |  Identifier: add
+|f_has_safe:
+|  SafeAbsent
 |f_arguments:
 |  ArgList
 |  |  NamedArg

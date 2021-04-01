@@ -1,10 +1,14 @@
 IfThenElse
 |f_condition:
-|  DotCall
-|  |f_receiver:
-|  |  Identifier: node
-|  |f_member:
-|  |  Identifier: property
+|  FunCall
+|  |f_name:
+|  |  DotAccess
+|  |  |f_receiver:
+|  |  |  Identifier: node
+|  |  |f_member:
+|  |  |  Identifier: property
+|  |f_has_safe:
+|  |  SafeAbsent
 |  |f_arguments:
 |  |  ArgList: <empty list>
 |f_then_expr:

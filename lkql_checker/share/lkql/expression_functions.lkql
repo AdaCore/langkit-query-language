@@ -4,6 +4,6 @@
 @check(message="expression function")
 fun expression_functions(node) =
     node is ExprFunction
-    when node.p_semantic_parent is BasePackageDecl or
-         (node.p_semantic_parent is PrivatePart and
-          node.p_semantic_parent?.p_semantic_parent is BasePackageDecl)
+    when node.p_semantic_parent() is BasePackageDecl or
+         (node.p_semantic_parent() is PrivatePart and
+          node.p_semantic_parent()?.p_semantic_parent() is BasePackageDecl)

@@ -210,6 +210,8 @@ package body LKQL.Primitives is
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
          when Kind_Builtin_Function =>
             Free (Data.Fn_Access);
+         when Kind_Property_Reference =>
+            Free_Member_Ref (Data.Ref);
          when others =>
             null;
       end case;
@@ -439,6 +441,15 @@ package body LKQL.Primitives is
       (Kind (Value) = Kind_Node and then Value.Get.Nullable);
 
    ----------------
+   -- Is_Nullish --
+   ----------------
+
+   function Is_Nullish (Value : Primitive) return Boolean
+   is
+     ((Kind (Value) = Kind_Node and then Value.Get.Node_Val.Get.Is_Null_Node)
+      or else Kind (Value) = Kind_Unit);
+
+   ----------------
    -- Booleanize --
    ----------------
 
@@ -613,7 +624,7 @@ package body LKQL.Primitives is
 
    function Make_Property_Reference
      (Node_Val     : Primitive;
-      Property_Ref : Libadalang.Common.Property_Reference) return Primitive
+      Property_Ref : AST_Node_Member_Reference'Class) return Primitive
    is
       Ref : Primitive;
    begin
@@ -621,7 +632,8 @@ package body LKQL.Primitives is
         (Primitive_Data'
            (Refcounted
             with Kind           => Kind_Property_Reference,
-                 Ref            => Property_Ref,
+                 Ref            =>
+                   new AST_Node_Member_Reference'Class'(Property_Ref),
                  Property_Node  => Node_Val.Get.Node_Val));
 
       return Ref;
@@ -851,7 +863,7 @@ package body LKQL.Primitives is
             when Kind_Property_Reference =>
               To_Unbounded_Text
                 ("<PropertyRef " & Node_Image (Val.Get.Property_Node)
-                 & Val.Get.Ref'Wide_Wide_Image & ">"),
+                 & Val.Get.Ref.Name & ">"),
             when Kind_Namespace        =>
               To_Unbounded_Text
                (To_Text (Env_Image

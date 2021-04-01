@@ -4,11 +4,15 @@ IfThenElse
 |  |f_value:
 |  |  RelBinOp
 |  |  |f_left:
-|  |  |  DotCall
-|  |  |  |f_receiver:
-|  |  |  |  Identifier: node
-|  |  |  |f_member:
-|  |  |  |  Identifier: prop
+|  |  |  FunCall
+|  |  |  |f_name:
+|  |  |  |  DotAccess
+|  |  |  |  |f_receiver:
+|  |  |  |  |  Identifier: node
+|  |  |  |  |f_member:
+|  |  |  |  |  Identifier: prop
+|  |  |  |f_has_safe:
+|  |  |  |  SafeAbsent
 |  |  |  |f_arguments:
 |  |  |  |  ArgList: <empty list>
 |  |  |f_op:

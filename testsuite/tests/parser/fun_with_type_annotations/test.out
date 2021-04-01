@@ -93,15 +93,19 @@ FunDecl
 |  |  |  |  |  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  |  |  |  |  Identifier: semanticParent
 |  |  |  |  |  |  |  |  |  |f_value:
-|  |  |  |  |  |  |  |  |  |  SafeCall
-|  |  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  SafeAccess
 |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  |  |  Identifier: l
+|  |  |  |  |  |  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: l
+|  |  |  |  |  |  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: f_item
 |  |  |  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  |  |  Identifier: f_item
-|  |  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: p_semantic_parent
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_semantic_parent
+|  |  |  |  |  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  |  |  |  |  SafeAbsent
 |  |  |  |  |  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
 |  |  |  |  |  |  |  |  |  ValDecl
@@ -121,11 +125,15 @@ FunDecl
 |  |  |  |  |  |  |  |  |  |  |f_guard:
 |  |  |  |  |  |  |  |  |  |  |  RelBinOp
 |  |  |  |  |  |  |  |  |  |  |  |f_left:
-|  |  |  |  |  |  |  |  |  |  |  |  DotCall
-|  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
-|  |  |  |  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_referenced_decl
+|  |  |  |  |  |  |  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_referenced_decl
+|  |  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
 |  |  |  |  |  |  |  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
 |  |  |  |  |  |  |  |  |  |  |  |f_op:

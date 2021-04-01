@@ -35,10 +35,17 @@ with Libadalang.Helpers; use Libadalang.Helpers;
 
 package Ada_AST_Nodes is
 
+   package LALCO renames Libadalang.Common;
+
    subtype Node_Type_Id is Libadalang.Common.Node_Type_Id;
 
    type Ada_AST_Node is new AST_Node with record
       Node : Ada_Node;
+   end record;
+
+   type Ada_Member_Reference
+   is new LKQL.AST_Nodes.AST_Node_Member_Reference with record
+      Ref : LALCO.Member_Reference;
    end record;
 
    type Ada_AST_Node_Access is access all Ada_AST_Node;
@@ -48,6 +55,8 @@ package Ada_AST_Nodes is
    overriding function Hash (Node : Ada_AST_Node) return Hash_Type;
 
    overriding function Text_Image (Node : Ada_AST_Node) return Text_Type;
+
+   overriding function Text (Node : Ada_AST_Node) return Text_Type;
 
    overriding function Kind_Name (Node : Ada_AST_Node) return String;
 
@@ -71,21 +80,27 @@ package Ada_AST_Nodes is
      (Node : Ada_AST_Node; Name : Text_Type) return Boolean;
 
    overriding function Access_Field
-     (Node : Ada_AST_Node; Field : Text_Type) return Introspection_Value;
+     (Node  : AST_Node'Class;
+      Ref   : Ada_Member_Reference) return Introspection_Value;
+
+   overriding function Get_Member_Reference
+     (Node : Ada_AST_Node;
+      Name : Text_Type) return AST_Node_Member_Reference'Class;
 
    overriding function Property_Arity
-     (Node : Ada_AST_Node; Property_Name : Text_Type) return Natural;
+     (Ref : Ada_Member_Reference) return Natural;
 
-   overriding function Default_Arg_Value (Node          : Ada_AST_Node;
-                                          Property_Name : Text_Type;
-                                          Arg_Position  : Positive)
-                                          return Introspection_Value;
+   overriding function Default_Arg_Value
+     (Ref           : Ada_Member_Reference;
+      Arg_Position  : Positive) return Introspection_Value;
 
-   function Evaluate_Property
-     (Node          : Ada_AST_Node;
-      Property_Name : Text_Type;
-      Arguments     : Introspection_Value_Array)
-      return Introspection_Value;
+   overriding function Name
+     (Ref : Ada_Member_Reference) return Text_Type;
+
+   overriding function Evaluate_Property
+     (Ref       : Ada_Member_Reference;
+      Node      : AST_Node'Class;
+      Arguments : Introspection_Value_Array) return Introspection_Value;
 
    function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc;
 

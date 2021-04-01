@@ -48,7 +48,7 @@ fun denotes_local_object(n) = {
         | p@PackageBody                 => has_local_scope(p) or denotes_local_object(n?.f_prefix)
         | p@GenericPackageInstantiation => has_local_scope(p) or denotes_local_object(n?.f_prefix)
         | r@*                           =>
-          if r?.p_type_expression?.p_designated_type_decl()?.p_is_access_type()
+          if r?.p_type_expression()?.p_designated_type_decl()?.p_is_access_type()
           then false
           else denotes_local_object(n?.f_prefix);
 

@@ -35,8 +35,6 @@ with Ada.Unchecked_Deallocation;
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 limited with LKQL.Eval_Contexts;
 
-with Libadalang.Common;
-
 package LKQL.Primitives is
 
    Unsupported_Error : exception;
@@ -149,12 +147,8 @@ package LKQL.Primitives is
          when Kind_Builtin_Function =>
             Fn_Access         : Builtin_Fn_Access_Access;
          when Kind_Property_Reference =>
-            --  NOTE: we don't use the obsolete LKQL abstraction layer that
-            --  isn't usable anyway, instead we use LAL directly, and will
-            --  replace by the langkit introspection layer when it's ready.
-            Ref               : Libadalang.Common.Property_Reference;
+            Ref               : AST_Node_Member_Ref_Access;
             Property_Node     : AST_Node_Rc;
-
          when Kind_Namespace =>
             Namespace         : Environment_Access;
          when Kind_Function | Kind_Selector =>
@@ -307,6 +301,9 @@ package LKQL.Primitives is
    function Is_Nullable (Value : Primitive) return Boolean;
    --  Return whether the given Primitive value is nullable
 
+   function Is_Nullish (Value : Primitive) return Boolean;
+   --  Return whether the value is null or unit.
+
    function Booleanize (Value : Primitive) return Boolean;
    --  Turn the value into an Ada boolean value, according to the logic:
    --
@@ -364,7 +361,7 @@ package LKQL.Primitives is
 
    function Make_Property_Reference
      (Node_Val     : Primitive;
-      Property_Ref : Libadalang.Common.Property_Reference) return Primitive;
+      Property_Ref : AST_Node_Member_Reference'Class) return Primitive;
 
    -------------------------------------------------
    -- Primitive to Introspection value conversion --

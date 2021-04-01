@@ -19,6 +19,8 @@ Query
 |  |  |  |  FunCall
 |  |  |  |  |f_name:
 |  |  |  |  |  Identifier: property
+|  |  |  |  |f_has_safe:
+|  |  |  |  |  SafeAbsent
 |  |  |  |  |f_arguments:
 |  |  |  |  |  ArgList: <empty list>
 |  |  |  |f_pattern:
@@ -55,20 +57,28 @@ Query
 |  |  |  |  |f_predicate:
 |  |  |  |  |  BinOp
 |  |  |  |  |  |f_left:
-|  |  |  |  |  |  DotCall
-|  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  Identifier: k
-|  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  Identifier: prop
+|  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  |  Identifier: k
+|  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  Identifier: prop
+|  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  SafeAbsent
 |  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  ArgList: <empty list>
 |  |  |  |  |  |f_op:
 |  |  |  |  |  |  OpAnd
 |  |  |  |  |  |f_right:
-|  |  |  |  |  |  DotCall
-|  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  Identifier: l
-|  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  Identifier: prop
+|  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  |  Identifier: l
+|  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  Identifier: prop
+|  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  SafeAbsent
 |  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  ArgList: <empty list>

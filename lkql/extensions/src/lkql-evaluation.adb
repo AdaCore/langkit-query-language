@@ -84,12 +84,6 @@ package body LKQL.Evaluation is
    function Eval_Safe_Access
      (Ctx  : Eval_Context; Node : L.Safe_Access) return Primitive;
 
-   function Eval_Dot_Call
-     (Ctx : Eval_Context; Node : L.Dot_Call) return Primitive;
-
-   function Eval_Safe_Call
-     (Ctx : Eval_Context; Node : L.Safe_Call) return Primitive;
-
    function Eval_Is
      (Ctx : Eval_Context; Node : L.Is_Clause) return Primitive;
 
@@ -187,10 +181,6 @@ package body LKQL.Evaluation is
             Result := Eval_Dot_Access (Local_Context, Node.As_Dot_Access);
          when LCO.LKQL_Safe_Access =>
             Result := Eval_Safe_Access (Local_Context, Node.As_Safe_Access);
-         when LCO.LKQL_Dot_Call =>
-            Result := Eval_Dot_Call (Local_Context, Node.As_Dot_Call);
-         when LCO.LKQL_Safe_Call =>
-            Result := Eval_Safe_Call (Local_Context, Node.As_Safe_Call);
          when LCO.LKQL_Is_Clause =>
             Result := Eval_Is (Local_Context, Node.As_Is_Clause);
          when LCO.LKQL_In_Clause =>
@@ -588,42 +578,6 @@ package body LKQL.Evaluation is
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
    end Eval_Safe_Access;
-
-   ---------------------
-   -- Eval_Dot_Access --
-   ---------------------
-
-   function Eval_Dot_Call
-     (Ctx : Eval_Context; Node : L.Dot_Call) return Primitive
-   is
-      Receiver : constant Primitive := Eval (Ctx, Node.F_Receiver);
-   begin
-      if Kind (Receiver) /= Kind_Node then
-         Raise_Invalid_Kind
-           (Ctx, Node.F_Receiver.As_LKQL_Node, Kind_Node, Receiver);
-      elsif Is_Nullable (Receiver) then
-         Raise_Null_Access (Ctx, Receiver, Node.F_Member);
-      end if;
-
-      return Node_Data.Eval_Node_Property
-        (Ctx, Node_Val (Receiver), Node.F_Member, Node.F_Arguments);
-   end Eval_Dot_Call;
-
-   --------------------
-   -- Eval_Safe_Call --
-   -------------------
-
-   function Eval_Safe_Call
-     (Ctx : Eval_Context; Node : L.Safe_Call) return Primitive
-   is
-      Receiver : constant AST_Node_Rc :=
-        Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
-   begin
-      return (if Receiver.Get.Is_Null_Node
-              then To_Primitive (Receiver, Nullable => True)
-              else Node_Data.Eval_Node_Property
-                (Ctx, Receiver, Node.F_Member, Node.F_Arguments));
-   end Eval_Safe_Call;
 
    -------------
    -- Eval Is --

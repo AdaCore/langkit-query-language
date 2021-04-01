@@ -28,7 +28,8 @@ with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Errors;           use LKQL.Errors;
 with LKQL.Evaluation;       use LKQL.Evaluation;
 with LKQL.Error_Handling;   use LKQL.Error_Handling;
-with LKQL.Node_Extensions; use LKQL.Node_Extensions;
+with LKQL.Node_Extensions;  use LKQL.Node_Extensions;
+with LKQL.Node_Data;        use LKQL.Node_Data;
 
 package body LKQL.Functions is
 
@@ -62,9 +63,15 @@ package body LKQL.Functions is
       --  Else, eval the name to fetch the called entity
       Func := Eval (Ctx, Call.F_Name);
 
+      --  If this is a safe call and the callable is null, return unit.
+      if Call.F_Has_Safe and then Is_Nullish (Func) then
+         return Make_Unit_Primitive;
+      end if;
+
       --  Called entity should be a function or a selector
       if Kind (Func) not in
         Kind_Function | Kind_Selector | Kind_Builtin_Function
+          | Kind_Property_Reference
       then
          Raise_Invalid_Type (Ctx, Call.As_LKQL_Node,
                              "function or selector", Func);
@@ -79,6 +86,10 @@ package body LKQL.Functions is
             return Eval_User_Selector_Call (Ctx, Call, Func);
          when Kind_Builtin_Function =>
             return Eval_Builtin_Call (Ctx, Call, Func);
+         when Kind_Property_Reference =>
+            return Eval_Node_Property
+              (Ctx, Func.Get.Property_Node,
+               Func.Get.Ref.all, Call.F_Arguments);
          when others =>
             raise Program_Error with "unreachable";
       end case;

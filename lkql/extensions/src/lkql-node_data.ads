@@ -25,8 +25,6 @@ with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 package LKQL.Node_Data is
 
    function Access_Node_Field (Ctx        : Eval_Context;
@@ -35,23 +33,19 @@ package LKQL.Node_Data is
    --  Return the value of the field designated by 'Field_Name' on 'Receiver'.
    --  An exception will be raised if there is no such field.
 
-   function Eval_Node_Property (Ctx           : Eval_Context;
-                                Receiver      : AST_Node_Rc;
-                                Property_Name : L.Identifier;
-                                Args          : L.Arg_List) return Primitive
+   function Eval_Node_Property
+     (Ctx           : Eval_Context;
+      Receiver      : AST_Node_Rc;
+      Property_Name : L.Identifier;
+      Args          : L.Arg_List) return Primitive
      with Pre => not Args.Is_Null;
+   function Eval_Node_Property
+     (Ctx           : Eval_Context;
+      Receiver      : AST_Node_Rc;
+      Property_Ref  : AST_Node_Member_Reference'Class;
+      Args          : L.Arg_List) return Primitive;
    --  Evaluate the property designated by 'Property_Name' on 'Receiver'.
    --  An exception will be raised if there is no such property or if the call
    --  arity doesn't match the arity of the property.
-
-private
-
-   function Introspection_Value_Array_From_Args
-     (Ctx           : Eval_Context;
-      Node          : AST_Node_Rc;
-      Property_Name : Text_Type;
-      Args          : L.Arg_List)
-      return Introspection_Value_Array;
-   --  Evaluate the given arguments and convert them to Value_Type values.
 
 end LKQL.Node_Data;

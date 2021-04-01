@@ -10,4 +10,4 @@ fun false_with_side_effect() = {
 #
 # 2. Since the LHS is False, RHS should not be evaluated, and nothing should be
 # printed.
-print(decl?.has_aspect("volatile") and false_with_side_effect())
+print(decl?.has_aspect?("volatile") and false_with_side_effect())

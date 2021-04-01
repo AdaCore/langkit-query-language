@@ -44,6 +44,12 @@ package LKQL.AST_Nodes is
    type AST_Node is interface;
    --  Interface implemented by concrete AST node types
 
+   type AST_Node_Member_Reference is abstract tagged null record;
+   --  Reference to a node member (field or property)
+
+   type AST_Node_Member_Ref_Access
+   is access all AST_Node_Member_Reference'Class;
+
    type AST_Node_Access is access all AST_Node'Class;
    --  Pointer to an AST node
 
@@ -112,6 +118,9 @@ package LKQL.AST_Nodes is
    function Text_Image (Node : AST_Node) return Text_Type is abstract;
    --  Return a short representation of an AST node
 
+   function Text (Node : AST_Node) return Text_Type is abstract;
+   --  Return the text of the node
+
    function Kind_Name (Node : AST_Node) return String is abstract;
    --  Return the kind name of 'Node'
 
@@ -130,6 +139,12 @@ package LKQL.AST_Nodes is
    --  Return True if 'Node's kind name is 'Kind_Name' or 'Node's type is a
    --  subtype of a type which kind name is 'Kind_Name'.
 
+   function Get_Member_Reference
+     (Node : AST_Node; Name : Text_Type) return AST_Node_Member_Reference'Class
+      is abstract;
+   --  Return the member reference (property or field) for the given node and
+   --  the given name.
+
    function Is_Field_Name
      (Node : AST_Node; Name : Text_Type) return Boolean is abstract;
    --  Return whether 'Name' is the name of one of 'Node's fields
@@ -138,30 +153,32 @@ package LKQL.AST_Nodes is
      (Node : AST_Node; Name : Text_Type) return Boolean is abstract;
    --  Return whether 'Name' is the name of one of 'Node's properties
 
-   function Access_Field (Node  : AST_Node;
-                          Field : Text_Type)
+   function Access_Field (Node  : AST_Node'Class;
+                          Ref   : AST_Node_Member_Reference)
                           return Introspection_Value is abstract;
    --  Return the value of the 'Node's field named 'Field'.
 
-   function Property_Arity (Node          : AST_Node;
-                            Property_Name : Text_Type)
-                            return Natural is abstract;
+   function Property_Arity
+     (Ref : AST_Node_Member_Reference) return Natural is abstract;
    --  Return the arity of 'Node's property named 'Property_Name'
 
-   function Default_Arg_Value (Node          : AST_Node;
-                               Property_Name : Text_Type;
-                               Arg_Position  : Positive)
-                               return Introspection_Value is abstract;
+   function Default_Arg_Value
+     (Ref           : AST_Node_Member_Reference;
+      Arg_Position  : Positive) return Introspection_Value is abstract;
    --  Return the default value (if any) of the argument named
    --  'Arg_Poisition' of 'Node's property named 'Property_Name'.
 
    function Evaluate_Property
-     (Node          : AST_Node;
-      Property_Name : Text_Type;
+     (Ref           : AST_Node_Member_Reference;
+      Node          : AST_Node'Class;
       Arguments     : Introspection_Value_Array)
       return Introspection_Value is abstract;
    --  Evaluate the 'Node's property named 'Property_Name' with the given
    --  arguments.
+
+   function Name
+     (Ref : AST_Node_Member_Reference) return Text_Type is abstract;
+   --  Return the textual name of the member reference
 
    ----------------------------
    -- Deallocation functions --
@@ -204,6 +221,10 @@ package LKQL.AST_Nodes is
    function "=" (Left, Right : AST_Node_Rc) return Boolean is
      (Left.Get = Right.Get);
    --  Check equality between two AST nodes referenced by refcounted pointers
+
+   procedure Free_Member_Ref is new Ada.Unchecked_Deallocation
+     (AST_Node_Member_Reference'Class, AST_Node_Member_Ref_Access);
+   --  Free a member reference
 
    procedure Free_AST_Node is new Ada.Unchecked_Deallocation
      (AST_Node'Class, AST_Node_Access);
