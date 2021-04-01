@@ -1,0 +1,8 @@
+pos.ads:13:23: error: aggregate with a positional component association
+13 |    Var_Rec_2 : Rec := (2, C_Bool => False, C_Char => 'b');   --  FLAG
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+pos.ads:14:23: error: aggregate with a positional component association
+14 |    Var_Rec_3 : Rec := (1, True, 'c');                        --  FLAG
+   |                       ^^^^^^^^^^^^^^ 
+
