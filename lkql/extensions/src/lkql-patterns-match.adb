@@ -21,11 +21,15 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with LKQL.AST_Nodes;
 with LKQL.Patterns.Nodes; use LKQL.Patterns.Nodes;
 with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Error_Handling;
+with LKQL.Node_Extensions;
 
 with Ada.Assertions; use Ada.Assertions;
+
+with GNAT.Regpat;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -162,6 +166,10 @@ package body LKQL.Patterns.Match is
          when LCO.LKQL_Universal_Pattern =>
             return Make_Match_Success (Value);
 
+         when LCO.LKQL_Regex_Pattern =>
+            return Match_Regex
+              (Ctx, Pattern.As_Regex_Pattern, Value);
+
          when LCO.LKQL_Null_Pattern =>
             if Value.Get.Node_Val.Get.Is_Null_Node then
                return Make_Match_Success (Value);
@@ -199,4 +207,44 @@ package body LKQL.Patterns.Match is
       end if;
    end Match_Binding;
 
+   -----------------
+   -- Match_Regex --
+   -----------------
+
+   function Match_Regex (Ctx     : Eval_Context;
+                         Pattern : L.Regex_Pattern;
+                         Value   : Primitive) return Match_Result
+   is
+      pragma Unreferenced (Ctx);
+
+      use LKQL.AST_Nodes;
+      use LKQL.Node_Extensions;
+
+      Pat_Ext : constant Ext := Get_Ext (Pattern);
+   begin
+      case Kind (Value) is
+         when Kind_Node =>
+            declare
+               Node : AST_Node'Class := Node_Val (Value).Unchecked_Get.all;
+            begin
+               if not Node.Is_Null_Node
+                  and then GNAT.Regpat.Match
+                    (Pat_Ext.Content.Compiled_Pattern.all,
+                     To_UTF8 (Node.Text))
+               then
+                  return Make_Match_Success (Value);
+               end if;
+            end;
+         when Kind_Str =>
+            if GNAT.Regpat.Match
+                 (Pat_Ext.Content.Compiled_Pattern.all,
+                  To_UTF8 (To_Text (Str_Val (Value))))
+            then
+               return Make_Match_Success (Value);
+            end if;
+         when others =>
+            null;
+      end case;
+      return Match_Failure;
+   end Match_Regex;
 end LKQL.Patterns.Match;

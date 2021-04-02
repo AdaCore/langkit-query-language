@@ -22,12 +22,14 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories; use Ada.Directories;
+with Ada.Strings.Wide_Wide_Unbounded;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Diagnostics.Output;
 
 with LKQL.Node_Extensions; use LKQL.Node_Extensions;
+with GNAT.Regpat;
 
 package body LKQL.Unit_Utils is
 
@@ -112,6 +114,37 @@ package body LKQL.Unit_Utils is
                      when others => null;
                   end case;
                end loop;
+            end;
+
+         when LCO.LKQL_Regex_Pattern =>
+
+            --  Regular expressions: precompile regex patterns to speed up
+            --  matching at runtime.
+            declare
+               use GNAT.Regpat;
+               use Ada.Strings.Wide_Wide_Unbounded;
+
+               Regex_Node : constant L.Regex_Pattern := Node.As_Regex_Pattern;
+
+               Quoted_Pattern : constant Unbounded_Text_Type :=
+                  To_Unbounded_Text (Regex_Node.Text);
+
+               Pattern_Str : constant Unbounded_Text_Type :=
+                  Unbounded_Slice
+                    (Quoted_Pattern, 2, Length (Quoted_Pattern) - 1);
+
+               Pattern_Utf8 : constant String :=
+                  To_UTF8 (To_Text (Pattern_Str));
+            begin
+               Ext_Val.Content := Node_Ext'
+                 (Kind => LCO.LKQL_Regex_Pattern,
+                  Compiled_Pattern =>
+                     new Pattern_Matcher'(Compile (Pattern_Utf8)));
+            exception
+               when Expression_Error =>
+                  Output_Error
+                    (Node.As_LKQL_Node,
+                     "Failed to compile regular expression.");
             end;
 
          when others => null;

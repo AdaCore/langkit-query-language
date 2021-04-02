@@ -29,9 +29,18 @@ package body LKQL.Node_Extensions is
    -------------
 
    procedure Destroy (Self : in out Ext) is
+      procedure Free_Pattern is new Ada.Unchecked_Deallocation
+        (GNAT.Regpat.Pattern_Matcher, Regex_Matcher_Access);
+
       procedure Free is new Ada.Unchecked_Deallocation
         (LKQL_Node_Extension, Ext);
    begin
+      case Self.Content.Kind is
+         when LCO.LKQL_Regex_Pattern =>
+            Free_Pattern (Self.Content.Compiled_Pattern);
+         when others =>
+            null;
+      end case;
       Free (Self);
    end Destroy;
 end LKQL.Node_Extensions;

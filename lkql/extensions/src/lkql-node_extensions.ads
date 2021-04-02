@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers.Hashed_Maps;
+with GNAT.Regpat;
 
 --  This package is the user facing parts of the LKQL node extension mechanism.
 --  It allows us to extend nodes with pre-computed information stored in
@@ -53,6 +54,10 @@ package LKQL.Node_Extensions is
    --  Mapping of name to formal parameter information. Used to speed up lookup
    --  of parameters in function calls.
 
+   type Regex_Matcher_Access is access GNAT.Regpat.Pattern_Matcher;
+   --  Store a compiled regular expression pattern. Used by LKQL's pattern
+   --  matching routine to avoid having to recompile patterns for each query.
+
    ------------------------
    -- Node extension API --
    ------------------------
@@ -68,6 +73,8 @@ package LKQL.Node_Extensions is
             Params : Params_Maps.Map;
             --  Param_Map for the function, used to speedup lookup of
             --  parameters in calls.
+         when LCO.LKQL_Regex_Pattern =>
+            Compiled_Pattern : Regex_Matcher_Access;
          when others => null;
       end case;
    end record;

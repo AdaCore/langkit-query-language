@@ -472,6 +472,14 @@ class UniversalPattern(ValuePattern):
     pass
 
 
+class RegexPattern(ValuePattern):
+    """
+    Pattern that considers the value as text and matches it against the
+    given regular expression.
+    """
+    token_node = True
+
+
 class ParenPattern(ValuePattern):
     """
     A parenthesized pattern.
@@ -1058,6 +1066,7 @@ lkql_grammar.add_rules(
         NodeKindPattern(G.kind_name),
         UniversalPattern("*"),
         NullPattern("null"),
+        RegexPattern(Token.String),
         NotPattern("not", G.value_pattern),
         ParenPattern("(", G.pattern, ")")
     ),

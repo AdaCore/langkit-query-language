@@ -62,4 +62,9 @@ package LKQL.Patterns.Match is
    --  Match a Primitive value against a pattern that contains both a binding
    --  name and a value pattern.
 
+   function Match_Regex (Ctx     : Eval_Context;
+                         Pattern : L.Regex_Pattern;
+                         Value   : Primitive) return Match_Result;
+   --  Match a Primitive value against a regular expression.
+
 end LKQL.Patterns.Match;
