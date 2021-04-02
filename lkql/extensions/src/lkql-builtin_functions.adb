@@ -22,6 +22,8 @@
 ------------------------------------------------------------------------------
 
 with LKQL.Evaluation; use LKQL.Evaluation;
+with LKQL.AST_Nodes;
+
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada_AST_Nodes; use Ada_AST_Nodes;
@@ -90,5 +92,19 @@ package body LKQL.Builtin_Functions is
    begin
       return To_Primitive (To_Unbounded_Text (Eval (Ctx.all, Node)));
    end Eval_Image;
+
+   -------------------------
+   -- Eval_Children_Count --
+   -------------------------
+
+   function Eval_Children_Count
+     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+   is
+      Arg : constant AST_Nodes.AST_Node'Class :=
+         Node_Val (Eval (Ctx.all, Node, Kind_Node)).Unchecked_Get.all;
+   begin
+      return To_Primitive
+        (if Arg.Is_Null_Node then 0 else Arg.Children_Count);
+   end Eval_Children_Count;
 
 end LKQL.Builtin_Functions;

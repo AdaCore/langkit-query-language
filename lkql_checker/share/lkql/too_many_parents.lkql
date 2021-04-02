@@ -6,14 +6,10 @@
 # This rule has the following parameter: n: Positive integer
 # specifying the maximal allowed number of parents/progenitors.
 
-# TODO: [U317-058] Use a dedicated length operator on is_list_type Nodes
-fun length(l, n : int = 0) =
-    if l == null then 0 else (if l[n + 1] != null then length(l, n+1) else n)
-
 fun num_interfaces(n) = match n
-    | TaskTypeDecl        => length(n.f_definition?.f_interfaces)
-    | ProtectedTypeDecl   => length(n.f_interfaces)
-    | SingleProtectedDecl => length(n.f_interfaces)
+    | TaskTypeDecl        => children_count(n.f_definition?.f_interfaces)
+    | ProtectedTypeDecl   => children_count(n.f_interfaces)
+    | SingleProtectedDecl => children_count(n.f_interfaces)
     | *                   => 0
 
 @check(message="too many parents")

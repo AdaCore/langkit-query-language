@@ -2,20 +2,12 @@
 # containing exactly one choice, the other containing exactly one choice
 # or the `OTHERS' choice.
 
-# TODO: [U317-058] Use a dedicated length operator on is_list_type Nodes
-fun count_next(l, n) =
-    if l[n + 1] != null then count_next(l, n+1) else n
-
-fun length_is(l, n) =
-    count_next(l, 0) == n
-
-
 @check(message="CASE statement that can be replaced with IF statement")
 fun binary_case_statements(node) =
     node is c@CaseStmt(
         f_alternatives is CaseStmtAlternativeList(
             all children(depth=1) is a@CaseStmtAlternative
-            when length_is(a?.f_choices, 1)
+            when children_count(a?.f_choices) == 1
         )
-        when length_is(c?.f_alternatives, 2)
+        when children_count(c?.f_alternatives) == 2
     )

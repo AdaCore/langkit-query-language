@@ -1,0 +1,2 @@
+val x = select n@HandledStmts when children_count(n.f_stmts) > 1
+print(x)
