@@ -1,0 +1,14 @@
+package body Explicit_Full_Discrete_Ranges is
+   procedure P is
+      subtype Idx is Integer range 1 .. 100;
+      K, L : Integer := 0;
+   begin
+      for J in Idx'First .. Idx'Last loop   --  FLAG
+         K := K + J;
+      end loop;
+      
+      for J in Idx loop
+         L := L + J;
+      end loop;
+   end P;
+end Explicit_Full_Discrete_Ranges;

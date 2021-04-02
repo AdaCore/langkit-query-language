@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: 'Explicit_Full_Discrete_Ranges'
+project: 'prj.gpr'

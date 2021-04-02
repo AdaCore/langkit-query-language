@@ -1,0 +1,11 @@
+# Flag each discrete range that has the form `A'First .. A'Last'.
+
+fun full_range(l, r) =
+   l is AttributeRef and r is AttributeRef
+   and l?.f_attribute?.p_name_is("First") and r?.f_attribute?.p_name_is("Last")
+   and l?.f_prefix?.p_referenced_decl() == r?.f_prefix?.p_referenced_decl()
+
+@check(message="bad discrete range, consider replacement with subtype mark")
+fun explicit_full_discrete_ranges(node) =
+   node is BinOp(f_op is OpDoubleDot)
+   when node.parent is ForLoopSpec and full_range(node.f_left, node.f_right)
