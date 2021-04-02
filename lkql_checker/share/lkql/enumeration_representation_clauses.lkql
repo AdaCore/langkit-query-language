@@ -1,0 +1,5 @@
+# Flag enumeration representation clauses.
+
+@check(message="enumeration representation clause")
+fun enumeration_representation_clauses(node) = 
+   node is EnumRepClause
