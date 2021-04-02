@@ -1,0 +1,21 @@
+# Flag each actual parameter to a subprogram or entry call where the
+# corresponding formal parameter has a default expression, if positional
+# notation is used.
+
+# TODO: share this function
+fun param_pos2(n, pos : int = 0) =
+    if n == null then pos else param_pos2(n?.previous_sibling, pos+1)
+
+fun check_actual(spec, node) =
+    match spec
+    | SubpSpec  =>
+        spec?.f_subp_params?.f_params[param_pos2(node)]?.f_default_expr != null
+    | EntrySpec =>
+        spec?.f_entry_params?.f_params[param_pos2(node)]?.f_default_expr != null
+    | *           => false
+
+@check(message="use named notation when passing actual to defaulted parameter")
+fun positional_actuals_for_defaulted_parameters(node) =
+    node is ParamAssoc(f_designator is null, parent is l@AssocList)
+    when l?.parent is c@CallExpr
+        when check_actual(c?.f_name?.p_called_subp_spec(), node)
