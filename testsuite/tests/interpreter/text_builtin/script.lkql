@@ -1,0 +1,2 @@
+val texts = [text(bd) for bd in select DefiningName]
+print(texts)

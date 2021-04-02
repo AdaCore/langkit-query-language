@@ -107,4 +107,18 @@ package body LKQL.Builtin_Functions is
         (if Arg.Is_Null_Node then 0 else Arg.Children_Count);
    end Eval_Children_Count;
 
+   ---------------
+   -- Eval_Text --
+   ---------------
+
+   function Eval_Text
+     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+   is
+      Arg : constant AST_Nodes.AST_Node'Class :=
+         Node_Val (Eval (Ctx.all, Node, Kind_Node)).Unchecked_Get.all;
+   begin
+      return To_Primitive
+        (if Arg.Is_Null_Node then "" else Arg.Text);
+   end Eval_Text;
+
 end LKQL.Builtin_Functions;
