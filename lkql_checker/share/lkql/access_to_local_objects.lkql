@@ -30,7 +30,7 @@ fun local_scope(e) =
     | *             => false
 
 fun has_local_scope(n) =
-    [p for p in n?.parents if local_scope(p)].length > 0
+    [p for p in n?.parents() if local_scope(p)].length > 0
 
 fun is_local_object(o) =
     match o

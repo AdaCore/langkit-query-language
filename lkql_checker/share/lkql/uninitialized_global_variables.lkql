@@ -20,4 +20,4 @@ fun uninitialized_global_variables(node) =
     node is ObjectDecl
     when node.f_default_expr == null
          and (not node.f_has_constant?.p_as_bool())
-         and ([p for p in node?.parents if local_scope_or_formal(p)].length == 0)
+         and ([p for p in node?.parents() if local_scope_or_formal(p)].length == 0)

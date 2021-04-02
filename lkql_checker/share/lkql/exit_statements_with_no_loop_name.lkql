@@ -9,7 +9,7 @@
 
 # Return whether the node passed as argument is within a nested loop
 fun is_in_nested_loop(n) =
-   [p for p in n.parents if p is BaseLoopStmt].length > 1
+   [p for p in n.parents() if p is BaseLoopStmt].length > 1
 
 @check(message="exit statement with no loop name")
 fun exit_statements_with_no_loop_name(node, nested_only=false) =
