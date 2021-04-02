@@ -1,0 +1,32 @@
+# Flag each positional parameter notation in a subprogram or entry call, except
+# for the following:
+# - Parameters of calls to attribute subprograms are not flagged;
+# - Parameters of prefix or infix calls to operator functions are not flagged;
+# - If the called subprogram or entry has only one formal parameter, the
+#   parameter of the call is not flagged;
+# - If a subprogram call uses the Object.Operation notation, then
+#   - the first parameter (that is, Object) is not flagged;
+#   - if the called subprogram has only two parameters, the second parameter of
+#     the call is not flagged;
+# This rule has the parameter All: if this parameter is specified, all the
+# positional parameter associations that can be replaced with named
+# associations according to language rules are flagged, except parameters of
+# the calls to operator functions.
+
+fun check_actual_param(spec, node, check_dot) =
+    match spec
+    | SubpSpec  => {
+        val params=spec?.f_subp_params?.f_params;
+        # TODO: missing length operator (U317-058)
+        (params[2] != null and not check_dot) or params[3] != null
+      }
+    | EntrySpec => spec?.f_entry_params?.f_params[2] != null
+    | *           => false
+
+@check(message="positional parameter association")
+fun positional_parameters(node, all=false) =
+    node is ParamAssoc(f_designator is null, parent is l@AssocList)
+    when l?.parent is c@CallExpr(f_name is id@*
+        when (not id?.p_is_operator_name())
+         and (all or check_actual_param(id?.p_called_subp_spec(), node,
+                                        id?.p_is_dot_call())))
