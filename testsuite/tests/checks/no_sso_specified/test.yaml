@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: No_Scalar_Storage_Order_Specified
+input_sources: ['sso.ads']

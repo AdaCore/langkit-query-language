@@ -1,0 +1,12 @@
+sso.ads:4:17: error: Scalar_Storage_Order is not specified
+4 |    type Rec1 is record     --  FLAG
+  |               
+
+sso.ads:21:17: error: Scalar_Storage_Order is not specified
+21 |    type Tag1 is tagged record     --  FLAG
+   |               
+
+sso.ads:29:17: error: Scalar_Storage_Order is not specified
+29 |    type Tag2 is new Tag1 with record   --  FLAG
+   |               
+

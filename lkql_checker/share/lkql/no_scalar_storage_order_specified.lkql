@@ -1,0 +1,16 @@
+# Flag each record type declaration, record extension declaration, and untagged
+# derived record type declaration if a record_representation_clause that has at
+# least one component clause applies to it (or an ancestor), but neither the
+# type nor any of its ancestors has an explicitly specified
+# Scalar_Storage_Order attribute.
+
+@check(message="Scalar_Storage_Order is not specified")
+fun no_scalar_storage_order_specified(node) =
+    (match node
+     | RecordTypeDef  => not node.parent?.p_has_aspect("Scalar_Storage_Order")
+     | DerivedTypeDef =>
+         [p for p in node.parent?.p_base_types()
+          if p?.p_has_aspect("Scalar_Storage_Order")].length == 0
+     | *              => false)
+    and node.parent?.p_get_record_representation_clause() is RecordRepClause(
+         f_components is *(any children(depth=1) is ComponentClause))
