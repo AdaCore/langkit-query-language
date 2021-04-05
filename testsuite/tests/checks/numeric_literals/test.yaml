@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: Numeric_Literals
+input_sources: ['num.adb']
+rule_arguments:
+    numeric_literals.statements_only: "true"
+    numeric_literals.n: 2

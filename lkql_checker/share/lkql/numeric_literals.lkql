@@ -1,0 +1,30 @@
+# Flag each use of a numeric literal except for the following:
+# - a literal occurring in the initialization expression for a constant
+#   declaration or a named number declaration, or
+# - a literal occurring in an aspect definition or in an aspect clause, or
+# - an integer literal that is less than or equal to a value specified by the
+#   N rule parameter.
+# - a literal occurring in a declaration in case the Statements_Only rule
+#   parameter is given.
+# This rule has the following parameters:
+# - N: an integer literal used as the maximal value that is not flagged (i.e.,
+#   integer literals not exceeding this value are allowed).
+# - ALL: All integer literals are flagged.
+# - Statements_Only: Numeric literals are flagged only when used in statements.
+
+fun check_parents(n, statements_only) =
+    match n
+    | null         => true
+    | AspectAssoc  => false
+    | NumberDecl   => false
+    | o@ObjectDecl => not (statements_only or o?.f_has_constant?.p_as_bool())
+    | BasicDecl    => not statements_only
+    | Stmt         => true
+    | *            => check_parents(n?.parent, statements_only)
+
+@check(message="numeric literal")
+fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
+    node is NumLiteral
+    when all
+      or ((node is RealLiteral or node.p_denoted_value() > n)
+          and check_parents(node.parent, statements_only))
