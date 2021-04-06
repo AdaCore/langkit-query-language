@@ -22,11 +22,13 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories; use Ada.Directories;
+with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
 with Langkit_Support.Images; use Langkit_Support.Images;
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 with Langkit_Support.Diagnostics.Output;
 
 with Libadalang.Common; use Libadalang.Common;
@@ -45,6 +47,7 @@ with LKQL.Evaluation; use LKQL.Evaluation;
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 with LKQL.Errors; use LKQL.Errors;
+with Liblkqllang.Analysis;
 
 package body Checker_App is
 
@@ -160,7 +163,15 @@ package body Checker_App is
       for Rule of Rules loop
          --  Eval the rule's code (which should contain only definitions). TODO
          --  this should be encapsulated.
-         Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
+         begin
+            Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
+         exception
+            when others =>
+               Put (String'("internal error loading rule "));
+               Put (To_Wide_Wide_String (Rule.Name));
+               Put_Line (String'(":"));
+               raise;
+         end;
       end loop;
 
       --  Set property error recovery with the value of the command line flag.
@@ -182,10 +193,6 @@ package body Checker_App is
       -- Visit --
       -----------
 
-      -----------
-      -- Visit --
-      -----------
-
       function Visit (Node : Ada_Node'Class) return Visit_Status is
          Result  : Primitive;
          Rc_Node : constant AST_Node_Rc :=
@@ -200,7 +207,6 @@ package body Checker_App is
             declare
                Result_Node : Ada_Node;
             begin
-
                if Rule.Is_Node_Check then
 
                   --  The check is a "node check", ie. a check that returns a
@@ -260,8 +266,7 @@ package body Checker_App is
                            Diag : constant Eval_Diagnostic := Eval_Diagnostic'
                              (Diagnostic'
                                 (Result_Node.Sloc_Range,
-                                 To_Unbounded_Text
-                                   (To_Text (Rule.Message))),
+                                 To_Unbounded_Text (To_Text (Rule.Message))),
                               Result_Node.Unit);
                         begin
                            Langkit_Support.Diagnostics.Output.Print_Diagnostic
@@ -271,6 +276,34 @@ package body Checker_App is
                         end;
                   end case;
                end if;
+            exception
+               when E : others =>
+                  Put (String'("internal error processing rule "));
+                  Put (To_Wide_Wide_String (Rule.Name));
+
+                  --  If Last_Error is set and the Sloc points to some
+                  --  interesting line (line 1 typically corresponds to some
+                  --  internal/inlined context), then display this extra info.
+
+                  if Is_Error (Rule.Eval_Ctx.Last_Error) then
+                     declare
+                        Node : constant Liblkqllang.Analysis.LKQL_Node :=
+                          Rule.Eval_Ctx.Last_Error.AST_Node;
+                     begin
+                        if Node.Sloc_Range.Start_Line /= 1 then
+                           Put (" [" &
+                                Simple_Name (Node.Unit.Get_Filename) & ":" &
+                                Stripped_Image
+                                  (Integer (Node.Sloc_Range.Start_Line)) &
+                                "]");
+                        end if;
+                     end;
+                  end if;
+
+                  Put_Line
+                    (" at " & Simple_Name (Node.Unit.Get_Filename) & ":" &
+                     Stripped_Image (Integer (Node.Sloc_Range.Start_Line)) &
+                     ": " & Exception_Information (E));
             end;
          end loop;
 
