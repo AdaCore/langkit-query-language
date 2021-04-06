@@ -7,11 +7,8 @@
 # specifying the maximal allowed number of parents/progenitors.
 
 # TODO: [U317-058] Use a dedicated length operator on is_list_type Nodes
-fun length(l) = {
-    fun internal(l, n) =
-        if l[n + 1] != null then internal(l, n+1) else n;
-    internal(l, 0)
-}
+fun length(l, n : int = 0) =
+    if l == null then 0 else (if l[n + 1] != null then length(l, n+1) else n)
 
 fun num_interfaces(n) = match n
     | TaskTypeDecl        => length(n.f_definition?.f_interfaces)
