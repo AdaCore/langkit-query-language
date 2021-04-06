@@ -46,16 +46,22 @@ fun check_stmts(param, s) =
 fun check_exception_handler(param, h) =
     (h.f_stmts is *(any children is RaiseStmt)) or check_stmts(param, h)
 
-# Return the SubpBody enclosing node
-fun enclosing_subp_body(node) =
-   to_list([p for p in parent(node) if p is SubpBody])[1]
+# TODO: reuse enclosing_body
+fun enclosing_body_stmts(node) = {
+   val parent_bodies = to_list([p for p in parent(node) if p is Body]);
+   if parent_bodies.length == 0 then null else
+   (match parent_bodies[1]
+    | NullSubpDecl => null
+    | *            => parent_bodies[1]?.f_stmts)
+}
 
 @check(message="unassigned out parameter")
 fun unassigned_out_parameters(node) =
     node is DefiningName(parent is DefiningNameList(parent is ParamSpec(
         f_mode is ModeOut)))
     when {
-        val f = enclosing_subp_body(node).f_stmts;
+        val f = enclosing_body_stmts(node);
+        f != null and
         not (check_stmts(node.f_name, f?.f_stmts)
              and [m for m in (from f?.f_exceptions select h@ExceptionHandler
                   when not check_exception_handler(node.f_name, h))].length == 0
