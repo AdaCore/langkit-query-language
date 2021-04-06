@@ -112,8 +112,6 @@ package body LKQL.Node_Data is
    begin
       if Real_Name = "image" then
          return To_Primitive (Receiver.Get.Text_Image);
-      elsif Real_Name = "text" then
-         return To_Primitive (Receiver.Get.Text);
       end if;
 
       if Receiver.Get.Is_Field_Name (Real_Name) then

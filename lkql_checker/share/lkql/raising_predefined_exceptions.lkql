@@ -3,7 +3,7 @@
 # Storage_Error, or Tasking_Error).
 
 fun isPredefinedName(id) = {
-    val name = id?.text;
+    val name = text(id);
     name == "Program_Error" or name == "Constraint_Error" or
     name == "Numeric_Error" or name == "Storage_Error"    or
     name == "Tasking_Error"
