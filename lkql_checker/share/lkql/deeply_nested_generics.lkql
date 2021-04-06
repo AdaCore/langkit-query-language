@@ -10,4 +10,4 @@
 @check(message="deeply nested generic")
 fun deeply_nested_generics(node, depth : int = 5) =
     node is GenericDecl
-    when [n for n in node.parent?.parents if n is GenericDecl].length >= depth
+    when [n for n in node.parents(include_self=false) if n is GenericDecl].length >= depth

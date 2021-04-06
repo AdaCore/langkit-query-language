@@ -34,9 +34,6 @@ package body Ada_AST_Nodes is
 
    package I renames Libadalang.Introspection;
 
-   subtype Built_In_LAL_Field is Member_Reference
-   range Ada_Node_Parent .. Ada_Node_Is_Ghost;
-
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
 
@@ -457,8 +454,10 @@ package body Ada_AST_Nodes is
       Data_Ref : constant Any_Member_Reference :=
         Data_Reference_For_Name (Node, Name);
    begin
-      return (Data_Ref in Syntax_Field_Reference) or else
-        (Data_Ref in Built_In_LAL_Field);
+      return Data_Ref in Syntax_Field_Reference
+       or Data_Ref in
+          Ada_Node_Parent | Ada_Node_Children | Ada_Node_Unit
+          | Ada_Node_Previous_Sibling | Ada_Node_Next_Sibling;
    end Is_Field_Name;
 
    ----------------------
