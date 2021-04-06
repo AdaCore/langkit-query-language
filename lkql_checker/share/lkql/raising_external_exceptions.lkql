@@ -25,4 +25,4 @@ fun raising_external_exceptions(node) =
      when match lib.f_item
        | BasePackageDecl => check_raise(node, lib)
        | PackageBody     => check_raise(node, lib.f_item?.p_decl_part()?.parent)
-       | *               => ())
+       | *               => false)
