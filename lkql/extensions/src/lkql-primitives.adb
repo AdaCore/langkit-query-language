@@ -96,7 +96,11 @@ package body LKQL.Primitives is
    function Int_Image (Value : Integer) return Unbounded_Text_Type is
       Image : constant Text_Type := Integer'Wide_Wide_Image (Value);
    begin
-      return To_Unbounded_Text (Image (2 .. Image'Last));
+      if Image (1) = ' ' then
+         return To_Unbounded_Text (Image (2 .. Image'Last));
+      else
+         return To_Unbounded_Text (Image);
+      end if;
    end Int_Image;
 
    -----------------
