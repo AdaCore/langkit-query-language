@@ -1,0 +1,5 @@
+# Flag renaming declarations.
+
+@check(message="renaming declaration")
+fun renamings(node) =
+   node is ObjectDecl(f_renaming_clause is RenamingClause)

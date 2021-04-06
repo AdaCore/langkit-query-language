@@ -1,0 +1,4 @@
+renamings.ads:3:4: error: renaming declaration
+3 |    J : Integer renames I;     --  FLAG
+  |    ^ 
+
