@@ -1,5 +1,9 @@
-@check(message="Defining identifier is too long")
+# Flag any defining identifier that has length longer than specified by the
+# rule parameter. Defining identifiers of enumeration literals are not flagged.
+# The rule has a parameter N: the maximal allowed identifier length
+# specification.
+
+@check(message="identifier too long")
 fun max_identifier_length(node, n=20) =
     node is DefiningName(all parent(depth=1) is not EnumLiteralDecl)
-        when text(node).length > n
-
+    when text(node).length > n
