@@ -1,4 +1,8 @@
-decls.ads:5:11: error: more than one entry in protected definition
-5 |     entry Put (I: out Integer);
-  |           ^^^ 
+decls.ads:5:13: error: more than one entry in protected definition
+5 |       entry Put (I: out Integer);   --  FLAG
+  |             ^^^ 
+
+decls.ads:6:13: error: more than one entry in protected definition
+6 |       entry Put2;                   --  FLAG
+  |             ^^^^ 
 
