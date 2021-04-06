@@ -25,7 +25,9 @@ fun is_assert_aspect(s) =
     s == "contract_cases" or
     s == "invariant" or
     s == "predicate" or
-    s == "refined_post"
+    s == "refined_post" or
+    s == "default_initial_condition" or
+    s == "predicate_failure"
 
 @check(message="conditional expression")
 fun conditional_expressions(node, except_assertions=false) =
