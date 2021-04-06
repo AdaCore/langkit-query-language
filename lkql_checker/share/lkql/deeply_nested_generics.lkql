@@ -8,6 +8,6 @@
 # Formal packages are not flagged by this rule.
 
 @check(message="deeply nested generic")
-fun deeply_nested_generics(node, depth) =
+fun deeply_nested_generics(node, depth : int = 5) =
     node is GenericDecl
     when [n for n in node.parent?.parents if n is GenericDecl].length >= depth
