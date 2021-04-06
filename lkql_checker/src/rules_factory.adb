@@ -47,9 +47,15 @@ package body Rules_Factory is
       for Rules_Dir of Rules_Dirs loop
          for File of Read_Dir (Rules_Dir).all loop
             if File.File_Extension = +".lkql" then
-               Result.Append
-                 (Create_Rule_Command
-                    (+File.Full_Name, Ctx));
+               declare
+                  Rc : Rule_Command;
+                  Has_Rule : constant Boolean := Create_Rule_Command
+                    (+File.Full_Name, Ctx, Rc);
+               begin
+                  if Has_Rule then
+                     Result.Append (Rc);
+                  end if;
+               end;
             end if;
          end loop;
       end loop;

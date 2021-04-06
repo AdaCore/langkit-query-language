@@ -61,7 +61,8 @@ package body Rule_Commands is
 
    function Create_Rule_Command
      (LKQL_File_Path : String;
-      Ctx            : Eval_Context) return Rule_Command
+      Ctx            : Eval_Context;
+      Rc             : out Rule_Command) return Boolean
    is
       Root    : constant L.LKQL_Node :=
         Make_LKQL_Unit (Get_Context (Ctx.Kernel.all), LKQL_File_Path).Root;
@@ -72,9 +73,7 @@ package body Rule_Commands is
       if Check_Annotation.Is_Null
         or else Check_Annotation.F_Name.Text not in "check" | "node_check"
       then
-         raise Rule_Error
-           with "No @check or @node_check annotated function in "
-           & LKQL_File_Path;
+         return False;
       end if;
 
       declare
@@ -104,7 +103,7 @@ package body Rule_Commands is
             Msg := To_Unbounded_Text (To_Lower (Name));
          end if;
 
-         return Rule_Command'
+         Rc := Rule_Command'
            (Name          => To_Unbounded_Text (To_Lower (Name)),
             Message       => Msg,
             LKQL_Root     => Root,
@@ -112,6 +111,7 @@ package body Rule_Commands is
             Rule_Args     => <>,
             Is_Node_Check => Check_Annotation.F_Name.Text = "node_check",
             Code          => <>);
+         return True;
       end;
    end Create_Rule_Command;
 

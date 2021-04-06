@@ -1008,7 +1008,7 @@ G = lkql_grammar
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
     main_rule=List(Or(G.import_clause, G.decl, G.expr),
-                   list_cls=TopLevelList),
+                   list_cls=TopLevelList, empty_valid=True),
 
     import_clause=Import("import", G.id),
 

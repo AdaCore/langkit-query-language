@@ -104,8 +104,11 @@ package Rule_Commands is
 
    function Create_Rule_Command
      (LKQL_File_Path : String;
-      Ctx            : Eval_Context) return Rule_Command;
-   --  Create a Rule_Command value with the given name and arguments
+      Ctx            : Eval_Context;
+      Rc             : out Rule_Command) return Boolean;
+   --  Create a Rule_Command value with the given name and arguments and
+   --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
+   --  corresponds to a rule file, ``False`` otherwise.
 
    procedure Check_Kind
      (Expected_Kind : Valid_Primitive_Kind; Actual_Kind : Valid_Primitive_Kind;
