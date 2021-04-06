@@ -1,0 +1,4 @@
+relative_delay_statements.adb:6:7: error: relative delay statements
+6 |       delay Small_Delay;                      --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^ 
+
