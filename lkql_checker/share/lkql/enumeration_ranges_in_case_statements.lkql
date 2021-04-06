@@ -1,0 +1,30 @@
+# Flag each use of a range of enumeration literals as a choice in a
+# `case' statement.
+#
+# All forms for specifying a range (explicit ranges such as `A .. B',
+# subtype marks and `'Range' attributes) are flagged.
+#
+# An enumeration range is flagged even if contains exactly one
+# enumeration value or no values at all. A type derived from an
+# enumeration type is considered as an enumeration type.
+#
+# This rule helps prevent maintenance problems arising from adding an
+# enumeration value to a type and having it implicitly handled by an
+# existing `case' statement with an enumeration range that includes the
+# new literal.
+
+@check(message="enumeration range as a choice in a case statement")
+fun enumeration_ranges_in_case_statements(node) =
+   node is AlternativesList(any parent(depth=3) is CaseStmt(
+       # case statement over enumeration
+       f_expr is e@Expr
+       when e?.p_expression_type()?.p_is_enum_type()))
+   when node is *(any children is
+        # explicit range
+        BinOp(f_op is OpDoubleDot)
+        # subtype mark
+        or id@BaseId when id?.p_referenced_decl() is BaseTypeDecl
+        # range attribute
+        or AttributeRef(f_attribute is id@BaseId when id?.p_name_is("Range"))
+      )
+
