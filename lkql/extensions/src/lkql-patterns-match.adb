@@ -193,15 +193,12 @@ package body LKQL.Patterns.Match is
    is
       Binding_Name : constant Unbounded_Text_Type :=
         To_Unbounded_Text (Pattern.F_Binding.Text);
-
-      Binding_Match : Match_Result;
    begin
       Ctx.Add_Binding (To_Text (Binding_Name), Value);
-      Binding_Match := Make_Match_Success (Value);
 
       if Match_Value (Ctx, Pattern.F_Value_Pattern, Value).Is_Success
       then
-         return Binding_Match;
+         return Make_Match_Success (Value);
       else
          return Match_Failure;
       end if;
