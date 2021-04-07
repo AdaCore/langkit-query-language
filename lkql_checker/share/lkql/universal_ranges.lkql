@@ -6,7 +6,7 @@
 
 # In the context of a range constraint, a NumberDecl is always an int
 fun is_universal_int(i) =
-    i is IntLiteral or i?.p_referenced_decl() is NumberDecl
+    i is IntLiteral or i is Name(p_referenced_decl() is NumberDecl)
 
 @check(message="range with universal integer bounds")
 fun universal_ranges(node) =

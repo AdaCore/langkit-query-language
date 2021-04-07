@@ -4,10 +4,10 @@
 # also flagged; generic formal types are not flagged. This rule also does not
 # flag private extension declarations. In the case of a private extension, the
 # corresponding full declaration is checked.
-# This rule has the parameter depth: Integer not less than -1 specifying the
+# This rule has the parameter n: Integer not less than -1 specifying the
 # maximal allowed depth of any inheritance hierarchy. If the rule parameter is
 # set to -1, the rule flags all the declarations of tagged and interface types.
 
 @check(message="derivation tree is too deep")
-fun deep_inheritance_hierarchies(node, depth: int = 2) =
-    node is TypeDecl(any super_types(depth=depth+1) is *)
+fun deep_inheritance_hierarchies(node, n: int = 2) =
+    node is TypeDecl(any super_types(depth=n+1) is *)

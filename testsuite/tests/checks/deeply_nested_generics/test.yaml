@@ -2,4 +2,4 @@ driver: 'checker'
 rule_name: 'Deeply_Nested_Generics'
 project: 'prj.gpr'
 rule_arguments:
-    deeply_nested_generics.depth: 1
+    deeply_nested_generics.n: 1
