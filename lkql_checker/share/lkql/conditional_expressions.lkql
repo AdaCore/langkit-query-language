@@ -2,43 +2,18 @@
 # This rule has the parameter Except_Assertions: Do not flag a conditional
 # expression if it is a subcomponent of the following constructs[...]
 
-fun is_assert_pragma(s) =
-    s == "assert" or
-    s == "assert_and_cut" or
-    s == "assume" or
-    s == "contract_cases" or
-    s == "debug" or
-    s == "invariant" or
-    s == "loop_invariant" or
-    s == "loop_variant" or
-    s == "postcondition" or
-    s == "precondition" or
-    s == "predicate" or
-    s == "refined_post"
-
-fun is_assert_aspect(s) =
-    s == "static_predicate" or
-    s == "dynamic_predicate" or
-    s == "pre" or
-    s == "post" or
-    s == "type_invariant" or
-    s == "contract_cases" or
-    s == "invariant" or
-    s == "predicate" or
-    s == "refined_post" or
-    s == "default_initial_condition" or
-    s == "predicate_failure"
+import stdlib
 
 @check(message="conditional expression")
 fun conditional_expressions(node, except_assertions=false) =
     node is CondExpr
     when (not except_assertions)
       or not ((node is *(any parent is p@Pragma
-               when is_assert_pragma(p.f_id?.p_canonical_text())))
+               when stdlib.is_assert_pragma(p.f_id?.p_canonical_text())))
               or node is *(any parent is a@AspectAssoc
                  when (match a.f_id
                        | id@Identifier   =>
-                           is_assert_aspect(id?.p_canonical_text())
+                           stdlib.is_assert_aspect(id?.p_canonical_text())
                        | at@AttributeRef =>
                            at?.f_attribute?.p_canonical_text() == "class"
                        | *               => false)))

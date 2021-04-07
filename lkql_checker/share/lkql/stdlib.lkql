@@ -1,0 +1,28 @@
+# Return true if the string s is the name of an assert pragma
+fun is_assert_pragma(s) =
+    s == "assert" or
+    s == "assert_and_cut" or
+    s == "assume" or
+    s == "contract_cases" or
+    s == "debug" or
+    s == "invariant" or
+    s == "loop_invariant" or
+    s == "loop_variant" or
+    s == "postcondition" or
+    s == "precondition" or
+    s == "predicate" or
+    s == "refined_post"
+
+# Return true if the string s is the name of an assert aspect
+fun is_assert_aspect(s) =
+    s == "static_predicate" or
+    s == "dynamic_predicate" or
+    s == "pre" or
+    s == "post" or
+    s == "type_invariant" or
+    s == "contract_cases" or
+    s == "invariant" or
+    s == "predicate" or
+    s == "refined_post" or
+    s == "default_initial_condition" or
+    s == "predicate_failure"

@@ -9,31 +9,7 @@
 #   subcomponent of the following constructs[...]
 # These three parameters are independent on each other.
 
-# TODO: share these functions
-fun is_assert_pragma4(s) =
-    s == "assert" or
-    s == "assert_and_cut" or
-    s == "assume" or
-    s == "contract_cases" or
-    s == "debug" or
-    s == "invariant" or
-    s == "loop_invariant" or
-    s == "loop_variant" or
-    s == "postcondition" or
-    s == "precondition" or
-    s == "predicate" or
-    s == "refined_post"
-
-fun is_assert_aspect4(s) =
-    s == "static_predicate" or
-    s == "dynamic_predicate" or
-    s == "pre" or
-    s == "post" or
-    s == "type_invariant" or
-    s == "contract_cases" or
-    s == "invariant" or
-    s == "predicate" or
-    s == "refined_post"
+import stdlib
 
 @check(message="membership test")
 fun membership_tests(node, multi_alternative_only=false, float_types_only=false, except_assertions=false) =
@@ -43,11 +19,11 @@ fun membership_tests(node, multi_alternative_only=false, float_types_only=false,
          or node.f_expr.p_expression_type().p_is_float_type())
     and ((not except_assertions)
       or not ((node is *(any parent is p@Pragma
-               when is_assert_pragma4(p.f_id?.p_canonical_text())))
+               when stdlib.is_assert_pragma(p.f_id?.p_canonical_text())))
               or node is *(any parent is a@AspectAssoc
                  when (match a.f_id
                        | id@Identifier   =>
-                           is_assert_aspect4(id?.p_canonical_text())
+                           stdlib.is_assert_aspect(id?.p_canonical_text())
                        | at@AttributeRef =>
                            at?.f_attribute?.p_canonical_text() == "class"
                        | *               => false))))
