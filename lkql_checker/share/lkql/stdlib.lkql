@@ -41,14 +41,13 @@ fun ultimate_alias(name) = {
 
 # Return true if e represents a local scope or a generic formal
 fun local_scope(e) =
-    match e
-    | SubpBody             => true
-    | TaskBody             => true
-    | BlockStmt            => true
-    | EntryBody            => true
-    | ProtectedBody        => true
-    | GenericFormalObjDecl => true
-    | *                    => false
+    e is
+       SubpBody
+    or TaskBody
+    or BlockStmt
+    or EntryBody
+    or ProtectedBody
+    or GenericFormalObjDecl
 
 # Return true if n is enclosed in a local scope
 fun has_local_scope(n) =
@@ -56,10 +55,9 @@ fun has_local_scope(n) =
 
 # Return true if o represents a local ObjectDecl or ParamSpec
 fun is_local_object(o) =
-    match o
-    | ParamSpec  => true
-    | ObjectDecl => has_local_scope(o)
-    | *          => false
+    o is
+       ParamSpec
+    or (ObjectDecl when has_local_scope(o))
 
 # Return the position of node n in its current list of siblings
 fun param_pos(n, pos: int = 0) =
