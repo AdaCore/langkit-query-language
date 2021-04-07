@@ -627,7 +627,7 @@ package body LKQL.Evaluation is
          if Iter.Next (Current_Node) then
             Result := To_Primitive (Current_Node);
          else
-            Result := To_Primitive (AST_Node_Ptrs.Null_Ref);
+            Result := Make_Unit_Primitive;
          end if;
       else
          Result := Make_Empty_List;
