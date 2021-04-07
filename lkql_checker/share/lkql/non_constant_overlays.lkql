@@ -10,17 +10,7 @@
 # This rule is basically the mirror of the Constant_Overlays rule and will
 # trigger on the same nodes.
 
-# TODO: share this function
-fun ultimate_alias_rename2(name) = {
-    val decl = name?.p_referenced_decl();
-    val ren = match decl
-        | ObjectDecl => decl?.f_renaming_clause
-        | *          => null;
-
-    if ren == null
-    then decl
-    else ultimate_alias_rename2(ren?.f_renamed_object)
-}
+import stdlib
 
 fun check_non_const_overlay(decl, overlaid) =
     # Check overlaid'Address
@@ -28,7 +18,7 @@ fun check_non_const_overlay(decl, overlaid) =
     when overlaid?.f_attribute?.p_name_is("address")
      # Check that overlaid is a variable object or formal of mode [IN] OUT
      and ({
-         val overlaid_object = ultimate_alias_rename2(overlaid?.f_prefix);
+         val overlaid_object = stdlib.ultimate_alias(overlaid?.f_prefix);
          # TODO use o?.p_is_constant_object() once available, see U330-040
          (match overlaid_object
           | o@ObjectDecl =>

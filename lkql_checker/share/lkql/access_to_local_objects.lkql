@@ -10,32 +10,7 @@
 # If the attribute prefix is a dereference or a subcomponent thereof, the
 # attribute reference is not flagged.
 
-fun ultimate_alias(name) = {
-    val decl = name?.p_referenced_decl();
-    val ren = match decl
-        | ObjectDecl => decl?.f_renaming_clause
-        | *          => null;
-
-    if ren == null
-    then decl
-    else ultimate_alias(ren?.f_renamed_object)
-}
-
-fun local_scope(e) =
-    match e
-    | SubpBody      => true
-    | TaskBody      => true
-    | BlockStmt     => true
-    | ProtectedBody => true
-    | *             => false
-
-fun has_local_scope(n) =
-    [p for p in n?.parents() if local_scope(p)].length > 0
-
-fun is_local_object(o) =
-    match o
-    | ParamSpec  => true
-    | ObjectDecl => has_local_scope(o)
+import stdlib
 
 fun denotes_local_object(n) = {
     fun dotted_prefix(n) =
@@ -43,10 +18,10 @@ fun denotes_local_object(n) = {
         | BasicSubpDecl                 => true
         | SubpBody                      => true
         | GenericSubpInstantiation      => true
-        | p@BasePackageDecl             => has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | p@BasePackageDecl             => stdlib.has_local_scope(p) or denotes_local_object(n?.f_prefix)
 
-        | p@PackageBody                 => has_local_scope(p) or denotes_local_object(n?.f_prefix)
-        | p@GenericPackageInstantiation => has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | p@PackageBody                 => stdlib.has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or denotes_local_object(n?.f_prefix)
         | r@*                           =>
           if r?.p_type_expression()?.p_designated_type_decl()?.p_is_access_type()
           then false
@@ -57,7 +32,7 @@ fun denotes_local_object(n) = {
     | QualExpr   => denotes_local_object(n?.f_suffix)
     | ParenExpr  => denotes_local_object(n?.f_expr)
     | CallExpr   => denotes_local_object(n?.f_name)
-    | BaseId     => is_local_object(ultimate_alias(n))
+    | BaseId     => stdlib.is_local_object(stdlib.ultimate_alias(n))
     | *          => false
 }
 

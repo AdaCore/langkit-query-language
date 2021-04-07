@@ -6,17 +6,7 @@
 # - the overlaying object is not a constant object;
 # - overlaying object or overlaid object is marked as Volatile;
 
-# TODO: share this function
-fun ultimate_alias_rename(name) = {
-    val decl = name?.p_referenced_decl();
-    val ren = match decl
-        | ObjectDecl => decl?.f_renaming_clause
-        | *          => null;
-
-    if ren == null
-    then decl
-    else ultimate_alias_rename(ren?.f_renamed_object)
-}
+import stdlib
 
 fun check_overlay(decl, overlaid) =
     # Check overlaid'Address
@@ -24,7 +14,7 @@ fun check_overlay(decl, overlaid) =
     when overlaid?.f_attribute?.p_name_is("address")
      # Check that overlaid is a constant object or formal of mode IN
      and ({
-         val overlaid_object = ultimate_alias_rename(overlaid?.f_prefix);
+         val overlaid_object = stdlib.ultimate_alias(overlaid?.f_prefix);
          # TODO use o?.p_is_constant_object() once available, see U330-040
          (match overlaid_object
           | o@ObjectDecl =>

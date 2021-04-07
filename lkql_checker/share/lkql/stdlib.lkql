@@ -26,3 +26,37 @@ fun is_assert_aspect(s) =
     s == "refined_post" or
     s == "default_initial_condition" or
     s == "predicate_failure"
+
+# Return the ultimately designated ObjectDecl, going through renamings
+fun ultimate_alias(name) = {
+    val decl = name?.p_referenced_decl();
+    val ren = match decl
+        | ObjectDecl => decl?.f_renaming_clause
+        | *          => null;
+
+    if ren == null
+    then decl
+    else ultimate_alias(ren?.f_renamed_object)
+}
+
+# Return true if e represents a local scope or a generic formal
+fun local_scope(e) =
+    match e
+    | SubpBody             => true
+    | TaskBody             => true
+    | BlockStmt            => true
+    | EntryBody            => true
+    | ProtectedBody        => true
+    | GenericFormalObjDecl => true
+    | *                    => false
+
+# Return true if n is enclosed in a local scope
+fun has_local_scope(n) =
+    [p for p in n?.parents() if local_scope(p)].length > 0
+
+# Return true if o represents a local ObjectDecl or ParamSpec
+fun is_local_object(o) =
+    match o
+    | ParamSpec  => true
+    | ObjectDecl => has_local_scope(o)
+    | *          => false
