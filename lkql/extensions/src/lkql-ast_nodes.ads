@@ -97,7 +97,7 @@ package LKQL.AST_Nodes is
          when Kind_Bool =>
             Bool_Val : Boolean;
          when Kind_Int =>
-            Int_Val : Integer;
+            Int_Val : Adaptive_Integer;
          when Kind_Text =>
             Text_Val : Unbounded_Text_Type;
          when Kind_Text_Array =>

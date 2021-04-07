@@ -1,0 +1,2 @@
+val x = select i@IntLiteral when i.p_denoted_value() == 1
+print(x)

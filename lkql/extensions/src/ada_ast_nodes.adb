@@ -27,8 +27,12 @@ with Ada.Unchecked_Conversion;
 with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
-with LKQL.Primitives; use LKQL.Primitives;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
+
+with GNATCOLL.GMP.Integers;
+
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
+with LKQL.Primitives; use LKQL.Primitives;
 
 package body Ada_AST_Nodes is
 
@@ -278,7 +282,12 @@ package body Ada_AST_Nodes is
          when Boolean_Value =>
             return (Kind => Kind_Bool, Bool_Val => As_Boolean (Value));
          when Integer_Value =>
-            return (Kind => Kind_Int, Int_Val => As_Integer (Value));
+            return (Kind => Kind_Int,
+                    Int_Val => Create (As_Integer (Value)));
+         when Big_Integer_Value =>
+            return (Kind => Kind_Int,
+                    Int_Val => Create (GNATCOLL.GMP.Integers.Image
+                      (As_Big_Integer (Value))));
          when Node_Value =>
             return (Kind     => Kind_Node,
                     Node_Val => new Ada_AST_Node'(Node => As_Node (Value)));
@@ -331,7 +340,10 @@ package body Ada_AST_Nodes is
       elsif Value.Kind = Kind_Text then
          return String_To_Value_Type (Value.Text_Val, Target_Kind);
       elsif Value.Kind = Kind_Int and then Target_Kind = Integer_Value then
-         return Create_Integer (Value.Int_Val);
+         return Create_Integer (+Value.Int_Val);
+      elsif Value.Kind = Kind_Int and then Target_Kind = Big_Integer_Value then
+         return Create_Big_Integer
+           (GNATCOLL.GMP.Integers.Make (Image (Value.Int_Val)));
       elsif Value.Kind = Kind_Bool and then Target_Kind = Boolean_Value then
          return Create_Boolean (Value.Bool_Val);
       elsif Value.Kind = Kind_Node and then Target_Kind = Node_Value then

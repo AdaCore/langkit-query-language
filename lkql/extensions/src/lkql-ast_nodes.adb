@@ -98,7 +98,7 @@ package body LKQL.AST_Nodes is
      (Val : Adaptive_Integer) return Introspection_Value
    is
    begin
-      return (Kind => Kind_Int, Int_Val => +Val);
+      return (Kind => Kind_Int, Int_Val => Val);
    end To_Introspection_Value;
 
    ----------------------------
