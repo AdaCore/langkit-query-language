@@ -1,0 +1,56 @@
+# Additions
+
+val small_plus_small = 3 + 5
+print(small_plus_small)
+
+val small_plus_big   = 12 + 23894478564095634345345
+print(small_plus_big)
+
+val big_plus_small = 983475932342342342348452345 + 12
+print(big_plus_small)
+
+val big_plus_big = 983475932342342342348452345 + 23894478564095634345345
+print(big_plus_big)
+
+# Subtractions
+
+val small_minus_small = 3 - 5
+print(small_minus_small)
+
+val small_minus_big   = 12 - 23894478564095634345345
+print(small_minus_big)
+
+val big_minus_small = 983475932342342342348452345 - 12
+print(big_minus_small)
+
+val big_minus_big = 983475932342342342348452345 - 23894478564095634345345
+print(big_minus_big)
+
+# Multiplications
+
+val small_times_small = 3 * 5
+print(small_times_small)
+
+val small_times_big   = 12 * 23894478564095634345345
+print(small_times_big)
+
+val big_times_small = 983475932342342342348452345 * 12
+print(big_times_small)
+
+val big_times_big = 983475932342342342348452345 * 23894478564095634345345
+print(big_times_big)
+
+# Divisions
+
+val small_over_small = 5 / 3
+print(small_over_small)
+
+val small_over_big   = 12 / 23894478564095634345345
+print(small_over_big)
+
+val big_over_small = 983475932342342342348452345 / 12
+print(big_over_small)
+
+val big_over_big = 983475932342342342348452345 / 23894478564095634345345
+print(big_over_big)
+

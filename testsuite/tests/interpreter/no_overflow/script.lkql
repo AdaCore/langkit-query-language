@@ -1,0 +1,9 @@
+val max_small_int = 2147483647
+val min_small_int = 0 - 2147483648
+
+print(max_small_int + 1)
+print(min_small_int - 1)
+
+print(max_small_int * 2)
+print(min_small_int / (0 - 1))
+

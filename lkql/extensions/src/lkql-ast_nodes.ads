@@ -24,6 +24,8 @@
 with Iters.Iterators;
 limited with LKQL.Primitives;
 
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with GNATCOLL.Refcount;
@@ -286,8 +288,9 @@ package LKQL.AST_Nodes is
    function To_Introspection_Value (Val : Boolean) return Introspection_Value;
    --  Create an Introspection value from the given Boolean value
 
-   function To_Introspection_Value (Val : Integer) return Introspection_Value;
-   --  Create an Introspection value from the given Integer value
+   function To_Introspection_Value
+     (Val : Adaptive_Integer) return Introspection_Value;
+   --  Create an Introspection value from the given Adaptive_Integer value
 
    function To_Introspection_Value
      (Val : Unbounded_Text_Type) return Introspection_Value;

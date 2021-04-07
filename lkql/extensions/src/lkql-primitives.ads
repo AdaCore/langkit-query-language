@@ -26,6 +26,7 @@ with Iters.Iterators;
 with Iters.Vec_Iterators;
 with LKQL.AST_Nodes;      use LKQL.AST_Nodes;
 with LKQL.Selector_Lists; use LKQL.Selector_Lists;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -55,7 +56,7 @@ package LKQL.Primitives is
       --  doesn't produce a meaningful result.
 
       Kind_Int,
-      --  Integer value, encoded as an Ada Integer
+      --  Integer value, encoded as an Ada Integer or Big Integer
 
       Kind_Str,
       --  Unicode String value
@@ -130,7 +131,7 @@ package LKQL.Primitives is
          when Kind_Unit =>
             null;
          when Kind_Int =>
-            Int_Val           : Integer;
+            Int_Val           : Adaptive_Integer;
          when Kind_Str =>
             Str_Val           : Unbounded_Text_Type;
          when Kind_Bool =>
@@ -265,7 +266,7 @@ package LKQL.Primitives is
    function Kind (Value : Primitive) return Valid_Primitive_Kind;
    --  Return the kind of a primitive
 
-   function Int_Val (Value : Primitive) return Integer;
+   function Int_Val (Value : Primitive) return Adaptive_Integer;
    --  Return the value of an Int primitive
 
    function Str_Val (Value : Primitive) return Unbounded_Text_Type;
@@ -319,6 +320,9 @@ package LKQL.Primitives is
 
    function To_Primitive (Val : Integer) return Primitive;
    --  Create a Primitive value from the Integer value
+
+   function To_Primitive (Val : Adaptive_Integer) return Primitive;
+   --  Create a Primitive value from the Adaptive_Integer value
 
    function To_Primitive (Val : Unbounded_Text_Type) return Primitive;
    --  Create a Primitive value from the String value

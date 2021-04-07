@@ -32,7 +32,7 @@ with GNAT.Case_Util;
 
 package body LKQL.Primitives is
 
-   function Int_Image (Value : Integer) return Unbounded_Text_Type;
+   function Int_Image (Value : Adaptive_Integer) return Unbounded_Text_Type;
    --  Wraps the Integer'Wide_Wide_Image function, removing the leading space
 
    function Bool_Image (Value : Boolean) return Unbounded_Text_Type;
@@ -93,8 +93,8 @@ package body LKQL.Primitives is
    -- Int_Image --
    ---------------
 
-   function Int_Image (Value : Integer) return Unbounded_Text_Type is
-      Image : constant Text_Type := Integer'Wide_Wide_Image (Value);
+   function Int_Image (Value : Adaptive_Integer) return Unbounded_Text_Type is
+      Image : constant Text_Type := To_Text (Adaptive_Integers.Image (Value));
    begin
       if Image (1) = ' ' then
          return To_Unbounded_Text (Image (2 .. Image'Last));
@@ -291,7 +291,7 @@ package body LKQL.Primitives is
    -- Int_Val --
    -------------
 
-   function Int_Val (Value : Primitive) return Integer is
+   function Int_Val (Value : Primitive) return Adaptive_Integer is
       (Value.Get.Int_Val);
 
    -------------
@@ -486,8 +486,20 @@ package body LKQL.Primitives is
    function To_Primitive (Val : Integer) return Primitive is
       Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'(Refcounted with Kind => Kind_Int, Int_Val => Val));
+      Ref.Set (Primitive_Data'
+        (Refcounted with Kind => Kind_Int, Int_Val => Create (Val)));
+      return Ref;
+   end To_Primitive;
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+   --
+   function To_Primitive (Val : Adaptive_Integer) return Primitive is
+      Ref : Primitive;
+   begin
+      Ref.Set (Primitive_Data'
+        (Refcounted with Kind => Kind_Int, Int_Val => Val));
       return Ref;
    end To_Primitive;
 
@@ -966,7 +978,7 @@ package body LKQL.Primitives is
       Check_Kind (Kind_Int, Left);
       Check_Kind (Kind_Int, Right);
 
-      if Int_Val (Right) = 0 then
+      if Int_Val (Right) = Zero then
          raise Unsupported_Error with "Zero division";
       end if;
 

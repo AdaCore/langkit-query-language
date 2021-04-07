@@ -21,14 +21,15 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Errors;         use LKQL.Errors;
-with LKQL.Queries;        use LKQL.Queries;
-with LKQL.Patterns;       use LKQL.Patterns;
-with LKQL.Functions;      use LKQL.Functions;
-with LKQL.AST_Nodes;      use LKQL.AST_Nodes;
+with LKQL.Errors;            use LKQL.Errors;
+with LKQL.Queries;           use LKQL.Queries;
+with LKQL.Patterns;          use LKQL.Patterns;
+with LKQL.Functions;         use LKQL.Functions;
+with LKQL.AST_Nodes;         use LKQL.AST_Nodes;
 with LKQL.Node_Data;
-with LKQL.Patterns.Match; use LKQL.Patterns.Match;
-with LKQL.Error_Handling; use LKQL.Error_Handling;
+with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
+with LKQL.Error_Handling;    use LKQL.Error_Handling;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
@@ -365,7 +366,7 @@ package body LKQL.Evaluation is
 
    function Eval_Integer_Literal (Node : L.Integer_Literal) return Primitive is
    begin
-      return To_Primitive (Integer'Wide_Wide_Value (Node.Text));
+      return To_Primitive (Adaptive_Integers.Create (To_UTF8 (Node.Text)));
    end Eval_Integer_Literal;
 
    ----------------
@@ -661,10 +662,10 @@ package body LKQL.Evaluation is
          if Kind (List) = Kind_Node then
             return To_Primitive
               (Make_AST_Node_Rc
-                 (Nth_Child (List.Get.Node_Val.Get, Int_Val (Index))));
+                 (Nth_Child (List.Get.Node_Val.Get, +Int_Val (Index))));
 
          else
-            return Get (List, Int_Val (Index));
+            return Get (List, +Int_Val (Index));
          end if;
       end;
    exception

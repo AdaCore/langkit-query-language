@@ -21,10 +21,11 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Patterns;       use LKQL.Patterns;
-with LKQL.Patterns.Match; use LKQL.Patterns.Match;
-with LKQL.Evaluation;     use LKQL.Evaluation;
-with LKQL.Error_Handling; use LKQL.Error_Handling;
+with LKQL.Patterns;          use LKQL.Patterns;
+with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
+with LKQL.Evaluation;        use LKQL.Evaluation;
+with LKQL.Error_Handling;    use LKQL.Error_Handling;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 
 package body LKQL.Custom_Selectors is
 
@@ -71,11 +72,11 @@ package body LKQL.Custom_Selectors is
 
       Default_Min   : constant Primitive := To_Primitive (1);
       Min_Depth     : constant Integer :=
-        Int_Val (Eval_Default (Ctx, Min_Depth_Expr, Default_Min,
+        +Int_Val (Eval_Default (Ctx, Min_Depth_Expr, Default_Min,
                                Expected_Kind => Kind_Int));
       Default_Max   : constant Primitive := To_Primitive (-1);
       Max_Depth     : constant Integer :=
-        Int_Val (Eval_Default (Ctx, Max_Depth_Expr, Default_Max,
+        +Int_Val (Eval_Default (Ctx, Max_Depth_Expr, Default_Max,
                                Expected_Kind => Kind_Int));
       Root_Node     : constant Depth_Node :=
         Depth_Node'(0, Root);
