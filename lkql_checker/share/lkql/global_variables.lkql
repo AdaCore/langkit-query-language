@@ -7,7 +7,8 @@
 
 @check(message="global variable")
 fun global_variables(node, only_public=false) =
-    node is ObjectDecl(p_semantic_parent() is s @ * when {
+    node is ObjectDecl(f_has_constant is ConstantAbsent,
+                       p_semantic_parent() is s @ * when {
 
         # Grab the enclosing package when the semantic parent is either
         val pkg = match s

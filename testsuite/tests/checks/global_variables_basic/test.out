@@ -1,8 +1,8 @@
-foo.ads:2:5: error: global variable
-2 |     Var1 : Integer;    --  FLAG
+foo.ads:3:5: error: global variable
+3 |     Var1 : Integer;                  --  FLAG
   |     ^^^^ 
 
-foo.ads:5:5: error: global variable
-5 |     Var2 : Boolean;    --  FLAG
+foo.ads:6:5: error: global variable
+6 |     Var2 : Boolean;                  --  FLAG
   |     ^^^^ 
 

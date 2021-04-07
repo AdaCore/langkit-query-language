@@ -1,0 +1,8 @@
+room.ads:21:3: error: global variable
+21 |   Sticks : array (Table_Type) of Chop.Stick;
+   |   ^^^^^^ 
+
+society.ads:13:3: error: global variable
+13 |   Name_Register : array(Unique_DNA_Codes) of String(1..18) :=
+   |   ^^^^^^^^^^^^^ 
+
