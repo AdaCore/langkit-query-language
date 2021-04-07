@@ -35,10 +35,10 @@ package body LKQL.Builtin_Functions is
    ----------------
 
    function Eval_Print
-     (Ctx : access constant Eval_Context; Expr : L.Expr) return Primitive
+     (Ctx : Eval_Context; Expr : L.Expr) return Primitive
    is
    begin
-      Display (Eval (Ctx.all, Expr));
+      Display (Eval (Ctx, Expr));
       return Make_Unit_Primitive;
    end Eval_Print;
 
@@ -47,10 +47,10 @@ package body LKQL.Builtin_Functions is
    ----------------
 
    function Eval_Debug
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive
    is
       Code    : constant Text_Type := Node.Text;
-      Value   : constant Primitive := Eval (Ctx.all, Node);
+      Value   : constant Primitive := Eval (Ctx, Node);
       Message : constant Unbounded_Text_Type :=
         Code & " = " & To_Unbounded_Text (Value);
    begin
@@ -63,9 +63,9 @@ package body LKQL.Builtin_Functions is
    ------------------
 
    function Eval_To_List
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive
    is
-      Value : constant Primitive := Eval (Ctx.all, Node, Kind_Iterator);
+      Value : constant Primitive := Eval (Ctx, Node, Kind_Iterator);
    begin
       return To_List (Value.Get.Iter_Val.all);
    end Eval_To_List;
@@ -75,9 +75,9 @@ package body LKQL.Builtin_Functions is
    ---------------
 
    function Eval_Dump
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive
    is
-      Value : constant Primitive := Eval (Ctx.all, Node, Kind_Node);
+      Value : constant Primitive := Eval (Ctx, Node, Kind_Node);
    begin
       Ada_AST_Node (Value.Get.Node_Val.Unchecked_Get.all).Node.Print;
       return Make_Unit_Primitive;
@@ -88,9 +88,9 @@ package body LKQL.Builtin_Functions is
    ----------------
 
    function Eval_Image
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive is
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive is
    begin
-      return To_Primitive (To_Unbounded_Text (Eval (Ctx.all, Node)));
+      return To_Primitive (To_Unbounded_Text (Eval (Ctx, Node)));
    end Eval_Image;
 
    -------------------------
@@ -98,10 +98,10 @@ package body LKQL.Builtin_Functions is
    -------------------------
 
    function Eval_Children_Count
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive
    is
       Arg : constant AST_Nodes.AST_Node'Class :=
-         Node_Val (Eval (Ctx.all, Node, Kind_Node)).Unchecked_Get.all;
+         Node_Val (Eval (Ctx, Node, Kind_Node)).Unchecked_Get.all;
    begin
       return To_Primitive
         (if Arg.Is_Null_Node then 0 else Arg.Children_Count);
@@ -112,10 +112,10 @@ package body LKQL.Builtin_Functions is
    ---------------
 
    function Eval_Text
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive
    is
       Arg : constant AST_Nodes.AST_Node'Class :=
-         Node_Val (Eval (Ctx.all, Node, Kind_Node)).Unchecked_Get.all;
+         Node_Val (Eval (Ctx, Node, Kind_Node)).Unchecked_Get.all;
    begin
       return To_Primitive
         (if Arg.Is_Null_Node then "" else Arg.Text);

@@ -39,25 +39,25 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 package LKQL.Builtin_Functions is
 
    function Eval_Print
-     (Ctx : access constant Eval_Context; Expr : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Expr : L.Expr) return Primitive;
 
    function Eval_Debug
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
    function Eval_To_List
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
    function Eval_Dump
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
    function Eval_Image
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
    function Eval_Children_Count
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
    function Eval_Text
-     (Ctx : access constant Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
 
    type Builtin_Fn_Desc is record
       Name : Unbounded_Text_Type;

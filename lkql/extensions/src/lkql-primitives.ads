@@ -190,7 +190,7 @@ package LKQL.Primitives is
    --  Optional primitive value
 
    type Builtin_Function_Access is access function
-     (Ctx : access constant LKQL.Eval_Contexts.Eval_Context;
+     (Ctx : LKQL.Eval_Contexts.Eval_Context;
       Arg : L.Expr) return Primitive;
 
    ----------

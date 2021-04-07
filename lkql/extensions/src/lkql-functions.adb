@@ -281,7 +281,7 @@ package body LKQL.Functions is
          Builtin_Func : Builtin_Function_Access := Fun.Get.Fn_Access.all;
       begin
          return Builtin_Func
-           (Ctx'Access, Call.F_Arguments.List_Child (1).P_Expr);
+           (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
       end;
    end Eval_Builtin_Call;
 
