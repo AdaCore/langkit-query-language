@@ -1,12 +1,12 @@
 # Flag each generic actual parameter corresponding to a generic formal
 # parameter with a default initialization, if positional notation is used.
 
-fun param_pos(n, pos : int = 0) =
-    if n == null then pos else param_pos(n?.previous_sibling, pos+1)
+import stdlib
 
 fun check_generic(n, node) =
-    n?.p_referenced_decl()?.f_formal_part?.f_decls[param_pos(node)]?.
-    f_decl?.f_default_expr != null
+    n?.p_referenced_decl()?.f_formal_part?.f_decls[stdlib.param_pos(node)] is
+    GenericFormal(f_decl is d@(FormalSubpDecl or ObjectDecl)
+                  when d?.f_default_expr != null)
 
 @check(message="use named notation when passing actual to defaulted generic parameter")
 fun positional_actuals_for_defaulted_generic_parameters(node) =

@@ -6,9 +6,10 @@
 # Atomic or Shared declared for it.
 
 fun is_volatile(o) =
-       o?.p_get_aspect_assoc("Volatile") != null
-    or o?.p_get_aspect_assoc("Atomic") != null
-    or o?.p_get_aspect_assoc("Shared") != null
+    o != null
+    and (o?.p_get_aspect_assoc("Volatile") != null or
+         o?.p_get_aspect_assoc("Atomic") != null or
+         o?.p_get_aspect_assoc("Shared") != null)
 
 
 @check(message="address attribute for non-volatile data object")

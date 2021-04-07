@@ -60,3 +60,8 @@ fun is_local_object(o) =
     | ParamSpec  => true
     | ObjectDecl => has_local_scope(o)
     | *          => false
+
+# Return the position of node n in its current list of siblings
+fun param_pos(n, pos: int = 0) =
+    if n == null then pos else param_pos(n?.previous_sibling, pos+1)
+
