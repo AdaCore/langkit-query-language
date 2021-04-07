@@ -2,14 +2,11 @@
 # an abstract private type, the full type declarations is flagged only if it is
 # itself declared as abstract. Interface types are not flagged.
 
-fun has_abstract (type_def) =
-    match type_def
-    | r @ RecordTypeDef => r.f_has_abstract?.p_as_bool()
-    | d @ DerivedTypeDef => d.f_has_abstract?.p_as_bool()
-    | p @ PrivateTypeDef => p.f_has_abstract?.p_as_bool()
-    | * => false
-
 @check(message="declaration of abstract type")
 fun abstract_type_declarations(node) =
-    node is type @ TypeDef when has_abstract(type)
+    node is (
+          RecordTypeDef
+       or DerivedTypeDef
+       or PrivateTypeDef)
+    when node?.f_has_abstract?.p_as_bool()
 
