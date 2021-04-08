@@ -1,0 +1,6 @@
+# Flag any use of an others choice in an exception handler.
+
+@check(message="OTHERS choice in exception handler")
+fun others_in_exception_handlers(node) =
+    node is OthersDesignator(parent is AlternativesList(
+                             parent is ExceptionHandler))
