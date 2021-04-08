@@ -1,7 +1,3 @@
-repr.ads:1:9: error: representation specification
-1 | package Repr is
-  |         ^^^^ 
-
 repr.ads:4:4: error: representation specification
 4 |    for State use (A => 1, M => 2, W => 3, P => 4); --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
@@ -21,4 +17,8 @@ repr.ads:12:4: error: representation specification
 repr.ads:15:13: error: representation specification
 15 |    function F return Boolean with No_Return;       --  FLAG
    |             ^ 
+
+repr.ads:17:13: error: representation specification
+17 |    function F2 return Boolean;                     --  FLAG
+   |             ^^ 
 

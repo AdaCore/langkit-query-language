@@ -14,7 +14,7 @@ package Repr is
 
    function F return Boolean with No_Return;       --  FLAG
 
-   function F2 return Boolean;    --  FLAG missing pending U330-018
+   function F2 return Boolean;                     --  FLAG
    pragma No_Return (F2);
 
 end Repr;
