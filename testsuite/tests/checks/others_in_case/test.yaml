@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: others_in_case_statements
+input_sources: ['other.adb']
