@@ -16,9 +16,8 @@
 fun check_actual_param(spec, node, check_dot) =
     match spec
     | SubpSpec  => {
-        val params=spec?.f_subp_params?.f_params;
-        # TODO: missing length operator (U317-058)
-        (params[2] != null and not check_dot) or params[3] != null
+        val num_params=children_count(spec?.f_subp_params?.f_params);
+        num_params > 2 or (num_params > 1 and not check_dot)
       }
     | EntrySpec => spec?.f_entry_params?.f_params[2] != null
     | *           => false
