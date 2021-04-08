@@ -18,10 +18,13 @@ fun denotes_local_object(n) = {
         | BasicSubpDecl                 => true
         | SubpBody                      => true
         | GenericSubpInstantiation      => true
-        | p@BasePackageDecl             => stdlib.has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | p@BasePackageDecl             => stdlib.has_local_scope(p) or
+                                           denotes_local_object(n?.f_prefix)
 
-        | p@PackageBody                 => stdlib.has_local_scope(p) or denotes_local_object(n?.f_prefix)
-        | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or denotes_local_object(n?.f_prefix)
+        | p@PackageBody                 => stdlib.has_local_scope(p) or
+                                           denotes_local_object(n?.f_prefix)
+        | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or
+                                           denotes_local_object(n?.f_prefix)
         | r@*                           =>
           if r?.p_type_expression()?.p_designated_type_decl()?.p_is_access_type()
           then false
