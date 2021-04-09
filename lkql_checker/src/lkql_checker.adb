@@ -21,9 +21,18 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions; use Ada.Exceptions;
+with Ada.Text_IO;    use Ada.Text_IO;
+
+with GNAT.OS_Lib;
+
 with Checker_App;
 
 procedure LKQL_Checker is
 begin
    Checker_App.App.Run;
+exception
+   when E : Checker_App.Exit_App =>
+      Put_Line ("ERROR: " & Exception_Message (E));
+      GNAT.OS_Lib.OS_Exit (1);
 end LKQL_Checker;

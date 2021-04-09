@@ -221,15 +221,23 @@ package body Checker_App is
 
       else
          --  Some rules passed by the user: only return the ones specified
-
-         for R of Cached_Flat_Rules loop
-            for Explicit_Rule_Name of Explicit_Rules_Names loop
-               if To_Lower
-                 (To_Text (To_String (Explicit_Rule_Name))) = To_Text (R.Name)
-               then
-                  Append_Rule (R);
+         for Explicit_Rule_Name of Explicit_Rules_Names loop
+            declare
+               Found : Boolean := False;
+            begin
+               for R of Cached_Flat_Rules loop
+                  if To_Lower (To_Text (To_String (Explicit_Rule_Name)))
+                    = To_Text (R.Name)
+                  then
+                     Append_Rule (R);
+                     Found := True;
+                  end if;
+               end loop;
+               if not Found then
+                  raise Exit_App with "no such rule - "
+                    & To_String (Explicit_Rule_Name);
                end if;
-            end loop;
+            end;
          end loop;
       end if;
 

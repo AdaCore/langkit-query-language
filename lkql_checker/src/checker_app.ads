@@ -34,6 +34,10 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Checker_App is
 
+   Exit_App : exception;
+   --  Exception raised by the app if it wants to exit with an error status and
+   --  a message.
+
    procedure Job_Setup (Context : App_Job_Context);
 
    procedure Process_Unit
