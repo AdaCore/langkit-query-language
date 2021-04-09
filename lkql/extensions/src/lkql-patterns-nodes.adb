@@ -93,6 +93,8 @@ package body LKQL.Patterns.Nodes is
                                 Node    : AST_Node_Rc) return Match_Result
    is
    begin
+      --  TODO: We should pre-process node kinds and not match
+      --  on text everytime ...
       return
         (if Node.Get.Matches_Kind_Name (Pattern.F_Kind_Name.Text)
          then Make_Match_Success (To_Primitive (Node))

@@ -39,6 +39,9 @@ package body Rule_Commands is
 
    package LCO renames Liblkqllang.Common;
 
+   function Find_Toplevel_Node_Kind_Pattern
+     (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern;
+
    ----------------
    -- Check_Kind --
    ----------------
@@ -54,6 +57,35 @@ package body Rule_Commands is
            To_String (Expected_Kind) & "but got " & To_String (Actual_Kind);
       end if;
    end Check_Kind;
+
+   --------------------------------
+   -- Find_Toplevel_Node_Pattern --
+   --------------------------------
+
+   function Find_Toplevel_Node_Kind_Pattern
+     (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern
+   is
+   begin
+      --  Put_Line (Node.Kind'Image);
+      case Node.Kind is
+         when LCO.LKQL_Is_Clause =>
+            return Find_Toplevel_Node_Kind_Pattern
+              (Node.As_Is_Clause.F_Pattern);
+         when LCO.LKQL_Node_Kind_Pattern =>
+            return Node.As_Node_Kind_Pattern;
+         when LCO.LKQL_Extended_Node_Pattern =>
+            return Find_Toplevel_Node_Kind_Pattern
+              (Node.As_Extended_Node_Pattern.F_Node_Pattern);
+         when LCO.LKQL_Filtered_Pattern =>
+            return Find_Toplevel_Node_Kind_Pattern
+              (Node.As_Filtered_Pattern.F_Pattern);
+         when LCO.LKQL_Binding_Pattern =>
+            return Find_Toplevel_Node_Kind_Pattern
+              (Node.As_Binding_Pattern.F_Value_Pattern);
+         when others =>
+            return L.No_Node_Kind_Pattern;
+      end case;
+   end Find_Toplevel_Node_Kind_Pattern;
 
    -------------------------
    -- Create_Rule_Command --
@@ -82,9 +114,11 @@ package body Rule_Commands is
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
          Msg : Unbounded_Text_Type;
          Name     : constant Text_Type := Fn.F_Name.Text;
-
+         Toplevel_Node_Pattern : L.Node_Kind_Pattern;
          use LCO;
       begin
+         Toplevel_Node_Pattern :=
+           Find_Toplevel_Node_Kind_Pattern (Fn.F_Fun_Expr.F_Body_Expr);
          --  Get the message from the annotation if it exists
 
          if not Msg_Arg.Is_Null then
@@ -110,7 +144,8 @@ package body Rule_Commands is
             Eval_Ctx      => Ctx.Create_New_Frame,
             Rule_Args     => <>,
             Is_Node_Check => Check_Annotation.F_Name.Text = "node_check",
-            Code          => <>);
+            Code          => <>,
+            Kind_Pattern  => Toplevel_Node_Pattern);
          return True;
       end;
    end Create_Rule_Command;

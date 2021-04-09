@@ -650,4 +650,5 @@ begin
          Names_To_Node_Types.Include (Type_Name, Type_Id);
       end;
    end loop;
+
 end Ada_AST_Nodes;

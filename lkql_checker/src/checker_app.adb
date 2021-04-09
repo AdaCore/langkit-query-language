@@ -32,6 +32,7 @@ with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 with Langkit_Support.Diagnostics.Output;
 
 with Libadalang.Common; use Libadalang.Common;
+with Libadalang.Introspection;
 
 with Rules_Factory; use Rules_Factory;
 
@@ -60,15 +61,46 @@ package body Checker_App is
       Equivalent_Keys => Ada.Strings.Wide_Wide_Unbounded."=",
       "="             => Rule_Argument_Vectors."=");
 
-   function Rules return Rule_Vector;
+   type Rules_By_Kind is array (Ada_Node_Kind_Type) of Rule_Vector;
 
-   Cached_Rules : Rule_Vector := Rule_Vectors.Empty_Vector;
+   procedure Process_Rules;
+   --  Process input rules: Put the rules that have been requested by the user
+   --  in the ``Cached_Rules`` and ``Cached_Flat_Rules`` data structures.
+
+   Cached_Rules          : Rules_By_Kind
+     := (others => Rule_Vectors.Empty_Vector);
+   --  Data structure mapping node kinds to the checks that should be ran when
+   --  this node type is encountered.
+
+   Cached_Flat_Rules     : Rule_Vector;
+   --  Simple vector of requested rules
+
+   Computed_Cached_Rules : Boolean := False;
 
    -----------
    -- Rules --
    -----------
 
-   function Rules return Rule_Vector is
+   procedure Process_Rules is
+      package LI renames Libadalang.Introspection;
+      package LCO renames Libadalang.Common;
+
+      --  TODO: This should be removed once we have Kind_First/Kind_Last on
+      --  Node_Type_Id (U412-016).
+
+      type Ada_Node_Kind_Set is array (Ada_Node_Kind_Type) of Boolean;
+      --  A set of ada nodes, represented as a boolean array
+      --  NOTE: Should we pack it ?
+
+      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set;
+      --  Return the ``Kind_Set`` corresponding to a given Type_Id. For a leaf
+      --  node type (e.g. with no child types), it will return a set with only
+      --  the bit for  this type set. For a non leaf node, will return an array
+      --  with the bit for the type and all descendants set.
+
+      procedure Append_Rule (Rule : Rule_Command);
+      --  Append the given rule to ``Cached_Rules`` and ``Cached_Flat_Rules``.
+
       Explicit_Rules_Names : constant Args.Rules.Result_Array :=
          Args.Rules.Get;
 
@@ -78,11 +110,62 @@ package body Checker_App is
       Rules_Args_Map : Rules_Args_Maps.Map;
       --  Map from argument names to argument values.
 
+      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set is
+
+         procedure Internal (Id : LCO.Node_Type_Id);
+
+         Ret : Ada_Node_Kind_Set := (others => False);
+
+         --------------
+         -- Internal --
+         --------------
+
+         procedure Internal (Id : LCO.Node_Type_Id) is
+         begin
+            if LI.Is_Concrete (Id) then
+               Ret (LI.Kind_For (Id)) := True;
+            end if;
+            for T of LI.Derived_Types (Id) loop
+               Internal (T);
+            end loop;
+         end Internal;
+
+      begin
+         Internal (Id);
+         return Ret;
+      end Kind_Set;
+
       use Rule_Vectors;
+
+      procedure Append_Rule (Rule : Rule_Command) is
+         use Liblkqllang.Analysis;
+      begin
+         if Rule.Kind_Pattern /= No_Node_Kind_Pattern then
+            declare
+               Type_Id : constant LCO.Node_Type_Id :=
+                 LI.Lookup_DSL_Name (Rule.Kind_Pattern.F_Kind_Name.Text);
+               KS      : constant Ada_Node_Kind_Set :=
+                 Kind_Set (Type_Id);
+            begin
+               for I in KS'Range loop
+                  if KS (I) then
+                     Cached_Rules (I).Append (Rule);
+                  end if;
+               end loop;
+            end;
+         else
+            for I in Cached_Rules'Range loop
+               Cached_Rules (I).Append (Rule);
+            end loop;
+         end if;
+      end Append_Rule;
+
    begin
-      if Cached_Rules /= Empty_Vector then
-         return Cached_Rules;
+      if Computed_Cached_Rules then
+         return;
       end if;
+
+      Cached_Flat_Rules := All_Rules (Ctx, Additional_Rules_Dirs);
 
       --  Compute the map of argument names to values.
 
@@ -96,33 +179,13 @@ package body Checker_App is
                Rule_Argument_Vectors.Empty_Vector,
                C, Dummy);
 
-            Rules_Args_Map
-              .Reference (C).Append (Rule_Arg.Arg);
+            Rules_Args_Map.Reference (C).Append (Rule_Arg.Arg);
          end;
       end loop;
 
-      --  First, process the set of rules that has to be ran.
-
-      if Explicit_Rules_Names'Length = 0 then
-         --  No rules passed by the user: return all rules
-         Cached_Rules := All_Rules (Ctx, Additional_Rules_Dirs);
-      else
-         --  Some rules passed by the user: only return the ones specified
-
-         for R of All_Rules (Ctx, Additional_Rules_Dirs) loop
-            for Explicit_Rule_Name of Explicit_Rules_Names loop
-               if To_Lower
-                 (To_Text (To_String (Explicit_Rule_Name))) = To_Text (R.Name)
-               then
-                  Cached_Rules.Append (R);
-               end if;
-            end loop;
-         end loop;
-      end if;
-
       --  Then, process potential arguments for those rules
 
-      for Rule of Cached_Rules loop
+      for Rule of Cached_Flat_Rules loop
          declare
             Rule_Name : constant Unbounded_Text_Type := Rule.Name;
             C         : constant Rules_Args_Maps.Cursor
@@ -147,8 +210,30 @@ package body Checker_App is
          Rule.Prepare;
       end loop;
 
-      return Cached_Rules;
-   end Rules;
+      --  First, process the set of rules that has to be ran.
+
+      if Explicit_Rules_Names'Length = 0 then
+         --  No rules passed by the user: return all rules
+         for Rule of Cached_Flat_Rules loop
+            Append_Rule (Rule);
+         end loop;
+
+      else
+         --  Some rules passed by the user: only return the ones specified
+
+         for R of Cached_Flat_Rules loop
+            for Explicit_Rule_Name of Explicit_Rules_Names loop
+               if To_Lower
+                 (To_Text (To_String (Explicit_Rule_Name))) = To_Text (R.Name)
+               then
+                  Append_Rule (R);
+               end if;
+            end loop;
+         end loop;
+      end if;
+
+      Computed_Cached_Rules := True;
+   end Process_Rules;
 
    ---------------
    -- Job_Setup --
@@ -157,10 +242,11 @@ package body Checker_App is
    procedure Job_Setup (Context : App_Job_Context) is
       Dummy : Primitive;
    begin
-
       Ctx := Make_Eval_Context (Context.Units_Processed);
 
-      for Rule of Rules loop
+      Process_Rules;
+
+      for Rule of Cached_Flat_Rules loop
          --  Eval the rule's code (which should contain only definitions). TODO
          --  this should be encapsulated.
          begin
@@ -203,7 +289,7 @@ package body Checker_App is
          --  hackish admittedly.
          Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
 
-         for Rule of Rules loop
+         for Rule of Cached_Rules (Node.Kind) loop
             declare
                Result_Node : Ada_Node;
             begin

@@ -47,4 +47,4 @@ hi def link lkqlToken       Define
 hi def link lkqlGrammarRule Define
 hi def link lkqlLiteral     Number
 hi def link lkqlComment     Comment
-hi def link lkqlDocComment  Comment
+hi def link lkqlDocComment  String

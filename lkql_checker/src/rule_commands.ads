@@ -78,6 +78,8 @@ package Rule_Commands is
       --  LKQL eval context in which to eval the rule. Each rule will have a
       --  separate frame, so as to not leak identifier from one rule to the
       --  other.
+
+      Kind_Pattern : L.Node_Kind_Pattern;
    end record;
 
    type Output_Style is (Default, GNATcheck);

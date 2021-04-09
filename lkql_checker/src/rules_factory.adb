@@ -28,6 +28,8 @@ with GNAT.OS_Lib;
 
 package body Rules_Factory is
 
+   Cached_Rules : Rule_Vector := Rule_Vectors.Empty_Vector;
+
    ---------------
    -- All_Rules --
    ---------------
@@ -37,8 +39,10 @@ package body Rules_Factory is
       return Rule_Vector
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
-      Result     : Rule_Vector;
    begin
+      if not Cached_Rules.Is_Empty then
+         return Cached_Rules;
+      end if;
 
       --  We search (non recursively) for all .lkql files in the Rules_Dir.
       --  Each file should contain the definition of one rule, and the needed
@@ -53,14 +57,14 @@ package body Rules_Factory is
                     (+File.Full_Name, Ctx, Rc);
                begin
                   if Has_Rule then
-                     Result.Append (Rc);
+                     Cached_Rules.Append (Rc);
                   end if;
                end;
             end if;
          end loop;
       end loop;
 
-      return Result;
+      return Cached_Rules;
 
    end All_Rules;
 
