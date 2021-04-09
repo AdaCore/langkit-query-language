@@ -1,0 +1,64 @@
+overloaded_operators.ads:32:13: error: overloading of an operator symbol
+32 |    function "+" (L, R : Int) return Int;                         --  FLAG
+   |             ^^^ 
+
+overloaded_operators.ads:33:13: error: overloading of an operator symbol
+33 |    function "*" (L, R : Int) return Boolean;                     --  FLAG
+   |             ^^^ 
+
+overloaded_operators.ads:34:13: error: overloading of an operator symbol
+34 |    function "-" (L : Boolean) return Boolean is (not L);         --  FLAG
+   |             ^^^ 
+
+overloaded_operators.ads:36:13: error: overloading of an operator symbol
+36 |    function "and" (L : Int; R : Boolean) return Boolean;         --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.ads:37:13: error: overloading of an operator symbol
+37 |    function "not" (L : Char) return Char;                        --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.ads:41:13: error: overloading of an operator symbol
+41 |    function "abs" (Left : Integer) return Integer renames Fun1;  --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.ads:42:13: error: overloading of an operator symbol
+42 |    function "-" (I, J : Integer) return Integer renames Fun2;    --  FLAG
+   |             ^^^ 
+
+overloaded_operators.ads:44:13: error: overloading of an operator symbol
+44 |    function "not" (Left : Integer) return Integer renames Fun1;  --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.ads:45:13: error: overloading of an operator symbol
+45 |    function "and" (I, J : Integer) return Integer renames Fun2;  --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.ads:50:21: error: overloading of an operator symbol
+50 |       with function "+" (L, R : T_F) return T_F;                 --  FLAG
+   |                     ^^^ 
+
+overloaded_operators.ads:51:21: error: overloading of an operator symbol
+51 |       with function "abs" (L : T_F) return T_F;                  --  FLAG
+   |                     ^^^^^ 
+
+overloaded_operators.adb:40:13: error: overloading of an operator symbol
+40 |    function "-" is new F1_G (Small);                           --  FLAG
+   |             ^^^ 
+
+overloaded_operators.adb:41:13: error: overloading of an operator symbol
+41 |    function "not" is new F1_G (Big);                           --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.adb:43:13: error: overloading of an operator symbol
+43 |    function "*" is new F2_G (Small);                           --  FLAG
+   |             ^^^ 
+
+overloaded_operators.adb:44:13: error: overloading of an operator symbol
+44 |    function "and" is new F2_G (Big);                           --  FLAG
+   |             ^^^^^ 
+
+overloaded_operators.adb:60:28: error: overloading of an operator symbol
+60 |                   function "+" (L, R : Large) return Large;    --  FLAG
+   |                            ^^^ 
+

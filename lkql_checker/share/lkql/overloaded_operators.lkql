@@ -1,0 +1,13 @@
+# Flag each function declaration that overloads an operator symbol. A function
+# body or an expression function is checked only if it does not have a separate
+# spec. Formal functions are also checked. For a renaming declaration, only
+# renaming-as-declaration is checked.
+
+@check(message="overloading of an operator symbol")
+fun overloaded_operators(node) =
+    match node
+    | ClassicSubpDecl          => node.p_defining_name()?.p_is_operator_name()
+    | BaseSubpBody             => node.p_decl_part() == null and
+                                  node.p_defining_name()?.p_is_operator_name()
+    | GenericSubpInstantiation => node.f_subp_name?.p_is_operator_name()
+    | *                        => false
