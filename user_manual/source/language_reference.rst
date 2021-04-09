@@ -164,6 +164,7 @@ Field access
 ^^^^^^^^^^^^
 
 .. lkql_doc_class:: DotAccess
+.. lkql_doc_class:: Safe
 
 A field access returns the contents of a field. In the following example, we
 get the content of the  ``type_expr`` syntax field on a node of type
@@ -514,6 +515,33 @@ LKQL has a few built-in operators available:
 .. code-block:: lkql
 
     [1, 2, 3] & [4, 5, 6]
+
+Module
+^^^^^^
+
+.. lkql_doc_class:: Import
+
+LKQL has a very simple module system. Basically every file in LKQL is a module,
+and you can import modules from other files with the ``import`` clause. 
+
+.. code-block:: lkql
+
+   # foo.lkql
+   fun bar() = 12
+
+   # bar.lkql
+   import foo
+
+   print(foo.bar())
+
+LKQL will search for files:
+
+1. That are in the same directory as the current file
+2. That are in the ``LKQL_PATH`` environment variable
+
+.. note::
+   There is no way to create hierarchies of modules for now, only flat modules
+   are supported.
 
 Tree query language subset
 ==========================
