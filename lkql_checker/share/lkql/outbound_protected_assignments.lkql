@@ -1,0 +1,14 @@
+# Flag an assignment statement located in a protected body if the variable name
+# in the left part of the statement denotes an object declared outside this
+# protected type or object.
+
+import stdlib
+
+@check(message="assignment from protected body to outside object")
+fun outbound_protected_assignments(node) =
+    node is AssignStmt(any parent is p@ProtectedBody
+    when not (stdlib.ultimate_alias(node.f_dest) is
+              *(any parent is pr@(ProtectedTypeDecl or
+                                  SingleProtectedDecl or
+                                  ProtectedBody)
+                when pr == p or pr == p.p_decl_part())))
