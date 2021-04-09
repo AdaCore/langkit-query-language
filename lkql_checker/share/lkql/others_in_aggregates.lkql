@@ -1,0 +1,27 @@
+# Flag each use of an others choice in extension aggregates. In record and
+# array aggregates, an others choice is flagged unless it is used to refer to
+# all components, or to all but one component.
+# If, in case of a named array aggregate, there are two associations, one with
+# an others choice and another with a discrete range, the others choice is
+# flagged even if the discrete range specifies exactly one component; for
+# example, (1..1 => 0, others => 1).
+
+@check(message="OTHERS choice in aggregate")
+fun others_in_aggregates(node) =
+    node is OthersDesignator(parent is l@AlternativesList(
+                             parent is a@AggregateAssoc
+    # Flag all aggregates with more than 2 alternatives
+    when children_count(a?.parent) > 2
+      # Flag all extension aggregates
+      or a?.parent is AssocList(any parent is
+                                    Aggregate(f_ancestor_expr is AdaNode))
+      # Find the single alternative and flag in the following cases:
+      or AssocList(any children is assoc@AggregateAssoc
+                   when assoc != a
+                         # More than one value
+                    and (children_count(assoc.f_designators) > 1 or
+                         # A range
+                         assoc.f_designators[1] is BinOp(f_op is OpDoubleDot) or
+                         # A (sub)type designator
+                         assoc.f_designators[1] is
+                           Identifier(p_referenced_decl() is BaseTypeDecl)))))
