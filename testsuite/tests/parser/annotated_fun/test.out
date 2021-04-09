@@ -1,4 +1,5 @@
 FunDecl
+|f_doc: <null>
 |f_annotation:
 |  DeclAnnotation
 |  |f_name:

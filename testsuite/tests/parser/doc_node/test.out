@@ -1,0 +1,60 @@
+TopLevelList
+|  FunDecl
+|  |f_doc:
+|  |  DocNode
+|  |  |f_docs:
+|  |  |  DocLiteralList
+|  |  |  |  DocLiteral
+|  |  |  |  DocLiteral
+|  |f_annotation: <null>
+|  |f_name:
+|  |  Identifier: add
+|  |f_fun_expr:
+|  |  NamedFunction
+|  |  |f_parameters:
+|  |  |  ParameterDeclList
+|  |  |  |  ParameterDecl
+|  |  |  |  |f_doc: <null>
+|  |  |  |  |f_annotation: <null>
+|  |  |  |  |f_param_identifier:
+|  |  |  |  |  Identifier: a
+|  |  |  |  |f_type_annotation: <null>
+|  |  |  |  |f_default_expr: <null>
+|  |  |  |  ParameterDecl
+|  |  |  |  |f_doc: <null>
+|  |  |  |  |f_annotation: <null>
+|  |  |  |  |f_param_identifier:
+|  |  |  |  |  Identifier: b
+|  |  |  |  |f_type_annotation: <null>
+|  |  |  |  |f_default_expr: <null>
+|  |  |f_body_expr:
+|  |  |  ArithBinOp
+|  |  |  |f_left:
+|  |  |  |  Identifier: a
+|  |  |  |f_op:
+|  |  |  |  OpPlus
+|  |  |  |f_right:
+|  |  |  |  Identifier: b
+|  ValDecl
+|  |f_doc:
+|  |  DocNode
+|  |  |f_docs:
+|  |  |  DocLiteralList
+|  |  |  |  DocLiteral
+|  |f_annotation: <null>
+|  |f_identifier:
+|  |  Identifier: c
+|  |f_value:
+|  |  FunCall
+|  |  |f_name:
+|  |  |  Identifier: add
+|  |  |f_has_safe:
+|  |  |  SafeAbsent
+|  |  |f_arguments:
+|  |  |  ArgList
+|  |  |  |  ExprArg
+|  |  |  |  |f_value_expr:
+|  |  |  |  |  IntegerLiteral: 1
+|  |  |  |  ExprArg
+|  |  |  |  |f_value_expr:
+|  |  |  |  |  IntegerLiteral: 2

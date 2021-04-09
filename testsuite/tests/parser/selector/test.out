@@ -1,4 +1,6 @@
 SelectorDecl
+|f_doc: <null>
+|f_annotation: <null>
 |f_name:
 |  Identifier: testSelector
 |f_arms:

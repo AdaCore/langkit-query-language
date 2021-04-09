@@ -1,4 +1,5 @@
 FunDecl
+|f_doc: <null>
 |f_annotation: <null>
 |f_name:
 |  Identifier: dummy
@@ -7,17 +8,23 @@ FunDecl
 |  |f_parameters:
 |  |  ParameterDeclList
 |  |  |  ParameterDecl
+|  |  |  |f_doc: <null>
+|  |  |  |f_annotation: <null>
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: a
 |  |  |  |f_type_annotation: <null>
 |  |  |  |f_default_expr: <null>
 |  |  |  ParameterDecl
+|  |  |  |f_doc: <null>
+|  |  |  |f_annotation: <null>
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: b
 |  |  |  |f_type_annotation: <null>
 |  |  |  |f_default_expr:
 |  |  |  |  IntegerLiteral: 40
 |  |  |  ParameterDecl
+|  |  |  |f_doc: <null>
+|  |  |  |f_annotation: <null>
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: c
 |  |  |  |f_type_annotation: <null>

@@ -1,4 +1,6 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack as c
+from langkit.parsers import (
+    Grammar, Or, List, Pick, Opt, NoBacktrack as c, Null
+)
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
 )
@@ -47,6 +49,20 @@ class LKQLNode(ASTNode):
         pass
 
 
+class DocLiteral(LKQLNode):
+    """
+    Wrapper for a DocLiteral token.
+    """
+    pass
+
+
+class DocNode(LKQLNode):
+    """
+    Node containing documentation for a given entity
+    """
+    docs = Field(type=T.DocLiteral.list)
+
+
 class DeclAnnotation(LKQLNode):
     """
     Compile time annotation attached to a declaration. For the moment, only
@@ -69,12 +85,7 @@ class Declaration(LKQLNode):
     Root node class for LKQL declarations.
     """
 
-
-@abstract
-class AnnotatedDeclaration(Declaration):
-    """
-    Declaration that can have an annotation. For the moment, only functions.
-    """
+    doc = Field(type=T.DocNode)
     annotation = Field(type=DeclAnnotation)
 
 
@@ -632,7 +643,7 @@ class AnonymousFunction(BaseFunction):
     pass
 
 
-class FunDecl(AnnotatedDeclaration):
+class FunDecl(Declaration):
     """
     Function definition
 
@@ -1197,10 +1208,16 @@ lkql_grammar.add_rules(
         "}"
     ),
 
-    val_decl=ValDecl("val", c(), G.id, "=", G.expr),
+    val_decl=ValDecl(
+        Opt(G.doc_node),
+        Opt(G.decl_annotation),
+        "val", c(), G.id, "=", G.expr
+    ),
 
     fun_decl=FunDecl(
-        Opt(G.decl_annotation), "fun", c(), G.id,
+        Opt(G.doc_node),
+        Opt(G.decl_annotation),
+        "fun", c(), G.id,
         NamedFunction(
             "(", List(G.param, empty_valid=True, sep=","), ")",
             "=", G.expr
@@ -1214,6 +1231,8 @@ lkql_grammar.add_rules(
     arg_list=List(G.arg, empty_valid=True, sep=","),
 
     selector_decl=SelectorDecl(
+        Opt(G.doc_node),
+        Opt(G.decl_annotation),
         "selector", c(),
         G.id, List(G.selector_arm, empty_valid=False)
     ),
@@ -1254,8 +1273,14 @@ lkql_grammar.add_rules(
 
     named_arg=NamedArg(G.id, "=", G.expr),
 
-    param=ParameterDecl(G.id, Opt(":", G.id), Opt("=", G.expr)),
+    param=ParameterDecl(
+        Null(G.doc_node),
+        Null(G.decl_annotation),
+        G.id, Opt(":", G.id), Opt("=", G.expr)
+    ),
 
-    decl_annotation=DeclAnnotation("@", G.id, Opt("(", G.arg_list, ")"))
+    decl_annotation=DeclAnnotation("@", G.id, Opt("(", G.arg_list, ")")),
+
+    doc_node=DocNode(List(DocLiteral(Token.DocLiteral), empty_valid=False)),
 
 )

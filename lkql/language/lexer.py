@@ -64,6 +64,7 @@ class Token(LexerToken):
     LArrow = WithText()
     BigRArrow = WithText()
     Box = WithText()
+    DocLiteral = WithText()
 
     Comment = WithTrivia()
     Whitespace = WithTrivia()
@@ -130,5 +131,6 @@ lkql_lexer.add_rules(
     (Pattern("[a-z][A-Za-z0-9_]*"),                        Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),                   Token.KindName),
     (Pattern("\"[^\"]*\""),                                Token.String),
+    (Pattern(r"##(.?)+"),                                  Token.DocLiteral),
     (Pattern(r"#(.?)+"),                                   Token.Comment)
 )

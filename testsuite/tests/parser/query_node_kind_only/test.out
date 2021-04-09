@@ -1,4 +1,6 @@
 ValDecl
+|f_doc: <null>
+|f_annotation: <null>
 |f_identifier:
 |  Identifier: o
 |f_value:
