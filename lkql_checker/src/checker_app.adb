@@ -23,12 +23,11 @@
 
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Text_IO;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
 with Langkit_Support.Images; use Langkit_Support.Images;
-with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 with Langkit_Support.Diagnostics.Output;
 
 with Libadalang.Common; use Libadalang.Common;
@@ -49,6 +48,8 @@ with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 with LKQL.Errors; use LKQL.Errors;
 with Liblkqllang.Analysis;
+
+with GNAT.Traceback.Symbolic;
 
 package body Checker_App is
 
@@ -102,7 +103,7 @@ package body Checker_App is
       --  Append the given rule to ``Cached_Rules`` and ``Cached_Flat_Rules``.
 
       Explicit_Rules_Names : constant Args.Rules.Result_Array :=
-         Args.Rules.Get;
+        Args.Rules.Get;
 
       Additional_Rules_Dirs : constant Path_Array :=
          Path_Array (Args.Rules_Dirs.Get);
@@ -253,9 +254,9 @@ package body Checker_App is
             Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
          exception
             when others =>
-               Put (String'("internal error loading rule "));
+               Put ("internal error loading rule ");
                Put (To_Wide_Wide_String (Rule.Name));
-               Put_Line (String'(":"));
+               Put_Line (":");
                raise;
          end;
       end loop;
@@ -337,7 +338,7 @@ package body Checker_App is
 
                   case Args.Output_Style.Get is
                      when GNATcheck =>
-                        Put
+                        Ada.Text_IO.Put
                           (Simple_Name (Result_Node.Unit.Get_Filename) & ":"
                            & Stripped_Image
                                (Integer (Result_Node.Sloc_Range.Start_Line))
@@ -345,7 +346,7 @@ package body Checker_App is
                            & Stripped_Image
                                (Integer (Result_Node.Sloc_Range.Start_Column))
                            & ": ");
-                        Put_Line (To_Wide_Wide_String (Rule.Message));
+                        Put_Line (To_Text (Rule.Message));
 
                      when Default =>
                         declare
@@ -363,33 +364,44 @@ package body Checker_App is
                   end case;
                end if;
             exception
+               when E : Property_Error =>
+                  case Property_Error_Recovery is
+                  when Continue_And_Log =>
+                     Eval_Trace.Trace ("Evaluating rule predicate failed");
+                     Eval_Trace.Trace
+                       ("rule => " & Image (To_Text (Rule.Name)));
+                     Eval_Trace.Trace
+                       ("ada node => " & Node.Image);
+
+                     Eval_Trace.Trace (Exception_Information (E));
+                     Eval_Trace.Trace
+                       (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+
+                  when Continue_And_Warn =>
+                     --  TODO: Use Langkit_Support.Diagnostics.Output
+                     Put_Line
+                       (Standard_Error, "Evaluating rule predicate failed");
+                     Put_Line
+                       (Standard_Error, "rule => " & To_Text (Rule.Name));
+                     Put_Line
+                       (Standard_Error, "ada node => " & To_Text (Node.Image));
+                  when Raise_Error =>
+                     raise;
+                  end case;
+
                when E : others =>
-                  Put (String'("internal error processing rule "));
-                  Put (To_Wide_Wide_String (Rule.Name));
-
-                  --  If Last_Error is set and the Sloc points to some
-                  --  interesting line (line 1 typically corresponds to some
-                  --  internal/inlined context), then display this extra info.
-
-                  if Is_Error (Rule.Eval_Ctx.Last_Error) then
-                     declare
-                        Node : constant Liblkqllang.Analysis.LKQL_Node :=
-                          Rule.Eval_Ctx.Last_Error.AST_Node;
-                     begin
-                        if Node.Sloc_Range.Start_Line /= 1 then
-                           Put (" [" &
-                                Simple_Name (Node.Unit.Get_Filename) & ":" &
-                                Stripped_Image
-                                  (Integer (Node.Sloc_Range.Start_Line)) &
-                                "]");
-                        end if;
-                     end;
-                  end if;
-
                   Put_Line
-                    (" at " & Simple_Name (Node.Unit.Get_Filename) & ":" &
-                     Stripped_Image (Integer (Node.Sloc_Range.Start_Line)) &
-                     ": " & Exception_Information (E));
+                    (Standard_Error,
+                     "Evaluating query predicate failed unrecoverably");
+                  Put_Line
+                    (Standard_Error, "rule => " & To_Text (Rule.Name));
+                  Put_Line
+                    (Standard_Error, "ada node => " & To_Text (Node.Image));
+
+                  Ada.Text_IO.Put_Line (Exception_Information (E));
+                  Ada.Text_IO.Put_Line
+                    (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+
             end;
          end loop;
 
