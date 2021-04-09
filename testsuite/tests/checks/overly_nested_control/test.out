@@ -1,0 +1,4 @@
+nested.adb:8:19: error: nesting level of control structures too deep
+8 |                   if Idx /= 0 then  --  FLAG (if rule parameter is 3)
+  |                   ^^^^^^^ 
+
