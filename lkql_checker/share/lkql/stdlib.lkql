@@ -28,16 +28,17 @@ fun is_assert_aspect(s) =
     s == "predicate_failure"
 
 # Return the ultimately designated ObjectDecl, going through renamings
-fun ultimate_alias(name) = {
-    val decl = name?.p_referenced_decl();
-    val ren = match decl
-        | ObjectDecl => decl?.f_renaming_clause
-        | *          => null;
+fun ultimate_alias(name) =
+    if name is (BaseId or DottedName) then {
+        val decl = name?.p_referenced_decl();
+        val ren = match decl
+            | ObjectDecl => decl?.f_renaming_clause
+            | *          => null;
 
-    if ren == null
-    then decl
-    else ultimate_alias(ren?.f_renamed_object)
-}
+        if ren == null
+        then decl
+        else ultimate_alias(ren?.f_renamed_object)
+    } else name
 
 # Return true if e represents a local scope or a generic formal
 fun local_scope(e) =

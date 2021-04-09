@@ -5,15 +5,18 @@
 # An entity is considered as being marked volatile if it has an aspect Volatile,
 # Atomic or Shared declared for it.
 
-fun is_volatile(o) =
-    o != null
-    and (o?.p_get_aspect_assoc("Volatile") != null or
-         o?.p_get_aspect_assoc("Atomic") != null or
-         o?.p_get_aspect_assoc("Shared") != null)
+import stdlib
 
+fun is_non_volatile_object(o) =
+    o is ObjectDecl(f_has_constant is ConstantAbsent)
+     and not (o?.p_has_aspect("Volatile") or
+              o?.p_has_aspect("Atomic") or
+              o?.p_has_aspect("Shared"))
 
-@check(message="address attribute for non-volatile data object")
+@check(message="address attribute for non-volatile object")
 fun address_attribute_for_non_volatile_objects(node) =
     node is AttributeRef
     when node.f_attribute?.p_name_is("Address")
-    and not is_volatile(node.f_prefix?.p_referenced_decl())
+     and (not (node.parent is AttributeDefClause
+               when node.parent?.f_attribute_expr == node))
+     and is_non_volatile_object(stdlib.ultimate_alias(node.f_prefix))
