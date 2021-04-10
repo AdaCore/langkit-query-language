@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Subprogram_Access
+input_sources: ['subp.ads']
