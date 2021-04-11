@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Outer_Loop_Exits
+input_sources: ['loops.adb']

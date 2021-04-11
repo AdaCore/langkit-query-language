@@ -1,0 +1,4 @@
+loops.adb:8:13: error: exit out of the nesting loop
+8 |             exit Outer;                     --  FLAG
+  |             ^^^^^^^^^^^ 
+
