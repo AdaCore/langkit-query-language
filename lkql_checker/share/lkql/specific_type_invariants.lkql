@@ -1,0 +1,11 @@
+# Flag any definition of (non-class-wide) Type_Invariant aspect that is a part
+# of a declaration of a tagged type or a tagged extension. Definitions of
+# Type_Invariant aspect that are parts of declarations of non-tagged types are
+# not flagged.
+
+@check(message="definition of non class-wide Type_Invariant aspect")
+fun specific_type_invariants(node) =
+    node is AspectAssoc(f_id is id@Identifier)
+    when id?.p_name_is("Type_Invariant")
+     and node is *(any parent(depth=3) is p@BaseTypeDecl
+                   when p?.p_is_tagged_type())

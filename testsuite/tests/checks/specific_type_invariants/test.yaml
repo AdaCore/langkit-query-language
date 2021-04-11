@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Specific_Type_Invariants
+input_sources: ['inv.ads']
