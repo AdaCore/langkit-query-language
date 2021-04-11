@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: POS_On_Enumeration_Types
+input_sources: ['pos.adb']

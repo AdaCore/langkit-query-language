@@ -1,0 +1,10 @@
+# Flag 'Pos attribute in case if the attribute prefix has an enumeration type
+# (including types derived from enumeration types).
+
+@check(message="prefix of 'POS attribute has enumeration type")
+fun pos_on_enumeration_types(node) =
+    node is AttributeRef
+    when node.f_attribute?.p_name_is("Pos")
+     and node.f_prefix?.p_referenced_decl() is t@BaseTypeDecl
+         when t?.p_is_enum_type()
+
