@@ -1,0 +1,16 @@
+num.ads:3:8: error: explicit reference to predefined numeric subtype
+3 |    I : Integer;                               --  FLAG
+  |        ^^^^^^^ 
+
+num.ads:4:8: error: explicit reference to predefined numeric subtype
+4 |    F : Float;                                 --  FLAG
+  |        ^^^^^ 
+
+num.ads:7:34: error: explicit reference to predefined numeric subtype
+7 |    type Arr is array (1 .. 5) of Short_Float; --  FLAG
+  |                                  ^^^^^^^^^^^ 
+
+num.ads:10:12: error: explicit reference to predefined numeric subtype
+10 |       C1 : Long_Integer;                      --  FLAG
+   |            ^^^^^^^^^^^^ 
+

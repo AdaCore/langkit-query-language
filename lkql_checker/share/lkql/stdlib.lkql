@@ -74,3 +74,19 @@ fun param_pos(n, pos: int = 0) =
     |" Return the position of node ``n`` in its current list of siblings
     if n == null then pos else param_pos(n?.previous_sibling, pos+1)
 
+# Return true if n is the name of a numeric type or subtype in Standard
+fun is_standard_numeric(n) =
+    n == "standard.integer" or
+    n == "standard.natural" or
+    n == "standard.positive" or
+    n == "standard.short_short_integer" or
+    n == "standard.short_integer" or
+    n == "standard.long_integer" or
+    n == "standard.long_long_integer" or
+    n == "standard.long_long_long_integer" or
+    n == "standard.short_float" or
+    n == "standard.float" or
+    n == "standard.long_float" or
+    n == "standard.long_long_float" or
+    n == "standard.duration"
+

@@ -1,0 +1,9 @@
+# Flag each explicit use of the name of any numeric type or subtype declared in
+# package Standard.
+
+import stdlib
+
+@check(message="explicit reference to predefined numeric subtype")
+fun predefined_numeric_types(node) =
+    node is Identifier(p_referenced_decl() is t@BaseTypeDecl
+    when stdlib.is_standard_numeric(t?.p_canonical_fully_qualified_name()))
