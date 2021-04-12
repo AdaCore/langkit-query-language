@@ -310,9 +310,9 @@ Here are examples of indexing expressions:
 
 .. code-block:: lkql
 
-    list[0]
+    list[1]
 
-    "pouet"[1]
+    "pouet"[2]
 
     {
         val x = 2;
@@ -351,7 +351,7 @@ The "is" expression verifies if a node object matches a `Pattern`_.
 .. code-block:: lkql
 
    val a = select AdaNode
-   val b = a[0] is ObjectDecl
+   val b = a[1] is ObjectDecl
 
 Comparison operators
 """"""""""""""""""""
@@ -449,7 +449,7 @@ the evaluation of the associated expression in the match arm.
 
 .. code-block:: lkql
 
-   match nodes[0]
+   match nodes[1]
      | ObjectDecl(has_aliased is aliased @ *) => aliased
      | ParamSpec(has_aliased is aliased @ *) => aliased
      | * => false
