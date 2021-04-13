@@ -63,12 +63,29 @@ fun local_scope(e) =
 
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
-    [p for p in n?.parents() if local_scope(p)].length > 0
+    [p for p in n?.parents(include_self=false) if local_scope(p)].length > 0
 
 fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
     o is ParamSpec or
          (ObjectDecl when has_local_scope(o))
+
+fun is_in_package_scope(o) =
+    |" Return ``true`` if ``o`` is immediately in the scope of a package spec,
+    |" body or generic package.
+    match o?.parent
+    | BasePackageDecl     => true
+    | PackageBody         => true
+    | SingleTaskDecl      => false
+    | TaskTypeDecl        => false
+    | TaskBody            => false
+    | BlockStmt           => false
+    | BaseSubpBody        => false
+    | EntryBody           => false
+    | SingleProtectedDecl => false
+    | ProtectedTypeDecl   => false
+    | null                => false
+    | *                   => is_in_package_scope(o?.parent)
 
 fun param_pos(n, pos: int = 0) =
     |" Return the position of node ``n`` in its current list of siblings

@@ -1,0 +1,12 @@
+anon.ads:5:4: error: object of anonymous type
+5 |    A : array (1 .. 10) of Integer;  --  FLAG
+  |    ^ 
+
+anon.ads:8:4: error: object of anonymous type
+8 |    C : access Integer;              --  FLAG
+  |    ^ 
+
+anon.ads:12:7: error: object of anonymous type
+12 |       F1 : access Integer;          --  FLAG
+   |       ^^ 
+

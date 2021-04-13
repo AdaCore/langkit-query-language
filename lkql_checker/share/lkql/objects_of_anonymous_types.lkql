@@ -1,0 +1,13 @@
+# Flag any object declaration located immediately within a package declaration
+# or a package body (including generic packages) if it uses anonymous access or
+# array type definition. Record component definitions and parameter
+# specifications are not flagged. Formal object declarations defined with
+# anonymous access definitions are flagged.
+
+import stdlib
+
+@check(message="object of anonymous type")
+fun objects_of_anonymous_types(node) =
+    node is ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
+                                               AnonymousTypeDecl))
+    when stdlib.is_in_package_scope(node)
