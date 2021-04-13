@@ -23,57 +23,41 @@
 
 with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-with Langkit_Support.Text; use Langkit_Support.Text;
 
---  This package declares every function that is a builtin in LKQL, and an
---  array of builtin function descriptors that lists all the functions and
---  their name in LKQL.
+--  This package declares every function that is a builtin in LKQL, and a
+--  function that returns the array of builtin function descriptors that
+--  lists all the functions and their name in LKQL.
 --
 --  To add a new built-in function, you must:
 --
 --  1. Add a new function with the correct prototype in that package
 --
 --  2. Register it in the list of built-ins (The ``Builtin_Functions`` array
---     below).
+--     in the body of this package).
 
 package LKQL.Builtin_Functions is
 
    function Eval_Print
-     (Ctx : Eval_Context; Expr : L.Expr) return Primitive;
-
-   function Eval_Debug
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_To_List
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Dump
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Image
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Children_Count
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Text
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive;
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
-   type Builtin_Fn_Desc is record
-      Name : Unbounded_Text_Type;
-      Fn   : Builtin_Function_Access;
-   end record;
+   type Builtin_Function_Array is
+      array (Positive range <>) of Builtin_Function;
 
-   type Builtin_Fn_Array
-   is array (Positive range <>) of Builtin_Fn_Desc;
-
-   Builtin_Functions : Builtin_Fn_Array :=
-     ((To_Unbounded_Text ("print"), Eval_Print'Access),
-      (To_Unbounded_Text ("debug"), Eval_Debug'Access),
-      (To_Unbounded_Text ("to_list"), Eval_To_List'Access),
-      (To_Unbounded_Text ("dump"), Eval_Dump'Access),
-      (To_Unbounded_Text ("img"), Eval_Image'Access),
-      (To_Unbounded_Text ("children_count"), Eval_Children_Count'Access),
-      (To_Unbounded_Text ("text"), Eval_Text'Access));
+   function All_Builtins return Builtin_Function_Array;
 
 end LKQL.Builtin_Functions;

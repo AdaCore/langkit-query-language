@@ -201,7 +201,7 @@ package body LKQL.Primitives is
 
    procedure Release (Data : in out Primitive_Data) is
       procedure Free is new Ada.Unchecked_Deallocation
-        (Builtin_Function_Access, Builtin_Fn_Access_Access);
+        (Builtin_Function_Description, Builtin_Function);
    begin
       case Data.Kind is
          when Kind_List =>
@@ -213,7 +213,7 @@ package body LKQL.Primitives is
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
          when Kind_Builtin_Function =>
-            Free (Data.Fn_Access);
+            Free (Data.Builtin_Fn);
          when Kind_Property_Reference =>
             Free_Member_Ref (Data.Ref);
          when others =>
@@ -659,15 +659,13 @@ package body LKQL.Primitives is
    -- Make_Builtin_Function --
    ---------------------------
 
-   function Make_Builtin_Function
-     (Fn : Builtin_Function_Access) return Primitive
+   function Make_Builtin_Function (Fn : Builtin_Function) return Primitive
    is
       Ref : Primitive;
    begin
       Ref.Set
         (Primitive_Data'
-           (Refcounted with Kind_Builtin_Function,
-            new Builtin_Function_Access'(Fn)));
+           (Refcounted with Kind_Builtin_Function, Fn));
       return Ref;
    end Make_Builtin_Function;
 

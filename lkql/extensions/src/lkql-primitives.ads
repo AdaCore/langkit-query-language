@@ -114,10 +114,10 @@ package LKQL.Primitives is
 
    type Environment_Access is access all LKQL.Eval_Contexts.Environment;
 
-   type Builtin_Function_Access;
-   --  Forward definition of the Builtin_Function_Access type.
+   type Builtin_Function_Description (<>);
+   --  Forward definition of the Builtin_Function_Description type.
 
-   type Builtin_Fn_Access_Access is access all Builtin_Function_Access;
+   type Builtin_Function is access all Builtin_Function_Description;
    --  This is a painful indirection due to the fact that we cannot declare an
    --  access to function returning a primitive before the primitive type is
    --  defined, but that we need to store it in Primitive_Data. This incurs
@@ -146,7 +146,7 @@ package LKQL.Primitives is
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
          when Kind_Builtin_Function =>
-            Fn_Access         : Builtin_Fn_Access_Access;
+            Builtin_Fn        : Builtin_Function;
          when Kind_Property_Reference =>
             Ref               : AST_Node_Member_Ref_Access;
             Property_Node     : AST_Node_Rc;
@@ -189,9 +189,26 @@ package LKQL.Primitives is
    subtype Primitive_Option is Primitive_Options.Option;
    --  Optional primitive value
 
-   type Builtin_Function_Access is access function
-     (Ctx : LKQL.Eval_Contexts.Eval_Context;
-      Arg : L.Expr) return Primitive;
+   type Primitive_Array is array (Positive range <>) of Primitive;
+
+   type Native_Function_Access is access function
+     (Ctx  : LKQL.Eval_Contexts.Eval_Context;
+      Args : Primitive_Array) return Primitive;
+
+   type Builtin_Param_Description is record
+      Name          : Unbounded_Text_Type;
+      Expected_Kind : Base_Primitive_Kind := No_Kind;
+      Default_Value : Primitive_Option := Primitive_Options.None;
+   end record;
+
+   type Builtin_Function_Profile is
+     array (Positive range <>) of Builtin_Param_Description;
+
+   type Builtin_Function_Description (N : Positive) is record
+      Name      : Unbounded_Text_Type;
+      Params    : Builtin_Function_Profile (1 .. N);
+      Fn_Access : Native_Function_Access;
+   end record;
 
    ----------
    -- List --
@@ -354,8 +371,7 @@ package LKQL.Primitives is
    -- Function values --
    ---------------------
 
-   function Make_Builtin_Function
-     (Fn : Builtin_Function_Access) return Primitive;
+   function Make_Builtin_Function (Fn : Builtin_Function) return Primitive;
 
    function Make_Function
      (Node : L.Base_Function; Env : Environment_Access) return Primitive;

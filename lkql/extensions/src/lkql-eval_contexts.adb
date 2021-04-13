@@ -224,9 +224,9 @@ package body LKQL.Eval_Contexts is
          U      : constant L.Analysis_Unit := Prelude_Unit (Kernel.Context);
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
-         for Fn_Desc of Builtin_Functions.Builtin_Functions loop
+         for Fn_Desc of Builtin_Functions.All_Builtins loop
             Ret.Add_Binding
-              (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc.Fn));
+              (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc));
          end loop;
       end;
 

@@ -1,7 +1,0 @@
-val x = 38
-
-val y = 4
-
-val result = debug(x + y)
-
-print(result)

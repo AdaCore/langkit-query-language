@@ -31,7 +31,24 @@ with LKQL.Error_Handling;   use LKQL.Error_Handling;
 with LKQL.Node_Extensions;  use LKQL.Node_Extensions;
 with LKQL.Node_Data;        use LKQL.Node_Data;
 
+with Ada.Strings.Wide_Wide_Unbounded;
+
 package body LKQL.Functions is
+   procedure Process_Function_Arguments
+     (Ctx           : Eval_Context;
+      Call          : L.Fun_Call;
+      Param_Count   : Natural;
+      Param_Index   : access function (Param_Name : Symbol_Type)
+                                       return Natural;
+      Default_Value : access function (Param_Index : Positive)
+                                       return Primitive_Option;
+      Eval_Arg      : access function (Param_Index : Positive;
+                                       Arg_Expr    : L.Expr)
+                                       return Primitive;
+      Match_Found   : access procedure (Param_Index : Positive;
+                                        Arg_Value   : Primitive));
+   --  Implements the common logic for processing a function call, such as
+   --  checking existence of named arguments, arity, duplicate parameters, etc.
 
    function Eval_User_Fun_Call
      (Ctx  : Eval_Context;
@@ -95,31 +112,28 @@ package body LKQL.Functions is
       end case;
    end Eval_Call;
 
-   ------------------------
-   -- Eval_User_Fun_Call --
-   ------------------------
+   --------------------------------
+   -- Process_Function_Arguments --
+   --------------------------------
 
-   function Eval_User_Fun_Call
-     (Ctx  : Eval_Context;
-      Call : L.Fun_Call;
-      Func : Primitive) return Primitive
+   procedure Process_Function_Arguments
+     (Ctx           : Eval_Context;
+      Call          : L.Fun_Call;
+      Param_Count   : Natural;
+      Param_Index   : access function (Param_Name : Symbol_Type)
+                                       return Natural;
+      Default_Value : access function (Param_Index : Positive)
+                                       return Primitive_Option;
+      Eval_Arg      : access function (Param_Index : Positive;
+                                       Arg_Expr    : L.Expr)
+                                       return Primitive;
+      Match_Found   : access procedure (Param_Index : Positive;
+                                        Arg_Value   : Primitive))
    is
-
-      type Has_Arg_Array is array (Positive range <>) of Boolean;
+      type Has_Arg_Array is array (Positive range 1 .. Param_Count) of Boolean;
       --  Array of booleans, used to check whether an arg was passed.
 
-      Def : constant L.Base_Function := Func.Get.Fun_Node;
-      Env : constant LKQL.Primitives.Environment_Access :=
-        Func.Get.Frame;
-
-      Def_Ext           : constant Ext := Get_Ext (Def);
-
-      Args_Bindings : Environment_Map;
-
-      Has_Arg  : Has_Arg_Array
-        (Def.F_Parameters.First_Child_Index
-         .. Def.F_Parameters.Last_Child_Index)
-        := (others => False);
+      Has_Arg  : Has_Arg_Array := (others => False);
    begin
 
       --  Do the argument evaluation and checking in the same pass
@@ -135,27 +149,18 @@ package body LKQL.Functions is
                --  Named arg: check if the name exists in the definition's
                --  profile.
                declare
-                  Cur : constant Params_Maps.Cursor :=
-                    Def_Ext.Content.Params.Find (Arg_Name);
+                  Position : constant Natural := Param_Index (Arg_Name);
                begin
-                  if Params_Maps.Has_Element (Cur) then
-                     declare
-                        FPI      : constant Formal_Param_Info :=
-                          Params_Maps.Element (Cur);
-                        Dummy    : String_Value_Maps.Cursor;
-                        Inserted : Boolean;
-                     begin
+                  if Position > 0 then
+                     --  Check that it has not already been seen
+                     if Has_Arg (Position) then
+                        Raise_Already_Seen_Arg (Ctx, Arg);
+                     end if;
 
-                        --  All is good, mark the arg as passed and insert the
-                        --  value in the args env map.
+                     --  All is good, mark the arg as passed
+                     Has_Arg (Position) := True;
 
-                        Has_Arg (FPI.Pos) := True;
-                        Args_Bindings.Insert
-                          (Arg_Name, Eval (Ctx, Arg.P_Expr), Dummy, Inserted);
-                        if not Inserted then
-                           Raise_Already_Seen_Arg (Ctx, Arg);
-                        end if;
-                     end;
+                     Match_Found (Position, Eval_Arg (Position, Arg.P_Expr));
                   else
                      --  No parameter for this arg: raise
                      Raise_Unknown_Argument (Ctx, Arg.P_Name);
@@ -164,20 +169,16 @@ package body LKQL.Functions is
             else
 
                --  Positional arg: check if there is an arg at this position.
-               if I > Def.P_Arity then
+               if I > Param_Count then
 
                   --  No arg at this pos: raise
-                  Raise_Invalid_Arity (Ctx, Def.P_Arity, Call.F_Arguments);
+                  Raise_Invalid_Arity (Ctx, Param_Count, Call.F_Arguments);
                else
 
-                  --  All is good, mark the arg as passed and insert the value
-                  --  in the args env map.
-
-                  Args_Bindings.Insert
-                    (Symbol (Def.F_Parameters.Child (I)
-                             .As_Parameter_Decl.P_Identifier),
-                     Eval (Ctx, Arg.P_Expr));
+                  --  All is good, mark the arg as passed
                   Has_Arg (I) := True;
+
+                  Match_Found (I, Eval_Arg (I, Arg.P_Expr));
                end if;
             end if;
          end;
@@ -185,21 +186,18 @@ package body LKQL.Functions is
 
       --  Second step: check that every arg has been passed, and evaluate
       --  default values for parameters that were passed no value.
-      for I in Has_Arg'Range loop
+      for I in Has_Arg_Array'Range loop
          --  We have no argument at position I
          if not Has_Arg (I) then
             declare
-               Param : constant L.Parameter_Decl :=
-                 Def.F_Parameters.Child (I).As_Parameter_Decl;
+               Default : constant Primitive_Option := Default_Value (I);
             begin
                --  It could be an arg with a default value ..
-               if not Param.F_Default_Expr.Is_Null then
+               if Primitive_Options.Is_Some (Default) then
 
                   --  In that case eval the default value and add it to the
                   --  args map.
-                  Args_Bindings.Include
-                    (Symbol (Param.P_Identifier),
-                     Eval (Ctx, Param.F_Default_Expr));
+                  Match_Found (I, Primitive_Options.Extract (Default));
                else
                   --  But if not, raise
                   Raise_And_Record_Error
@@ -210,14 +208,87 @@ package body LKQL.Functions is
             end;
          end if;
       end loop;
+   end Process_Function_Arguments;
 
-      declare
-         Eval_Ctx : constant Eval_Context :=
-           Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
+   ------------------------
+   -- Eval_User_Fun_Call --
+   ------------------------
+
+   function Eval_User_Fun_Call
+     (Ctx  : Eval_Context;
+      Call : L.Fun_Call;
+      Func : Primitive) return Primitive
+   is
+      function Param_Index (Name : Symbol_Type) return Natural;
+      function Default_Value (I : Positive) return Primitive_Option;
+      function Eval_Arg (I : Positive; Arg : L.Expr) return Primitive;
+      procedure Match_Found (Param_Index : Positive; Arg_Value : Primitive);
+
+      Def : constant L.Base_Function := Func.Get.Fun_Node;
+      Env : constant LKQL.Primitives.Environment_Access :=
+        Func.Get.Frame;
+
+      Def_Ext       : constant Ext := Get_Ext (Def);
+      Args_Bindings : Environment_Map;
+
+      -----------------
+      -- Param_Index --
+      -----------------
+
+      function Param_Index (Name : Symbol_Type) return Natural is
+         Cur : constant Params_Maps.Cursor :=
+           Def_Ext.Content.Params.Find (Name);
       begin
-         return Eval
-           (Eval_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
-      end;
+         return (if Params_Maps.Has_Element (Cur)
+                 then Params_Maps.Element (Cur).Pos
+                 else 0);
+      end Param_Index;
+
+      -------------------
+      -- Default_Value --
+      -------------------
+
+      function Default_Value (I : Positive) return Primitive_Option is
+         Default_Expr : constant L.Expr :=
+            Def.F_Parameters.Child (I).As_Parameter_Decl.F_Default_Expr;
+      begin
+         return (if Default_Expr.Is_Null
+                 then Primitive_Options.None
+                 else Primitive_Options.To_Option (Eval (Ctx, Default_Expr)));
+      end Default_Value;
+
+      --------------
+      -- Eval_Arg --
+      --------------
+
+      function Eval_Arg (I : Positive; Arg : L.Expr) return Primitive is
+        (Eval (Ctx, Arg));
+
+      -----------------
+      -- Match_Found --
+      -----------------
+
+      procedure Match_Found (Param_Index : Positive; Arg_Value : Primitive) is
+         Param_Name : constant Symbol_Type := Symbol
+           (Def.F_Parameters.Child
+              (Param_Index).As_Parameter_Decl.P_Identifier);
+      begin
+         Args_Bindings.Insert (Param_Name, Arg_Value);
+      end Match_Found;
+
+      Eval_Ctx : constant Eval_Context :=
+        Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
+   begin
+      Process_Function_Arguments
+        (Ctx,
+         Call,
+         Def.F_Parameters.Children_Count,
+         Param_Index'Access,
+         Default_Value'Access,
+         Eval_Arg'Access,
+         Match_Found'Access);
+      return Eval
+        (Eval_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
    end Eval_User_Fun_Call;
 
    -----------------------------
@@ -272,17 +343,63 @@ package body LKQL.Functions is
       Call : L.Fun_Call;
       Fun  : Primitive) return Primitive
    is
-   begin
-      if Call.P_Arity /= 1 then
-         Raise_Invalid_Arity (Ctx, 1, Call.F_Arguments);
-      end if;
+      function Param_Index (Name : Symbol_Type) return Natural;
+      function Default_Value (I : Positive) return Primitive_Option;
+      function Eval_Arg (I : Positive; Arg : L.Expr) return Primitive;
+      procedure Match_Found (Param_Index : Positive; Arg_Value : Primitive);
 
-      declare
-         Builtin_Func : Builtin_Function_Access := Fun.Get.Fn_Access.all;
+      Builtin_Descr : constant Builtin_Function_Description :=
+        Fun.Get.Builtin_Fn.all;
+
+      Param_Values  : Primitive_Array (Builtin_Descr.Params'Range);
+
+      -----------------
+      -- Param_Index --
+      -----------------
+
+      function Param_Index (Name : Symbol_Type) return Natural is
+         use type Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String;
       begin
-         return Builtin_Func
-           (Ctx, Call.F_Arguments.List_Child (1).P_Expr);
-      end;
+         for I in 1 .. Builtin_Descr.N loop
+            if Builtin_Descr.Params (I).Name = Name.all then
+               return I;
+            end if;
+         end loop;
+         return 0;
+      end Param_Index;
+
+      -------------------
+      -- Default_Value --
+      -------------------
+
+      function Default_Value (I : Positive) return Primitive_Option is
+        (Builtin_Descr.Params (I).Default_Value);
+
+      --------------
+      -- Eval_Arg --
+      --------------
+
+      function Eval_Arg (I : Positive; Arg : L.Expr) return Primitive is
+        (Eval (Ctx, Arg, Builtin_Descr.Params (I).Expected_Kind));
+
+      -----------------
+      -- Match_Found --
+      -----------------
+
+      procedure Match_Found (Param_Index : Positive; Arg_Value : Primitive) is
+      begin
+         Param_Values (Param_Index) := Arg_Value;
+      end Match_Found;
+   begin
+      Process_Function_Arguments
+        (Ctx,
+         Call,
+         Builtin_Descr.N,
+         Param_Index'Access,
+         Default_Value'Access,
+         Eval_Arg'Access,
+         Match_Found'Access);
+      return Builtin_Descr.Fn_Access (Ctx, Param_Values);
    end Eval_Builtin_Call;
 
 end LKQL.Functions;

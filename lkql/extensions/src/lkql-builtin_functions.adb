@@ -21,53 +21,110 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Evaluation; use LKQL.Evaluation;
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with LKQL.AST_Nodes;
 
-with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 package body LKQL.Builtin_Functions is
+   function Create
+     (Name      : Text_Type;
+      Params    : Builtin_Function_Profile;
+      Fn_Access : Native_Function_Access) return Builtin_Function;
+   --  Create a builtin function given a name, a description of its
+   --  parameters and an access to the native code that implements it.
+
+   function Param
+     (Name          : Text_Type;
+      Expected_Kind : Base_Primitive_Kind := No_Kind)
+      return Builtin_Param_Description;
+   --  Create a builtin parameter description given its name and its expected
+   --  kind. The expected kind can be "No_Kind" if no particular kind is
+   --  expected. This parameter will not have a default value.
+
+   function Param
+     (Name          : Text_Type;
+      Expected_Kind : Base_Primitive_Kind;
+      Default_Value : Primitive)
+      return Builtin_Param_Description;
+   --  Create a builtin parameter description given its name, expected
+   --  kind and default value. The expected kind can be "No_Kind" if no
+   --  particular kind is expected.
+
+   ------------
+   -- Create --
+   ------------
+
+   function Create
+     (Name      : Text_Type;
+      Params    : Builtin_Function_Profile;
+      Fn_Access : Native_Function_Access) return Builtin_Function
+   is
+   begin
+      return new Builtin_Function_Description'
+        (N         => Params'Length,
+         Name      => To_Unbounded_Text (Name),
+         Params    => Params,
+         Fn_Access => Fn_Access);
+   end Create;
+
+   -----------
+   -- Param --
+   -----------
+
+   function Param
+     (Name          : Text_Type;
+      Expected_Kind : Base_Primitive_Kind := No_Kind)
+      return Builtin_Param_Description
+   is
+   begin
+      return Builtin_Param_Description'
+        (Name          => To_Unbounded_Text (Name),
+         Expected_Kind => Expected_Kind,
+         Default_Value => Primitive_Options.None);
+   end Param;
+
+   -----------
+   -- Param --
+   -----------
+
+   function Param
+     (Name          : Text_Type;
+      Expected_Kind : Base_Primitive_Kind;
+      Default_Value : Primitive)
+      return Builtin_Param_Description
+   is
+   begin
+      return Builtin_Param_Description'
+        (Name          => To_Unbounded_Text (Name),
+         Expected_Kind => Expected_Kind,
+         Default_Value => Primitive_Options.To_Option (Default_Value));
+   end Param;
 
    ----------------
    -- Eval_Print --
    ----------------
 
    function Eval_Print
-     (Ctx : Eval_Context; Expr : L.Expr) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
+      pragma Unreferenced (Ctx);
    begin
-      Display (Eval (Ctx, Expr));
+      Display (Args (1));
       return Make_Unit_Primitive;
    end Eval_Print;
-
-   ----------------
-   -- Eval_Debug --
-   ----------------
-
-   function Eval_Debug
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive
-   is
-      Code    : constant Text_Type := Node.Text;
-      Value   : constant Primitive := Eval (Ctx, Node);
-      Message : constant Unbounded_Text_Type :=
-        Code & " = " & To_Unbounded_Text (Value);
-   begin
-      Put_Line (To_Text (Message));
-      return Value;
-   end Eval_Debug;
 
    ------------------
    -- Eval_To_List --
    ------------------
 
    function Eval_To_List
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      Value : constant Primitive := Eval (Ctx, Node, Kind_Iterator);
+      pragma Unreferenced (Ctx);
    begin
-      return To_List (Value.Get.Iter_Val.all);
+      return To_List (Args (1).Get.Iter_Val.all);
    end Eval_To_List;
 
    ---------------
@@ -75,11 +132,11 @@ package body LKQL.Builtin_Functions is
    ---------------
 
    function Eval_Dump
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      Value : constant Primitive := Eval (Ctx, Node, Kind_Node);
+      pragma Unreferenced (Ctx);
    begin
-      Ada_AST_Node (Value.Get.Node_Val.Unchecked_Get.all).Node.Print;
+      Ada_AST_Node (Args (1).Get.Node_Val.Unchecked_Get.all).Node.Print;
       return Make_Unit_Primitive;
    end Eval_Dump;
 
@@ -88,9 +145,11 @@ package body LKQL.Builtin_Functions is
    ----------------
 
    function Eval_Image
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive is
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
    begin
-      return To_Primitive (To_Unbounded_Text (Eval (Ctx, Node)));
+      return To_Primitive (To_Unbounded_Text (Args (1)));
    end Eval_Image;
 
    -------------------------
@@ -98,13 +157,14 @@ package body LKQL.Builtin_Functions is
    -------------------------
 
    function Eval_Children_Count
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      Arg : constant AST_Nodes.AST_Node'Class :=
-         Node_Val (Eval (Ctx, Node, Kind_Node)).Unchecked_Get.all;
+      pragma Unreferenced (Ctx);
+      Node : constant AST_Nodes.AST_Node'Class :=
+         Node_Val (Args (1)).Unchecked_Get.all;
    begin
       return To_Primitive
-        (if Arg.Is_Null_Node then 0 else Arg.Children_Count);
+        (if Node.Is_Null_Node then 0 else Node.Children_Count);
    end Eval_Children_Count;
 
    ---------------
@@ -112,13 +172,36 @@ package body LKQL.Builtin_Functions is
    ---------------
 
    function Eval_Text
-     (Ctx : Eval_Context; Node : L.Expr) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      Arg : constant AST_Nodes.AST_Node'Class :=
-         Node_Val (Eval (Ctx, Node, Kind_Node)).Unchecked_Get.all;
+      pragma Unreferenced (Ctx);
+      Node : constant AST_Nodes.AST_Node'Class :=
+         Node_Val (Args (1)).Unchecked_Get.all;
    begin
-      return To_Primitive
-        (if Arg.Is_Null_Node then "" else Arg.Text);
+      return To_Primitive (if Node.Is_Null_Node then "" else Node.Text);
    end Eval_Text;
+
+   -----------------------
+   -- Builtin_Functions --
+   -----------------------
+
+   Builtin_Functions : constant Builtin_Function_Array :=
+     (Create ("print", (1 => Param ("val")),             Eval_Print'Access),
+      Create ("img",   (1 => Param ("val")),             Eval_Image'Access),
+      Create ("dump",  (1 => Param ("node", Kind_Node)), Eval_Dump'Access),
+      Create ("text",  (1 => Param ("node", Kind_Node)), Eval_Text'Access),
+      Create ("to_list",
+              (1 => Param ("it", Kind_Iterator)),
+              Eval_To_List'Access),
+      Create ("children_count",
+              (1 => Param ("node", Kind_Node)),
+              Eval_Children_Count'Access));
+
+   ------------------
+   -- All_Builtins --
+   ------------------
+
+   function All_Builtins return Builtin_Function_Array is
+     (Builtin_Functions);
 
 end LKQL.Builtin_Functions;
