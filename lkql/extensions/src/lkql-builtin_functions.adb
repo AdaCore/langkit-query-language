@@ -111,7 +111,7 @@ package body LKQL.Builtin_Functions is
    is
       pragma Unreferenced (Ctx);
    begin
-      Display (Args (1));
+      Display (Args (1), Bool_Val (Args (2)));
       return Make_Unit_Primitive;
    end Eval_Print;
 
@@ -186,7 +186,10 @@ package body LKQL.Builtin_Functions is
    -----------------------
 
    Builtin_Functions : constant Builtin_Function_Array :=
-     (Create ("print", (1 => Param ("val")),             Eval_Print'Access),
+     (Create ("print",
+              (Param ("val"),
+               Param ("new_line", Kind_Bool, To_Primitive (True))),
+              Eval_Print'Access),
       Create ("img",   (1 => Param ("val")),             Eval_Image'Access),
       Create ("dump",  (1 => Param ("node", Kind_Node)), Eval_Dump'Access),
       Create ("text",  (1 => Param ("node", Kind_Node)), Eval_Text'Access),

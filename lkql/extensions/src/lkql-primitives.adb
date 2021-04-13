@@ -929,9 +929,14 @@ package body LKQL.Primitives is
    -- Display --
    -------------
 
-   procedure Display (Value : Primitive) is
+   procedure Display (Value : Primitive; New_Line : Boolean) is
+      Content : constant Unbounded_Text_Type := To_Unbounded_Text (Value);
    begin
-      Put_Line (To_Unbounded_Text (Value));
+      if New_Line then
+         Put_Line (Content);
+      else
+         Put (Content);
+      end if;
    end Display;
 
    ---------

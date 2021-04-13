@@ -436,8 +436,8 @@ package LKQL.Primitives is
    function Kind_Name (Value : Primitive) return String;
    --  Return a String representing the kind of `Value`
 
-   procedure Display (Value : Primitive);
-   --  Print a Primitive value onto the console
+   procedure Display (Value : Primitive; New_Line : Boolean);
+   --  Print a Primitive value onto the console.
 
    ---------------
    -- Operators --
