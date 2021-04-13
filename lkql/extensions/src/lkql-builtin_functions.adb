@@ -21,6 +21,8 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Wide_Wide_Unbounded;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with LKQL.AST_Nodes;
@@ -181,6 +183,47 @@ package body LKQL.Builtin_Functions is
       return To_Primitive (if Node.Is_Null_Node then "" else Node.Text);
    end Eval_Text;
 
+   -----------------
+   -- Starts_With --
+   -----------------
+
+   function Eval_Starts_With
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+
+      Str    : constant Unbounded_Text_Type := Str_Val (Args (1));
+      Prefix : constant Unbounded_Text_Type := Str_Val (Args (2));
+      Len    : constant Natural := Length (Prefix);
+   begin
+      return To_Primitive
+         (Length (Str) >= Len
+          and then Unbounded_Slice (Str, 1, Len) = Prefix);
+   end Eval_Starts_With;
+
+   ---------------
+   -- Ends_With --
+   ---------------
+
+   function Eval_Ends_With
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+
+      Str    : constant Unbounded_Text_Type := Str_Val (Args (1));
+      Suffix : constant Unbounded_Text_Type := Str_Val (Args (2));
+
+      Str_Len    : constant Natural := Length (Str);
+      Suffix_Len : constant Natural := Length (Suffix);
+   begin
+      return To_Primitive
+         (Str_Len >= Suffix_Len
+          and then Unbounded_Slice
+            (Str, Str_Len - Suffix_Len + 1, Str_Len) = Suffix);
+   end Eval_Ends_With;
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -198,7 +241,18 @@ package body LKQL.Builtin_Functions is
               Eval_To_List'Access),
       Create ("children_count",
               (1 => Param ("node", Kind_Node)),
-              Eval_Children_Count'Access));
+              Eval_Children_Count'Access),
+
+      --  String builtins
+
+      Create ("starts_with",
+              (Param ("str", Kind_Str), Param ("prefix", Kind_Str)),
+              Eval_Starts_With'Access),
+
+      Create ("ends_with",
+              (Param ("str", Kind_Str), Param ("suffix", Kind_Str)),
+              Eval_Ends_With'Access)
+      );
 
    ------------------
    -- All_Builtins --

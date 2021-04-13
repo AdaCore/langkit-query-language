@@ -1,0 +1,7 @@
+print(starts_with("abcd", prefix="ab"))
+print(starts_with("abcd", prefix="abcde"))
+print(starts_with("abcd", prefix="bcd"))
+
+print(ends_with("abcd", suffix="cd"))
+print(ends_with("abcd", suffix="abcde"))
+print(ends_with("abcd", suffix="abc"))
