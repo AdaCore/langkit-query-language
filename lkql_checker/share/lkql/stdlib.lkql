@@ -87,12 +87,29 @@ fun is_in_package_scope(o) =
     | null                => false
     | *                   => is_in_package_scope(o?.parent)
 
+fun is_program_unit(n) =
+    |" Return ``true`` if ``n`` is a program unit spec, body or stub
+    n is SubpDecl or AbstractSubpDecl or BaseSubpBody
+      or BasePackageDecl or PackageBody or GenericPackageInstantiation
+      or GenericDecl or GenericInstantiation
+      or SingleTaskDecl or TaskTypeDecl or TaskBody
+      or SubpBodyStub or ProtectedBodyStub or PackageBodyStub or TaskBodyStub
+      or SingleProtectedDecl or ProtectedTypeDecl
+
+fun is_in_library_unit_body(o) =
+    |" Return ``true`` if ``o`` is located in a library unit body
+    match o?.parent
+    | s@SubpBody    => s?.parent is LibraryItem
+    | p@PackageBody => p?.parent is LibraryItem
+    | null          => false
+    | *             => is_in_library_unit_body(o?.parent)
+
 fun param_pos(n, pos: int = 0) =
     |" Return the position of node ``n`` in its current list of siblings
     if n == null then pos else param_pos(n?.previous_sibling, pos+1)
 
-# Return true if n is the name of a numeric type or subtype in Standard
 fun is_standard_numeric(n) =
+    |" Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
     n == "standard.integer" or
     n == "standard.natural" or
     n == "standard.positive" or

@@ -1,0 +1,4 @@
+pack.adb:5:4: error: object declaration after program unit declaration
+5 |    I : Integer;    --  FLAG
+  |    ^ 
+

@@ -1,0 +1,10 @@
+# Flag any object declaration that is located in a library unit body if it
+# is preceded by a declaration of a program unit spec, stub or body.
+
+import stdlib
+
+@check(message="object declaration after program unit declaration")
+fun object_declarations_out_of_order(node) =
+    node is ObjectDecl
+     when stdlib.is_program_unit(node.previous_sibling)
+      and stdlib.is_in_library_unit_body(node)
