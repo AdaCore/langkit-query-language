@@ -1,0 +1,4 @@
+# Number declarations are flagged.
+
+@check(message="number declaration")
+fun number_declarations(node) = node is NumberDecl
