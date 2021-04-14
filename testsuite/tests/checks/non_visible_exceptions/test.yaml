@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Non_Visible_Exceptions
+project: 'prj.gpr'

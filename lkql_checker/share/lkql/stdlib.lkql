@@ -52,6 +52,19 @@ fun ultimate_alias(name) =
         else ultimate_alias(ren?.f_renamed_object)
     } else name
 
+fun ultimate_exception_alias(name) =
+    |" Return the ultimately designated ``ExceptionDecl``, going through renamings
+    if name is (BaseId or DottedName) then {
+        val decl = name?.p_referenced_decl();
+        val ren = match decl
+            | ExceptionDecl => decl?.f_renames
+            | *             => null;
+
+        if ren == null
+        then decl
+        else ultimate_exception_alias(ren?.f_renamed_object)
+    } else name
+
 fun local_scope(e) =
     |" Return ``true`` if ``e`` represents a local scope or a generic formal
     e is SubpBody or
