@@ -108,6 +108,11 @@ fun param_pos(n, pos: int = 0) =
     |" Return the position of node ``n`` in its current list of siblings
     if n == null then pos else param_pos(n?.previous_sibling, pos+1)
 
+# TODO: move this in LAL
+fun is_predefined_op(op) =
+    |" Return true if op is a predefined operator
+    op is Op (p_referenced_decl() is null)
+
 fun is_standard_numeric(n) =
     |" Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
     n == "standard.integer" or
@@ -123,4 +128,3 @@ fun is_standard_numeric(n) =
     n == "standard.long_float" or
     n == "standard.long_long_float" or
     n == "standard.duration"
-

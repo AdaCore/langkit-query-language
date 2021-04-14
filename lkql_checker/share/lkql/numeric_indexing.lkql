@@ -1,0 +1,20 @@
+# Flag numeric literals, including those preceded by a predefined unary minus,
+# if they are used as index expressions in array components. Literals that are
+# subcomponents of index expressions are not flagged (other than the
+# aforementioned case of unary minus).
+
+import stdlib
+
+@check(message="integer literal as index value")
+fun numeric_indexing(node) =
+    node is IntLiteral when {
+        val n = if node.parent is UnOp(f_op is op@OpMinus
+                                       when stdlib.is_predefined_op(op))
+                then node.parent
+                else node;
+
+        # Exclude subcomponents by accessing directly parent.parent.parent
+        n?.parent?.parent?.parent is c@CallExpr
+        when c?.f_name?.p_expression_type() is
+             BaseTypeDecl(p_is_array_type() is true)
+    }
