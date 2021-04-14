@@ -1,0 +1,12 @@
+paths.adb:6:7: error: null path
+6 |       null;                 --  FLAG
+  |       ^^^^^ 
+
+paths.adb:16:10: error: null path
+16 |          null;              --  FLAG
+   |          ^^^^^ 
+
+paths.adb:20:10: error: null path
+20 |          null;              --  FLAG
+   |          ^^^^^ 
+
