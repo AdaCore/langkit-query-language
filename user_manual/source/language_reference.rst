@@ -477,7 +477,7 @@ Literals and Operators
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Literal
-
+.. lkql_doc_class:: SubBlockLiteral
 .. lkql_doc_class:: ArithBinOp
 .. lkql_doc_class:: NotNode
 
@@ -489,6 +489,15 @@ LKQL has literals for booleans, integers, strings, and null values:
     val b = true
     val c = "hello"
     val d = null
+
+LKQL has multi-line string literals, but they're a bit different than in Python
+or other languages:
+
+.. code-block:: lkql
+
+   val a = |" Hello
+           |" This is a multi line string
+           |" Bue
 
 LKQL has a few built-in operators available:
 

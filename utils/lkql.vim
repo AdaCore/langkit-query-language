@@ -18,7 +18,7 @@ syn region  lkqlString  start=+"+ skip=+\\"+ end=+"+
 syn region  lkqlChar  start=+'+ skip=+\\"+ end=+'+
 syn match   lkqlLiteral "\d\+" display
 syn match   lkqlComment "#.*$"
-syn match   lkqlDocComment "##.*$"
+syn match   lkqlBlockString +|".*$+
 syn match   lkqlOperator "=="
 syn match   lkqlOperator "!="
 syn match   lkqlOperator "*"
@@ -47,4 +47,4 @@ hi def link lkqlToken       Define
 hi def link lkqlGrammarRule Define
 hi def link lkqlLiteral     Number
 hi def link lkqlComment     Comment
-hi def link lkqlDocComment  String
+hi def link lkqlBlockString  String

@@ -5,9 +5,11 @@ from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
 )
 from langkit.expressions import (
-    Entity, Self, String, No, langkit_property, AbstractKind, Let, If
+    Entity, Self, String, No, langkit_property, AbstractKind, AbstractProperty,
+    Let, If
 )
 import langkit.expressions as dsl_expr
+from langkit.expressions import String as S
 from langkit.envs import add_to_env_kv, EnvSpec
 from language.lexer import Token, lkql_lexer as L
 
@@ -49,20 +51,6 @@ class LKQLNode(ASTNode):
         pass
 
 
-class DocLiteral(LKQLNode):
-    """
-    Wrapper for a DocLiteral token.
-    """
-    pass
-
-
-class DocNode(LKQLNode):
-    """
-    Node containing documentation for a given entity
-    """
-    docs = Field(type=T.DocLiteral.list)
-
-
 class DeclAnnotation(LKQLNode):
     """
     Compile time annotation attached to a declaration. For the moment, only
@@ -85,8 +73,12 @@ class Declaration(LKQLNode):
     Root node class for LKQL declarations.
     """
 
-    doc = Field(type=T.DocNode)
     annotation = Field(type=DeclAnnotation)
+
+    doc = AbstractProperty(
+        type=T.BaseStringLiteral, public=True,
+        doc="Return the documentation for this declaration"
+    )
 
 
 @abstract
@@ -153,11 +145,26 @@ class IntegerLiteral(Literal):
     token_node = True
 
 
-class StringLiteral(Literal):
+@abstract
+class BaseStringLiteral(Literal):
+    """
+    Base class for string literals, both single & multi line.
+    """
+    pass
+
+
+class StringLiteral(BaseStringLiteral):
     """
     String literal.
     """
     token_node = True
+
+
+class BlockStringLiteral(BaseStringLiteral):
+    """
+    Node containing documentation for a given entity.
+    """
+    docs = Field(type=T.SubBlockLiteral.list)
 
 
 class UnitLiteral(Literal):
@@ -172,6 +179,13 @@ class NullLiteral(Literal):
     Literal representing a null node.
     """
     token_node = True
+
+
+class SubBlockLiteral(LKQLNode):
+    """
+    Wrapper for a SubBlockLiteral token.
+    """
+    pass
 
 
 class IfThenElse(Expr):
@@ -267,6 +281,10 @@ class ParameterDecl(Declaration):
     type_annotation = Field(type=Identifier)
     default_expr = Field(type=Expr)
 
+    @langkit_property()
+    def doc():
+        return No(T.BaseStringLiteral)
+
     @langkit_property(return_type=T.Identifier, public=True)
     def identifier():
         """
@@ -330,8 +348,13 @@ class ValDecl(Declaration):
     For instance::
        val message = "Hello World"
     """
+    doc_node = Field(type=T.BaseStringLiteral)
     identifier = Field(type=Identifier)
     value = Field(type=Expr)
+
+    @langkit_property()
+    def doc():
+        return Self.doc_node
 
 
 class DotAccess(Expr):
@@ -595,7 +618,32 @@ class BaseFunction(Expr):
     Base class for a function expression.
     """
     parameters = Field(type=ParameterDecl.list)
+    doc_node = Field(type=T.BaseStringLiteral)
     body_expr = Field(type=Expr)
+
+    @langkit_property(return_type=T.String, public=True)
+    def profile():
+        """
+        Return a text profile for this function.
+        """
+        return Self.parent.match(
+            lambda d=FunDecl: S("fun ")
+            .concat(d.name.text).concat(S("("))
+            .concat(Self.parameters.text).concat(S(")")),
+
+            lambda _: S("lambda ")
+            .concat(S("(")).concat(Self.parameters.text).concat(S(")"))
+        )
+
+    @langkit_property(return_type=T.BaseStringLiteral, public=True)
+    def doc():
+        """
+        Return documentation associated to this function object.
+        """
+        return Self.match(
+            lambda n=T.NamedFunction: n.doc_node,
+            lambda _: dsl_expr.No(T.BaseStringLiteral)
+        )
 
     @langkit_property(return_type=T.Int, public=True)
     def arity():
@@ -633,7 +681,6 @@ class NamedFunction(BaseFunction):
     Function expression that is part of a named function declaration (see
     ``FunDecl``).
     """
-    pass
 
 
 class AnonymousFunction(BaseFunction):
@@ -655,6 +702,10 @@ class FunDecl(Declaration):
     fun_expr = Field(type=NamedFunction)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+
+    @langkit_property()
+    def doc():
+        return Self.fun_expr.doc
 
 
 class Safe(LKQLNode):
@@ -741,9 +792,14 @@ class SelectorDecl(Declaration):
     Ast selector, describing a subtree
     """
     name = Field(type=Identifier)
+    doc_node = Field(type=T.BaseStringLiteral)
     arms = Field(type=SelectorArm.list)
 
     env_spec = EnvSpec(add_to_env_kv(Self.name.symbol, Self))
+
+    @langkit_property()
+    def doc():
+        return Self.doc_node
 
     @langkit_property(return_type=SelectorExpr.list, public=True)
     def nth_expressions(n=(T.Int, 0)):
@@ -1018,8 +1074,10 @@ G = lkql_grammar
 
 # noinspection PyTypeChecker
 lkql_grammar.add_rules(
-    main_rule=List(Or(G.import_clause, G.decl, G.expr),
-                   list_cls=TopLevelList, empty_valid=True),
+    main_rule=List(
+        Or(G.import_clause, G.decl, G.expr),
+        list_cls=TopLevelList, empty_valid=True
+    ),
 
     import_clause=Import("import", G.id),
 
@@ -1189,6 +1247,7 @@ lkql_grammar.add_rules(
         G.match,
         G.id,
         G.string_literal,
+        G.block_string_literal,
         G.bool_literal,
         G.unit_literal,
         NullLiteral("null"),
@@ -1200,7 +1259,7 @@ lkql_grammar.add_rules(
 
     anonymous_function=AnonymousFunction(
         "(", List(G.param, empty_valid=True, sep=","), ")",
-        "=>", G.expr
+        "=>", Null(G.doc_node), G.expr
     ),
 
     block_expr=BlockExpr(
@@ -1209,18 +1268,17 @@ lkql_grammar.add_rules(
     ),
 
     val_decl=ValDecl(
-        Opt(G.doc_node),
         Opt(G.decl_annotation),
+        Opt(G.doc_node),
         "val", c(), G.id, "=", G.expr
     ),
 
     fun_decl=FunDecl(
-        Opt(G.doc_node),
         Opt(G.decl_annotation),
         "fun", c(), G.id,
         NamedFunction(
             "(", List(G.param, empty_valid=True, sep=","), ")",
-            "=", G.expr
+            "=", Opt(G.doc_node), G.expr
         )
     ),
 
@@ -1231,10 +1289,11 @@ lkql_grammar.add_rules(
     arg_list=List(G.arg, empty_valid=True, sep=","),
 
     selector_decl=SelectorDecl(
-        Opt(G.doc_node),
         Opt(G.decl_annotation),
         "selector", c(),
-        G.id, List(G.selector_arm, empty_valid=False)
+        G.id,
+        Opt(G.doc_node),
+        List(G.selector_arm, empty_valid=False)
     ),
 
     selector_arm=SelectorArm(
@@ -1266,6 +1325,9 @@ lkql_grammar.add_rules(
                     BoolLiteral.alt_false("false")),
 
     string_literal=StringLiteral(Token.String),
+    block_string_literal=BlockStringLiteral(List(
+        SubBlockLiteral(Token.SubBlockLiteral), empty_valid=False)
+    ),
 
     unit_literal=UnitLiteral("(", ")"),
 
@@ -1274,13 +1336,12 @@ lkql_grammar.add_rules(
     named_arg=NamedArg(G.id, "=", G.expr),
 
     param=ParameterDecl(
-        Null(G.doc_node),
         Null(G.decl_annotation),
         G.id, Opt(":", G.id), Opt("=", G.expr)
     ),
 
     decl_annotation=DeclAnnotation("@", G.id, Opt("(", G.arg_list, ")")),
 
-    doc_node=DocNode(List(DocLiteral(Token.DocLiteral), empty_valid=False)),
+    doc_node=Or(G.string_literal, G.block_string_literal),
 
 )

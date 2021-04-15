@@ -1,11 +1,6 @@
 TopLevelList
 |  FunDecl
-|  |f_doc:
-|  |  DocNode
-|  |  |f_docs:
-|  |  |  DocLiteralList
-|  |  |  |  DocLiteral
-|  |  |  |  DocLiteral
+|  |f_doc: <null>
 |  |f_annotation: <null>
 |  |f_name:
 |  |  Identifier: add
@@ -36,11 +31,7 @@ TopLevelList
 |  |  |  |f_right:
 |  |  |  |  Identifier: b
 |  ValDecl
-|  |f_doc:
-|  |  DocNode
-|  |  |f_docs:
-|  |  |  DocLiteralList
-|  |  |  |  DocLiteral
+|  |f_doc: <null>
 |  |f_annotation: <null>
 |  |f_identifier:
 |  |  Identifier: c

@@ -1,4 +1,4 @@
-## vim: filetype=python
+# vim: filetype=python
 
 try:
 
@@ -24,6 +24,7 @@ try:
                         'if', 'else', 'then', 'not', 'null', 'from'),
                        prefix=r'\b', suffix=r'\b'),
                  token.Keyword),
+                (r"\|\".+", token.String),
                 (r"#(.?)+", token.Comment),
                 (r"(\-\>|=|\=\>|\<\=|\>\=|\=|\!\=|\+|\-|\*|\/|\&|"
                  r"\@|\||\>|\<)", token.Operator),
