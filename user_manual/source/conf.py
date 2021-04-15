@@ -19,8 +19,6 @@
 
 import os
 import sys
-from pygments.lexer import RegexLexer, words
-from pygments import token
 from sphinx.highlighting import lexers
 from liblkqllang import LKQLPygmentsLexer
 
