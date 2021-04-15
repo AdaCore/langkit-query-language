@@ -20,6 +20,7 @@
 -- the files COPYING3 and COPYING.RUNTIME respectively.  If not, see        --
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
+with LKQL.Unit_Utils;
 
 package body Liblkqllang.Prelude is
 
@@ -50,8 +51,8 @@ package body Liblkqllang.Prelude is
 
    function Prelude_Unit (Context : Analysis_Context) return Analysis_Unit is
    begin
-      return Context.Get_From_Buffer
-        (Filename => "prelude", Buffer => Prelude_Content);
+      return LKQL.Unit_Utils.Make_LKQL_Unit_From_Code
+        (Context, Prelude_Content, "prelude");
    end Prelude_Unit;
 
 end Liblkqllang.Prelude;
