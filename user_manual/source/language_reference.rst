@@ -87,6 +87,7 @@ can use a `Block expression`_.
 
 .. code-block:: lkql
 
+    |" Add two integers
     fun add(x, y) = {
         val ret = x + y;
         ret
@@ -132,6 +133,32 @@ The value is immutable.
 .. code-block:: lkql
 
     val a = 12 + 15
+
+Docstrings
+^^^^^^^^^^
+
+Declarations can have assorted docstrings.
+
+They're part of the AST and are directly attached to the declaration.
+
+.. code-block:: lkql
+
+    # Docstrings
+
+    |" Make a function that will capture ``closure_var`` and return the sum of
+    |" it plus its first argument
+    fun make_closure(closure_var) = {
+        fun use_closure(x) = closure_var + x;
+        use_closure
+    }
+
+    |" Function that will add 12 to its first argument
+    val adder = make_closure(12)
+
+    print(make_closure(12))
+
+.. note:: This part is incomplete, needs to be completed when we have a way to
+   retrieve the documentation programmatically.
 
 Expressions
 -----------
