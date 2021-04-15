@@ -26,6 +26,8 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
+with Ada.Wide_Wide_Text_IO;
+
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 with GNAT.Case_Util;
@@ -929,14 +931,30 @@ package body LKQL.Primitives is
    -- Display --
    -------------
 
-   procedure Display (Value : Primitive; New_Line : Boolean) is
-      Content : constant Unbounded_Text_Type := To_Unbounded_Text (Value);
+   procedure Display
+     (Value         : Primitive;
+      New_Line      : Boolean)
+   is
    begin
-      if New_Line then
-         Put_Line (Content);
-      else
-         Put (Content);
-      end if;
+      case Value.Get.Kind is
+         when Kind_Str =>
+            Ada.Wide_Wide_Text_IO.Put
+              (To_Text (Str_Val (Value)));
+            if New_Line then
+               Ada.Wide_Wide_Text_IO.New_Line;
+            end if;
+         when others =>
+            declare
+               Content : constant Unbounded_Text_Type :=
+                 To_Unbounded_Text (Value);
+            begin
+               if New_Line then
+                  Put_Line (Content);
+               else
+                  Put (Content);
+               end if;
+            end;
+      end case;
    end Display;
 
    ---------

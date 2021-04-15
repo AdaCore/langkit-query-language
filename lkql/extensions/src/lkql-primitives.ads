@@ -208,6 +208,7 @@ package LKQL.Primitives is
       Name      : Unbounded_Text_Type;
       Params    : Builtin_Function_Profile (1 .. N);
       Fn_Access : Native_Function_Access;
+      Doc       : Unbounded_Text_Type;
    end record;
 
    ----------
@@ -436,7 +437,9 @@ package LKQL.Primitives is
    function Kind_Name (Value : Primitive) return String;
    --  Return a String representing the kind of `Value`
 
-   procedure Display (Value : Primitive; New_Line : Boolean);
+   procedure Display
+     (Value         : Primitive;
+      New_Line      : Boolean);
    --  Print a Primitive value onto the console.
 
    ---------------
