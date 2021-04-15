@@ -32,12 +32,17 @@ package body LKQL.Node_Extensions is
       procedure Free_Pattern is new Ada.Unchecked_Deallocation
         (GNAT.Regpat.Pattern_Matcher, Regex_Matcher_Access);
 
+      procedure Free_Node_Kind is new Ada.Unchecked_Deallocation
+        (AST_Nodes.AST_Node_Kind'Class, AST_Node_Kind_Access);
+
       procedure Free is new Ada.Unchecked_Deallocation
         (LKQL_Node_Extension, Ext);
    begin
       case Self.Content.Kind is
          when LCO.LKQL_Regex_Pattern =>
             Free_Pattern (Self.Content.Compiled_Pattern);
+         when LCO.LKQL_Node_Kind_Pattern =>
+            Free_Node_Kind (Self.Content.Expected_Kind);
          when others =>
             null;
       end case;

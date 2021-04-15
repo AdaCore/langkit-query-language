@@ -29,6 +29,7 @@ with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Diagnostics.Output;
 
 with LKQL.Node_Extensions; use LKQL.Node_Extensions;
+with Ada_AST_Nodes;
 with GNAT.Regpat;
 
 package body LKQL.Unit_Utils is
@@ -145,6 +146,26 @@ package body LKQL.Unit_Utils is
                   Output_Error
                     (Node.As_LKQL_Node,
                      "Failed to compile regular expression.");
+            end;
+
+         when LCO.LKQL_Node_Kind_Pattern =>
+            declare
+               Pattern : constant L.Node_Kind_Pattern :=
+                  Node.As_Node_Kind_Pattern;
+
+               Kind    : constant Ada_AST_Nodes.Ada_AST_Node_Kind :=
+                  Ada_AST_Nodes.Get_Kind_From_Name (Pattern.F_Kind_Name.Text);
+               --  TODO: Here we explicitly reference Ada_AST_Nodes, because
+               --  we have no runtime information at this point indicating
+               --  which language LKQL is targetting. This should be solved
+               --  once we have the generic introspection API in langkit,
+               --  for example by having a global variable "Target_Language"
+               --  of type "Langkit.Language_Descriptor" (names are fictional)
+               --  from which we could easily lookup node kind names.
+            begin
+               Ext_Val.Content := Node_Ext'
+                 (Kind          => LCO.LKQL_Node_Kind_Pattern,
+                  Expected_Kind => new Ada_AST_Nodes.Ada_AST_Node_Kind'(Kind));
             end;
 
          when others => null;

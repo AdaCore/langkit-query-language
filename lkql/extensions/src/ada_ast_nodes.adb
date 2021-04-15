@@ -62,6 +62,24 @@ package body Ada_AST_Nodes is
                                   Target_Kind : Value_Kind)
                                   return I.Value_Type;
 
+   function Get_Kind_From_Name
+     (Kind_Name : Text_Type) return Ada_AST_Node_Kind
+   is
+      Type_Id : constant Any_Node_Type_Id := Kind (Kind_Name);
+   begin
+      return
+        (First => I.First_Kind_For (Type_Id),
+         Last  => I.Last_Kind_For (Type_Id));
+   end Get_Kind_From_Name;
+
+   overriding function Matches_Kind_Of
+     (Self : Ada_AST_Node_Kind; Node : AST_Node'Class) return Boolean
+   is
+      Ada_Node : constant Ada_AST_Node := Ada_AST_Node (Node);
+   begin
+      return Ada_Node.Node.Kind in Self.First .. Self.Last;
+   end Matches_Kind_Of;
+
    overriding function "=" (Left, Right : Ada_AST_Node) return Boolean is
      (Left.Node = Right.Node);
 

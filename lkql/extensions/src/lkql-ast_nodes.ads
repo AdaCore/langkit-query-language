@@ -63,6 +63,14 @@ package LKQL.AST_Nodes is
    type AST_Node_Array_Access is access all AST_Node_Array;
    --  Pointer to an array of AST node pointers
 
+   type AST_Node_Kind is abstract tagged null record;
+   --  Opaque representation of a node kind. Provides capabilities to check
+   --  if a given node is of this kind.
+
+   function Matches_Kind_Of
+     (Self : AST_Node_Kind; Node : AST_Node'Class) return Boolean is abstract;
+   --  Check if the given node is of the given kind.
+
    type Introspection_Value_Kind is
      (Kind_Node,
       Kind_Node_Array,

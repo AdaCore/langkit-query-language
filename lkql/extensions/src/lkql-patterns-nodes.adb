@@ -26,6 +26,7 @@ with LKQL.Patterns.Match;   use LKQL.Patterns.Match;
 with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Primitives;       use LKQL.Primitives;
 with LKQL.Evaluation;       use LKQL.Evaluation;
+with LKQL.Node_Extensions;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -92,11 +93,10 @@ package body LKQL.Patterns.Nodes is
                                 Pattern : L.Node_Kind_Pattern;
                                 Node    : AST_Node_Rc) return Match_Result
    is
+      Ext : constant Node_Extensions.Ext := Node_Extensions.Get_Ext (Pattern);
    begin
-      --  TODO: We should pre-process node kinds and not match
-      --  on text everytime ...
       return
-        (if Node.Get.Matches_Kind_Name (Pattern.F_Kind_Name.Text)
+        (if Ext.Content.Expected_Kind.Matches_Kind_Of (Node.Get)
          then Make_Match_Success (To_Primitive (Node))
          else Match_Failure);
    exception

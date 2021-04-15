@@ -50,6 +50,16 @@ package Ada_AST_Nodes is
 
    type Ada_AST_Node_Access is access all Ada_AST_Node;
 
+   type Ada_AST_Node_Kind is new AST_Node_Kind with record
+      First, Last : LALCO.Ada_Node_Kind_Type;
+   end record;
+
+   function Get_Kind_From_Name
+     (Kind_Name : Text_Type) return Ada_AST_Node_Kind;
+
+   overriding function Matches_Kind_Of
+     (Self : Ada_AST_Node_Kind; Node : AST_Node'Class) return Boolean;
+
    overriding function "=" (Left, Right : Ada_AST_Node) return Boolean;
 
    overriding function Hash (Node : Ada_AST_Node) return Hash_Type;
