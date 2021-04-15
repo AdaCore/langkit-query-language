@@ -1,0 +1,19 @@
+# Flag a 'Address attribute definition clause or Address aspect specification
+# that has the form [for Overlaying'Address use] Overlaid'Address; where
+# Overlaying and Overlaid are identifiers both defined by object declarations
+# if Overlaying is not marked as imported.
+
+@check(message="not imported overlay")
+fun not_imported_overlays(node) =
+    node is (
+      AspectAssoc(f_id is Identifier(p_name_is("address") is true),
+                  any parent(depth=3) is o@ObjectDecl
+                  when not o.p_has_aspect("Import")))
+    or (AttributeDefClause(f_attribute_expr is at@AttributeRef
+        when at?.f_attribute?.p_name_is("address") and
+             not at?.f_prefix?.p_referenced_decl()?.p_has_aspect("Import")))
+    # Check that we have an Overlaid'Address expression and that overlaid is
+    # an identifier corresponding to an ObjectDecl
+    when node.f_expr is
+         AttributeRef(f_attribute is *(p_name_is("address") is true),
+                      f_prefix is Identifier(p_referenced_decl() is ObjectDecl))

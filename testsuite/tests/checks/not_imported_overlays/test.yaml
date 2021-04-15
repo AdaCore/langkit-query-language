@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: not_imported_overlays
+input_sources: ['overlay.ads']
