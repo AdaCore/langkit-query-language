@@ -1,8 +1,8 @@
-default_values_for_record_components.ads:3:7: error: default values for record components
+default_values_for_record_components.ads:3:7: error: default value for record component
 3 |       I : Integer := 0;                    -- FLAG
   |       ^ 
 
-default_values_for_record_components.ads:8:13: error: default values for record components
+default_values_for_record_components.ads:8:13: error: default value for record component
 8 |             C : Character := 'A';          -- FLAG
   |             ^ 
 
