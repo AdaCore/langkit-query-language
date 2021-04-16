@@ -1,0 +1,56 @@
+# The SPARK 95 language defines the following subset of Ada 95 attribute
+# designators as those that can be used in SPARK programs. The use of any other
+# attribute is flagged. [...]
+
+@check(message="attribute is not from the SPARK subset")
+fun non_spark_attributes(node) =
+    node is AttributeRef
+    when not (node.f_attribute?.p_name_is("Adjacent") or
+              node.f_attribute?.p_name_is("Aft") or
+              node.f_attribute?.p_name_is("Base") or
+              node.f_attribute?.p_name_is("Ceiling") or
+              node.f_attribute?.p_name_is("Component_Size") or
+              node.f_attribute?.p_name_is("Compose") or
+              node.f_attribute?.p_name_is("Copy_Sign") or
+              node.f_attribute?.p_name_is("Delta") or
+              node.f_attribute?.p_name_is("Denorm") or
+              node.f_attribute?.p_name_is("Digits") or
+              node.f_attribute?.p_name_is("Exponent") or
+              node.f_attribute?.p_name_is("First") or
+              node.f_attribute?.p_name_is("Floor") or
+              node.f_attribute?.p_name_is("Fore") or
+              node.f_attribute?.p_name_is("Fraction") or
+              node.f_attribute?.p_name_is("Last") or
+              node.f_attribute?.p_name_is("Leading_Part") or
+              node.f_attribute?.p_name_is("Length") or
+              node.f_attribute?.p_name_is("Machine") or
+              node.f_attribute?.p_name_is("Machine_Emax") or
+              node.f_attribute?.p_name_is("Machine_Emin") or
+              node.f_attribute?.p_name_is("Machine_Mantissa") or
+              node.f_attribute?.p_name_is("Machine_Overflows") or
+              node.f_attribute?.p_name_is("Machine_Radix") or
+              node.f_attribute?.p_name_is("Machine_Rounds") or
+              node.f_attribute?.p_name_is("Max") or
+              node.f_attribute?.p_name_is("Min") or
+              node.f_attribute?.p_name_is("Model") or
+              node.f_attribute?.p_name_is("Model_Emin") or
+              node.f_attribute?.p_name_is("Model_Epsilon") or
+              node.f_attribute?.p_name_is("Model_Mantissa") or
+              node.f_attribute?.p_name_is("Model_Small") or
+              node.f_attribute?.p_name_is("Modulus") or
+              node.f_attribute?.p_name_is("Pos") or
+              node.f_attribute?.p_name_is("Pred") or
+              node.f_attribute?.p_name_is("Range") or
+              node.f_attribute?.p_name_is("Remainder") or
+              node.f_attribute?.p_name_is("Rounding") or
+              node.f_attribute?.p_name_is("Safe_First") or
+              node.f_attribute?.p_name_is("Safe_Last") or
+              node.f_attribute?.p_name_is("Scaling") or
+              node.f_attribute?.p_name_is("Signed_Zeros") or
+              node.f_attribute?.p_name_is("Size") or
+              node.f_attribute?.p_name_is("Small") or
+              node.f_attribute?.p_name_is("Succ") or
+              node.f_attribute?.p_name_is("Truncation") or
+              node.f_attribute?.p_name_is("Unbiased_Rounding") or
+              node.f_attribute?.p_name_is("Val") or
+              node.f_attribute?.p_name_is("Valid"))
