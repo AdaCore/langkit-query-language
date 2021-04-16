@@ -1,0 +1,4 @@
+loops.adb:5:7: error: exit from conditional loop
+5 |       exit when S (J) = '@';  --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^^ 
+

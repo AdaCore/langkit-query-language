@@ -1,0 +1,10 @@
+# Flag any exit statement if it transfers the control out of a for loop or a
+# while loop. This includes cases when the exit statement applies to a FOR or
+# while loop, and cases when it is enclosed in some for or while loop, but
+# transfers the control from some outer (unconditional) loop statement.
+
+@check(message="exit from conditional loop")
+fun exits_from_conditional_loops(node) =
+    node is ExitStmt
+    when to_list([l for l in node.parents(include_self=false)
+                  if l is BaseLoopStmt])[1] is ForLoopStmt or WhileLoopStmt
