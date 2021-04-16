@@ -1,0 +1,19 @@
+# Flag all calls to predefined "and" and "or" operators for any boolean type.
+# Calls to user-defined "and" and "or" and to operators defined by renaming
+# declarations are not flagged. Calls to predefined "and" and "or" operators
+# for modular types or boolean array types are not flagged.
+
+import stdlib
+
+@check(message="use of predefined AND/OR for boolean type")
+fun non_short_circuit_operators(node) =
+    node is ((OpAnd or OpOr)
+             when node.p_referenced_decl() == null
+              and stdlib.is_standard_boolean(node.parent)
+              and stdlib.is_standard_boolean(node.parent?.f_left))
+    or CallExpr(p_relative_name() is n@Name
+                when n?.p_name_is("\"and\"") or n?.p_name_is("\"or\""))
+       when node.p_referenced_decl() == null
+        and stdlib.is_standard_boolean(node)
+        and stdlib.is_standard_boolean(node.f_suffix[1]?.f_r_expr)
+

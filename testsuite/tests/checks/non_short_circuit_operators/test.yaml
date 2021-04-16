@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Non_Short_Circuit_Operators
+input_sources: ['short_circuit.adb']

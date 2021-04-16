@@ -5,19 +5,15 @@
 # designators, and uses of operators that are renamings of the predefined
 # relational operators for Standard.Boolean, are likewise not detected.
 
-fun is_std_bool(n) = {
-     val typ=n?.p_expression_type();
-     typ == null
-     or typ?.p_base_subtype()?.p_fully_qualified_name() == "Standard.Boolean"
-}
+import stdlib
 
 @check(message="comparison of Boolean values")
 fun boolean_relational_operators(node) =
     (node is RelationOp
      when node.f_op?.p_referenced_decl() == null
-      and is_std_bool(node)
-      and is_std_bool(node.f_left))
+      and stdlib.is_standard_boolean(node)
+      and stdlib.is_standard_boolean(node.f_left))
     or (node is CallExpr
         when node.p_referenced_decl() == null
-         and is_std_bool(node)
-         and is_std_bool(node.f_suffix[1]?.f_r_expr))
+         and stdlib.is_standard_boolean(node)
+         and stdlib.is_standard_boolean(node.f_suffix[1]?.f_r_expr))

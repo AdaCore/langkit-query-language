@@ -130,12 +130,8 @@ fun is_standard_numeric(n) =
     n == "standard.duration"
 
 fun is_standard_boolean(n) =
-    |" Return true if the type of n is Standard.Boolean
-{
-     val typ=n?.p_expression_type();
-     typ == null
-     or typ?.p_base_subtype()?.p_fully_qualified_name() == "Standard.Boolean"
-}
+    |" Return true if the root type of n is Standard.Boolean
+    n?.p_expression_type()?.p_root_type() == n?.p_bool_type()
 
 # Return the first BaseSubpBody enclosing n if any, null otherwise
 fun enclosing_body(n) = {
