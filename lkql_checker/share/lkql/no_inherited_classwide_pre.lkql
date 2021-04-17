@@ -1,0 +1,17 @@
+# Flag a declaration of an overriding primitive operation of a tagged type if
+# at least one of the operations it overrides or implements does not have
+# (explicitly defined or inherited) Pre'Class aspect defined for it.
+
+@check(message="overriding operation that does not inherit Pre'Class")
+fun no_inherited_classwide_pre(node) =
+    node is (BasicSubpDecl or BaseSubpBody)
+    # Get subprogram declarations that are primitive of a tagged type
+    when node.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() != null
+     and ({
+        val decls = node.p_base_subp_declarations();
+        # If decls.length is greater than 1, it means we are overriding
+        decls.length > 1 and
+        # Check if some of the overriden operation defines Pre'Class
+        [p for p in decls
+         if p != node and p.p_has_aspect("Pre'Class")].length == 0
+    })
