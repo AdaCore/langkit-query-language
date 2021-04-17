@@ -1,0 +1,8 @@
+nested.adb:4:14: error: subprogram declared in executable body
+4 |    procedure Proc1;                    --  FLAG
+  |              ^^^^^ 
+
+nested.adb:6:14: error: subprogram declared in executable body
+6 |    procedure Proc2 is separate;        --  FLAG
+  |              ^^^^^ 
+

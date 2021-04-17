@@ -1,0 +1,14 @@
+# Flag any subprogram declaration, subprogram body declaration, subprogram
+# instantiation, expression function declaration or subprogram body stub that
+# is not a completion of another subprogram declaration and that is declared
+# within subprogram body (including bodies of generic subprograms), task body
+# or entry body directly or indirectly (that is - inside a local nested
+# package). Protected subprograms are not flagged. Null procedure declarations
+# are not flagged. Procedure declarations completed by null procedure
+# declarations are not flagged.
+
+@check(message="subprogram declared in executable body")
+fun nested_subprograms(node) =
+    node is (SubpBody or ExprFunction or SubpBodyStub or BasicSubpDecl)
+    when (node is BasicSubpDecl or node.p_previous_part() == null)
+     and node is *(any parent is BaseSubpBody or TaskBody or EntryBody)
