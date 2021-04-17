@@ -1,0 +1,28 @@
+aggr.ads:5:18: error: aggregate is not a part of a qualified expression
+5 |    Var1 : Arr := (1 => 10, 2 => 20, others => 30);       --  FLAG
+  |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+aggr.ads:15:18: error: aggregate is not a part of a qualified expression
+15 |    t1 : Table := (1, 8, 5);                                    -- FLAG
+   |                  ^^^^^^^^^ 
+
+aggr.ads:16:27: error: aggregate is not a part of a qualified expression
+16 |    t2 : constant Table := (others => 5);                       -- FLAG
+   |                           ^^^^^^^^^^^^^ 
+
+aggr.ads:19:26: error: aggregate is not a part of a qualified expression
+19 |    t5 : Two_Dim_Array := (('a', 'b'), ('e', 'f'));             -- FLAG
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+aggr.ads:32:17: error: aggregate is not a part of a qualified expression
+32 |    dd : Date := (4, January, 2011);                             -- FLAG
+   |                 ^^^^^^^^^^^^^^^^^^ 
+
+aggr.ads:33:20: error: aggregate is not a part of a qualified expression
+33 |    tt : Weather := (2, March, 2011, 30);                        -- FLAG
+   |                    ^^^^^^^^^^^^^^^^^^^^ 
+
+aggr.ads:35:29: error: aggregate is not a part of a qualified expression
+35 |    tc : constant Weather := (Date'(26, August, 1974) with 15);  -- FLAG
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+

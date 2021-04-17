@@ -1,0 +1,11 @@
+# Flag each non-qualified aggregate. A non-qualified aggregate is an aggregate
+# that is not the expression of a qualified expression. A string literal is not
+# considered an aggregate, but an array aggregate of a string type is
+# considered as a normal aggregate. Aggregates of anonymous array types are not
+# flagged.
+
+@check(message="aggregate is not a part of a qualified expression")
+fun non_qualified_aggregates(node) =
+    node is Aggregate
+    when not (node is *(any parent is QualExpr or Aggregate) or
+              node.p_expression_type() is AnonymousTypeDecl)
