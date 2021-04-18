@@ -1,0 +1,4 @@
+pack.ads:2:12: error: declaration of local package
+2 |    package Inner is    --  FLAG
+  |            ^^^^^ 
+
