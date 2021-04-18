@@ -1,0 +1,63 @@
+# Flag a representation item if there is any Ada construct except another
+# representation item for the same entity between this clause and the
+# declaration of the entity it applies to. A representation item in the context
+# of this rule is either a representation clause:
+# - Attribute Definition Clause 13.3
+# - Enumeration Representation Clause 13.4
+# - Record Representation Clause 13.5.1
+# - At Clause J.7
+#
+# or one of the following representation pragmas:
+# - Atomic J.15.8(9/3)
+# - Atomic_Components J.15.8(9/3)
+# - Independent J.15.8(9/3)
+# - Independent_Components J.15.8(9/3)
+# - Pack J.15.3(1/3)
+# - Unchecked_Union J.15.6(1/3)
+# - Volatile J.15.8(9/3)
+# - Volatile_Components J.15.8(9/3)
+
+fun is_rep_pragma(id) =
+    id?.p_name_is("Atomic") or
+    id?.p_name_is("Atomic_Components") or
+    id?.p_name_is("Independent") or
+    id?.p_name_is("Independent_Components") or
+    id?.p_name_is("Pack") or
+    id?.p_name_is("Unchecked_Union") or
+    id?.p_name_is("Volatile") or
+    id?.p_name_is("Volatile_Components")
+
+# Return true if n is a misplaced representation node of decl as defined above
+fun misplaced_node(n, decl) =
+    match n?.previous_sibling
+    | d@BasicDecl        => d != decl
+    | a@AttributeDefClause(f_attribute_expr is AttributeRef) =>
+        a?.f_attribute_expr?.f_prefix?.p_referenced_decl() != decl or
+        misplaced_node(a, decl)
+    | e@EnumRepClause    => e?.f_type_name?.p_referenced_decl() != decl or
+                            misplaced_node(e, decl)
+    | r@RecordRepClause  => r?.f_name?.p_referenced_decl() != decl or
+                            misplaced_node(r, decl)
+    | a@AtClause         => a?.f_name?.p_referenced_decl() != decl or
+                            misplaced_node(a, decl)
+    | p@Pragma           => (not is_rep_pragma(p?.f_id)) or
+                            node?.p_associated_decls()[1] != decl or
+                            misplaced_node(p, decl)
+    | *                  => true
+
+@check(message="misplaced representation item")
+fun misplaced_representation_items(node) =
+    match node
+    | AttributeDefClause(f_attribute_expr is AttributeRef) =>
+        misplaced_node(node,
+            node.f_attribute_expr?.f_prefix?.p_referenced_decl())
+    | EnumRepClause   =>
+        misplaced_node(node, node.f_type_name?.p_referenced_decl())
+    | RecordRepClause =>
+        misplaced_node(node, node.f_name?.p_referenced_decl())
+    | AtClause        =>
+        misplaced_node(node, node.f_name?.p_referenced_decl())
+    | Pragma          =>
+        is_rep_pragma(node.f_id) and
+        misplaced_node(node, node?.p_associated_decls()[1])
+    | *  => false
