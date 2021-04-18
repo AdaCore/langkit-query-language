@@ -1,0 +1,9 @@
+# Use clauses that are not parts of compilation unit context clause are
+# flagged. The rule has a parameter Except_USE_TYPE_Clauses: do not flag local
+# use type clauses.
+
+@check(message="local use clause")
+fun local_use_clauses(node, except_use_type_clauses = false) =
+    node is UseClause
+    when (not node.parent is CompilationUnit)
+     and not (except_use_type_clauses and node is UseTypeClause)

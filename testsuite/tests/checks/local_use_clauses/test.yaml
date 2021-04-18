@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Local_Use_Clauses
+input_sources: ['uses.adb']
