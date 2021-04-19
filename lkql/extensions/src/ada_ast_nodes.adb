@@ -580,9 +580,16 @@ package body Ada_AST_Nodes is
    ----------
 
    function Kind (Name : Text_Type) return Node_Type_Id is
+      use Names_To_Node_Types_Maps;
+
+      Cur : constant Cursor :=
+        Names_To_Node_Types.Find (To_Unbounded_Text (Name));
    begin
-      return
-        Names_To_Node_Types.Element (To_Unbounded_Text (Name));
+      if Cur /= No_Element then
+         return Element (Cur);
+      else
+         raise Unsupported_Error;
+      end if;
    end Kind;
 
    -----------------------

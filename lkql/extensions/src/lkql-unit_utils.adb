@@ -29,6 +29,7 @@ with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Diagnostics.Output;
 
 with LKQL.Node_Extensions; use LKQL.Node_Extensions;
+with LKQL.Primitives;
 with Ada_AST_Nodes;
 with GNAT.Regpat;
 
@@ -153,8 +154,7 @@ package body LKQL.Unit_Utils is
                Pattern : constant L.Node_Kind_Pattern :=
                   Node.As_Node_Kind_Pattern;
 
-               Kind    : constant Ada_AST_Nodes.Ada_AST_Node_Kind :=
-                  Ada_AST_Nodes.Get_Kind_From_Name (Pattern.F_Kind_Name.Text);
+               Kind    : Ada_AST_Nodes.Ada_AST_Node_Kind;
                --  TODO: Here we explicitly reference Ada_AST_Nodes, because
                --  we have no runtime information at this point indicating
                --  which language LKQL is targetting. This should be solved
@@ -163,9 +163,14 @@ package body LKQL.Unit_Utils is
                --  of type "Langkit.Language_Descriptor" (names are fictional)
                --  from which we could easily lookup node kind names.
             begin
+               Kind := Ada_AST_Nodes.Get_Kind_From_Name
+                 (Pattern.F_Kind_Name.Text);
                Ext_Val.Content := Node_Ext'
                  (Kind          => LCO.LKQL_Node_Kind_Pattern,
                   Expected_Kind => new Ada_AST_Nodes.Ada_AST_Node_Kind'(Kind));
+            exception
+               when Primitives.Unsupported_Error =>
+                  Output_Error (Node.As_LKQL_Node, "Invalid kind name");
             end;
 
          when others => null;
