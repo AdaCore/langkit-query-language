@@ -450,30 +450,6 @@ package body Ada_AST_Nodes is
 
    Names_To_Node_Types : Names_To_Node_Types_Maps.Map;
 
-   -----------------------
-   -- Matches_Kind_Name --
-   -----------------------
-
-   overriding function Matches_Kind_Name
-     (Node : Ada_AST_Node; Kind_Name : Text_Type) return Boolean
-   is
-      Expected_Kind : Any_Node_Type_Id;
-      Actual_Kind   : constant Any_Node_Type_Id :=
-        Id_For_Kind (Node.Node.Kind);
-   begin
-      begin
-         Expected_Kind :=
-           Names_To_Node_Types.Element (To_Unbounded_Text (Kind_Name));
-      exception
-         when Constraint_Error =>
-            raise Unsupported_Error
-              with "Invalid kind name: " & Image (Kind_Name);
-      end;
-
-      return Actual_Kind = Expected_Kind or else
-        Is_Derived_From (Actual_Kind, Expected_Kind);
-   end Matches_Kind_Name;
-
    -------------------
    -- Is_Field_Name --
    -------------------

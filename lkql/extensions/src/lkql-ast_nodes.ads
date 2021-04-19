@@ -144,11 +144,6 @@ package LKQL.AST_Nodes is
      (Node : AST_Node; N : Positive) return AST_Node is abstract;
    --  Return the Nth child of 'Node'
 
-   function Matches_Kind_Name
-     (Node : AST_Node; Kind_Name : Text_Type) return Boolean is abstract;
-   --  Return True if 'Node's kind name is 'Kind_Name' or 'Node's type is a
-   --  subtype of a type which kind name is 'Kind_Name'.
-
    function Get_Member_Reference
      (Node : AST_Node; Name : Text_Type) return AST_Node_Member_Reference'Class
       is abstract;

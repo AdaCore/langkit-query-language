@@ -80,9 +80,6 @@ package Ada_AST_Nodes is
    overriding function Nth_Child
      (Node : Ada_AST_Node; N : Positive) return Ada_AST_Node;
 
-   overriding function Matches_Kind_Name
-     (Node : Ada_AST_Node; Kind_Name : Text_Type) return Boolean;
-
    overriding function Is_Field_Name
      (Node : Ada_AST_Node; Name : Text_Type) return Boolean;
 
