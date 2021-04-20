@@ -19,4 +19,5 @@ fun address_attribute_for_non_volatile_objects(node) =
     when node.f_attribute?.p_name_is("Address")
      and (not (node.parent is AttributeDefClause
                when node.parent?.f_attribute_expr == node))
-     and is_non_volatile_object(stdlib.ultimate_alias(node.f_prefix))
+     and is_non_volatile_object(stdlib.ultimate_alias(node.f_prefix,
+                                                      all_nodes=false))

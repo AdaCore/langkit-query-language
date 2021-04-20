@@ -37,51 +37,38 @@ fun is_assert_aspect(s) =
     s == "default_initial_condition" or
     s == "predicate_failure"
 
-fun ultimate_alias(name) =
+fun ultimate_alias(name, all_nodes = true) =
     |" Return the ultimately designated ``ObjectDecl``, going through renamings
-    |" This will not go through generic instantiations
-
-    if name is (BaseId or DottedName) then {
+    |" This will not go through generic instantiations. If all_nodes is true,
+    |" consider all kinds of nodes, otherwise consider only BaseId and
+    |" DottedName.
+    if all_nodes or name is (BaseId or DottedName) then {
         val decl = name?.p_referenced_decl();
-        val ren = match decl
-            | ObjectDecl => decl?.f_renaming_clause
-            | *          => null;
 
-        if ren == null
-        then decl
-        else ultimate_alias(ren?.f_renamed_object)
+        if decl is ObjectDecl(f_renaming_clause is RenamingClause)
+        then ultimate_alias(decl?.f_renaming_clause?.f_renamed_object,
+                            all_nodes)
+        else decl
     } else name
 
 fun ultimate_exception_alias(name) =
     |" Return the ultimately designated ``ExceptionDecl``, going through renamings
-    if name is (BaseId or DottedName) then {
-        val decl = name?.p_referenced_decl();
-        val ren = match decl
-            | ExceptionDecl => decl?.f_renames
-            | *             => null;
+{
+    val decl = name?.p_referenced_decl();
 
-        if ren == null
-        then decl
-        else ultimate_exception_alias(ren?.f_renamed_object)
-    } else name
-
-fun local_scope(e) =
-    |" Return ``true`` if ``e`` represents a local scope or a generic formal
-    e is SubpBody or
-         TaskBody or
-         BlockStmt or
-         EntryBody or
-         ProtectedBody or
-         GenericFormalObjDecl
+    if decl is ExceptionDecl(f_renames is RenamingClause)
+    then ultimate_exception_alias(decl?.f_renames?.f_renamed_object)
+    else decl
+}
 
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
-    [p for p in n?.parents(include_self=false) if local_scope(p)].length > 0
+    n is *(any parent is SubpBody or TaskBody or BlockStmt or EntryBody or
+                         ProtectedBody or GenericFormalObjDecl)
 
 fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
-    o is ParamSpec or
-         (ObjectDecl when has_local_scope(o))
+    o is ParamSpec or ObjectDecl when has_local_scope(o)
 
 fun is_in_package_scope(o) =
     |" Return ``true`` if ``o`` is immediately in the scope of a package spec,
@@ -141,3 +128,11 @@ fun is_standard_numeric(n) =
     n == "standard.long_float" or
     n == "standard.long_long_float" or
     n == "standard.duration"
+
+fun is_standard_boolean(n) =
+    |" Return true if the type of n is Standard.Boolean
+{
+     val typ=n?.p_expression_type();
+     typ == null
+     or typ?.p_base_subtype()?.p_fully_qualified_name() == "Standard.Boolean"
+}
