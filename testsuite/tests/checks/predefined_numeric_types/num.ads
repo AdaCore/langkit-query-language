@@ -11,4 +11,6 @@ package Num is
       C2 : Character;                         --  NO FLAG
    end record;
 
+   Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+
 end Num;

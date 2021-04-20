@@ -14,3 +14,11 @@ num.ads:10:12: error: explicit reference to predefined numeric subtype
 10 |       C1 : Long_Integer;                      --  FLAG
    |            ^^^^^^^^^^^^ 
 
+num.ads:14:29: error: explicit reference to predefined numeric subtype
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+   |                             ^^^^^^^ 
+
+num.ads:14:40: error: explicit reference to predefined numeric subtype
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+   |                                        ^^^^^^^^ 
+
