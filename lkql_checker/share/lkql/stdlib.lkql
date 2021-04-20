@@ -137,6 +137,13 @@ fun is_standard_boolean(n) =
      or typ?.p_base_subtype()?.p_fully_qualified_name() == "Standard.Boolean"
 }
 
+# Return the first BaseSubpBody enclosing n if any, null otherwise
+fun enclosing_body(n) = {
+    val bodies = to_list([p for p in n?.parents(include_self=false)
+                          if p is BaseSubpBody]);
+    if bodies.length == 0 then null else bodies[1]
+}
+
 # Return all children nodes starting from a base subprogram body, but not
 # entering in nested subprogram bodies.
 selector children_no_nested_subps

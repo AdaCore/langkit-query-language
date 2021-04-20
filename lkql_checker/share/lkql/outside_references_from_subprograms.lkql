@@ -1,0 +1,28 @@
+# Within a subprogram body or an expression function flag any identifier that
+# denotes a data object declared outside this body. In case of bodies of
+# generic subprograms or subprograms declared in generic packages, this also
+# includes references to generic formal objects. If a referenced object is
+# global, such a reference is not flagged.
+# Any reference to a formal object (it can be only in a body of a formal
+# subprogram or a subprogram declared in a generic body) is considered as
+# outside reference (and therefore is flagged) because in any instantiation it
+# will be replaced by the reference to an entity that in no case can be
+# declared in the subprogram body being checked.
+
+import stdlib
+
+@check(message="outside references from subprogram")
+fun outside_references_from_subprograms(node) =
+    node is Identifier
+    when {
+        val body = stdlib.enclosing_body(node);
+        body != null and
+        stdlib.ultimate_alias(node) is o@(ObjectDecl or ParamSpec)
+        when stdlib.is_local_object(o)
+         and if o is ObjectDecl
+             then stdlib.enclosing_body(o) is o_body@BaseSubpBody
+                  when o_body != body
+             else (not (node.parent is ParamAssoc and
+                        node.parent?.f_designator == node)) and
+                  o?.parent?.parent?.parent != body.p_subp_spec_or_null()
+    }
