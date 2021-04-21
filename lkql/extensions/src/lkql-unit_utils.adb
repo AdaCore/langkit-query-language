@@ -180,6 +180,17 @@ package body LKQL.Unit_Utils is
       return LCO.Into;
    end Preprocess_Visitor;
 
+   ----------------------
+   -- Run_Preprocessor --
+   ----------------------
+
+   procedure Run_Preprocessor (Unit : L.Analysis_Unit) is
+   begin
+      --  TODO: Ideally we would check here that the unit has not already
+      --  been preprocessed.
+      Unit.Root.Traverse (Preprocess_Visitor'Access);
+   end Run_Preprocessor;
+
    --------------------
    -- Make_LKQL_Unit --
    --------------------
@@ -187,11 +198,10 @@ package body LKQL.Unit_Utils is
    function Make_LKQL_Unit
      (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit
    is
-
       Ret : constant L.Analysis_Unit :=
         Unit_Or_Error (Context.Get_From_File (Path));
    begin
-      Ret.Root.Traverse (Preprocess_Visitor'Access);
+      Run_Preprocessor (Ret);
       return Ret;
    end Make_LKQL_Unit;
 
@@ -215,9 +225,8 @@ package body LKQL.Unit_Utils is
       Ret : constant L.Analysis_Unit := Unit_Or_Error
         (Context.Get_From_Buffer
              (Filename => Unit_Name, Buffer => LKQL_Code));
-
    begin
-      Ret.Root.Traverse (Preprocess_Visitor'Access);
+      Run_Preprocessor (Ret);
       return Ret;
    end Make_LKQL_Unit_From_Code;
 

@@ -25,6 +25,12 @@ package LKQL.Unit_Utils is
 
    Unit_Creation_Error : exception;
 
+   procedure Run_Preprocessor (Unit : L.Analysis_Unit);
+   --  Run LKQL preprocessor on the unit, which associates precomputed data
+   --  to key nodes in order to accelerate runtime evaluation. This phase is
+   --  required for all units that must be evaluated. It is already performed
+   --  by the routines defined below.
+
    function Make_LKQL_Unit
      (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit;
    --  Create an LKQL analysis unit in the context 'Context' from the given

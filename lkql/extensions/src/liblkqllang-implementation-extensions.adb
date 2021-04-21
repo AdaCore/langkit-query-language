@@ -40,11 +40,12 @@ with Libadalang.Introspection; use Libadalang.Introspection;
 with Libadalang.Common;
 
 with Ada_AST_Nodes; use Ada_AST_Nodes;
-with LKQL.Evaluation; use LKQL.Evaluation;
+with LKQL.Evaluation;
 with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Errors;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
+with LKQL.Unit_Utils;
 
 package body Liblkqllang.Implementation.Extensions is
 
@@ -59,13 +60,19 @@ package body Liblkqllang.Implementation.Extensions is
    function Units return Unit_Vectors.Vector;
    --  Return all the units for the LKQL context.
 
+   function Eval
+     (Ctx : Eval_Context; Node : Analysis.LKQL_Node'Class)
+      return Primitive;
+   --  Evaluate the given node in the given context. Also ensures that
+   --  the unit in which ``Node`` belongs has been pre-processed.
+
    --  TODO: for the moment the state is global, we need to store it in the
    --  LKQL context.
    Ctx      : Libadalang.Analysis.Analysis_Context;
    Files    : String_Vectors.Vector;
    LKQL_Ctx : Eval_Context;
    Project  : Project_Tree_Access;
-   Env      :  Project_Environment_Access;
+   Env      : Project_Environment_Access;
    Init     : Boolean := False;
 
    -----------
@@ -80,6 +87,19 @@ package body Liblkqllang.Implementation.Extensions is
       end loop;
       return Ret;
    end Units;
+
+   ----------
+   -- Eval --
+   ----------
+
+   function Eval
+     (Ctx : Eval_Context; Node : Analysis.LKQL_Node'Class)
+      return Primitive
+   is
+   begin
+      LKQL.Unit_Utils.Run_Preprocessor (Node.Unit);
+      return LKQL.Evaluation.Eval (Ctx, Node);
+   end Eval;
 
    ------------------------------------------
    -- LKQL_Node_P_Interp_Init_From_Project --
