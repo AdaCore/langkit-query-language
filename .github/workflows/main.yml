@@ -55,10 +55,16 @@ jobs:
             sh langkit/.github/helpers/clean_up_gnat.sh
 
       - name: Fetch & install dependencies
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.GHA_CACHE_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.GHA_CACHE_SECRET}}
+          AWS_DEFAULT_REGION: eu-west-1
         run: |
+            FILE=libadalang-Linux-master.tar.gz
+            aws s3 cp s3://adacore-gha-tray-eu-west-1/libadalang/$FILE . --sse=AES256
             mkdir -p $PREFIX
-            wget -nv -O- https://dl.bintray.com/reznikmm/libadalang/libadalang-Linux-master.tar.gz \
-                | tar xzf - -C $PREFIX
+            tar xzf $FILE -C $PREFIX
+            rm -f -v $FILE
 
       - name: Build Langkit
         run: |
