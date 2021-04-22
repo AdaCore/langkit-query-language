@@ -1,0 +1,8 @@
+# Flag all record types that have a layout representation specification but
+# without Size and Pack representation specifications.
+
+@check(message="record type with incomplete representation specification")
+fun incomplete_representation_specifications(node) =
+    node is TypeDecl
+    when node.p_get_record_representation_clause() != null
+     and ((not node.p_has_aspect("Size")) or not node.p_has_aspect("Pack"))
