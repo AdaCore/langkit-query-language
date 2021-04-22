@@ -1,0 +1,17 @@
+# Flag any subprogram declaration, subprogram body declaration, expression
+# function declaration, null procedure declaration, subprogram body stub or
+# generic subprogram declaration if the corresponding subprogram has more than
+# N formal parameters, where N is a parameter of the rule.
+# A subprogram body, an expression function, a null procedure or a subprogram
+# body stub is flagged only if there is no separate declaration for this
+# subprogram. Subprogram renaming declarations and subprogram instantiations,
+# as well as declarations inside expanded generic instantiations are never
+# flagged.
+
+@check(message="too many formal parameters")
+fun maximum_parameters(node, n: int = 3) =
+    node is (SubpBody or ExprFunction or NullSubpDecl or SubpBodyStub or
+             ClassicSubpDecl)
+    when (node is ClassicSubpDecl or node.p_previous_part() == null)
+     and (from node.f_subp_spec?.f_subp_params?.f_params
+          select DefiningName).length > n
