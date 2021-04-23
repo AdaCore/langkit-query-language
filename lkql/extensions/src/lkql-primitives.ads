@@ -152,6 +152,7 @@ package LKQL.Primitives is
             Property_Node     : AST_Node_Rc;
          when Kind_Namespace =>
             Namespace         : Environment_Access;
+            Module            : L.LKQL_Node;
          when Kind_Function | Kind_Selector =>
             Frame             : Environment_Access;
             case Kind is
@@ -366,7 +367,8 @@ package LKQL.Primitives is
 
    function Make_Empty_Tuple return Primitive;
 
-   function Make_Namespace (N : Environment_Access) return Primitive;
+   function Make_Namespace
+     (N : Environment_Access; Module : L.LKQL_Node) return Primitive;
 
    ---------------------
    -- Function values --

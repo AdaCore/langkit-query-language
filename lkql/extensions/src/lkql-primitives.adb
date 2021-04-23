@@ -610,11 +610,14 @@ package body LKQL.Primitives is
    -- Make_Namespace --
    --------------------
 
-   function Make_Namespace (N : Environment_Access) return Primitive is
+   function Make_Namespace
+     (N : Environment_Access; Module : L.LKQL_Node) return Primitive
+   is
       Ref : Primitive;
    begin
       Ref.Set (Primitive_Data'(Refcounted with Kind => Kind_Namespace,
-                               Namespace            => N));
+                               Namespace            => N,
+                               Module               => Module));
       return Ref;
    end Make_Namespace;
 

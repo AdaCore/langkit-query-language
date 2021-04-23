@@ -837,7 +837,8 @@ package body LKQL.Evaluation is
       Frame        : constant Eval_Context := Ctx.Create_New_Frame;
       Dummy        : constant Primitive := Eval (Frame, Unit.Root);
       NS           : constant Primitive :=
-        Make_Namespace (Primitives.Environment_Access (Frame.Frames));
+        Make_Namespace
+          (Primitives.Environment_Access (Frame.Frames), Unit.Root);
    begin
       Ctx.Add_Binding (Symbol (Node.F_Name), NS);
       return Make_Unit_Primitive;
