@@ -14,7 +14,10 @@ help:
 
 .PHONY: help Makefile
 
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
+	LKQL_PATH=$(ROOT_DIR)/../lkql_checker/share/lkql python generate_apidoc.py --std -O generated stdlib
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

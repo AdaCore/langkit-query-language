@@ -11,6 +11,7 @@ Welcome to LKQL's documentation!
    :caption: Contents:
 
    language_reference
+   lkql_api_doc
 
 
 
