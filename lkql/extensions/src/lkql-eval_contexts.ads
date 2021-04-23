@@ -79,6 +79,12 @@ package LKQL.Eval_Contexts is
    procedure Dec_Ref (Self : in out Environment_Access);
    function Env_Map_Image (Self : Environment_Map) return String;
 
+   function Get_Env_Map (Self : Environment_Access) return Environment_Map;
+   --  Get the env map for this env.
+
+   function Get_Parent (Self : Environment_Access) return Environment_Access;
+   --  Get the parent env for this env.
+
    function Env_Image (Env : Environment_Access) return String;
    --  Return a structured debug image of the env passed in parameter.
 

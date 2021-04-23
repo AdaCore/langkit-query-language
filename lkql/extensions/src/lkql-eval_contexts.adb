@@ -498,4 +498,22 @@ package body LKQL.Eval_Contexts is
       Ctx.Kernel.LKQL_Path_List.Append (To_Unbounded_String (Path));
    end Add_LKQL_Path;
 
+   -----------------
+   -- Get_Env_Map --
+   -----------------
+
+   function Get_Env_Map (Self : Environment_Access) return Environment_Map is
+   begin
+      return Self.Local_Bindings;
+   end Get_Env_Map;
+
+   ----------------
+   -- Get_Parent --
+   ----------------
+
+   function Get_Parent (Self : Environment_Access) return Environment_Access is
+   begin
+      return Self.Parent;
+   end Get_Parent;
+
 end LKQL.Eval_Contexts;

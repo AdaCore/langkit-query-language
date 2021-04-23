@@ -67,6 +67,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Profile
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Get_Symbols
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Help
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -356,6 +359,53 @@ package body LKQL.Builtin_Functions is
       return Make_Unit_Primitive;
    end Eval_Help;
 
+   ----------------------------
+   -- Eval_Get_Local_Symbols --
+   ----------------------------
+
+   function Eval_Get_Symbols
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      procedure Get_Symbols_In_Frame
+        (C : Eval_Contexts.Environment_Access; Recurse : Boolean);
+
+      S : Symbol_Set;
+
+      procedure Get_Symbols_In_Frame
+        (C : Eval_Contexts.Environment_Access; Recurse : Boolean)
+      is
+      begin
+         if C = null then
+            return;
+         end if;
+         for I in Get_Env_Map (C).Iterate loop
+            S.Include (String_Value_Maps.Key (I));
+         end loop;
+
+         if Recurse then
+            Get_Symbols_In_Frame (Get_Parent (C), True);
+         end if;
+      end Get_Symbols_In_Frame;
+
+      Pkg : constant Primitive := Args (1);
+      Ret : constant Primitive := Make_Empty_List;
+   begin
+
+      if Booleanize (Pkg) then
+         Get_Symbols_In_Frame
+           (Eval_Contexts.Environment_Access (Pkg.Unchecked_Get.Namespace),
+            Recurse => False);
+      else
+         Get_Symbols_In_Frame (Ctx.Frames, Recurse => True);
+      end if;
+
+      for El of S loop
+         Ret.Get.List_Val.Elements.Append (To_Primitive (El.all));
+      end loop;
+      return Ret;
+
+   end Eval_Get_Symbols;
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -423,6 +473,13 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("obj")),
          Eval_Profile'Access,
          "Given any object, if it is a callable, return its profile as text"),
+
+      Create
+        ("get_symbols",
+         (1 => Param ("package", Kind_Namespace, Make_Unit_Primitive)),
+         Eval_Get_Symbols'Access,
+         "Given a module, return the symbols stored in it. If given no module"
+         & ", return the local symbols"),
 
         Create
           ("help",
