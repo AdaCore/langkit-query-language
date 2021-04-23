@@ -205,7 +205,10 @@ package LKQL.Primitives is
    type Builtin_Function_Profile is
      array (Positive range <>) of Builtin_Param_Description;
 
-   type Builtin_Function_Description (N : Positive) is record
+   Empty_Profile : constant Builtin_Function_Profile (1 .. 0) :=
+     (others => <>);
+
+   type Builtin_Function_Description (N : Natural) is record
       Name      : Unbounded_Text_Type;
       Params    : Builtin_Function_Profile (1 .. N);
       Fn_Access : Native_Function_Access;
