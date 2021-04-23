@@ -22,7 +22,6 @@
 ------------------------------------------------------------------------------
 
 with LKQL.Primitives; use LKQL.Primitives;
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 --  This package declares every function that is a builtin in LKQL, and a
 --  function that returns the array of builtin function descriptors that
@@ -36,30 +35,6 @@ with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 --     in the body of this package).
 
 package LKQL.Builtin_Functions is
-
-   function Eval_Print
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_To_List
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_Dump
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_Image
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_Children_Count
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_Text
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_Starts_With
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
-   function Eval_Ends_With
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    type Builtin_Function_Array is
       array (Positive range <>) of Builtin_Function;

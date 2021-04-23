@@ -386,6 +386,9 @@ package LKQL.Primitives is
      (Node_Val     : Primitive;
       Property_Ref : AST_Node_Member_Reference'Class) return Primitive;
 
+   function Profile (Obj : Primitive) return Text_Type;
+   --  For a callable object, return its profile (name + arguments) as text.
+
    -------------------------------------------------
    -- Primitive to Introspection value conversion --
    -------------------------------------------------

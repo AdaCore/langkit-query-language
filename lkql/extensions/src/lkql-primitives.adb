@@ -660,6 +660,52 @@ package body LKQL.Primitives is
       return Ref;
    end Make_Property_Reference;
 
+   -------------
+   -- Profile --
+   -------------
+
+   function Profile (Obj : Primitive) return Text_Type is
+      Profile : Unbounded_Text_Type;
+   begin
+      case Obj.Unchecked_Get.Kind is
+         when Kind_Function =>
+            Profile := To_Unbounded_Text
+              (Obj.Unchecked_Get.Fun_Node.P_Profile);
+         when Kind_Selector =>
+            Profile := To_Unbounded_Text
+              ("selector " & Obj.Unchecked_Get.Sel_Node.F_Name.Text);
+         when Kind_Builtin_Function =>
+            declare
+               P : constant Builtin_Function := Obj.Unchecked_Get.Builtin_Fn;
+               package U renames Ada.Strings.Wide_Wide_Unbounded;
+            begin
+               U.Append (Profile, "@builtin fun ");
+               U.Append (Profile, P.Name);
+               U.Append (Profile, "(");
+               for I in P.Params'Range loop
+                  U.Append (Profile, P.Params (I).Name);
+
+                  if Primitive_Options.Is_Some (P.Params (I).Default_Value)
+                  then
+                     U.Append
+                       (Profile,
+                        "=" & To_Unbounded_Text
+                          (Primitive_Options.Extract
+                               (P.Params (I).Default_Value)));
+                  end if;
+
+                  if I < P.Params'Last then
+                     U.Append (Profile, ", ");
+                  end if;
+               end loop;
+               U.Append (Profile, ")");
+            end;
+         when others =>
+            null;
+      end case;
+      return To_Text (Profile);
+   end Profile;
+
    ---------------------------
    -- Make_Builtin_Function --
    ---------------------------
