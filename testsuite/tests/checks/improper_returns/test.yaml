@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Improper_Returns
+input_sources: ['ret.adb']

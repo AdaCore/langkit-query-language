@@ -1,0 +1,20 @@
+# Flag each explicit return statement in procedures, and multiple return
+# statements in functions. Diagnostic messages are generated for all return
+# statements in a procedure (thus each procedure must be written so that it
+# returns implicitly at the end of its statement part), and for all return
+# statements in a function after the first one. This rule supports the
+# stylistic convention that each subprogram should have no more than one point
+# of normal return.
+
+import stdlib
+
+@check(message="extra return statement")
+fun improper_returns(node) =
+    node is ReturnStmt
+    when {
+        val body = stdlib.enclosing_body(node);
+        match body?.f_subp_spec?.f_subp_kind
+        | SubpKindProcedure => true
+        | SubpKindFunction  => (from body?.f_stmts select ReturnStmt)[1] != node
+        | *                 => false
+    }
