@@ -455,6 +455,10 @@ package body LKQL.Eval_Contexts is
       From_Path : constant String :=
         D.Containing_Directory (From.Get_Filename);
 
+      -----------------------
+      -- Get_Unit_From_Dir --
+      -----------------------
+
       function Get_Unit_From_Dir (Dir : String) return L.Analysis_Unit is
          Tentative_File_Name : constant String :=
            D.Compose (Dir, Package_Name, "lkql");
