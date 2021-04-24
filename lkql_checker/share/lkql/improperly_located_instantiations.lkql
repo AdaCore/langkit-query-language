@@ -1,0 +1,12 @@
+# Flag all generic instantiations in library-level package specs (including
+# library generic packages) and in all subprogram bodies.
+# Instantiations in task and entry bodies are not flagged. Instantiations in
+# the bodies of protected subprograms are flagged.
+
+import stdlib
+
+@check(message="instantiation in a package spec or subprogram body")
+fun improperly_located_instantiations(node) =
+    node is GenericInstantiation
+    when node.parent?.parent?.parent is BasePackageDecl(parent is LibraryItem)
+      or stdlib.enclosing_body(node) != null
