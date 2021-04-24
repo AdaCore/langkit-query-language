@@ -1,0 +1,9 @@
+# Flag each occurrence of a formal parameter with an implicit in mode. Note
+# that access parameters, although they technically behave like in parameters,
+# are not flagged.
+
+@check(message="implicit IN mode in parameter specification")
+fun implicit_in_mode_parameters(node) =
+    node is ParamSpec(f_mode is ModeDefault)
+    when not node.f_type_expr is
+         AnonymousType(f_type_decl is *(f_type_def is TypeAccessDef))
