@@ -37,9 +37,7 @@ fun is_complex_subp(node, n) =
 @check(message="complex inlined subprogram")
 fun complex_inlined_subprograms(node, n : int = 5) = match node
     | SubpBody
-      when (node.p_has_aspect("Inline")
-            or node.p_decl_part()?.p_has_aspect?("Inline"))
-        and is_complex_subp(node, n) => true
+      when node.p_has_aspect("Inline") and is_complex_subp(node, n) => true
 
     | g@GenericSubpInstantiation
       when node.p_has_aspect("Inline")
