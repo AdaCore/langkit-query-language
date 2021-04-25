@@ -20,6 +20,8 @@
 # The rule has a parameter Skip_Dispatching_Calls: Do not take into account
 # dispatching calls when building and analyzing call chains.
 
+import stdlib
+
 # Given a name, return the body of the decl referenced by the name
 fun body(name) = match name.p_referenced_decl()
     | b @ BaseSubpBody   => b
@@ -27,19 +29,11 @@ fun body(name) = match name.p_referenced_decl()
     | d @ BasicDecl when d?.p_is_subprogram() => d?.p_body_part()
     | *                  => null
 
-# Return all children nodes starting from a base subprogram body, but not
-# entering in nested subprogram bodies.
-selector children_no_nested_subps
-    | SubpBody =>
-        # Don't recurse on subp bodies except if it's the root node (depth == 0)
-        rec *(if depth == 0 then this.children else [])
-    | * => rec *this.children
-
 # Get the bodies of the functions called by a given function body
 selector calls
     | b @ Body => rec *
         # Grab the bodies for every explicit call
-        to_list([body(a) for a in children_no_nested_subps(b)
+        to_list([body(a) for a in stdlib.children_no_nested_subps(b)
                  if a is n @ Name when n.p_is_call()])
     | * => ()
 

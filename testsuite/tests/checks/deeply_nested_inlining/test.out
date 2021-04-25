@@ -1,0 +1,48 @@
+deeply_inlined.adb:10:14: error: deeply nested inlining
+10 |    procedure P4 is  --  FLAG
+   |              ^^ 
+
+deeply_inlined.adb:41:13: error: deeply nested inlining
+41 |    function F5 return Boolean is  --  FLAG
+   |             ^^ 
+
+deeply_inlined.ads:6:14: error: deeply nested inlining
+6 |    procedure P5;  --  FLAG
+  |              ^^ 
+
+deeply_inlined.ads:9:14: error: deeply nested inlining
+9 |    procedure P6;  --  FLAG
+  |              ^^ 
+
+deeply_inlined.ads:12:14: error: deeply nested inlining
+12 |    procedure P7;  --  FLAG
+   |              ^^ 
+
+deeply_inlined.ads:18:13: error: deeply nested inlining
+18 |    function F4 return Boolean;  --  FLAG
+   |             ^^ 
+
+deeply_inlined.ads:21:13: error: deeply nested inlining
+21 |    function F6 return Boolean;  --  FLAG
+   |             ^^ 
+
+deeply_inlined.ads:30:13: error: deeply nested inlining
+30 |    function F9 return Boolean   --  FLAG
+   |             ^^ 
+
+deeply_inlined.ads:33:13: error: deeply nested inlining
+33 |    function F10 return Boolean  --  FLAG
+   |             ^^^ 
+
+deeply_inlined_2012.adb:32:14: error: deeply nested inlining
+32 |    procedure New_P4 is new P4;   -- FLAG
+   |              ^^^^^^ 
+
+deeply_inlined_2012.ads:16:14: error: deeply nested inlining
+16 |    procedure P4 with Inline;   --  FLAG
+   |              ^^ 
+
+deeply_inlined_2012.ads:19:14: error: deeply nested inlining
+19 |    procedure P5 with Inline;   --  FLAG
+   |              ^^ 
+

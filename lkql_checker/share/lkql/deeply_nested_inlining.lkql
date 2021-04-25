@@ -1,0 +1,44 @@
+# Flag a subprogram (or generic subprogram) if pragma Inline has been applied
+# to it, and it calls another subprogram to which pragma Inline applies,
+# resulting in potential nested inlining, with a nesting depth exceeding the
+# value specified by the N rule parameter.
+
+import stdlib
+
+# Given a name, return the body of the decl referenced by the name if it is
+# marked Inline, null otherwise
+fun inlined_body(name) = match name.p_referenced_decl()
+    | b@BaseSubpBody when b?.p_has_aspect("Inline")
+                      => b
+    | EnumLiteralDecl => null
+    | g@GenericSubpInstantiation
+      when g?.f_generic_subp_name?.p_referenced_decl() is
+           b@GenericSubpDecl(p_has_aspect("Inline") is true)
+                      => b?.p_body_part()
+    | d@BasicDecl when d?.p_is_subprogram() and d?.p_has_aspect("Inline")
+                      => d?.p_body_part()
+    | *               => null
+
+# Return true if we reach a level ``n`` of inlining of 0
+fun check_inlining(node, n: int) =
+    if n == 0
+    then node != null
+    else [a for a in stdlib.children_no_nested_subps(node)
+          if a is Name when a.p_is_call()
+                        and check_inlining(inlined_body(a), n - 1)].length != 0
+
+@check(message="deeply nested inlining")
+fun deeply_nested_inlining(node, n: int = 3) =
+    match node
+    | ClassicSubpDecl          => node.p_has_aspect("Inline") and
+                                  check_inlining(node.p_body_part(), n + 1)
+    | GenericSubpDecl          => node.p_has_aspect("Inline") and
+                                  check_inlining(node.p_body_part(), n + 1)
+    | BaseSubpBody             => node.p_previous_part() == null and
+                                  node.p_has_aspect("Inline") and
+                                  check_inlining(node, n + 1)
+    | GenericSubpInstantiation => node.f_generic_subp_name?.p_referenced_decl()
+                                  is g@GenericSubpDecl
+                                  when g?.p_has_aspect("Inline") and
+                                  check_inlining(g?.p_body_part(), n + 1)
+    | *                        => false
