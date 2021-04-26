@@ -1,8 +1,8 @@
 SelectorDecl
-|f_doc: <null>
 |f_annotation: <null>
 |f_name:
 |  Identifier: testSelector
+|f_doc_node: <null>
 |f_arms:
 |  SelectorArmList
 |  |  SelectorArm

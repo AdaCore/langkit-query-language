@@ -1,5 +1,4 @@
 FunDecl
-|f_doc: <null>
 |f_annotation:
 |  DeclAnnotation
 |  |f_name:
@@ -13,13 +12,13 @@ FunDecl
 |  |f_parameters:
 |  |  ParameterDeclList
 |  |  |  ParameterDecl
-|  |  |  |f_doc: <null>
 |  |  |  |f_annotation: <null>
 |  |  |  |f_param_identifier:
 |  |  |  |  Identifier: max_deps
 |  |  |  |f_type_annotation:
 |  |  |  |  Identifier: int
 |  |  |  |f_default_expr: <null>
+|  |f_doc_node: <null>
 |  |f_body_expr:
 |  |  Query
 |  |  |f_from_expr: <null>
@@ -93,8 +92,8 @@ FunDecl
 |  |  |  |  |  |  |  |f_vals:
 |  |  |  |  |  |  |  |  DeclarationList
 |  |  |  |  |  |  |  |  |  ValDecl
-|  |  |  |  |  |  |  |  |  |f_doc: <null>
 |  |  |  |  |  |  |  |  |  |f_annotation: <null>
+|  |  |  |  |  |  |  |  |  |f_doc_node: <null>
 |  |  |  |  |  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  |  |  |  |  Identifier: semanticParent
 |  |  |  |  |  |  |  |  |  |f_value:
@@ -114,8 +113,8 @@ FunDecl
 |  |  |  |  |  |  |  |  |  |  |f_arguments:
 |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
 |  |  |  |  |  |  |  |  |  ValDecl
-|  |  |  |  |  |  |  |  |  |f_doc: <null>
 |  |  |  |  |  |  |  |  |  |f_annotation: <null>
+|  |  |  |  |  |  |  |  |  |f_doc_node: <null>
 |  |  |  |  |  |  |  |  |  |f_identifier:
 |  |  |  |  |  |  |  |  |  |  Identifier: deps
 |  |  |  |  |  |  |  |  |  |f_value:

@@ -1,5 +1,4 @@
 FunDecl
-|f_doc: <null>
 |f_annotation: <null>
 |f_name:
 |  Identifier: allNodes
@@ -7,6 +6,7 @@ FunDecl
 |  NamedFunction
 |  |f_parameters:
 |  |  ParameterDeclList: <empty list>
+|  |f_doc_node: <null>
 |  |f_body_expr:
 |  |  Query
 |  |  |f_from_expr: <null>

@@ -1,6 +1,5 @@
 TopLevelList
 |  FunDecl
-|  |f_doc: <null>
 |  |f_annotation: <null>
 |  |f_name:
 |  |  Identifier: add
@@ -9,19 +8,18 @@ TopLevelList
 |  |  |f_parameters:
 |  |  |  ParameterDeclList
 |  |  |  |  ParameterDecl
-|  |  |  |  |f_doc: <null>
 |  |  |  |  |f_annotation: <null>
 |  |  |  |  |f_param_identifier:
 |  |  |  |  |  Identifier: a
 |  |  |  |  |f_type_annotation: <null>
 |  |  |  |  |f_default_expr: <null>
 |  |  |  |  ParameterDecl
-|  |  |  |  |f_doc: <null>
 |  |  |  |  |f_annotation: <null>
 |  |  |  |  |f_param_identifier:
 |  |  |  |  |  Identifier: b
 |  |  |  |  |f_type_annotation: <null>
 |  |  |  |  |f_default_expr: <null>
+|  |  |f_doc_node: <null>
 |  |  |f_body_expr:
 |  |  |  ArithBinOp
 |  |  |  |f_left:
@@ -31,8 +29,8 @@ TopLevelList
 |  |  |  |f_right:
 |  |  |  |  Identifier: b
 |  ValDecl
-|  |f_doc: <null>
 |  |f_annotation: <null>
+|  |f_doc_node: <null>
 |  |f_identifier:
 |  |  Identifier: c
 |  |f_value:
