@@ -1,10 +1,6 @@
 # Flag a declaration of a primitive operation of a tagged type if this
 # declaration contains specification of Pre or/and Post aspect.
 
-fun has_aspect(decl, aspect_name) =
-   # TODO: using p_has_aspect() once it is fixed, see U328-004
-   decl.p_get_aspect_assoc(aspect_name) != null
-
 @check(message="definition of non class-wide aspect")
 fun specific_pre_post(node) =
     node is BasicSubpDecl (
@@ -13,4 +9,4 @@ fun specific_pre_post(node) =
             # primitive of a tagged type
             p_primitive_subp_tagged_type() is AdaNode))
     # with direct pre/post aspect definitions
-    when has_aspect(node, "Pre") or has_aspect(node, "Post")
+    when node.p_has_aspect("Pre") or node.p_has_aspect("Post")

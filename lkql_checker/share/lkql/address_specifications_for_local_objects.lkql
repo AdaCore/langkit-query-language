@@ -4,8 +4,6 @@
 
 @check(message="address specifications for local object")
 fun address_specifications_for_local_objects(node) =
-    node is ObjectDecl (
-        any parent is s@SubpBody
-        when not s.parent is LibraryItem
-    )
-    when node.p_get_aspect_assoc("address") != null
+    node is ObjectDecl (any parent is s@SubpBody
+                        when not s.parent is LibraryItem)
+    when node.p_has_aspect("Address")
