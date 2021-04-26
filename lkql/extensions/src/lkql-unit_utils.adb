@@ -23,6 +23,7 @@
 
 with Ada.Directories; use Ada.Directories;
 with Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Fixed; use Ada.Strings.Wide_Wide_Fixed;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
@@ -36,6 +37,10 @@ with GNAT.Regpat;
 package body LKQL.Unit_Utils is
 
    procedure Output_Error (Node : L.LKQL_Node; Error_Msg : Text_Type);
+
+   function Preprocess_String (S : Text_Type) return Text_Type;
+   --  Preprocess the given text, which is the content of a string literal.
+   --  Today, this is solely processing escape sequences.
 
    function Preprocess_Visitor
      (Node : L.LKQL_Node'Class) return LCO.Visit_Status;
@@ -57,6 +62,41 @@ package body LKQL.Unit_Utils is
         (D, Node.Unit, Simple_Name (Node.Unit.Get_Filename));
       raise Unit_Creation_Error;
    end Output_Error;
+
+   -----------------------
+   -- Preprocess_String --
+   -----------------------
+
+   function Preprocess_String (S : Text_Type) return Text_Type is
+      Ret : Unbounded_Text_Type;
+      Idx : Positive := S'First;
+
+      use Ada.Strings.Wide_Wide_Unbounded;
+   begin
+      --  Process escape sequences
+      loop
+         exit when Idx > S'Last;
+         if S (Idx) = '\' then
+            case S (Idx  + 1) is
+
+               --  Just append the escaped character
+               when '\' | '"' => Append (Ret, S (Idx + 1));
+
+               --  Newline \n: append a LF char
+               when 'n' => Append (Ret, To_Text ("" & ASCII.LF));
+
+               --  Unsupported cases
+               when others => raise Unit_Creation_Error
+                    with "Unsupported escape character";
+            end case;
+            Idx := Idx + 2;
+         else
+            Append (Ret, S (Idx));
+            Idx := Idx + 1;
+         end if;
+      end loop;
+      return To_Text (Ret);
+   end Preprocess_String;
 
    ------------------------
    -- Preprocess_Visitor --
@@ -173,6 +213,60 @@ package body LKQL.Unit_Utils is
                   Output_Error (Node.As_LKQL_Node, "Invalid kind name");
             end;
 
+         when LCO.LKQL_String_Literal =>
+            declare
+               T : Text_Type renames Node.Text;
+               No_Quotes : constant Text_Type := T (T'First + 1 .. T'Last - 1);
+            begin
+               Ext_Val.Content :=
+                 Node_Ext'(Kind => LCO.LKQL_String_Literal,
+                           Denoted_Value =>
+                              new Text_Type'(Preprocess_String (No_Quotes)));
+            end;
+         when LCO.LKQL_Block_String_Literal =>
+            declare
+               Ret      : Unbounded_Text_Type;
+               package W renames Ada.Strings.Wide_Wide_Unbounded;
+            begin
+               if Node.Children_Count > 0 then
+                  --  The block string will be aligned on the start of the
+                  --  first non blank char of the first block literal
+                  declare
+                     First_Sub_Block : constant L.Sub_Block_Literal :=
+                       Node.As_Block_String_Literal
+                         .F_Docs.Child (1).As_Sub_Block_Literal;
+                     Text            : constant Text_Type :=
+                       First_Sub_Block.Text;
+
+                     Stripped        : constant Text_Type :=
+                       Text (Text'First + 2 .. Text'Last);
+                     --  Strip the |" prefix
+
+                     Non_Blank_Index : constant Positive :=
+                       Index_Non_Blank (Stripped) - Text'First;
+                     --  Get the first non blank index
+                  begin
+                     for Doc_Lit of
+                       Node.As_Block_String_Literal.F_Docs.Children
+                     loop
+                        declare
+                           T : constant Text_Type := Doc_Lit.Text;
+                        begin
+                           W.Append
+                             (Ret,
+                              To_Unbounded_Text
+                                (T (T'First + Non_Blank_Index .. T'Last)));
+                           W.Append (Ret, To_Text ("" & ASCII.LF));
+                        end;
+                     end loop;
+                  end;
+               end if;
+               Ext_Val.Content :=
+                 Node_Ext'
+                   (Kind          => LCO.LKQL_Block_String_Literal,
+                    Denoted_Value =>
+                       new Text_Type'(Preprocess_String (To_Text (Ret))));
+            end;
          when others => null;
          end case;
       end;

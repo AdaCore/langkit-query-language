@@ -22,8 +22,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Assertions;                  use Ada.Assertions;
-with Ada.Strings.Wide_Wide_Fixed; use Ada.Strings.Wide_Wide_Fixed;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+
+with Langkit_Support.Text; use Langkit_Support.Text;
 
 with LKQL.Errors;            use LKQL.Errors;
 with LKQL.Queries;           use LKQL.Queries;
@@ -34,8 +34,7 @@ with LKQL.Node_Data;
 with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
 with LKQL.Error_Handling;    use LKQL.Error_Handling;
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
-
-with Langkit_Support.Text; use Langkit_Support.Text;
+with LKQL.Node_Extensions; use LKQL.Node_Extensions;
 
 package body LKQL.Evaluation is
 
@@ -61,10 +60,8 @@ package body LKQL.Evaluation is
 
    function Eval_Tuple (Ctx : Eval_Context; Node : L.Tuple) return Primitive;
 
-   function Eval_String_Literal (Node : L.String_Literal) return Primitive;
-
-   function Eval_Block_String_Literal
-     (Node : L.Block_String_Literal) return Primitive;
+   function Eval_String_Literal
+     (Node : L.Base_String_Literal) return Primitive;
 
    function Eval_Bool_Literal (Node : L.Bool_Literal) return Primitive;
 
@@ -172,10 +169,10 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Tuple =>
             Result := Eval_Tuple (Ctx, Node.As_Tuple);
          when LCO.LKQL_String_Literal =>
-            Result := Eval_String_Literal (Node.As_String_Literal);
+            Result := Eval_String_Literal (Node.As_Base_String_Literal);
          when LCO.LKQL_Block_String_Literal =>
             Result :=
-              Eval_Block_String_Literal (Node.As_Block_String_Literal);
+              Eval_String_Literal (Node.As_Base_String_Literal);
          when LCO.LKQL_Bool_Literal =>
             Result := Eval_Bool_Literal (Node.As_Bool_Literal);
          when LCO.LKQL_Unit_Literal =>
@@ -395,59 +392,12 @@ package body LKQL.Evaluation is
    -- Eval_String_Literal --
    -------------------------
 
-   function Eval_String_Literal (Node : L.String_Literal) return Primitive is
-      Quoted_Literal : constant Unbounded_Text_Type :=
-        To_Unbounded_Text (Node.Text);
-      Literal : constant Unbounded_Text_Type :=
-        Unbounded_Slice (Quoted_Literal, 2, Length (Quoted_Literal) - 1);
+   function Eval_String_Literal (Node : L.Base_String_Literal) return Primitive
+   is
+      Node_Ext : constant Ext := Get_Ext (Node);
    begin
-      return To_Primitive (Literal);
+      return To_Primitive (Node_Ext.Content.Denoted_Value.all);
    end Eval_String_Literal;
-
-   -------------------------------
-   -- Eval_Block_String_Literal --
-   -------------------------------
-
-   function Eval_Block_String_Literal
-     (Node : L.Block_String_Literal) return Primitive is
-   begin
-      declare
-         Ret      : Unbounded_Text_Type;
-         package W renames Ada.Strings.Wide_Wide_Unbounded;
-      begin
-         if Node.Children_Count > 0 then
-            --  The block string will be aligned on the start of the first non
-            --  blank char of the first block literal
-            declare
-               First_Sub_Block : constant L.Sub_Block_Literal :=
-                 Node.F_Docs.Child (1).As_Sub_Block_Literal;
-               Text            : constant Text_Type := First_Sub_Block.Text;
-
-               Stripped        : constant Text_Type :=
-                 Text (Text'First + 2 .. Text'Last);
-               --  Strip the |" prefix
-
-               Non_Blank_Index : constant Positive :=
-                 Index_Non_Blank (Stripped) - Text'First;
-               --  Get the first non blank index
-            begin
-               for Doc_Lit of Node.F_Docs.Children loop
-                  declare
-                     T : constant Text_Type := Doc_Lit.Text;
-                  begin
-                     W.Append
-                       (Ret,
-                        To_Unbounded_Text
-                          (T (T'First + Non_Blank_Index .. T'Last)));
-                     W.Append (Ret, To_Text ("" & ASCII.LF));
-                  end;
-               end loop;
-            end;
-            return To_Primitive (Ret);
-         end if;
-         return To_Primitive ("");
-      end;
-   end Eval_Block_String_Literal;
 
    -------------------------
    -- Eval_Bool_Literal --

@@ -131,6 +131,6 @@ lkql_lexer.add_rules(
     (Pattern("[0-9]+"),                           Token.Integer),
     (Pattern("[a-z][A-Za-z0-9_]*"),               Token.Identifier),
     (Pattern("[A-Z][A-Za-z_]*(.list)?"),          Token.KindName),
-    (Pattern("\"[^\"]*\""),                       Token.String),
+    (Pattern(r'"(\\.|[^"])*"'),                   Token.String),
     (Pattern(r"#(.?)+"),                          Token.Comment)
 )

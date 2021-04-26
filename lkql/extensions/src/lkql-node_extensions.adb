@@ -43,6 +43,8 @@ package body LKQL.Node_Extensions is
             Free_Pattern (Self.Content.Compiled_Pattern);
          when LCO.LKQL_Node_Kind_Pattern =>
             Free_Node_Kind (Self.Content.Expected_Kind);
+         when LCO.LKQL_Base_String_Literal =>
+            Free (Self.Content.Denoted_Value);
          when others =>
             null;
       end case;

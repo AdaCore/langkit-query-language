@@ -24,6 +24,8 @@
 with Ada.Containers.Hashed_Maps;
 with GNAT.Regpat;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with LKQL.AST_Nodes;
 
 --  This package is the user facing parts of the LKQL node extension mechanism.
@@ -86,6 +88,9 @@ package LKQL.Node_Extensions is
 
          when LCO.LKQL_Node_Kind_Pattern =>
             Expected_Kind : AST_Node_Kind_Access;
+
+         when LCO.LKQL_Base_String_Literal =>
+            Denoted_Value : Text_Access;
 
          when others => null;
       end case;
