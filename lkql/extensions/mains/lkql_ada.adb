@@ -107,17 +107,15 @@ procedure LKQL_Ada is
                         "Stop Evaluation Error raised without adding the " &
                           "error to the evaluation context");
 
-         if not Context.Error_Recovery_Enabled then
-            declare
-               N : L.LKQL_Node renames Context.Last_Error.AST_Node;
-               D : constant Diagnostic := Langkit_Support.Diagnostics.Create
-                 (N.Sloc_Range,
-                  To_Text (Context.Last_Error.Short_Message));
-            begin
-               Output.Print_Diagnostic
-                 (D, N.Unit, Simple_Name (N.Unit.Get_Filename));
-            end;
-         end if;
+         declare
+            N : L.LKQL_Node renames Context.Last_Error.AST_Node;
+            D : constant Diagnostic := Langkit_Support.Diagnostics.Create
+              (N.Sloc_Range,
+               To_Text (Context.Last_Error.Short_Message));
+         begin
+            Output.Print_Diagnostic
+              (D, N.Unit, Simple_Name (N.Unit.Get_Filename));
+         end;
    end Evaluate;
 
    ----------------------

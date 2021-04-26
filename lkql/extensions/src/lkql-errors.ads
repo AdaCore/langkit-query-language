@@ -46,10 +46,6 @@ package LKQL.Errors is
    --  be resumed. WARNING: THIS SHOULD NEVER BE RAISED MANUALLY but instead
    --  be raised via ``Raise_And_Record_Error``.
 
-   Recoverable_Error : exception;
-   --  This type of exception is used to indicate that the evaluator should
-   --  try to resume execution in spite of the error.
-
    type Error_Kind is
      (No_Error,
       --  Absence of error

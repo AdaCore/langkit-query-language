@@ -598,8 +598,8 @@ package body Ada_AST_Nodes is
 
    function Make_Eval_Context
      (Units        : Unit_Vectors.Vector;
-      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
-      Err_Recovery : Boolean := False) return Eval_Context
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
+      return Eval_Context
    is
       Roots : AST_Node_Array (1 .. Units.Last_Index);
    begin
@@ -610,7 +610,7 @@ package body Ada_AST_Nodes is
       end loop;
 
       return Make_Eval_Context
-        (Roots, Make_Ada_AST_Node (No_Ada_Node), Analysis_Ctx, Err_Recovery);
+        (Roots, Make_Ada_AST_Node (No_Ada_Node), Analysis_Ctx);
    end Make_Eval_Context;
 
    ----------------------

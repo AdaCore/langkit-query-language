@@ -92,13 +92,6 @@ package body LKQL.Eval_Contexts is
    function Null_Node (Ctx : Eval_Context) return AST_Node_Rc is
       (Ctx.Kernel.Null_Node);
 
-   ----------------------------
-   -- Error_Recovery_Enabled --
-   ----------------------------
-
-   function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean is
-     (Ctx.Kernel.Error_Recovery_Enabled);
-
    ---------------
    -- AST_Roots --
    ---------------
@@ -201,15 +194,15 @@ package body LKQL.Eval_Contexts is
    function Make_Eval_Context
      (Ast_Roots    : AST_Node_Array;
       Null_Node    : AST_Node_Rc;
-      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
-      Err_Recovery : Boolean := False) return Eval_Context
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
+      return Eval_Context
    is
       use L;
 
       Roots : constant AST_Node_Array_Access := new AST_Node_Array'(Ast_Roots);
       Kernel : constant Global_Data_Access :=
         new Global_Data'
-          (Roots, Null_Node, Make_Empty_Error, Err_Recovery,
+          (Roots, Null_Node, Make_Empty_Error,
            (if Analysis_Ctx = L.No_Analysis_Context
             then L.Create_Context
             else Analysis_Ctx), LKQL_Path_List => <>);

@@ -257,8 +257,6 @@ package body LKQL.Evaluation is
       for Child of Node.Children loop
          begin
             Result := Eval (Ctx, Child);
-         exception
-            when Recoverable_Error => null;
          end;
       end loop;
 

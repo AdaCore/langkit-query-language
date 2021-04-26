@@ -121,8 +121,8 @@ package Ada_AST_Nodes is
 
    function Make_Eval_Context
      (Units        : Unit_Vectors.Vector;
-      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
-      Err_Recovery : Boolean := False) return Eval_Context;
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
+      return Eval_Context;
 
    function Data_Reference_For_Name (Receiver : Ada_AST_Node;
                                      Name     : Text_Type)

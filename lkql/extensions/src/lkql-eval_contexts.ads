@@ -118,9 +118,6 @@ package LKQL.Eval_Contexts is
    function Null_Node (Ctx : Eval_Context) return AST_Node_Rc;
    --  Return the node produced by a "null" literal
 
-   function Error_Recovery_Enabled (Ctx : Eval_Context) return Boolean;
-   --  Return whether the error recovery mechanism is enabled
-
    function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access;
    --  Return the evaluation context's AST root
 
@@ -160,8 +157,8 @@ package LKQL.Eval_Contexts is
    function Make_Eval_Context
      (Ast_Roots    : AST_Node_Array;
       Null_Node    : AST_Node_Rc;
-      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context;
-      Err_Recovery : Boolean := False) return Eval_Context;
+      Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
+      return Eval_Context;
    --  Create a new Eval_Context with the given Ast_Root and error recovery
    --  flag. If passed an analysis context, use this instead of creating one.
 
@@ -200,10 +197,6 @@ private
 
       Last_Error : Error_Data := Make_Empty_Error;
       --  Store data about the last error, if any.
-
-      Error_Recovery_Enabled : Boolean := False;
-      --  If true, the user will be asked if he wants to resume execution upon
-      --  encountering an error.
 
       Context : L.Analysis_Context;
       --  LKQL analysis context, used to hold data of the prelude
