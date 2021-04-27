@@ -162,7 +162,6 @@ class App(object):
                 self.write('--------------------------------')
                 self.write('')
                 self.generate_module_doc(module_symbols, module_name)
-                print(self.get_output())
 
 
 if __name__ == '__main__':
