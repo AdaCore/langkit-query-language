@@ -1,4 +1,4 @@
-pos.adb:11:16: error: use named notation when passing actual to defaulted parameter
+pos.adb:11:16: rule violation: use named notation when passing actual to defaulted parameter
 11 |    Proc (Var1, Var2);   --  FLAG
    |                ^^^^ 
 

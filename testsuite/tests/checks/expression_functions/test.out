@@ -1,8 +1,8 @@
-foo.ads:2:13: error: expression function
+foo.ads:2:13: rule violation: expression function
 2 |    function F (I : Integer) return Integer is   --  FLAG
   |             ^ 
 
-foo.ads:6:13: error: expression function
+foo.ads:6:13: rule violation: expression function
 6 |    function F2 return Boolean is  --  FLAG
   |             ^^ 
 

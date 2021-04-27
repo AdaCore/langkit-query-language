@@ -1,16 +1,16 @@
-test_specific_pre_post.ads:9:14: error: definition of non class-wide aspect
+test_specific_pre_post.ads:9:14: rule violation: definition of non class-wide aspect
 9 |    procedure Proc1 (X : in out T)           --  FLAG
   |              ^^^^^ 
 
-test_specific_pre_post.ads:12:14: error: definition of non class-wide aspect
+test_specific_pre_post.ads:12:14: rule violation: definition of non class-wide aspect
 12 |    procedure Proc2 (X : in out T)           --  FLAG
    |              ^^^^^ 
 
-test_specific_pre_post.ads:15:13: error: definition of non class-wide aspect
+test_specific_pre_post.ads:15:13: rule violation: definition of non class-wide aspect
 15 |    function Fun1 (X : T) return Integer     --  FLAG
    |             ^^^^ 
 
-test_specific_pre_post.ads:23:13: error: definition of non class-wide aspect
+test_specific_pre_post.ads:23:13: rule violation: definition of non class-wide aspect
 23 |    function Fun3 (X : T) return Integer     --  FLAG
    |             ^^^^ 
 

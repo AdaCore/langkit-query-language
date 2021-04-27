@@ -24,6 +24,7 @@
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
@@ -50,6 +51,7 @@ with LKQL.Errors; use LKQL.Errors;
 with Liblkqllang.Analysis;
 
 with GNAT.Traceback.Symbolic;
+with GNATCOLL.Terminal; use GNATCOLL.Terminal;
 
 package body Checker_App is
 
@@ -367,36 +369,80 @@ package body Checker_App is
                            Langkit_Support.Diagnostics.Output.Print_Diagnostic
                              (Diag.Diag,
                               Diag.Unit,
-                              Simple_Name (Diag.Unit.Get_Filename));
+                              Simple_Name (Diag.Unit.Get_Filename),
+                              Style => Output.Diagnostic_Style'
+                                (Label => To_Unbounded_Text ("rule violation"),
+                                 Color => Yellow));
                         end;
                   end case;
                end if;
             exception
-               when E : Property_Error =>
-                  case Property_Error_Recovery is
-                  when Continue_And_Log =>
-                     Eval_Trace.Trace ("Evaluating rule predicate failed");
-                     Eval_Trace.Trace
-                       ("rule => " & Image (To_Text (Rule.Name)));
-                     Eval_Trace.Trace
-                       ("ada node => " & Node.Image);
+               when LKQL.Errors.Stop_Evaluation_Error =>
 
-                     Eval_Trace.Trace (Exception_Information (E));
-                     Eval_Trace.Trace
-                       (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+                  declare
+                     Data : constant Error_Data := Ctx.Last_Error;
+                     Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
+                     Diag : constant Langkit_Support.Diagnostics.Diagnostic
+                       := (Sloc_Range => Node.Sloc_Range,
+                           Message    => Data.Short_Message);
+                     E    : Exception_Occurrence_Access
+                       := Data.Property_Error_Info;
 
-                  when Continue_And_Warn =>
-                     --  TODO: Use Langkit_Support.Diagnostics.Output
-                     Put_Line
-                       (Standard_Error, "Evaluating rule predicate failed");
-                     Put_Line
-                       (Standard_Error, "rule => " & To_Text (Rule.Name));
-                     Put_Line
-                       (Standard_Error, "ada node => " & To_Text (Node.Image));
-                  when Raise_Error =>
-                     raise;
-                  end case;
+                     procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+                       (Exception_Occurrence, Exception_Occurrence_Access);
+                  begin
 
+                     case Property_Error_Recovery is
+                     when Continue_And_Log =>
+
+                        Eval_Trace.Trace ("Evaluating rule predicate failed");
+                        Eval_Trace.Trace
+                          ("rule => " & Image (To_Text (Rule.Name)));
+                        Eval_Trace.Trace
+                          ("ada node => " & Node.Image);
+
+                        if E /= null then
+                           Eval_Trace.Trace (Exception_Information (E.all));
+                           Eval_Trace.Trace
+                             (GNAT.Traceback.Symbolic.Symbolic_Traceback
+                                (E.all));
+                        end if;
+                     when Continue_And_Warn =>
+                        Put ("ERROR! evaluating rule predicate failed");
+
+                        if E /= null then
+                           Put_Line (" in a property call");
+                        end if;
+                        Put_Line (" on node => " & To_Text (Node.Image));
+
+                        Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                          (Self        => Diag,
+                           Buffer      => Node.Unit,
+                           Path        => Node.Unit.Get_Filename,
+                           Output_File => Standard_Error);
+
+                        if E /= null then
+                           Ada.Text_IO.Put_Line
+                             (Ada.Text_IO.Standard_Error,
+                              Exception_Information (E.all));
+
+                           Ada.Text_IO.Put_Line
+                             (Ada.Text_IO.Standard_Error,
+                              GNAT.Traceback.Symbolic.Symbolic_Traceback
+                                (E.all));
+                        end if;
+
+                     when Raise_Error =>
+                        raise;
+                     end case;
+
+                     --  If we didn't raise and there is exception information
+                     --  linked to a wrapped property error, free it.
+                     if E /= null then
+                        Unchecked_Free (E);
+                     end if;
+
+                  end;
                when E : others =>
                   Put_Line
                     (Standard_Error,

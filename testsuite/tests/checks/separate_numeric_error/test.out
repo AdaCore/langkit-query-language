@@ -1,8 +1,8 @@
-exc.adb:6:12: error: Constraint_Error is handled separately from Numeric_Error
+exc.adb:6:12: rule violation: Constraint_Error is handled separately from Numeric_Error
 6 |       when Numeric_Error =>   --  FLAG
   |            ^^^^^^^^^^^^^ 
 
-exc.adb:18:9: error: Constraint_Error is handled separately from Numeric_Error
+exc.adb:18:9: rule violation: Constraint_Error is handled separately from Numeric_Error
 18 |    when Constraint_Error =>   --  FLAG
    |         ^^^^^^^^^^^^^^^^ 
 

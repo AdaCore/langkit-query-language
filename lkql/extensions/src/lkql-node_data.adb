@@ -26,6 +26,7 @@ with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 with Ada.Exceptions; use Ada.Exceptions;
+with Langkit_Support.Errors;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -219,6 +220,17 @@ package body LKQL.Node_Data is
          Raise_And_Record_Error
            (Ctx, Make_Eval_Error (Args.Parent,
             To_Text (Exception_Message (Error))));
+      when Error : Langkit_Support.Errors.Property_Error =>
+
+         --  Wrap property errors in regular LKQL eval errors.
+         Raise_And_Record_Error
+           (Ctx,
+            Make_Eval_Error
+              (Args.Parent,
+               To_Text ("PROPERTY_ERROR:" & Exception_Message (Error)),
+               --  We embed the property error information in the eval error
+               --  data.
+               Property_Error_Info => Save_Occurrence (Error)));
    end Eval_Node_Property;
 
 end LKQL.Node_Data;

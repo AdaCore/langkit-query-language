@@ -1,28 +1,28 @@
-expr_p.adb:3:13: error: recursive subprogram
+expr_p.adb:3:13: rule violation: recursive subprogram
 3 |    function Expr return Boolean is  --  FLAG
   |             ^^^^ 
 
-expr_p.ads:2:13: error: recursive subprogram
+expr_p.ads:2:13: rule violation: recursive subprogram
 2 |    function G return Boolean;          --  FLAG
   |             ^ 
 
-expr_p.ads:5:13: error: recursive subprogram
+expr_p.ads:5:13: rule violation: recursive subprogram
 5 |    function F return Boolean is (G);   --  FLAG
   |             ^ 
 
-simple.adb:1:10: error: recursive subprogram
+simple.adb:1:10: rule violation: recursive subprogram
 1 | function Factorial (N : Natural) return Positive is  --  FLAG
   |          ^^^^^^^^^ 
 
-transitive.adb:2:14: error: recursive subprogram
+transitive.adb:2:14: rule violation: recursive subprogram
 2 |    procedure Foo;  --  FLAG
   |              ^^^ 
 
-transitive.adb:3:14: error: recursive subprogram
+transitive.adb:3:14: rule violation: recursive subprogram
 3 |    procedure Bar;  --  FLAG
   |              ^^^ 
 
-transitive.adb:4:14: error: recursive subprogram
+transitive.adb:4:14: rule violation: recursive subprogram
 4 |    procedure Baz;  --  FLAG
   |              ^^^ 
 

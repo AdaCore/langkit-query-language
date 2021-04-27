@@ -1,12 +1,12 @@
-test.adb:2:4: error: identifier too long
+test.adb:2:4: rule violation: identifier too long
 2 |    This_Is_A_Very_Very_Very_Long_Variable_Name : Integer := 42;  --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
-test.adb:4:14: error: identifier too long
+test.adb:4:14: rule violation: identifier too long
 4 |    procedure This_Is_A_Very_Very_Very_Long_Subprogam_Name is null;  --  FLAG
   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
-test.adb:6:9: error: identifier too long
+test.adb:6:9: rule violation: identifier too long
 6 |    type This_Is_A_Very_Very_Very_Long_Type_Name is null record;  --  FLAG
   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

@@ -1,32 +1,32 @@
-access_to_local_objects.adb:12:32: error: access attribute for local objects
+access_to_local_objects.adb:12:32: rule violation: access attribute for local objects
 12 |        Var2 :         Int_A := Var1'Access;  --  FLAG
    |                                ^^^^^^^^^^^ 
 
-access_to_local_objects.adb:18:34: error: access attribute for local objects
+access_to_local_objects.adb:18:34: rule violation: access attribute for local objects
 18 |           Local_Var : Int_A_P := Input'Access; -- FLAG
    |                                  ^^^^^^^^^^^^ 
 
-access_to_local_objects.adb:32:25: error: access attribute for local objects
+access_to_local_objects.adb:32:25: rule violation: access attribute for local objects
 32 |        Var10 : Int_A := Local_Int_Pkg.Int'Access; -- FLAG
    |                         ^^^^^^^^^^^^^^^^^^^^^^^^ 
 
-access_to_local_objects.adb:35:25: error: access attribute for local objects
+access_to_local_objects.adb:35:25: rule violation: access attribute for local objects
 35 |        Var11 : Int_A := Local_Nested_Int_Pkg.Child.Int'Access; -- FLAG
    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
-access_to_local_objects.adb:44:24: error: access attribute for local objects
+access_to_local_objects.adb:44:24: rule violation: access attribute for local objects
 44 |        Var5 : Int_A := Var4'Access;   -- FLAG
    |                        ^^^^^^^^^^^ 
 
-access_to_local_objects.adb:58:25: error: access attribute for local objects
+access_to_local_objects.adb:58:25: rule violation: access attribute for local objects
 58 |            P : Int_A := Local'Access; -- FLAG
    |                         ^^^^^^^^^^^^ 
 
-access_to_local_objects.adb:71:45: error: access attribute for local objects
+access_to_local_objects.adb:71:45: rule violation: access attribute for local objects
 71 |        Local_Record_A : Local_Record_A_T := Local_Record'Access; -- FLAG
    |                                             ^^^^^^^^^^^^^^^^^^^ 
 
-access_to_local_objects.adb:72:37: error: access attribute for local objects
+access_to_local_objects.adb:72:37: rule violation: access attribute for local objects
 72 |        Local_Record_Comp : Int_A := Local_Record.I'Access; -- FLAG
    |                                     ^^^^^^^^^^^^^^^^^^^^^ 
 

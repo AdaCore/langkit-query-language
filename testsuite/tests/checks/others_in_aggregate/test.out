@@ -1,24 +1,24 @@
-other.ads:23:39: error: OTHERS choice in aggregate
+other.ads:23:39: rule violation: OTHERS choice in aggregate
 23 |    Arr_Var2 : Arr := (1 => 1, 2 => 2, others => 0); --  FLAG
    |                                       ^^^^^^ 
 
-other.ads:24:35: error: OTHERS choice in aggregate
+other.ads:24:35: rule violation: OTHERS choice in aggregate
 24 |    Arr_Var3 : Arr := (1 | 2 => 1, others => 0);     --  FLAG
    |                                   ^^^^^^ 
 
-other.ads:25:36: error: OTHERS choice in aggregate
+other.ads:25:36: rule violation: OTHERS choice in aggregate
 25 |    Arr_Var4 : Arr := (1 .. 2 => 1, others => 0);    --  FLAG
    |                                    ^^^^^^ 
 
-other.ads:26:34: error: OTHERS choice in aggregate
+other.ads:26:34: rule violation: OTHERS choice in aggregate
 26 |    Arr_Var5 : Arr := (Most => 1, others => 0);      --  FLAG
    |                                  ^^^^^^ 
 
-other.ads:29:29: error: OTHERS choice in aggregate
+other.ads:29:29: rule violation: OTHERS choice in aggregate
 29 |    Rec_Var2 : Rec := (1, 2, others => 3);           --  FLAG
    |                             ^^^^^^ 
 
-other.ads:33:64: error: OTHERS choice in aggregate
+other.ads:33:64: rule violation: OTHERS choice in aggregate
 33 |    New_Tagged_Rec_Var : New_Tagged_Rec := (Tagged_Rec_Var with others => 0); -- FLAG
    |                                                                ^^^^^^ 
 

@@ -21,6 +21,8 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions; use Ada.Exceptions;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 package LKQL.Errors is
@@ -65,6 +67,11 @@ package LKQL.Errors is
 
             Short_Message : Unbounded_Text_Type;
             --  A short description of the error
+
+            Property_Error_Info : Exception_Occurrence_Access := null;
+            --  If the raised error encapsulates a property error, this will
+            --  contain an access to the property error exception occurence.
+            --  Else, will be null.
       end case;
    end record;
    --  Store an error value.
@@ -77,9 +84,11 @@ package LKQL.Errors is
 
    function Make_Empty_Error return Error_Data;
 
-   function Make_Eval_Error (AST_Node      : L.LKQL_Node'Class;
-                             Short_Message : Text_Type)
-                             return Error_Data;
+   function Make_Eval_Error
+     (AST_Node            : L.LKQL_Node'Class;
+      Short_Message       : Text_Type;
+      Property_Error_Info : Exception_Occurrence_Access := null)
+      return Error_Data;
    --  Create an error value of kind Eval_Error
 
 end LKQL.Errors;

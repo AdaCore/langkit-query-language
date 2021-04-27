@@ -1,12 +1,12 @@
-predicates.ads:13:35: error: expression needs subtype predicate evaluation
+predicates.ads:13:35: rule violation: expression needs subtype predicate evaluation
 13 |    B1 : Boolean := Ident (101) in Even;            --  FLAG
    |                                   ^^^^ 
 
-predicates.ads:14:35: error: expression needs subtype predicate evaluation
+predicates.ads:14:35: rule violation: expression needs subtype predicate evaluation
 14 |    B2 : Boolean := Ident (101) in Small_Even;      --  FLAG
    |                                   ^^^^^^^^^^ 
 
-predicates.ads:15:20: error: expression needs subtype predicate evaluation
+predicates.ads:15:20: rule violation: expression needs subtype predicate evaluation
 15 |    B3 : Boolean := Obj'Valid;                      --  FLAG
    |                    ^^^^^^^^^ 
 

@@ -1,4 +1,4 @@
-exit_stmt_no_loop_name.adb:4:7: error: exit statement with no loop name
+exit_stmt_no_loop_name.adb:4:7: rule violation: exit statement with no loop name
 4 |       exit when I < J;  --  FLAG
   |       ^^^^^^^^^^^^^^^^ 
 

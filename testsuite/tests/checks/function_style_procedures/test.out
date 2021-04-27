@@ -1,8 +1,8 @@
-function_style_procedures.ads:3:14: error: procedure can be rewritten as function
+function_style_procedures.ads:3:14: rule violation: procedure can be rewritten as function
 3 |    procedure P (R : out Integer);  -- FLAG
   |              ^ 
 
-function_style_procedures.ads:9:14: error: procedure can be rewritten as function
+function_style_procedures.ads:9:14: rule violation: procedure can be rewritten as function
 9 |    procedure P_Non_Limited_Rec (R : out Non_Limited_Rec);  -- FLAG
   |              ^^^^^^^^^^^^^^^^^ 
 

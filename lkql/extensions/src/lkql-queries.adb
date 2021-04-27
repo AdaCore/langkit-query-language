@@ -96,11 +96,10 @@ package body LKQL.Queries is
                            --  potentially useful, and is not possible yet.
                            Raise_And_Record_Error
                              (Ctx,
-                              (Eval_Error,
-                               Node.F_From_Expr.As_LKQL_Node,
-                               To_Unbounded_Text
-                                 ("Wrong kind of element in list for "
-                                  & "`from clause`")));
+                              Make_Eval_Error
+                                (Node.F_From_Expr.As_LKQL_Node,
+                                 "Wrong kind of element in list for "
+                                 & "`from clause`"));
                         end if;
                         Vec.Append (El.Get.Node_Val);
                      end loop;
@@ -109,10 +108,9 @@ package body LKQL.Queries is
                   when others =>
                      Raise_And_Record_Error
                        (Ctx,
-                        (Eval_Error,
-                         Node.F_From_Expr.As_LKQL_Node,
-                         To_Unbounded_Text
-                           ("Wrong kind of element in `from clause`")));
+                        Make_Eval_Error
+                          (Node.F_From_Expr.As_LKQL_Node,
+                           "Wrong kind of element in `from clause`"));
                end case;
 
                return new AST_Node_Iterator'Class'

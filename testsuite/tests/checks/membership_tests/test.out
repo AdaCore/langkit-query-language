@@ -1,4 +1,4 @@
-membership.adb:3:7: error: membership test
+membership.adb:3:7: rule violation: membership test
 3 |    if S in 1 .. 5 | 9 then      --  FLAG
   |       ^^^^^^^^^^^^^^^ 
 

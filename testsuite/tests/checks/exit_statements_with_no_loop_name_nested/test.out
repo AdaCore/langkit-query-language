@@ -1,4 +1,4 @@
-nested.adb:5:10: error: exit statement with no loop name
+nested.adb:5:10: rule violation: exit statement with no loop name
 5 |          exit when I < J;  --  FLAG
   |          ^^^^^^^^^^^^^^^^ 
 

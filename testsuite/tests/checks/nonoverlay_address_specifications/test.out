@@ -1,4 +1,4 @@
-overlay.adb:11:24: error: nonoverlay address specification
+overlay.adb:11:24: rule violation: nonoverlay address specification
 11 |    Var2 : Integer with Address => Var_Rec.C'Address;  --  FLAG
    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

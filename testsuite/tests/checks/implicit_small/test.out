@@ -1,4 +1,4 @@
-decls.ads:3:9: error: fixed point type declaration with no 'Small clause
+decls.ads:3:9: rule violation: fixed point type declaration with no 'Small clause
 3 |    type Fraction1 is delta 0.01 range -1.0 .. 1.0; --  FLAG
   |         ^^^^^^^^^ 
 

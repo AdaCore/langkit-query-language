@@ -120,11 +120,14 @@ package body LKQL.Errors is
    -- Make_Eval_Error --
    ---------------------
 
-   function Make_Eval_Error (AST_Node      : L.LKQL_Node'Class;
-                             Short_Message : Text_Type)
-                             return Error_Data
-   is (Kind          => Eval_Error,
-       AST_Node      => AST_Node.As_LKQL_Node,
-       Short_Message => To_Unbounded_Text (Short_Message));
+   function Make_Eval_Error
+     (AST_Node            : L.LKQL_Node'Class;
+      Short_Message       : Text_Type;
+      Property_Error_Info : Exception_Occurrence_Access := null)
+      return Error_Data
+   is (Kind                => Eval_Error,
+       AST_Node            => AST_Node.As_LKQL_Node,
+       Short_Message       => To_Unbounded_Text (Short_Message),
+       Property_Error_Info => Property_Error_Info);
 
 end LKQL.Errors;

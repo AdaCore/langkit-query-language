@@ -1,16 +1,16 @@
-complex.adb:5:14: error: complex inlined subprogram
+complex.adb:5:14: rule violation: complex inlined subprogram
 5 |    procedure Swap (I, J : in out Integer) is   --  FLAG
   |              ^^^^ 
 
-complex.adb:18:14: error: complex inlined subprogram
+complex.adb:18:14: rule violation: complex inlined subprogram
 18 |    procedure Has_Decl with Inline is   --  FLAG
    |              ^^^^^^^^ 
 
-complex.adb:30:14: error: complex inlined subprogram
+complex.adb:30:14: rule violation: complex inlined subprogram
 30 |    procedure Many_Stmts is   --  FLAG
    |              ^^^^^^^^^^ 
 
-complex.adb:57:14: error: complex inlined subprogram
+complex.adb:57:14: rule violation: complex inlined subprogram
 57 |    procedure Inst_Proc is new Gen_Proc with Inline;   --  FLAG
    |              ^^^^^^^^^ 
 

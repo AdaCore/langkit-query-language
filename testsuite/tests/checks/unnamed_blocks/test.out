@@ -1,20 +1,20 @@
-blocks.adb:5:7: error: non-named block/loop statement
+blocks.adb:5:7: rule violation: non-named block/loop statement
 5 |       declare                                  --  FLAG
   |       ^^^^ 
 
-blocks.adb:10:10: error: non-named block/loop statement
+blocks.adb:10:10: rule violation: non-named block/loop statement
 10 |          for J in S'Range loop                 --  FLAG
    |          ^^^^^^^^^ 
 
-blocks.adb:14:13: error: non-named block/loop statement
+blocks.adb:14:13: rule violation: non-named block/loop statement
 14 |             for K in S'Range loop              --  FLAG
    |             ^^^^^^^^^ 
 
-blocks.adb:22:4: error: non-named block/loop statement
+blocks.adb:22:4: rule violation: non-named block/loop statement
 22 |    begin          --  FLAG
    |    ^^^^ 
 
-blocks.adb:31:7: error: non-named block/loop statement
+blocks.adb:31:7: rule violation: non-named block/loop statement
 31 |       loop        --  FLAG
    |       ^^^^^^^^^ 
 
