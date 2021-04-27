@@ -1,0 +1,2 @@
+# Call to children selector with no args
+print(children())

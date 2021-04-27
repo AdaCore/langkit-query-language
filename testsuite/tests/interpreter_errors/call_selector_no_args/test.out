@@ -1,0 +1,4 @@
+script.lkql:2:7: error: Selector call should have a node argument
+2 | print(children())
+  |       ^^^^^^^^^^ 
+
