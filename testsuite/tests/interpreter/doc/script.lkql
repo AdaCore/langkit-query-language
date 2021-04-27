@@ -1,0 +1,3 @@
+print(doc(print))
+print(doc(doc))
+print(doc(children))
