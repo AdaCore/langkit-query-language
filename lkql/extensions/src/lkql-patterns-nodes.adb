@@ -290,7 +290,7 @@ package body LKQL.Patterns.Nodes is
    overriding function Clone
      (Self : Node_Pattern_Predicate) return Node_Pattern_Predicate
    is
-     (Self.Ctx.Clone_Frame, Self.Pattern);
+     (Self.Ctx.Ref_Frame, Self.Pattern);
 
    -------------
    -- Release --
@@ -309,7 +309,7 @@ package body LKQL.Patterns.Nodes is
                                          Pattern    : L.Base_Pattern)
                                          return Node_Pattern_Predicate
    is
-      (Ctx.Clone_Frame, Pattern);
+      (Ctx.Ref_Frame, Pattern);
 
    ------------------------
    -- Match_Detail_Value --

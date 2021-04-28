@@ -64,7 +64,8 @@ package body LKQL.Chained_Pattern is
                               return Chained_Pattern_Iterator
    is
    begin
-      return (Ctx                    => Iter.Ctx.Clone_Frame,
+      Inc_Ref (Iter.Ctx.Frames);
+      return (Ctx                    => Iter.Ctx,
               Next_Values            => Iter.Next_Values,
               Pattern                => Iter.Pattern,
               Root_Nodes_Iterator =>
@@ -94,7 +95,8 @@ package body LKQL.Chained_Pattern is
       Pattern       : L.Chained_Node_Pattern) return Chained_Pattern_Iterator
    is
    begin
-      return (Ctx                    => Ctx.Clone_Frame,
+      Inc_Ref (Ctx.Frames);
+      return (Ctx                    => Ctx,
               Pattern                => Pattern,
               Root_Nodes_Iterator    => Root_Iterator,
               others => <>);

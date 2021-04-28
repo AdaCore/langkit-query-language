@@ -103,18 +103,11 @@ package body LKQL.Eval_Contexts is
    -- Clone --
    -----------
 
-   function Clone_Frame (Ctx : Eval_Context) return Eval_Context is
+   function Ref_Frame (Ctx : Eval_Context) return Eval_Context is
    begin
-      --  The cloned env holds a reference to its parent, so increment the ref
-      --  count.
-      if Ctx.Frames.Parent /= null then
-         Inc_Ref (Ctx.Frames.Parent);
-      end if;
-
-      return
-        (Kernel => Ctx.Kernel,
-         Frames => new Environment'(Ctx.Frames.all));
-   end Clone_Frame;
+      Inc_Ref (Ctx.Frames);
+      return Ctx;
+   end Ref_Frame;
 
    ----------------------
    -- Create_New_Frame --
@@ -133,6 +126,7 @@ package body LKQL.Eval_Contexts is
       --  The new env holds a reference to its parent, so increment the
       --  reference count.
       Inc_Ref (New_Env.Parent);
+
       return Eval_Context'(Ctx.Kernel, New_Env);
    end Create_New_Frame;
 

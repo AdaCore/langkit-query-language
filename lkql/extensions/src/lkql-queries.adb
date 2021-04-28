@@ -130,7 +130,7 @@ package body LKQL.Queries is
                  Node.F_Pattern.P_Value_Part.As_Chained_Node_Pattern);
          begin
             return Chained_Pattern_Query_Iter'
-              (Ctx       => Ctx.Clone_Frame,
+              (Ctx       => Ctx.Ref_Frame,
                Iter      => Chained);
          end;
       when others =>
@@ -153,7 +153,7 @@ package body LKQL.Queries is
       return Query_Predicate_Access
    is
    begin
-      return new Query_Predicate'(Ctx.Clone_Frame, Pattern);
+      return new Query_Predicate'(Ctx.Ref_Frame, Pattern);
    end Make_Query_Predicate;
 
    --------------
@@ -244,7 +244,7 @@ package body LKQL.Queries is
    overriding function Clone (Iter : Chained_Pattern_Query_Iter)
                               return Chained_Pattern_Query_Iter
    is
-     (Iter.Ctx.Clone_Frame, Iter.Iter.Clone);
+     (Iter.Ctx.Ref_Frame, Iter.Iter.Clone);
 
    -------------
    -- Release --

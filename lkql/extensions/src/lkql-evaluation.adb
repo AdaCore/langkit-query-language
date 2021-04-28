@@ -1041,7 +1041,7 @@ package body LKQL.Evaluation is
      (Ctx : Eval_Context; Body_Expr : L.Expr) return Closure
    is
    begin
-      return Closure'(Ctx.Clone_Frame, Body_Expr);
+      return Closure'(Ctx.Ref_Frame, Body_Expr);
    end Make_Closure;
 
    --------------

@@ -121,7 +121,7 @@ package LKQL.Eval_Contexts is
    function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access;
    --  Return the evaluation context's AST root
 
-   function Clone_Frame (Ctx : Eval_Context) return Eval_Context;
+   function Ref_Frame (Ctx : Eval_Context) return Eval_Context;
    --  Make a deep copy of the current frame
 
    function Create_New_Frame (Ctx            : Eval_Context;
