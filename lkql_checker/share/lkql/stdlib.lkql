@@ -140,6 +140,21 @@ fun enclosing_body(n) = {
     if bodies.length == 0 then null else bodies[1]
 }
 
+fun is_classwide_type(t) =
+    |" Return true if t is a classwide TypeDecl.
+    |" TODO: move to LAL
+    t is ClasswideTypeDecl or
+         BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+
+fun is_controlling_param_type(t) =
+    |" Return true if t is a TypeExpr corresponding to a controlling parameter
+    |" TODO: move this to LAL
+    t is TypeExpr(p_designated_type_decl() is d@BaseTypeDecl)
+    when (d?.p_is_tagged_type() and not is_classwide_type(d)) or
+         (d is AnonymousTypeDecl and
+          d?.p_accessed_type()?.p_is_tagged_type() and
+          not is_classwide_type(d?.p_accessed_type()))
+
 # Return all children nodes starting from a base subprogram body, but not
 # entering in nested subprogram bodies.
 selector children_no_nested_subps

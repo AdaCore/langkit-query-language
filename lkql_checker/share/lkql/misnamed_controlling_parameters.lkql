@@ -1,0 +1,25 @@
+# Flag a declaration of a dispatching operation, if the first parameter is not
+# a controlling one and its name is not This (the check for parameter name is
+# not case-sensitive). Declarations of dispatching functions with a controlling
+# result and no controlling parameter are never flagged.
+# A subprogram body declaration, subprogram renaming declaration, or subprogram
+# body stub is flagged only if it is not a completion of a prior subprogram
+# declaration.
+
+import stdlib
+
+@check(message="first parameter should have name 'This' and proper type")
+fun misnamed_controlling_parameters(node) =
+    node is (BasicSubpDecl or
+             BaseSubpBody(p_previous_part() is null) or
+             SubpBodyStub(p_previous_part() is null))
+    # Get subprogram declarations that are primitive of a tagged type
+    when node.p_subp_spec_or_null() is
+         spec@BaseSubpSpec(p_primitive_subp_tagged_type() is BaseTypeDecl)
+     when {
+         val params = spec?.p_params();
+         params.length > 0 and (not
+         (params[1]?.f_ids[1]?.f_name?.p_name_is("this") and
+          stdlib.is_controlling_param_type(params[1]?.f_type_expr))) and not
+         stdlib.is_controlling_param_type(spec?.p_returns())
+     }
