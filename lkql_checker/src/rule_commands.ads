@@ -79,7 +79,10 @@ package Rule_Commands is
       --  separate frame, so as to not leak identifier from one rule to the
       --  other.
 
-      Kind_Pattern : L.Node_Kind_Pattern;
+      Kind_Pattern  : L.Node_Kind_Pattern;
+
+      Follow_Instantiations : Boolean;
+      --  Whether we should follow generic instantiations or not for this rule.
    end record;
 
    type Output_Style is (Default, GNATcheck);

@@ -80,6 +80,15 @@ package body Checker_App is
 
    Computed_Cached_Rules : Boolean := False;
 
+   Traverse_Instantiations : Boolean := False;
+   --  Whether we should traverse generic instantiations. This will be set to
+   --  true if there is one rule in the active set of rules that requires it.
+   --  This is used so we don't traverse generic instantiations if no rule
+   --  requires it.
+
+   --  TODO: All the above variables should be stored in a global context
+   --  (U430-019).
+
    -----------
    -- Rules --
    -----------
@@ -160,6 +169,12 @@ package body Checker_App is
             for I in Cached_Rules'Range loop
                Cached_Rules (I).Append (Rule);
             end loop;
+         end if;
+
+         --  If we have one rule that needs to follow instantiations, then set
+         --  the traversal to traverse them.
+         if Rule.Follow_Instantiations then
+            Traverse_Instantiations := True;
          end if;
       end Append_Rule;
 
@@ -284,6 +299,10 @@ package body Checker_App is
    is
       pragma Unreferenced (Context);
 
+      In_Generic_Instantiation : Boolean := False;
+      --  Track whether we are in the traversal of a generic instantiation, to
+      --  only call rules that want to follow generic instantiations.
+
       function Visit (Node : Ada_Node'Class) return Visit_Status;
 
       -----------
@@ -294,13 +313,48 @@ package body Checker_App is
          Result  : Primitive;
          Rc_Node : constant AST_Node_Rc :=
            Make_Ada_AST_Node (Node.As_Ada_Node);
+         In_Generic_Instantiation_Old_Val : Boolean;
       begin
          --  We add the binding to "node" to the root frame, so that it's
          --  accessible to every rule in its sub context. This is a bit
          --  hackish admittedly.
          Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
 
+         if Traverse_Instantiations
+           and then Node.Kind in Ada_Generic_Instantiation
+         then
+            --  Save old value, and set In_Generic_Instantiation to true
+            In_Generic_Instantiation_Old_Val := In_Generic_Instantiation;
+            In_Generic_Instantiation := True;
+            Traverse
+              (Node.As_Generic_Instantiation.P_Designated_Generic_Decl,
+               Visit'Access);
+
+            --  Also traverse the body of the generic, if there is one
+            declare
+               Generic_Body : constant Body_Node :=
+                 Node.As_Generic_Instantiation
+                   .P_Designated_Generic_Decl.P_Body_Part_For_Decl;
+            begin
+               if not Generic_Body.Is_Null then
+                  Traverse
+                    (Generic_Body, Visit'Access);
+               end if;
+            end;
+
+            --  Restore old value
+            In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
+
+         end if;
+
          for Rule of Cached_Rules (Node.Kind) loop
+            --  If we are in a generic instantiation and the rule doesn't care
+            --  about them, bail out.
+            if In_Generic_Instantiation and then not Rule.Follow_Instantiations
+            then
+               goto Next;
+            end if;
+
             declare
                Result_Node : Ada_Node;
             begin
@@ -457,6 +511,8 @@ package body Checker_App is
                     (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
 
             end;
+
+            <<Next>>
          end loop;
 
          return Into;

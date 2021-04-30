@@ -109,17 +109,32 @@ package body Rule_Commands is
       end if;
 
       declare
-         Fn   : constant L.Fun_Decl := Check_Annotation.Parent.As_Fun_Decl;
-         Msg_Arg  : constant L.Arg :=
+         Fn                    : constant L.Fun_Decl
+           := Check_Annotation.Parent.As_Fun_Decl;
+         Msg_Arg               : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
-         Msg : Unbounded_Text_Type;
-         Name     : constant Text_Type := Fn.F_Name.Text;
+         Msg                   : Unbounded_Text_Type;
+         Name                  : constant Text_Type :=
+           Fn.F_Name.Text;
          Toplevel_Node_Pattern : L.Node_Kind_Pattern;
+
+         Follow_Instantiations_Arg : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name
+             (To_Unbounded_Text ("follow_generic_instantiations"));
+         Follow_Instantiations : Boolean := False;
          use LCO;
       begin
          Toplevel_Node_Pattern :=
            Find_Toplevel_Node_Kind_Pattern (Fn.F_Fun_Expr.F_Body_Expr);
          --  Get the message from the annotation if it exists
+
+         --  Get the "follow_generic_instantiations" settings if the user
+         --  specified one. By default it is false.
+         if not Follow_Instantiations_Arg.Is_Null then
+            Follow_Instantiations :=
+              Bool_Val
+                (Eval (Ctx, Follow_Instantiations_Arg.P_Expr, Kind_Bool));
+         end if;
 
          if not Msg_Arg.Is_Null then
             --  Make sure that the message is a string literal
@@ -138,14 +153,16 @@ package body Rule_Commands is
          end if;
 
          Rc := Rule_Command'
-           (Name          => To_Unbounded_Text (To_Lower (Name)),
-            Message       => Msg,
-            LKQL_Root     => Root,
-            Eval_Ctx      => Ctx.Create_New_Frame,
-            Rule_Args     => <>,
-            Is_Node_Check => Check_Annotation.F_Name.Text = "node_check",
-            Code          => <>,
-            Kind_Pattern  => Toplevel_Node_Pattern);
+           (Name                  => To_Unbounded_Text (To_Lower (Name)),
+            Message               => Msg,
+            LKQL_Root             => Root,
+            Eval_Ctx              => Ctx.Create_New_Frame,
+            Rule_Args             => <>,
+            Is_Node_Check         =>
+              Check_Annotation.F_Name.Text = "node_check",
+            Code                  => <>,
+            Kind_Pattern          => Toplevel_Node_Pattern,
+            Follow_Instantiations => Follow_Instantiations);
          return True;
       end;
    end Create_Rule_Command;
