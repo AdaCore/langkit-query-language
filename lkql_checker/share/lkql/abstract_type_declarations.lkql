@@ -4,9 +4,6 @@
 
 @check(message="declaration of abstract type")
 fun abstract_type_declarations(node) =
-    node is (
-          RecordTypeDef
-       or DerivedTypeDef
-       or PrivateTypeDef)
+    node is (RecordTypeDef or DerivedTypeDef or PrivateTypeDef)
     when node?.f_has_abstract?.p_as_bool()
 
