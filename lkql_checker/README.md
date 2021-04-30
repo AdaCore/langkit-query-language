@@ -5,49 +5,9 @@ Prototype checker/linter based on LKQL and Libadalang.
 The following instructions are to be interpreted in this `lkql_checker`
 repo subdirectory.
 
-## How to write checks
+You will find more information about how to write rules in the LKQL user
+manual.
 
-Checks are written in the LKQL language, and put in the
-[`share/lkql`](share/lkql) directory. Each `.lkql` file represents a distinct
-checker. The naming convention of the checkers is
-``lowercase_with_underscores``.
-
-Here is a simple checker example, that will just flag every body.
-
-```
-@check
-fun bodies(node) = node is Body
-```
-
-Adding this source in the `body.lkql` file in the `share/lkql` directory will
-add a check to LKQL checker dynamically, without need to recompile LKQL
-checker.
-
-### Boolean checks
-
-Boolean checks are functions that take a node and return a boolean. They
-usually contain an `is` pattern match as the main expression:
-
-```
-@check
-fun goto(node) = node is GotoStmt
-```
-
-But are not limited to this, and can contain arbitrary expressions as long as
-they return a boolean.
-
-### Node checks
-
-Node checks are functions that take a node and return another node or null.
-They allow more flexibility than boolean checks, but are a bit more verbose.
-Here is how you would express the above check with a `@node_check`:
-
-```
-@node_check
-fun goto(node) = case node is
-    | GotoStmt => node
-    | * => null
-```
 ## Running
 
 Running the checker will by default run all the checks. 
