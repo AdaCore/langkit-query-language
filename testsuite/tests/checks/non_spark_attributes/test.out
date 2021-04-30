@@ -1,4 +1,4 @@
-spark.adb:5:25: error: attribute is not from the SPARK subset
+spark.adb:5:25: rule violation: attribute is not from the SPARK subset
 5 |    Var_A : Integer_A := Var'Access;  --  FLAG
   |                         ^^^^^^^^^^ 
 

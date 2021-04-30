@@ -1,8 +1,8 @@
-max.ads:6:14: error: too many formal parameters
+max.ads:6:14: rule violation: too many formal parameters
 6 |    procedure Proc_4 (I, J, K, L : in out Integer); --  FLAG (if n is 3)
   |              ^^^^^^ 
 
-max.ads:8:13: error: too many formal parameters
+max.ads:8:13: rule violation: too many formal parameters
 8 |    function Fun_4                                  --  FLAG (if n is 3)
   |             ^^^^^ 
 

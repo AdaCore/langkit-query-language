@@ -1,8 +1,8 @@
-overlay.ads:4:21: error: not imported overlay
+overlay.ads:4:21: rule violation: not imported overlay
 4 |    J : Integer with Address => I'Address;  --  FLAG
   |                     ^^^^^^^^^^^^^^^^^^^^ 
 
-overlay.ads:6:4: error: not imported overlay
+overlay.ads:6:4: rule violation: not imported overlay
 6 |    for K'Address use I'Address;            --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

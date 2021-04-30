@@ -1,16 +1,16 @@
-deriv.ads:7:31: error: derived type that is not a type extension
+deriv.ads:7:31: rule violation: derived type that is not a type extension
 7 |    type Hidden_Coordinates is new Coordinates;   --  FLAG
   |                               ^^^^^^^^^^^^^^^ 
 
-deriv.ads:9:18: error: derived type that is not a type extension
+deriv.ads:9:18: rule violation: derived type that is not a type extension
 9 |    type T_Int is new Integer;                    --  FLAG
   |                  ^^^^^^^^^^^ 
 
-deriv.ads:21:21: error: derived type that is not a type extension
+deriv.ads:21:21: rule violation: derived type that is not a type extension
 21 |    type TD_Rec_2 is new T_Rec_2;                 --  FLAG
    |                     ^^^^^^^^^^^ 
 
-deriv.ads:32:21: error: derived type that is not a type extension
+deriv.ads:32:21: rule violation: derived type that is not a type extension
 32 |    type T_Priv_1 is new Positive range 1 .. 10;  --  FLAG
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

@@ -1,16 +1,16 @@
-pos.adb:3:7: error: prefix of 'POS attribute has enumeration type
+pos.adb:3:7: rule violation: prefix of 'POS attribute has enumeration type
 3 |    if Character'Pos (Ch1) in 32 .. 126           --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^ 
 
-pos.adb:5:7: error: prefix of 'POS attribute has enumeration type
+pos.adb:5:7: rule violation: prefix of 'POS attribute has enumeration type
 5 |       Character'Pos (Ch2) not in 0 .. 31         --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^ 
 
-pos.adb:7:13: error: prefix of 'POS attribute has enumeration type
+pos.adb:7:13: rule violation: prefix of 'POS attribute has enumeration type
 7 |       I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (twice)
   |             ^^^^^^^^^^^^^^^^^^^ 
 
-pos.adb:7:35: error: prefix of 'POS attribute has enumeration type
+pos.adb:7:35: rule violation: prefix of 'POS attribute has enumeration type
 7 |       I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (twice)
   |                                   ^^^^^^^^^^^^^^^^^^^ 
 

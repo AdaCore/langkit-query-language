@@ -1,4 +1,4 @@
-inv.ads:8:9: error: definition of non class-wide Type_Invariant aspect
+inv.ads:8:9: rule violation: definition of non class-wide Type_Invariant aspect
 8 |    with Type_Invariant => Test_TPT1 (TPT1);        --  FLAG
   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

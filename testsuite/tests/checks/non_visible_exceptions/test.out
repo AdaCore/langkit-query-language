@@ -1,40 +1,40 @@
-exception_declarations.adb:4:7: error: local exception not handled locally
+exception_declarations.adb:4:7: rule violation: local exception not handled locally
 4 |       Ex_1 : exception;                         --  FLAG
   |       ^^^^ 
 
-exception_declarations.adb:22:10: error: local exception not handled locally
+exception_declarations.adb:22:10: rule violation: local exception not handled locally
 22 |          Ex_5 : exception;                      --  FLAG
    |          ^^^^ 
 
-exception_declarations.adb:35:7: error: local exception not handled locally
+exception_declarations.adb:35:7: rule violation: local exception not handled locally
 35 |       Ex : exception;                           --  FLAG
    |       ^^ 
 
-exception_declarations.adb:50:7: error: local exception not handled locally
+exception_declarations.adb:50:7: rule violation: local exception not handled locally
 50 |       Ex_1 : exception;                         --  FLAG
    |       ^^^^ 
 
-exception_declarations.adb:60:7: error: local exception not handled locally
+exception_declarations.adb:60:7: rule violation: local exception not handled locally
 60 |       Ex : exception;                           --  FLAG
    |       ^^ 
 
-raise_statements.adb:18:13: error: local exception not handled locally
+raise_statements.adb:18:13: rule violation: local exception not handled locally
 18 |             raise;                              --  FLAG
    |             ^^^^^^ 
 
-raise_statements.adb:38:10: error: local exception not handled locally
+raise_statements.adb:38:10: rule violation: local exception not handled locally
 38 |          raise;                                 --  FLAG
    |          ^^^^^^ 
 
-raise_statements.adb:40:10: error: local exception not handled locally
+raise_statements.adb:40:10: rule violation: local exception not handled locally
 40 |          raise Ex_1;                            --  FLAG
    |          ^^^^^^^^^^^ 
 
-raise_statements.adb:49:10: error: local exception not handled locally
+raise_statements.adb:49:10: rule violation: local exception not handled locally
 49 |          raise Ex;                              --  FLAG
    |          ^^^^^^^^^ 
 
-raise_statements.adb:61:10: error: local exception not handled locally
+raise_statements.adb:61:10: rule violation: local exception not handled locally
 61 |          raise;                                 --  FLAG
    |          ^^^^^^ 
 

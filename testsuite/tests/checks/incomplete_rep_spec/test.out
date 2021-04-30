@@ -1,4 +1,4 @@
-rep.ads:2:9: error: record type with incomplete representation specification
+rep.ads:2:9: rule violation: record type with incomplete representation specification
 2 |    type Rec is record  --  FLAG
   |         ^^^ 
 

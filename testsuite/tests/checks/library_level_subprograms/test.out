@@ -1,8 +1,8 @@
-lib.adb:2:11: error: declaration of library level subprogram
+lib.adb:2:11: rule violation: declaration of library level subprogram
 2 | procedure Lib is                   --  FLAG
   |           ^^^ 
 
-lib2.adb:2:11: error: declaration of library level subprogram
+lib2.adb:2:11: rule violation: declaration of library level subprogram
 2 | procedure Lib2 is new Gen;
   |           ^^^^ 
 

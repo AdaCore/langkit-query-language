@@ -1,4 +1,4 @@
-prot.adb:6:10: error: assignment from protected body to outside object
+prot.adb:6:10: rule violation: assignment from protected body to outside object
 6 |          Var := I;           --  FLAG
   |          ^^^^^^^^^ 
 

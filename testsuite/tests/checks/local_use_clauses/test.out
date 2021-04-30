@@ -1,8 +1,8 @@
-uses.adb:4:4: error: local use clause
+uses.adb:4:4: rule violation: local use clause
 4 |    use Pack1;               --  FLAG
   |    ^^^^^^^^^^ 
 
-uses.adb:7:7: error: local use clause
+uses.adb:7:7: rule violation: local use clause
 7 |       use type Pack2.T;     --  FLAG (if Except_USE_TYPE_Clauses is not set)
   |       ^^^^^^^^^^^^^^^^^ 
 

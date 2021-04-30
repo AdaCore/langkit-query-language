@@ -1,20 +1,20 @@
-pack.adb:13:15: error: outside references from subprogram
+pack.adb:13:15: rule violation: outside references from subprogram
 13 |               K +                                  --  FLAG
    |               ^ 
 
-pack.adb:14:15: error: outside references from subprogram
+pack.adb:14:15: rule violation: outside references from subprogram
 14 |               J +                                  --  FLAG
    |               ^ 
 
-pack.adb:16:15: error: outside references from subprogram
+pack.adb:16:15: rule violation: outside references from subprogram
 16 |               Local_Rec.C;                         --  FLAG
    |               ^^^^^^^^^ 
 
-pack.adb:20:31: error: outside references from subprogram
+pack.adb:20:31: rule violation: outside references from subprogram
 20 |          I1 : Integer renames Var_Arr_Local_R;      --  FLAG
    |                               ^^^^^^^^^^^^^^^ 
 
-pack.adb:22:15: error: outside references from subprogram
+pack.adb:22:15: rule violation: outside references from subprogram
 22 |          I := I1;                                   --  FLAG
    |               ^^ 
 

@@ -1,8 +1,8 @@
-num.ads:3:4: error: number declaration
+num.ads:3:4: rule violation: number declaration
 3 |    Num1 : constant := 13;             --  FLAG
   |    ^^^^ 
 
-num.ads:4:4: error: number declaration
+num.ads:4:4: rule violation: number declaration
 4 |    Num2 : constant := 1.3;            --  FLAG
   |    ^^^^ 
 
