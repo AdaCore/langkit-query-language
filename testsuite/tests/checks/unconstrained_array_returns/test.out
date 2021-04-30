@@ -1,0 +1,32 @@
+generics.ads:6:13: rule violation: unconstrained array return
+6 |    function Image (X : Integer) return String;   --  will FLAG in instances
+  |             ^^^^^ 
+
+generics.ads:10:21: rule violation: unconstrained array return
+10 |       with function Map_Value (X : Integer) return Ret_Type;   --  FLAG
+   |                     ^^^^^^^^^ 
+
+generics.ads:12:15: rule violation: unconstrained array return
+12 |      function Map (X : Integer) return Ret_Type;    --  FLAG
+   |               ^^^ 
+
+straight.adb:9:13: rule violation: unconstrained array return
+9 |    function Blank return String is  -- FLAG
+  |             ^^^^^ 
+
+straight.adb:37:16: rule violation: unconstrained array return
+37 |       function My_Image (X : Integer) return String;  -- FLAG
+   |                ^^^^^^^^ 
+
+straight.adb:39:16: rule violation: unconstrained array return
+39 |       function My_Blank return String is -- FLAG
+   |                ^^^^^^^^ 
+
+straight.ads:2:13: rule violation: unconstrained array return
+2 |    function Image (X : Integer) return String;  -- FLAG
+  |             ^^^^^ 
+
+stub.adb:5:13: rule violation: unconstrained array return
+5 |    function Subp1 (I : Integer) return String; -- FLAG
+  |             ^^^^^ 
+

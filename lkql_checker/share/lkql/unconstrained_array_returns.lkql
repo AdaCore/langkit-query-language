@@ -1,0 +1,27 @@
+# Flag each function returning an unconstrained array. Function declarations,
+# function bodies (and body stubs) having no separate specifications, and
+# generic function instantiations are flagged. Function calls and function
+# renamings are not flagged.
+# Generic function declarations, and function declarations in generic packages,
+# are not flagged. Instead, this rule flags the results of generic
+# instantiations (that is, expanded specification and expanded body
+# corresponding to an instantiation).
+# This rule has the parameter Except_String: Do not flag functions that return
+# the predefined String type or a type derived from it, directly or indirectly.
+
+import stdlib
+
+@check(message="unconstrained array return", follow_generic_instantiations=true)
+fun unconstrained_array_returns(node, except_string = false) =
+    node is (ClassicSubpDecl or BaseSubpBody(p_previous_part() is null) or
+             GenericSubpInternal)
+    when (not stdlib.in_generic_template(node))
+     and node.f_subp_spec is SubpSpec(f_subp_returns is
+         TypeExpr(p_designated_type_decl() is
+                  t@TypeDecl(p_is_array_type() is true,
+                             f_type_def is
+                                 ArrayTypeDef(f_indices is
+                                              UnconstrainedArrayIndices))
+                  when not (except_string and
+                            t?.p_root_type()?.p_fully_qualified_name() ==
+                            "Standard.String")))
