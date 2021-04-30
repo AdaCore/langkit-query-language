@@ -2,5 +2,4 @@
 
 @check(message="unconstrained array definition")
 fun unconstrained_arrays(node) =
-    node is ArrayTypeDef
-    when node.f_indices is UnconstrainedArrayIndices
+    node is ArrayTypeDef(f_indices is UnconstrainedArrayIndices)
