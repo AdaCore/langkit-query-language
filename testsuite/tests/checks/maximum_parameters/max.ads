@@ -11,4 +11,6 @@ package Max is
       K : Integer;
       L : Integer) return Integer is (I + J * K - L);
 
+   procedure Proc_Ren (I, J, K, L : in out Integer) renames Proc_4;  --  NO FLAG
+
 end Max;
