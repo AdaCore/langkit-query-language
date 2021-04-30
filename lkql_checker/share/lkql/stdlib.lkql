@@ -133,8 +133,34 @@ fun is_standard_boolean(n) =
     |" Return true if the root type of n is Standard.Boolean
     n?.p_expression_type()?.p_root_type() == n?.p_bool_type()
 
-# Return the first BaseSubpBody enclosing n if any, null otherwise
-fun enclosing_body(n) = {
+fun is_predefined_type(n) =
+    |" Return true if n is the name of a type declared in a predefined package
+    |" spec.
+{
+    # Retrieve the root enclosing package
+    val packages = to_list([p for p in n?.p_referenced_decl()?.p_root_type()?.
+                                       parents(include_self=false)
+                            if p is BasePackageDecl]);
+    packages.length != 0 and packages[packages.length] is
+        BasePackageDecl(f_package_name is
+                        DefiningName(p_canonical_part() is name@DefiningName))
+        when name?.p_name_is("Standard")
+          or name?.p_name_is("System")
+          or name?.p_name_is("Ada")
+          or name?.p_name_is("Interfaces")
+}
+
+fun in_generic_template(n) =
+    |" Return true if ``n`` is declared as part of a generic template (spec
+    |" or body). Return false otherwise, including inside a generic
+    |" instantiation.
+    n?.p_generic_instantiations().length == 0 and
+    ((n is *(any parent is GenericDecl)) or
+     n is *(any parent is PackageBody(p_decl_part() is GenericPackageInternal)))
+
+fun enclosing_body(n) =
+    |" Return the first BaseSubpBody enclosing n if any, null otherwise
+{
     val bodies = to_list([p for p in n?.parents(include_self=false)
                           if p is BaseSubpBody]);
     if bodies.length == 0 then null else bodies[1]

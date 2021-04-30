@@ -1,0 +1,48 @@
+test_deriving_from_predefined_type-deriving_from_private.ads:4:15: rule violation: deriving from predefined type
+4 |    type P1 is new My_Private_F;                 --  FLAG
+  |               ^^^^^^^^^^^^^^^^ 
+
+test_deriving_from_predefined_type-deriving_from_private.ads:5:15: rule violation: deriving from predefined type
+5 |    type P2 is new My_Private_S;                 --  FLAG
+  |               ^^^^^^^^^^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:20:21: rule violation: deriving from predefined type
+20 |    type My_Float is new Float;                                     --  FLAG
+   |                     ^^^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:22:24: rule violation: deriving from predefined type
+22 |    type My_My_Float is new My_Float;                               --  FLAG
+   |                        ^^^^^^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:30:22: rule violation: deriving from predefined type
+30 |    type My_String is new String;                                   --  FLAG
+   |                      ^^^^^^^^^^ 
+
+pack_g.ads:6:15: rule violation: deriving from predefined type
+6 |    type T1 is new FT1;   --  FLAG
+  |               ^^^^^^^ 
+
+pack_g.ads:7:15: rule violation: deriving from predefined type
+7 |    type T2 is new FT2;   --  FLAG
+  |               ^^^^^^^ 
+
+pack_g.ads:10:15: rule violation: deriving from predefined type
+10 |    type T3 is new FT3;   --  FLAG
+   |               ^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:48:16: rule violation: deriving from predefined type
+48 |    type NT1 is new Pack_I_2.T1;                                        --  FLAG
+   |                ^^^^^^^^^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:49:16: rule violation: deriving from predefined type
+49 |    type NT2 is new Pack_I_2.T2;                                        --  FLAG
+   |                ^^^^^^^^^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:62:25: rule violation: deriving from predefined type
+62 |    type My_Private_F is new S_My_My_Float;                         --  FLAG
+   |                         ^^^^^^^^^^^^^^^^^ 
+
+test_deriving_from_predefined_type.ads:64:25: rule violation: deriving from predefined type
+64 |    type My_Private_S is new My_String_10;                          --  FLAG
+   |                         ^^^^^^^^^^^^^^^^ 
+
