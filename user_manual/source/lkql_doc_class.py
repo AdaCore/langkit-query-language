@@ -106,6 +106,11 @@ def check_lkql_code(app, doctree, fromdocname):
             """
             Visit code blocks and check if they're valid LKQL code.
             """
+
+            # Don't check non lkql blocks
+            if node.attributes['language'].lower().strip() != 'lkql':
+                return
+
             text = node[0].astext()
             unit = self.lkql_context.get_from_buffer('<buffer>', text)
             if unit.diagnostics:
