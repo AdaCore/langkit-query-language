@@ -171,6 +171,7 @@ fun in_generic_template(n) =
     |" Return true if ``n`` is declared as part of a generic template (spec
     |" or body). Return false otherwise, including inside a generic
     |" instantiation.
+    n != null and
     n?.p_generic_instantiations().length == 0 and
     ((n is *(any parent is GenericDecl)) or
      n is *(any parent is PackageBody(p_decl_part() is GenericPackageInternal)))
@@ -245,3 +246,17 @@ fun match_wildcard(str, pat) =
     | "^\*"      => str.ends_with(pat.substring(2, pat.length))
     | "\*$"      => str.starts_with(pat.substring(1, pat.length - 1))
     | *          => str == pat
+
+fun get_subp_body(node) =
+    |" Return the SubpBody corresponding to node, if any, null otherwise
+    |" TODO: take renamings into account
+    match node
+    | BaseSubpBody    => node
+    | EnumLiteralDecl => null
+    | ClassicSubpDecl => node.p_body_part()
+    | GenericSubpInstantiation
+                      => node.p_designated_generic_decl().p_body_part()
+    | BasicDecl when node.p_is_subprogram()
+                      => node.p_body_part()
+    | *               => null
+

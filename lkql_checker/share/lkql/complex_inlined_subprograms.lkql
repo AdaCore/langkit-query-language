@@ -9,6 +9,8 @@
 # - the number of statements exceeds a value specified by the N rule parameter;
 # Subprogram renamings are also considered.
 
+import stdlib
+
 fun complex_declaration(decls) =
     |" Return the first complex declaration found in decls, null otherwise
     if decls is *(any children is c@* when match c
@@ -39,23 +41,18 @@ fun is_complex_subp(node, n) =
     # Check for number of statements
     [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n
 
-fun get_body(node) =
-    |" Return the SubpBody corresponding to node
-    match node
-    | SubpBody => node
-    | GenericSubpInstantiation
-               => node.f_generic_subp_name?.p_referenced_decl()?.p_body_part()
-    | *        => null
-
 @unit_check
 fun complex_inlined_subprograms(unit, n : int = 5) = [
-    {message: if complex_declaration(get_body(nod)?.f_decls) is decl@AdaNode
+    {message: if complex_declaration(stdlib.get_subp_body(nod)?.f_decls) is
+                 decl@AdaNode
               then "complex declaration in inlined subprogram (line " &
                    img(decl?.token_start().start_line) & ")"
-              else (if complex_statement(get_body(nod)?.f_stmts) is stmt@Stmt
+              else (if complex_statement(stdlib.get_subp_body(nod)?.f_stmts) is
+                       stmt@Stmt
                     then "branching in inlined subprogram (line " &
                          img(stmt?.token_start().start_line) & ")"
                     else "too many statements in inlined subprogram"),
      loc: nod?.p_defining_name()}
     for nod in from unit.root select node@(SubpBody or GenericSubpInstantiation)
-    when node.p_has_aspect("Inline") and is_complex_subp(get_body(node), n)]
+    when node.p_has_aspect("Inline")
+     and is_complex_subp(stdlib.get_subp_body(node), n)]

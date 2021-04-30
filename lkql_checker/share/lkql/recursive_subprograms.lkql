@@ -9,43 +9,63 @@
 # call may dispatch to.
 #
 # This rule does not take into account calls that may happen as the result of
-# subprogram import and export.
+# subprogram import or more generally unavailable subprogram bodies. See rule
+# Unavailable_Body_Calls to detect these cases.
 #
-# Generic subprograms and subprograms detected in generic units are not
-# flagged. Recursive subprograms in expanded generic instantiations are
-# flagged.
+# Generic subprograms and subprograms detected in generic units are not flagged.
+# Recursive subprograms in expanded generic instantiations are flagged.
 #
-# This rule does not take into account subprogram calls in aspect definitions.
+# This rule does not take into account subprogram calls in aspect definitions
+# nor (for now) implicit calls made via type initialization.
 #
 # The rule has a parameter Skip_Dispatching_Calls: Do not take into account
 # dispatching calls when building and analyzing call chains.
 
 import stdlib
 
-# Given a name, return the body of the decl referenced by the name
-fun body(name) = match name.p_referenced_decl()
-    | b @ BaseSubpBody   => b
-    | EnumLiteralDecl    => null
-    | d @ BasicDecl when d?.p_is_subprogram() => d?.p_body_part()
-    | *                  => null
+# Get the bodies of the functions called statically by a given function body
+selector static_calls
+    | b@Body => rec *
+        # Grab the bodies for every static call
+        [stdlib.get_subp_body(a.p_referenced_decl())
+         for a in stdlib.children_no_nested_subps(b)
+         if a is not CallExpr and a is Name(p_is_static_call() is true)].to_list
+    | *      => ()
 
-# Get the bodies of the functions called by a given function body
-selector calls
-    | b @ Body => rec *
-        # Grab the bodies for every explicit call
-        [body(a) for a in stdlib.children_no_nested_subps(b)
-         if a is n @ Name when n.p_is_call()].to_list
-    | * => ()
+@check(message="recursive subprogram",
+       follow_generic_instantiations=true)
+fun recursive_subprograms(node, skip_dispatching_calls=false) = {
+    val units = if skip_dispatching_calls then [] else units().to_list;
 
-@unit_check(message="recursive subprogram")
-fun recursive_subprograms(unit) = [
-   {message: "recursive subprogram",
-    loc: bod.p_canonical_part()?.p_defining_name()}
-   for bod in (
-      from unit.root
-      select b @ BaseSubpBody(
-         # Where any of the chain of calls refers to the base subprogram itself
-         any calls is c @ AdaNode when b == c
-      )
-   )
-]
+    # Given a `name`, return all the bodies of the decl referenced by `name`,
+    # taking dispatching calls into account.
+    fun bodies(name) =
+        if name is Expr(p_is_dispatching_call() is true) then {
+            val root  = name.p_referenced_decl()?.p_canonical_part();
+            val roots = root?.p_root_subp_declarations();
+            val subp  = if roots.length == 0 then root else roots[1];
+            [stdlib.get_subp_body(subp)] &
+            [s.p_body_part() for s in subp.p_find_all_overrides(units)].to_list
+        } else [stdlib.get_subp_body(name.p_referenced_decl())];
+
+    # Get the bodies of the functions called statically or via dispatching by a
+    # given function body
+    selector calls
+    | b@Body => rec *
+        # Grab the bodies for every direct call
+        concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
+                if a is not CallExpr and a is Name(p_is_direct_call() is true)].
+               to_list)
+    | *      => ();
+
+    # Check the given BaseSubpBody `b` for recursivity
+    fun check_body(b, skip_dispatching_calls) =
+        if skip_dispatching_calls
+        then b is BaseSubpBody(any static_calls is c@BaseSubpBody when b == c)
+        else b is BaseSubpBody(any calls is c@BaseSubpBody when b == c);
+
+    node is (ClassicSubpDecl or GenericSubpInstantiation or
+             BaseSubpBody(p_previous_part() is null))
+    when (not stdlib.in_generic_template(node))
+     and check_body(stdlib.get_subp_body(node), skip_dispatching_calls)
+}
