@@ -80,6 +80,8 @@ package Rule_Commands is
       --  other.
 
       Kind_Pattern  : L.Node_Kind_Pattern;
+      --  If we determined that the rule only needs to run on a specific node
+      --  kind, store the corresponding node pattern here.
 
       Follow_Instantiations : Boolean;
       --  Whether we should follow generic instantiations or not for this rule.
