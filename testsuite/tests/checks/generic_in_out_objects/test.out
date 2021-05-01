@@ -1,0 +1,4 @@
+gen.ads:4:4: rule violation: generic IN OUT object
+4 |    K : in out Integer;             --  FLAG
+  |    ^ 
+

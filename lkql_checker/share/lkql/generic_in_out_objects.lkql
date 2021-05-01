@@ -1,0 +1,5 @@
+# Flag declarations of generic formal objects of mode IN OUT.
+
+@check(message="generic IN OUT object")
+fun generic_in_out_objects(node) =
+    node is GenericFormalObjDecl(f_decl is ObjectDecl(f_mode is ModeInOut))
