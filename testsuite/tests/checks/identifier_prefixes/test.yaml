@@ -1,0 +1,11 @@
+driver: 'checker'
+rule_name: Identifier_Prefixes
+project: 'prj.gpr'
+rule_arguments:
+    identifier_prefixes.type: '"Type_"'
+    identifier_prefixes.constant: '"Const_"'
+    identifier_prefixes.exception: '"X_"'
+    identifier_prefixes.enum: '"E_"'
+    identifier_prefixes.derived: '"Root_"'
+    identifier_prefixes.derived_ancestor: '"prefix.root"'
+    identifier_prefixes.class_access: '"CA_"'

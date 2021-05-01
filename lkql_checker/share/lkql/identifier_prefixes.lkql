@@ -1,0 +1,297 @@
+# Flag each defining identifier that does not have a prefix corresponding to
+# the kind of declaration it is defined by. The defining names in the following
+# kinds of declarations are checked:
+# - type and subtype declarations (task, protected and access types are treated
+#   separately);
+# - enumeration literal specifications (not including character literals) and
+#   function renaming declarations if the renaming entity is an enumeration
+#   literal;
+# - exception declarations and exception renaming declarations;
+# - constant and number declarations (including object renaming declarations if
+#   the renamed object is a constant).
+#
+# Defining names declared by single task declarations or single protected
+# declarations are not checked by this rule.
+# The defining name from the full type declaration corresponding to a private
+# type declaration or a private extension declaration is never flagged. A
+# defining name from an incomplete type declaration is never flagged.
+# The defining name from a subprogram renaming-as-body declaration is never
+# flagged.
+# For a deferred constant, the defining name in the corresponding full constant
+# declaration is never flagged.
+# The defining name from a body that is a completion of a program unit
+# declaration or a proper body of a subunit is never flagged.
+# The defining name from a body stub that is a completion of a program unit
+# declaration is never flagged.
+#
+# Note that the rule checks only defining names. Usage name occurrence are not
+# checked and are never flagged.
+#
+# The rule may have the following parameters:
+# - Type=string
+#   Specifies the prefix for a type or subtype name.
+# - Concurrent=string
+#   Specifies the prefix for a task and protected type/subtype name. If this
+#   parameter is set, it overrides for task and protected types the prefix set
+#   by the Type parameter.
+# - Access=string
+#   Specifies the prefix for an access type/subtype name. If this parameter is
+#   set, it overrides for access types the prefix set by the Type parameter.
+# - Class_Access=string
+#   Specifies the prefix for the name of an access type/subtype that points to
+#   some class-wide type. If this parameter is set, it overrides for such
+#   access types and subtypes the prefix set by the Type or Access parameter.
+# - Subprogram_Access=string
+#   Specifies the prefix for the name of an access type/subtype that points to
+#   a subprogram. If this parameter is set, it overrides for such access
+#   types/subtypes the prefix set by the Type or Access parameter.
+# - Derived_Ancestor=string1
+# - Derived=string2
+#   Specifies the prefix for a type that is directly derived from a given type
+#   or from a subtype thereof. string1 should be a full expanded Ada name of
+#   the ancestor type (starting from the full expanded compilation unit name),
+#   string2 defines the prefix to check. If this parameter is set, it overrides
+#   for types that are directly derived from the given type the prefix set by
+#   the Type parameter.
+# - Constant=string
+#   Specifies the prefix for defining names from constants and named number
+#   declarations, including the object renaming declaration if the renamed
+#   object is a constant
+# - Enum=string
+#   Specifies the prefix for defining enumeration literals and for the defining
+#   names in a function renaming declarations if the renamed entity is an
+#   enumeration literal.
+# - Exception=string
+#   Specifies the prefix for defining names from exception declarations and
+#   exception renaming declarations.
+# - *_Exclusive
+#   Check that only those kinds of names for which specific prefix is defined
+#   have that prefix (e.g., only type/subtype names have prefix T_, but not
+#   variable or package names), and flag all defining names that have any of
+#   the specified prefixes but do not belong to the kind of entities this
+#   prefix is defined for.
+#
+# All checks for name prefixes are case-sensitive
+
+import stdlib
+
+@check(message="wrong prefix")
+fun identifier_prefixes(node,
+                        type="-", type_exclusive=true,
+                        concurrent="-", concurrent_exclusive=true,
+                        access="-", access_exclusive=true,
+                        class_access="-", class_access_exclusive=true,
+                        subprogram_access="-", subprogram_access_exclusive=true,
+                        derived="-", derived_ancestor="", derived_exclusive=true,
+                        constant="-", constant_exclusive=true,
+                        exception="-", exception_exclusive=true,
+                        enum="-", enum_exclusive=true) = {
+    fun check_exclusive(str, type_exclusive, concurrent_exclusive,
+                        access_exclusive, class_access_exclusive,
+                        subprogram_access_exclusive, derived_exclusive,
+                        constant_exclusive, exception_exclusive, enum_exclusive) =
+        (type_exclusive and starts_with(str, type)) or
+        (concurrent_exclusive and starts_with(str, concurrent)) or
+        (access_exclusive and starts_with(str, access)) or
+        (class_access_exclusive and starts_with(str, class_access)) or
+        (subprogram_access_exclusive and starts_with(str, subprogram_access)) or
+        (derived_exclusive and starts_with(str, derived)) or
+        (constant_exclusive and starts_with(str, constant)) or
+        (exception_exclusive and starts_with(str, exception)) or
+        (enum_exclusive and starts_with(str, enum));
+
+    fun check_enum(str) =
+        (enum != "-" and not starts_with(str, enum)) or
+        check_exclusive(str,
+                        type_exclusive=type_exclusive,
+                        concurrent_exclusive=concurrent_exclusive,
+                        access_exclusive=access_exclusive,
+                        class_access_exclusive=class_access_exclusive,
+                        subprogram_access_exclusive=subprogram_access_exclusive,
+                        derived_exclusive=derived_exclusive,
+                        constant_exclusive=constant_exclusive,
+                        exception_exclusive=exception_exclusive,
+                        enum_exclusive=false);
+
+    node is DefiningName when match node.parent
+    # Concurrent types
+    | (p@(TaskTypeDecl or ProtectedTypeDecl) or
+       p@SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
+      when concurrent != "-"
+    =>
+        (p?.p_previous_part() is part@*
+         when part == null or part is IncompleteTypeDecl) and
+        ((not starts_with(text(node.f_name), concurrent)) or
+         check_exclusive(text(node.f_name),
+                         type_exclusive=type_exclusive,
+                         concurrent_exclusive=false,
+                         access_exclusive=access_exclusive,
+                         class_access_exclusive=class_access_exclusive,
+                         subprogram_access_exclusive=subprogram_access_exclusive,
+                         derived_exclusive=derived_exclusive,
+                         constant_exclusive=constant_exclusive,
+                         exception_exclusive=exception_exclusive,
+                         enum_exclusive=enum_exclusive))
+
+    # 'Class access
+    | (p@TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
+       AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) or
+       p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
+                     TypeAccessDef(f_subtype_indication is *(f_name is
+       AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
+      when class_access != "-"
+    =>
+        (p?.p_previous_part() is part@*
+         when part == null or part is IncompleteTypeDecl) and
+        ((not starts_with(text(node.f_name), class_access)) or
+         check_exclusive(text(node.f_name),
+                         type_exclusive=type_exclusive,
+                         concurrent_exclusive=concurrent_exclusive,
+                         access_exclusive=access_exclusive,
+                         class_access_exclusive=false,
+                         subprogram_access_exclusive=subprogram_access_exclusive,
+                         derived_exclusive=derived_exclusive,
+                         constant_exclusive=constant_exclusive,
+                         exception_exclusive=exception_exclusive,
+                         enum_exclusive=enum_exclusive))
+
+    # Subprogram access
+    | (p@TypeDecl(f_type_def is AccessToSubpDef) or
+       p@SubtypeDecl(p_canonical_type() is
+                     TypeDecl(f_type_def is AccessToSubpDef)))
+      when subprogram_access != "-"
+    =>
+        (p?.p_previous_part() is part@*
+         when part == null or part is IncompleteTypeDecl) and
+        ((not starts_with(text(node.f_name?.f_name), subprogram_access)) or
+         check_exclusive(text(node.f_name?.f_name),
+                         type_exclusive=type_exclusive,
+                         concurrent_exclusive=concurrent_exclusive,
+                         access_exclusive=access_exclusive,
+                         class_access_exclusive=class_access_exclusive,
+                         subprogram_access_exclusive=false,
+                         derived_exclusive=derived_exclusive,
+                         constant_exclusive=constant_exclusive,
+                         exception_exclusive=exception_exclusive,
+                         enum_exclusive=enum_exclusive))
+
+    # Other access types
+    | (p@TypeDecl(f_type_def is AccessDef) or
+       p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
+      when access != "-"
+    =>
+        (p?.p_previous_part() is part@*
+         when part == null or part is IncompleteTypeDecl) and
+        ((not starts_with(text(node.f_name?.f_name), access)) or
+         check_exclusive(text(node.f_name?.f_name),
+                         type_exclusive=type_exclusive,
+                         concurrent_exclusive=concurrent_exclusive,
+                         access_exclusive=false,
+                         class_access_exclusive=class_access_exclusive,
+                         subprogram_access_exclusive=subprogram_access_exclusive,
+                         derived_exclusive=derived_exclusive,
+                         constant_exclusive=constant_exclusive,
+                         exception_exclusive=exception_exclusive,
+                         enum_exclusive=enum_exclusive))
+
+    # Types derived from derived_ancestor
+    | p@TypeDecl(f_type_def is d@DerivedTypeDef) when derived != "-" and
+        p?.p_base_type()?.p_canonical_type()?.p_canonical_fully_qualified_name() ==
+        derived_ancestor
+    =>
+        (p?.p_previous_part() is part@*
+         when part == null or part is IncompleteTypeDecl) and
+        ((not starts_with(text(node.f_name), derived)) or
+         check_exclusive(text(node.f_name),
+                         type_exclusive=type_exclusive,
+                         concurrent_exclusive=concurrent_exclusive,
+                         access_exclusive=access_exclusive,
+                         class_access_exclusive=class_access_exclusive,
+                         subprogram_access_exclusive=subprogram_access_exclusive,
+                         derived_exclusive=false,
+                         constant_exclusive=constant_exclusive,
+                         exception_exclusive=exception_exclusive,
+                         enum_exclusive=enum_exclusive))
+
+    # Exclude IncompleteTypeDecl
+    | IncompleteTypeDecl => false
+
+    # Other types and subtypes
+    | p@BaseTypeDecl =>
+        (p?.p_previous_part() is part@*
+         when part == null or part is IncompleteTypeDecl) and
+        ((type != "-" and not starts_with(text(node.f_name), type)) or
+         check_exclusive(text(node.f_name),
+                         type_exclusive=false,
+                         concurrent_exclusive=concurrent_exclusive,
+                         access_exclusive=access_exclusive,
+                         class_access_exclusive=class_access_exclusive,
+                         subprogram_access_exclusive=subprogram_access_exclusive,
+                         derived_exclusive=derived_exclusive,
+                         constant_exclusive=constant_exclusive,
+                         exception_exclusive=exception_exclusive,
+                         enum_exclusive=enum_exclusive))
+
+    # Enums
+    | EnumLiteralDecl => check_enum(text(node.f_name))
+
+    # Look one level up for remaining cases
+    | p@* => match p?.parent
+        # Constants
+        | (o@ObjectDecl
+          when (o?.f_has_constant?.p_as_bool() or
+                # Renaming of a constant
+                (o?.f_renaming_clause != null and
+                 stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
+                 f_has_constant?.p_as_bool())) and o?.p_public_part_decl() == null)
+          or NumberDecl
+        =>
+            (constant != "-" and not starts_with(text(node.f_name), constant)) or
+            check_exclusive(text(node.f_name),
+                            type_exclusive=type_exclusive,
+                            concurrent_exclusive=concurrent_exclusive,
+                            access_exclusive=access_exclusive,
+                            class_access_exclusive=class_access_exclusive,
+                            subprogram_access_exclusive=subprogram_access_exclusive,
+                            derived_exclusive=derived_exclusive,
+                            constant_exclusive=false,
+                            exception_exclusive=exception_exclusive,
+                            enum_exclusive=enum_exclusive)
+
+
+        # Function renaming an enum literal
+        | r@SubpRenamingDecl
+          when r?.f_renames?.f_renamed_object?.p_referenced_decl() is EnumLiteralDecl
+        => check_enum(text(node.f_name))
+
+        # Exceptions
+        | ExceptionDecl =>
+            (exception != "-" and not starts_with(text(node.f_name), exception)) or
+            check_exclusive(text(node.f_name),
+                            type_exclusive=type_exclusive,
+                            concurrent_exclusive=concurrent_exclusive,
+                            access_exclusive=access_exclusive,
+                            class_access_exclusive=class_access_exclusive,
+                            subprogram_access_exclusive=subprogram_access_exclusive,
+                            derived_exclusive=derived_exclusive,
+                            constant_exclusive=constant_exclusive,
+                            exception_exclusive=false,
+                            enum_exclusive=enum_exclusive)
+
+        # Check all other defining names for exclusion except for completions and
+        # renaming-as-body
+        | p2@* =>
+            ((not p2 is (Body or SubpRenamingDecl)) or
+             p2?.p_previous_part() == null) and
+            ((not p2 is ObjectDecl) or p2?.p_public_part_decl() == null) and
+            check_exclusive(text(node.f_name),
+                            type_exclusive=type_exclusive,
+                            concurrent_exclusive=concurrent_exclusive,
+                            access_exclusive=access_exclusive,
+                            class_access_exclusive=class_access_exclusive,
+                            subprogram_access_exclusive=subprogram_access_exclusive,
+                            derived_exclusive=derived_exclusive,
+                            constant_exclusive=constant_exclusive,
+                            exception_exclusive=exception_exclusive,
+                            enum_exclusive=enum_exclusive)
+}

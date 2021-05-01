@@ -1,0 +1,60 @@
+prefix.ads:8:9: rule violation: wrong prefix
+8 |    type Root is new integer;                  --  FLAG
+  |         ^^^^ 
+
+prefix.ads:9:9: rule violation: wrong prefix
+9 |    type Priv is private;                      --  FLAG
+  |         ^^^^ 
+
+prefix.ads:14:9: rule violation: wrong prefix
+14 |    type Type_CW is access all Tag'Class;     --  FLAG
+   |         ^^^^^^^ 
+
+prefix.ads:16:12: rule violation: wrong prefix
+16 |    subtype Type_CA_3 is CA_1;                --  FLAG
+   |            ^^^^^^^^^ 
+
+prefix.ads:20:9: rule violation: wrong prefix
+20 |    type Enum_2      is                       --  FLAG
+   |         ^^^^^^ 
+
+prefix.ads:22:7: rule violation: wrong prefix
+22 |       B2);                                   --  FLAG
+   |       ^^ 
+
+prefix.ads:25:13: rule violation: wrong prefix
+25 |    function Bad_Enum return Enum_2           --  FLAG
+   |             ^^^^^^^^ 
+
+prefix.ads:30:4: rule violation: wrong prefix
+30 |    Const2   : constant Enum_2      := B2;    --  FLAG
+   |    ^^^^^^ 
+
+prefix.ads:31:4: rule violation: wrong prefix
+31 |    Private_Const : constant Priv;            --  FLAG
+   |    ^^^^^^^^^^^^^ 
+
+prefix.ads:34:4: rule violation: wrong prefix
+34 |    Const3   : Type_Enum_1 renames Const_C1;  --  FLAG
+   |    ^^^^^^ 
+
+prefix.ads:38:4: rule violation: wrong prefix
+38 |    Exc_2   : exception;                      --  FLAG
+   |    ^^^^^ 
+
+prefix.ads:42:9: rule violation: wrong prefix
+42 |    type Root2 is new Root;                   --  FLAG
+   |         ^^^^^ 
+
+prefix.ads:48:9: rule violation: wrong prefix
+48 |    type Root4 is new Type_Sub2;              --  FLAG
+   |         ^^^^^ 
+
+prefix.ads:55:14: rule violation: wrong prefix
+55 |    task type My_Task is                      --  FLAG
+   |              ^^^^^^^ 
+
+prefix.ads:63:19: rule violation: wrong prefix
+63 |    protected type My_Protected is            --  FLAG
+   |                   ^^^^^^^^^^^^ 
+
