@@ -1,0 +1,4 @@
+gen.adb:5:13: rule violation: generic definition in subprogram body
+5 |    function F_G (I : FT) return FT;   --  FLAG
+  |             ^^^ 
+

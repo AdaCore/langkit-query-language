@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Generics_In_Subprograms
+input_sources: ['gen.adb']
