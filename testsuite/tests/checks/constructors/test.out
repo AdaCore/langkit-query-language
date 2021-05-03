@@ -1,0 +1,44 @@
+cons.ads:13:13: rule violation: declaration of constructor function
+13 |    function Fun (I : Integer) return T;                    -- FLAG
+   |             ^^^ 
+
+cons.ads:14:13: rule violation: declaration of constructor function
+14 |    function Bar (JJJ : Integer) return T renames Fun;      -- FLAG
+   |             ^^^ 
+
+cons.ads:15:13: rule violation: declaration of constructor function
+15 |    function Foo (KKK : Integer) return T is ((I => KKK));  -- FLAG
+   |             ^^^ 
+
+cons.ads:17:13: rule violation: declaration of constructor function
+17 |    function CW (I : T'Class) return T;                     -- FLAG
+   |             ^^ 
+
+cons.ads:18:13: rule violation: declaration of constructor function
+18 |    function CW1 (I : ST_CW) return T;                      -- FLAG
+   |             ^^^ 
+
+cons.ads:19:13: rule violation: declaration of constructor function
+19 |    function CW2 (I : A_ST_CW) return T;                    -- FLAG
+   |             ^^^ 
+
+cons.ads:22:13: rule violation: declaration of constructor function
+22 |    function Fun2 (I : Integer) return access T;            -- FLAG
+   |             ^^^^ 
+
+cons.ads:23:13: rule violation: declaration of constructor function
+23 |    function Fun3 (I : S_A_T) return access T;              -- FLAG
+   |             ^^^^ 
+
+cons.ads:28:13: rule violation: declaration of constructor function
+28 |    function Fun_T2 return T2;                              -- FLAG
+   |             ^^^^^^ 
+
+cons.ads:31:13: rule violation: declaration of constructor function
+31 |    function Fun_T3 (I : Integer) return T3;                -- FLAG
+   |             ^^^^^^ 
+
+cons.ads:34:13: rule violation: declaration of constructor function
+34 |    function Fun_T4 (I : Integer) return T4;                -- FLAG
+   |             ^^^^^^ 
+

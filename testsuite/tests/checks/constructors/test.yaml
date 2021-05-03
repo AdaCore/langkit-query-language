@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Constructors
+input_sources: ['cons.ads']

@@ -20,6 +20,6 @@ fun misnamed_controlling_parameters(node) =
          val params = spec?.p_params();
          params.length > 0 and (not
          (params[1]?.f_ids[1]?.f_name?.p_name_is("this") and
-          stdlib.is_controlling_param_type(params[1]?.f_type_expr))) and not
-         stdlib.is_controlling_param_type(spec?.p_returns())
+          stdlib.is_controlling_param_type(params[1]?.f_type_expr, spec))) and
+         not stdlib.is_controlling_param_type(spec?.p_returns(), spec)
      }
