@@ -1,0 +1,10 @@
+# Flag each use of the specified attributes. The attributes to be detected are
+# named in the parameter ``forbidden``. If the ``all`` parameter is true,
+# all pragmas by default are flagged, except the pragmas listed in the
+# ``allowed`` parameter.
+
+@check(message="forbidden attribute")
+fun forbidden_attributes(node, all=false, forbidden=[], allowed=[]) =
+    node is AttributeRef(f_attribute is id@Identifier)
+    when (all or [p for p in forbidden if id?.p_name_is(p)].length != 0)
+     and [p for p in allowed if id?.p_name_is(p)].length == 0
