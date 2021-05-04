@@ -1,0 +1,17 @@
+# Flag all explicit calls to the predefined equality operations for fixed-point
+# types. Both '=' and '/=' operations are checked. User-defined equality
+# operations are not flagged, nor are uses of operators that are renamings of
+# the predefined equality operations. Also, the '=' and '/=' operations for
+# floating-point types are not flagged.
+
+@check(message="use of equality operation for fixed-point values")
+fun fixed_equality_checks(node) =
+    node is (RelationOp(f_op is op@(OpEq or OpNeq))
+             when op?.p_referenced_decl() == null
+              and node.f_left?.p_expression_type()?.p_is_fixed_point())
+    or CallExpr
+       when (node.f_name?.p_name_is("\"=\"") or
+             node.f_name?.p_name_is("\"/=\""))
+        and node.p_referenced_decl() == null
+        and node.f_suffix[1]?.f_r_expr?.p_expression_type()?.p_is_fixed_point()
+
