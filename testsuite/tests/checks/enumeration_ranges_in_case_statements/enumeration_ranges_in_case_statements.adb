@@ -1,5 +1,4 @@
 package body Enumeration_Ranges_In_Case_Statements is
-   type Enum is (A, B, C, D, E, F, G);
    function F (J : Integer) return Enum is separate;
 
    procedure Bar (I : in out Integer) is
