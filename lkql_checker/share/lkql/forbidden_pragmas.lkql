@@ -1,0 +1,10 @@
+# Flag each use of the specified pragmas. The pragmas to be detected are named
+# in the parameter ``forbidden``. If the ``all`` parameter is true, all pragmas
+# by default are flagged, except the pragmas listed in the ``allowed``
+# parameter.
+
+@check(message="forbidden pragma")
+fun forbidden_pragmas(node, all=false, forbidden=[], allowed=[]) =
+    node is Pragma(f_id is id@Identifier)
+    when (all or [p for p in forbidden if id?.p_name_is(p)].length != 0)
+     and [p for p in allowed if id?.p_name_is(p)].length == 0

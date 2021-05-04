@@ -1,0 +1,8 @@
+pragmas.ads:4:4: rule violation: forbidden pragma
+4 |    pragma Pack (Arr);             --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^ 
+
+pragmas.ads:7:4: rule violation: forbidden pragma
+7 |    pragma Atomic (I);             --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^ 
+
