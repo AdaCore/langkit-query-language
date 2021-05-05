@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Direct_Calls_To_Primitives
+project: 'prj.gpr'

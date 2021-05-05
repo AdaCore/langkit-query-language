@@ -1,0 +1,31 @@
+# Flag any non-dispatching call to a dispatching primitive operation, except
+# for:
+# - a call to the corresponding primitive of the parent type.
+# - a call to a primitive of an untagged private type, even though the full
+#   type may be tagged, when the call is made at a place where the view of the
+#   type is untagged.
+# This rule has the parameter Except_Constructors: Do not flag non-dispatching
+# calls to functions if the function has a controlling result and no
+# controlling parameters (aka constructors).
+
+import stdlib
+
+# TODO: move to LAL
+fun is_parent_primitive(body, decl, parent_type) =
+    |" Return true if ``decl`` is the ``parent_type`` primitive of ``body``
+    body is BaseSubpBody
+    when decl?.p_defining_name()?.f_name?.
+         p_name_matches(body.p_defining_name()?.f_name) and
+         body.p_subp_spec_or_null()?.p_primitive_subp_tagged_type()?.
+         p_base_type() == parent_type?.p_full_view()
+
+@check(message="non-dispatching call to primitive operation")
+fun direct_calls_to_primitives(node, except_constructors=false) = node is
+    BaseId(p_is_static_call() is true,
+           p_referenced_decl() is
+           decl@BasicDecl(p_subp_spec_or_null() is
+                          spec@BaseSubpSpec(p_primitive_subp_tagged_type() is
+                                            t@BaseTypeDecl))
+           when t?.p_is_tagged_type(node)
+            and (not (except_constructors and stdlib.is_constructor(spec)))
+            and not is_parent_primitive(stdlib.enclosing_body(node), decl, t))
