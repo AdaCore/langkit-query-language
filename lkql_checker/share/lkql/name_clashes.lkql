@@ -1,0 +1,10 @@
+# Check that certain names are not used as defining identifiers. The names that
+# should not be used as identifiers must be listed in the forbidden parameter.
+# The check is not case-sensitive. Only the whole identifiers are checked, not
+# substrings thereof.
+
+@check(message="use of forbidden identifier")
+fun name_clashes(node, forbidden=[]) =
+    node is DefiningName
+    when [p for p in forbidden if node.p_name_is(p)].length != 0
+

@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Name_Clashes
+input_sources: ['name.ads']
+rule_arguments:
+    name_clashes.forbidden: '["one", "two"]'
