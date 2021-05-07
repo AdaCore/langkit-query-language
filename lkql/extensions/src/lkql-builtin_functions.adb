@@ -30,6 +30,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 with LKQL.AST_Nodes;
 
 with Ada_AST_Nodes; use Ada_AST_Nodes;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.String_Utils; use LKQL.String_Utils;
@@ -69,6 +70,12 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Is_Mixed_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Contains
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Substring
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Doc
@@ -353,6 +360,39 @@ package body LKQL.Builtin_Functions is
       return To_Primitive (True);
    end Eval_Is_Mixed_Case;
 
+   -------------------
+   -- Eval_Contains --
+   -------------------
+
+   function Eval_Contains
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+
+      Str     : constant Unbounded_Text_Type := Str_Val (Args (1));
+      Sub_Str : constant Unbounded_Text_Type := Str_Val (Args (2));
+   begin
+      return To_Primitive (Index (Str, To_Text (Sub_Str)) > 0);
+   end Eval_Contains;
+
+   --------------------
+   -- Eval_Substring --
+   --------------------
+
+   function Eval_Substring
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+
+      Str  : constant Unbounded_Text_Type := Str_Val (Args (1));
+      From : constant Integer := +Int_Val (Args (2));
+      To   : constant Integer := +Int_Val (Args (3));
+   begin
+      return To_Primitive (Slice (Str, From, To));
+   end Eval_Substring;
+
    -------------
    -- Get_Doc --
    -------------
@@ -566,6 +606,22 @@ package body LKQL.Builtin_Functions is
          "Return whether the given string is written in mixed case, that is, "
          & "with only lower case characters except the first one and every "
          & "character following an underscore"),
+
+      Create
+        ("contains",
+         (Param ("str", Kind_Str), Param ("substr", Kind_Str)),
+         Eval_Contains'Access,
+         "Given two strings, return whether the second one is included in "
+         & "the first one"),
+
+      Create
+        ("substring",
+         (Param ("str", Kind_Str),
+          Param ("from", Kind_Int),
+          Param ("to", Kind_Int)),
+         Eval_Substring'Access,
+         "Given a string and two indices (from and to), return the substring "
+         & "contained between indices from and to (both included)"),
 
       Create
         ("doc",

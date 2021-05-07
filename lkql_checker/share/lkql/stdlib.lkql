@@ -189,3 +189,14 @@ selector children_no_nested_subps
         rec *(if depth == 0 then this.children else [])
     | null     => ()
     | *        => rec *this.children
+
+fun match_wildcard(str, pat) =
+    |" Return whether the given string `str` matches the simple wildcard
+    |" pattern `pat`. The pattern is an identifier with optionally a
+    |" wildcard (`*`) character as the first character, last character or
+    |" both.
+    match pat
+    | "^\*.*\*$" => contains(str, substring(pat, 2, pat.length - 1))
+    | "^\*"      => ends_with(str, substring(pat, 2, pat.length))
+    | "\*$"      => starts_with(str, substring(pat, 1, pat.length - 1))
+    | *          => str == pat

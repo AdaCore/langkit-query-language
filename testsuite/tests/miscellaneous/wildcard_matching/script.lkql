@@ -1,0 +1,22 @@
+import stdlib
+
+@check(message="")
+fun do_nothing(node) = false
+
+fun test_wildcard(str, pat) = {
+    val matches = stdlib.match_wildcard(str, pat);
+    if matches then
+        print(str & " matches " & pat)
+    else
+        print(str & " does not match " & pat)
+}
+
+test_wildcard("foo", "foo")
+test_wildcard("foo", "*fo")
+test_wildcard("foo", "*foo")
+test_wildcard("foo", "*o")
+test_wildcard("foo", "*bar")
+test_wildcard("foo", "o*")
+test_wildcard("foo", "fo*")
+test_wildcard("foo", "*o*")
+test_wildcard("foo", "*f*")
