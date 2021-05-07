@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
@@ -59,6 +60,15 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Ends_With
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Is_Lower_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Is_Upper_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Is_Mixed_Case
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Doc
@@ -270,6 +280,79 @@ package body LKQL.Builtin_Functions is
             (Str, Str_Len - Suffix_Len + 1, Str_Len) = Suffix);
    end Eval_Ends_With;
 
+   ------------------------
+   -- Eval_Is_Lower_Case --
+   ------------------------
+
+   function Eval_Is_Lower_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+      use Ada.Wide_Wide_Characters.Handling;
+
+      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+   begin
+      for C of Str loop
+         if Is_Upper (C) then
+            return To_Primitive (False);
+         end if;
+      end loop;
+      return To_Primitive (True);
+   end Eval_Is_Lower_Case;
+
+   ------------------------
+   -- Eval_Is_Upper_Case --
+   ------------------------
+
+   function Eval_Is_Upper_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+      use Ada.Wide_Wide_Characters.Handling;
+
+      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+   begin
+      for C of Str loop
+         if Is_Lower (C) then
+            return To_Primitive (False);
+         end if;
+      end loop;
+      return To_Primitive (True);
+   end Eval_Is_Upper_Case;
+
+   ------------------------
+   -- Eval_Is_Mixed_Case --
+   ------------------------
+
+   function Eval_Is_Mixed_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+      use Ada.Wide_Wide_Characters.Handling;
+
+      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+
+      Must_Be_Upper_Case : Boolean := True;
+   begin
+      for C of Str loop
+         if Must_Be_Upper_Case then
+            if Is_Lower (C) then
+               return To_Primitive (False);
+            else
+               Must_Be_Upper_Case := False;
+            end if;
+         elsif Is_Upper (C) then
+            return To_Primitive (False);
+         elsif C = '_' then
+            Must_Be_Upper_Case := True;
+         end if;
+      end loop;
+      return To_Primitive (True);
+   end Eval_Is_Mixed_Case;
+
    -------------
    -- Get_Doc --
    -------------
@@ -461,6 +544,28 @@ package body LKQL.Builtin_Functions is
          (Param ("str", Kind_Str), Param ("suffix", Kind_Str)),
          Eval_Ends_With'Access,
          "Given a string, returns whether it ends with the given suffix"),
+
+      Create
+        ("is_lower_case",
+         (1 => Param ("str", Kind_Str)),
+         Eval_Is_Lower_Case'Access,
+         "Return whether the given string contains lower case characters "
+         & "only"),
+
+      Create
+        ("is_upper_case",
+         (1 => Param ("str", Kind_Str)),
+         Eval_Is_Upper_Case'Access,
+         "Return whether the given string contains upper case characters "
+         & "only"),
+
+      Create
+        ("is_mixed_case",
+         (1 => Param ("str", Kind_Str)),
+         Eval_Is_Mixed_Case'Access,
+         "Return whether the given string is written in mixed case, that is, "
+         & "with only lower case characters except the first one and every "
+         & "character following an underscore"),
 
       Create
         ("doc",

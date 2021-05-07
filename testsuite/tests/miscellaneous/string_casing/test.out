@@ -1,0 +1,51 @@
+No source file to process
+hello is
+  lower case: true
+  upper case: false
+  mixed case: false
+
+Hello is
+  lower case: false
+  upper case: false
+  mixed case: true
+
+HELLO is
+  lower case: false
+  upper case: true
+  mixed case: false
+
+hello is
+  lower case: true
+  upper case: false
+  mixed case: false
+
+hello_world is
+  lower case: true
+  upper case: false
+  mixed case: false
+
+hello_world_12 is
+  lower case: true
+  upper case: false
+  mixed case: false
+
+HELLO_WORLD is
+  lower case: false
+  upper case: true
+  mixed case: false
+
+HELLO_WORLD_12 is
+  lower case: false
+  upper case: true
+  mixed case: false
+
+Hello_World is
+  lower case: false
+  upper case: false
+  mixed case: true
+
+Hello_World_12 is
+  lower case: false
+  upper case: false
+  mixed case: true
+

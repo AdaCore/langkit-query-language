@@ -1,0 +1,28 @@
+import stdlib
+
+@check(message="")
+fun do_nothing(node) = false
+
+fun test_casing(n) = {
+    val is_lower_case = is_lower_case (n);
+    val is_upper_case = is_upper_case (n);
+    val is_mixed_case = is_mixed_case (n);
+
+    val d1 = print(n & " is");
+    val d2 = print("  lower case: " & img (is_lower_case));
+    val d3 = print("  upper case: " & img (is_upper_case));
+    val d4 = print("  mixed case: " & img (is_mixed_case));
+    print("")
+}
+
+test_casing ("hello")
+test_casing ("Hello")
+test_casing ("HELLO")
+test_casing ("hello")
+test_casing ("hello_world")
+test_casing ("hello_world_12")
+test_casing ("HELLO_WORLD")
+test_casing ("HELLO_WORLD_12")
+test_casing ("Hello_World")
+test_casing ("Hello_World_12")
+
