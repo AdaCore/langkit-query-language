@@ -432,28 +432,26 @@ package body Checker_App is
                end if;
             exception
                when LKQL.Errors.Stop_Evaluation_Error =>
-
                   declare
-                     Data : constant Error_Data := Ctx.Last_Error;
-                     Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
-                     Diag : constant Langkit_Support.Diagnostics.Diagnostic
-                       := (Sloc_Range => Node.Sloc_Range,
-                           Message    => Data.Short_Message);
-                     E    : Exception_Occurrence_Access
-                       := Data.Property_Error_Info;
+                     Data      : constant Error_Data := Ctx.Last_Error;
+                     LKQL_Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
+                     Diag      : constant Langkit_Support.Diagnostics.
+                                          Diagnostic :=
+                       (Sloc_Range => LKQL_Node.Sloc_Range,
+                        Message    => Data.Short_Message);
+                     E         : Exception_Occurrence_Access :=
+                       Data.Property_Error_Info;
 
                      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
                        (Exception_Occurrence, Exception_Occurrence_Access);
-                  begin
 
+                  begin
                      case Property_Error_Recovery is
                      when Continue_And_Log =>
-
                         Eval_Trace.Trace ("Evaluating rule predicate failed");
                         Eval_Trace.Trace
                           ("rule => " & Image (To_Text (Rule.Name)));
-                        Eval_Trace.Trace
-                          ("ada node => " & Node.Image);
+                        Eval_Trace.Trace ("ada node => " & Node.Image);
 
                         if E /= null then
                            Eval_Trace.Trace (Exception_Information (E.all));
@@ -461,6 +459,7 @@ package body Checker_App is
                              (GNAT.Traceback.Symbolic.Symbolic_Traceback
                                 (E.all));
                         end if;
+
                      when Continue_And_Warn =>
                         Put ("ERROR! evaluating rule predicate failed");
 
@@ -471,15 +470,14 @@ package body Checker_App is
 
                         Langkit_Support.Diagnostics.Output.Print_Diagnostic
                           (Self        => Diag,
-                           Buffer      => Node.Unit,
-                           Path        => Node.Unit.Get_Filename,
+                           Buffer      => LKQL_Node.Unit,
+                           Path        => LKQL_Node.Unit.Get_Filename,
                            Output_File => Standard_Error);
 
                         if E /= null then
                            Ada.Text_IO.Put_Line
                              (Ada.Text_IO.Standard_Error,
                               Exception_Information (E.all));
-
                            Ada.Text_IO.Put_Line
                              (Ada.Text_IO.Standard_Error,
                               GNAT.Traceback.Symbolic.Symbolic_Traceback
@@ -505,11 +503,9 @@ package body Checker_App is
                     (Standard_Error, "rule => " & To_Text (Rule.Name));
                   Put_Line
                     (Standard_Error, "ada node => " & To_Text (Node.Image));
-
                   Ada.Text_IO.Put_Line (Exception_Information (E));
                   Ada.Text_IO.Put_Line
                     (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
-
             end;
 
             <<Next>>
