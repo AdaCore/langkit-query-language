@@ -1,0 +1,8 @@
+driver: 'checker'
+rule_name: Identifier_Suffixes
+project: 'prj.gpr'
+rule_arguments:
+    identifier_suffixes.access_suffix: '"_PTR"'
+    identifier_suffixes.type_suffix: '"_T"'
+    identifier_suffixes.constant_suffix: '"_C"'
+    identifier_suffixes.interrupt_suffix: '"_Hdl"'

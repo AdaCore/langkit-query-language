@@ -1,0 +1,152 @@
+# Flag the declaration of each identifier that does not have a suffix
+# corresponding to the kind of entity being declared. The following
+# declarations are checked:
+# - type declarations
+# - subtype declarations
+# - object declarations (variable and constant declarations, but not number
+#   declarations, record component declarations, parameter specifications,
+#   extended return object declarations, formal object declarations)
+# - package renaming declarations (but not generic package renaming
+#   declarations)
+#
+# Defining identifiers from incomplete type declarations are never flagged.
+#
+# For a private type declaration (including private extensions), the defining
+# identifier from the private type declaration is checked against the type
+# suffix (even if the corresponding full declaration is an access type
+# declaration), and the defining identifier from the corresponding full type
+# declaration is not checked.
+#
+# For a deferred constant, the defining name in the corresponding full constant
+# declaration is not checked.
+#
+# Defining names of formal types are not checked.
+#
+# Check for the suffix of access type data objects is applied to the following
+# kinds of declarations:
+# - variable and constant declaration
+# - record component declaration
+# - return object declaration
+# - parameter specification
+# - extended return object declaration
+# - formal object declaration
+#
+# If both checks for constant suffixes and for access object suffixes are
+# enabled, and if different suffixes are defined for them, then for constants
+# of access type the check for access object suffixes is applied.
+#
+# The rule may have the following parameters:
+# - Type_Suffix=string
+#   Specifies the suffix for a type name.
+# - Access_Suffix=string
+#   Specifies the suffix for an access type name. If this parameter is set, it
+#   overrides for access types the suffix set by the Type_Suffix parameter.
+# - Access_Access_Sufix=string
+#   When the designated type is also an access type, the type name should have
+#   the Access_Suffix & Access_Access_Sufix suffix.
+# - Class_Access_Suffix=string
+#   Specifies the suffix for the name of an access type that points to some
+#   class-wide type. If this parameter is set, it overrides for such access
+#   types the suffix set by the Type_Suffix or Access_Suffix parameter.
+# - Class_Subtype_Suffix=string
+#   Specifies the suffix for the name of a subtype that denotes a class-wide
+#   type.
+# - Constant_Suffix=string
+#   Specifies the suffix for a constant name.
+# - Renaming_Suffix=string
+#   Specifies the suffix for a package renaming name.
+# - Access_Obj_Suffix=string
+#   Specifies the suffix for objects that have an access type (including types
+#   derived from access types).
+# - Interrupt_Suffix=string
+#   Specifies the suffix for protected subprograms used as interrupt handlers.
+
+import stdlib
+
+@check(message="wrong suffix")
+fun identifier_suffixes(node,
+                        type_suffix="",
+                        access_suffix="",
+                        access_access_suffix="",
+                        class_access_suffix="",
+                        class_subtype_suffix="",
+                        constant_suffix="",
+                        renaming_suffix="",
+                        access_obj_suffix="",
+                        interrupt_suffix="") =
+    node is DefiningName when match node.parent
+
+    # Interrupt handlers
+    | s@SubpSpec when interrupt_suffix != "" =>
+        s is SubpSpec(any parent(depth=4) is ProtectedDef, parent is d@SubpDecl)
+        when (d?.p_has_aspect("Interrupt_Handler") or
+              d?.p_has_aspect("Attach_Handler")) and
+             not ends_with(text(node.f_name), interrupt_suffix)
+
+    # 'Class access
+    | p@BaseTypeDecl(p_is_access_type() is true,
+                     p_accessed_type() is
+                         ClasswideTypeDecl or
+                         SubtypeDecl(p_canonical_type() is ClasswideTypeDecl))
+      when class_access_suffix != ""
+    =>
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        not ends_with(text(node.f_name), class_access_suffix)
+
+    # 'Class subtype
+    | p@BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+      when class_subtype_suffix != ""
+    =>
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        not ends_with(text(node.f_name), class_subtype_suffix)
+
+    # Other access types
+    | p@BaseTypeDecl(p_is_access_type() is true) when access_suffix != ""
+    =>
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        not ends_with(text(node.f_name),
+                      (if access_access_suffix != "" and
+                          p?.p_accessed_type()?.p_is_access_type()
+                       then access_suffix & access_access_suffix
+                       else access_suffix))
+
+    # Exclude IncompleteTypeDecl
+    | IncompleteTypeDecl => false
+
+    # Other types and subtypes
+    | p@BaseTypeDecl =>
+        type_suffix != "" and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        not ends_with(text(node.f_name), type_suffix)
+
+    | p@PackageRenamingDecl =>
+        renaming_suffix != "" and
+        not ends_with(text(node.f_name), renaming_suffix)
+
+    # Look one level up for remaining cases
+    | p@* => match p?.parent
+        # Access data objects
+        | (ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
+                                     BaseTypeDecl(p_is_access_type() is true)),
+                      p_public_part_decl() is null) or
+           ComponentDecl(f_component_def is
+               ComponentDef(f_type_expr is
+                   TypeExpr(p_designated_type_decl() is
+                            BaseTypeDecl(p_is_access_type() is true)))) or
+           ParamSpec(f_type_expr is TypeExpr(p_is_access_type() is true)))
+          when access_obj_suffix != ""
+        =>
+            not ends_with(text(node.f_name), access_obj_suffix)
+
+        # Constants
+        | o@ObjectDecl(p_public_part_decl() is null)
+          when constant_suffix != ""
+           and (o?.f_has_constant?.p_as_bool() or
+                # Renaming of a constant
+                (o?.f_renaming_clause != null and
+                 stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
+                 f_has_constant?.p_as_bool()))
+        =>
+            not ends_with(text(node.f_name), constant_suffix)
+
+        | * => false
