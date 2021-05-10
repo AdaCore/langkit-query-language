@@ -119,8 +119,7 @@ fun identifier_prefixes(node,
        p@SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
       when concurrent != "-"
     =>
-        (p?.p_previous_part() is part@*
-         when part == null or part is IncompleteTypeDecl) and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not starts_with(text(node.f_name), concurrent)) or
          check_exclusive(text(node.f_name),
                          type_exclusive=type_exclusive,
@@ -141,8 +140,7 @@ fun identifier_prefixes(node,
        AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
       when class_access != "-"
     =>
-        (p?.p_previous_part() is part@*
-         when part == null or part is IncompleteTypeDecl) and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not starts_with(text(node.f_name), class_access)) or
          check_exclusive(text(node.f_name),
                          type_exclusive=type_exclusive,
@@ -161,8 +159,7 @@ fun identifier_prefixes(node,
                      TypeDecl(f_type_def is AccessToSubpDef)))
       when subprogram_access != "-"
     =>
-        (p?.p_previous_part() is part@*
-         when part == null or part is IncompleteTypeDecl) and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not starts_with(text(node.f_name?.f_name), subprogram_access)) or
          check_exclusive(text(node.f_name?.f_name),
                          type_exclusive=type_exclusive,
@@ -180,8 +177,7 @@ fun identifier_prefixes(node,
        p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
       when access != "-"
     =>
-        (p?.p_previous_part() is part@*
-         when part == null or part is IncompleteTypeDecl) and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not starts_with(text(node.f_name?.f_name), access)) or
          check_exclusive(text(node.f_name?.f_name),
                          type_exclusive=type_exclusive,
@@ -199,8 +195,7 @@ fun identifier_prefixes(node,
         p?.p_base_type()?.p_canonical_type()?.p_canonical_fully_qualified_name() ==
         derived_ancestor
     =>
-        (p?.p_previous_part() is part@*
-         when part == null or part is IncompleteTypeDecl) and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not starts_with(text(node.f_name), derived)) or
          check_exclusive(text(node.f_name),
                          type_exclusive=type_exclusive,
@@ -218,8 +213,7 @@ fun identifier_prefixes(node,
 
     # Other types and subtypes
     | p@BaseTypeDecl =>
-        (p?.p_previous_part() is part@*
-         when part == null or part is IncompleteTypeDecl) and
+        p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((type != "-" and not starts_with(text(node.f_name), type)) or
          check_exclusive(text(node.f_name),
                          type_exclusive=false,
