@@ -596,6 +596,23 @@ class ListComprehension(Expr):
     guard = Field(type=Expr)
 
 
+class ObjectLiteral(Expr):
+    """
+    Object literal of the form:
+        {label: value, ..., labeln: valuen}
+    """
+    assocs = Field(type=T.ObjectAssoc.list)
+
+
+class ObjectAssoc(LKQLNode):
+    """
+    Object assoc in an object literal:
+        label: <value>
+    """
+    name = Field(type=Identifier)
+    expr = Field(type=Expr)
+
+
 class BlockExpr(Expr):
     """
     Expression of the form: val id = value; expr
@@ -1163,6 +1180,14 @@ lkql_grammar.add_rules(
         Opt("(", c(), List(G.named_arg, sep=",", empty_valid=False), ")")
     ),
 
+    objectlit=ObjectLiteral(
+        "{",
+        List(G.object_assoc, empty_valid=True, sep=","),
+        "}"
+    ),
+
+    object_assoc=ObjectAssoc(G.id, ":", G.expr),
+
     listcomp=ListComprehension(
         "[",
         G.expr, "for",
@@ -1244,6 +1269,7 @@ lkql_grammar.add_rules(
         G.query,
         G.listcomp,
         G.listlit,
+        G.objectlit,
         G.match,
         G.id,
         G.string_literal,
@@ -1263,7 +1289,7 @@ lkql_grammar.add_rules(
     ),
 
     block_expr=BlockExpr(
-        "{", c(), List(G.decl, sep=";", empty_valid=False), ";", G.expr,
+        "{", List(G.decl, sep=";", empty_valid=False), ";", c(), G.expr,
         "}"
     ),
 

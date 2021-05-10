@@ -38,6 +38,9 @@ Data types
 LKQL has a very limited number of data types for the moment. Here are the
 current data types:
 
+Basic data types
+^^^^^^^^^^^^^^^^
+
 * Integers: Very often used as parameters in queries, supports simple
   arithmetic.
 
@@ -51,6 +54,20 @@ current data types:
   nodes of the source files being queried. They can be explored as part of the
   general language subset, through `Field access`_, or via the `Tree
   query language subset`_.
+
+Composite data types
+^^^^^^^^^^^^^^^^^^^^
+
+LKQL has two composite data types, lists and objects.
+
+* Lists are contiguous sequences of items that can be indexed, a bit like Ada
+  vectors or Python lists.
+
+* Objects are heterogeneous records that can contain any number of key to value
+  mappings, where keys are labels and values are any valid LKQL value.
+
+Both have literal representations, which are used to build them, `List
+literals`_ and `Object literals`_. Both are immutable once constructed.
 
 Declarations
 ------------
@@ -366,6 +383,27 @@ The usual comparison operators are available. Order dependent operators
    12 < 15
    a == b
    b != c
+
+Object literals
+^^^^^^^^^^^^^^^
+
+.. lkql_doc_class:: ObjectLiteral
+.. lkql_doc_class:: ObjectAssoc
+
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/objectlit.svg
+
+An object literal is a literal representation of an object value (see
+`Composite data types`_).
+
+.. code-block:: lkql
+
+    # Object literal
+    {a: 1, b: "foo", c: null, d: [1, 2, 3 4]}
+
+Objects are immutable, and objects literals are the primary way to create new
+lists from nothing, with list comprehensions being the way to create new lists
+from existing lists.
 
 List literals
 ^^^^^^^^^^^^^

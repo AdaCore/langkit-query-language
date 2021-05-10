@@ -108,6 +108,9 @@ package body LKQL.Evaluation is
    function Eval_List_Literal
      (Ctx : Eval_Context; Node : L.List_Literal) return Primitive;
 
+   function Eval_Object_Literal
+     (Ctx : Eval_Context; Node : L.Object_Literal) return Primitive;
+
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive;
@@ -217,6 +220,9 @@ package body LKQL.Evaluation is
             Result := To_Primitive (Local_Context.Null_Node);
          when LCO.LKQL_List_Literal =>
             Result := Eval_List_Literal (Local_Context, Node.As_List_Literal);
+         when LCO.LKQL_Object_Literal =>
+            Result := Eval_Object_Literal
+              (Local_Context, Node.As_Object_Literal);
          when others =>
             raise Assertion_Error
               with "Invalid evaluation root kind: " & Node.Kind_Name;
@@ -531,6 +537,19 @@ package body LKQL.Evaluation is
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
       case Kind (Receiver) is
+         when Kind_Object =>
+            declare
+               R : constant Primitive_Maps.Cursor :=
+                 Receiver.Unchecked_Get.Obj_Assocs.Elements.Find
+                   (Symbol (Node.F_Member));
+            begin
+               if Primitive_Maps.Has_Element (R) then
+                  return Primitive_Maps.Element (R);
+               else
+                  Raise_And_Record_Error
+                    (Ctx, Make_Eval_Error (Node, "No such member"));
+               end if;
+            end;
          when Kind_Node =>
             if Is_Nullable (Receiver)
               or else Is_Null_Node (Node_Val (Receiver).Get)
@@ -806,6 +825,22 @@ package body LKQL.Evaluation is
       end loop;
       return Res;
    end Eval_List_Literal;
+
+   -------------------------
+   -- Eval_Object_Literal --
+   -------------------------
+
+   function Eval_Object_Literal
+     (Ctx : Eval_Context; Node : L.Object_Literal) return Primitive
+   is
+      Res : constant Primitive := Make_Empty_Object;
+   begin
+      for Assoc of Node.F_Assocs loop
+         Res.Unchecked_Get.Obj_Assocs.Elements.Include
+           (Symbol (Assoc.F_Name), Eval (Ctx, Assoc.F_Expr));
+      end loop;
+      return Res;
+   end Eval_Object_Literal;
 
    -----------------
    -- Eval_Unwrap --

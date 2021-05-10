@@ -52,6 +52,10 @@ package body LKQL.Primitives is
                         Close : Text_Type := "]") return Unbounded_Text_Type;
    --  Return a String representation of the given Primitive_List value
 
+   function Object_Image (Value : Primitive_Assocs) return Unbounded_Text_Type;
+   --  Given a ``Primitive_Assocs``, return a textual representation as ``{key:
+   --  <val>, ...}``.
+
    procedure Check_Kind
      (Expected_Kind : Valid_Primitive_Kind; Value : Primitive);
    --  Raise an Unsupporter_Error exception if Value.Kind is different than
@@ -158,6 +162,32 @@ package body LKQL.Primitives is
 
       return Image;
    end List_Image;
+
+   ------------------
+   -- Object_Image --
+   ------------------
+
+   function Object_Image (Value : Primitive_Assocs) return Unbounded_Text_Type
+   is
+      Image : Unbounded_Text_Type;
+      use Primitive_Maps;
+      I : Positive := 1;
+   begin
+      Append (Image, "{");
+
+      for Cur in Value.Elements.Iterate loop
+         Append (Image, Key (Cur).all);
+         Append (Image, ": ");
+         Append (Image, To_Unbounded_Text (Primitive_Maps.Element (Cur)));
+         if I < Positive (Value.Elements.Length) then
+            Append (Image, ", ");
+         end if;
+         I := I + 1;
+      end loop;
+
+      Append (Image, "}");
+      return Image;
+   end Object_Image;
 
    --------------------
    -- Iterator_Image --
@@ -578,6 +608,20 @@ package body LKQL.Primitives is
       end return;
    end To_Primitive;
 
+   -----------------------
+   -- Make_Empty_Object --
+   -----------------------
+
+   function Make_Empty_Object return Primitive is
+      Ref  : Primitive;
+      Map : constant Primitive_Assocs_Access :=
+        new Primitive_Assocs'(Elements => Primitive_Maps.Empty_Map);
+   begin
+      Ref.Set (Primitive_Data'(Refcounted with Kind       => Kind_Object,
+                                               Obj_Assocs => Map));
+      return Ref;
+   end Make_Empty_Object;
+
    ---------------------
    -- Make_Empty_List --
    ---------------------
@@ -915,6 +959,8 @@ package body LKQL.Primitives is
               List_Image (Val.Get.List_Val.all),
             when Kind_Tuple         =>
               List_Image (Val.Get.List_Val.all, "(", ")"),
+            when Kind_Object        =>
+              Object_Image (Val.Unchecked_Get.Obj_Assocs.all),
             when Kind_Selector_List =>
               Selector_List_Image (Selector_List_Val (Val)),
             when Kind_Function      =>
@@ -950,6 +996,7 @@ package body LKQL.Primitives is
                  when Kind_Node               => "Node",
                  when Kind_Iterator           => "Iterator",
                  when Kind_List               => "List",
+                 when Kind_Object             => "Object",
                  when Kind_Tuple              => "Tuple",
                  when Kind_Selector_List      => "Selector List",
                  when Kind_Function           => "Function",

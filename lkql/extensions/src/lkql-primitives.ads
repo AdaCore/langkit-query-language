@@ -21,19 +21,20 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Options;
-with Iters.Iterators;
-with Iters.Vec_Iterators;
-with LKQL.AST_Nodes;      use LKQL.AST_Nodes;
-with LKQL.Selector_Lists; use LKQL.Selector_Lists;
-with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
-
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 with Ada.Containers.Vectors;
+with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
+with Langkit_Support.Text;   use Langkit_Support.Text;
+
+with Options;
+with Iters.Iterators;
+with Iters.Vec_Iterators;
+with LKQL.AST_Nodes;         use LKQL.AST_Nodes;
+with LKQL.Selector_Lists;    use LKQL.Selector_Lists;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
+
 limited with LKQL.Eval_Contexts;
 
 package LKQL.Primitives is
@@ -45,6 +46,10 @@ package LKQL.Primitives is
 
    type Primitive_List_Access is access Primitive_List;
    --  Pointer to a list of Primitive values
+
+   type Primitive_Assocs;
+
+   type Primitive_Assocs_Access is access Primitive_Assocs;
 
    type Iterator_Primitive;
 
@@ -72,6 +77,9 @@ package LKQL.Primitives is
 
       Kind_List,
       --  List of Primitive values
+
+      Kind_Object,
+      --  object
 
       Kind_Tuple,
       --  Tuple of primitive values
@@ -110,7 +118,7 @@ package LKQL.Primitives is
        Introspectable_Kind not in
          Kind_Tuple | Kind_Unit | Kind_Function
            | Kind_Selector | Kind_Builtin_Function | Kind_Namespace
-             | Kind_Property_Reference;
+             | Kind_Property_Reference | Kind_Object;
 
    type Environment_Access is access all LKQL.Eval_Contexts.Environment;
 
@@ -143,6 +151,8 @@ package LKQL.Primitives is
             Iter_Val          : Iterator_Primitive_Access;
          when Kind_List | Kind_Tuple =>
             List_Val          : Primitive_List_Access;
+         when Kind_Object =>
+            Obj_Assocs        : Primitive_Assocs_Access;
          when Kind_Selector_List =>
             Selector_List_Val : Selector_List;
          when Kind_Builtin_Function =>
@@ -237,6 +247,24 @@ package LKQL.Primitives is
 
    procedure Free_Primitive_Vector is new Ada.Unchecked_Deallocation
      (Primitive_Vectors.Vector, Primitive_Vector_Access);
+
+   -----------------------
+   --  Primitive_Assocs --
+   -----------------------
+
+   package Primitive_Maps is new
+     Ada.Containers.Hashed_Maps
+       (Key_Type        => Symbol_Type,
+        Element_Type    => Primitive,
+        Hash            => Hash,
+        Equivalent_Keys => "=");
+
+   type Primitive_Assocs is record
+      Elements : Primitive_Maps.Map;
+   end record;
+
+   procedure Free_Primitive_Assocs is new Ada.Unchecked_Deallocation
+     (Primitive_Assocs, Primitive_Assocs_Access);
 
    --------------
    -- Iterator --
@@ -365,8 +393,10 @@ package LKQL.Primitives is
    --  Create a Primitive value from a Selector_List;
 
    function Make_Empty_List return Primitive;
-   --  Return a Primitive value storing an empty list of Primitive values
-   --  of kind `Kind`.
+   --  Return a primitive value storing an empty list.
+
+   function Make_Empty_Object return Primitive;
+   --  Return a primitive value storing an empty object.
 
    function Make_Empty_Tuple return Primitive;
 
