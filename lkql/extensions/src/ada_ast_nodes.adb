@@ -32,7 +32,6 @@ with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with GNATCOLL.GMP.Integers;
 
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
-with LKQL.Primitives; use LKQL.Primitives;
 
 package body Ada_AST_Nodes is
 
@@ -41,20 +40,16 @@ package body Ada_AST_Nodes is
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
 
-   function Make_Introspection_Value
-     (Value : Text_Type) return Introspection_Value;
-   --  Create an Introspection value from the given Text_Type value
-
-   function Make_Introspection_Value
-     (Value : I.Value_Type) return Introspection_Value;
+   function Make_Primitive
+     (Value : I.Value_Type) return Primitive;
    --  Create an Introspection_value value from the given Value_type value
 
-   function Make_Value_Type (Value       : Introspection_Value;
+   function Make_Value_Type (Value       : Primitive;
                              Target_Kind : Value_Kind)
                              return I.Value_Type;
    --  Create a Value_Type value from the given Introspection value
 
-   function Array_To_Value_Type (Value       : AST_Node_Array;
+   function List_To_Value_Type (Value       : Primitive_List;
                                  Target_Kind : Value_Kind)
                                  return I.Value_Type;
 
@@ -106,17 +101,8 @@ package body Ada_AST_Nodes is
    is
      (Ada_AST_Node'(Node => Node.Node.Child (N)));
 
-   function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc
-   is (Make_AST_Node_Rc (Ada_AST_Node'(Node => Node)));
-
-   ----------------------
-   -- Set_Ada_Ast_Node --
-   ----------------------
-
-   procedure Set_Ada_Ast_Node (Rc : in out AST_Node_Rc; Node : Ada_Node) is
-   begin
-      Rc.Set (Ada_AST_Node'(Node => Node));
-   end Set_Ada_Ast_Node;
+   function Make_Ada_AST_Node (Node : Ada_Node) return H.AST_Node_Holder
+   is (Create_Node (Ada_AST_Node'(Node => Node)));
 
    --------------------------------------------------
    -- Node array to introspection value conversion --
@@ -127,57 +113,59 @@ package body Ada_AST_Nodes is
 
       type Array_Type is array (Positive range <>) of Array_Elem;
 
-   function Introspection_Value_From_Array
-     (Nodes : Array_Type) return Introspection_Value;
+   function Primitive_From_Array
+     (Nodes : Array_Type) return Primitive;
 
    ------------------------------------
    -- Introspection_Value_From_Array --
    ------------------------------------
 
-   function Introspection_Value_From_Array
-     (Nodes : Array_Type) return Introspection_Value
+   function Primitive_From_Array
+     (Nodes : Array_Type) return Primitive
    is
-      Result        : constant AST_Node_Array_Access :=
-        new AST_Node_Array (1 .. Nodes'Length);
+      Res : constant Primitive := Make_Empty_List;
    begin
       for I in Nodes'Range loop
-         Result (I) := new Ada_AST_Node'(Node => Nodes (I).As_Ada_Node);
+         Res.Unchecked_Get.List_Val.Elements.Append
+           (To_Primitive
+              (Create_Node
+                   (Ada_AST_Node'(Node => Nodes (I).As_Ada_Node))));
       end loop;
 
-      return (Kind => Kind_Node_Array, Node_Array_Val => Result);
-   end Introspection_Value_From_Array;
+      return Res;
+   end Primitive_From_Array;
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Base_Type_Decl, Base_Type_Decl_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Base_Type_Decl, Base_Type_Decl_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Ada_Node, Ada_Node_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Ada_Node, Ada_Node_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array
+   function Make_Primitive is new
+     Primitive_From_Array
        (Generic_Instantiation, Generic_Instantiation_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Expr, Expr_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Expr, Expr_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array
+   function Make_Primitive is new
+     Primitive_From_Array
        (Base_Formal_Param_Decl, Base_Formal_Param_Decl_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Type_Decl, Type_Decl_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Type_Decl, Type_Decl_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Defining_Name, Defining_Name_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Defining_Name, Defining_Name_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Param_Spec, Param_Spec_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Param_Spec, Param_Spec_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Basic_Decl, Basic_Decl_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Basic_Decl, Basic_Decl_Array);
 
-   function Make_Introspection_Value is new
-     Introspection_Value_From_Array (Compilation_Unit, Compilation_Unit_Array);
+   function Make_Primitive is new
+     Primitive_From_Array (Compilation_Unit, Compilation_Unit_Array);
 
    -----------------------------------------------
    -- Node array to Value_Type array conversion --
@@ -192,76 +180,78 @@ package body Ada_AST_Nodes is
       with function Convert (Node : Ada_Node'Class) return Node_Type;
 
    function Node_Array_From_List
-     (Nodes : AST_Node_Array) return Node_Array;
+     (Nodes : Primitive_List) return Node_Array;
 
-   function Introspection_Node_To_Ada_Node is new Ada.Unchecked_Conversion
-     (AST_Node_Access, Ada_AST_Node_Access);
+   function To_Ada_Node is new Ada.Unchecked_Conversion
+     (H.AST_Node_Access, Ada_AST_Node_Access);
 
    --------------------------
    -- Node_Array_From_List --
    --------------------------
 
    function Node_Array_From_List
-     (Nodes : AST_Node_Array) return Node_Array
+     (Nodes : Primitive_List) return Node_Array
    is
-      Result       : Node_Array (1 .. Nodes'Length);
+      Result       : Node_Array (1 .. Natural (Nodes.Elements.Length));
    begin
-      for I in Nodes'Range loop
+      for I in Nodes.Elements.First_Index .. Nodes.Elements.Last_Index loop
          Result (I) :=
-           Convert (Introspection_Node_To_Ada_Node (Nodes (I)).Node);
+           Convert (To_Ada_Node
+                    (Nodes.Elements (I)
+                       .Unchecked_Get.Node_Val.Unchecked_Get).Node);
       end loop;
 
       return Result;
    end Node_Array_From_List;
 
-   function Base_Type_Decl_Array_From_AST_Array is new Node_Array_From_List
+   function Base_Type_Decl_Array_From_List is new Node_Array_From_List
      (Base_Type_Decl,
       Base_Type_Decl_Array,
       As_Base_Type_Decl);
 
-   function Ada_Node_Array_From_AST_Array is new Node_Array_From_List
+   function Ada_Node_Array_From_List is new Node_Array_From_List
      (Ada_Node,
       Ada_Node_Array,
       As_Ada_Node);
 
-   function Generic_Instantiation_Array_From_AST_Array
+   function Generic_Instantiation_Array_From_List
    is new Node_Array_From_List
      (Generic_Instantiation,
       Generic_Instantiation_Array,
       As_Generic_Instantiation);
 
-   function Expr_Array_From_AST_Array is new Node_Array_From_List
+   function Expr_Array_From_List is new Node_Array_From_List
      (Expr,
       Expr_Array,
       As_Expr);
 
-   function Base_Formal_Param_Decl_Array_From_AST_Array
+   function Base_Formal_Param_Decl_Array_From_List
    is new Node_Array_From_List
      (Base_Formal_Param_Decl,
       Base_Formal_Param_Decl_Array,
       As_Base_Formal_Param_Decl);
 
-   function Type_Decl_Array_From_AST_Array is new Node_Array_From_List
+   function Type_Decl_Array_From_List is new Node_Array_From_List
      (Type_Decl,
       Type_Decl_Array,
       As_Type_Decl);
 
-   function Defining_Name_Array_From_AST_Array is new Node_Array_From_List
+   function Defining_Name_Array_From_List is new Node_Array_From_List
      (Defining_Name,
       Defining_Name_Array,
       As_Defining_Name);
 
-   function Param_Spec_Array_From_AST_Array is new Node_Array_From_List
+   function Param_Spec_Array_From_List is new Node_Array_From_List
      (Param_Spec,
       Param_Spec_Array,
       As_Param_Spec);
 
-   function Basic_Decl_Array_From_AST_Array is new Node_Array_From_List
+   function Basic_Decl_Array_From_List is new Node_Array_From_List
      (Basic_Decl,
       Basic_Decl_Array,
       As_Basic_Decl);
 
-   function Compilation_Unit_Array_From_AST_Array is new Node_Array_From_List
+   function Compilation_Unit_Array_From_List is new Node_Array_From_List
      (Compilation_Unit,
       Compilation_Unit_Array,
       As_Compilation_Unit);
@@ -280,146 +270,140 @@ package body Ada_AST_Nodes is
    end Data_Reference_For_Name;
 
    ------------------------------
-   -- Make_Introspection_Value --
+   -- Make_Primitive --
    ------------------------------
 
-   function Make_Introspection_Value
-     (Value : Text_Type) return Introspection_Value
-   is
-     (Kind => Kind_Text, Text_Val => To_Unbounded_Text (Value));
-
-   ------------------------------
-   -- Make_Introspection_Value --
-   ------------------------------
-
-   function Make_Introspection_Value
-     (Value : I.Value_Type) return Introspection_Value
+   function Make_Primitive
+     (Value : I.Value_Type) return Primitive
    is
    begin
       case Kind (Value) is
          when Boolean_Value =>
-            return (Kind => Kind_Bool, Bool_Val => As_Boolean (Value));
+            return To_Primitive (As_Boolean (Value));
          when Integer_Value =>
-            return (Kind => Kind_Int,
-                    Int_Val => Create (As_Integer (Value)));
+            return To_Primitive (As_Integer (Value));
          when Big_Integer_Value =>
-            return (Kind => Kind_Int,
-                    Int_Val => Create (GNATCOLL.GMP.Integers.Image
-                      (As_Big_Integer (Value))));
+            return To_Primitive
+              (Create (GNATCOLL.GMP.Integers.Image
+               (As_Big_Integer (Value))));
          when Node_Value =>
-            return (Kind     => Kind_Node,
-                    Node_Val => new Ada_AST_Node'(Node => As_Node (Value)));
+            return To_Primitive
+              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))));
          when Text_Type_Value =>
-            return (Kind     => Kind_Text,
-                    Text_Val => To_Unbounded_Text (As_Text_Type (Value)));
+            return To_Primitive (To_Unbounded_Text (As_Text_Type (Value)));
          when Unbounded_Text_Value =>
-            return (Kind => Kind_Text, Text_Val => As_Unbounded_Text (Value));
+            return To_Primitive (As_Unbounded_Text (Value));
          when Base_Type_Decl_Array_Value =>
-            return Make_Introspection_Value (As_Base_Type_Decl_Array (Value));
+            return Make_Primitive (As_Base_Type_Decl_Array (Value));
          when Ada_Node_Array_Value =>
-            return Make_Introspection_Value (As_Ada_Node_Array (Value));
+            return Make_Primitive (As_Ada_Node_Array (Value));
          when Generic_Instantiation_Array_Value =>
-            return Make_Introspection_Value
+            return Make_Primitive
               (As_Generic_Instantiation_Array (Value));
          when Expr_Array_Value =>
-            return Make_Introspection_Value (As_Expr_Array (Value));
+            return Make_Primitive (As_Expr_Array (Value));
          when Base_Formal_Param_Decl_Array_Value =>
-            return Make_Introspection_Value
+            return Make_Primitive
               (As_Base_Formal_Param_Decl_Array (Value));
          when Type_Decl_Array_Value =>
-            return Make_Introspection_Value (As_Type_Decl_Array (Value));
+            return Make_Primitive (As_Type_Decl_Array (Value));
          when Defining_Name_Array_Value =>
-            return Make_Introspection_Value (As_Defining_Name_Array (Value));
+            return Make_Primitive (As_Defining_Name_Array (Value));
          when Param_Spec_Array_Value =>
-            return Make_Introspection_Value (As_Param_Spec_Array (Value));
+            return Make_Primitive (As_Param_Spec_Array (Value));
          when Basic_Decl_Array_Value =>
-            return Make_Introspection_Value (As_Basic_Decl_Array (Value));
+            return Make_Primitive (As_Basic_Decl_Array (Value));
          when Compilation_Unit_Array_Value =>
-            return Make_Introspection_Value
+            return Make_Primitive
               (As_Compilation_Unit_Array (Value));
          when others =>
             raise Introspection_Error with
               "Unsupported value type from the introspection API: " &
               Value_Kind'Image (Kind (Value));
       end case;
-   end Make_Introspection_Value;
+   end Make_Primitive;
 
    ---------------------
    -- Make_Value_Type --
    ---------------------
 
-   function Make_Value_Type (Value       : Introspection_Value;
+   function Make_Value_Type (Value       : Primitive;
                              Target_Kind : Value_Kind)
                              return I.Value_Type
    is
    begin
-      if Value.Kind = Kind_Node_Array then
-         return Array_To_Value_Type (Value.Node_Array_Val.all, Target_Kind);
-      elsif Value.Kind = Kind_Text then
-         return String_To_Value_Type (Value.Text_Val, Target_Kind);
-      elsif Value.Kind = Kind_Int and then Target_Kind = Integer_Value then
-         return Create_Integer (+Value.Int_Val);
-      elsif Value.Kind = Kind_Int and then Target_Kind = Big_Integer_Value then
+      if Value.Get.Kind = Kind_List then
+         return List_To_Value_Type (Value.Unchecked_Get.List_Val.all,
+                                    Target_Kind);
+      elsif Value.Get.Kind = Kind_Str then
+         return String_To_Value_Type
+           (Value.Unchecked_Get.Str_Val, Target_Kind);
+      elsif Value.Get.Kind = Kind_Int and then Target_Kind = Integer_Value then
+         return Create_Integer (+Value.Get.Int_Val);
+      elsif Value.Get.Kind = Kind_Int and then Target_Kind = Big_Integer_Value
+      then
          return Create_Big_Integer
-           (GNATCOLL.GMP.Integers.Make (Image (Value.Int_Val)));
-      elsif Value.Kind = Kind_Bool and then Target_Kind = Boolean_Value then
-         return Create_Boolean (Value.Bool_Val);
-      elsif Value.Kind = Kind_Node and then Target_Kind = Node_Value then
+           (GNATCOLL.GMP.Integers.Make (Image (Value.Get.Int_Val)));
+      elsif Value.Get.Kind = Kind_Bool and then Target_Kind = Boolean_Value
+      then
+         return Create_Boolean (Value.Get.Bool_Val);
+      elsif Value.Get.Kind = Kind_Node and then Target_Kind = Node_Value then
          return Create_Node
-           (Introspection_Node_To_Ada_Node (Value.Node_Val).Node);
+           (To_Ada_Node (Value.Get.Node_Val.Unchecked_Get).Node);
       end if;
 
       raise Introspection_Error with "Cannot convert a " &
-        Introspection_Value_Kind'Image (Value.Kind) & " to a " &
+        Valid_Primitive_Kind'Image (Value.Get.Kind) & " to a " &
         Value_Kind'Image (Target_Kind);
    end Make_Value_Type;
 
-   -------------------------
-   -- Array_To_Value_Type --
-   -------------------------
+   ------------------------
+   -- List_To_Value_Type --
+   ------------------------
 
-   function Array_To_Value_Type (Value       : AST_Node_Array;
-                                 Target_Kind : Value_Kind)
-                                 return I.Value_Type
+   function List_To_Value_Type
+     (Value       : Primitive_List;
+      Target_Kind : Value_Kind)
+      return I.Value_Type
    is
    begin
       case Target_Kind is
          when Base_Type_Decl_Array_Value =>
             return Create_Base_Type_Decl_Array
-              (Base_Type_Decl_Array_From_AST_Array (Value));
+              (Base_Type_Decl_Array_From_List (Value));
          when Ada_Node_Array_Value =>
             return Create_Ada_Node_Array
-              (Ada_Node_Array_From_AST_Array (Value));
+              (Ada_Node_Array_From_List (Value));
          when Generic_Instantiation_Array_Value =>
             return Create_Generic_Instantiation_Array
-              (Generic_Instantiation_Array_From_AST_Array (Value));
+              (Generic_Instantiation_Array_From_List (Value));
          when Expr_Array_Value =>
             return Create_Expr_Array
-              (Expr_Array_From_AST_Array (Value));
+              (Expr_Array_From_List (Value));
          when Base_Formal_Param_Decl_Array_Value =>
             return Create_Base_Formal_Param_Decl_Array
-              (Base_Formal_Param_Decl_Array_From_AST_Array (Value));
+              (Base_Formal_Param_Decl_Array_From_List (Value));
          when Type_Decl_Array_Value =>
             return Create_Type_Decl_Array
-              (Type_Decl_Array_From_AST_Array (Value));
+              (Type_Decl_Array_From_List (Value));
          when Defining_Name_Array_Value =>
             return Create_Defining_Name_Array
-              (Defining_Name_Array_From_AST_Array (Value));
+              (Defining_Name_Array_From_List (Value));
          when Param_Spec_Array_Value =>
             return Create_Param_Spec_Array
-              (Param_Spec_Array_From_AST_Array (Value));
+              (Param_Spec_Array_From_List (Value));
          when Basic_Decl_Array_Value =>
             return Create_Basic_Decl_Array
-              (Basic_Decl_Array_From_AST_Array (Value));
+              (Basic_Decl_Array_From_List (Value));
          when Compilation_Unit_Array_Value =>
             return Create_Compilation_Unit_Array
-              (Compilation_Unit_Array_From_AST_Array (Value));
+              (Compilation_Unit_Array_From_List (Value));
          when others =>
             raise Introspection_Error with "Cannot create Value_Type of kind" &
               Value_Kind'Image (Target_Kind) & " from an introspection " &
               "value array";
       end case;
-   end Array_To_Value_Type;
+   end List_To_Value_Type;
 
    --------------------------
    -- String_To_Value_Type --
@@ -481,10 +465,10 @@ package body Ada_AST_Nodes is
 
    overriding function Access_Field
      (Node  : AST_Node'Class;
-      Ref   : Ada_Member_Reference) return Introspection_Value
+      Ref   : Ada_Member_Reference) return Primitive
    is
    begin
-      return Make_Introspection_Value
+      return Make_Primitive
         (Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Empty_Value_Array));
    end Access_Field;
 
@@ -512,9 +496,9 @@ package body Ada_AST_Nodes is
 
    overriding function Default_Arg_Value
      (Ref           : Ada_Member_Reference;
-      Arg_Position  : Positive) return Introspection_Value
+      Arg_Position  : Positive) return Primitive
    is
-     (Make_Introspection_Value
+     (Make_Primitive
         (Property_Argument_Default_Value (Ref.Ref, Arg_Position)));
 
    ----------------------
@@ -524,25 +508,27 @@ package body Ada_AST_Nodes is
    function Evaluate_Property
      (Ref           : Ada_Member_Reference;
       Node          : AST_Node'Class;
-      Arguments     : Introspection_Value_Array)
-      return Introspection_Value
+      Arguments     : Primitive_List)
+      return Primitive
    is
-      Property_Args : Value_Array (1 .. Arguments'Length);
+      Args_Length : constant Natural := Natural (Arguments.Elements.Length);
+      Property_Args : Value_Array (1 .. Args_Length);
       Contraints    : constant Type_Constraint_Array :=
         Property_Argument_Types (Ref.Ref);
    begin
-      if Arguments'Length /= Contraints'Length then
+      if Args_Length /= Contraints'Length then
          raise Introspection_Error with "Expected " &
            Positive'Image (Contraints'Length) &  " arguments but got" &
-           Positive'Image (Arguments'Length);
+           Positive'Image (Args_Length);
       end if;
 
-      for I in Arguments'Range loop
+      for I in Arguments.Elements.First_Index .. Arguments.Elements.Last_Index
+      loop
          Property_Args (I) :=
-           Make_Value_Type (Arguments (I), Contraints (I).Kind);
+           Make_Value_Type (Arguments.Elements (I), Contraints (I).Kind);
       end loop;
 
-      return Make_Introspection_Value
+      return Make_Primitive
         (Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Property_Args));
    end Evaluate_Property;
 
@@ -606,7 +592,8 @@ package body Ada_AST_Nodes is
 
       for I in Units.First_Index .. Units.Last_Index
       loop
-         Roots (I) := new Ada_AST_Node'(Node => Units.Element (I).Root);
+         Roots (I) := Create_Node
+           (Ada_AST_Node'(Node => Units.Element (I).Root));
       end loop;
 
       return Make_Eval_Context

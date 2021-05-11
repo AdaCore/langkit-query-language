@@ -27,6 +27,7 @@ with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Text_IO;
+with LKQL.AST_Nodes;
 
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -132,7 +133,7 @@ package body LKQL.Primitives is
       Image   : Unbounded_Text_Type;
    begin
       for D of Value.Depth_Nodes loop
-         Append (Image, D.Node.Get.Text_Image & LF);
+         Append (Image, Text_Type'(D.Node.Unchecked_Get.Text_Image) & LF);
       end loop;
 
       return Image;
@@ -246,8 +247,6 @@ package body LKQL.Primitives is
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
          when Kind_Builtin_Function =>
             Free (Data.Builtin_Fn);
-         when Kind_Property_Reference =>
-            Free_Member_Ref (Data.Ref);
          when others =>
             null;
       end case;
@@ -344,7 +343,7 @@ package body LKQL.Primitives is
    -- Node_Val --
    --------------
 
-   function Node_Val (Value : Primitive) return AST_Node_Rc is
+   function Node_Val (Value : Primitive) return H.AST_Node_Holder is
       (Value.Get.Node_Val);
 
    --------------
@@ -482,7 +481,8 @@ package body LKQL.Primitives is
 
    function Is_Nullish (Value : Primitive) return Boolean
    is
-     ((Kind (Value) = Kind_Node and then Value.Get.Node_Val.Get.Is_Null_Node)
+     ((Kind (Value) = Kind_Node
+      and then Value.Get.Node_Val.Unchecked_Get.Is_Null_Node)
       or else Kind (Value) = Kind_Unit);
 
    ----------------
@@ -495,7 +495,7 @@ package body LKQL.Primitives is
               and then not Value.Get.Bool_Val)
               or else Value.Get.Kind = Kind_Unit
               or else (Value.Get.Kind = Kind_Node
-                and then Value.Get.Node_Val.Get.Is_Null_Node)
+                and then Value.Get.Node_Val.Unchecked_Get.Is_Null_Node)
               then False
               else True);
    end Booleanize;
@@ -571,7 +571,7 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive
-     (Node : AST_Node_Rc; Nullable : Boolean := False) return Primitive
+     (Node : H.AST_Node_Holder; Nullable : Boolean := False) return Primitive
    is
       Ref : Primitive;
    begin
@@ -689,7 +689,7 @@ package body LKQL.Primitives is
 
    function Make_Property_Reference
      (Node_Val     : Primitive;
-      Property_Ref : AST_Node_Member_Reference'Class) return Primitive
+      Property_Ref : H.AST_Node_Member_Ref_Holder) return Primitive
    is
       Ref : Primitive;
    begin
@@ -697,8 +697,7 @@ package body LKQL.Primitives is
         (Primitive_Data'
            (Refcounted
             with Kind           => Kind_Property_Reference,
-                 Ref            =>
-                   new AST_Node_Member_Reference'Class'(Property_Ref),
+                 Ref            => Property_Ref,
                  Property_Node  => Node_Val.Get.Node_Val));
 
       return Ref;
@@ -781,33 +780,6 @@ package body LKQL.Primitives is
                  Frame     => Env));
       return Ref;
    end Make_Selector;
-
-   ----------------------------
-   -- To_Introspection_Value --
-   ----------------------------
-
-   function To_Introspection_Value
-     (Value : Introspectable_Primitive) return Introspection_Value
-   is
-   begin
-      case Introspectable_Kind (Kind (Value)) is
-         when Kind_Int =>
-            return To_Introspection_Value (Int_Val (Value));
-         when Kind_Str =>
-            return To_Introspection_Value (Str_Val (Value));
-         when Kind_Node =>
-            return To_Introspection_Value (Node_Val (Value));
-         when Kind_Iterator =>
-            return To_Introspection_Value (To_List (Iter_Val (Value).all));
-         when Kind_List =>
-            return To_Introspection_Value (List_Val (Value));
-         when Kind_Selector_List =>
-            return To_Introspection_Value
-              (To_List (Selector_List_Val (Value)));
-         when Kind_Bool =>
-            return To_Introspection_Value (Bool_Val (Value));
-      end case;
-   end To_Introspection_Value;
 
    ------------
    -- Append --
@@ -928,11 +900,11 @@ package body LKQL.Primitives is
    -----------------------
 
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type is
-      function Node_Image (N : AST_Node_Rc) return Text_Type
+      function Node_Image (N : H.AST_Node_Holder) return Text_Type
       is
-         (if N.Get.Is_Null_Node
+         (if N.Unchecked_Get.Is_Null_Node
           then "null"
-          else N.Get.Text_Image);
+          else N.Unchecked_Get.Text_Image);
 
    begin
       return
@@ -974,7 +946,7 @@ package body LKQL.Primitives is
             when Kind_Property_Reference =>
               To_Unbounded_Text
                 ("<PropertyRef " & Node_Image (Val.Get.Property_Node)
-                 & Val.Get.Ref.Name & ">"),
+                 & Val.Get.Ref.Unchecked_Get.Name & ">"),
             when Kind_Namespace        =>
               To_Unbounded_Text
                (To_Text (Env_Image
@@ -1014,10 +986,10 @@ package body LKQL.Primitives is
    begin
       return (case Value.Get.Kind is
                  when Kind_Node =>
-                (if Value.Get.Node_Val.Get.Is_Null_Node
+                (if Value.Get.Node_Val.Unchecked_Get.Is_Null_Node
                  then "No_Kind"
                  else
-                   (Value.Get.Node_Val.Get.Kind_Name) &
+                   (Value.Get.Node_Val.Unchecked_Get.Kind_Name) &
                  (if Value.Get.Nullable then "?" else "")),
                  when others =>
                    To_String (Kind (Value)));
@@ -1125,7 +1097,7 @@ package body LKQL.Primitives is
                  when Kind_List | Kind_Tuple =>
                    Deep_Equals (List_Val (Left), List_Val (Right)),
                  when Kind_Node =>
-                   LKQL.AST_Nodes."="
+                   H."="
                       (Left.Get.Node_Val, Right.Get.Node_Val),
                  when others =>
                    Left.Get = Right.Get);

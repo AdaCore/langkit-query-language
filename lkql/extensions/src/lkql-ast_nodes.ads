@@ -21,19 +21,12 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Iters.Iterators;
-limited with LKQL.Primitives;
-
-with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
+with LKQL.Primitives; use LKQL.Primitives;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with GNATCOLL.Refcount;
-
 with Ada.Containers;
 with Ada.Unchecked_Deallocation;
-with Ada.Containers.Doubly_Linked_Lists;
-with Ada.Containers.Vectors;
 
 package LKQL.AST_Nodes is
 
@@ -49,20 +42,6 @@ package LKQL.AST_Nodes is
    type AST_Node_Member_Reference is abstract tagged null record;
    --  Reference to a node member (field or property)
 
-   type AST_Node_Member_Ref_Access
-   is access all AST_Node_Member_Reference'Class;
-
-   type AST_Node_Access is access all AST_Node'Class;
-   --  Pointer to an AST node
-
-   type AST_Node_Array is array (Positive range <>) of AST_Node_Access;
-   --  Array of AST node pointers
-
-   Empty_Ast_Node_Array : constant AST_Node_Array (1 .. 0) := (others => <>);
-
-   type AST_Node_Array_Access is access all AST_Node_Array;
-   --  Pointer to an array of AST node pointers
-
    type AST_Node_Kind is abstract tagged null record;
    --  Opaque representation of a node kind. Provides capabilities to check
    --  if a given node is of this kind.
@@ -71,53 +50,12 @@ package LKQL.AST_Nodes is
      (Self : AST_Node_Kind; Node : AST_Node'Class) return Boolean is abstract;
    --  Check if the given node is of the given kind.
 
-   type Introspection_Value_Kind is
-     (Kind_Node,
-      Kind_Node_Array,
-      Kind_Bool,
-      Kind_Int,
-      Kind_Text,
-      Kind_Text_Array,
-      Kind_Empty_List);
-   --  Denotes the kind of an Introspection value
-
-   type Introspection_Value;
-   --  Wrapper around Value_Type values exposed by the langkit library
-   --  thought the introspection API.
-
-   type Introspection_Value_Access is access all Introspection_Value;
-   --  Pointer to an Introspection value
-
    type Unbounded_Text_Array is
      array (Positive range <>) of Unbounded_Text_Type;
    --  Array of unicode strings
 
    type Unbounded_Text_Array_Access is access all Unbounded_Text_Array;
    --  Pointer to an array of unicode strings
-
-   type Introspection_Value (Kind : Introspection_Value_Kind := Kind_Node) is
-   record
-      case Kind is
-         when Kind_Node =>
-            Node_Val : AST_Node_Access;
-         when Kind_Node_Array =>
-            Node_Array_Val : AST_Node_Array_Access;
-         when Kind_Bool =>
-            Bool_Val : Boolean;
-         when Kind_Int =>
-            Int_Val : Adaptive_Integer;
-         when Kind_Text =>
-            Text_Val : Unbounded_Text_Type;
-         when Kind_Text_Array =>
-            Text_Array_Val : Unbounded_Text_Array_Access;
-         when Kind_Empty_List =>
-            null;
-      end case;
-   end record;
-
-   type Introspection_Value_Array is
-     array (Positive range <>) of Introspection_Value;
-   --  Array of Introspection values
 
    function "=" (Left, Right : AST_Node) return Boolean is abstract;
    --  Checks for equality between two AST nodes
@@ -160,7 +98,7 @@ package LKQL.AST_Nodes is
 
    function Access_Field (Node  : AST_Node'Class;
                           Ref   : AST_Node_Member_Reference)
-                          return Introspection_Value is abstract;
+                          return Primitive is abstract;
    --  Return the value of the 'Node's field named 'Field'.
 
    function Property_Arity
@@ -169,15 +107,15 @@ package LKQL.AST_Nodes is
 
    function Default_Arg_Value
      (Ref           : AST_Node_Member_Reference;
-      Arg_Position  : Positive) return Introspection_Value is abstract;
+      Arg_Position  : Positive) return Primitive is abstract;
    --  Return the default value (if any) of the argument named
    --  'Arg_Poisition' of 'Node's property named 'Property_Name'.
 
    function Evaluate_Property
      (Ref           : AST_Node_Member_Reference;
       Node          : AST_Node'Class;
-      Arguments     : Introspection_Value_Array)
-      return Introspection_Value is abstract;
+      Arguments     : Primitive_List)
+      return Primitive is abstract;
    --  Evaluate the 'Node's property named 'Property_Name' with the given
    --  arguments.
 
@@ -185,156 +123,9 @@ package LKQL.AST_Nodes is
      (Ref : AST_Node_Member_Reference) return Text_Type is abstract;
    --  Return the textual name of the member reference
 
-   ----------------------------
-   -- Deallocation functions --
-   ----------------------------
-
-   procedure Release_Introspection_Value (Value : in out Introspection_Value);
-   --  Release the memory allocated for the given Introspection value
-
-   procedure Free_Introspection_Value_Access is new
-     Ada.Unchecked_Deallocation
-       (Introspection_Value, Introspection_Value_Access);
-   --  Free a pointer to an Introspection value
-
    procedure Free_Unbounded_Text_Array is new Ada.Unchecked_Deallocation
      (Unbounded_Text_Array, Unbounded_Text_Array_Access);
    --  Free a pointer to an array of unicode strings
-
-   -------------------
-   -- Utility_Types --
-   -------------------
-
-   package AST_Node_Ptrs is
-     new GNATCOLL.Refcount.Shared_Pointers
-       (Element_Type => AST_Node'Class);
-   --  Refcounted AST_Node pointers
-
-   subtype AST_Node_Rc is AST_Node_Ptrs.Ref;
-   --  Refcounted AST_Node pointer
-
-   type AST_Node_Rc_Array is array (Positive range <>) of AST_Node_Rc;
-   --  Array of refcounted AST node pointers
-
-   Empty_Ast_Node_Rc_Array : constant AST_Node_Rc_Array (1 .. 0) :=
-     (others => <>);
-
-   function Hash_Rc (Node : AST_Node_Rc) return Ada.Containers.Hash_Type is
-     (Node.Get.Hash);
-   --  Return the hash of the AST node referenced by a refcounted pointer
-
-   function "=" (Left, Right : AST_Node_Rc) return Boolean is
-     (Left.Get = Right.Get);
-   --  Check equality between two AST nodes referenced by refcounted pointers
-
-   procedure Free_Member_Ref is new Ada.Unchecked_Deallocation
-     (AST_Node_Member_Reference'Class, AST_Node_Member_Ref_Access);
-   --  Free a member reference
-
-   procedure Free_AST_Node is new Ada.Unchecked_Deallocation
-     (AST_Node'Class, AST_Node_Access);
-   --  Free a pointer to an AST node
-
-   procedure Free_Ast_Node_Array is new Ada.Unchecked_Deallocation
-     (AST_Node_Array, AST_Node_Array_Access);
-   --  Free a pointer to an array of AST node pointers
-
-   procedure Release_AST_Node_Array (Value : in out AST_Node_Array_Access);
-   --  Free the node pointers contained in the array, and then free the
-   --  array's pointer.
-
-   function Make_AST_Node_Rc (Node : AST_Node'Class) return AST_Node_Rc;
-   --  Create a refcounted AST node pointer from the given AST node value
-
-   function Make_AST_Node_Rc
-     (Node : AST_Node_Access) return AST_Node_Rc;
-   --  Create a refcounted AST node pointer from the given AST node pointer
-
-   package AST_Node_Lists is
-     new Ada.Containers.Doubly_Linked_Lists
-       (Element_Type => AST_Node_Rc,
-        "="          => AST_Node_Ptrs."=");
-   --  Doubly-linked lists of refcounted AST node pointers
-
-   subtype AST_Node_List is AST_Node_Lists.List;
-   --  Doubly-linked list of refcounted AST node pointers
-
-   package AST_Node_Vectors is new Ada.Containers.Vectors
-     (Element_Type => AST_Node_Rc,
-      Index_Type   => Positive,
-      "="          => AST_Node_Ptrs."=");
-   --  Vectors of refcounted AST node pointers
-
-   subtype AST_Node_Vector is AST_Node_Vectors.Vector;
-   --  Vector of refcounted AST node pointers
-
-   package AST_Node_Iterators is new Iters.Iterators (AST_Node_Rc);
-   --  Iterators of refcounted AST node pointers
-
-   subtype AST_Node_Iterator is AST_Node_Iterators.Iterator_Interface;
-   --  Iterator of refcounted AST node pointers
-
-   subtype AST_Node_Iterator_Access is AST_Node_Iterators.Iterator_Access;
-   --  Pointer to an iterator of refcounted AST node pointers
-
-   subtype AST_Node_Iterator_Predicate is AST_Node_Iterators.Predicates.Func;
-   --  Predicate on refcounted AST node pointers
-
-   subtype AST_Node_Predicate_Access is
-     AST_Node_Iterators.Predicates.Func_Access;
-   --  Pointer to a predicate on AST node pointers
-
-   -----------------------------------
-   -- Introspection_Value creation --
-   -----------------------------------
-
-   function To_Introspection_Value (Val : Boolean) return Introspection_Value;
-   --  Create an Introspection value from the given Boolean value
-
-   function To_Introspection_Value
-     (Val : Adaptive_Integer) return Introspection_Value;
-   --  Create an Introspection value from the given Adaptive_Integer value
-
-   function To_Introspection_Value
-     (Val : Unbounded_Text_Type) return Introspection_Value;
-   --  Create an Introspection value from the given Unbounded_Text_Type value
-
-   function To_Introspection_Value
-     (Val : AST_Node_Rc) return Introspection_Value;
-   --  Create an Introspection value from the given AST_Node_Rc
-
-   function To_Introspection_Value
-     (Val : LKQL.Primitives.Primitive_List_Access) return Introspection_Value;
-   --  Create an Introspection value from a list of Primitive values.
-   --  The values in the list must all have the same kind, and their kind must
-   --  either be Kind_Node or Kind_Str.
-
-   --------------------
-   -- Child_Iterator --
-   --------------------
-
-   type Child_Iterator is new AST_Node_Iterator with private;
-   --  Iterator that yields the children of a node in a depth-first fashion
-
-   overriding function Next (Iter   : in out Child_Iterator;
-                             Result : out AST_Node_Rc)
-                             return Boolean;
-
-   overriding function Clone (Iter : Child_Iterator) return Child_Iterator;
-
-   --  function Make_Child_Iterator (Node : AST_Node_Rc) return Child_Iterator;
-
-   function Make_Child_Iterator
-     (Nodes : AST_Node_Array) return Child_Iterator;
-
-   function Make_Child_Iterator
-     (Nodes : AST_Node_Vector) return Child_Iterator;
-
-private
-
-   type Child_Iterator is new AST_Node_Iterator with record
-      Roots         : AST_Node_Vector;
-      Next_Elements : AST_Node_List;
-   end record;
+   --  TODO??? Is this used ?
 
 end LKQL.AST_Nodes;

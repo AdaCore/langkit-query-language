@@ -22,7 +22,6 @@
 ------------------------------------------------------------------------------
 
 with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
-with LKQL.AST_Nodes;        use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes;      use LKQL.Depth_Nodes;
 with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Errors;           use LKQL.Errors;
@@ -32,6 +31,7 @@ with LKQL.Node_Extensions;  use LKQL.Node_Extensions;
 with LKQL.Node_Data;        use LKQL.Node_Data;
 
 with Ada.Strings.Wide_Wide_Unbounded;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body LKQL.Functions is
    procedure Process_Function_Arguments
@@ -105,8 +105,9 @@ package body LKQL.Functions is
             return Eval_Builtin_Call (Ctx, Call, Func);
          when Kind_Property_Reference =>
             return Eval_Node_Property
-              (Ctx, Func.Get.Property_Node,
-               Func.Get.Ref.all, Call.F_Arguments);
+              (Ctx,
+               Func.Unchecked_Get.Property_Node.Unchecked_Get.all,
+               Func.Unchecked_Get.Ref.Unchecked_Get.all, Call.F_Arguments);
          when others =>
             raise Program_Error with "unreachable";
       end case;
@@ -321,7 +322,7 @@ package body LKQL.Functions is
             Call.F_Arguments.Child (1).As_Expr_Arg.F_Value_Expr,
             Kind_Node);
 
-         Root          : AST_Node_Rc := Root_Node_Arg.Get.Node_Val;
+         Root          : H.AST_Node_Holder := Root_Node_Arg.Get.Node_Val;
 
          Selector_Iterator : constant Depth_Node_Iter_Access :=
            new Depth_Node_Iter'Class'

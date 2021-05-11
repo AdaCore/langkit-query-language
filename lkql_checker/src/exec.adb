@@ -21,7 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.AST_Nodes;
+with LKQL.Partial_AST_Nodes;
 with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 
@@ -58,7 +58,7 @@ package body Exec is
         L.No_Analysis_Context) return Primitive
    is
       Ctx : constant Eval_Context := Make_Eval_Context
-        (LKQL.AST_Nodes.Empty_Ast_Node_Array,
+        (LKQL.Partial_AST_Nodes.Empty_Ast_Node_Array,
          Make_Ada_AST_Node (No_Ada_Node));
    begin
       return LKQL_Eval (Ctx, LKQL_Script, LKQL_Context);

@@ -89,7 +89,7 @@ package body LKQL.Eval_Contexts is
    -- Null_Node --
    ---------------
 
-   function Null_Node (Ctx : Eval_Context) return AST_Node_Rc is
+   function Null_Node (Ctx : Eval_Context) return H.AST_Node_Holder is
       (Ctx.Kernel.Null_Node);
 
    ---------------
@@ -187,7 +187,7 @@ package body LKQL.Eval_Contexts is
 
    function Make_Eval_Context
      (Ast_Roots    : AST_Node_Array;
-      Null_Node    : AST_Node_Rc;
+      Null_Node    : H.AST_Node_Holder;
       Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
       return Eval_Context
    is
@@ -248,9 +248,6 @@ package body LKQL.Eval_Contexts is
    begin
       pragma Assert (Ctx.Frames.Parent = null,
                      "Cannot free a non-root evaluation context");
-      for Root of Ctx.Kernel.Ast_Roots.all loop
-         Free_AST_Node (Root);
-      end loop;
 
       Free_Ast_Node_Array (Ctx.Kernel.Ast_Roots);
       Dec_Ref (Ctx.Frames);

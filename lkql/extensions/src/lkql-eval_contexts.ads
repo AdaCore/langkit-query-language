@@ -25,9 +25,9 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with LKQL.Errors;     use LKQL.Errors;
-with LKQL.AST_Nodes;  use LKQL.AST_Nodes;
 with LKQL.Primitives; use LKQL.Primitives;
 use  LKQL.Primitives.Primitive_Ptrs;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -115,7 +115,7 @@ package LKQL.Eval_Contexts is
    --  Return whether the given name is associated to a value in the local
    --  environment.
 
-   function Null_Node (Ctx : Eval_Context) return AST_Node_Rc;
+   function Null_Node (Ctx : Eval_Context) return H.AST_Node_Holder;
    --  Return the node produced by a "null" literal
 
    function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access;
@@ -156,7 +156,7 @@ package LKQL.Eval_Contexts is
 
    function Make_Eval_Context
      (Ast_Roots    : AST_Node_Array;
-      Null_Node    : AST_Node_Rc;
+      Null_Node    : H.AST_Node_Holder;
       Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
       return Eval_Context;
    --  Create a new Eval_Context with the given Ast_Root and error recovery
@@ -192,7 +192,7 @@ private
       --  Root node for each libadalang analysis unit that will be analysed in
       --  the context.
 
-      Null_Node : AST_Node_Rc;
+      Null_Node : H.AST_Node_Holder;
       --  Value produced by a "null" literal
 
       Last_Error : Error_Data := Make_Empty_Error;

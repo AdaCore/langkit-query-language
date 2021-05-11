@@ -46,12 +46,12 @@ with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
-with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 with LKQL.Errors; use LKQL.Errors;
 with Liblkqllang.Analysis;
 
 with GNAT.Traceback.Symbolic;
 with GNATCOLL.Terminal; use GNATCOLL.Terminal;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body Checker_App is
 
@@ -311,7 +311,7 @@ package body Checker_App is
 
       function Visit (Node : Ada_Node'Class) return Visit_Status is
          Result  : Primitive;
-         Rc_Node : constant AST_Node_Rc :=
+         Rc_Node : constant H.AST_Node_Holder :=
            Make_Ada_AST_Node (Node.As_Ada_Node);
          In_Generic_Instantiation_Old_Val : Boolean;
       begin

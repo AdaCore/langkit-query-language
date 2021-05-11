@@ -21,9 +21,9 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
 with LKQL.Depth_Nodes;   use LKQL.Depth_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Containers.Hashed_Sets;
@@ -43,7 +43,7 @@ private package LKQL.Custom_Selectors is
      (Ctx                            : Eval_Context;
       Selector                       : Primitive;
       Min_Depth_Expr, Max_Depth_Expr : L.Expr;
-      Root                           : AST_Node_Rc)
+      Root                           : H.AST_Node_Holder)
       return Custom_Selector_Iter;
    --  Create an iterator that yields the nodes bound to 'Root' by
    --  the given selector definition.
@@ -55,10 +55,10 @@ private
    --  List of Depth_Node values
 
    package Node_Sets is new Ada.Containers.Hashed_Sets
-     (Element_Type        => AST_Node_Rc,
-      Hash                => Hash_Rc,
-      Equivalent_Elements => "=",
-      "="                 => "=");
+     (Element_Type        => H.AST_Node_Holder,
+      Hash                => H.Hash,
+      Equivalent_Elements => H."=",
+      "="                 => H."=");
    --  Set of Depth_Node values
 
    type Custom_Selector_Iter is new Depth_Node_Iter with record
@@ -105,7 +105,7 @@ private
 
    procedure Add_Node (Iter          : in out Custom_Selector_Iter;
                        Current_Depth : Natural;
-                       Node          : AST_Node_Rc;
+                       Node          : H.AST_Node_Holder;
                        Mode          : L.Selector_Expr_Mode);
    --  Add the given node to the values produced by the selector.
    --  The value will be added to 'Next_Values' or 'Next_To_Visit' (or both)

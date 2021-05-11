@@ -26,6 +26,7 @@ with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
 with LKQL.Evaluation;        use LKQL.Evaluation;
 with LKQL.Error_Handling;    use LKQL.Error_Handling;
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
+with LKQL.AST_Nodes;
 
 package body LKQL.Custom_Selectors is
 
@@ -67,7 +68,8 @@ package body LKQL.Custom_Selectors is
      (Ctx                            : Eval_Context;
       Selector                       : Primitive;
       Min_Depth_Expr, Max_Depth_Expr : L.Expr;
-      Root                           : AST_Node_Rc) return Custom_Selector_Iter
+      Root                           : H.AST_Node_Holder)
+      return Custom_Selector_Iter
    is
 
       Default_Min   : constant Primitive := To_Primitive (1);
@@ -184,7 +186,7 @@ package body LKQL.Custom_Selectors is
 
    procedure Add_Node (Iter          : in out Custom_Selector_Iter;
                        Current_Depth : Natural;
-                       Node          : AST_Node_Rc;
+                       Node          : H.AST_Node_Holder;
                        Mode          : L.Selector_Expr_Mode)
    is
       use type LCO.LKQL_Node_Kind_Type;
@@ -194,7 +196,7 @@ package body LKQL.Custom_Selectors is
         Depth_Node'(Current_Depth + Depth_Offset, Node);
    begin
 
-      if Node.Get.Is_Null_Node or else
+      if Node.Unchecked_Get.Is_Null_Node or else
         (Iter.Max_Depth >= 0 and then With_Depth.Depth > Iter.Max_Depth)
       then
          return;

@@ -23,7 +23,7 @@
 
 with Options;
 with Iters.Iterators;
-with LKQL.AST_Nodes; use LKQL.AST_Nodes;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Ada.Containers;
 with Ada.Containers.Vectors;
@@ -32,7 +32,7 @@ package LKQL.Depth_Nodes is
 
    type Depth_Node is record
       Depth : Natural;
-      Node  : AST_Node_Rc;
+      Node  : H.AST_Node_Holder;
    end record;
    --  Depth-mapped AST node used in (and returned by) selectors
 

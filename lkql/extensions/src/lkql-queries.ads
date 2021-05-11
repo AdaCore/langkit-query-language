@@ -21,9 +21,9 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.AST_Nodes;       use LKQL.AST_Nodes;
 with LKQL.Eval_Contexts;   use LKQL.Eval_Contexts;
 with LKQL.Chained_Pattern; use LKQL.Chained_Pattern;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 private package LKQL.Queries is
 
@@ -54,7 +54,7 @@ private package LKQL.Queries is
    --  that belongs to the result set of the given query.
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : AST_Node_Rc) return Boolean;
+     (Self : in out Query_Predicate; Node : H.AST_Node_Holder) return Boolean;
    --  Evaluate the given predicate against 'Node'
 
    overriding function Clone
@@ -73,7 +73,7 @@ private package LKQL.Queries is
    end record;
 
    overriding function Next (Iter   : in out Chained_Pattern_Query_Iter;
-                             Result : out AST_Node_Rc) return Boolean;
+                             Result : out H.AST_Node_Holder) return Boolean;
 
    overriding function Clone (Iter : Chained_Pattern_Query_Iter)
                               return Chained_Pattern_Query_Iter;

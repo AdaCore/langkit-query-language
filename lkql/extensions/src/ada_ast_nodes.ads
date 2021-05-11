@@ -23,6 +23,8 @@
 
 with LKQL; use LKQL;
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
+with LKQL.Primitives; use LKQL.Primitives;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Common; use Libadalang.Common;
@@ -88,7 +90,7 @@ package Ada_AST_Nodes is
 
    overriding function Access_Field
      (Node  : AST_Node'Class;
-      Ref   : Ada_Member_Reference) return Introspection_Value;
+      Ref   : Ada_Member_Reference) return Primitive;
 
    overriding function Get_Member_Reference
      (Node : Ada_AST_Node;
@@ -99,7 +101,7 @@ package Ada_AST_Nodes is
 
    overriding function Default_Arg_Value
      (Ref           : Ada_Member_Reference;
-      Arg_Position  : Positive) return Introspection_Value;
+      Arg_Position  : Positive) return Primitive;
 
    overriding function Name
      (Ref : Ada_Member_Reference) return Text_Type;
@@ -107,11 +109,9 @@ package Ada_AST_Nodes is
    overriding function Evaluate_Property
      (Ref       : Ada_Member_Reference;
       Node      : AST_Node'Class;
-      Arguments : Introspection_Value_Array) return Introspection_Value;
+      Arguments : Primitive_List) return Primitive;
 
-   function Make_Ada_AST_Node (Node : Ada_Node) return AST_Node_Rc;
-
-   procedure Set_Ada_Ast_Node (Rc : in out AST_Node_Rc; Node : Ada_Node);
+   function Make_Ada_AST_Node (Node : Ada_Node) return H.AST_Node_Holder;
 
    function Kind_Names return Unbounded_Text_Array;
    --  List of all the node kinds' names

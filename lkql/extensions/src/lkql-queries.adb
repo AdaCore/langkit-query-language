@@ -35,6 +35,7 @@ with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
 with Ada.Exceptions; use Ada.Exceptions;
+with LKQL.AST_Nodes;
 
 package body LKQL.Queries is
 
@@ -161,7 +162,7 @@ package body LKQL.Queries is
    --------------
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : AST_Node_Rc) return Boolean
+     (Self : in out Query_Predicate; Node : H.AST_Node_Holder) return Boolean
    is
    begin
       declare
@@ -179,7 +180,8 @@ package body LKQL.Queries is
             when Continue_And_Log =>
                Eval_Trace.Trace ("Evaluating query predicate failed");
                Eval_Trace.Trace ("pattern => " & Self.Pattern.Image);
-               Eval_Trace.Trace ("ada node => " & Image (Node.Get.Text_Image));
+               Eval_Trace.Trace
+                 ("ada node => " & Image (Node.Unchecked_Get.Text_Image));
 
                Eval_Trace.Trace (Exception_Information (E));
                Eval_Trace.Trace
@@ -191,7 +193,7 @@ package body LKQL.Queries is
                Put_Line (Standard_Error, "pattern => " & Self.Pattern.Image);
                Put_Line
                  (Standard_Error, "ada node => "
-                  & Image (Node.Get.Text_Image));
+                  & Image (Node.Unchecked_Get.Text_Image));
             when Raise_Error =>
                raise;
          end case;
@@ -224,7 +226,7 @@ package body LKQL.Queries is
    ----------
 
    overriding function Next (Iter   : in out Chained_Pattern_Query_Iter;
-                             Result : out AST_Node_Rc) return Boolean
+                             Result : out H.AST_Node_Holder) return Boolean
    is
       Match            : Match_Result;
    begin

@@ -35,6 +35,7 @@ with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
 with LKQL.Error_Handling;    use LKQL.Error_Handling;
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 with LKQL.Node_Extensions; use LKQL.Node_Extensions;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body LKQL.Evaluation is
 
@@ -552,7 +553,7 @@ package body LKQL.Evaluation is
             end;
          when Kind_Node =>
             if Is_Nullable (Receiver)
-              or else Is_Null_Node (Node_Val (Receiver).Get)
+              or else Is_Null_Node (Node_Val (Receiver).Unchecked_Get.all)
             then
                Raise_Null_Access (Ctx, Receiver, Node.F_Member);
             else
@@ -591,10 +592,10 @@ package body LKQL.Evaluation is
    function Eval_Safe_Access
      (Ctx  : Eval_Context; Node : L.Safe_Access) return Primitive
    is
-      Receiver : constant AST_Node_Rc :=
+      Receiver : constant H.AST_Node_Holder :=
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
-      return (if Receiver.Get.Is_Null_Node
+      return (if Receiver.Unchecked_Get.Is_Null_Node
               then To_Primitive (Receiver, Nullable => True)
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
@@ -636,7 +637,7 @@ package body LKQL.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : L.Query) return Primitive
    is
-      Current_Node : AST_Node_Rc;
+      Current_Node : H.AST_Node_Holder;
       Iter         : AST_Node_Iterator'Class :=
         Make_Query_Iterator (Ctx, Node);
       Result       : Primitive;
@@ -681,8 +682,10 @@ package body LKQL.Evaluation is
       begin
          if Kind (List) = Kind_Node then
             return To_Primitive
-              (Make_AST_Node_Rc
-                 (Nth_Child (List.Get.Node_Val.Get, +Int_Val (Index))));
+              (Create_Node
+                 (Nth_Child
+                      (List.Get.Node_Val.Unchecked_Get.all,
+                       +Int_Val (Index))));
 
          else
             return Get (List, +Int_Val (Index));
@@ -848,7 +851,7 @@ package body LKQL.Evaluation is
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive
    is
-      Value : constant AST_Node_Rc :=
+      Value : constant H.AST_Node_Holder :=
         Node_Val (Eval (Ctx, Node.F_Node_Expr, Expected_Kind => Kind_Node));
    begin
       return To_Primitive (Value, Nullable => False);

@@ -39,7 +39,7 @@ package body LKQL.Chained_Pattern is
                              Result : out Match_Result)
                              return Boolean
    is
-      Current_Root : AST_Node_Rc;
+      Current_Root : H.AST_Node_Holder;
    begin
       while Iter.Next_Values.Is_Empty and then
         Iter.Root_Nodes_Iterator.Next (Current_Root)
@@ -107,7 +107,7 @@ package body LKQL.Chained_Pattern is
    ------------------
 
    procedure Eval_Element (Iter : in out Chained_Pattern_Iterator;
-                           Root : AST_Node_Rc)
+                           Root : H.AST_Node_Holder)
    is
       Match : constant Match_Result :=
         Match_Pattern
@@ -125,7 +125,7 @@ package body LKQL.Chained_Pattern is
    ---------------------
 
    procedure Eval_Chain_From (Iter        : in out Chained_Pattern_Iterator;
-                              Root        : AST_Node_Rc;
+                              Root        : H.AST_Node_Holder;
                               Link_Nb     : Positive)
    is
    begin
@@ -146,12 +146,12 @@ package body LKQL.Chained_Pattern is
 
    procedure Eval_Chain_From_Link
      (Iter        : in out Chained_Pattern_Iterator;
-      Root        : AST_Node_Rc;
+      Root        : H.AST_Node_Holder;
       Link_Nb     : Positive)
    is
       Link             : constant L.Chained_Pattern_Link :=
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
-      Nodes            : constant AST_Node_Rc_Array :=
+      Nodes            : constant AST_Node_Array :=
         Eval_Link (Iter.Ctx, Root, Link);
       Pattern_Binding  : constant Symbol_Type :=
         Symbol (Link.F_Pattern.P_Binding_Name);
@@ -174,9 +174,9 @@ package body LKQL.Chained_Pattern is
    ---------------------
 
    function Eval_Link (Ctx             : Eval_Context;
-                       Root            : AST_Node_Rc;
+                       Root            : H.AST_Node_Holder;
                        Link            : L.Chained_Pattern_Link)
-                       return AST_Node_Rc_Array
+                       return AST_Node_Array
    is
       Pattern : L.Base_Pattern renames Link.F_Pattern;
    begin
@@ -203,14 +203,14 @@ package body LKQL.Chained_Pattern is
    ------------------------
 
    function Eval_Selector_Link (Ctx             : Eval_Context;
-                                Root            : AST_Node_Rc;
+                                Root            : H.AST_Node_Holder;
                                 Selector        : L.Selector_Link)
-                                return AST_Node_Rc_Array
+                                return AST_Node_Array
    is
       S_List       : Selector_List;
       Call         : constant L.Selector_Call := Selector.F_Selector;
       Binding_Name : constant Symbol_Type := Symbol (Call.P_Binding_Name);
-      Empty_Array  : AST_Node_Rc_Array (1 .. 0);
+      Empty_Array  : AST_Node_Array (1 .. 0);
    begin
       if not Eval_Selector
         (Ctx, Root, Call, Selector.F_Pattern, S_List)
@@ -230,9 +230,9 @@ package body LKQL.Chained_Pattern is
    ---------------------
 
    function Eval_Field_Link (Ctx   : Eval_Context;
-                             Root  : AST_Node_Rc;
+                             Root  : H.AST_Node_Holder;
                              Field : L.Field_Link)
-                             return AST_Node_Rc_Array
+                             return AST_Node_Array
    is
       use LKQL.Node_Data;
       Field_Value : constant Primitive :=
@@ -253,9 +253,9 @@ package body LKQL.Chained_Pattern is
    ------------------------
 
    function Eval_Property_Link (Ctx : Eval_Context;
-                                Root : AST_Node_Rc;
+                                Root : H.AST_Node_Holder;
                                 Property : L.Property_Link)
-                                return AST_Node_Rc_Array
+                                return AST_Node_Array
    is
       use LKQL.Node_Data;
       Call        : constant L.Fun_Call := Property.F_Property;
@@ -277,16 +277,16 @@ package body LKQL.Chained_Pattern is
    -- To_Ada_Node_Array --
    -----------------------
 
-   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Rc_Array is
+   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Array is
    begin
       case Kind (Value) is
          when Kind_Node =>
-            return Result : AST_Node_Rc_Array (1 .. 1) do
+            return Result : AST_Node_Array (1 .. 1) do
                Result (1) := Node_Val (Value);
             end return;
 
          when Kind_List =>
-            return Result : AST_Node_Rc_Array (1 .. Length (Value)) do
+            return Result : AST_Node_Array (1 .. Length (Value)) do
                for I in 1 .. Length (Value) loop
                   Result (I) := Node_Val (Get (Value, I));
                end loop;

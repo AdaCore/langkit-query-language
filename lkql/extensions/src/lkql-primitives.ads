@@ -31,7 +31,7 @@ with Langkit_Support.Text;   use Langkit_Support.Text;
 with Options;
 with Iters.Iterators;
 with Iters.Vec_Iterators;
-with LKQL.AST_Nodes;         use LKQL.AST_Nodes;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 with LKQL.Selector_Lists;    use LKQL.Selector_Lists;
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 
@@ -145,7 +145,7 @@ package LKQL.Primitives is
          when Kind_Bool =>
             Bool_Val          : Boolean;
          when Kind_Node =>
-            Node_Val          : AST_Node_Rc;
+            Node_Val          : H.AST_Node_Holder;
             Nullable          : Boolean := False;
          when Kind_Iterator =>
             Iter_Val          : Iterator_Primitive_Access;
@@ -158,8 +158,8 @@ package LKQL.Primitives is
          when Kind_Builtin_Function =>
             Builtin_Fn        : Builtin_Function;
          when Kind_Property_Reference =>
-            Ref               : AST_Node_Member_Ref_Access;
-            Property_Node     : AST_Node_Rc;
+            Ref               : H.AST_Node_Member_Ref_Holder;
+            Property_Node     : H.AST_Node_Holder;
          when Kind_Namespace =>
             Namespace         : Environment_Access;
             Module            : L.LKQL_Node;
@@ -325,7 +325,7 @@ package LKQL.Primitives is
    function Bool_Val (Value : Primitive) return Boolean;
    --  Return the value of a Bool primitive
 
-   function Node_Val (Value : Primitive) return AST_Node_Rc;
+   function Node_Val (Value : Primitive) return H.AST_Node_Holder;
    --  Return the value of a Node primitive
 
    function List_Val (Value : Primitive) return Primitive_List_Access;
@@ -384,7 +384,7 @@ package LKQL.Primitives is
    --  Create a Bool primitive
 
    function To_Primitive
-     (Node : AST_Node_Rc; Nullable : Boolean := False) return Primitive;
+     (Node : H.AST_Node_Holder; Nullable : Boolean := False) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
@@ -417,18 +417,10 @@ package LKQL.Primitives is
 
    function Make_Property_Reference
      (Node_Val     : Primitive;
-      Property_Ref : AST_Node_Member_Reference'Class) return Primitive;
+      Property_Ref : H.AST_Node_Member_Ref_Holder) return Primitive;
 
    function Profile (Obj : Primitive) return Text_Type;
    --  For a callable object, return its profile (name + arguments) as text.
-
-   -------------------------------------------------
-   -- Primitive to Introspection value conversion --
-   -------------------------------------------------
-
-   function To_Introspection_Value
-     (Value : Introspectable_Primitive) return Introspection_Value;
-   --  Create an introspection value from the given Primitive value
 
    --------------------
    -- List Functions --

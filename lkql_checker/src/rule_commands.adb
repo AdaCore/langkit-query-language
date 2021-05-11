@@ -25,7 +25,6 @@ with Ada_AST_Nodes; use Ada_AST_Nodes;
 with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 with Exec; use Exec;
 with LKQL.Evaluation; use LKQL.Evaluation;
-with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Common; use Libadalang.Common;
@@ -34,6 +33,7 @@ with Liblkqllang.Common;
 with Liblkqllang.Iterators; use Liblkqllang.Iterators;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body Rule_Commands is
 
@@ -228,7 +228,7 @@ package body Rule_Commands is
             & To_UTF8 (Command_Name));
 
          declare
-            Wrapped_Node : constant AST_Node_Rc := Node_Val (N);
+            Wrapped_Node : constant H.AST_Node_Holder := Node_Val (N);
             Ada_Wrapped_Node : constant Ada_AST_Node :=
               Ada_AST_Node (Wrapped_Node.Unchecked_Get.all);
             Node         : Ada_Node := Ada_Wrapped_Node.Node;

@@ -171,7 +171,7 @@ package body LKQL.Patterns.Match is
               (Ctx, Pattern.As_Regex_Pattern, Value);
 
          when LCO.LKQL_Null_Pattern =>
-            if Value.Get.Node_Val.Get.Is_Null_Node then
+            if Value.Get.Node_Val.Unchecked_Get.Is_Null_Node then
                return Make_Match_Success (Value);
             else
                return Match_Failure;
@@ -222,7 +222,8 @@ package body LKQL.Patterns.Match is
       case Kind (Value) is
          when Kind_Node =>
             declare
-               Node : AST_Node'Class := Node_Val (Value).Unchecked_Get.all;
+               Node : constant AST_Node'Class :=
+                 Node_Val (Value).Unchecked_Get.all;
             begin
                if not Node.Is_Null_Node
                   and then GNAT.Regpat.Match
