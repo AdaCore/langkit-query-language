@@ -1,0 +1,19 @@
+import stdlib
+
+@check(message="")
+fun do_nothing(node) = false
+
+fun test_lower_case(n) =
+    print(n & " in lower case is " & to_lower_case (n))
+
+test_lower_case ("hello")
+test_lower_case ("Hello")
+test_lower_case ("HELLO")
+test_lower_case ("hello")
+test_lower_case ("hello_world")
+test_lower_case ("hello_world_12")
+test_lower_case ("HELLO_WORLD")
+test_lower_case ("HELLO_WORLD_12")
+test_lower_case ("Hello_World")
+test_lower_case ("Hello_World_12")
+

@@ -72,6 +72,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Is_Mixed_Case
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_To_Lower_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Contains
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -361,6 +364,22 @@ package body LKQL.Builtin_Functions is
    end Eval_Is_Mixed_Case;
 
    -------------------
+   -- To_Lower_Case --
+   -------------------
+
+   function Eval_To_Lower_Case
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+      use Ada.Wide_Wide_Characters.Handling;
+
+      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+   begin
+      return To_Primitive (To_Lower (Str));
+   end Eval_To_Lower_Case;
+
+   -------------------
    -- Eval_Contains --
    -------------------
 
@@ -606,6 +625,12 @@ package body LKQL.Builtin_Functions is
          "Return whether the given string is written in mixed case, that is, "
          & "with only lower case characters except the first one and every "
          & "character following an underscore"),
+
+      Create
+        ("to_lower_case",
+         (1 => Param ("str", Kind_Str)),
+         Eval_To_Lower_Case'Access,
+         "Return the given string written with lower case characters only"),
 
       Create
         ("contains",
