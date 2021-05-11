@@ -1,0 +1,44 @@
+casing.ads:3:9: rule violation: wrong casing
+3 |    type Enum_2 is (A2, B2, C2);      --  FLAG
+  |         ^^^^^^ 
+
+casing.ads:6:4: rule violation: wrong casing
+6 |    VAR2 : ENUM_2 := A2;              --  FLAG
+  |    ^^^^ 
+
+pack.ads:3:9: rule violation: wrong casing
+3 |    type Parent_1 is (a, B, C);        --  FLAG 2 times
+  |         ^^^^^^^^ 
+
+pack.ads:3:22: rule violation: wrong casing
+3 |    type Parent_1 is (a, B, C);        --  FLAG 2 times
+  |                      ^ 
+
+pack.ads:6:12: rule violation: wrong casing
+6 |       type Parent_2 is tagged null record;   --  FLAG
+  |            ^^^^^^^^ 
+
+pack.ads:8:7: rule violation: wrong casing
+8 |       BbBb    : exception;                   --  FLAG
+  |       ^^^^ 
+
+pack.ads:13:9: rule violation: wrong casing
+13 |    type Parent_3 is tagged private;           --  FLAG
+   |         ^^^^^^^^ 
+
+pack.ads:18:12: rule violation: wrong casing
+18 |    subtype PARENT_3_s is Parent_3;            --  FLAG
+   |            ^^^^^^^^^^ 
+
+pack.ads:20:4: rule violation: wrong casing
+20 |    C1 : constant Integer := 1;                --  FLAG
+   |    ^^ 
+
+pack.ads:24:9: rule violation: wrong casing
+24 |    type AAAA is range 1 .. 10;               --  FLAG
+   |         ^^^^ 
+
+test_it.adb:3:4: rule violation: wrong casing
+3 |    Chaclo : Integer; --  FLAG
+  |    ^^^^^^ 
+

@@ -1,0 +1,10 @@
+driver: 'checker'
+rule_name: Identifier_Casing
+project: 'prj.gpr'
+rule_arguments:
+    identifier_casing.type: '"upper"'
+    identifier_casing.enum: '"upper"'
+    identifier_casing.constant: '"lower"'
+    identifier_casing.exception: '"mixed"'
+    identifier_casing.others: '"mixed"'
+    identifier_casing.exclude: '["CHACLO", "KARPA", "OLOLO", "AAAA", "BBB", "AaAa", "A111"]'

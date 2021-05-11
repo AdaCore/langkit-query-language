@@ -1,0 +1,99 @@
+# Flag each defining identifier that does not have a casing corresponding to
+# the kind of entity being declared. All defining names are checked.
+# The rule may have the following parameters:
+# - Type=casing_scheme
+#   Specifies casing for names from type and subtype declarations.
+# - Enum=casing_scheme
+#   Specifies the casing of defining enumeration literals and for the defining
+#   names in a function renaming declarations if the renamed entity is an
+#   enumeration literal.
+# - Constant=casing_scheme
+#   Specifies the casing for defining names from constants and named number
+#   declarations, including the object renaming declaration if the renamed
+#   object is a constant.
+# - Exception=casing_scheme
+#   Specifies the casing for names from exception declarations and exception
+#   renaming declarations.
+# - Others=casing_scheme
+#   Specifies the casing for all defining names for which no special casing
+#   scheme is specified. If this parameter is not set, the casing for the
+#   entities that do not correspond to the specified parameters is not checked.
+# - Exclude
+#   Specifies a list of full identifier casing exceptions.
+#
+# TODO: missing handling of wildcards on substrings as defined in gnatpp or
+# old gnatcheck.
+#
+# Where: casing_scheme ::= upper|lower|mixed
+# upper means that the defining identifier should be upper-case. lower means
+# that the defining identifier should be lower-case mixed means that the first
+# defining identifier letter and the first letter after each underscore should
+# be upper-case, and all the other letters should be lower-case.
+
+import stdlib
+
+fun excluded(id, exclude) = {
+    |" Return 0 if ``id`` can be found in ``exclude`` and has the wrong casing,
+    |" 1 if ``id`` can be found with the right casing and 2 is it cannot be
+    |" found.
+    val ex1 = [s for s in exclude if id?.p_name_is(s)];
+
+    if ex1.length != 0
+    then (if text(id) == to_list(ex1)[ex1.length] then 1 else 0)
+    else 2
+}
+
+fun wrong_casing(str, scheme) =
+    |" Return true if ``str`` does not follow the casing specified by ``scheme``
+    match scheme
+    | "upper" => not is_upper_case(str)
+    | "lower" => not is_lower_case(str)
+    | "mixed" => not is_mixed_case(str)
+    | *       => false
+
+@check(message="wrong casing")
+fun identifier_casing(node,
+                      type="", enum="", constant="", exception="", others="",
+                      exclude=[]) =
+    node is DefiningName(f_name is id@Identifier) when {
+        val res = excluded(id, exclude);
+        if res == 0 then true
+        else if res == 1 then false
+        else match node.parent
+
+        # Types and subtypes
+        | p@BaseTypeDecl when type != "" =>
+            p?.p_previous_part() == null and wrong_casing(text(id), type)
+
+        # Enums
+        | EnumLiteralDecl when enum != "" => wrong_casing(text(id), enum)
+
+        # Look one level up for remaining cases
+        | p@* => match p?.parent
+
+        # Constants
+        | (o@ObjectDecl
+           when constant != ""
+            and (o?.f_has_constant?.p_as_bool() or
+                 # Renaming of a constant
+                 (o?.f_renaming_clause != null and
+                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
+                  f_has_constant?.p_as_bool())))
+          or NumberDecl
+        =>
+            wrong_casing(text(id), constant)
+
+        # Function renaming an enum literal
+        | r@SubpRenamingDecl
+          when enum != "" and
+               r?.f_renames?.f_renamed_object?.p_referenced_decl() is
+               EnumLiteralDecl
+        =>
+            wrong_casing(text(id), enum)
+
+        # Exceptions
+        | ExceptionDecl when exception != "" =>
+            wrong_casing(text(id), exception)
+
+        | * => others != "" and wrong_casing(text(id), others)
+    }
