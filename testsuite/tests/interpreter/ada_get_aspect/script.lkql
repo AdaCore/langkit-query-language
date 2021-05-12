@@ -1,0 +1,1 @@
+print((select first o @ ObjectDecl).p_get_aspect("Address"))

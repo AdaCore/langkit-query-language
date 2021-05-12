@@ -28,9 +28,10 @@ with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 package LKQL.Node_Data is
 
-   function Access_Node_Field (Ctx        : Eval_Context;
-                               Receiver   : H.AST_Node_Holder;
-                               Field_Name : L.Identifier) return Primitive;
+   function Access_Node_Field
+     (Ctx        : Eval_Context;
+      Receiver   : H.AST_Node_Holder;
+      Field_Name : L.Identifier) return Primitive;
    --  Return the value of the field designated by 'Field_Name' on 'Receiver'.
    --  An exception will be raised if there is no such field.
 

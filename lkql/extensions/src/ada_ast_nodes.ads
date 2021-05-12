@@ -90,7 +90,8 @@ package Ada_AST_Nodes is
 
    overriding function Access_Field
      (Node  : AST_Node'Class;
-      Ref   : Ada_Member_Reference) return Primitive;
+      Ref   : Ada_Member_Reference;
+      Ctx   : Eval_Context) return Primitive;
 
    overriding function Get_Member_Reference
      (Node : Ada_AST_Node;
@@ -101,7 +102,8 @@ package Ada_AST_Nodes is
 
    overriding function Default_Arg_Value
      (Ref           : Ada_Member_Reference;
-      Arg_Position  : Positive) return Primitive;
+      Arg_Position  : Positive;
+      Ctx           : Eval_Context) return Primitive;
 
    overriding function Name
      (Ref : Ada_Member_Reference) return Text_Type;
@@ -109,7 +111,8 @@ package Ada_AST_Nodes is
    overriding function Evaluate_Property
      (Ref       : Ada_Member_Reference;
       Node      : AST_Node'Class;
-      Arguments : Primitive_List) return Primitive;
+      Arguments : Primitive_List;
+      Ctx       : Eval_Context) return Primitive;
 
    function Make_Ada_AST_Node (Node : Ada_Node) return H.AST_Node_Holder;
 

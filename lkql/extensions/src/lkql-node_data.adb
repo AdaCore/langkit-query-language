@@ -51,7 +51,7 @@ package body LKQL.Node_Data is
       if Receiver.Unchecked_Get.Is_Field_Name (Real_Name) then
 
          Result := Receiver.Unchecked_Get.Access_Field
-           (Receiver.Unchecked_Get.Get_Member_Reference (Real_Name));
+           (Receiver.Unchecked_Get.Get_Member_Reference (Real_Name), Ctx);
 
          return Result;
 
@@ -130,7 +130,7 @@ package body LKQL.Node_Data is
             Result.Elements.Append
               (if I <= Args.Children_Count
                then Eval (Ctx, Args.List_Child (I).P_Expr)
-               else Ref.Default_Arg_Value (I));
+               else Ref.Default_Arg_Value (I, Ctx));
          end loop;
 
          return Result;
@@ -146,7 +146,7 @@ package body LKQL.Node_Data is
          Raise_Invalid_Arity (Ctx, Property_Ref.Property_Arity, Args);
       end if;
 
-      Result := Property_Ref.Evaluate_Property (Receiver, Property_Args);
+      Result := Property_Ref.Evaluate_Property (Receiver, Property_Args, Ctx);
 
       return Result;
    exception

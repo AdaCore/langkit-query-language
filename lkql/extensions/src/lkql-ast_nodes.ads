@@ -27,6 +27,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers;
 with Ada.Unchecked_Deallocation;
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 package LKQL.AST_Nodes is
 
@@ -96,8 +97,9 @@ package LKQL.AST_Nodes is
      (Node : AST_Node; Name : Text_Type) return Boolean is abstract;
    --  Return whether 'Name' is the name of one of 'Node's properties
 
-   function Access_Field (Node  : AST_Node'Class;
-                          Ref   : AST_Node_Member_Reference)
+   function Access_Field (Node    : AST_Node'Class;
+                          Ref     : AST_Node_Member_Reference;
+                          Context : Eval_Context)
                           return Primitive is abstract;
    --  Return the value of the 'Node's field named 'Field'.
 
@@ -107,14 +109,16 @@ package LKQL.AST_Nodes is
 
    function Default_Arg_Value
      (Ref           : AST_Node_Member_Reference;
-      Arg_Position  : Positive) return Primitive is abstract;
+      Arg_Position  : Positive;
+      Ctx           : Eval_Context) return Primitive is abstract;
    --  Return the default value (if any) of the argument named
    --  'Arg_Poisition' of 'Node's property named 'Property_Name'.
 
    function Evaluate_Property
      (Ref           : AST_Node_Member_Reference;
       Node          : AST_Node'Class;
-      Arguments     : Primitive_List)
+      Arguments     : Primitive_List;
+      Ctx           : Eval_Context)
       return Primitive is abstract;
    --  Evaluate the 'Node's property named 'Property_Name' with the given
    --  arguments.

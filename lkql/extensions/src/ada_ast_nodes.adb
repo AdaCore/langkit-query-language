@@ -21,6 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Unchecked_Conversion;
@@ -41,7 +42,7 @@ package body Ada_AST_Nodes is
    --  Empty Array of Value_Type values
 
    function Make_Primitive
-     (Value : I.Value_Type) return Primitive;
+     (Ctx : Eval_Context; Value : I.Value_Type) return Primitive;
    --  Create an Introspection_value value from the given Value_type value
 
    function Make_Value_Type (Value       : Primitive;
@@ -274,7 +275,7 @@ package body Ada_AST_Nodes is
    ------------------------------
 
    function Make_Primitive
-     (Value : I.Value_Type) return Primitive
+     (Ctx : Eval_Context; Value : I.Value_Type) return Primitive
    is
    begin
       case Kind (Value) is
@@ -316,6 +317,21 @@ package body Ada_AST_Nodes is
          when Compilation_Unit_Array_Value =>
             return Make_Primitive
               (As_Compilation_Unit_Array (Value));
+         when Struct_Value_Kind =>
+            --  Structs are mapped to LKQL objects
+            declare
+               Fields : constant Struct_Field_Reference_Array :=
+                 Struct_Fields (Kind (Value));
+               Ret    : constant Primitive := Make_Empty_Object;
+            begin
+               for Field of Fields loop
+                  Ret.Unchecked_Get.Obj_Assocs.Elements.Include
+                    (Find (Get_Context (Ctx.Kernel.all).Get_Symbol_Table,
+                     Member_Name (Field)),
+                     Make_Primitive (Ctx, Eval_Member (Value, Field)));
+               end loop;
+               return Ret;
+            end;
          when others =>
             raise Introspection_Error with
               "Unsupported value type from the introspection API: " &
@@ -465,11 +481,13 @@ package body Ada_AST_Nodes is
 
    overriding function Access_Field
      (Node  : AST_Node'Class;
-      Ref   : Ada_Member_Reference) return Primitive
+      Ref   : Ada_Member_Reference;
+      Ctx   : Eval_Context) return Primitive
    is
    begin
       return Make_Primitive
-        (Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Empty_Value_Array));
+        (Ctx,
+         Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Empty_Value_Array));
    end Access_Field;
 
    --------------------
@@ -496,10 +514,11 @@ package body Ada_AST_Nodes is
 
    overriding function Default_Arg_Value
      (Ref           : Ada_Member_Reference;
-      Arg_Position  : Positive) return Primitive
+      Arg_Position  : Positive;
+      Ctx           : Eval_Context) return Primitive
    is
      (Make_Primitive
-        (Property_Argument_Default_Value (Ref.Ref, Arg_Position)));
+        (Ctx, Property_Argument_Default_Value (Ref.Ref, Arg_Position)));
 
    ----------------------
    -- Evalute_Property --
@@ -508,7 +527,8 @@ package body Ada_AST_Nodes is
    function Evaluate_Property
      (Ref           : Ada_Member_Reference;
       Node          : AST_Node'Class;
-      Arguments     : Primitive_List)
+      Arguments     : Primitive_List;
+      Ctx           : Eval_Context)
       return Primitive
    is
       Args_Length : constant Natural := Natural (Arguments.Elements.Length);
@@ -529,7 +549,7 @@ package body Ada_AST_Nodes is
       end loop;
 
       return Make_Primitive
-        (Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Property_Args));
+        (Ctx, Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Property_Args));
    end Evaluate_Property;
 
    --------------------------
