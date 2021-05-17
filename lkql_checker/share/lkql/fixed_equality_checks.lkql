@@ -8,10 +8,12 @@
 fun fixed_equality_checks(node) =
     node is (RelationOp(f_op is op@(OpEq or OpNeq))
              when op?.p_referenced_decl() == null
-              and node.f_left?.p_expression_type()?.p_is_fixed_point())
+              and node.f_left?.p_expression_type() is
+                  BaseTypeDecl(p_is_fixed_point() is true))
     or CallExpr
        when (node.f_name?.p_name_is("\"=\"") or
              node.f_name?.p_name_is("\"/=\""))
         and node.p_referenced_decl() == null
-        and node.f_suffix[1]?.f_r_expr?.p_expression_type()?.p_is_fixed_point()
+        and node.f_suffix[1]?.f_r_expr?.p_expression_type() is
+            BaseTypeDecl(p_is_fixed_point() is true)
 

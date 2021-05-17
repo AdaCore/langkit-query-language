@@ -7,5 +7,6 @@
 fun volatile_objects_without_address_clauses(node) =
     node is o @ ObjectDecl when (
         o.p_has_aspect("volatile")
-        or o.f_type_expr?.p_designated_type_decl()?.p_has_aspect("volatile")
+        or o.f_type_expr?.p_designated_type_decl() is
+           BaseTypeDecl(p_has_aspect("volatile") is true)
     ) and not o.p_has_aspect("address")

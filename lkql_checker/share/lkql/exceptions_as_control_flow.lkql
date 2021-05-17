@@ -21,23 +21,22 @@ fun exceptions_as_control_flow(node) =
    # Select raise statements that are directly part of a subprogram body
    node is r@RaiseStmt(f_exception_name is exc@Name)
    when enclosing_body(r) is BaseSubpBody(
-      any children is exc_handler @ ExceptionHandler when {
+      any children is exc_handler@ExceptionHandler when {
           val exc_block = exc_handler.parent;
           val stmt_block = exc_block?.parent;
+          val canonical_exc = canonical_exception(exc);
 
           # Where there is a handler that handles this same exception (either
           # via an others clause, or a direct name handling)
           exc_handler.f_handled_exceptions is *(
-             any children is
-                (i @ BaseId
-                    when canonical_exception(i) == canonical_exception(exc))
-                or OthersDesignator
-          )
+             any children is OthersDesignator or
+                 i@Identifier(p_referenced_decl() is ExceptionDecl)
+                 when canonical_exception(i) == canonical_exc)
 
           # And the handler belongs to a block that encloses this raise statement
-          and r is *(any parent is p @ * when p.parent == stmt_block)
+          and r is *(any parent is p@* when p.parent == stmt_block)
 
           # But the raise statement is not directly part of the handler
-          and not r is *(any parent is p @ * when p.parent == exc_block)
+          and not r is *(any parent is p@* when p.parent == exc_block)
       }
    )

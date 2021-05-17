@@ -233,11 +233,12 @@ fun identifier_prefixes(node,
     | p@* => match p?.parent
         # Constants
         | (o@ObjectDecl
-          when (o?.f_has_constant?.p_as_bool() or
-                # Renaming of a constant
-                (o?.f_renaming_clause != null and
-                 stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
-                 f_has_constant?.p_as_bool())) and o?.p_public_part_decl() == null)
+           when (o?.f_has_constant?.p_as_bool() or
+                 # Renaming of a constant
+                 (o?.f_renaming_clause != null and
+                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object) is
+                  ObjectDecl(f_has_constant is ConstantPresent)))
+            and o?.p_public_part_decl() == null)
           or NumberDecl
         =>
             (constant != "-" and not starts_with(text(node.f_name), constant)) or

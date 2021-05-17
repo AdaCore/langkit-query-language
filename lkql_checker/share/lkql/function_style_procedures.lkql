@@ -28,8 +28,9 @@ fun function_style_procedures(node) =
          p_out.length == 1
          and [
             p for p in p_out
-            if p?.f_type_expr?.p_designated_type_decl()?.f_type_def
-                  is t@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
-                     when is_limited(t)
+            if p?.f_type_expr?.p_designated_type_decl() is
+               TypeDecl(f_type_def is
+                        t@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
+                        when is_limited(t))
          ].length == 0
      })

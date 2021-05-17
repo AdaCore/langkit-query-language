@@ -131,7 +131,8 @@ fun is_standard_numeric(n) =
 
 fun is_standard_boolean(n) =
     |" Return true if the root type of n is Standard.Boolean
-    n?.p_expression_type()?.p_root_type() == n?.p_bool_type()
+    n?.p_expression_type() is t@BaseTypeDecl
+    when t?.p_root_type() == n?.p_bool_type()
 
 fun is_predefined_type(n) =
     |" Return true if n is the name of a type declared in a predefined package

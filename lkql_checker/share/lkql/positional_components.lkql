@@ -2,7 +2,7 @@
 # notation.
 
 fun is_array_or_record(n) =
-    n?.p_is_array_type() or n?.p_is_record_type()
+    n is BaseTypeDecl when n?.p_is_array_type() or n?.p_is_record_type()
 
 @check(message="aggregate with a positional component association")
 fun positional_components(node) =
