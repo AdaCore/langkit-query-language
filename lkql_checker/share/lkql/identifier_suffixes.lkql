@@ -133,7 +133,9 @@ fun identifier_suffixes(node,
                ComponentDef(f_type_expr is
                    TypeExpr(p_designated_type_decl() is
                             BaseTypeDecl(p_is_access_type() is true)))) or
-           ParamSpec(f_type_expr is TypeExpr(p_is_access_type() is true)))
+           ParamSpec(f_type_expr is
+                     TypeExpr(p_designated_type_decl() is
+                              BaseTypeDecl(p_is_access_type() is true))))
           when access_obj_suffix != ""
         =>
             not ends_with(text(node.f_name), access_obj_suffix)

@@ -18,9 +18,9 @@ fun canonical_exception(name) = {
 
 @check(message="this exception will be handled in the same body")
 fun exceptions_as_control_flow(node) =
-
    # Select raise statements that are directly part of a subprogram body
-   node is r @ RaiseStmt when enclosing_body(r) is BaseSubpBody(
+   node is r@RaiseStmt(f_exception_name is exc@Name)
+   when enclosing_body(r) is BaseSubpBody(
       any children is exc_handler @ ExceptionHandler when {
           val exc_block = exc_handler.parent;
           val stmt_block = exc_block?.parent;
@@ -30,7 +30,7 @@ fun exceptions_as_control_flow(node) =
           exc_handler.f_handled_exceptions is *(
              any children is
                 (i @ BaseId
-                    when canonical_exception(i) == canonical_exception(r.f_exception_name))
+                    when canonical_exception(i) == canonical_exception(exc))
                 or OthersDesignator
           )
 
@@ -41,4 +41,3 @@ fun exceptions_as_control_flow(node) =
           and not r is *(any parent is p @ * when p.parent == exc_block)
       }
    )
-
