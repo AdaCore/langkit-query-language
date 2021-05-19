@@ -1,0 +1,40 @@
+# Flag while loops which could be replaced by a for loop
+
+fun write_references(node, id) =
+    |" Return all the write references to `id`, starting from `node`
+    from node select n@Identifier
+    when n.p_name_matches(id) and n.p_is_write_reference()
+
+fun find_references(node, id) =
+    |" Return all the references to `id`, starting from `node`
+    from node select n@Identifier when n.p_name_matches(id)
+
+@check(message="while loop may be replaced by a for loop")
+fun for_loops(node) =
+    # Find while loops of the form: while Id <relation op> ... loop
+    node is WhileLoopStmt(f_spec is WhileLoopSpec(f_expr is
+                          RelationOp(f_left is id@Identifier)))
+    when {
+        val refs = write_references(node.f_stmts, id);
+        # Look for a single write reference to id
+        refs.length == 1 and
+        # which is of the form: id := id +/- 1
+        refs[1].parent is
+        assign@AssignStmt(f_expr is
+            expr@BinOp(f_op is OpPlus or OpMinus,
+                       f_right is i@IntLiteral
+                       when i?.p_denoted_value() == 1,
+                       f_left is Identifier(p_name_matches(id) is true)))
+        # located at the very end of the loop
+        when assign?.next_sibling == null
+         # and where id is declared in the same enclosing scope as the loop
+         and id?.p_referenced_decl() is decl@ObjectDecl
+             when node.parent?.parent?.parent == decl?.parent?.parent?.parent
+              # and no other write of Id is found in its declarative part
+              # (e.g. from nested subprograms)
+              and write_references(decl?.parent, id).length == 0
+              # also check that there are no further references to id after the
+              # loop.
+              and not node is *(any next_siblings is n@*
+                                when find_references(n, id).length != 0)
+    }
