@@ -399,7 +399,7 @@ An object literal is a literal representation of an object value (see
 .. code-block:: lkql
 
     # Object literal
-    {a: 1, b: "foo", c: null, d: [1, 2, 3 4]}
+    {a: 1, b: "foo", c: null, d: [1, 2, 3, 4]}
 
 Objects are immutable, and objects literals are the primary way to create new
 lists from nothing, with list comprehensions being the way to create new lists
