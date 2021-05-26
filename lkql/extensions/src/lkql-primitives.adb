@@ -24,6 +24,7 @@
 with Ada.Assertions;                  use Ada.Assertions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Containers;                  use type Ada.Containers.Count_Type;
+with Ada.Containers.Generic_Array_Sort;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Text_IO;
@@ -172,19 +173,44 @@ package body LKQL.Primitives is
    is
       Image : Unbounded_Text_Type;
       use Primitive_Maps;
-      I : Positive := 1;
    begin
       Append (Image, "{");
 
-      for Cur in Value.Elements.Iterate loop
-         Append (Image, Key (Cur).all);
-         Append (Image, ": ");
-         Append (Image, To_Unbounded_Text (Primitive_Maps.Element (Cur)));
-         if I < Positive (Value.Elements.Length) then
-            Append (Image, ", ");
-         end if;
-         I := I + 1;
-      end loop;
+      declare
+         type Cursor_Array
+         is array (Positive range <>) of Primitive_Maps.Cursor;
+
+         Cursors : Cursor_Array (1 .. Natural (Value.Elements.Length));
+
+         function "<" (L, R : Primitive_Maps.Cursor) return Boolean
+         is
+            (Key (L).all < Key (R).all);
+
+         procedure Cursor_Sort
+         is new Ada.Containers.Generic_Array_Sort
+           (Positive, Primitive_Maps.Cursor, Cursor_Array, "<");
+
+         I : Positive := 1;
+      begin
+         for Cur in Value.Elements.Iterate loop
+            Cursors (I) := Cur;
+            I := I + 1;
+         end loop;
+
+         Cursor_Sort (Cursors);
+
+         I := 1;
+
+         for Cur of Cursors loop
+            Append (Image, Key (Cur).all);
+            Append (Image, ": ");
+            Append (Image, To_Unbounded_Text (Primitive_Maps.Element (Cur)));
+            if I < Positive (Value.Elements.Length) then
+               Append (Image, ", ");
+            end if;
+            I := I + 1;
+         end loop;
+      end;
 
       Append (Image, "}");
       return Image;
