@@ -453,19 +453,20 @@ package body LKQL.Primitives is
      (Value : Primitive; Member_Name : Text_Type) return Primitive
    is
    begin
-      return (case Kind (Value) is
-                 when Kind_Selector_List =>
-                   Selector_List_Data (Selector_List_Val (Value), Member_Name),
-                 when Kind_List =>
-                   List_Data (List_Val (Value), Member_Name),
-                 when Kind_Str =>
-                   Str_Data (Str_Val (Value), Member_Name),
-                 when Kind_Iterator =>
-                   Iterator_Data (Iter_Val (Value), Member_Name),
-                 when others =>
-                    raise Unsupported_Error with
-                      "Cannot get property on value of kind "
-                       & Kind_Name (Value));
+      case Kind (Value) is
+         when Kind_Selector_List =>
+            return Selector_List_Data (Selector_List_Val (Value), Member_Name);
+         when Kind_List =>
+            return List_Data (List_Val (Value), Member_Name);
+         when Kind_Str =>
+            return Str_Data (Str_Val (Value), Member_Name);
+         when Kind_Iterator =>
+            return Iterator_Data (Iter_Val (Value), Member_Name);
+         when others =>
+            raise Unsupported_Error with
+              "Cannot get property on value of kind "
+              & Kind_Name (Value);
+      end case;
    end Data;
 
    -----------------

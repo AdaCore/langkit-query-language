@@ -33,6 +33,7 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
+with Ada.Containers; use Ada.Containers;
 
 package LKQL.Eval_Contexts is
 
@@ -87,6 +88,41 @@ package LKQL.Eval_Contexts is
 
    function Env_Image (Env : Environment_Access) return String;
    --  Return a structured debug image of the env passed in parameter.
+
+   type Builtin_Method_Descriptor is record
+      Expected_Kind : Base_Primitive_Kind;
+      --  Kind expected for the self argument of the method
+
+      Name          : Symbol_Type;
+      --  Name of the method
+   end record;
+
+   function Hash
+     (Self : Builtin_Method_Descriptor) return Hash_Type
+   is
+     (Hash (Self.Name));
+
+   function Eq_Keys (L, R : Builtin_Method_Descriptor) return Boolean
+   is
+     (L.Name = R.Name
+      and then
+      (L.Expected_Kind = No_Kind
+         or else R.Expected_Kind = No_Kind
+         or else L.Expected_Kind = R.Expected_Kind));
+
+   package Builtin_Methods_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Builtin_Method_Descriptor,
+      Element_Type    => Builtin_Function,
+      Hash            => Hash,
+      Equivalent_Keys => Eq_Keys,
+      "="             => "=");
+
+   type Builtin_Methods_Map is new Builtin_Methods_Maps.Map with null record;
+   type Builtin_Methods_Map_Access is access all Builtin_Methods_Map;
+
+   function Get_Builtin_Methods
+     (Self : Global_Data_Access) return Builtin_Methods_Map_Access;
+   --  Return a map of ``(name, kind) -> Builtin_Method_Descriptor``
 
    ------------------
    -- Eval_Context --
@@ -202,6 +238,9 @@ private
       --  LKQL analysis context, used to hold data of the prelude
 
       LKQL_Path_List : String_Vectors.Vector;
+
+      Builtin_Methods : Builtin_Methods_Map;
+      --  Map of builtin methods by (self_kind, name)
    end record;
    --  Stores the global data structures shared by every evaluation context
 

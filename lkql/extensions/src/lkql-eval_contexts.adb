@@ -199,7 +199,9 @@ package body LKQL.Eval_Contexts is
           (Roots, Null_Node, Make_Empty_Error,
            (if Analysis_Ctx = L.No_Analysis_Context
             then L.Create_Context
-            else Analysis_Ctx), LKQL_Path_List => <>);
+            else Analysis_Ctx),
+           LKQL_Path_List     => <>,
+           Builtin_Methods => <>);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment);
       Ret    : Eval_Context := Eval_Context'(Kernel, Env);
@@ -214,6 +216,18 @@ package body LKQL.Eval_Contexts is
          for Fn_Desc of Builtin_Functions.All_Builtins loop
             Ret.Add_Binding
               (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc));
+
+            if Fn_Desc.Params'Length > 0 then
+               declare
+                  Name : constant Symbol_Type := Find
+                    (Kernel.Context.Get_Symbol_Table,
+                     To_Text (Fn_Desc.Name));
+               begin
+                  Kernel.Builtin_Methods.Include
+                    ((Fn_Desc.Params (1).Expected_Kind, Name),
+                     Fn_Desc);
+               end;
+            end if;
          end loop;
       end;
 
@@ -353,6 +367,16 @@ package body LKQL.Eval_Contexts is
    begin
       return Self.Context;
    end Get_Context;
+
+   -------------------------
+   -- Get_Builtin_Methods --
+   -------------------------
+
+   function Get_Builtin_Methods
+     (Self : Global_Data_Access) return Builtin_Methods_Map_Access is
+   begin
+      return Self.Builtin_Methods'Unrestricted_Access;
+   end Get_Builtin_Methods;
 
    -------------
    -- Dec_Ref --

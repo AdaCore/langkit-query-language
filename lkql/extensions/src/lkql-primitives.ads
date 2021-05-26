@@ -135,6 +135,7 @@ package LKQL.Primitives is
 
    type Primitive_Data (Kind : Valid_Primitive_Kind) is
      new Refcounted with record
+
       case Kind is
          when Kind_Unit =>
             null;

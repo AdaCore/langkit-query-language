@@ -537,6 +537,20 @@ package body LKQL.Evaluation is
       Receiver    : constant Primitive := Eval (Ctx, Node.F_Receiver);
       Member_Name : constant Text_Type := Node.F_Member.Text;
    begin
+      declare
+         Builtin_Desc : constant Builtin_Method_Descriptor :=
+           (Receiver.Get.Kind,
+            Symbol (Node.F_Member));
+
+         Cur          : constant Builtin_Methods_Maps.Cursor :=
+           Get_Builtin_Methods (Ctx.Kernel).Find (Builtin_Desc);
+      begin
+         if Builtin_Methods_Maps.Has_Element (Cur) then
+            return Builtin_Methods_Maps.Element (Cur).Fn_Access
+              (Ctx, (1 => Receiver));
+         end if;
+      end;
+
       case Kind (Receiver) is
          when Kind_Object =>
             declare
