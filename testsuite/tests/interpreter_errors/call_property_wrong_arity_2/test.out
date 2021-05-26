@@ -1,0 +1,4 @@
+script.lkql:2:38: error: Expected 1 arguments but got 0
+2 | print(te.p_designated_type_decl_from())
+  |                                       
+

@@ -1,0 +1,2 @@
+val te = select first TypeExpr
+print(te.p_designated_type_decl_from())

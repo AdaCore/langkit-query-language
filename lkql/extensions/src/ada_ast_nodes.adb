@@ -289,7 +289,8 @@ package body Ada_AST_Nodes is
                (As_Big_Integer (Value))));
          when Node_Value =>
             return To_Primitive
-              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))));
+              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))),
+               Nullable => True);
          when Text_Type_Value =>
             return To_Primitive (To_Unbounded_Text (As_Text_Type (Value)));
          when Unbounded_Text_Value =>
@@ -517,8 +518,15 @@ package body Ada_AST_Nodes is
       Arg_Position  : Positive;
       Ctx           : Eval_Context) return Primitive
    is
-     (Make_Primitive
-        (Ctx, Property_Argument_Default_Value (Ref.Ref, Arg_Position)));
+      V : constant Any_Value_Type :=
+        Property_Argument_Default_Value (Ref.Ref, Arg_Position);
+   begin
+      if V = No_Value then
+         return Primitive_Ptrs.Null_Ref;
+      else
+         return Make_Primitive (Ctx, V);
+      end if;
+   end Default_Arg_Value;
 
    ----------------------
    -- Evalute_Property --

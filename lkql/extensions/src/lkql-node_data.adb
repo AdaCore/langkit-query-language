@@ -125,12 +125,22 @@ package body LKQL.Node_Data is
       is
          Arity  : constant Natural := Ref.Property_Arity;
          Result : Primitive_List;
+
+         use Primitive_Ptrs;
       begin
          for I in 1 .. Arity loop
-            Result.Elements.Append
-              (if I <= Args.Children_Count
-               then Eval (Ctx, Args.List_Child (I).P_Expr)
-               else Ref.Default_Arg_Value (I, Ctx));
+            declare
+               Val : constant Primitive :=
+                 (if I <= Args.Children_Count
+                  then Eval (Ctx, Args.List_Child (I).P_Expr)
+                  else Ref.Default_Arg_Value (I, Ctx));
+            begin
+               if Val = Primitive_Ptrs.Null_Ref then
+                  Raise_Invalid_Arity (Ctx, Arity, Args);
+               else
+                  Result.Elements.Append (Val);
+               end if;
+            end;
          end loop;
 
          return Result;
