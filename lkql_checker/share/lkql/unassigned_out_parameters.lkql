@@ -36,8 +36,11 @@ fun enclosing_body_stmts(node) = {
 
 @check(message="unassigned out parameter")
 fun unassigned_out_parameters(node) =
-    node is DefiningName(parent is DefiningNameList(parent is ParamSpec(
-        f_mode is ModeOut)))
+    # Look for out parameters of subprogram bodies only
+    node is DefiningName(parent is DefiningNameList(parent is
+            ParamSpec(f_mode is ModeOut,
+                      parent is ParamSpecList(parent is Params(parent is
+                      SubpSpec(parent is SubpBody))))))
     when {
         val f = enclosing_body_stmts(node);
         val decl = node.p_basic_decl();
