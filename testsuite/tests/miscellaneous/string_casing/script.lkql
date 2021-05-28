@@ -1,8 +1,3 @@
-import stdlib
-
-@check(message="")
-fun do_nothing(node) = false
-
 fun test_casing(n) = {
     val is_lower_case = is_lower_case (n);
     val is_upper_case = is_upper_case (n);

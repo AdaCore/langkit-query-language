@@ -1,3 +1,2 @@
-driver: 'checker'
-rule_name: Do_Nothing
-input_sources: []
+driver: 'interpreter'
+project: 'default_project/default.gpr'

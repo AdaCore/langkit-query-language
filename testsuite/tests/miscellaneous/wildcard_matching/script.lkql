@@ -1,10 +1,19 @@
-import stdlib
+fun match_wildcard(str, pat) =
+    |" Return whether the given string `str` matches the simple wildcard
+    |" pattern `pat`. The pattern is an identifier with optionally a
+    |" wildcard (`*`) character as the first character, last character or
+    |" both.
+    match pat
+    | "^\*.*\*$" => contains(str, substring(pat, 2, pat.length - 1))
+    | "^\*"      => ends_with(str, substring(pat, 2, pat.length))
+    | "\*$"      => starts_with(str, substring(pat, 1, pat.length - 1))
+    | *          => str == pat
 
 @check(message="")
 fun do_nothing(node) = false
 
 fun test_wildcard(str, pat) = {
-    val matches = stdlib.match_wildcard(str, pat);
+    val matches = match_wildcard(str, pat);
     if matches then
         print(str & " matches " & pat)
     else

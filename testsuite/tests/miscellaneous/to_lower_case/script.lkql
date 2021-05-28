@@ -1,5 +1,3 @@
-import stdlib
-
 @check(message="")
 fun do_nothing(node) = false
 
