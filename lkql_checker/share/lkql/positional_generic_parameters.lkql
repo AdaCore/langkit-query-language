@@ -5,4 +5,4 @@
 fun positional_generic_parameters(node) =
     node is ParamAssoc(f_designator is null,
                        parent is l@AssocList(parent is GenericInstantiation))
-    when children_count(l) > 1
+    when l.children_count > 1

@@ -7,9 +7,9 @@
 # specifying the maximal allowed number of parents/progenitors.
 
 fun num_interfaces(n) = match n
-    | TaskTypeDecl        => children_count(n.f_definition?.f_interfaces)
-    | ProtectedTypeDecl   => children_count(n.f_interfaces)
-    | SingleProtectedDecl => children_count(n.f_interfaces)
+    | TaskTypeDecl        => n.f_definition?.f_interfaces.children_count
+    | ProtectedTypeDecl   => n.f_interfaces.children_count
+    | SingleProtectedDecl => n.f_interfaces.children_count
     | *                   => 0
 
 @check(message="too many parents")

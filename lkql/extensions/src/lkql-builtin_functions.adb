@@ -94,10 +94,11 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Create
-     (Name      : Text_Type;
-      Params    : Builtin_Function_Profile;
-      Fn_Access : Native_Function_Access;
-      Doc       : Text_Type) return Builtin_Function;
+     (Name           : Text_Type;
+      Params         : Builtin_Function_Profile;
+      Fn_Access      : Native_Function_Access;
+      Doc            : Text_Type;
+      Only_Dot_Calls : Boolean := False) return Builtin_Function;
    --  Create a builtin function given a name, a description of its
    --  parameters and an access to the native code that implements it.
 
@@ -123,18 +124,20 @@ package body LKQL.Builtin_Functions is
    ------------
 
    function Create
-     (Name      : Text_Type;
-      Params    : Builtin_Function_Profile;
-      Fn_Access : Native_Function_Access;
-      Doc       : Text_Type) return Builtin_Function
+     (Name           : Text_Type;
+      Params         : Builtin_Function_Profile;
+      Fn_Access      : Native_Function_Access;
+      Doc            : Text_Type;
+      Only_Dot_Calls : Boolean := False) return Builtin_Function
    is
    begin
       return new Builtin_Function_Description'
-        (N         => Params'Length,
-         Name      => To_Unbounded_Text (Name),
-         Params    => Params,
-         Fn_Access => Fn_Access,
-         Doc       => To_Unbounded_Text (Doc));
+        (N              => Params'Length,
+         Name           => To_Unbounded_Text (Name),
+         Params         => Params,
+         Fn_Access      => Fn_Access,
+         Doc            => To_Unbounded_Text (Doc),
+         Only_Dot_Calls => Only_Dot_Calls);
    end Create;
 
    -----------
@@ -570,25 +573,29 @@ package body LKQL.Builtin_Functions is
         ("dump",
          (1 => Param ("node", Kind_Node)),
          Eval_Dump'Access,
-         "Given an ast node, return a structured dump of the subtree"),
+         "Given an ast node, return a structured dump of the subtree",
+         Only_Dot_Calls => True),
 
       Create
         ("text",
          (1 => Param ("node", Kind_Node)),
          Eval_Text'Access,
-         "Given an ast node, return its text"),
+         "Given an ast node, return its text",
+         Only_Dot_Calls => True),
 
       Create
         ("to_list",
          (1 => Param ("it", Kind_Iterator)),
          Eval_To_List'Access,
-         "Transform an iterator into a list"),
+         "Transform an iterator into a list",
+         Only_Dot_Calls => True),
 
       Create
         ("children_count",
          (1 => Param ("node", Kind_Node)),
          Eval_Children_Count'Access,
-         "Given a node, return the count of its children"),
+         "Given a node, return the count of its children",
+         Only_Dot_Calls => True),
 
       --  String builtins
 
@@ -596,27 +603,31 @@ package body LKQL.Builtin_Functions is
         ("starts_with",
          (Param ("str", Kind_Str), Param ("prefix", Kind_Str)),
          Eval_Starts_With'Access,
-         "Given a string, returns whether it starts with the given prefix"),
+         "Given a string, returns whether it starts with the given prefix",
+         Only_Dot_Calls => True),
 
       Create
         ("ends_with",
          (Param ("str", Kind_Str), Param ("suffix", Kind_Str)),
          Eval_Ends_With'Access,
-         "Given a string, returns whether it ends with the given suffix"),
+         "Given a string, returns whether it ends with the given suffix",
+         Only_Dot_Calls => True),
 
       Create
         ("is_lower_case",
          (1 => Param ("str", Kind_Str)),
          Eval_Is_Lower_Case'Access,
          "Return whether the given string contains lower case characters "
-         & "only"),
+         & "only",
+         Only_Dot_Calls => True),
 
       Create
         ("is_upper_case",
          (1 => Param ("str", Kind_Str)),
          Eval_Is_Upper_Case'Access,
          "Return whether the given string contains upper case characters "
-         & "only"),
+         & "only",
+         Only_Dot_Calls => True),
 
       Create
         ("is_mixed_case",
@@ -624,20 +635,23 @@ package body LKQL.Builtin_Functions is
          Eval_Is_Mixed_Case'Access,
          "Return whether the given string is written in mixed case, that is, "
          & "with only lower case characters except the first one and every "
-         & "character following an underscore"),
+         & "character following an underscore",
+         Only_Dot_Calls => True),
 
       Create
         ("to_lower_case",
          (1 => Param ("str", Kind_Str)),
          Eval_To_Lower_Case'Access,
-         "Return the given string written with lower case characters only"),
+         "Return the given string written with lower case characters only",
+         Only_Dot_Calls => True),
 
       Create
         ("contains",
          (Param ("str", Kind_Str), Param ("substr", Kind_Str)),
          Eval_Contains'Access,
          "Given two strings, return whether the second one is included in "
-         & "the first one"),
+         & "the first one",
+         Only_Dot_Calls => True),
 
       Create
         ("substring",
@@ -646,7 +660,8 @@ package body LKQL.Builtin_Functions is
           Param ("to", Kind_Int)),
          Eval_Substring'Access,
          "Given a string and two indices (from and to), return the substring "
-         & "contained between indices from and to (both included)"),
+         & "contained between indices from and to (both included)",
+         Only_Dot_Calls => True),
 
       Create
         ("doc",

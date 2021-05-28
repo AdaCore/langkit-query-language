@@ -220,10 +220,22 @@ package LKQL.Primitives is
      (others => <>);
 
    type Builtin_Function_Description (N : Natural) is record
-      Name      : Unbounded_Text_Type;
-      Params    : Builtin_Function_Profile (1 .. N);
-      Fn_Access : Native_Function_Access;
-      Doc       : Unbounded_Text_Type;
+      Name           : Unbounded_Text_Type;
+      --  Name of the built-in function
+
+      Params         : Builtin_Function_Profile (1 .. N);
+      --  Parameters descriptions
+
+      Fn_Access      : Native_Function_Access;
+      --  Access to the native function to call for this function
+
+      Doc            : Unbounded_Text_Type;
+      --  Documentation for the builtin
+
+      Only_Dot_Calls : Boolean;
+      --  Whether this builtin can be called via the regular call syntax, or
+      --  only via dot calls on entities with the same kind as the function's
+      --  first argument.
    end record;
 
    ----------

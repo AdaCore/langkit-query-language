@@ -18,7 +18,7 @@ fun type_mismatch(t1, t2) = {
 fun param_mismatch(n1, n2, i: int) =
     if i == 0 then false
     else if (n1[i]?.f_mode is ModeDefault) != (n2[i]?.f_mode is ModeDefault) or
-            children_count(n1[i]?.f_ids) != children_count(n2[i]?.f_ids) or
+            n1[i]?.f_ids.children_count != n2[i]?.f_ids.children_count or
             type_mismatch(n1[i]?.f_type_expr, n2[i]?.f_type_expr)
          then true
          else param_mismatch(n1, n2, i - 1)
@@ -27,8 +27,8 @@ fun param_mismatch(n1, n2, i: int) =
 fun subp_mismatch(node, decl) = {
      val params1 = node?.f_subp_spec?.f_subp_params?.f_params;
      val params2 = decl?.f_subp_spec?.f_subp_params?.f_params;
-     val count1  = children_count(params1);
-     val count2  = children_count(params2);
+     val count1  = params1.children_count;
+     val count2  = params2.children_count;
      count1 != count2 or
      type_mismatch(node?.f_subp_spec?.f_subp_returns,
                    decl?.f_subp_spec?.f_subp_returns) or
@@ -39,8 +39,8 @@ fun subp_mismatch(node, decl) = {
 fun entry_mismatch(e) = {
      val params1 = e?.f_params?.f_params?.f_params;
      val params2 = e?.p_decl_part()?.f_spec?.f_entry_params?.f_params;
-     val count1  = children_count(params1);
-     val count2  = children_count(params2);
+     val count1  = params1.children_count;
+     val count2  = params2.children_count;
      count1 != count2 or param_mismatch(params1, params2, count1)
 }
 

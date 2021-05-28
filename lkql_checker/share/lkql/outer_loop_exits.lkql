@@ -4,7 +4,7 @@
 @check(message="exit out of the nesting loop")
 fun outer_loop_exits(node) =
     node is ExitStmt(f_loop_name is Identifier)
-    when to_list([p for p in node.parents(include_self=false)
-                  if p is BaseLoopStmt])[1] is l@BaseLoopStmt
+    when [p for p in node.parents(include_self=false)
+          if p is BaseLoopStmt].to_list[1] is l@BaseLoopStmt
           when l?.f_end_name == null or
            not l?.f_end_name?.f_name?.p_name_matches(node.f_loop_name)

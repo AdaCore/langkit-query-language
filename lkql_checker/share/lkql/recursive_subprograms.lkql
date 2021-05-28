@@ -33,8 +33,8 @@ fun body(name) = match name.p_referenced_decl()
 selector calls
     | b @ Body => rec *
         # Grab the bodies for every explicit call
-        to_list([body(a) for a in stdlib.children_no_nested_subps(b)
-                 if a is n @ Name when n.p_is_call()])
+        [body(a) for a in stdlib.children_no_nested_subps(b)
+         if a is n @ Name when n.p_is_call()].to_list
     | * => ()
 
 @node_check(message="recursive subprogram")

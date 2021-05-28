@@ -3,7 +3,7 @@
 # body, task body or entry body is not flagged.
 
 fun enclosing_body(node) = {
-   val parent_bodies = to_list([p for p in parent(node) if p is Body]);
+   val parent_bodies = [p for p in parent(node) if p is Body].to_list;
    if parent_bodies.length == 0 then null else parent_bodies[1]
 }
 

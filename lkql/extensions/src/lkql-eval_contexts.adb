@@ -214,9 +214,18 @@ package body LKQL.Eval_Contexts is
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
          for Fn_Desc of Builtin_Functions.All_Builtins loop
-            Ret.Add_Binding
-              (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc));
 
+            --  Add bindings to the toplevel scope, if the function is not
+            --  marked as being accessible only via dot notation calls on
+            --  objects.
+            if not Fn_Desc.Only_Dot_Calls then
+               Ret.Add_Binding
+                 (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc));
+            end if;
+
+            --  For applicable functions, register them in the builtin
+            --  properties table, which will allow them to be called via
+            --  the dot notation on objects.
             if Fn_Desc.Params'Length > 0 then
                declare
                   Name : constant Symbol_Type := Find

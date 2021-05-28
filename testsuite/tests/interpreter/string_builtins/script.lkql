@@ -1,7 +1,7 @@
-print(starts_with("abcd", prefix="ab"))
-print(starts_with("abcd", prefix="abcde"))
-print(starts_with("abcd", prefix="bcd"))
+print("abcd".starts_with(prefix="ab"))
+print("abcd".starts_with(prefix="abcde"))
+print("abcd".starts_with(prefix="bcd"))
 
-print(ends_with("abcd", suffix="cd"))
-print(ends_with("abcd", suffix="abcde"))
-print(ends_with("abcd", suffix="abc"))
+print("abcd".ends_with(suffix="cd"))
+print("abcd".ends_with(suffix="abcde"))
+print("abcd".ends_with(suffix="abc"))

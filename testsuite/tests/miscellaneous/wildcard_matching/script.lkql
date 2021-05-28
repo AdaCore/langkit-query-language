@@ -4,9 +4,9 @@ fun match_wildcard(str, pat) =
     |" wildcard (`*`) character as the first character, last character or
     |" both.
     match pat
-    | "^\*.*\*$" => contains(str, substring(pat, 2, pat.length - 1))
-    | "^\*"      => ends_with(str, substring(pat, 2, pat.length))
-    | "\*$"      => starts_with(str, substring(pat, 1, pat.length - 1))
+    | "^\*.*\*$" => str.contains(pat.substring(2, pat.length - 1))
+    | "^\*"      => str.ends_with(pat.substring(2, pat.length))
+    | "\*$"      => str.starts_with(pat.substring(1, pat.length - 1))
     | *          => str == pat
 
 @check(message="")

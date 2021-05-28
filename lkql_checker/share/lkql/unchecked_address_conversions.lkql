@@ -22,7 +22,7 @@ fun unchecked_address_conversions(node) =
     when node.p_designated_subp()?.p_canonical_fully_qualified_name()
          == "ada.unchecked_conversion"
      and node.f_params is params@AssocList
-         when children_count(params) == 2
+         when params.children_count == 2
           and if params[1]?.f_designator == null or
                  params[1]?.f_designator?.p_name_is("source") 
               then check_uc_params(params[1], params[2])

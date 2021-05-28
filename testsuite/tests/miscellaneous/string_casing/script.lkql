@@ -1,7 +1,7 @@
 fun test_casing(n) = {
-    val is_lower_case = is_lower_case (n);
-    val is_upper_case = is_upper_case (n);
-    val is_mixed_case = is_mixed_case (n);
+    val is_lower_case = n.is_lower_case;
+    val is_upper_case = n.is_upper_case;
+    val is_mixed_case = n.is_mixed_case;
 
     val d1 = print(n & " is");
     val d2 = print("  lower case: " & img (is_lower_case));
@@ -20,4 +20,3 @@ test_casing ("HELLO_WORLD")
 test_casing ("HELLO_WORLD_12")
 test_casing ("Hello_World")
 test_casing ("Hello_World_12")
-

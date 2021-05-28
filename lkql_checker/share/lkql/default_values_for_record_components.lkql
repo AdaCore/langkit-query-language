@@ -8,4 +8,3 @@ fun default_values_for_record_components(node) =
    node is ComponentDecl
    when node.f_default_expr != null
    and not node is *(any parent is ProtectedDef)
-

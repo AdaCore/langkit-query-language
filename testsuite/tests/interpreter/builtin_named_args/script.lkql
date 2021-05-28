@@ -1,1 +1,1 @@
-print(select b@BasicDecl when children_count(node=b) > 1)
+print(select b@BasicDecl when b.children_count > 1)

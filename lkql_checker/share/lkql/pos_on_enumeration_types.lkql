@@ -7,4 +7,3 @@ fun pos_on_enumeration_types(node) =
     when node.f_attribute?.p_name_is("Pos")
      and node.f_prefix?.p_referenced_decl() is t@BaseTypeDecl
          when t?.p_is_enum_type()
-

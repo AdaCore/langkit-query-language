@@ -11,7 +11,7 @@ fun others_in_aggregates(node) =
     node is OthersDesignator(parent is l@AlternativesList(
                              parent is a@AggregateAssoc
     # Flag all aggregates with more than 2 alternatives
-    when children_count(a?.parent) > 2
+    when a?.parent.children_count > 2
       # Flag all extension aggregates
       or a?.parent is AssocList(any parent is
                                     Aggregate(f_ancestor_expr is AdaNode))
@@ -19,7 +19,7 @@ fun others_in_aggregates(node) =
       or AssocList(any children is assoc@AggregateAssoc
                    when assoc != a
                          # More than one value
-                    and (children_count(assoc.f_designators) > 1 or
+                    and (assoc.f_designators.children_count > 1 or
                          # A range
                          assoc.f_designators[1] is BinOp(f_op is OpDoubleDot) or
                          # A (sub)type designator

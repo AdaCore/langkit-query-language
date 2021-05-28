@@ -6,4 +6,4 @@
 @check(message="identifier too long")
 fun max_identifier_length(node, n=20) =
     node is DefiningName(all parent(depth=1) is not EnumLiteralDecl)
-    when text(node).length > n
+    when node.text.length > n

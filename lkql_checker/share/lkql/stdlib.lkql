@@ -152,9 +152,12 @@ fun is_predefined_type(n) =
     |" spec.
 {
     # Retrieve the root enclosing package
-    val packages = to_list([p for p in n?.p_referenced_decl()?.p_root_type()?.
-                                       parents(include_self=false)
-                            if p is BasePackageDecl]);
+    val packages = [
+        p for p in n?.p_referenced_decl()?.p_root_type()
+                    ?.parents(include_self=false)
+        if p is BasePackageDecl
+    ].to_list;
+
     packages.length != 0 and packages[packages.length] is
         BasePackageDecl(f_package_name is
                         DefiningName(p_canonical_part() is name@DefiningName))
@@ -175,16 +178,16 @@ fun in_generic_template(n) =
 fun enclosing_body(n) =
     |" Return the first BaseSubpBody enclosing n if any, null otherwise
 {
-    val bodies = to_list([p for p in n?.parents(include_self=false)
-                          if p is BaseSubpBody]);
+    val bodies = [p for p in n?.parents(include_self=false)
+                  if p is BaseSubpBody].to_list;
     if bodies.length == 0 then null else bodies[1]
 }
 
 fun enclosing_package(n) =
     |" Return the first BasePackageDecl enclosing n if any, null otherwise
 {
-    val packages = to_list([p for p in n?.parents(include_self=false)
-                            if p is BasePackageDecl]);
+    val packages = [p for p in n?.parents(include_self=false)
+                    if p is BasePackageDecl].to_list;
     if packages.length == 0 then null else packages[1]
 }
 
@@ -230,7 +233,7 @@ fun match_wildcard(str, pat) =
     |" wildcard (`*`) character as the first character, last character or
     |" both.
     match pat
-    | "^\*.*\*$" => contains(str, substring(pat, 2, pat.length - 1))
-    | "^\*"      => ends_with(str, substring(pat, 2, pat.length))
-    | "\*$"      => starts_with(str, substring(pat, 1, pat.length - 1))
+    | "^\*.*\*$" => str.contains(pat.substring(2, pat.length - 1))
+    | "^\*"      => str.ends_with(pat.substring(2, pat.length))
+    | "\*$"      => str.starts_with(pat.substring(1, pat.length - 1))
     | *          => str == pat

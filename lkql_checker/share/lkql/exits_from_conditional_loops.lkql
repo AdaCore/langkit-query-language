@@ -6,5 +6,5 @@
 @check(message="exit from conditional loop")
 fun exits_from_conditional_loops(node) =
     node is ExitStmt
-    when to_list([l for l in node.parents(include_self=false)
-                  if l is BaseLoopStmt])[1] is ForLoopStmt or WhileLoopStmt
+    when [l for l in node.parents(include_self=false)
+          if l is BaseLoopStmt].to_list[1] is ForLoopStmt or WhileLoopStmt

@@ -28,4 +28,3 @@ fun address_specifications_for_initialized_objects(node) =
             when n?.p_name_is("Address")
         )
     )
-

@@ -17,4 +17,3 @@ fun float_equality_checks(node) =
         and node.p_referenced_decl() == null
         and node.f_suffix[1]?.f_r_expr?.p_expression_type() is
             BaseTypeDecl(p_is_float_type() is true)
-

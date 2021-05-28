@@ -6,4 +6,3 @@ print(min_small_int - 1)
 
 print(max_small_int * 2)
 print(min_small_int / (0 - 1))
-

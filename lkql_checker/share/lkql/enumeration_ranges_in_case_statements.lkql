@@ -27,4 +27,3 @@ fun enumeration_ranges_in_case_statements(node) =
         # range attribute
         or AttributeRef(f_attribute is id@BaseId when id?.p_name_is("Range"))
       )
-

@@ -81,7 +81,7 @@ fun identifier_suffixes(node,
         s is SubpSpec(any parent(depth=4) is ProtectedDef, parent is d@SubpDecl)
         when (d?.p_has_aspect("Interrupt_Handler") or
               d?.p_has_aspect("Attach_Handler")) and
-             not ends_with(text(node.f_name), interrupt_suffix)
+             not node.f_name.text.ends_with(interrupt_suffix)
 
     # 'Class access
     | p@BaseTypeDecl(p_is_access_type() is true,
@@ -91,24 +91,25 @@ fun identifier_suffixes(node,
       when class_access_suffix != ""
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
-        not ends_with(text(node.f_name), class_access_suffix)
+        not node.f_name.text.ends_with(class_access_suffix)
 
     # 'Class subtype
     | p@BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
       when class_subtype_suffix != ""
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
-        not ends_with(text(node.f_name), class_subtype_suffix)
+        not node.f_name.text.ends_with(class_subtype_suffix)
 
     # Other access types
     | p@BaseTypeDecl(p_is_access_type() is true) when access_suffix != ""
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
-        not ends_with(text(node.f_name),
-                      (if access_access_suffix != "" and
-                          p?.p_accessed_type()?.p_is_access_type()
-                       then access_suffix & access_access_suffix
-                       else access_suffix))
+        not node.f_name.text.ends_with(
+            if access_access_suffix != ""
+                and p?.p_accessed_type()?.p_is_access_type()
+            then access_suffix & access_access_suffix
+            else access_suffix
+        )
 
     # Exclude IncompleteTypeDecl
     | IncompleteTypeDecl => false
@@ -117,11 +118,11 @@ fun identifier_suffixes(node,
     | p@BaseTypeDecl =>
         type_suffix != "" and
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
-        not ends_with(text(node.f_name), type_suffix)
+        not node.f_name.text.ends_with(type_suffix)
 
     | p@PackageRenamingDecl =>
         renaming_suffix != "" and
-        not ends_with(text(node.f_name), renaming_suffix)
+        not node.f_name.text.ends_with(renaming_suffix)
 
     # Look one level up for remaining cases
     | p@* => match p?.parent
@@ -138,7 +139,7 @@ fun identifier_suffixes(node,
                               BaseTypeDecl(p_is_access_type() is true))))
           when access_obj_suffix != ""
         =>
-            not ends_with(text(node.f_name), access_obj_suffix)
+            not node.f_name.text.ends_with(access_obj_suffix)
 
         # Constants
         | o@ObjectDecl(p_public_part_decl() is null)
@@ -149,6 +150,6 @@ fun identifier_suffixes(node,
                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
                  f_has_constant?.p_as_bool()))
         =>
-            not ends_with(text(node.f_name), constant_suffix)
+            not node.f_name.text.ends_with(constant_suffix)
 
         | * => false
