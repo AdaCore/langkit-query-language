@@ -68,9 +68,9 @@ package body Rules_Factory is
 
    end All_Rules;
 
-   -------------------------
-   -- Get_Rules_Directory --
-   -------------------------
+   ---------------------------
+   -- Get_Rules_Directories --
+   ---------------------------
 
    function Get_Rules_Directories
      (Dirs : Path_Array) return Virtual_File_Array
