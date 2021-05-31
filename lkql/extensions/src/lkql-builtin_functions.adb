@@ -90,6 +90,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Get_Symbols
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Get_Builtin_Methods_Info
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Help
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -551,6 +554,53 @@ package body LKQL.Builtin_Functions is
 
    end Eval_Get_Symbols;
 
+   -----------------------------------
+   -- Eval_Get_Builtin_Methods_Info --
+   -----------------------------------
+
+   function Eval_Get_Builtin_Methods_Info
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Args);
+      Ret : constant Primitive := Make_Empty_Object;
+   begin
+      for Method in Get_Builtin_Methods (Ctx.Kernel).Iterate loop
+         declare
+            Sub_Obj : constant Primitive := Make_Empty_Object;
+            Builtin_Func : constant Builtin_Function :=
+               Builtin_Methods_Maps.Element (Method);
+         begin
+            Ret.Get.Obj_Assocs.Elements.Include
+              (Builtin_Methods_Maps.Key (Method).Name,
+               Sub_Obj);
+            Sub_Obj.Get.Obj_Assocs.Elements.Include
+              (Ctx.Symbol ("doc"), To_Primitive (Builtin_Func.Doc));
+            Sub_Obj.Get.Obj_Assocs.Elements.Include
+              (Ctx.Symbol ("name"), To_Primitive (Builtin_Func.Name));
+
+            declare
+               Params : constant Primitive := Make_Empty_List;
+            begin
+               for Param of Builtin_Func.Params loop
+                  declare
+                     Param_Info : constant Primitive := Make_Empty_Tuple;
+                  begin
+                     Param_Info.Get.List_Val.Elements.Append
+                       (To_Primitive (Param.Name));
+                     Param_Info.Get.List_Val.Elements.Append
+                       (To_Primitive (Param.Expected_Kind'Wide_Wide_Image));
+                     Params.Get.List_Val.Elements.Append (Param_Info);
+                  end;
+               end loop;
+
+               Sub_Obj.Get.Obj_Assocs.Elements.Include
+                 (Ctx.Symbol ("params"), Params);
+            end;
+         end;
+      end loop;
+      return Ret;
+   end Eval_Get_Builtin_Methods_Info;
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -681,6 +731,12 @@ package body LKQL.Builtin_Functions is
          Eval_Get_Symbols'Access,
          "Given a module, return the symbols stored in it. If given no module"
          & ", return the local symbols"),
+
+      Create
+        ("get_builtin_methods_info",
+         Empty_Profile,
+         Eval_Get_Builtin_Methods_Info'Access,
+         "Return information about builtin methods"),
 
         Create
           ("help",
