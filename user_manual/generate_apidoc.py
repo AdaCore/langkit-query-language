@@ -150,7 +150,31 @@ class App(object):
                 self.write('Standard library')
                 self.write('----------------')
                 self.write('')
+
+                self.write('Builtin functions')
+                self.write('^^^^^^^^^^^^^^^^^')
+                self.write('')
                 self.generate_module_doc(local_symbols)
+
+                self.write('Builtin methods')
+                self.write('^^^^^^^^^^^^^^^')
+                self.write('')
+                builtin_methods = eval(self.eval("get_builtin_methods_info()"))
+
+                for method in builtin_methods.values():
+                    receiver_kind = method["params"][0][1]
+                    if receiver_kind == "NO_KIND":
+                        receiver_kind = "Object"
+                    else:
+                        receiver_kind = receiver_kind[5:].lower().capitalize()
+                    self.write(
+                        f'.. method:: {receiver_kind}.{method["name"]} '
+                        '({params})'
+                    )
+                    with self.indent():
+                        self.write('')
+                        self.write(method["doc"])
+                    self.write('')
 
         for module_name in self.args.modules:
             self.eval(f"import {module_name}")
