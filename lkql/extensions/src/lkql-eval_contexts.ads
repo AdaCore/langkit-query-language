@@ -137,6 +137,9 @@ package LKQL.Eval_Contexts is
    end record;
    --  Store the evaluation context.
 
+   function Symbol (Ctx : Eval_Context; Str : Text_Type) return Symbol_Type;
+   --  Get a symbol from this context's symbol table
+
    procedure Add_Error (Ctx : Eval_Context; Error : Error_Data);
    --  Add the given error to the evaluation context.
 

@@ -537,4 +537,13 @@ package body LKQL.Eval_Contexts is
       return Self.Parent;
    end Get_Parent;
 
+   ------------
+   -- Symbol --
+   ------------
+
+   function Symbol (Ctx : Eval_Context; Str : Text_Type) return Symbol_Type is
+   begin
+      return Find (Ctx.Kernel.Context.Get_Symbol_Table, Str);
+   end Symbol;
+
 end LKQL.Eval_Contexts;
