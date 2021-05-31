@@ -202,7 +202,7 @@ package body LKQL.Primitives is
          I := 1;
 
          for Cur of Cursors loop
-            Append (Image, Key (Cur).all);
+            Append (Image, """" & Key (Cur).all & """");
             Append (Image, ": ");
             Append (Image, To_Unbounded_Text (Primitive_Maps.Element (Cur)));
             if I < Positive (Value.Elements.Length) then
