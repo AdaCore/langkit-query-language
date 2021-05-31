@@ -1,0 +1,4 @@
+short_circuit.adb:14:16: rule violation: use of predefined AND/OR for boolean type
+14 |    B1 := I > 0 and J > 0;            --  FLAG
+   |                ^^^ 
+

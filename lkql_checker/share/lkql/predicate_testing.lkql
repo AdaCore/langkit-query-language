@@ -28,13 +28,4 @@ fun predicate_testing(node, except_assertions=false) =
          and has_predicate(node?.f_prefix?.p_expression_type())
      | *                   => false)
     # Exclude assert pragmas/aspect if except_assertions is set
-    and ((not except_assertions)
-      or not ((node is *(any parent is p@Pragma
-               when stdlib.is_assert_pragma(p.f_id?.p_canonical_text())))
-              or node is *(any parent is a@AspectAssoc
-                 when (match a.f_id
-                       | id@Identifier   =>
-                           stdlib.is_assert_aspect(id?.p_canonical_text())
-                       | at@AttributeRef =>
-                           at?.f_attribute?.p_canonical_text() == "class"
-                       | *               => false))))
+    and not (except_assertions and stdlib.within_assert(node))

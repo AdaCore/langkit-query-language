@@ -7,13 +7,4 @@ import stdlib
 @check(message="conditional expression")
 fun conditional_expressions(node, except_assertions=false) =
     node is CondExpr
-    when (not except_assertions)
-      or not ((node is *(any parent is p@Pragma
-               when stdlib.is_assert_pragma(p.f_id?.p_canonical_text())))
-              or node is *(any parent is a@AspectAssoc
-                 when (match a.f_id
-                       | id@Identifier   =>
-                           stdlib.is_assert_aspect(id?.p_canonical_text())
-                       | at@AttributeRef =>
-                           at?.f_attribute?.p_canonical_text() == "class"
-                       | *               => false)))
+    when not (except_assertions and stdlib.within_assert(node))

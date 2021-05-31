@@ -17,13 +17,4 @@ fun membership_tests(node, multi_alternative_only=false, float_types_only=false,
     and ((not multi_alternative_only) or node.f_membership_exprs[2] != null)
     and ((not float_types_only)
          or node.f_expr.p_expression_type().p_is_float_type())
-    and ((not except_assertions)
-      or not ((node is *(any parent is p@Pragma
-               when stdlib.is_assert_pragma(p.f_id?.p_canonical_text())))
-              or node is *(any parent is a@AspectAssoc
-                 when (match a.f_id
-                       | id@Identifier   =>
-                           stdlib.is_assert_aspect(id?.p_canonical_text())
-                       | at@AttributeRef =>
-                           at?.f_attribute?.p_canonical_text() == "class"
-                       | *               => false))))
+    and not (except_assertions and stdlib.within_assert(node))
