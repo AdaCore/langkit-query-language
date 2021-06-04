@@ -1,0 +1,1 @@
+print([(a, {line: a.start_line, column: a.start_column}) for a in (select first AdaNode).tokens])

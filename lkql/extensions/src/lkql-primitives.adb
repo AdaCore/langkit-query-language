@@ -611,6 +611,17 @@ package body LKQL.Primitives is
    -- To_Primitive --
    ------------------
 
+   function To_Primitive (Token : H.AST_Token_Holder) return Primitive is
+      Ref : Primitive;
+   begin
+      Ref.Set (Primitive_Data'(Refcounted with Kind_Token, Token));
+      return Ref;
+   end To_Primitive;
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive is
       Val_Copy : constant Primitive_Iter_Access :=
         new Primitive_Iter'Class'(Primitive_Iter'Class (Val.Clone));
@@ -952,6 +963,8 @@ package body LKQL.Primitives is
               Bool_Image (Bool_Val (Val)),
             when Kind_Node          =>
               To_Unbounded_Text (Node_Image (Val.Get.Node_Val)),
+            when Kind_Token         =>
+               To_Unbounded_Text (Val.Get.Token_Val.Unchecked_Get.Image),
             when Kind_Iterator      =>
               Iterator_Image (Iter_Val (Val).all),
             when Kind_List          =>
@@ -993,6 +1006,7 @@ package body LKQL.Primitives is
                  when Kind_Str                => "Str",
                  when Kind_Bool               => "Bool",
                  when Kind_Node               => "Node",
+                 when Kind_Token              => "Token",
                  when Kind_Iterator           => "Iterator",
                  when Kind_List               => "List",
                  when Kind_Object             => "Object",

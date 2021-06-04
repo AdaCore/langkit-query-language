@@ -24,10 +24,10 @@
 with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Libadalang.Introspection; use Libadalang.Introspection;
 
-with Ada.Unchecked_Conversion;
 with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash;
+with Ada.Unchecked_Conversion;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
 with GNATCOLL.GMP.Integers;
@@ -50,16 +50,15 @@ package body Ada_AST_Nodes is
                              return I.Value_Type;
    --  Create a Value_Type value from the given Introspection value
 
-   function List_To_Value_Type (Value       : Primitive_List;
-                                 Target_Kind : Value_Kind)
-                                 return I.Value_Type;
+   function List_To_Value_Type
+     (Value        : Primitive_List;
+      Target_Kind : Value_Kind) return I.Value_Type;
 
-   function String_To_Value_Type (Value       : Unbounded_Text_Type;
-                                  Target_Kind : Value_Kind)
-                                  return I.Value_Type;
+   function String_To_Value_Type
+     (Value       : Unbounded_Text_Type;
+      Target_Kind : Value_Kind) return I.Value_Type;
 
-   function Get_Kind_From_Name
-     (Kind_Name : Text_Type) return Ada_AST_Node_Kind
+   function Get_Kind_From_Name (Kind_Name : Text_Type) return Ada_AST_Node_Kind
    is
       Type_Id : constant Any_Node_Type_Id := Kind (Kind_Name);
    begin
@@ -270,9 +269,9 @@ package body Ada_AST_Nodes is
       return Lookup_Member (Receiver_Type_Id, Name);
    end Data_Reference_For_Name;
 
-   ------------------------------
+   --------------------
    -- Make_Primitive --
-   ------------------------------
+   --------------------
 
    function Make_Primitive
      (Ctx : Eval_Context; Value : I.Value_Type) return Primitive
@@ -333,6 +332,9 @@ package body Ada_AST_Nodes is
                end loop;
                return Ret;
             end;
+         when Token_Value =>
+            return To_Primitive
+              (H.Create_Token_Ref (Ada_AST_Token'(Token => As_Token (Value))));
          when others =>
             raise Introspection_Error with
               "Unsupported value type from the introspection API: " &
@@ -637,10 +639,98 @@ package body Ada_AST_Nodes is
       return Id_For_Kind (Node.Node.Kind);
    end Get_Node_Type_Id;
 
-   --  TODO??? Magnificient hack because somehow elab of libadalang is not
-   --  called ..
+   package LCO renames Libadalang.Common;
+
+   ----------------
+   -- Sloc_Range --
+   ----------------
+
+   function Sloc_Range (Self : Ada_AST_Token) return Source_Location_Range is
+   begin
+      return LCO.Sloc_Range (LCO.Data (Self.Token));
+   end Sloc_Range;
+
+   ----------
+   -- Next --
+   ----------
+
+   function Next (Self : Ada_AST_Token) return AST_Token'Class is
+   begin
+      return Ada_AST_Token'(Token => LCO.Next (Self.Token));
+   end Next;
+
+   --------------
+   -- Previous --
+   --------------
+
+   function Previous (Self : Ada_AST_Token) return AST_Token'Class is
+   begin
+      return Ada_AST_Token'(Token => LCO.Previous (Self.Token));
+   end Previous;
+
+   ----------
+   -- Text --
+   ----------
+
+   function Text (Self : Ada_AST_Token) return Text_Type is
+   begin
+      return LCO.Text (Self.Token);
+   end Text;
+
+   ----------
+   -- Kind --
+   ----------
+
+   function Kind (Self : Ada_AST_Token) return Text_Type is
+   begin
+      return LCO.Kind (LCO.Data (Self.Token))'Wide_Wide_Image;
+   end Kind;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Self : Ada_AST_Token) return Text_Type is
+   begin
+      return To_Text (LCO.Image (Self.Token));
+   end Image;
+
+   -----------------
+   -- Token_Start --
+   -----------------
+
+   function Token_Start (Node : Ada_AST_Node) return AST_Token'Class is
+   begin
+      return Ada_AST_Token'(Token => Node.Node.Token_Start);
+   end Token_Start;
+
+   ---------------
+   -- Token_End --
+   ---------------
+
+   function Token_End (Node : Ada_AST_Node) return AST_Token'Class is
+   begin
+      return Ada_AST_Token'(Token => Node.Node.Token_End);
+   end Token_End;
+
+   -------------
+   -- Is_Null --
+   -------------
+
+   overriding function Is_Null (Self : Ada_AST_Token) return Boolean is
+   begin
+      return LCO.Kind (LCO.Data (Self.Token)) = LCO.Ada_Termination;
+   end Is_Null;
+
+   -----------------
+   -- adalanginit --
+   -----------------
+
    procedure adalanginit;
    pragma Import (C, adalanginit, "adalanginit");
+   --  TODO??? Magnificient hack because somehow elab of libadalang is not
+   --  called ..
+
 begin
 
    adalanginit;

@@ -24,6 +24,7 @@
 with LKQL.Primitives; use LKQL.Primitives;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 with Ada.Containers;
 with Ada.Unchecked_Deallocation;
@@ -132,4 +133,35 @@ package LKQL.AST_Nodes is
    --  Free a pointer to an array of unicode strings
    --  TODO??? Is this used ?
 
+   type AST_Token is interface;
+   --  Interface representing an abstract token from a Langkit generated
+   --  library.
+
+   function Sloc_Range
+     (Self : AST_Token) return Source_Location_Range is abstract;
+   --  Return the source location range that this token spans.
+
+   function Next (Self : AST_Token) return AST_Token'Class is abstract;
+   --  Return the next token if there is one
+
+   function Previous (Self : AST_Token) return AST_Token'Class is abstract;
+   --  Return the previous token if there is one
+
+   function Text (Self : AST_Token) return Text_Type is abstract;
+   --  Return the text for this token
+
+   function Kind (Self : AST_Token) return Text_Type is abstract;
+   --  Return the kind of this token, as text
+
+   function Image (Self : AST_Token) return Text_Type is abstract;
+   --  Return a string representation of this token
+
+   function Is_Null (Self : AST_Token) return Boolean is abstract;
+   --  Return whether `Self` denotes a null token value or not
+
+   function Token_Start (Node : AST_Node) return AST_Token'Class is abstract;
+   --  Return the starting token for this AST node
+
+   function Token_End (Node : AST_Node) return AST_Token'Class is abstract;
+   --  Return the end token for this AST node
 end LKQL.AST_Nodes;

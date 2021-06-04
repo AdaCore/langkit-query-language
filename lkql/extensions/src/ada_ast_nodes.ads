@@ -30,6 +30,7 @@ with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Common; use Libadalang.Common;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 with Ada.Containers; use Ada.Containers;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
@@ -97,6 +98,11 @@ package Ada_AST_Nodes is
      (Node : Ada_AST_Node;
       Name : Text_Type) return AST_Node_Member_Reference'Class;
 
+   overriding function Token_Start
+     (Node : Ada_AST_Node) return AST_Token'Class;
+   overriding function Token_End
+     (Node : Ada_AST_Node) return AST_Token'Class;
+
    overriding function Property_Arity
      (Ref : Ada_Member_Reference) return Natural;
 
@@ -133,4 +139,16 @@ package Ada_AST_Nodes is
    --  Return the node data type corresponding to 'Name' on the receiver
    --  node. Return None if the name is invalid.
 
+   type Ada_AST_Token is new AST_Token with record
+      Token : Token_Reference;
+   end record;
+
+   overriding function Sloc_Range
+     (Self : Ada_AST_Token) return Source_Location_Range;
+   overriding function Next (Self : Ada_AST_Token) return AST_Token'Class;
+   overriding function Previous (Self : Ada_AST_Token) return AST_Token'Class;
+   overriding function Text (Self : Ada_AST_Token) return Text_Type;
+   overriding function Kind (Self : Ada_AST_Token) return Text_Type;
+   overriding function Image (Self : Ada_AST_Token) return Text_Type;
+   overriding function Is_Null (Self : Ada_AST_Token) return Boolean;
 end Ada_AST_Nodes;

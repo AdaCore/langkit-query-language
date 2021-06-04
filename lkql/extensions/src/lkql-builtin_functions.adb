@@ -34,6 +34,7 @@ with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.String_Utils; use LKQL.String_Utils;
+with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body LKQL.Builtin_Functions is
 
@@ -94,6 +95,21 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Help
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Token_Next
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Token_Previous
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Token_Text
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Token_Kind
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Create
@@ -601,6 +617,132 @@ package body LKQL.Builtin_Functions is
       return Ret;
    end Eval_Get_Builtin_Methods_Info;
 
+   ---------------------
+   -- Eval_Token_Next --
+   ---------------------
+
+   function Eval_Token_Next
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      Next_Token : constant LKQL.AST_Nodes.AST_Token'Class :=
+        Args (1).Get.Token_Val.Unchecked_Get.Next;
+   begin
+      if Next_Token.Is_Null then
+         return Make_Unit_Primitive;
+      end if;
+
+      return To_Primitive (H.Create_Token_Ref (Next_Token));
+   end Eval_Token_Next;
+
+   -------------------------
+   -- Eval_Token_Previous --
+   -------------------------
+
+   function Eval_Token_Previous
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      Previous_Token : constant LKQL.AST_Nodes.AST_Token'Class :=
+         Args (1).Get.Token_Val.Unchecked_Get.Previous;
+   begin
+      return To_Primitive (H.Create_Token_Ref (Previous_Token));
+   end Eval_Token_Previous;
+
+   -----------------
+   -- Eval_Tokens --
+   -----------------
+
+   function Eval_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      Tokens     : Primitive_Vectors.Vector;
+      Node       : constant H.AST_Node_Holder := Args (1).Get.Node_Val;
+      Token      : H.AST_Token_Holder :=
+        H.Create_Token_Ref (Node.Unchecked_Get.Token_Start);
+      Last_Token : constant H.AST_Token_Holder :=
+        H.Create_Token_Ref (Node.Unchecked_Get.Token_End);
+
+      use LKQL.AST_Nodes;
+      pragma Unreferenced (Ctx);
+   begin
+      while Token.Unchecked_Get.all /= Last_Token.Unchecked_Get.all loop
+         Tokens.Append (To_Primitive (Token));
+         Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
+      end loop;
+
+      return To_Primitive
+        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)));
+   end Eval_Tokens;
+
+   ---------------------
+   -- Eval_Token_Text --
+   ---------------------
+
+   function Eval_Token_Text
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+   begin
+      return To_Primitive (Args (1).Get.Token_Val.Unchecked_Get.Text);
+   end Eval_Token_Text;
+
+   ---------------------
+   -- Eval_Token_Kind --
+   ---------------------
+
+   function Eval_Token_Kind
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+   begin
+      return To_Primitive (Args (1).Get.Token_Val.Unchecked_Get.Kind);
+   end Eval_Token_Kind;
+
+   ---------------------
+   -- Eval_Start_Line --
+   ---------------------
+
+   function Eval_Start_Line
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      (To_Primitive
+         (Integer (Args (1)
+            .Get.Token_Val.Unchecked_Get.Sloc_Range.Start_Line)));
+
+   -------------------
+   -- Eval_End_Line --
+   -------------------
+
+   function Eval_End_Line
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      (To_Primitive
+         (Integer (Args (1)
+            .Get.Token_Val.Unchecked_Get.Sloc_Range.End_Line)));
+
+   --------------------
+   -- Eval_Start_Col --
+   --------------------
+
+   function Eval_Start_Col
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      (To_Primitive
+         (Integer (Args (1)
+            .Get.Token_Val.Unchecked_Get.Sloc_Range.Start_Column)));
+
+   ------------------
+   -- Eval_End_Col --
+   ------------------
+
+   function Eval_End_Col
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      (To_Primitive
+         (Integer (Args (1)
+            .Get.Token_Val.Unchecked_Get.Sloc_Range.End_Column)));
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -645,6 +787,71 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("node", Kind_Node)),
          Eval_Children_Count'Access,
          "Given a node, return the count of its children",
+         Only_Dot_Calls => True),
+
+      Create
+        ("tokens",
+         (1 => Param ("node", Kind_Node)),
+         Eval_Tokens'Access,
+         "Given a node, return an iterator on its tokens",
+         Only_Dot_Calls => True),
+
+      --  Token builtins
+
+      Create
+        ("text",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Token_Text'Access,
+         "Return the text for this token",
+         Only_Dot_Calls => True),
+
+      Create
+        ("kind",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Token_Kind'Access,
+         "Return the kind for this token, as a string",
+         Only_Dot_Calls => True),
+
+      Create
+        ("next",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Token_Next'Access,
+         "Return the next token",
+         Only_Dot_Calls => True),
+
+      Create
+        ("previous",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Token_Previous'Access,
+         "Return the previous token",
+         Only_Dot_Calls => True),
+
+      Create
+        ("start_column",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Start_Col'Access,
+         "Return the previous token",
+         Only_Dot_Calls => True),
+
+      Create
+        ("end_column",
+         (1 => Param ("token", Kind_Token)),
+         Eval_End_Col'Access,
+         "Return the previous token",
+         Only_Dot_Calls => True),
+
+      Create
+        ("start_line",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Start_Line'Access,
+         "Return the previous token",
+         Only_Dot_Calls => True),
+
+      Create
+        ("end_line",
+         (1 => Param ("token", Kind_Token)),
+         Eval_End_Line'Access,
+         "Return the previous token",
          Only_Dot_Calls => True),
 
       --  String builtins
@@ -743,7 +950,6 @@ package body LKQL.Builtin_Functions is
            (1 => Param ("obj")),
            Eval_Help'Access,
            "Given any object, return formatted help for it")
-
       );
 
    ------------------

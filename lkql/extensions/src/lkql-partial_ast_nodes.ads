@@ -49,6 +49,11 @@ package LKQL.Partial_AST_Nodes is
    --  not tagged as primitives, and so that we can declare list/vectors of
    --  them in the same package while keeping them private.
    package H is
+
+      ---------------------
+      -- AST_Node_Holder --
+      ---------------------
+
       type AST_Node_Holder is tagged private;
       --  Holder for an ``AST_node``.
       --
@@ -75,6 +80,10 @@ package LKQL.Partial_AST_Nodes is
       is array (Positive range <>) of AST_Node_Holder;
       --  Array of ``AST_Node``
 
+      -------------------------
+      -- AST_Node_Member_Ref --
+      -------------------------
+
       type AST_Node_Member_Ref_Holder is tagged private;
       --  Holder for an ``AST_Node_Member_Reference``
 
@@ -90,12 +99,24 @@ package LKQL.Partial_AST_Nodes is
         (Value : LKQL.AST_Nodes.AST_Node_Member_Reference'Class)
       return AST_Node_Member_Ref_Holder;
       --  Create a member ref holder from the given ``Value``
+
+      ----------------------
+      -- AST_Token_Holder --
+      ----------------------
+
+      type AST_Token_Holder is tagged private;
+      type AST_Token_Access is access all LKQL.AST_Nodes.AST_Token'Class;
+
+      function Unchecked_Get (Self : AST_Token_Holder) return AST_Token_Access;
+      function Create_Token_Ref
+        (Value : LKQL.AST_Nodes.AST_Token'Class) return AST_Token_Holder;
    private
 
       package Holders is new Unbounded_Holders.Base_Holders
         (256);
       type AST_Node_Holder is new Holders.Holder with null record;
       type AST_Node_Member_Ref_Holder is new Holders.Holder with null record;
+      type AST_Token_Holder is new Holders.Holder with null record;
    end H;
 
    function Create_Node
@@ -137,6 +158,10 @@ package LKQL.Partial_AST_Nodes is
 
    subtype AST_Node_Vector is AST_Node_Vectors.Vector;
    --  Vector of refcounted AST node pointers
+
+   ------------------------
+   -- AST Node Iterators --
+   ------------------------
 
    package AST_Node_Iterators is new Iters.Iterators (H.AST_Node_Holder);
    --  Iterators of refcounted AST node pointers

@@ -74,6 +74,7 @@ package Iters.Iterators is
    function Consume (Iter : Iterator_Interface'Class) return Element_Array;
    --  Consume the iterator and return an array that contains the yielded
    --  elements.
+   --
    --  The ressources associated with the iterator will be released.
 
    procedure Release_Access (Iter : in out Iterator_Access);

@@ -21,8 +21,8 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Vectors;
 with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
 
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
@@ -99,6 +99,9 @@ package LKQL.Primitives is
       Kind_Property_Reference,
       --  Reference to a Langkit property
 
+      Kind_Token,
+      --  Langkit token
+
       Kind_Selector,
       --  Selector objects
 
@@ -148,6 +151,8 @@ package LKQL.Primitives is
          when Kind_Node =>
             Node_Val          : H.AST_Node_Holder;
             Nullable          : Boolean := False;
+         when Kind_Token =>
+            Token_Val         : H.AST_Token_Holder;
          when Kind_Iterator =>
             Iter_Val          : Iterator_Primitive_Access;
          when Kind_List | Kind_Tuple =>
@@ -399,6 +404,9 @@ package LKQL.Primitives is
    function To_Primitive
      (Node : H.AST_Node_Holder; Nullable : Boolean := False) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
+
+   function To_Primitive (Token : H.AST_Token_Holder) return Primitive;
+   --  Create a primitive value from the AST_Token value
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
 

@@ -171,7 +171,7 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Integer_Literal =>
             Result := Eval_Integer_Literal (Node.As_Integer_Literal);
          when LCO.LKQL_Tuple =>
-            Result := Eval_Tuple (Ctx, Node.As_Tuple);
+            Result := Eval_Tuple (Local_Context, Node.As_Tuple);
          when LCO.LKQL_String_Literal =>
             Result := Eval_String_Literal (Node.As_Base_String_Literal);
          when LCO.LKQL_Block_String_Literal =>

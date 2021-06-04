@@ -76,7 +76,7 @@ package body LKQL.Partial_AST_Nodes is
 
       -------------------
       -- Unchecked_Get --
-      -- -----------------
+      --------------------
 
       function Unchecked_Get
         (Self : AST_Node_Member_Ref_Holder) return AST_Node_Member_Ref_Access
@@ -96,6 +96,33 @@ package body LKQL.Partial_AST_Nodes is
       begin
          return (Ref_Impl.Create (Value) with null record);
       end Create_Member_Ref;
+
+      package Token_Impl is new Unbounded_Holders.Holders_Impl
+        (AST_Token'Class,
+         AST_Token_Access,
+         Holders);
+
+      -------------------
+      -- Unchecked_Get --
+      --------------------
+
+      function Unchecked_Get
+        (Self : AST_Token_Holder) return AST_Token_Access is
+      begin
+         return Token_Impl.Unchecked_Get (Holders.Holder (Self));
+      end Unchecked_Get;
+
+      ------------
+      -- Create --
+      ------------
+
+      function Create_Token_Ref
+        (Value : LKQL.AST_Nodes.AST_Token'Class)
+      return AST_Token_Holder
+      is
+      begin
+         return (Token_Impl.Create (Value) with null record);
+      end Create_Token_Ref;
 
    end H;
 
