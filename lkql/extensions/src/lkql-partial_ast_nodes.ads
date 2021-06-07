@@ -110,6 +110,19 @@ package LKQL.Partial_AST_Nodes is
       function Unchecked_Get (Self : AST_Token_Holder) return AST_Token_Access;
       function Create_Token_Ref
         (Value : LKQL.AST_Nodes.AST_Token'Class) return AST_Token_Holder;
+
+      ---------------------
+      -- AST_Unit_Holder --
+      ---------------------
+
+      type AST_Unit_Holder is tagged private;
+      type AST_Unit_Access is access all LKQL.AST_Nodes.AST_Unit'Class;
+
+      function Unchecked_Get
+        (Self : AST_Unit_Holder) return AST_Unit_Access;
+      function Create_Unit_Ref
+        (Value : LKQL.AST_Nodes.AST_Unit'Class) return AST_Unit_Holder;
+
    private
 
       package Holders is new Unbounded_Holders.Base_Holders
@@ -117,6 +130,7 @@ package LKQL.Partial_AST_Nodes is
       type AST_Node_Holder is new Holders.Holder with null record;
       type AST_Node_Member_Ref_Holder is new Holders.Holder with null record;
       type AST_Token_Holder is new Holders.Holder with null record;
+      type AST_Unit_Holder is new Holders.Holder with null record;
    end H;
 
    function Create_Node

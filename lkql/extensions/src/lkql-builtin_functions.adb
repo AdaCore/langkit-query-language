@@ -743,6 +743,26 @@ package body LKQL.Builtin_Functions is
          (Integer (Args (1)
             .Get.Token_Val.Unchecked_Get.Sloc_Range.End_Column)));
 
+   --------------------
+   -- Eval_Unit_Root --
+   --------------------
+
+   function Eval_Unit_Name
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+     (To_Primitive
+       (Args (1).Get.Analysis_Unit_Val.Unchecked_Get.Name));
+
+   --------------------
+   -- Eval_Unit_Root --
+   --------------------
+
+   function Eval_Unit_Root
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+     (To_Primitive
+       (H.Create_Node (Args (1).Get.Analysis_Unit_Val.Unchecked_Get.Root)));
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -852,6 +872,22 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("token", Kind_Token)),
          Eval_End_Line'Access,
          "Return the previous token",
+         Only_Dot_Calls => True),
+
+      --  Unit builtins
+
+      Create
+        ("root",
+         (1 => Param ("unit", Kind_Analysis_Unit)),
+         Eval_Unit_Root'Access,
+         "Return the root for this unit",
+         Only_Dot_Calls => True),
+
+      Create
+        ("name",
+         (1 => Param ("unit", Kind_Analysis_Unit)),
+         Eval_Unit_Name'Access,
+         "Return the name of this unit",
          Only_Dot_Calls => True),
 
       --  String builtins

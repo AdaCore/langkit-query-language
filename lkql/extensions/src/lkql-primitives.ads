@@ -102,6 +102,9 @@ package LKQL.Primitives is
       Kind_Token,
       --  Langkit token
 
+      Kind_Analysis_Unit,
+      --  Langkit analysis unit
+
       Kind_Selector,
       --  Selector objects
 
@@ -153,6 +156,8 @@ package LKQL.Primitives is
             Nullable          : Boolean := False;
          when Kind_Token =>
             Token_Val         : H.AST_Token_Holder;
+         when Kind_Analysis_Unit =>
+            Analysis_Unit_Val : H.AST_Unit_Holder;
          when Kind_Iterator =>
             Iter_Val          : Iterator_Primitive_Access;
          when Kind_List | Kind_Tuple =>
@@ -407,6 +412,9 @@ package LKQL.Primitives is
 
    function To_Primitive (Token : H.AST_Token_Holder) return Primitive;
    --  Create a primitive value from the AST_Token value
+
+   function To_Primitive (Unit : H.AST_Unit_Holder) return Primitive;
+   --  Create a primitive value from the AST_Unit value
 
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
 

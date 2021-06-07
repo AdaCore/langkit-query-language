@@ -151,4 +151,13 @@ package Ada_AST_Nodes is
    overriding function Kind (Self : Ada_AST_Token) return Text_Type;
    overriding function Image (Self : Ada_AST_Token) return Text_Type;
    overriding function Is_Null (Self : Ada_AST_Token) return Boolean;
+
+   type Ada_AST_Unit is new AST_Unit with record
+      Unit : Analysis_Unit;
+   end record;
+
+   overriding function Name (Self : Ada_AST_Unit) return Text_Type;
+   overriding function Root (Self : Ada_AST_Unit) return AST_Node'Class;
+   overriding function Unit (Self : Ada_AST_Node) return AST_Unit'Class;
+
 end Ada_AST_Nodes;

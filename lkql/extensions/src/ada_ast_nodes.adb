@@ -317,6 +317,10 @@ package body Ada_AST_Nodes is
          when Compilation_Unit_Array_Value =>
             return Make_Primitive
               (As_Compilation_Unit_Array (Value));
+         when Analysis_Unit_Value =>
+            return To_Primitive
+              (H.Create_Unit_Ref
+                (Ada_AST_Unit'(Unit => As_Analysis_Unit (Value))));
          when Struct_Value_Kind =>
             --  Structs are mapped to LKQL objects
             declare
@@ -721,6 +725,33 @@ package body Ada_AST_Nodes is
    begin
       return LCO.Kind (LCO.Data (Self.Token)) = LCO.Ada_Termination;
    end Is_Null;
+
+   ----------
+   -- Name --
+   ----------
+
+   overriding function Name (Self : Ada_AST_Unit) return Text_Type is
+   begin
+      return To_Text (Self.Unit.Get_Filename);
+   end Name;
+
+   ----------
+   -- Root --
+   ----------
+
+   overriding function Root (Self : Ada_AST_Unit) return AST_Node'Class is
+   begin
+      return Ada_AST_Node'(Node => Self.Unit.Root);
+   end Root;
+
+   ----------
+   -- Root --
+   ----------
+
+   overriding function Unit (Self : Ada_AST_Node) return AST_Unit'Class is
+   begin
+      return Ada_AST_Unit'(Unit => Self.Node.Unit);
+   end Unit;
 
    -----------------
    -- adalanginit --

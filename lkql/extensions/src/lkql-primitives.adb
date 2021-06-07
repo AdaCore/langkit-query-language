@@ -22,9 +22,10 @@
 ------------------------------------------------------------------------------
 
 with Ada.Assertions;                  use Ada.Assertions;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Containers;                  use type Ada.Containers.Count_Type;
 with Ada.Containers.Generic_Array_Sort;
+with Ada.Directories;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Text_IO;
@@ -622,6 +623,17 @@ package body LKQL.Primitives is
    -- To_Primitive --
    ------------------
 
+   function To_Primitive (Unit : H.AST_Unit_Holder) return Primitive is
+      Ref : Primitive;
+   begin
+      Ref.Set (Primitive_Data'(Refcounted with Kind_Analysis_Unit, Unit));
+      return Ref;
+   end To_Primitive;
+
+   ------------------
+   -- To_Primitive --
+   ------------------
+
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive is
       Val_Copy : constant Primitive_Iter_Access :=
         new Primitive_Iter'Class'(Primitive_Iter'Class (Val.Clone));
@@ -944,6 +956,7 @@ package body LKQL.Primitives is
           then "null"
           else N.Unchecked_Get.Text_Image);
 
+      package D renames Ada.Directories;
    begin
       return
         (case Kind (Val) is
@@ -963,6 +976,13 @@ package body LKQL.Primitives is
               Bool_Image (Bool_Val (Val)),
             when Kind_Node          =>
               To_Unbounded_Text (Node_Image (Val.Get.Node_Val)),
+            when Kind_Analysis_Unit =>
+              To_Unbounded_Text
+                ("<AnalysisUnit """
+                 & To_Text
+                    (D.Simple_Name
+                       (Image (Val.Get.Analysis_Unit_Val.Unchecked_Get.Name)))
+                 & """>"),
             when Kind_Token         =>
                To_Unbounded_Text (Val.Get.Token_Val.Unchecked_Get.Image),
             when Kind_Iterator      =>
@@ -1007,6 +1027,7 @@ package body LKQL.Primitives is
                  when Kind_Bool               => "Bool",
                  when Kind_Node               => "Node",
                  when Kind_Token              => "Token",
+                 when Kind_Analysis_Unit      => "Analysis_Unit",
                  when Kind_Iterator           => "Iterator",
                  when Kind_List               => "List",
                  when Kind_Object             => "Object",

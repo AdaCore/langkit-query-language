@@ -124,6 +124,33 @@ package body LKQL.Partial_AST_Nodes is
          return (Token_Impl.Create (Value) with null record);
       end Create_Token_Ref;
 
+      package Unit_Impl is new Unbounded_Holders.Holders_Impl
+        (AST_Unit'Class,
+         AST_Unit_Access,
+         Holders);
+
+      -------------------
+      -- Unchecked_Get --
+      --------------------
+
+      function Unchecked_Get
+        (Self : AST_Unit_Holder) return AST_Unit_Access is
+      begin
+         return Unit_Impl.Unchecked_Get (Holders.Holder (Self));
+      end Unchecked_Get;
+
+      ------------
+      -- Create --
+      ------------
+
+      function Create_Unit_Ref
+        (Value : LKQL.AST_Nodes.AST_Unit'Class)
+      return AST_Unit_Holder
+      is
+      begin
+         return (Unit_Impl.Create (Value) with null record);
+      end Create_Unit_Ref;
+
    end H;
 
    procedure Add_Children

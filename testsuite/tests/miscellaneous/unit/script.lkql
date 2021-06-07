@@ -1,0 +1,2 @@
+print((select first AdaNode).unit)
+print(from (select first AdaNode).unit.root select first AdaNode)

@@ -133,6 +133,10 @@ package LKQL.AST_Nodes is
    --  Free a pointer to an array of unicode strings
    --  TODO??? Is this used ?
 
+   ---------------
+   -- AST_Token --
+   ---------------
+
    type AST_Token is interface;
    --  Interface representing an abstract token from a Langkit generated
    --  library.
@@ -164,4 +168,25 @@ package LKQL.AST_Nodes is
 
    function Token_End (Node : AST_Node) return AST_Token'Class is abstract;
    --  Return the end token for this AST node
+
+   --------------
+   -- AST_Unit --
+   --------------
+
+   type AST_Unit is interface;
+   --  Interface representing an abstract analysis unit from a Langkit
+   --  generated library.
+
+   function Name
+     (Self : AST_Unit) return Text_Type is abstract;
+   --  Return the name of this unit - practically, the file name for the file
+   --  this unit encompasses.
+
+   function Root
+      (Self : AST_Unit) return AST_Node'Class is abstract;
+   --  Return the root AST node for this unit
+
+   function Unit (Node : AST_Node) return AST_Unit'Class is abstract;
+   --  Given a node, return the unit it belongs to
+
 end LKQL.AST_Nodes;
