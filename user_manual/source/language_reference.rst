@@ -218,11 +218,6 @@ get the content of the  ``type_expr`` syntax field on a node of type
 
     object_decl.type_expr
 
-.. note::
-
-    Ultimately, this construction will be extended to allow access to struct
-    fields, but structs are not yet supported.
-
 A regular field access on a nullable variable is illegal, which is why field
 access has a variant, which is called a "safe access":
 
@@ -233,12 +228,9 @@ access has a variant, which is called a "safe access":
 The safe access will return null if the left hand side is null. This allows
 users to chain accesses without having to checks for nulls at every step.
 
-For a
-reference of the existing fields for syntax nodes for Ada, look at the
+For a reference of the existing fields for syntax nodes for Ada, look at the
 `Libadalang API doc
 <https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
-The fields are prefixed by ``f_`` in the Python API reference, whereas
-they're accessible without the prefix in LKQL.
 
 Property call
 ^^^^^^^^^^^^^
@@ -248,12 +240,10 @@ queries, possibly answering semantic questions about the syntax tree. For a
 reference of the existing properties for Ada, look at the
 `Libadalang API doc
 <https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
-The properties are prefixed by ``p_`` in the Python API reference, whereas
-they're callable without the prefix in LKQL.
 
 .. code-block:: lkql
 
-    object_decl.is_static_decl()
+    object_decl.p_is_static_decl()
 
 Just as for field accesses, property calls have their "safe property calls"
 variant that can be used to call a property on a nullable object, and return
@@ -261,7 +251,7 @@ null if the object is null.
 
 .. code-block:: lkql
 
-    object_decl?.is_static_decl()
+    object_decl?.p_is_static_decl()
 
 Unwrap expression
 ^^^^^^^^^^^^^^^^^
@@ -274,7 +264,7 @@ for example.
 
 .. code-block:: lkql
 
-    object_decl?.type_expr?.designated_type_decl!!
+    object_decl?.p_type_expr()?.p_designated_type_decl()!!
 
 Unwrap will raise an error if the value is null.
 
@@ -329,11 +319,11 @@ Here are examples of indexing expressions:
 
     list[1]
 
-    "pouet"[2]
+    "foo"[2]
 
     {
         val x = 2;
-        "pouet"[x]
+        "foo"[x]
     }
 
 Comparison expression
@@ -488,17 +478,13 @@ the evaluation of the associated expression in the match arm.
 .. code-block:: lkql
 
    match nodes[1]
-     | ObjectDecl(has_aliased is aliased @ *) => aliased
-     | ParamSpec(has_aliased is aliased @ *) => aliased
+     | ObjectDecl(p_has_aliased() is aliased @ *) => aliased
+     | ParamSpec(p_has_aliased() is aliased @ *) => aliased
      | * => false
 
 .. note:: For the moment, there is no check that the matcher is complete. A
    match expression where no arm has matched will raise an exception at
    runtime.
-
-.. admonition:: todo
-
-   Verify that bindings of names to matched values work correctly
 
 Tuple expression
 ^^^^^^^^^^^^^^^^
@@ -641,8 +627,8 @@ declarations that have the aliased qualifier.
 
 .. code-block:: lkql
 
-    select ObjectDecl(has_aliased is true)
-    #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Selector
+    select ObjectDecl(p_has_aliased() is true)
+    #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Selector
 
 This will query every source file in the LKQL context, and filter according to
 the pattern.
@@ -651,7 +637,7 @@ the pattern.
 
    .. code-block:: lkql
 
-      val a = select ObjectDecl(has_aliased is true)
+      val a = select ObjectDecl(p_has_aliased() is true)
 
 .. admonition:: todo
 
@@ -837,7 +823,7 @@ construct in the introduction, and it's one of the simplest kind of patterns.
 
 .. code-block:: lkql
 
-   select ObjectDecl(default_val is IntLiteral)
+   select ObjectDecl(p_default_val() is IntLiteral)
 
 Property call predicate
 """""""""""""""""""""""
@@ -848,7 +834,7 @@ this is denoted by the parentheses after the property name.
 
 .. code-block:: lkql
 
-   select BaseId(referenced_decl() is ObjectDecl)
+   select BaseId(p_referenced_decl() is ObjectDecl)
 
 Chained sub patterns
 ^^^^^^^^^^^^^^^^^^^^
@@ -886,10 +872,10 @@ parent object, given that it satisfies a pattern.
 
 .. code-block:: lkql
 
-   select ObjectDecl.default_val is IntLiteral
+   select ObjectDecl.f_default_expr is IntLiteral
 
-This will yield the default values for object decls, given that those default
-values are int literals.
+This will yield the default exprssions for object decls, given that those
+default expressions are int literals.
 
 Property chain
 """"""""""""""
@@ -900,7 +886,7 @@ by the parentheses after the property name.
 
 .. code-block:: lkql
 
-   select BaseId referenced_decl() is ObjectDecl
+   select BaseId.p_referenced_decl() is ObjectDecl
 
 Filtered patterns and binding patterns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -925,7 +911,7 @@ This is done via binding patterns:
 .. code-block:: lkql
 
    val a = select BasicDecl
-   select b @ BaseId when b.referenced_decl() == a
+   select b @ BaseId when b.p_referenced_decl() == a
 
 Selector declaration
 --------------------
