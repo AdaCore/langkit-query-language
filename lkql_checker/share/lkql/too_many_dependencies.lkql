@@ -2,17 +2,15 @@
 # library units (N is a rule parameter). In case of a dependency on child
 # units, implicit or explicit dependencies on all their parents are not
 # counted.
-# This rule has the parameter maxDeps: Positive integer specifying the maximal
+# This rule has the N parameter: Positive integer specifying the maximal
 # number of dependencies when the library item or subunit is not flagged.
 
-@node_check(message="unit has too many dependencies")
-fun too_many_dependencies(node, maxDeps : int = 5) = match node
-    | c @ CompilationUnit(
-          any c @ children is Identifier(any parent(depth=2) is WithClause),
-          f_body is l @ LibraryItem when {
-              val semanticParent = l?.f_item?.p_semantic_parent();
-              val deps = [x for x in c if x.p_referenced_decl() != semanticParent];
-              deps.length > maxDeps
-          }
-      ) => l
-    | * => null
+@check(message="unit has too many dependencies")
+fun too_many_dependencies(node, n : int = 5) =
+    node is LibraryItem(parent is
+    CompilationUnit(any c@children is Identifier(any parent(depth=2) is
+                                                 WithClause))
+    when {
+        val semantic_parent = node.f_item?.p_semantic_parent();
+        [x for x in c if x.p_referenced_decl() != semantic_parent].length > n
+    })
