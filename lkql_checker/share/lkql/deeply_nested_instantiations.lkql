@@ -1,0 +1,21 @@
+# Flag a generic instantiation containing a chain of nested generic
+# instantiations in the specification part exceeding the threshold specified
+# by the `n' rule parameter.
+
+fun check_instantiations(node, n : int) =
+    |" Return true if node has a chain of at least n instantiations
+    n == 0 or
+    match node
+    | GenericPackageInstantiation =>
+        node.f_generic_pkg_name?.p_referenced_decl() is
+        *(any c@children is GenericInstantiation)
+        when [x for x in c if check_instantiations(x, n - 1)].length != 0
+    | GenericSubpInstantiation =>
+        node.f_generic_subp_name?.p_referenced_decl() is
+        *(any c@children is GenericInstantiation)
+        when [x for x in c if check_instantiations(x, n - 1)].length != 0
+    | * => false
+
+@check(message="deeply nested instantiation")
+fun deeply_nested_instantiations(node, n : int = 3) =
+    node is GenericInstantiation when check_instantiations(node, n)
