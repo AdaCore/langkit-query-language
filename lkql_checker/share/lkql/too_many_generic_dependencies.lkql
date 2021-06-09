@@ -1,0 +1,18 @@
+# Flag a library item that depends on a chain of more than N generic library
+# units.
+# This rule has the N parameter: Positive integer specifying the maximal
+# number of dependencies.
+
+fun check_deps(node, n : int) =
+    |" Return true if node has a chain of at least n generic units withed
+    n == 0 or
+    node is LibraryItem(parent is
+    CompilationUnit(any c@children is
+                    Identifier(any parent(depth=2) is WithClause,
+                               p_referenced_decl() is GenericDecl))
+    when [x for x in c
+          if check_deps(x.p_referenced_decl()?.parent, n - 1)].length != 0)
+
+@check(message="unit has too many generic dependencies")
+fun too_many_generic_dependencies(node, n : int = 3) =
+    node is LibraryItem when check_deps(node, n + 1)
