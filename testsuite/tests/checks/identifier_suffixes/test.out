@@ -2,8 +2,16 @@ interrupts.ads:8:17: rule violation: wrong suffix
 8 |       procedure Handler1 with Interrupt_Handler;                --  FLAG
   |                 ^^^^^^^^ 
 
+interrupts.ads:10:17: rule violation: wrong suffix
+10 |       procedure Handler2;                                       --  FLAG
+   |                 ^^^^^^^^ 
+
 interrupts.ads:19:17: rule violation: wrong suffix
 19 |       procedure Handler5 with Attach_Handler => Get_Interrupt;  --  FLAG
+   |                 ^^^^^^^^ 
+
+interrupts.ads:21:17: rule violation: wrong suffix
+21 |       procedure Handler6;                                       --  FLAG
    |                 ^^^^^^^^ 
 
 suffix.ads:2:9: rule violation: wrong suffix
