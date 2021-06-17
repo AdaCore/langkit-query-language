@@ -1,0 +1,48 @@
+line.ads:1:17: rule violation: more than one construct on the same line
+1 | package Line is I : Integer;                      --  FLAG
+  |                 ^ 
+
+line.ads:4:4: rule violation: more than one construct on the same line
+4 |    F2 : Float; C :                                --  FLAG
+  |    ^^ 
+
+line.ads:4:16: rule violation: more than one construct on the same line
+4 |    F2 : Float; C :                                --  FLAG
+  |                ^ 
+
+line.ads:9:14: rule violation: more than one construct on the same line
+9 |    procedure Proc (I : in out Integer); end Line; --  FLAG
+  |              ^^^^ 
+
+line.adb:8:7: rule violation: more than one construct on the same line
+8 |       B3 : Boolean; B4 : Boolean;                          --  FLAG
+  |       ^^ 
+
+line.adb:8:21: rule violation: more than one construct on the same line
+8 |       B3 : Boolean; B4 : Boolean;                          --  FLAG
+  |                     ^^ 
+
+line.adb:12:10: rule violation: more than one construct on the same line
+12 |          I := J; if I > 0 then                             --  FLAG
+   |          ^^^^^^^ 
+
+line.adb:12:18: rule violation: more than one construct on the same line
+12 |          I := J; if I > 0 then                             --  FLAG
+   |                  ^^^^^^^^^ 
+
+line.adb:13:12: rule violation: more than one construct on the same line
+13 |            I := 0; end if;                                 --  FLAG
+   |            ^^^^^^^ 
+
+line.adb:21:7: rule violation: more than one construct on the same line
+21 |       Tmp := I; I := I + 1;                                --  FLAG
+   |       ^^^^^^^^^ 
+
+line.adb:21:17: rule violation: more than one construct on the same line
+21 |       Tmp := I; I := I + 1;                                --  FLAG
+   |                 ^^^^^^^^^^^ 
+
+line.adb:23:7: rule violation: more than one construct on the same line
+23 |       I := I + 1; end Proc;                                --  FLAG
+   |       ^^^^^^^^^^^ 
+

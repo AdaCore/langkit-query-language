@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: One_Construct_Per_Line
+input_sources: ['line.ads', 'line.adb']

@@ -1,0 +1,48 @@
+# Flag any statement, declaration or representation clause if the code
+# line where this construct starts contains some other Ada code symbols
+# preceding or following this construct. The following constructs are not
+# flagged:
+# - enumeration literal specification;
+# - parameter specifications;
+# - discriminant specifications;
+# - loop parameter specification;
+# - entry index specification;
+
+fun next_non_blank_token_line(token) = {
+    |" Return the start line of the next non blank/comment token, 0 if none.
+    val n = token.next;
+    match n.kind
+    | "ADA_WHITESPACE" => next_non_blank_token_line(n)
+    | "ADA_COMMENT"    => next_non_blank_token_line(n)
+    | "NO_TOKEN"       => 0
+    | *                => n.start_line
+}
+
+fun previous_non_blank_token_line(token) = {
+    |" Return the end line of the previous non blank/comment token, 0 if none.
+    val p = token.previous;
+    match p.kind
+    | "ADA_WHITESPACE" => previous_non_blank_token_line(p)
+    | "ADA_COMMENT"    => previous_non_blank_token_line(p)
+    | "NO_TOKEN"       => 0
+    | *                => p.end_line
+}
+
+@check(message="more than one construct on the same line")
+fun one_construct_per_line(node) =
+    # Flag any statement, declaration or representation clause
+    node is (Stmt or BasicDecl or AttributeDefClause or
+             EnumRepClause or RecordRepClause or AtClause)
+    # except for enum literal, param spec, discriminant spec
+    when (not node is (EnumLiteralDecl or ParamSpec or DiscriminantSpec or
+                       # or loop param or entry index.
+                       ForLoopVarDecl or EntryIndexSpec or
+                       # Also ignore anonymous or nested constructs
+                       # generating false positives.
+                       SingleTaskTypeDecl or AnonymousTypeDecl or
+                       LabelDecl or GenericSubpInternal or
+                       ExtendedReturnStmtObjectDecl))
+     and (node.token_end().end_line ==
+          next_non_blank_token_line(node.token_end())
+          or node.token_start().start_line ==
+             previous_non_blank_token_line(node.token_start()))
