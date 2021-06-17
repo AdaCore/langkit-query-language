@@ -37,11 +37,15 @@ selector calls
          if a is n @ Name when n.p_is_call()].to_list
     | * => ()
 
-@node_check(message="recursive subprogram")
-fun recursive_subprograms(node) = match node
-    # Subprograms bodies
-    | b @ BaseSubpBody(
-        # Where any of the chain of calls refers to the base subprogram itself
-        any calls is c @ AdaNode when b == c
-      ) => b.p_canonical_part()
-    | * => null
+@unit_check(message="recursive subprogram")
+fun recursive_subprograms(unit) = [
+   {message: "recursive subprogram",
+    loc: bod.p_canonical_part()?.p_defining_name()}
+   for bod in (
+      from unit.root
+      select b @ BaseSubpBody(
+         # Where any of the chain of calls refers to the base subprogram itself
+         any calls is c @ AdaNode when b == c
+      )
+   )
+]

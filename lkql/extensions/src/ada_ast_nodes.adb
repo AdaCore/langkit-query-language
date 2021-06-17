@@ -42,8 +42,13 @@ package body Ada_AST_Nodes is
    --  Empty Array of Value_Type values
 
    function Make_Primitive
-     (Ctx : Eval_Context; Value : I.Value_Type) return Primitive;
-   --  Create an Introspection_value value from the given Value_type value
+     (Ctx : Eval_Context;
+      Value : I.Value_Type;
+      Unit  : Analysis_Unit) return Primitive;
+   --  Create an Introspection_value value from the given Value_type value.
+   --  ``Unit`` is passed because Langkit tokens don't contain their units,
+   --  while LKQL tokens do, so we need a meaningful unit value to create LKQL
+   --  tokens.
 
    function Make_Value_Type (Value       : Primitive;
                              Target_Kind : Value_Kind)
@@ -274,7 +279,9 @@ package body Ada_AST_Nodes is
    --------------------
 
    function Make_Primitive
-     (Ctx : Eval_Context; Value : I.Value_Type) return Primitive
+     (Ctx : Eval_Context;
+      Value : I.Value_Type;
+      Unit : Analysis_Unit) return Primitive
    is
    begin
       case Kind (Value) is
@@ -332,13 +339,14 @@ package body Ada_AST_Nodes is
                   Ret.Unchecked_Get.Obj_Assocs.Elements.Include
                     (Find (Get_Context (Ctx.Kernel.all).Get_Symbol_Table,
                      Member_Name (Field)),
-                     Make_Primitive (Ctx, Eval_Member (Value, Field)));
+                     Make_Primitive (Ctx, Eval_Member (Value, Field), Unit));
                end loop;
                return Ret;
             end;
          when Token_Value =>
             return To_Primitive
-              (H.Create_Token_Ref (Ada_AST_Token'(Token => As_Token (Value))));
+              (H.Create_Token_Ref
+                (Ada_AST_Token'(Token => As_Token (Value), Unit  => Unit)));
          when others =>
             raise Introspection_Error with
               "Unsupported value type from the introspection API: " &
@@ -494,7 +502,8 @@ package body Ada_AST_Nodes is
    begin
       return Make_Primitive
         (Ctx,
-         Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Empty_Value_Array));
+         Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Empty_Value_Array),
+         Ada_AST_Unit (Node.Unit).Unit);
    end Access_Field;
 
    --------------------
@@ -530,7 +539,9 @@ package body Ada_AST_Nodes is
       if V = No_Value then
          return Primitive_Ptrs.Null_Ref;
       else
-         return Make_Primitive (Ctx, V);
+         return Make_Primitive (Ctx, V, No_Analysis_Unit);
+         --  Here we don't care if the unit is none, because there can't be a
+         --  meaningful token default value except No_Token
       end if;
    end Default_Arg_Value;
 
@@ -563,7 +574,9 @@ package body Ada_AST_Nodes is
       end loop;
 
       return Make_Primitive
-        (Ctx, Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Property_Args));
+        (Ctx,
+         Eval_Member (Ada_AST_Node (Node).Node, Ref.Ref, Property_Args),
+         Ada_AST_Unit (Node.Unit).Unit);
    end Evaluate_Property;
 
    --------------------------
@@ -660,7 +673,8 @@ package body Ada_AST_Nodes is
 
    function Next (Self : Ada_AST_Token) return AST_Token'Class is
    begin
-      return Ada_AST_Token'(Token => LCO.Next (Self.Token));
+      return Ada_AST_Token'(Token => LCO.Next (Self.Token),
+                            Unit  => Self.Unit);
    end Next;
 
    --------------
@@ -669,7 +683,8 @@ package body Ada_AST_Nodes is
 
    function Previous (Self : Ada_AST_Token) return AST_Token'Class is
    begin
-      return Ada_AST_Token'(Token => LCO.Previous (Self.Token));
+      return Ada_AST_Token'(Token => LCO.Previous (Self.Token),
+                            Unit  => Self.Unit);
    end Previous;
 
    ----------
@@ -705,7 +720,8 @@ package body Ada_AST_Nodes is
 
    function Token_Start (Node : Ada_AST_Node) return AST_Token'Class is
    begin
-      return Ada_AST_Token'(Token => Node.Node.Token_Start);
+      return Ada_AST_Token'(Token => Node.Node.Token_Start,
+                            Unit  => Node.Node.Unit);
    end Token_Start;
 
    ---------------
@@ -714,7 +730,8 @@ package body Ada_AST_Nodes is
 
    function Token_End (Node : Ada_AST_Node) return AST_Token'Class is
    begin
-      return Ada_AST_Token'(Token => Node.Node.Token_End);
+      return Ada_AST_Token'(Token => Node.Node.Token_End,
+                            Unit  => Node.Node.Unit);
    end Token_End;
 
    -------------
@@ -725,6 +742,15 @@ package body Ada_AST_Nodes is
    begin
       return LCO.Kind (LCO.Data (Self.Token)) = LCO.Ada_Termination;
    end Is_Null;
+
+   ----------
+   -- Unit --
+   ----------
+
+   overriding function Unit (Self : Ada_AST_Token) return AST_Unit'Class is
+   begin
+      return Ada_AST_Unit'(Unit => Self.Unit);
+   end Unit;
 
    ----------
    -- Name --

@@ -34,6 +34,7 @@ with Liblkqllang.Iterators; use Liblkqllang.Iterators;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
+with LKQL.Primitives;    use LKQL.Primitives;
 
 package body Rule_Commands is
 
@@ -41,22 +42,6 @@ package body Rule_Commands is
 
    function Find_Toplevel_Node_Kind_Pattern
      (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern;
-
-   ----------------
-   -- Check_Kind --
-   ----------------
-
-   procedure Check_Kind
-     (Expected_Kind : Valid_Primitive_Kind; Actual_Kind : Valid_Primitive_Kind;
-      Context       : String)
-   is
-   begin
-      if Expected_Kind /= Actual_Kind then
-         raise Rule_Error
-           with Context & ": expected value of kind " &
-           To_String (Expected_Kind) & "but got " & To_String (Actual_Kind);
-      end if;
-   end Check_Kind;
 
    --------------------------------
    -- Find_Toplevel_Node_Pattern --
@@ -103,7 +88,7 @@ package body Rule_Commands is
           (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
    begin
       if Check_Annotation.Is_Null
-        or else Check_Annotation.F_Name.Text not in "check" | "node_check"
+        or else Check_Annotation.F_Name.Text not in "check" | "unit_check"
       then
          return False;
       end if;
@@ -140,7 +125,7 @@ package body Rule_Commands is
             --  Make sure that the message is a string literal
             if Msg_Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
                raise Rule_Error
-                 with "message argument for @check/@node_check must be a " &
+                 with "message argument for @check/@unit_check must be a " &
                  "string literal";
             end if;
 
@@ -158,8 +143,8 @@ package body Rule_Commands is
             LKQL_Root             => Root,
             Eval_Ctx              => Ctx.Create_New_Frame,
             Rule_Args             => <>,
-            Is_Node_Check         =>
-              Check_Annotation.F_Name.Text = "node_check",
+            Is_Unit_Check         =>
+              Check_Annotation.F_Name.Text = "unit_check",
             Code                  => <>,
             Kind_Pattern          => Toplevel_Node_Pattern,
             Follow_Instantiations => Follow_Instantiations);
@@ -219,13 +204,10 @@ package body Rule_Commands is
       Nodes := LKQL_Eval (Ctx, Image (To_Text (Code)),
                           Get_Context (Self.Eval_Ctx.Kernel.all));
 
-      Check_Kind (Kind_List,
-                  Kind (Nodes), "Result of " & To_UTF8 (Command_Name));
+      Check_Kind (Ctx, Self.LKQL_Root, Kind_List, Nodes);
 
       for N of List_Val (Nodes).Elements loop
-         Check_Kind
-           (Kind_Node, Kind (N), "Element from the result of "
-            & To_UTF8 (Command_Name));
+         Check_Kind (Ctx, Self.LKQL_Root, Kind_Node, N);
 
          declare
             Wrapped_Node : constant H.AST_Node_Holder := Node_Val (N);

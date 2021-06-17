@@ -23,7 +23,6 @@
 
 with Ada.Containers.Vectors;
 
-with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 with Liblkqllang.Analysis;
@@ -70,7 +69,7 @@ package Rule_Commands is
       --  Store (cache) the code for the rule, so as to not recompute it
       --  everytime we want to evaluate it.
 
-      Is_Node_Check : Boolean;
+      Is_Unit_Check : Boolean;
       --  Whether the rule is expressed via a boolean check (function that
       --  returns a boolean) or a node check (function that returns a node).
 
@@ -116,12 +115,6 @@ package Rule_Commands is
    --  Create a Rule_Command value with the given name and arguments and
    --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
    --  corresponds to a rule file, ``False`` otherwise.
-
-   procedure Check_Kind
-     (Expected_Kind : Valid_Primitive_Kind; Actual_Kind : Valid_Primitive_Kind;
-      Context       : String);
-   --  Raise a Rule_error if 'Expected_Kind' is different from 'Actual_Kind'.
-   --  The error message will start with the context String.
 
    procedure Destroy (Self : in out Rule_Command);
    --  Destroy the rule and associated data

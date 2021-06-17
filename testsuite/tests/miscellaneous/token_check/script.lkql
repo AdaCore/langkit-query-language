@@ -1,0 +1,5 @@
+@unit_check
+fun flag_with_tokens(unit) = [
+    {message: "How dare you use a 'with' token", loc: tok}
+    for tok in unit.root.tokens if tok.kind == "ADA_WITH"
+]

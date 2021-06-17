@@ -41,20 +41,32 @@ usually contain an ``is`` pattern match as the main expression:
 But are not limited to this, and can contain arbitrary expressions as
 long as they return a boolean.
 
-Node checks
+Unit checks
 ~~~~~~~~~~~
 
-Node checks are functions that take a node and return another node or
-null. They allow more flexibility than boolean checks, but are a bit
-more verbose. Here is how you would express the above check with a
-``@node_check``:
+Unit checks are functions that take an analysis unit and return a list of
+objects containing a message and a location. They're meant to be ultimately
+flexible, and fullfill the needs that boolean checks can't fullfill, as for example:
+
+- Customizing messages.
+- Having a non 1 to 1 relationship between messages and nodes.
+- Having token based checkers.
+
+The returned objects must have two keys:
+
+- ``message``: Contains the message to be displayed.
+- ``loc``: Either a node or a token, used as the source location for the error
+           message.
+
+``@unit_check``:
 
 .. code-block:: lkql
 
-   @node_check
-   fun goto(node) = match node
-       | GotoStmt => node
-       | * => null
+   @unit_check
+   fun goto(unit) = [
+      {message: "goto statement", loc: node}
+      for node in (from unit.root select GotoStmt)
+   ]
 
 Checks arguments
 ~~~~~~~~~~~~~~~~

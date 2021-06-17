@@ -483,6 +483,19 @@ package LKQL.Primitives is
    --  An Unsupported_Error will be raised if List is not a value of kind
    --  Kind_List.
 
+   ----------------------
+   -- Object functions --
+   ----------------------
+
+   function Extract_Value
+     (Obj           : Primitive;
+      Key           : Text_Type;
+      Ctx           : LKQL.Eval_Contexts.Eval_Context;
+      Expected_Kind : Base_Primitive_Kind := No_Kind;
+      Location      : L.LKQL_Node := L.No_LKQL_Node) return Primitive;
+   --  Extract a value from a primitive object, with the given key, doing the
+   --  appropriate checks along the way.
+
    ------------------------------
    -- Text conversion & output --
    ------------------------------

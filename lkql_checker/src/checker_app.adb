@@ -46,6 +46,7 @@ with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
+with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with LKQL.Errors; use LKQL.Errors;
 with Liblkqllang.Analysis;
 
@@ -212,9 +213,15 @@ package body Checker_App is
             --  Modify the rule command in place, by appending an argument to
             --  the Rule_Command's arg vector.
 
-            Rule.Rule_Args.Append
-              (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
-                              Value => To_Unbounded_Text ("node")));
+            if Rule.Is_Unit_Check then
+               Rule.Rule_Args.Append
+                 (Rule_Argument'(Name  => To_Unbounded_Text ("unit"),
+                                 Value => To_Unbounded_Text ("unit")));
+            else
+               Rule.Rule_Args.Append
+                 (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
+                                 Value => To_Unbounded_Text ("node")));
+            end if;
 
             if Rules_Args_Maps.Has_Element (C) then
                for Arg of Rules_Args_Map.Reference (C) loop
@@ -297,6 +304,80 @@ package body Checker_App is
    procedure Process_Unit
      (Context : App_Job_Context; Unit : Analysis_Unit)
    is
+      procedure Handle_Error
+        (Rule : Rule_Command;
+         Node : Ada_Node'Class;
+         Exc : Exception_Occurrence);
+      --  Factorize the error handling code, so that it can be shared amongst
+      --  the two kinds of checkers, node checkers and unit checkers.
+
+      procedure Handle_Error
+        (Rule : Rule_Command;
+         Node : Ada_Node'Class;
+         Exc : Exception_Occurrence) is
+      begin
+         declare
+            Data      : constant Error_Data := Ctx.Last_Error;
+            LKQL_Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
+            Diag      : constant Diagnostic :=
+              (Sloc_Range => LKQL_Node.Sloc_Range,
+               Message    => Data.Short_Message);
+            E         : Exception_Occurrence_Access :=
+              Data.Property_Error_Info;
+
+            procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+              (Exception_Occurrence, Exception_Occurrence_Access);
+
+         begin
+            case Property_Error_Recovery is
+            when Continue_And_Log =>
+               Eval_Trace.Trace ("Evaluating rule predicate failed");
+               Eval_Trace.Trace
+                 ("rule => " & Image (To_Text (Rule.Name)));
+               Eval_Trace.Trace ("ada node => " & Node.Image);
+
+               if E /= null then
+                  Eval_Trace.Trace (Exception_Information (E.all));
+                  Eval_Trace.Trace
+                    (GNAT.Traceback.Symbolic.Symbolic_Traceback
+                       (E.all));
+               end if;
+
+            when Continue_And_Warn =>
+               Put ("ERROR! evaluating rule predicate failed");
+
+               if E /= null then
+                  Put_Line (" in a property call");
+               end if;
+               Put_Line (" on node => " & To_Text (Node.Image));
+
+               Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                 (Self        => Diag,
+                  Buffer      => LKQL_Node.Unit,
+                  Path        => LKQL_Node.Unit.Get_Filename,
+                  Output_File => Standard_Error);
+
+               if E /= null then
+                  Ada.Text_IO.Put_Line
+                    (Ada.Text_IO.Standard_Error,
+                     Exception_Information (E.all));
+                  Ada.Text_IO.Put_Line
+                    (Ada.Text_IO.Standard_Error,
+                     GNAT.Traceback.Symbolic.Symbolic_Traceback
+                       (E.all));
+               end if;
+
+            when Raise_Error =>
+               Reraise_Occurrence (Exc);
+            end case;
+
+            --  If we didn't raise and there is exception information
+            --  linked to a wrapped property error, free it.
+
+            Unchecked_Free (E);
+         end;
+      end Handle_Error;
+
       pragma Unreferenced (Context);
 
       In_Generic_Instantiation : Boolean := False;
@@ -348,6 +429,10 @@ package body Checker_App is
          end if;
 
          for Rule of Cached_Rules (Node.Kind) loop
+            if Rule.Is_Unit_Check then
+               return Over;
+            end if;
+
             --  If we are in a generic instantiation and the rule doesn't care
             --  about them, bail out.
             if In_Generic_Instantiation and then not Rule.Follow_Instantiations
@@ -358,32 +443,18 @@ package body Checker_App is
             declare
                Result_Node : Ada_Node;
             begin
-               if Rule.Is_Node_Check then
+               --  The check is a "bool check", ie. a check that returns a
+               --  boolean.  Eval the call to the check function
 
-                  --  The check is a "node check", ie. a check that returns a
-                  --  node on which to put the diagnostic, rather than a
-                  --  boolean: The result node is the node directly returned by
-                  --  the function
+               Result := Eval (Rule.Eval_Ctx, Rule.Code, Kind_Bool);
 
-                  Result_Node :=
-                    Ada_AST_Node
-                      (Node_Val (Eval (Rule.Eval_Ctx, Rule.Code, Kind_Node))
-                       .Unchecked_Get.all).Node;
-               else
+               --  The result node is the current node, if the check
+               --  returned true.
 
-                  --  The check is a "bool check", ie. a check that returns a
-                  --  boolean.  Eval the call to the check function
-
-                  Result := Eval (Rule.Eval_Ctx, Rule.Code, Kind_Bool);
-
-                  --  The result node is the current node, if the check
-                  --  returned true.
-
-                  Result_Node :=
-                    (if Bool_Val (Result)
-                     then Node.As_Ada_Node
-                     else No_Ada_Node);
-               end if;
+               Result_Node :=
+                 (if Bool_Val (Result)
+                  then Node.As_Ada_Node
+                  else No_Ada_Node);
 
                if Result_Node /= No_Ada_Node then
 
@@ -420,7 +491,7 @@ package body Checker_App is
                                  To_Unbounded_Text (To_Text (Rule.Message))),
                               Result_Node.Unit);
                         begin
-                           Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                           Output.Print_Diagnostic
                              (Diag.Diag,
                               Diag.Unit,
                               Simple_Name (Diag.Unit.Get_Filename),
@@ -431,70 +502,8 @@ package body Checker_App is
                   end case;
                end if;
             exception
-               when LKQL.Errors.Stop_Evaluation_Error =>
-                  declare
-                     Data      : constant Error_Data := Ctx.Last_Error;
-                     LKQL_Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
-                     Diag      : constant Langkit_Support.Diagnostics.
-                                          Diagnostic :=
-                       (Sloc_Range => LKQL_Node.Sloc_Range,
-                        Message    => Data.Short_Message);
-                     E         : Exception_Occurrence_Access :=
-                       Data.Property_Error_Info;
-
-                     procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-                       (Exception_Occurrence, Exception_Occurrence_Access);
-
-                  begin
-                     case Property_Error_Recovery is
-                     when Continue_And_Log =>
-                        Eval_Trace.Trace ("Evaluating rule predicate failed");
-                        Eval_Trace.Trace
-                          ("rule => " & Image (To_Text (Rule.Name)));
-                        Eval_Trace.Trace ("ada node => " & Node.Image);
-
-                        if E /= null then
-                           Eval_Trace.Trace (Exception_Information (E.all));
-                           Eval_Trace.Trace
-                             (GNAT.Traceback.Symbolic.Symbolic_Traceback
-                                (E.all));
-                        end if;
-
-                     when Continue_And_Warn =>
-                        Put ("ERROR! evaluating rule predicate failed");
-
-                        if E /= null then
-                           Put_Line (" in a property call");
-                        end if;
-                        Put_Line (" on node => " & To_Text (Node.Image));
-
-                        Langkit_Support.Diagnostics.Output.Print_Diagnostic
-                          (Self        => Diag,
-                           Buffer      => LKQL_Node.Unit,
-                           Path        => LKQL_Node.Unit.Get_Filename,
-                           Output_File => Standard_Error);
-
-                        if E /= null then
-                           Ada.Text_IO.Put_Line
-                             (Ada.Text_IO.Standard_Error,
-                              Exception_Information (E.all));
-                           Ada.Text_IO.Put_Line
-                             (Ada.Text_IO.Standard_Error,
-                              GNAT.Traceback.Symbolic.Symbolic_Traceback
-                                (E.all));
-                        end if;
-
-                     when Raise_Error =>
-                        raise;
-                     end case;
-
-                     --  If we didn't raise and there is exception information
-                     --  linked to a wrapped property error, free it.
-                     if E /= null then
-                        Unchecked_Free (E);
-                     end if;
-
-                  end;
+               when E : LKQL.Errors.Stop_Evaluation_Error =>
+                  Handle_Error (Rule, Node, E);
                when E : others =>
                   Put_Line
                     (Standard_Error,
@@ -513,8 +522,87 @@ package body Checker_App is
 
          return Into;
       end Visit;
+
    begin
+      Ctx.Add_Binding
+        ("unit",
+         To_Primitive (H.Create_Unit_Ref (Ada_AST_Unit'(Unit => Unit))));
+
       Traverse (Unit.Root, Visit'Access);
+
+      for Rule of Cached_Rules (Unit.Root.Kind) loop
+         begin
+            if Rule.Is_Unit_Check then
+               declare
+                  Result : Primitive :=
+                    Eval (Rule.Eval_Ctx, Rule.Code);
+               begin
+                  if Result.Get.Kind = Kind_Iterator then
+                     Result := To_List (Result.Get.Iter_Val.all);
+                  end if;
+                  Check_Kind (Ctx, Rule.LKQL_Root, Kind_List, Result);
+
+                  for El of Result.Get.List_Val.Elements loop
+                     Check_Kind (Ctx, Rule.LKQL_Root, Kind_Object, El);
+
+                     declare
+                        Loc_Val : constant Primitive :=
+                          Extract_Value (El, "loc", Ctx, No_Kind,
+                                         Location => Rule.LKQL_Root);
+
+                        Loc : Source_Location_Range;
+
+                        Message : constant Unbounded_Text_Type :=
+                          Extract_Value (El, "message", Ctx, Kind_Str,
+                                         Location => Rule.LKQL_Root)
+                          .Get.Str_Val;
+
+                        Diag     : Diagnostic;
+                        Loc_Unit : Analysis_Unit;
+                     begin
+
+                        --  Loc can be either a token value or a node value. In
+                        --  both cases we'll extract the source location and
+                        --  the unit from it.
+                        if Loc_Val.Get.Kind = Kind_Node then
+                           declare
+                              Node : constant Ada_AST_Node :=
+                                 Ada_AST_Node
+                                   (Loc_Val.Get.Node_Val.Unchecked_Get.all);
+                           begin
+                              Loc := Node.Node.Sloc_Range;
+                              Loc_Unit := Node.Node.Unit;
+                           end;
+                        elsif Loc_Val.Get.Kind = Kind_Token then
+                           declare
+                              Token : constant Ada_AST_Token :=
+                                Ada_AST_Token
+                                  (Loc_Val.Get.Token_Val.Unchecked_Get.all);
+                           begin
+                              Loc := Token.Sloc_Range;
+                              Loc_Unit := Token.Unit;
+                           end;
+                        end if;
+
+                        Diag := (Message => Message, Sloc_Range => Loc);
+
+                        Output.Print_Diagnostic
+                          (Self        => Diag,
+                           Buffer      => Loc_Unit,
+                           Path        => Simple_Name (Loc_Unit.Get_Filename),
+                           Output_File => Standard_Error,
+                           Style => Output.Diagnostic_Style'
+                            (Label => To_Unbounded_Text ("rule violation"),
+                             Color => Yellow));
+                     end;
+                  end loop;
+               end;
+            end if;
+         exception
+            when E : LKQL.Errors.Stop_Evaluation_Error =>
+               Handle_Error (Rule, Unit.Root, E);
+         end;
+      end loop;
    end Process_Unit;
 
    ----------------------

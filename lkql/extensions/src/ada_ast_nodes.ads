@@ -141,6 +141,7 @@ package Ada_AST_Nodes is
 
    type Ada_AST_Token is new AST_Token with record
       Token : Token_Reference;
+      Unit  : Analysis_Unit;
    end record;
 
    overriding function Sloc_Range
@@ -151,6 +152,7 @@ package Ada_AST_Nodes is
    overriding function Kind (Self : Ada_AST_Token) return Text_Type;
    overriding function Image (Self : Ada_AST_Token) return Text_Type;
    overriding function Is_Null (Self : Ada_AST_Token) return Boolean;
+   overriding function Unit (Self : Ada_AST_Token) return AST_Unit'Class;
 
    type Ada_AST_Unit is new AST_Unit with record
       Unit : Analysis_Unit;

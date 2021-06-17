@@ -29,9 +29,12 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Text_IO;
-with LKQL.AST_Nodes;
 
+with LKQL.AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.Evaluation;
+with LKQL.Error_Handling; use LKQL.Error_Handling;
+with LKQL.Errors;         use LKQL.Errors;
 
 with GNAT.Case_Util;
 
@@ -1263,5 +1266,35 @@ package body LKQL.Primitives is
 
    function ">=" (Left, Right : Primitive) return Primitive is
       (To_Primitive (not Bool_Val (Left < Right)));
+
+   -------------------
+   -- Extract_Value --
+   -------------------
+
+   function Extract_Value
+     (Obj           : Primitive;
+      Key           : Text_Type;
+      Ctx           : LKQL.Eval_Contexts.Eval_Context;
+      Expected_Kind : Base_Primitive_Kind := No_Kind;
+      Location      : L.LKQL_Node := L.No_LKQL_Node) return Primitive
+   is
+      Sym  : constant Symbol_Type := Ctx.Symbol (Key);
+      Cur : constant Primitive_Maps.Cursor
+        := Obj.Get.Obj_Assocs.Elements.Find (Sym);
+   begin
+      if not Primitive_Maps.Has_Element (Cur) then
+         Raise_And_Record_Error
+           (Ctx,
+            Make_Eval_Error
+              (Location, "No key named " & Key & " in  object"));
+      else
+         if Expected_Kind /= No_Kind then
+            LKQL.Evaluation.Check_Kind
+              (Ctx, Location, Expected_Kind,
+               Primitive_Maps.Element (Cur));
+         end if;
+         return Primitive_Maps.Element (Cur);
+      end if;
+   end Extract_Value;
 
 end LKQL.Primitives;

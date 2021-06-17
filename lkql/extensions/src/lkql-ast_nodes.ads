@@ -189,4 +189,7 @@ package LKQL.AST_Nodes is
    function Unit (Node : AST_Node) return AST_Unit'Class is abstract;
    --  Given a node, return the unit it belongs to
 
+   function Unit (Node : AST_Token) return AST_Unit'Class is abstract;
+   --  Given a token, return the unit it belongs to
+
 end LKQL.AST_Nodes;
