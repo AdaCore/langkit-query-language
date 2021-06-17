@@ -1,0 +1,22 @@
+# Flags each package body with declarations and a statement part that does not
+# include a trailing comment on the line containing the begin keyword; this
+# trailing comment needs to specify the package name and nothing else. The
+# begin is not flagged if the package body does not contain any declarations.
+
+fun find_comment(token, name) =
+    |" Return true if a comment token immediately following the previous
+    |" "begin" keyword is found and containing only the package name.
+    if token.kind == "ADA_COMMENT" and
+       token.previous.previous.kind == "ADA_BEGIN"
+    then token.text.ends_with(name) and
+         match token.text.substring(1, token.text.length - name.length)
+         | "^-- *$" => true
+         | *        => false
+    else token.kind != "ADA_BEGIN" and find_comment(token.previous, name)
+
+@check(message="mark BEGIN with package name")
+fun uncommented_begin_in_package_bodies(node) =
+    node is HandledStmts(parent is p@PackageBody(f_decls is *(f_decls is l@*)))
+    when l[1] != null
+     and not find_comment(node.token_start().previous,
+                          p?.f_package_name?.f_name.text)
