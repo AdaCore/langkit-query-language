@@ -5,8 +5,12 @@
 
 import stdlib
 
-@check(message="instantiation in a package spec or subprogram body")
-fun improperly_located_instantiations(node) =
-    node is GenericInstantiation
-    when node.parent?.parent?.parent is BasePackageDecl(parent is LibraryItem)
-      or stdlib.enclosing_body(node) != null
+@unit_check
+fun improperly_located_instantiations(unit) = [
+     {message: "instantiation in a " &
+               (if node.parent?.parent?.parent is BasePackageDecl
+                then "package spec" else "subprogram body"),
+      loc: node.p_defining_name()}
+     for node in from unit.root select g@GenericInstantiation
+     when g.parent?.parent?.parent is BasePackageDecl(parent is LibraryItem)
+       or stdlib.enclosing_body(g) != null]
