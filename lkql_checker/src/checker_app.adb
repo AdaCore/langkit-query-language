@@ -585,13 +585,11 @@ package body Checker_App is
                         end if;
 
                         Diag := (Message => Message, Sloc_Range => Loc);
-
                         Output.Print_Diagnostic
                           (Self        => Diag,
                            Buffer      => Loc_Unit,
                            Path        => Simple_Name (Loc_Unit.Get_Filename),
-                           Output_File => Standard_Error,
-                           Style => Output.Diagnostic_Style'
+                           Style       => Output.Diagnostic_Style'
                             (Label => To_Unbounded_Text ("rule violation"),
                              Color => Yellow));
                      end;
