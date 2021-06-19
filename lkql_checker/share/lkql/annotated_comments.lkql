@@ -1,0 +1,15 @@
+# Flags comments that are used as annotations or as special sentinels/markers.
+# Such comments have the following structure:
+# --<special_character> *<comment_marker>
+
+@unit_check
+fun annotated_comments(unit, special_character="#", comment_marker="") = [
+    {message: "annotated comment", loc: tok}
+    for tok in unit.tokens
+    if tok.kind == "ADA_COMMENT" and
+       tok.text.starts_with("--" & special_character) and
+       tok.text.ends_with(comment_marker) and
+       match tok.text.substring(4, tok.text.length - comment_marker.length)
+       | "[ \t]*" => true
+       | *        => false
+]
