@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Printable_ASCII
+input_sources: ['ascii.ads']
