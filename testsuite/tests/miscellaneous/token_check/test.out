@@ -2,4 +2,3 @@ test.adb:1:1: rule violation: How dare you use a 'with' token
 1 | with Ada.Text_IO;
   | ^^^^ 
 
-

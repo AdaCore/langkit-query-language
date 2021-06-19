@@ -1,4 +1,1 @@
-script.lkql:1:52: error: Cannot get member next for Unit value
-1 | print((select first AdaNode).token_end().next.next.next)
-  |                                                    ^^^^ 
-
+NO_TOKEN

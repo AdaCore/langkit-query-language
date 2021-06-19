@@ -702,7 +702,10 @@ package body Ada_AST_Nodes is
 
    function Kind (Self : Ada_AST_Token) return Text_Type is
    begin
-      return LCO.Kind (LCO.Data (Self.Token))'Wide_Wide_Image;
+      return
+        (if Self.Token = No_Token
+         then "NO_TOKEN"
+         else LCO.Kind (LCO.Data (Self.Token))'Wide_Wide_Image);
    end Kind;
 
    -----------

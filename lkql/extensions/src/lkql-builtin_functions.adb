@@ -652,10 +652,6 @@ package body LKQL.Builtin_Functions is
       Next_Token : constant LKQL.AST_Nodes.AST_Token'Class :=
         Args (1).Get.Token_Val.Unchecked_Get.Next;
    begin
-      if Next_Token.Is_Null then
-         return Make_Unit_Primitive;
-      end if;
-
       return To_Primitive (H.Create_Token_Ref (Next_Token));
    end Eval_Token_Next;
 
@@ -910,28 +906,28 @@ package body LKQL.Builtin_Functions is
         ("start_column",
          (1 => Param ("token", Kind_Token)),
          Eval_Start_Col'Access,
-         "Return the previous token",
+         "Return the column start",
          Only_Dot_Calls => True),
 
       Create
         ("end_column",
          (1 => Param ("token", Kind_Token)),
          Eval_End_Col'Access,
-         "Return the previous token",
+         "Return the column end",
          Only_Dot_Calls => True),
 
       Create
         ("start_line",
          (1 => Param ("token", Kind_Token)),
          Eval_Start_Line'Access,
-         "Return the previous token",
+         "Return the line start",
          Only_Dot_Calls => True),
 
       Create
         ("end_line",
          (1 => Param ("token", Kind_Token)),
          Eval_End_Line'Access,
-         "Return the previous token",
+         "Return the line end",
          Only_Dot_Calls => True),
 
       Create
