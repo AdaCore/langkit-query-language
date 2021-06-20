@@ -3,8 +3,9 @@
 # by default are flagged, except the pragmas listed in the ``allowed``
 # parameter.
 
-@check(message="forbidden pragma")
-fun forbidden_pragmas(node, all=false, forbidden=[], allowed=[]) =
-    node is Pragma(f_id is id@Identifier)
+@unit_check
+fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) = [
+    {message: "use of pragma " & node.f_id.text, loc: node}
+    for node in from unit.root select Pragma(f_id is id@Identifier)
     when (all or [p for p in forbidden if id?.p_name_is(p)].length != 0)
-     and [p for p in allowed if id?.p_name_is(p)].length == 0
+     and [p for p in allowed if id?.p_name_is(p)].length == 0]
