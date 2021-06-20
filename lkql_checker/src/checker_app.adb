@@ -425,16 +425,19 @@ package body Checker_App is
 
             --  Restore old value
             In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
-
          end if;
 
          for Rule of Cached_Rules (Node.Kind) loop
+
+            --  Skip unit check rules
+
             if Rule.Is_Unit_Check then
-               return Over;
+               goto Next;
             end if;
 
             --  If we are in a generic instantiation and the rule doesn't care
             --  about them, bail out.
+
             if In_Generic_Instantiation and then not Rule.Follow_Instantiations
             then
                goto Next;
