@@ -75,8 +75,8 @@
 
 import stdlib
 
-@check(message="wrong prefix")
-fun identifier_prefixes(node,
+@unit_check
+fun identifier_prefixes(unit,
                         type="-", type_exclusive=true,
                         concurrent="-", concurrent_exclusive=true,
                         access="-", access_exclusive=true,
@@ -113,7 +113,39 @@ fun identifier_prefixes(node,
                         exception_exclusive=exception_exclusive,
                         enum_exclusive=false);
 
-    node is DefiningName when match node.parent
+    val str_prefix = " does not start with prefix ";
+
+    [{message: n.text &
+      (match n.parent
+       | ((TaskTypeDecl or ProtectedTypeDecl) or
+          SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
+         when concurrent != "-" => str_prefix & concurrent
+       | (TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
+          AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) or
+          SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
+                      TypeAccessDef(f_subtype_indication is *(f_name is
+          AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
+         when class_access != "-" => str_prefix & class_access
+       | (TypeDecl(f_type_def is AccessToSubpDef) or
+          SubtypeDecl(p_canonical_type() is
+                      TypeDecl(f_type_def is AccessToSubpDef)))
+         when subprogram_access != "-" => str_prefix & subprogram_access
+       | (TypeDecl(f_type_def is AccessDef) or
+          SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
+         when access != "-" => str_prefix & access
+       | p@TypeDecl(f_type_def is DerivedTypeDef) when derived != "-" and
+           p?.p_base_type()?.p_canonical_type()?.
+           p_canonical_fully_qualified_name() == derived_ancestor
+         => str_prefix & derived
+       | BaseTypeDecl    => str_prefix & type
+       | EnumLiteralDecl => str_prefix & enum
+       | p@* => match p?.parent
+                | ObjectDecl or NumberDecl => str_prefix & constant
+                | SubpRenamingDecl         => str_prefix & enum
+                | ExceptionDecl            => str_prefix & exception
+                | * => " does not have an exclusive prefix"),
+      loc: n}
+    for n in from unit.root select node@DefiningName when match node.parent
     # Concurrent types
     | (p@(TaskTypeDecl or ProtectedTypeDecl) or
        p@SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
@@ -288,5 +320,5 @@ fun identifier_prefixes(node,
                             derived_exclusive=derived_exclusive,
                             constant_exclusive=constant_exclusive,
                             exception_exclusive=exception_exclusive,
-                            enum_exclusive=enum_exclusive)
+                            enum_exclusive=enum_exclusive)]
 }
