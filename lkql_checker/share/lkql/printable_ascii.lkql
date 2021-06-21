@@ -5,7 +5,7 @@
 @unit_check
 fun printable_ascii(unit) = [
     {message: "non printable ASCII character", loc: tok}
-    for tok in unit.root.tokens
+    for tok in unit.tokens
     if match tok.text
        | "[^\r\n -~]" => true
        | *            => false
