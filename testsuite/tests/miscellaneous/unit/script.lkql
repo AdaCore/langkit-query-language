@@ -1,2 +1,4 @@
 print((select first AdaNode).unit)
 print(from (select first AdaNode).unit.root select first AdaNode)
+print((select first AdaNode).unit)
+print(base_name((select first AdaNode).unit.name))

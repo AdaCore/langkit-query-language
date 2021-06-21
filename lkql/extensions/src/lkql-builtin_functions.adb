@@ -21,6 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
@@ -80,6 +81,9 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Substring
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Base_Name
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Doc
@@ -434,6 +438,23 @@ package body LKQL.Builtin_Functions is
       return To_Primitive (Slice (Str, From, To));
    end Eval_Substring;
 
+   --------------------
+   -- Eval_Base_Name --
+   --------------------
+
+   function Eval_Base_Name
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      Str  : constant Unbounded_Text_Type := Str_Val (Args (1));
+   begin
+      return To_Primitive
+        (To_Text (Ada.Directories.Simple_Name (Image (To_Text (Str)))));
+   exception
+      when Ada.Directories.Name_Error =>
+         return To_Primitive ("");
+   end Eval_Base_Name;
+
    -------------
    -- Get_Doc --
    -------------
@@ -710,6 +731,16 @@ package body LKQL.Builtin_Functions is
          (Integer (Args (1)
             .Get.Token_Val.Unchecked_Get.Sloc_Range.Start_Line)));
 
+   ---------------------
+   -- Eval_Token_Unit --
+   ---------------------
+
+   function Eval_Token_Unit
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      (To_Primitive
+         (H.Create_Unit_Ref (Args (1).Get.Token_Val.Unchecked_Get.Unit)));
+
    -------------------
    -- Eval_End_Line --
    -------------------
@@ -874,6 +905,13 @@ package body LKQL.Builtin_Functions is
          "Return the previous token",
          Only_Dot_Calls => True),
 
+      Create
+        ("unit",
+         (1 => Param  ("token", Kind_Token)),
+         Eval_Token_Unit'Access,
+         "Return the unit for this token",
+         Only_Dot_Calls => True),
+
       --  Unit builtins
 
       Create
@@ -955,6 +993,12 @@ package body LKQL.Builtin_Functions is
          "Given a string and two indices (from and to), return the substring "
          & "contained between indices from and to (both included)",
          Only_Dot_Calls => True),
+
+      Create
+        ("base_name",
+         (1 => Param ("str", Kind_Str)),
+         Eval_Base_Name'Access,
+         "Given a string that represents a file name, returns the basename"),
 
       Create
         ("doc",
