@@ -780,6 +780,26 @@ package body Ada_AST_Nodes is
    end Unit;
 
    -----------------
+   -- Token_Start --
+   -----------------
+
+   overriding function Token_Start (Self : Ada_AST_Unit) return AST_Token'Class
+   is
+   begin
+      return Ada_AST_Token'(Unit => Self.Unit, Token => Self.Unit.First_Token);
+   end Token_Start;
+
+   ---------------
+   -- Token_End --
+   ---------------
+
+   overriding function Token_End (Self : Ada_AST_Unit) return AST_Token'Class
+   is
+   begin
+      return Ada_AST_Token'(Unit => Self.Unit, Token => Self.Unit.Last_Token);
+   end Token_End;
+
+   -----------------
    -- adalanginit --
    -----------------
 

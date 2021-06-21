@@ -110,6 +110,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Tokens
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Unit_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Token_Text
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -670,6 +673,32 @@ package body LKQL.Builtin_Functions is
       return To_Primitive (H.Create_Token_Ref (Previous_Token));
    end Eval_Token_Previous;
 
+   ----------------------
+   -- Eval_Unit_Tokens --
+   ----------------------
+
+   function Eval_Unit_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      Tokens     : Primitive_Vectors.Vector;
+      Unit       : constant H.AST_Unit_Holder :=
+        Args (1).Get.Analysis_Unit_Val;
+      Token      : H.AST_Token_Holder :=
+        H.Create_Token_Ref (Unit.Unchecked_Get.Token_Start);
+      Last_Token : constant H.AST_Token_Holder :=
+        H.Create_Token_Ref (Unit.Unchecked_Get.Token_End);
+      use LKQL.AST_Nodes;
+      pragma Unreferenced (Ctx);
+   begin
+      while Token.Unchecked_Get.all /= Last_Token.Unchecked_Get.all loop
+         Tokens.Append (To_Primitive (Token));
+         Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
+      end loop;
+
+      return To_Primitive
+        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)));
+   end Eval_Unit_Tokens;
+
    -----------------
    -- Eval_Tokens --
    -----------------
@@ -926,6 +955,13 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("unit", Kind_Analysis_Unit)),
          Eval_Unit_Name'Access,
          "Return the name of this unit",
+         Only_Dot_Calls => True),
+
+      Create
+        ("tokens",
+         (1 => Param ("node", Kind_Analysis_Unit)),
+         Eval_Unit_Tokens'Access,
+         "Given an unit, return an iterator on its tokens",
          Only_Dot_Calls => True),
 
       --  String builtins

@@ -186,6 +186,14 @@ package LKQL.AST_Nodes is
       (Self : AST_Unit) return AST_Node'Class is abstract;
    --  Return the root AST node for this unit
 
+   function Token_Start
+     (Self : AST_Unit) return AST_Token'Class is abstract;
+   --  Return the first token for this unit.
+
+   function Token_End
+     (Self : AST_Unit) return AST_Token'Class is abstract;
+   --  Return the last token for this unit.
+
    function Unit (Node : AST_Node) return AST_Unit'Class is abstract;
    --  Given a node, return the unit it belongs to
 
