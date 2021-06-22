@@ -7,7 +7,10 @@
 
 fun is_visible(type_decl) = type_decl?.parent?.parent is PublicPart
 
-@check(message="tagged type has too many primitives")
-fun too_many_primitives(node, n : int = 5) =
-   node is type @ TypeDecl(p_is_tagged_type() is true)
-   when is_visible(type) and type.p_get_primitives().length > n
+@unit_check
+fun too_many_primitives(unit, n : int = 5) = [
+    {message: "tagged type has too many primitives (" &
+              img(node.p_get_primitives().length) & ")",
+     loc: node.p_defining_name()}
+    for node in from unit.root select type@TypeDecl(p_is_tagged_type() is true)
+    when is_visible(type) and type.p_get_primitives().length > n]

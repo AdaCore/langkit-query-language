@@ -8,10 +8,16 @@
 # as well as declarations inside expanded generic instantiations are never
 # flagged.
 
-@check(message="too many formal parameters")
-fun maximum_parameters(node, n: int = 3) =
-    node is (SubpBody or ExprFunction or NullSubpDecl or SubpBodyStub or
-             ClassicSubpDecl)
+fun num_params(node) =
+    |" Return the number of paramers of a subprogram node
+    (from node?.f_subp_spec?.f_subp_params?.f_params select DefiningName).length
+
+@unit_check
+fun maximum_parameters(unit, n: int = 3) = [
+    {message: "too many formal parameters (" & img(num_params(n)) & ")",
+     loc: n.p_defining_name()}
+    for n in from unit.root select
+    node@(SubpBody or ExprFunction or NullSubpDecl or SubpBodyStub or
+          ClassicSubpDecl)
     when (node is ClassicSubpDecl or node.p_previous_part() == null)
-     and (from node.f_subp_spec?.f_subp_params?.f_params
-          select DefiningName).length > n
+     and num_params(node) > n]

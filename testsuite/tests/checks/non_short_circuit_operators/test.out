@@ -1,12 +1,12 @@
-short_circuit.adb:12:16: rule violation: use of predefined AND/OR for boolean type
+short_circuit.adb:12:16: rule violation: use of predefined AND for boolean type
 12 |    B1 := I > 0 and J > 0;       --  FLAG
    |                ^^^ 
 
-short_circuit.adb:14:16: rule violation: use of predefined AND/OR for boolean type
+short_circuit.adb:14:16: rule violation: use of predefined OR for boolean type
 14 |    B1 := I > J or J > 0;        --  FLAG
    |                ^^ 
 
-short_circuit.adb:16:10: rule violation: use of predefined AND/OR for boolean type
+short_circuit.adb:16:10: rule violation: use of predefined AND for boolean type
 16 |    B1 := "AND" (I < J, I < 0);  --  FLAG
    |          ^^^^^^^^^^^^^^^^^^^^ 
 

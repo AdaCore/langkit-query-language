@@ -1,5 +1,4 @@
 # Flag all uses of array slicing.
 
 @check(message="slice")
-fun slices(node) =
-    node is CallExpr when node.p_is_array_slice()
+fun slices(node) = node is CallExpr(p_is_array_slice() is true)

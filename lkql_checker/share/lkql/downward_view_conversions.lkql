@@ -2,14 +2,10 @@
 
 @check(message="downward view conversion")
 fun downward_view_conversions(node) =
-    node is c @ CallExpr(
-        # Select type conversions
-        p_referenced_decl() is BaseTypeDecl(
-            p_base_subtype() is target_type @ BaseTypeDecl(p_is_tagged_type() is true)
-        )
-    ) when {
-        # Where the target type is derived from the type of the conversion
-        # argument
-        val argument_type = c.f_suffix[1].f_r_expr?.p_expression_type();
-        target_type?.p_is_derived_type(argument_type)
-    }
+    node is CallExpr(p_referenced_decl() is
+            # Select type conversions
+            BaseTypeDecl(p_base_subtype() is
+                         target@BaseTypeDecl(p_is_tagged_type() is true)))
+    # Where the target type is derived from the type of the conversion argument
+    when
+    target?.p_is_derived_type(node.f_suffix[1].f_r_expr?.p_expression_type())

@@ -1,10 +1,9 @@
 # Flag all parameters specifications with default value.
 #
 # All parameter specifications are checked: in subprograms (including formal,
-# generic and protected subprograms) and in task and protected entries (including
-# accept statements and entry bodies).
+# generic and protected subprograms) and in task and protected entries
+# (including accept statements and entry bodies).
 
-@check(message="parameter with default value")
+@check(message="default value for subprogram parameter")
 fun default_parameters(node) = 
-   node is s@ParamSpec
-   when s.f_default_expr != null
+   node is ParamSpec when node.f_default_expr != null

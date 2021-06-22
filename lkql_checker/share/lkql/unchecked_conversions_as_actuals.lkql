@@ -7,14 +7,13 @@ fun is_instance_of_uc(d) =
     when d?.p_designated_subp()?.p_canonical_fully_qualified_name()
         == "ada.unchecked_conversion"
 
-@check(message="instance of Unchecked_Conversion")
-fun unchecked_conversions_as_actuals(node) =
-    node is CallExpr
-    when (
-        # actual in a call
-        (node is *(any parent is CallStmt))
-      or
-        # default value in a parameter specification
-        (node is *(any parent is SubpSpec))
-    )
-    and is_instance_of_uc(node.p_referenced_decl())
+@unit_check
+(message="instance of Unchecked_Conversion as actual parameter")
+fun unchecked_conversions_as_actuals(unit) = [
+    {message: "instance of Unchecked_Conversion as " &
+              (if n is CallExpr(any parent is CallStmt)
+               then "actual parameter" else "default parameter value"),
+     loc: n}
+    for n in from unit.root select
+    node@CallExpr(any parent is CallStmt or SubpSpec)
+    when is_instance_of_uc(node.p_referenced_decl())]

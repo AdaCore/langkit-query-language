@@ -32,14 +32,19 @@
 
 import stdlib
 
+fun excluded_name(id, exclude) = {
+    |" Return the string corresponding to id in exclude if any, otherwise ""
+    val ex = [s for s in exclude if id?.p_name_is(s)];
+    if ex.length == 0 then "" else ex.to_list[ex.length]
+}
+
 fun excluded(id, exclude) = {
     |" Return 0 if ``id`` can be found in ``exclude`` and has the wrong casing,
     |" 1 if ``id`` can be found with the right casing and 2 is it cannot be
     |" found.
-    val ex1 = [s for s in exclude if id?.p_name_is(s)];
-
-    if ex1.length != 0
-    then (if id.text == ex1.to_list[ex1.length] then 1 else 0)
+    val ex = [s for s in exclude if id?.p_name_is(s)];
+    if ex.length != 0
+    then (if id.text == ex.to_list[ex.length] then 1 else 0)
     else 2
 }
 
@@ -51,11 +56,29 @@ fun wrong_casing(str, scheme) =
     | "mixed" => not str.is_mixed_case
     | *       => false
 
-@check(message="wrong casing")
-fun identifier_casing(node,
+@unit_check
+fun identifier_casing(unit,
                       type="", enum="", constant="", exception="", others="",
-                      exclude=[]) =
-    node is DefiningName(f_name is id@Identifier) when {
+                      exclude=[]) = [
+    {message: n.text & " does not have casing specified " &
+              ({
+                 val str = excluded_name(n.f_name, exclude);
+                 if str == "" then match n.parent
+                    | BaseTypeDecl    => "for subtype names (" & type
+                    | EnumLiteralDecl => "for enumeration literals (" & enum
+                    | p@* => match p?.parent
+                             | ObjectDecl or
+                               NumberDecl       => "for constant names ("
+                                                   & constant
+                             | SubpRenamingDecl => "for enumeration literals ("
+                                                   & enum
+                             | ExceptionDecl    => "for exception names ("
+                                                   & exception
+                             | *                => "(" & others
+                 else "in the dictionary (" & str}) & ")",
+     loc: n}
+    for n in from unit.root select node@DefiningName(f_name is id@Identifier)
+    when {
         val res = excluded(id, exclude);
         if res == 0 then true
         else if res == 1 then false
@@ -96,4 +119,4 @@ fun identifier_casing(node,
             wrong_casing(id.text, exception)
 
         | * => others != "" and wrong_casing(id.text, others)
-    }
+    }]

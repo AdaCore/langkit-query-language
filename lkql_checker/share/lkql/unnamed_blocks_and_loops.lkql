@@ -2,10 +2,15 @@
 # statement is enclosed by another loop statement or if it encloses another
 # loop statement.
 
-@check(message="non-named block/loop statement")
-fun unnamed_blocks_and_loops(node) =
-    node is CompositeStmt
+@unit_check
+fun unnamed_blocks_and_loops(unit) = [
+    {message: "non-named " &
+              (if n is BlockStmt then "block"
+               else (if n is BaseLoopStmt(any children is BaseLoopStmt)
+                     then "nesting " else "nested ") & "loop") & " statement",
+     loc: n}
+    for n in from unit.root select node@CompositeStmt
     when (not node.parent is NamedStmt)
-        and (node is BlockStmt
-             or node is BaseLoopStmt (any children is BaseLoopStmt)
-             or node is BaseLoopStmt (any parent is BaseLoopStmt))
+     and node is BlockStmt or
+                 BaseLoopStmt (any children is BaseLoopStmt) or
+                 BaseLoopStmt (any parent is BaseLoopStmt)]

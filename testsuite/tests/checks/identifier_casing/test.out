@@ -1,44 +1,44 @@
-casing.ads:3:9: rule violation: wrong casing
+casing.ads:3:9: rule violation: Enum_2 does not have casing specified for subtype names (upper)
 3 |    type Enum_2 is (A2, B2, C2);      --  FLAG
   |         ^^^^^^ 
 
-casing.ads:6:4: rule violation: wrong casing
+casing.ads:6:4: rule violation: VAR2 does not have casing specified for constant names (lower)
 6 |    VAR2 : ENUM_2 := A2;              --  FLAG
   |    ^^^^ 
 
-pack.ads:3:9: rule violation: wrong casing
+pack.ads:3:9: rule violation: Parent_1 does not have casing specified for subtype names (upper)
 3 |    type Parent_1 is (a, B, C);        --  FLAG 2 times
   |         ^^^^^^^^ 
 
-pack.ads:3:22: rule violation: wrong casing
+pack.ads:3:22: rule violation: a does not have casing specified for enumeration literals (upper)
 3 |    type Parent_1 is (a, B, C);        --  FLAG 2 times
   |                      ^ 
 
-pack.ads:6:12: rule violation: wrong casing
+pack.ads:6:12: rule violation: Parent_2 does not have casing specified for subtype names (upper)
 6 |       type Parent_2 is tagged null record;   --  FLAG
   |            ^^^^^^^^ 
 
-pack.ads:8:7: rule violation: wrong casing
+pack.ads:8:7: rule violation: BbBb does not have casing specified for exception names (mixed)
 8 |       BbBb    : exception;                   --  FLAG
   |       ^^^^ 
 
-pack.ads:13:9: rule violation: wrong casing
+pack.ads:13:9: rule violation: Parent_3 does not have casing specified for subtype names (upper)
 13 |    type Parent_3 is tagged private;           --  FLAG
    |         ^^^^^^^^ 
 
-pack.ads:18:12: rule violation: wrong casing
+pack.ads:18:12: rule violation: PARENT_3_s does not have casing specified for subtype names (upper)
 18 |    subtype PARENT_3_s is Parent_3;            --  FLAG
    |            ^^^^^^^^^^ 
 
-pack.ads:20:4: rule violation: wrong casing
+pack.ads:20:4: rule violation: C1 does not have casing specified for constant names (lower)
 20 |    C1 : constant Integer := 1;                --  FLAG
    |    ^^ 
 
-pack.ads:24:9: rule violation: wrong casing
+pack.ads:24:9: rule violation: AAAA does not have casing specified in the dictionary (AaAa)
 24 |    type AAAA is range 1 .. 10;               --  FLAG
    |         ^^^^ 
 
-test_it.adb:3:4: rule violation: wrong casing
+test_it.adb:3:4: rule violation: Chaclo does not have casing specified in the dictionary (CHACLO)
 3 |    Chaclo : Integer; --  FLAG
   |    ^^^^^^ 
 

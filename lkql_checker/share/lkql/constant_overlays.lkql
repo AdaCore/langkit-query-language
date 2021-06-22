@@ -29,7 +29,12 @@ fun check_overlay(decl, overlaid) =
               or decl?.p_has_aspect("Volatile")
               or overlaid_object?.p_has_aspect("Volatile"))})
 
-@check(message="non-constant object overlays a constant object")
+# TODO customize message:
+# "volatile object overlays a constant object"
+# "overlaying of a volatile constant object"
+# "non-constant object overlays a constant"
+
+@check(message="non-constant object overlays a constant")
 fun constant_overlays(node) = match node
     | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
         when id?.p_name_is("address")

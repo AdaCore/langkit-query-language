@@ -1,4 +1,4 @@
-anonymous_arrays.ads:4:12: rule violation: anonymous array types
+anonymous_arrays.ads:4:12: rule violation: anonymous array type
 4 |     Var2 : array (1 .. 10) of Integer;      --  FLAG
   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

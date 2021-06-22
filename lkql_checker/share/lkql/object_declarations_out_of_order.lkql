@@ -3,8 +3,11 @@
 
 import stdlib
 
-@check(message="object declaration after program unit declaration")
-fun object_declarations_out_of_order(node) =
-    node is ObjectDecl
-     when stdlib.is_program_unit(node.previous_sibling)
-      and stdlib.is_in_library_unit_body(node)
+@unit_check
+fun object_declarations_out_of_order(unit) = [
+    {message: "object declaration after program unit declaration at line " &
+              img(node.previous_sibling?.token_start().start_line),
+     loc: node.p_defining_name()}
+    for node in from unit.root select o@ObjectDecl
+     when stdlib.is_program_unit(o.previous_sibling)
+      and stdlib.is_in_library_unit_body(o)]

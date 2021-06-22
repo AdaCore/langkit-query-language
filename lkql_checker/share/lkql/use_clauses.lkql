@@ -11,7 +11,7 @@ fun is_operator(s) =
 
 @check(message="use clause")
 fun use_clauses(node, exempt_operator_packages=false) =
-    node is AdaNode (any parent(depth=2) is UsePackageClause)
+    node is Name(any parent(depth=2) is UsePackageClause)
     when (not exempt_operator_packages)
       or [s for s in node.p_referenced_decl()?.f_public_part?.f_decls?.children
           if not is_operator(s)].length != 0

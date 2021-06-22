@@ -63,8 +63,8 @@
 
 import stdlib
 
-@check(message="wrong suffix")
-fun identifier_suffixes(node,
+@unit_check
+fun identifier_suffixes(unit,
                         type_suffix="",
                         access_suffix="",
                         access_access_suffix="",
@@ -73,9 +73,25 @@ fun identifier_suffixes(node,
                         constant_suffix="",
                         renaming_suffix="",
                         access_obj_suffix="",
-                        interrupt_suffix="") =
-    node is DefiningName when match node.parent
-
+                        interrupt_suffix="") = [
+    {message: n.text & " does not end with suffix " &
+              match n.parent
+              | SubpSpec when interrupt_suffix != "" => interrupt_suffix
+              | BaseTypeDecl(p_is_access_type() is true,
+                             p_accessed_type() is
+                                 ClasswideTypeDecl or
+                                 SubtypeDecl(p_canonical_type() is
+                                             ClasswideTypeDecl))
+                when class_access_suffix != ""  => class_access_suffix
+              | BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+                when class_subtype_suffix != "" => class_subtype_suffix
+              | BaseTypeDecl(p_is_access_type() is true)
+                when access_suffix != "" => access_suffix
+              | BaseTypeDecl => type_suffix
+              | PackageRenamingDecl => renaming_suffix
+              | * => constant_suffix,
+     loc: n}
+    for n in from unit.root select node@DefiningName when match node.parent
     # Interrupt handlers
     | s@SubpSpec when interrupt_suffix != "" =>
         s is SubpSpec(any parent(depth=4) is ProtectedDef, parent is d@SubpDecl)
@@ -152,4 +168,4 @@ fun identifier_suffixes(node,
         =>
             not node.f_name.text.ends_with(constant_suffix)
 
-        | * => false
+        | * => false]

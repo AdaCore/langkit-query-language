@@ -14,11 +14,10 @@ fun check_nonoverlay(overlaid) =
               when id?.p_referenced_decl() is ObjectDecl or ParamSpec)
 
 @check(message="nonoverlay address specification")
-fun nonoverlay_address_specifications(node) = match node
-    | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is ObjectDecl
-        when id?.p_name_is("address")
-         and check_nonoverlay (node.f_expr)) => true
-    | AttributeDefClause(f_attribute_expr is at@AttributeRef
-        when at?.f_attribute?.p_name_is("address")
-         and check_nonoverlay(node.f_expr))  => true
-    | * => false
+fun nonoverlay_address_specifications(node) =
+    node is
+        (AspectAssoc(f_id is id@Identifier, any parent(depth=3) is ObjectDecl
+         when id?.p_name_is("address") and check_nonoverlay (node.f_expr)))
+    or AttributeDefClause(f_attribute_expr is at@AttributeRef
+                          when at?.f_attribute?.p_name_is("address")
+                           and check_nonoverlay(node.f_expr))

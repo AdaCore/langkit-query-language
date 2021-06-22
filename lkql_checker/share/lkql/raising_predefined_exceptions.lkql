@@ -2,7 +2,7 @@
 # of the exceptions Constraint_Error, Numeric_Error, Program_Error,
 # Storage_Error, or Tasking_Error).
 
-fun isPredefinedName(id) = {
+fun is_predefined_raise(id) = {
     val name = id.text;
     name == "Program_Error" or name == "Constraint_Error" or
     name == "Numeric_Error" or name == "Storage_Error"    or
@@ -19,5 +19,5 @@ fun canonical_exception_name(name) = {
 
 @check(message="explicit raise of a predefined exception")
 fun raising_predefined_exceptions(node) =
-    node is r@RaiseStmt(f_exception_name is exc@Name)
-    when isPredefinedName(canonical_exception_name(exc))
+    node is RaiseStmt(f_exception_name is exc@Name)
+    when is_predefined_raise(canonical_exception_name(exc))

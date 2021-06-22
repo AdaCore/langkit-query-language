@@ -5,7 +5,7 @@ package Deeply_Nested_Generics is
 
    generic
    package P_G_0 is -- FLAG (depth=0)
-      generic procedure P;
+      generic procedure P;   --  FLAG (depth=1)
 
       generic
         with package Formal is new P_G; -- NO_FLAG

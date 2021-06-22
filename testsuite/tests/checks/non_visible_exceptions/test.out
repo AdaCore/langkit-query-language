@@ -18,23 +18,23 @@ exception_declarations.adb:60:7: rule violation: local exception not handled loc
 60 |       Ex : exception;                           --  FLAG
    |       ^^ 
 
-raise_statements.adb:18:13: rule violation: local exception not handled locally
+raise_statements.adb:18:13: rule violation: propagates local exception outside its visibility
 18 |             raise;                              --  FLAG
    |             ^^^^^^ 
 
-raise_statements.adb:38:10: rule violation: local exception not handled locally
+raise_statements.adb:38:10: rule violation: propagates local exception outside its visibility
 38 |          raise;                                 --  FLAG
    |          ^^^^^^ 
 
-raise_statements.adb:40:10: rule violation: local exception not handled locally
+raise_statements.adb:40:10: rule violation: propagates local exception declared at line 4 outside its visibility
 40 |          raise Ex_1;                            --  FLAG
    |          ^^^^^^^^^^^ 
 
-raise_statements.adb:49:10: rule violation: local exception not handled locally
+raise_statements.adb:49:10: rule violation: propagates local exception declared at line 44 outside its visibility
 49 |          raise Ex;                              --  FLAG
    |          ^^^^^^^^^ 
 
-raise_statements.adb:61:10: rule violation: local exception not handled locally
+raise_statements.adb:61:10: rule violation: propagates local exception outside its visibility
 61 |          raise;                                 --  FLAG
    |          ^^^^^^ 
 

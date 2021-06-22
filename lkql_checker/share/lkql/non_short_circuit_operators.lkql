@@ -7,9 +7,20 @@
 
 import stdlib
 
-@check(message="use of predefined AND/OR for boolean type")
-fun non_short_circuit_operators(node, except_assertions=false) =
-    node is (((OpAnd or OpOr)
+fun operator_image(node) =
+    |" Return the string of a given AND/OR operator
+    match node
+    | OpAnd      => "AND"
+    | OpOr       => "OR"
+    | c@CallExpr => (if c.p_relative_name()?.p_name_is("\"and\"")
+                     then "AND" else "OR")
+    | *          => "unknown"
+
+@unit_check
+fun non_short_circuit_operators(unit, except_assertions=false) = [
+    {message: "use of predefined " & operator_image(n) & " for boolean type",
+     loc: n}
+    for n in from unit.root select node@(((OpAnd or OpOr)
               when node.p_referenced_decl() == null
                and stdlib.is_standard_boolean(node.parent)
                and stdlib.is_standard_boolean(node.parent?.f_left))
@@ -18,4 +29,4 @@ fun non_short_circuit_operators(node, except_assertions=false) =
         when node.p_referenced_decl() == null
          and stdlib.is_standard_boolean(node)
          and stdlib.is_standard_boolean(node.f_suffix[1]?.f_r_expr))
-    when not (except_assertions and stdlib.within_assert(node))
+    when not (except_assertions and stdlib.within_assert(node))]

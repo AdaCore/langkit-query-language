@@ -14,10 +14,26 @@
 
 import stdlib
 
-@check(message="local exception not handled locally")
-fun non_visible_exceptions(node) =
+# TODO: customize messages:
+# no handler for this exception in enclosing body
+# no handler for this exception in enclosing block
+# propagates the local exception declared at line xx outside its visibility
+
+@unit_check
+fun non_visible_exceptions(unit) = [
+    {message: if n is Identifier
+              then "local exception not handled locally"
+              else "propagates local exception" &
+                   (if n.f_exception_name != null
+                    then " declared at line " &
+                         img(n.f_exception_name?.p_referenced_decl().tokens.
+                             to_list[1].start_line)
+                    else "") & " outside its visibility",
+     loc: n}
+    for n in from unit.root select 
     # Find exception identifiers part of an ExceptionDecl and not a renaming...
-    node is Identifier(parent is DefiningName(parent is DefiningNameList(parent is e@ExceptionDecl(f_renames is null)
+    node@(Identifier(parent is DefiningName(parent is DefiningNameList(parent is
+                                            e@ExceptionDecl(f_renames is null)
     # ...declared in a subprogram body, task body or block
     when e?.parent?.parent?.parent is p@(SubpBody or TaskBody or DeclBlock)
        # with either no exception handler
@@ -37,6 +53,6 @@ fun non_visible_exceptions(node) =
            then node.f_exception_name?.p_referenced_decl()?.parent?.parent
                 == p?.f_decls
            # does not specify an exception name and the enclosing handler
-           # contains a localled declared exception in its choices
+           # contains a locally declared exception in its choices
            else h.f_handled_exceptions is *(any children is id@Identifier
-                when id.p_referenced_decl()?.parent?.parent == p?.f_decls))
+                when id.p_referenced_decl()?.parent?.parent == p?.f_decls)))]

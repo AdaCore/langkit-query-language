@@ -44,11 +44,17 @@ fun entry_mismatch(e) = {
      count1 != count2 or param_mismatch(params1, params2, count1)
 }
 
-@check(message="structure of parameter profile differs")
-fun profile_discrepancies(node) =
-    node is ((BaseSubpBody or SubpBodyStub)
-    when match node.p_decl_part()
-    | g@GenericSubpDecl => subp_mismatch(node, g?.f_subp_decl)
-    | s@BasicSubpDecl   => subp_mismatch(node, s)
-    | *                 => false)
-    or EntryBody when entry_mismatch(node)
+@unit_check
+fun profile_discrepancies(unit) = [
+    {message: "structure of parameter profile differs from " &
+              ({
+                  val tok = n.p_decl_part()?.token_start();
+                  tok.unit.name.base_name & ":" & img(tok.start_line)
+               }),
+     loc: n.p_defining_name()}
+    for n in from unit.root select node@((BaseSubpBody or SubpBodyStub)
+        when match node.p_decl_part()
+        | g@GenericSubpDecl => subp_mismatch(node, g?.f_subp_decl)
+        | s@BasicSubpDecl   => subp_mismatch(node, s)
+        | *                 => false
+    or EntryBody when entry_mismatch(node))]
