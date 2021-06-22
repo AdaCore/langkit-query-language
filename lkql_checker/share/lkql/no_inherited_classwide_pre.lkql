@@ -2,9 +2,18 @@
 # at least one of the operations it overrides or implements does not have
 # (explicitly defined or inherited) Pre'Class aspect defined for it.
 
-@check(message="overriding operation that does not inherit Pre'Class")
-fun no_inherited_classwide_pre(node) =
-    node is (BasicSubpDecl or BaseSubpBody)
+@unit_check
+fun no_inherited_classwide_pre(unit) = [
+    {message:
+        "overriding operation that does not inherit Pre'Class (" &
+        ({
+            val tok = [p for p in n.p_base_subp_declarations()
+                       if not p.p_has_aspect("Pre'Class")].
+                       to_list[1]?.token_start();
+            tok.unit.name.base_name & ":" &
+            img(tok.start_line) & ":" & img(tok.start_column) & ")"}),
+     loc: n.p_defining_name()}
+    for n in from unit.root select node@(BasicSubpDecl or BaseSubpBody)
     # Get subprogram declarations that are primitive of a tagged type
     when node.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() != null
      and ({
@@ -13,5 +22,6 @@ fun no_inherited_classwide_pre(node) =
         decls.length > 1 and
         # Check if some of the overriden operation defines Pre'Class
         [p for p in decls
-         if p != node and p.p_has_aspect("Pre'Class")].length == 0
-    })
+         if p != node and p.p_has_aspect("Pre'Class")]
+         .length != decls.length - 1
+     })]
