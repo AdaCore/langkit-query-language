@@ -3,7 +3,8 @@
 # body (before the procedure body's exception part, if any) contains no
 # assignment to the parameter.
 # An out parameter is also flagged if an exception handler contains neither an
-# assignment to the parameter nor a raise statement.
+# assignment to the parameter nor a raise statement nor a call to a procedure
+# marked No_Return.
 # Bodies of generic procedures are also considered.
 #
 # The following are treated as assignments to an out parameter:
@@ -20,10 +21,14 @@ fun check_stmts(param, name, s) =
             and id.p_is_write_reference()
             and id.p_referenced_decl() == param)
 
-# Return true if the exception handler h contains a raise statement or an
-# assignment to param as defined above.
+# Return true if the exception handler h contains a raise statement, a call
+# to a No_Return procedure or an # assignment to param as defined above.
 fun check_exception_handler(param, name, h) =
-    (h.f_stmts is *(any children is RaiseStmt)) or check_stmts(param, name, h)
+    (h.f_stmts is *(any children is RaiseStmt or
+                    c@CallStmt when c.f_call?.p_is_call()
+                                and c.f_call?.p_referenced_decl()?.
+                                    p_has_aspect("No_Return"))) or
+    check_stmts(param, name, h)
 
 # TODO: reuse enclosing_body
 fun enclosing_body_stmts(node) =
