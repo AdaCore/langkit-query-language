@@ -14,11 +14,6 @@
 
 import stdlib
 
-# TODO: customize messages:
-# no handler for this exception in enclosing body
-# no handler for this exception in enclosing block
-# propagates the local exception declared at line xx outside its visibility
-
 @unit_check
 fun non_visible_exceptions(unit) = [
     {message: if n is Identifier
