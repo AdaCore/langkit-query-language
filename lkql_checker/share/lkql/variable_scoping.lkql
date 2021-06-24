@@ -1,0 +1,49 @@
+# Flag local object declarations for which all uses are inside the same more
+# nested declare-block in the same subprogram, not part of a loop, and with no
+# initializing expression.
+
+import stdlib
+
+fun get_block(list) =
+    stdlib.enclosing_block(list[list.length].ref)
+
+fun check_references(list, subp) = {
+    val block = stdlib.enclosing_block(list[list.length].ref);
+
+    # First check whether the last block referencing the node is a declare
+    # block with no enclosing loop and is part of subp (as opposed to a nested
+    # subprogram).
+
+    block != null and
+    (not block is BlockStmt(any parent is BaseLoopStmt)) and
+    stdlib.enclosing_body(block) == subp and
+
+    # Then check that no reference is outside this block apart from the
+    # defining name itself.
+
+    [x for x in list
+     if (not x.ref?.p_is_defining()) and
+        stdlib.enclosing_block(x.ref) != block].length == 0
+}
+
+@unit_check
+fun variable_scoping(unit) = [
+    {message: n.text & " can be moved to inner block at line " &
+              img(get_block(n.p_find_refs(stdlib.enclosing_body(n), null))?.
+                  token_start().start_line + 1),
+     loc: n}
+
+    # Look for defining names part of an object declaration with no default
+    # initialization and not a renaming, directly declared in the declarative
+    # part of a subprogram.
+
+    for n in from unit.root select
+    node@DefiningName(
+        parent is DefiningNameList(
+            parent is decl@ObjectDecl(
+                f_default_expr is null,
+                f_renaming_clause is null,
+                parent is AdaNodeList(
+                    parent is DeclarativePart(parent is subp@SubpBody)))))
+    when check_references(node.p_find_refs(subp, null), subp)
+]

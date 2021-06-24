@@ -1,0 +1,4 @@
+scope.adb:2:4: rule violation: X can be moved to inner block at line 5
+2 |    X : Integer;  --  FLAG
+  |    ^ 
+

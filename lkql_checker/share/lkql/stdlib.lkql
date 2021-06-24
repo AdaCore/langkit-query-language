@@ -175,6 +175,14 @@ fun in_generic_template(n) =
     ((n is *(any parent is GenericDecl)) or
      n is *(any parent is PackageBody(p_decl_part() is GenericPackageInternal)))
 
+fun enclosing_block(n) =
+    |" Return the first DeclBlock enclosing n if any, null otherwise
+{
+    val blocks = [p for p in n?.parents(include_self=false)
+                  if p is DeclBlock].to_list;
+    if blocks.length == 0 then null else blocks[1]
+}
+
 fun enclosing_body(n) =
     |" Return the first BaseSubpBody enclosing n if any, null otherwise
 {
