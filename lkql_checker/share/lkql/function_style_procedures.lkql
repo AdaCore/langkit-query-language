@@ -1,7 +1,8 @@
 # Flag each procedure that can be rewritten as a function. A procedure can be
-# converted into a function if it has exactly one parameter of mode out and no
-# parameters of mode in out. Procedure declarations, formal procedure
-# declarations, and generic procedure declarations are always checked.
+# converted into a function if it has exactly one parameter of mode out, no
+# parameters of mode in out and no Global aspect or an explicit Global => null.
+# Procedure declarations, formal procedure declarations, and generic procedure
+# declarations are always checked.
 # Procedure bodies and body stubs are flagged only if they do not have
 # corresponding separate declarations. Procedure renamings and procedure
 # instantiations are not flagged.
@@ -19,18 +20,16 @@ fun is_limited(t) = t?.f_has_limited?.p_as_bool()
 
 @check(message="procedure can be rewritten as function")
 fun function_style_procedures(node) =
-    node is sub @ SubpDecl
+    node is sub@SubpDecl
     when (sub.f_subp_spec?.f_subp_kind is SubpKindProcedure)
+     and sub.p_get_aspect_spec_expr("Global") is null or NullLiteral
      and params_in_out(sub.f_subp_spec).length == 0
      and ({
          # Check for 1 out parameter of a non limited type
          val p_out=params_out(sub.f_subp_spec);
          p_out.length == 1
-         and [
-            p for p in p_out
-            if p?.f_type_expr?.p_designated_type_decl() is
-               TypeDecl(f_type_def is
-                        t@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
-                        when is_limited(t))
-         ].length == 0
-     })
+         and [p for p in p_out
+              if p?.f_type_expr?.p_designated_type_decl() is
+                 TypeDecl(f_type_def is
+                          t@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
+                          when is_limited(t))].length == 0})

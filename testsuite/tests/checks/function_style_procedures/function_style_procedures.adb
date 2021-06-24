@@ -1,5 +1,11 @@
 package body Function_Style_Procedures is
 
+   procedure Glob (R : out Integer) is
+   begin
+      R := 0;
+      Global_Var := 1;
+   end Glob;
+
    procedure P (R : out Integer) is
    begin
       R := 0;
