@@ -1,0 +1,6 @@
+# Check that enum values are well transformed to string when returned from
+# langkit. In that case, it will be the `kind` key of `RefResult` values in the
+# returned array.
+
+val a = (select first DefiningName)
+print(a.p_find_refs(a.unit.root, null))

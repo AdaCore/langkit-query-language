@@ -259,6 +259,7 @@ package body Ada_AST_Nodes is
             return To_Primitive
               (H.Create_Unit_Ref
                 (Ada_AST_Unit'(Unit => As_Analysis_Unit (Value))));
+
          when Struct_Value_Kind =>
             --  Structs are mapped to LKQL objects
             declare
@@ -274,6 +275,13 @@ package body Ada_AST_Nodes is
                end loop;
                return Ret;
             end;
+
+         when Enum_Value_Kind =>
+            return To_Primitive
+              (To_Unbounded_Text
+                (Enum_Value_Name
+                  (Kind => Kind (Value), Index => Enum_Index (Value))));
+
          when Token_Value =>
             return To_Primitive
               (H.Create_Token_Ref
