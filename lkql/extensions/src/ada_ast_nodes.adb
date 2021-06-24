@@ -497,19 +497,19 @@ package body Ada_AST_Nodes is
    is
       Args_Length : constant Natural := Natural (Arguments.Elements.Length);
       Property_Args : Value_Array (1 .. Args_Length);
-      Contraints    : constant Type_Constraint_Array :=
+      Constraints    : constant Type_Constraint_Array :=
         Property_Argument_Types (Ref.Ref);
    begin
-      if Args_Length /= Contraints'Length then
+      if Args_Length /= Constraints'Length then
          raise Introspection_Error with "Expected " &
-           Positive'Image (Contraints'Length) &  " arguments but got" &
+           Positive'Image (Constraints'Length) &  " arguments but got" &
            Positive'Image (Args_Length);
       end if;
 
       for I in Arguments.Elements.First_Index .. Arguments.Elements.Last_Index
       loop
          Property_Args (I) :=
-           Make_Value_Type (Arguments.Elements (I), Contraints (I).Kind);
+           Make_Value_Type (Arguments.Elements (I), Constraints (I).Kind);
       end loop;
 
       return Make_Primitive
