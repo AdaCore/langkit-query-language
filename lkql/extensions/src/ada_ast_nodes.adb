@@ -38,6 +38,9 @@ package body Ada_AST_Nodes is
 
    package I renames Libadalang.Introspection;
 
+   subtype Array_Value_Kind_No_Text is Array_Value_Kind
+   with Static_Predicate => Array_Value_Kind_No_Text /= Text_Type_Value;
+
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
 
@@ -134,8 +137,6 @@ package body Ada_AST_Nodes is
       Value : I.Value_Type;
       Unit : Analysis_Unit) return Primitive
    is
-      subtype Array_Value_Kind_No_Text is Array_Value_Kind
-      with Static_Predicate => Array_Value_Kind_No_Text /= Text_Type_Value;
    begin
       case Kind (Value) is
          when Boolean_Value =>
@@ -216,9 +217,16 @@ package body Ada_AST_Nodes is
                              return I.Value_Type
    is
    begin
-      if Value.Get.Kind = Kind_List then
+      if Value.Get.Kind = Kind_List
+        and then Target_Kind in Array_Value_Kind_No_Text
+      then
          return List_To_Value_Type
            (Value.Unchecked_Get.List_Val.all, Target_Kind);
+      elsif Value.Get.Kind = Kind_Str
+        and then Target_Kind in Enum_Value_Kind
+      then
+         raise Introspection_Error
+           with "TODO: passing enum values to properties not yet supported";
       elsif Value.Get.Kind = Kind_Str then
          return String_To_Value_Type
            (Value.Unchecked_Get.Str_Val, Target_Kind);
