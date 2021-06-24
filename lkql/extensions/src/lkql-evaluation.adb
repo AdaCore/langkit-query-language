@@ -566,14 +566,14 @@ package body LKQL.Evaluation is
                end if;
             end;
          when Kind_Node =>
-            if Is_Nullable (Receiver)
-              or else Is_Null_Node (Node_Val (Receiver).Unchecked_Get.all)
-            then
-               Raise_Null_Access (Ctx, Receiver, Node.F_Member);
-            else
-               return Node_Data.Access_Node_Field
-                 (Ctx, Node_Val (Receiver), Node.F_Member);
+            if Is_Nullish (Receiver) then
+                  Raise_And_Record_Error
+                    (Ctx, Make_Eval_Error
+                       (Node, "Null receiver in dot access"));
             end if;
+
+            return Node_Data.Access_Node_Field
+              (Ctx, Node_Val (Receiver), Node.F_Member);
 
          when Kind_Namespace =>
             declare
@@ -610,7 +610,7 @@ package body LKQL.Evaluation is
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
       return (if Receiver.Unchecked_Get.Is_Null_Node
-              then To_Primitive (Receiver, Nullable => True)
+              then To_Primitive (Receiver)
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
    end Eval_Safe_Access;
@@ -868,7 +868,7 @@ package body LKQL.Evaluation is
       Value : constant H.AST_Node_Holder :=
         Node_Val (Eval (Ctx, Node.F_Node_Expr, Expected_Kind => Kind_Node));
    begin
-      return To_Primitive (Value, Nullable => False);
+      return To_Primitive (Value);
    end Eval_Unwrap;
 
    -----------------------------------------

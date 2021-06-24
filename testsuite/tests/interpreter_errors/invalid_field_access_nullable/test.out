@@ -1,4 +1,0 @@
-script.lkql:2:27: error: Invalid direct access on node of kind ConstantAbsent?
-2 | objects[1].f_has_constant.p_as_bool()
-  |                           ^^^^^^^^^ 
-

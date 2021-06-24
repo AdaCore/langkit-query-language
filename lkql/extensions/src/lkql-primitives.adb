@@ -499,13 +499,6 @@ package body LKQL.Primitives is
       end case;
    end Data;
 
-   -----------------
-   -- Is_Nullable --
-   -----------------
-
-   function Is_Nullable (Value : Primitive) return Boolean is
-      (Kind (Value) = Kind_Node and then Value.Get.Nullable);
-
    ----------------
    -- Is_Nullish --
    ----------------
@@ -601,13 +594,12 @@ package body LKQL.Primitives is
    -- To_Primitive --
    ------------------
 
-   function To_Primitive
-     (Node : H.AST_Node_Holder; Nullable : Boolean := False) return Primitive
+   function To_Primitive (Node : H.AST_Node_Holder) return Primitive
    is
       Ref : Primitive;
    begin
       Ref.Set
-        (Primitive_Data'(Refcounted with Kind_Node, Node, Nullable));
+        (Primitive_Data'(Refcounted with Kind_Node, Node));
       return Ref;
    end To_Primitive;
 
@@ -1054,8 +1046,7 @@ package body LKQL.Primitives is
                 (if Value.Get.Node_Val.Unchecked_Get.Is_Null_Node
                  then "No_Kind"
                  else
-                   (Value.Get.Node_Val.Unchecked_Get.Kind_Name) &
-                 (if Value.Get.Nullable then "?" else "")),
+                   (Value.Get.Node_Val.Unchecked_Get.Kind_Name)),
                  when others =>
                    To_String (Kind (Value)));
    end Kind_Name;

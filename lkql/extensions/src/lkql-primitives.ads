@@ -153,7 +153,6 @@ package LKQL.Primitives is
             Bool_Val          : Boolean;
          when Kind_Node =>
             Node_Val          : H.AST_Node_Holder;
-            Nullable          : Boolean := False;
          when Kind_Token =>
             Token_Val         : H.AST_Token_Holder;
          when Kind_Analysis_Unit =>
@@ -372,9 +371,6 @@ package LKQL.Primitives is
    --  Raise an Unsupported_Error if there is no member named
    --  'Member_Name'.
 
-   function Is_Nullable (Value : Primitive) return Boolean;
-   --  Return whether the given Primitive value is nullable
-
    function Is_Nullish (Value : Primitive) return Boolean;
    --  Return whether the value is null or unit.
 
@@ -407,7 +403,7 @@ package LKQL.Primitives is
    --  Create a Bool primitive
 
    function To_Primitive
-     (Node : H.AST_Node_Holder; Nullable : Boolean := False) return Primitive;
+     (Node : H.AST_Node_Holder) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
    function To_Primitive (Token : H.AST_Token_Holder) return Primitive;

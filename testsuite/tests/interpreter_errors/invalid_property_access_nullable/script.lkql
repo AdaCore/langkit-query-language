@@ -1,2 +1,0 @@
-val objects = select o @ ObjectDecl
-objects[1].f_has_constant.p_get_attribute("attribute")

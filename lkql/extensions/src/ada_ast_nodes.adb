@@ -295,8 +295,7 @@ package body Ada_AST_Nodes is
                (As_Big_Integer (Value))));
          when Node_Value =>
             return To_Primitive
-              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))),
-               Nullable => True);
+              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))));
          when Text_Type_Value =>
             return To_Primitive (To_Unbounded_Text (As_Text_Type (Value)));
          when Unbounded_Text_Value =>
