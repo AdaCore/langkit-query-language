@@ -26,4 +26,3 @@ transitive.adb:4:14: rule violation: recursive subprogram
 4 |    procedure Baz;  --  FLAG
   |              ^^^ 
 
-
