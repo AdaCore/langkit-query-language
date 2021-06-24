@@ -57,7 +57,7 @@ package body Ada_AST_Nodes is
 
    function List_To_Value_Type
      (Value        : Primitive_List;
-      Target_Kind : Value_Kind) return I.Value_Type;
+      Array_Kind   : Value_Kind) return I.Value_Type;
 
    function String_To_Value_Type
      (Value       : Unbounded_Text_Type;
@@ -109,94 +109,8 @@ package body Ada_AST_Nodes is
    function Make_Ada_AST_Node (Node : Ada_Node) return H.AST_Node_Holder
    is (Create_Node (Ada_AST_Node'(Node => Node)));
 
-   -----------------------------------------------
-   -- Node array to Value_Type array conversion --
-   -----------------------------------------------
-
-   generic
-
-      type Node_Type is new Ada_Node with private;
-
-      type Node_Array is array (Positive range <>) of Node_Type;
-
-      with function Convert (Node : Ada_Node'Class) return Node_Type;
-
-   function Node_Array_From_List
-     (Nodes : Primitive_List) return Node_Array;
-
    function To_Ada_Node is new Ada.Unchecked_Conversion
      (H.AST_Node_Access, Ada_AST_Node_Access);
-
-   --------------------------
-   -- Node_Array_From_List --
-   --------------------------
-
-   function Node_Array_From_List
-     (Nodes : Primitive_List) return Node_Array
-   is
-      Result       : Node_Array (1 .. Natural (Nodes.Elements.Length));
-   begin
-      for I in Nodes.Elements.First_Index .. Nodes.Elements.Last_Index loop
-         Result (I) :=
-           Convert (To_Ada_Node
-                    (Nodes.Elements (I)
-                       .Unchecked_Get.Node_Val.Unchecked_Get).Node);
-      end loop;
-
-      return Result;
-   end Node_Array_From_List;
-
-   function Base_Type_Decl_Array_From_List is new Node_Array_From_List
-     (Base_Type_Decl,
-      Base_Type_Decl_Array,
-      As_Base_Type_Decl);
-
-   function Ada_Node_Array_From_List is new Node_Array_From_List
-     (Ada_Node,
-      Ada_Node_Array,
-      As_Ada_Node);
-
-   function Generic_Instantiation_Array_From_List
-   is new Node_Array_From_List
-     (Generic_Instantiation,
-      Generic_Instantiation_Array,
-      As_Generic_Instantiation);
-
-   function Expr_Array_From_List is new Node_Array_From_List
-     (Expr,
-      Expr_Array,
-      As_Expr);
-
-   function Base_Formal_Param_Decl_Array_From_List
-   is new Node_Array_From_List
-     (Base_Formal_Param_Decl,
-      Base_Formal_Param_Decl_Array,
-      As_Base_Formal_Param_Decl);
-
-   function Type_Decl_Array_From_List is new Node_Array_From_List
-     (Type_Decl,
-      Type_Decl_Array,
-      As_Type_Decl);
-
-   function Defining_Name_Array_From_List is new Node_Array_From_List
-     (Defining_Name,
-      Defining_Name_Array,
-      As_Defining_Name);
-
-   function Param_Spec_Array_From_List is new Node_Array_From_List
-     (Param_Spec,
-      Param_Spec_Array,
-      As_Param_Spec);
-
-   function Basic_Decl_Array_From_List is new Node_Array_From_List
-     (Basic_Decl,
-      Basic_Decl_Array,
-      As_Basic_Decl);
-
-   function Compilation_Unit_Array_From_List is new Node_Array_From_List
-     (Compilation_Unit,
-      Compilation_Unit_Array,
-      As_Compilation_Unit);
 
    -----------------------------
    -- Data_Reference_For_Name --
@@ -303,8 +217,8 @@ package body Ada_AST_Nodes is
    is
    begin
       if Value.Get.Kind = Kind_List then
-         return List_To_Value_Type (Value.Unchecked_Get.List_Val.all,
-                                    Target_Kind);
+         return List_To_Value_Type
+           (Value.Unchecked_Get.List_Val.all, Target_Kind);
       elsif Value.Get.Kind = Kind_Str then
          return String_To_Value_Type
            (Value.Unchecked_Get.Str_Val, Target_Kind);
@@ -332,47 +246,21 @@ package body Ada_AST_Nodes is
    ------------------------
 
    function List_To_Value_Type
-     (Value       : Primitive_List;
-      Target_Kind : Value_Kind)
+     (Value        : Primitive_List;
+      Array_Kind   : Value_Kind)
       return I.Value_Type
    is
+      Values : I.Value_Array
+        (Value.Elements.First_Index .. Value.Elements.Last_Index);
+
+      Element_Kind : constant Value_Kind :=
+        Array_Element_Constraint (Array_Kind).Kind;
    begin
-      case Target_Kind is
-         when Base_Type_Decl_Array_Value =>
-            return Create_Base_Type_Decl_Array
-              (Base_Type_Decl_Array_From_List (Value));
-         when Ada_Node_Array_Value =>
-            return Create_Ada_Node_Array
-              (Ada_Node_Array_From_List (Value));
-         when Generic_Instantiation_Array_Value =>
-            return Create_Generic_Instantiation_Array
-              (Generic_Instantiation_Array_From_List (Value));
-         when Expr_Array_Value =>
-            return Create_Expr_Array
-              (Expr_Array_From_List (Value));
-         when Base_Formal_Param_Decl_Array_Value =>
-            return Create_Base_Formal_Param_Decl_Array
-              (Base_Formal_Param_Decl_Array_From_List (Value));
-         when Type_Decl_Array_Value =>
-            return Create_Type_Decl_Array
-              (Type_Decl_Array_From_List (Value));
-         when Defining_Name_Array_Value =>
-            return Create_Defining_Name_Array
-              (Defining_Name_Array_From_List (Value));
-         when Param_Spec_Array_Value =>
-            return Create_Param_Spec_Array
-              (Param_Spec_Array_From_List (Value));
-         when Basic_Decl_Array_Value =>
-            return Create_Basic_Decl_Array
-              (Basic_Decl_Array_From_List (Value));
-         when Compilation_Unit_Array_Value =>
-            return Create_Compilation_Unit_Array
-              (Compilation_Unit_Array_From_List (Value));
-         when others =>
-            raise Introspection_Error with "Cannot create Value_Type of kind" &
-              Value_Kind'Image (Target_Kind) & " from an introspection " &
-              "value array";
-      end case;
+      for I in Value.Elements.First_Index .. Value.Elements.Last_Index loop
+         Values (I) := Make_Value_Type (Value.Elements (I), Element_Kind);
+      end loop;
+
+      return Create_Array (Array_Kind, Values);
    end List_To_Value_Type;
 
    --------------------------
