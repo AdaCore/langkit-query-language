@@ -109,69 +109,6 @@ package body Ada_AST_Nodes is
    function Make_Ada_AST_Node (Node : Ada_Node) return H.AST_Node_Holder
    is (Create_Node (Ada_AST_Node'(Node => Node)));
 
-   --------------------------------------------------
-   -- Node array to introspection value conversion --
-   --------------------------------------------------
-
-   generic
-      type Array_Elem is new Ada_Node with private;
-
-      type Array_Type is array (Positive range <>) of Array_Elem;
-
-   function Primitive_From_Array
-     (Nodes : Array_Type) return Primitive;
-
-   ------------------------------------
-   -- Introspection_Value_From_Array --
-   ------------------------------------
-
-   function Primitive_From_Array
-     (Nodes : Array_Type) return Primitive
-   is
-      Res : constant Primitive := Make_Empty_List;
-   begin
-      for I in Nodes'Range loop
-         Res.Unchecked_Get.List_Val.Elements.Append
-           (To_Primitive
-              (Create_Node
-                   (Ada_AST_Node'(Node => Nodes (I).As_Ada_Node))));
-      end loop;
-
-      return Res;
-   end Primitive_From_Array;
-
-   function Make_Primitive is new
-     Primitive_From_Array (Base_Type_Decl, Base_Type_Decl_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Ada_Node, Ada_Node_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array
-       (Generic_Instantiation, Generic_Instantiation_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Expr, Expr_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array
-       (Base_Formal_Param_Decl, Base_Formal_Param_Decl_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Type_Decl, Type_Decl_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Defining_Name, Defining_Name_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Param_Spec, Param_Spec_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Basic_Decl, Basic_Decl_Array);
-
-   function Make_Primitive is new
-     Primitive_From_Array (Compilation_Unit, Compilation_Unit_Array);
-
    -----------------------------------------------
    -- Node array to Value_Type array conversion --
    -----------------------------------------------
@@ -283,6 +220,8 @@ package body Ada_AST_Nodes is
       Value : I.Value_Type;
       Unit : Analysis_Unit) return Primitive
    is
+      subtype Array_Value_Kind_No_Text is Array_Value_Kind
+      with Static_Predicate => Array_Value_Kind_No_Text /= Text_Type_Value;
    begin
       case Kind (Value) is
          when Boolean_Value =>
@@ -300,29 +239,22 @@ package body Ada_AST_Nodes is
             return To_Primitive (To_Unbounded_Text (As_Text_Type (Value)));
          when Unbounded_Text_Value =>
             return To_Primitive (As_Unbounded_Text (Value));
-         when Base_Type_Decl_Array_Value =>
-            return Make_Primitive (As_Base_Type_Decl_Array (Value));
-         when Ada_Node_Array_Value =>
-            return Make_Primitive (As_Ada_Node_Array (Value));
-         when Generic_Instantiation_Array_Value =>
-            return Make_Primitive
-              (As_Generic_Instantiation_Array (Value));
-         when Expr_Array_Value =>
-            return Make_Primitive (As_Expr_Array (Value));
-         when Base_Formal_Param_Decl_Array_Value =>
-            return Make_Primitive
-              (As_Base_Formal_Param_Decl_Array (Value));
-         when Type_Decl_Array_Value =>
-            return Make_Primitive (As_Type_Decl_Array (Value));
-         when Defining_Name_Array_Value =>
-            return Make_Primitive (As_Defining_Name_Array (Value));
-         when Param_Spec_Array_Value =>
-            return Make_Primitive (As_Param_Spec_Array (Value));
-         when Basic_Decl_Array_Value =>
-            return Make_Primitive (As_Basic_Decl_Array (Value));
-         when Compilation_Unit_Array_Value =>
-            return Make_Primitive
-              (As_Compilation_Unit_Array (Value));
+         when Array_Value_Kind_No_Text =>
+            declare
+               Res : constant Primitive := Make_Empty_List;
+            begin
+               for J in 1 .. Array_Length (Value) loop
+                  declare
+                     V    : constant I.Value_Type := Array_Element (Value, J);
+                     Prim : constant Primitive :=
+                       Make_Primitive (Ctx, V, Unit);
+                  begin
+                     Res.Unchecked_Get.List_Val.Elements.Append (Prim);
+                  end;
+               end loop;
+
+               return Res;
+            end;
          when Analysis_Unit_Value =>
             return To_Primitive
               (H.Create_Unit_Ref
