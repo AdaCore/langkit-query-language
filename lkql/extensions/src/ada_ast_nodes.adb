@@ -228,8 +228,15 @@ package body Ada_AST_Nodes is
 
          when Kind_Str =>
             if Target_Kind in Enum_Value_Kind then
-               raise Introspection_Error with
-                 "TODO: passing enum values to properties not yet supported";
+               --  TODO: This actually can't be tested with LAL because we have
+               --  no properties that take enums as parameters, and we don't
+               --  want to add one just for the sake of testing that. Let's see
+               --  if we add such a property someday, or when we have the
+               --  possibility of testing with various Langkit based languages.
+               return I.Create_Enum
+                 (Target_Kind,
+                  I.Lookup_Enum_Value
+                    (Target_Kind, To_Text (Value.Unchecked_Get.Str_Val)));
             else
                return String_To_Value_Type
                  (Value.Unchecked_Get.Str_Val, Target_Kind);
