@@ -20,13 +20,12 @@ fun is_limited(t) = t?.f_has_limited?.p_as_bool()
 
 @check(message="procedure can be rewritten as function")
 fun function_style_procedures(node) =
-    node is sub@SubpDecl
-    when (sub.f_subp_spec?.f_subp_kind is SubpKindProcedure)
-     and sub.p_get_aspect_spec_expr("Global") is null or NullLiteral
-     and params_in_out(sub.f_subp_spec).length == 0
+    node is SubpDecl(f_subp_spec is SubpSpec(f_subp_kind is SubpKindProcedure),
+                     p_get_aspect_spec_expr("Global") is null or NullLiteral)
+    when params_in_out(node.f_subp_spec).length == 0
      and ({
          # Check for 1 out parameter of a non limited type
-         val p_out=params_out(sub.f_subp_spec);
+         val p_out=params_out(node.f_subp_spec);
          p_out.length == 1
          and [p for p in p_out
               if p?.f_type_expr?.p_designated_type_decl() is
