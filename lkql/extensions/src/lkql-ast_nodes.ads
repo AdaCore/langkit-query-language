@@ -183,7 +183,7 @@ package LKQL.AST_Nodes is
    --  this unit encompasses.
 
    function Root
-      (Self : AST_Unit) return AST_Node'Class is abstract;
+     (Self : AST_Unit) return AST_Node'Class is abstract;
    --  Return the root AST node for this unit
 
    function Token_Start

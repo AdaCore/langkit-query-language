@@ -157,6 +157,7 @@ package Ada_AST_Nodes is
    type Ada_AST_Unit is new AST_Unit with record
       Unit : Analysis_Unit;
    end record;
+   type Ada_AST_Unit_Access is access all Ada_AST_Unit;
 
    overriding function Name (Self : Ada_AST_Unit) return Text_Type;
    overriding function Root (Self : Ada_AST_Unit) return AST_Node'Class;

@@ -21,7 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Langkit_Support.Symbols; use Langkit_Support.Symbols;
+with Langkit_Support.Symbols;  use Langkit_Support.Symbols;
 with Libadalang.Introspection; use Libadalang.Introspection;
 
 with Ada.Containers.Hashed_Maps;
@@ -114,6 +114,9 @@ package body Ada_AST_Nodes is
 
    function To_Ada_Node is new Ada.Unchecked_Conversion
      (H.AST_Node_Access, Ada_AST_Node_Access);
+
+   function To_Ada_Analysis_Unit is new Ada.Unchecked_Conversion
+     (H.AST_Unit_Access, Ada_AST_Unit_Access);
 
    -----------------------------
    -- Data_Reference_For_Name --
@@ -212,37 +215,54 @@ package body Ada_AST_Nodes is
    -- Make_Value_Type --
    ---------------------
 
-   function Make_Value_Type (Value       : Primitive;
-                             Target_Kind : Value_Kind)
-                             return I.Value_Type
-   is
+   function Make_Value_Type
+     (Value       : Primitive;
+      Target_Kind : Value_Kind) return I.Value_Type is
    begin
-      if Value.Get.Kind = Kind_List
-        and then Target_Kind in Array_Value_Kind_No_Text
-      then
-         return List_To_Value_Type
-           (Value.Unchecked_Get.List_Val.all, Target_Kind);
-      elsif Value.Get.Kind = Kind_Str
-        and then Target_Kind in Enum_Value_Kind
-      then
-         raise Introspection_Error
-           with "TODO: passing enum values to properties not yet supported";
-      elsif Value.Get.Kind = Kind_Str then
-         return String_To_Value_Type
-           (Value.Unchecked_Get.Str_Val, Target_Kind);
-      elsif Value.Get.Kind = Kind_Int and then Target_Kind = Integer_Value then
-         return Create_Integer (+Value.Get.Int_Val);
-      elsif Value.Get.Kind = Kind_Int and then Target_Kind = Big_Integer_Value
-      then
-         return Create_Big_Integer
-           (GNATCOLL.GMP.Integers.Make (Image (Value.Get.Int_Val)));
-      elsif Value.Get.Kind = Kind_Bool and then Target_Kind = Boolean_Value
-      then
-         return Create_Boolean (Value.Get.Bool_Val);
-      elsif Value.Get.Kind = Kind_Node and then Target_Kind = Node_Value then
-         return Create_Node
-           (To_Ada_Node (Value.Get.Node_Val.Unchecked_Get).Node);
-      end if;
+      case Value.Get.Kind is
+         when Kind_List =>
+            if Target_Kind in Array_Value_Kind_No_Text then
+               return List_To_Value_Type
+                 (Value.Unchecked_Get.List_Val.all, Target_Kind);
+            end if;
+
+         when Kind_Str =>
+            if Target_Kind in Enum_Value_Kind then
+               raise Introspection_Error with
+                 "TODO: passing enum values to properties not yet supported";
+            else
+               return String_To_Value_Type
+                 (Value.Unchecked_Get.Str_Val, Target_Kind);
+            end if;
+
+         when Kind_Int =>
+            if Target_Kind = Integer_Value then
+               return Create_Integer (+Value.Get.Int_Val);
+            elsif Target_Kind = Big_Integer_Value then
+               return Create_Big_Integer
+                 (GNATCOLL.GMP.Integers.Make (Image (Value.Get.Int_Val)));
+            end if;
+
+         when Kind_Bool =>
+            if Target_Kind = Boolean_Value then
+               return Create_Boolean (Value.Get.Bool_Val);
+            end if;
+
+         when Kind_Node =>
+            if Target_Kind = Node_Value then
+               return Create_Node
+                 (To_Ada_Node (Value.Get.Node_Val.Unchecked_Get).Node);
+            end if;
+
+         when Kind_Analysis_Unit =>
+            if Target_Kind = Analysis_Unit_Value then
+               return Create_Analysis_Unit
+                 (To_Ada_Analysis_Unit
+                   (Value.Get.Analysis_Unit_Val.Unchecked_Get).Unit);
+            end if;
+
+         when others => null;
+      end case;
 
       raise Introspection_Error with "Cannot convert a " &
         Valid_Primitive_Kind'Image (Value.Get.Kind) & " to a " &
