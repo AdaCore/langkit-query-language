@@ -489,13 +489,11 @@ package body Ada_AST_Nodes is
       Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
       return Eval_Context
    is
-      Roots : AST_Node_Array (1 .. Units.Last_Index);
+      Roots : AST_Node_Array (Units.First_Index .. Units.Last_Index);
    begin
-
-      for I in Units.First_Index .. Units.Last_Index
-      loop
-         Roots (I) := Create_Node
-           (Ada_AST_Node'(Node => Units.Element (I).Root));
+      for J in Roots'Range loop
+         Roots (J) := Create_Node
+           (Ada_AST_Node'(Node => Units.Element (J).Root));
       end loop;
 
       return Make_Eval_Context

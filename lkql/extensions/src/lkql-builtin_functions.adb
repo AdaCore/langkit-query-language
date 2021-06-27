@@ -113,6 +113,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Tokens
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Units
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Unit_Tokens
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -742,6 +745,25 @@ package body LKQL.Builtin_Functions is
         (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)));
    end Eval_Tokens;
 
+   ----------------
+   -- Eval_Units --
+   ----------------
+
+   function Eval_Units
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Args);
+      Units : Primitive_Vectors.Vector;
+   begin
+      for Root of Ctx.AST_Roots.all loop
+         Units.Append
+           (To_Primitive (H.Create_Unit_Ref (Root.Unchecked_Get.Unit)));
+      end loop;
+
+      return To_Primitive
+        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Units)));
+   end Eval_Units;
+
    ---------------------
    -- Eval_Token_Text --
    ---------------------
@@ -976,7 +998,7 @@ package body LKQL.Builtin_Functions is
 
       Create
         ("tokens",
-         (1 => Param ("node", Kind_Analysis_Unit)),
+         (1 => Param ("unit", Kind_Analysis_Unit)),
          Eval_Unit_Tokens'Access,
          "Given an unit, return an iterator on its tokens",
          Only_Dot_Calls => True),
@@ -1077,6 +1099,12 @@ package body LKQL.Builtin_Functions is
          Eval_Get_Symbols'Access,
          "Given a module, return the symbols stored in it. If given no module"
          & ", return the local symbols"),
+
+      Create
+        ("units",
+         Empty_Profile,
+         Eval_Units'Access,
+         "Return an iterator on all units"),
 
       Create
         ("get_builtin_methods_info",

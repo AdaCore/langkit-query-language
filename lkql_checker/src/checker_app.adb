@@ -274,9 +274,32 @@ package body Checker_App is
 
    procedure Job_Setup (Context : App_Job_Context) is
       Dummy : Primitive;
-   begin
-      Ctx := Make_Eval_Context (Context.Units_Processed);
+      Units : Unit_Vectors.Vector;
+      Files : String_Vectors.Vector;
 
+   begin
+      case Context.App_Ctx.Provider.Kind is
+         when Project_File =>
+            List_Sources_From_Project
+              (Context.App_Ctx.Provider.Project.all, False, Files);
+
+            for F of Files loop
+               Units.Append
+                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
+            end loop;
+
+         when Default =>
+            for F of App.Args.Files.Get loop
+               Units.Append
+                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
+            end loop;
+
+         when others =>
+            --  ??? Should we worry about this case and fill Units
+            null;
+      end case;
+
+      Ctx := Make_Eval_Context (Units);
       Process_Rules;
 
       for Rule of Cached_Flat_Rules loop
