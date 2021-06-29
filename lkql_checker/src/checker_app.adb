@@ -419,11 +419,6 @@ package body Checker_App is
            Make_Ada_AST_Node (Node.As_Ada_Node);
          In_Generic_Instantiation_Old_Val : Boolean;
       begin
-         --  We add the binding to "node" to the root frame, so that it's
-         --  accessible to every rule in its sub context. This is a bit
-         --  hackish admittedly.
-         Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
-
          if Traverse_Instantiations
            and then Node.Kind in Ada_Generic_Instantiation
          then
@@ -449,6 +444,14 @@ package body Checker_App is
             --  Restore old value
             In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
          end if;
+
+         --  We add the binding to "node" to the root frame, so that it's
+         --  accessible to every rule in its sub context. This is a bit
+         --  hackish admittedly.
+         --  Note that we need to do it after traversing instantiations,
+         --  otherwise the context will be overriden.
+
+         Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
 
          for Rule of Cached_Rules (Node.Kind) loop
 
