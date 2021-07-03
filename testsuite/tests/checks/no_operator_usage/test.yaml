@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: No_Operator_Usage
+input_sources: ['op.adb']
