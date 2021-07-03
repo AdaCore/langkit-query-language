@@ -1,0 +1,18 @@
+# Flag each use of the predefined NOT operator for the predefined Boolean
+# type containing a relational or NOT operator.
+# Calls to predefined relational operators of any type derived from
+# Standard.Boolean are not detected. Calls to user-defined functions with these
+# designators, and uses of operators that are renamings of the predefined
+# relational operators for Standard.Boolean, are likewise not detected.
+
+import stdlib
+
+fun strip_parentheses(node) =
+    |" Skip any ParenExpr and return the enclosing expression
+    if node is ParenExpr then strip_parentheses(node.f_expr) else node
+
+@check(message="negation of boolean operator")
+fun boolean_negations(node) =
+    node is UnOp(f_op is OpNot(p_referenced_decl() is null))
+    when stdlib.is_standard_boolean(node)
+     and strip_parentheses(node.f_expr) is (RelationOp or UnOp(f_op is OpNot))

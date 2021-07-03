@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Boolean_Negations
+input_sources: ['proc.adb']
