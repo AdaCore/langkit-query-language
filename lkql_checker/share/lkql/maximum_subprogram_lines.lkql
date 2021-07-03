@@ -1,0 +1,13 @@
+# Flag handled statement of sequence of subprogram bodies exceeding N textual
+# lines, not counting the begin/end lines.
+
+fun count_lines(node) =
+    node.token_end().end_line - node.token_start().start_line + 1
+
+@unit_check
+fun maximum_subprogram_lines(unit, n: int = 1000) = [
+    {message: "too many lines in subprogram body: " & img(count_lines(n)),
+     loc: n}
+    for n in from unit.root
+    select node@HandledStmts(parent is SubpBody) when count_lines(node) > n
+]
