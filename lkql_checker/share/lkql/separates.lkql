@@ -1,0 +1,4 @@
+# Flag each occurrence of a separate unit
+
+@check(message="separate unit")
+fun separates(node) = node is Subunit
