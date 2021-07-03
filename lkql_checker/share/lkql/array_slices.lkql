@@ -1,0 +1,23 @@
+# Flag for loop statements used instead of array slicing.
+
+@check(message="for loop may be replaced by an array slice")
+fun array_slices(node) =
+    # Find for loops of the form:
+    # for X in ... loop
+    #    Array_Object (X) := Another_Array (...);
+    # end loop;
+    node is ForLoopStmt
+    when node.f_stmts.children_count == 1
+     and node.f_stmts[1] is AssignStmt(
+         f_dest is CallExpr(
+             f_name is Identifier(p_referenced_decl() is decl@BasicDecl
+                 when decl.p_type_expression()?.
+                      p_designated_type_decl()?.p_is_array_type()),
+             f_suffix is l@AssocList
+             when l.children_count == 1
+              and l[1].f_r_expr is id@Identifier
+                  when id.p_name_matches(node.f_spec.f_var_decl.f_id.f_name)),
+         f_expr is CallExpr(
+             f_name is Identifier(p_referenced_decl() is decl@BasicDecl
+                 when decl.p_type_expression()?.
+                      p_designated_type_decl()?.p_is_array_type())))

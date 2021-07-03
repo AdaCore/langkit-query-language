@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Array_Slices
+input_sources: ['slice.adb']
