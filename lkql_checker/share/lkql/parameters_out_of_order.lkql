@@ -1,32 +1,34 @@
-# Flag each subprogram and entry declaration whose formal parameters are not
-# ordered according to the following scheme:
-# - in and access parameters first, then in out parameters, and then out
-#   parameters;
-# - for in mode, parameters with default initialization expressions occur last
+# Flag each formal parameter not ordered according to the specified scheme
+# among the following categories:
+# - in parameters
+# - access parameters
+# - in out parameters
+# - out parameters
+# - in parameters with default initialization expressions
 #
-# Only the first violation of the described order is flagged.
-#
-# The following constructs are checked:
-#
-# - subprogram declarations (including null procedures);
-# - generic subprogram declarations;
-# - formal subprogram declarations;
-# - entry declarations;
-# - subprogram bodies and subprogram body stubs that do not have separate
-#   specifications
-#
-# Subprogram renamings are not checked.
+# The `order` parameter defines the order required.
 
-fun priority(paramSpec) =
-    if paramSpec.f_default_expr != null
-    then 0
-    else match paramSpec.f_mode
-            | ModeOut     => 1
-            | ModeInOut   => 2
-            | ModeIn      => 3
-            | ModeDefault => 3
+fun index(order, str, n: int = 1) =
+    if order[n] == str then n else index(order, str, n + 1)
+
+fun priority(spec, order) =
+    if spec.f_default_expr != null
+    then index(order, "defaulted in")
+    else match spec.f_mode
+         | ModeOut     => index(order, "out")
+         | ModeInOut   => index(order, "in out")
+         | ModeIn      => index(order, "in")
+         | ModeDefault => if spec.f_type_expr is
+                             AnonymousType(f_type_decl is
+                                           *(f_type_def is TypeAccessDef))
+                          then index(order, "access") else index(order, "in")
 
 @check(message="parameter out of order")
-fun parameters_out_of_order(node) =
-    node is p @ ParamSpec(any next_siblings
-                          is sib @ ParamSpec when priority(sib) > priority(p))
+fun parameters_out_of_order(node,
+                            order = ["in", "access", "in out",
+                                     "out", "defaulted in"]) =
+    node is ParamSpec when ({
+        val prio = priority(node, order);
+        node is *(any next_siblings is
+                  sib@ParamSpec when priority(sib, order) < prio)
+    })
