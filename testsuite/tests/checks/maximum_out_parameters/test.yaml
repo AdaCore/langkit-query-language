@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Maximum_Out_Parameters
+input_sources: ['max.ads']
