@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: Maximum_Lines
+input_sources: ['file.ads']
+rule_arguments:
+    maximum_lines.n: 10
+
