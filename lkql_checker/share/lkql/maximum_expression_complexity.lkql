@@ -1,0 +1,17 @@
+# Flag any expression not directly part of another expression which contains
+# more than N sub-expressions.
+
+fun num_expr(node) =
+    |" Return the number of Expr (excluding Name and ParenExpr) of a given
+    |" node.
+    (from node select e@Expr when e is not (Name or ParenExpr)).length
+
+@unit_check(help="maximum complexity of an expression")
+fun maximum_expression_complexity(unit, n: int = 10) = [
+    {message: "expression has too many sub-expressions (" &
+              img(num_expr(node)) & ")", loc: node}
+    for node in from unit.root select
+    # Note: using "all parent is not Expr" would be more accurate but would
+    # slow down this rule significantly and checking one level is good enough
+    # in practice.
+    expr@Expr(parent is not Expr) when num_expr(expr) > n]

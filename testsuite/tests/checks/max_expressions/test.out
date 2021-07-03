@@ -1,0 +1,4 @@
+statements.adb:4:9: rule violation: expression has too many sub-expressions (9)
+4 |    I := 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10;  --  FLAG if N < 9
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
