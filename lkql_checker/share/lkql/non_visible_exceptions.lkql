@@ -21,11 +21,11 @@ fun non_visible_exceptions(unit) = [
               else "propagates local exception" &
                    (if n.f_exception_name != null
                     then " declared at line " &
-                         img(n.f_exception_name?.p_referenced_decl().tokens.
-                             to_list[1].start_line)
+                         img(n.f_exception_name?.p_referenced_decl().
+                             token_start().start_line)
                     else "") & " outside its visibility",
      loc: n}
-    for n in from unit.root select 
+    for n in from unit.root select
     # Find exception identifiers part of an ExceptionDecl and not a renaming...
     node@(Identifier(parent is DefiningName(parent is DefiningNameList(parent is
                                             e@ExceptionDecl(f_renames is null)

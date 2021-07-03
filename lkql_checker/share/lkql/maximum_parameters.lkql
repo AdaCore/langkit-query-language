@@ -9,7 +9,7 @@
 # flagged.
 
 fun num_params(node) =
-    |" Return the number of paramers of a subprogram node
+    |" Return the number of parameters of a subprogram node
     (from node?.f_subp_spec?.f_subp_params?.f_params select DefiningName).length
 
 @unit_check
