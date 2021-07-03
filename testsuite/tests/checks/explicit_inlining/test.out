@@ -1,0 +1,12 @@
+complex.ads:3:14: rule violation: subprogram marked inline
+3 |    procedure Swap (I, J : in out Integer);   --  FLAG
+  |              ^^^^ 
+
+complex.adb:8:14: rule violation: subprogram marked inline
+8 |    procedure With_UC with Inline is   --  FLAG
+  |              ^^^^^^^ 
+
+complex.adb:21:14: rule violation: subprogram marked inline
+21 |    procedure Inst_Proc is new Gen_Proc with Inline;   --  FLAG
+   |              ^^^^^^^^^ 
+

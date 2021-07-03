@@ -1,0 +1,10 @@
+# Flag a subprogram (or generic subprogram, or instantiation of a subprogram)
+# with an Inline aspect.
+
+@check(message="subprogram marked inline")
+fun explicit_inlining(node) =
+    node is (SubpBody or GenericSubpInstantiation or ExprFunction or
+             SubpBodyStub or BasicSubpDecl)
+    when node.p_has_aspect("Inline")
+     and (node is (BasicSubpDecl or GenericSubpInstantiation) or
+          node.p_previous_part() == null)
