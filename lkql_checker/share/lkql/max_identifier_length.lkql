@@ -4,6 +4,6 @@
 # specification.
 
 @check(message="identifier too long")
-fun max_identifier_length(node, n=20) =
-    node is DefiningName(all parent(depth=1) is not EnumLiteralDecl)
+fun max_identifier_length(node, n: int = 20) =
+    node is DefiningName(parent is not EnumLiteralDecl)
     when node.text.length > n
