@@ -1,4 +1,4 @@
-default_parameters.ads:1:34: rule violation: default value for subprogram parameter
-1 | procedure P (I : in out Integer; J : Integer := 0);   --  FLAG
-  |                                  ^ 
+default_parameters.ads:4:16: rule violation: too many parameters with default value
+4 |    procedure R (I, J : Integer := 0; K : Integer := 0); --  FLAG
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 

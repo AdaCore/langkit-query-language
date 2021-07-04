@@ -1,9 +1,9 @@
-# Flag all parameters specifications with default value.
-#
-# All parameter specifications are checked: in subprograms (including formal,
-# generic and protected subprograms) and in task and protected entries
-# (including accept statements and entry bodies).
+# Flag all parameter specifications with more than N parameters with a default
+# value.
 
-@check(message="default value for subprogram parameter")
-fun default_parameters(node) = 
-   node is ParamSpec when node.f_default_expr != null
+@check(message="too many parameters with default value")
+fun default_parameters(node, n: int = 0) =
+    node is Params
+    when (from (from node.f_params select ParamSpec(f_default_expr is Expr))
+          select DefiningName).length > n
+
