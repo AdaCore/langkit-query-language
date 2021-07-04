@@ -1,0 +1,26 @@
+# Flag each numeric literal which does not follow these rules:
+# - given in bases 2, 8, 10 or 16 only
+# - an underscore should separate groups of 3 digits for bases 8 or 10
+# - an underscore should separate groups of 4 digits for bases 2 or 16
+# - all letters (exponent symbol and digits above 9) should be in upper case.
+
+@check(message="incorrect format for numeric literal")
+fun numeric_format(node) =
+    node is NumLiteral when match node.text
+    # default base
+    | "^[0-9]{1,3}(_[0-9]{3})*(\.[0-9]{1,3}(_[0-9]{3})*)?(E[+-]?[0-9]+)?$"
+                  => false
+    # base 2
+    | "^2#[01]{1,4}(_[01]{4})*(\.[01]{1,4}(_[01]{4})*)?#(E[+-]?[0-9]+)?$"
+                  => false
+    # base 8
+    | "^8#[0-7]{1,3}(_[0-7]{3})*(\.[0-7]{1,3}(_[0-7]{3})*)?#(E[+-]?[0-9]+)?$"
+                  => false
+    # base 16
+    | "^16#[0-9A-Z]{1,4}(_[0-9A-Z]{4})*(\.[0-9A-Z]{1,4}(_[0-9A-Z]{4})*)?#(E[+-]?[0-9]+)?$"
+                  => false
+    # base 10
+    | "^10#[0-9]{1,3}(_[0-9]{3})*(\.[0-9]{1,3}(_[0-9]{3})*)?#(E[+-]?[0-9]+)?$"
+                  => false
+    # Reject anything else
+    | *           => true

@@ -1,0 +1,24 @@
+num.ads:8:20: rule violation: incorrect format for numeric literal
+8 |    F : constant := 1000000;                --  FLAG
+  |                    ^^^^^^^ 
+
+num.ads:9:20: rule violation: incorrect format for numeric literal
+9 |    G : constant := 2#0001000110101011#;    --  FLAG
+  |                    ^^^^^^^^^^^^^^^^^^^ 
+
+num.ads:10:20: rule violation: incorrect format for numeric literal
+10 |    H : constant := 5#123#;                 --  FLAG
+   |                    ^^^^^^ 
+
+num.ads:11:20: rule violation: incorrect format for numeric literal
+11 |    I : constant := 8#777001#;              --  FLAG
+   |                    ^^^^^^^^^ 
+
+num.ads:12:20: rule violation: incorrect format for numeric literal
+12 |    J : constant := 16#12ab_c000#;          --  FLAG
+   |                    ^^^^^^^^^^^^^ 
+
+num.ads:13:20: rule violation: incorrect format for numeric literal
+13 |    K : constant := 3.5e3;                  --  FLAG
+   |                    ^^^^^ 
+
