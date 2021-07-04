@@ -260,3 +260,19 @@ fun get_subp_body(node) =
                       => node.p_body_part()
     | *               => null
 
+fun sloc_image(node) = {
+    |" Return a string with basename:line corresponding to node's sloc
+    val tok = node.token_start();
+    tok.unit.name.base_name & ":" & img(tok.start_line)
+}
+
+fun find_comment(token, name) =
+    |" Return true if a comment token immediately following the previous
+    |" "begin" keyword is found and containing only the package name.
+    if token.kind == "ADA_COMMENT" and
+       token.previous.previous.kind == "ADA_BEGIN"
+    then token.text.ends_with(name) and
+         match token.text.substring(1, token.text.length - name.length)
+         | "^-- *$" => true
+         | *        => false
+    else token.kind != "ADA_BEGIN" and find_comment(token.previous, name)
