@@ -1,0 +1,43 @@
+# Flag each generic package instantiation with the same actual parameters as
+# another generic instantiation.
+
+import stdlib
+
+fun same_exprs(e1, e2) =
+    match e1
+    | IntLiteral    => e2 is IntLiteral and
+                       e1.p_denoted_value() == e2.p_denoted_value()
+    | CharLiteral   => e2 is CharLiteral and
+                       e1.p_denoted_value() == e2.p_denoted_value()
+    | StringLiteral => e2 is StringLiteral and
+                       e1.p_denoted_value() == e2.p_denoted_value()
+    | RealLiteral   => false
+    | Name          => e2 is Name and
+                       e1.p_referenced_decl() == e2.p_referenced_decl() and
+                       not e1.p_is_call()
+    | *             => false
+
+fun params_equal(l1, l2, i: int) =
+    if i == 0 then true
+    else same_exprs(l1[i].f_r_expr, l2[i].f_r_expr) and
+         params_equal(l1, l2, i - 1)
+
+fun same_params(p1, p2) = {
+    val count = p1.children_count;
+    count == p2.children_count and params_equal(p1, p2, count)
+}
+
+fun same_instance(node) =
+    select first i@GenericPackageInstantiation
+        when i != node
+         and node.f_generic_pkg_name.p_referenced_decl() ==
+             i.f_generic_pkg_name.p_referenced_decl()
+         and same_params(node.f_params, i.f_params)
+
+@unit_check
+fun same_instantiations(unit) = [
+    {message: "same instantiation found at " &
+              stdlib.sloc_image(same_instance(n)), loc: n}
+    for n in from unit.root select i@GenericPackageInstantiation
+    when same_instance(i) != null
+]

@@ -1,0 +1,8 @@
+inst.ads:4:4: rule violation: same instantiation found at inst2.ads:4
+4 |    package Inst_1 is new Gen (Integer, 2);  --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+inst2.ads:4:4: rule violation: same instantiation found at inst.ads:4
+4 |    package Inst_3 is new Gen (Integer, 2);  --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+

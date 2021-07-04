@@ -2,6 +2,8 @@
 # and result) profile does not follow the lexical structure of the profile in
 # the corresponding subprogram or entry declaration.
 
+import stdlib
+
 # Return true if the two lists l1 and l2 have identical names
 fun list_equal(l1, l2, i: int) =
     if i == 0 then true
@@ -47,10 +49,7 @@ fun entry_mismatch(e) = {
 @unit_check
 fun profile_discrepancies(unit) = [
     {message: "structure of parameter profile differs from " &
-              ({
-                  val tok = n.p_decl_part()?.token_start();
-                  tok.unit.name.base_name & ":" & img(tok.start_line)
-               }),
+              stdlib.sloc_image(n.p_decl_part()),
      loc: n.p_defining_name()}
     for n in from unit.root select node@((BaseSubpBody or SubpBodyStub)
         when match node.p_decl_part()
