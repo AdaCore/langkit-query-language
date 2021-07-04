@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Membership_For_Validity
+input_sources: ['valid.adb']
