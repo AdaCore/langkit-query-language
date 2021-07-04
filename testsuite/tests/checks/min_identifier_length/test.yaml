@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: 'Min_Identifier_Length'
+input_sources: ['ident.adb']

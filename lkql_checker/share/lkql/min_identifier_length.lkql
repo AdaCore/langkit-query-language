@@ -1,0 +1,10 @@
+# Flag each occurrence of a defining name whose length is shorter than N.
+# Numeric types are excluded.
+
+@check(message="identifier too short")
+fun min_identifier_length(node, n: int = 2) =
+    node is DefiningName
+    when node.text.length < n
+     and node.p_basic_decl()?.p_type_expression() is null or
+         TypeExpr(p_designated_type_decl() is t@BaseTypeDecl
+                  when not (t.p_is_int_type() or t.p_is_real_type()))

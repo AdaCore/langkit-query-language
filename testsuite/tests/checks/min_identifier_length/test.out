@@ -1,0 +1,12 @@
+ident.adb:3:4: rule violation: identifier too short
+3 |    J : String (1 .. 10);     --  FLAG
+  |    ^ 
+
+ident.adb:5:9: rule violation: identifier too short
+5 |    type T is null record;    --  FLAG
+  |         ^ 
+
+ident.adb:7:14: rule violation: identifier too short
+7 |    procedure P with Import;  --  FLAG
+  |              ^ 
+
