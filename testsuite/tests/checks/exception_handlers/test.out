@@ -1,0 +1,8 @@
+exc.adb:1:11: rule violation: no OTHERS exception handler
+1 | procedure Exc is   --  FLAG
+  |           ^^^ 
+
+exc.adb:5:14: rule violation: no OTHERS exception handler
+5 |    task body T is  --  FLAG
+  |              ^ 
+

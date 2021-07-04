@@ -1,0 +1,11 @@
+# Flag each occurrence of a subprogram body (if `subprogram` is true) or task
+# body (if `task` is true) which does not have an others exception handler.
+
+@check(message="no OTHERS exception handler")
+fun exception_handlers(node, subprogram = false, task = false) =
+    node is ((TaskBody when task) or (SubpBody when subprogram))
+    when node.f_stmts.f_exceptions == null
+      or (from node.f_stmts.f_exceptions select first
+          OthersDesignator(parent is
+                           AlternativesList(parent is ExceptionHandler)))
+         == null

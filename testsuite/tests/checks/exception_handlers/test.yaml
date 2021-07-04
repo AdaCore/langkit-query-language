@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: Exception_Handlers
+input_sources: ['exc.adb']
+rule_arguments:
+    exception_handlers.task: 'true'
+    exception_handlers.subprogram: 'true'
