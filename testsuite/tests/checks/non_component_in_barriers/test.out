@@ -1,0 +1,4 @@
+prot.adb:30:14: rule violation: barrier references non component variable
+30 |         when Global_Bool is        --  FLAG
+   |              ^^^^^^^^^^^ 
+
