@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Headers
+project: 'prj.gpr'
+rule_arguments:
+    headers.header: '"--  HEADER"'

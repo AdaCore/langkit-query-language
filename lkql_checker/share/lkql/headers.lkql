@@ -1,0 +1,8 @@
+# Flag each compilation unit not starting with the given `header`.
+
+@unit_check
+fun headers(unit, header = "") =
+    if unit.text.starts_with(header)
+    then []
+    else [{message: "compilation unit does not start with header",
+           loc: unit.root}]
