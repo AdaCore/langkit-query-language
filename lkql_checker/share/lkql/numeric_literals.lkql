@@ -4,6 +4,8 @@
 # - a literal occurring in an aspect definition or in an aspect clause, or
 # - an integer literal that is less than or equal to a value specified by the
 #   N rule parameter.
+# - As the right expression of an exponentiation operator
+# - As an indexing of an array attribute
 # - a literal occurring in a declaration in case the Statements_Only rule
 #   parameter is given.
 # This rule has the following parameters:
@@ -25,6 +27,20 @@ fun check_parents(n, statements_only) =
 @check(message="numeric literal")
 fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
     node is NumLiteral
+    # all always triggers
     when all
+      # check parameter N if we have an integer literal
       or ((node is RealLiteral or node.p_denoted_value() > n)
+          # exclude right expression of an exponentiation
+          and (not node.parent is BinOp(f_op is OpPow)
+                   when node.parent.f_right == node)
+          # exclude indexing of an array attribute
+          and (not node.parent is ParamAssoc(
+                   parent is AssocList(
+                       parent is AttributeRef(
+                           f_attribute is id@Identifier
+                           when id.p_name_is("First")
+                             or id.p_name_is("Last")
+                             or id.p_name_is("Length")))))
+          # check all other cases
           and check_parents(node.parent, statements_only))

@@ -1,8 +1,8 @@
 num.adb:15:9: rule violation: numeric literal
-15 |    F := 1.0;                            -- FLAG
+15 |    F := 1.0;                            --  FLAG
    |         ^^^ 
 
 num.adb:18:9: rule violation: numeric literal
-18 |    I := 3 * I;                          -- FLAG
+18 |    I := 3 * I;                          --  FLAG
    |         ^ 
 

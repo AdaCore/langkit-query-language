@@ -8,12 +8,14 @@ procedure Num is
    I    : Integer := 3;                 --  FLAG unless statements_only
    F    : Float   := CF1;               --  NO FLAG
 begin
-   S1 (1) := 'a';                       -- FLAG only with n < 1
-   S1 (Ind1) := 'a';                    -- NO FLAG
-   S1 (Ind1 + 2) := 'a';                -- FLAG only with n < 2
+   S1 (1) := 'a';                       --  FLAG only with n < 1
+   S1 (Ind1) := 'a';                    --  NO FLAG
+   S1 (Ind1 + 2) := 'a';                --  FLAG only with n < 2
 
-   F := 1.0;                            -- FLAG
-   I := 2 + 0;                          -- FLAG only with n < 2
-   I := I + 2;                          -- FLAG only with n < 2
-   I := 3 * I;                          -- FLAG
+   F := 1.0;                            --  FLAG
+   I := 2 + 0;                          --  FLAG only with n < 2
+   I := I + 2;                          --  FLAG only with n < 2
+   I := 3 * I;                          --  FLAG
+   I := I ** 3;                         --  NO FLAG
+   I := S1'First(3);                    --  NO FLAG
 end Num;
