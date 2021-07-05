@@ -77,6 +77,9 @@ package body LKQL.Builtin_Functions is
    function Eval_To_Lower_Case
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Concat
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Contains
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -391,6 +394,24 @@ package body LKQL.Builtin_Functions is
       end loop;
       return To_Primitive (True);
    end Eval_Is_Mixed_Case;
+
+   -----------------
+   -- Eval_Concat --
+   -----------------
+
+   function Eval_Concat
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      Res : constant Primitive := Make_Empty_List;
+   begin
+      for List of List_Val (Args (1)).Elements loop
+         for El of List.Unchecked_Get.List_Val.Elements loop
+            Res.Unchecked_Get.List_Val.Elements.Append (El);
+         end loop;
+      end loop;
+      return Res;
+   end Eval_Concat;
 
    -------------------
    -- To_Lower_Case --
@@ -1007,6 +1028,12 @@ package body LKQL.Builtin_Functions is
          Eval_To_Lower_Case'Access,
          "Return the given string written with lower case characters only",
          Only_Dot_Calls => True),
+
+      Create
+        ("concat",
+         (1 => Param ("lists", Kind_List)),
+         Eval_Concat'Access,
+         "Given a list of lists, return a concatenated list"),
 
       Create
         ("contains",
