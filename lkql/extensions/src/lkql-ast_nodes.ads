@@ -177,6 +177,10 @@ package LKQL.AST_Nodes is
    --  Interface representing an abstract analysis unit from a Langkit
    --  generated library.
 
+   function Text
+     (Self : AST_Unit) return Text_Type is abstract;
+   --  Return the text for this unit.
+
    function Name
      (Self : AST_Unit) return Text_Type is abstract;
    --  Return the name of this unit - practically, the file name for the file

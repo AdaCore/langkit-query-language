@@ -159,6 +159,7 @@ package Ada_AST_Nodes is
    end record;
    type Ada_AST_Unit_Access is access all Ada_AST_Unit;
 
+   overriding function Text (Self : Ada_AST_Unit) return Text_Type;
    overriding function Name (Self : Ada_AST_Unit) return Text_Type;
    overriding function Root (Self : Ada_AST_Unit) return AST_Node'Class;
    overriding function Unit (Self : Ada_AST_Node) return AST_Unit'Class;

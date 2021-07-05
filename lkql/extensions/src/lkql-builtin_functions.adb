@@ -843,6 +843,16 @@ package body LKQL.Builtin_Functions is
             .Get.Token_Val.Unchecked_Get.Sloc_Range.End_Column)));
 
    --------------------
+   -- Eval_Unit_Text --
+   --------------------
+
+   function Eval_Unit_Text
+     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+     (To_Primitive
+       (Args (1).Get.Analysis_Unit_Val.Unchecked_Get.Text));
+
+   --------------------
    -- Eval_Unit_Root --
    --------------------
 
@@ -981,6 +991,13 @@ package body LKQL.Builtin_Functions is
          Only_Dot_Calls => True),
 
       --  Unit builtins
+
+      Create
+        ("text",
+         (1 => Param ("unit", Kind_Analysis_Unit)),
+         Eval_Unit_Text'Access,
+         "Return the text for the whole unit",
+         Only_Dot_Calls => True),
 
       Create
         ("root",

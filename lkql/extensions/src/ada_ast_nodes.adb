@@ -609,6 +609,15 @@ package body Ada_AST_Nodes is
    end Unit;
 
    ----------
+   -- Text --
+   ----------
+
+   overriding function Text (Self : Ada_AST_Unit) return Text_Type is
+   begin
+      return Self.Unit.Text;
+   end Text;
+
+   ----------
    -- Name --
    ----------
 
