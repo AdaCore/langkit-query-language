@@ -15,6 +15,6 @@ fun improper_returns(node) =
         val body = stdlib.enclosing_body(node);
         match body?.f_subp_spec?.f_subp_kind
         | SubpKindProcedure => true
-        | SubpKindFunction  => (from body?.f_stmts select ReturnStmt)[1] != node
+        | SubpKindFunction  => (from body.f_stmts select first ReturnStmt) != node
         | *                 => false
     }
