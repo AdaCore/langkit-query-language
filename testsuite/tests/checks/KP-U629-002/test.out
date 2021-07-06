@@ -1,0 +1,8 @@
+eq_test.adb:19:14: rule violation: KP U629-002
+19 |         (E1 (Ref.all));
+   |              ^^^^^^^ 
+
+eq_test.adb:26:14: rule violation: KP U629-002
+26 |         (E2 (Ref.all));
+   |              ^^^^^^^ 
+
