@@ -8,14 +8,13 @@ fun get_block(list) =
     stdlib.enclosing_block(list[list.length].ref)
 
 fun check_references(list, subp) = {
-    val block = stdlib.enclosing_block(list[list.length].ref);
+    val block = get_block(list);
 
     # First check whether the last block referencing the node is a declare
     # block with no enclosing loop and is part of subp (as opposed to a nested
     # subprogram).
 
-    block != null and
-    (not block is BlockStmt(any parent is BaseLoopStmt)) and
+    block is BlockStmt(all parent is not BaseLoopStmt) and
     stdlib.enclosing_body(block) == subp and
 
     # Then check that no reference is outside this block apart from the
