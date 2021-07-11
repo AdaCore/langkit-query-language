@@ -1,0 +1,10 @@
+# Flag any exception handler with no others choice.
+
+@unit_check
+fun no_others_in_exception_handlers(unit) = [
+    {message: "no OTHERS choice in exception handler",
+     loc: n.f_exceptions.token_start().previous}
+    for n in from unit.root select
+    HandledStmts(f_exceptions is AdaNodeList(all children(depth=3)
+                                             is not OthersDesignator))
+]

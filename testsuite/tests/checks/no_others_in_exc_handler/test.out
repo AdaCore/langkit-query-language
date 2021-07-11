@@ -1,0 +1,4 @@
+other.adb:5:37: rule violation: no OTHERS choice in exception handler
+5 |    exception                --  FLAG
+  |        
+
