@@ -1,0 +1,5 @@
+# Flag each occurrence of a simple loop statement, excluding while and for
+# loops.
+
+@check(message="simple loop statement")
+fun simple_loop_statements(node) = node is LoopStmt
