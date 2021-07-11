@@ -6,8 +6,12 @@ package body Explicit_Full_Discrete_Ranges is
       for J in Idx'First .. Idx'Last loop   --  FLAG
          K := K + J;
       end loop;
-      
-      for J in Idx loop
+
+      if K in Idx'First .. Idx'Last then    --  FLAG
+         null;
+      end if;
+
+      for J in Idx loop                     --  NO FLAG
          L := L + J;
       end loop;
    end P;

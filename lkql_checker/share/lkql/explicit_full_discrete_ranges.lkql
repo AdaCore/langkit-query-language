@@ -2,10 +2,9 @@
 
 fun full_range(l, r) =
    l is AttributeRef and r is AttributeRef
-   and l?.f_attribute?.p_name_is("First") and r?.f_attribute?.p_name_is("Last")
-   and l?.f_prefix?.p_referenced_decl() == r?.f_prefix?.p_referenced_decl()
+   and l.f_attribute?.p_name_is("First") and r.f_attribute?.p_name_is("Last")
+   and l.f_prefix?.p_referenced_decl() == r.f_prefix?.p_referenced_decl()
 
-@check(message="bad discrete range, consider replacement with subtype mark")
+@check(message="range could be replaced by subtype mark or 'Range")
 fun explicit_full_discrete_ranges(node) =
-   node is BinOp(f_op is OpDoubleDot)
-   when node.parent is ForLoopSpec and full_range(node.f_left, node.f_right)
+   node is BinOp(f_op is OpDoubleDot) when full_range(node.f_left, node.f_right)

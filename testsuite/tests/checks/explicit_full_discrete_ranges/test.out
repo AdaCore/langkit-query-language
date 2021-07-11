@@ -1,4 +1,8 @@
-explicit_full_discrete_ranges.adb:6:16: rule violation: bad discrete range, consider replacement with subtype mark
+explicit_full_discrete_ranges.adb:6:16: rule violation: range could be replaced by subtype mark or 'Range
 6 |       for J in Idx'First .. Idx'Last loop   --  FLAG
   |                ^^^^^^^^^^^^^^^^^^^^^ 
+
+explicit_full_discrete_ranges.adb:10:15: rule violation: range could be replaced by subtype mark or 'Range
+10 |       if K in Idx'First .. Idx'Last then    --  FLAG
+   |               ^^^^^^^^^^^^^^^^^^^^^ 
 
