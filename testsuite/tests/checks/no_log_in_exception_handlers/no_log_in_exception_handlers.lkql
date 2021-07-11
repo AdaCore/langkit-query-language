@@ -1,0 +1,11 @@
+# Flag any "when others" exception handler with no reference to
+# Ada.Exceptions.Exception_Name/Message/Information.
+
+@check(message="no logging in exception handler")
+fun no_log_in_exception_handlers(node) =
+    node is ExceptionHandler(f_handled_exceptions is *
+                             (any children(depth=1) is OthersDesignator))
+    when (from node.f_stmts select n@Name when
+          match n.p_referenced_decl().p_canonical_fully_qualified_name()
+          | "^ada.exceptions.exception_(name|message|information)$" => true
+          | * => false).length == 0
