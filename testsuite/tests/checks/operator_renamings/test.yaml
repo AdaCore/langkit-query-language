@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: 'Operator_Renamings'
+project: 'prj.gpr'
