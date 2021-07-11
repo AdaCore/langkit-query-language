@@ -8,16 +8,27 @@
 # - timed entry call statement
 # - conditional entry call statement
 # - asynchronous select statement
+# If Loops_Only is true, only loop statements are counted.
 
-# Return true if node and its parents contain more than n control structure
-fun check_control_parent(node, n, level: int = 0) =
+fun check_control_parent(node, n) =
+    |" Return true if node and its parents contain more than n control structure
     if node == null then false
     else if node is (IfStmt or CaseStmt or BaseLoopStmt or SelectStmt)
-    then (if level == n then true
-         else check_control_parent(node?.parent, n, level + 1))
-    else check_control_parent(node?.parent, n, level)
+    then (if n == 0 then true
+         else check_control_parent(node.parent, n - 1))
+    else check_control_parent(node.parent, n)
+
+fun check_loop_parent(node, n) =
+    |" Return true if node and its parents contain more than n loops
+    if node == null then false
+    else if node is BaseLoopStmt
+    then (if n == 0 then true
+         else check_loop_parent(node.parent, n - 1))
+    else check_loop_parent(node.parent, n)
 
 @check(message="nesting level of control structures too deep")
-fun overly_nested_control_structures(node, n: int = 3) =
-    node is (IfStmt or CaseStmt or BaseLoopStmt or SelectStmt)
-    when check_control_parent(node?.parent, n)
+fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
+    if loops_only
+    then node is BaseLoopStmt when check_loop_parent(node.parent, n)
+    else node is (IfStmt or CaseStmt or BaseLoopStmt or SelectStmt)
+         when check_control_parent(node.parent, n)

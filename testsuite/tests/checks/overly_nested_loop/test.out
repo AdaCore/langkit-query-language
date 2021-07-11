@@ -1,0 +1,4 @@
+nested.adb:7:16: rule violation: nesting level of control structures too deep
+7 |                for K in 1 .. I loop   --  FLAG (if rule parameter is 2)
+  |                ^^^^^^^^^ 
+
