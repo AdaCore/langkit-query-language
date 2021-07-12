@@ -1,0 +1,16 @@
+# Flag each explicit use of the name of any type declared in packages Standard
+# and System except Standard.Boolean, Standard.Character, Standard.Duration,
+# Standard.String, System.Bit_Order.
+
+@check(message="reference to predefined type")
+fun predefined_types(node) =
+    node is Identifier(p_referenced_decl() is t@BaseTypeDecl)
+    when match t.p_canonical_fully_qualified_name()
+    | "^standard\.boolean$"   => false
+    | "^standard\.character$" => false
+    | "^standard\.duration$"  => false
+    | "^standard\.string$"    => false
+    | "^system\.bit_order$"   => false
+    | "^system\."             => true
+    | "^standard\."           => true
+    | *                       => false
