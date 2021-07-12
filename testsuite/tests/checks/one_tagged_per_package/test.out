@@ -1,0 +1,4 @@
+p.ads:1:9: rule violation: more than one tagged type declared in package spec
+1 | package P is  --  FLAG
+  |         ^ 
+
