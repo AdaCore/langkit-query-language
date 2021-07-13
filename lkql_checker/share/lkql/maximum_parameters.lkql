@@ -12,7 +12,7 @@ fun num_params(node) =
     |" Return the number of parameters of a subprogram node
     (from node?.f_subp_spec?.f_subp_params?.f_params select DefiningName).length
 
-@unit_check
+@unit_check(help="maximum number of subprogram parameters")
 fun maximum_parameters(unit, n: int = 3) = [
     {message: "too many formal parameters (" & img(num_params(n)) & ")",
      loc: n.p_defining_name()}

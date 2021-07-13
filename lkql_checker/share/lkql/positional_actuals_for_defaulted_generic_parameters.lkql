@@ -8,7 +8,8 @@ fun check_generic(n, node) =
     GenericFormal(f_decl is d@(FormalSubpDecl or ObjectDecl)
                   when d?.f_default_expr != null)
 
-@check(message="use named notation when passing actual to defaulted generic parameter")
+@check(message="use named notation when passing actual to defaulted generic parameter",
+       remediation="EASY")
 fun positional_actuals_for_defaulted_generic_parameters(node) =
     node is ParamAssoc(f_designator is null, parent is l@AssocList)
     when match l?.parent

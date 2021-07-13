@@ -56,7 +56,8 @@ fun wrong_casing(str, scheme) =
     | "mixed" => not str.is_mixed_case
     | *       => false
 
-@unit_check
+@unit_check(help="casing of defining names", remediation="EASY",
+            parametric_exemption=true)
 fun identifier_casing(unit,
                       type="", enum="", constant="", exception="", others="",
                       exclude=[]) = [

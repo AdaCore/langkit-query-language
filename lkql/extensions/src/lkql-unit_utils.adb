@@ -155,8 +155,7 @@ package body LKQL.Unit_Utils is
                        Fun.Child (I).As_Parameter_Decl;
                   begin
                      Ext_Val.Content.Params.Include
-                       (Symbol (Param.F_Param_Identifier),
-                        (Fun.Child (I).As_Parameter_Decl, I));
+                       (Symbol (Param.F_Param_Identifier), (Param, I));
                   end;
                end loop;
             end;

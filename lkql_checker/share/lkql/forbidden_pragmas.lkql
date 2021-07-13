@@ -3,7 +3,7 @@
 # by default are flagged, except the pragmas listed in the ``allowed``
 # parameter.
 
-@unit_check
+@unit_check(help="usage of specified pragmas", parametric_exemption=true)
 fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) = [
     {message: "use of pragma " & node.f_id.text, loc: node}
     for node in from unit.root select Pragma(f_id is id@Identifier)

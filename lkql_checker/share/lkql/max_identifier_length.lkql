@@ -3,7 +3,9 @@
 # The rule has a parameter N: the maximal allowed identifier length
 # specification.
 
-@check(message="identifier too long")
+@check(message="identifier too long",
+       help="maximal identifier length",
+       remediation="EASY")
 fun max_identifier_length(node, n: int = 20) =
     node is DefiningName(parent is not EnumLiteralDecl)
     when node.text.length > n

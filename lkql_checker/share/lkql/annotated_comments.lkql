@@ -2,7 +2,7 @@
 # Such comments have the following structure:
 # --<special_character> *<comment_marker>
 
-@unit_check
+@unit_check(help="use of comment annotations", remediation="EASY")
 fun annotated_comments(unit, s="#") = [
     {message: "annotated comment", loc: tok}
     for tok in unit.tokens

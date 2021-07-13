@@ -13,6 +13,6 @@ fun check_deps(node, n : int) =
     when [x for x in c
           if check_deps(x.p_referenced_decl()?.parent, n - 1)].length != 0)
 
-@check(message="unit has too many generic dependencies")
+@check(message="unit has too many generic dependencies", remediation="MAJOR")
 fun too_many_generic_dependencies(node, n : int = 3) =
     node is LibraryItem when check_deps(node, n + 1)

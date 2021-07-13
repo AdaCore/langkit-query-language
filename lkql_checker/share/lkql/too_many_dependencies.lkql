@@ -5,7 +5,7 @@
 # This rule has the N parameter: Positive integer specifying the maximal
 # number of dependencies when the library item or subunit is not flagged.
 
-@check(message="unit has too many dependencies")
+@check(message="unit has too many dependencies", remediation="MAJOR")
 fun too_many_dependencies(node, n : int = 5) =
     node is LibraryItem(parent is
     CompilationUnit(any c@children is Identifier(any parent(depth=2) is

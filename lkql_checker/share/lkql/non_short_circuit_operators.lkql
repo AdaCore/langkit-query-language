@@ -16,7 +16,8 @@ fun operator_image(node) =
                      then "AND" else "OR")
     | *          => "unknown"
 
-@unit_check
+@unit_check(help="use of predefined AND and OR for boolean types",
+            remediation="EASY")
 fun non_short_circuit_operators(unit, except_assertions=false) = [
     {message: "use of predefined " & operator_image(n) & " for boolean type",
      loc: n}

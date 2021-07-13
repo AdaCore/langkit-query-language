@@ -5,7 +5,7 @@
 
 import stdlib
 
-@unit_check
+@unit_check(help="instantiations not properly located")
 fun improperly_located_instantiations(unit) = [
      {message: "instantiation in a " &
                (if node.parent?.parent?.parent is BasePackageDecl

@@ -75,7 +75,8 @@
 
 import stdlib
 
-@unit_check
+@unit_check(help="prefixes in defining names", remediation="EASY",
+            parametric_exemption=true)
 fun identifier_prefixes(unit,
                         type="-", type_exclusive=true,
                         concurrent="-", concurrent_exclusive=true,

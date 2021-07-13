@@ -4,7 +4,8 @@
 # considered as a normal aggregate. Aggregates of anonymous array types are not
 # flagged.
 
-@check(message="aggregate is not a part of a qualified expression")
+@check(message="aggregate is not a part of a qualified expression",
+       remediation="EASY")
 fun non_qualified_aggregates(node) =
     node is Aggregate
     when not (node is *(any parent is QualExpr or Aggregate) or

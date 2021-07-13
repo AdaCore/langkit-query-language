@@ -7,7 +7,7 @@
 
 fun is_visible(type_decl) = type_decl?.parent?.parent is PublicPart
 
-@unit_check
+@unit_check(help="tagged type has too many primitives", remediation="MAJOR")
 fun too_many_primitives(unit, n : int = 5) = [
     {message: "tagged type has too many primitives (" &
               img(node.p_get_primitives().length) & ")",

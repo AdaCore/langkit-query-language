@@ -28,15 +28,11 @@ with Ada.Unchecked_Deallocation;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
-with Langkit_Support.Images; use Langkit_Support.Images;
 with Langkit_Support.Diagnostics.Output;
+with Langkit_Support.Images; use Langkit_Support.Images;
 
-with Libadalang.Common; use Libadalang.Common;
 with Libadalang.Introspection;
 
-with Rules_Factory; use Rules_Factory;
-
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
@@ -46,7 +42,6 @@ with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
-with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with LKQL.Errors; use LKQL.Errors;
 with Liblkqllang.Analysis;
 
@@ -56,291 +51,33 @@ with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body Checker_App is
 
-   Ctx : Eval_Context;
-
-   package Rules_Args_Maps is new Ada.Containers.Hashed_Maps
-     (Key_Type        => Unbounded_Text_Type,
-      Element_Type    => Rule_Argument_Vectors.Vector,
-      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
-      Equivalent_Keys => Ada.Strings.Wide_Wide_Unbounded."=",
-      "="             => Rule_Argument_Vectors."=");
-
-   type Rules_By_Kind is array (Ada_Node_Kind_Type) of Rule_Vector;
-
-   procedure Process_Rules;
-   --  Process input rules: Put the rules that have been requested by the user
-   --  in the ``Cached_Rules`` and ``Cached_Flat_Rules`` data structures.
-
-   Cached_Rules          : Rules_By_Kind
-     := (others => Rule_Vectors.Empty_Vector);
-   --  Data structure mapping node kinds to the checks that should be ran when
-   --  this node type is encountered.
-
-   Cached_Flat_Rules     : Rule_Vector;
-   --  Simple vector of requested rules
-
-   Computed_Cached_Rules : Boolean := False;
-
-   Traverse_Instantiations : Boolean := False;
-   --  Whether we should traverse generic instantiations. This will be set to
-   --  true if there is one rule in the active set of rules that requires it.
-   --  This is used so we don't traverse generic instantiations if no rule
-   --  requires it.
-
-   --  TODO: All the above variables should be stored in a global context
-   --  (U430-019).
-
-   -----------
-   -- Rules --
-   -----------
-
-   procedure Process_Rules is
-      package LI renames Libadalang.Introspection;
-      package LCO renames Libadalang.Common;
-
-      --  TODO: This should be removed once we have Kind_First/Kind_Last on
-      --  Node_Type_Id (U412-016).
-
-      type Ada_Node_Kind_Set is array (Ada_Node_Kind_Type) of Boolean;
-      --  A set of ada nodes, represented as a boolean array
-      --  NOTE: Should we pack it ?
-
-      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set;
-      --  Return the ``Kind_Set`` corresponding to a given Type_Id. For a leaf
-      --  node type (e.g. with no child types), it will return a set with only
-      --  the bit for  this type set. For a non leaf node, will return an array
-      --  with the bit for the type and all descendants set.
-
-      procedure Append_Rule (Rule : Rule_Command);
-      --  Append the given rule to ``Cached_Rules`` and ``Cached_Flat_Rules``.
-
-      Explicit_Rules_Names : constant Args.Rules.Result_Array :=
-        Args.Rules.Get;
-
-      Additional_Rules_Dirs : constant Path_Array :=
-         Path_Array (Args.Rules_Dirs.Get);
-
-      Rules_Args_Map : Rules_Args_Maps.Map;
-      --  Map from argument names to argument values.
-
-      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set is
-
-         procedure Internal (Id : LCO.Node_Type_Id);
-
-         Ret : Ada_Node_Kind_Set := (others => False);
-
-         --------------
-         -- Internal --
-         --------------
-
-         procedure Internal (Id : LCO.Node_Type_Id) is
-         begin
-            if LI.Is_Concrete (Id) then
-               Ret (LI.Kind_For (Id)) := True;
-            end if;
-            for T of LI.Derived_Types (Id) loop
-               Internal (T);
-            end loop;
-         end Internal;
-
-      begin
-         Internal (Id);
-         return Ret;
-      end Kind_Set;
-
-      use Rule_Vectors;
-
-      procedure Append_Rule (Rule : Rule_Command) is
-         use Liblkqllang.Analysis;
-      begin
-         if Rule.Kind_Pattern /= No_Node_Kind_Pattern then
-            declare
-               Type_Id : constant LCO.Node_Type_Id :=
-                 LI.Lookup_DSL_Name (Rule.Kind_Pattern.F_Kind_Name.Text);
-               KS      : constant Ada_Node_Kind_Set :=
-                 Kind_Set (Type_Id);
-            begin
-               for I in KS'Range loop
-                  if KS (I) then
-                     Cached_Rules (I).Append (Rule);
-                  end if;
-               end loop;
-            end;
-         else
-            for I in Cached_Rules'Range loop
-               Cached_Rules (I).Append (Rule);
-            end loop;
-         end if;
-
-         --  If we have one rule that needs to follow instantiations, then set
-         --  the traversal to traverse them.
-         if Rule.Follow_Instantiations then
-            Traverse_Instantiations := True;
-         end if;
-      end Append_Rule;
-
-   begin
-      if Computed_Cached_Rules then
-         return;
-      end if;
-
-      Cached_Flat_Rules := All_Rules (Ctx, Additional_Rules_Dirs);
-
-      --  Compute the map of argument names to values.
-
-      for Rule_Arg of Args.Rules_Args.Get loop
-         declare
-            Dummy : Boolean;
-            C     : Rules_Args_Maps.Cursor;
-         begin
-            Rules_Args_Map.Insert
-              (Rule_Arg.Rule_Name,
-               Rule_Argument_Vectors.Empty_Vector,
-               C, Dummy);
-
-            Rules_Args_Map.Reference (C).Append (Rule_Arg.Arg);
-         end;
-      end loop;
-
-      --  Then, process potential arguments for those rules
-
-      for Rule of Cached_Flat_Rules loop
-         declare
-            Rule_Name : constant Unbounded_Text_Type := Rule.Name;
-            C         : constant Rules_Args_Maps.Cursor
-              := Rules_Args_Map.Find (Rule_Name);
-         begin
-            --  Modify the rule command in place, by appending an argument to
-            --  the Rule_Command's arg vector.
-
-            if Rule.Is_Unit_Check then
-               Rule.Rule_Args.Append
-                 (Rule_Argument'(Name  => To_Unbounded_Text ("unit"),
-                                 Value => To_Unbounded_Text ("unit")));
-            else
-               Rule.Rule_Args.Append
-                 (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
-                                 Value => To_Unbounded_Text ("node")));
-            end if;
-
-            if Rules_Args_Maps.Has_Element (C) then
-               for Arg of Rules_Args_Map.Reference (C) loop
-                  Rule.Rule_Args.Append (Arg);
-               end loop;
-            end if;
-         end;
-
-         --  Call prepare *after* processing the arguments, since it needs the
-         --  arguments processed.
-         Rule.Prepare;
-      end loop;
-
-      --  First, process the set of rules that has to be ran.
-
-      if Explicit_Rules_Names'Length = 0 then
-         --  No rules passed by the user: return all rules
-         for Rule of Cached_Flat_Rules loop
-            Append_Rule (Rule);
-         end loop;
-
-      else
-         --  Some rules passed by the user: only return the ones specified
-         for Explicit_Rule_Name of Explicit_Rules_Names loop
-            declare
-               Found : Boolean := False;
-            begin
-               for R of Cached_Flat_Rules loop
-                  if To_Lower (To_Text (To_String (Explicit_Rule_Name)))
-                    = To_Text (R.Name)
-                  then
-                     Append_Rule (R);
-                     Found := True;
-                  end if;
-               end loop;
-               if not Found then
-                  raise Exit_App with "no such rule - "
-                    & To_String (Explicit_Rule_Name);
-               end if;
-            end;
-         end loop;
-      end if;
-
-      Computed_Cached_Rules := True;
-   end Process_Rules;
-
-   ---------------
-   -- Job_Setup --
-   ---------------
-
-   procedure Job_Setup (Context : App_Job_Context) is
-      Dummy : Primitive;
-      Units : Unit_Vectors.Vector;
-      Files : String_Vectors.Vector;
-
-   begin
-      case Context.App_Ctx.Provider.Kind is
-         when Project_File =>
-            List_Sources_From_Project
-              (Context.App_Ctx.Provider.Project.all, False, Files);
-
-            for F of Files loop
-               Units.Append
-                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
-            end loop;
-
-         when Default =>
-            for F of App.Args.Files.Get loop
-               Units.Append
-                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
-            end loop;
-
-         when others =>
-            --  ??? Should we worry about this case and fill Units
-            null;
-      end case;
-
-      Ctx := Make_Eval_Context (Units);
-      Process_Rules;
-
-      for Rule of Cached_Flat_Rules loop
-         --  Eval the rule's code (which should contain only definitions). TODO
-         --  this should be encapsulated.
-         begin
-            Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
-         exception
-            when others =>
-               Put ("internal error loading rule ");
-               Put (To_Wide_Wide_String (Rule.Name));
-               Put_Line (":");
-               raise;
-         end;
-      end loop;
-
-      --  Set property error recovery with the value of the command line flag.
-      LKQL.Errors.Property_Error_Recovery := Args.Property_Error_Recovery.Get;
-   end Job_Setup;
-
    ------------------
    -- Process_Unit --
    ------------------
 
    procedure Process_Unit
-     (Context : App_Job_Context; Unit : Analysis_Unit)
+     (Ctx                     : LKQL_Context;
+      Unit                    : Analysis_Unit;
+      Emit_Message            :
+        access procedure (Message    : Unbounded_Text_Type;
+                          Unit       : Analysis_Unit;
+                          Rule       : Unbounded_Text_Type;
+                          Sloc_Range : Source_Location_Range) := null)
    is
       procedure Handle_Error
         (Rule : Rule_Command;
          Node : Ada_Node'Class;
-         Exc : Exception_Occurrence);
+         Exc  : Exception_Occurrence);
       --  Factorize the error handling code, so that it can be shared amongst
       --  the two kinds of checkers, node checkers and unit checkers.
 
       procedure Handle_Error
         (Rule : Rule_Command;
          Node : Ada_Node'Class;
-         Exc : Exception_Occurrence) is
+         Exc  : Exception_Occurrence) is
       begin
          declare
-            Data      : constant Error_Data := Ctx.Last_Error;
+            Data      : constant Error_Data := Ctx.Eval_Ctx.Last_Error;
             LKQL_Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
             Diag      : constant Diagnostic :=
               (Sloc_Range => LKQL_Node.Sloc_Range,
@@ -401,8 +138,6 @@ package body Checker_App is
          end;
       end Handle_Error;
 
-      pragma Unreferenced (Context);
-
       In_Generic_Instantiation : Boolean := False;
       --  Track whether we are in the traversal of a generic instantiation, to
       --  only call rules that want to follow generic instantiations.
@@ -414,12 +149,12 @@ package body Checker_App is
       -----------
 
       function Visit (Node : Ada_Node'Class) return Visit_Status is
-         Result  : Primitive;
          Rc_Node : constant H.AST_Node_Holder :=
            Make_Ada_AST_Node (Node.As_Ada_Node);
          In_Generic_Instantiation_Old_Val : Boolean;
+
       begin
-         if Traverse_Instantiations
+         if Ctx.Traverse_Instantiations
            and then Node.Kind in Ada_Generic_Instantiation
          then
             --  Save old value, and set In_Generic_Instantiation to true
@@ -432,12 +167,11 @@ package body Checker_App is
             --  Also traverse the body of the generic, if there is one
             declare
                Generic_Body : constant Body_Node :=
-                 Node.As_Generic_Instantiation
-                   .P_Designated_Generic_Decl.P_Body_Part_For_Decl;
+                 Node.As_Generic_Instantiation.
+                   P_Designated_Generic_Decl.P_Body_Part_For_Decl;
             begin
                if not Generic_Body.Is_Null then
-                  Traverse
-                    (Generic_Body, Visit'Access);
+                  Traverse (Generic_Body, Visit'Access);
                end if;
             end;
 
@@ -451,9 +185,9 @@ package body Checker_App is
          --  Note that we need to do it after traversing instantiations,
          --  otherwise the context will be overriden.
 
-         Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
+         Ctx.Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
 
-         for Rule of Cached_Rules (Node.Kind) loop
+         for Rule of Ctx.Cached_Rules (Node.Kind) loop
 
             --  Skip unit check rules
 
@@ -475,61 +209,49 @@ package body Checker_App is
                --  The check is a "bool check", ie. a check that returns a
                --  boolean.  Eval the call to the check function
 
-               Result := Eval (Rule.Eval_Ctx, Rule.Code, Kind_Bool);
+               if Bool_Val (Eval (Rule.Eval_Ctx, Rule.Code, Kind_Bool)) then
 
-               --  The result node is the current node, if the check
-               --  returned true.
+                  --  The result node is the current node
 
-               Result_Node :=
-                 (if Bool_Val (Result)
-                  then Node.As_Ada_Node
-                  else No_Ada_Node);
-
-               if Result_Node /= No_Ada_Node then
+                  Result_Node := Node.As_Ada_Node;
 
                   --  If the result node is a decl, grab its defining
                   --  identifier, so that the diagnostic spans only one line.
                   --  TODO: this logic could somehow be hoisted directly into
                   --  langkit diagnostics.
 
-                  Result_Node :=
-                    (if Result_Node.Kind in Ada_Basic_Decl and then
-                        --  Some basic decls don't have a defining name,
-                        --  e.g. Anonymous_Type_Decl.
-                        not Result_Node.As_Basic_Decl.P_Defining_Name.Is_Null
-                     then Result_Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node
-                     else Result_Node.As_Ada_Node);
+                  if Result_Node.Kind in Ada_Basic_Decl and then
+                     --  Some basic decls don't have a defining name,
+                     --  e.g. Anonymous_Type_Decl.
+                    not Result_Node.As_Basic_Decl.P_Defining_Name.Is_Null
+                  then
+                     Result_Node :=
+                       Result_Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node;
+                  end if;
 
-                  case Args.Output_Style.Get is
-                     when GNATcheck =>
-                        Ada.Text_IO.Put
-                          (Simple_Name (Result_Node.Unit.Get_Filename) & ":"
-                           & Stripped_Image
-                               (Integer (Result_Node.Sloc_Range.Start_Line))
-                           & ":"
-                           & Stripped_Image
-                               (Integer (Result_Node.Sloc_Range.Start_Column))
-                           & ": ");
-                        Put_Line (To_Text (Rule.Message));
-
-                     when Default =>
-                        declare
-                           Diag : constant Eval_Diagnostic := Eval_Diagnostic'
-                             (Diagnostic'
-                                (Result_Node.Sloc_Range,
-                                 To_Unbounded_Text (To_Text (Rule.Message))),
-                              Result_Node.Unit);
-                        begin
-                           Output.Print_Diagnostic
-                             (Diag.Diag,
-                              Diag.Unit,
-                              Simple_Name (Diag.Unit.Get_Filename),
-                              Style => Output.Diagnostic_Style'
-                                (Label => To_Unbounded_Text ("rule violation"),
-                                 Color => Yellow));
-                        end;
-                  end case;
+                  if Emit_Message /= null then
+                     Emit_Message
+                       (Rule.Message, Result_Node.Unit, Rule.Name,
+                        Result_Node.Sloc_Range);
+                  else
+                     declare
+                        Diag : constant Eval_Diagnostic := Eval_Diagnostic'
+                          (Diagnostic'
+                             (Result_Node.Sloc_Range,
+                              To_Unbounded_Text (To_Text (Rule.Message))),
+                           Result_Node.Unit);
+                     begin
+                        Output.Print_Diagnostic
+                          (Diag.Diag,
+                           Diag.Unit,
+                           Simple_Name (Diag.Unit.Get_Filename),
+                           Style => Output.Diagnostic_Style'
+                             (Label => To_Unbounded_Text ("rule violation"),
+                              Color => Yellow));
+                     end;
+                  end if;
                end if;
+
             exception
                when E : LKQL.Errors.Stop_Evaluation_Error =>
                   Handle_Error (Rule, Node, E);
@@ -553,13 +275,13 @@ package body Checker_App is
       end Visit;
 
    begin
-      Ctx.Add_Binding
+      Ctx.Eval_Ctx.Add_Binding
         ("unit",
          To_Primitive (H.Create_Unit_Ref (Ada_AST_Unit'(Unit => Unit))));
 
       Traverse (Unit.Root, Visit'Access);
 
-      for Rule of Cached_Rules (Unit.Root.Kind) loop
+      for Rule of Ctx.Cached_Rules (Unit.Root.Kind) loop
          begin
             if Rule.Is_Unit_Check then
                declare
@@ -569,30 +291,33 @@ package body Checker_App is
                   if Result.Get.Kind = Kind_Iterator then
                      Result := To_List (Result.Get.Iter_Val.all);
                   end if;
-                  Check_Kind (Ctx, Rule.LKQL_Root, Kind_List, Result);
+
+                  Check_Kind (Ctx.Eval_Ctx, Rule.LKQL_Root, Kind_List, Result);
 
                   for El of Result.Get.List_Val.Elements loop
-                     Check_Kind (Ctx, Rule.LKQL_Root, Kind_Object, El);
+                     Check_Kind
+                       (Ctx.Eval_Ctx, Rule.LKQL_Root, Kind_Object, El);
 
                      declare
                         Loc_Val : constant Primitive :=
-                          Extract_Value (El, "loc", Ctx, No_Kind,
+                          Extract_Value (El, "loc", Ctx.Eval_Ctx, No_Kind,
                                          Location => Rule.LKQL_Root);
 
                         Loc : Source_Location_Range;
 
                         Message : constant Unbounded_Text_Type :=
-                          Extract_Value (El, "message", Ctx, Kind_Str,
+                          Extract_Value (El, "message", Ctx.Eval_Ctx, Kind_Str,
                                          Location => Rule.LKQL_Root)
                           .Get.Str_Val;
 
                         Diag     : Diagnostic;
                         Loc_Unit : Analysis_Unit;
-                     begin
 
+                     begin
                         --  Loc can be either a token value or a node value. In
                         --  both cases we'll extract the source location and
                         --  the unit from it.
+
                         if Loc_Val.Get.Kind = Kind_Node then
                            declare
                               Node : constant Ada_AST_Node :=
@@ -602,6 +327,7 @@ package body Checker_App is
                               Loc := Node.Node.Sloc_Range;
                               Loc_Unit := Node.Node.Unit;
                            end;
+
                         elsif Loc_Val.Get.Kind = Kind_Token then
                            declare
                               Token : constant Ada_AST_Token :=
@@ -613,14 +339,19 @@ package body Checker_App is
                            end;
                         end if;
 
-                        Diag := (Message => Message, Sloc_Range => Loc);
-                        Output.Print_Diagnostic
-                          (Self        => Diag,
-                           Buffer      => Loc_Unit,
-                           Path        => Simple_Name (Loc_Unit.Get_Filename),
-                           Style       => Output.Diagnostic_Style'
-                            (Label => To_Unbounded_Text ("rule violation"),
-                             Color => Yellow));
+                        if Emit_Message /= null then
+                           Emit_Message (Message, Loc_Unit, Rule.Name, Loc);
+                        else
+                           Diag := (Message => Message, Sloc_Range => Loc);
+                           Output.Print_Diagnostic
+                             (Self        => Diag,
+                              Buffer      => Loc_Unit,
+                              Path        =>
+                                Simple_Name (Loc_Unit.Get_Filename),
+                              Style       => Output.Diagnostic_Style'
+                               (Label => To_Unbounded_Text ("rule violation"),
+                                Color => Yellow));
+                        end if;
                      end;
                   end loop;
                end;
@@ -632,6 +363,289 @@ package body Checker_App is
       end loop;
    end Process_Unit;
 
+   Ctx : LKQL_Context;
+
+   procedure Process_Unit (Context : App_Job_Context; Unit : Analysis_Unit) is
+      pragma Unreferenced (Context);
+
+      procedure Emit_Message
+        (Message    : Unbounded_Text_Type;
+         Unit       : Analysis_Unit;
+         Rule       : Unbounded_Text_Type;
+         Sloc_Range : Source_Location_Range);
+      --  Callback to emit a gnatcheck-like message on stdout
+
+      ------------------
+      -- Emit_Message --
+      ------------------
+
+      procedure Emit_Message
+        (Message    : Unbounded_Text_Type;
+         Unit       : Analysis_Unit;
+         Rule       : Unbounded_Text_Type;
+         Sloc_Range : Source_Location_Range)
+      is
+         pragma Unreferenced (Rule);
+      begin
+         Ada.Text_IO.Put
+           (Simple_Name (Unit.Get_Filename) & ":"
+            & Stripped_Image
+                (Integer (Sloc_Range.Start_Line))
+            & ":"
+            & Stripped_Image
+                (Integer (Sloc_Range.Start_Column))
+            & ": ");
+         Put_Line (To_Text (Message));
+      end Emit_Message;
+
+   begin
+      Process_Unit
+        (Ctx, Unit,
+         (if Args.Output_Style.Get = GNATcheck
+          then Emit_Message'Access else null));
+   end Process_Unit;
+
+   package Rules_Args_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Unbounded_Text_Type,
+      Element_Type    => Rule_Argument_Vectors.Vector,
+      Hash            => Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Hash,
+      Equivalent_Keys => Ada.Strings.Wide_Wide_Unbounded."=",
+      "="             => Rule_Argument_Vectors."=");
+
+   procedure Process_Rules;
+   --  Process input rules: Put the rules that have been requested by the user
+   --  in the ``Cached_Rules`` data structures.
+
+   -----------
+   -- Rules --
+   -----------
+
+   procedure Process_Rules is
+      package LI renames Libadalang.Introspection;
+      package LCO renames Libadalang.Common;
+
+      --  TODO: This should be removed once we have Kind_First/Kind_Last on
+      --  Node_Type_Id (U412-016).
+
+      type Ada_Node_Kind_Set is array (Ada_Node_Kind_Type) of Boolean;
+      --  A set of ada nodes, represented as a boolean array
+      --  NOTE: Should we pack it ?
+
+      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set;
+      --  Return the ``Kind_Set`` corresponding to a given Type_Id. For a leaf
+      --  node type (e.g. with no child types), it will return a set with only
+      --  the bit for  this type set. For a non leaf node, will return an array
+      --  with the bit for the type and all descendants set.
+
+      procedure Append_Rule (Rule : Rule_Command);
+      --  Append the given rule to ``Cached_Rules``.
+
+      Explicit_Rules_Names : constant Args.Rules.Result_Array :=
+        Args.Rules.Get;
+
+      Additional_Rules_Dirs : constant Path_Array :=
+         Path_Array (Args.Rules_Dirs.Get);
+
+      Rules_Args_Map : Rules_Args_Maps.Map;
+      --  Map from argument names to argument values.
+
+      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set is
+
+         procedure Internal (Id : LCO.Node_Type_Id);
+
+         Ret : Ada_Node_Kind_Set := (others => False);
+
+         --------------
+         -- Internal --
+         --------------
+
+         procedure Internal (Id : LCO.Node_Type_Id) is
+         begin
+            if LI.Is_Concrete (Id) then
+               Ret (LI.Kind_For (Id)) := True;
+            end if;
+            for T of LI.Derived_Types (Id) loop
+               Internal (T);
+            end loop;
+         end Internal;
+
+      begin
+         Internal (Id);
+         return Ret;
+      end Kind_Set;
+
+      use Rule_Vectors;
+
+      procedure Append_Rule (Rule : Rule_Command) is
+         use Liblkqllang.Analysis;
+      begin
+         if Rule.Kind_Pattern /= No_Node_Kind_Pattern then
+            declare
+               Type_Id : constant LCO.Node_Type_Id :=
+                 LI.Lookup_DSL_Name (Rule.Kind_Pattern.F_Kind_Name.Text);
+               KS      : constant Ada_Node_Kind_Set :=
+                 Kind_Set (Type_Id);
+            begin
+               for I in KS'Range loop
+                  if KS (I) then
+                     Ctx.Cached_Rules (I).Append (Rule);
+                  end if;
+               end loop;
+            end;
+         else
+            for I in Ctx.Cached_Rules'Range loop
+               Ctx.Cached_Rules (I).Append (Rule);
+            end loop;
+         end if;
+
+         --  If we have one rule that needs to follow instantiations, then set
+         --  the traversal to traverse them.
+
+         if Rule.Follow_Instantiations then
+            Ctx.Traverse_Instantiations := True;
+         end if;
+      end Append_Rule;
+
+   begin
+      if not Ctx.All_Rules.Is_Empty then
+         return;
+      end if;
+
+      Ctx.All_Rules := All_Rules (Ctx.Eval_Ctx, Additional_Rules_Dirs);
+
+      --  Compute the map of argument names to values.
+
+      for Rule_Arg of Args.Rules_Args.Get loop
+         declare
+            Dummy : Boolean;
+            C     : Rules_Args_Maps.Cursor;
+         begin
+            Rules_Args_Map.Insert
+              (Rule_Arg.Rule_Name,
+               Rule_Argument_Vectors.Empty_Vector,
+               C, Dummy);
+
+            Rules_Args_Map.Reference (C).Append (Rule_Arg.Arg);
+         end;
+      end loop;
+
+      --  Then, process potential arguments for those rules
+
+      for Rule of Ctx.All_Rules loop
+         declare
+            Rule_Name : constant Unbounded_Text_Type := Rule.Name;
+            C         : constant Rules_Args_Maps.Cursor
+              := Rules_Args_Map.Find (Rule_Name);
+         begin
+            --  Modify the rule command in place, by appending an argument to
+            --  the Rule_Command's arg vector.
+
+            if Rule.Is_Unit_Check then
+               Rule.Rule_Args.Append
+                 (Rule_Argument'(Name  => To_Unbounded_Text ("unit"),
+                                 Value => To_Unbounded_Text ("unit")));
+            else
+               Rule.Rule_Args.Append
+                 (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
+                                 Value => To_Unbounded_Text ("node")));
+            end if;
+
+            if Rules_Args_Maps.Has_Element (C) then
+               for Arg of Rules_Args_Map.Reference (C) loop
+                  Rule.Rule_Args.Append (Arg);
+               end loop;
+            end if;
+         end;
+
+         --  Call prepare *after* processing the arguments, since it needs the
+         --  arguments processed.
+         Rule.Prepare;
+      end loop;
+
+      --  First, process the set of rules that has to be ran.
+
+      if Explicit_Rules_Names'Length = 0 then
+         --  No rules passed by the user: return all rules
+         for Rule of Ctx.All_Rules loop
+            Append_Rule (Rule);
+         end loop;
+
+      else
+         --  Some rules passed by the user: only return the ones specified
+         for Explicit_Rule_Name of Explicit_Rules_Names loop
+            declare
+               Found : Boolean := False;
+            begin
+               for R of Ctx.All_Rules loop
+                  if To_Lower (To_Text (To_String (Explicit_Rule_Name)))
+                    = To_Text (R.Name)
+                  then
+                     Append_Rule (R);
+                     Found := True;
+                  end if;
+               end loop;
+               if not Found then
+                  raise Exit_App with "no such rule - "
+                    & To_String (Explicit_Rule_Name);
+               end if;
+            end;
+         end loop;
+      end if;
+   end Process_Rules;
+
+   ---------------
+   -- Job_Setup --
+   ---------------
+
+   procedure Job_Setup (Context : App_Job_Context) is
+      Dummy : Primitive;
+      Units : Unit_Vectors.Vector;
+      Files : String_Vectors.Vector;
+
+   begin
+      case Context.App_Ctx.Provider.Kind is
+         when Project_File =>
+            List_Sources_From_Project
+              (Context.App_Ctx.Provider.Project.all, False, Files);
+
+            for F of Files loop
+               Units.Append
+                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
+            end loop;
+
+         when Default =>
+            for F of App.Args.Files.Get loop
+               Units.Append
+                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
+            end loop;
+
+         when others =>
+            --  ??? Should we worry about this case and fill Units
+            null;
+      end case;
+
+      Ctx.Eval_Ctx := Make_Eval_Context (Units);
+      Ctx.Analysis_Ctx := Context.Analysis_Ctx;
+      Process_Rules;
+
+      for Rule of Ctx.All_Rules loop
+         --  Eval the rule's code (which should contain only definitions). TODO
+         --  this should be encapsulated.
+         begin
+            Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
+         exception
+            when others =>
+               Put ("internal error loading rule ");
+               Put (To_Wide_Wide_String (Rule.Name));
+               Put_Line (":");
+               raise;
+         end;
+      end loop;
+
+      --  Set property error recovery with the value of the command line flag.
+      LKQL.Errors.Property_Error_Recovery := Args.Property_Error_Recovery.Get;
+   end Job_Setup;
+
    ----------------------
    -- App_Post_Process --
    ----------------------
@@ -642,7 +656,7 @@ package body Checker_App is
    is
       pragma Unreferenced (Context, Jobs);
    begin
-      Finalize_Rules (Ctx);
+      Finalize_Rules (Ctx.Eval_Ctx);
    end App_Post_Process;
 
    package body Args is

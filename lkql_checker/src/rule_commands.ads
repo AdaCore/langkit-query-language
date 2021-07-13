@@ -48,8 +48,15 @@ package Rule_Commands is
       --  Value of the argument, as a string.
    end record;
 
-   package Rule_Argument_Vectors
-   is new Ada.Containers.Vectors (Positive, Rule_Argument);
+   package Rule_Argument_Vectors is new
+     Ada.Containers.Vectors (Positive, Rule_Argument);
+
+   type Rule_Param_Kind is
+     (No_Param, One_Integer, One_Boolean, One_String, Custom);
+   --  Specifies how parameters are handled by the rule
+
+   type Remediation_Levels is (Trivial, Easy, Medium, Major, High, Complex);
+   --  Difficulty to address the rule violation.
 
    type Rule_Command is tagged record
       Name          : Unbounded_Text_Type;
@@ -58,6 +65,10 @@ package Rule_Commands is
       Message       : Unbounded_Text_Type;
       --  Diagnostic messages associated with the rule.
       --  Defaults to Name if not specified.
+
+      Help          : Unbounded_Text_Type;
+      --  Short help message associated with the rule.
+      --  Defaults to Message if not specified.
 
       LKQL_Root     : L.LKQL_Node;
       --  Root of the LKQL AST
@@ -84,6 +95,18 @@ package Rule_Commands is
 
       Follow_Instantiations : Boolean;
       --  Whether we should follow generic instantiations or not for this rule.
+
+      Param_Kind : Rule_Param_Kind;
+      --  Category of parameters.
+
+      Parameters : L.Parameter_Decl_List;
+      --  List of formal parameters for this rule.
+
+      Remediation_Level : Remediation_Levels;
+      --  Remediation level to compute technical debt.
+
+      Parametric_Exemption : Boolean;
+      --  Whether this rule allows parametric exemption.
    end record;
 
    type Output_Style is (Default, GNATcheck);

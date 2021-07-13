@@ -2,7 +2,7 @@
 # statement is enclosed by another loop statement or if it encloses another
 # loop statement.
 
-@unit_check
+@unit_check(help="compound statements naming", remediation="EASY")
 fun unnamed_blocks_and_loops(unit) = [
     {message: "non-named " &
               (if n is BlockStmt then "block"

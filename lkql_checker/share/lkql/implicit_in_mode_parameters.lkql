@@ -2,7 +2,8 @@
 # that access parameters, although they technically behave like in parameters,
 # are not flagged.
 
-@check(message="implicit IN mode in parameter specification")
+@check(message="implicit IN mode in parameter specification",
+       remediation="TRIVIAL")
 fun implicit_in_mode_parameters(node) =
     node is ParamSpec(f_mode is ModeDefault)
     when not node.f_type_expr is

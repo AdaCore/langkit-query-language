@@ -25,11 +25,17 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNATCOLL.Opt_Parse;
 
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
+
 with Libadalang.Analysis; use Libadalang.Analysis;
+with Libadalang.Common; use Libadalang.Common;
 with Libadalang.Helpers; use Libadalang.Helpers;
 
 with LKQL.Errors;
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with Rule_Commands; use Rule_Commands;
+with Rules_Factory; use Rules_Factory;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 package Checker_App is
@@ -38,11 +44,43 @@ package Checker_App is
    --  Exception raised by the app if it wants to exit with an error status and
    --  a message.
 
+   type Rules_By_Kind is array (Ada_Node_Kind_Type) of Rule_Vector;
+
+   type LKQL_Context is record
+      Analysis_Ctx : Analysis_Context;
+      Eval_Ctx     : Eval_Context;
+      Cached_Rules : Rules_By_Kind := (others => Rule_Vectors.Empty_Vector);
+      --  Data structure mapping node kinds to the checks that should be ran
+      --  when this node type is encountered.
+
+      All_Rules : Rule_Vector;
+      --  All known rules
+
+      Traverse_Instantiations : Boolean := False;
+      --  Whether we should traverse generic instantiations. This will be set
+      --  to true if there is at least one rule in the active set of rules that
+      --  requires it. This is used so we don't traverse generic instantiations
+      --  if no rule requires it.
+   end record;
+   --  Context giving access to all the "global" data structures for an LKQL
+   --  analysis.
+
    procedure Job_Setup (Context : App_Job_Context);
 
    procedure Process_Unit
+     (Ctx                     : LKQL_Context;
+      Unit                    : Analysis_Unit;
+      Emit_Message            :
+        access procedure (Message    : Unbounded_Text_Type;
+                          Unit       : Analysis_Unit;
+                          Rule       : Unbounded_Text_Type;
+                          Sloc_Range : Source_Location_Range) := null);
+   --  Process one analysis unit.
+   --  Call Emit_Message on each match, if non null.
+
+   procedure Process_Unit
      (Context : App_Job_Context; Unit : Analysis_Unit);
-   --  This procedure will be called once after all units have been parsed.
+   --  Process one analysis unit in a given context
 
    procedure App_Post_Process
      (Context : App_Context; Jobs : App_Job_Context_Array);

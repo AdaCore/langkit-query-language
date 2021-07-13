@@ -1,6 +1,6 @@
 # Flag any exception handler with no others choice.
 
-@unit_check
+@unit_check(help="no OTHERS choice in exception handlers")
 fun no_others_in_exception_handlers(unit) = [
     {message: "no OTHERS choice in exception handler",
      loc: n.f_exceptions.token_start().previous}

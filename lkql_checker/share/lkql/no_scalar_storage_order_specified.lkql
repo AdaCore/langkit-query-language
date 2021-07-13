@@ -4,7 +4,7 @@
 # type nor any of its ancestors has an explicitly specified
 # Scalar_Storage_Order attribute.
 
-@check(message="Scalar_Storage_Order is not specified")
+@check(message="Scalar_Storage_Order is not specified", remediation="EASY")
 fun no_scalar_storage_order_specified(node) =
     (match node
      | RecordTypeDef  => not node.parent?.p_has_aspect("Scalar_Storage_Order")

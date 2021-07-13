@@ -6,7 +6,7 @@
 
 import stdlib
 
-@check(message="object of anonymous type")
+@check(message="object of anonymous type", remediation="EASY")
 fun objects_of_anonymous_types(node) =
     node is ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
                                                AnonymousTypeDecl))

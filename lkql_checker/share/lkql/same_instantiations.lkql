@@ -34,7 +34,7 @@ fun same_instance(node) =
              i.f_generic_pkg_name.p_referenced_decl()
          and same_params(node.f_params, i.f_params)
 
-@unit_check
+@unit_check(help="duplicate generic package instantiations")
 fun same_instantiations(unit) = [
     {message: "same instantiation found at " &
               stdlib.sloc_image(same_instance(n)), loc: n}

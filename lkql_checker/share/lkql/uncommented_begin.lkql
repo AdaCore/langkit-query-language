@@ -5,7 +5,8 @@
 
 import stdlib
 
-@unit_check
+@unit_check(help="BEGIN not marked with entity name comment",
+            remediation="EASY")
 fun uncommented_begin(unit) = [
     {message: "mark BEGIN with -- " & n.parent.p_defining_name().text,
      loc: n}

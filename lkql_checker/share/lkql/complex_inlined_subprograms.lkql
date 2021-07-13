@@ -41,7 +41,7 @@ fun is_complex_subp(node, n) =
     # Check for number of statements
     [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n
 
-@unit_check
+@unit_check(help="complex inlined subprograms")
 fun complex_inlined_subprograms(unit, n : int = 5) = [
     {message: if complex_declaration(stdlib.get_subp_body(nod)?.f_decls) is
                  decl@AdaNode

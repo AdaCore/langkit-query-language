@@ -21,6 +21,10 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Conversions; use Ada.Characters.Conversions;
+with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 with Exec; use Exec;
@@ -31,8 +35,6 @@ with Libadalang.Common; use Libadalang.Common;
 
 with Liblkqllang.Common;
 with Liblkqllang.Iterators; use Liblkqllang.Iterators;
-with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 with LKQL.Primitives;    use LKQL.Primitives;
 
@@ -43,15 +45,17 @@ package body Rule_Commands is
    function Find_Toplevel_Node_Kind_Pattern
      (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern;
 
+   function Find_Param_Kind
+     (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
+   --  Return the parameter kind for the given function body Node.
+
    --------------------------------
    -- Find_Toplevel_Node_Pattern --
    --------------------------------
 
    function Find_Toplevel_Node_Kind_Pattern
-     (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern
-   is
+     (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern is
    begin
-      --  Put_Line (Node.Kind'Image);
       case Node.Kind is
          when LCO.LKQL_Is_Clause =>
             return Find_Toplevel_Node_Kind_Pattern
@@ -72,6 +76,27 @@ package body Rule_Commands is
       end case;
    end Find_Toplevel_Node_Kind_Pattern;
 
+   ---------------------
+   -- Find_Param_Kind --
+   ---------------------
+
+   function Find_Param_Kind
+     (Params : L.Parameter_Decl_List) return Rule_Param_Kind is
+   begin
+      if Params.Last_Child_Index = 1 then
+         return No_Param;
+      elsif Params.Last_Child_Index = 2 then
+         case Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind is
+            when LCO.LKQL_Integer_Literal => return One_Integer;
+            when LCO.LKQL_Bool_Literal    => return One_Boolean;
+            when LCO.LKQL_String_Literal  => return One_String;
+            when others                   => null;
+         end case;
+      end if;
+
+      return Custom;
+   end Find_Param_Kind;
+
    -------------------------
    -- Create_Rule_Command --
    -------------------------
@@ -86,6 +111,7 @@ package body Rule_Commands is
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
           (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
+
    begin
       if Check_Annotation.Is_Null
         or else Check_Annotation.F_Name.Text not in "check" | "unit_check"
@@ -98,48 +124,114 @@ package body Rule_Commands is
            := Check_Annotation.Parent.As_Fun_Decl;
          Msg_Arg               : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
+         Help_Arg              : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("help"));
+         Parametric_Exemption_Arg : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name
+             (To_Unbounded_Text ("parametric_exemption"));
+         Remediation_Arg       : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name
+             (To_Unbounded_Text ("remediation"));
          Msg                   : Unbounded_Text_Type;
-         Name                  : constant Text_Type :=
-           Fn.F_Name.Text;
+         Help                  : Unbounded_Text_Type;
+         Remediation_Level     : Remediation_Levels := Medium;
+         Parametric_Exemption  : Boolean := False;
+         Name                  : constant Text_Type := Fn.F_Name.Text;
          Toplevel_Node_Pattern : L.Node_Kind_Pattern;
 
          Follow_Instantiations_Arg : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("follow_generic_instantiations"));
          Follow_Instantiations : Boolean := False;
+         Param_Kind            : Rule_Param_Kind;
+
          use LCO;
+
+         procedure Get_Text
+           (Arg     : L.Arg;
+            Default : Unbounded_Text_Type;
+            Text    : out Unbounded_Text_Type);
+         --  Get text value from Arg and store result in Text. Defaults to
+         --  Default if Arg is null.
+
+         --------------
+         -- Get_Text --
+         --------------
+
+         procedure Get_Text
+           (Arg     : L.Arg;
+            Default : Unbounded_Text_Type;
+            Text    : out Unbounded_Text_Type) is
+         begin
+            if Arg.Is_Null then
+               Text := Default;
+            else
+               --  Make sure that the message is a string literal
+
+               if Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
+                  raise Rule_Error with
+                    "argument for @" &
+                    To_String (Check_Annotation.F_Name.Text) &
+                    " must be a string literal";
+               end if;
+
+               --  Store the literal, getting rid of the starting & end quotes
+
+               Text := To_Unbounded_Text (Arg.P_Expr.As_String_Literal.Text);
+               Delete (Text, Length (Text), Length (Text));
+               Delete (Text, 1, 1);
+            end if;
+         end Get_Text;
+
       begin
          Toplevel_Node_Pattern :=
            Find_Toplevel_Node_Kind_Pattern (Fn.F_Fun_Expr.F_Body_Expr);
-         --  Get the message from the annotation if it exists
+         Param_Kind := Find_Param_Kind (Fn.F_Fun_Expr.F_Parameters);
 
          --  Get the "follow_generic_instantiations" settings if the user
          --  specified one. By default it is false.
+
          if not Follow_Instantiations_Arg.Is_Null then
             Follow_Instantiations :=
               Bool_Val
                 (Eval (Ctx, Follow_Instantiations_Arg.P_Expr, Kind_Bool));
          end if;
 
-         if not Msg_Arg.Is_Null then
-            --  Make sure that the message is a string literal
-            if Msg_Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
-               raise Rule_Error
-                 with "message argument for @check/@unit_check must be a " &
-                 "string literal";
+         if not Parametric_Exemption_Arg.Is_Null then
+            Parametric_Exemption :=
+              Bool_Val
+                (Eval (Ctx, Parametric_Exemption_Arg.P_Expr, Kind_Bool));
+         end if;
+
+         Get_Text (Msg_Arg, To_Unbounded_Text (Name), Msg);
+         Get_Text (Help_Arg, Msg, Help);
+
+         if not Remediation_Arg.Is_Null then
+            if Remediation_Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
+               raise Rule_Error with
+                 "argument for @" &
+                 To_String (Check_Annotation.F_Name.Text) &
+                 " must be a string literal";
             end if;
 
-            --  Store the literal, getting rid of the starting and end quotes
-            Msg := To_Unbounded_Text (Msg_Arg.P_Expr.As_String_Literal.Text);
-            Delete (Msg, Length (Msg), Length (Msg));
-            Delete (Msg, 1, 1);
-         else
-            Msg := To_Unbounded_Text (To_Lower (Name));
+            declare
+               Str : constant String :=
+                 To_String (Remediation_Arg.P_Expr.As_String_Literal.Text);
+            begin
+               Remediation_Level := Remediation_Levels'Value
+                 (Str (Str'First + 1 .. Str'Last - 1));
+            exception
+               when others =>
+                  raise Rule_Error with
+                    "invalid argument for @" &
+                    To_String (Check_Annotation.F_Name.Text);
+            end;
          end if;
 
          Rc := Rule_Command'
            (Name                  => To_Unbounded_Text (To_Lower (Name)),
             Message               => Msg,
+            Help                  => Help,
             LKQL_Root             => Root,
             Eval_Ctx              => Ctx.Create_New_Frame,
             Rule_Args             => <>,
@@ -147,7 +239,11 @@ package body Rule_Commands is
               Check_Annotation.F_Name.Text = "unit_check",
             Code                  => <>,
             Kind_Pattern          => Toplevel_Node_Pattern,
-            Follow_Instantiations => Follow_Instantiations);
+            Follow_Instantiations => Follow_Instantiations,
+            Param_Kind            => Param_Kind,
+            Parameters            => Fn.F_Fun_Expr.F_Parameters,
+            Remediation_Level     => Remediation_Level,
+            Parametric_Exemption  => Parametric_Exemption);
          return True;
       end;
    end Create_Rule_Command;
