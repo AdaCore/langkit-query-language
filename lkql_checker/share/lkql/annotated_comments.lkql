@@ -3,13 +3,13 @@
 # --<special_character> *<comment_marker>
 
 @unit_check
-fun annotated_comments(unit, special_character="#", comment_marker="") = [
+fun annotated_comments(unit, s="#") = [
     {message: "annotated comment", loc: tok}
     for tok in unit.tokens
     if tok.kind == "ADA_COMMENT" and
-       tok.text.starts_with("--" & special_character) and
-       tok.text.ends_with(comment_marker) and
-       match tok.text.substring(4, tok.text.length - comment_marker.length)
+       tok.text.starts_with("--" & s.substring(1, 1)) and
+       tok.text.ends_with(s.substring(2, s.length)) and
+       match tok.text.substring(4, tok.text.length - s.length + 1)
        | "[ \t]*" => true
        | *        => false
 ]
