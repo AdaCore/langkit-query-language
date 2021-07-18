@@ -71,6 +71,19 @@ package body LKQL.Unit_Utils is
       Ret : Unbounded_Text_Type;
       Idx : Positive := S'First;
 
+      function Decode_Hex (C : Wide_Wide_Character) return Natural
+      is (case C is
+          when '0' .. '9' =>
+             Wide_Wide_Character'Pos (C) - Wide_Wide_Character'Pos ('0'),
+          when 'a' .. 'f' =>
+             10 + Wide_Wide_Character'Pos (C) - Wide_Wide_Character'Pos ('a'),
+          when 'A' .. 'F' =>
+             10 + Wide_Wide_Character'Pos (C) - Wide_Wide_Character'Pos ('A'),
+          when others     =>
+             raise Unit_Creation_Error with "Invalid escape character");
+      --  Return the integer value corresponding to the given heaxdecimal
+      --  character.
+
       use Ada.Strings.Wide_Wide_Unbounded;
    begin
       --  Process escape sequences
@@ -83,18 +96,30 @@ package body LKQL.Unit_Utils is
                when '\' | '"' => Append (Ret, S (Idx + 1));
 
                --  Newline \n: append a LF char
-               when 'n' => Append (Ret, To_Text ("" & ASCII.LF));
+               when 'n' => Append (Ret, To_Text ((1 => ASCII.LF)));
+
+               --  Hex code
+               when 'x' =>
+                  Idx := Idx + 2;
+                  Append (Ret,
+                          Wide_Wide_Character'Val
+                            (Decode_Hex (S (Idx)) * 16 +
+                             Decode_Hex (S (Idx + 1))));
 
                --  Unsupported cases
-               when others => raise Unit_Creation_Error
+               when others =>
+                  raise Unit_Creation_Error
                     with "Unsupported escape character";
             end case;
+
             Idx := Idx + 2;
+
          else
             Append (Ret, S (Idx));
             Idx := Idx + 1;
          end if;
       end loop;
+
       return To_Text (Ret);
    end Preprocess_String;
 
