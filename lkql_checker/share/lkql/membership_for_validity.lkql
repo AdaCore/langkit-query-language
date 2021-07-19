@@ -3,7 +3,9 @@
 #   X in Subtype_Of_X'First .. Subtype_Of_X'Last
 
 fun type_of(name) =
-    name.p_referenced_decl()?.p_type_expression()?.p_designated_type_decl()
+    if name.p_referenced_decl().p_type_expression() is t@TypeExpr
+    then t.p_designated_type_decl()
+    else null
 
 @check(message="membership test instead of 'Valid")
 fun membership_for_validity(node) =
