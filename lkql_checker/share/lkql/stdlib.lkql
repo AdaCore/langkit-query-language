@@ -256,6 +256,7 @@ fun get_subp_body(node) =
     | ClassicSubpDecl => node.p_body_part()
     | GenericSubpInstantiation
                       => node.p_designated_generic_decl().p_body_part()
+    | SubpBodyStub    => node
     | BasicDecl when node.p_is_subprogram()
                       => node.p_body_part()
     | *               => null
