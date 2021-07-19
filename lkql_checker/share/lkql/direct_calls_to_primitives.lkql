@@ -16,8 +16,9 @@ fun is_parent_primitive(body, decl, parent_type) =
     body is BaseSubpBody
     when decl?.p_defining_name()?.f_name?.
          p_name_matches(body.p_defining_name()?.f_name) and
-         body.p_subp_spec_or_null()?.p_primitive_subp_tagged_type()?.
-         p_base_type() == parent_type?.p_full_view()
+         body.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() is
+             t@BaseTypeDecl
+             when t.p_base_type() == parent_type.p_full_view()
 
 @check(message="non-dispatching call to primitive operation")
 fun direct_calls_to_primitives(node, except_constructors=false) = node is
@@ -26,6 +27,6 @@ fun direct_calls_to_primitives(node, except_constructors=false) = node is
            decl@BasicDecl(p_subp_spec_or_null() is
                           spec@BaseSubpSpec(p_primitive_subp_tagged_type() is
                                             t@BaseTypeDecl))
-           when t?.p_is_tagged_type(node)
+           when t.p_is_tagged_type(node)
             and (not (except_constructors and stdlib.is_constructor(spec)))
             and not is_parent_primitive(stdlib.enclosing_body(node), decl, t))
