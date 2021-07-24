@@ -246,7 +246,7 @@ package Gnatcheck.Rules is
      (Rule         : Rule_Template;
       Indent_Level : Natural := 0);
    --  Similar to Print_Rule, but prints rule info into XML report file and
-   --  does not add "+R" prefix to the rile name.
+   --  does not add "+R" prefix to the rule name.
 
    function Rule_Option
      (Rule    : Rule_Template;
@@ -334,9 +334,6 @@ package Gnatcheck.Rules is
    type One_Boolean_Parameter_Rule is new Rule_Template with record
       Param : Tri_State;
    end record;
-   --  Rule_Limit specifies the maximal (or minimal) allowed number of some
-   --  property to be checked by the rule, this is supposed to be set by the
-   --  rule parameter.
 
    overriding procedure Init_Rule
      (Rule : in out One_Boolean_Parameter_Rule);
@@ -409,6 +406,51 @@ package Gnatcheck.Rules is
 
    overriding function Rule_Option
      (Rule    : One_String_Parameter_Rule;
+      Enabled : Boolean) return String;
+
+   --------------------------------------------------------
+   -- "One Integer and/or Many Booleans parameter" rule" --
+   --------------------------------------------------------
+
+   type Boolean_Parameters is array (2 .. 10) of Tri_State;
+
+   type One_Integer_Or_Booleans_Parameter_Rule is new Rule_Template with record
+      Integer_Param  : Integer;
+      Boolean_Params : Boolean_Parameters;
+   end record;
+
+   overriding procedure Init_Rule
+     (Rule : in out One_Integer_Or_Booleans_Parameter_Rule);
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out One_Integer_Or_Booleans_Parameter_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : One_Integer_Or_Booleans_Parameter_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : One_Integer_Or_Booleans_Parameter_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule
+     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
+      Indent_Level : Natural := 0);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
+      Indent_Level : Natural := 0);
+
+   overriding function Rule_Option
+     (Rule    : One_Integer_Or_Booleans_Parameter_Rule;
       Enabled : Boolean) return String;
 
    ----------------------------

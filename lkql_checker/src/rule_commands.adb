@@ -92,6 +92,21 @@ package body Rule_Commands is
             when LCO.LKQL_String_Literal  => return One_String;
             when others                   => null;
          end case;
+      else
+         if Params.Last_Child_Index <= 10
+           and then Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind in
+                    LCO.LKQL_Integer_Literal | LCO.LKQL_Bool_Literal
+         then
+            for J in 3 .. Params.Last_Child_Index loop
+               if Params.Child (J).As_Parameter_Decl.F_Default_Expr.Kind
+                 not in LCO.LKQL_Bool_Literal
+               then
+                  return Custom;
+               end if;
+            end loop;
+
+            return One_Integer_Or_Booleans;
+         end if;
       end if;
 
       return Custom;

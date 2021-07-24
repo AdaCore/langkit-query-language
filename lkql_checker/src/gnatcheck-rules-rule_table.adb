@@ -1150,7 +1150,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       for R of Ctx.All_Rules loop
          case R.Param_Kind is
-            when No_Param    =>
+            when No_Param =>
                Rule := new Rule_Template;
                Init_Rule (Rule_Template (Rule.all));
             when One_Integer =>
@@ -1159,13 +1159,30 @@ package body Gnatcheck.Rules.Rule_Table is
             when One_Boolean =>
                Rule := new One_Boolean_Parameter_Rule;
                Init_Rule (One_Boolean_Parameter_Rule (Rule.all));
-            when One_String  =>
+            when One_String =>
                Rule := new One_String_Parameter_Rule;
                Init_Rule (One_String_Parameter_Rule (Rule.all));
-            when Custom      =>
+            when One_Integer_Or_Booleans =>
+               Rule := new One_Integer_Or_Booleans_Parameter_Rule;
+               Init_Rule (One_Integer_Or_Booleans_Parameter_Rule (Rule.all));
+
+            when Custom =>
                --  ###
                Rule := new Rule_Template;
                Init_Rule (Rule_Template (Rule.all));
+
+               --  Custom rules to worry about:
+
+               --  identifier_suffixes: many suffix strings
+               --  identifier_prefixes: many prefix strings + exclusive boolean
+
+               --  parameters_out_of_order: array of strings (5)
+               --  name_clashes: array of strings read from a file
+               --  identifier_casing: 5 string params + exclude array of
+               --  strings from file
+
+               --  forbidden_attributes: all, forbidden [], allowed []
+               --  forbidden_pragmas: all, forbidden [], allowed []
          end case;
 
          Rule.Name := new String'(To_String (To_Wide_Wide_String (R.Name)));

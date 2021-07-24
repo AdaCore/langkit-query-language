@@ -26,6 +26,7 @@
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
@@ -93,6 +94,14 @@ package body Gnatcheck.Rules is
       Rule.Param := Integer'First;
    end Init_Rule;
 
+   procedure Init_Rule
+     (Rule : in out One_Integer_Or_Booleans_Parameter_Rule) is
+   begin
+      Init_Rule (Rule_Template (Rule));
+      Rule.Integer_Param := Integer'First;
+      Rule.Boolean_Params := (others => Unset);
+   end Init_Rule;
+
    ----------------
    -- Is_Enabled --
    ----------------
@@ -148,6 +157,30 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule;
 
+   overriding procedure Print_Rule
+     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
+      Indent_Level : Natural := 0)
+   is
+      Has_Param : Boolean := False;
+   begin
+      Print_Rule (Rule_Template (Rule), Indent_Level);
+
+      if Rule.Integer_Param /= Integer'First then
+         Report_No_EOL (": " & Image (Rule.Integer_Param));
+         Has_Param := True;
+      end if;
+
+      for J in Rule.Boolean_Params'Range loop
+         if Rule.Boolean_Params (J) = On then
+            Report_No_EOL (if Has_Param then ", " else ": ");
+            Report_No_EOL (To_String (Rule.Parameters.Child (J).
+                                      As_Parameter_Decl.F_Param_Identifier.
+                                      Text));
+            Has_Param := True;
+         end if;
+      end loop;
+   end Print_Rule;
+
    ------------------------
    -- Print_Rule_To_File --
    ------------------------
@@ -201,6 +234,31 @@ package body Gnatcheck.Rules is
       if Length (Rule.Param) /= 0 then
          Put (Rule_File, ": " & To_String (To_Wide_Wide_String (Rule.Param)));
       end if;
+   end Print_Rule_To_File;
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0)
+   is
+      Has_Param : Boolean := False;
+   begin
+      Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
+
+      if Rule.Integer_Param /= Integer'First then
+         Put (Rule_File, ": " & Image (Rule.Integer_Param));
+         Has_Param := True;
+      end if;
+
+      for J in Rule.Boolean_Params'Range loop
+         if Rule.Boolean_Params (J) = On then
+            Put (Rule_File, (if Has_Param then ", " else ": "));
+            Put (Rule_File, To_String (Rule.Parameters.Child (J).
+                                       As_Parameter_Decl.F_Param_Identifier.
+                                       Text));
+            Has_Param := True;
+         end if;
+      end loop;
    end Print_Rule_To_File;
 
    ---------------------
@@ -387,6 +445,73 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Rule_Parameter;
 
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out One_Integer_Or_Booleans_Parameter_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String) is
+   begin
+      if Param = "" then
+         if Enable then
+            Rule.Rule_State := Enabled;
+            Rule.Defined_At := new String'(Defined_At);
+         else
+            Rule.Integer_Param := Integer'First;
+            Rule.Boolean_Params := (others => Unset);
+            Rule.Rule_State := Disabled;
+         end if;
+      else
+         if Enable then
+            --  First try to extra an integer if not already set
+
+            if Rule.Integer_Param = Integer'First then
+               begin
+                  Rule.Integer_Param := Integer'Value (Param);
+
+                  if Rule.Integer_Param >= 0 then
+                     Rule.Rule_State := Enabled;
+                     Rule.Defined_At := new String'(Defined_At);
+                  else
+                     Error ("(" & Rule.Name.all & ") wrong parameter: " &
+                            Param);
+                     Rule.Integer_Param := Integer'First;
+                     Rule.Boolean_Params := (others => Unset);
+                     Rule.Rule_State := Disabled;
+                  end if;
+
+                  return;
+               exception
+                  when Constraint_Error =>
+                     null;
+               end;
+            end if;
+
+            --  Then find the relevant boolean parameter
+
+            for J in 2 .. Rule.Parameters.Last_Child_Index loop
+               if To_String (Rule.Parameters.Child (J).As_Parameter_Decl.
+                             F_Param_Identifier.Text) = To_Lower (Param)
+               then
+                  Rule.Boolean_Params (J) := On;
+                  Rule.Rule_State := Enabled;
+                  Rule.Defined_At := new String'(Defined_At);
+                  return;
+               end if;
+            end loop;
+
+            --  If we get there, it means we have no found any parameter
+
+            Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
+            Rule.Integer_Param := Integer'First;
+            Rule.Boolean_Params := (others => Unset);
+            Rule.Rule_State := Disabled;
+
+         else
+            Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
+         end if;
+      end if;
+   end Process_Rule_Parameter;
+
    --------------------
    -- Map_Parameters --
    --------------------
@@ -433,6 +558,35 @@ package body Gnatcheck.Rules is
                           As_Parameter_Decl.F_Param_Identifier.Text),
               Value => To_Unbounded_Text (To_Wide_Wide_String (Rule.Param))));
       end if;
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Rule : One_Integer_Or_Booleans_Parameter_Rule;
+      Args : in out Rule_Argument_Vectors.Vector)
+   is
+   begin
+      if Rule.Integer_Param /= Integer'First then
+         Args.Append
+           (Rule_Argument'(Name  => To_Unbounded_Text
+                                      (Rule.Parameters.Child (2).
+                                       As_Parameter_Decl.F_Param_Identifier.
+                                       Text),
+                           Value => To_Unbounded_Text
+                                      (Rule.Integer_Param'Wide_Wide_Image)));
+      end if;
+
+      for J in 2 .. Rule.Parameters.Last_Child_Index loop
+         if Rule.Boolean_Params (J) /= Unset then
+            Args.Append
+              (Rule_Argument'
+                (Name  => To_Unbounded_Text
+                            (Rule.Parameters.Child (J).
+                             As_Parameter_Decl.F_Param_Identifier.Text),
+                 Value => To_Unbounded_Text
+                            (if Rule.Boolean_Params (J) = On
+                             then "true" else "false")));
+         end if;
+      end loop;
    end Map_Parameters;
 
    ------------------
@@ -506,6 +660,37 @@ package body Gnatcheck.Rules is
       end if;
    end Rule_Option;
 
+   function Rule_Option
+     (Rule    : One_Integer_Or_Booleans_Parameter_Rule;
+      Enabled : Boolean) return String
+   is
+      use Ada.Strings.Unbounded;
+
+      Result    : Unbounded_String :=
+        To_Unbounded_String (Rule_Option (Rule_Template (Rule), Enabled));
+      Has_Param : Boolean := False;
+
+   begin
+      if Enabled then
+         if Rule.Integer_Param /= Integer'First then
+            Append (Result, ": " & Image (Rule.Integer_Param));
+            Has_Param := True;
+         end if;
+
+         for J in Rule.Boolean_Params'Range loop
+            if Rule.Boolean_Params (J) = On then
+               Append (Result, (if Has_Param then ", " else ": "));
+               Append (Result, To_String (Rule.Parameters.Child (J).
+                                          As_Parameter_Decl.F_Param_Identifier.
+                                          Text));
+               Has_Param := True;
+            end if;
+         end loop;
+      end if;
+
+      return To_String (Result);
+   end Rule_Option;
+
    --------------------
    -- Rule_Parameter --
    --------------------
@@ -568,9 +753,11 @@ package body Gnatcheck.Rules is
         ("<rule id=""" & Rule_Name (Rule) & """>",
          Indent_Level);
 
-      XML_Report
-        ("<parameter>" & Image (Rule.Param) & "</parameter>",
-         Indent_Level + 1);
+      if Rule.Param /= Integer'First then
+         XML_Report
+           ("<parameter>" & Image (Rule.Param) & "</parameter>",
+            Indent_Level + 1);
+      end if;
 
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Rule;
@@ -583,12 +770,14 @@ package body Gnatcheck.Rules is
         ("<rule id=""" & Rule_Name (Rule) & """>",
          Indent_Level);
 
-      XML_Report
-        ("<parameter>" &
-         To_String (Rule.Parameters.Child (2).As_Parameter_Decl.
-                    F_Param_Identifier.Text) &
-         "</parameter>",
-         Indent_Level + 1);
+      if Rule.Param = On then
+         XML_Report
+           ("<parameter>" &
+            To_String (Rule.Parameters.Child (2).As_Parameter_Decl.
+                       F_Param_Identifier.Text) &
+            "</parameter>",
+            Indent_Level + 1);
+      end if;
 
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Rule;
@@ -601,11 +790,40 @@ package body Gnatcheck.Rules is
         ("<rule id=""" & Rule_Name (Rule) & """>",
          Indent_Level);
 
+      if Length (Rule.Param) /= 0 then
+         XML_Report
+           ("<parameter>" &
+            To_String (To_Wide_Wide_String (Rule.Param)) &
+            "</parameter>",
+            Indent_Level + 1);
+      end if;
+
+      XML_Report ("</rule>", Indent_Level);
+   end XML_Print_Rule;
+
+   overriding procedure XML_Print_Rule
+     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
+      Indent_Level : Natural := 0) is
+   begin
       XML_Report
-        ("<parameter>" &
-         To_String (To_Wide_Wide_String (Rule.Param)) &
-         "</parameter>",
-         Indent_Level + 1);
+        ("<rule id=""" & Rule_Name (Rule) & """>",
+         Indent_Level);
+
+      if Rule.Integer_Param /= Integer'First then
+         XML_Report
+           ("<parameter>" & Image (Rule.Integer_Param) & "</parameter>",
+            Indent_Level + 1);
+      end if;
+
+      for J in Rule.Boolean_Params'Range loop
+         if Rule.Boolean_Params (J) = On then
+            XML_Report
+              ("<parameter>" &
+               To_String (Rule.Parameters.Child (J).
+                          As_Parameter_Decl.F_Param_Identifier.Text),
+               Indent_Level + 1);
+         end if;
+      end loop;
 
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Rule;
@@ -680,6 +898,14 @@ package body Gnatcheck.Rules is
             " label="""                      &
             Rule.Help_Info.all               &
             """/>");
+   end XML_Rule_Help;
+
+   overriding procedure XML_Rule_Help
+     (Rule  : One_Integer_Or_Booleans_Parameter_Rule;
+      Level : Natural) is
+   begin
+      --  Should we do more here???
+      XML_Rule_Help (Rule_Template (Rule), Level);
    end XML_Rule_Help;
 
    -----------------------

@@ -52,7 +52,8 @@ package Rule_Commands is
      Ada.Containers.Vectors (Positive, Rule_Argument);
 
    type Rule_Param_Kind is
-     (No_Param, One_Integer, One_Boolean, One_String, Custom);
+     (No_Param, One_Integer, One_Boolean, One_String, One_Integer_Or_Booleans,
+      Custom);
    --  Specifies how parameters are handled by the rule
 
    type Remediation_Levels is (Trivial, Easy, Medium, Major, High, Complex);
