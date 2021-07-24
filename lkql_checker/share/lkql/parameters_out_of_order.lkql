@@ -8,8 +8,8 @@
 #
 # The `order` parameter defines the order required.
 
-fun index(order, str, n: int = 1) =
-    if order[n] == str then n else index(order, str, n + 1)
+fun index(order, str) =
+    [n for n in [1, 2, 3, 4, 5] if order[n] == str].to_list[1]
 
 fun priority(spec, order) =
     if spec.f_default_expr != null
