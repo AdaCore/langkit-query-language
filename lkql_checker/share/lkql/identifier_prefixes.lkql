@@ -64,7 +64,7 @@
 # - Exception=string
 #   Specifies the prefix for defining names from exception declarations and
 #   exception renaming declarations.
-# - *_Exclusive
+# - Exclusive
 #   Check that only those kinds of names for which specific prefix is defined
 #   have that prefix (e.g., only type/subtype names have prefix T_, but not
 #   variable or package names), and flag all defining names that have any of
@@ -78,41 +78,36 @@ import stdlib
 @unit_check(help="prefixes in defining names", remediation="EASY",
             parametric_exemption=true)
 fun identifier_prefixes(unit,
-                        type="-", type_exclusive=true,
-                        concurrent="-", concurrent_exclusive=true,
-                        access="-", access_exclusive=true,
-                        class_access="-", class_access_exclusive=true,
-                        subprogram_access="-", subprogram_access_exclusive=true,
-                        derived="-", derived_ancestor="", derived_exclusive=true,
-                        constant="-", constant_exclusive=true,
-                        exception="-", exception_exclusive=true,
-                        enum="-", enum_exclusive=true) = {
-    fun check_exclusive(str, type_exclusive, concurrent_exclusive,
-                        access_exclusive, class_access_exclusive,
-                        subprogram_access_exclusive, derived_exclusive,
-                        constant_exclusive, exception_exclusive, enum_exclusive) =
-        (type_exclusive and str.starts_with(type)) or
-        (concurrent_exclusive and str.starts_with(concurrent)) or
-        (access_exclusive and str.starts_with(access)) or
-        (class_access_exclusive and str.starts_with(class_access)) or
-        (subprogram_access_exclusive and str.starts_with(subprogram_access)) or
-        (derived_exclusive and str.starts_with(derived)) or
-        (constant_exclusive and str.starts_with(constant)) or
-        (exception_exclusive and str.starts_with(exception)) or
-        (enum_exclusive and str.starts_with(enum));
+                        type="-",
+                        concurrent="-",
+                        access="-",
+                        class_access="-",
+                        subprogram_access="-",
+                        derived="-", derived_ancestor="",
+                        constant="-",
+                        exception="-",
+                        enum="-",
+                        exclusive=true) = {
+    fun check_exclusive(str, exclusive,
+                        type_exclusive=true, concurrent_exclusive=true,
+                        access_exclusive=true, class_access_exclusive=true,
+                        subprogram_access_exclusive=true,
+                        derived_exclusive=true, constant_exclusive=true,
+                        exception_exclusive=true, enum_exclusive=true) =
+        exclusive and
+        ((type_exclusive and str.starts_with(type)) or
+         (concurrent_exclusive and str.starts_with(concurrent)) or
+         (access_exclusive and str.starts_with(access)) or
+         (class_access_exclusive and str.starts_with(class_access)) or
+         (subprogram_access_exclusive and str.starts_with(subprogram_access)) or
+         (derived_exclusive and str.starts_with(derived)) or
+         (constant_exclusive and str.starts_with(constant)) or
+         (exception_exclusive and str.starts_with(exception)) or
+         (enum_exclusive and str.starts_with(enum)));
 
     fun check_enum(str) =
         (enum != "-" and not str.starts_with(enum)) or
-        check_exclusive(str,
-                        type_exclusive=type_exclusive,
-                        concurrent_exclusive=concurrent_exclusive,
-                        access_exclusive=access_exclusive,
-                        class_access_exclusive=class_access_exclusive,
-                        subprogram_access_exclusive=subprogram_access_exclusive,
-                        derived_exclusive=derived_exclusive,
-                        constant_exclusive=constant_exclusive,
-                        exception_exclusive=exception_exclusive,
-                        enum_exclusive=false);
+        check_exclusive(str, exclusive=exclusive, enum_exclusive=false);
 
     val str_prefix = " does not start with prefix ";
 
@@ -155,15 +150,8 @@ fun identifier_prefixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(concurrent)) or
          check_exclusive(node.f_name.text,
-                         type_exclusive=type_exclusive,
-                         concurrent_exclusive=false,
-                         access_exclusive=access_exclusive,
-                         class_access_exclusive=class_access_exclusive,
-                         subprogram_access_exclusive=subprogram_access_exclusive,
-                         derived_exclusive=derived_exclusive,
-                         constant_exclusive=constant_exclusive,
-                         exception_exclusive=exception_exclusive,
-                         enum_exclusive=enum_exclusive))
+                         exclusive=exclusive,
+                         concurrent_exclusive=false))
 
     # 'Class access
     | (p@TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
@@ -176,15 +164,8 @@ fun identifier_prefixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(class_access)) or
          check_exclusive(node.f_name.text,
-                         type_exclusive=type_exclusive,
-                         concurrent_exclusive=concurrent_exclusive,
-                         access_exclusive=access_exclusive,
-                         class_access_exclusive=false,
-                         subprogram_access_exclusive=subprogram_access_exclusive,
-                         derived_exclusive=derived_exclusive,
-                         constant_exclusive=constant_exclusive,
-                         exception_exclusive=exception_exclusive,
-                         enum_exclusive=enum_exclusive))
+                         exclusive=exclusive,
+                         class_access_exclusive=false))
 
     # Subprogram access
     | (p@TypeDecl(f_type_def is AccessToSubpDef) or
@@ -195,15 +176,8 @@ fun identifier_prefixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name?.f_name.text.starts_with(subprogram_access)) or
          check_exclusive(node.f_name?.f_name.text,
-                         type_exclusive=type_exclusive,
-                         concurrent_exclusive=concurrent_exclusive,
-                         access_exclusive=access_exclusive,
-                         class_access_exclusive=class_access_exclusive,
-                         subprogram_access_exclusive=false,
-                         derived_exclusive=derived_exclusive,
-                         constant_exclusive=constant_exclusive,
-                         exception_exclusive=exception_exclusive,
-                         enum_exclusive=enum_exclusive))
+                         exclusive=exclusive,
+                         subprogram_access_exclusive=false))
 
     # Other access types
     | (p@TypeDecl(f_type_def is AccessDef) or
@@ -213,15 +187,8 @@ fun identifier_prefixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name?.f_name.text.starts_with(access)) or
          check_exclusive(node.f_name?.f_name.text,
-                         type_exclusive=type_exclusive,
-                         concurrent_exclusive=concurrent_exclusive,
-                         access_exclusive=false,
-                         class_access_exclusive=class_access_exclusive,
-                         subprogram_access_exclusive=subprogram_access_exclusive,
-                         derived_exclusive=derived_exclusive,
-                         constant_exclusive=constant_exclusive,
-                         exception_exclusive=exception_exclusive,
-                         enum_exclusive=enum_exclusive))
+                         exclusive=exclusive,
+                         access_exclusive=false))
 
     # Types derived from derived_ancestor
     | p@TypeDecl(f_type_def is d@DerivedTypeDef) when derived != "-" and
@@ -231,15 +198,8 @@ fun identifier_prefixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(derived)) or
          check_exclusive(node.f_name.text,
-                         type_exclusive=type_exclusive,
-                         concurrent_exclusive=concurrent_exclusive,
-                         access_exclusive=access_exclusive,
-                         class_access_exclusive=class_access_exclusive,
-                         subprogram_access_exclusive=subprogram_access_exclusive,
-                         derived_exclusive=false,
-                         constant_exclusive=constant_exclusive,
-                         exception_exclusive=exception_exclusive,
-                         enum_exclusive=enum_exclusive))
+                         exclusive=exclusive,
+                         derived_exclusive=false))
 
     # Exclude IncompleteTypeDecl
     | IncompleteTypeDecl => false
@@ -249,15 +209,8 @@ fun identifier_prefixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         ((type != "-" and not node.f_name.text.starts_with(type)) or
          check_exclusive(node.f_name.text,
-                         type_exclusive=false,
-                         concurrent_exclusive=concurrent_exclusive,
-                         access_exclusive=access_exclusive,
-                         class_access_exclusive=class_access_exclusive,
-                         subprogram_access_exclusive=subprogram_access_exclusive,
-                         derived_exclusive=derived_exclusive,
-                         constant_exclusive=constant_exclusive,
-                         exception_exclusive=exception_exclusive,
-                         enum_exclusive=enum_exclusive))
+                         exclusive=exclusive,
+                         type_exclusive=false))
 
     # Enums
     | EnumLiteralDecl => check_enum(node.f_name.text)
@@ -276,15 +229,8 @@ fun identifier_prefixes(unit,
         =>
             (constant != "-" and not node.f_name.text.starts_with(constant)) or
             check_exclusive(node.f_name.text,
-                            type_exclusive=type_exclusive,
-                            concurrent_exclusive=concurrent_exclusive,
-                            access_exclusive=access_exclusive,
-                            class_access_exclusive=class_access_exclusive,
-                            subprogram_access_exclusive=subprogram_access_exclusive,
-                            derived_exclusive=derived_exclusive,
-                            constant_exclusive=false,
-                            exception_exclusive=exception_exclusive,
-                            enum_exclusive=enum_exclusive)
+                            exclusive=exclusive,
+                            constant_exclusive=false)
 
 
         # Function renaming an enum literal
@@ -296,30 +242,14 @@ fun identifier_prefixes(unit,
         | ExceptionDecl =>
             (exception != "-" and not node.f_name.text.starts_with(exception)) or
             check_exclusive(node.f_name.text,
-                            type_exclusive=type_exclusive,
-                            concurrent_exclusive=concurrent_exclusive,
-                            access_exclusive=access_exclusive,
-                            class_access_exclusive=class_access_exclusive,
-                            subprogram_access_exclusive=subprogram_access_exclusive,
-                            derived_exclusive=derived_exclusive,
-                            constant_exclusive=constant_exclusive,
-                            exception_exclusive=false,
-                            enum_exclusive=enum_exclusive)
+                            exclusive=exclusive,
+                            exception_exclusive=false)
 
-        # Check all other defining names for exclusion except for completions and
-        # renaming-as-body
+        # Check all other defining names for exclusion except for completions
+        # and renaming-as-body
         | p2@* =>
             ((not p2 is (Body or SubpRenamingDecl)) or
              p2?.p_previous_part() == null) and
             ((not p2 is ObjectDecl) or p2?.p_public_part_decl() == null) and
-            check_exclusive(node.f_name.text,
-                            type_exclusive=type_exclusive,
-                            concurrent_exclusive=concurrent_exclusive,
-                            access_exclusive=access_exclusive,
-                            class_access_exclusive=class_access_exclusive,
-                            subprogram_access_exclusive=subprogram_access_exclusive,
-                            derived_exclusive=derived_exclusive,
-                            constant_exclusive=constant_exclusive,
-                            exception_exclusive=exception_exclusive,
-                            enum_exclusive=enum_exclusive)]
+            check_exclusive(node.f_name.text, exclusive=exclusive)]
 }
