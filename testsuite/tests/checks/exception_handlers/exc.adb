@@ -7,7 +7,7 @@ procedure Exc is   --  FLAG
       null;
    end T;
 
-   task body T2 is  --  FLAG
+   task body T2 is  --  NO FLAG
    begin
       null;
    exception

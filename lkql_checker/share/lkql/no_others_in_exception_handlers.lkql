@@ -1,10 +1,26 @@
-# Flag any exception handler with no others choice.
+# Flag each occurrence of a subprogram body (if `subprogram` is true) or task
+# body (if `task` is true) or any handled statement with exception handlers
+# (if `all is true`) with no others handler.
+
+fun check_others(stmts) =
+    stmts.f_exceptions is AdaNodeList(all children(depth=3)
+                                      is not OthersDesignator)
 
 @unit_check(help="no OTHERS choice in exception handlers")
-fun no_others_in_exception_handlers(unit) = [
-    {message: "no OTHERS choice in exception handler",
-     loc: n.f_exceptions.token_start().previous}
+fun no_others_in_exception_handlers(unit,
+                                    all=false, subprogram=false, task=false) =
+[
+    (match n
+     | TaskBody => {message: "no OTHERS exception handler in task", loc: n}
+     | SubpBody => {message: "no OTHERS exception handler in subprogram",
+                    loc: n}
+     | *        => {message: "no OTHERS choice in exception handler",
+                    loc: n.f_exceptions.token_start().previous})
     for n in from unit.root select
-    HandledStmts(f_exceptions is AdaNodeList(all children(depth=3)
-                                             is not OthersDesignator))
+        (node@((TaskBody when task) or
+               (SubpBody when subprogram))
+         when node.f_stmts.f_exceptions[1] == null
+           or check_others(node.f_stmts))
+        or node@HandledStmts
+           when all and node.f_exceptions[1] != null and check_others(node)
 ]
