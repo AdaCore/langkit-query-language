@@ -413,8 +413,6 @@ package body Gnatcheck.Rules is
            " defined at " & Defined_Str (Rule.Defined_At.all));
 
       elsif Enable then
-         Set_Unbounded_Wide_Wide_String (Rule.Param, """");
-
          --  '@' designates a response file
 
          if Param (Param'First) = '@' then
@@ -433,8 +431,6 @@ package body Gnatcheck.Rules is
          else
             Append (Rule.Param, To_Wide_Wide_String (Param));
          end if;
-
-         Append (Rule.Param, """");
 
          Rule.Rule_State := Enabled;
          Rule.Defined_At := new String'(Defined_At);
@@ -512,6 +508,34 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Rule_Parameter;
 
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out One_Array_Parameter_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String) is
+   begin
+      if Param = "" then
+         if Enable then
+            Rule.Rule_State := Enabled;
+         else
+            Rule.Rule_State := Disabled;
+         end if;
+      elsif Enable then
+         if Length (Rule.Param) /= 0 then
+            Append (Rule.Param, ",");
+         end if;
+
+         Append (Rule.Param, To_Wide_Wide_String (Param));
+         Rule.Rule_State := Enabled;
+         Rule.Defined_At := new String'(Defined_At);
+
+      else
+         Set_Unbounded_Wide_Wide_String (Rule.Param, "");
+         Rule.Rule_State := Disabled;
+         Rule.Defined_At := new String'(Defined_At);
+      end if;
+   end Process_Rule_Parameter;
+
    --------------------
    -- Map_Parameters --
    --------------------
@@ -556,7 +580,9 @@ package body Gnatcheck.Rules is
              (Name  => To_Unbounded_Text
                          (Rule.Parameters.Child (2).
                           As_Parameter_Decl.F_Param_Identifier.Text),
-              Value => To_Unbounded_Text (To_Wide_Wide_String (Rule.Param))));
+              Value => To_Unbounded_Text ('"' &
+                                          To_Wide_Wide_String (Rule.Param) &
+                                          '"')));
       end if;
    end Map_Parameters;
 
@@ -587,6 +613,37 @@ package body Gnatcheck.Rules is
                              then "true" else "false")));
          end if;
       end loop;
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Rule : One_Array_Parameter_Rule;
+      Args : in out Rule_Argument_Vectors.Vector)
+   is
+      Param : Unbounded_Wide_Wide_String;
+      C     : Wide_Wide_Character;
+   begin
+      if Length (Rule.Param) /= 0 then
+         Append (Param, "[""");
+
+         for J in 1 .. Length (Rule.Param) loop
+            C := Element (Rule.Param, J);
+
+            if C = ',' then
+               Append (Param, """,""");
+            else
+               Append (Param, C);
+            end if;
+         end loop;
+
+         Append (Param, """]");
+
+         Args.Append
+           (Rule_Argument'
+             (Name  => To_Unbounded_Text
+                         (Rule.Parameters.Child (2).
+                          As_Parameter_Decl.F_Param_Identifier.Text),
+              Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+      end if;
    end Map_Parameters;
 
    ------------------

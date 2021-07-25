@@ -2,4 +2,4 @@ driver: 'checker'
 rule_name: 'Parameters_Out_Of_Order'
 project: 'prj.gpr'
 rule_arguments:
-    parameters_out_of_order.order: '["in", "defaulted in", "in out", "access", "out"]'
+    parameters_out_of_order.order: '["in", "defaulted_in", "in_out", "access", "out"]'

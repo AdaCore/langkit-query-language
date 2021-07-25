@@ -1149,52 +1149,76 @@ package body Gnatcheck.Rules.Rule_Table is
         Rules_Factory.All_Rules (Ctx.Eval_Ctx, Additional_Rules_Dirs);
 
       for R of Ctx.All_Rules loop
-         case R.Param_Kind is
-            when No_Param =>
-               Rule := new Rule_Template;
-               Init_Rule (Rule_Template (Rule.all));
-            when One_Integer =>
-               Rule := new One_Integer_Parameter_Rule;
-               Init_Rule (One_Integer_Parameter_Rule (Rule.all));
-            when One_Boolean =>
-               Rule := new One_Boolean_Parameter_Rule;
-               Init_Rule (One_Boolean_Parameter_Rule (Rule.all));
-            when One_String =>
-               Rule := new One_String_Parameter_Rule;
-               Init_Rule (One_String_Parameter_Rule (Rule.all));
-            when One_Integer_Or_Booleans =>
-               Rule := new One_Integer_Or_Booleans_Parameter_Rule;
-               Init_Rule (One_Integer_Or_Booleans_Parameter_Rule (Rule.all));
+         declare
+            Name : constant String := To_String (To_Wide_Wide_String (R.Name));
+         begin
+            case R.Param_Kind is
+               when No_Param =>
+                  Rule := new Rule_Template;
+                  Init_Rule (Rule_Template (Rule.all));
+               when One_Integer =>
+                  Rule := new One_Integer_Parameter_Rule;
+                  Init_Rule (One_Integer_Parameter_Rule (Rule.all));
+               when One_Boolean =>
+                  Rule := new One_Boolean_Parameter_Rule;
+                  Init_Rule (One_Boolean_Parameter_Rule (Rule.all));
+               when One_String =>
+                  Rule := new One_String_Parameter_Rule;
+                  Init_Rule (One_String_Parameter_Rule (Rule.all));
+               when One_Integer_Or_Booleans =>
+                  Rule := new One_Integer_Or_Booleans_Parameter_Rule;
+                  Init_Rule
+                    (One_Integer_Or_Booleans_Parameter_Rule (Rule.all));
 
-            when Custom =>
-               --  ###
-               Rule := new Rule_Template;
-               Init_Rule (Rule_Template (Rule.all));
+               when One_Array =>
+                  Rule := new One_Array_Parameter_Rule;
+                  Init_Rule (One_Array_Parameter_Rule (Rule.all));
 
-               --  Custom rules to worry about:
+               when Custom =>
+                  if Name = "identifier_suffixes" then
+                     --  many suffix strings and special cases
+                     Rule := new Rule_Template;
+                     Init_Rule (Rule_Template (Rule.all));
 
-               --  identifier_suffixes: many suffix strings
-               --  identifier_prefixes: many prefix strings + exclusive boolean
+                  elsif Name = "identifier_prefixes" then
+                     --  many prefix strings + exclusive boolean
+                     Rule := new Rule_Template;
+                     Init_Rule (Rule_Template (Rule.all));
 
-               --  parameters_out_of_order: array of strings (5)
-               --  name_clashes: array of strings read from a file
-               --  identifier_casing: 5 string params + exclude array of
-               --  strings from file
+                  elsif Name = "name_clashes" then
+                     --  array of strings read from a file
+                     Rule := new Rule_Template;
+                     Init_Rule (Rule_Template (Rule.all));
 
-               --  forbidden_attributes: all, forbidden [], allowed []
-               --  forbidden_pragmas: all, forbidden [], allowed []
-         end case;
+                  elsif Name = "identifier_casing" then
+                     --  5 string params + exclude array of strings from file
+                     Rule := new Rule_Template;
+                     Init_Rule (Rule_Template (Rule.all));
 
-         Rule.Name := new String'(To_String (To_Wide_Wide_String (R.Name)));
-         Rule.Help_Info :=
-           new String'(To_String (To_Wide_Wide_String (R.Help)));
-         Rule.Diagnosis :=
-           new String'(To_String (To_Wide_Wide_String (R.Message)));
+                  elsif Name = "forbidden_attributes"
+                    or else Name = "forbidden_pragmas"
+                  then
+                     --  all, forbidden [], allowed []
+                     Rule := new Rule_Template;
+                     Init_Rule (Rule_Template (Rule.all));
 
-         Rule.Parameters                    := R.Parameters;
-         Rule.Remediation_Level             := R.Remediation_Level;
-         Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
-         All_Rules.Append (Rule);
+                  else
+                     Rule := new Rule_Template;
+                     Init_Rule (Rule_Template (Rule.all));
+                  end if;
+            end case;
+
+            Rule.Name := new String'(Name);
+            Rule.Help_Info :=
+              new String'(To_String (To_Wide_Wide_String (R.Help)));
+            Rule.Diagnosis :=
+              new String'(To_String (To_Wide_Wide_String (R.Message)));
+
+            Rule.Parameters                    := R.Parameters;
+            Rule.Remediation_Level             := R.Remediation_Level;
+            Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
+            All_Rules.Append (Rule);
+         end;
       end loop;
    end Process_Rules;
 

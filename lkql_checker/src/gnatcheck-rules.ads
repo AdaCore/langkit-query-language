@@ -408,6 +408,23 @@ package Gnatcheck.Rules is
      (Rule    : One_String_Parameter_Rule;
       Enabled : Boolean) return String;
 
+   ---------------------------------
+   -- "One array parameter" rule" --
+   ---------------------------------
+
+   type One_Array_Parameter_Rule is new One_String_Parameter_Rule
+   with null record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out One_Array_Parameter_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : One_Array_Parameter_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
    --------------------------------------------------------
    -- "One Integer and/or Many Booleans parameter" rule" --
    --------------------------------------------------------

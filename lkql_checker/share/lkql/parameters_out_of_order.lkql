@@ -13,10 +13,10 @@ fun index(order, str) =
 
 fun priority(spec, order) =
     if spec.f_default_expr != null
-    then index(order, "defaulted in")
+    then index(order, "defaulted_in")
     else match spec.f_mode
          | ModeOut     => index(order, "out")
-         | ModeInOut   => index(order, "in out")
+         | ModeInOut   => index(order, "in_out")
          | ModeIn      => index(order, "in")
          | ModeDefault => if spec.f_type_expr is
                              AnonymousType(f_type_decl is
@@ -25,8 +25,8 @@ fun priority(spec, order) =
 
 @check(message="parameter out of order", remediation="EASY")
 fun parameters_out_of_order(node,
-                            order = ["in", "access", "in out",
-                                     "out", "defaulted in"]) =
+                            order = ["in", "access", "in_out",
+                                     "out", "defaulted_in"]) =
     node is ParamSpec when ({
         val prio = priority(node, order);
         node is *(any next_siblings is

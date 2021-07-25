@@ -90,6 +90,7 @@ package body Rule_Commands is
             when LCO.LKQL_Integer_Literal => return One_Integer;
             when LCO.LKQL_Bool_Literal    => return One_Boolean;
             when LCO.LKQL_String_Literal  => return One_String;
+            when LCO.LKQL_List_Literal    => return One_Array;
             when others                   => null;
          end case;
       else
