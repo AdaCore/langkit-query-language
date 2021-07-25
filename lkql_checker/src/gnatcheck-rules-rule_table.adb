@@ -1169,38 +1169,28 @@ package body Gnatcheck.Rules.Rule_Table is
                   Rule := new One_Integer_Or_Booleans_Parameter_Rule;
                   Init_Rule
                     (One_Integer_Or_Booleans_Parameter_Rule (Rule.all));
-
                when One_Array =>
                   Rule := new One_Array_Parameter_Rule;
                   Init_Rule (One_Array_Parameter_Rule (Rule.all));
-
                when Custom =>
                   if Name = "identifier_suffixes" then
-                     --  many suffix strings and special cases
-                     Rule := new Rule_Template;
-                     Init_Rule (Rule_Template (Rule.all));
+                     Rule := new Identifier_Suffixes_Rule;
+                     Init_Rule (Identifier_Suffixes_Rule (Rule.all));
 
                   elsif Name = "identifier_prefixes" then
-                     --  many prefix strings + exclusive boolean
-                     Rule := new Rule_Template;
-                     Init_Rule (Rule_Template (Rule.all));
-
-                  elsif Name = "name_clashes" then
-                     --  array of strings read from a file
-                     Rule := new Rule_Template;
-                     Init_Rule (Rule_Template (Rule.all));
+                     Rule := new Identifier_Prefixes_Rule;
+                     Init_Rule (Identifier_Prefixes_Rule (Rule.all));
 
                   elsif Name = "identifier_casing" then
-                     --  5 string params + exclude array of strings from file
-                     Rule := new Rule_Template;
-                     Init_Rule (Rule_Template (Rule.all));
+                     Rule := new Identifier_Casing_Rule;
+                     Init_Rule (Identifier_Casing_Rule (Rule.all));
 
                   elsif Name = "forbidden_attributes"
                     or else Name = "forbidden_pragmas"
                   then
                      --  all, forbidden [], allowed []
-                     Rule := new Rule_Template;
-                     Init_Rule (Rule_Template (Rule.all));
+                     Rule := new Forbidden_Rule;
+                     Init_Rule (Forbidden_Rule (Rule.all));
 
                   else
                      Rule := new Rule_Template;

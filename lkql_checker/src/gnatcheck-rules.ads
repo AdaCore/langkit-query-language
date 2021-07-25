@@ -125,7 +125,7 @@ package Gnatcheck.Rules is
    --  exemption section for Rule.
 
    function Rule_Parameter (Rule : Rule_Template; Diag : String) return String;
-   --  Assuming that Allows_Prametrized_Exemption (Rule) and that Diag is a
+   --  Assuming that Allows_Parametrized_Exemption (Rule) and that Diag is a
    --  diagnosis generated for Rule (with all the variants and parameters
    --  resolved), defines the Rule parameter this Diag corresponds to. Returns
    --  an empty string if the definition is not possible because of any reason.
@@ -227,40 +227,19 @@ package Gnatcheck.Rules is
    function Is_Enabled (Rule : Rule_Template) return Boolean;
    --  Checks if the rule should be checked
 
-   procedure Print_Rule (Rule : Rule_Template; Indent_Level : Natural := 0);
-   --  Prints information about the (active) rule into the report file. For
-   --  the rules that have parameters this procedure should be rewritten to
-   --  print out actual parameter settings.
-   --  This procedure does not close the last line it prints out.
-
    procedure Print_Rule_To_File
      (Rule         : Rule_Template;
       Rule_File    : File_Type;
       Indent_Level : Natural := 0);
-   --  Similar to Print_Rule, but prints rule information into the specified
-   --  file. Rule_File is supposed to be an existing file opened as Out_File.
-   --  This is not a good thing to have two procedures that do almost the same,
-   --  the only reason why we do have them is historical.
+   --  Prints information about the (active) rule into the specified file. For
+   --  the rules that have parameters this procedure should be rewritten to
+   --  print out actual parameter settings.
 
    procedure XML_Print_Rule
      (Rule         : Rule_Template;
       Indent_Level : Natural := 0);
    --  Similar to Print_Rule, but prints rule info into XML report file and
    --  does not add "+R" prefix to the rule name.
-
-   function Rule_Option
-     (Rule    : Rule_Template;
-      Enabled : Boolean) return String;
-   --  Returns the rule option (with the parameter, if needed) to be placed
-   --  into the sample coding standard file (see Sample_Image). The result
-   --  include "+R" or "-R" depending on Enabled. The template
-   --  returns the rule name, it should be rewritten for the rules that have
-   --  parameters.
-
-   function Rule_Comment (Rule : Rule_Template) return String;
-   --  Returns the comment note to be placed into the sample coding standard
-   --  file (see Sample_Image), the result does not include "--". The template
-   --  returns the content of the Help_Info field of the argument.
 
    function Annotate_Rule (Rule : Rule_Template) return String;
    --  If Gnatcheck.Options.Mapping_Mode is ON returns the rule annotation
@@ -278,13 +257,11 @@ package Gnatcheck.Rules is
    -----------------------------------
 
    type One_Integer_Parameter_Rule is new Rule_Template with record
-      Param : Integer;
+      Param : Integer := Integer'First;
    end record;
    --  Param specifies the maximal (or minimal) allowed number of some
    --  property to be checked by the rule, this is supposed to be set by the
    --  rule parameter.
-
-   procedure Init_Rule (Rule : in out One_Integer_Parameter_Rule);
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Integer_Parameter_Rule;
@@ -308,10 +285,6 @@ package Gnatcheck.Rules is
      (Rule  : One_Integer_Parameter_Rule;
       Level : Natural);
 
-   overriding procedure Print_Rule
-     (Rule         : One_Integer_Parameter_Rule;
-      Indent_Level : Natural := 0);
-
    overriding procedure Print_Rule_To_File
      (Rule         : One_Integer_Parameter_Rule;
       Rule_File    : File_Type;
@@ -321,10 +294,6 @@ package Gnatcheck.Rules is
      (Rule         : One_Integer_Parameter_Rule;
       Indent_Level : Natural := 0);
 
-   overriding function Rule_Option
-     (Rule    : One_Integer_Parameter_Rule;
-      Enabled : Boolean) return String;
-
    -----------------------------------
    -- "One boolean parameter" rule" --
    -----------------------------------
@@ -332,11 +301,8 @@ package Gnatcheck.Rules is
    type Tri_State is (Unset, On, Off);
 
    type One_Boolean_Parameter_Rule is new Rule_Template with record
-      Param : Tri_State;
+      Param : Tri_State := Unset;
    end record;
-
-   overriding procedure Init_Rule
-     (Rule : in out One_Boolean_Parameter_Rule);
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Boolean_Parameter_Rule;
@@ -352,10 +318,6 @@ package Gnatcheck.Rules is
      (Rule  : One_Boolean_Parameter_Rule;
       Level : Natural);
 
-   overriding procedure Print_Rule
-     (Rule         : One_Boolean_Parameter_Rule;
-      Indent_Level : Natural := 0);
-
    overriding procedure Print_Rule_To_File
      (Rule         : One_Boolean_Parameter_Rule;
       Rule_File    : File_Type;
@@ -364,10 +326,6 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : One_Boolean_Parameter_Rule;
       Indent_Level : Natural := 0);
-
-   overriding function Rule_Option
-     (Rule    : One_Boolean_Parameter_Rule;
-      Enabled : Boolean) return String;
 
    ----------------------------------
    -- "One string parameter" rule" --
@@ -391,10 +349,6 @@ package Gnatcheck.Rules is
      (Rule  : One_String_Parameter_Rule;
       Level : Natural);
 
-   overriding procedure Print_Rule
-     (Rule         : One_String_Parameter_Rule;
-      Indent_Level : Natural := 0);
-
    overriding procedure Print_Rule_To_File
      (Rule         : One_String_Parameter_Rule;
       Rule_File    : File_Type;
@@ -403,10 +357,6 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : One_String_Parameter_Rule;
       Indent_Level : Natural := 0);
-
-   overriding function Rule_Option
-     (Rule    : One_String_Parameter_Rule;
-      Enabled : Boolean) return String;
 
    ---------------------------------
    -- "One array parameter" rule" --
@@ -432,12 +382,9 @@ package Gnatcheck.Rules is
    type Boolean_Parameters is array (2 .. 10) of Tri_State;
 
    type One_Integer_Or_Booleans_Parameter_Rule is new Rule_Template with record
-      Integer_Param  : Integer;
-      Boolean_Params : Boolean_Parameters;
+      Integer_Param  : Integer := Integer'First;
+      Boolean_Params : Boolean_Parameters := (others => Unset);
    end record;
-
-   overriding procedure Init_Rule
-     (Rule : in out One_Integer_Or_Booleans_Parameter_Rule);
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Integer_Or_Booleans_Parameter_Rule;
@@ -453,10 +400,6 @@ package Gnatcheck.Rules is
      (Rule  : One_Integer_Or_Booleans_Parameter_Rule;
       Level : Natural);
 
-   overriding procedure Print_Rule
-     (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
-      Indent_Level : Natural := 0);
-
    overriding procedure Print_Rule_To_File
      (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
       Rule_File    : File_Type;
@@ -466,23 +409,149 @@ package Gnatcheck.Rules is
      (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
       Indent_Level : Natural := 0);
 
-   overriding function Rule_Option
-     (Rule    : One_Integer_Or_Booleans_Parameter_Rule;
-      Enabled : Boolean) return String;
+   ------------------------------
+   -- Identifier_Suffixes rule --
+   ------------------------------
+
+   type Identifier_Suffixes_Rule is new Rule_Template with record
+      Type_Suffix,
+      Access_Suffix,
+      Access_Access_Suffix,
+      Class_Access_Suffix,
+      Class_Subtype_Suffix,
+      Constant_Suffix,
+      Renaming_Suffix,
+      Access_Obj_Suffix,
+      Interrupt_Suffix : Unbounded_Wide_Wide_String;
+   end record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Identifier_Suffixes_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : Identifier_Suffixes_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : Identifier_Suffixes_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : Identifier_Suffixes_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : Identifier_Suffixes_Rule;
+      Indent_Level : Natural := 0);
+
+   ------------------------------
+   -- Identifier_Prefixes rule --
+   ------------------------------
+
+   type Identifier_Prefixes_Rule is new Rule_Template with record
+      Type_Prefix, Concurrent_Prefix,
+      Access_Prefix, Class_Access_Prefix,
+      Subprogram_Access_Prefix,
+      Derived_Ancestor, Derived_Prefix,
+      Constant_Prefix, Exception_Prefix,
+      Enum_Prefix : Unbounded_Wide_Wide_String;
+      Exclusive   : Tri_State := Unset;
+   end record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Identifier_Prefixes_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : Identifier_Prefixes_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : Identifier_Prefixes_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : Identifier_Prefixes_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : Identifier_Prefixes_Rule;
+      Indent_Level : Natural := 0);
 
    ----------------------------
-   -- Common rule operations --
+   -- Identifier_Casing rule --
    ----------------------------
 
-   procedure Sample_Image
-     (Rule         : Rule_Template'Class;
-      Enabled      : Boolean;
-      Sample_File  : File_Type;
-      Comment_From : Positive);
-   --  Prints into Sample_File the rule option that turns this rule ON or OFF,
-   --  depending on the value of Enabled. Used to create a template coding
-   --  standard file.
-   --  Comment_From indicates the position the comment that gives a short
-   --  definition of the rule should start from
+   type Identifier_Casing_Rule is new Rule_Template with record
+      Type_Casing,
+      Enum_Casing,
+      Constant_Casing,
+      Exception_Casing,
+      Others_Casing,
+      Exclude : Unbounded_Wide_Wide_String;
+   end record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Identifier_Casing_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : Identifier_Casing_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : Identifier_Casing_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : Identifier_Casing_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : Identifier_Casing_Rule;
+      Indent_Level : Natural := 0);
+
+   -----------------------
+   -- Forbidden_* rules --
+   -----------------------
+
+   type Forbidden_Rule is new Rule_Template with record
+      All_Flag  : Tri_State;
+      Forbidden : Unbounded_Wide_Wide_String;
+      Allowed   : Unbounded_Wide_Wide_String;
+   end record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Forbidden_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : Forbidden_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : Forbidden_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : Forbidden_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : Forbidden_Rule;
+      Indent_Level : Natural := 0);
 
 end Gnatcheck.Rules;

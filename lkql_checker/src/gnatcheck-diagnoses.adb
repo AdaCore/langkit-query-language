@@ -2047,7 +2047,6 @@ package body Gnatcheck.Diagnoses is
          if XML_Report_ON then
             XML_Report (Rule_File_Name.all & """>");
          end if;
-
       else
          --  Creating the list of active rules
 
@@ -2059,22 +2058,15 @@ package body Gnatcheck.Diagnoses is
                   GNAT.Directory_Operations.Dir_Name
                     (Get_XML_Report_File_Name)) &
               Auxiliary_List_File_Name (Rule_List_File_Name_Str);
-         begin
 
+         begin
             if Is_Regular_File (Full_Rule_List_File_Name) then
-               Open
-                 (Rule_List_File,
-                  Out_File,
-                  Full_Rule_List_File_Name);
+               Open (Rule_List_File, Out_File, Full_Rule_List_File_Name);
             else
-               Create
-                 (Rule_List_File,
-                  Out_File,
-                  Full_Rule_List_File_Name);
+               Create (Rule_List_File, Out_File, Full_Rule_List_File_Name);
             end if;
 
             for Rule in All_Rules.First .. All_Rules.Last loop
-
                if All_Rules.Table (Rule).Diagnosis /= null
                  and then Is_Enabled (All_Rules.Table (Rule).all)
                then
@@ -2125,7 +2117,6 @@ package body Gnatcheck.Diagnoses is
                XML_Report
                  (Auxiliary_List_File_Name (Rule_List_File_Name_Str) & """>");
             end if;
-
          end;
       end if;
 

@@ -188,10 +188,4 @@ package Gnatcheck.Output is
    --  by other GNAT tools for '--help' option, and sends the output into
    --  Stdout
 
-   procedure Set_Coding_Standard_File_Name (Fname : String);
-   --  Stores the name of the file to write the sample coding standard in.
-
-   procedure Write_Coding_Standard;
-   --  Writes down the coding standard file and closes the corresponding file.
-
 end Gnatcheck.Output;

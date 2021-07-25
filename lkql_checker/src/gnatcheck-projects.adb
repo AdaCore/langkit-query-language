@@ -793,8 +793,7 @@ package body Gnatcheck.Projects is
               "-show-rule "            &
               "-version -help "        &
               "-ignore= "              &
-              "nt xml "                &
-              "-write-rules=",
+              "nt xml",
               Parser => Parser);
 
          case Initial_Char is
@@ -1056,10 +1055,6 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
-                  elsif Full_Switch (Parser => Parser) = "-write-rules" then
-                     Generate_Coding_Standard := True;
-                     Set_Coding_Standard_File_Name
-                       (Parameter (Parser => Parser));
 
                   elsif Full_Switch (Parser => Parser) = "-RTS" then
                      --  We do not store --RTS option for gcc now - we have
@@ -1188,10 +1183,6 @@ package body Gnatcheck.Projects is
          XML_Help;
       end if;
 
-      if Generate_Coding_Standard and then not Aggregated_Project then
-         Gnatcheck.Output.Write_Coding_Standard;
-      end if;
-
       if In_Aggregate_Project then
          --  We have to skip most of the checks because this call does not do
          --  anything except spawning another gnatcheck for individual projects
@@ -1211,10 +1202,7 @@ package body Gnatcheck.Projects is
       --  Now check if we have anything to do:
 
       if No_Argument_File_Specified then
-         if Generate_Rules_Help
-           or else Generate_XML_Help
-           or else Generate_Coding_Standard
-         then
+         if Generate_Rules_Help or else Generate_XML_Help then
             Nothing_To_Do := True;
             return;
          else

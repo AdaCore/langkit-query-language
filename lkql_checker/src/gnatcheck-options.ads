@@ -181,9 +181,6 @@ package Gnatcheck.Options is
    --  when a rule is activated both in the command line and in the rule file.
    --  Currently the debug option '-dw' also sets this flag ON.
 
-   Generate_Coding_Standard : Boolean := False;
-   --  '--write-rules=file'
-
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not
    --  take into account compiler check, use

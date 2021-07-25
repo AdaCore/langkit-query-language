@@ -25,11 +25,8 @@ with Ada.Text_IO;             use Ada.Text_IO;
 
 with GNAT.OS_Lib;             use GNAT.OS_Lib;
 
-with Gnatcheck.Ids;              use Gnatcheck.Ids;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-with Gnatcheck.Rules;            use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 
 package body Gnatcheck.Output is
 
@@ -643,11 +640,6 @@ package body Gnatcheck.Output is
 
    Dummy : Dummy_Type;
 
-   Coding_Standard_File_Name : String_Access := new String'("ada.rules");
-
-   Coding_Standard_File : File_Type;
-   --  The file to place the sample coding standard into
-
    ----------------
    -- Brief_Help --
    ----------------
@@ -738,99 +730,5 @@ package body Gnatcheck.Output is
       New_Line;
       Put_Line ("Report bugs to report@adacore.com");
    end Print_Gnatcheck_Usage;
-
-   -----------------------------------
-   -- Set_Coding_Standard_File_Name --
-   -----------------------------------
-
-   procedure Set_Coding_Standard_File_Name (Fname : String) is
-   begin
-      Free (Coding_Standard_File_Name);
-      Coding_Standard_File_Name := new String'(Fname);
-   end Set_Coding_Standard_File_Name;
-
-   ---------------------------
-   -- Write_Coding_Standard --
-   ---------------------------
-
-   procedure Write_Coding_Standard is
-      Enabled : constant Boolean := False;
-
-      Max_Len : Positive := 1;
-      Tmp_Max : Positive;
-      --  Maximal length of the rule option
-
-   begin
-      if Is_Regular_File (Coding_Standard_File_Name.all) then
-         Open (Coding_Standard_File, Out_File, Coding_Standard_File_Name.all);
-      else
-         Create
-           (Coding_Standard_File, Out_File, Coding_Standard_File_Name.all);
-      end if;
-
-      --  Compute the maximal length of the rule option:
-      for J in First_Rule .. All_Rules.Last loop
-         Tmp_Max := Rule_Option (All_Rules.Table (J).all, Enabled)'Length;
-
-         if Tmp_Max > Max_Len then
-            Max_Len := Tmp_Max;
-         end if;
-      end loop;
-
-      Max_Len := Max_Len + 2;
-      Put
-        (Coding_Standard_File,
-         "--  Sample coding standard file, with all available rules disabled");
-
-      Put_Line
-        (Coding_Standard_File,
-         "--  Should be reviewed and corrected manually");
-      New_Line (Coding_Standard_File);
-
-      for J in First_Rule .. All_Rules.Last loop
-         Sample_Image
-           (All_Rules.Table (J).all,
-            Enabled,
-            Coding_Standard_File,
-            Max_Len);
-      end loop;
-
-      New_Line (Coding_Standard_File);
-
-      Put_Line
-        (Coding_Standard_File,
-         "----------------------------");
-      Put_Line
-        (Coding_Standard_File,
-         "--  Compiler-based checks --");
-      Put_Line
-        (Coding_Standard_File,
-         "----------------------------");
-
-      Put_Line
-        (Coding_Standard_File,
-         "+R Warnings:s                              --  disable " &
-         "all warnings");
-
-      Put_Line
-        (Coding_Standard_File,
-         "+R Style_Checks:N                          --  disable " &
-         "all style checks");
-
-      Put_Line
-        (Coding_Standard_File,
-         "-R Restrictions : No_Obsolescent_Features  --  disable " &
-         "specific restriction");
-
-      Close (Coding_Standard_File);
-   exception
-      when Status_Error =>
-         Error ("can not open the coding standard file, " &
-                "the file may be in use");
-         raise Fatal_Error;
-      when others =>
-         Error ("can not open the coding standard file, check the file name");
-         raise Fatal_Error;
-   end Write_Coding_Standard;
 
 end Gnatcheck.Output;
