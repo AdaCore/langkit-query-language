@@ -1,6 +1,6 @@
 BUILD_MODE=dev
 
-all: lkql lkql_checker doc
+all: lkql lkql_checker lalcheck doc
 lkql: build/bin/liblkqllang_parse
 
 doc:
@@ -8,6 +8,9 @@ doc:
 
 lkql_checker:
 	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+
+lalcheck:
+	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
 	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE)
