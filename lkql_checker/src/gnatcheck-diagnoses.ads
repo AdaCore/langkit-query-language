@@ -45,9 +45,10 @@ package Gnatcheck.Diagnoses is
       --  Corresponds to all rule diagnoses, including compiler checks
       Exemption_Warning,
       --  Warnings generated for Annotate pragmas used to implement rule
-      --  exemption mechanism
+      --  exemption mechanism.
       Compiler_Error,
       --  Compiler diagnoses generated for illegal (non-compilable) sources
+      --  or internal error.
       Gnatcheck_Warning
       --  Gnatcheck warnings of any kind
       );

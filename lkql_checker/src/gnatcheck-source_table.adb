@@ -1455,6 +1455,7 @@ package body Gnatcheck.Source_Table is
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
          Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
          Sloc_Range : Source_Location_Range);
       --  Callback to store messages
 
@@ -1466,6 +1467,7 @@ package body Gnatcheck.Source_Table is
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
          Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
          Sloc_Range : Source_Location_Range)
       is
          Id : Rule_Id;
@@ -1492,7 +1494,9 @@ package body Gnatcheck.Source_Table is
               Stripped_Image (Integer (Sloc_Range.Start_Column)) & ": " &
               To_String (To_Text (Message)) &
               Annotate_Rule (All_Rules.Table (Id).all),
-            Diagnosis_Kind => Rule_Violation,
+            Diagnosis_Kind => (case Kind is
+                               when Rule_Violation => Rule_Violation,
+                               when Internal_Error => Compiler_Error),
             SF             => Next_SF,
             Rule           => Id);
          GNAT.Task_Lock.Unlock;

@@ -67,6 +67,8 @@ package Checker_App is
 
    procedure Job_Setup (Context : App_Job_Context);
 
+   type Message_Kinds is (Rule_Violation, Internal_Error);
+
    procedure Process_Unit
      (Ctx                     : LKQL_Context;
       Unit                    : Analysis_Unit;
@@ -74,6 +76,7 @@ package Checker_App is
         access procedure (Message    : Unbounded_Text_Type;
                           Unit       : Analysis_Unit;
                           Rule       : Unbounded_Text_Type;
+                          Kind       : Message_Kinds;
                           Sloc_Range : Source_Location_Range) := null);
    --  Process one analysis unit.
    --  Call Emit_Message on each match, if non null.

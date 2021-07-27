@@ -21,6 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO;
@@ -62,6 +63,7 @@ package body Checker_App is
         access procedure (Message    : Unbounded_Text_Type;
                           Unit       : Analysis_Unit;
                           Rule       : Unbounded_Text_Type;
+                          Kind       : Message_Kinds;
                           Sloc_Range : Source_Location_Range) := null)
    is
       procedure Handle_Error
@@ -88,43 +90,80 @@ package body Checker_App is
             procedure Unchecked_Free is new Ada.Unchecked_Deallocation
               (Exception_Occurrence, Exception_Occurrence_Access);
 
+            procedure Internal_Error (Msg : Wide_Wide_String);
+            --  Call Emit_Message to store an internal error message
+
+            function Strip_LF (S : String) return String is
+            (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
+            --  Remove trailing LF if any
+
+            procedure Internal_Error (Msg : Wide_Wide_String) is
+            begin
+               Emit_Message
+                 (To_Unbounded_Wide_Wide_String
+                    (Msg & " at " &
+                     To_Wide_Wide_String
+                       (Simple_Name (LKQL_Node.Unit.Get_Filename)) & ":" &
+                     To_Wide_Wide_String
+                       (Stripped_Image
+                         (Integer (LKQL_Node.Sloc_Range.Start_Line))) &
+                     ":" &
+                     To_Wide_Wide_String
+                       (Stripped_Image
+                         (Integer (LKQL_Node.Sloc_Range.Start_Column))) &
+                     ": " &
+                     To_Wide_Wide_String
+                       (Strip_LF
+                         (Exception_Information
+                           (if E /= null then E.all else Exc)))),
+                  Node.Unit, Rule.Name, Internal_Error, Node.Sloc_Range);
+            end Internal_Error;
+
          begin
             case Property_Error_Recovery is
             when Continue_And_Log =>
-               Eval_Trace.Trace ("Evaluating rule predicate failed");
-               Eval_Trace.Trace
-                 ("rule => " & Image (To_Text (Rule.Name)));
-               Eval_Trace.Trace ("ada node => " & Node.Image);
-
-               if E /= null then
-                  Eval_Trace.Trace (Exception_Information (E.all));
+               if Emit_Message /= null then
+                  Internal_Error ("internal warning");
+               else
+                  Eval_Trace.Trace ("Evaluating rule predicate failed");
                   Eval_Trace.Trace
-                    (GNAT.Traceback.Symbolic.Symbolic_Traceback
-                       (E.all));
+                    ("rule => " & Image (To_Text (Rule.Name)));
+                  Eval_Trace.Trace ("ada node => " & Node.Image);
+
+                  if E /= null then
+                     Eval_Trace.Trace (Exception_Information (E.all));
+                     Eval_Trace.Trace
+                       (GNAT.Traceback.Symbolic.Symbolic_Traceback
+                          (E.all));
+                  end if;
                end if;
 
             when Continue_And_Warn =>
-               Put ("ERROR! evaluating rule predicate failed");
+               if Emit_Message /= null then
+                  Internal_Error ("internal error");
+               else
+                  Put ("ERROR! evaluating rule predicate failed");
 
-               if E /= null then
-                  Put_Line (" in a property call");
-               end if;
-               Put_Line (" on node => " & To_Text (Node.Image));
+                  if E /= null then
+                     Put_Line (" in a property call");
+                  end if;
 
-               Langkit_Support.Diagnostics.Output.Print_Diagnostic
-                 (Self        => Diag,
-                  Buffer      => LKQL_Node.Unit,
-                  Path        => LKQL_Node.Unit.Get_Filename,
-                  Output_File => Standard_Error);
+                  Put_Line (" on node => " & To_Text (Node.Image));
 
-               if E /= null then
-                  Ada.Text_IO.Put_Line
-                    (Ada.Text_IO.Standard_Error,
-                     Exception_Information (E.all));
-                  Ada.Text_IO.Put_Line
-                    (Ada.Text_IO.Standard_Error,
-                     GNAT.Traceback.Symbolic.Symbolic_Traceback
-                       (E.all));
+                  Langkit_Support.Diagnostics.Output.Print_Diagnostic
+                    (Self        => Diag,
+                     Buffer      => LKQL_Node.Unit,
+                     Path        => LKQL_Node.Unit.Get_Filename,
+                     Output_File => Standard_Error);
+
+                  if E /= null then
+                     Ada.Text_IO.Put_Line
+                       (Ada.Text_IO.Standard_Error,
+                        Exception_Information (E.all));
+                     Ada.Text_IO.Put_Line
+                       (Ada.Text_IO.Standard_Error,
+                        GNAT.Traceback.Symbolic.Symbolic_Traceback (E.all));
+                  end if;
                end if;
 
             when Raise_Error =>
@@ -232,7 +271,7 @@ package body Checker_App is
                   if Emit_Message /= null then
                      Emit_Message
                        (Rule.Message, Result_Node.Unit, Rule.Name,
-                        Result_Node.Sloc_Range);
+                        Rule_Violation, Result_Node.Sloc_Range);
                   else
                      declare
                         Diag : constant Eval_Diagnostic := Eval_Diagnostic'
@@ -340,7 +379,9 @@ package body Checker_App is
                         end if;
 
                         if Emit_Message /= null then
-                           Emit_Message (Message, Loc_Unit, Rule.Name, Loc);
+                           Emit_Message
+                             (Message, Loc_Unit, Rule.Name,
+                              Rule_Violation, Loc);
                         else
                            Diag := (Message => Message, Sloc_Range => Loc);
                            Output.Print_Diagnostic
@@ -372,6 +413,7 @@ package body Checker_App is
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
          Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
          Sloc_Range : Source_Location_Range);
       --  Callback to emit a gnatcheck-like message on stdout
 
@@ -383,9 +425,10 @@ package body Checker_App is
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
          Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
          Sloc_Range : Source_Location_Range)
       is
-         pragma Unreferenced (Rule);
+         pragma Unreferenced (Rule, Kind);
       begin
          Ada.Text_IO.Put
            (Simple_Name (Unit.Get_Filename) & ":"
