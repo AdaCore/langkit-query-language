@@ -25,7 +25,6 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors; use Ada.Containers;
-with Ada.Strings.Wide_Wide_Unbounded;   use Ada.Strings.Wide_Wide_Unbounded;
 with System;
 
 package LKQL.String_Utils is

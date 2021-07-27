@@ -23,6 +23,7 @@
 
 with Ada.Strings;
 with Ada.Wide_Wide_Characters.Unicode; use Ada.Wide_Wide_Characters.Unicode;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with System.Address_Image;
 

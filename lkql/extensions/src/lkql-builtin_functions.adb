@@ -39,6 +39,8 @@ with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body LKQL.Builtin_Functions is
 
+   package W renames Ada.Strings.Wide_Wide_Unbounded;
+
    function Get_Doc (Ctx : Eval_Context; Obj : Primitive) return Text_Type;
 
    function Eval_Print
@@ -292,15 +294,14 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Unbounded;
 
       Str    : constant Unbounded_Text_Type := Str_Val (Args (1));
       Prefix : constant Unbounded_Text_Type := Str_Val (Args (2));
-      Len    : constant Natural := Length (Prefix);
+      Len    : constant Natural := W.Length (Prefix);
    begin
       return To_Primitive
-         (Length (Str) >= Len
-          and then Unbounded_Slice (Str, 1, Len) = Prefix);
+         (W.Length (Str) >= Len
+          and then W.Unbounded_Slice (Str, 1, Len) = Prefix);
    end Eval_Starts_With;
 
    ---------------
@@ -311,17 +312,16 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Unbounded;
 
       Str    : constant Unbounded_Text_Type := Str_Val (Args (1));
       Suffix : constant Unbounded_Text_Type := Str_Val (Args (2));
 
-      Str_Len    : constant Natural := Length (Str);
-      Suffix_Len : constant Natural := Length (Suffix);
+      Str_Len    : constant Natural := W.Length (Str);
+      Suffix_Len : constant Natural := W.Length (Suffix);
    begin
       return To_Primitive
          (Str_Len >= Suffix_Len
-          and then Unbounded_Slice
+          and then W.Unbounded_Slice
             (Str, Str_Len - Suffix_Len + 1, Str_Len) = Suffix);
    end Eval_Ends_With;
 
@@ -333,7 +333,6 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Unbounded;
       use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := To_Text (Str_Val (Args (1)));
@@ -354,7 +353,6 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Unbounded;
       use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := To_Text (Str_Val (Args (1)));
@@ -375,7 +373,6 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Unbounded;
       use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := To_Text (Str_Val (Args (1)));

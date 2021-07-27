@@ -23,7 +23,6 @@ with Ada.Directories;
 with Ada.Strings;                 use Ada.Strings;
 with Ada.Strings.Fixed;           use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;       use Ada.Strings.Unbounded;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Text_IO;                 use Ada.Text_IO;
 
 with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
