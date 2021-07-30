@@ -1,4 +1,4 @@
-package body P is
+package body Num is
     X : Integer := Var (2);      --  FLAG
     Y : Integer := Var (1 + 2);  --  NO FLAG
     Z : Integer := Var (2 - 1);  --  NO FLAG
@@ -14,4 +14,4 @@ package body P is
 
 begin
   F := Var_T (-1);     --  NO FLAG
-end P;
+end Num;

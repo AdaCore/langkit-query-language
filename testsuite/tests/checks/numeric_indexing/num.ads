@@ -1,4 +1,4 @@
-package P is
+package Num is
 
    type T_Index is (A, B, C);
 
@@ -18,4 +18,4 @@ package P is
 
    function "-" (I : Integer) return T_Index;
 
-end P;
+end Num;
