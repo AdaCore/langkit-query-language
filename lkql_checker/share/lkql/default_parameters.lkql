@@ -1,9 +1,12 @@
 # Flag all parameter specifications with more than N parameters with a default
 # value.
 
+# The `ignore` parameter is just there to allow using default_parameters with
+# default values (all other rules with a single integer require setting a
+# value for the `n` parameter).
+
 @check(message="too many parameters with default value")
-fun default_parameters(node, n: int = 0) =
+fun default_parameters(node, n: int = 0, ignore = false) =
     node is Params
     when (from (from node.f_params select ParamSpec(f_default_expr is Expr))
           select DefiningName).length > n
-
