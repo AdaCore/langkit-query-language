@@ -11,7 +11,8 @@
 
 import stdlib
 
-@check(message="unconstrained array return", follow_generic_instantiations=true)
+@check(message="function returns unconstrained array",
+       follow_generic_instantiations=true)
 fun unconstrained_array_returns(node, except_string = false) =
     node is (ClassicSubpDecl or BaseSubpBody(p_previous_part() is null) or
              GenericSubpInternal)

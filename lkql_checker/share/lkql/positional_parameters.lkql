@@ -16,16 +16,16 @@
 fun check_actual_param(spec, node, check_dot) =
     match spec
     | SubpSpec  => {
-        val num_params=spec?.f_subp_params?.f_params.children_count;
+        val num_params=spec.f_subp_params.f_params.children_count;
         num_params > 2 or (num_params > 1 and not check_dot)
       }
-    | EntrySpec => spec?.f_entry_params?.f_params[2] != null
-    | *           => false
+    | EntrySpec => spec.f_entry_params.f_params[2] != null
+    | *         => false
 
 @check(message="positional parameter association", remediation="EASY")
 fun positional_parameters(node, all=false) =
     node is ParamAssoc(f_designator is null, parent is l@AssocList)
-    when l?.parent is c@CallExpr(f_name is id@*
-        when (not id?.p_is_operator_name())
-         and (all or check_actual_param(id?.p_called_subp_spec(), node,
-                                        id?.p_is_dot_call())))
+    when l.parent is c@CallExpr(f_name is id@*
+        when (not id.p_is_operator_name())
+         and (all or check_actual_param(id.p_called_subp_spec(), node,
+                                        id.p_is_dot_call())))

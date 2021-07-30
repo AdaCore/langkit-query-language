@@ -659,23 +659,22 @@ package body Gnatcheck.Output is
       Info (" -U main          - check the closure of units rooted at unit main");
       Info (" -Xname=value     - specify an external reference for argument project file");
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
-      Info (" --no_objects_dir - place results into current dir instead of project dir");
       Info (" -eL              - follow all symbolic links when processing project files");
       Info ("");
-      Info (" --target=targetname - Specify a target for cross platforms");
-      Info (" --RTS=<runtime>     - Use runtime <runtime>");
+      Info (" --target=targetname - specify a target for cross platforms");
+      Info (" --RTS=<runtime>     - use runtime <runtime>");
       Info ("");
       Info (" -a   - process RTL units");
       Info (" -h   - print out the list of the currently implemented rules");
-      Info (" -mn  - n is the maximal number of diagnoses in Stdout");
+      Info (" -mn  - n is the maximal number of diagnoses in Stderr");
 
       Info ("        (n in 0 .. 1000, 0 means no limit)");
       Info (" -jn  - n is the maximal number of processes");
-      Info (" -q   - quiet mode (do not report detections in Stdout)");
+      Info (" -q   - quiet mode (do not report detections in Stderr)");
       Info (" -t   - report execution time in Stderr");
       Info (" -v   - verbose mode");
-      Info (" -log - duplicate all the messages sent to Stderr in log file");
-      Info ("        gnatcheck.log");
+      Info (" -l   - full pathname for file locations");
+      Info (" -log - duplicate all the messages sent to Stderr in gnatcheck.log");
       Info (" -s   - short form of the report file");
       Info (" -xml - generate report in XML format");
       Info (" -nt  - do not generate text report (enforces '-xml')");
@@ -684,8 +683,9 @@ package body Gnatcheck.Output is
       Info (" --show-rule - apend rule names to diagnoses generated");
       Info ("");
 
-      Info (" --check-redefinition - issue warning if a rule parameter is defined");
-      Info ("                        more than once");
+      Info (" --brief              - brief mode, only report detections in Stderr");
+      Info (" --check-redefinition - issue warning if a rule parameter is redefined");
+      Info (" --check-semantic     - check semantic validity of the source files");
       Info ("");
 
       Info (" --include-file=filename - add the content of filename into generated report");
@@ -726,7 +726,6 @@ package body Gnatcheck.Output is
    begin
       Set_Error (Standard_Output);
       Brief_Help;
-      New_Line;
       New_Line;
       Put_Line ("Report bugs to report@adacore.com");
    end Print_Gnatcheck_Usage;

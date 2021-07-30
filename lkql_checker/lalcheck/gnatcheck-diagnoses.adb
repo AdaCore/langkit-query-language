@@ -1256,7 +1256,6 @@ package body Gnatcheck.Diagnoses is
    procedure Generate_Qualification_Report is
    begin
       Number := new String'(Get_Number);
-
       Ignored_Sources := Exempted_Sources;
 
       Process_Postponed_Exemptions;
@@ -1278,8 +1277,8 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       --  OVERVIEW
-      if not Short_Report then
 
+      if not Short_Report then
          Print_Report_Header;
          Print_Active_Rules_File;
          Print_File_List_File;
@@ -1305,13 +1304,13 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Exempted_Violations > 0 then
-         Diagnoses_To_Print := (Rule_Violation     => True,
-                                Exemption_Warning  => False,
-                                Compiler_Error     => False,
+         Diagnoses_To_Print := (Rule_Violation    => True,
+                                Exemption_Warning => False,
+                                Compiler_Error    => False,
                                 Gnatcheck_Warning => False);
          Print_Exempted_Violations := True;
-
          Print_Diagnoses;
+
       else
          if Text_Report_ON then
             Report ("no exempted violations detected", 1);
@@ -1323,23 +1322,21 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if not Short_Report then
-
          if Text_Report_ON then
             Report_EOL;
             Report ("3. Non-exempted Coding Standard Violations");
             Report_EOL;
          end if;
-
       end if;
 
       if Detected_Non_Exempted_Violations > 0 then
-         Diagnoses_To_Print := (Rule_Violation     => True,
-                                Exemption_Warning  => False,
-                                Compiler_Error     => False,
+         Diagnoses_To_Print := (Rule_Violation    => True,
+                                Exemption_Warning => False,
+                                Compiler_Error    => False,
                                 Gnatcheck_Warning => False);
          Print_Exempted_Violations := False;
-
          Print_Diagnoses;
+
       else
          if Text_Report_ON then
             Report ("no non-exempted violations detected", 1);
@@ -1351,22 +1348,20 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if not Short_Report then
-
          if Text_Report_ON then
             Report_EOL;
             Report ("4. Rule exemption problems");
             Report_EOL;
          end if;
-
       end if;
 
       if Detected_Exemption_Warning > 0 then
-         Diagnoses_To_Print := (Rule_Violation     => False,
-                                Exemption_Warning  => True,
-                                Compiler_Error     => False,
+         Diagnoses_To_Print := (Rule_Violation    => False,
+                                Exemption_Warning => True,
+                                Compiler_Error    => False,
                                 Gnatcheck_Warning => False);
-
          Print_Diagnoses;
+
       else
          if Text_Report_ON then
             Report ("no rule exemption problems detected", 1);
@@ -1379,13 +1374,11 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if not Short_Report then
-
          if Text_Report_ON then
             Report_EOL;
             Report ("5. Language violations");
             Report_EOL;
          end if;
-
       end if;
 
       if Detected_Compiler_Error > 0 then
@@ -1393,8 +1386,8 @@ package body Gnatcheck.Diagnoses is
                                 Exemption_Warning  => False,
                                 Compiler_Error     => True,
                                 Gnatcheck_Warning => False);
-
          Print_Diagnoses;
+
       else
          if Text_Report_ON then
             Report ("no language violations detected", 1);
@@ -1406,22 +1399,20 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if not Short_Report then
-
          if Text_Report_ON then
             Report_EOL;
             Report ("6. Gnatcheck warnings");
             Report_EOL;
          end if;
-
       end if;
 
       if Detected_Gnatcheck_Warnings > 0 then
-         Diagnoses_To_Print := (Rule_Violation     => False,
-                                Exemption_Warning  => False,
-                                Compiler_Error     => False,
+         Diagnoses_To_Print := (Rule_Violation    => False,
+                                Exemption_Warning => False,
+                                Compiler_Error    => False,
                                 Gnatcheck_Warning => True);
-
          Print_Diagnoses;
+
       else
          if Text_Report_ON then
             Report ("no gnatcheck warnings issued", 1);
@@ -1432,10 +1423,9 @@ package body Gnatcheck.Diagnoses is
          end if;
       end if;
 
-         --  User-defined part
+      --  User-defined part
 
       if not Short_Report then
-
          if XML_Report_ON then
             XML_Report ("</violations>");
          end if;
@@ -1445,7 +1435,6 @@ package body Gnatcheck.Diagnoses is
          end if;
 
          if User_Info_File /= null then
-
             if Text_Report_ON then
                Report ("6. Additional Information");
                Report_EOL;
@@ -1464,17 +1453,16 @@ package body Gnatcheck.Diagnoses is
             if XML_Report_ON then
                XML_Report ("</additional-information>");
             end if;
-
          end if;
-
       end if;
 
       if XML_Report_ON then
          XML_Report ("</gnatcheck-report>");
       end if;
 
-      --  Sending the diagnoses into Stderr.
-      if not Quiet_Mode then
+      --  Sending the diagnoses into Stderr
+
+      if Brief_Mode or not Quiet_Mode then
          Print_Out_Diagnoses;
       end if;
    end Generate_Qualification_Report;

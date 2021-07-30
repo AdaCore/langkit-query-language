@@ -138,7 +138,10 @@ begin
          declare
             Ignore : Boolean;
          begin
-            Info ("Waiting for gprbuild...");
+            if not Quiet_Mode then
+               Info ("Waiting for gprbuild...");
+            end if;
+
             Wait_Process (Pid2, Ignore);
 
             if Pid2 = Pid then

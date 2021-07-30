@@ -2,8 +2,10 @@
 
 fun full_range(l, r) =
    l is AttributeRef and r is AttributeRef
-   and l.f_attribute?.p_name_is("First") and r.f_attribute?.p_name_is("Last")
-   and l.f_prefix?.p_referenced_decl() == r.f_prefix?.p_referenced_decl()
+   and l.f_attribute.p_name_is("First") and r.f_attribute.p_name_is("Last")
+   and l.f_prefix.p_referenced_decl() == r.f_prefix.p_referenced_decl()
+   # Exclude function calls which may return different values
+   and l.f_prefix is not Name(p_is_call() is true)
 
 @check(message="range could be replaced by subtype mark or 'Range")
 fun explicit_full_discrete_ranges(node) =

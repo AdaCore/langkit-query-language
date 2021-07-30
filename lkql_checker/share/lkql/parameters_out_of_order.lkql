@@ -20,14 +20,15 @@ fun priority(spec, order) =
          | ModeIn      => index(order, "in")
          | ModeDefault => if spec.f_type_expr is
                              AnonymousType(f_type_decl is
-                                           *(f_type_def is TypeAccessDef))
+                                           *(f_type_def is AccessDef))
                           then index(order, "access") else index(order, "in")
 
 @check(message="parameter out of order", remediation="EASY")
 fun parameters_out_of_order(node,
                             order = ["in", "access", "in_out",
                                      "out", "defaulted_in"]) =
-    node is ParamSpec when ({
+    node is ParamSpec(any parent(depth=3) is not EntryCompletionFormalParams)
+    when ({
         val prio = priority(node, order);
         node is *(any next_siblings is
                   sib@ParamSpec when priority(sib, order) < prio)

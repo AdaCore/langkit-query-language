@@ -142,7 +142,7 @@ package body Gnatcheck.Compiler is
       Par_End   : Natural := 0;
 
    begin
-      Last_Idx := Index (Result, Gnatcheck_Config_File);
+      Last_Idx := Index (Result, Gnatcheck_Config_File.all);
 
       if Last_Idx = 0 then
          Last_Idx := Result'Last;
@@ -306,7 +306,7 @@ package body Gnatcheck.Compiler is
          end if;
 
          if Compiler_Message_Kind = Restriction then
-            if Index (Msg, Gnatcheck_Config_File) = 0 then
+            if Index (Msg, Gnatcheck_Config_File.all) = 0 then
                --  This means that the diagnoses correspond to some pragma that
                --  is not from the configuration file created from rule
                --  options, so we should not file it.
@@ -319,7 +319,8 @@ package body Gnatcheck.Compiler is
            (Text           => Adjust_Message (Msg, Compiler_Message_Kind),
             Diagnosis_Kind => Kind,
             SF             => SF,
-            Rule           => Get_Rule_Id (Compiler_Message_Kind));
+            Rule           => (if Compiler_Message_Kind = Error then No_Rule
+                               else Get_Rule_Id (Compiler_Message_Kind)));
       end Analyze_Line;
 
    --  Start of processing for Analyze_Builder_Output
@@ -341,6 +342,17 @@ package body Gnatcheck.Compiler is
             Error ("wrong parameter specified for compiler-related rule:");
             Error_No_Tool_Name (Line (1 .. Line_Len));
             Errors := True;
+
+         elsif Index (Line (1 .. Line_Len), ".gpr:") /= 0
+           or else Index (Line (1 .. Line_Len), "gprbuild: ") /= 0
+         then
+            if not Errors then
+               Error ("error when calling gprbuild:");
+            end if;
+
+            Error_No_Tool_Name (Line (1 .. Line_Len));
+            Errors := True;
+            Detected_Compiler_Error := @ + 1;
 
          elsif Index (Line (1 .. Line_Len), "BUG DETECTED") /= 0 then
             --  If there is a bug box, we should skip the rest of
@@ -430,7 +442,7 @@ package body Gnatcheck.Compiler is
    begin
       Create (File => RPF,
               Mode => Out_File,
-              Name => Gnatcheck_Config_File);
+              Name => Gnatcheck_Config_File.all);
 
       Put_Line (RPF, "pragma Warnings (Off, ""[enabled by default]"");");
 
@@ -1093,6 +1105,7 @@ package body Gnatcheck.Compiler is
    function Spawn_GPRbuild return Process_Id is
       Pid      : Process_Id;
       GPRbuild : String_Access := Locate_Exec_On_Path ("gprbuild");
+      Prj      : constant String := Gnatcheck_Prj.Source_Prj;
       Args     : Argument_List (1 .. 128);
       Num_Args : Integer := 0;
 
@@ -1105,8 +1118,12 @@ package body Gnatcheck.Compiler is
       Args (6) := new String'("-j0");
       Args (7) := new String'("--no-object-check");
       Args (8) := new String'("--complete-output");
-      Args (9) := new String'("-P" & Gnatcheck_Prj.Source_Prj);
-      Num_Args := 9;
+      Num_Args := 8;
+
+      if Prj /= "" then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-P" & Prj);
+      end if;
 
       if Follow_Symbolic_Links then
          Num_Args := @ + 1;
@@ -1124,6 +1141,21 @@ package body Gnatcheck.Compiler is
       end if;
 
       Append_Variables (Args, Num_Args);
+
+      if Debug_Mode then
+         Put ("gprbuild");
+
+         for J in 1 .. Num_Args loop
+            Put (" " & Args (J).all);
+         end loop;
+
+         for S of Compiler_Arg_List.all loop
+            Put (" " & S.all);
+         end loop;
+
+         New_Line;
+      end if;
+
       Pid :=
         Non_Blocking_Spawn
           (GPRbuild.all,

@@ -1473,6 +1473,24 @@ package body Gnatcheck.Source_Table is
 
          use Ada.Directories;
 
+         function Column_Image (Column : Natural) return String;
+         --  Return an image of Column with no leading space and a leading '0'
+         --  if column is less than 10.
+
+         ------------------
+         -- Column_Image --
+         ------------------
+
+         function Column_Image (Column : Natural) return String is
+            Image : constant String := Column'Image;
+         begin
+            if Column < 10 then
+               return "0" & Image (2 .. Image'Last);
+            else
+               return Image (2 .. Image'Last);
+            end if;
+         end Column_Image;
+
       begin
          GNAT.Task_Lock.Lock;
 
@@ -1490,7 +1508,7 @@ package body Gnatcheck.Source_Table is
                then Unit.Get_Filename
                else Simple_Name (Unit.Get_Filename)) & ":" &
               Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-              Stripped_Image (Integer (Sloc_Range.Start_Column)) & ": " &
+              Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
               To_String (To_Text (Message)) &
               Annotate_Rule (All_Rules.Table (Id).all),
             Diagnosis_Kind => (case Kind is

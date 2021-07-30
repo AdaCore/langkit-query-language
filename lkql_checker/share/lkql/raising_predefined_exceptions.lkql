@@ -2,12 +2,11 @@
 # of the exceptions Constraint_Error, Numeric_Error, Program_Error,
 # Storage_Error, or Tasking_Error).
 
-fun is_predefined_raise(id) = {
-    val name = id.text;
-    name == "Program_Error" or name == "Constraint_Error" or
-    name == "Numeric_Error" or name == "Storage_Error"    or
-    name == "Tasking_Error"
-}
+fun is_predefined_raise(id) =
+    id.p_referenced_decl() is decl@BasicDecl
+    when match decl.p_canonical_fully_qualified_name()
+    | "^standard\.(program|constraint|numeric|storage|tasking)_error$" => true
+    | * => false
 
 fun canonical_exception_name(name) = {
    val ren = name?.p_referenced_decl()?.f_renames;

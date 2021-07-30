@@ -78,17 +78,21 @@ fun identifier_suffixes(unit,
     {message: n.text & " does not end with suffix " &
               match n.parent
               | SubpSpec when interrupt_suffix != "" => interrupt_suffix
-              | BaseTypeDecl(p_is_access_type() is true,
-                             p_accessed_type() is
-                                 ClasswideTypeDecl or
-                                 SubtypeDecl(p_canonical_type() is
-                                             ClasswideTypeDecl))
+              | TypeDecl(p_is_access_type() is true,
+                         p_accessed_type() is
+                             ClasswideTypeDecl or
+                             SubtypeDecl(p_canonical_type() is
+                                         ClasswideTypeDecl))
                 when class_access_suffix != ""  => class_access_suffix
               | BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
                 when class_subtype_suffix != "" => class_subtype_suffix
-              | BaseTypeDecl(p_is_access_type() is true)
-                when access_suffix != "" => access_suffix
-              | BaseTypeDecl => type_suffix
+              | p@TypeDecl(p_is_access_type() is true)
+                when access_suffix != "" =>
+                  if access_access_suffix != "" and
+                     p.p_accessed_type().p_is_access_type()
+                  then access_suffix & access_access_suffix
+                  else access_suffix
+              | TypeDecl => type_suffix
               | PackageRenamingDecl => renaming_suffix
               | * => constant_suffix,
      loc: n}
@@ -101,10 +105,10 @@ fun identifier_suffixes(unit,
              not node.f_name.text.ends_with(interrupt_suffix)
 
     # 'Class access
-    | p@BaseTypeDecl(p_is_access_type() is true,
-                     p_accessed_type() is
-                         ClasswideTypeDecl or
-                         SubtypeDecl(p_canonical_type() is ClasswideTypeDecl))
+    | p@TypeDecl(p_is_access_type() is true,
+                 p_accessed_type() is
+                     ClasswideTypeDecl or
+                     SubtypeDecl(p_canonical_type() is ClasswideTypeDecl))
       when class_access_suffix != ""
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
@@ -118,7 +122,7 @@ fun identifier_suffixes(unit,
         not node.f_name.text.ends_with(class_subtype_suffix)
 
     # Other access types
-    | p@BaseTypeDecl(p_is_access_type() is true) when access_suffix != ""
+    | p@TypeDecl(p_is_access_type() is true) when access_suffix != ""
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         not node.f_name.text.ends_with(
@@ -131,8 +135,8 @@ fun identifier_suffixes(unit,
     # Exclude IncompleteTypeDecl
     | IncompleteTypeDecl => false
 
-    # Other types and subtypes
-    | p@BaseTypeDecl =>
+    # Other types
+    | p@TypeDecl =>
         type_suffix != "" and
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         not node.f_name.text.ends_with(type_suffix)

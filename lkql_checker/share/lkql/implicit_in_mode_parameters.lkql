@@ -7,4 +7,4 @@
 fun implicit_in_mode_parameters(node) =
     node is ParamSpec(f_mode is ModeDefault)
     when not node.f_type_expr is
-         AnonymousType(f_type_decl is *(f_type_def is TypeAccessDef))
+         AnonymousType(f_type_decl is *(f_type_def is AccessDef))

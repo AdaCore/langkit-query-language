@@ -36,8 +36,9 @@ fun non_visible_exceptions(unit) = [
          # or no handler referencing node or "others"
          or not p?.f_stmts?.f_exceptions is
              AdaNodeList(any children(depth=3) is
-                 (id@Identifier when stdlib.ultimate_exception_alias(id) == e)
-               or OthersDesignator))))
+                 (id@(Identifier or DottedName)
+                  when stdlib.ultimate_exception_alias(id) == e)
+                 or OthersDesignator))))
     # Find also raise statements in an exception handler of a subprogram body,
     # task body or block statement
     or RaiseStmt(any parent is h@ExceptionHandler

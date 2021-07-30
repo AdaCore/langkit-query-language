@@ -515,15 +515,20 @@ package body Gnatcheck.Projects is
    ----------------------------
 
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type) is
-      Dir : Virtual_File := My_Project.Root_Project.Object_Dir;
+      Dir : Virtual_File;
    begin
-      if Dir = No_File then
-         Dir := My_Project.Root_Project.Project_Path;
+      if Gnatcheck_Prj.Is_Specified then
+         Dir := My_Project.Root_Project.Object_Dir;
+
+         if Dir = No_File then
+            Dir := My_Project.Root_Project.Project_Path;
+         end if;
+      else
+         Dir := Get_Current_Dir;
       end if;
 
       GNAT.OS_Lib.Free (Global_Report_Dir);
-      Global_Report_Dir :=
-        new String'(Display_Dir_Name (Dir) & Directory_Separator);
+      Global_Report_Dir := new String'(Display_Dir_Name (Dir));
    end Set_Global_Result_Dirs;
 
    ---------------------
@@ -534,7 +539,6 @@ package body Gnatcheck.Projects is
    begin
       Free (Subdir_Name);
       Subdir_Name := new String'(S);
-
    end Set_Subdir_Name;
 
    ----------------
@@ -779,12 +783,13 @@ package body Gnatcheck.Projects is
              ("v q t h hx s "          &
               "m? files= a "           &
               "P: U X! vP! eL A: "     &   --  project-specific options
+              "-brief "                &
               "-check-semantic "       &
               "-check-redefinition "   &
               "-target= "              &
               "-subdirs= "             &
               "j! "                    &
-              "dd "                    &
+              "d dd "                  &
               "o= "                    &
               "ox= "                   &
               "-RTS= "                 &
@@ -850,7 +855,11 @@ package body Gnatcheck.Projects is
 
             when 'd' =>
                if not First_Pass then
-                  Progress_Indicator_Mode := True;
+                  if Full_Switch (Parser => Parser) = "d" then
+                     Debug_Mode := True;
+                  else
+                     Progress_Indicator_Mode := True;
+                  end if;
                end if;
 
             when 'e' =>
@@ -1043,7 +1052,11 @@ package body Gnatcheck.Projects is
                end if;
             when '-' =>
                if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "-check-redefinition"
+                  if Full_Switch (Parser => Parser) = "-brief" then
+                     Quiet_Mode := True;
+                     Brief_Mode := True;
+
+                  elsif Full_Switch (Parser => Parser) = "-check-redefinition"
                   then
                      Check_Param_Redefinition := True;
                   elsif Full_Switch (Parser => Parser) = "-check-semantic" then
@@ -1186,6 +1199,8 @@ package body Gnatcheck.Projects is
       if In_Aggregate_Project then
          --  We have to skip most of the checks because this call does not do
          --  anything except spawning another gnatcheck for individual projects
+
+         Set_Global_Result_Dirs (Gnatcheck_Prj);
          goto Processing_Aggregate_Project;
       end if;
 
@@ -1223,6 +1238,10 @@ package body Gnatcheck.Projects is
 
       Set_Compiler_Checks;
 
+      Gnatcheck.Projects.Set_Global_Result_Dirs (Gnatcheck_Prj);
+      Gnatcheck_Config_File :=
+        new String'(Global_Report_Dir.all & Gnatcheck_Config_File.all);
+
       Analyze_Compiler_Output :=
         Use_gnaty_Option or Use_gnatw_Option or
         Check_Restrictions or Check_Semantic;
@@ -1234,23 +1253,27 @@ package body Gnatcheck.Projects is
             Store_Compiler_Option ("-gnatef");
          end if;
 
-         if Use_gnatw_Option or else Check_Restrictions then
+         if Use_gnatw_Option then
             Store_Compiler_Option ("-gnatwnA");
             Store_Compiler_Option (Get_Warning_Option);
+
+            if Mapping_Mode then
+               Store_Compiler_Option ("-gnatw.d");
+            else
+               Store_Compiler_Option ("-gnatw.D");
+            end if;
+
+            Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
+
+         elsif Check_Restrictions then
+            Store_Compiler_Option ("-gnatwnA");
+            Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
          else
             --  '-gnatws' disables all the warnings except style-related
             Store_Compiler_Option ("-gnatws");
          end if;
 
          Store_Compiler_Option ("-gnatyN");
-
-         if Use_gnatw_Option then
-            if Mapping_Mode then
-               Store_Compiler_Option ("-gnatw.d");
-            else
-               Store_Compiler_Option ("-gnatw.D");
-            end if;
-         end if;
 
          if Use_gnaty_Option then
             Store_Compiler_Option (Get_Style_Option);
@@ -1291,10 +1314,6 @@ package body Gnatcheck.Projects is
         (String_List (Compiler_Switches.Table (1 .. Compiler_Switches.Last)));
 
       <<Processing_Aggregate_Project>>
-
-      if Gnatcheck_Prj.Is_Specified then
-         Gnatcheck.Projects.Set_Global_Result_Dirs (Gnatcheck_Prj);
-      end if;
 
       Gnatcheck.Output.Set_Report_Files;
    end Check_Parameters;

@@ -16,4 +16,4 @@ fun deeply_nested_generics(unit, n: int = 5) = [
     {message: "deeply nested generic (" & img(generic_nesting(node)) & ")",
      loc: node?.p_defining_name()}
     for node in from unit.root select decl@GenericDecl
-    when generic_nesting(decl) >= n]
+    when generic_nesting(decl) > n]

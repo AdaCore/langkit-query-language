@@ -21,9 +21,8 @@ fun enumeration_ranges_in_case_statements(node) =
        when e?.p_expression_type() is BaseTypeDecl(p_is_enum_type() is true)))
    when node is *(any children is
         # explicit range
-        BinOp(f_op is OpDoubleDot)
+        BinOp(f_op is OpDoubleDot) or
         # subtype mark
-        or id@BaseId when id?.p_referenced_decl() is BaseTypeDecl
+        Identifier(p_referenced_decl() is BaseTypeDecl) or
         # range attribute
-        or AttributeRef(f_attribute is id@BaseId when id?.p_name_is("Range"))
-      )
+        AttributeRef(f_attribute is Identifier(p_name_is("Range") is true)))

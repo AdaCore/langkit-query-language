@@ -73,6 +73,14 @@ package body Checker_App is
       --  Factorize the error handling code, so that it can be shared amongst
       --  the two kinds of checkers, node checkers and unit checkers.
 
+      function Strip_LF (S : String) return String is
+      (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
+      --  Remove trailing LF if any
+
+      ------------------
+      -- Handle_Error --
+      ------------------
+
       procedure Handle_Error
         (Rule : Rule_Command;
          Node : Ada_Node'Class;
@@ -92,10 +100,6 @@ package body Checker_App is
 
             procedure Internal_Error (Msg : Wide_Wide_String);
             --  Call Emit_Message to store an internal error message
-
-            function Strip_LF (S : String) return String is
-            (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
-            --  Remove trailing LF if any
 
             procedure Internal_Error (Msg : Wide_Wide_String) is
             begin
@@ -126,8 +130,7 @@ package body Checker_App is
                   Internal_Error ("internal warning");
                else
                   Eval_Trace.Trace ("Evaluating rule predicate failed");
-                  Eval_Trace.Trace
-                    ("rule => " & Image (To_Text (Rule.Name)));
+                  Eval_Trace.Trace ("rule => " & Image (To_Text (Rule.Name)));
                   Eval_Trace.Trace ("ada node => " & Node.Image);
 
                   if E /= null then
@@ -295,16 +298,27 @@ package body Checker_App is
                when E : LKQL.Errors.Stop_Evaluation_Error =>
                   Handle_Error (Rule, Node, E);
                when E : others =>
-                  Put_Line
-                    (Standard_Error,
-                     "Evaluating query predicate failed unrecoverably");
-                  Put_Line
-                    (Standard_Error, "rule => " & To_Text (Rule.Name));
-                  Put_Line
-                    (Standard_Error, "ada node => " & To_Text (Node.Image));
-                  Ada.Text_IO.Put_Line (Exception_Information (E));
-                  Ada.Text_IO.Put_Line
-                    (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+                  if Emit_Message /= null then
+                     Emit_Message
+                       (To_Unbounded_Wide_Wide_String
+                          ("internal error on rule " &
+                           To_Text (Rule.Name) & ": " &
+                           To_Wide_Wide_String
+                             (Strip_LF (Exception_Information (E)))),
+                        Node.Unit, Rule.Name, Internal_Error, Node.Sloc_Range);
+
+                  else
+                     Put_Line
+                       (Standard_Error,
+                        "Evaluating query predicate failed unrecoverably");
+                     Put_Line
+                       (Standard_Error, "rule => " & To_Text (Rule.Name));
+                     Put_Line
+                       (Standard_Error, "ada node => " & To_Text (Node.Image));
+                     Ada.Text_IO.Put_Line (Exception_Information (E));
+                     Ada.Text_IO.Put_Line
+                       (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+                  end if;
             end;
 
             <<Next>>

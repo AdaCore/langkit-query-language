@@ -54,8 +54,8 @@ fun recursive_subprograms(node, skip_dispatching_calls=false) = {
     | b@Body => rec *
         # Grab the bodies for every direct call
         concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
-                if a is not CallExpr and a is Name(p_is_direct_call() is true)].
-               to_list)
+                if a is not CallExpr and
+                   a is Name(p_is_direct_call() is true)].to_list)
     | *      => ();
 
     # Check the given BaseSubpBody `b` for recursivity

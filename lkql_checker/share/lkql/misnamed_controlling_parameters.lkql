@@ -18,9 +18,12 @@ fun misnamed_controlling_parameters(node) =
     when node.p_subp_spec_or_null() is
          spec@BaseSubpSpec(p_primitive_subp_tagged_type() is BaseTypeDecl)
      when {
-         val params = spec?.p_params();
+         val params = spec.p_params();
          params.length > 0 and (not
-         (params[1]?.f_ids[1]?.f_name?.p_name_is("this") and
-          stdlib.is_controlling_param_type(params[1]?.f_type_expr, spec))) and
-         not stdlib.is_controlling_param_type(spec?.p_returns(), spec)
+         (params[1].f_ids[1].f_name.p_name_is("this") and
+          stdlib.is_controlling_param_type(params[1].f_type_expr, spec))) and
+         ((not stdlib.is_controlling_param_type(spec.p_returns(), spec)) or
+          [p for p in params
+           if stdlib.is_controlling_param_type(p.f_type_expr, spec)].
+          length != 0)
      }

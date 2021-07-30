@@ -73,7 +73,8 @@ package Gnatcheck.Compiler is
    --  Boolean flag indicating if gnatcheck should spawn the compiler and
    --  analyze its output.
 
-   Gnatcheck_Config_File : constant String := "restriction_pragmas" & ".TMP";
+   Gnatcheck_Config_File : String_Access :=
+     new String'("restriction_pragmas" & ".TMP");
    --  The name of the file to place configuration pragmas gnatcheck needs to
    --  add the compiler checks to its report. This file always starts with:
    --

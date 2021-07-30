@@ -34,7 +34,7 @@ package Gnatcheck.Options is
 
    Custom_RTS : GNAT.OS_Lib.String_Access;
 
-   Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'(".");
+   Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
 
    Fatal_Error : exception;
@@ -63,15 +63,16 @@ package Gnatcheck.Options is
    --  '-v'
 
    Quiet_Mode       : Boolean := False;
-   Fully_Quiet_Mode : Boolean := False;
-   --  The quiet mode
+   --  Quiet mode, do not emit messages on stderr
    --  '-q'
-   --  !!! At some point we have to get rid of this flag and to use only
-   --  fine tuned debug options defined by the flags in ASIS_UL.Debug. Most of
-   --  the tools are supposed to use Quiet_Mode flag. The Fully_Quiet_Mode flag
-   --  is "more quiet than just Quiet_Mode (for example it suppresses the error
-   --  message when the tool cannot compile the source for the tree).
-   --  Fully_Quiet_Mode is used in Q4A test driver.
+
+   Brief_Mode       : Boolean := False;
+   --  Brief mode: like quiet mode except that messages are emitted on stderr
+   --  '--brief'
+
+   Debug_Mode       : Boolean := False;
+   --  Internal debug mode
+   --  '-d'
 
    Progress_Indicator_Mode : Boolean := False;
    --  Generate the output to be used for GPS progress indicator.
@@ -179,7 +180,6 @@ package Gnatcheck.Options is
    --  Check if for parametrized rule the rule parameter is defined more than
    --  once (may happen if gnatcheck has several rule files as parameters, or
    --  when a rule is activated both in the command line and in the rule file.
-   --  Currently the debug option '-dw' also sets this flag ON.
 
    Active_Rule_Present : Boolean := False;
    --  Flag indicating if the tool has an activated rule to check. It does not

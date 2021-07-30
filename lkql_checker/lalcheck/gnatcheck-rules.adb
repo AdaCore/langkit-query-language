@@ -767,29 +767,27 @@ package body Gnatcheck.Rules is
          end if;
       else
          if Enable then
-            --  First try to extra an integer if not already set
+            --  First try to extract an integer
 
-            if Rule.Integer_Param = Integer'First then
-               begin
-                  Rule.Integer_Param := Integer'Value (Param);
+            begin
+               Rule.Integer_Param := Integer'Value (Param);
 
-                  if Rule.Integer_Param >= 0 then
-                     Rule.Rule_State := Enabled;
-                     Rule.Defined_At := new String'(Defined_At);
-                  else
-                     Error ("(" & Rule.Name.all & ") wrong parameter: " &
-                            Param);
-                     Rule.Integer_Param := Integer'First;
-                     Rule.Boolean_Params := (others => Unset);
-                     Rule.Rule_State := Disabled;
-                  end if;
+               if Rule.Integer_Param >= 0 then
+                  Rule.Rule_State := Enabled;
+                  Rule.Defined_At := new String'(Defined_At);
+               else
+                  Error ("(" & Rule.Name.all & ") wrong parameter: " &
+                         Param);
+                  Rule.Integer_Param := Integer'First;
+                  Rule.Boolean_Params := (others => Unset);
+                  Rule.Rule_State := Disabled;
+               end if;
 
-                  return;
-               exception
-                  when Constraint_Error =>
-                     null;
-               end;
-            end if;
+               return;
+            exception
+               when Constraint_Error =>
+                  null;
+            end;
 
             --  Then find the relevant boolean parameter
 
@@ -825,7 +823,7 @@ package body Gnatcheck.Rules is
    begin
       if Param = "" then
          if Enable then
-            Error ("(" & Rule.Name.all & ") parameter is required for +R");
+            Rule.Rule_State := Enabled;
          else
             Rule.Rule_State := Disabled;
          end if;
@@ -842,7 +840,6 @@ package body Gnatcheck.Rules is
             Rule.Rule_State := Enabled;
             Rule.Defined_At := new String'(Defined_At);
          end if;
-
       else
          Set_Unbounded_Wide_Wide_String (Rule.Param, "");
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
