@@ -29,6 +29,7 @@ with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
 with Gnatcheck.Options;   use Gnatcheck.Options;
 with Gnatcheck.Output;    use Gnatcheck.Output;
+with Gnatcheck.Projects;  use Gnatcheck.Projects;
 with Gnatcheck.Projects.Aggregate;
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
@@ -84,6 +85,10 @@ begin
 
    Ctx := Gnatcheck.Source_Table.Create_Context;
    Process_Rules (Ctx);
+
+   if Gnatcheck_Prj.Is_Specified and not In_Aggregate_Project then
+      Extract_Tool_Options (Gnatcheck_Prj);
+   end if;
 
    --  And finally - analyze the command-line parameters.
 

@@ -423,7 +423,6 @@ package body Gnatcheck.Projects is
       end if;
 
       if N_Of_Aggregated_Projects > 1 then
-
          if not No_Argument_File_Specified then
             Error ("no argument file should be specified if aggregate " &
                    "project");
@@ -446,9 +445,7 @@ package body Gnatcheck.Projects is
          In_Aggregate_Project := True;
          return;
       else
-         Extract_Tool_Options (My_Project);
          Get_Sources_From_Project (My_Project);
-         --  ### Create_Configuration_File (My_Project);
       end if;
    end Process_Project_File;
 
@@ -1053,8 +1050,9 @@ package body Gnatcheck.Projects is
             when '-' =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "-brief" then
-                     Quiet_Mode := True;
-                     Brief_Mode := True;
+                     Quiet_Mode   := True;
+                     Short_Report := True;
+                     Brief_Mode   := True;
 
                   elsif Full_Switch (Parser => Parser) = "-check-redefinition"
                   then
