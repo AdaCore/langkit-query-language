@@ -40,6 +40,7 @@ with Gnatcheck.Rules;             use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;  use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
 
+with Langkit_Support.Errors;      use Langkit_Support.Errors;
 with Langkit_Support.Images;      use Langkit_Support.Images;
 with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with Langkit_Support.Text;        use Langkit_Support.Text;
@@ -1534,6 +1535,18 @@ package body Gnatcheck.Source_Table is
             Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF)),
             Store_Message'Access);
       end loop;
+
+   exception
+      when Precondition_Failure | Property_Error =>
+         Error ("Internal inconsistency on Ada sources");
+
+         if Gnatcheck_Prj.Is_Specified then
+            Error_No_Tool_Name ("Try again with --check-semantic");
+         else
+            Error_No_Tool_Name ("Try again with a project file");
+         end if;
+
+         raise Fatal_Error;
    end Process_Sources;
 
    --------------------
