@@ -89,7 +89,8 @@ fun identifier_suffixes(unit,
               | p@TypeDecl(p_is_access_type() is true)
                 when access_suffix != "" =>
                   if access_access_suffix != "" and
-                     p.p_accessed_type().p_is_access_type()
+                     p.p_accessed_type() is t@BaseTypeDecl
+                     when t.p_is_access_type()
                   then access_suffix & access_access_suffix
                   else access_suffix
               | TypeDecl => type_suffix
@@ -127,7 +128,8 @@ fun identifier_suffixes(unit,
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
         not node.f_name.text.ends_with(
             if access_access_suffix != ""
-                and p?.p_accessed_type()?.p_is_access_type()
+                and p?.p_accessed_type() is t@BaseTypeDecl
+                    when t.p_is_access_type()
             then access_suffix & access_access_suffix
             else access_suffix
         )
