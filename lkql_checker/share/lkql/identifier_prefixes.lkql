@@ -113,9 +113,10 @@ fun identifier_prefixes(unit,
 
     [{message: n.text &
       (match n.parent
-       | ((TaskTypeDecl or ProtectedTypeDecl) or
-          SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
-         when concurrent != "-" => str_prefix & concurrent
+       | p@(TaskTypeDecl or ProtectedTypeDecl or
+            SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
+         when p is not SingleTaskTypeDecl and concurrent != "-"
+       => str_prefix & concurrent
        | (TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
           AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) or
           SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
@@ -129,13 +130,16 @@ fun identifier_prefixes(unit,
        | (TypeDecl(f_type_def is AccessDef) or
           SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
          when access != "-" => str_prefix & access
-       | p@TypeDecl(f_type_def is DerivedTypeDef) when derived != "-" and
-           p?.p_base_type()?.p_canonical_type()?.
-           p_canonical_fully_qualified_name() == derived_ancestor
+
+       | p@(TypeDecl(f_type_def is DerivedTypeDef) or SubtypeDecl)
+         when derived != "-" and
+              p.p_canonical_type().p_base_type() is t@BaseTypeDecl
+              when t.p_canonical_type().p_canonical_fully_qualified_name() ==
+                   derived_ancestor
          => str_prefix & derived
        | BaseTypeDecl    => str_prefix & type
        | EnumLiteralDecl => str_prefix & enum
-       | p@* => match p?.parent
+       | p@* => match p.parent
                 | ObjectDecl or NumberDecl => str_prefix & constant
                 | SubpRenamingDecl         => str_prefix & enum
                 | ExceptionDecl            => str_prefix & exception
@@ -143,11 +147,11 @@ fun identifier_prefixes(unit,
       loc: n}
     for n in from unit.root select node@DefiningName when match node.parent
     # Concurrent types
-    | (p@(TaskTypeDecl or ProtectedTypeDecl) or
-       p@SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
-      when concurrent != "-"
+    | p@(TaskTypeDecl or ProtectedTypeDecl or TaskBody or ProtectedBody or
+         SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
+      when p is not SingleTaskTypeDecl and concurrent != "-"
     =>
-        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(concurrent)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
@@ -190,12 +194,14 @@ fun identifier_prefixes(unit,
                          exclusive=exclusive,
                          access_exclusive=false))
 
-    # Types derived from derived_ancestor
-    | p@TypeDecl(f_type_def is d@DerivedTypeDef) when derived != "-" and
-        p?.p_base_type()?.p_canonical_type()?.p_canonical_fully_qualified_name() ==
-        derived_ancestor
+    # (Sub)Types derived from derived_ancestor
+    | p@(TypeDecl(f_type_def is DerivedTypeDef) or SubtypeDecl)
+      when derived != "-" and
+           p.p_canonical_type().p_base_type() is t@BaseTypeDecl
+           when t.p_canonical_type().p_canonical_fully_qualified_name() ==
+                derived_ancestor
     =>
-        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null or IncompleteTypeDecl) and
         ((not node.f_name.text.starts_with(derived)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
@@ -205,8 +211,8 @@ fun identifier_prefixes(unit,
     | IncompleteTypeDecl => false
 
     # Other types and subtypes
-    | p@BaseTypeDecl =>
-        p?.p_previous_part() is (null or IncompleteTypeDecl) and
+    | p@BaseTypeDecl when p is not SingleTaskTypeDecl =>
+        p.p_previous_part() is (null or IncompleteTypeDecl) and
         ((type != "-" and not node.f_name.text.starts_with(type)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,

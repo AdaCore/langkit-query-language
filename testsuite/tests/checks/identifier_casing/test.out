@@ -38,6 +38,10 @@ pack.ads:24:9: rule violation: AAAA does not have casing specified in the dictio
 24 |    type AAAA is range 1 .. 10;               --  FLAG
    |         ^^^^ 
 
+pack.ads:27:9: rule violation: Parent_3 does not have casing specified for subtype names (upper)
+27 |    type Parent_3 is tagged null record;      --  FLAG
+   |         ^^^^^^^^ 
+
 test_it.adb:3:4: rule violation: Chaclo does not have casing specified in the dictionary (CHACLO)
 3 |    Chaclo : Integer; --  FLAG
   |    ^^^^^^ 

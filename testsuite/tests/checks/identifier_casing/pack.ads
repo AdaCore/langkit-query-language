@@ -24,5 +24,5 @@ package Pack is
    type AAAA is range 1 .. 10;               --  FLAG
 
 private
-   type Parent_3 is tagged null record;
+   type Parent_3 is tagged null record;      --  FLAG
 end Pack;

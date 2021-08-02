@@ -65,7 +65,9 @@ fun identifier_casing(unit,
               ({
                  val str = excluded_name(n.f_name, exclude);
                  if str == "" then match n.parent
-                    | BaseTypeDecl    => "for subtype names (" & type
+                    | t@BaseTypeDecl when t is not SingleTaskTypeDecl or
+                      p@TaskBody when p.p_previous_part() is not SingleTaskDecl
+                    => "for subtype names (" & type
                     | EnumLiteralDecl => "for enumeration literals (" & enum
                     | p@* => match p?.parent
                              | ObjectDecl or
@@ -85,39 +87,41 @@ fun identifier_casing(unit,
         else if res == 1 then false
         else match node.parent
 
-        # Types and subtypes
-        | p@BaseTypeDecl when type != "" =>
-            p?.p_previous_part() == null and wrong_casing(id.text, type)
+        # Task objects
+        | SingleTaskDecl or SingleTaskTypeDecl => others != "" and wrong_casing(id.text, others)
+
+        # Types and subtypes, including TaskBody when the spec is a task type
+        | BaseTypeDecl or
+          p@TaskBody when p.p_previous_part() is not SingleTaskDecl
+        => type != "" and wrong_casing(id.text, type)
 
         # Enums
-        | EnumLiteralDecl when enum != "" => wrong_casing(id.text, enum)
+        | EnumLiteralDecl => enum != "" and wrong_casing(id.text, enum)
 
         # Look one level up for remaining cases
         | p@* => match p?.parent
 
         # Constants
         | (o@ObjectDecl
-           when constant != ""
-            and (o?.f_has_constant?.p_as_bool() or
+           when (o?.f_has_constant?.p_as_bool() or
                  # Renaming of a constant
                  (o?.f_renaming_clause != null and
                   stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
                   f_has_constant?.p_as_bool())))
           or NumberDecl
         =>
-            wrong_casing(id.text, constant)
+            constant != "" and wrong_casing(id.text, constant)
 
         # Function renaming an enum literal
         | r@SubpRenamingDecl
-          when enum != "" and
-               r?.f_renames?.f_renamed_object?.p_referenced_decl() is
+          when r?.f_renames?.f_renamed_object?.p_referenced_decl() is
                EnumLiteralDecl
         =>
-            wrong_casing(id.text, enum)
+            enum != "" and wrong_casing(id.text, enum)
 
         # Exceptions
-        | ExceptionDecl when exception != "" =>
-            wrong_casing(id.text, exception)
+        | ExceptionDecl =>
+            exception != "" and wrong_casing(id.text, exception)
 
         | * => others != "" and wrong_casing(id.text, others)
     }]
