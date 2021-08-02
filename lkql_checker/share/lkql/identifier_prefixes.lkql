@@ -178,8 +178,8 @@ fun identifier_prefixes(unit,
       when subprogram_access != "-"
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
-        ((not node.f_name?.f_name.text.starts_with(subprogram_access)) or
-         check_exclusive(node.f_name?.f_name.text,
+        ((not node.f_name.text.starts_with(subprogram_access)) or
+         check_exclusive(node.f_name.text,
                          exclusive=exclusive,
                          subprogram_access_exclusive=false))
 
@@ -189,8 +189,8 @@ fun identifier_prefixes(unit,
       when access != "-"
     =>
         p?.p_previous_part() is (null or IncompleteTypeDecl) and
-        ((not node.f_name?.f_name.text.starts_with(access)) or
-         check_exclusive(node.f_name?.f_name.text,
+        ((not node.f_name.text.starts_with(access)) or
+         check_exclusive(node.f_name.text,
                          exclusive=exclusive,
                          access_exclusive=false))
 

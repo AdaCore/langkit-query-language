@@ -102,12 +102,13 @@ fun identifier_casing(unit,
         | p@* => match p?.parent
 
         # Constants
+        # TODO: use LAL p_is_constant_object() when available (U330-040)
         | (o@ObjectDecl
            when (o?.f_has_constant?.p_as_bool() or
                  # Renaming of a constant
                  (o?.f_renaming_clause != null and
-                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)?.
-                  f_has_constant?.p_as_bool())))
+                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)
+                  is ObjectDecl(f_has_constant is ConstantPresent))))
           or NumberDecl
         =>
             constant != "" and wrong_casing(id.text, constant)
