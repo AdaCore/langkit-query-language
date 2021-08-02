@@ -1,10 +1,10 @@
-anonymous_subtypes.ads:4:37: rule violation: anonymous subtype
+anonymous_subtypes.ads:4:23: rule violation: anonymous subtype
 4 |    type A_T is access Integer range 0 .. 10; -- FLAG
-  |                                     ^^^^^^^ 
+  |                       ^^^^^^^^^^^^^^^^^^^^^ 
 
-anonymous_subtypes.ads:6:27: rule violation: anonymous subtype
+anonymous_subtypes.ads:6:19: rule violation: anonymous subtype
 6 |    type T2 is new T range 1 .. 3; -- FLAG
-  |                           ^^^^^^ 
+  |                   ^^^^^^^^^^^^^^ 
 
 anonymous_subtypes.ads:9:40: rule violation: anonymous subtype
 9 |                return Boolean is (I in 0 .. 10); -- FLAG
@@ -18,23 +18,19 @@ anonymous_subtypes.ads:15:50: rule violation: anonymous subtype
 15 |                 return Boolean is (for some J in 0 .. 10 => J > I); -- FLAG
    |                                                  ^^^^^^^ 
 
-anonymous_subtypes.ads:19:26: rule violation: anonymous subtype
+anonymous_subtypes.ads:19:12: rule violation: anonymous subtype
 19 |       N2 : Integer range 1 .. 10; -- FLAG
-   |                          ^^^^^^^ 
+   |            ^^^^^^^^^^^^^^^^^^^^^ 
 
 anonymous_subtypes.ads:22:12: rule violation: anonymous subtype
 22 |       when 1 .. 10 => -- FLAG
    |            ^^^^^^^ 
 
-anonymous_subtypes.ads:28:36: rule violation: anonymous subtype
+anonymous_subtypes.ads:28:22: rule violation: anonymous subtype
 28 |    type TA is array (Integer range 0 .. 10) of Integer; -- FLAG
-   |                                    ^^^^^^^ 
+   |                      ^^^^^^^^^^^^^^^^^^^^^ 
 
-anonymous_subtypes.ads:30:26: rule violation: anonymous subtype
-30 |    subtype TA_C is TA_U (1 .. 10); -- FLAG
-   |                          ^^^^^^^ 
-
-anonymous_subtypes.ads:32:17: rule violation: anonymous subtype
+anonymous_subtypes.ads:32:15: rule violation: anonymous subtype
 32 |    Var_Disc : R (1); -- FLAG
-   |                 ^^^ 
+   |               ^^^^^ 
 
