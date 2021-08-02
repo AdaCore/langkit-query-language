@@ -16,13 +16,15 @@
 
 fun check_parents(n, statements_only) =
     match n
-    | null         => true
-    | AspectAssoc  => false
-    | NumberDecl   => false
-    | o@ObjectDecl => not (statements_only or o?.f_has_constant?.p_as_bool())
-    | BasicDecl    => not statements_only
-    | Stmt         => true
-    | *            => check_parents(n?.parent, statements_only)
+    | null            => true
+    | AspectAssoc     => false
+    | AspectClause    => false
+    | ComponentClause => false
+    | NumberDecl      => false
+    | o@ObjectDecl    => not (statements_only or o?.f_has_constant?.p_as_bool())
+    | BasicDecl       => not statements_only
+    | Stmt            => true
+    | *               => check_parents(n?.parent, statements_only)
 
 @check(message="numeric literal")
 fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
