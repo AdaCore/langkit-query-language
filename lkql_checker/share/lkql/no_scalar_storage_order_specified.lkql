@@ -7,10 +7,10 @@
 @check(message="Scalar_Storage_Order is not specified", remediation="EASY")
 fun no_scalar_storage_order_specified(node) =
     (match node
-     | RecordTypeDef  => not node.parent?.p_has_aspect("Scalar_Storage_Order")
-     | DerivedTypeDef =>
-         [p for p in node.parent?.p_base_types()
-          if p?.p_has_aspect("Scalar_Storage_Order")].length == 0
+     | RecordTypeDef  => not node.parent.p_has_aspect("Scalar_Storage_Order")
+     | DerivedTypeDef => not (node.parent.p_has_aspect("Scalar_Storage_Order")
+         or [p for p in node.parent.p_base_types()
+             if p.p_has_aspect("Scalar_Storage_Order")].length != 0)
      | *              => false)
-    and node.parent?.p_get_record_representation_clause() is RecordRepClause(
+    and node.parent.p_get_record_representation_clause() is RecordRepClause(
          f_components is *(any children(depth=1) is ComponentClause))
