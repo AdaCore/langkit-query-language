@@ -43,7 +43,7 @@ fun anonymous_subtypes(node) =
          when (not (constraint is DiscriminantConstraint
                     and is_self_referencing(constraint, get_type_decl(node)))))
     or BinOp(f_op is OpDoubleDot,
-             parent is not RangeSpec(parent is TypeDef),
+             parent is not RangeSpec(parent is TypeDef or ComponentClause),
              all parent is not Constraint(parent is SubtypeIndication))
     or AttributeRef(f_attribute is Identifier(p_name_is("Range") is true),
                     parent is not RangeSpec(parent is TypeDef),
