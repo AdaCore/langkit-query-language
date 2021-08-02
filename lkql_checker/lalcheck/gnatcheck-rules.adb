@@ -55,7 +55,7 @@ package body Gnatcheck.Rules is
      (File_Name : String;
       Rule      : in out Rule_Template'Class;
       Param     : in out Unbounded_Wide_Wide_String);
-   --  Load dictionary file File_Name for rule Rule and store the result in
+   --  Load dictionary file File_Name for rule Rule and append the result in
    --  Param as a comma separated list.
 
    function To_String (S : Unbounded_Wide_Wide_String) return String
@@ -200,15 +200,20 @@ package body Gnatcheck.Rules is
 
             --  Skip empty and comment lines
 
-            if Len > 0
-              and then (Len < 2 or else Line (1 .. 2) /= "--")
-            then
-               if Length (Param) /= 0 then
-                  Append (Param, ",");
-               end if;
+            declare
+               S : constant String := Remove_Spaces (Line (1 .. Len));
+            begin
+               if S'Length > 0
+                 and then (S'Length < 2
+                           or else S (S'First .. S'First + 1) /= "--")
+               then
+                  if Length (Param) /= 0 then
+                     Append (Param, ",");
+                  end if;
 
-               Append (Param, To_Wide_Wide_String (Line (1 .. Len)));
-            end if;
+                  Append (Param, To_Wide_Wide_String (S));
+               end if;
+            end;
          end loop;
 
          Close (File);
@@ -1134,7 +1139,7 @@ package body Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String)
    is
-      Norm_Param : constant String := Remove_Spaces (Param);
+      Norm_Param : constant String := To_Lower (Remove_Spaces (Param));
    begin
       if Norm_Param = "" then
          if Enable then
