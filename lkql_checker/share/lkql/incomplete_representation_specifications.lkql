@@ -5,4 +5,4 @@
 fun incomplete_representation_specifications(node) =
     node is TypeDecl
     when node.p_get_record_representation_clause() != null
-     and ((not node.p_has_aspect("Size")) or not node.p_has_aspect("Pack"))
+     and ((not node.p_has_aspect("Size")) or not node.p_get_aspect("Pack").exists)
