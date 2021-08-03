@@ -7,6 +7,8 @@
 # number of ancestors when the unit is not flagged.
 
 @check(message="unit has too many ancestors")
-fun deep_library_hierarchy(node, n: int = 5) =
-    node is PackageDecl(f_package_name is
-                        DefiningName(any children(depth=n) is Name))
+fun deep_library_hierarchy(node, n: int = 3) =
+    node is BasePackageDecl(f_package_name is
+                            DefiningName(any children(depth=n+2) is Name))
+    or GenericPackageInstantiation(f_name is
+                                   DefiningName(any children(depth=n+2) is Name))
