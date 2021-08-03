@@ -8,4 +8,6 @@
        remediation="EASY")
 fun max_identifier_length(node, n: int = 20) =
     node is DefiningName(parent is not EnumLiteralDecl)
-    when node.text.length > n
+    when (if node.f_name is DottedName
+          then node.f_name.f_suffix
+          else node.f_name).text.length > n
