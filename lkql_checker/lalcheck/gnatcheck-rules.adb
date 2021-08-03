@@ -186,11 +186,11 @@ package body Gnatcheck.Rules is
       Len           : Natural;
 
    begin
-      if Is_Regular_File (File_Name) then
-         Open (File, In_File, File_Name);
-         Success := True;
-      elsif Is_Regular_File (Rule_File_Dir & File_Name) then
+      if Is_Regular_File (Rule_File_Dir & File_Name) then
          Open (File, In_File, Rule_File_Dir & File_Name);
+         Success := True;
+      elsif Is_Regular_File (File_Name) then
+         Open (File, In_File, File_Name);
          Success := True;
       end if;
 
