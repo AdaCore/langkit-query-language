@@ -2,4 +2,5 @@
 
 @check(message="unconstrained array definition")
 fun unconstrained_arrays(node) =
-    node is ArrayTypeDef(f_indices is UnconstrainedArrayIndices)
+    node is ArrayTypeDef(f_indices is UnconstrainedArrayIndices,
+                         all parent(depth=2) is not GenericFormalTypeDecl)
