@@ -89,13 +89,17 @@ fun identifier_suffixes(unit,
               | p@TypeDecl(p_is_access_type() is true)
                 when access_suffix != "" =>
                   if access_access_suffix != "" and
-                     p.p_accessed_type() is t@BaseTypeDecl
-                     when t.p_is_access_type()
+                     p.p_accessed_type() is
+                         BaseTypeDecl(p_is_access_type() is true)
                   then access_suffix & access_access_suffix
                   else access_suffix
               | TypeDecl => type_suffix
               | PackageRenamingDecl => renaming_suffix
-              | * => constant_suffix,
+              | p@* => if p.parent is not ObjectDecl or
+                          constant_suffix == "" or
+                          p.parent.f_type_expr.p_designated_type_decl().
+                          p_is_access_type()
+                       then access_obj_suffix else constant_suffix,
      loc: n}
     for n in from unit.root select node@DefiningName when match node.parent
     # Interrupt handlers
