@@ -5,5 +5,5 @@
 @check(message="local use clause")
 fun local_use_clauses(node, except_use_type_clauses = false) =
     node is UseClause
-    when (not node.parent is CompilationUnit)
+    when node.parent.parent is not CompilationUnit
      and not (except_use_type_clauses and node is UseTypeClause)
