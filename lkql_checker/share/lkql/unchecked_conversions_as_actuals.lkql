@@ -2,10 +2,14 @@
 # procedure or entry call or if it is a default value in a subprogram or entry
 # parameter specification.
 
+import stdlib
+
 fun is_instance_of_uc(d) =
     d is GenericSubpInstantiation
-    when d?.p_designated_subp()?.p_canonical_fully_qualified_name()
-        == "ada.unchecked_conversion"
+    when ({
+        val name = d.p_designated_subp().p_fully_qualified_name();
+        name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"
+    })
 
 @unit_check
 (message="instance of Unchecked_Conversion as actual parameter")
@@ -16,4 +20,5 @@ fun unchecked_conversions_as_actuals(unit) = [
      loc: n}
     for n in from unit.root select
     node@CallExpr(any parent is CallStmt or SubpSpec)
-    when is_instance_of_uc(node.p_referenced_decl())]
+    when is_instance_of_uc(stdlib.
+                           ultimate_subprogram_alias(node.p_referenced_decl()))]
