@@ -5,12 +5,15 @@
 # This rule has the N parameter: Positive integer specifying the maximal
 # number of dependencies when the library item or subunit is not flagged.
 
+fun check_unit(unit, node, n) =
+    unit is CompilationUnit(any c@children is Identifier(any parent(depth=2) is
+                                                         WithClause))
+    when {
+        val semantic_parent = node.p_semantic_parent();
+        [x for x in c if x.p_referenced_decl() != semantic_parent].length > n
+    }
+
 @check(message="unit has too many dependencies", remediation="MAJOR")
 fun too_many_dependencies(node, n : int = 5) =
-    node is LibraryItem(parent is
-    CompilationUnit(any c@children is Identifier(any parent(depth=2) is
-                                                 WithClause))
-    when {
-        val semantic_parent = node.f_item?.p_semantic_parent();
-        [x for x in c if x.p_referenced_decl() != semantic_parent].length > n
-    })
+    node is (LibraryItem when check_unit(node.parent, node.f_item, n)) or
+            Subunit when check_unit(node.parent, node, n)
