@@ -74,6 +74,13 @@ fun ultimate_exception_alias(name) =
     else decl
 }
 
+fun ultimate_subprogram_alias(name) =
+    |" Return the ultimately designated ``BasicSubpDecl``, going through renamings
+    if name is SubpRenamingDecl
+    then ultimate_exception_alias(name.f_renames.f_renamed_object.
+                                  p_referenced_decl())
+    else name
+
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
     n is *(any parent is SubpBody or TaskBody or BlockStmt or EntryBody or

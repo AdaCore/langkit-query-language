@@ -6,22 +6,26 @@
 # and cases when the actual for Target is a private type and its full
 # declaration is an access type. The rule is checked inside expanded generics.
 
+import stdlib
+
 fun check_uc_params(source, target) =
     |" Check that source is derived from System.Address and target is an
     |" access type.
-    target?.f_r_expr?.p_referenced_decl()?.p_is_access_type() and
-    source?.f_r_expr?.p_referenced_decl()?.p_root_type()?.
+    target.f_r_expr.p_referenced_decl().p_is_access_type() and
+    source.f_r_expr.p_referenced_decl().p_root_type().
     p_fully_qualified_name() == "System.Address"
 
 @check(message="address-to-access conversion",
        follow_generic_instantiations=true)
 fun unchecked_address_conversions(node) =
     node is GenericSubpInstantiation
-    when node.p_designated_subp()?.p_canonical_fully_qualified_name()
-         == "ada.unchecked_conversion"
+    when ({
+        val name = stdlib.ultimate_subprogram_alias(node.p_designated_subp()).
+                   p_fully_qualified_name();
+        name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"})
      and node.f_params is params@AssocList
          when params.children_count == 2
-          and if params[1]?.f_designator == null or
-                 params[1]?.f_designator?.p_name_is("source") 
+          and if params[1].f_designator == null or
+                 params[1].f_designator.p_name_is("source") 
               then check_uc_params(params[1], params[2])
               else check_uc_params(params[2], params[1])
