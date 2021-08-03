@@ -6,7 +6,3 @@ decls.ads:5:9: rule violation: real type with no range definition
 5 |    type Invalid2 is delta 0.01 digits 8;                --  FLAG
   |         ^^^^^^^^ 
 
-decls.ads:7:12: rule violation: real type with no range definition
-7 |    subtype InvalidSub is Invalid2;                      --  FLAG
-  |            ^^^^^^^^^^ 
-
