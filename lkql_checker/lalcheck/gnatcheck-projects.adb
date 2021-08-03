@@ -503,7 +503,7 @@ package body Gnatcheck.Projects is
       if not Ada.Environment_Variables.Exists ("GPR_TOOL")
         and then not GPR_TOOL_Set
       then
-         Project_Env.Change_Environment ("GPR_TOOL", "check");
+         Project_Env.Change_Environment ("GPR_TOOL", "gnatcheck");
       end if;
    end Set_External_Values;
 
