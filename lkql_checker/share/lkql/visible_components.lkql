@@ -13,14 +13,15 @@
 
 fun has_visible_components(t) =
     match t
-    | RecordTypeDef      => true
-    | d @ DerivedTypeDef => not d?.f_has_with_private?.p_as_bool()
-    | *                  => false
+    | RecordTypeDef    => true
+    | d@DerivedTypeDef => not d.f_has_with_private.p_as_bool()
+    | *                => false
 
 @check(message="type defines publicly accessible components")
 fun visible_components(node, tagged_only=false) =
     node is TypeDecl(any parent(depth=2) is PublicPart(
-        any parent(depth=2) is LibraryItem))
+        parent is BasePackageDecl(any parent is LibraryItem(
+            f_item is PackageDecl or GenericDecl))))
     when node.p_is_record_type()
       and ((not tagged_only) or node.p_is_tagged_type())
       and has_visible_components(node.f_type_def)
