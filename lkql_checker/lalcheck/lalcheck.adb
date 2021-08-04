@@ -172,8 +172,9 @@ begin
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
 
-   OS_Exit (if Detected_Non_Exempted_Violations > 0
-              or else Detected_Compiler_Error > 0
+   OS_Exit (if (Detected_Non_Exempted_Violations > 0
+                or else Detected_Compiler_Error > 0)
+              and then not Brief_Mode
             then E_Violation
             elsif Tool_Failures = 0 then E_Success
             else E_Error);
