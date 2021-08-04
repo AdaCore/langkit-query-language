@@ -1,4 +1,4 @@
-foo.ads:2:9: rule violation: tagged type has too many primitives (6)
+foo.ads:2:9: rule violation: tagged type has too many primitives
 2 |    type T is tagged null record;
   |         ^ 
 
