@@ -562,7 +562,7 @@ package body Gnatcheck.Projects is
       for Var of X_Vars loop
          Last := Last + 1;
          Args (Last) :=
-           new String'(Var.Var_Name.all & "=" & Var.Var_Value.all);
+           new String'("-X" & Var.Var_Name.all & "=" & Var.Var_Value.all);
       end loop;
    end Append_Variables;
 
