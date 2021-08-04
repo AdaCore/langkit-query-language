@@ -6,14 +6,14 @@
 @check(message="not imported overlay")
 fun not_imported_overlays(node) =
     node is (
-      AspectAssoc(f_id is Identifier(p_name_is("address") is true),
+      AspectAssoc(f_id is Identifier(p_name_is("Address") is true),
                   any parent(depth=3) is o@ObjectDecl
                   when not o.p_has_aspect("Import")))
     or (AttributeDefClause(f_attribute_expr is at@AttributeRef
-        when at?.f_attribute?.p_name_is("address") and
-             not at?.f_prefix?.p_referenced_decl()?.p_has_aspect("Import")))
+        when at.f_attribute.p_name_is("Address")
+         and not at.f_prefix.p_referenced_decl().p_has_aspect("Import")))
     # Check that we have an Overlaid'Address expression and that overlaid is
     # an identifier corresponding to an ObjectDecl
-    when node.f_expr is
-         AttributeRef(f_attribute is *(p_name_is("address") is true),
-                      f_prefix is Identifier(p_referenced_decl() is ObjectDecl))
+    and node.f_expr is at@AttributeRef
+        when at.f_attribute.p_name_is("Address")
+         and at.f_prefix.p_referenced_decl() is ObjectDecl
