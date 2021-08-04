@@ -83,8 +83,8 @@ fun ultimate_subprogram_alias(name) =
 
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
-    n is *(any parent is SubpBody or TaskBody or BlockStmt or EntryBody or
-                         ProtectedBody or GenericFormalObjDecl)
+    n is *(any parent is BasicSubpDecl or SubpBody or TaskBody or BlockStmt or
+                         EntryBody or ProtectedBody or GenericFormalObjDecl)
 
 fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
