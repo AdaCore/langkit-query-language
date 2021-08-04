@@ -5,13 +5,19 @@
 # declares operators in its visible part.
 
 fun is_operator(s) =
-    match s
-    | d @ SubpDecl => d.p_defining_name()?.p_is_operator_name()
-    | * => false
+    s is (BasicSubpDecl or BaseSubpBody)
+    when s.p_defining_name().p_is_operator_name()
 
 @check(message="use clause")
 fun use_clauses(node, exempt_operator_packages=false) =
     node is Name(any parent(depth=2) is UsePackageClause)
     when (not exempt_operator_packages)
-      or [s for s in node.p_referenced_decl()?.f_public_part?.f_decls?.children
+      or [s for s in match node.p_referenced_decl()
+            | p@BasePackageDecl     => p.f_public_part.f_decls.children
+            | p@PackageRenamingDecl => p.p_final_renamed_package().
+                                       f_public_part.f_decls.children
+            | GenericPackageInstantiation => p.p_designated_generic_decl().
+                                             f_package_decl.f_public_part.
+                                             f_decls.children
+            | *                     => []
           if not is_operator(s)].length != 0
