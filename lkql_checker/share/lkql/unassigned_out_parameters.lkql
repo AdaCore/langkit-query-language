@@ -12,21 +12,31 @@
 # - passing the parameter (or one of its components) as an out or in out
 #   parameter.
 
+import stdlib
+
+# Return true if `id` matches `param` (the ParamDecl of `name`), taking
+# renamings into account.
+fun param_matches(id, param, name) = {
+   val decl = id.p_referenced_decl();
+
+   if decl is ObjectDecl(f_renaming_clause is r@RenamingClause)
+   then stdlib.ultimate_alias(r.f_renamed_object, strip_component=true) == param
+   else decl == param and id.p_name_matches(name)
+}
+
 # Return true if the list of stmts s contains any assignment to name as
 # defined above, which happens to match the p_is_write_reference() property.
 # param is the ParamDecl of name.
 fun check_stmts(param, name, s) =
     s is *(any children is id@Name
-           when id.p_name_matches(name)
-            and id.p_is_write_reference()
-            and id.p_referenced_decl() == param)
+           when id.p_is_write_reference() and param_matches(id, param, name))
 
 # Return true if the exception handler h contains a raise statement, a call
 # to a No_Return procedure or an # assignment to param as defined above.
 fun check_exception_handler(param, name, h) =
     (h.f_stmts is *(any children is RaiseStmt or
-                    c@CallStmt when c.f_call?.p_is_call()
-                                and c.f_call?.p_referenced_decl()?.
+                    c@CallStmt when c.f_call.p_is_call()
+                                and c.f_call.p_referenced_decl().
                                     p_has_aspect("No_Return"))) or
     check_stmts(param, name, h)
 
@@ -35,7 +45,7 @@ fun enclosing_body_stmts(node) =
    match [p for p in parent(node) if p is Body].to_list[1]
    | null         => null
    | NullSubpDecl => null
-   | p@*          => p?.f_stmts
+   | p@*          => p.f_stmts
 
 @unit_check(help="OUT parameters do not get values in procedure bodies")
 fun unassigned_out_parameters(unit) = [
@@ -51,8 +61,8 @@ fun unassigned_out_parameters(unit) = [
         val decl = node.p_basic_decl();
 
         f != null and not (
-        check_stmts(decl, node.f_name, f?.f_stmts)
-        and [m for m in (from f?.f_exceptions select h@ExceptionHandler
+        check_stmts(decl, node.f_name, f.f_stmts)
+        and [m for m in (from f.f_exceptions select h@ExceptionHandler
              when not check_exception_handler(decl, node.f_name, h))].length
                       == 0)
     }]

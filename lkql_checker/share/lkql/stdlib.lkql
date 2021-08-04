@@ -50,18 +50,22 @@ fun within_assert(node) =
                            at?.f_attribute?.p_canonical_text() == "class"
                        | *               => false))
 
-fun ultimate_alias(name, all_nodes = true) =
-    |" Return the ultimately designated ``ObjectDecl``, going through renamings
+fun ultimate_alias(name, all_nodes=true, strip_component=false) =
+    |" Return the ultimately designated `ObjectDecl`, going through renamings
     |" This will not go through generic instantiations. If all_nodes is true,
     |" consider all kinds of nodes, otherwise consider only BaseId and
-    |" DottedName.
-    if all_nodes or name is (BaseId or DottedName) then {
-        val decl = name?.p_referenced_decl();
+    |" DottedName. If strip_component is true, go to the prefix when
+    |" encountering a component, otherwise stop at the ComponentDecl.
 
-        if decl is ObjectDecl(f_renaming_clause is RenamingClause)
-        then ultimate_alias(decl?.f_renaming_clause?.f_renamed_object,
-                            all_nodes)
-        else decl
+    if all_nodes or name is (BaseId or DottedName) then {
+        val decl = name.p_referenced_decl();
+
+        match decl
+        | ObjectDecl(f_renaming_clause is r@RenamingClause) =>
+            ultimate_alias(r.f_renamed_object, all_nodes, strip_component)
+        | ComponentDecl when strip_component and name is DottedName =>
+            ultimate_alias(name.f_prefix, all_nodes, strip_component)
+        | *                                     => decl
     } else name
 
 fun ultimate_exception_alias(name) =
