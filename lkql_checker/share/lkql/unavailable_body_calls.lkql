@@ -1,0 +1,12 @@
+# Flag each occurrence of a subprogram call whose body is not available.
+# Indirect calls are flagged unless Indirect_Calls is False.
+# This rule can be useful when using the recursive_subprograms rule to flag
+# potentially missing recursion detection and identify potential missing
+# checks.
+
+@check(message="call to unavailable body")
+fun unavailable_body_calls(node, indirect_calls = true) =
+    node is Name
+    when (indirect_calls and node.p_is_access_call())
+      or (node.p_is_direct_call() and
+          node.p_referenced_decl() is d@ClassicSubpDecl(p_body_part() is null))
