@@ -15,25 +15,25 @@ import stdlib
 fun check_non_const_overlay(decl, overlaid) =
     # Check overlaid'Address
     overlaid is AttributeRef
-    when overlaid?.f_attribute?.p_name_is("address")
+    when overlaid.f_attribute.p_name_is("Address")
      # Check that overlaid is a variable object or formal of mode [IN] OUT
      and ({
-         val overlaid_object = stdlib.ultimate_alias(overlaid?.f_prefix);
-         # TODO use o?.p_is_constant_object() once available, see U330-040
+         val overlaid_object = stdlib.ultimate_alias(overlaid.f_prefix);
+         # TODO use o.p_is_constant_object() once available, see U330-040
          (match overlaid_object
           | o@ObjectDecl =>
-              o?.f_mode is ModeOut or o?.f_mode is ModeInOut
-              or not o?.f_has_constant?.p_as_bool()
-          | p@ParamSpec  => p?.f_mode is ModeOut or p?.f_mode is ModeInOut
+              o.f_mode is (ModeOut or ModeInOut)
+              or not o.f_has_constant.p_as_bool()
+          | p@ParamSpec  => p.f_mode is ModeOut or ModeInOut
           | *            => false)
          # Check that overlaying is constant
-         and (decl?.f_has_constant?.p_as_bool()
+         and (decl.f_has_constant.p_as_bool()
               # or overlaying object is not marked volatile
-              or decl?.p_has_aspect("Volatile")
+              or decl.p_has_aspect("Volatile")
               # or if overlaid object is not a parameter, it is not marked as
               # Volatile
               or (overlaid_object is ParamSpec
-                  or not overlaid_object?.p_has_aspect("Volatile")))})
+                  or not overlaid_object.p_has_aspect("Volatile")))})
 
 # TODO: customize message:
 # non-volatile object overlays a variable object
@@ -43,10 +43,10 @@ fun check_non_const_overlay(decl, overlaid) =
 @check(message="constant object overlays a non-constant object")
 fun non_constant_overlays(node) = match node
     | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
-        when id?.p_name_is("address")
+        when id.p_name_is("Address")
          and check_non_const_overlay(o, node.f_expr)) => true
     | AttributeDefClause(f_attribute_expr is at@AttributeRef
-        when at?.f_attribute?.p_name_is("address")
-         and check_non_const_overlay(at?.f_prefix?.p_referenced_decl(),
-                           node.f_expr)) => true
+        when at.f_attribute.p_name_is("Address")
+         and check_non_const_overlay(at.f_prefix.p_referenced_decl(),
+                                     node.f_expr)) => true
     | * => false
