@@ -4,16 +4,21 @@
 # This rule has the following (optional) parameter:
 #
 # Nested_Only
-#    Flag only those exit statements with no loop name that exit from nested loops.
+#    Flag only those exit statements with no loop name that exit from nested
+#    loops.
 
+import stdlib
 
 # Return whether the node passed as argument is within a nested loop
-fun is_in_nested_loop(n) =
-   [p for p in n.parents() if p is BaseLoopStmt].length > 1
+fun is_in_nested_loop(n) = {
+    val body = stdlib.enclosing_body(n);
+    [p for p in n.parents(include_self=false)
+     if p is BaseLoopStmt and stdlib.enclosing_body(p) == body].length > 1
+}
 
 @check(message="exit statement with no loop name")
 fun exit_statements_with_no_loop_name(node, nested_only=false) =
    if nested_only then
-      node is e @ ExitStmt(f_loop_name is null) when is_in_nested_loop(e)
+      node is e@ExitStmt(f_loop_name is null) when is_in_nested_loop(e)
    else
       node is ExitStmt(f_loop_name is null)
