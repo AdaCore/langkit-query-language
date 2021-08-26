@@ -1,0 +1,12 @@
+# Flag any object declaration of an anonymous access-to-class-wide types
+# initialized via an allocator.
+
+@check(message="KP U702-038")
+fun kp_u702_038(node) =
+    node is ObjectDecl(
+        f_default_expr is Allocator,
+        f_type_expr is TypeExpr(
+            p_designated_type_decl() is AnonymousTypeDecl(
+                p_accessed_type() is
+                    ClasswideTypeDecl or
+                    BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl))))

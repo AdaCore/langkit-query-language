@@ -1,0 +1,8 @@
+main.adb:18:7: rule violation: KP U702-038
+18 |       X : access C'Class := new C'(null record);   --  FLAG
+   |       ^ 
+
+tasking_and_allocate_inline.adb:16:4: rule violation: KP U702-038
+16 |    X : access C'Class := new C'(null record);   --  FLAG
+   |    ^ 
+
