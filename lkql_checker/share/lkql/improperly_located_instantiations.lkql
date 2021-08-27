@@ -8,13 +8,14 @@ import stdlib
 @unit_check(help="instantiations not properly located")
 fun improperly_located_instantiations(unit) = [
      {message: "instantiation in a " &
-               (if unit.root.f_body.f_item is BaseSubpBody
+               (if node is GenericInstantiation(any parent is BaseSubpBody)
                 then "subprogram body"
                 else (if unit.root.f_body.f_item is GenericPackageDecl
                       then "generic " else "") & "library package spec"),
       loc: node.p_defining_name()}
-     for node in (if unit.root.f_body is
-                      LibraryItem(f_item is
-                          GenericPackageDecl or BasePackageDecl or BaseSubpBody)
-                  then from unit.root select g@GenericInstantiation
-                  else [])]
+     for node in (match unit.root.f_body
+                  | LibraryItem(f_item is GenericPackageDecl or BasePackageDecl)
+                      => from unit.root select GenericInstantiation
+                  | * => from (from unit.root select BaseSubpBody)
+                         select GenericInstantiation
+                  | * => [])]
