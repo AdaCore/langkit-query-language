@@ -8,7 +8,8 @@
 #
 # A use of an anonymous subtype is any instance of a subtype indication
 # with a constraint, other than one that occurs immediately within a
-# subtype declaration. Any use of a range other than as a constraint used
+# subtype declaration (that is, a Range or DiscriminantConstraint of a
+# SubtypeDecl). Any use of a range other than as a constraint used
 # immediately within a subtype declaration is considered as an anonymous
 # subtype.
 #
@@ -38,14 +39,16 @@ fun is_self_referencing(expr, type_decl) =
 
 @check(message="anonymous subtype")
 fun anonymous_subtypes(node) =
-    node is (SubtypeIndication(f_constraint is constraint@Constraint,
-                               parent is not SubtypeDecl)
+    node is (SubtypeIndication(f_constraint is constraint@Constraint)
          when (not (constraint is DiscriminantConstraint
-                    and is_self_referencing(constraint, get_type_decl(node)))))
+                    and is_self_referencing(constraint, get_type_decl(node))))
+          and not (node.parent is SubtypeDecl and
+                   constraint is RangeConstraint or DiscriminantConstraint))
     or BinOp(f_op is OpDoubleDot,
              parent is not RangeSpec(parent is TypeDef or ComponentClause),
              all parent is not Constraint(parent is SubtypeIndication))
     or AttributeRef(f_attribute is Identifier(p_name_is("Range") is true),
-                    parent is not RangeSpec(parent is TypeDef),
+                    parent is not RangeSpec(parent is
+                                            TypeDef or ComponentClause),
                     all parent is not Constraint(parent is SubtypeIndication))
     and not is_using_discriminant(node, get_type_decl(node))

@@ -27,7 +27,7 @@ package Anonymous_Subtypes is
 
    type TA is array (Integer range 0 .. 10) of Integer; -- FLAG
    type TA_U is array (Integer range <>) of Integer; -- NO FLAG
-   subtype TA_C is TA_U (1 .. 10); -- NO FLAG
+   subtype TA_C is TA_U (1 .. 10); -- FLAG: index_constraint which is not a subtype_mark
 
    Var_Disc : R (1); -- FLAG
    subtype T_Disc is R (2); -- NO FLAG
