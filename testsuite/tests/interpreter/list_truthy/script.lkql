@@ -1,0 +1,7 @@
+val not_empty = [1, 2]
+val empty = []
+print(if not_empty then "not_empty OK" else "NOK")
+print(if not empty then "empty OK" else "NOK")
+print(if empty or not_empty then "or OK" else "NOK")
+print(select ObjectDecl when not empty)
+print(select ObjectDecl when empty)

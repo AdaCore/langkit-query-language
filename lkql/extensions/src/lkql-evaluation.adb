@@ -126,6 +126,35 @@ package body LKQL.Evaluation is
    --  environments produced by this list of Arrow_Assoc in the context of a
    --  list comprehension.
 
+   function Truthy (Ctx   : Eval_Context;
+                    Node  : L.LKQL_Node;
+                    Value : Primitive)
+                    return Primitive;
+   --  Given a primitive, returns a Boolean primitive that is True
+   --  iif the node is a Boolean with the value True, or a non-empty list.
+   --  Raise an exception and register an error in the evaluation context if
+   --  `Value` isn't a Boolean or List
+
+   ------------
+   -- Truthy --
+   ------------
+
+   function Truthy (Ctx   : Eval_Context;
+                    Node  : L.LKQL_Node;
+                    Value : Primitive)
+                    return Primitive
+   is
+   begin
+      case Kind (Value) is
+         when Kind_Bool =>
+            return Value;
+         when Kind_List =>
+            return To_Primitive (Primitives.Length (Value) /= 0);
+         when others =>
+            Raise_Invalid_Kind (Ctx, Node, Kind_Bool, Value);
+      end case;
+   end Truthy;
+
    ----------------
    -- Check_Kind --
    ----------------
@@ -229,7 +258,9 @@ package body LKQL.Evaluation is
               with "Invalid evaluation root kind: " & Node.Kind_Name;
       end case;
 
-      if Expected_Kind in Valid_Primitive_Kind then
+      if Expected_Kind = Kind_Bool then
+         Result := Truthy (Local_Context, Node.As_LKQL_Node, Result);
+      elsif Expected_Kind in Valid_Primitive_Kind then
          Check_Kind (Local_Context, Node.As_LKQL_Node, Expected_Kind, Result);
       end if;
 

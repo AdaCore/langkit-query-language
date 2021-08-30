@@ -1,0 +1,5 @@
+not_empty OK
+empty OK
+or OK
+[<ObjectDecl ["Message"] main.adb:4:4-4:48>, <ObjectDecl ["ConstantMessage"] main.adb:5:4-5:66>]
+[]
