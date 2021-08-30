@@ -196,10 +196,10 @@ fun enclosing_block(n) =
 }
 
 fun enclosing_body(n) =
-    |" Return the first BaseSubpBody enclosing n if any, null otherwise
+    |" Return the first Body enclosing n if any, null otherwise
 {
     val bodies = [p for p in n?.parents(include_self=false)
-                  if p is BaseSubpBody].to_list;
+                  if p is Body].to_list;
     if bodies.length == 0 then null else bodies[1]
 }
 

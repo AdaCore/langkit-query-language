@@ -40,9 +40,8 @@ fun check_exception_handler(param, name, h) =
                                     p_has_aspect("No_Return"))) or
     check_stmts(param, name, h)
 
-# TODO: reuse enclosing_body
 fun enclosing_body_stmts(node) =
-   match [p for p in parent(node) if p is Body].to_list[1]
+   match stdlib.enclosing_body(node)
    | null         => null
    | NullSubpDecl => null
    | p@*          => p.f_stmts
