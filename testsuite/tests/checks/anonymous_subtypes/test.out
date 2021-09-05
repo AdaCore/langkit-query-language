@@ -31,7 +31,7 @@ anonymous_subtypes.ads:28:22: rule violation: anonymous subtype
    |                      ^^^^^^^^^^^^^^^^^^^^^ 
 
 anonymous_subtypes.ads:30:20: rule violation: anonymous subtype
-30 |    subtype TA_C is TA_U (1 .. 10); -- FLAG
+30 |    subtype TA_C is TA_U (1 .. 10); -- FLAG: index_constraint which is not a subtype_mark
    |                    ^^^^^^^^^^^^^^ 
 
 anonymous_subtypes.ads:32:15: rule violation: anonymous subtype
