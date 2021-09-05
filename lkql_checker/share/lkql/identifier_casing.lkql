@@ -21,9 +21,6 @@
 # - Exclude
 #   Specifies a list of full identifier casing exceptions.
 #
-# TODO: missing handling of wildcards on substrings as defined in gnatpp or
-# old gnatcheck.
-#
 # Where: casing_scheme ::= upper|lower|mixed
 # upper means that the defining identifier should be upper-case. lower means
 # that the defining identifier should be lower-case mixed means that the first
@@ -32,29 +29,72 @@
 
 import stdlib
 
-fun excluded_name(id, exclude) = {
-    |" Return the string corresponding to id in exclude if any, otherwise ""
-    val ex = [s for s in exclude if id?.p_name_is(s)];
-    if ex.length == 0 then "" else ex.to_list[ex.length]
-}
-
-fun excluded(id, exclude) = {
-    |" Return 0 if ``id`` can be found in ``exclude`` and has the wrong casing,
-    |" 1 if ``id`` can be found with the right casing and 2 is it cannot be
-    |" found.
-    val ex = [s for s in exclude if id?.p_name_is(s)];
-    if ex.length != 0
-    then (if id.text == ex.to_list[ex.length] then 1 else 0)
-    else 2
-}
-
 fun wrong_casing(str, scheme) =
-    |" Return true if ``str`` does not follow the casing specified by ``scheme``
+    |" Return true if `str` does not follow the casing specified by `scheme`
     match scheme
     | "upper" => not str.is_upper_case
     | "lower" => not str.is_lower_case
     | "mixed" => not str.is_mixed_case
     | *       => false
+
+fun strip_last(s) = s.substring(1, s.length - 1)
+fun strip_first(s) = s.substring(2, s.length)
+fun strip_first_last(s) = s.substring(2, s.length - 1)
+
+fun check_casing(id, scheme, exclude) =
+    |" Return true if `id` does not follow the casing specified by `scheme`
+
+    if exclude.length == 0
+    then wrong_casing(id.text, scheme)
+    else {
+        fun check_words(words, first, last) = last >= first and ({
+            val s = words[last];
+            val ex = [pat for pat in exclude if match pat
+                      | "^\*.*\*$" =>
+                          s.to_lower_case == strip_first_last(pat).
+                                             to_lower_case
+                      | *          => false].to_list;
+            (ex.length != 0 and
+             s != strip_first_last(ex[ex.length])) or
+            (ex.length == 0 and wrong_casing(s, scheme))   or
+            check_words(words, first, last - 1)
+        });
+
+        # First look for id as a whole word in exclude
+        val ex = [s for s in exclude if id.p_name_is(s)].to_list;
+        # If found, determine whether the names match and we are done
+        if ex.length != 0
+        then id.text != ex[ex.length]
+        else {
+            val words = id.text.split("_");
+            val first = words[1].to_lower_case;
+            # Otherwise, first check whether we have a match on the first word
+            val first_ex = [s for s in exclude if match s
+                            | "^[^*]+\*$" => first == strip_last(s).to_lower_case
+                            | *           => false].to_list;
+            # If we do and the casing differs, we are done
+            (first_ex.length != 0 and
+             words[1] != strip_last(first_ex[first_ex.length])) or
+            # Check whether we have a match on the last word
+            ({
+                val last = words[words.length].to_lower_case;
+                val last_ex = [s for s in exclude if match s
+                                | "^\*[^*]+$" => last ==
+                                                 strip_first(s).to_lower_case
+                                | *           => false].to_list;
+                # If we do and the casing differs, we are done
+                (last_ex.length != 0 and
+                 words[words.length] !=
+                 strip_first(last_ex[last_ex.length])) or
+                # Now check all remaining words, excluding first and/or last
+                # if we already found them in the dictionary.
+                check_words(words,
+                            first=if first_ex.length == 0 then 1 else 2,
+                            last=if last_ex.length == 0
+                                 then words.length else words.length - 1)
+            })
+        }
+    }
 
 @unit_check(help="casing of defining names", remediation="EASY",
             parametric_exemption=true)
@@ -63,66 +103,71 @@ fun identifier_casing(unit,
                       exclude=[]) = [
     {message: n.text & " does not have casing specified " &
               ({
-                 val str = excluded_name(n.f_name, exclude);
-                 if str == "" then match n.parent
-                    | t@BaseTypeDecl when t is not SingleTaskTypeDecl or
-                      p@TaskBody when p.p_previous_part() is not SingleTaskDecl
-                    => "for subtype names (" & type
-                    | EnumLiteralDecl => "for enumeration literals (" & enum
-                    | p@* => match p?.parent
-                             | ObjectDecl or
-                               NumberDecl       => "for constant names ("
-                                                   & constant
-                             | SubpRenamingDecl => "for enumeration literals ("
-                                                   & enum
-                             | ExceptionDecl    => "for exception names ("
-                                                   & exception
-                             | *                => "(" & others
-                 else "in the dictionary (" & str}) & ")",
-     loc: n}
-    for n in from unit.root select node@DefiningName(f_name is id@Identifier)
-    when {
-        val res = excluded(id, exclude);
-        if res == 0 then true
-        else if res == 1 then false
-        else match node.parent
+                fun msg(str, scheme) =
+                    if wrong_casing(n.text, scheme)
+                    then str & scheme & ")" else "in the dictionary";
 
+                match n.parent
+                   | (t@BaseTypeDecl when t is not SingleTaskTypeDecl or
+                      p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
+                     when type != "" => msg("for subtype names (", type)
+                   | EnumLiteralDecl when enum != ""
+                   => msg("for enumeration literals (", enum)
+
+                   | p@* =>
+                       match p.parent
+                       | (ObjectDecl(f_has_constant is ConstantPresent) or
+                          NumberDecl) when constant != ""
+                       => msg("for constant names (", constant)
+
+                       | SubpRenamingDecl when enum != ""
+                       => msg("for enumeration literals (", enum)
+
+                       | ExceptionDecl when exception != ""
+                       => msg("for exception names (", exception)
+
+                       | * => msg("(", others)
+               }),
+     loc: n}
+    for n in from unit.root
+    select node@DefiningName(f_name is id@Identifier)
+    when match node.parent
         # Task objects
-        | SingleTaskDecl or SingleTaskTypeDecl => others != "" and wrong_casing(id.text, others)
+        | SingleTaskDecl or SingleTaskTypeDecl
+        => check_casing(id, others, exclude)
 
         # Types and subtypes, including TaskBody when the spec is a task type
-        | BaseTypeDecl or
-          p@TaskBody when p.p_previous_part() is not SingleTaskDecl
-        => type != "" and wrong_casing(id.text, type)
+        | (BaseTypeDecl or
+           p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
+          when type != "" => check_casing(id, type, exclude)
 
         # Enums
-        | EnumLiteralDecl => enum != "" and wrong_casing(id.text, enum)
+        | EnumLiteralDecl when enum != "" => check_casing(id, enum, exclude)
 
         # Look one level up for remaining cases
-        | p@* => match p?.parent
+        | p@* => match p.parent
 
         # Constants
         # TODO: use LAL p_is_constant_object() when available (U330-040)
-        | (o@ObjectDecl
-           when (o?.f_has_constant?.p_as_bool() or
-                 # Renaming of a constant
-                 (o?.f_renaming_clause != null and
-                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object)
-                  is ObjectDecl(f_has_constant is ConstantPresent))))
-          or NumberDecl
+        | ((o@ObjectDecl
+            when (o.f_has_constant.p_as_bool() or
+                  # Renaming of a constant
+                  (o.f_renaming_clause != null and
+                   stdlib.ultimate_alias(o.f_renaming_clause.f_renamed_object)
+                   is ObjectDecl(f_has_constant is ConstantPresent))))
+          or NumberDecl) when constant != ""
         =>
-            constant != "" and wrong_casing(id.text, constant)
+            check_casing(id, constant, exclude)
 
         # Function renaming an enum literal
         | r@SubpRenamingDecl
-          when r?.f_renames?.f_renamed_object?.p_referenced_decl() is
-               EnumLiteralDecl
-        =>
-            enum != "" and wrong_casing(id.text, enum)
+          when r.f_renames.f_renamed_object.p_referenced_decl() is
+               EnumLiteralDecl and enum != "" => check_casing(id, enum, exclude)
 
         # Exceptions
-        | ExceptionDecl =>
-            exception != "" and wrong_casing(id.text, exception)
+        | ExceptionDecl when exception != ""
+        => check_casing(id, exception, exclude)
 
-        | * => others != "" and wrong_casing(id.text, others)
-    }]
+        # Other cases
+        | * => check_casing(id, others, exclude)
+]

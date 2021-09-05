@@ -21,6 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Assertions; use Ada.Assertions;
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
@@ -412,7 +413,7 @@ package body Checker_App is
                end;
             end if;
          exception
-            when E : LKQL.Errors.Stop_Evaluation_Error =>
+            when E : LKQL.Errors.Stop_Evaluation_Error | Assertion_Error =>
                Handle_Error (Rule, Unit.Root, E);
          end;
       end loop;

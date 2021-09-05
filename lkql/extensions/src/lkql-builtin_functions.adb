@@ -26,6 +26,8 @@ with Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
 
+with GNAT.Array_Split;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with LKQL.AST_Nodes;
@@ -83,6 +85,9 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Contains
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Split
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Substring
@@ -444,6 +449,42 @@ package body LKQL.Builtin_Functions is
    begin
       return To_Primitive (Index (Str, To_Text (Sub_Str)) > 0);
    end Eval_Contains;
+
+   ----------------
+   -- Eval_Split --
+   ----------------
+
+   function Eval_Split
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+      use Ada.Strings.Wide_Wide_Unbounded;
+
+      Str       : constant Text_Type := To_Text (Str_Val (Args (1)));
+      Separator : constant Text_Type := To_Text (Str_Val (Args (2)));
+      Ret       : constant Primitive := Make_Empty_List;
+
+      function To_Set (Element : Wide_Wide_String) return Wide_Wide_Character
+      is (Element (Element'First));
+
+      function Is_In
+        (Item : Wide_Wide_Character; Set : Wide_Wide_Character)
+         return Boolean is (Item = Set);
+
+      package String_Split is new GNAT.Array_Split
+        (Element          => Wide_Wide_Character,
+         Element_Sequence => Wide_Wide_String,
+         Element_Set      => Wide_Wide_Character,
+         To_Set           => To_Set,
+         Is_In            => Is_In);
+
+   begin
+      for Word of String_Split.Create (Str, Separator (Separator'First)) loop
+         Ret.Get.List_Val.Elements.Append (To_Primitive (Word));
+      end loop;
+
+      return Ret;
+   end Eval_Split;
 
    --------------------
    -- Eval_Substring --
@@ -1077,6 +1118,14 @@ package body LKQL.Builtin_Functions is
          Eval_Contains'Access,
          "Given two strings, return whether the second one is included in "
          & "the first one",
+         Only_Dot_Calls => True),
+
+      Create
+        ("split",
+         (Param ("str", Kind_Str), Param ("separator", Kind_Str)),
+         Eval_Split'Access,
+         "Given a string, return an iterator on the words contained by "
+         & "str separated by separator",
          Only_Dot_Calls => True),
 
       Create

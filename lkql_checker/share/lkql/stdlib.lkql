@@ -247,17 +247,6 @@ selector children_no_nested_subps
     | null     => ()
     | *        => rec *this.children
 
-fun match_wildcard(str, pat) =
-    |" Return whether the given string `str` matches the simple wildcard
-    |" pattern `pat`. The pattern is an identifier with optionally a
-    |" wildcard (`*`) character as the first character, last character or
-    |" both.
-    match pat
-    | "^\*.*\*$" => str.contains(pat.substring(2, pat.length - 1))
-    | "^\*"      => str.ends_with(pat.substring(2, pat.length))
-    | "\*$"      => str.starts_with(pat.substring(1, pat.length - 1))
-    | *          => str == pat
-
 fun get_subp_body(node) =
     |" Return the SubpBody corresponding to node, if any, null otherwise
     |" TODO: take renamings into account

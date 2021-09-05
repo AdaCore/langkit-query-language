@@ -2,7 +2,7 @@ casing.ads:3:9: rule violation: Enum_2 does not have casing specified for subtyp
 3 |    type Enum_2 is (A2, B2, C2);      --  FLAG
   |         ^^^^^^ 
 
-casing.ads:6:4: rule violation: VAR2 does not have casing specified for constant names (lower)
+casing.ads:6:4: rule violation: VAR2 does not have casing specified (mixed)
 6 |    VAR2 : ENUM_2 := A2;              --  FLAG
   |    ^^^^ 
 
@@ -34,7 +34,7 @@ pack.ads:20:4: rule violation: C1 does not have casing specified for constant na
 20 |    C1 : constant Integer := 1;                --  FLAG
    |    ^^ 
 
-pack.ads:24:9: rule violation: AAAA does not have casing specified in the dictionary (AaAa)
+pack.ads:24:9: rule violation: AAAA does not have casing specified in the dictionary
 24 |    type AAAA is range 1 .. 10;               --  FLAG
    |         ^^^^ 
 
@@ -42,7 +42,7 @@ pack.ads:27:9: rule violation: Parent_3 does not have casing specified for subty
 27 |    type Parent_3 is tagged null record;      --  FLAG
    |         ^^^^^^^^ 
 
-test_it.adb:3:4: rule violation: Chaclo does not have casing specified in the dictionary (CHACLO)
+test_it.adb:3:4: rule violation: Chaclo does not have casing specified in the dictionary
 3 |    Chaclo : Integer; --  FLAG
   |    ^^^^^^ 
 
