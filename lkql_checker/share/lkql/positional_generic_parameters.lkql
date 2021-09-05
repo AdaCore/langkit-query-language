@@ -1,8 +1,22 @@
 # Flag each positional actual generic parameter except for the case when the
 # generic unit being instantiated has exactly one generic formal parameter.
 
+fun check_generic(n) =
+    |" Return true if the generic decl corresponding to n contains more than 1
+    |" formal parameter.
+    [(if x.f_decl is d@(ObjectDecl or NumberDecl)
+      then d.f_ids.children_count
+      else 1)
+     for x in from n.p_referenced_decl().f_formal_part.f_decls
+              select GenericFormal].length > 1
+
 @check(message="positional generic association", remediation="EASY")
 fun positional_generic_parameters(node) =
     node is ParamAssoc(f_designator is null,
-                       parent is l@AssocList(parent is GenericInstantiation))
+                       parent is l@AssocList(parent is g@GenericInstantiation))
     when l.children_count > 1
+      or match g
+         | p@GenericSubpInstantiation    => check_generic(p.f_generic_subp_name)
+         | p@GenericPackageInstantiation => check_generic(p.f_generic_pkg_name)
+         | *                             => false
+
