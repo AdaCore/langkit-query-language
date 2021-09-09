@@ -1,0 +1,18 @@
+# Flag any 'Access applying to a renaming of a tagged type conversion, or a
+# component of a renaming of a tagged type conversion.
+
+fun ultimate_prefix(n) =
+    |" Return n.f_prefix as long as n designates a ComponentDecl, n otherwise
+    if n.p_referenced_decl() is ComponentDecl
+    then ultimate_prefix(n.f_prefix)
+    else n
+
+@check(message="KP U812-034")
+fun kp_u812_034(node) =
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Access")
+     and ultimate_prefix(node.f_prefix).p_referenced_decl() is
+         ObjectDecl(f_renaming_clause is
+                    RenamingClause(f_renamed_object is c@CallExpr
+                                   when c.f_name.p_referenced_decl() is
+                                        BaseTypeDecl(p_is_tagged_type() is true)))
