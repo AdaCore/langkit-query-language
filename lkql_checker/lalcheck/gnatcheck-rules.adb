@@ -319,16 +319,22 @@ package body Gnatcheck.Rules is
       Rule_Name_Padding : constant String :=
         (1 .. Rule.Name'Length + 4 => ' ');
 
-      procedure Print (Param : String; Prefix : Unbounded_Wide_Wide_String);
-      --  Print value Prefix of parameter Param if not null
+      procedure Print
+        (Param  : String;
+         Prefix : Unbounded_Wide_Wide_String;
+         Force  : Boolean := False);
+      --  Print value Prefix of parameter Param if not null or if Force is set
 
       -----------
       -- Print --
       -----------
 
-      procedure Print (Param : String; Prefix : Unbounded_Wide_Wide_String) is
+      procedure Print
+        (Param  : String;
+         Prefix : Unbounded_Wide_Wide_String;
+         Force  : Boolean := False) is
       begin
-         if Length (Prefix) /= 0 then
+         if Force or else Length (Prefix) /= 0 then
             if First_Param then
                Put (Rule_File, ": " & Param & "=" & To_String (Prefix));
                First_Param := False;
@@ -356,10 +362,24 @@ package body Gnatcheck.Rules is
       Print ("Constant", Rule.Constant_Prefix);
       Print ("Exception", Rule.Exception_Prefix);
       Print ("Enum", Rule.Enum_Prefix);
-      Print ("Derived", Rule.Derived_Ancestor);
 
-      if Length (Rule.Derived_Ancestor) /= 0 then
-         Put (Rule_File, "=" & To_String (Rule.Derived_Prefix));
+      if Length (Rule.Derived_Prefix) /= 0 then
+         Print ("Derived", Null_Unbounded_Wide_Wide_String, Force => True);
+
+         for J in 1 .. Length (Rule.Derived_Prefix) loop
+            declare
+               C : constant Character :=
+                 To_Character (Element (Rule.Derived_Prefix, J));
+            begin
+               if C /= ',' then
+                  Put (Rule_File, C);
+               else
+                  Print ("Derived",
+                         Null_Unbounded_Wide_Wide_String,
+                         Force => True);
+               end if;
+            end;
+         end loop;
       end if;
 
       --  We have to print out Exclusive parameter, but this would make sense
@@ -1052,15 +1072,19 @@ package body Gnatcheck.Rules is
                 (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last), ":");
 
             if Col_Index /= 0 then
-               Set_Unbounded_Wide_Wide_String
-                 (Rule.Derived_Ancestor,
+               if Length (Rule.Derived_Prefix) /= 0 then
+                  Append (Rule.Derived_Prefix, ",");
+               end if;
+
+               Append
+                 (Rule.Derived_Prefix,
                   To_Wide_Wide_String
                     (To_Lower
                       (Norm_Param (Norm_Param'First + 8 .. Col_Index - 1))));
-               Set_Unbounded_Wide_Wide_String
+               Append
                  (Rule.Derived_Prefix,
                   To_Wide_Wide_String
-                    (Norm_Param (Col_Index + 1 .. Norm_Param'Last)));
+                    (Norm_Param (Col_Index .. Norm_Param'Last)));
 
             else
                Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
@@ -1102,7 +1126,6 @@ package body Gnatcheck.Rules is
             Set_Unbounded_Wide_Wide_String (Rule.Access_Prefix, "");
             Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Prefix, "");
             Set_Unbounded_Wide_Wide_String (Rule.Subprogram_Access_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Derived_Ancestor, "");
             Set_Unbounded_Wide_Wide_String (Rule.Derived_Prefix, "");
             Set_Unbounded_Wide_Wide_String (Rule.Constant_Prefix, "");
             Set_Unbounded_Wide_Wide_String (Rule.Exception_Prefix, "");
@@ -1119,7 +1142,6 @@ package body Gnatcheck.Rules is
          elsif Lower_Param = "subprogram_access" then
             Set_Unbounded_Wide_Wide_String (Rule.Subprogram_Access_Prefix, "");
          elsif Lower_Param = "derived" then
-            Set_Unbounded_Wide_Wide_String (Rule.Derived_Ancestor, "");
             Set_Unbounded_Wide_Wide_String (Rule.Derived_Prefix, "");
          elsif Lower_Param = "constant" then
             Set_Unbounded_Wide_Wide_String (Rule.Constant_Prefix, "");
@@ -1443,11 +1465,10 @@ package body Gnatcheck.Rules is
       Append_Param (Args, "access", Rule.Access_Prefix);
       Append_Param (Args, "class_access", Rule.Class_Access_Prefix);
       Append_Param (Args, "subprogram_access", Rule.Subprogram_Access_Prefix);
-      Append_Param (Args, "derived_ancestor", Rule.Derived_Ancestor);
-      Append_Param (Args, "derived", Rule.Derived_Prefix);
       Append_Param (Args, "constant", Rule.Constant_Prefix);
       Append_Param (Args, "exception", Rule.Exception_Prefix);
       Append_Param (Args, "enum", Rule.Enum_Prefix);
+      Append_Array_Param (Args, "derived", Rule.Derived_Prefix);
 
       if Rule.Exclusive = Off then
          Args.Append
@@ -1651,10 +1672,10 @@ package body Gnatcheck.Rules is
       Print ("Exception", Rule.Exception_Prefix);
       Print ("Enum", Rule.Enum_Prefix);
 
-      if Length (Rule.Derived_Ancestor) /= 0 then
+      if Length (Rule.Derived_Prefix) /= 0 then
          XML_Report
-           ("<parameter>Derived=" & To_String (Rule.Derived_Ancestor) &
-            "=" & To_String (Rule.Derived_Prefix) & "</parameter>",
+           ("<parameter>Derived=" & To_String (Rule.Derived_Prefix) &
+            "</parameter>",
             Indent_Level + 1);
          Prefix_Specified := True;
       end if;

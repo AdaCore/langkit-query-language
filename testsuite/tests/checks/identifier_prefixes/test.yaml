@@ -6,6 +6,5 @@ rule_arguments:
     identifier_prefixes.constant: '"Const_"'
     identifier_prefixes.exception: '"X_"'
     identifier_prefixes.enum: '"E_"'
-    identifier_prefixes.derived: '"Root_"'
-    identifier_prefixes.derived_ancestor: '"prefix.root"'
+    identifier_prefixes.derived: '["prefix.root:Root_"]'
     identifier_prefixes.class_access: '"CA_"'

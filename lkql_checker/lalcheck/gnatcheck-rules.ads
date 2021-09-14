@@ -456,8 +456,7 @@ package Gnatcheck.Rules is
       Type_Prefix, Concurrent_Prefix,
       Access_Prefix, Class_Access_Prefix,
       Subprogram_Access_Prefix,
-      Derived_Ancestor, Derived_Prefix,
-      Constant_Prefix, Exception_Prefix,
+      Derived_Prefix, Constant_Prefix, Exception_Prefix,
       Enum_Prefix : Unbounded_Wide_Wide_String;
       Exclusive   : Tri_State := Unset;
    end record;
