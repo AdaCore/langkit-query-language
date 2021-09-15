@@ -5,15 +5,18 @@
 # designators, and uses of operators that are renamings of the predefined
 # relational operators for Standard.Boolean, are likewise not detected.
 
-import stdlib
+fun is_predefined_boolean(n) =
+    |" Return true if the base subtype of n is Standard.Boolean
+    n.p_expression_type() is t@BaseTypeDecl
+    when t.p_base_subtype() == n.p_bool_type()
 
 @check(message="comparison of Boolean values")
 fun boolean_relational_operators(node) =
     (node is RelationOp
-     when node.f_op?.p_referenced_decl() == null
-      and stdlib.is_standard_boolean(node)
-      and stdlib.is_standard_boolean(node.f_left))
+     when node.f_op.p_referenced_decl() == null
+      and is_predefined_boolean(node)
+      and is_predefined_boolean(node.f_left))
     or (node is CallExpr
         when node.p_referenced_decl() == null
-         and stdlib.is_standard_boolean(node)
-         and stdlib.is_standard_boolean(node.f_suffix[1]?.f_r_expr))
+         and is_predefined_boolean(node)
+         and is_predefined_boolean(node.f_suffix[1]?.f_r_expr))
