@@ -38,6 +38,10 @@ test_deriving_from_predefined_type.ads:49:16: rule violation: deriving from pred
 49 |    type NT2 is new Pack_I_2.T2;                                        --  FLAG
    |                ^^^^^^^^^^^^^^^ 
 
+test_deriving_from_predefined_type.ads:50:16: rule violation: deriving from predefined type
+50 |    type NT3 is new Pack_I_2.T3;                                        --  FLAG
+   |                ^^^^^^^^^^^^^^^ 
+
 test_deriving_from_predefined_type.ads:62:25: rule violation: deriving from predefined type
 62 |    type My_Private_F is new S_My_My_Float;                         --  FLAG
    |                         ^^^^^^^^^^^^^^^^^ 

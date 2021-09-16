@@ -171,27 +171,28 @@ fun is_standard_numeric(n) =
 
 fun is_standard_boolean(n) =
     |" Return true if the root type of n is Standard.Boolean
-    n?.p_expression_type() is t@BaseTypeDecl
-    when t?.p_root_type() == n?.p_bool_type()
+    n.p_expression_type() is t@BaseTypeDecl
+    when t.p_root_type() == n.p_bool_type()
 
 fun is_predefined_type(n) =
     |" Return true if n is the name of a type declared in a predefined package
     |" spec.
 {
     # Retrieve the root enclosing package
+    # TODO: replace p_full_view() by new LAL API once U915-027 is implemented
     val packages = [
-        p for p in n?.p_referenced_decl()?.p_root_type()
-                    ?.parents(include_self=false)
+        p for p in n.p_referenced_decl().p_root_type().p_full_view().
+                    p_root_type().parents(include_self=false)
         if p is BasePackageDecl
     ].to_list;
 
     packages.length != 0 and packages[packages.length] is
         BasePackageDecl(f_package_name is
                         DefiningName(p_canonical_part() is name@DefiningName))
-        when name?.p_name_is("Standard")
-          or name?.p_name_is("System")
-          or name?.p_name_is("Ada")
-          or name?.p_name_is("Interfaces")
+        when name.p_name_is("Standard")
+          or name.p_name_is("System")
+          or name.p_name_is("Ada")
+          or name.p_name_is("Interfaces")
 }
 
 fun in_generic_template(n) =
