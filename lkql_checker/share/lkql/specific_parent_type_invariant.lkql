@@ -3,20 +3,24 @@
 # definition is not flagged if it is a part of a completion of a private
 # extension declaration.
 
-fun check_aspect(n, aspect) =
-    n != null and n?.p_has_aspect(aspect)
+fun check_aspect(n, aspect) = n != null and n.p_has_aspect(aspect)
+
+fun base_type(t) = if t is SubtypeDecl then base_type(t.p_base_subtype()) else t
 
 @check(message="parent type has specific Type_Invariant aspect")
 fun specific_parent_type_invariant(node) =
     # Flag any tagged type extension
     node is DerivedTypeDef
-    when node.parent?.p_is_tagged_type()
+    when node.parent.p_is_tagged_type()
      # exclude private completions
-     and (not node.parent?.p_previous_part() is
+     and (not node.parent.p_previous_part() is
               TypeDecl(f_type_def is TypeDef(f_has_with_private
                                              is WithPrivatePresent)))
      # check for a parent type with a Type_Invariant aspect (current or public
      # view)
-     and [p for p in node.parent?.p_base_types()
-          if p?.p_has_aspect("Type_Invariant") or
-             check_aspect(p?.p_previous_part(), "Type_Invariant")].length != 0
+     and ({
+         val base = base_type(node.parent.p_base_type());
+         [p for p in [base] & base.p_base_types()
+          if p.p_has_aspect("Type_Invariant") or
+             check_aspect(p.p_previous_part(), "Type_Invariant") or
+             check_aspect(p.p_full_view(), "Type_Invariant")].length != 0 })
