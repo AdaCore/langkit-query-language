@@ -3,10 +3,12 @@
 
 @check(message="definition of non class-wide aspect")
 fun specific_pre_post(node) =
-    node is BasicSubpDecl (
-        # Get subprogram declarations
-        p_subp_spec_or_null() is AdaNode(
-            # primitive of a tagged type
-            p_primitive_subp_tagged_type() is AdaNode))
-    # with direct pre/post aspect definitions
-    when node.p_has_aspect("Pre") or node.p_has_aspect("Post")
+    node is (BasicSubpDecl or
+             BaseSubpBody(p_previous_part() is null) or
+             SubpBodyStub(p_previous_part() is null))
+    # Get subprogram declarations
+    when node.p_subp_spec_or_null() is
+         # primitive of a tagged type
+         AdaNode(p_primitive_subp_tagged_type() is AdaNode)
+         # with direct pre/post aspect definitions
+         when node.p_has_aspect("Pre") or node.p_has_aspect("Post")
