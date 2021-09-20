@@ -48,10 +48,10 @@ with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Helpers;          use Libadalang.Helpers;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 
-with Ada_AST_Nodes; use Ada_AST_Nodes;
-with LKQL.Primitives; use LKQL.Primitives;
-
-with LKQL.Errors; use LKQL.Errors;
+with Ada_AST_Nodes;      use Ada_AST_Nodes;
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.Errors;        use LKQL.Errors;
+with LKQL.Primitives;    use LKQL.Primitives;
 
 package body Gnatcheck.Source_Table is
 
@@ -259,6 +259,24 @@ package body Gnatcheck.Source_Table is
    procedure Set_Source_Name       (SF : SF_Id; N : String);
    procedure Set_Short_Source_Name (SF : SF_Id; N : String);
    procedure Set_Suffixless_Name   (SF : SF_Id; N : String);
+
+   ----------------------------
+   -- Add_Sources_To_Context --
+   ----------------------------
+
+   procedure Add_Sources_To_Context (Ctx : LKQL_Context) is
+      Units : Unit_Vectors.Vector;
+   begin
+      GNAT.Task_Lock.Lock;
+      for J in First_SF_Id .. Last_Argument_Source loop
+         if Source_Info (J) /= Ignore_Unit then
+            Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
+         end if;
+      end loop;
+      GNAT.Task_Lock.Unlock;
+
+      Set_Units (Ctx.Eval_Ctx, Units);
+   end Add_Sources_To_Context;
 
    ---------------------------
    -- Add_Source_To_Process --
@@ -1556,9 +1574,9 @@ package body Gnatcheck.Source_Table is
    Partition : Provider_And_Projects_Array_Access;
 
    function Create_Context return LKQL_Context is
-      Ctx       : LKQL_Context;
-      Dummy     : Primitive;
-      Units     : Unit_Vectors.Vector;
+      Ctx   : LKQL_Context;
+      Dummy : Primitive;
+      Units : Unit_Vectors.Vector;
 
    begin
       if Partition = null then

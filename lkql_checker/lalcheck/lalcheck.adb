@@ -99,6 +99,11 @@ begin
 
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
+   --  The call to Create_Context above was made before sources are computed
+   --  by Check_Parameters, so reset them now.
+
+   Add_Sources_To_Context (Ctx);
+
    Gnatcheck.Diagnoses.Init_Exemptions;
 
    if Check_Restrictions or else Use_gnatw_Option then

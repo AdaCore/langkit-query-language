@@ -28,6 +28,7 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with GNAT.OS_Lib;
 with GNATCOLL.Utils;
 
+with Ada_AST_Nodes; use Ada_AST_Nodes;
 with Liblkqllang.Prelude; use Liblkqllang.Prelude;
 
 with LKQL.Evaluation; use LKQL.Evaluation;
@@ -98,6 +99,24 @@ package body LKQL.Eval_Contexts is
 
    function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access is
      (Ctx.Kernel.Ast_Roots);
+
+   -------------------
+   -- Set_AST_Roots --
+   -------------------
+
+   procedure Set_Units
+     (Ctx   : Eval_Context;
+      Units : Unit_Vectors.Vector) is
+   begin
+      Free_Ast_Node_Array (Ctx.Kernel.Ast_Roots);
+      Ctx.Kernel.Ast_Roots :=
+        new AST_Node_Array (Units.First_Index .. Units.Last_Index);
+
+      for J in Ctx.Kernel.Ast_Roots'Range loop
+         Ctx.Kernel.Ast_Roots (J) := Create_Node
+           (Ada_AST_Node'(Node => Units.Element (J).Root));
+      end loop;
+   end Set_Units;
 
    -----------
    -- Clone --

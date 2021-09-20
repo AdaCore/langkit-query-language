@@ -30,6 +30,7 @@ use  LKQL.Primitives.Primitive_Ptrs;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
+with Libadalang.Helpers;   use Libadalang.Helpers;
 
 with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
@@ -159,6 +160,11 @@ package LKQL.Eval_Contexts is
 
    function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access;
    --  Return the evaluation context's AST root
+
+   procedure Set_Units
+     (Ctx   : Eval_Context;
+      Units : Unit_Vectors.Vector);
+   --  Set the units of a given Ctx
 
    function Ref_Frame (Ctx : Eval_Context) return Eval_Context;
    --  Make a deep copy of the current frame

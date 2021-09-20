@@ -226,6 +226,9 @@ package Gnatcheck.Source_Table is
    function Create_Context return LKQL_Context;
    --  Create the LKQL context
 
+   procedure Add_Sources_To_Context (Ctx : LKQL_Context);
+   --  Add all registered sources to Ctx
+
    procedure Process_Sources (Ctx : LKQL_Context);
    --  Procedure all sources
 

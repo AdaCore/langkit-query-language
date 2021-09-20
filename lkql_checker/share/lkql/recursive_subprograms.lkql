@@ -29,7 +29,7 @@ selector static_calls
         # Grab the bodies for every static call
         [stdlib.get_subp_body(a.p_referenced_decl())
          for a in stdlib.children_no_nested_subps(b)
-         if a is not CallExpr and a is Name(p_is_static_call() is true)].to_list
+         if a is BaseId(p_is_static_call() is true)].to_list
     | *      => ()
 
 @check(message="recursive subprogram",
@@ -41,8 +41,8 @@ fun recursive_subprograms(node, skip_dispatching_calls=false) = {
     # taking dispatching calls into account.
     fun bodies(name) =
         if name is Expr(p_is_dispatching_call() is true) then {
-            val root  = name.p_referenced_decl()?.p_canonical_part();
-            val roots = root?.p_root_subp_declarations();
+            val root  = name.p_referenced_decl().p_canonical_part();
+            val roots = root.p_root_subp_declarations();
             val subp  = if roots.length == 0 then root else roots[1];
             [stdlib.get_subp_body(subp)] &
             [s.p_body_part() for s in subp.p_find_all_overrides(units)].to_list
@@ -54,18 +54,15 @@ fun recursive_subprograms(node, skip_dispatching_calls=false) = {
     | b@Body => rec *
         # Grab the bodies for every direct call
         concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
-                if a is not CallExpr and
-                   a is Name(p_is_direct_call() is true)].to_list)
+                if a is BaseId(p_is_direct_call() is true)].to_list)
     | *      => ();
-
-    # Check the given BaseSubpBody `b` for recursivity
-    fun check_body(b, skip_dispatching_calls) =
-        if skip_dispatching_calls
-        then b is BaseSubpBody(any static_calls is c@BaseSubpBody when b == c)
-        else b is BaseSubpBody(any calls is c@BaseSubpBody when b == c);
 
     node is (ClassicSubpDecl or GenericSubpInstantiation or
              BaseSubpBody(p_previous_part() is null))
     when (not stdlib.in_generic_template(node))
-     and check_body(stdlib.get_subp_body(node), skip_dispatching_calls)
+     and stdlib.get_subp_body(node) is b@BaseSubpBody when
+         if skip_dispatching_calls
+         then b is body@BaseSubpBody(any static_calls is c@BaseSubpBody
+                                     when body == c)
+         else b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)
 }
