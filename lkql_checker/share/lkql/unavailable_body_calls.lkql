@@ -6,7 +6,7 @@
 
 @check(message="call to unavailable body")
 fun unavailable_body_calls(node, indirect_calls = true) =
-    node is Name
-    when (indirect_calls and node.p_is_access_call())
-      or (node.p_is_direct_call() and
-          node.p_referenced_decl() is d@ClassicSubpDecl(p_body_part() is null))
+    node is BaseId
+    when (indirect_calls and node.p_is_access_call()) or
+         (node.p_is_static_call() and
+          node.p_referenced_decl() is ClassicSubpDecl(p_body_part() is null))
