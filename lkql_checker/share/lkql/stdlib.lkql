@@ -255,7 +255,8 @@ fun is_constructor(spec) =
           if is_controlling_param_type(p?.f_type_expr, spec)].length == 0
 
 fun get_subp_body(node) =
-    |" Return the SubpBody corresponding to node, if any, null otherwise
+    |" Return the SubpBody or TaskBody corresponding to node, if any, null
+    |" otherwise.
     |" TODO: take renamings into account
     match node
     | BaseSubpBody    => node
@@ -264,6 +265,12 @@ fun get_subp_body(node) =
     | GenericSubpInstantiation
                       => node.p_designated_generic_decl().p_body_part()
     | SubpBodyStub    => node
+    | EntryDecl       =>
+        # For a task entry decl, return the task body as an over approximation
+        # TODO: replace p_next_part_for_decl once U920-016 if fixed.
+        if node.p_semantic_parent() is d@(SingleTaskDecl or TaskTypeDecl)
+        then d.p_next_part_for_decl()
+        else node.p_body_part()
     | BasicDecl when node.p_is_subprogram()
                       => node.p_body_part()
     | *               => null
