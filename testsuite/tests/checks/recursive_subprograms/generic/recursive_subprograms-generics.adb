@@ -133,12 +133,12 @@ package body Recursive_Subprograms.Generics is
        with procedure P;
     procedure P2;
 
-    procedure P2 is
+    procedure P2 is    --  FLAG (via P3 instantiation)
     begin
        P;
     end P2;
 
-    procedure P3 is new P2 (P1);                   --  FLAG
+    procedure P3 is new P2 (P1);
 
     procedure P1 is
     begin

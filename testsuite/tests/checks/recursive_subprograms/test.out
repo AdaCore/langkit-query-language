@@ -18,8 +18,8 @@ root.ads:8:14: rule violation: recursive subprogram
 8 |    procedure Process_All (X : in out PT'Class; I : Integer); --  FLAG if Skip_Dispatching_Calls not set
   |              ^^^^^^^^^^^ 
 
-recursive_subprograms-generics.adb:141:15: rule violation: recursive subprogram
-141 |     procedure P3 is new P2 (P1);                   --  FLAG
+recursive_subprograms-generics.adb:136:15: rule violation: recursive subprogram
+136 |     procedure P2 is    --  FLAG (via P3 instantiation)
     |               ^^ 
 
 recursive_subprograms-generics.ads:62:14: rule violation: recursive subprogram
