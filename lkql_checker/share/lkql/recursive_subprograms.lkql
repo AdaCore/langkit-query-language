@@ -29,7 +29,9 @@ selector static_calls
         # Grab the bodies for every static call
         [stdlib.get_subp_body(a.p_referenced_decl())
          for a in stdlib.children_no_nested_subps(b)
-         if a is BaseId(p_is_static_call() is true)].to_list
+         if a is BaseId
+         when a.p_is_static_call() or
+              a.p_referenced_decl() is TaskTypeDecl].to_list
     | *      => ()
 
 @check(message="recursive subprogram",
@@ -54,7 +56,9 @@ fun recursive_subprograms(node, skip_dispatching_calls=false) = {
     | b@Body => rec *
         # Grab the bodies for every direct call
         concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
-                if a is BaseId(p_is_direct_call() is true)].to_list)
+                if a is BaseId
+                when a.p_is_direct_call() or
+                     a.p_referenced_decl() is TaskTypeDecl].to_list)
     | *      => ();
 
     node is (ClassicSubpDecl or

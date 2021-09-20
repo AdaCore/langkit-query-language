@@ -268,9 +268,11 @@ fun get_subp_body(node) =
     | EntryDecl       =>
         # For a task entry decl, return the task body as an over approximation
         # TODO: replace p_next_part_for_decl once U920-016 if fixed.
-        if node.p_semantic_parent() is d@(SingleTaskDecl or TaskTypeDecl)
-        then d.p_next_part_for_decl()
-        else node.p_body_part()
+        (match node.p_semantic_parent()
+         | d@SingleTaskTypeDecl => d.parent.p_next_part_for_decl()
+         | d@TaskTypeDecl       => d.p_next_part_for_decl()
+         | *                    => node.p_body_part())
+    | TaskTypeDecl    => node.p_next_part_for_decl()
     | BasicDecl when node.p_is_subprogram()
                       => node.p_body_part()
     | *               => null
