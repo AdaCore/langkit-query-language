@@ -2,14 +2,16 @@
 # Such comments have the following structure:
 # --<special_character> *<comment_marker>
 
+import stdlib
+
 @unit_check(help="use of comment annotations", remediation="EASY")
-fun annotated_comments(unit, s="#") = [
+fun annotated_comments(unit, s=[]) = if s == [] then [] else [
     {message: "annotated comment", loc: tok}
     for tok in unit.tokens
     if tok.kind == "ADA_COMMENT" and
-       tok.text.starts_with("--" & s.substring(1, 1)) and
-       tok.text.ends_with(s.substring(2, s.length)) and
-       match tok.text.substring(4, tok.text.length - s.length + 1)
-       | "[ \t]*" => true
-       | *        => false
+       [str for str in s if
+        tok.text.starts_with("--" & str.substring(1, 1)) and
+        tok.text.substring(stdlib.first_non_blank(tok.text, 4),
+                           tok.text.length).
+        starts_with(str.substring(2, str.length))].length != 0
 ]

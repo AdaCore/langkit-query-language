@@ -293,3 +293,9 @@ fun find_comment(token, name) =
          | "^-- *$" => true
          | *        => false
     else token.kind != "ADA_BEGIN" and find_comment(token.previous, name)
+
+fun first_non_blank(s, ind=1) =
+    |" Return the index of the first non blank character of s, starting at ind
+    match s.substring(ind, ind)
+    | "[ \t]" => first_non_blank(s, ind + 1)
+    | *       => ind
