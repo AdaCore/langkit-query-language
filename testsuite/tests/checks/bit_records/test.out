@@ -1,8 +1,8 @@
-bit.ads:11:20: rule violation: bit record without layout definition
+bit.ads:11:9: rule violation: bit record without layout definition
 11 |    type Rec2_PP is record           --  FLAG
-   |               
+   |         ^^^^^^^ 
 
-bit.ads:17:20: rule violation: bit record without layout definition
+bit.ads:17:9: rule violation: bit record without layout definition
 17 |    type Rec2_PA is record           --  FLAG
-   |               
+   |         ^^^^^^^ 
 
