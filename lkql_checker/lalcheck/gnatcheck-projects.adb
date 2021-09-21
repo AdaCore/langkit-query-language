@@ -735,6 +735,15 @@ package body Gnatcheck.Projects is
 
       procedure Process_Sections is
       begin
+         --  Processing the 'cargs' section
+
+         Goto_Section ("cargs", Parser => Parser);
+
+         while GNAT.Command_Line.Getopt ("*", Parser => Parser) /= ASCII.NUL
+         loop
+            Store_Compiler_Option (Full_Switch (Parser => Parser));
+         end loop;
+
          --  Processing the 'rules' section
          Goto_Section ("rules", Parser => Parser);
 
