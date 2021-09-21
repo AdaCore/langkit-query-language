@@ -980,11 +980,22 @@ package body Gnatcheck.Compiler is
    ---------------------------
 
    procedure Process_Style_Options (Param : String) is
-      New_Options : constant String := Style_Options_String.all & Param;
+      Options : constant String := Style_Options_String.all;
    begin
       Use_gnaty_Option := True;
       Free (Style_Options_String);
-      Style_Options_String := new String'(New_Options);
+
+      --  If the previous option is using a number and Param also starts with
+      --  a number, we cannot concatenate them, so split the options.
+
+      if Options'Length /= 0
+        and then Options (Options'Last) in '0' .. '9'
+        and then Param (Param'First) in '0' .. '9'
+      then
+         Style_Options_String := new String'(Options & " -gnaty" & Param);
+      else
+         Style_Options_String := new String'(Options & Param);
+      end if;
    end Process_Style_Options;
 
    ---------------------------

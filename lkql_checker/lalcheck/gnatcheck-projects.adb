@@ -29,6 +29,7 @@ with GNATCOLL.Projects.Aux;
 with GNATCOLL.Traces;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
+with GNAT.String_Split; use GNAT.String_Split;
 with GNAT.Table;
 
 with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
@@ -1283,7 +1284,9 @@ package body Gnatcheck.Projects is
          Store_Compiler_Option ("-gnatyN");
 
          if Use_gnaty_Option then
-            Store_Compiler_Option (Get_Style_Option);
+            for S of Create (Get_Style_Option, " ") loop
+               Store_Compiler_Option (S);
+            end loop;
          end if;
       end if;
 
