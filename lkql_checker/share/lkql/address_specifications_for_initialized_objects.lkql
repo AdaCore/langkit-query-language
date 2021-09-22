@@ -3,28 +3,23 @@
 
 @check(message="address specification for initialized object")
 fun address_specifications_for_initialized_objects(node) =
-    node is (
-        a@AttributeDefClause(
-            # for X'Address use ...
-            f_attribute_expr is ar@AttributeRef(
-                # X has a default value
-                f_prefix is Name(
-                    p_referenced_decl() is o@ObjectDecl
-                    when o?.f_default_expr != null
-                ),
-                # Defined attribute is Address
-                f_attribute is n@Name
-                when n?.p_name_is("Address")
-            )
-        )
-    ) or (
-        # X := ... with Address => ...
-        AspectAssoc(
+    # for X'Address use ...
+    node is a@AttributeDefClause(
+        f_attribute_expr is AttributeRef(
+            # Defined attribute is Address
+            f_attribute is Name(p_name_is("Address") is true),
             # X has a default value
-            any parent is o@ObjectDecl
-            when o.f_default_expr != null,
-            # Associated aspect is Address
-            f_id is n@Name
-            when n?.p_name_is("Address")
-        )
-    )
+            f_prefix is Name(p_referenced_decl() is
+                             ObjectDecl(f_default_expr is not null))))
+    # X := ... with Address => ...
+    or AspectAssoc(
+        # Associated aspect is Address
+        f_id is Name(p_name_is("Address") is true),
+        # X has a default value
+        any parent is ObjectDecl(f_default_expr is not null))
+    # for X use at xxx'Address
+    or AtClause(f_expr is AttributeRef(f_attribute is
+                                       Name(p_name_is("Address") is true)),
+                # X has a default value
+                f_name is Name(p_referenced_decl() is
+                               ObjectDecl(f_default_expr is not null)))
