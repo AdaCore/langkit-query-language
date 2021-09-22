@@ -14,27 +14,27 @@ import stdlib
 
 fun denotes_local_object(n) = {
     fun dotted_prefix(n) =
-        match n?.f_prefix?.p_referenced_decl()
+        match n.f_prefix.p_referenced_decl()
         | BasicSubpDecl                 => true
         | SubpBody                      => true
         | GenericSubpInstantiation      => true
         | p@BasePackageDecl             => stdlib.has_local_scope(p) or
-                                           denotes_local_object(n?.f_prefix)
+                                           denotes_local_object(n.f_prefix)
 
         | p@PackageBody                 => stdlib.has_local_scope(p) or
-                                           denotes_local_object(n?.f_prefix)
+                                           denotes_local_object(n.f_prefix)
         | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or
-                                           denotes_local_object(n?.f_prefix)
+                                           denotes_local_object(n.f_prefix)
         | r@*                           =>
-          if r?.p_type_expression()?.p_designated_type_decl()?.p_is_access_type()
-          then false
-          else denotes_local_object(n?.f_prefix);
+          (not r.p_type_expression().p_designated_type_decl().
+               p_is_access_type())
+          and denotes_local_object(n.f_prefix);
 
     match n
     | DottedName => dotted_prefix(n)
-    | QualExpr   => denotes_local_object(n?.f_suffix)
-    | ParenExpr  => denotes_local_object(n?.f_expr)
-    | CallExpr   => denotes_local_object(n?.f_name)
+    | QualExpr   => denotes_local_object(n.f_suffix)
+    | ParenExpr  => denotes_local_object(n.f_expr)
+    | CallExpr   => denotes_local_object(n.f_name)
     | BaseId     => stdlib.is_local_object(stdlib.ultimate_alias(n))
     | *          => false
 }
@@ -42,5 +42,5 @@ fun denotes_local_object(n) = {
 @check(message="access attribute for local objects")
 fun access_to_local_objects(node) =
     node is AttributeRef
-    when node.f_attribute?.p_name_is("Access")
+    when node.f_attribute.p_name_is("Access")
      and denotes_local_object(node.f_prefix)
