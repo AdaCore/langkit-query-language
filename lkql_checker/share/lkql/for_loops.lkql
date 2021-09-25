@@ -1,13 +1,23 @@
 # Flag while loops which could be replaced by a for loop
+# This rule recognizes while loops of the form:
+#      Id : ...;
+#      [no write reference to Id]
+#   begin
+#      [...]
+#      while Id <relation op> ... loop
+#         [no write reference to Id]
+#         Id := Id +/- 1;
+#      end loop;
+#      [no reference to Id]
 
 fun write_references(node, id) =
     |" Return all the write references to `id`, starting from `node`
-    from node select n@Identifier
-    when n.p_name_matches(id) and n.p_is_write_reference()
+    from node select Identifier(p_name_matches(id) is true,
+                                p_is_write_reference() is true)
 
-fun find_references(node, id) =
+fun references(node, id) =
     |" Return all the references to `id`, starting from `node`
-    from node select n@Identifier when n.p_name_matches(id)
+    from node select Identifier(p_name_matches(id) is true)
 
 @check(message="while loop may be replaced by a for loop")
 fun for_loops(node) =
@@ -23,18 +33,18 @@ fun for_loops(node) =
         assign@AssignStmt(f_expr is
             expr@BinOp(f_op is OpPlus or OpMinus,
                        f_right is i@IntLiteral
-                       when i?.p_denoted_value() == 1,
+                       when i.p_denoted_value() == 1,
                        f_left is Identifier(p_name_matches(id) is true)))
         # located at the very end of the loop
-        when assign?.next_sibling == null
+        when assign.next_sibling == null
          # and where id is declared in the same enclosing scope as the loop
-         and id?.p_referenced_decl() is decl@ObjectDecl
-             when node.parent?.parent?.parent == decl?.parent?.parent?.parent
+         and id.p_referenced_decl() is decl@ObjectDecl
+             when node.p_semantic_parent() == decl.p_semantic_parent()
               # and no other write of Id is found in its declarative part
               # (e.g. from nested subprograms)
-              and write_references(decl?.parent, id).length == 0
+              and write_references(decl.parent, id).length == 0
               # also check that there are no further references to id after the
               # loop.
               and not node is *(any next_siblings is n@*
-                                when find_references(n, id).length != 0)
+                                when references(n, id).length != 0)
     }
