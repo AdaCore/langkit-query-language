@@ -23,17 +23,20 @@ fun check_non_const_overlay(decl, overlaid) =
          (match overlaid_object
           | o@ObjectDecl =>
               o.f_mode is (ModeOut or ModeInOut)
-              or not o.f_has_constant.p_as_bool()
+              or (o.parent is not GenericFormalObjDecl and
+                  o.f_has_constant is ConstantAbsent)
           | p@ParamSpec  => p.f_mode is ModeOut or ModeInOut
           | *            => false)
          # Check that overlaying is constant
          and (decl.f_has_constant.p_as_bool()
               # or overlaying object is not marked volatile
-              or decl.p_has_aspect("Volatile")
+              or (not decl.p_has_aspect("Volatile"))
               # or if overlaid object is not a parameter, it is not marked as
               # Volatile
-              or (overlaid_object is ParamSpec
-                  or not overlaid_object.p_has_aspect("Volatile")))})
+              or (overlaid_object is
+                  not (ParamSpec or
+                       ObjectDecl(parent is GenericFormalObjDecl))
+                  and not overlaid_object.p_has_aspect("Volatile")))})
 
 # TODO: customize message:
 # non-volatile object overlays a variable object
