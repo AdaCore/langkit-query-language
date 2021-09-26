@@ -14,7 +14,7 @@ fun numeric_indexing(node) =
                 else node;
 
         # Exclude subcomponents by accessing directly parent.parent.parent
-        n?.parent?.parent?.parent is c@CallExpr
-        when c?.f_name?.p_expression_type() is
+        n.parent?.parent?.parent is c@CallExpr
+        when c.f_name.p_expression_type() is
              BaseTypeDecl(p_is_array_type() is true)
     }
