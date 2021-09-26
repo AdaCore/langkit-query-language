@@ -631,9 +631,7 @@ package body Gnatcheck.Rules is
          end if;
       else
          if Enable then
-            if Gnatcheck.Options.Check_Param_Redefinition
-              and then Rule.Rule_State = Enabled
-            then
+            if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
                Error
                 ("redefining at " & Defined_Str (Defined_At) &
                  " parameter for rule " & Rule.Name.all &
@@ -684,15 +682,14 @@ package body Gnatcheck.Rules is
          Rule.Rule_State := Disabled;
          Rule.Param := Unset;
 
-      elsif Gnatcheck.Options.Check_Param_Redefinition
-        and then Rule.Rule_State = Enabled
-      then
-         Error
-          ("redefining at " & Defined_Str (Defined_At) &
-           " parameter " & Param & " for rule " & Rule.Name.all &
-           " defined at " & Defined_Str (Rule.Defined_At.all));
-
       elsif Enable then
+         if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+            Error
+             ("redefining at " & Defined_Str (Defined_At) &
+              " parameter " & Param & " for rule " & Rule.Name.all &
+              " defined at " & Defined_Str (Rule.Defined_At.all));
+         end if;
+
          Rule.Param := On;
          Rule.Rule_State := Enabled;
          Rule.Defined_At := new String'(Defined_At);
@@ -719,15 +716,14 @@ package body Gnatcheck.Rules is
          else
             Rule.Rule_State := Disabled;
          end if;
-      elsif Gnatcheck.Options.Check_Param_Redefinition
-        and then Rule.Rule_State = Enabled
-      then
-         Error
-          ("redefining at " & Defined_Str (Defined_At) &
-           " parameter " & Param & " for rule " & Rule.Name.all &
-           " defined at " & Defined_Str (Rule.Defined_At.all));
-
       elsif Enable then
+         if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+            Error
+             ("redefining at " & Defined_Str (Defined_At) &
+              " parameter " & Param & " for rule " & Rule.Name.all &
+              " defined at " & Defined_Str (Rule.Defined_At.all));
+         end if;
+
          --  '@' designates a response file
 
          if Param (Param'First) = '@' then
@@ -792,6 +788,13 @@ package body Gnatcheck.Rules is
          end if;
       else
          if Enable then
+            if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+               Error
+                ("redefining at " & Defined_Str (Defined_At) &
+                 " parameter " & Param & " for rule " & Rule.Name.all &
+                 " defined at " & Defined_Str (Rule.Defined_At.all));
+            end if;
+
             --  First try to extract an integer
 
             begin
@@ -853,6 +856,13 @@ package body Gnatcheck.Rules is
             Rule.Rule_State := Disabled;
          end if;
       elsif Enable then
+         if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+            Error
+             ("redefining at " & Defined_Str (Defined_At) &
+              " parameter " & Param & " for rule " & Rule.Name.all &
+              " defined at " & Defined_Str (Rule.Defined_At.all));
+         end if;
+
          if Rule.Name.all = "name_clashes" then
             Load_Dictionary (Param, Rule, Rule.Param);
             Rule.Defined_At := new String'(Defined_At);
@@ -1161,6 +1171,25 @@ package body Gnatcheck.Rules is
       Enable     : Boolean;
       Defined_At : String)
    is
+      procedure Check_And_Set
+        (S     : in out Unbounded_Wide_Wide_String;
+         Val   : String;
+         Label : String);
+
+      procedure Check_And_Set
+        (S     : in out Unbounded_Wide_Wide_String;
+         Val   : String;
+         Label : String) is
+      begin
+         if Check_Param_Redefinition and then Length (S) /= 0 then
+            Error
+             ("redefining at " & Defined_Str (Defined_At) & " " &
+              Label & " casing for rule " & Rule.Name.all);
+         end if;
+
+         Set_Unbounded_Wide_Wide_String (S, To_Wide_Wide_String (Val));
+      end Check_And_Set;
+
       Norm_Param : constant String := To_Lower (Remove_Spaces (Param));
    begin
       if Norm_Param = "" then
@@ -1174,34 +1203,34 @@ package body Gnatcheck.Rules is
          Rule.Defined_At := new String'(Defined_At);
 
          if Has_Prefix (Norm_Param, "type=") then
-            Set_Unbounded_Wide_Wide_String
+            Check_And_Set
               (Rule.Type_Casing,
-               To_Wide_Wide_String
-                 (Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last)));
+               Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last),
+               "type");
 
          elsif Has_Prefix (Norm_Param, "enum=") then
-            Set_Unbounded_Wide_Wide_String
+            Check_And_Set
               (Rule.Enum_Casing,
-               To_Wide_Wide_String
-                 (Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last)));
+               Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last),
+               "enumeration literal");
 
          elsif Has_Prefix (Norm_Param, "constant=") then
-            Set_Unbounded_Wide_Wide_String
+            Check_And_Set
               (Rule.Constant_Casing,
-               To_Wide_Wide_String
-                 (Norm_Param (Norm_Param'First + 9 .. Norm_Param'Last)));
+               Norm_Param (Norm_Param'First + 9 .. Norm_Param'Last),
+               "constant");
 
          elsif Has_Prefix (Norm_Param, "exception=") then
-            Set_Unbounded_Wide_Wide_String
+            Check_And_Set
               (Rule.Exception_Casing,
-               To_Wide_Wide_String
-                 (Norm_Param (Norm_Param'First + 10 .. Norm_Param'Last)));
+               Norm_Param (Norm_Param'First + 10 .. Norm_Param'Last),
+               "exception");
 
          elsif Has_Prefix (Norm_Param, "others=") then
-            Set_Unbounded_Wide_Wide_String
+            Check_And_Set
               (Rule.Others_Casing,
-               To_Wide_Wide_String
-                 (Norm_Param (Norm_Param'First + 7 .. Norm_Param'Last)));
+               Norm_Param (Norm_Param'First + 7 .. Norm_Param'Last),
+               "others");
 
          elsif Has_Prefix (Norm_Param, "exclude=") then
             Load_Dictionary
