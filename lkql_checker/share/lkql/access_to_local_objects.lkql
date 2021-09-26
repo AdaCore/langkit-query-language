@@ -12,6 +12,10 @@
 
 import stdlib
 
+fun has_access_type(n) =
+    n.p_type_expression() is TypeExpr(p_designated_type_decl() is
+    BaseTypeDecl(p_is_access_type() is true))
+
 fun denotes_local_object(n) = {
     fun dotted_prefix(n) =
         match n.f_prefix.p_referenced_decl()
@@ -26,16 +30,16 @@ fun denotes_local_object(n) = {
         | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or
                                            denotes_local_object(n.f_prefix)
         | r@*                           =>
-          (not r.p_type_expression().p_designated_type_decl().
-               p_is_access_type())
-          and denotes_local_object(n.f_prefix);
+          (not has_access_type(r)) and denotes_local_object(n.f_prefix);
 
     match n
     | DottedName => dotted_prefix(n)
     | QualExpr   => denotes_local_object(n.f_suffix)
     | ParenExpr  => denotes_local_object(n.f_expr)
     | CallExpr   => denotes_local_object(n.f_name)
-    | BaseId     => stdlib.is_local_object(stdlib.ultimate_alias(n))
+    | BaseId     =>
+        (not has_access_type(n.p_referenced_decl())) and
+        stdlib.is_local_object(stdlib.ultimate_alias(n, strip_component=true))
     | *          => false
 }
 
