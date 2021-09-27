@@ -15,7 +15,7 @@ fun unconstrained_array_type(type, except_string) =
     if type is SubtypeDecl
     then type.f_subtype.f_constraint is not Constraint and
          unconstrained_array_type(type.p_canonical_type(), except_string)
-    else if type.f_type_def is DerivedTypeDef
+    else if type is TypeDecl(f_type_def is DerivedTypeDef)
     then type.f_type_def.f_subtype_indication.f_constraint is not Constraint and
          unconstrained_array_type(type.p_base_type(), except_string)
     else type is TypeDecl(p_is_array_type() is true,
