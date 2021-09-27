@@ -20,8 +20,8 @@ fun is_limited(t) = t?.f_has_limited?.p_as_bool()
 
 @check(message="procedure can be rewritten as function")
 fun function_style_procedures(node) =
-    node is (SubpBody or SubpBodyStub or BasicSubpDecl)
-    when (node is BasicSubpDecl or node.p_previous_part() == null)
+    node is (SubpBody or SubpBodyStub or SubpDecl)
+    when (node is SubpDecl or node.p_previous_part() == null)
      and node.f_subp_spec.f_subp_kind is SubpKindProcedure
      and node.p_get_aspect_spec_expr("Global") is null or NullLiteral
      and no_in_out_params(node.f_subp_spec)
