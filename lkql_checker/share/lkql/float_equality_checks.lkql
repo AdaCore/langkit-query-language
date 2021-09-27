@@ -5,7 +5,9 @@
 # the predefined equality operations. Also, the '=' and '/=' operations for
 # fixed-point types are not flagged.
 
-fun is_float(n) = n.p_expression_type().p_full_view().p_is_float_type()
+fun is_float(n) =
+    n.p_expression_type() is t@BaseTypeDecl
+    when t.p_full_view().p_is_float_type()
 
 @check(message="use of equality operation for float values")
 fun float_equality_checks(node) =
