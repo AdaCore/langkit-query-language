@@ -86,7 +86,7 @@ fun ultimate_alias(name, all_nodes=true, strip_component=false) =
 fun ultimate_exception_alias(name) =
     |" Return the ultimately designated ``ExceptionDecl``, going through renamings
 {
-    val decl = name?.p_referenced_decl();
+    val decl = name.p_referenced_decl();
 
     if decl is ExceptionDecl(f_renames is RenamingClause)
     then ultimate_exception_alias(decl?.f_renames?.f_renamed_object)
@@ -96,8 +96,8 @@ fun ultimate_exception_alias(name) =
 fun ultimate_subprogram_alias(name) =
     |" Return the ultimately designated ``BasicSubpDecl``, going through renamings
     if name is SubpRenamingDecl
-    then ultimate_exception_alias(name.f_renames.f_renamed_object.
-                                  p_referenced_decl())
+    then ultimate_subprogram_alias(name.f_renames.f_renamed_object.
+                                   p_referenced_decl())
     else name
 
 fun has_local_scope(n) =
