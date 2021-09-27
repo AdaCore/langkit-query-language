@@ -13,9 +13,10 @@ fun improperly_located_instantiations(unit) = [
                 else (if unit.root.f_body.f_item is GenericPackageDecl
                       then "generic " else "") & "library package spec"),
       loc: node.p_defining_name()}
-     for node in (match unit.root.f_body
-                  | LibraryItem(f_item is GenericPackageDecl or BasePackageDecl)
-                      => from unit.root select GenericInstantiation
-                  | * => from (from unit.root select BaseSubpBody)
-                         select GenericInstantiation
-                  | * => [])]
+     for node in if unit.root is CompilationUnit
+                 then (match unit.root.f_body
+                       | LibraryItem(f_item is GenericPackageDecl or BasePackageDecl)
+                           => from unit.root select GenericInstantiation
+                       | * => from (from unit.root select BaseSubpBody)
+                              select GenericInstantiation)
+                 else []]
