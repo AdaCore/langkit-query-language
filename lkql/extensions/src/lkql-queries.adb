@@ -76,18 +76,18 @@ package body LKQL.Queries is
 
                Vec : AST_Node_Vector;
             begin
-               case Eval_From_Expr.Get.Kind is
+               case Eval_From_Expr.Kind is
 
                   --  If it's a single node, create an array with just this
                   --  element.
                   when Kind_Node =>
-                     Vec.Append (Eval_From_Expr.Get.Node_Val);
+                     Vec.Append (Eval_From_Expr.Node_Val);
 
                   --  If it's a list, it needs to be a list of nodes. Create a
                   --  vector from it to create the iterator from.
                   when Kind_List =>
-                     for El of Eval_From_Expr.Get.List_Val.Elements loop
-                        if El.Get.Kind /= Kind_Node then
+                     for El of Eval_From_Expr.List_Val.Elements loop
+                        if El.Kind /= Kind_Node then
                            --  TODO: For the moment it's impossible to exert
                            --  this check in queries, because only queries
                            --  return lists (comprehensions return iterators
@@ -102,7 +102,7 @@ package body LKQL.Queries is
                                  "Wrong kind of element in list for "
                                  & "`from clause`"));
                         end if;
-                        Vec.Append (El.Get.Node_Val);
+                        Vec.Append (El.Node_Val);
                      end loop;
 
                   --  If it's any other kind of node, then it's an error

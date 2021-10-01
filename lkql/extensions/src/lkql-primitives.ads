@@ -25,7 +25,6 @@ with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Unchecked_Deallocation;
 
-with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 with Langkit_Support.Text;   use Langkit_Support.Text;
 
 with Options;
@@ -139,9 +138,46 @@ package LKQL.Primitives is
    --  since builtin functions will be allocated only once this is better than
    --  storing an address and coercing, because it will allow a friendlier API.
 
-   type Primitive_Data (Kind : Valid_Primitive_Kind) is
-     new Refcounted with record
+   type Primitive_Data;
 
+   ---------------
+   -- Primitive --
+   ---------------
+
+   type Primitive is access all Primitive_Data;
+
+   package Primitive_Vectors is new
+     Ada.Containers.Vectors (Index_Type   => Positive,
+                             Element_Type => Primitive);
+   --  Vector of Primitive values
+
+   type Primitive_Vector_Access is access all Primitive_Vectors.Vector;
+   --  Pointer to a vector of Primitive values
+
+   type Primitive_List is record
+      Elements      : aliased Primitive_Vectors.Vector;
+   end record;
+   --  List of primitive values.
+
+   procedure Free_Primitive_List is
+     new Ada.Unchecked_Deallocation (Primitive_List, Primitive_List_Access);
+
+   procedure Free_Primitive_Vector is new Ada.Unchecked_Deallocation
+     (Primitive_Vectors.Vector, Primitive_Vector_Access);
+
+   type Primitive_Pool_Data is record
+      Primitives : Primitive_Vectors.Vector;
+   end record;
+
+   type Primitive_Pool is access all Primitive_Pool_Data;
+
+   function Create return Primitive_Pool;
+   procedure Destroy (Pool : in out Primitive_Pool);
+   function Create_Primitive
+     (Data : Primitive_Data) return Primitive;
+
+   type Primitive_Data (Kind : Valid_Primitive_Kind) is record
+      Pool : Primitive_Pool;
       case Kind is
          when Kind_Unit =>
             null;
@@ -182,27 +218,19 @@ package LKQL.Primitives is
             end case;
       end case;
    end record;
-   --  Store a primitive value, which can be an atomic type
-   --  (Bool, Int, ...), an AST node, or a list of Primitive values.
+   --  Store a primitive value, which can be an atomic type (Bool, Int, ...),
+   --  an AST node, or a list of Primitive values.
 
    procedure Release (Data : in out Primitive_Data);
    --  Release if data is of Kind Kind_List, free the list's memory
 
-   package Primitive_Ptrs is
-     new GNATCOLL.Refcount.Shared_Pointers
-       (Element_Type => Primitive_Data,
-        Release      => Release);
-   use Primitive_Ptrs;
-
-   subtype Primitive is Primitive_Ptrs.Ref;
-
    subtype Introspectable_Primitive is Primitive
      with Predicate =>
-       Introspectable_Primitive.Unchecked_Get.Kind
+       Introspectable_Primitive.Kind
          in Introspectable_Kind
          or else raise Constraint_Error
            with "Wrong kind for Introspectable_Primitive: "
-           & Introspectable_Primitive.Unchecked_Get.Kind'Image;
+           & Introspectable_Primitive.Kind'Image;
 
    package Primitive_Options is new Options (Primitive);
    --  Optional Primitive values
@@ -246,29 +274,6 @@ package LKQL.Primitives is
       --  only via dot calls on entities with the same kind as the function's
       --  first argument.
    end record;
-
-   ----------
-   -- List --
-   ----------
-
-   package Primitive_Vectors is new
-     Ada.Containers.Vectors (Index_Type   => Positive,
-                             Element_Type => Primitive);
-   --  Vector of Primitive values
-
-   type Primitive_Vector_Access is access all Primitive_Vectors.Vector;
-   --  Pointer to a vector of Primitive values
-
-   type Primitive_List is record
-      Elements      : aliased Primitive_Vectors.Vector;
-   end record;
-   --  List of primitive values.
-
-   procedure Free_Primitive_List is
-     new Ada.Unchecked_Deallocation (Primitive_List, Primitive_List_Access);
-
-   procedure Free_Primitive_Vector is new Ada.Unchecked_Deallocation
-     (Primitive_Vectors.Vector, Primitive_Vector_Access);
 
    -----------------------
    --  Primitive_Assocs --
@@ -384,7 +389,7 @@ package LKQL.Primitives is
    -- Creation of Primitive values --
    ----------------------------------
 
-   function Make_Unit_Primitive return Primitive_Ptrs.Ref;
+   function Make_Unit_Primitive return Primitive;
    --  Create a Unit Primitive value
 
    function To_Primitive (Val : Integer) return Primitive;

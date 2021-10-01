@@ -50,6 +50,9 @@ package body LKQL.Eval_Contexts is
    begin
       --  Give up the reference we have on the parent env.
       Dec_Ref (Self.Parent);
+      if Self.Pool /= null then
+         Destroy (Self.Pool);
+      end if;
       Free (Self);
    end Free_Environment;
 
@@ -133,14 +136,16 @@ package body LKQL.Eval_Contexts is
    ----------------------
 
    function Create_New_Frame (Ctx            : Eval_Context;
-                              Local_Bindings : Environment_Map := Empty_Map)
+                              Local_Bindings : Environment_Map := Empty_Map;
+                              Create_Pool    : Boolean := False)
                               return Eval_Context
    is
       New_Env     : constant Environment_Access :=
         new Environment'
           (Local_Bindings => Local_Bindings,
            Parent         => Ctx.Frames,
-           Ref_Count      => <>);
+           Ref_Count      => <>,
+           Pool => (if Create_Pool then Create else null));
    begin
       --  The new env holds a reference to its parent, so increment the
       --  reference count.
@@ -316,9 +321,14 @@ package body LKQL.Eval_Contexts is
    -- Make_Empty_Environment --
    ----------------------------
 
-   function Make_Empty_Environment (Parent : Environment_Access := null)
-                                    return Environment
-   is (Environment'(String_Value_Maps.Empty_Map, Parent, Ref_Count => 1));
+   function Make_Empty_Environment
+     (Parent      : Environment_Access := null;
+      Create_Pool : Boolean := False) return Environment
+   is (Environment'
+        (String_Value_Maps.Empty_Map,
+         Parent,
+         Ref_Count => 1,
+         Pool => (if Create_Pool then Create else null)));
 
    ------------------
    -- Add_Bindings --

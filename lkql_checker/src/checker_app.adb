@@ -21,7 +21,6 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Assertions; use Ada.Assertions;
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
@@ -222,12 +221,6 @@ package body Checker_App is
             In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
          end if;
 
-         --  We add the binding to "node" to the root frame, so that it's
-         --  accessible to every rule in its sub context. This is a bit
-         --  hackish admittedly.
-         --  Note that we need to do it after traversing instantiations,
-         --  otherwise the context will be overriden.
-
          Ctx.Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
 
          for Rule of Ctx.Cached_Rules (Node.Kind) loop
@@ -249,6 +242,9 @@ package body Checker_App is
             declare
                Result_Node : Ada_Node;
             begin
+
+               Rule.Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
+
                --  The check is a "bool check", ie. a check that returns a
                --  boolean.  Eval the call to the check function
 
@@ -320,6 +316,7 @@ package body Checker_App is
                      Ada.Text_IO.Put_Line
                        (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
                   end if;
+                  raise;
             end;
 
             <<Next>>
@@ -329,40 +326,51 @@ package body Checker_App is
       end Visit;
 
    begin
-      Ctx.Eval_Ctx.Add_Binding
-        ("unit",
-         To_Primitive (H.Create_Unit_Ref (Ada_AST_Unit'(Unit => Unit))));
+      declare
+         P : Primitive_Pool := Create;
+      begin
+         --  Run node checks
+         Traverse (Unit.Root, Visit'Access);
+         Destroy (P);
+      end;
 
-      Traverse (Unit.Root, Visit'Access);
-
+      --  Run unit checks
       for Rule of Ctx.Cached_Rules (Unit.Root.Kind) loop
          begin
             if Rule.Is_Unit_Check then
                declare
-                  Result : Primitive :=
-                    Eval (Rule.Eval_Ctx, Rule.Code);
+                  Custom_Frame : Eval_Context :=
+                    Rule.Eval_Ctx.Create_New_Frame (Create_Pool => True);
+                  Result : Primitive;
                begin
-                  if Result.Get.Kind = Kind_Iterator then
-                     Result := To_List (Result.Get.Iter_Val.all);
+                  Custom_Frame.Add_Binding
+                    ("unit",
+                     To_Primitive
+                       (H.Create_Unit_Ref (Ada_AST_Unit'(Unit => Unit))));
+
+                  Result := Eval (Custom_Frame, Rule.Code);
+
+                  if Result.Kind = Kind_Iterator then
+                     Result := To_List (Result.Iter_Val.all);
                   end if;
 
-                  Check_Kind (Ctx.Eval_Ctx, Rule.LKQL_Root, Kind_List, Result);
+                  Check_Kind (Custom_Frame, Rule.LKQL_Root, Kind_List, Result);
 
-                  for El of Result.Get.List_Val.Elements loop
+                  for El of Result.List_Val.Elements loop
                      Check_Kind
-                       (Ctx.Eval_Ctx, Rule.LKQL_Root, Kind_Object, El);
+                       (Custom_Frame, Rule.LKQL_Root, Kind_Object, El);
 
                      declare
                         Loc_Val : constant Primitive :=
-                          Extract_Value (El, "loc", Ctx.Eval_Ctx, No_Kind,
+                          Extract_Value (El, "loc", Custom_Frame, No_Kind,
                                          Location => Rule.LKQL_Root);
 
                         Loc : Source_Location_Range;
 
                         Message : constant Unbounded_Text_Type :=
-                          Extract_Value (El, "message", Ctx.Eval_Ctx, Kind_Str,
+                          Extract_Value (El, "message", Custom_Frame, Kind_Str,
                                          Location => Rule.LKQL_Root)
-                          .Get.Str_Val;
+                          .Str_Val;
 
                         Diag     : Diagnostic;
                         Loc_Unit : Analysis_Unit;
@@ -372,21 +380,21 @@ package body Checker_App is
                         --  both cases we'll extract the source location and
                         --  the unit from it.
 
-                        if Loc_Val.Get.Kind = Kind_Node then
+                        if Loc_Val.Kind = Kind_Node then
                            declare
                               Node : constant Ada_AST_Node :=
                                  Ada_AST_Node
-                                   (Loc_Val.Get.Node_Val.Unchecked_Get.all);
+                                   (Loc_Val.Node_Val.Unchecked_Get.all);
                            begin
                               Loc := Node.Node.Sloc_Range;
                               Loc_Unit := Node.Node.Unit;
                            end;
 
-                        elsif Loc_Val.Get.Kind = Kind_Token then
+                        elsif Loc_Val.Kind = Kind_Token then
                            declare
                               Token : constant Ada_AST_Token :=
                                 Ada_AST_Token
-                                  (Loc_Val.Get.Token_Val.Unchecked_Get.all);
+                                  (Loc_Val.Token_Val.Unchecked_Get.all);
                            begin
                               Loc := Token.Sloc_Range;
                               Loc_Unit := Token.Unit;
@@ -410,6 +418,11 @@ package body Checker_App is
                         end if;
                      end;
                   end loop;
+                  Custom_Frame.Release_Current_Frame;
+               exception
+               when E : LKQL.Errors.Stop_Evaluation_Error =>
+                  Custom_Frame.Release_Current_Frame;
+                  Handle_Error (Rule, Unit.Root, E);
                end;
             end if;
          exception

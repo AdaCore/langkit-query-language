@@ -26,7 +26,6 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with LKQL.Errors;     use LKQL.Errors;
 with LKQL.Primitives; use LKQL.Primitives;
-use  LKQL.Primitives.Primitive_Ptrs;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
@@ -170,7 +169,8 @@ package LKQL.Eval_Contexts is
    --  Make a deep copy of the current frame
 
    function Create_New_Frame (Ctx            : Eval_Context;
-                              Local_Bindings : Environment_Map := Empty_Map)
+                              Local_Bindings : Environment_Map := Empty_Map;
+                              Create_Pool    : Boolean := False)
                               return Eval_Context;
    --  Create a new evaluation context with the current environment as parent
    --  environment.
@@ -270,11 +270,14 @@ private
       --  lookup failures.
 
       Ref_Count : Natural := 1;
+
+      Pool : Primitive_Pool;
    end record;
    --  Chainable map for symbol lookups
 
    function Make_Empty_Environment
-     (Parent : Environment_Access := null) return Environment;
+     (Parent      : Environment_Access := null;
+      Create_Pool : Boolean := False) return Environment;
    --  Return an empty map from Unbounded_Text_Type to Primitive values
 
 end LKQL.Eval_Contexts;

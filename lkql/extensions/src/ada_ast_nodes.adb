@@ -167,7 +167,7 @@ package body Ada_AST_Nodes is
                      Prim : constant Primitive :=
                        Make_Primitive (Ctx, V, Unit);
                   begin
-                     Res.Unchecked_Get.List_Val.Elements.Append (Prim);
+                     Res.List_Val.Elements.Append (Prim);
                   end;
                end loop;
 
@@ -186,7 +186,7 @@ package body Ada_AST_Nodes is
                Ret    : constant Primitive := Make_Empty_Object;
             begin
                for Field of Fields loop
-                  Ret.Unchecked_Get.Obj_Assocs.Elements.Include
+                  Ret.Obj_Assocs.Elements.Include
                     (Find (Get_Context (Ctx.Kernel.all).Get_Symbol_Table,
                      Member_Name (Field)),
                      Make_Primitive (Ctx, Eval_Member (Value, Field), Unit));
@@ -219,11 +219,11 @@ package body Ada_AST_Nodes is
      (Value       : Primitive;
       Target_Kind : Value_Kind) return I.Value_Type is
    begin
-      case Value.Get.Kind is
+      case Value.Kind is
          when Kind_List =>
             if Target_Kind in Array_Value_Kind_No_Text then
                return List_To_Value_Type
-                 (Value.Unchecked_Get.List_Val.all, Target_Kind);
+                 (Value.List_Val.all, Target_Kind);
             end if;
 
          when Kind_Str =>
@@ -236,43 +236,43 @@ package body Ada_AST_Nodes is
                return I.Create_Enum
                  (Target_Kind,
                   I.Lookup_Enum_Value
-                    (Target_Kind, To_Text (Value.Unchecked_Get.Str_Val)));
+                    (Target_Kind, To_Text (Value.Str_Val)));
             else
                return String_To_Value_Type
-                 (Value.Unchecked_Get.Str_Val, Target_Kind);
+                 (Value.Str_Val, Target_Kind);
             end if;
 
          when Kind_Int =>
             if Target_Kind = Integer_Value then
-               return Create_Integer (+Value.Get.Int_Val);
+               return Create_Integer (+Value.Int_Val);
             elsif Target_Kind = Big_Integer_Value then
                return Create_Big_Integer
-                 (GNATCOLL.GMP.Integers.Make (Image (Value.Get.Int_Val)));
+                 (GNATCOLL.GMP.Integers.Make (Image (Value.Int_Val)));
             end if;
 
          when Kind_Bool =>
             if Target_Kind = Boolean_Value then
-               return Create_Boolean (Value.Get.Bool_Val);
+               return Create_Boolean (Value.Bool_Val);
             end if;
 
          when Kind_Node =>
             if Target_Kind = Node_Value then
                return Create_Node
-                 (To_Ada_Node (Value.Get.Node_Val.Unchecked_Get).Node);
+                 (To_Ada_Node (Value.Node_Val.Unchecked_Get).Node);
             end if;
 
          when Kind_Analysis_Unit =>
             if Target_Kind = Analysis_Unit_Value then
                return Create_Analysis_Unit
                  (To_Ada_Analysis_Unit
-                   (Value.Get.Analysis_Unit_Val.Unchecked_Get).Unit);
+                   (Value.Analysis_Unit_Val.Unchecked_Get).Unit);
             end if;
 
          when others => null;
       end case;
 
       raise Introspection_Error with "Cannot convert a " &
-        Valid_Primitive_Kind'Image (Value.Get.Kind) & " to a " &
+        Valid_Primitive_Kind'Image (Value.Kind) & " to a " &
         Value_Kind'Image (Target_Kind);
    end Make_Value_Type;
 
@@ -399,7 +399,7 @@ package body Ada_AST_Nodes is
         Property_Argument_Default_Value (Ref.Ref, Arg_Position);
    begin
       if V = No_Value then
-         return Primitive_Ptrs.Null_Ref;
+         return null;
       else
          return Make_Primitive (Ctx, V, No_Analysis_Unit);
          --  Here we don't care if the unit is none, because there can't be a

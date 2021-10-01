@@ -85,11 +85,11 @@ package body LKQL.Custom_Selectors is
 
       Eval_Ctx      : constant Eval_Context :=
         Eval_Context'(Ctx.Kernel,
-                      Eval_Contexts.Environment_Access (Selector.Get.Frame));
+                      Eval_Contexts.Environment_Access (Selector.Frame));
    begin
       return Result : Custom_Selector_Iter do
          Result := Custom_Selector_Iter'
-           (Eval_Ctx, Selector.Get.Sel_Node,
+           (Eval_Ctx, Selector.Sel_Node,
             Min_Depth, Max_Depth, others => <>);
 
          Result.Next_To_Visit.Append (Root_Node);

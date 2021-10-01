@@ -57,7 +57,7 @@ package body LKQL.Functions is
      (Ctx            : Eval_Context;
       Builtin_Descr  : Builtin_Function_Description;
       Call           : L.Fun_Call;
-      First_Arg      : Primitive := Primitive_Ptrs.Null_Ref) return Primitive;
+      First_Arg      : Primitive := null) return Primitive;
    --  Call the given built-in function. If ``First_Arg`` has a non null value,
    --  then we assume it's a dot call to a built-in, and the ``Call`` syntax
    --  node will only contain the remaining arguments.
@@ -99,7 +99,7 @@ package body LKQL.Functions is
             Node : constant L.Dot_Access := Call.F_Name.As_Dot_Access;
             Receiver : constant Primitive := Eval (Ctx, Node.F_Receiver);
             Builtin_Desc : constant Builtin_Method_Descriptor :=
-              (Receiver.Get.Kind,
+              (Receiver.Kind,
                Symbol (Node.F_Member));
 
             Cur          : constant Builtin_Methods_Maps.Cursor :=
@@ -144,8 +144,8 @@ package body LKQL.Functions is
          when Kind_Property_Reference =>
             return Eval_Node_Property
               (Ctx,
-               Func.Unchecked_Get.Property_Node.Unchecked_Get.all,
-               Func.Unchecked_Get.Ref.Unchecked_Get.all, Call.F_Arguments);
+               Func.Property_Node.Unchecked_Get.all,
+               Func.Ref.Unchecked_Get.all, Call.F_Arguments);
          when others =>
             raise Program_Error with "unreachable";
       end case;
@@ -272,9 +272,9 @@ package body LKQL.Functions is
       function Eval_Arg (I : Positive; Arg : L.Expr) return Primitive;
       procedure Match_Found (Param_Index : Positive; Arg_Value : Primitive);
 
-      Def : constant L.Base_Function := Func.Get.Fun_Node;
+      Def : constant L.Base_Function := Func.Fun_Node;
       Env : constant LKQL.Primitives.Environment_Access :=
-        Func.Get.Frame;
+        Func.Frame;
 
       Def_Ext       : constant Ext := Get_Ext (Def);
       Args_Bindings : Environment_Map;
@@ -350,9 +350,9 @@ package body LKQL.Functions is
       Sel  : Primitive) return Primitive
    is
       pragma Warnings (Off);
-      Def : constant L.Selector_Decl := Sel.Get.Sel_Node;
+      Def : constant L.Selector_Decl := Sel.Sel_Node;
       Env : constant LKQL.Primitives.Environment_Access :=
-        Sel.Get.Frame;
+        Sel.Frame;
       S_List : Selector_List;
       Eval_Ctx      : constant Eval_Context :=
         Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
@@ -370,7 +370,7 @@ package body LKQL.Functions is
             Call.F_Arguments.Child (1).As_Expr_Arg.F_Value_Expr,
             Kind_Node);
 
-         Root          : H.AST_Node_Holder := Root_Node_Arg.Get.Node_Val;
+         Root          : H.AST_Node_Holder := Root_Node_Arg.Node_Val;
 
          Selector_Iterator : constant Depth_Node_Iter_Access :=
            new Depth_Node_Iter'Class'
@@ -393,7 +393,7 @@ package body LKQL.Functions is
       Fun  : Primitive) return Primitive
    is
       Builtin_Descr : constant Builtin_Function_Description :=
-        Fun.Get.Builtin_Fn.all;
+        Fun.Builtin_Fn.all;
    begin
       return Call_Builtin (Ctx, Builtin_Descr, Call);
    end Eval_Builtin_Call;
@@ -406,7 +406,7 @@ package body LKQL.Functions is
      (Ctx            : Eval_Context;
       Builtin_Descr  : Builtin_Function_Description;
       Call           : L.Fun_Call;
-      First_Arg      : Primitive := Primitive_Ptrs.Null_Ref) return Primitive
+      First_Arg      : Primitive := null) return Primitive
    is
       function Param_Index (Name : Symbol_Type) return Natural;
       function Default_Value (I : Positive) return Primitive_Option;
@@ -453,20 +453,19 @@ package body LKQL.Functions is
          Param_Values (Param_Index) := Arg_Value;
       end Match_Found;
 
-      use Primitive_Ptrs;
    begin
       Process_Function_Arguments
         (Ctx,
          Call,
          Builtin_Descr.N,
          --  ??? GNAT bug: /= doesn't work here.
-         not (First_Arg = Primitive_Ptrs.Null_Ref),
+         not (First_Arg = null),
          Param_Index'Access,
          Default_Value'Access,
          Eval_Arg'Access,
          Match_Found'Access);
 
-      if not (First_Arg = Primitive_Ptrs.Null_Ref) then
+      if not (First_Arg = null) then
          Param_Values (1) := First_Arg;
       end if;
 

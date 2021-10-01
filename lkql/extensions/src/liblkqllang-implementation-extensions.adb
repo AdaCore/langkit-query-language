@@ -324,12 +324,12 @@ package body Liblkqllang.Implementation.Extensions is
             declare
                Val : constant Primitive := Eval (LKQL_Ctx, LHS);
             begin
-               if Val.Get.Kind = Kind_Node then
+               if Val.Kind = Kind_Node then
                   return Make_Sym_Array
                     (Get_All_Completions_For_Id
                        (Get_Node_Type_Id
                             (Ada_AST_Node
-                                 (Val.Get.Node_Val.Unchecked_Get.all))));
+                                 (Val.Node_Val.Unchecked_Get.all))));
                end if;
             end;
 

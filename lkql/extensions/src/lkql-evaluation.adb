@@ -418,7 +418,7 @@ package body LKQL.Evaluation is
       Ret : constant Primitive := Make_Empty_Tuple;
    begin
       for Sub_Expr of Node.F_Exprs loop
-         Ret.Get.List_Val.Elements.Append (Eval (Ctx, Sub_Expr));
+         Ret.List_Val.Elements.Append (Eval (Ctx, Sub_Expr));
       end loop;
 
       return Ret;
@@ -570,7 +570,7 @@ package body LKQL.Evaluation is
    begin
       declare
          Builtin_Desc : constant Builtin_Method_Descriptor :=
-           (Receiver.Get.Kind,
+           (Receiver.Kind,
             Symbol (Node.F_Member));
 
          Cur          : constant Builtin_Methods_Maps.Cursor :=
@@ -586,7 +586,7 @@ package body LKQL.Evaluation is
          when Kind_Object =>
             declare
                R : constant Primitive_Maps.Cursor :=
-                 Receiver.Unchecked_Get.Obj_Assocs.Elements.Find
+                 Receiver.Obj_Assocs.Elements.Find
                    (Symbol (Node.F_Member));
             begin
                if Primitive_Maps.Has_Element (R) then
@@ -611,7 +611,7 @@ package body LKQL.Evaluation is
                R : constant String_Value_Maps.Cursor :=
                  Lookup
                    (Eval_Contexts.Environment_Access
-                      (Receiver.Get.Namespace).all,
+                      (Receiver.Namespace).all,
                     Symbol (Node.F_Member));
             begin
                if String_Value_Maps.Has_Element (R) then
@@ -729,7 +729,7 @@ package body LKQL.Evaluation is
             return To_Primitive
               (Create_Node
                  (Nth_Child
-                      (List.Get.Node_Val.Unchecked_Get.all,
+                      (List.Node_Val.Unchecked_Get.all,
                        +Int_Val (Index))));
 
          else
@@ -869,7 +869,7 @@ package body LKQL.Evaluation is
       Res : constant Primitive := Make_Empty_List;
    begin
       for Expr of Node.F_Exprs loop
-         Res.Get.List_Val.Elements.Append (Eval (Ctx, Expr));
+         Res.List_Val.Elements.Append (Eval (Ctx, Expr));
       end loop;
       return Res;
    end Eval_List_Literal;
@@ -884,7 +884,7 @@ package body LKQL.Evaluation is
       Res : constant Primitive := Make_Empty_Object;
    begin
       for Assoc of Node.F_Assocs loop
-         Res.Unchecked_Get.Obj_Assocs.Elements.Include
+         Res.Obj_Assocs.Elements.Include
            (Symbol (Assoc.F_Name), Eval (Ctx, Assoc.F_Expr));
       end loop;
       return Res;

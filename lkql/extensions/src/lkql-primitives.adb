@@ -101,6 +101,15 @@ package body LKQL.Primitives is
    --  Raise an Unsupported_Operation exception mentionning the kind of the
    --  operands as well as the name of the operation.
 
+   package Primitive_Pool_Stacks
+   is new Ada.Containers.Vectors (Positive, Primitive_Pool);
+
+   Pool_Stack : Primitive_Pool_Stacks.Vector;
+
+   function Pool return Primitive_Pool
+   is
+     (Pool_Stack.Last_Element);
+
    ---------------
    -- Int_Image --
    ---------------
@@ -319,7 +328,7 @@ package body LKQL.Primitives is
    -----------------
 
    function To_Iterator (Value : Primitive) return Primitive_Iter'Class is
-     (case Value.Get.Kind is
+     (case Value.Kind is
       when Kind_Iterator =>
          Primitive_Iter'Class (Iter_Val (Value).Iter.Clone),
       when Kind_List =>
@@ -349,56 +358,56 @@ package body LKQL.Primitives is
    ----------
 
    function Kind (Value : Primitive) return Valid_Primitive_Kind is
-      (Value.Get.Kind);
+      (Value.Kind);
 
    -------------
    -- Int_Val --
    -------------
 
    function Int_Val (Value : Primitive) return Adaptive_Integer is
-      (Value.Get.Int_Val);
+      (Value.Int_Val);
 
    -------------
    -- Str_Val --
    -------------
 
    function Str_Val (Value : Primitive) return Unbounded_Text_Type is
-      (Value.Get.Str_Val);
+      (Value.Str_Val);
 
    --------------
    -- Bool_Val --
    --------------
 
    function Bool_Val (Value : Primitive) return Boolean is
-      (Value.Get.Bool_Val);
+      (Value.Bool_Val);
 
    --------------
    -- Node_Val --
    --------------
 
    function Node_Val (Value : Primitive) return H.AST_Node_Holder is
-      (Value.Get.Node_Val);
+      (Value.Node_Val);
 
    --------------
    -- List_Val --
    --------------
 
    function List_Val (Value : Primitive) return Primitive_List_Access is
-     (Value.Get.List_Val);
+     (Value.List_Val);
 
    -----------------------
    -- Selector_List_Val --
    -----------------------
 
    function Selector_List_Val (Value : Primitive) return Selector_List is
-      (Value.Get.Selector_List_Val);
+      (Value.Selector_List_Val);
 
    --------------
    -- Iter_Val --
    --------------
 
    function Iter_Val (Value : Primitive) return Iterator_Primitive_Access is
-     (Value.Get.Iter_Val);
+     (Value.Iter_Val);
 
    --------------
    -- Elements --
@@ -407,7 +416,7 @@ package body LKQL.Primitives is
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access is
    begin
-      return Value.Get.List_Val.Elements'Access;
+      return Value.List_Val.Elements'Access;
    end Elements;
 
    ------------------------
@@ -509,7 +518,7 @@ package body LKQL.Primitives is
    function Is_Nullish (Value : Primitive) return Boolean
    is
      ((Kind (Value) = Kind_Node
-      and then Value.Get.Node_Val.Unchecked_Get.Is_Null_Node)
+      and then Value.Node_Val.Unchecked_Get.Is_Null_Node)
       or else Kind (Value) = Kind_Unit);
 
    ----------------
@@ -518,11 +527,11 @@ package body LKQL.Primitives is
 
    function Booleanize (Value : Primitive) return Boolean is
    begin
-      return (if (Value.Get.Kind = Kind_Bool
-              and then not Value.Get.Bool_Val)
-              or else Value.Get.Kind = Kind_Unit
-              or else (Value.Get.Kind = Kind_Node
-                and then Value.Get.Node_Val.Unchecked_Get.Is_Null_Node)
+      return (if (Value.Kind = Kind_Bool
+              and then not Value.Bool_Val)
+              or else Value.Kind = Kind_Unit
+              or else (Value.Kind = Kind_Node
+                and then Value.Node_Val.Unchecked_Get.Is_Null_Node)
               then False
               else True);
    end Booleanize;
@@ -532,10 +541,8 @@ package body LKQL.Primitives is
    -------------------------
 
    function Make_Unit_Primitive return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind => Kind_Unit));
-      return Ref;
+      return Create_Primitive ((Kind => Kind_Unit, Pool => Pool));
    end Make_Unit_Primitive;
 
    ------------------
@@ -543,11 +550,9 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive (Val : Integer) return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set (Primitive_Data'
-        (Refcounted with Kind => Kind_Int, Int_Val => Create (Val)));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Int, Int_Val => Create (Val), Pool => Pool));
    end To_Primitive;
 
    ------------------
@@ -555,11 +560,9 @@ package body LKQL.Primitives is
    ------------------
    --
    function To_Primitive (Val : Adaptive_Integer) return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set (Primitive_Data'
-        (Refcounted with Kind => Kind_Int, Int_Val => Val));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Int, Int_Val => Val, Pool => Pool));
    end To_Primitive;
 
    ------------------
@@ -567,11 +570,9 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive (Val : Unbounded_Text_Type) return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'(Refcounted with Kind => Kind_Str, Str_Val => Val));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Str, Str_Val => Val, Pool => Pool));
    end To_Primitive;
 
    ------------------
@@ -586,11 +587,9 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive (Val : Boolean) return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'(Refcounted with Kind => Kind_Bool, Bool_Val => Val));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Bool, Bool_Val => Val, Pool => Pool));
    end To_Primitive;
 
    ------------------
@@ -599,11 +598,8 @@ package body LKQL.Primitives is
 
    function To_Primitive (Node : H.AST_Node_Holder) return Primitive
    is
-      Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'(Refcounted with Kind_Node, Node));
-      return Ref;
+      return Create_Primitive ((Kind_Node, Pool, Node));
    end To_Primitive;
 
    ------------------
@@ -611,10 +607,8 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive (Token : H.AST_Token_Holder) return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind_Token, Token));
-      return Ref;
+      return Create_Primitive ((Kind_Token, Pool, Token));
    end To_Primitive;
 
    ------------------
@@ -622,10 +616,8 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive (Unit : H.AST_Unit_Holder) return Primitive is
-      Ref : Primitive;
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind_Analysis_Unit, Unit));
-      return Ref;
+      return Create_Primitive ((Kind_Analysis_Unit, Pool, Unit));
    end To_Primitive;
 
    ------------------
@@ -638,11 +630,7 @@ package body LKQL.Primitives is
       Iter_Primitive : constant Iterator_Primitive_Access :=
         new Iterator_Primitive'(Iter => Val_Copy);
    begin
-      return Result : Primitive do
-         Result.Set
-           (Primitive_Data'
-              (Refcounted with Kind_Iterator, Iter_Primitive));
-      end return;
+      return Create_Primitive ((Kind_Iterator, Pool, Iter_Primitive));
    end To_Primitive;
 
    ------------------
@@ -651,9 +639,7 @@ package body LKQL.Primitives is
 
    function To_Primitive (Val : Selector_List) return Primitive is
    begin
-      return Result : Primitive do
-         Result.Set (Primitive_Data'(Refcounted with Kind_Selector_List, Val));
-      end return;
+      return Create_Primitive ((Kind_Selector_List, Pool, Val));
    end To_Primitive;
 
    -----------------------
@@ -661,13 +647,11 @@ package body LKQL.Primitives is
    -----------------------
 
    function Make_Empty_Object return Primitive is
-      Ref  : Primitive;
       Map : constant Primitive_Assocs_Access :=
         new Primitive_Assocs'(Elements => Primitive_Maps.Empty_Map);
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind       => Kind_Object,
-                                               Obj_Assocs => Map));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Object, Obj_Assocs => Map, Pool => Pool));
    end Make_Empty_Object;
 
    ---------------------
@@ -675,13 +659,11 @@ package body LKQL.Primitives is
    ---------------------
 
    function Make_Empty_List return Primitive is
-      Ref  : Primitive;
       List : constant Primitive_List_Access :=
         new Primitive_List'(Elements => Primitive_Vectors.Empty_Vector);
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind     => Kind_List,
-                                               List_Val => List));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_List, List_Val => List, Pool => Pool));
    end Make_Empty_List;
 
    ----------------------
@@ -689,13 +671,11 @@ package body LKQL.Primitives is
    ----------------------
 
    function Make_Empty_Tuple return Primitive is
-      Ref  : Primitive;
       List : constant Primitive_List_Access :=
         new Primitive_List'(Elements => Primitive_Vectors.Empty_Vector);
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind     => Kind_Tuple,
-                                               List_Val => List));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Tuple, List_Val => List, Pool => Pool));
    end Make_Empty_Tuple;
 
    --------------------
@@ -705,12 +685,12 @@ package body LKQL.Primitives is
    function Make_Namespace
      (N : Environment_Access; Module : L.LKQL_Node) return Primitive
    is
-      Ref : Primitive;
    begin
-      Ref.Set (Primitive_Data'(Refcounted with Kind => Kind_Namespace,
-                               Namespace            => N,
-                               Module               => Module));
-      return Ref;
+      return Create_Primitive
+        ((Kind      => Kind_Namespace,
+          Namespace => N,
+          Module    => Module,
+          Pool      => Pool));
    end Make_Namespace;
 
    -------------------
@@ -720,15 +700,12 @@ package body LKQL.Primitives is
    function Make_Function
      (Node : L.Base_Function; Env : Environment_Access) return Primitive
    is
-      Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'
-           (Refcounted
-            with Kind => Kind_Function,
-                 Fun_Node  => Node,
-                 Frame     => Env));
-      return Ref;
+      return Create_Primitive
+        ((Kind => Kind_Function,
+          Fun_Node  => Node,
+          Frame     => Env,
+          Pool      => Pool));
    end Make_Function;
 
    -----------------------------
@@ -739,16 +716,12 @@ package body LKQL.Primitives is
      (Node_Val     : Primitive;
       Property_Ref : H.AST_Node_Member_Ref_Holder) return Primitive
    is
-      Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'
-           (Refcounted
-            with Kind           => Kind_Property_Reference,
-                 Ref            => Property_Ref,
-                 Property_Node  => Node_Val.Get.Node_Val));
-
-      return Ref;
+      return Create_Primitive
+        ((Kind           => Kind_Property_Reference,
+          Ref            => Property_Ref,
+          Property_Node  => Node_Val.Node_Val,
+          Pool           => Pool));
    end Make_Property_Reference;
 
    -------------
@@ -758,16 +731,16 @@ package body LKQL.Primitives is
    function Profile (Obj : Primitive) return Text_Type is
       Profile : Unbounded_Text_Type;
    begin
-      case Obj.Unchecked_Get.Kind is
+      case Obj.Kind is
          when Kind_Function =>
             Profile := To_Unbounded_Text
-              (Obj.Unchecked_Get.Fun_Node.P_Profile);
+              (Obj.Fun_Node.P_Profile);
          when Kind_Selector =>
             Profile := To_Unbounded_Text
-              ("selector " & Obj.Unchecked_Get.Sel_Node.F_Name.Text);
+              ("selector " & Obj.Sel_Node.F_Name.Text);
          when Kind_Builtin_Function =>
             declare
-               P : constant Builtin_Function := Obj.Unchecked_Get.Builtin_Fn;
+               P : constant Builtin_Function := Obj.Builtin_Fn;
                package U renames Ada.Strings.Wide_Wide_Unbounded;
             begin
                U.Append (Profile, "@builtin fun ");
@@ -803,12 +776,8 @@ package body LKQL.Primitives is
 
    function Make_Builtin_Function (Fn : Builtin_Function) return Primitive
    is
-      Ref : Primitive;
    begin
-      Ref.Set
-        (Primitive_Data'
-           (Refcounted with Kind_Builtin_Function, Fn));
-      return Ref;
+      return Create_Primitive ((Kind_Builtin_Function, Pool, Fn));
    end Make_Builtin_Function;
 
    -------------------
@@ -816,17 +785,13 @@ package body LKQL.Primitives is
    -------------------
 
    function Make_Selector
-     (Node : L.Selector_Decl; Env : Environment_Access) return Primitive
-   is
-      Ref : Primitive;
+     (Node : L.Selector_Decl; Env : Environment_Access) return Primitive is
    begin
-      Ref.Set
-        (Primitive_Data'
-           (Refcounted
-            with Kind => Kind_Selector,
-                 Sel_Node  => Node,
-                 Frame     => Env));
-      return Ref;
+      return Create_Primitive
+        ((Kind     => Kind_Selector,
+          Sel_Node => Node,
+          Frame    => Env,
+          Pool     => Pool));
    end Make_Selector;
 
    ------------
@@ -907,7 +872,7 @@ package body LKQL.Primitives is
       --  Since we're using smart pointers, the "=" function used by
       --  Vector.Contains checks referencial equality instead of structural
       --  equality. So the iteration "has" to be done manually.
-      for Elem of List.Get.List_Val.Elements loop
+      for Elem of List.List_Val.Elements loop
          if Deep_Equals (Elem, Value) then
             return True;
          end if;
@@ -973,42 +938,42 @@ package body LKQL.Primitives is
             when Kind_Bool          =>
               Bool_Image (Bool_Val (Val)),
             when Kind_Node          =>
-              To_Unbounded_Text (Node_Image (Val.Get.Node_Val)),
+              To_Unbounded_Text (Node_Image (Val.Node_Val)),
             when Kind_Analysis_Unit =>
               To_Unbounded_Text
                 ("<AnalysisUnit """
                  & To_Text
                     (D.Simple_Name
-                       (Image (Val.Get.Analysis_Unit_Val.Unchecked_Get.Name)))
+                       (Image (Val.Analysis_Unit_Val.Unchecked_Get.Name)))
                  & """>"),
             when Kind_Token         =>
-               To_Unbounded_Text (Val.Get.Token_Val.Unchecked_Get.Image),
+               To_Unbounded_Text (Val.Token_Val.Unchecked_Get.Image),
             when Kind_Iterator      =>
               Iterator_Image (Iter_Val (Val).all),
             when Kind_List          =>
-              List_Image (Val.Get.List_Val.all),
+              List_Image (Val.List_Val.all),
             when Kind_Tuple         =>
-              List_Image (Val.Get.List_Val.all, "(", ")"),
+              List_Image (Val.List_Val.all, "(", ")"),
             when Kind_Object        =>
-              Object_Image (Val.Unchecked_Get.Obj_Assocs.all),
+              Object_Image (Val.Obj_Assocs.all),
             when Kind_Selector_List =>
               Selector_List_Image (Selector_List_Val (Val)),
             when Kind_Function      =>
               "function "
-              & To_Unbounded_Text (To_Text (Val.Get.Fun_Node.Image)),
+              & To_Unbounded_Text (To_Text (Val.Fun_Node.Image)),
             when Kind_Selector      =>
               "selector "
-              & To_Unbounded_Text (To_Text (Val.Get.Sel_Node.Image)),
+              & To_Unbounded_Text (To_Text (Val.Sel_Node.Image)),
             when Kind_Builtin_Function =>
               To_Unbounded_Text ("builtin function"),
             when Kind_Property_Reference =>
               To_Unbounded_Text
-                ("<PropertyRef " & Node_Image (Val.Get.Property_Node)
-                 & Val.Get.Ref.Unchecked_Get.Name & ">"),
+                ("<PropertyRef " & Node_Image (Val.Property_Node)
+                 & Val.Ref.Unchecked_Get.Name & ">"),
             when Kind_Namespace        =>
               To_Unbounded_Text
                (To_Text (Env_Image
-                (Eval_Contexts.Environment_Access (Val.Get.Namespace))))
+                (Eval_Contexts.Environment_Access (Val.Namespace))))
         );
    end To_Unbounded_Text;
 
@@ -1044,12 +1009,12 @@ package body LKQL.Primitives is
 
    function Kind_Name (Value : Primitive) return String is
    begin
-      return (case Value.Get.Kind is
+      return (case Value.Kind is
                  when Kind_Node =>
-                (if Value.Get.Node_Val.Unchecked_Get.Is_Null_Node
+                (if Value.Node_Val.Unchecked_Get.Is_Null_Node
                  then "No_Kind"
                  else
-                   (Value.Get.Node_Val.Unchecked_Get.Kind_Name)),
+                   (Value.Node_Val.Unchecked_Get.Kind_Name)),
                  when others =>
                    To_String (Kind (Value)));
    end Kind_Name;
@@ -1063,7 +1028,7 @@ package body LKQL.Primitives is
       New_Line      : Boolean)
    is
    begin
-      case Value.Get.Kind is
+      case Value.Kind is
          when Kind_Str =>
             Ada.Wide_Wide_Text_IO.Put
               (To_Text (Str_Val (Value)));
@@ -1157,9 +1122,9 @@ package body LKQL.Primitives is
                    Deep_Equals (List_Val (Left), List_Val (Right)),
                  when Kind_Node =>
                    H."="
-                      (Left.Get.Node_Val, Right.Get.Node_Val),
+                      (Left.Node_Val, Right.Node_Val),
                  when others =>
-                   Left.Get = Right.Get);
+                   Left.all = Right.all);
    end Deep_Equals;
 
    -----------------
@@ -1206,11 +1171,11 @@ package body LKQL.Primitives is
             declare
                Ret : constant Primitive := Make_Empty_List;
             begin
-               for El of Left.Get.List_Val.Elements loop
-                  Ret.Get.List_Val.Elements.Append (El);
+               for El of Left.List_Val.Elements loop
+                  Ret.List_Val.Elements.Append (El);
                end loop;
-               for El of Right.Get.List_Val.Elements loop
-                  Ret.Get.List_Val.Elements.Append (El);
+               for El of Right.List_Val.Elements loop
+                  Ret.List_Val.Elements.Append (El);
                end loop;
                return Ret;
             end;
@@ -1274,7 +1239,7 @@ package body LKQL.Primitives is
    is
       Sym  : constant Symbol_Type := Ctx.Symbol (Key);
       Cur : constant Primitive_Maps.Cursor
-        := Obj.Get.Obj_Assocs.Elements.Find (Sym);
+        := Obj.Obj_Assocs.Elements.Find (Sym);
    begin
       if not Primitive_Maps.Has_Element (Cur) then
          Raise_And_Record_Error
@@ -1290,5 +1255,72 @@ package body LKQL.Primitives is
          return Primitive_Maps.Element (Cur);
       end if;
    end Extract_Value;
+
+   Has_Subpool_Been_Added : Boolean := False;
+
+   function Create return Primitive_Pool is
+      Ret : constant Primitive_Pool := new Primitive_Pool_Data;
+   begin
+      Pool_Stack.Append (Ret);
+
+      if Pool_Stack.Last_Index > 1 then
+         Has_Subpool_Been_Added := True;
+      end if;
+
+      return Ret;
+   end Create;
+
+   procedure Destroy (Pool : in out Primitive_Pool) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Primitive_Pool_Data, Primitive_Pool);
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Primitive_Data, Primitive);
+   begin
+      if Pool = Pool_Stack.Last_Element then
+         Pool_Stack.Delete_Last;
+      else
+         raise Constraint_Error with "Wrong call to Pool.Destroy";
+      end if;
+
+      for Prim of Pool.Primitives loop
+         Release (Prim.all);
+         Free (Prim);
+      end loop;
+
+      Free (Pool);
+   end Destroy;
+
+   Root_Pool : Primitive_Pool := Create;
+
+   function Create_Primitive
+     (Data : Primitive_Data) return Primitive
+   is
+      Ret : constant Primitive := new Primitive_Data'(Data);
+   begin
+      if Pool_Stack.Last_Index = 1 and then Has_Subpool_Been_Added then
+         raise Constraint_Error with "Allocating into root pool";
+      end if;
+      Data.Pool.Primitives.Append (Ret);
+      return Ret;
+   end Create_Primitive;
+
+   type Root_Pool_Control is new Ada.Finalization.Controlled with record
+      Freed : Boolean := False;
+   end record;
+
+   overriding procedure Finalize (Self : in out Root_Pool_Control);
+
+   overriding procedure Finalize (Self : in out Root_Pool_Control) is
+   begin
+      if not Self.Freed then
+         Destroy (Root_Pool);
+         Self.Freed := True;
+      end if;
+   end Finalize;
+
+   Root_Pool_Control_Singleton : constant Root_Pool_Control :=
+     (Ada.Finalization.Controlled with Freed => False);
+   pragma Unreferenced (Root_Pool, Root_Pool_Control_Singleton);
 
 end LKQL.Primitives;
