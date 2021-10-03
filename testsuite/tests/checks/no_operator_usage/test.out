@@ -1,4 +1,0 @@
-op.adb:2:9: rule violation: no operator used on this integer type
-2 |    type Enum is range 1 .. 3;  --  FLAG
-  |         ^^^^ 
-
