@@ -27,17 +27,23 @@ fun same_params(p1, p2) = {
     count == p2.children_count and params_equal(p1, p2, count)
 }
 
-fun same_instance(node) =
-    select first i@GenericPackageInstantiation
-        when i != node
-         and node.f_generic_pkg_name.p_referenced_decl() ==
-             i.f_generic_pkg_name.p_referenced_decl()
-         and same_params(node.f_params, i.f_params)
-
 @unit_check(help="duplicate generic package instantiations")
-fun same_instantiations(unit) = [
-    {message: "same instantiation found at " &
-              stdlib.sloc_image(same_instance(n)), loc: n}
-    for n in from unit.root select i@GenericPackageInstantiation
-    when same_instance(i) != null
-]
+fun same_instantiations(unit) =
+    # For efficiency, we perform a single global scan by only running on the
+    # first CompilationUnit.
+    if (select first AdaNode) == unit.root then {
+    val insts = select GenericPackageInstantiation;
+
+    fun same_instance(node) = {
+        val res = [i for i in insts
+                   if i != node and
+                      node.f_generic_pkg_name.p_referenced_decl() ==
+                      i.f_generic_pkg_name.p_referenced_decl() and
+                      same_params(node.f_params, i.f_params)].to_list;
+        if res.length == 0 then null else res[1]
+    };
+
+    [{message: "same instantiation found at " &
+               stdlib.sloc_image(same_instance(n)), loc: n}
+     for n in insts if same_instance(n) != null]}
+    else []
