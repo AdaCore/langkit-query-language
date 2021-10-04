@@ -15,14 +15,15 @@
 
 @check(message="enumeration range as a choice in a case statement")
 fun enumeration_ranges_in_case_statements(node) =
-   node is AlternativesList(any parent(depth=3) is CaseStmt(
-       # case statement over enumeration
-       f_expr is e@Expr
-       when e?.p_expression_type() is BaseTypeDecl(p_is_enum_type() is true)))
-   when node is *(any children is
-        # explicit range
-        BinOp(f_op is OpDoubleDot) or
-        # subtype mark
-        Identifier(p_referenced_decl() is BaseTypeDecl) or
-        # range attribute
-        AttributeRef(f_attribute is Identifier(p_name_is("Range") is true)))
+    node is AlternativesList(
+        any parent(depth=3) is CaseStmt(
+            # case statement over enumeration
+            f_expr is e@Expr
+            when e.p_expression_type() is BaseTypeDecl(p_is_enum_type() is true)),
+        any children is
+            # explicit range
+            BinOp(f_op is OpDoubleDot) or
+            # subtype mark
+            Identifier(p_referenced_decl() is BaseTypeDecl) or
+            # range attribute
+            AttributeRef(f_attribute is Identifier(p_name_is("Range") is true)))
