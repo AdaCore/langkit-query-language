@@ -5,5 +5,5 @@
 
 @check(message="fixed point type declaration with no 'Small clause")
 fun implicit_small_for_fixed_point_types(node) =
-   node is t @ TypeDecl(any children is OrdinaryFixedPointDef)
-   when not t.p_has_aspect("Small")
+   node is TypeDecl(any children is OrdinaryFixedPointDef,
+                    p_has_aspect("Small") is false)
