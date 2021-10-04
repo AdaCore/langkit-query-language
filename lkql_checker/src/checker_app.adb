@@ -58,9 +58,9 @@ package body Checker_App is
    ------------------
 
    procedure Process_Unit
-     (Ctx                     : LKQL_Context;
-      Unit                    : Analysis_Unit;
-      Emit_Message            :
+     (Ctx          : LKQL_Context;
+      Unit         : Analysis_Unit;
+      Emit_Message :
         access procedure (Message    : Unbounded_Text_Type;
                           Unit       : Analysis_Unit;
                           Rule       : Unbounded_Text_Type;

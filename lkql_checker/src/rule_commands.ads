@@ -82,8 +82,9 @@ package Rule_Commands is
       --  everytime we want to evaluate it.
 
       Is_Unit_Check : Boolean;
-      --  Whether the rule is expressed via a boolean check (function that
-      --  returns a boolean) or a node check (function that returns a node).
+      --  Whether the rule is expressed via a unit check (function that
+      --  returns a list of messages) or a node check (function that returns a
+      --  node).
 
       Eval_Ctx      : Eval_Context;
       --  LKQL eval context in which to eval the rule. Each rule will have a
