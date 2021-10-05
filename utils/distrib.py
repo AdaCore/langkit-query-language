@@ -32,6 +32,7 @@ def run(*argv):
     sys.stdout.flush()
     check_call(argv, cwd=args.build_dir)
 
+
 def run_manage(verb, *argv):
     run(
         manage_script,
@@ -72,28 +73,30 @@ sync_tree(
     lkql_checker_build_dir,
     delete=False,
 )
-gpr_file = os.path.join(lkql_checker_build_dir, "lkql_checker.gpr")
-if args.coverage:
-    run(
-        "gnatcov",
-        "instrument",
+
+for project in ["lkql_checker.gpr", "lalcheck.gpr"]:
+    gpr_file = os.path.join(lkql_checker_build_dir, project)
+    if args.coverage:
+        run(
+            "gnatcov",
+            "instrument",
+            f"-P{gpr_file}",
+            "--level=stmt",
+            "--no-subprojects",
+            "--dump-trigger=atexit",
+        )
+    common_args = [
+        "-p",
         f"-P{gpr_file}",
-        "--level=stmt",
-        "--no-subprojects",
-        "--dump-trigger=atexit",
-    )
-common_args = [
-    "-p",
-    f"-P{gpr_file}",
-    f"-XBUILD_MODE={args.build_mode}",
-]
-gprbuild_args = list(common_args)
-if args.coverage:
-    gprbuild_args += [
-        "--src-subdirs=gnatcov-instr",
-        "--implicit-with=gnatcov_rts_full",
+        f"-XBUILD_MODE={args.build_mode}",
     ]
-run("gprbuild", f"-j{args.jobs}", *gprbuild_args)
+    gprbuild_args = list(common_args)
+    if args.coverage:
+        gprbuild_args += [
+            "--src-subdirs=gnatcov-instr",
+            "--implicit-with=gnatcov_rts_full",
+        ]
+    run("gprbuild", f"-j{args.jobs}", *gprbuild_args)
 
 # Install lkql_checker.gpr only when needed (i.e. to run coverage analysis)
 install_mode = "dev" if args.coverage else "usage"
