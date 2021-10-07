@@ -1510,7 +1510,17 @@ package body Gnatcheck.Source_Table is
             end if;
          end Column_Image;
 
+         Msg : constant String := To_String (To_Text (Message));
+
       begin
+         --  Do not store "Memoized Error" messages which are cascaded errors
+
+         if Kind = Internal_Error
+           and then Has_Suffix (Msg, "Memoized Error")
+         then
+            return;
+         end if;
+
          GNAT.Task_Lock.Lock;
 
          if Rule = Cached_Rule then
@@ -1527,8 +1537,7 @@ package body Gnatcheck.Source_Table is
                then Unit.Get_Filename
                else Simple_Name (Unit.Get_Filename)) & ":" &
               Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-              Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
-              To_String (To_Text (Message)) &
+              Column_Image (Natural (Sloc_Range.Start_Column)) & ": " & Msg &
               Annotate_Rule (All_Rules.Table (Id).all),
             Diagnosis_Kind => (case Kind is
                                when Rule_Violation => Rule_Violation,
