@@ -277,8 +277,10 @@ package body LKQL.Primitives is
          when Kind_List =>
             Free_Primitive_List (Data.List_Val);
          when Kind_Iterator =>
+            Data.Iter_Val.Iter.Release;
             Primitive_Iters.Free_Iterator (Data.Iter_Val.Iter);
             Free_Iterator_Primitive (Data.Iter_Val);
+
          when Kind_Function | Kind_Selector =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
@@ -319,6 +321,7 @@ package body LKQL.Primitives is
          Append (Result, Element);
       end loop;
 
+      Inner.Release;
       Primitive_Iters.Free_Iterator (Inner);
       return Result;
    end To_List;
@@ -627,6 +630,7 @@ package body LKQL.Primitives is
    function To_Primitive (Val : Primitive_Iter'Class) return Primitive is
       Val_Copy : constant Primitive_Iter_Access :=
         new Primitive_Iter'Class'(Primitive_Iter'Class (Val.Clone));
+
       Iter_Primitive : constant Iterator_Primitive_Access :=
         new Iterator_Primitive'(Iter => Val_Copy);
    begin

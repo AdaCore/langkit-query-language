@@ -752,7 +752,7 @@ package body LKQL.Evaluation is
         Make_Comprehension_Environment_Iter (Ctx, Node.F_Generators);
       Guard_Filter          : constant Comprehension_Guard_Filter :=
         Make_Guard_Filter (Ctx, Node.F_Guard);
-      Filtered_Envs         : constant Environment_Iters.Filter_Iter :=
+      Filtered_Envs         : Environment_Iters.Filter_Iter :=
         Environment_Iters.Filter (Comprehension_Envs, Guard_Filter);
       Comprehension_Closure : constant Closure :=
         Make_Closure (Ctx, Node.F_Expr);
@@ -765,6 +765,7 @@ package body LKQL.Evaluation is
       Result : constant Primitive := To_Primitive (Comprehension_Values);
    begin
       Comprehension_Values.Release;
+      Filtered_Envs.Release;
       return Result;
    end Eval_List_Comprehension;
 
