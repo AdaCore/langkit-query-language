@@ -15,9 +15,15 @@ fun write_references(node, id) =
     from node select Identifier(p_name_matches(id) is true,
                                 p_is_write_reference() is true)
 
-fun references(node, id) =
-    |" Return all the references to `id`, starting from `node`
-    from node select Identifier(p_name_matches(id) is true)
+fun no_write_reference(node, id) =
+    |" Return true if no write reference to `id` is found, starting from `node`
+    (from node select first
+     Identifier(p_name_matches(id) is true,
+                p_is_write_reference() is true)) == null
+
+fun has_references(node, id) =
+    |" Return true if any reference to `id` starting from `node` is found
+    (from node select first Identifier(p_name_matches(id) is true)) != null
 
 @check(message="while loop may be replaced by a for loop")
 fun for_loops(node) =
@@ -42,9 +48,9 @@ fun for_loops(node) =
              when node.p_semantic_parent() == decl.p_semantic_parent()
               # and no other write of Id is found in its declarative part
               # (e.g. from nested subprograms)
-              and write_references(decl.parent, id).length == 0
+              and no_write_reference(decl.parent, id)
               # also check that there are no further references to id after the
               # loop.
               and not node is *(any next_siblings is n@*
-                                when references(n, id).length != 0)
+                                when has_references(n, id))
     }
