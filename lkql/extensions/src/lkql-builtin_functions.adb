@@ -755,8 +755,15 @@ package body LKQL.Builtin_Functions is
          Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
       end loop;
 
-      return To_Primitive
-        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)));
+      declare
+         Iter : Primitive_Vec_Iters.Vec_Iterator :=
+           Primitive_Vec_Iters.To_Iterator (Tokens);
+         Ret : constant Primitive := To_Primitive (Iter);
+      begin
+         Iter.Release;
+         return Ret;
+      end;
+
    end Eval_Unit_Tokens;
 
    -----------------

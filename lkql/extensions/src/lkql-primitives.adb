@@ -287,6 +287,8 @@ package body LKQL.Primitives is
          when Kind_Namespace =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Namespace));
+         when Kind_Object =>
+            Free_Primitive_Assocs (Data.Obj_Assocs);
          when Kind_Builtin_Function =>
             --  We don't ever free built-in functions, since their data is
             --  freed directly in the builtin functions package.
