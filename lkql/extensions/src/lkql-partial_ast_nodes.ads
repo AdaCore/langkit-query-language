@@ -30,20 +30,27 @@ with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Containers.Vectors;
 with Iters.Iterators;
 
---  This package gives a partial view on AST nodes and related API, via holder.
---  It exposes the ``AST_Node_Holder`` type, which is the type that is globally
---  used in LKQL to store AST Nodes. It only uses a partial view of the
---  ``AST_Nodes`` package, which allows to break a circular dependency between
+--  This package gives a partial view on Langkit-frontend specific data, via
+--  holder types.
+--
+--  It exposes the ``AST_Node_Holder``, ``AST_Node_Member_Ref_Holder``,
+--  ``AST_Unit_Holder`` and ``AST_Token_Holder`` types, which are the types
+--  that are globally used in LKQL to store language specific data like
+--  nodes/tokens/units/etc. It only uses a partial view of the ``AST_Nodes``
+--  package, which allows to break a circular dependency between
 --  ``LKQL.Primitives`` and ``LKQL.AST_Nodes``.
+--
+--  Using holder types allows us to have definite types to store language
+--  specific data in LKQL, instead of having to allocate data on the heap via
+--  ``new`` or controlled objects, which is good for performance.
 --
 --  It exposes all non-core AST node related APIS, such as node lists, vectors,
 --  arrays, and iterators.
 
 package LKQL.Partial_AST_Nodes is
 
-   --  This package exposes two holder types, ``AST_Node_Holder`` and
-   --  ``AST_Node_Member_Ref_Holder``, which allow to store those types with
-   --  only a partial view on ``LKQL.AST_Nodes``.
+   --  This package exposes all the holder types, which allow to store those
+   --  types with only a partial view on ``LKQL.AST_Nodes``.
    --
    --  They're enclosed in a package so that some operations on iterators are
    --  not tagged as primitives, and so that we can declare list/vectors of
@@ -125,12 +132,35 @@ package LKQL.Partial_AST_Nodes is
 
    private
 
-      package Holders is new Unbounded_Holders.Base_Holders
-        (256);
-      type AST_Node_Holder is new Holders.Holder with null record;
-      type AST_Node_Member_Ref_Holder is new Holders.Holder with null record;
-      type AST_Token_Holder is new Holders.Holder with null record;
-      type AST_Unit_Holder is new Holders.Holder with null record;
+      --  All those holders hold classwide instance of types from the
+      --  LKQL.AST_Nodes hierarchy. Those types are tagged for dispatch
+      --  purposes, so that we can one day plug another front-end than LAL
+      --  here, but they will always have the same representation and size,
+      --  because they encapsulate pointer-like data that will have the same
+      --  size in every Langkit front-end.
+      --
+      --  So we use holders of the exact needed size for each one of those. We
+      --  cannot know/infer the size statically from here, which is why the
+      --  below numbers are hardcoded.
+      --
+      --  If the size of the encapsulated data was to ever change and get
+      --  bigger, we would get errors from the implementation of holders,
+      --  signaling us that we need to update the below numbers.
+
+      package AST_Node_Holders is new Unbounded_Holders.Base_Holders (104);
+      package AST_Unit_Holders is new Unbounded_Holders.Base_Holders (40);
+      package AST_Token_Holders is new Unbounded_Holders.Base_Holders (56);
+      package AST_Node_Member_Ref_Holders
+      is new Unbounded_Holders.Base_Holders (16);
+
+      type AST_Node_Holder is new AST_Node_Holders.Holder with null record;
+
+      type AST_Node_Member_Ref_Holder
+      is new AST_Node_Member_Ref_Holders.Holder with null record;
+
+      type AST_Token_Holder is new AST_Token_Holders.Holder with null record;
+
+      type AST_Unit_Holder is new AST_Unit_Holders.Holder with null record;
    end H;
 
    function Create_Node

@@ -31,7 +31,7 @@ package body LKQL.Partial_AST_Nodes is
       package Node_Impl is new Unbounded_Holders.Holders_Impl
         (LKQL.AST_Nodes.AST_Node'Class,
          AST_Node_Access,
-         Holders);
+         AST_Node_Holders);
 
       -------------------
       -- Unchecked_Get --
@@ -39,7 +39,7 @@ package body LKQL.Partial_AST_Nodes is
 
       function Unchecked_Get (Self : AST_Node_Holder) return AST_Node_Access is
       begin
-         return Node_Impl.Unchecked_Get (Holders.Holder (Self));
+         return Node_Impl.Unchecked_Get (AST_Node_Holders.Holder (Self));
       end Unchecked_Get;
 
       ------------
@@ -72,7 +72,7 @@ package body LKQL.Partial_AST_Nodes is
       package Ref_Impl is new Unbounded_Holders.Holders_Impl
         (AST_Node_Member_Reference'Class,
          AST_Node_Member_Ref_Access,
-         Holders);
+         AST_Node_Member_Ref_Holders);
 
       -------------------
       -- Unchecked_Get --
@@ -82,7 +82,8 @@ package body LKQL.Partial_AST_Nodes is
         (Self : AST_Node_Member_Ref_Holder) return AST_Node_Member_Ref_Access
       is
       begin
-         return Ref_Impl.Unchecked_Get (Holders.Holder (Self));
+         return Ref_Impl.Unchecked_Get
+           (AST_Node_Member_Ref_Holders.Holder (Self));
       end Unchecked_Get;
 
       ------------
@@ -100,7 +101,7 @@ package body LKQL.Partial_AST_Nodes is
       package Token_Impl is new Unbounded_Holders.Holders_Impl
         (AST_Token'Class,
          AST_Token_Access,
-         Holders);
+         AST_Token_Holders);
 
       -------------------
       -- Unchecked_Get --
@@ -109,7 +110,7 @@ package body LKQL.Partial_AST_Nodes is
       function Unchecked_Get
         (Self : AST_Token_Holder) return AST_Token_Access is
       begin
-         return Token_Impl.Unchecked_Get (Holders.Holder (Self));
+         return Token_Impl.Unchecked_Get (AST_Token_Holders.Holder (Self));
       end Unchecked_Get;
 
       ------------
@@ -127,7 +128,7 @@ package body LKQL.Partial_AST_Nodes is
       package Unit_Impl is new Unbounded_Holders.Holders_Impl
         (AST_Unit'Class,
          AST_Unit_Access,
-         Holders);
+         AST_Unit_Holders);
 
       -------------------
       -- Unchecked_Get --
@@ -136,7 +137,7 @@ package body LKQL.Partial_AST_Nodes is
       function Unchecked_Get
         (Self : AST_Unit_Holder) return AST_Unit_Access is
       begin
-         return Unit_Impl.Unchecked_Get (Holders.Holder (Self));
+         return Unit_Impl.Unchecked_Get (AST_Unit_Holders.Holder (Self));
       end Unchecked_Get;
 
       ------------

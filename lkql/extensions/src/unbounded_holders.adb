@@ -67,7 +67,9 @@ package body Unbounded_Holders is
             for Buffer'Address use Value'Address;
             pragma Warnings (On, "program execution may be");
          begin
-            Ret.Buffer := Buffer;
+            for I in 0 .. Size_In_Storage_Elements loop
+               Ret.Buffer (I) := Buffer (I);
+            end loop;
             Ret.Real_Size := Size_In_Storage_Elements;
             return Ret;
          end;
