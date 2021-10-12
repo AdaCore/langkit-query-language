@@ -437,6 +437,13 @@ package body Checker_App is
    procedure Process_Unit (Context : App_Job_Context; Unit : Analysis_Unit) is
       pragma Unreferenced (Context);
 
+      procedure No_Message
+        (Message    : Unbounded_Text_Type;
+         Unit       : Analysis_Unit;
+         Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
+         Sloc_Range : Source_Location_Range) is null;
+
       procedure Emit_Message
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
@@ -473,7 +480,10 @@ package body Checker_App is
       Process_Unit
         (Ctx, Unit,
          (if Args.Output_Style.Get = GNATcheck
-          then Emit_Message'Access else null));
+          then Emit_Message'Access
+          elsif Args.Output_Style.Get = Silent
+          then No_Message'Access
+          else null));
    end Process_Unit;
 
    package Rules_Args_Maps is new Ada.Containers.Hashed_Maps

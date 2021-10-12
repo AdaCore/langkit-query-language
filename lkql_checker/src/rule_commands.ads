@@ -111,7 +111,7 @@ package Rule_Commands is
       --  Whether this rule allows parametric exemption.
    end record;
 
-   type Output_Style is (Default, GNATcheck);
+   type Output_Style is (Default, GNATcheck, Silent);
    --  Style of output messages.
    --  Default: gcc style colored output with source highlighting.
    --  GNATcheck: gnatcheck default output with one line per detection.
