@@ -715,6 +715,7 @@ package body Checker_App is
       pragma Unreferenced (Context, Jobs);
    begin
       Finalize_Rules (Ctx.Eval_Ctx);
+      Free_Eval_Context (Ctx.Eval_Ctx);
    end App_Post_Process;
 
    package body Args is
