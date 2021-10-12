@@ -22,7 +22,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
+with Ada.Finalization;
 with Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Unchecked_Deallocation;
 with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
 
@@ -1188,5 +1190,34 @@ package body LKQL.Builtin_Functions is
 
    function All_Builtins return Builtin_Function_Array is
      (Builtin_Functions);
+
+   type Free_Builtins is new Ada.Finalization.Controlled with record
+      Freed : Boolean := False;
+   end record;
+
+   overriding procedure Finalize (Self : in out Free_Builtins);
+
+   --------------
+   -- Finalize --
+   --------------
+
+   overriding procedure Finalize (Self : in out Free_Builtins) is
+      procedure Free_Builtin_Fun is new Ada.Unchecked_Deallocation
+        (Builtin_Function_Description, Builtin_Function);
+   begin
+      if not Self.Freed then
+         for Fun of Builtin_Functions loop
+            declare
+               F : Builtin_Function := Fun;
+            begin
+               Free_Builtin_Fun (F);
+            end;
+         end loop;
+         Self.Freed := True;
+      end if;
+   end Finalize;
+
+   Free_Builtins_Singleton : aliased Free_Builtins;
+   pragma Unreferenced (Free_Builtins_Singleton);
 
 end LKQL.Builtin_Functions;

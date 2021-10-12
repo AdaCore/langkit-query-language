@@ -263,8 +263,6 @@ package body LKQL.Primitives is
    -------------
 
    procedure Release (Data : in out Primitive_Data) is
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Builtin_Function_Description, Builtin_Function);
    begin
       case Data.Kind is
          when Kind_List =>
@@ -276,7 +274,9 @@ package body LKQL.Primitives is
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
          when Kind_Builtin_Function =>
-            Free (Data.Builtin_Fn);
+            --  We don't ever free built-in functions, since their data is
+            --  freed directly in the builtin functions package.
+            null;
          when others =>
             null;
       end case;
