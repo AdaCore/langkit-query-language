@@ -1123,14 +1123,23 @@ package body LKQL.Primitives is
                 " and a " & Kind_Name (Right);
       end if;
 
-      return (case Kind (Left) is
-                 when Kind_List | Kind_Tuple =>
-                   Deep_Equals (List_Val (Left), List_Val (Right)),
-                 when Kind_Node =>
-                   H."="
-                      (Left.Node_Val, Right.Node_Val),
-                 when others =>
-                   Left.all = Right.all);
+      case Kind (Left) is
+         when Kind_List | Kind_Tuple =>
+            return Deep_Equals (List_Val (Left), List_Val (Right));
+         when Kind_Node =>
+            return H."=" (Left.Node_Val, Right.Node_Val);
+         when others =>
+            --  HACK: To discard the pool parameter and not have to rewrite the
+            --  structural equality for the rest of the components, we create a
+            --  fake primitive data where the pool is equal to the pool of the
+            --  right item.
+            declare
+               Fake_Left : Primitive_Data := Left.all;
+            begin
+               Fake_Left.Pool := Right.Pool;
+               return Fake_Left = Right.all;
+            end;
+      end case;
    end Deep_Equals;
 
    -----------------
