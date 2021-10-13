@@ -249,6 +249,7 @@ package body Rule_Commands is
             Message               => Msg,
             Help                  => Help,
             LKQL_Root             => Root,
+            Function_Expr         => Fn.F_Fun_Expr.F_Body_Expr,
             Eval_Ctx              => Ctx.Create_New_Frame,
             Rule_Args             => <>,
             Is_Unit_Check         =>
@@ -292,6 +293,37 @@ package body Rule_Commands is
           (Get_Context (Self.Eval_Ctx.Kernel.all),
            Image (To_Text (Code)),
            "[" & Image (To_Text (Self.Name)) & " inline code]").Root;
+
+      if not Self.Is_Unit_Check then
+         --  For node checks, we optimize away the function call, so we will
+         --  add the parameters values to the environment.
+
+         --  First add bindings for formals who have default param values
+         for Param of
+            Self.Function_Expr.Parent.As_Base_Function.P_Default_Parameters
+         loop
+            Self.Eval_Ctx.Add_Binding
+              (Param.F_Param_Identifier.Text,
+               Eval
+                 (Self.Eval_Ctx,
+                  Param.F_Default_Expr));
+         end loop;
+
+         --  Then add bindings for all explicitly passed parameters
+         for I in Self.Rule_Args.First_Index + 1 .. Self.Rule_Args.Last_Index
+         loop
+            Self.Eval_Ctx.Add_Binding
+              (To_Text (Self.Rule_Args (I).Name),
+               Eval
+                 (Self.Eval_Ctx,
+                  Make_LKQL_Unit_From_Code
+                    (Get_Context (Self.Eval_Ctx.Kernel.all),
+                     Image (To_Text (Self.Rule_Args (I).Value)),
+                     "[" & Image (To_Text (Self.Name)) & " inline code]")
+                  .Root.Child (1)));
+         end loop;
+
+      end if;
 
    end Prepare;
 

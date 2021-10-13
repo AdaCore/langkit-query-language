@@ -74,6 +74,10 @@ package Rule_Commands is
       LKQL_Root     : L.LKQL_Node;
       --  Root of the LKQL AST
 
+      Function_Expr : L.Expr;
+      --  Body expr of the LKQL function. Will be used in case of node checks,
+      --  to directly eval the expr without creating a function scope.
+
       Rule_Args    : Rule_Argument_Vectors.Vector;
       --  Optional arguments to pass to the rule. Empty by default.
 
