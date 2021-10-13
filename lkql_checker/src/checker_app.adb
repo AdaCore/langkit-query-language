@@ -249,7 +249,9 @@ package body Checker_App is
                --  The check is a "bool check", ie. a check that returns a
                --  boolean.  Eval the call to the check function
 
-               if Bool_Val (Eval (Rule.Eval_Ctx, Rule.Code, Kind_Bool)) then
+               if Bool_Val
+                 (Eval (Rule.Eval_Ctx, Rule.Function_Expr, Kind_Bool))
+               then
 
                   --  The result node is the current node
 
