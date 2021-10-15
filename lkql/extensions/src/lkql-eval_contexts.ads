@@ -50,12 +50,6 @@ package LKQL.Eval_Contexts is
      (Env : in out Environment_Map; New_Bindings : Environment_Map);
    --  Add the key-value pairs from 'New_Bindings' to 'Env'
 
-   procedure Merge_Into
-     (Env : in out Environment_Map; Other : Environment_Map);
-   --  Merge 'Other' into 'Env'. All the key-value pairs from 'Other' will be
-   --  added to 'Env'. In case of key conflict, the values will be stored
-   --  into a list Primitive.
-
    type Global_Data is private;
 
    type Global_Data_Access is access all Global_Data;
@@ -71,10 +65,6 @@ package LKQL.Eval_Contexts is
    --  be attempted on the parent env, if any.
 
    type Environment_Access is access all Environment;
-   pragma No_Heap_Finalization (Environment_Access);
-   --  U315-023: This is needed because it works around obscure library level
-   --  finalization issues that cause double free/use after free issues. At
-   --  some point, we need to investigate those issues a bit further.
 
    procedure Inc_Ref (Self : Environment_Access);
    procedure Dec_Ref (Self : in out Environment_Access);
@@ -85,6 +75,8 @@ package LKQL.Eval_Contexts is
 
    function Get_Parent (Self : Environment_Access) return Environment_Access;
    --  Get the parent env for this env.
+
+   function Get_Pools (Self : Environment_Access) return Primitive_Pool_Stack;
 
    function Env_Image (Env : Environment_Access) return String;
    --  Return a structured debug image of the env passed in parameter.
@@ -137,6 +129,12 @@ package LKQL.Eval_Contexts is
    end record;
    --  Store the evaluation context.
 
+   function Pools (Ctx : Eval_Context) return Primitive_Pool_Stack;
+   --  Return the primitive pool associated with this context
+
+   function Pool (Ctx : Eval_Context) return Primitive_Pool;
+   --  Return the primitive pool associated with this context
+
    function Symbol (Ctx : Eval_Context; Str : Text_Type) return Symbol_Type;
    --  Get a symbol from this context's symbol table
 
@@ -168,10 +166,9 @@ package LKQL.Eval_Contexts is
    function Ref_Frame (Ctx : Eval_Context) return Eval_Context;
    --  Make a deep copy of the current frame
 
-   function Create_New_Frame (Ctx            : Eval_Context;
-                              Local_Bindings : Environment_Map := Empty_Map;
-                              Create_Pool    : Boolean := False)
-                              return Eval_Context;
+   function Create_New_Frame
+     (Ctx            : Eval_Context;
+      Local_Bindings : Environment_Map := Empty_Map) return Eval_Context;
    --  Create a new evaluation context with the current environment as parent
    --  environment.
    --  If the bindings from 'Local_Bindings' will be added to the local
@@ -261,17 +258,21 @@ private
    -----------------
 
    type Environment is record
-      Local_Bindings : Environment_Map;
+      Local_Bindings  : Environment_Map;
       --  Map containing the local
 
-      Parent : Environment_Access;
+      Parent          : Environment_Access;
       --  Parent environment
       --  If this environment is non-null, it will be used as a fallback upon
       --  lookup failures.
 
-      Ref_Count : Natural := 1;
+      Ref_Count       : Natural := 1;
 
-      Pool : Primitive_Pool;
+      Pools           : Primitive_Pool_Stack;
+      --  Pool in which to allocate data for primitives in this scope
+
+      Is_Pools_Owner  : Boolean := False;
+      --  Whether this env is the owner of its pool or not
    end record;
    --  Chainable map for symbol lookups
 

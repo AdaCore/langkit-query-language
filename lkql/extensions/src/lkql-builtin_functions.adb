@@ -234,9 +234,8 @@ package body LKQL.Builtin_Functions is
    function Eval_To_List
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
    begin
-      return To_List (Args (1).Iter_Val.all);
+      return To_List (Args (1).Iter_Val.all, Ctx.Pool);
    end Eval_To_List;
 
    ---------------
@@ -259,9 +258,8 @@ package body LKQL.Builtin_Functions is
    function Eval_Image
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
    begin
-      return To_Primitive (To_Unbounded_Text (Args (1)));
+      return To_Primitive (To_Unbounded_Text (Args (1)), Ctx.Pool);
    end Eval_Image;
 
    -------------------------
@@ -271,12 +269,11 @@ package body LKQL.Builtin_Functions is
    function Eval_Children_Count
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       Node : constant AST_Nodes.AST_Node'Class :=
          Node_Val (Args (1)).Unchecked_Get.all;
    begin
       return To_Primitive
-        (if Node.Is_Null_Node then 0 else Node.Children_Count);
+        ((if Node.Is_Null_Node then 0 else Node.Children_Count), Ctx.Pool);
    end Eval_Children_Count;
 
    ---------------
@@ -286,11 +283,11 @@ package body LKQL.Builtin_Functions is
    function Eval_Text
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       Node : constant AST_Nodes.AST_Node'Class :=
          Node_Val (Args (1)).Unchecked_Get.all;
    begin
-      return To_Primitive (if Node.Is_Null_Node then "" else Node.Text);
+      return To_Primitive
+        ((if Node.Is_Null_Node then "" else Node.Text), Ctx.Pool);
    end Eval_Text;
 
    -----------------
@@ -409,8 +406,7 @@ package body LKQL.Builtin_Functions is
    function Eval_Concat
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
-      Res : constant Primitive := Make_Empty_List;
+      Res : constant Primitive := Make_Empty_List (Ctx.Pool);
    begin
       for List of List_Val (Args (1)).Elements loop
          for El of List.List_Val.Elements loop
@@ -427,13 +423,12 @@ package body LKQL.Builtin_Functions is
    function Eval_To_Lower_Case
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       use Ada.Strings.Wide_Wide_Unbounded;
       use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := To_Text (Str_Val (Args (1)));
    begin
-      return To_Primitive (To_Lower (Str));
+      return To_Primitive (To_Lower (Str), Ctx.Pool);
    end Eval_To_Lower_Case;
 
    -------------------
@@ -459,12 +454,11 @@ package body LKQL.Builtin_Functions is
    function Eval_Split
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       use Ada.Strings.Wide_Wide_Unbounded;
 
       Str       : constant Text_Type := To_Text (Str_Val (Args (1)));
       Separator : constant Text_Type := To_Text (Str_Val (Args (2)));
-      Ret       : constant Primitive := Make_Empty_List;
+      Ret       : constant Primitive := Make_Empty_List (Ctx.Pool);
 
       function To_Set (Element : Wide_Wide_String) return Wide_Wide_Character
       is (Element (Element'First));
@@ -482,7 +476,7 @@ package body LKQL.Builtin_Functions is
 
    begin
       for Word of String_Split.Create (Str, Separator (Separator'First)) loop
-         Ret.List_Val.Elements.Append (To_Primitive (Word));
+         Ret.List_Val.Elements.Append (To_Primitive (Word, Ctx.Pool));
       end loop;
 
       return Ret;
@@ -495,14 +489,13 @@ package body LKQL.Builtin_Functions is
    function Eval_Substring
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       use Ada.Strings.Wide_Wide_Unbounded;
 
       Str  : constant Unbounded_Text_Type := Str_Val (Args (1));
       From : constant Integer := +Int_Val (Args (2));
       To   : constant Integer := +Int_Val (Args (3));
    begin
-      return To_Primitive (Slice (Str, From, To));
+      return To_Primitive (Slice (Str, From, To), Ctx.Pool);
    end Eval_Substring;
 
    --------------------
@@ -512,14 +505,14 @@ package body LKQL.Builtin_Functions is
    function Eval_Base_Name
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       Str  : constant Unbounded_Text_Type := Str_Val (Args (1));
    begin
       return To_Primitive
-        (To_Text (Ada.Directories.Simple_Name (Image (To_Text (Str)))));
+        (To_Text (Ada.Directories.Simple_Name (Image (To_Text (Str)))),
+         Ctx.Pool);
    exception
       when Ada.Directories.Name_Error =>
-         return To_Primitive ("");
+         return To_Primitive ("", Ctx.Pool);
    end Eval_Base_Name;
 
    -------------
@@ -577,7 +570,7 @@ package body LKQL.Builtin_Functions is
    function Eval_Doc
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive is
    begin
-      return To_Primitive (Get_Doc (Ctx, Args (1)));
+      return To_Primitive (Get_Doc (Ctx, Args (1)), Ctx.Pool);
    end Eval_Doc;
 
    ------------------
@@ -587,9 +580,8 @@ package body LKQL.Builtin_Functions is
    function Eval_Profile
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
    begin
-      return To_Primitive (Profile (Args (1)));
+      return To_Primitive (Profile (Args (1)), Ctx.Pool);
    end Eval_Profile;
 
    ---------------
@@ -640,7 +632,7 @@ package body LKQL.Builtin_Functions is
       end Get_Symbols_In_Frame;
 
       Pkg : constant Primitive := Args (1);
-      Ret : constant Primitive := Make_Empty_List;
+      Ret : constant Primitive := Make_Empty_List (Ctx.Pool);
    begin
 
       if Booleanize (Pkg) then
@@ -652,7 +644,7 @@ package body LKQL.Builtin_Functions is
       end if;
 
       for El of S loop
-         Ret.List_Val.Elements.Append (To_Primitive (El.all));
+         Ret.List_Val.Elements.Append (To_Primitive (El.all, Ctx.Pool));
       end loop;
       return Ret;
 
@@ -666,11 +658,11 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Args);
-      Ret : constant Primitive := Make_Empty_Object;
+      Ret : constant Primitive := Make_Empty_Object (Ctx.Pool);
    begin
       for Method in Get_Builtin_Methods (Ctx.Kernel).Iterate loop
          declare
-            Sub_Obj : constant Primitive := Make_Empty_Object;
+            Sub_Obj : constant Primitive := Make_Empty_Object (Ctx.Pool);
             Builtin_Func : constant Builtin_Function :=
                Builtin_Methods_Maps.Element (Method);
          begin
@@ -678,21 +670,24 @@ package body LKQL.Builtin_Functions is
               (Builtin_Methods_Maps.Key (Method).Name,
                Sub_Obj);
             Sub_Obj.Obj_Assocs.Elements.Include
-              (Ctx.Symbol ("doc"), To_Primitive (Builtin_Func.Doc));
+              (Ctx.Symbol ("doc"), To_Primitive (Builtin_Func.Doc, Ctx.Pool));
             Sub_Obj.Obj_Assocs.Elements.Include
-              (Ctx.Symbol ("name"), To_Primitive (Builtin_Func.Name));
+              (Ctx.Symbol ("name"),
+               To_Primitive (Builtin_Func.Name, Ctx.Pool));
 
             declare
-               Params : constant Primitive := Make_Empty_List;
+               Params : constant Primitive := Make_Empty_List (Ctx.Pool);
             begin
                for Param of Builtin_Func.Params loop
                   declare
-                     Param_Info : constant Primitive := Make_Empty_Tuple;
+                     Param_Info : constant Primitive :=
+                       Make_Empty_Tuple (Ctx.Pool);
                   begin
                      Param_Info.List_Val.Elements.Append
-                       (To_Primitive (Param.Name));
+                       (To_Primitive (Param.Name, Ctx.Pool));
                      Param_Info.List_Val.Elements.Append
-                       (To_Primitive (Param.Expected_Kind'Wide_Wide_Image));
+                       (To_Primitive
+                         (Param.Expected_Kind'Wide_Wide_Image, Ctx.Pool));
                      Params.List_Val.Elements.Append (Param_Info);
                   end;
                end loop;
@@ -712,11 +707,10 @@ package body LKQL.Builtin_Functions is
    function Eval_Token_Next
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       Next_Token : constant LKQL.AST_Nodes.AST_Token'Class :=
         Args (1).Token_Val.Unchecked_Get.Next;
    begin
-      return To_Primitive (H.Create_Token_Ref (Next_Token));
+      return To_Primitive (H.Create_Token_Ref (Next_Token), Ctx.Pool);
    end Eval_Token_Next;
 
    -------------------------
@@ -726,11 +720,10 @@ package body LKQL.Builtin_Functions is
    function Eval_Token_Previous
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
       Previous_Token : constant LKQL.AST_Nodes.AST_Token'Class :=
          Args (1).Token_Val.Unchecked_Get.Previous;
    begin
-      return To_Primitive (H.Create_Token_Ref (Previous_Token));
+      return To_Primitive (H.Create_Token_Ref (Previous_Token), Ctx.Pool);
    end Eval_Token_Previous;
 
    ----------------------
@@ -748,17 +741,16 @@ package body LKQL.Builtin_Functions is
       Last_Token : constant H.AST_Token_Holder :=
         H.Create_Token_Ref (Unit.Unchecked_Get.Token_End);
       use LKQL.AST_Nodes;
-      pragma Unreferenced (Ctx);
    begin
       while Token.Unchecked_Get.all /= Last_Token.Unchecked_Get.all loop
-         Tokens.Append (To_Primitive (Token));
+         Tokens.Append (To_Primitive (Token, Ctx.Pool));
          Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
       end loop;
 
       declare
          Iter : Primitive_Vec_Iters.Vec_Iterator :=
            Primitive_Vec_Iters.To_Iterator (Tokens);
-         Ret : constant Primitive := To_Primitive (Iter);
+         Ret : constant Primitive := To_Primitive (Iter, Ctx.Pool);
       begin
          Iter.Release;
          return Ret;
@@ -781,15 +773,14 @@ package body LKQL.Builtin_Functions is
         H.Create_Token_Ref (Node.Unchecked_Get.Token_End);
 
       use LKQL.AST_Nodes;
-      pragma Unreferenced (Ctx);
    begin
       while Token.Unchecked_Get.all /= Last_Token.Unchecked_Get.all loop
-         Tokens.Append (To_Primitive (Token));
+         Tokens.Append (To_Primitive (Token, Ctx.Pool));
          Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
       end loop;
 
       return To_Primitive
-        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)));
+        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)), Ctx.Pool);
    end Eval_Tokens;
 
    ----------------
@@ -804,11 +795,12 @@ package body LKQL.Builtin_Functions is
    begin
       for Root of Ctx.AST_Roots.all loop
          Units.Append
-           (To_Primitive (H.Create_Unit_Ref (Root.Unchecked_Get.Unit)));
+           (To_Primitive
+              (H.Create_Unit_Ref (Root.Unchecked_Get.Unit), Ctx.Pool));
       end loop;
 
       return To_Primitive
-        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Units)));
+        (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Units)), Ctx.Pool);
    end Eval_Units;
 
    ---------------------
@@ -818,9 +810,8 @@ package body LKQL.Builtin_Functions is
    function Eval_Token_Text
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
    begin
-      return To_Primitive (Args (1).Token_Val.Unchecked_Get.Text);
+      return To_Primitive (Args (1).Token_Val.Unchecked_Get.Text, Ctx.Pool);
    end Eval_Token_Text;
 
    ---------------------
@@ -830,9 +821,8 @@ package body LKQL.Builtin_Functions is
    function Eval_Token_Kind
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
    begin
-      return To_Primitive (Args (1).Token_Val.Unchecked_Get.Kind);
+      return To_Primitive (Args (1).Token_Val.Unchecked_Get.Kind, Ctx.Pool);
    end Eval_Token_Kind;
 
    ---------------------
@@ -840,84 +830,86 @@ package body LKQL.Builtin_Functions is
    ---------------------
 
    function Eval_Start_Line
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       (To_Primitive
          (Integer (Args (1)
-            .Token_Val.Unchecked_Get.Sloc_Range.Start_Line)));
+            .Token_Val.Unchecked_Get.Sloc_Range.Start_Line), Ctx.Pool));
 
    ---------------------
    -- Eval_Token_Unit --
    ---------------------
 
    function Eval_Token_Unit
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       (To_Primitive
-         (H.Create_Unit_Ref (Args (1).Token_Val.Unchecked_Get.Unit)));
+        (H.Create_Unit_Ref (Args (1).Token_Val.Unchecked_Get.Unit),
+         Ctx.Pool));
 
    -------------------
    -- Eval_End_Line --
    -------------------
 
    function Eval_End_Line
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       (To_Primitive
          (Integer (Args (1)
-            .Token_Val.Unchecked_Get.Sloc_Range.End_Line)));
+            .Token_Val.Unchecked_Get.Sloc_Range.End_Line), Ctx.Pool));
 
    --------------------
    -- Eval_Start_Col --
    --------------------
 
    function Eval_Start_Col
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       (To_Primitive
          (Integer (Args (1)
-            .Token_Val.Unchecked_Get.Sloc_Range.Start_Column)));
+            .Token_Val.Unchecked_Get.Sloc_Range.Start_Column), Ctx.Pool));
 
    ------------------
    -- Eval_End_Col --
    ------------------
 
    function Eval_End_Col
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       (To_Primitive
          (Integer (Args (1)
-            .Token_Val.Unchecked_Get.Sloc_Range.End_Column)));
+            .Token_Val.Unchecked_Get.Sloc_Range.End_Column), Ctx.Pool));
 
    --------------------
    -- Eval_Unit_Text --
    --------------------
 
    function Eval_Unit_Text
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
      (To_Primitive
-       (Args (1).Analysis_Unit_Val.Unchecked_Get.Text));
+       (Args (1).Analysis_Unit_Val.Unchecked_Get.Text, Ctx.Pool));
 
    --------------------
    -- Eval_Unit_Root --
    --------------------
 
    function Eval_Unit_Name
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
      (To_Primitive
-       (Args (1).Analysis_Unit_Val.Unchecked_Get.Name));
+       (Args (1).Analysis_Unit_Val.Unchecked_Get.Name, Ctx.Pool));
 
    --------------------
    -- Eval_Unit_Root --
    --------------------
 
    function Eval_Unit_Root
-     (Dummy : Eval_Context; Args : Primitive_Array) return Primitive
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
      (To_Primitive
-       (H.Create_Node (Args (1).Analysis_Unit_Val.Unchecked_Get.Root)));
+       (H.Create_Node (Args (1)
+        .Analysis_Unit_Val.Unchecked_Get.Root), Ctx.Pool));
 
    -----------------------
    -- Builtin_Functions --

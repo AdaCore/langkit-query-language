@@ -378,7 +378,8 @@ package body LKQL.Functions is
                 (Make_Custom_Selector_Iter
                    (Ctx, Sel, L.No_Expr, L.No_Expr, Root)));
       begin
-         return To_Primitive (Make_Selector_List (Selector_Iterator));
+         return To_Primitive
+           (Make_Selector_List (Selector_Iterator), Ctx.Pool);
       end;
 
    end Eval_User_Selector_Call;

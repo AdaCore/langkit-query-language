@@ -47,7 +47,8 @@ package body LKQL.Patterns.Nodes is
       Filtered : AST_Node_Vector;
    begin
       for N of Nodes loop
-         if Match_Pattern (Ctx, Pattern, To_Primitive (N)).Is_Success then
+         if Match_Pattern (Ctx, Pattern, To_Primitive (N, Ctx.Pool)).Is_Success
+         then
             Filtered.Append (N);
          end if;
       end loop;
@@ -99,7 +100,7 @@ package body LKQL.Patterns.Nodes is
    begin
       return
         (if Ext.Content.Expected_Kind.Matches_Kind_Of (Node.Unchecked_Get.all)
-         then Make_Match_Success (To_Primitive (Node))
+         then Make_Match_Success (To_Primitive (Node, Ctx.Pool))
          else Match_Failure);
    exception
       when E : Unsupported_Error =>
@@ -117,7 +118,7 @@ package body LKQL.Patterns.Nodes is
    is
       Match : constant Match_Result :=
         Match_Value
-          (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node));
+          (Ctx, Pattern.F_Node_Pattern, To_Primitive (Node, Ctx.Pool));
       Result : constant Match_Result :=
         (if Match.Is_Success
          then Match_Pattern_Details (Ctx, Pattern.F_Details, Node)
@@ -146,7 +147,7 @@ package body LKQL.Patterns.Nodes is
 
       end loop;
 
-      return Make_Match_Success (To_Primitive (Node));
+      return Make_Match_Success (To_Primitive (Node, Ctx.Pool));
    end Match_Pattern_Details;
 
    --------------------------
@@ -231,10 +232,10 @@ package body LKQL.Patterns.Nodes is
       end if;
 
       if Binding_Name /= null then
-         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List));
+         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List, Ctx.Pool));
       end if;
 
-      return Make_Match_Success (To_Primitive (Node));
+      return Make_Match_Success (To_Primitive (Node, Ctx.Pool));
    end Match_Pattern_Selector;
 
    -------------------
@@ -280,7 +281,7 @@ package body LKQL.Patterns.Nodes is
    is
       Result : constant Match_Result :=
         Match_Pattern
-          (Self.Ctx, Self.Pattern, To_Primitive (Node.Node));
+          (Self.Ctx, Self.Pattern, To_Primitive (Node.Node, Self.Ctx.Pool));
    begin
       return Result.Is_Success;
    end Evaluate;
@@ -292,7 +293,9 @@ package body LKQL.Patterns.Nodes is
    overriding function Clone
      (Self : Node_Pattern_Predicate) return Node_Pattern_Predicate
    is
-     (Self.Ctx.Ref_Frame, Self.Pattern);
+   begin
+      return (Self.Ctx.Ref_Frame, Self.Pattern);
+   end Clone;
 
    -------------
    -- Release --

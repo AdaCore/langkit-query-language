@@ -57,12 +57,7 @@ package body LKQL.Evaluation is
    function Eval_Identifier
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive;
 
-   function Eval_Integer_Literal (Node : L.Integer_Literal) return Primitive;
-
    function Eval_Tuple (Ctx : Eval_Context; Node : L.Tuple) return Primitive;
-
-   function Eval_String_Literal
-     (Node : L.Base_String_Literal) return Primitive;
 
    function Eval_Bool_Literal (Node : L.Bool_Literal) return Primitive;
 
@@ -198,14 +193,14 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Identifier =>
             Result := Eval_Identifier (Local_Context, Node.As_Identifier);
          when LCO.LKQL_Integer_Literal =>
-            Result := Eval_Integer_Literal (Node.As_Integer_Literal);
+            Result := To_Primitive
+              (Adaptive_Integers.Create (To_UTF8 (Node.Text)),
+               Local_Context.Pool);
          when LCO.LKQL_Tuple =>
             Result := Eval_Tuple (Local_Context, Node.As_Tuple);
-         when LCO.LKQL_String_Literal =>
-            Result := Eval_String_Literal (Node.As_Base_String_Literal);
-         when LCO.LKQL_Block_String_Literal =>
-            Result :=
-              Eval_String_Literal (Node.As_Base_String_Literal);
+         when LCO.LKQL_String_Literal | LCO.LKQL_Block_String_Literal =>
+            Result := To_Primitive
+              (Get_Ext (Node).Content.Denoted_Value.all, Local_Context.Pool);
          when LCO.LKQL_Bool_Literal =>
             Result := Eval_Bool_Literal (Node.As_Bool_Literal);
          when LCO.LKQL_Unit_Literal =>
@@ -247,7 +242,8 @@ package body LKQL.Evaluation is
          when LCO.LKQL_Unwrap =>
             Result := Eval_Unwrap (Local_Context, Node.As_Unwrap);
          when LCO.LKQL_Null_Literal =>
-            Result := To_Primitive (Local_Context.Null_Node);
+            Result := To_Primitive
+              (Local_Context.Null_Node, Local_Context.Pool);
          when LCO.LKQL_List_Literal =>
             Result := Eval_List_Literal (Local_Context, Node.As_List_Literal);
          when LCO.LKQL_Object_Literal =>
@@ -364,7 +360,8 @@ package body LKQL.Evaluation is
 
       Ctx.Add_Binding
         (Identifier,
-         Make_Selector (Node, Primitives.Environment_Access (Ctx.Frames)));
+         Make_Selector
+           (Node, Primitives.Environment_Access (Ctx.Frames), Ctx.Pool));
 
       return Make_Unit_Primitive;
    end Eval_Selector_Decl;
@@ -381,7 +378,8 @@ package body LKQL.Evaluation is
       LKQL.Eval_Contexts.Inc_Ref (Ctx.Frames);
 
       return Make_Function
-        (Node, Primitives.Environment_Access (Ctx.Frames));
+        (Node, Primitives.Environment_Access (Ctx.Frames),
+         Ctx.Pool);
    end Eval_Fun_Expr;
 
    ---------------------
@@ -401,21 +399,12 @@ package body LKQL.Evaluation is
       Raise_Unknown_Symbol (Ctx, Node);
    end Eval_Identifier;
 
-   --------------------------
-   -- Eval_Integer_Literal --
-   --------------------------
-
-   function Eval_Integer_Literal (Node : L.Integer_Literal) return Primitive is
-   begin
-      return To_Primitive (Adaptive_Integers.Create (To_UTF8 (Node.Text)));
-   end Eval_Integer_Literal;
-
    ----------------
    -- Eval_Tuple --
    ----------------
 
    function Eval_Tuple (Ctx : Eval_Context; Node : L.Tuple) return Primitive is
-      Ret : constant Primitive := Make_Empty_Tuple;
+      Ret : constant Primitive := Make_Empty_Tuple (Ctx.Pool);
    begin
       for Sub_Expr of Node.F_Exprs loop
          Ret.List_Val.Elements.Append (Eval (Ctx, Sub_Expr));
@@ -423,17 +412,6 @@ package body LKQL.Evaluation is
 
       return Ret;
    end Eval_Tuple;
-
-   -------------------------
-   -- Eval_String_Literal --
-   -------------------------
-
-   function Eval_String_Literal (Node : L.Base_String_Literal) return Primitive
-   is
-      Node_Ext : constant Ext := Get_Ext (Node);
-   begin
-      return To_Primitive (Node_Ext.Content.Denoted_Value.all);
-   end Eval_String_Literal;
 
    -------------------------
    -- Eval_Bool_Literal --
@@ -507,22 +485,51 @@ package body LKQL.Evaluation is
       Left   : constant Primitive := Eval (Ctx, Node.F_Left);
       Right  : constant Primitive := Eval (Ctx, Node.F_Right);
    begin
-      return (case Node.F_Op.Kind is
-              when LCO.LKQL_Op_Plus   => Left + Right,
-              when LCO.LKQL_Op_Minus  => Left - Right,
-              when LCO.LKQL_Op_Mul    => Left * Right,
-              when LCO.LKQL_Op_Div    => Left / Right,
-              when LCO.LKQL_Op_Eq     => "=" (Left, Right),
-              when LCO.LKQL_Op_Neq    => Left /= Right,
-              when LCO.LKQL_Op_Concat => Left & Right,
-              when LCO.LKQL_Op_Lt     => Left < Right,
-              when LCO.LKQL_Op_Leq    => Left <= Right,
-              when LCO.LKQL_Op_Gt     => Left > Right,
-              when LCO.LKQL_Op_Geq    => Left >= Right,
-              when others =>
-                 raise Assertion_Error with
-                   "Not a non-short-cirtcuit operator kind: " &
-                      Node.F_Op.Kind_Name);
+      case Node.F_Op.Kind is
+
+      when LCO.LKQL_Op_Plus   =>
+         Check_Kind (Kind_Int, Left);
+         Check_Kind (Kind_Int, Right);
+         return To_Primitive
+           (Int_Val (Left) + Int_Val (Right), Ctx.Pool);
+
+      when LCO.LKQL_Op_Minus  =>
+         Check_Kind (Kind_Int, Left);
+         Check_Kind (Kind_Int, Right);
+         return To_Primitive
+           (Int_Val (Left) - Int_Val (Right), Ctx.Pool);
+
+      when LCO.LKQL_Op_Mul    =>
+         Check_Kind (Kind_Int, Left);
+         Check_Kind (Kind_Int, Right);
+         return To_Primitive
+           (Int_Val (Left) * Int_Val (Right), Ctx.Pool);
+
+      when LCO.LKQL_Op_Div    =>
+         Check_Kind (Kind_Int, Left);
+         Check_Kind (Kind_Int, Right);
+         if Int_Val (Right) = Zero then
+            raise Unsupported_Error with "Zero division";
+         end if;
+         return To_Primitive
+           (Int_Val (Left) / Int_Val (Right), Ctx.Pool);
+
+      when LCO.LKQL_Op_Eq     =>
+         return Equals (Left, Right);
+      when LCO.LKQL_Op_Neq    =>
+         return To_Primitive (not Bool_Val (Equals (Left, Right)));
+
+      when LCO.LKQL_Op_Concat => return Concat (Left, Right, Ctx.Pool);
+
+      when LCO.LKQL_Op_Lt     => return Lt (Left, Right);
+      when LCO.LKQL_Op_Leq    => return Lte (Left, Right);
+      when LCO.LKQL_Op_Gt     => return Gt (Left, Right);
+      when LCO.LKQL_Op_Geq    => return Gte (Left, Right);
+      when others =>
+         raise Assertion_Error with
+           "Not a non-short-cirtcuit operator kind: " &
+              Node.F_Op.Kind_Name;
+      end case;
    exception
       when E : Unsupported_Error =>
          Raise_From_Exception (Ctx, E, Node);
@@ -623,7 +630,7 @@ package body LKQL.Evaluation is
             end;
 
          when others =>
-            return Primitives.Data (Receiver, Member_Name);
+            return Primitives.Data (Receiver, Member_Name, Ctx.Pool);
       end case;
    exception
       when Unsupported_Error =>
@@ -641,7 +648,7 @@ package body LKQL.Evaluation is
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
       return (if Receiver.Unchecked_Get.Is_Null_Node
-              then To_Primitive (Receiver)
+              then To_Primitive (Receiver, Ctx.Pool)
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
    end Eval_Safe_Access;
@@ -691,15 +698,15 @@ package body LKQL.Evaluation is
    begin
       if Node.F_Query_Kind.Kind = LKQL_Query_Kind_First then
          if Iter.Next (Current_Node) then
-            Result := To_Primitive (Current_Node);
+            Result := To_Primitive (Current_Node, Ctx.Pool);
          else
-            Result := To_Primitive (Ctx.Null_Node);
+            Result := To_Primitive (Ctx.Null_Node, Ctx.Pool);
          end if;
       else
-         Result := Make_Empty_List;
+         Result := Make_Empty_List (Ctx.Pool);
 
          while Iter.Next (Current_Node) loop
-            Append (Result, To_Primitive (Current_Node));
+            Append (Result, To_Primitive (Current_Node, Ctx.Pool));
          end loop;
       end if;
 
@@ -730,7 +737,8 @@ package body LKQL.Evaluation is
               (Create_Node
                  (Nth_Child
                       (List.Node_Val.Unchecked_Get.all,
-                       +Int_Val (Index))));
+                       +Int_Val (Index))),
+               Ctx.Pool);
 
          else
             return Get (List, +Int_Val (Index));
@@ -762,7 +770,8 @@ package body LKQL.Evaluation is
             Env_Primitive_Maps.Map
               (Environment_Iters.Filter (Comprehension_Envs, Guard_Filter),
                Comprehension_Closure));
-      Result : constant Primitive := To_Primitive (Comprehension_Values);
+      Result : constant Primitive := To_Primitive
+        (Comprehension_Values, Ctx.Pool);
    begin
       Comprehension_Values.Release;
       return Result;
@@ -853,7 +862,7 @@ package body LKQL.Evaluation is
       Dummy        : constant Primitive := Eval (Frame, Unit.Root);
       NS           : constant Primitive :=
         Make_Namespace
-          (Primitives.Environment_Access (Frame.Frames), Unit.Root);
+          (Primitives.Environment_Access (Frame.Frames), Unit.Root, Ctx.Pool);
    begin
       Ctx.Add_Binding (Symbol (Node.F_Name), NS);
       return Make_Unit_Primitive;
@@ -866,7 +875,7 @@ package body LKQL.Evaluation is
    function Eval_List_Literal
      (Ctx : Eval_Context; Node : L.List_Literal) return Primitive
    is
-      Res : constant Primitive := Make_Empty_List;
+      Res : constant Primitive := Make_Empty_List (Ctx.Pool);
    begin
       for Expr of Node.F_Exprs loop
          Res.List_Val.Elements.Append (Eval (Ctx, Expr));
@@ -881,7 +890,7 @@ package body LKQL.Evaluation is
    function Eval_Object_Literal
      (Ctx : Eval_Context; Node : L.Object_Literal) return Primitive
    is
-      Res : constant Primitive := Make_Empty_Object;
+      Res : constant Primitive := Make_Empty_Object (Ctx.Pool);
    begin
       for Assoc of Node.F_Assocs loop
          Res.Obj_Assocs.Elements.Include
@@ -899,7 +908,7 @@ package body LKQL.Evaluation is
       Value : constant H.AST_Node_Holder :=
         Node_Val (Eval (Ctx, Node.F_Node_Expr, Expected_Kind => Kind_Node));
    begin
-      return To_Primitive (Value);
+      return To_Primitive (Value, Ctx.Pool);
    end Eval_Unwrap;
 
    -----------------------------------------
@@ -943,7 +952,7 @@ package body LKQL.Evaluation is
       Generator_Value  : constant Primitive :=
         Eval (Ctx, Assoc.F_Coll_Expr);
       Generator_Iter   : constant Primitive_Iter_Access :=
-        new Primitive_Iter'Class'(To_Iterator (Generator_Value));
+        new Primitive_Iter'Class'(To_Iterator (Generator_Value, Ctx.Pool));
       Binding_Name     : constant Symbol_Type :=
         Symbol (Assoc.F_Binding_Name);
       Nested_Resetable : constant Environment_Iters.Resetable_Access :=

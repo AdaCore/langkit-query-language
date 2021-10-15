@@ -169,7 +169,7 @@ package body LKQL.Queries is
          Match : constant Match_Result :=
            Match_Pattern (Self.Ctx,
                           Self.Pattern,
-                          To_Primitive (Node));
+                          To_Primitive (Node, Self.Ctx.Pool));
       begin
          return Match.Is_Success;
       end;

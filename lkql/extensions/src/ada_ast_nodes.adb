@@ -142,21 +142,22 @@ package body Ada_AST_Nodes is
          when Boolean_Value =>
             return To_Primitive (As_Boolean (Value));
          when Integer_Value =>
-            return To_Primitive (As_Integer (Value));
+            return To_Primitive (As_Integer (Value), Ctx.Pool);
          when Big_Integer_Value =>
             return To_Primitive
               (Create (GNATCOLL.GMP.Integers.Image
-               (As_Big_Integer (Value))));
+               (As_Big_Integer (Value))), Ctx.Pool);
          when Node_Value =>
             return To_Primitive
               (Create_Node (Ada_AST_Node'(Node => As_Node (Value))));
          when String_Value =>
-            return To_Primitive (To_Unbounded_Text (As_String (Value)));
+            return To_Primitive
+              (To_Unbounded_Text (As_String (Value)), Ctx.Pool);
          when Unbounded_Text_Value =>
-            return To_Primitive (As_Unbounded_Text (Value));
+            return To_Primitive (As_Unbounded_Text (Value), Ctx.Pool);
          when Array_Value_Kind =>
             declare
-               Res : constant Primitive := Make_Empty_List;
+               Res : constant Primitive := Make_Empty_List (Ctx.Pool);
             begin
                for J in 1 .. Array_Length (Value) loop
                   declare
@@ -173,14 +174,15 @@ package body Ada_AST_Nodes is
          when Analysis_Unit_Value =>
             return To_Primitive
               (H.Create_Unit_Ref
-                (Ada_AST_Unit'(Unit => As_Analysis_Unit (Value))));
+                (Ada_AST_Unit'(Unit => As_Analysis_Unit (Value))),
+               Ctx.Pool);
 
          when Struct_Value_Kind =>
             --  Structs are mapped to LKQL objects
             declare
                Fields : constant Struct_Field_Reference_Array :=
                  Struct_Fields (Kind (Value));
-               Ret    : constant Primitive := Make_Empty_Object;
+               Ret    : constant Primitive := Make_Empty_Object (Ctx.Pool);
             begin
                for Field of Fields loop
                   Ret.Obj_Assocs.Elements.Include
@@ -195,12 +197,14 @@ package body Ada_AST_Nodes is
             return To_Primitive
               (To_Unbounded_Text
                 (Enum_Value_Name
-                  (Kind => Kind (Value), Index => Enum_Index (Value))));
+                  (Kind => Kind (Value), Index => Enum_Index (Value))),
+               Ctx.Pool);
 
          when Token_Value =>
             return To_Primitive
               (H.Create_Token_Ref
-                (Ada_AST_Token'(Token => As_Token (Value), Unit  => Unit)));
+                (Ada_AST_Token'(Token => As_Token (Value), Unit  => Unit)),
+               Ctx.Pool);
          when others =>
             raise Introspection_Error with
               "Unsupported value type from the introspection API: " &
