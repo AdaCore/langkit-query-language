@@ -45,7 +45,7 @@ package body LKQL.Node_Data is
       Real_Name : constant Text_Type := Field_Name.Text;
    begin
       if Real_Name = "image" then
-         return To_Primitive (Receiver.Unchecked_Get.Text_Image);
+         return To_Primitive (Receiver.Unchecked_Get.Text_Image, Ctx.Pool);
       end if;
 
       if Receiver.Unchecked_Get.Is_Field_Name (Real_Name) then
@@ -57,9 +57,10 @@ package body LKQL.Node_Data is
 
       elsif Receiver.Unchecked_Get.Is_Property_Name (Real_Name) then
          return Make_Property_Reference
-           (To_Primitive (Receiver),
+           (To_Primitive (Receiver, Ctx.Pool),
             H.Create_Member_Ref
-              (Receiver.Unchecked_Get.Get_Member_Reference (Real_Name)));
+              (Receiver.Unchecked_Get.Get_Member_Reference (Real_Name)),
+            Ctx.Pool);
       else
          Raise_No_Such_Field (Ctx, Receiver, Field_Name);
       end if;

@@ -165,14 +165,39 @@ package LKQL.Primitives is
    procedure Free_Primitive_Vector is new Ada.Unchecked_Deallocation
      (Primitive_Vectors.Vector, Primitive_Vector_Access);
 
+   package Positive_Vectors
+   is new Ada.Containers.Vectors (Positive, Positive);
+
    type Primitive_Pool_Data is record
       Primitives : Primitive_Vectors.Vector;
+      --  List of primitives allocated in this pool
    end record;
 
    type Primitive_Pool is access all Primitive_Pool_Data;
+   --  Pool of primitives: In LKQL, primitives are not managed by hand, but are
+   --  instead allocated in a pool. The pool can then be freed all at once, or
+   --  released from time to time.
+   --
+   --  This allows us to create pool for "analysis frames", and free them,
+   --  which is a kind of poor man's garbage collection, but works well enough
+   --  for our purpose.
 
-   function Create return Primitive_Pool;
-   procedure Destroy (Pool : in out Primitive_Pool);
+   package Primitive_Pool_Vectors
+   is new Ada.Containers.Vectors (Positive, Primitive_Pool);
+
+   type Primitive_Pool_Stack is access all Primitive_Pool_Vectors.Vector;
+
+   function Create return Primitive_Pool_Stack;
+
+   procedure Destroy (Self : in out Primitive_Pool_Stack);
+
+   procedure Mark (Pool_Stack : Primitive_Pool_Stack);
+   --  Add a new mark in the pool. The next call to release will call every
+   --  object allocated *after* mark has been called.
+
+   procedure Release (Pool_Stack : Primitive_Pool_Stack);
+   --  Remove all the objects from the pool up until the last mark.
+
    function Create_Primitive
      (Data : Primitive_Data) return Primitive;
 
@@ -317,10 +342,13 @@ package LKQL.Primitives is
    function Get_Iter (Value : Iterator_Primitive) return Primitive_Iter_Access;
    --  Return a deep copy of the wrapped iterator
 
-   function To_List (Iter : Iterator_Primitive) return Primitive;
+   function To_List
+     (Iter : Iterator_Primitive;
+      Pool : Primitive_Pool) return Primitive;
    --  Create a List Primitive from the given iterator
 
-   function To_Iterator (Value : Primitive) return Primitive_Iter'Class;
+   function To_Iterator
+     (Value : Primitive; Pool : Primitive_Pool) return Primitive_Iter'Class;
    --  Create an iterator that yields the elements of a List or
    --  Iterator Primitive.
    --  Raise an Unsupported_Error if the value isn't a List or an Iterator
@@ -333,7 +361,8 @@ package LKQL.Primitives is
    -- Selector list --
    -------------------
 
-   function To_List (Value : Selector_List) return Primitive;
+   function To_List
+     (Value : Selector_List; Pool : Primitive_Pool) return Primitive;
    --  Create a List Primitive value from a Selector_List Primitive value
 
    ---------------
@@ -369,7 +398,9 @@ package LKQL.Primitives is
    --  Return a pointer to the elements of a list primitive
 
    function Data
-     (Value : Primitive; Member_Name : Text_Type) return Primitive;
+     (Value       : Primitive;
+      Member_Name : Text_Type;
+      Pool        : Primitive_Pool) return Primitive;
    --  Return the value of 'Value's member named 'Member_Name'.
    --  This member can be either a built_in member (ex: length), or a
    --  Langkit field/property.
@@ -392,62 +423,78 @@ package LKQL.Primitives is
    function Make_Unit_Primitive return Primitive;
    --  Create a Unit Primitive value
 
-   function To_Primitive (Val : Integer) return Primitive;
+   function To_Primitive
+     (Val : Integer; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the Integer value
 
-   function To_Primitive (Val : Adaptive_Integer) return Primitive;
+   function To_Primitive
+     (Val : Adaptive_Integer; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the Adaptive_Integer value
 
-   function To_Primitive (Val : Unbounded_Text_Type) return Primitive;
+   function To_Primitive
+     (Val : Unbounded_Text_Type; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the String value
 
-   function To_Primitive (Val : Text_Type) return Primitive;
+   function To_Primitive
+     (Val : Text_Type; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the String value
 
    function To_Primitive (Val : Boolean) return Primitive;
    --  Create a Bool primitive
 
    function To_Primitive
-     (Node : H.AST_Node_Holder) return Primitive;
+     (Node : H.AST_Node_Holder; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the LKQL_Node value
 
-   function To_Primitive (Token : H.AST_Token_Holder) return Primitive;
+   function To_Primitive
+     (Token : H.AST_Token_Holder; Pool : Primitive_Pool) return Primitive;
    --  Create a primitive value from the AST_Token value
 
-   function To_Primitive (Unit : H.AST_Unit_Holder) return Primitive;
+   function To_Primitive
+     (Unit : H.AST_Unit_Holder; Pool : Primitive_Pool) return Primitive;
    --  Create a primitive value from the AST_Unit value
 
-   function To_Primitive (Val : Primitive_Iter'Class) return Primitive;
+   function To_Primitive
+     (Val : Primitive_Iter'Class; Pool : Primitive_Pool) return Primitive;
 
-   function To_Primitive (Val : Selector_List) return Primitive;
+   function To_Primitive
+     (Val : Selector_List; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from a Selector_List;
 
-   function Make_Empty_List return Primitive;
+   function Make_Empty_List (Pool : Primitive_Pool) return Primitive;
    --  Return a primitive value storing an empty list.
 
-   function Make_Empty_Object return Primitive;
+   function Make_Empty_Object (Pool : Primitive_Pool) return Primitive;
    --  Return a primitive value storing an empty object.
 
-   function Make_Empty_Tuple return Primitive;
+   function Make_Empty_Tuple (Pool : Primitive_Pool) return Primitive;
 
    function Make_Namespace
-     (N : Environment_Access; Module : L.LKQL_Node) return Primitive;
+     (N : Environment_Access;
+      Module : L.LKQL_Node;
+      Pool : Primitive_Pool) return Primitive;
 
    ---------------------
    -- Function values --
    ---------------------
 
-   function Make_Builtin_Function (Fn : Builtin_Function) return Primitive;
+   function Make_Builtin_Function
+     (Fn : Builtin_Function; Pool : Primitive_Pool) return Primitive;
 
    function Make_Function
-     (Node : L.Base_Function; Env : Environment_Access) return Primitive;
+     (Node : L.Base_Function;
+      Env  : Environment_Access;
+      Pool : Primitive_Pool) return Primitive;
 
    function Make_Selector
-     (Node : L.Selector_Decl; Env : Environment_Access) return Primitive;
+     (Node : L.Selector_Decl;
+      Env  : Environment_Access;
+      Pool : Primitive_Pool) return Primitive;
 
    function Make_Property_Reference
      (Node_Val     : Primitive;
-      Property_Ref : H.AST_Node_Member_Ref_Holder) return Primitive;
+      Property_Ref : H.AST_Node_Member_Ref_Holder;
+      Pool         : Primitive_Pool) return Primitive;
 
    function Profile (Obj : Primitive) return Text_Type;
    --  For a callable object, return its profile (name + arguments) as text.
@@ -469,7 +516,8 @@ package LKQL.Primitives is
    --  An Unsupported_Error will be raise if 'List' is not a value of kind
    --  Kind_List.
 
-   function Contains (List, Value : Primitive) return Boolean;
+   function Contains
+     (List, Value : Primitive) return Boolean;
    --  Check whether `List` contains `Value`.
    --  An Unsupported_Error will be raised if `List` is not a value of kind
    --  Kind_List, or if the kind of `Value` doesn't match the kind of the
@@ -519,69 +567,58 @@ package LKQL.Primitives is
    -- Operators --
    ---------------
 
-   function "+" (Left, Right : Primitive) return Primitive;
-   --  Add two Primitive values together.
-   --  The only supported operation is Int + Int.
-   --  Unsupported operations will raise an Unsupported_Error exception.
-
-   function "-" (Left, Right : Primitive) return Primitive;
-   --  Subtract two Primitive values.
-   --  The only supported operation is Int - Int.
-   --  Unsupported operations will raise an Unsupported_Error exception.
-
-   function "*" (Left, Right : Primitive) return Primitive;
-   --  Multiply two Primitive values.
-   --  The only supported operation is Int * Int.
-   --  Unsupported operations will raise an Unsupported_Error exception.
-
-   function "/" (Left, Right : Primitive) return Primitive;
-   --  Divide two Primitive values.
-   --  The only supported operation is Int / Int, with a non-zero denominator.
-   --  Unsupported operations will raise an Unsupported_Error exception.
-
-   function "=" (Left, Right : Primitive) return Primitive;
+   function Equals
+     (Left, Right : Primitive) return Primitive;
    --  Perform a deep equality check between 'Left' and 'Right'.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
 
-   function Deep_Equals (Left, Right : Primitive) return Boolean;
+   function Deep_Equals
+     (Left, Right : Primitive) return Boolean;
    --  Perform a deep equality check between 'Left' and 'Right'.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
 
-   function Deep_Equals (Left, Right : Primitive_List_Access) return Boolean;
+   function Deep_Equals
+     (Left, Right : Primitive_List_Access) return Boolean;
    --  Perform a deep equality check between two primitive_List_Access values.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
 
-   function "/=" (Left, Right : Primitive) return Primitive;
-   --  Test inequality between two Primitive values.
-   --  An Unsupported exception will be raised if Left and Right have different
-   --  kinds.
-
-   function "&" (Left, Right : Primitive) return Primitive;
+   function Concat
+     (Left, Right : Primitive;
+      Pool : Primitive_Pool) return Primitive;
    --  Concatenate a Primitive value to a Str Primitive.
    --  The supported operations are: Str & Int, Str & Str, Str & Bool.
    --  Unsupported operations will raise an Unsupported_Error exception.
 
-   function "<" (Left, Right : Primitive) return Primitive;
+   function Lt
+     (Left, Right : Primitive) return Primitive;
    --  Tests that 'Left' is strictly lower than 'Right'.
    --  The supported operations are: Int < Int, String < String.
    --  Unsupported operations will raise an Unsupported_Error exception.
 
-   function "<=" (Left, Right : Primitive) return Primitive;
+   function Lte
+     (Left, Right : Primitive) return Primitive;
    --  Tests that 'Left' is equal to, or lower than than 'Right'.
    --  The supported operations are: Int <= Int, String <= String.
    --  Unsupported operations will raise an Unsupported_Error exception.
 
-   function ">" (Left, Right : Primitive) return Primitive;
+   function Gt
+     (Left, Right : Primitive) return Primitive;
    --  Tests that 'Left' is strictly higher than 'Right'.
    --  The supported operations are: Int > Int, String > String.
    --  Unsupported operations will raise an Unsupported_Error exception.
 
-   function ">=" (Left, Right : Primitive) return Primitive;
+   function Gte
+     (Left, Right : Primitive) return Primitive;
    --  Tests that 'Left' is equal to, or higher than than 'Right'.
    --  The supported operations are: Int >= Int, String >= String.
    --  Unsupported operations will raise an Unsupported_Error exception.
+
+   procedure Check_Kind
+     (Expected_Kind : Valid_Primitive_Kind; Value : Primitive);
+   --  Raise an Unsupporter_Error exception if Value.Kind is different than
+   --  Expected_Kind.
 
 end LKQL.Primitives;

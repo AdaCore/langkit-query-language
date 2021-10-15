@@ -222,7 +222,10 @@ package body Checker_App is
             In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
          end if;
 
-         Ctx.Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
+         Mark (Ctx.Eval_Ctx.Pools);
+
+         Ctx.Eval_Ctx.Add_Binding
+           ("node", To_Primitive (Rc_Node, Ctx.Eval_Ctx.Pool));
 
          for Rule of Ctx.Cached_Rules (Node.Kind) loop
 
@@ -244,7 +247,8 @@ package body Checker_App is
                Result_Node : Ada_Node;
             begin
 
-               Rule.Eval_Ctx.Add_Binding ("node", To_Primitive (Rc_Node));
+               Rule.Eval_Ctx.Add_Binding
+                 ("node", To_Primitive (Rc_Node, Rule.Eval_Ctx.Pool));
 
                --  The check is a "bool check", ie. a check that returns a
                --  boolean.  Eval the call to the check function
@@ -362,54 +366,54 @@ package body Checker_App is
             <<Next>>
          end loop;
 
+         Release (Ctx.Eval_Ctx.Pools);
+
          return Into;
       end Visit;
 
    begin
-      declare
-         P : Primitive_Pool := Create;
-      begin
-         --  Run node checks
-         Traverse (Unit.Root, Visit'Access);
-         Destroy (P);
-      end;
+      --  Run node checks
+      Traverse (Unit.Root, Visit'Access);
 
       --  Run unit checks
       for Rule of Ctx.Cached_Rules (Unit.Root.Kind) loop
          begin
+            Mark (Rule.Eval_Ctx.Pools);
             if Rule.Is_Unit_Check then
                declare
-                  Custom_Frame : Eval_Context :=
-                    Rule.Eval_Ctx.Create_New_Frame (Create_Pool => True);
                   Result : Primitive;
                begin
-                  Custom_Frame.Add_Binding
+                  Rule.Eval_Ctx.Add_Binding
                     ("unit",
                      To_Primitive
-                       (H.Create_Unit_Ref (Ada_AST_Unit'(Unit => Unit))));
+                       (H.Create_Unit_Ref (Ada_AST_Unit'(Unit => Unit)),
+                        Rule.Eval_Ctx.Pool));
 
-                  Result := Eval (Custom_Frame, Rule.Code);
+                  Result := Eval (Rule.Eval_Ctx, Rule.Code);
 
                   if Result.Kind = Kind_Iterator then
-                     Result := To_List (Result.Iter_Val.all);
+                     Result := To_List (Result.Iter_Val.all,
+                                        Rule.Eval_Ctx.Pool);
                   end if;
 
-                  Check_Kind (Custom_Frame, Rule.LKQL_Root, Kind_List, Result);
+                  Check_Kind
+                    (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_List, Result);
 
                   for El of Result.List_Val.Elements loop
                      Check_Kind
-                       (Custom_Frame, Rule.LKQL_Root, Kind_Object, El);
+                       (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_Object, El);
 
                      declare
                         Loc_Val : constant Primitive :=
-                          Extract_Value (El, "loc", Custom_Frame, No_Kind,
+                          Extract_Value (El, "loc", Rule.Eval_Ctx, No_Kind,
                                          Location => Rule.LKQL_Root);
 
                         Loc : Source_Location_Range;
 
                         Message : constant Unbounded_Text_Type :=
-                          Extract_Value (El, "message", Custom_Frame, Kind_Str,
-                                         Location => Rule.LKQL_Root)
+                          Extract_Value
+                            (El, "message", Rule.Eval_Ctx, Kind_Str,
+                             Location => Rule.LKQL_Root)
                           .Str_Val;
 
                         Diag     : Diagnostic;
@@ -458,15 +462,16 @@ package body Checker_App is
                         end if;
                      end;
                   end loop;
-                  Custom_Frame.Release_Current_Frame;
                exception
                when E : LKQL.Errors.Stop_Evaluation_Error =>
-                  Custom_Frame.Release_Current_Frame;
                   Handle_Error (Rule, Unit.Root, E);
                end;
             end if;
+
+            Release (Rule.Eval_Ctx.Pools);
          exception
             when E : LKQL.Errors.Stop_Evaluation_Error | Assertion_Error =>
+               Release (Rule.Eval_Ctx.Pools);
                Handle_Error (Rule, Unit.Root, E);
          end;
       end loop;

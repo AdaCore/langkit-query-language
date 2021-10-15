@@ -72,11 +72,11 @@ package body LKQL.Custom_Selectors is
       return Custom_Selector_Iter
    is
 
-      Default_Min   : constant Primitive := To_Primitive (1);
+      Default_Min   : constant Primitive := To_Primitive (1, Ctx.Pool);
       Min_Depth     : constant Integer :=
         +Int_Val (Eval_Default (Ctx, Min_Depth_Expr, Default_Min,
                                Expected_Kind => Kind_Int));
-      Default_Max   : constant Primitive := To_Primitive (-1);
+      Default_Max   : constant Primitive := To_Primitive (-1, Ctx.Pool);
       Max_Depth     : constant Integer :=
         +Int_Val (Eval_Default (Ctx, Max_Depth_Expr, Default_Max,
                                Expected_Kind => Kind_Int));
@@ -126,8 +126,10 @@ package body LKQL.Custom_Selectors is
                             Node : Depth_Node)
    is
       Local_Ctx  : Eval_Context;
-      Node_Value : constant Primitive := To_Primitive (Node.Node);
-      Dummy  : constant Primitive := To_Primitive (Node.Depth);
+      Node_Value : constant Primitive :=
+        To_Primitive (Node.Node, Iter.Ctx.Pool);
+      Dummy  : constant Primitive :=
+        To_Primitive (Node.Depth, Iter.Ctx.Pool);
       Match_Data : constant Match_Array_Result :=
         Match_Pattern_Array (Iter.Ctx, Iter.Selector.P_Patterns, Node_Value);
    begin
@@ -137,7 +139,8 @@ package body LKQL.Custom_Selectors is
 
       Local_Ctx := Iter.Ctx.Create_New_Frame;
       Local_Ctx.Add_Binding ("this", Node_Value);
-      Local_Ctx.Add_Binding ("depth", To_Primitive (Node.Depth));
+      Local_Ctx.Add_Binding
+        ("depth", To_Primitive (Node.Depth, Iter.Ctx.Pool));
 
       for E of Iter.Selector.P_Nth_Expressions (Match_Data.Index) loop
          Add_Selector_Expr (Iter, Local_Ctx, Node.Depth, E.As_Selector_Expr);

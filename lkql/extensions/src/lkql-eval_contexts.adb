@@ -50,8 +50,12 @@ package body LKQL.Eval_Contexts is
    begin
       --  Give up the reference we have on the parent env.
       Dec_Ref (Self.Parent);
-      if Self.Pool /= null then
-         Destroy (Self.Pool);
+
+      --  If this environment owns a memory pool, release it.
+      if Self.Pools /= null
+         and then Self.Is_Pools_Owner
+      then
+         Destroy (Self.Pools);
       end if;
       Free (Self);
    end Free_Environment;
@@ -135,17 +139,17 @@ package body LKQL.Eval_Contexts is
    -- Create_New_Frame --
    ----------------------
 
-   function Create_New_Frame (Ctx            : Eval_Context;
-                              Local_Bindings : Environment_Map := Empty_Map;
-                              Create_Pool    : Boolean := False)
-                              return Eval_Context
+   function Create_New_Frame
+     (Ctx            : Eval_Context;
+      Local_Bindings : Environment_Map := Empty_Map) return Eval_Context
    is
       New_Env     : constant Environment_Access :=
         new Environment'
-          (Local_Bindings => Local_Bindings,
-           Parent         => Ctx.Frames,
-           Ref_Count      => <>,
-           Pool => (if Create_Pool then Create else null));
+          (Local_Bindings  => Local_Bindings,
+           Parent          => Ctx.Frames,
+           Ref_Count       => <>,
+           Pools           => Ctx.Pools,
+           Is_Pools_Owner  => False);
    begin
       --  The new env holds a reference to its parent, so increment the
       --  reference count.
@@ -227,7 +231,7 @@ package body LKQL.Eval_Contexts is
            LKQL_Path_List     => <>,
            Builtin_Methods => <>);
       Env    : constant Environment_Access :=
-        new Environment'(Make_Empty_Environment);
+        new Environment'(Make_Empty_Environment (Create_Pool => True));
       Ret    : Eval_Context := Eval_Context'(Kernel, Env);
 
       package E renames Ada.Environment_Variables;
@@ -244,7 +248,8 @@ package body LKQL.Eval_Contexts is
             --  objects.
             if not Fn_Desc.Only_Dot_Calls then
                Ret.Add_Binding
-                 (To_Text (Fn_Desc.Name), Make_Builtin_Function (Fn_Desc));
+                 (To_Text (Fn_Desc.Name),
+                  Make_Builtin_Function (Fn_Desc, Ret.Pool));
             end if;
 
             --  For applicable functions, register them in the builtin
@@ -297,7 +302,7 @@ package body LKQL.Eval_Contexts is
                      "Cannot free a non-root evaluation context");
 
       Free_Ast_Node_Array (Ctx.Kernel.Ast_Roots);
-      Dec_Ref (Ctx.Frames);
+      Free_Environment (Ctx.Frames);
       Free_Global_Data (Ctx.Kernel);
    end Free_Eval_Context;
 
@@ -324,11 +329,15 @@ package body LKQL.Eval_Contexts is
    function Make_Empty_Environment
      (Parent      : Environment_Access := null;
       Create_Pool : Boolean := False) return Environment
-   is (Environment'
+   is
+   begin
+      return Environment'
         (String_Value_Maps.Empty_Map,
          Parent,
-         Ref_Count => 1,
-         Pool => (if Create_Pool then Create else null)));
+         Ref_Count      => 1,
+         Pools          => (if Create_Pool then Create else null),
+         Is_Pools_Owner => Create_Pool);
+   end Make_Empty_Environment;
 
    ------------------
    -- Add_Bindings --
@@ -342,51 +351,6 @@ package body LKQL.Eval_Contexts is
          Env.Include (Key (C), Element (C));
       end loop;
    end Add_Bindings;
-
-   procedure Merge_Item_Into (Env   : in out Environment_Map;
-                              Key   : Symbol_Type;
-                              Value : Primitive);
-
-   ----------------
-   -- Merge_Into --
-   ----------------
-
-   procedure Merge_Into
-     (Env : in out Environment_Map; Other : Environment_Map)
-   is
-   begin
-      for C in Iterate (Other) loop
-         Merge_Item_Into (Env, Key (C), Element (C));
-      end loop;
-   end Merge_Into;
-
-   ---------------------
-   -- Merge_Item_Into --
-   ---------------------
-
-   procedure Merge_Item_Into (Env   : in out Environment_Map;
-                              Key   : Symbol_Type;
-                              Value : Primitive)
-   is
-      Pos : constant Cursor := Env.Find (Key);
-   begin
-      if not Has_Element (Pos) then
-         Env.Insert (Key, Value);
-      elsif Kind (Element (Pos)) = Kind_List then
-         Extend (Element (Pos), Value);
-      elsif Kind (Value) = Kind_List then
-         Extend (Value, Element (Pos));
-         Env.Include (Key, Value);
-      else
-         declare
-            List : constant Primitive := Make_Empty_List;
-         begin
-            Append (List, Element (Pos));
-            Append (List, Value);
-            Env.Insert (Key, List);
-         end;
-      end if;
-   end Merge_Item_Into;
 
    -------------
    -- Inc_Ref --
@@ -484,6 +448,16 @@ package body LKQL.Eval_Contexts is
       return Image (To_Text (Ret));
    end Env_Map_Image;
 
+   --------------
+   -- Get_Pool --
+   --------------
+
+   function Get_Pools (Self : Environment_Access) return Primitive_Pool_Stack
+   is
+   begin
+      return Self.Pools;
+   end Get_Pools;
+
    -------------------
    -- Get_LKQL_Unit --
    -------------------
@@ -574,5 +548,23 @@ package body LKQL.Eval_Contexts is
    begin
       return Find (Ctx.Kernel.Context.Get_Symbol_Table, Str);
    end Symbol;
+
+   ----------
+   -- Pool --
+   ----------
+
+   function Pool (Ctx : Eval_Context) return Primitive_Pool is
+   begin
+      return Get_Pools (Ctx.Frames).Last_Element;
+   end Pool;
+
+   -----------
+   -- Pools --
+   -----------
+
+   function Pools (Ctx : Eval_Context) return Primitive_Pool_Stack is
+   begin
+      return Get_Pools (Ctx.Frames);
+   end Pools;
 
 end LKQL.Eval_Contexts;

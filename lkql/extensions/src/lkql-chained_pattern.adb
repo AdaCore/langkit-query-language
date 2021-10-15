@@ -65,14 +65,15 @@ package body LKQL.Chained_Pattern is
    is
    begin
       Inc_Ref (Iter.Ctx.Frames);
-      return (Ctx                    => Iter.Ctx,
-              Next_Values            => Iter.Next_Values,
-              Pattern                => Iter.Pattern,
-              Root_Nodes_Iterator =>
-                new AST_Node_Iterator'Class'
-                  (AST_Node_Iterator'Class
-                    ((Iter.Root_Nodes_Iterator.Clone))),
-              Yielded_Elements       => Node_Sets.Empty_Set);
+      return
+        (Ctx                    => Iter.Ctx,
+         Next_Values            => Iter.Next_Values,
+         Pattern                => Iter.Pattern,
+         Root_Nodes_Iterator =>
+           new AST_Node_Iterator'Class'
+             (AST_Node_Iterator'Class
+               ((Iter.Root_Nodes_Iterator.Clone))),
+         Yielded_Elements       => Node_Sets.Empty_Set);
    end Clone;
 
    -------------
@@ -111,7 +112,9 @@ package body LKQL.Chained_Pattern is
    is
       Match : constant Match_Result :=
         Match_Pattern
-          (Iter.Ctx, Iter.Pattern.F_First_Pattern, To_Primitive (Root));
+          (Iter.Ctx,
+           Iter.Pattern.F_First_Pattern,
+           To_Primitive (Root, Iter.Ctx.Pool));
    begin
       if not Match.Is_Success then
          return;
@@ -133,7 +136,7 @@ package body LKQL.Chained_Pattern is
         not (Iter.Yielded_Elements.Contains (Root))
       then
          Iter.Next_Values.Append
-           (Make_Match_Success (To_Primitive (Root)));
+           (Make_Match_Success (To_Primitive (Root, Iter.Ctx.Pool)));
          Iter.Yielded_Elements.Insert (Root);
       elsif Link_Nb <= Iter.Pattern.F_Chain.Children_Count then
          Iter.Eval_Chain_From_Link (Root, Link_Nb);
@@ -162,7 +165,8 @@ package body LKQL.Chained_Pattern is
 
       for E of Nodes loop
          if Pattern_Binding /= null then
-            Iter.Ctx.Add_Binding (Pattern_Binding, To_Primitive (E));
+            Iter.Ctx.Add_Binding (Pattern_Binding,
+                                  To_Primitive (E, Iter.Ctx.Pool));
          end if;
 
          Eval_Chain_From (Iter, E, Link_Nb + 1);
@@ -219,7 +223,7 @@ package body LKQL.Chained_Pattern is
       end if;
 
       if Binding_Name /= null then
-         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List.Clone));
+         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List.Clone, Ctx.Pool));
       end if;
 
       return S_List.Nodes;
