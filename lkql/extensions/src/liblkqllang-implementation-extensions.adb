@@ -106,10 +106,9 @@ package body Liblkqllang.Implementation.Extensions is
    ------------------------------------------
 
    function LKQL_Node_P_Interp_Init_From_Project
-     (Node         : Bare_LKQL_Node;
-      Project_File : Character_Type_Array_Access) return Boolean
+     (Node : Bare_LKQL_Node; Project_File : String_Type) return Boolean
    is
-      UFP     : Unit_Provider_Reference;
+      UFP : Unit_Provider_Reference;
    begin
       --  If already init, it means this is called for a second time: In that
       --  case we want to reinitialize.
@@ -125,7 +124,7 @@ package body Liblkqllang.Implementation.Extensions is
       end if;
 
       Libadalang.Helpers.Load_Project
-        (Image (Project_File.Items), Project => Project, Env => Env);
+        (Image (Project_File.Content), Project => Project, Env => Env);
 
       List_Sources_From_Project (Project.all, False, Files);
 

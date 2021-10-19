@@ -38,9 +38,6 @@ package body Ada_AST_Nodes is
 
    package I renames Libadalang.Introspection;
 
-   subtype Array_Value_Kind_No_Text is Array_Value_Kind
-   with Static_Predicate => Array_Value_Kind_No_Text /= Text_Type_Value;
-
    Empty_Value_Array : constant Value_Array (1 .. 0) := (others => <>);
    --  Empty Array of Value_Type values
 
@@ -153,11 +150,11 @@ package body Ada_AST_Nodes is
          when Node_Value =>
             return To_Primitive
               (Create_Node (Ada_AST_Node'(Node => As_Node (Value))));
-         when Text_Type_Value =>
-            return To_Primitive (To_Unbounded_Text (As_Text_Type (Value)));
+         when String_Value =>
+            return To_Primitive (To_Unbounded_Text (As_String (Value)));
          when Unbounded_Text_Value =>
             return To_Primitive (As_Unbounded_Text (Value));
-         when Array_Value_Kind_No_Text =>
+         when Array_Value_Kind =>
             declare
                Res : constant Primitive := Make_Empty_List;
             begin
@@ -221,7 +218,7 @@ package body Ada_AST_Nodes is
    begin
       case Value.Kind is
          when Kind_List =>
-            if Target_Kind in Array_Value_Kind_No_Text then
+            if Target_Kind in Array_Value_Kind then
                return List_To_Value_Type
                  (Value.List_Val.all, Target_Kind);
             end if;
@@ -309,8 +306,8 @@ package body Ada_AST_Nodes is
    begin
       if Target_Kind = Unbounded_Text_Value then
          return Create_Unbounded_Text (Value);
-      elsif Target_Kind = Text_Type_Value then
-         return Create_Text_Type (To_Text (Value));
+      elsif Target_Kind = String_Value then
+         return Create_String (To_Text (Value));
       elsif Target_Kind = Character_Value and then Length (Value) = 1 then
          return Create_Character (Element (Value, 1));
       end if;

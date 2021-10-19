@@ -24,8 +24,7 @@
 package Liblkqllang.Implementation.Extensions is
 
    function LKQL_Node_P_Interp_Init_From_Project
-     (Node : Bare_LKQL_Node; Project_File : Character_Type_Array_Access)
-      return Boolean;
+     (Node : Bare_LKQL_Node; Project_File : String_Type) return Boolean;
 
    function LKQL_Node_P_Interp_Eval (Node : Bare_LKQL_Node) return Symbol_Type;
 
