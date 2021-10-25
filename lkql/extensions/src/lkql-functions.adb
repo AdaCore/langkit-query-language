@@ -33,6 +33,8 @@ with LKQL.Node_Data;        use LKQL.Node_Data;
 with Ada.Strings.Wide_Wide_Unbounded;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
+with Ada.Containers;
+
 package body LKQL.Functions is
    procedure Process_Function_Arguments
      (Ctx           : Eval_Context;
@@ -267,6 +269,9 @@ package body LKQL.Functions is
       Call : L.Fun_Call;
       Func : Primitive) return Primitive
    is
+
+      use Callable_Caches;
+
       function Param_Index (Name : Symbol_Type) return Natural;
       function Default_Value (I : Positive) return Primitive_Option;
       function Eval_Arg (I : Positive; Arg : L.Expr) return Primitive;
@@ -278,6 +283,8 @@ package body LKQL.Functions is
 
       Def_Ext       : constant Ext := Get_Ext (Def);
       Args_Bindings : Environment_Map;
+      Has_Cache     : constant Boolean := Func.Call_Cache /= No_Cache;
+      Cache_Vector  : Primitive_Vectors.Vector;
 
       -----------------
       -- Param_Index --
@@ -320,8 +327,16 @@ package body LKQL.Functions is
          Param_Name : constant Symbol_Type := Symbol
            (Def.F_Parameters.Child
               (Param_Index).As_Parameter_Decl.P_Identifier);
+
+         use Ada.Containers;
       begin
          Args_Bindings.Insert (Param_Name, Arg_Value);
+         if Has_Cache then
+            if Cache_Vector.Length < Count_Type (Param_Index) then
+               Cache_Vector.Set_Length (Count_Type (Param_Index));
+            end if;
+            Cache_Vector (Param_Index) := Arg_Value;
+         end if;
       end Match_Found;
 
       Eval_Ctx : constant Eval_Context :=
@@ -336,6 +351,27 @@ package body LKQL.Functions is
          Default_Value'Access,
          Eval_Arg'Access,
          Match_Found'Access);
+
+      if Has_Cache then
+         declare
+            Cached_Return : constant Primitive :=
+              Query (Func.Call_Cache, Cache_Vector);
+         begin
+            if Cached_Return /= null then
+               return Cached_Return;
+            else
+               declare
+                  Ret : constant Primitive := Eval
+                   (Eval_Ctx, Def.F_Body_Expr,
+                    Local_Bindings => Args_Bindings);
+               begin
+                  Insert (Func.Call_Cache, Cache_Vector, Ret);
+                  return Ret;
+               end;
+            end if;
+         end;
+      end if;
+
       return Eval
         (Eval_Ctx, Def.F_Body_Expr, Local_Bindings => Args_Bindings);
    end Eval_User_Fun_Call;

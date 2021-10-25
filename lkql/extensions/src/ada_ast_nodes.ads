@@ -166,5 +166,6 @@ package Ada_AST_Nodes is
    overriding function Token_Start
      (Self : Ada_AST_Unit) return AST_Token'Class;
    overriding function Token_End (Self : Ada_AST_Unit) return AST_Token'Class;
+   overriding function Hash (Self : Ada_AST_Unit) return Hash_Type;
 
 end Ada_AST_Nodes;

@@ -29,12 +29,15 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Text_IO;
+with Ada.Strings.Hash;
 
 with LKQL.AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
+
+with Langkit_Support.Hashes; use Langkit_Support.Hashes;
 
 with GNAT.Case_Util;
 
@@ -725,16 +728,19 @@ package body LKQL.Primitives is
    -------------------
 
    function Make_Function
-     (Node : L.Base_Function;
-      Env  : Environment_Access;
-      Pool : Primitive_Pool) return Primitive
-   is
+     (Node            : L.Base_Function;
+      Env             : Environment_Access;
+      Pool            : Primitive_Pool;
+      With_Call_Cache : Boolean := False) return Primitive is
    begin
       return Create_Primitive
-        ((Kind => Kind_Function,
-          Fun_Node  => Node,
-          Frame     => Env,
-          Pool      => Pool));
+        ((Kind       => Kind_Function,
+          Fun_Node   => Node,
+          Frame      => Env,
+          Pool       => Pool,
+          Call_Cache => (if With_Call_Cache
+                        then Callable_Caches.Create (Pool)
+                        else Callable_Caches.No_Cache)));
    end Make_Function;
 
    -----------------------------
@@ -816,10 +822,12 @@ package body LKQL.Primitives is
    -------------------
 
    function Make_Selector
-     (Node : L.Selector_Decl;
-      Env  : Environment_Access;
-      Pool : Primitive_Pool) return Primitive
+     (Node            : L.Selector_Decl;
+      Env             : Environment_Access;
+      Pool            : Primitive_Pool;
+      With_Call_Cache : Boolean := False) return Primitive
    is
+      pragma Unreferenced (With_Call_Cache);
    begin
       return Create_Primitive
         ((Kind     => Kind_Selector,
@@ -943,6 +951,15 @@ package body LKQL.Primitives is
       Check_Kind (Kind_List, List);
       return Natural (Elements (List).Length);
    end Length;
+
+   ---------------
+   -- To_String --
+   ---------------
+
+   function To_String (Val : Primitive) return String is
+   begin
+      return Image (To_Text (To_Unbounded_Text (Val)));
+   end To_String;
 
    -----------------------
    -- To_Unbounded_Text --
@@ -1094,6 +1111,15 @@ package body LKQL.Primitives is
 
    function Equals (Left, Right : Primitive) return Primitive is
       (To_Primitive (Deep_Equals (Left, Right)));
+
+   function Equals (Left, Right : Primitive) return Boolean is
+   begin
+      if Left = null then
+         return Right = null;
+      end if;
+
+      return Left.Kind = Right.Kind and then Deep_Equals (Left, Right);
+   end Equals;
 
    -----------------
    -- Deep_Equals --
@@ -1406,5 +1432,192 @@ package body LKQL.Primitives is
    begin
       return Unit_Prim;
    end Make_Unit_Primitive;
+
+   ----------
+   -- Hash --
+   ----------
+
+   function Hash (Self : Primitive) return Hash_Type is
+   begin
+      case Self.Kind is
+         when Kind_Unit =>
+            return Hash_Type (0);
+         when Kind_Int =>
+            return Ada.Strings.Hash (Image (Self.Int_Val));
+         when Kind_Str =>
+            return Hash (Self.Str_Val);
+         when Kind_Bool =>
+            return Hash_Type (Boolean'Pos (Self.Bool_Val));
+         when Kind_Node =>
+            return H.Hash (Self.Node_Val);
+         when Kind_Analysis_Unit =>
+            return H.Hash (Self.Analysis_Unit_Val);
+         when Kind_Iterator =>
+            raise Constraint_Error with "Hash not supported on iterators";
+         when Kind_Token =>
+            raise Constraint_Error with "Hash not yet supported on tokens";
+         when Kind_List | Kind_Tuple =>
+            declare
+               L : Primitive_Vectors.Vector renames Self.List_Val.Elements;
+               Hashes : Hash_Array (L.First_Index .. L.Last_Index);
+            begin
+               for I in L.First_Index .. L.Last_Index loop
+                  Hashes (I) := Hash (L (I));
+               end loop;
+               return Combine (Hashes);
+            end;
+         when Kind_Object =>
+            declare
+               L : Primitive_Maps.Map renames Self.Obj_Assocs.Elements;
+               Hashes : Hash_Array (1 .. Integer (L.Length));
+               I : Integer := 1;
+            begin
+               for It in L.Iterate loop
+                  Hashes (I) := Hash (Primitive_Maps.Element (It));
+                  I := I + 1;
+               end loop;
+               return Combine (Hashes);
+            end;
+         when Kind_Selector_List =>
+            raise Constraint_Error with "Selector list not hashable";
+         when Kind_Builtin_Function =>
+            raise Constraint_Error with "Builtin function not hashable";
+         when Kind_Property_Reference =>
+            raise Constraint_Error with "Property reference not hashable";
+         when Kind_Namespace =>
+            raise Constraint_Error with "Namespace not hashable";
+         when Kind_Function | Kind_Selector =>
+            raise Constraint_Error with "Callables not hashable";
+      end case;
+   end Hash;
+
+   ----------
+   -- Hash --
+   ----------
+
+   function Hash (Vec : Primitive_Vectors.Vector) return Hash_Type is
+      Hashes : Hash_Array (Vec.First_Index .. Vec.Last_Index);
+   begin
+      for I in Vec.First_Index .. Vec.Last_Index loop
+         Hashes (I) := Hash (Vec (I));
+      end loop;
+      return Combine (Hashes);
+   end Hash;
+
+   ----------
+   -- Copy --
+   ----------
+
+   function Copy (Self : Primitive; Pool : Primitive_Pool) return Primitive is
+   begin
+      case Self.Kind is
+         when Kind_Unit | Kind_Bool =>
+            --  Unit, True & False are singleton allocated in a global pool.
+            --  Don't copy them.
+            return Self;
+         when Kind_Int =>
+            return Create_Primitive
+              ((Kind => Kind_Int, Int_Val => Self.Int_Val, Pool => Pool));
+         when Kind_Str =>
+            return Create_Primitive
+              ((Kind => Kind_Str, Str_Val => Self.Str_Val, Pool => Pool));
+         when Kind_Node =>
+            return Create_Primitive
+              ((Kind => Kind_Node, Node_Val => Self.Node_Val, Pool => Pool));
+         when Kind_Analysis_Unit =>
+            return Create_Primitive
+              ((Kind => Kind_Analysis_Unit,
+                Analysis_Unit_Val => Self.Analysis_Unit_Val, Pool => Pool));
+         when Kind_Iterator =>
+            raise Constraint_Error with "Copy not supported on iterators";
+         when Kind_Token =>
+            return Create_Primitive
+              ((Kind => Kind_Token, Token_Val => Self.Token_Val,
+                Pool => Pool));
+         when Kind_List | Kind_Tuple =>
+            declare
+               L : Primitive_Vectors.Vector renames Self.List_Val.Elements;
+               New_List : Primitive_Vectors.Vector;
+               New_Primitive_Val : Primitive_Data := Self.all;
+            begin
+               New_List.Set_Length (Count_Type (L.Last_Index));
+               for I in L.First_Index .. L.Last_Index loop
+                  New_List (I) := Copy (L (I), Pool);
+               end loop;
+               New_Primitive_Val.Pool := Pool;
+               New_Primitive_Val.List_Val :=
+                 new Primitive_List'(Elements => New_List);
+               return Create_Primitive (New_Primitive_Val);
+            end;
+         when Kind_Object =>
+            declare
+               L : Primitive_Maps.Map renames Self.Obj_Assocs.Elements;
+               New_Map : Primitive_Maps.Map;
+            begin
+               for It in L.Iterate loop
+                  New_Map.Include
+                    (Primitive_Maps.Key (It),
+                     Copy (Primitive_Maps.Element (It), Pool));
+               end loop;
+               return Create_Primitive
+                 ((Kind => Kind_Object,
+                   Obj_Assocs => new Primitive_Assocs'(Elements => New_Map),
+                   Pool => Pool));
+            end;
+         when Kind_Selector_List =>
+            raise Constraint_Error with "Selector list not copyable";
+         when Kind_Builtin_Function =>
+            raise Constraint_Error with "Builtin function not copyable";
+         when Kind_Property_Reference =>
+            raise Constraint_Error with "Property reference not copyable";
+         when Kind_Namespace =>
+            raise Constraint_Error with "Namespace not copyable";
+         when Kind_Function | Kind_Selector =>
+            raise Constraint_Error with "Callables not copyable";
+      end case;
+   end Copy;
+
+   package body Callable_Caches is
+
+      ------------
+      -- Create --
+      ------------
+
+      function Create (Pool : Primitive_Pool) return Cache is
+      begin
+         return new Cache_Data'(Pool => Pool, Cache => <>);
+      end Create;
+
+      -----------
+      -- Query --
+      -----------
+
+      function Query
+        (Self : Cache; Args : Primitive_Vectors.Vector) return Primitive
+      is
+         C : constant Cache_Maps.Cursor := Self.Cache.Find (Args);
+      begin
+         if Cache_Maps.Has_Element (C) then
+            return Cache_Maps.Element (C);
+         end if;
+         return null;
+      end Query;
+
+      ------------
+      -- Insert --
+      ------------
+
+      procedure Insert
+        (Self : Cache; Args : Primitive_Vectors.Vector; Value : Primitive)
+      is
+         Copied_Args : Primitive_Vectors.Vector;
+      begin
+         for A of Args loop
+            Copied_Args.Append (Copy (A, Self.Pool));
+         end loop;
+         Self.Cache.Include (Copied_Args, Copy (Value, Self.Pool));
+      end Insert;
+
+   end Callable_Caches;
 
 end LKQL.Primitives;

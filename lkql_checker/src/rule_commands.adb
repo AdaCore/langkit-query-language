@@ -124,9 +124,14 @@ package body Rule_Commands is
    is
       Root    : constant L.LKQL_Node :=
         Make_LKQL_Unit (Get_Context (Ctx.Kernel.all), LKQL_File_Path).Root;
+
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
-          (Root, Kind_Is (LCO.LKQL_Decl_Annotation)).As_Decl_Annotation;
+          (Root,
+           Kind_Is (LCO.LKQL_Decl_Annotation)
+           and Child_With (LCO.Decl_Annotation_F_Name,
+                           Text_Is ("check") or Text_Is ("unit_check")))
+          .As_Decl_Annotation;
 
    begin
       if Check_Annotation.Is_Null

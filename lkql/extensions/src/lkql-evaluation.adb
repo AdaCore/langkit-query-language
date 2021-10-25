@@ -39,6 +39,8 @@ with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body LKQL.Evaluation is
 
+   use all type Unbounded_Text_Type;
+
    function Eval_List
      (Ctx : Eval_Context; Node : L.LKQL_Node_List) return Primitive;
 
@@ -52,7 +54,9 @@ package body LKQL.Evaluation is
      (Ctx : Eval_Context; Node : L.Selector_Decl) return Primitive;
 
    function Eval_Fun_Expr
-     (Ctx : Eval_Context; Node : L.Base_Function) return Primitive;
+     (Ctx             : Eval_Context;
+      Node            : L.Base_Function;
+      With_Call_Cache : Boolean := False) return Primitive;
 
    function Eval_Identifier
      (Ctx : Eval_Context; Node : L.Identifier) return Primitive;
@@ -333,7 +337,12 @@ package body LKQL.Evaluation is
 
       Ctx.Add_Binding
         (Identifier,
-         Eval_Fun_Expr (Ctx, Node.F_Fun_Expr.As_Base_Function));
+         Eval_Fun_Expr
+           (Ctx,
+            Node.F_Fun_Expr.As_Base_Function,
+            With_Call_Cache =>
+              not Node.F_Annotation.Is_Null
+              and then Node.F_Annotation.F_Name.P_Sym = "memoized"));
 
       return Make_Unit_Primitive;
 
@@ -361,7 +370,10 @@ package body LKQL.Evaluation is
       Ctx.Add_Binding
         (Identifier,
          Make_Selector
-           (Node, Primitives.Environment_Access (Ctx.Frames), Ctx.Pool));
+           (Node, Primitives.Environment_Access (Ctx.Frames), Ctx.Pool,
+            With_Call_Cache =>
+              not Node.F_Annotation.Is_Null
+              and then Node.F_Annotation.F_Name.P_Sym = "memoized"));
 
       return Make_Unit_Primitive;
    end Eval_Selector_Decl;
@@ -371,15 +383,19 @@ package body LKQL.Evaluation is
    -------------------
 
    function Eval_Fun_Expr
-     (Ctx : Eval_Context; Node : L.Base_Function) return Primitive is
+     (Ctx             : Eval_Context;
+      Node            : L.Base_Function;
+      With_Call_Cache : Boolean := False) return Primitive is
    begin
       --  The function will hold a reference to its original env, and can
       --  reference vars coming from it, so hold a reference on it.
       LKQL.Eval_Contexts.Inc_Ref (Ctx.Frames);
 
       return Make_Function
-        (Node, Primitives.Environment_Access (Ctx.Frames),
-         Ctx.Pool);
+        (Node,
+         Primitives.Environment_Access (Ctx.Frames),
+         Ctx.Pool,
+         With_Call_Cache => With_Call_Cache);
    end Eval_Fun_Expr;
 
    ---------------------

@@ -23,6 +23,7 @@
 
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
+with Ada.Containers; use Ada.Containers;
 with Ada.Unchecked_Deallocation;
 
 with Langkit_Support.Text;   use Langkit_Support.Text;
@@ -146,9 +147,18 @@ package LKQL.Primitives is
 
    type Primitive is access all Primitive_Data;
 
+   function Deep_Equals
+     (Left, Right : Primitive) return Boolean;
+   --  Perform a deep equality check between 'Left' and 'Right'.
+   --  An Unsupported exception will be raised if Left and Right have different
+   --  kinds.
+
+   function Equals (Left, Right : Primitive) return Boolean;
+
    package Primitive_Vectors is new
      Ada.Containers.Vectors (Index_Type   => Positive,
-                             Element_Type => Primitive);
+                             Element_Type => Primitive,
+                             "="          => Equals);
    --  Vector of Primitive values
 
    type Primitive_Vector_Access is access all Primitive_Vectors.Vector;
@@ -158,6 +168,10 @@ package LKQL.Primitives is
       Elements      : aliased Primitive_Vectors.Vector;
    end record;
    --  List of primitive values.
+
+   type Primitive_Array is array (Positive range <>) of Primitive;
+
+   function Hash (Vec : Primitive_Vectors.Vector) return Hash_Type;
 
    procedure Free_Primitive_List is
      new Ada.Unchecked_Deallocation (Primitive_List, Primitive_List_Access);
@@ -201,6 +215,38 @@ package LKQL.Primitives is
    function Create_Primitive
      (Data : Primitive_Data) return Primitive;
 
+   package Callable_Caches is
+      type Cache is private;
+
+      function Create (Pool : Primitive_Pool) return Cache;
+
+      function Query
+        (Self : Cache; Args : Primitive_Vectors.Vector) return Primitive;
+
+      procedure Insert
+        (Self : Cache; Args : Primitive_Vectors.Vector; Value : Primitive);
+
+      No_Cache : constant Cache;
+
+   private
+
+      package Cache_Maps is new Ada.Containers.Hashed_Maps
+        (Primitive_Vectors.Vector,
+         Primitive,
+         Hash => Hash,
+         Equivalent_Keys => Primitive_Vectors."=");
+
+      type Cache_Data is record
+         Pool  : Primitive_Pool;
+         Cache : Cache_Maps.Map;
+      end record;
+
+      type Cache is access all Cache_Data;
+
+      No_Cache : constant Cache := null;
+
+   end Callable_Caches;
+
    type Primitive_Data (Kind : Valid_Primitive_Kind) is record
       Pool : Primitive_Pool;
       case Kind is
@@ -237,8 +283,11 @@ package LKQL.Primitives is
          when Kind_Function | Kind_Selector =>
             Frame             : Environment_Access;
             case Kind is
-               when Kind_Function => Fun_Node : L.Base_Function;
-               when Kind_Selector => Sel_Node : L.Selector_Decl;
+               when Kind_Function =>
+                  Fun_Node : L.Base_Function;
+                  Call_Cache        : Callable_Caches.Cache;
+               when Kind_Selector =>
+                  Sel_Node : L.Selector_Decl;
                when others => null;
             end case;
       end case;
@@ -248,6 +297,12 @@ package LKQL.Primitives is
 
    procedure Release (Data : in out Primitive_Data);
    --  Release if data is of Kind Kind_List, free the list's memory
+
+   function Hash (Self : Primitive) return Hash_Type;
+   --  Hash function for LKQL's primitive type
+
+   function Copy (Self : Primitive; Pool : Primitive_Pool) return Primitive;
+   --  Deep copy of a primitive value
 
    subtype Introspectable_Primitive is Primitive
      with Predicate =>
@@ -262,8 +317,6 @@ package LKQL.Primitives is
 
    subtype Primitive_Option is Primitive_Options.Option;
    --  Optional primitive value
-
-   type Primitive_Array is array (Positive range <>) of Primitive;
 
    type Native_Function_Access is access function
      (Ctx  : LKQL.Eval_Contexts.Eval_Context;
@@ -482,14 +535,16 @@ package LKQL.Primitives is
      (Fn : Builtin_Function; Pool : Primitive_Pool) return Primitive;
 
    function Make_Function
-     (Node : L.Base_Function;
-      Env  : Environment_Access;
-      Pool : Primitive_Pool) return Primitive;
+     (Node            : L.Base_Function;
+      Env             : Environment_Access;
+      Pool            : Primitive_Pool;
+      With_Call_Cache : Boolean := False) return Primitive;
 
    function Make_Selector
-     (Node : L.Selector_Decl;
-      Env  : Environment_Access;
-      Pool : Primitive_Pool) return Primitive;
+     (Node            : L.Selector_Decl;
+      Env             : Environment_Access;
+      Pool            : Primitive_Pool;
+      With_Call_Cache : Boolean := False) return Primitive;
 
    function Make_Property_Reference
      (Node_Val     : Primitive;
@@ -552,6 +607,9 @@ package LKQL.Primitives is
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type;
    --  Return a unicode String representation of `Val`
 
+   function To_String (Val : Primitive) return String;
+   --  Return a string representation of ``Val``
+
    function To_String (Val : Valid_Primitive_Kind) return String;
    --  Return a String representation of `Val`
 
@@ -569,12 +627,6 @@ package LKQL.Primitives is
 
    function Equals
      (Left, Right : Primitive) return Primitive;
-   --  Perform a deep equality check between 'Left' and 'Right'.
-   --  An Unsupported exception will be raised if Left and Right have different
-   --  kinds.
-
-   function Deep_Equals
-     (Left, Right : Primitive) return Boolean;
    --  Perform a deep equality check between 'Left' and 'Right'.
    --  An Unsupported exception will be raised if Left and Right have different
    --  kinds.
