@@ -34,33 +34,36 @@ selector static_calls
               a.p_referenced_decl() is TaskTypeDecl].to_list
     | *      => ()
 
+@memoized
+fun my_units() = 
+    if skip_dispatching_calls then [] else units().to_list
+
+# Given a `name`, return all the bodies of the decl referenced by `name`,
+# taking dispatching calls into account.
+fun bodies(name) =
+    if name is Expr(p_is_dispatching_call() is true) then {
+        val root  = name.p_referenced_decl().p_canonical_part();
+        val roots = root.p_root_subp_declarations();
+        val subp  = if roots.length == 0 then root else roots[1];
+        [stdlib.get_subp_body(subp)] &
+        [s.p_body_part() for s in subp.p_find_all_overrides(my_units())].to_list
+    } else [stdlib.get_subp_body(name.p_referenced_decl())]
+
+fun calls_helper(b) = 
+      concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
+              if a is BaseId
+              when a.p_is_direct_call() or
+                   a.p_referenced_decl() is TaskTypeDecl].to_list)
+
+@memoized
+selector calls
+   | b@Body => rec * calls_helper(b)
+       # Grab the bodies for every direct call
+   | *      => ()
+
 @check(message="recursive subprogram",
        follow_generic_instantiations=true)
-fun recursive_subprograms(node, skip_dispatching_calls=false) = {
-    val units = if skip_dispatching_calls then [] else units().to_list;
-
-    # Given a `name`, return all the bodies of the decl referenced by `name`,
-    # taking dispatching calls into account.
-    fun bodies(name) =
-        if name is Expr(p_is_dispatching_call() is true) then {
-            val root  = name.p_referenced_decl().p_canonical_part();
-            val roots = root.p_root_subp_declarations();
-            val subp  = if roots.length == 0 then root else roots[1];
-            [stdlib.get_subp_body(subp)] &
-            [s.p_body_part() for s in subp.p_find_all_overrides(units)].to_list
-        } else [stdlib.get_subp_body(name.p_referenced_decl())];
-
-    # Get the bodies of the functions called statically or via dispatching by a
-    # given function body
-    selector calls
-    | b@Body => rec *
-        # Grab the bodies for every direct call
-        concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
-                if a is BaseId
-                when a.p_is_direct_call() or
-                     a.p_referenced_decl() is TaskTypeDecl].to_list)
-    | *      => ();
-
+fun recursive_subprograms(node, skip_dispatching_calls=false) =
     node is (ClassicSubpDecl or
              BaseSubpBody(p_previous_part() is null or GenericSubpDecl))
     when (not stdlib.in_generic_template(node))
@@ -69,4 +72,3 @@ fun recursive_subprograms(node, skip_dispatching_calls=false) = {
          then b is body@BaseSubpBody(any static_calls is c@BaseSubpBody
                                      when body == c)
          else b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)
-}
