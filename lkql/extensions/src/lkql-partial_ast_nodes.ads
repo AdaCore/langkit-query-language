@@ -129,6 +129,7 @@ package LKQL.Partial_AST_Nodes is
         (Self : AST_Unit_Holder) return AST_Unit_Access;
       function Create_Unit_Ref
         (Value : LKQL.AST_Nodes.AST_Unit'Class) return AST_Unit_Holder;
+      function Hash (Self : AST_Unit_Holder) return Hash_Type;
 
    private
 

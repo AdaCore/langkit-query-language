@@ -198,6 +198,8 @@ package LKQL.AST_Nodes is
      (Self : AST_Unit) return AST_Token'Class is abstract;
    --  Return the last token for this unit.
 
+   function Hash (Self : AST_Unit) return Ada.Containers.Hash_Type is abstract;
+
    function Unit (Node : AST_Node) return AST_Unit'Class is abstract;
    --  Given a node, return the unit it belongs to
 

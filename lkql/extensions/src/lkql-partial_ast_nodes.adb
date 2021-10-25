@@ -69,6 +69,15 @@ package body LKQL.Partial_AST_Nodes is
          return LKQL.AST_Nodes.Hash (Self.Unchecked_Get.all);
       end Hash;
 
+      ----------
+      -- Hash --
+      ----------
+
+      function Hash (Self : AST_Unit_Holder) return Hash_Type is
+      begin
+         return LKQL.AST_Nodes.Hash (Self.Unchecked_Get.all);
+      end Hash;
+
       package Ref_Impl is new Unbounded_Holders.Holders_Impl
         (AST_Node_Member_Reference'Class,
          AST_Node_Member_Ref_Access,

@@ -135,6 +135,22 @@ declared:
 .. attention:: Due to an implementation problem, closures leak memory for the
     moment. Be careful about that when using them.
 
+
+.. note:: Functions can be memoized via the @memoized annotation. In a language
+   such as lkql that is purely functional, this will give a way for users to
+   express/optimize computationally expensive things. Here is a simple example:
+
+   .. code-block:: lkql
+
+        @memoized
+        fun fib(a) =
+            if a == 0 then 0
+            else (if a == 1 then 1
+                  else fib(a -1) + fib (a - 2))
+
+        val fib_30 = fib(30)
+        print(fib_30)
+
 Value declaration
 ^^^^^^^^^^^^^^^^^
 

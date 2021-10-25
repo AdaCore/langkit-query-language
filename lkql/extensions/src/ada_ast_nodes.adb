@@ -149,7 +149,8 @@ package body Ada_AST_Nodes is
                (As_Big_Integer (Value))), Ctx.Pool);
          when Node_Value =>
             return To_Primitive
-              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))));
+              (Create_Node (Ada_AST_Node'(Node => As_Node (Value))),
+               Ctx.Pool);
          when String_Value =>
             return To_Primitive
               (To_Unbounded_Text (As_String (Value)), Ctx.Pool);
@@ -671,6 +672,13 @@ package body Ada_AST_Nodes is
    begin
       return Ada_AST_Token'(Unit => Self.Unit, Token => Self.Unit.Last_Token);
    end Token_End;
+
+   ----------
+   -- Hash --
+   ----------
+
+   overriding function Hash (Self : Ada_AST_Unit) return Hash_Type is
+     (Hash (Self.Unit));
 
    -----------------
    -- adalanginit --
