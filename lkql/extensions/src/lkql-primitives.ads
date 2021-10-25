@@ -247,6 +247,24 @@ package LKQL.Primitives is
 
    end Callable_Caches;
 
+   type Cached_Sel_Node is record
+      Node : H.AST_Node_Holder;
+      Mode : L.Selector_Expr_Mode;
+   end record;
+
+   package Nodes_Vectors
+   is new Ada.Containers.Vectors (Positive, Cached_Sel_Node);
+
+   type Node_Vector is access all Nodes_Vectors.Vector;
+
+   package Node_To_Nodes is new Ada.Containers.Hashed_Maps
+    (H.AST_Node_Holder,
+     Node_Vector,
+     Hash            => H.Hash,
+     Equivalent_Keys => H."=");
+
+   type Sel_Cache_Type is access all Node_To_Nodes.Map;
+
    type Primitive_Data (Kind : Valid_Primitive_Kind) is record
       Pool : Primitive_Pool;
       case Kind is
@@ -284,10 +302,11 @@ package LKQL.Primitives is
             Frame             : Environment_Access;
             case Kind is
                when Kind_Function =>
-                  Fun_Node : L.Base_Function;
-                  Call_Cache        : Callable_Caches.Cache;
+                  Fun_Node    : L.Base_Function;
+                  Call_Cache  : Callable_Caches.Cache;
                when Kind_Selector =>
-                  Sel_Node : L.Selector_Decl;
+                  Sel_Node    : L.Selector_Decl;
+                  Sel_Cache   : Sel_Cache_Type;
                when others => null;
             end case;
       end case;
