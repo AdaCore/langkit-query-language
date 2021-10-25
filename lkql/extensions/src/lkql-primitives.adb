@@ -827,13 +827,15 @@ package body LKQL.Primitives is
       Pool            : Primitive_Pool;
       With_Call_Cache : Boolean := False) return Primitive
    is
-      pragma Unreferenced (With_Call_Cache);
    begin
       return Create_Primitive
-        ((Kind     => Kind_Selector,
-          Sel_Node => Node,
-          Frame    => Env,
-          Pool     => Pool));
+        ((Kind      => Kind_Selector,
+          Sel_Node  => Node,
+          Frame     => Env,
+          Pool      => Pool,
+          Sel_Cache => (if With_Call_Cache
+                         then new Node_To_Nodes.Map
+                         else null)));
    end Make_Selector;
 
    ------------

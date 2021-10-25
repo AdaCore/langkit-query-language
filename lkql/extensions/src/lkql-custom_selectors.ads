@@ -34,8 +34,9 @@ private package LKQL.Custom_Selectors is
    type Custom_Selector_Iter is new Depth_Node_Iter with private;
    --  Iterator that yields the nodes produced by a custom selector
 
-   function Next (Iter   : in out Custom_Selector_Iter;
-                  Result : out Depth_Node) return Boolean;
+   function Next
+     (Iter   : in out Custom_Selector_Iter;
+      Result : out Depth_Node) return Boolean;
 
    function Clone (Iter : Custom_Selector_Iter) return Custom_Selector_Iter;
 
@@ -64,21 +65,28 @@ private
    type Custom_Selector_Iter is new Depth_Node_Iter with record
       Ctx             : Eval_Context;
       --  Copy of the evaluation context
-      Selector        : L.Selector_Decl;
+
+      Selector        : Primitive;
       --  LKQL definition of the custom selector
+
       Min_Depth       : Integer;
       --  Minimum depth of the nodes. If Min_Depth < 0, the minimum depth will
       --  be ignored.
+
       Max_Depth       : Integer;
       --  Maximum depth of the nodes. If Max_Depth < 0, the maximum depth will
       --  be ignored.
+
       Next_Values     : Depth_Node_Lists.List;
       --  Nodes that will be yielded
+
       Next_To_Visit   : Depth_Node_Lists.List;
       --  Nodes that will be used as an evaluation root for the selector in
       --  order to find new nodes to yield.
+
       Already_Yielded : Node_Sets.Set;
       --  Nodes that have already been yielded
+
       Already_Visited : Node_Sets.Set;
       --  Nodes that have already been visited
    end record;
@@ -95,27 +103,5 @@ private
    --  root for the selector's evaluation.
    --  The 'Next_Values' and 'Next_To_Visit' lists will be updated with the
    --  values produced by the selector.
-
-   procedure Add_Selector_Expr (Iter      : in out Custom_Selector_Iter;
-                                Local_Ctx : Eval_Context;
-                                Depth     : Natural;
-                                Expr      : L.Selector_Expr);
-   --  Add the result of 'Expr's evaluation to the values produced by the
-   --  selector.
-
-   procedure Add_Node (Iter          : in out Custom_Selector_Iter;
-                       Current_Depth : Natural;
-                       Node          : H.AST_Node_Holder;
-                       Mode          : L.Selector_Expr_Mode);
-   --  Add the given node to the values produced by the selector.
-   --  The value will be added to 'Next_Values' or 'Next_To_Visit' (or both)
-   --  depending on the given mode.
-
-   procedure Add_If_Unseen
-     (Node        : Depth_Node;
-      Cache       : in out Node_Sets.Set;
-      Target_List : out Depth_Node_Lists.List);
-   --  Add 'Node' to the target list if it's node value is not already in the
-   --  cache, and cache it.
 
 end LKQL.Custom_Selectors;
