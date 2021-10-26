@@ -425,10 +425,10 @@ package body Checker_App is
                         Loc : Source_Location_Range;
 
                         Message : constant Unbounded_Text_Type :=
-                          Extract_Value
-                            (El, "message", Rule.Eval_Ctx, Kind_Str,
-                             Location => Rule.LKQL_Root)
-                          .Str_Val;
+                          To_Unbounded_Text
+                            (Extract_Value
+                               (El, "message", Rule.Eval_Ctx, Kind_Str,
+                                Location => Rule.LKQL_Root).Str_Val.all);
 
                         Diag     : Diagnostic;
                         Loc_Unit : Analysis_Unit;

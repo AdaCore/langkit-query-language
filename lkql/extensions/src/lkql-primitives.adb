@@ -83,9 +83,9 @@ package body LKQL.Primitives is
    --  'Member_Name'.
 
    function Str_Data
-     (Value : Unbounded_Text_Type;
+     (Value       : Text_Type;
       Member_Name : Text_Type;
-      Pool : Primitive_Pool) return Primitive;
+      Pool        : Primitive_Pool) return Primitive;
    --  Return the value of the property named 'Member_Name' of the given
    --  Str value.
    --  Raise an Unsupported_Error if there is no property named
@@ -288,6 +288,8 @@ package body LKQL.Primitives is
          when Kind_Function | Kind_Selector =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
+         when Kind_Str =>
+            Free (Data.Str_Val);
          when Kind_Namespace =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Namespace));
@@ -386,8 +388,8 @@ package body LKQL.Primitives is
    -- Str_Val --
    -------------
 
-   function Str_Val (Value : Primitive) return Unbounded_Text_Type is
-      (Value.Str_Val);
+   function Str_Val (Value : Primitive) return Text_Type is
+      (Value.Str_Val.all);
 
    --------------
    -- Bool_Val --
@@ -483,13 +485,13 @@ package body LKQL.Primitives is
    ------------------
 
    function Str_Data
-     (Value       : Unbounded_Text_Type;
+     (Value       : Text_Type;
       Member_Name : Text_Type;
       Pool        : Primitive_Pool) return Primitive
    is
    begin
       if Member_Name = "length" then
-         return To_Primitive (Length (Value), Pool);
+         return To_Primitive (Value'Length, Pool);
       else
          raise Unsupported_Error with
            "No property named " & To_UTF8 (Member_Name) &
@@ -594,21 +596,12 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive
-     (Val : Unbounded_Text_Type; Pool : Primitive_Pool) return Primitive
+     (Val : Text_Type; Pool : Primitive_Pool) return Primitive
    is
    begin
       return Create_Primitive
-        ((Kind => Kind_Str, Str_Val => Val, Pool => Pool));
+        ((Kind => Kind_Str, Str_Val => new Text_Type'(Val), Pool => Pool));
    end To_Primitive;
-
-   ------------------
-   -- To_Primitive --
-   ------------------
-
-   function To_Primitive
-     (Val : Text_Type; Pool : Primitive_Pool) return Primitive
-   is
-     (To_Primitive (To_Unbounded_Text (Val), Pool));
 
    ------------------
    -- To_Primitive --
@@ -990,7 +983,7 @@ package body LKQL.Primitives is
                --  to convert it back & forth from string. We should add
                --  an overload in langkit that returns a Text_Type.
                To_Unbounded_Text
-                (To_Text (Image (To_Text (Str_Val (Val)),
+                (To_Text (Image (Str_Val (Val),
                  With_Quotes => True))),
                when Kind_Bool          =>
                  Bool_Image (Bool_Val (Val)),
@@ -1089,7 +1082,7 @@ package body LKQL.Primitives is
       case Value.Kind is
          when Kind_Str =>
             Ada.Wide_Wide_Text_IO.Put
-              (To_Text (Str_Val (Value)));
+              (Str_Val (Value));
             if New_Line then
                Ada.Wide_Wide_Text_IO.New_Line;
             end if;
@@ -1142,6 +1135,8 @@ package body LKQL.Primitives is
             return Deep_Equals (List_Val (Left), List_Val (Right));
          when Kind_Node =>
             return H."=" (Left.Node_Val, Right.Node_Val);
+         when Kind_Str =>
+            return Left.Str_Val.all = Right.Str_Val.all;
          when others =>
             --  HACK: To discard the pool parameter and not have to rewrite the
             --  structural equality for the rest of the components, we create a
@@ -1447,7 +1442,7 @@ package body LKQL.Primitives is
          when Kind_Int =>
             return Ada.Strings.Hash (Image (Self.Int_Val));
          when Kind_Str =>
-            return Hash (Self.Str_Val);
+            return Hash (Self.Str_Val.all);
          when Kind_Bool =>
             return Hash_Type (Boolean'Pos (Self.Bool_Val));
          when Kind_Node =>

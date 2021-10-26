@@ -236,7 +236,7 @@ package body LKQL.Patterns.Match is
          when Kind_Str =>
             if GNAT.Regpat.Match
                  (Pat_Ext.Content.Compiled_Pattern.all,
-                  To_UTF8 (To_Text (Str_Val (Value))))
+                  To_UTF8 (Str_Val (Value)))
             then
                return Make_Match_Success (Value);
             end if;
