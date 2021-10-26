@@ -252,8 +252,10 @@ package LKQL.Primitives is
       Mode : L.Selector_Expr_Mode;
    end record;
 
+   pragma Warnings (Off, "padded");
    package Nodes_Vectors
    is new Ada.Containers.Vectors (Positive, Cached_Sel_Node);
+   pragma Warnings (On, "padded");
 
    type Node_Vector is access all Nodes_Vectors.Vector;
 
@@ -265,6 +267,10 @@ package LKQL.Primitives is
 
    type Sel_Cache_Type is access all Node_To_Nodes.Map;
 
+   type Text_Type_Access is access all Text_Type;
+   procedure Free
+   is new Ada.Unchecked_Deallocation (Text_Type, Text_Type_Access);
+
    type Primitive_Data (Kind : Valid_Primitive_Kind) is record
       Pool : Primitive_Pool;
       case Kind is
@@ -273,7 +279,7 @@ package LKQL.Primitives is
          when Kind_Int =>
             Int_Val           : Adaptive_Integer;
          when Kind_Str =>
-            Str_Val           : Unbounded_Text_Type;
+            Str_Val           : Text_Type_Access;
          when Kind_Bool =>
             Bool_Val          : Boolean;
          when Kind_Node =>
@@ -447,7 +453,7 @@ package LKQL.Primitives is
    function Int_Val (Value : Primitive) return Adaptive_Integer;
    --  Return the value of an Int primitive
 
-   function Str_Val (Value : Primitive) return Unbounded_Text_Type;
+   function Str_Val (Value : Primitive) return Text_Type;
    --  Return the value of a Str primitive
 
    function Bool_Val (Value : Primitive) return Boolean;
@@ -502,10 +508,6 @@ package LKQL.Primitives is
    function To_Primitive
      (Val : Adaptive_Integer; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the Adaptive_Integer value
-
-   function To_Primitive
-     (Val : Unbounded_Text_Type; Pool : Primitive_Pool) return Primitive;
-   --  Create a Primitive value from the String value
 
    function To_Primitive
      (Val : Text_Type; Pool : Primitive_Pool) return Primitive;

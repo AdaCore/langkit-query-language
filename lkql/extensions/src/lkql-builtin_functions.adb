@@ -23,7 +23,7 @@
 
 with Ada.Directories;
 with Ada.Finalization;
-with Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Wide_Wide_Fixed;
 with Ada.Unchecked_Deallocation;
 with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
@@ -42,8 +42,6 @@ with LKQL.String_Utils; use LKQL.String_Utils;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body LKQL.Builtin_Functions is
-
-   package W renames Ada.Strings.Wide_Wide_Unbounded;
 
    function Get_Doc (Ctx : Eval_Context; Obj : Primitive) return Text_Type;
 
@@ -259,7 +257,7 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
    begin
-      return To_Primitive (To_Unbounded_Text (Args (1)), Ctx.Pool);
+      return To_Primitive (To_Text (To_Unbounded_Text (Args (1))), Ctx.Pool);
    end Eval_Image;
 
    -------------------------
@@ -299,13 +297,13 @@ package body LKQL.Builtin_Functions is
    is
       pragma Unreferenced (Ctx);
 
-      Str    : constant Unbounded_Text_Type := Str_Val (Args (1));
-      Prefix : constant Unbounded_Text_Type := Str_Val (Args (2));
-      Len    : constant Natural := W.Length (Prefix);
+      Str    : constant Text_Type := Str_Val (Args (1));
+      Prefix : constant Text_Type := Str_Val (Args (2));
+      Len    : constant Natural := Prefix'Length;
    begin
       return To_Primitive
-         (W.Length (Str) >= Len
-          and then W.Unbounded_Slice (Str, 1, Len) = Prefix);
+         (Str'Length >= Len
+          and then Str (Str'First .. Str'First + Len - 1) = Prefix);
    end Eval_Starts_With;
 
    ---------------
@@ -317,16 +315,15 @@ package body LKQL.Builtin_Functions is
    is
       pragma Unreferenced (Ctx);
 
-      Str    : constant Unbounded_Text_Type := Str_Val (Args (1));
-      Suffix : constant Unbounded_Text_Type := Str_Val (Args (2));
+      Str    : constant Text_Type := Str_Val (Args (1));
+      Suffix : constant Text_Type := Str_Val (Args (2));
 
-      Str_Len    : constant Natural := W.Length (Str);
-      Suffix_Len : constant Natural := W.Length (Suffix);
+      Str_Len    : constant Natural := Str'Length;
+      Suffix_Len : constant Natural := Suffix'Length;
    begin
       return To_Primitive
          (Str_Len >= Suffix_Len
-          and then W.Unbounded_Slice
-            (Str, Str_Len - Suffix_Len + 1, Str_Len) = Suffix);
+          and then Str (Str'Last - Suffix_Len + 1 .. Str'Last) = Suffix);
    end Eval_Ends_With;
 
    ------------------------
@@ -339,7 +336,7 @@ package body LKQL.Builtin_Functions is
       pragma Unreferenced (Ctx);
       use Ada.Wide_Wide_Characters.Handling;
 
-      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+      Str : constant Text_Type := Str_Val (Args (1));
    begin
       for C of Str loop
          if Is_Upper (C) then
@@ -359,7 +356,7 @@ package body LKQL.Builtin_Functions is
       pragma Unreferenced (Ctx);
       use Ada.Wide_Wide_Characters.Handling;
 
-      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+      Str : constant Text_Type := Str_Val (Args (1));
    begin
       for C of Str loop
          if Is_Lower (C) then
@@ -379,7 +376,7 @@ package body LKQL.Builtin_Functions is
       pragma Unreferenced (Ctx);
       use Ada.Wide_Wide_Characters.Handling;
 
-      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+      Str : constant Text_Type := Str_Val (Args (1));
 
       Must_Be_Upper_Case : Boolean := True;
    begin
@@ -423,10 +420,9 @@ package body LKQL.Builtin_Functions is
    function Eval_To_Lower_Case
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      use Ada.Strings.Wide_Wide_Unbounded;
       use Ada.Wide_Wide_Characters.Handling;
 
-      Str : constant Text_Type := To_Text (Str_Val (Args (1)));
+      Str : constant Text_Type := Str_Val (Args (1));
    begin
       return To_Primitive (To_Lower (Str), Ctx.Pool);
    end Eval_To_Lower_Case;
@@ -439,12 +435,12 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Unbounded;
+      use Ada.Strings.Wide_Wide_Fixed;
 
-      Str     : constant Unbounded_Text_Type := Str_Val (Args (1));
-      Sub_Str : constant Unbounded_Text_Type := Str_Val (Args (2));
+      Str     : constant Text_Type := Str_Val (Args (1));
+      Sub_Str : constant Text_Type := Str_Val (Args (2));
    begin
-      return To_Primitive (Index (Str, To_Text (Sub_Str)) > 0);
+      return To_Primitive (Index (Str, Sub_Str) > 0);
    end Eval_Contains;
 
    ----------------
@@ -454,10 +450,8 @@ package body LKQL.Builtin_Functions is
    function Eval_Split
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      use Ada.Strings.Wide_Wide_Unbounded;
-
-      Str       : constant Text_Type := To_Text (Str_Val (Args (1)));
-      Separator : constant Text_Type := To_Text (Str_Val (Args (2)));
+      Str       : constant Text_Type := Str_Val (Args (1));
+      Separator : constant Text_Type := Str_Val (Args (2));
       Ret       : constant Primitive := Make_Empty_List (Ctx.Pool);
 
       function To_Set (Element : Wide_Wide_String) return Wide_Wide_Character
@@ -489,13 +483,11 @@ package body LKQL.Builtin_Functions is
    function Eval_Substring
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      use Ada.Strings.Wide_Wide_Unbounded;
-
-      Str  : constant Unbounded_Text_Type := Str_Val (Args (1));
-      From : constant Integer := +Int_Val (Args (2));
-      To   : constant Integer := +Int_Val (Args (3));
+      Str  : constant Text_Type := Str_Val (Args (1));
+      From : constant Integer := Str'First + (+Int_Val (Args (2))) - 1;
+      To   : constant Integer := Str'First + (+Int_Val (Args (3))) - 1;
    begin
-      return To_Primitive (Slice (Str, From, To), Ctx.Pool);
+      return To_Primitive (Text_Type'(Str (From .. To)), Ctx.Pool);
    end Eval_Substring;
 
    --------------------
@@ -505,10 +497,10 @@ package body LKQL.Builtin_Functions is
    function Eval_Base_Name
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      Str  : constant Unbounded_Text_Type := Str_Val (Args (1));
+      Str  : constant Text_Type := Str_Val (Args (1));
    begin
       return To_Primitive
-        (To_Text (Ada.Directories.Simple_Name (Image (To_Text (Str)))),
+        (To_Text (Ada.Directories.Simple_Name (Image (Str))),
          Ctx.Pool);
    exception
       when Ada.Directories.Name_Error =>
@@ -532,7 +524,7 @@ package body LKQL.Builtin_Functions is
                return
                  (if Doc_Obj.Is_Null
                   then ""
-                  else To_Text (Str_Val (Eval (Ctx, Doc_Obj))));
+                  else Str_Val (Eval (Ctx, Doc_Obj)));
             end;
          when Kind_Selector =>
             declare
@@ -540,7 +532,7 @@ package body LKQL.Builtin_Functions is
                  Obj.Sel_Node.P_Doc;
             begin
                if not Doc.Is_Null then
-                  return To_Text (Str_Val (Eval (Ctx, Doc)));
+                  return Str_Val (Eval (Ctx, Doc));
                end if;
                return "";
             end;
@@ -554,7 +546,7 @@ package body LKQL.Builtin_Functions is
                  Obj.Module.Child (1);
             begin
                if First_Child.Kind in LCO.LKQL_Base_String_Literal then
-                  return To_Text (Str_Val (Eval (Ctx, First_Child)));
+                  return Str_Val (Eval (Ctx, First_Child));
                end if;
                return "";
             end;
@@ -670,10 +662,11 @@ package body LKQL.Builtin_Functions is
               (Builtin_Methods_Maps.Key (Method).Name,
                Sub_Obj);
             Sub_Obj.Obj_Assocs.Elements.Include
-              (Ctx.Symbol ("doc"), To_Primitive (Builtin_Func.Doc, Ctx.Pool));
+              (Ctx.Symbol ("doc"),
+               To_Primitive (To_Text (Builtin_Func.Doc), Ctx.Pool));
             Sub_Obj.Obj_Assocs.Elements.Include
               (Ctx.Symbol ("name"),
-               To_Primitive (Builtin_Func.Name, Ctx.Pool));
+               To_Primitive (To_Text (Builtin_Func.Name), Ctx.Pool));
 
             declare
                Params : constant Primitive := Make_Empty_List (Ctx.Pool);
@@ -684,7 +677,7 @@ package body LKQL.Builtin_Functions is
                        Make_Empty_Tuple (Ctx.Pool);
                   begin
                      Param_Info.List_Val.Elements.Append
-                       (To_Primitive (Param.Name, Ctx.Pool));
+                       (To_Primitive (To_Text (Param.Name), Ctx.Pool));
                      Param_Info.List_Val.Elements.Append
                        (To_Primitive
                          (Param.Expected_Kind'Wide_Wide_Image, Ctx.Pool));

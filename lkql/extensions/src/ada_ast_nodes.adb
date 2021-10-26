@@ -60,7 +60,7 @@ package body Ada_AST_Nodes is
       Array_Kind   : Value_Kind) return I.Value_Type;
 
    function String_To_Value_Type
-     (Value       : Unbounded_Text_Type;
+     (Value       : Text_Type;
       Target_Kind : Value_Kind) return I.Value_Type;
 
    function Get_Kind_From_Name (Kind_Name : Text_Type) return Ada_AST_Node_Kind
@@ -153,9 +153,10 @@ package body Ada_AST_Nodes is
                Ctx.Pool);
          when String_Value =>
             return To_Primitive
-              (To_Unbounded_Text (As_String (Value)), Ctx.Pool);
+              (As_String (Value), Ctx.Pool);
          when Unbounded_Text_Value =>
-            return To_Primitive (As_Unbounded_Text (Value), Ctx.Pool);
+            return To_Primitive
+              (To_Text (As_Unbounded_Text (Value)), Ctx.Pool);
          when Array_Value_Kind =>
             declare
                Res : constant Primitive := Make_Empty_List (Ctx.Pool);
@@ -196,9 +197,8 @@ package body Ada_AST_Nodes is
 
          when Enum_Value_Kind =>
             return To_Primitive
-              (To_Unbounded_Text
-                (Enum_Value_Name
-                  (Kind => Kind (Value), Index => Enum_Index (Value))),
+              (Enum_Value_Name (Kind => Kind (Value),
+                                Index => Enum_Index (Value)),
                Ctx.Pool);
 
          when Token_Value =>
@@ -238,10 +238,10 @@ package body Ada_AST_Nodes is
                return I.Create_Enum
                  (Target_Kind,
                   I.Lookup_Enum_Value
-                    (Target_Kind, To_Text (Value.Str_Val)));
+                    (Target_Kind, Value.Str_Val.all));
             else
                return String_To_Value_Type
-                 (Value.Str_Val, Target_Kind);
+                 (Value.Str_Val.all, Target_Kind);
             end if;
 
          when Kind_Int =>
@@ -304,17 +304,17 @@ package body Ada_AST_Nodes is
    -- String_To_Value_Type --
    --------------------------
 
-   function String_To_Value_Type (Value       : Unbounded_Text_Type;
-                                  Target_Kind : Value_Kind)
-                                  return I.Value_Type
+   function String_To_Value_Type
+     (Value       : Text_Type;
+      Target_Kind : Value_Kind) return I.Value_Type
    is
    begin
       if Target_Kind = Unbounded_Text_Value then
-         return Create_Unbounded_Text (Value);
+         return Create_Unbounded_Text (To_Unbounded_Text (Value));
       elsif Target_Kind = String_Value then
-         return Create_String (To_Text (Value));
-      elsif Target_Kind = Character_Value and then Length (Value) = 1 then
-         return Create_Character (Element (Value, 1));
+         return Create_String (Value);
+      elsif Target_Kind = Character_Value and then Value'Length = 1 then
+         return Create_Character (Value (Value'First));
       end if;
 
       raise Introspection_Error with "Cannot create a value of kind" &
