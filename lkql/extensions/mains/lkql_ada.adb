@@ -86,7 +86,8 @@ procedure LKQL_Ada is
    -- Job_Setup --
    ---------------
 
-   procedure Job_Setup (Context : App_Job_Context) is
+   procedure Job_Setup (Context : App_Job_Context)
+   is
    begin
       null;
    end Job_Setup;
@@ -122,7 +123,8 @@ procedure LKQL_Ada is
    -- App_Post_Process --
    ----------------------
 
-   procedure Job_Post_Process (Context : App_Job_Context) is
+   procedure Job_Post_Process
+     (Context : App_Job_Context) is
    begin
       Interpreter_Context := Make_Eval_Context (Context.Units_Processed);
       LKQL_Unit := Make_LKQL_Unit
