@@ -149,7 +149,7 @@ package LKQL.Partial_AST_Nodes is
 
       package AST_Node_Holders is new Unbounded_Holders.Base_Holders (104);
       package AST_Unit_Holders is new Unbounded_Holders.Base_Holders (40);
-      package AST_Token_Holders is new Unbounded_Holders.Base_Holders (56);
+      package AST_Token_Holders is new Unbounded_Holders.Base_Holders (80);
       package AST_Node_Member_Ref_Holders
       is new Unbounded_Holders.Base_Holders (16);
 
