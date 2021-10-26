@@ -65,6 +65,11 @@ package Checker_App is
    --  Context giving access to all the "global" data structures for an LKQL
    --  analysis.
 
+   type LKQL_Context_Access is access all LKQL_Context;
+   --  Access to an LKQL context
+
+   procedure App_Setup
+     (Context : App_Context; Jobs : App_Job_Context_Array);
    procedure Job_Setup (Context : App_Job_Context);
 
    type Message_Kinds is (Rule_Violation, Internal_Error);
@@ -85,17 +90,17 @@ package Checker_App is
      (Context : App_Job_Context; Unit : Analysis_Unit);
    --  Process one analysis unit in a given context
 
-   procedure App_Post_Process
-     (Context : App_Context; Jobs : App_Job_Context_Array);
-   --  Procedure called to deallocate rules after the app has finished running.
+   procedure Job_Post_Process
+     (Context : App_Job_Context);
 
    package App is new Libadalang.Helpers.App
      (Name               => "lkql-checker",
       Description        => "LKQL based rule checker",
       Process_Unit       => Process_Unit,
+      App_Setup          => App_Setup,
       Job_Setup          => Job_Setup,
       Enable_Parallelism => True,
-      App_Post_Process   => App_Post_Process);
+      Job_Post_Process   => Job_Post_Process);
 
    package Args is
       use GNATCOLL.Opt_Parse;

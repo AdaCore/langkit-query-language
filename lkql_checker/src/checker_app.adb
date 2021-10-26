@@ -53,6 +53,20 @@ with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body Checker_App is
 
+   type LKQL_Context_Array is array (Job_ID range <>) of LKQL_Context_Access;
+   --  Array of LKQL_Contexts
+
+   type LKQL_Context_Array_Access is access all LKQL_Context_Array;
+   --  Access to array of contexts
+
+   LKQL_Contexts : LKQL_Context_Array_Access := null;
+   --  Global reference to an array of LKQL contexts. Each Job will get one
+   --  context.
+
+   function Get_Context (ID : Job_ID) return LKQL_Context_Access
+   is (LKQL_Contexts (ID));
+   --  Helper to get the context corresponding to a job ID
+
    ------------------
    -- Process_Unit --
    ------------------
@@ -477,11 +491,7 @@ package body Checker_App is
       end loop;
    end Process_Unit;
 
-   Ctx : LKQL_Context;
-
    procedure Process_Unit (Context : App_Job_Context; Unit : Analysis_Unit) is
-      pragma Unreferenced (Context);
-
       procedure No_Message
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
@@ -523,7 +533,7 @@ package body Checker_App is
 
    begin
       Process_Unit
-        (Ctx, Unit,
+        (Get_Context (Context.ID).all, Unit,
          (if Args.Output_Style.Get = GNATcheck
           then Emit_Message'Access
           elsif Args.Output_Style.Get = Silent
@@ -538,7 +548,7 @@ package body Checker_App is
       Equivalent_Keys => Ada.Strings.Wide_Wide_Unbounded."=",
       "="             => Rule_Argument_Vectors."=");
 
-   procedure Process_Rules;
+   procedure Process_Rules (Ctx : in out LKQL_Context);
    --  Process input rules: Put the rules that have been requested by the user
    --  in the ``Cached_Rules`` data structures.
 
@@ -546,7 +556,7 @@ package body Checker_App is
    -- Rules --
    -----------
 
-   procedure Process_Rules is
+   procedure Process_Rules (Ctx : in out LKQL_Context) is
       package LI renames Libadalang.Introspection;
       package LCO renames Libadalang.Common;
 
@@ -719,6 +729,17 @@ package body Checker_App is
       end if;
    end Process_Rules;
 
+   procedure App_Setup
+     (Context : App_Context; Jobs : App_Job_Context_Array)
+   is
+      pragma Unreferenced (Context);
+   begin
+      LKQL_Contexts := new LKQL_Context_Array (Jobs'Range);
+      for I in LKQL_Contexts'Range loop
+         LKQL_Contexts (I) := new LKQL_Context;
+      end loop;
+   end App_Setup;
+
    ---------------
    -- Job_Setup --
    ---------------
@@ -729,62 +750,62 @@ package body Checker_App is
       Files : String_Vectors.Vector;
 
    begin
-      case Context.App_Ctx.Provider.Kind is
-         when Project_File =>
-            List_Sources_From_Project
-              (Context.App_Ctx.Provider.Project.all, False, Files);
+      declare
+         Ctx : LKQL_Context_Access renames Get_Context (Context.ID);
+      begin
 
-            for F of Files loop
-               Units.Append
-                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
-            end loop;
+         case Context.App_Ctx.Provider.Kind is
+            when Project_File =>
+               List_Sources_From_Project
+                 (Context.App_Ctx.Provider.Project.all, False, Files);
 
-         when Default =>
-            for F of App.Args.Files.Get loop
-               Units.Append
-                 (Context.Analysis_Ctx.Get_From_File (To_String (F)));
-            end loop;
+               for F of Files loop
+                  Units.Append
+                    (Context.Analysis_Ctx.Get_From_File (To_String (F)));
+               end loop;
 
-         when others =>
-            --  ??? Should we worry about this case and fill Units
-            null;
-      end case;
+            when Default =>
+               for F of App.Args.Files.Get loop
+                  Units.Append
+                    (Context.Analysis_Ctx.Get_From_File (To_String (F)));
+               end loop;
 
-      Ctx.Eval_Ctx := Make_Eval_Context (Units);
-      Ctx.Analysis_Ctx := Context.Analysis_Ctx;
-      Process_Rules;
-
-      for Rule of Ctx.All_Rules loop
-         --  Eval the rule's code (which should contain only definitions). TODO
-         --  this should be encapsulated.
-         begin
-            Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
-         exception
             when others =>
-               Put ("internal error loading rule ");
-               Put (To_Wide_Wide_String (Rule.Name));
-               Put_Line (":");
-               raise;
-         end;
-      end loop;
+               --  ??? Should we worry about this case and fill Units
+               null;
+         end case;
 
-      --  Set property error recovery with the value of the command line flag.
-      LKQL.Errors.Property_Error_Recovery := Args.Property_Error_Recovery.Get;
+         Ctx.Eval_Ctx := Make_Eval_Context (Units);
+         Ctx.Analysis_Ctx := Context.Analysis_Ctx;
+         Process_Rules (Get_Context (Context.ID).all);
+
+         for Rule of Ctx.All_Rules loop
+            --  Eval the rule's code (which should contain only definitions).
+            --  TODO this should be encapsulated.
+            begin
+               Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
+            exception
+               when others =>
+                  Put ("internal error loading rule ");
+                  Put (To_Wide_Wide_String (Rule.Name));
+                  Put_Line (":");
+                  raise;
+            end;
+         end loop;
+
+         --  Set property error recovery with the value of the command line
+         --  flag.
+         LKQL.Errors.Property_Error_Recovery
+           := Args.Property_Error_Recovery.Get;
+      end;
    end Job_Setup;
 
-   ----------------------
-   -- App_Post_Process --
-   ----------------------
-
-   procedure App_Post_Process
-     (Context : App_Context;
-      Jobs    : App_Job_Context_Array)
-   is
-      pragma Unreferenced (Context, Jobs);
+   procedure Job_Post_Process (Context : App_Job_Context) is
+      Ctx : LKQL_Context renames Get_Context (Context.ID).all;
    begin
       Finalize_Rules (Ctx.Eval_Ctx);
       Free_Eval_Context (Ctx.Eval_Ctx);
-   end App_Post_Process;
+   end Job_Post_Process;
 
    package body Args is
 
