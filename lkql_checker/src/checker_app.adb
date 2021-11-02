@@ -270,9 +270,46 @@ package body Checker_App is
                   end if;
 
                   if Emit_Message /= null then
-                     Emit_Message
-                       (Rule.Message, Result_Node.Unit, Rule.Name,
-                        Rule_Violation, Result_Node.Sloc_Range);
+                     if not Rule.Follow_Instantiations then
+                        Emit_Message
+                          (Rule.Message, Result_Node.Unit, Rule.Name,
+                           Rule_Violation, Result_Node.Sloc_Range);
+                     else
+                        declare
+                           Insts : constant Generic_Instantiation_Array :=
+                             Result_Node.P_Generic_Instantiations;
+                           Msg   : Unbounded_Text_Type := Rule.Message;
+
+                        begin
+                           --  For generic instantiations, append
+                           --  [instance at file:line [file:line [...]]]
+
+                           for J in Insts'Range loop
+                              if J = Insts'First then
+                                 Append (Msg, " [instance at ");
+                              else
+                                 Append (Msg, " [");
+                              end if;
+
+                              Append (Msg,
+                                      To_Wide_Wide_String (Simple_Name
+                                        (Insts (J).Unit.Get_Filename)));
+                              Append (Msg, ":");
+                              Append (Msg,
+                                      To_Wide_Wide_String (Stripped_Image
+                                        (Integer (Insts (J).As_Ada_Node.
+                                                  Sloc_Range.Start_Line))));
+                           end loop;
+
+                           for J in Insts'Range loop
+                              Append (Msg, "]");
+                           end loop;
+
+                           Emit_Message
+                             (Msg, Result_Node.Unit, Rule.Name,
+                              Rule_Violation, Result_Node.Sloc_Range);
+                        end;
+                     end if;
                   else
                      declare
                         Diag : constant Eval_Diagnostic := Eval_Diagnostic'
