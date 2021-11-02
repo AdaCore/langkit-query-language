@@ -225,7 +225,7 @@ package body LKQL.Evaluation is
             Result := Eval_In (Local_Context, Node.As_In_Clause);
          when LCO.LKQL_Query =>
             Result := Eval_Query (Local_Context, Node.As_Query);
-         when LCO.LKQL_Indexing =>
+         when LCO.LKQL_Indexing | LCO.LKQL_Safe_Indexing =>
             Result := Eval_Indexing (Local_Context, Node.As_Indexing);
          when LCO.LKQL_List_Comprehension =>
             Result := Eval_List_Comprehension
@@ -738,27 +738,42 @@ package body LKQL.Evaluation is
      (Ctx : Eval_Context; Node : L.Indexing) return Primitive
    is
       List  : constant Primitive := Eval (Ctx, Node.F_Collection_Expr);
+
+      use LCO;
+      Raise_If_OOB : constant Boolean :=
+        L.Kind (Node) /= LCO.LKQL_Safe_Indexing;
    begin
-      if Kind (List) not in Kind_List | Kind_Tuple | Kind_Node then
-            Raise_Invalid_Type
-              (Ctx, Node.As_LKQL_Node, "list, tuple or node", List);
+      if Kind (List) not in Kind_List | Kind_Tuple | Kind_Node | Kind_Iterator
+      then
+         Raise_Invalid_Type
+           (Ctx, Node.As_LKQL_Node, "list, tuple, node or iterator", List);
       end if;
 
       declare
-         Index : constant Primitive :=
-           Eval (Ctx, Node.F_Index_Expr, Kind_Int);
+         Index : constant Integer :=
+           +Int_Val (Eval (Ctx, Node.F_Index_Expr, Kind_Int));
       begin
-         if Kind (List) = Kind_Node then
+         case Kind (List) is
+         when Kind_Node =>
             return To_Primitive
               (Create_Node
                  (Nth_Child
                       (List.Node_Val.Unchecked_Get.all,
-                       +Int_Val (Index))),
+                       Index)),
                Ctx.Pool);
 
-         else
-            return Get (List, +Int_Val (Index));
-         end if;
+         when Kind_Iterator =>
+            declare
+               Nb_Values_To_Consume : constant Natural := Integer'Max
+                 (Index - List.Iter_Cache.Elements.Last_Index, 0);
+            begin
+               Consume (List, Nb_Values_To_Consume);
+               return Get (List.Iter_Cache, Index, Raise_If_OOB);
+            end;
+
+         when others =>
+            return Get (List, Index, Raise_If_OOB);
+         end case;
       end;
    exception
       when E : Unsupported_Error =>
