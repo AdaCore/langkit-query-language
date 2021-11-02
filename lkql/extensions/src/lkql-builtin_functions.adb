@@ -232,8 +232,13 @@ package body LKQL.Builtin_Functions is
    function Eval_To_List
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
+      Result : constant Primitive := Make_Empty_List (Ctx.Pool);
    begin
-      return To_List (Args (1).Iter_Val.all, Ctx.Pool);
+      Consume (Args (1));
+      for El of Args (1).Iter_Cache.Elements loop
+         Append (Result, El);
+      end loop;
+      return Result;
    end Eval_To_List;
 
    ---------------
