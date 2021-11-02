@@ -309,12 +309,16 @@ package body LKQL.Primitives is
    -- Consume --
    -------------
 
-   procedure Consume (Iter : Primitive)
+   procedure Consume (Iter : Primitive; Num_Elements : Integer := -1)
    is
-      Element : Primitive;
+      Element  : Primitive;
+      Consumed : Natural := 0;
    begin
-      while Iter.Iter_Val.Iter.Next (Element) loop
+      while (Num_Elements = -1 or else Consumed < Num_Elements)
+         and then Iter.Iter_Val.Iter.Next (Element)
+      loop
          Iter.Iter_Cache.Elements.Append (Element);
+         Consumed := Consumed + 1;
       end loop;
    end Consume;
 
@@ -895,17 +899,31 @@ package body LKQL.Primitives is
    -- Get --
    ---------
 
-   function Get (List : Primitive; Index : Integer) return Primitive is
-      Vec : Primitive_Vector_Access;
+   function Get
+     (List : Primitive; Index : Integer;
+      Raise_If_OOB : Boolean := True) return Primitive
+   is
    begin
-      Vec := Elements (List);
+      return Get (List.List_Val, Index, Raise_If_OOB);
+   end Get;
 
-      if Index not in Vec.First_Index .. Vec.Last_Index then
-         raise Unsupported_Error
-           with "Invalid index: " & Integer'Image (Index);
+   function Get
+     (List : Primitive_List_Access; Index : Integer;
+      Raise_If_OOB : Boolean := True) return Primitive
+   is
+   begin
+      if Index not in List.Elements.First_Index .. List.Elements.Last_Index
+      then
+         if Raise_If_OOB then
+            raise Unsupported_Error
+              with "Invalid index: " & Integer'Image (Index);
+         else
+            return Make_Unit_Primitive;
+         end if;
+
       end if;
 
-      return Vec.Element (Positive (Index));
+      return List.Elements.Element (Positive (Index));
    end Get;
 
    ------------

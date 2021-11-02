@@ -1,0 +1,14 @@
+fun debug_id(i) = {
+    val dummy = print("In debug_id: " & img(i));
+    i
+}
+
+# When created, the iterator should be unevaluated completely
+val itt = [debug_id(i) for i in [1, 2, 3, 4, 5]]
+
+print("Evaluating itt up to index 2")
+print(itt[2])
+print("Querying element 1, already computed")
+print(itt[1])
+print("Printing iterator will consume itt entirely")
+print(itt)

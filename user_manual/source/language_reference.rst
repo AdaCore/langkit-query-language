@@ -342,6 +342,15 @@ Here are examples of indexing expressions:
         "foo"[x]
     }
 
+Indexing also has a safe variant, that will return ``unit`` instead of raising
+when an out of bound access is done:
+
+.. code-block:: lkql
+
+    val lst = [1, 2, 3]
+    print(lst[5]) # Prints ()
+
+
 Comparison expression
 ^^^^^^^^^^^^^^^^^^^^^
 

@@ -391,6 +391,13 @@ class Indexing(Expr):
     index_expr = Field(type=Expr)
 
 
+class SafeIndexing(Indexing):
+    """
+    Safe indexing. Returns null if the value doesn't exist.
+    """
+    pass
+
+
 @abstract
 class BasePattern(LKQLNode):
     """
@@ -1262,6 +1269,7 @@ lkql_grammar.add_rules(
         DotAccess(G.value_expr, ".", c(), G.id),
         SafeAccess(G.value_expr, "?.", c(), G.id),
         Indexing(G.value_expr, "[", c(), G.expr, "]"),
+        SafeIndexing(G.value_expr, "?[", c(), G.expr, "]"),
         FunCall(
             G.value_expr, Safe("?"),
             "(", c(), List(G.arg, empty_valid=True, sep=","), ")"

@@ -1,0 +1,7 @@
+val lst = [1, 2, 3, 4, 5]
+val itt = [i for i in lst]
+
+print(itt?[1])
+print(lst?[1])
+print(itt?[12])
+print(lst?[15])

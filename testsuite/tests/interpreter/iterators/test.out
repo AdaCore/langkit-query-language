@@ -1,0 +1,11 @@
+Evaluating itt up to index 2
+In debug_id: 1
+In debug_id: 2
+2
+Querying element 1, already computed
+1
+Printing iterator will consume itt entirely
+In debug_id: 3
+In debug_id: 4
+In debug_id: 5
+[1, 2, 3, 4, 5]

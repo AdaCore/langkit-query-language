@@ -421,7 +421,7 @@ package LKQL.Primitives is
    function Get_Iter (Value : Iterator_Primitive) return Primitive_Iter_Access;
    --  Return a deep copy of the wrapped iterator
 
-   procedure Consume (Iter : Primitive)
+   procedure Consume (Iter : Primitive; Num_Elements : Integer := -1)
       with Pre => Iter.Kind = Kind_Iterator;
 
    function To_Iterator
@@ -598,7 +598,15 @@ package LKQL.Primitives is
    --  Kind_List, or if the kind of `Value` doesn't match the kind of the
    --  values stored in `List`.
 
-   function Get (List : Primitive; Index : Integer) return Primitive;
+   function Get
+     (List : Primitive; Index : Integer;
+      Raise_If_OOB : Boolean := True) return Primitive;
+   --  Return the element of 'List' at 'Index'.
+   --  Raise an Unsupported_Error exception if 'Index' is out of bounds.
+
+   function Get
+     (List : Primitive_List_Access; Index : Integer;
+      Raise_If_OOB : Boolean := True) return Primitive;
    --  Return the element of 'List' at 'Index'.
    --  Raise an Unsupported_Error exception if 'Index' is out of bounds.
 
