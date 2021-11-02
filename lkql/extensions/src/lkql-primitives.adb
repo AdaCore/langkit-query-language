@@ -50,8 +50,7 @@ package body LKQL.Primitives is
    --  Return a String representation of the given Boolean value
 
    function Iterator_Image
-     (Value : Iterator_Primitive;
-      Pool : Primitive_Pool) return Unbounded_Text_Type;
+     (Value : Primitive) return Unbounded_Text_Type;
 
    function Selector_List_Image
      (Value : Selector_List) return Unbounded_Text_Type;
@@ -88,15 +87,6 @@ package body LKQL.Primitives is
       Pool        : Primitive_Pool) return Primitive;
    --  Return the value of the property named 'Member_Name' of the given
    --  Str value.
-   --  Raise an Unsupported_Error if there is no property named
-   --  'Member_Name'.
-
-   function Iterator_Data
-     (Value       : Iterator_Primitive_Access;
-      Member_Name : Text_Type;
-      Pool        : Primitive_Pool) return Primitive;
-   --  Return the value of the property named 'Member_Name' of the given
-   --  Iterator value.
    --  Raise an Unsupported_Error if there is no property named
    --  'Member_Name'.
 
@@ -236,11 +226,11 @@ package body LKQL.Primitives is
    --------------------
 
    function Iterator_Image
-     (Value : Iterator_Primitive;
-      Pool : Primitive_Pool) return Unbounded_Text_Type
+     (Value : Primitive) return Unbounded_Text_Type
    is
    begin
-      return List_Image (List_Val (To_List (Value, Pool)).all);
+      Consume (Value);
+      return List_Image (Value.Iter_Cache.all);
    end Iterator_Image;
 
    ----------------
@@ -284,7 +274,7 @@ package body LKQL.Primitives is
             Data.Iter_Val.Iter.Release;
             Primitive_Iters.Free_Iterator (Data.Iter_Val.Iter);
             Free_Iterator_Primitive (Data.Iter_Val);
-
+            Free_Primitive_List (Data.Iter_Cache);
          when Kind_Function | Kind_Selector =>
             LKQL.Eval_Contexts.Dec_Ref
               (LKQL.Eval_Contexts.Environment_Access (Data.Frame));
@@ -316,25 +306,17 @@ package body LKQL.Primitives is
    end Get_Iter;
 
    -------------
-   -- To_List --
+   -- Consume --
    -------------
 
-   function To_List
-     (Iter : Iterator_Primitive;
-      Pool : Primitive_Pool) return Primitive
+   procedure Consume (Iter : Primitive)
    is
       Element : Primitive;
-      Inner   : Primitive_Iter_Access := Get_Iter (Iter);
-      Result  : constant Primitive := Make_Empty_List (Pool);
    begin
-      while Inner.Next (Element) loop
-         Append (Result, Element);
+      while Iter.Iter_Val.Iter.Next (Element) loop
+         Iter.Iter_Cache.Elements.Append (Element);
       end loop;
-
-      Inner.Release;
-      Primitive_Iters.Free_Iterator (Inner);
-      return Result;
-   end To_List;
+   end Consume;
 
    -----------------
    -- To_Iterator --
@@ -499,22 +481,6 @@ package body LKQL.Primitives is
       end if;
    end Str_Data;
 
-   -------------------
-   -- Iterator_Data --
-   -------------------
-
-   function Iterator_Data
-     (Value       : Iterator_Primitive_Access;
-      Member_Name : Text_Type;
-      Pool        : Primitive_Pool) return Primitive
-   is
-   begin
-      return List_Data
-        (List_Val (To_List (Value.all, Pool)),
-         Member_Name,
-         Pool);
-   end Iterator_Data;
-
    --------------
    -- Property --
    --------------
@@ -534,7 +500,8 @@ package body LKQL.Primitives is
          when Kind_Str =>
             return Str_Data (Str_Val (Value), Member_Name, Pool);
          when Kind_Iterator =>
-            return Iterator_Data (Iter_Val (Value), Member_Name, Pool);
+            Consume (Value);
+            return List_Data (Value.Iter_Cache, Member_Name, Pool);
          when others =>
             raise Unsupported_Error with
               "Cannot get property on value of kind "
@@ -648,8 +615,12 @@ package body LKQL.Primitives is
 
       Iter_Primitive : constant Iterator_Primitive_Access :=
         new Iterator_Primitive'(Iter => Val_Copy);
+
+      List : constant Primitive_List_Access :=
+        new Primitive_List'(Elements => Primitive_Vectors.Empty_Vector);
    begin
-      return Create_Primitive ((Kind_Iterator, Pool, Iter_Primitive));
+      return Create_Primitive
+        ((Kind_Iterator, Pool, Iter_Primitive, Iter_Cache => List));
    end To_Primitive;
 
    ------------------
@@ -999,7 +970,7 @@ package body LKQL.Primitives is
                when Kind_Token         =>
                   To_Unbounded_Text (Val.Token_Val.Unchecked_Get.Image),
                when Kind_Iterator      =>
-                 Iterator_Image (Iter_Val (Val).all, Pool),
+                 Iterator_Image (Val),
                when Kind_List          =>
                  List_Image (Val.List_Val.all),
                when Kind_Tuple         =>

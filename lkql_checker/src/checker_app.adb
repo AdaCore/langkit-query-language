@@ -385,6 +385,8 @@ package body Checker_App is
          return Into;
       end Visit;
 
+      List : Primitive_List_Access;
+
    begin
       --  Run node checks
       Traverse (Unit.Root, Visit'Access);
@@ -406,14 +408,16 @@ package body Checker_App is
                   Result := Eval (Rule.Eval_Ctx, Rule.Code);
 
                   if Result.Kind = Kind_Iterator then
-                     Result := To_List (Result.Iter_Val.all,
-                                        Rule.Eval_Ctx.Pool);
+                     Consume (Result);
+                     List := Result.Iter_Cache;
+                  else
+                     Check_Kind
+                       (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_List, Result);
+
+                     List := Result.List_Val;
                   end if;
 
-                  Check_Kind
-                    (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_List, Result);
-
-                  for El of Result.List_Val.Elements loop
+                  for El of List.Elements loop
                      Check_Kind
                        (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_Object, El);
 

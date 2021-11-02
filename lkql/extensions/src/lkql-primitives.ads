@@ -290,6 +290,7 @@ package LKQL.Primitives is
             Analysis_Unit_Val : H.AST_Unit_Holder;
          when Kind_Iterator =>
             Iter_Val          : Iterator_Primitive_Access;
+            Iter_Cache        : Primitive_List_Access;
          when Kind_List | Kind_Tuple =>
             List_Val          : Primitive_List_Access;
          when Kind_Object =>
@@ -420,10 +421,8 @@ package LKQL.Primitives is
    function Get_Iter (Value : Iterator_Primitive) return Primitive_Iter_Access;
    --  Return a deep copy of the wrapped iterator
 
-   function To_List
-     (Iter : Iterator_Primitive;
-      Pool : Primitive_Pool) return Primitive;
-   --  Create a List Primitive from the given iterator
+   procedure Consume (Iter : Primitive)
+      with Pre => Iter.Kind = Kind_Iterator;
 
    function To_Iterator
      (Value : Primitive; Pool : Primitive_Pool) return Primitive_Iter'Class;
