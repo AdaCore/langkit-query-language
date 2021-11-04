@@ -1114,9 +1114,7 @@ package body LKQL.Primitives is
    is
    begin
       if Kind (Left) /= Kind (Right) then
-         raise Unsupported_Error
-           with "Cannot check equality between a " & Kind_Name (Left) &
-                " and a " & Kind_Name (Right);
+         return False;
       end if;
 
       case Kind (Left) is
