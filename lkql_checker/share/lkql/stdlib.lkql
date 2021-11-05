@@ -65,6 +65,7 @@ fun within_assert(node) =
                            at?.f_attribute?.p_canonical_text() == "class"
                        | *               => false))
 
+@memoized
 fun ultimate_alias(name, all_nodes=true, strip_component=false) =
     |" Return the ultimately designated `ObjectDecl`, going through renamings
     |" This will not go through generic instantiations. If all_nodes is true,
@@ -83,6 +84,7 @@ fun ultimate_alias(name, all_nodes=true, strip_component=false) =
         | *                                     => decl
     } else name
 
+@memoized
 fun ultimate_exception_alias(name) =
     |" Return the ultimately designated ``ExceptionDecl``, going through renamings
 {
@@ -93,6 +95,7 @@ fun ultimate_exception_alias(name) =
     else decl
 }
 
+@memoized
 fun ultimate_subprogram_alias(name) =
     |" Return the ultimately designated ``BasicSubpDecl``, going through renamings
     if name is SubpRenamingDecl
@@ -100,6 +103,7 @@ fun ultimate_subprogram_alias(name) =
                                    p_referenced_decl())
     else name
 
+@memoized
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
     n.parent is GenericFormalObjDecl or
@@ -110,6 +114,7 @@ fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
     o is ParamSpec or ObjectDecl when has_local_scope(o)
 
+@memoized
 fun is_in_package_scope(o) =
     |" Return ``true`` if ``o`` is immediately in the scope of a package spec,
     |" body or generic package.
@@ -136,6 +141,7 @@ fun is_program_unit(n) =
       or SubpBodyStub or ProtectedBodyStub or PackageBodyStub or TaskBodyStub
       or SingleProtectedDecl or ProtectedTypeDecl
 
+@memoized
 fun is_in_library_unit_body(o) =
     |" Return ``true`` if ``o`` is located in a library unit body
     match o?.parent
@@ -212,6 +218,7 @@ fun enclosing_block(n) =
     if blocks.length == 0 then null else blocks[1]
 }
 
+@memoized
 fun enclosing_body(n) =
     |" Return the first Body enclosing n if any, null otherwise
 {
@@ -220,6 +227,7 @@ fun enclosing_body(n) =
     if bodies.length == 0 then null else bodies[1]
 }
 
+@memoized
 fun enclosing_package(n) =
     |" Return the first BasePackageDecl enclosing n if any, null otherwise
 {
@@ -254,6 +262,7 @@ fun is_constructor(spec) =
      and [p for p in spec?.p_params()
           if is_controlling_param_type(p?.f_type_expr, spec)].length == 0
 
+@memoized
 fun get_subp_body(node) =
     |" Return the SubpBody or TaskBody corresponding to node, if any, null
     |" otherwise.

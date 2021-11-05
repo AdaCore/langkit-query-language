@@ -7,6 +7,7 @@ import stdlib
 
 # Given a name, return the body of the decl referenced by the name if it is
 # marked Inline, null otherwise
+@memoized
 fun inlined_body(name) = match name.p_referenced_decl()
     | b@BaseSubpBody when b?.p_has_aspect("Inline")
                       => b
@@ -20,6 +21,7 @@ fun inlined_body(name) = match name.p_referenced_decl()
     | *               => null
 
 # Return true if we reach a level ``n`` of inlining of 0
+@memoized
 fun check_inlining(node, n: int) =
     if n == 0
     then node != null

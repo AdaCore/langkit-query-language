@@ -8,8 +8,7 @@ fun no_inherited_classwide_pre(unit) = [
         "overriding operation that does not inherit Pre'Class (" &
         ({
             val tok = [p for p in n.p_base_subp_declarations()
-                       if not p.p_has_aspect("Pre'Class")].
-                       to_list[1]?.token_start();
+                       if not p.p_has_aspect("Pre'Class")][1]?.token_start();
             tok.unit.name.base_name & ":" &
             img(tok.start_line) & ":" & img(tok.start_column) & ")"}),
      loc: n.p_defining_name()}
