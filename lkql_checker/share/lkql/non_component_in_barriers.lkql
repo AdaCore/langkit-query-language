@@ -3,7 +3,7 @@
 
 fun contains_defining_name(l, name) =
     |" Return true if l contains the defining name `name`
-    [n for n in l if n == name].length != 0
+    [n for n in l if n == name]?[1] != ()
 
 @unit_check(help="barrier references non component variable")
 fun non_component_in_barriers(unit) = [

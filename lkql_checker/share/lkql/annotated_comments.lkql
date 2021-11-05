@@ -13,5 +13,5 @@ fun annotated_comments(unit, s=[]) = if s == [] then [] else [
         tok.text.starts_with("--" & str.substring(1, 1)) and
         tok.text.substring(stdlib.first_non_blank(tok.text, 4),
                            tok.text.length).
-        starts_with(str.substring(2, str.length))].length != 0
+        starts_with(str.substring(2, str.length))]?[1] != ()
 ]

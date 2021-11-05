@@ -62,6 +62,6 @@ fun unassigned_out_parameters(unit) = [
         f != null and not (
         check_stmts(decl, node.f_name, f.f_stmts)
         and [m for m in (from f.f_exceptions select h@ExceptionHandler
-             when not check_exception_handler(decl, node.f_name, h))].length
-                      == 0)
+             when not check_exception_handler(decl, node.f_name, h))]?[1]
+                      == ())
     }]

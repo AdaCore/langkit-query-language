@@ -10,7 +10,7 @@
 
 fun num_out_params(node) =
     |" Return the number of out parameters of a subprogram node
-    (from node?.f_subp_spec?.f_subp_params?.f_params
+    (from node.f_subp_spec.f_subp_params.f_params
      select n@DefiningName
      when n.parent.parent.f_mode is (ModeOut or ModeInOut)).length
 

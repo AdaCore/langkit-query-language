@@ -27,7 +27,7 @@ fun check_inlining(node, n: int) =
     then node != null
     else [a for a in stdlib.children_no_nested_subps(node)
           if a is Name when a.p_is_call()
-                        and check_inlining(inlined_body(a), n - 1)].length != 0
+                        and check_inlining(inlined_body(a), n - 1)]?[1] != ()
 
 @check(message="deeply nested inlining")
 fun deeply_nested_inlining(node, n: int = 3) =

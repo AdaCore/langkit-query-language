@@ -14,8 +14,8 @@ fun no_scalar_storage_order_specified(node) =
      | RecordTypeDef  => not node.parent.p_has_aspect("Scalar_Storage_Order")
      | DerivedTypeDef => not (node.parent.p_has_aspect("Scalar_Storage_Order")
          or [p for p in node.parent.p_base_types()
-             if p.p_has_aspect("Scalar_Storage_Order")].length != 0)
+             if p.p_has_aspect("Scalar_Storage_Order")]?[1] != ())
      | *              => false)
     and (non_empty_rep_clause(node.parent) or
          [p for p in node.parent.p_base_types()
-          if non_empty_rep_clause(p)].length != 0)
+          if non_empty_rep_clause(p)]?[1] != ())

@@ -213,27 +213,27 @@ fun in_generic_template(n) =
 fun enclosing_block(n) =
     |" Return the first DeclBlock enclosing n if any, null otherwise
 {
-    val blocks = [p for p in n?.parents(include_self=false)
-                  if p is DeclBlock].to_list;
-    if blocks.length == 0 then null else blocks[1]
+    val block = [p for p in n.parents(include_self=false)
+                  if p is DeclBlock]?[1];
+    if block == () then null else block
 }
 
 @memoized
 fun enclosing_body(n) =
     |" Return the first Body enclosing n if any, null otherwise
 {
-    val bodies = [p for p in n?.parents(include_self=false)
-                  if p is Body].to_list;
-    if bodies.length == 0 then null else bodies[1]
+    val body = [p for p in n.parents(include_self=false)
+                  if p is Body]?[1];
+    if body == () then null else body
 }
 
 @memoized
 fun enclosing_package(n) =
     |" Return the first BasePackageDecl enclosing n if any, null otherwise
 {
-    val packages = [p for p in n?.parents(include_self=false)
-                    if p is BasePackageDecl].to_list;
-    if packages.length == 0 then null else packages[1]
+    val pkg = [p for p in n.parents(include_self=false)
+                  if p is BasePackageDecl]?[1];
+    if pkg == () then null else pkg
 }
 
 fun is_classwide_type(t) =
@@ -258,9 +258,9 @@ fun is_controlling_param_type(t, spec) =
 fun is_constructor(spec) =
     |" Return true if spec is a subprogram spec of a constructor
     |" TODO: move this to LAL?
-    is_controlling_param_type(spec?.p_returns(), spec)
-     and [p for p in spec?.p_params()
-          if is_controlling_param_type(p?.f_type_expr, spec)].length == 0
+    is_controlling_param_type(spec.p_returns(), spec)
+     and [p for p in spec.p_params()
+          if is_controlling_param_type(p.f_type_expr, spec)]?[1] == ()
 
 @memoized
 fun get_subp_body(node) =

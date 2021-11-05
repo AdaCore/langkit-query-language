@@ -20,4 +20,4 @@ fun use_clauses(node, exempt_operator_packages=false) =
                                              f_package_decl.f_public_part.
                                              f_decls.children
             | *                     => []
-          if not is_operator(s)].length != 0
+          if not is_operator(s)]?[1] != ()

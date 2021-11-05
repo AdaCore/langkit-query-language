@@ -21,8 +21,8 @@ fun check_references(list, subp) = {
     # defining name itself.
 
     [x for x in list
-     if (not x.ref?.p_is_defining()) and
-        stdlib.enclosing_block(x.ref) != block].length == 0
+     if (not x.ref.p_is_defining()) and
+        stdlib.enclosing_block(x.ref) != block]?[1] == ()
 }
 
 @unit_check(help="variables that can be moved to an inner block")

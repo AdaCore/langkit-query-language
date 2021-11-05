@@ -6,4 +6,4 @@
 @check(message="use of forbidden identifier")
 fun name_clashes(node, forbidden=[]) =
     node is DefiningName
-    when [p for p in forbidden if node.p_name_is(p)].length != 0
+    when [p for p in forbidden if node.p_name_is(p)]?[1] != ()
