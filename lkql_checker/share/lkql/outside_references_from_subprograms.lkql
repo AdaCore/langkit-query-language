@@ -11,15 +11,22 @@
 
 import stdlib
 
-@check(message="outside references from subprogram")
-fun outside_references_from_subprograms(node) =
-    node is Identifier
-    when stdlib.enclosing_body(node) is body@BaseSubpBody
-     and stdlib.ultimate_alias(node) is o@(ObjectDecl or ParamSpec)
-        when stdlib.is_local_object(o)
-         and if o is ObjectDecl
-             then stdlib.enclosing_body(o) is o_body@BaseSubpBody
-                  when o_body != body
-             else (not (node.parent is ParamAssoc and
-                        node.parent.f_designator == node)) and
-                  o.parent?.parent?.parent != body.p_subp_spec_or_null()
+fun outside_refs(body) =
+    [id for id in stdlib.children_no_nested_subps(body)
+        if id is Identifier and
+           match stdlib.ultimate_alias(id)
+           | o@ObjectDecl => stdlib.is_local_object(o) and
+                             stdlib.enclosing_body(o) is o_body@BaseSubpBody
+                             when o_body != body
+           | o@ParamSpec  => stdlib.is_local_object(o) and
+                             (not (id.parent is ParamAssoc and
+                                   id.parent.f_designator == id)) and
+                             o.parent?.parent?.parent !=
+                             body.p_subp_spec_or_null()
+           | *            => false].to_list
+
+@unit_check
+fun outside_references_from_subprograms(unit) = [
+    {message: "outside references from subprogram", loc: n}
+    for n in concat([outside_refs(body)
+                     for body in from unit.root select BaseSubpBody].to_list)]
