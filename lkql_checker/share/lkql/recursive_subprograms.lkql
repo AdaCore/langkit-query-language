@@ -24,6 +24,7 @@
 import stdlib
 
 # Get the bodies of the functions called statically by a given function body
+@memoized
 selector static_calls
     | b@Body => rec *
         # Grab the bodies for every static call
