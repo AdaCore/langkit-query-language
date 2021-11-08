@@ -1,27 +1,52 @@
 BUILD_MODE=dev
+export BUILD_MODE
+
+PROCS=0
 PREFIX=install
+PYTHON=python
+BUILD_DIR=/undefined
+LKQL_DIR=$(BUILD_DIR)/lkql
+GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
+GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
+MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
+  --library-types=static
 
 all: lkql lkql_checker lalcheck doc
 lkql: build/bin/liblkqllang_parse
 
 automated:
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=prod
-	gprbuild -j0 -P lkql_checker/lkql_checker.gpr -p -XBUILD_MODE=prod
-	gprbuild -j0 -P lkql_checker/lalcheck.gpr -p -XBUILD_MODE=prod
-	gprinstall --prefix=$(PREFIX) --mode=usage -p -Plkql_checker/lkql_checker.gpr -XBUILD_MODE=prod
-	gprinstall --prefix=$(PREFIX) --mode=usage -p -Plkql_checker/lalcheck.gpr -XBUILD_MODE=prod
+	rm -rf $(PREFIX)
+	mkdir -p $(PREFIX)/share/lkql
+	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS)
+	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr
+	$(GPRBUILD) -Plkql_checker/lalcheck.gpr
+	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
+	$(GPRINSTALL) --mode=usage -Plkql_checker/lalcheck.gpr
+	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
+	cp -p lkql_checker/share/lkql/*.lkql $(PREFIX)/share/lkql
 
 automated-cov:
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=prod --coverage --library-types=static
-	lkql/manage.py install --build-mode=prod --coverage --library-types=static $(PREFIX)
-	gnatcov instrument -Plkql_checker/lkql_checker.gpr --level=stmt --no-subprojects --dump-trigger=atexit
-	gprbuild -j0 -p -Plkql_checker/lkql_checker.gpr -XBUILD_MODE=prod --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-	gprinstall --prefix=$(PREFIX) --mode=dev -p -Plkql_checker/lkql_checker.gpr -XBUILD_MODE=prod
+	rm -rf $(PREFIX) $(BUILD_DIR)
+	mkdir -p $(PREFIX)/share/lkql $(LKQL_DIR)
+	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) --coverage
+	$(PYTHON) lkql/manage.py install $(MANAGE_ARGS) $(PREFIX)
+	# Build and install the lkql_checker program. Instrument it first.
+	# Note that we just copy the sources to the build directory since
+	# "gnatcov instrument" does not support build tree relocation.
+	cp -pr lkql_checker $(BUILD_DIR)
+	gnatcov instrument -P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr \
+	  --level=stmt --no-subprojects --dump-trigger=atexit \
+	  -XBUILD_MODE=$(BUILD_MODE)
+	$(GPRBUILD) -P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr \
+	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+	$(GPRINSTALL) --mode=dev -P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr
+	cp -p lkql_checker/share/lkql/*.lkql $(PREFIX)/share/lkql
 	# Ship coverage data files for liblkqllang and lkql_checker so that the
 	# testsuite can use them.
-	cp -p lkql/build/obj/instr/sids/*.sid $(PREFIX)/lib/liblkqllang.static
+	cp -p $(LKQL_DIR)/obj/instr/sids/*.sid $(PREFIX)/lib/liblkqllang.static
 	mkdir -p $(PREFIX)/lib/lkql_checker
-	cp -p lkql_checker/obj/prod/*.sid $(PREFIX)/lib/lkql_checker
+	cp -p $(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/*.sid \
+	  $(PREFIX)/lib/lkql_checker
 
 doc:
 	cd user_manual && make clean html

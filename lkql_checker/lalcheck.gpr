@@ -4,12 +4,8 @@ with "lkql_checker";
 
 project Lalcheck is
 
-   type Build_Mode_Type is ("dev", "prod");
-   Build_Mode : Build_Mode_Type := external
-     ("BUILD_MODE", external ("LKQL_CHECKER_BUILD_MODE", "dev"));
-
    for Source_Dirs use ("lalcheck");
-   for Object_Dir use "obj/" & Libadalang.Build_Mode;
+   for Object_Dir use "obj/" & Lkql_Checker.Build_Mode;
    for Exec_Dir use "bin";
    for Main use ("lalcheck.adb");
 
@@ -19,7 +15,7 @@ project Lalcheck is
 
    package Compiler is
       Switches := ("-gnatyg", "-gnatwa", "-g", "-gnat2022");
-      case Build_Mode is
+      case Lkql_Checker.Build_Mode is
          when "dev" =>
             Switches := Switches & ("-O0", "-gnata", "-gnatwe");
          when "prod" =>
