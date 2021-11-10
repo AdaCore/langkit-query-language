@@ -188,22 +188,10 @@ package body Gnatcheck.Rules.Rule_Table is
       end if;
 
       --  This is a rather ineficient implementation. At some point we
-      --  should think about a hash table and about more efficient rule
-      --  names normalization.
+      --  should think about a hash table.
 
       for J in First_Rule .. All_Rules.Last loop
-
-         --  Check rule name first:
-
          if To_Lower (All_Rules.Table (J).Name.all) = Normalised_Rule_Name then
-            Result := J;
-            exit;
-         end if;
-
-         if All_Rules.Table (J).Synonym /= null
-           and then
-             To_Lower (All_Rules.Table (J).Synonym.all) = Normalised_Rule_Name
-         then
             Result := J;
             exit;
          end if;
@@ -1201,8 +1189,6 @@ package body Gnatcheck.Rules.Rule_Table is
             Rule.Name := new String'(Name);
             Rule.Help_Info :=
               new String'(To_String (To_Wide_Wide_String (R.Help)));
-            Rule.Diagnosis :=
-              new String'(To_String (To_Wide_Wide_String (R.Message)));
 
             Rule.Parameters                    := R.Parameters;
             Rule.Remediation_Level             := R.Remediation_Level;

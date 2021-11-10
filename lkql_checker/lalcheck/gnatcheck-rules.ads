@@ -64,18 +64,12 @@ package Gnatcheck.Rules is
    --              state cannot be changed during the gnatcheck run
 
    type String_Loc is access all String;
-   --  ###
 
    type Rule_Template is tagged record
       Name : Rule_Name_Str;
       --  The only means of rule identification outside gnatcheck. All the
       --  rules implemented in gnatcheck should have unique names, the casing
       --  is not important.
-
-      Synonym : Rule_Name_Str;
-      --  ###
-      --  Synonym of the rule name. If we have to change the rule name, this
-      --  synonym can be used for rule identification
 
       User_Synonym : Rule_Name_Str;
       --  User-specified synonym for the rule name. It is used for
@@ -93,13 +87,6 @@ package Gnatcheck.Rules is
 
       Help_Info : Rule_Help;
       --  Short help information for the rule
-
-      Diagnosis : Rule_Diagnosis;
-      --  Message generated in case if a rule violation is detected. A rule may
-      --  have more than one diagnostic message associated with it. A
-      --  diagnostic message may have formal parameters that should be replaced
-      --  with some actual information computed from a specific rule violation.
-      --  ### Do we need to keep this field
 
       Allows_Parametrized_Exemption : Boolean;
       --  Whether you can specify a rule parameter when defining an exemption

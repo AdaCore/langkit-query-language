@@ -2055,13 +2055,7 @@ package body Gnatcheck.Diagnoses is
             end if;
 
             for Rule in All_Rules.First .. All_Rules.Last loop
-               if All_Rules.Table (Rule).Diagnosis /= null
-                 and then Is_Enabled (All_Rules.Table (Rule).all)
-               then
-                  --  Note, that if a rule does not have its own diagnoses,
-                  --  this means that it is implemented by some other rules,
-                  --  so it should not go into the report
-
+               if Is_Enabled (All_Rules.Table (Rule).all) then
                   Print_Rule_To_File
                     (All_Rules.Table (Rule).all, Rule_List_File);
                   New_Line (Rule_List_File);
@@ -2110,10 +2104,7 @@ package body Gnatcheck.Diagnoses is
 
       if XML_Report_ON then
          for Rule in All_Rules.First .. All_Rules.Last loop
-
-            if All_Rules.Table (Rule).Diagnosis /= null
-              and then Is_Enabled (All_Rules.Table (Rule).all)
-            then
+            if Is_Enabled (All_Rules.Table (Rule).all) then
                XML_Print_Rule (All_Rules.Table (Rule).all, Indent_Level => 2);
             end if;
          end loop;
