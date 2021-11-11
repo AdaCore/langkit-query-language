@@ -1,12 +1,12 @@
 test.adb:19:4: rule violation: integer object decl
 19 |    A : Integer;
-   |    ^ 
+   |    ^
 
 test.adb:7:7: rule violation: integer object decl
 7 |       Inst : T;
-  |       ^^^^ 
+  |       ^^^^
 
 test.adb:16:7: rule violation: integer object decl
 16 |       Inst : T;
-   |       ^^^^ 
+   |       ^^^^
 

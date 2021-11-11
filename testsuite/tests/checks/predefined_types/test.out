@@ -1,20 +1,20 @@
 num.ads:3:8: rule violation: reference to predefined type
 3 |    I : Integer;                               --  FLAG
-  |        ^^^^^^^ 
+  |        ^^^^^^^
 
 num.ads:4:8: rule violation: reference to predefined type
 4 |    F : Float;                                 --  FLAG
-  |        ^^^^^ 
+  |        ^^^^^
 
 num.ads:7:34: rule violation: reference to predefined type
 7 |    type Arr is array (1 .. 5) of Short_Float; --  FLAG
-  |                                  ^^^^^^^^^^^ 
+  |                                  ^^^^^^^^^^^
 
 num.ads:10:12: rule violation: reference to predefined type
 10 |       C1 : Long_Integer;                      --  FLAG
-   |            ^^^^^^^^^^^^ 
+   |            ^^^^^^^^^^^^
 
 num.ads:14:29: rule violation: reference to predefined type
 14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG
-   |                             ^^^^^^^ 
+   |                             ^^^^^^^
 

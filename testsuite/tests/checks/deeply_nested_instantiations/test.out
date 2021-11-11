@@ -1,4 +1,4 @@
 p.ads:4:13: rule violation: deeply nested instantiation
 4 |     package Inst is new A;   --  FLAG
-  |             ^^^^ 
+  |             ^^^^
 

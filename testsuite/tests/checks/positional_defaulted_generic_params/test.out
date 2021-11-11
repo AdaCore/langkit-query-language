@@ -1,12 +1,12 @@
 pos.ads:23:36: rule violation: use named notation when passing actual to defaulted generic parameter
 23 |                                    2,            --  FLAG
-   |                                    ^ 
+   |                                    ^
 
 pos.ads:24:36: rule violation: use named notation when passing actual to defaulted generic parameter
 24 |                                    Fun_2,        --  FLAG
-   |                                    ^^^^^ 
+   |                                    ^^^^^
 
 pos.ads:25:36: rule violation: use named notation when passing actual to defaulted generic parameter
 25 |                                    Fun_1);       --  FLAG
-   |                                    ^^^^^ 
+   |                                    ^^^^^
 

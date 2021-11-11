@@ -1,4 +1,4 @@
 implicit.ads:2:21: rule violation: implicit IN mode in parameter specification
 2 |    procedure Proc1 (I :    Integer);          --  FLAG
-  |                     ^ 
+  |                     ^
 

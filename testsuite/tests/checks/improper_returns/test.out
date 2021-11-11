@@ -1,12 +1,12 @@
 ret.adb:6:10: rule violation: extra return statement
 6 |          return;                          --  FLAG
-  |          ^^^^^^^ 
+  |          ^^^^^^^
 
 ret.adb:17:10: rule violation: extra return statement
 17 |          return I * Factorial (I - 1);    --  FLAG
-   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ret.adb:21:10: rule violation: extra return statement
 21 |          return Natural'Last;             --  FLAG
-   |          ^^^^^^^^^^^^^^^^^^^^ 
+   |          ^^^^^^^^^^^^^^^^^^^^
 

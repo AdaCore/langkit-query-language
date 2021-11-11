@@ -1,4 +1,4 @@
 realy-realy-realy-deep-pkg.ads:1:9: rule violation: unit has too many ancestors
 1 | package Realy.Realy.Realy.Deep.Pkg is
-  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
 

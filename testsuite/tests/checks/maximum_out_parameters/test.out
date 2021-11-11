@@ -1,4 +1,4 @@
 max.ads:6:14: rule violation: too many formal OUT parameters (4)
 6 |    procedure Proc_4 (I, J, K, L : in out Integer); --  FLAG (if n is 3)
-  |              ^^^^^^ 
+  |              ^^^^^^
 

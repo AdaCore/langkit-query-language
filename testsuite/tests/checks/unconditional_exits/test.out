@@ -1,4 +1,4 @@
 exits.adb:8:10: rule violation: exit statement does not contain condition
 8 |          exit;             --  FLAG
-  |          ^^^^^ 
+  |          ^^^^^
 

@@ -1,12 +1,12 @@
 deeply_nested_generics.ads:8:25: rule violation: deeply nested generic (1)
 8 |       generic procedure P;   --  FLAG (depth=1)
-  |                         ^ 
+  |                         ^
 
 deeply_nested_generics.ads:12:15: rule violation: deeply nested generic (1)
 12 |       package P_G_1 is --  FLAG (depth=1)
-   |               ^^^^^ 
+   |               ^^^^^
 
 deeply_nested_generics.ads:14:18: rule violation: deeply nested generic (2)
 14 |          package P_G_2 is -- FLAG (depth=2)
-   |                  ^^^^^ 
+   |                  ^^^^^
 

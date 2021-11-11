@@ -1,8 +1,8 @@
 uc.adb:12:42: rule violation: instance of Unchecked_Conversion as default parameter value
 12 |    procedure Init (X : out T2; Y : T2 := UC (Var1)) is   --  FLAG
-   |                                          ^^^^^^^^^ 
+   |                                          ^^^^^^^^^
 
 uc.adb:23:11: rule violation: instance of Unchecked_Conversion as actual parameter
 23 |    Ident (UC (Var1), Var2);                --  FLAG
-   |           ^^^^^^^^^ 
+   |           ^^^^^^^^^
 

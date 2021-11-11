@@ -1,4 +1,4 @@
 calls.adb:9:4: rule violation: call to unavailable body
 9 |    Unknown;                 --  FLAG
-  |    ^^^^^^^ 
+  |    ^^^^^^^
 

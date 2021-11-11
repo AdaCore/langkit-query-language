@@ -1,16 +1,16 @@
 rep.ads:7:4: rule violation: misplaced representation item
 7 |    for Int1'Size use 16;         --  FLAG
-  |    ^^^^^^^^^^^^^^^^^^^^^ 
+  |    ^^^^^^^^^^^^^^^^^^^^^
 
 rep.ads:17:4: rule violation: misplaced representation item
 17 |    for Rec1 use record           --  FLAG
-   |    ^^^^^^^^^^^ 
+   |    ^^^^^^^^^^^
 
 rep.ads:25:4: rule violation: misplaced representation item
 25 |    pragma Atomic (Var1);         --  FLAG
-   |    ^^^^^^^^^^^^^^^^^^^^^ 
+   |    ^^^^^^^^^^^^^^^^^^^^^
 
 rep.ads:30:7: rule violation: misplaced representation item
 30 |       pragma Independent (C1);   --  FLAG
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1,12 +1,12 @@
 a.ads:2:4: rule violation: annotated comment
 2 |    --#FLAG
-  |    ^^^^^^^ 
+  |    ^^^^^^^
 
 a.ads:3:4: rule violation: annotated comment
 3 |    --#  FLAG
-  |    ^^^^^^^^^ 
+  |    ^^^^^^^^^
 
 b.ads:3:4: rule violation: annotated comment
 3 |    --#FLAG
-  |    ^^^^^^^ 
+  |    ^^^^^^^
 

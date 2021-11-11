@@ -1,4 +1,4 @@
 script.lkql:2:7: error: Unsupported value type from the introspection API: COMPLETION_ITEM_ITERATOR_VALUE
 2 | print(names[1].p_complete())
-  |       ^^^^^^^^^^^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^^^^^^^^^^^
 

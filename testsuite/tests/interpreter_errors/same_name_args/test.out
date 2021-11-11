@@ -1,4 +1,4 @@
 script.lkql:3:11: error: Multiple arguments with the same name
 3 | add(x=21, x=21)
-  |           ^^^^ 
+  |           ^^^^
 

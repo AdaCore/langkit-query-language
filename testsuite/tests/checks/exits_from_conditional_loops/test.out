@@ -1,4 +1,4 @@
 loops.adb:5:7: rule violation: exit from conditional loop
 5 |       exit when S (J) = '@';  --  FLAG
-  |       ^^^^^^^^^^^^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^^^^^^^^^^^^
 

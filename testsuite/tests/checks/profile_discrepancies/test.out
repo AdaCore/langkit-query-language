@@ -1,32 +1,32 @@
 profile.adb:5:14: rule violation: structure of parameter profile differs from profile.ads:3
 5 |    procedure Proc1                                     --  FLAG
-  |              ^^^^^ 
+  |              ^^^^^
 
 profile.adb:9:14: rule violation: structure of parameter profile differs from profile.ads:7
 9 |    procedure Proc2                                     --  FLAG
-  |              ^^^^^ 
+  |              ^^^^^
 
 profile.adb:13:13: rule violation: structure of parameter profile differs from profile.ads:10
 13 |    function F1 return My_Int is (1);                   --  FLAG
-   |             ^^ 
+   |             ^^
 
 profile.adb:15:13: rule violation: structure of parameter profile differs from profile.ads:12
 15 |    function F1_G return                                --  FLAG
-   |             ^^^^ 
+   |             ^^^^
 
 profile.adb:21:14: rule violation: structure of parameter profile differs from profile.ads:15
 21 |    procedure Proc3 (I : Standard.Integer) is null;     --  FLAG
-   |              ^^^^^ 
+   |              ^^^^^
 
 profile.adb:23:14: rule violation: structure of parameter profile differs from profile.ads:17
 23 |    procedure Proc4 (I : in Integer) is null;           --  FLAG
-   |              ^^^^^ 
+   |              ^^^^^
 
 profile.adb:25:13: rule violation: structure of parameter profile differs from profile.ads:19
 25 |    function F2 return Standard.Integer is              --  FLAG
-   |             ^^ 
+   |             ^^
 
 profile.adb:35:13: rule violation: structure of parameter profile differs from profile.adb:31
 35 |       entry E (X : in Integer) when True is            --  FLAG
-   |             ^ 
+   |             ^
 

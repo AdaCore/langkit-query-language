@@ -1,28 +1,28 @@
 params.adb:4:24: rule violation: unassigned OUT parameter B2
 4 |                     B, B2 : out Boolean;   --  FLAG B2
-  |                        ^^ 
+  |                        ^^
 
 params.adb:30:7: rule violation: unassigned OUT parameter P2
 30 |       P2 : out Rec;                        --  FLAG
-   |       ^^ 
+   |       ^^
 
 params.adb:31:7: rule violation: unassigned OUT parameter P3
 31 |       P3 : out Boolean)                    --  FLAG
-   |       ^^ 
+   |       ^^
 
 params.adb:47:11: rule violation: unassigned OUT parameter P2
 47 |      (P1, P2, P3 : out Access_Arr;         --  FLAG P2
-   |           ^^ 
+   |           ^^
 
 params.adb:48:7: rule violation: unassigned OUT parameter P4
 48 |       P4         : out Integer;            --  FLAG P4
-   |       ^^ 
+   |       ^^
 
 params.adb:61:20: rule violation: unassigned OUT parameter X
 61 |    procedure Proc (X : out Integer) is     -- FLAG X
-   |                    ^ 
+   |                    ^
 
 params.adb:81:7: rule violation: unassigned OUT parameter A
 81 |      (A,                                   --  FLAG A
-   |       ^ 
+   |       ^
 

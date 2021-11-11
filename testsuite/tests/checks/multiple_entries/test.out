@@ -1,8 +1,8 @@
 decls.ads:5:13: rule violation: more than one entry in protected definition
 5 |       entry Put (I: out Integer);   --  FLAG
-  |             ^^^ 
+  |             ^^^
 
 decls.ads:6:13: rule violation: more than one entry in protected definition
 6 |       entry Put2;                   --  FLAG
-  |             ^^^^ 
+  |             ^^^^
 

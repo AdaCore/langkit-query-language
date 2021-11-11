@@ -1,4 +1,4 @@
 script.lkql:1:12: error: Invalid kind name
 1 | select p @ PreposterouslyInvalidKind
-  |            ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
 

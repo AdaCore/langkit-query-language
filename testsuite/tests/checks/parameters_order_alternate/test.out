@@ -1,8 +1,8 @@
 decls.ads:10:8: rule violation: parameter out of order
 10 |       (Flag : in out Integer;   --  FLAG
-   |        ^^^^ 
+   |        ^^^^
 
 decls.ads:14:8: rule violation: parameter out of order
 14 |       (Flag : Boolean := True;  --  FLAG
-   |        ^^^^ 
+   |        ^^^^
 

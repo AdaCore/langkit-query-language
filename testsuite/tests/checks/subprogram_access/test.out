@@ -1,8 +1,8 @@
 subp.ads:2:19: rule violation: access to subprogram definition
 2 |    type Proc_A is access procedure ( I : Integer);       --  FLAG
-  |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 subp.ads:6:17: rule violation: access to subprogram definition
 6 |       Process : access procedure (J : in out Integer));  --  FLAG
-  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

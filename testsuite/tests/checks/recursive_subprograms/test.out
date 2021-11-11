@@ -1,84 +1,84 @@
 root-child_1.ads:4:14: rule violation: recursive subprogram
 4 |    procedure Process_1 (X : in out PT_1; I : Integer);   --  FLAG if Skip_Dispatching_Calls not set
-  |              ^^^^^^^^^ 
+  |              ^^^^^^^^^
 
 root-child_1.ads:5:14: rule violation: recursive subprogram
 5 |    procedure Process_2 (X : in out PT_1; I : Integer);    --  FLAG if Skip_Dispatching_Calls not set
-  |              ^^^^^^^^^ 
+  |              ^^^^^^^^^
 
 root-child_2.ads:4:14: rule violation: recursive subprogram
 4 |    procedure Process_1 (X : in out PT_2; I : Integer);  --  FLAG if Skip_Dispatching_Calls not set
-  |              ^^^^^^^^^ 
+  |              ^^^^^^^^^
 
 root-child_2.ads:5:14: rule violation: recursive subprogram
 5 |    procedure Process_2 (X : in out PT_2; I : Integer);  --  FLAG if Skip_Dispatching_Calls not set
-  |              ^^^^^^^^^ 
+  |              ^^^^^^^^^
 
 root.ads:8:14: rule violation: recursive subprogram
 8 |    procedure Process_All (X : in out PT'Class; I : Integer); --  FLAG if Skip_Dispatching_Calls not set
-  |              ^^^^^^^^^^^ 
+  |              ^^^^^^^^^^^
 
 recursive_subprograms-generics.adb:136:15: rule violation: recursive subprogram
 136 |     procedure P2 is    --  FLAG (via P3 instantiation)
-    |               ^^ 
+    |               ^^
 
 recursive_subprograms-generics.ads:62:14: rule violation: recursive subprogram
 62 |    procedure P1;                                          --  FLAG
-   |              ^^ 
+   |              ^^
 
 recursive_subprograms-generics.ads:9:16: rule violation: recursive subprogram
 9 |       function Factorial (N : Natural) return Natural;   --  FLAG
-  |                ^^^^^^^^^ 
+  |                ^^^^^^^^^
 
 recursive_subprograms-generics.ads:13:17: rule violation: recursive subprogram
 13 |       procedure Naive_Sort (A : in out My_Arr);         --  FLAG
-   |                 ^^^^^^^^^^ 
+   |                 ^^^^^^^^^^
 
 recursive_subprograms-generics.ads:16:16: rule violation: recursive subprogram
 16 |       function F1 (I : Integer) return Integer;         --  FLAG
-   |                ^^ 
+   |                ^^
 
 recursive_subprograms-generics.ads:17:17: rule violation: recursive subprogram
 17 |       procedure P1 (I : in out Integer);                --  FLAG
-   |                 ^^ 
+   |                 ^^
 
 recursive_subprograms-generics.ads:53:16: rule violation: recursive subprogram
 53 |       function F1 (I : Integer) return Integer;           --  FLAG
-   |                ^^ 
+   |                ^^
 
 recursive_subprograms-generics.ads:54:16: rule violation: recursive subprogram
 54 |       function F2 (I : Integer := F1 (1)) return Integer; --  FLAG
-   |                ^^ 
+   |                ^^
 
 recursive_subprograms-generics.ads:55:16: rule violation: recursive subprogram
 55 |       function F3 (I : Integer) return Integer;           --  FLAG
-   |                ^^ 
+   |                ^^
 
 expr_p.adb:3:13: rule violation: recursive subprogram
 3 |    function Expr return Boolean is  --  FLAG
-  |             ^^^^ 
+  |             ^^^^
 
 expr_p.ads:2:13: rule violation: recursive subprogram
 2 |    function G return Boolean;          --  FLAG
-  |             ^ 
+  |             ^
 
 expr_p.ads:5:13: rule violation: recursive subprogram
 5 |    function F return Boolean is (G);   --  FLAG
-  |             ^ 
+  |             ^
 
 simple.adb:1:10: rule violation: recursive subprogram
 1 | function Factorial (N : Natural) return Positive is  --  FLAG
-  |          ^^^^^^^^^ 
+  |          ^^^^^^^^^
 
 transitive.adb:2:14: rule violation: recursive subprogram
 2 |    procedure Foo;  --  FLAG
-  |              ^^^ 
+  |              ^^^
 
 transitive.adb:3:14: rule violation: recursive subprogram
 3 |    procedure Bar;  --  FLAG
-  |              ^^^ 
+  |              ^^^
 
 transitive.adb:4:14: rule violation: recursive subprogram
 4 |    procedure Baz;  --  FLAG
-  |              ^^^ 
+  |              ^^^
 

@@ -1,16 +1,16 @@
 ranges.adb:7:16: rule violation: range with universal integer bounds
 7 |    S2 : String (1 .. 10);     --  FLAG
-  |                ^^^^^^^^^ 
+  |                ^^^^^^^^^
 
 ranges.adb:8:16: rule violation: range with universal integer bounds
 8 |    S3 : String (1 .. C);      --  FLAG
-  |                ^^^^^^^^ 
+  |                ^^^^^^^^
 
 ranges.adb:10:26: rule violation: range with universal integer bounds
 10 |    subtype S10 is String (1 .. 10);   --  FLAG
-   |                          ^^^^^^^^^ 
+   |                          ^^^^^^^^^
 
 ranges.adb:13:13: rule violation: range with universal integer bounds
 13 |    for J in 1 .. 10 loop   --  FLAG
-   |             ^^^^^^^ 
+   |             ^^^^^^^
 

@@ -1,12 +1,12 @@
 attr.adb:5:33: rule violation: use of attribute First
 5 |    subtype Ind is Integer range Arr'First .. Arr'Last; --  FLAG (twice)
-  |                                 ^^^^^^^^^ 
+  |                                 ^^^^^^^^^
 
 attr.adb:5:46: rule violation: use of attribute Last
 5 |    subtype Ind is Integer range Arr'First .. Arr'Last; --  FLAG (twice)
-  |                                              ^^^^^^^^ 
+  |                                              ^^^^^^^^
 
 attr.adb:7:13: rule violation: use of attribute Range
 7 |    for J in Arr'Range loop                             --  FLAG
-  |             ^^^^^^^^^ 
+  |             ^^^^^^^^^
 

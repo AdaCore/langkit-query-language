@@ -1,16 +1,16 @@
 pack.ads:2:4: rule violation: uninitialized global variable
 2 |    I1 : Integer;          --  FLAG
-  |    ^^ 
+  |    ^^
 
 pack.ads:9:7: rule violation: uninitialized global variable
 9 |       X : T;              --  FLAG
-  |       ^ 
+  |       ^
 
 pack.ads:17:4: rule violation: uninitialized global variable
 17 |    Y1 : Integer;                --  FLAG
-   |    ^^ 
+   |    ^^
 
 pack.adb:2:4: rule violation: uninitialized global variable
 2 |    Z1 : Integer;          --  FLAG
-  |    ^^ 
+  |    ^^
 

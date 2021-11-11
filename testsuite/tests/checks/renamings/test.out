@@ -1,4 +1,4 @@
 renamings.ads:3:16: rule violation: renaming declaration
 3 |    J : Integer renames I;     --  FLAG
-  |                ^^^^^^^^^ 
+  |                ^^^^^^^^^
 

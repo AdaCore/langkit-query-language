@@ -1,16 +1,16 @@
 exc_as_cf.adb:5:7: rule violation: this exception will be handled in the same body
 5 |       raise Constraint_Error;    --  FLAG
-  |       ^^^^^^^^^^^^^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 test.adb:3:4: rule violation: this exception will be handled in the same body
 3 |    raise Constraint_Error;  --  FLAG;
-  |    ^^^^^^^^^^^^^^^^^^^^^^^ 
+  |    ^^^^^^^^^^^^^^^^^^^^^^^
 
 test2.adb:6:7: rule violation: this exception will be handled in the same body
 6 |       raise Constraint_Error;  --  FLAG
-  |       ^^^^^^^^^^^^^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 test2.adb:12:7: rule violation: this exception will be handled in the same body
 12 |       raise CE2;  --  FLAG
-   |       ^^^^^^^^^^ 
+   |       ^^^^^^^^^^
 

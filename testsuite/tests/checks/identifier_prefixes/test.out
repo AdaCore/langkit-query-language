@@ -1,60 +1,60 @@
 prefix.ads:8:9: rule violation: Root does not start with prefix Type_
 8 |    type Root is new integer;                  --  FLAG
-  |         ^^^^ 
+  |         ^^^^
 
 prefix.ads:9:9: rule violation: Priv does not start with prefix Type_
 9 |    type Priv is private;                      --  FLAG
-  |         ^^^^ 
+  |         ^^^^
 
 prefix.ads:14:9: rule violation: Type_CW does not start with prefix CA_
 14 |    type Type_CW is access all Tag'Class;     --  FLAG
-   |         ^^^^^^^ 
+   |         ^^^^^^^
 
 prefix.ads:16:12: rule violation: Type_CA_3 does not start with prefix CA_
 16 |    subtype Type_CA_3 is CA_1;                --  FLAG
-   |            ^^^^^^^^^ 
+   |            ^^^^^^^^^
 
 prefix.ads:20:9: rule violation: Enum_2 does not start with prefix Type_
 20 |    type Enum_2      is                       --  FLAG
-   |         ^^^^^^ 
+   |         ^^^^^^
 
 prefix.ads:22:7: rule violation: B2 does not start with prefix E_
 22 |       B2);                                   --  FLAG
-   |       ^^ 
+   |       ^^
 
 prefix.ads:25:13: rule violation: Bad_Enum does not start with prefix E_
 25 |    function Bad_Enum return Enum_2           --  FLAG
-   |             ^^^^^^^^ 
+   |             ^^^^^^^^
 
 prefix.ads:30:4: rule violation: Const2 does not start with prefix Const_
 30 |    Const2   : constant Enum_2      := B2;    --  FLAG
-   |    ^^^^^^ 
+   |    ^^^^^^
 
 prefix.ads:31:4: rule violation: Private_Const does not start with prefix Const_
 31 |    Private_Const : constant Priv;            --  FLAG
-   |    ^^^^^^^^^^^^^ 
+   |    ^^^^^^^^^^^^^
 
 prefix.ads:34:4: rule violation: Const3 does not start with prefix Const_
 34 |    Const3   : Type_Enum_1 renames Const_C1;  --  FLAG
-   |    ^^^^^^ 
+   |    ^^^^^^
 
 prefix.ads:38:4: rule violation: Exc_2 does not start with prefix X_
 38 |    Exc_2   : exception;                      --  FLAG
-   |    ^^^^^ 
+   |    ^^^^^
 
 prefix.ads:42:9: rule violation: Root2 does not start with prefix Root_
 42 |    type Root2 is new Root;                   --  FLAG
-   |         ^^^^^ 
+   |         ^^^^^
 
 prefix.ads:48:9: rule violation: Root4 does not start with prefix Root_
 48 |    type Root4 is new Type_Sub2;              --  FLAG
-   |         ^^^^^ 
+   |         ^^^^^
 
 prefix.ads:55:14: rule violation: My_Task does not start with prefix Type_
 55 |    task type My_Task is                      --  FLAG
-   |              ^^^^^^^ 
+   |              ^^^^^^^
 
 prefix.ads:63:19: rule violation: My_Protected does not start with prefix Type_
 63 |    protected type My_Protected is            --  FLAG
-   |                   ^^^^^^^^^^^^ 
+   |                   ^^^^^^^^^^^^
 

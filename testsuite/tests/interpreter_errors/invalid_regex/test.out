@@ -1,4 +1,4 @@
 script.lkql:2:39: error: Failed to compile regular expression.
 2 | select BasicDecl(p_defining_name() is "*")
-  |                                       ^^^ 
+  |                                       ^^^
 

@@ -1,8 +1,8 @@
 root-child.adb:7:7: rule violation: non-dispatching call to primitive operation
 7 |       Primitive_2 (T_Root (X));      --  FLAG
-  |       ^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^
 
 root-child.adb:8:7: rule violation: non-dispatching call to primitive operation
 8 |       Primitive_2 (X);               --  FLAG
-  |       ^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^
 

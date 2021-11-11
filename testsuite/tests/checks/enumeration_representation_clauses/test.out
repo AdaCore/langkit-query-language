@@ -1,4 +1,4 @@
 enumeration_representation_clauses.ads:3:4: rule violation: enumeration representation clause
 3 |    for Enum1 use (A1 => 1, B1 => 11, C1 => 111);     --  FLAG
-  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1,4 +1,4 @@
 script.lkql:2:7: error: Null receiver in dot access
 2 | print(n.pouet)
-  |       ^^^^^^^ 
+  |       ^^^^^^^
 

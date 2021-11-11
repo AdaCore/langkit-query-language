@@ -1,4 +1,4 @@
 expanded_loop_exit_names.adb:6:10: rule violation: expanded loop name in exit statement
 6 |          exit Expanded_Loop_Exit_Names.Search;            --  FLAG
-  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1,4 +1,4 @@
 pack.ads:2:12: rule violation: declaration of local package
 2 |    package Inner is    --  FLAG
-  |            ^^^^^ 
+  |            ^^^^^
 

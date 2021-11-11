@@ -1,8 +1,8 @@
 address_specifications_for_initialized_objects.ads:7:5: rule violation: address specification for initialized object
 7 |     for Var1'Address use Var0'Address;                 --  FLAG
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 address_specifications_for_initialized_objects.ads:9:31: rule violation: address specification for initialized object
 9 |     Var2 : Integer := 30 with Address => Var0'Address; --  FLAG
-  |                               ^^^^^^^^^^^^^^^^^^^^^^^ 
+  |                               ^^^^^^^^^^^^^^^^^^^^^^^
 

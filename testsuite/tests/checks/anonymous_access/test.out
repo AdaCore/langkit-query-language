@@ -1,8 +1,8 @@
 anon.adb:10:19: rule violation: anonymous access type
 10 |       Next      : access Cell;             --  FLAG
-   |                   ^^^^^^^^^^^ 
+   |                   ^^^^^^^^^^^
 
 anon.adb:13:11: rule violation: anonymous access type
 13 |    Link : access Cell;                     --  FLAG
-   |           ^^^^^^^^^^^ 
+   |           ^^^^^^^^^^^
 

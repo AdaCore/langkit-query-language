@@ -1,16 +1,16 @@
 param.ads:5:14: rule violation: first parameter should have name 'This' and proper type
 5 |    procedure P2 (That : in out T);                 --  FLAG
-  |              ^^ 
+  |              ^^
 
 param.ads:6:14: rule violation: first parameter should have name 'This' and proper type
 6 |    procedure P3 (I : Integer; This : in out T);    --  FLAG
-  |              ^^ 
+  |              ^^
 
 param.ads:7:14: rule violation: first parameter should have name 'This' and proper type
 7 |    procedure P4 (This : Integer; That : in out T); --  FLAG
-  |              ^^ 
+  |              ^^
 
 param.ads:8:14: rule violation: first parameter should have name 'This' and proper type
 8 |    procedure P5 (Not_This : T) is separate;        --  FLAG
-  |              ^^ 
+  |              ^^
 

@@ -1,8 +1,8 @@
 pragmas.ads:4:4: rule violation: use of pragma Pack
 4 |    pragma Pack (Arr);             --  FLAG
-  |    ^^^^^^^^^^^^^^^^^^ 
+  |    ^^^^^^^^^^^^^^^^^^
 
 pragmas.ads:7:4: rule violation: use of pragma Atomic
 7 |    pragma Atomic (I);             --  FLAG
-  |    ^^^^^^^^^^^^^^^^^^ 
+  |    ^^^^^^^^^^^^^^^^^^
 

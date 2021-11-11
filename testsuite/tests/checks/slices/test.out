@@ -1,8 +1,8 @@
 slices.adb:2:20: rule violation: slice
 2 |    Tmp : String := S (L .. R);        --  FLAG
-  |                    ^^^^^^^^^^ 
+  |                    ^^^^^^^^^^
 
 slices.adb:8:18: rule violation: slice
 8 |    X : String := T (Ind);             --  FLAG
-  |                  ^^^^^^^ 
+  |                  ^^^^^^^
 

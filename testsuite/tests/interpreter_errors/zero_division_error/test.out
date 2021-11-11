@@ -1,4 +1,4 @@
 script.lkql:1:8: error: Zero division
 1 | print (84 / 0)
-  |        ^^^^^^ 
+  |        ^^^^^^
 

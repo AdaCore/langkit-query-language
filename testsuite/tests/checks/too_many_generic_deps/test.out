@@ -1,4 +1,4 @@
 p.ads:3:1: rule violation: unit has too many generic dependencies
 3 | package P is   --  FLAG
-  | ^^^^^^ 
+  | ^^^^^^
 

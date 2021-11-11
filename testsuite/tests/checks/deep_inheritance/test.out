@@ -1,4 +1,4 @@
 definitions.ads:9:10: rule violation: derivation tree is too deep
 9 |     type T3 is new T0 and I2 with null record; -- FLAG (if rule parameter is 2)
-  |          ^^ 
+  |          ^^
 

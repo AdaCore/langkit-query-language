@@ -1,8 +1,8 @@
 inst.adb:3:12: rule violation: instantiation in a subprogram body
 3 |    package My_Int_IO is new Integer_IO (Integer);   --  FLAG
-  |            ^^^^^^^^^ 
+  |            ^^^^^^^^^
 
 pack.ads:3:12: rule violation: instantiation in a library package spec
 3 |    package Inst is new Integer_IO (Integer);   --  FLAG
-  |            ^^^^ 
+  |            ^^^^
 

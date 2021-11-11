@@ -1,8 +1,8 @@
 enumeration_ranges_in_case_statements.adb:9:15: rule violation: enumeration range as a choice in a case statement
 9 |          when Arr'Range  =>  --  FLAG
-  |               ^^^^^^^^^ 
+  |               ^^^^^^^^^
 
 enumeration_ranges_in_case_statements.adb:11:15: rule violation: enumeration range as a choice in a case statement
 11 |          when D .. E =>      --  FLAG
-   |               ^^^^^^ 
+   |               ^^^^^^
 

@@ -1,12 +1,12 @@
 class.adb:15:14: rule violation: overriding operation that does not inherit Pre'Class (class.ads:8:4)
 15 |    procedure Proc (X : in out NT3) is        --  FLAG
-   |              ^^^^ 
+   |              ^^^^
 
 class.ads:13:13: rule violation: overriding operation that does not inherit Pre'Class (class.ads:4:4)
 13 |    function Test (X : NT1) return Boolean;        --  FLAG
-   |             ^^^^ 
+   |             ^^^^
 
 class.ads:17:14: rule violation: overriding operation that does not inherit Pre'Class (class.ads:8:4)
 17 |    procedure Proc (X : in out NT2);               --  FLAG
-   |              ^^^^ 
+   |              ^^^^
 

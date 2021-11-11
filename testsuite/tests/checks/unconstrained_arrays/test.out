@@ -1,4 +1,4 @@
 arrays.ads:5:18: rule violation: unconstrained array definition
 5 |    type U_Arr is array (Idx range <>) of Integer;   --  FLAG
-  |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

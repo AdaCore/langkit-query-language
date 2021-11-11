@@ -1,4 +1,4 @@
 other.adb:8:12: rule violation: OTHERS choice in case statement
 8 |       when others =>        --  FLAG
-  |            ^^^^^^ 
+  |            ^^^^^^
 

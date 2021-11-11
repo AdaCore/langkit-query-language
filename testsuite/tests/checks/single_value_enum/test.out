@@ -1,4 +1,4 @@
 enum.ads:4:18: rule violation: enumeration type definition with a single enumeration literal
 4 |    type Enum1 is (D);        --  FLAG
-  |                  ^^^ 
+  |                  ^^^
 

@@ -1,44 +1,44 @@
 float_equality_checks.adb:26:31: rule violation: use of equality operation for float values
 26 |    B1_A : constant Boolean := A_Float = B_Float;              -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:27:31: rule violation: use of equality operation for float values
 27 |    B1_B : constant Boolean := A_Float /= B_Float;             -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:30:31: rule violation: use of equality operation for float values
 30 |    B3_A : constant Boolean := "=" (A_Prob, B_Prob);           -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:31:31: rule violation: use of equality operation for float values
 31 |    B3_B : constant Boolean := "/=" (A_Prob, B_Prob);          -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:32:31: rule violation: use of equality operation for float values
 32 |    B4_A : constant Boolean := Standard."=" (A_Prob, B_Prob);  -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:33:31: rule violation: use of equality operation for float values
 33 |    B4_B : constant Boolean := Standard."/=" (A_Prob, B_Prob); -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:36:31: rule violation: use of equality operation for float values
 36 |    B5_C : constant Boolean := Standard."="(A_SF, B_SF);       -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:37:31: rule violation: use of equality operation for float values
 37 |    B5_D : constant Boolean := Standard."/="(A_SF, B_SF);      -- FLAG
-   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 float_equality_checks.adb:38:31: rule violation: use of equality operation for float values
 38 |    B6_A : constant Boolean := A_MF = B_MF;                    -- FLAG
-   |                               ^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^
 
 float_equality_checks.adb:39:31: rule violation: use of equality operation for float values
 39 |    B6_B : constant Boolean := A_MF /= B_MF;                   -- FLAG
-   |                               ^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^
 
 float_equality_checks.adb:40:31: rule violation: use of equality operation for float values
 40 |    B7_A : constant Boolean := "=" (A_MF, B_MF);               -- FLAG
-   |                               ^^^^^^^^^^^^^^^^ 
+   |                               ^^^^^^^^^^^^^^^^
 

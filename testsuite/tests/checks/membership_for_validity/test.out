@@ -1,12 +1,12 @@
 valid.adb:8:7: rule violation: membership test instead of 'Valid
 8 |    if X in My_Int then                           --  FLAG
-  |       ^^^^^^^^^^^ 
+  |       ^^^^^^^^^^^
 
 valid.adb:10:10: rule violation: membership test instead of 'Valid
 10 |    elsif X in My_Int'First .. My_Int'Last then   --  FLAG
-   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 valid.adb:14:10: rule violation: membership test instead of 'Valid
 14 |    elsif Y in Integer then                       --  FLAG
-   |          ^^^^^^^^^^^^ 
+   |          ^^^^^^^^^^^^
 
