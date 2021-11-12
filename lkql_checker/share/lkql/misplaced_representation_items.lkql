@@ -41,7 +41,7 @@ fun misplaced_node(n, decl) =
     | a@AtClause         => a.f_name.p_referenced_decl() != decl or
                             misplaced_node(a, decl)
     | p@Pragma           => (not is_rep_pragma(p.f_id)) or
-                            node.p_associated_decls()[1] != decl or
+                            p.p_associated_decls()[1] != decl or
                             misplaced_node(p, decl)
     | *                  => true
 

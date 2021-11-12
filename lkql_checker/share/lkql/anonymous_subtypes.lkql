@@ -35,7 +35,7 @@ fun is_self_referencing(expr, type_decl) =
     type_decl != null and
     expr is *(any children is at@AttributeRef
               when at.f_attribute.p_name_is("Access")
-               and at.f_prefix.p_name_matches(type_decl.f_name.f_name))
+               and at.f_prefix.p_name_matches(type_decl.f_name?.f_name))
 
 @check(message="anonymous subtype")
 fun anonymous_subtypes(node) =

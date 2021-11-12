@@ -16,7 +16,7 @@
 fun check_actual_param(spec, node, check_dot) =
     match spec
     | SubpSpec  => {
-        val num_params=(from spec.f_subp_params.f_params
+        val num_params=(from spec.f_subp_params?.f_params
                         select DefiningName).length;
         num_params > 2 or (num_params > 1 and not check_dot)
       }

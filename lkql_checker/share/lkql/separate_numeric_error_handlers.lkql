@@ -4,7 +4,7 @@
 # Numeric_Error, but does not contain the choice for Constraint_Error.
 
 fun decl_name(n) =
-    n?.p_referenced_decl()?.p_canonical_fully_qualified_name()
+    n.p_referenced_defining_name().p_canonical_fully_qualified_name()
 
 @check(message="Constraint_Error is handled separately from Numeric_Error")
 fun separate_numeric_error_handlers(node) =

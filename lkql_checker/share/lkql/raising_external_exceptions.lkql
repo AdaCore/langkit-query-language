@@ -5,7 +5,7 @@
 
 # TODO: share is_predefined_exception with raising_predefined_exception
 fun is_predefined_exception(e) = {
-    val name = e.p_canonical_fully_qualified_name();
+    val name = e.p_defining_name().p_canonical_fully_qualified_name();
 
     name == "standard.program_error" or name == "standard.constraint_error" or
     name == "standard.numeric_error" or name == "standard.storage_error"    or

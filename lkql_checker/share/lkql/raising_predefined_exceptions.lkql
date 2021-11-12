@@ -4,7 +4,7 @@
 
 fun is_predefined_raise(id) =
     id.p_referenced_decl() is decl@BasicDecl
-    when match decl.p_canonical_fully_qualified_name()
+    when match decl.p_defining_name().p_canonical_fully_qualified_name()
     | "^standard\.(program|constraint|numeric|storage|tasking)_error$" => true
     | * => false
 
