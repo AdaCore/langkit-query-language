@@ -6,11 +6,13 @@
 # number of dependencies when the library item or subunit is not flagged.
 
 fun check_unit(unit, node, n) =
-    unit is CompilationUnit(any c@children is Identifier(any parent(depth=2) is
-                                                         WithClause))
+    unit is CompilationUnit
     when {
-        val semantic_parent = node.p_semantic_parent();
-        [x for x in c if x.p_referenced_decl() != semantic_parent].length > n
+        val parent = node.p_semantic_parent();
+        concat([[p for p in w.f_packages.children
+                   if p.p_referenced_decl() != parent].to_list
+                for w in (from unit.f_prelude
+                          select WithClause)].to_list).length > n
     }
 
 @check(message="unit has too many dependencies", remediation="MAJOR")
