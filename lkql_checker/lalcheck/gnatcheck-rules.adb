@@ -254,7 +254,7 @@ package body Gnatcheck.Rules is
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
       if Rule.Param /= Integer'First then
-         Put (Rule_File, ": " & Image (Rule.Param));
+         Put (Rule_File, ":" & Image (Rule.Param));
       end if;
    end Print_Rule_To_File;
 
@@ -267,7 +267,7 @@ package body Gnatcheck.Rules is
 
       if Rule.Param = On then
          Put (Rule_File,
-              ": " &
+              ":" &
               To_String (Rule.Parameters.Child (2).As_Parameter_Decl.
                          F_Param_Identifier.Text));
       end if;
@@ -281,7 +281,7 @@ package body Gnatcheck.Rules is
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
       if Length (Rule.Param) /= 0 then
-         Put (Rule_File, ": " & To_String (Rule.Param));
+         Put (Rule_File, ":" & To_String (Rule.Param));
       end if;
    end Print_Rule_To_File;
 
@@ -295,13 +295,13 @@ package body Gnatcheck.Rules is
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
       if Rule.Integer_Param /= Integer'First then
-         Put (Rule_File, ": " & Image (Rule.Integer_Param));
+         Put (Rule_File, ":" & Image (Rule.Integer_Param));
          Has_Param := True;
       end if;
 
       for J in Rule.Boolean_Params'Range loop
          if Rule.Boolean_Params (J) = On then
-            Put (Rule_File, (if Has_Param then ", " else ": "));
+            Put (Rule_File, (if Has_Param then "," else ":"));
             Put (Rule_File, To_String (Rule.Parameters.Child (J).
                                        As_Parameter_Decl.F_Param_Identifier.
                                        Text));
@@ -336,7 +336,7 @@ package body Gnatcheck.Rules is
       begin
          if Force or else Length (Prefix) /= 0 then
             if First_Param then
-               Put (Rule_File, ": " & Param & "=" & To_String (Prefix));
+               Put (Rule_File, ":" & Param & "=" & To_String (Prefix));
                First_Param := False;
             else
                Put_Line (Rule_File, ",");
@@ -411,7 +411,7 @@ package body Gnatcheck.Rules is
       begin
          if Length (Suffix) /= 0 then
             if First_Param then
-               Put (Rule_File, ": " & Param & "=" & To_String (Suffix));
+               Put (Rule_File, ":" & Param & "=" & To_String (Suffix));
                First_Param := False;
             else
                Put_Line (Rule_File, ",");
@@ -470,7 +470,7 @@ package body Gnatcheck.Rules is
       begin
          if Force or else Length (Casing) /= 0 then
             if First_Param then
-               Put (Rule_File, ": " & Param & "=" & To_String (Casing));
+               Put (Rule_File, ":" & Param & "=" & To_String (Casing));
                First_Param := False;
             else
                Put_Line (Rule_File, ",");
@@ -520,60 +520,51 @@ package body Gnatcheck.Rules is
    is
       First_Param : Boolean := True;
 
-      procedure Print
-        (Items  : Unbounded_Wide_Wide_String;
-         Enable : Boolean);
-      --  Print Items if not empty. If Enable is True, these items are printed
-      --  as is, otherwise they are marked as disabled (prefixed with a '-').
+      procedure Print (Items : Unbounded_Wide_Wide_String);
+      --  Print Items as parameters if not empty
 
       -----------
       -- Print --
       -----------
 
-      procedure Print
-        (Items  : Unbounded_Wide_Wide_String;
-         Enable : Boolean)
-      is
-         C : Character;
+      procedure Print (Items : Unbounded_Wide_Wide_String) is
       begin
          if Length (Items) = 0 then
             return;
          end if;
 
          if First_Param then
-            Put (Rule_File, ": ");
+            Put (Rule_File, ":");
             First_Param := False;
          else
             Put (Rule_File, ",");
          end if;
 
-         if Enable then
-            Put (Rule_File, To_String (To_Wide_Wide_String (Items)));
-         else
-            Put (Rule_File, '-');
-
-            for J in 1 .. Length (Items) loop
-               C := To_Character (Element (Items, J));
-               Put (Rule_File, C);
-
-               if C = ',' then
-                  Put (Rule_File, '-');
-               end if;
-            end loop;
-         end if;
+         Put (Rule_File, To_String (To_Wide_Wide_String (Items)));
       end Print;
 
    begin
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
       if Rule.All_Flag = On then
-         Report_No_EOL (": ALL");
+         Report_No_EOL (":ALL");
          First_Param := False;
       else
-         Print (Rule.Forbidden, True);
+         Print (Rule.Forbidden);
       end if;
 
-      Print (Rule.Allowed, False);
+      if Length (Rule.Allowed) /= 0 then
+         New_Line (Rule_File);
+         First_Param := True;
+
+         for J in 1 .. Indent_Level loop
+            Put (Rule_File, Get_Indent_String);
+         end loop;
+
+         Put (Rule_File, "-R" & Rule_Name (Rule));
+
+         Print (Rule.Allowed);
+      end if;
    end Print_Rule_To_File;
 
    ---------------------

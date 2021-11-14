@@ -34,6 +34,8 @@ with Gnatcheck.Projects.Aggregate;
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+
 with Checker_App; use Checker_App;
 with Rules_Factory;
 
@@ -138,7 +140,6 @@ begin
          pragma Unreferenced (Servers);
       begin
          Process_Sources (Ctx);
-         Rules_Factory.Finalize_Rules (Ctx.Eval_Ctx);
       end;
 
       --  Wait for gprbuild to finish if we've launched it earlier and analyze
@@ -164,6 +165,8 @@ begin
 
       Generate_Qualification_Report;
       Gnatcheck.Output.Close_Report_Files;
+      Rules_Factory.Finalize_Rules (Ctx.Eval_Ctx);
+      Free_Eval_Context (Ctx.Eval_Ctx);
 
       if Tool_Failures > 0 then
          Info ("Total gnatcheck failures:" & Tool_Failures'Img);
