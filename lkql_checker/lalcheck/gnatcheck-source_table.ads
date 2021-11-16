@@ -43,14 +43,6 @@ package Gnatcheck.Source_Table is
    Sources_Left  : Natural;
    --  Counters used to form and output progress information.
 
-   type SF_Unit_Parts is
-     (Unknown,
-      Unit_Body, Unit_Spec, Unit_Separate);
-   --  Similar to GNATCOLL.Projects.Unit_Parts except that Unknown value is
-   --  added. We need Not_A_Unit_Part because we can use information about
-   --  general unit kind (a spec, a body or a subunit) only if we have an
-   --  argument project.
-
    type SF_Status is (
       Waiting,
       --  Waiting for processing
@@ -150,8 +142,8 @@ package Gnatcheck.Source_Table is
    --  assumes that the file named by Par_File_Name contains argument file
    --  names, one per line.
    --
-   --  This procedure sets the ASIS_UL.Options.No_Argument_File_Specified flag
-   --  OFF.
+   --  This procedure sets Gnatcheck.Options.No_Argument_File_Specified to
+   --  False.
 
    function Files_In_Temp_Storage return Natural;
    --  Returns the number of files stored in temporary storage.
@@ -263,14 +255,8 @@ package Gnatcheck.Source_Table is
    --  information or you can use this value as an index value in some other
    --  structure.
 
-   function  Source_Unit_Part     (SF : SF_Id) return SF_Unit_Parts;
-   procedure Set_Source_Unit_Part (SF : SF_Id; Unit_Part : SF_Unit_Parts);
-   --  Queries and updates the source unit part, useful only if the argument
-   --  project is specified.
-
    Ignore_Unit : constant SF_Info := 1;
-   --  Used to mark units to be ignored in the source table. The exact meaning
-   --  of "to be ignored" depends on a tool.
+   --  Used to mark units to be ignored in the source table.
 
    procedure Set_Exemption (Fname : String);
    --  Marks the argument file in the source table as exempted (depending on

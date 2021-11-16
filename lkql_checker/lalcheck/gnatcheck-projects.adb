@@ -803,6 +803,7 @@ package body Gnatcheck.Projects is
               "l log "                 &
               "-include-file= "        &
               "-show-rule "            &
+              "-subprocess "           &
               "-version -help "        &
               "-ignore= "              &
               "nt xml",
@@ -890,7 +891,7 @@ package body Gnatcheck.Projects is
                   elsif In_Project_File then
                      if In_Switches then
                         Error ("-files option is not allowed " &
-                                 "for Switches attribute");
+                               "for Switches attribute");
                         raise Parameter_Error;
                      else
                         Read_Args_From_File (Parameter (Parser => Parser));
@@ -1076,6 +1077,11 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
+
+                  elsif Full_Switch (Parser => Parser) = "-subprocess" then
+                     Subprocess_Mode := True;
+                     Quiet_Mode      := True;
+                     Brief_Mode      := True;
 
                   elsif Full_Switch (Parser => Parser) = "-RTS" then
                      --  We do not store --RTS option for gcc now - we have

@@ -96,6 +96,13 @@ package Gnatcheck.Rules is
 
       Parameters : Liblkqllang.Analysis.Parameter_Decl_List;
       --  List of formal parameters for this rule
+
+      Execution_Cost : Natural;
+      --  The relative execution cost of this rule, a lower number means faster
+      --  execution time.
+
+      Job : Natural := 0;
+      --  The job id for this rule, in case of multiprocessing. 0 if no job id.
    end record;
 
    type Rule_Access is access all Rule_Template'Class;

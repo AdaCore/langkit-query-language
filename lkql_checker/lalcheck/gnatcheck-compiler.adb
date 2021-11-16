@@ -18,6 +18,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Command_Line;        use Ada.Command_Line;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 
@@ -30,6 +31,8 @@ with Gnatcheck.Output;           use Gnatcheck.Output;
 with Gnatcheck.Projects;         use Gnatcheck.Projects;
 with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Gnatcheck.Rules;            use Gnatcheck.Rules;
+with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 
 with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;              use Gnatcheck.Ids;
@@ -42,6 +45,13 @@ package body Gnatcheck.Compiler is
    Warning_Options_String : String_Access := new String'("-gnatw");
    --  Stores parameters of the Warnings rule
 
+   type Message_Kinds is
+     (Not_A_Message,
+      Warning,
+      Style,
+      Restriction,
+      Error);
+
    function To_Mixed (A : String) return String
      renames GNAT.Case_Util.To_Mixed;
 
@@ -52,7 +62,7 @@ package body Gnatcheck.Compiler is
 
    function Adjust_Message
      (Diag         : String;
-      Message_Kind : Compiler_Message_Kinds) return String;
+      Message_Kind : Message_Kinds) return String;
    --  Does the following adjustments:
    --
    --  * Remove from the diagnostic message the reference to the configuration
@@ -65,14 +75,14 @@ package body Gnatcheck.Compiler is
    --    parameter is added to the annotation.
 
    function Annotation
-     (Message_Kind : Compiler_Message_Kinds;
+     (Message_Kind : Message_Kinds;
       Parameter    : String)
       return         String;
    --  Returns annotation to be added to the compiler diagnostic message if
    --  Gnatcheck.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
    --  parameter of '-gnatw' option that causes the diagnosis
 
-   function Get_Rule_Id (Check : Compiler_Message_Kinds) return Rule_Id;
+   function Get_Rule_Id (Check : Message_Kinds) return Rule_Id;
    --  Returns the Id corresponding to the given compiler check
 
    ---------------------------------------------------------
@@ -133,7 +143,7 @@ package body Gnatcheck.Compiler is
 
    function Adjust_Message
      (Diag         : String;
-      Message_Kind : Compiler_Message_Kinds) return String
+      Message_Kind : Message_Kinds) return String
     is
       Result    : constant String (1 .. Diag'Length) := Diag;
       Last_Idx  : Natural;
@@ -150,8 +160,8 @@ package body Gnatcheck.Compiler is
          Last_Idx := Last_Idx - 5;
       end if;
 
-      if Gnatcheck.Options.Mapping_Mode then
-         if Message_Kind = General_Warning then
+      if Mapping_Mode then
+         if Message_Kind = Warning then
             Diag_End := Index (Source  => Result (1 .. Last_Idx),
                                Pattern => "[-gnatw",
                                Going   => Backward);
@@ -184,7 +194,7 @@ package body Gnatcheck.Compiler is
    -- Analyze_Builder_Output --
    ----------------------------
 
-   procedure Analyze_Builder_Output (Errors : out Boolean) is
+   procedure Analyze_Output (File_Name : String; Errors : out Boolean) is
       Line     : String (1 .. 1024);
       Line_Len : Natural;
       File     : File_Type;
@@ -201,13 +211,27 @@ package body Gnatcheck.Compiler is
          SF      : SF_Id;
          Discard : Natural;
 
-         Compiler_Message_Kind : Compiler_Message_Kinds :=
-           Not_A_Compiler_Message;
+         Message_Kind : Message_Kinds := Not_A_Message;
 
          First_Idx : constant Natural := Msg'First;
          Idx       : Natural := First_Idx;
          Word_End  : Natural  := 0;
          Kind      : Diagnosis_Kinds := Rule_Violation;
+
+         procedure Format_Error;
+         --  Emit an error about an unexpected format encountered and set
+         --  Errors to True.
+
+         ------------------
+         -- Format_Error --
+         ------------------
+
+         procedure Format_Error is
+         begin
+            Error ("Unexpected format of message:");
+            Error_No_Tool_Name (Msg);
+            Errors := True;
+         end Format_Error;
 
       begin
          if Msg'Last = 0 then
@@ -230,9 +254,7 @@ package body Gnatcheck.Compiler is
          Idx := Index (Msg (Idx .. Msg'Last), ":");
 
          if Idx = 0 then
-            Error ("Unexpected format of compiler message:");
-            Error_No_Tool_Name (Msg);
-            Errors := True;
+            Format_Error;
             return;
          end if;
 
@@ -246,9 +268,7 @@ package body Gnatcheck.Compiler is
          Word_End := Index (Msg (Idx + 1 .. Msg'Last), ":");
 
          if Word_End = 0 then
-            Error ("Unexpected format of compiler message:");
-            Error_No_Tool_Name (Msg);
-            Errors := True;
+            Format_Error;
             return;
          end if;
 
@@ -256,9 +276,7 @@ package body Gnatcheck.Compiler is
             Discard := Positive'Value (Msg (Idx + 1 .. Word_End - 1));
          exception
             when others =>
-               Error ("Unexpected format of compiler message:");
-               Error_No_Tool_Name (Msg);
-               Errors := True;
+               Format_Error;
                return;
          end;
 
@@ -266,9 +284,7 @@ package body Gnatcheck.Compiler is
          Word_End := Index (Msg (Idx + 1 .. Msg'Last), ":");
 
          if Word_End = 0 then
-            Error ("Unexpected format of compiler message:");
-            Error_No_Tool_Name (Msg);
-            Errors := True;
+            Format_Error;
             return;
          end if;
 
@@ -276,60 +292,88 @@ package body Gnatcheck.Compiler is
             Discard := Positive'Value (Msg (Idx + 1 .. Word_End - 1));
          exception
             when others =>
-               Error ("Unexpected format of compiler message:");
-               Error_No_Tool_Name (Msg);
-               Errors := True;
+               Format_Error;
                return;
          end;
 
          Idx := Word_End + 2;
 
-         if Msg (Idx .. Idx + 6) = "error: " then
-            Compiler_Message_Kind := Error;
+         --  A gnatcheck message emitted by a child process via --subprocess
+
+         if Msg (Idx .. Idx + 6) = "check: " then
+            if Msg (Msg'Last) /= ']' then
+               Format_Error;
+               return;
+            end if;
+
+            declare
+               Last : constant Natural :=
+                 Index (Source  => Msg (Msg'First .. Msg'Last - 1),
+                        Pattern => "[",
+                        Going   => Backward);
+               Id    : Rule_Id;
+
+            begin
+               if Last = 0 then
+                  Format_Error;
+                  return;
+               end if;
+
+               Id := Get_Rule (Msg (Last + 1 .. Msg'Last - 1));
+               Store_Diagnosis
+                 (Text           => Msg (Msg'First .. Idx - 1) &
+                                    Msg (Idx + 7 .. Last - 2) &
+                                    Annotate_Rule (All_Rules.Table (Id).all),
+                  Diagnosis_Kind =>
+                    (if Last - Idx > 24
+                       and then Msg (Idx + 7 .. Idx + 23) = "internal error at"
+                     then Internal_Error else Rule_Violation),
+                  SF             => SF,
+                  Rule           => Id);
+               return;
+            end;
+         elsif Msg (Idx .. Idx + 6) = "error: " then
+            Message_Kind := Error;
             Errors := True;
             Kind   := Compiler_Error;
 
          elsif Msg (Idx .. Idx + 8) = "warning: " then
             if Index (Msg (Idx .. Msg'Last), ": violation of restriction") /= 0
             then
-               Compiler_Message_Kind := Restriction;
+               Message_Kind := Restriction;
             else
-               Compiler_Message_Kind := General_Warning;
+               Message_Kind := Warning;
             end if;
          elsif Index (Msg (Idx .. Msg'Last), "(style)") /= 0 then
-            Compiler_Message_Kind := Style;
+            Message_Kind := Style;
          else
-            Error ("Unexpected format of compiler message:");
-            Error_No_Tool_Name (Msg);
-            Errors := True;
+            Format_Error;
             return;
          end if;
 
-         if Compiler_Message_Kind = Restriction then
-            if Index (Msg, Gnatcheck_Config_File.all) = 0 then
-               --  This means that the diagnoses correspond to some pragma that
-               --  is not from the configuration file created from rule
-               --  options, so we should not file it.
+         if Message_Kind = Restriction
+           and then Index (Msg, Gnatcheck_Config_File.all) = 0
+         then
+            --  This means that the diagnoses correspond to some pragma that
+            --  is not from the configuration file created from rule
+            --  options, so we should not file it.
 
-               return;
-            end if;
+            return;
          end if;
 
          Store_Diagnosis
-           (Text           => Adjust_Message (Msg, Compiler_Message_Kind),
+           (Text           => Adjust_Message (Msg, Message_Kind),
             Diagnosis_Kind => Kind,
             SF             => SF,
-            Rule           => (if Compiler_Message_Kind = Error then No_Rule
-                               else Get_Rule_Id (Compiler_Message_Kind)));
+            Rule           => (if Message_Kind = Error then No_Rule
+                               else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
    --  Start of processing for Analyze_Builder_Output
 
    begin
       Errors := False;
-      Open (File => File,
-            Mode => In_File,
-            Name => Global_Report_Dir.all & "gprbuild.err");
+      Open (File => File, Mode => In_File, Name => File_Name);
 
       while not End_Of_File (File) loop
          Get_Line (File, Line, Line_Len);
@@ -404,24 +448,24 @@ package body Gnatcheck.Compiler is
             Close (File);
          end if;
 
-         Error ("unknown bug detected when analyzing compiler output:");
+         Error ("unknown bug detected when analyzing tool output:");
          Report_Unhandled_Exception (Ex);
          Errors := True;
-   end Analyze_Builder_Output;
+   end Analyze_Output;
 
    -----------------
    -- Annotation --
    ----------------
 
    function Annotation
-     (Message_Kind : Compiler_Message_Kinds;
+     (Message_Kind : Message_Kinds;
       Parameter    : String) return String is
    begin
       case Message_Kind is
-         when Not_A_Compiler_Message =>
+         when Not_A_Message =>
             pragma Assert (False);
             return "";
-         when General_Warning =>
+         when Warning =>
             return " [Warnings" &
                    (if Parameter = "" then "" else ":" & Parameter) & "]";
          when Style =>
@@ -485,13 +529,13 @@ package body Gnatcheck.Compiler is
    -- Get_Rule_Id --
    -----------------
 
-   function Get_Rule_Id (Check : Compiler_Message_Kinds) return Rule_Id is
+   function Get_Rule_Id (Check : Message_Kinds) return Rule_Id is
    begin
       case Check is
-         when Not_A_Compiler_Message | Error =>
+         when Not_A_Message | Error =>
             pragma Assert (False);
             return No_Rule;
-         when General_Warning =>
+         when Warning =>
             return Warnings_Id;
          when Style =>
             return Style_Checks_Id;
@@ -1109,11 +1153,87 @@ package body Gnatcheck.Compiler is
       end if;
    end Set_Compiler_Checks;
 
+   ---------------------
+   -- Spawn_Gnatcheck --
+   ---------------------
+
+   function Spawn_Gnatcheck
+     (Rule_File   : String;
+      Msg_File    : String;
+      Source_File : String) return Process_Id
+   is
+      Pid       : Process_Id;
+      Gnatcheck : String_Access := Locate_Exec_On_Path (Command_Name);
+      Prj       : constant String := Gnatcheck_Prj.Source_Prj;
+      Args      : Argument_List (1 .. 128);
+      Num_Args  : Integer := 0;
+
+   begin
+      Args (1) := new String'("--subprocess");
+      Num_Args := 1;
+
+      if Prj /= "" then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-P" & Prj);
+      end if;
+
+      if Follow_Symbolic_Links then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-eL");
+      end if;
+
+      if Full_Source_Locations then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-l");
+      end if;
+
+      if U_Option_Set then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-U");
+      end if;
+
+      if Main_Unit /= null then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'(Main_Unit.all);
+      end if;
+
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'("-files=" & Source_File);
+
+      Append_Variables (Args, Num_Args);
+
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'("-rules");
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'("-from=" & Rule_File);
+
+      if Debug_Mode then
+         Put (Command_Name);
+
+         for J in 1 .. Num_Args loop
+            Put (" " & Args (J).all);
+         end loop;
+
+         New_Line;
+      end if;
+
+      Pid :=
+        Non_Blocking_Spawn
+          (Gnatcheck.all, Args (1 .. Num_Args), Msg_File, Msg_File);
+      Free (Gnatcheck);
+
+      for J in Args'Range loop
+         Free (Args (J));
+      end loop;
+
+      return Pid;
+   end Spawn_Gnatcheck;
+
    --------------------
    -- Spawn_GPRbuild --
    --------------------
 
-   function Spawn_GPRbuild return Process_Id is
+   function Spawn_GPRbuild (Output_File : String) return Process_Id is
       Pid      : Process_Id;
       GPRbuild : String_Access := Locate_Exec_On_Path ("gprbuild");
       Prj      : constant String := Gnatcheck_Prj.Source_Prj;
@@ -1171,8 +1291,7 @@ package body Gnatcheck.Compiler is
         Non_Blocking_Spawn
           (GPRbuild.all,
            Args (1 .. Num_Args) & Compiler_Arg_List.all,
-           Global_Report_Dir.all & "gprbuild.out",
-           Global_Report_Dir.all & "gprbuild.err");
+           Output_File & ".out", Output_File);
       Free (GPRbuild);
 
       for J in Args'Range loop

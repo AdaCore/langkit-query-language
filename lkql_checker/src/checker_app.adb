@@ -260,7 +260,6 @@ package body Checker_App is
             declare
                Result_Node : Ada_Node;
             begin
-
                Rule.Eval_Ctx.Add_Binding
                  ("node", To_Primitive (Rc_Node, Rule.Eval_Ctx.Pool));
 
@@ -374,14 +373,12 @@ package body Checker_App is
                      Ada.Text_IO.Put_Line
                        (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
                   end if;
-                  raise;
             end;
 
             <<Next>>
          end loop;
 
          Release (Ctx.Eval_Ctx.Pools);
-
          return Into;
       end Visit;
 
@@ -395,6 +392,7 @@ package body Checker_App is
       for Rule of Ctx.Cached_Rules (Unit.Root.Kind) loop
          begin
             Mark (Rule.Eval_Ctx.Pools);
+
             if Rule.Is_Unit_Check then
                declare
                   Result : Primitive;
@@ -480,9 +478,10 @@ package body Checker_App is
                         end if;
                      end;
                   end loop;
+
                exception
-               when E : LKQL.Errors.Stop_Evaluation_Error =>
-                  Handle_Error (Rule, Unit.Root, E);
+                  when E : LKQL.Errors.Stop_Evaluation_Error =>
+                     Handle_Error (Rule, Unit.Root, E);
                end;
             end if;
 

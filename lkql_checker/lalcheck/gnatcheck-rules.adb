@@ -119,14 +119,14 @@ package body Gnatcheck.Rules is
 
    function Annotate_Rule (Rule : Rule_Template) return String is
    begin
-      if Gnatcheck.Options.Mapping_Mode then
-         if Has_Synonym (Rule) then
-            return " [" & Rule_Synonym (Rule) & "]";
-         else
-            return " [" & Rule_Name (Rule) & "]";
-         end if;
-      else
+      if Subprocess_Mode then
+         return " [" & Rule_Name (Rule) & "]";
+      elsif not Mapping_Mode then
          return "";
+      elsif Has_Synonym (Rule) then
+         return " [" & Rule_Synonym (Rule) & "]";
+      else
+         return " [" & Rule_Name (Rule) & "]";
       end if;
    end Annotate_Rule;
 
@@ -317,7 +317,7 @@ package body Gnatcheck.Rules is
    is
       First_Param       : Boolean         := True;
       Rule_Name_Padding : constant String :=
-        (1 .. Rule.Name'Length + 4 => ' ');
+        (1 .. Rule.Name'Length + 3 => ' ');
 
       procedure Print
         (Param  : String;
@@ -398,7 +398,7 @@ package body Gnatcheck.Rules is
    is
       First_Param       : Boolean         := True;
       Rule_Name_Padding : constant String :=
-        (1 .. Rule.Name'Length + 4 => ' ');
+        (1 .. Rule.Name'Length + 3 => ' ');
 
       procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String);
       --  Print value Suffix of parameter Param if not null
@@ -451,7 +451,7 @@ package body Gnatcheck.Rules is
    is
       First_Param       : Boolean         := True;
       Rule_Name_Padding : constant String :=
-        (1 .. Rule.Name'Length + 4 => ' ');
+        (1 .. Rule.Name'Length + 3 => ' ');
 
       procedure Print
         (Param  : String;

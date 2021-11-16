@@ -34,9 +34,10 @@ with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Common; use Libadalang.Common;
 
 with Liblkqllang.Common;
-with Liblkqllang.Iterators; use Liblkqllang.Iterators;
+with Liblkqllang.Iterators;  use Liblkqllang.Iterators;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
-with LKQL.Primitives;    use LKQL.Primitives;
+with LKQL.Primitives;        use LKQL.Primitives;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 
 package body Rule_Commands is
 
@@ -166,6 +167,11 @@ package body Rule_Commands is
          Follow_Instantiations : Boolean := False;
          Param_Kind            : Rule_Param_Kind;
 
+         Execution_Cost_Arg    : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name
+             (To_Unbounded_Text ("execution_cost"));
+         Execution_Cost        : Natural := 1;
+
          use LCO;
 
          procedure Get_Text
@@ -224,6 +230,11 @@ package body Rule_Commands is
                 (Eval (Ctx, Parametric_Exemption_Arg.P_Expr, Kind_Bool));
          end if;
 
+         if not Execution_Cost_Arg.Is_Null then
+            Execution_Cost :=
+              +Int_Val (Eval (Ctx, Execution_Cost_Arg.P_Expr, Kind_Int));
+         end if;
+
          Get_Text (Msg_Arg, To_Unbounded_Text (Name), Msg);
          Get_Text (Help_Arg, Msg, Help);
 
@@ -265,7 +276,8 @@ package body Rule_Commands is
             Param_Kind            => Param_Kind,
             Parameters            => Fn.F_Fun_Expr.F_Parameters,
             Remediation_Level     => Remediation_Level,
-            Parametric_Exemption  => Parametric_Exemption);
+            Parametric_Exemption  => Parametric_Exemption,
+            Execution_Cost        => Execution_Cost);
          return True;
       end;
    end Create_Rule_Command;

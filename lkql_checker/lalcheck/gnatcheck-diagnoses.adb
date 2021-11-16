@@ -154,7 +154,7 @@ package body Gnatcheck.Diagnoses is
    --  files, files with no violations, files with violations, files with
    --  exempted violations only.
 
-   Diagnoses_To_Print : array (Rule_Violation .. Gnatcheck_Warning)
+   Diagnoses_To_Print : array (Rule_Violation .. Internal_Error)
      of Boolean := (others => False);
    --  Specifies which diagnoses should be printed out by the following
    --  procedure
@@ -169,10 +169,6 @@ package body Gnatcheck.Diagnoses is
    --  of them, for which Diagnoses_To_Print is True (and the value of
    --  Print_Exempted_Violations either corresponds to the diagnosis or is not
    --  applicable for the diagnosis kind).
-
-   procedure Print_Failure_Info;
-   pragma Unreferenced (Print_Failure_Info);
-   --  Prints info about non-fatal failures detected during gnatcheck run.
 
    procedure Print_File_List_File;
    --  Prints the reference to the (actual argument or artificially created)
@@ -832,14 +828,8 @@ package body Gnatcheck.Diagnoses is
       procedure Count_Diagnoses (Position : Error_Messages_Storage.Cursor) is
          SF : constant SF_Id := Error_Messages_Storage.Element (Position).SF;
       begin
-
-         if not Is_Argument_Source (SF)
-           and then
-            Error_Messages_Storage.Element (Position).Diagnosis_Kind /=
-              Gnatcheck_Warning
-         then
+         if not Is_Argument_Source (SF) then
             --  All the statistics is collected for argument files only
-            --  (except for gnatcheck warnings)!
             return;
          end if;
 
@@ -861,8 +851,8 @@ package body Gnatcheck.Diagnoses is
                Detected_Exemption_Warning := @ + 1;
             when Compiler_Error =>
                Detected_Compiler_Error := @ + 1;
-            when Gnatcheck_Warning =>
-               Detected_Gnatcheck_Warnings := @ + 1;
+            when Internal_Error =>
+               Detected_Internal_Error := @ + 1;
          end case;
       end Count_Diagnoses;
 
@@ -1307,7 +1297,7 @@ package body Gnatcheck.Diagnoses is
          Diagnoses_To_Print := (Rule_Violation    => True,
                                 Exemption_Warning => False,
                                 Compiler_Error    => False,
-                                Gnatcheck_Warning => False);
+                                Internal_Error    => False);
          Print_Exempted_Violations := True;
          Print_Diagnoses;
 
@@ -1333,7 +1323,7 @@ package body Gnatcheck.Diagnoses is
          Diagnoses_To_Print := (Rule_Violation    => True,
                                 Exemption_Warning => False,
                                 Compiler_Error    => False,
-                                Gnatcheck_Warning => False);
+                                Internal_Error    => False);
          Print_Exempted_Violations := False;
          Print_Diagnoses;
 
@@ -1359,7 +1349,7 @@ package body Gnatcheck.Diagnoses is
          Diagnoses_To_Print := (Rule_Violation    => False,
                                 Exemption_Warning => True,
                                 Compiler_Error    => False,
-                                Gnatcheck_Warning => False);
+                                Internal_Error    => False);
          Print_Diagnoses;
 
       else
@@ -1382,10 +1372,10 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Compiler_Error > 0 then
-         Diagnoses_To_Print := (Rule_Violation     => False,
-                                Exemption_Warning  => False,
-                                Compiler_Error     => True,
-                                Gnatcheck_Warning => False);
+         Diagnoses_To_Print := (Rule_Violation    => False,
+                                Exemption_Warning => False,
+                                Compiler_Error    => True,
+                                Internal_Error    => False);
          Print_Diagnoses;
 
       else
@@ -1401,25 +1391,25 @@ package body Gnatcheck.Diagnoses is
       if not Short_Report then
          if Text_Report_ON then
             Report_EOL;
-            Report ("6. Gnatcheck warnings");
+            Report ("6. Gnatcheck internal errors");
             Report_EOL;
          end if;
       end if;
 
-      if Detected_Gnatcheck_Warnings > 0 then
+      if Detected_Internal_Error > 0 then
          Diagnoses_To_Print := (Rule_Violation    => False,
                                 Exemption_Warning => False,
                                 Compiler_Error    => False,
-                                Gnatcheck_Warning => True);
+                                Internal_Error    => True);
          Print_Diagnoses;
 
       else
          if Text_Report_ON then
-            Report ("no gnatcheck warnings issued", 1);
+            Report ("no internal error detected", 1);
          end if;
 
          if not Short_Report and then XML_Report_ON then
-            XML_Report ("no gnatcheck warnings issued", 1);
+            XML_Report ("no internal error detected", 1);
          end if;
       end if;
 
@@ -1436,7 +1426,7 @@ package body Gnatcheck.Diagnoses is
 
          if User_Info_File /= null then
             if Text_Report_ON then
-               Report ("6. Additional Information");
+               Report ("7. Additional Information");
                Report_EOL;
             end if;
 
@@ -2062,8 +2052,6 @@ package body Gnatcheck.Diagnoses is
                end if;
             end loop;
 
-            New_Line (Rule_List_File);
-
             --  Compiler-made checks:
 
             if Use_gnaty_Option then
@@ -2220,11 +2208,8 @@ package body Gnatcheck.Diagnoses is
            Error_Messages_Storage.Element (Position);
       begin
          if Diagnoses_To_Print (Diag.Diagnosis_Kind) then
-
             if Diag.Diagnosis_Kind = Rule_Violation
-              and then
-                Print_Exempted_Violations =
-                (Diag.Justification = null)
+              and then Print_Exempted_Violations = (Diag.Justification = null)
             then
                return;
             end if;
@@ -2240,7 +2225,6 @@ package body Gnatcheck.Diagnoses is
             if XML_Report_ON then
                XML_Report_Diagnosis (Diag, Short_Report);
             end if;
-
          end if;
       end Print_Specified_Diagnoses;
 
@@ -2249,20 +2233,6 @@ package body Gnatcheck.Diagnoses is
         (Container => All_Error_Messages,
          Process   => Print_Specified_Diagnoses'Access);
    end Print_Diagnoses;
-
-   ------------------------
-   -- Print_Failure_Info --
-   ------------------------
-
-   procedure Print_Failure_Info is
-   begin
-
-      if Tool_Failures > 0 then
-         Report ("Total gnatcheck failures:" & Tool_Failures'Img);
-         Report_EOL;
-      end if;
-
-   end Print_Failure_Info;
 
    --------------------------
    -- Print_File_List_File --
@@ -2273,7 +2243,6 @@ package body Gnatcheck.Diagnoses is
    begin
       if Text_Report_ON then
          Report_No_EOL ("list of sources   : ");
-
       end if;
 
       if XML_Report_ON then
@@ -2670,8 +2639,8 @@ package body Gnatcheck.Diagnoses is
            ("exempted violations                   :" &
             Detected_Exempted_Violations'Img, 1);
          Report
-           ("gnatcheck warnings                    :" &
-            Detected_Gnatcheck_Warnings'Img, 1);
+           ("internal errors                       :" &
+            Detected_Internal_Error'Img, 1);
       end if;
 
       if XML_Report_ON then
@@ -2691,9 +2660,9 @@ package body Gnatcheck.Diagnoses is
                      Image (Detected_Exempted_Violations) &
                      "</exempted-violations>",
                      Indent_Level => 1);
-         XML_Report ("<gnatcheck-warnings>"     &
-                     Image (Detected_Gnatcheck_Warnings) &
-                     "</gnatcheck-warnings>",
+         XML_Report ("<gnatcheck-errors>"     &
+                     Image (Detected_Internal_Error) &
+                     "</gnatcheck-errors>",
                      Indent_Level => 1);
          XML_Report ("</summary>");
       end if;
@@ -3786,6 +3755,8 @@ package body Gnatcheck.Diagnoses is
              "<exemption-problem"
           elsif Diag.Diagnosis_Kind = Compiler_Error then
              "<compiler-error"
+          elsif Diag.Diagnosis_Kind = Internal_Error then
+             "<internal-error"
           elsif Exempted then
              "<exempted-violation"
           else "<violation"),
@@ -3830,6 +3801,8 @@ package body Gnatcheck.Diagnoses is
              "</exemption-problem>"
           elsif Diag.Diagnosis_Kind = Compiler_Error then
              "</compiler-error>"
+          elsif Diag.Diagnosis_Kind = Internal_Error then
+             "</internal-error>"
           elsif Exempted then
              "</exempted-violation>"
           else "</violation>"),

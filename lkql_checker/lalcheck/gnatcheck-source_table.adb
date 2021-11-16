@@ -20,6 +20,7 @@
 with Ada.Characters.Conversions;  use Ada.Characters.Conversions;
 with Ada.Characters.Handling;     use Ada.Characters.Handling;
 with Ada.Directories;
+with Ada.Exceptions;              use Ada.Exceptions;
 with Ada.Strings;                 use Ada.Strings;
 with Ada.Strings.Fixed;           use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;       use Ada.Strings.Unbounded;
@@ -40,7 +41,6 @@ with Gnatcheck.Rules;             use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;  use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
 
-with Langkit_Support.Errors;      use Langkit_Support.Errors;
 with Langkit_Support.Images;      use Langkit_Support.Images;
 with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with Langkit_Support.Text;        use Langkit_Support.Text;
@@ -57,8 +57,7 @@ package body Gnatcheck.Source_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
-   More_Then_One_Arg_File_Specified : Boolean := False;
-   Arg_File_Name                    : String_Access;
+   Arg_File_Name : String_Access;
 
    use Temporary_File_Storages;
 
@@ -90,9 +89,6 @@ package body Gnatcheck.Source_Table is
       Status : SF_Status;
       --  Status of the given source. Initially is set to Waiting, then is
       --  changed according to the results of the metrics computation
-
-      Unit_Part : SF_Unit_Parts;
-      --  Useful only if argument project is specified!
 
       Hash_Link : SF_Id;
       --  Link to next entry in files table for same hash code
@@ -136,7 +132,6 @@ package body Gnatcheck.Source_Table is
       Suffixless_Name   => null,
       CU_Name           => null,
       Status            => Waiting,
-      Unit_Part         => Unknown,
       Hash_Link         => No_SF_Id,
       Switches          => null,
       Result_Dir        => null,
@@ -197,8 +192,7 @@ package body Gnatcheck.Source_Table is
      (Fname              : String;
       Arg_Project        : Arg_Project_Type'Class;
       Duplication_Report : Boolean   := True;
-      Status             : SF_Status := Waiting;
-      Subunits           : Boolean   := False);
+      Status             : SF_Status := Waiting);
    --  Fname is treated as the name of the file to process by the tool. We try
    --  to add this file to the table of files to process. The following checks
    --  are performed:
@@ -221,33 +215,6 @@ package body Gnatcheck.Source_Table is
    --    this may be quite legal and reasonable). But if we have already stored
    --    in the list the name of exactly the same file, we generate the error
    --    message and do not change anything in the list of files.
-   --
-   --  At this stage we do not know if Fname denotes a compilable Ada source
-   --  file.
-   --
-   --  This procedure tries to detect if this source is the source of a
-   --  body unit, and if so, stores this in the corresponding record of the
-   --  source table. To define this, it checks the suffix of the file name.
-   --  It treats suffixes '.adb' and '.2.ada' as suffixes of body files.
-   --
-   --  It is supposed to be used as a part of the tool parameter processing
-   --  in the following way:
-   --
-   --      loop
-   --         declare
-   --            Arg : constant String := Get_Argument (...);
-   --         begin
-   --            exit when Arg = "";
-   --            Add_Source_To_Process (Arg);
-   --         end;
-   --      end loop;
-   --
-   --  The Subunits parameter has its effect only if Arg_Project is specified.
-   --  If it is ON then only sources that contain subunits are added to the
-   --  source table. If this parameter is OFF then only the sources that do
-   --  not contain subunits are added. This is needed in
-   --  Read_Args_From_Temp_Storage procedure to make sure that all the subunits
-   --  are stored after the corresponding enclosing bodies.
 
    function Next_Non_Processed_Source return SF_Id;
    --  Return the next non processed source file id.
@@ -286,8 +253,7 @@ package body Gnatcheck.Source_Table is
      (Fname              : String;
       Arg_Project        : Arg_Project_Type'Class;
       Duplication_Report : Boolean := True;
-      Status             : SF_Status := Waiting;
-      Subunits           : Boolean   := False)
+      Status             : SF_Status := Waiting)
    is
       Old_SF : SF_Id;
       New_SF : SF_Id;
@@ -296,10 +262,7 @@ package body Gnatcheck.Source_Table is
 
       First_Idx : Natural;
       Last_Idx  : Natural;
-
-      Res      : Virtual_File;
-      Res_Info : File_Info;
-      U_Part   : SF_Unit_Parts := Unknown;
+      Res       : Virtual_File;
 
    begin
       Free (Full_Source_Name_String);
@@ -328,35 +291,6 @@ package body Gnatcheck.Source_Table is
                Case_Sensitive => True));
 
          Free (Short_Source_Name_String);
-      end if;
-
-      if Is_Specified (Arg_Project) then
-         if Res = No_File then
-            Res := Create (Arg_Project, +Full_Source_Name_String.all);
-            pragma Assert (Res /= No_File);
-         end if;
-
-         Res_Info := Info (Arg_Project, Res);
-
-         case Unit_Part (Res_Info) is
-            when Unit_Body =>
-               U_Part := Unit_Body;
-            when Unit_Spec =>
-               U_Part := Unit_Spec;
-            when Unit_Separate =>
-               U_Part := Unit_Separate;
-         end case;
-
-         case U_Part is
-            when Unit_Separate =>
-               if not Subunits then
-                  return;
-               end if;
-            when others =>
-               if Subunits then
-                  return;
-               end if;
-         end case;
       end if;
 
       Short_Source_Name_String := new String'(Base_Name (Fname));
@@ -391,8 +325,6 @@ package body Gnatcheck.Source_Table is
       Source_File_Table.Append (New_SF_Record);
       Last_Arg_Source := Source_File_Table.Last;
       New_SF          := Last_Arg_Source;
-
-      Set_Source_Unit_Part (New_SF, U_Part);
 
       if Present (Hash_Table (Hash_Index)) then
          Old_SF := Hash_Table (Hash_Index);
@@ -1029,7 +961,13 @@ package body Gnatcheck.Source_Table is
    --  Start of processing for Read_Args_From_File
 
    begin
-      Gnatcheck.Options.No_Argument_File_Specified := False;
+      if not No_Argument_File_Specified then
+         Error ("cannot specify more than one -file");
+         return;
+      end if;
+
+      No_Argument_File_Specified := False;
+      Arg_File_Name := new String'(Par_File_Name);
 
       if not Is_Regular_File (Par_File_Name) then
          Error (Par_File_Name & " does not exist");
@@ -1047,16 +985,6 @@ package body Gnatcheck.Source_Table is
             Store_Sources_To_Process (Tmp_Str);
          end;
       end loop;
-
-      if not More_Then_One_Arg_File_Specified then
-         if Arg_File_Name /= null then
-            --  We have already encountered one non-empty argument file
-            Free (Arg_File_Name);
-            More_Then_One_Arg_File_Specified := True;
-         else
-            Arg_File_Name := new String'(Par_File_Name);
-         end if;
-      end if;
 
       Close (Arg_File);
 
@@ -1090,8 +1018,6 @@ package body Gnatcheck.Source_Table is
       Arg_Project        : Arg_Project_Type'Class;
       Status             : SF_Status := Waiting)
    is
-      Subunits : Boolean := False;
-
       procedure Action (File_Name : String);
       procedure Action (File_Name : String) is
       begin
@@ -1099,18 +1025,11 @@ package body Gnatcheck.Source_Table is
            (Fname              => File_Name,
             Arg_Project        => Arg_Project,
             Duplication_Report => Duplication_Report,
-            Status             => Status,
-            Subunits           => Subunits);
+            Status             => Status);
       end Action;
 
    begin
       Temp_Storage_Iterate (Action'Access);
-
-      if Is_Specified (Arg_Project) then
-         Subunits := True;
-         Temp_Storage_Iterate (Action'Access);
-      end if;
-
       Clear (Temporary_File_Storage);
    end Read_Args_From_Temp_Storage;
 
@@ -1227,15 +1146,6 @@ package body Gnatcheck.Source_Table is
       GNAT.Task_Lock.Unlock;
    end Set_Source_Status;
 
-   --------------------------
-   -- Set_Source_Unit_Part --
-   --------------------------
-
-   procedure Set_Source_Unit_Part (SF : SF_Id; Unit_Part : SF_Unit_Parts) is
-   begin
-      Source_Table (SF).Unit_Part := Unit_Part;
-   end Set_Source_Unit_Part;
-
    -------------------------
    -- Set_Suffixless_Name --
    -------------------------
@@ -1286,15 +1196,6 @@ package body Gnatcheck.Source_Table is
    begin
       return Source_Table (SF).Status;
    end Source_Status;
-
-   ----------------------
-   -- Source_Unit_Part --
-   ----------------------
-
-   function Source_Unit_Part (SF : SF_Id) return SF_Unit_Parts is
-   begin
-      return Source_Table (SF).Unit_Part;
-   end Source_Unit_Part;
 
    ------------------------------
    -- Store_Sources_To_Process --
@@ -1531,21 +1432,38 @@ package body Gnatcheck.Source_Table is
             Cached_Rule    := Rule;
          end if;
 
-         Store_Diagnosis
-           (Text           =>
-              (if Full_Source_Locations
-               then Unit.Get_Filename
-               else Simple_Name (Unit.Get_Filename)) & ":" &
-              Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-              Column_Image (Natural (Sloc_Range.Start_Column)) & ": " & Msg &
-              Annotate_Rule (All_Rules.Table (Id).all),
-            Diagnosis_Kind => (case Kind is
-                               when Rule_Violation => Rule_Violation,
-                               when Internal_Error => Compiler_Error),
-            SF             => Next_SF,
-            Rule           => Id);
+         if Subprocess_Mode then
+            Put_Line
+              ((if Full_Source_Locations
+                then Unit.Get_Filename
+                else Simple_Name (Unit.Get_Filename))  & ":" &
+               Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
+               Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
+               "check: " & Msg & Annotate_Rule (All_Rules.Table (Id).all));
+
+         else
+            Store_Diagnosis
+              (Text           =>
+                 (if Full_Source_Locations
+                  then Unit.Get_Filename
+                  else Simple_Name (Unit.Get_Filename)) & ":" &
+                 Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
+                 Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
+                 Msg & (if Id = No_Rule then ""
+                        else Annotate_Rule (All_Rules.Table (Id).all)),
+               Diagnosis_Kind => (case Kind is
+                                  when Rule_Violation => Rule_Violation,
+                                  when Internal_Error => Internal_Error),
+               SF             => Next_SF,
+               Rule           => Id);
+         end if;
+
          GNAT.Task_Lock.Unlock;
       end Store_Message;
+
+      function Strip_LF (S : String) return String is
+      (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
+      --  Remove trailing LF if any
 
    begin
       loop
@@ -1557,23 +1475,25 @@ package body Gnatcheck.Source_Table is
          --  Gnatcheck.Diagnoses.Init_Postponed_Check_Exemptions;
 
          Output_Source (Next_SF);
-         Process_Unit
-           (Ctx,
-            Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF)),
-            Store_Message'Access);
+         begin
+            Process_Unit
+              (Ctx,
+               Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF)),
+               Store_Message'Access);
+
+         exception
+            when E : others =>
+               Store_Diagnosis
+                 (Text           =>
+                    (if Full_Source_Locations
+                     then Source_Name (Next_SF)
+                     else Base_Name (Source_Name (Next_SF))) & ":1:1: " &
+                    Strip_LF (Exception_Information (E)),
+                  Diagnosis_Kind => Internal_Error,
+                  SF             => Next_SF,
+                  Rule           => No_Rule);
+         end;
       end loop;
-
-   exception
-      when Precondition_Failure | Property_Error =>
-         Error ("Internal inconsistency on Ada sources");
-
-         if Gnatcheck_Prj.Is_Specified then
-            Error_No_Tool_Name ("Try again with --check-semantic");
-         else
-            Error_No_Tool_Name ("Try again with a project file");
-         end if;
-
-         raise Fatal_Error;
    end Process_Sources;
 
    --------------------

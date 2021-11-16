@@ -45,17 +45,6 @@ package Gnatcheck.Compiler is
    --  specify which restrictions, style rules and other conditions covered by
    --  compiler (non-style) warnings should be checked
 
-   type Compiler_Message_Kinds is
-     (Not_A_Compiler_Message,
-      General_Warning,
-      Style,
-      Restriction,
-      Error);
-
-   subtype Compiler_Check is Compiler_Message_Kinds
-     range General_Warning .. Restriction;
-   --  Describes possible kinds of compiler messages analyzed by gnatcheck
-
    Use_gnaty_Option : Boolean := False;
    Use_gnatw_Option : Boolean := False;
    --  Boolean flags indicating if the corresponding GNAT option should be set
@@ -88,9 +77,9 @@ package Gnatcheck.Compiler is
    --  indicates to gcc that it should not create a dependency on that file in
    --  the .ALI file.
 
-   procedure Analyze_Builder_Output (Errors : out Boolean);
-   --  Parses the standard error output of gprbuild from the previous run of
-   --  Spawn_GPRbuild and store all the relevant messages.
+   procedure Analyze_Output (File_Name : String; Errors : out Boolean);
+   --  Parses the given file (typically error output of gprbuild or gnatcheck)
+   --  and store all the relevant messages.
    --  If some compiler errors are detected, set Errors to True.
 
    procedure Process_Restriction_Param
@@ -141,10 +130,19 @@ package Gnatcheck.Compiler is
    --  format of restriction rules and places the output into the specified
    --  file that is supposed to be an opened out file.
 
-   function Spawn_GPRbuild return Process_Id;
+   function Spawn_Gnatcheck
+     (Rule_File   : String;
+      Msg_File    : String;
+      Source_File : String) return Process_Id;
+   --  Spawn gnatcheck on the main project file with the relevant options
+   --  on the rules given by Rule_File, redirecting the output to Msg_File.
+   --  Source_File is the name of a file listing all the source files to
+   --  analyze.
+
+   function Spawn_GPRbuild (Output_File : String) return Process_Id;
    --  Spawn gprbuild on the main project file with the relevant options,
-   --  redirecting the output to a file that will be used by
-   --  Analyze_Builder_Output.
+   --  redirecting the standard error to the given Output_File, to be used by
+   --  Analyze_Output.
 
    procedure XML_Print_Active_Restrictions (Indent_Level : Natural := 0);
    --  Similar to the previous one, but prints the active restrictions from the

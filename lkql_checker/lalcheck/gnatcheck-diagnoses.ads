@@ -48,9 +48,8 @@ package Gnatcheck.Diagnoses is
       --  exemption mechanism.
       Compiler_Error,
       --  Compiler diagnoses generated for illegal (non-compilable) sources
-      --  or internal error.
-      Gnatcheck_Warning
-      --  Gnatcheck warnings of any kind
+      Internal_Error
+      --  Internal gnatcheck error
       );
 
    procedure Store_Diagnosis
@@ -61,7 +60,7 @@ package Gnatcheck.Diagnoses is
       Justification  : String_Access := null);
    --  Stores the diagnosis in the internal data structure. The same procedure
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
-   --  Compiler_Error and Gnatcheck_Warnings Rule should be set to No_Rule.
+   --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
 
    ------------------------
    -- Diagnoses Counters --
@@ -71,9 +70,9 @@ package Gnatcheck.Diagnoses is
    Detected_Exempted_Violations     : Natural := 0;
    --  Separate counters for exempted and non-exempted violations.
 
-   Detected_Exemption_Warning  : Natural := 0;
-   Detected_Compiler_Error     : Natural := 0;
-   Detected_Gnatcheck_Warnings : Natural := 0;
+   Detected_Exemption_Warning : Natural := 0;
+   Detected_Compiler_Error    : Natural := 0;
+   Detected_Internal_Error    : Natural := 0;
 
    ------------------------
    --  Report generation --
