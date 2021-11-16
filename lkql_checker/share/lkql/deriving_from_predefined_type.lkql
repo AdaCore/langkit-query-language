@@ -5,7 +5,8 @@
 import stdlib
 
 @check(message="deriving from predefined type",
-       follow_generic_instantiations=true)
+       follow_generic_instantiations=true,
+       execution_cost=2)
 fun deriving_from_predefined_type(node) =
     node is DerivedTypeDef(f_has_with_private is WithPrivateAbsent,
                            f_record_extension is null)

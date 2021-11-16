@@ -4,7 +4,7 @@
 # potentially missing recursion detection and identify potential missing
 # checks.
 
-@check(message="call to unavailable body")
+@check(message="call to unavailable body", execution_cost=14)
 fun unavailable_body_calls(node, indirect_calls = true) =
     node is BaseId
     when (indirect_calls and node.p_is_access_call()) or

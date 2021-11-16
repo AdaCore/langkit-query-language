@@ -1,7 +1,7 @@
 # Flag a statement sequence that is a component of an IF, CASE or LOOP
 # statement if this sequence consists of NULL statements only.
 
-@check(message="null path", remediation="EASY")
+@check(message="null path", remediation="EASY", execution_cost=8)
 fun null_paths(node) =
     node is StmtList
     when node[1] != null

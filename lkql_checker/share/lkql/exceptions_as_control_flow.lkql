@@ -15,7 +15,8 @@ fun canonical_exception(name) = {
 
 # TODO customize message to add line # of exception handler
 
-@check(message="this exception will be handled in the same body")
+@check(message="this exception will be handled in the same body",
+       execution_cost=2)
 fun exceptions_as_control_flow(node) =
    # Select raise statements that are directly part of a subprogram body
    node is r@RaiseStmt(f_exception_name is exc@Name)

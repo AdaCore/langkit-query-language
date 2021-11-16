@@ -64,7 +64,7 @@
 import stdlib
 
 @unit_check(help="suffixes in defining names", remediation="EASY",
-            parametric_exemption=true)
+            parametric_exemption=true, execution_cost=3)
 fun identifier_suffixes(unit,
                         type_suffix="",
                         access_suffix="",

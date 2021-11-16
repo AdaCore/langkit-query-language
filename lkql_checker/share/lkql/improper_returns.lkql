@@ -8,7 +8,7 @@
 
 import stdlib
 
-@check(message="extra return statement")
+@check(message="extra return statement", execution_cost=2)
 fun improper_returns(node) =
     node is ReturnStmt
      and stdlib.enclosing_body(node) is body@BaseSubpBody

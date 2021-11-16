@@ -1,7 +1,7 @@
 # Flag all library-level subprograms (including generic subprogram
 # instantiations).
 
-@check(message="declaration of library level subprogram")
+@check(message="declaration of library level subprogram", execution_cost=2)
 fun library_level_subprograms(node) =
     node is (BaseSubpBody or GenericSubpInstantiation)
     when node.parent is LibraryItem

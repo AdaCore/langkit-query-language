@@ -9,7 +9,7 @@ fun is_float(n) =
     n.p_expression_type() is t@BaseTypeDecl
     when t.p_full_view().p_is_float_type()
 
-@check(message="use of equality operation for float values")
+@check(message="use of equality operation for float values", execution_cost=4)
 fun float_equality_checks(node) =
     node is (RelationOp(f_op is op@(OpEq or OpNeq))
              when op.p_referenced_decl() == null and is_float(node.f_left))

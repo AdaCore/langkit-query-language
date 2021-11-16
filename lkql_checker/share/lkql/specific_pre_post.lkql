@@ -1,7 +1,7 @@
 # Flag a declaration of a primitive operation of a tagged type if this
 # declaration contains specification of Pre or/and Post aspect.
 
-@check(message="definition of non class-wide aspect")
+@check(message="definition of non class-wide aspect", execution_cost=3)
 fun specific_pre_post(node) =
     node is (BasicSubpDecl or
              BaseSubpBody(p_previous_part() is null) or

@@ -26,7 +26,7 @@ fun check_loop_parent(node, n) =
          else check_loop_parent(node.parent, n - 1))
     else check_loop_parent(node.parent, n)
 
-@check(message="nesting level of control structures too deep")
+@check(message="nesting level of control structures too deep", execution_cost=3)
 fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
     if loops_only
     then node is BaseLoopStmt when check_loop_parent(node.parent, n)

@@ -3,7 +3,7 @@
 # The check is not case-sensitive. Only the whole identifiers are checked, not
 # substrings thereof.
 
-@check(message="use of forbidden identifier")
+@check(message="use of forbidden identifier", execution_cost=3)
 fun name_clashes(node, forbidden=[]) =
     node is DefiningName
     when [p for p in forbidden if node.p_name_is(p)]?[1] != ()

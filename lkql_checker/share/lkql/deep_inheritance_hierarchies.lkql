@@ -9,6 +9,7 @@
 # set to -1, the rule flags all the declarations of tagged and interface types.
 
 @check(message="derivation tree is too deep",
-       follow_generic_instantiations=true)
+       follow_generic_instantiations=true,
+       execution_cost=2)
 fun deep_inheritance_hierarchies(node, n: int = 2) =
     node is TypeDecl(any super_types(depth=n+1) is *)

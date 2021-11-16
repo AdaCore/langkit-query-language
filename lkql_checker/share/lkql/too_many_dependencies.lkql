@@ -15,7 +15,8 @@ fun check_unit(unit, node, n) =
                           select WithClause)].to_list).length > n
     }
 
-@check(message="unit has too many dependencies", remediation="MAJOR")
+@check(message="unit has too many dependencies", remediation="MAJOR",
+       execution_cost=2)
 fun too_many_dependencies(node, n : int = 5) =
     node is (LibraryItem when check_unit(node.parent, node.f_item, n)) or
             Subunit when check_unit(node.parent, node, n)

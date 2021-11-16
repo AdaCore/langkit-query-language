@@ -1,7 +1,7 @@
 # Flag all local packages declared in package and generic package specs. Local
 # packages in bodies are not flagged.
 
-@check(message="declaration of local package")
+@check(message="declaration of local package", execution_cost=2)
 fun local_packages(node) =
     node is PackageDecl(any parent is PackageDecl or GenericPackageDecl)
      and not node is *(any parent is PackageBody)

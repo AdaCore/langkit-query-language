@@ -37,7 +37,7 @@ fun is_self_referencing(expr, type_decl) =
               when at.f_attribute.p_name_is("Access")
                and at.f_prefix.p_name_matches(type_decl.f_name?.f_name))
 
-@check(message="anonymous subtype")
+@check(message="anonymous subtype", execution_cost=3)
 fun anonymous_subtypes(node) =
     node is (SubtypeIndication(f_constraint is constraint@Constraint)
          when (not (constraint is DiscriminantConstraint

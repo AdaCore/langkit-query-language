@@ -17,7 +17,8 @@ fun has_predicate(t) =
       or t?.p_has_aspect("Dynamic_Predicate")
       or has_predicate(t?.f_subtype?.f_name?.p_referenced_decl())
 
-@check(message="expression needs subtype predicate evaluation")
+@check(message="expression needs subtype predicate evaluation",
+       execution_cost=8)
 fun predicate_testing(node, except_assertions=false) =
     (match node
      # Flags a subtype mark[...]

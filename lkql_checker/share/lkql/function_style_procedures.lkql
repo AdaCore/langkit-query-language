@@ -18,7 +18,7 @@ fun params_out(s) =
 
 fun is_limited(t) = t.f_has_limited.p_as_bool()
 
-@check(message="procedure can be rewritten as function")
+@check(message="procedure can be rewritten as function", execution_cost=2)
 fun function_style_procedures(node) =
     node is (SubpBody or SubpBodyStub or SubpDecl)
     when (node is SubpDecl or node.p_previous_part() == null)

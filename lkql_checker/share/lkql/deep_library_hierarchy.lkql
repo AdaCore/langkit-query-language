@@ -6,7 +6,7 @@
 # This rule has the parameter N: Positive integer specifying the maximal
 # number of ancestors when the unit is not flagged.
 
-@check(message="unit has too many ancestors")
+@check(message="unit has too many ancestors", execution_cost=2)
 fun deep_library_hierarchy(node, n: int = 3) =
     node is BasePackageDecl(f_package_name is
                             DefiningName(any children(depth=n+2) is Name))

@@ -63,7 +63,7 @@ selector calls
    | *      => ()
 
 @check(message="recursive subprogram",
-       follow_generic_instantiations=true)
+       follow_generic_instantiations=true, execution_cost=50)
 fun recursive_subprograms(node, skip_dispatching_calls=false) =
     node is (ClassicSubpDecl or
              BaseSubpBody(p_previous_part() is null or GenericSubpDecl))

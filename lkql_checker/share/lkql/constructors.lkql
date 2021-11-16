@@ -4,7 +4,7 @@
 
 import stdlib
 
-@check(message="declaration of constructor function")
+@check(message="declaration of constructor function", execution_cost=3)
 fun constructors(node) =
     node is (BasicSubpDecl or
              BaseSubpBody(p_previous_part() is null) or

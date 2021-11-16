@@ -45,7 +45,7 @@ fun misplaced_node(n, decl) =
                             misplaced_node(p, decl)
     | *                  => true
 
-@check(message="misplaced representation item")
+@check(message="misplaced representation item", execution_cost=3)
 fun misplaced_representation_items(node) =
     match node
     | AttributeDefClause(f_attribute_expr is AttributeRef) =>

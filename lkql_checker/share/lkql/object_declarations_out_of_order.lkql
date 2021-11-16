@@ -4,7 +4,7 @@
 import stdlib
 
 @unit_check(help="object declarations should precede program unit declarations",
-            remediation="EASY")
+            remediation="EASY", execution_cost=2)
 fun object_declarations_out_of_order(unit) = [
     {message: "object declaration after program unit declaration at line " &
               img(node.previous_sibling?.token_start().start_line),

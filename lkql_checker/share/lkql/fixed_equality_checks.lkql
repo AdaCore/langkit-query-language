@@ -4,7 +4,7 @@
 # the predefined equality operations. Also, the '=' and '/=' operations for
 # floating-point types are not flagged.
 
-@check(message="use of equality operation for fixed values")
+@check(message="use of equality operation for fixed values", execution_cost=4)
 fun fixed_equality_checks(node) =
     node is (RelationOp(f_op is op@(OpEq or OpNeq))
              when op.p_referenced_decl() == null

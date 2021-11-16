@@ -21,10 +21,9 @@ fun types() = [c.p_referenced_decl()
                for c in 
                select CallExpr(p_referenced_decl() is TypeDecl)].to_list
 
-@unit_check
+@unit_check(help="integer type may be replaced by an enumeration",
+            execution_cost=50)
 fun integer_types_as_enum(unit) = {
-    # For efficiency, we perform a single global scan by only running on the
-    # first CompilationUnit.
     # arithmetic operators
     selector op_type | * => *ops();
 
@@ -34,7 +33,6 @@ fun integer_types_as_enum(unit) = {
     # type conversions
     selector type_conv | * => *types();
 
-    # Perform a complete scan of the project via a global select
     [{message: "integer type may be replaced by an enumeration",
       loc: n.p_defining_name()}
      for n in from unit.root select

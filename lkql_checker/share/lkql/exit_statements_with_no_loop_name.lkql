@@ -16,7 +16,7 @@ fun is_in_nested_loop(n) = {
      if p is BaseLoopStmt and stdlib.enclosing_body(p) == body].length > 1
 }
 
-@check(message="exit statement with no loop name")
+@check(message="exit statement with no loop name", execution_cost=2)
 fun exit_statements_with_no_loop_name(node, nested_only=false) =
    if nested_only then
       node is e@ExitStmt(f_loop_name is null) when is_in_nested_loop(e)

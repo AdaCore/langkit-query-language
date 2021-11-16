@@ -26,7 +26,7 @@ fun unconstrained_array_type(type, except_string) =
                    == "Standard.String")
 
 @check(message="function returns unconstrained array",
-       follow_generic_instantiations=true)
+       follow_generic_instantiations=true, execution_cost=5)
 fun unconstrained_array_returns(node, except_string = false) =
     node is (ClassicSubpDecl or BaseSubpBody(p_previous_part() is null) or
              GenericSubpInternal)
