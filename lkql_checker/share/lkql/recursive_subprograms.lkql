@@ -4,9 +4,9 @@
 # subprogram within this context. A context is provided by the set of Ada
 # sources specified as arguments of a given gnatcheck call. Neither dispatching
 # calls nor calls through access-to-subprograms are considered as direct calls
-# by this rule. If Skip_Dispatching_Calls is not set, gnatcheck considers a
+# by this rule. If Follow_Dispatching_Calls is set, gnatcheck considers a
 # dispatching call as a set of calls to all the subprograms the dispatching
-# call may dispatch to.
+# call may dispatch to, otherwise dispatching calls are ignored.
 #
 # This rule does not take into account calls that may happen as the result of
 # subprogram import or more generally unavailable subprogram bodies. See rule
@@ -17,9 +17,6 @@
 #
 # This rule does not take into account subprogram calls in aspect definitions
 # nor (for now) implicit calls made via type initialization.
-#
-# The rule has a parameter Skip_Dispatching_Calls: Do not take into account
-# dispatching calls when building and analyzing call chains.
 
 import stdlib
 
@@ -37,7 +34,7 @@ selector static_calls
 
 @memoized
 fun my_units() = 
-    if skip_dispatching_calls then [] else units().to_list
+    if follow_dispatching_calls then units().to_list else []
 
 # Given a `name`, return all the bodies of the decl referenced by `name`,
 # taking dispatching calls into account.
@@ -62,14 +59,18 @@ selector calls
        # Grab the bodies for every direct call
    | *      => ()
 
+# Note: we keep skip_dispatching_calls for compatibility only
+
 @check(message="recursive subprogram",
-       follow_generic_instantiations=true, execution_cost=50)
-fun recursive_subprograms(node, skip_dispatching_calls=false) =
+       follow_generic_instantiations=true, execution_cost=30)
+fun recursive_subprograms(node,
+                          skip_dispatching_calls=true,
+                          follow_dispatching_calls=false) =
     node is (ClassicSubpDecl or
              BaseSubpBody(p_previous_part() is null or GenericSubpDecl))
     when (not stdlib.in_generic_template(node))
      and stdlib.get_subp_body(node) is b@BaseSubpBody when
-         if skip_dispatching_calls
-         then b is body@BaseSubpBody(any static_calls is c@BaseSubpBody
+         if follow_dispatching_calls
+         then b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)
+         else b is body@BaseSubpBody(any static_calls is c@BaseSubpBody
                                      when body == c)
-         else b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)

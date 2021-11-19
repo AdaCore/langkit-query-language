@@ -1,21 +1,21 @@
 root-child_1.ads:4:14: rule violation: recursive subprogram
-4 |    procedure Process_1 (X : in out PT_1; I : Integer);   --  FLAG if Skip_Dispatching_Calls not set
+4 |    procedure Process_1 (X : in out PT_1; I : Integer);   --  FLAG if Follow_Dispatching_Calls
   |              ^^^^^^^^^
 
 root-child_1.ads:5:14: rule violation: recursive subprogram
-5 |    procedure Process_2 (X : in out PT_1; I : Integer);    --  FLAG if Skip_Dispatching_Calls not set
+5 |    procedure Process_2 (X : in out PT_1; I : Integer);    --  FLAG if Follow_Dispatching_Calls
   |              ^^^^^^^^^
 
 root-child_2.ads:4:14: rule violation: recursive subprogram
-4 |    procedure Process_1 (X : in out PT_2; I : Integer);  --  FLAG if Skip_Dispatching_Calls not set
+4 |    procedure Process_1 (X : in out PT_2; I : Integer);  --  FLAG if Follow_Dispatching_Calls
   |              ^^^^^^^^^
 
 root-child_2.ads:5:14: rule violation: recursive subprogram
-5 |    procedure Process_2 (X : in out PT_2; I : Integer);  --  FLAG if Skip_Dispatching_Calls not set
+5 |    procedure Process_2 (X : in out PT_2; I : Integer);  --  FLAG if Follow_Dispatching_Calls
   |              ^^^^^^^^^
 
 root.ads:8:14: rule violation: recursive subprogram
-8 |    procedure Process_All (X : in out PT'Class; I : Integer); --  FLAG if Skip_Dispatching_Calls not set
+8 |    procedure Process_All (X : in out PT'Class; I : Integer); --  FLAG if Follow_Dispatching_Calls
   |              ^^^^^^^^^^^
 
 recursive_subprograms-generics.adb:136:15: rule violation: recursive subprogram
