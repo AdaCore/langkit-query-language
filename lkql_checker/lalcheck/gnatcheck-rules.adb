@@ -51,6 +51,10 @@ package body Gnatcheck.Rules is
    --  Like Append_Param, for an array of strings represented by a comma
    --  separated list in Value.
 
+   function Find_File (Name : String) return String;
+   --  Return the pathname corresponding to Name, relative to either the
+   --  current directory or the rule file if any. Return "" if no file found.
+
    procedure Load_Dictionary
      (File_Name : String;
       Rule      : in out Rule_Template'Class;
@@ -130,6 +134,25 @@ package body Gnatcheck.Rules is
       end if;
    end Annotate_Rule;
 
+   ---------------
+   -- Find_File --
+   ---------------
+
+   function Find_File (Name : String) return String is
+      Rule_File_Dir : constant String :=
+        Dir_Name
+          (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
+
+   begin
+      if Is_Regular_File (Rule_File_Dir & Name) then
+         return Rule_File_Dir & Name;
+      elsif Is_Regular_File (Name) then
+         return Name;
+      else
+         return "";
+      end if;
+   end Find_File;
+
    -----------------
    -- Has_Synonym --
    -----------------
@@ -177,24 +200,15 @@ package body Gnatcheck.Rules is
       Rule      : in out Rule_Template'Class;
       Param     : in out Unbounded_Wide_Wide_String)
    is
-      Rule_File_Dir : constant String :=
-        Dir_Name
-          (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
-      Success       : Boolean := False;
-      File          : File_Type;
-      Line          : String (1 .. 1024);
-      Len           : Natural;
+      Name : constant String := Find_File (File_Name);
+      File : File_Type;
+      Line : String (1 .. 1024);
+      Len  : Natural;
 
    begin
-      if Is_Regular_File (Rule_File_Dir & File_Name) then
-         Open (File, In_File, Rule_File_Dir & File_Name);
-         Success := True;
-      elsif Is_Regular_File (File_Name) then
-         Open (File, In_File, File_Name);
-         Success := True;
-      end if;
+      if Name /= "" then
+         Open (File, In_File, Name);
 
-      if Success then
          while not End_Of_File (File) loop
             Get_Line (File, Line, Len);
 
@@ -276,11 +290,16 @@ package body Gnatcheck.Rules is
    overriding procedure Print_Rule_To_File
      (Rule         : One_String_Parameter_Rule;
       Rule_File    : File_Type;
-      Indent_Level : Natural := 0) is
+      Indent_Level : Natural := 0)
+   is
+      use Ada.Strings.Unbounded;
    begin
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
-      if Length (Rule.Param) /= 0 then
+      if Length (Rule.File) /= 0 then
+         Put (Rule_File, ":" & To_String (Rule.File));
+
+      elsif Length (Rule.Param) /= 0 then
          Put (Rule_File, ":" & To_String (Rule.Param));
       end if;
    end Print_Rule_To_File;
@@ -696,10 +715,7 @@ package body Gnatcheck.Rules is
      (Rule       : in out One_String_Parameter_Rule;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String)
-   is
-      Str  : String_Access;
-      Last : Natural;
+      Defined_At : String) is
    begin
       if Param = "" then
          if Enable then
@@ -715,40 +731,36 @@ package body Gnatcheck.Rules is
               " defined at " & Defined_Str (Rule.Defined_At.all));
          end if;
 
-         --  '@' designates a response file
+         --  Headers rule takes a file name as parameter, containing the
+         --  header contents.
 
-         if Param (Param'First) = '@' then
+         if Rule.Name.all = "headers" then
             declare
-               Rule_File_Dir : constant String :=
-                 Dir_Name
-                   (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
-               File_Name     : String renames
-                 Param (Param'First + 1 .. Param'Last);
+               Name : constant String := Find_File (Param);
+               Str  : String_Access;
+               Last : Natural;
 
             begin
-               if Is_Regular_File (File_Name) then
-                  Str := Read_File (File_Name);
-               elsif Is_Regular_File (Rule_File_Dir & File_Name) then
-                  Str := Read_File (Rule_File_Dir & File_Name);
+               if Name /= "" then
+                  Str := Read_File (Name);
+                  Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Name);
                else
-                  Error ("(" & Rule.Name.all & "): cannot load file " &
-                         File_Name);
+                  Error ("(" & Rule.Name.all & "): cannot load file " & Param);
                   Rule.Rule_State := Disabled;
                   return;
                end if;
+
+               Last := Str'Last;
+
+               --  Strip trailing end of line
+
+               if Str (Str'Last) = ASCII.LF then
+                  Last := Last - 1;
+               end if;
+
+               Append (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
+               Free (Str);
             end;
-
-            Last := Str'Last;
-
-            --  Strip trailing end of line
-
-            if Str (Str'Last) = ASCII.LF then
-               Last := Last - 1;
-            end if;
-
-            Append (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
-            Free (Str);
-
          else
             Append (Rule.Param, To_Wide_Wide_String (Param));
          end if;
@@ -855,6 +867,7 @@ package body Gnatcheck.Rules is
          end if;
 
          if Rule.Name.all = "name_clashes" then
+            Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Param);
             Load_Dictionary (Param, Rule, Rule.Param);
             Rule.Defined_At := new String'(Defined_At);
          else

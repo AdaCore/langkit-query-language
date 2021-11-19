@@ -28,6 +28,7 @@
 
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;             use Ada.Text_IO;
 with GNAT.OS_Lib;             use GNAT.OS_Lib;
 
@@ -50,6 +51,8 @@ package Gnatcheck.Rules is
    subtype Rule_Help      is String_Access;
    subtype Rule_Diagnosis is String_Access;
    --  Subtypes for storing the string information.
+
+   subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
 
    -----------------
    -- Rule States --
@@ -327,6 +330,7 @@ package Gnatcheck.Rules is
 
    type One_String_Parameter_Rule is new Rule_Template with record
       Param : Unbounded_Wide_Wide_String;
+      File  : Unbounded_String;
    end record;
 
    overriding procedure Process_Rule_Parameter

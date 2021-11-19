@@ -33,8 +33,6 @@
 --                   has (or, more precisely, may have) sources. Processing of
 --                   this case is described in the body of this package.
 
-with GNATCOLL.VFS; use GNATCOLL.VFS;
-
 package Gnatcheck.Projects.Aggregate is
 
    procedure Store_Aggregated_Project (S : String);
