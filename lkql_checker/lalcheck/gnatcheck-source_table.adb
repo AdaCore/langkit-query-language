@@ -231,18 +231,27 @@ package body Gnatcheck.Source_Table is
    -- Add_Sources_To_Context --
    ----------------------------
 
-   procedure Add_Sources_To_Context (Ctx : LKQL_Context) is
+   procedure Add_Sources_To_Context
+     (Ctx     : LKQL_Context;
+      Project : Arg_Project_Type'Class)
+   is
       Units : Unit_Vectors.Vector;
+      Files : File_Array_Access;
    begin
-      GNAT.Task_Lock.Lock;
-      for J in First_SF_Id .. Last_Argument_Source loop
-         if Source_Info (J) /= Ignore_Unit then
-            Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
+      --  We want to add all sources from the project and not just the sources
+      --  from Source_Name, so that global queries are complete.
+
+      Files := Project.Root_Project.Source_Files (Recursive => True);
+
+      for File of Files.all loop
+         if Is_Ada_File (File, Project) then
+            Units.Append
+              (Ctx.Analysis_Ctx.Get_From_File (File.Display_Full_Name));
          end if;
       end loop;
-      GNAT.Task_Lock.Unlock;
 
       Set_Units (Ctx.Eval_Ctx, Units);
+      Unchecked_Free (Files);
    end Add_Sources_To_Context;
 
    ---------------------------
@@ -1505,7 +1514,6 @@ package body Gnatcheck.Source_Table is
    function Create_Context return LKQL_Context is
       Ctx   : LKQL_Context;
       Dummy : Primitive;
-      Units : Unit_Vectors.Vector;
 
    begin
       if Partition = null then
@@ -1525,15 +1533,10 @@ package body Gnatcheck.Source_Table is
         (Charset       => "iso-8859-1",   --  ### or UTF-8
          Unit_Provider => Partition (Partition'First).Provider);
 
-      GNAT.Task_Lock.Lock;
-      for J in First_SF_Id .. Last_Argument_Source loop
-         if Source_Info (J) /= Ignore_Unit then
-            Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
-         end if;
-      end loop;
-      GNAT.Task_Lock.Unlock;
+      --  It's too early to compute units, so provide an empty value for now,
+      --  until Add_Sources_To_Context is called.
 
-      Ctx.Eval_Ctx := Make_Eval_Context (Units);
+      Ctx.Eval_Ctx := Make_Eval_Context (Unit_Vectors.Empty_Vector);
       LKQL.Errors.Property_Error_Recovery := LKQL.Errors.Continue_And_Warn;
 
       return Ctx;

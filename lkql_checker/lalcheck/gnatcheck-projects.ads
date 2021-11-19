@@ -107,6 +107,7 @@ with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
+with GNATCOLL.VFS;      use GNATCOLL.VFS;
 
 package Gnatcheck.Projects is
 
@@ -336,6 +337,11 @@ package Gnatcheck.Projects is
    procedure Process_Project_File (My_Project : in out Arg_Project_Type'Class);
    --  Combines all the actions needed to process the argument project file
    --  except storing individual compilation options for argument files.
+
+   function Is_Ada_File
+     (File :       Virtual_File;
+      My_Project : Arg_Project_Type) return Boolean;
+   --  Checks if the given source file is an Ada file
 
    -------------------------------------
    -- General command line processing --

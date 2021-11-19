@@ -99,7 +99,7 @@ begin
    --  The call to Create_Context above was made before sources are computed
    --  by Check_Parameters, so reset them now.
 
-   Add_Sources_To_Context (Ctx);
+   Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
 
    if not Subprocess_Mode then
       Gnatcheck.Diagnoses.Init_Exemptions;

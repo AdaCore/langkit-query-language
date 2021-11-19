@@ -27,7 +27,6 @@ with System.Multiprocessors;
 
 with GNATCOLL.Projects.Aux;
 with GNATCOLL.Traces;
-with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with GNAT.String_Split; use GNAT.String_Split;
 with GNAT.Table;
@@ -86,12 +85,6 @@ package body Gnatcheck.Projects is
    --  unloads it and loads in the same environment the project passes as a
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
    --  project aggregated by My_Project
-
-   function Is_Ada_File
-     (File :       Virtual_File;
-      My_Project : Arg_Project_Type)
-      return Boolean;
-   --  Checks if the given source file is an Ada file.
 
    function Is_Externally_Built
      (File :       Virtual_File;
@@ -179,6 +172,7 @@ package body Gnatcheck.Projects is
 
             if Unconditionally or else U_Option_Set then
                if Files'Length = 0 then
+                  Unchecked_Free (Files);
                   Error (My_Project.Source_Prj.all &
                          " does not contain source files");
                   return;
@@ -203,6 +197,8 @@ package body Gnatcheck.Projects is
                   Prj := Extended_Project (Prj);
                end loop;
             end if;
+
+            Unchecked_Free (Files);
          end if;
       end if;
    end Get_Sources_From_Project;
