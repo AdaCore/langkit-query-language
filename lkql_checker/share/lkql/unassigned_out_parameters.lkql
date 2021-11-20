@@ -11,34 +11,42 @@
 # - an assignment statement, with the parameter or some component as the target
 # - passing the parameter (or one of its components) as an out or in out
 #   parameter.
+#
+# This rule has an optional parameter:
+# - Ignore_Component_Assignments: ignore component assignments when determining
+#   whether a composite parameter is initialized, only consider full
+#   assignments.
 
 import stdlib
 
 # Return true if `id` matches `param` (the ParamDecl of `name`), taking
 # renamings into account.
-fun param_matches(id, param, name) = {
+fun param_matches(id, param, name, ignore_comp) = {
    val decl = id.p_referenced_decl();
 
-   if decl is ObjectDecl(f_renaming_clause is r@RenamingClause)
-   then stdlib.ultimate_alias(r.f_renamed_object, strip_component=true) == param
-   else decl == param and id.p_name_matches(name)
+   (if decl is ObjectDecl(f_renaming_clause is r@RenamingClause)
+    then stdlib.ultimate_alias(r.f_renamed_object, strip_component=true)
+         ==  param
+    else decl == param and id.p_name_matches(name)) and
+   not (ignore_comp and id.parent is DottedName or CallExpr)
 }
 
 # Return true if the list of stmts s contains any assignment to name as
 # defined above, which happens to match the p_is_write_reference() property.
 # param is the ParamDecl of name.
-fun check_stmts(param, name, s) =
+fun check_stmts(param, name, s, ignore_comp) =
     s is *(any children is id@Name
-           when id.p_is_write_reference() and param_matches(id, param, name))
+           when id.p_is_write_reference()
+            and param_matches(id, param, name, ignore_comp))
 
 # Return true if the exception handler h contains a raise statement, a call
-# to a No_Return procedure or an # assignment to param as defined above.
-fun check_exception_handler(param, name, h) =
+# to a No_Return procedure or an assignment to param as defined above.
+fun check_exception_handler(param, name, h, ignore_comp) =
     (h.f_stmts is *(any children is RaiseStmt or
                     c@CallStmt when c.f_call.p_is_call()
                                 and c.f_call.p_referenced_decl().
                                     p_has_aspect("No_Return"))) or
-    check_stmts(param, name, h)
+    check_stmts(param, name, h, ignore_comp)
 
 fun enclosing_body_stmts(node) =
    match stdlib.enclosing_body(node)
@@ -48,7 +56,7 @@ fun enclosing_body_stmts(node) =
 
 @unit_check(help="OUT parameters do not get values in procedure bodies",
             execution_cost=3)
-fun unassigned_out_parameters(unit) = [
+fun unassigned_out_parameters(unit, ignore_component_assignments=false) = [
     {message: "unassigned OUT parameter " & n.f_name.text, loc: n}
     for n in from unit.root
     # Look for out parameters of subprogram bodies only
@@ -61,8 +69,9 @@ fun unassigned_out_parameters(unit) = [
         val decl = node.p_basic_decl();
 
         f != null and not (
-        check_stmts(decl, node.f_name, f.f_stmts)
+        check_stmts(decl, node.f_name, f.f_stmts, ignore_component_assignments)
         and [m for m in (from f.f_exceptions select h@ExceptionHandler
-             when not check_exception_handler(decl, node.f_name, h))]?[1]
-                      == ())
+             when not check_exception_handler(decl, node.f_name, h,
+                                              ignore_component_assignments))
+            ]?[1] == ())
     }]

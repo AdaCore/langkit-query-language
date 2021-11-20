@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: 'Unassigned_OUT_Parameters'
+project: 'prj.gpr'
+rule_arguments:
+    unassigned_out_parameters.ignore_component_assignments: 'true'
+
