@@ -134,8 +134,7 @@ begin
       end if;
 
       --  Implement -j via multiple processes
-      --  In the default -j1 mode, process all sources in the environment
-      --  task (Process_Num = 0).
+      --  In the default -j1 mode, process all sources in the main process.
 
       if Process_Num <= 1 then
          Process_Sources (Ctx);

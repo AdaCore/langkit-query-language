@@ -369,6 +369,8 @@ package body Gnatcheck.Compiler is
                                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
+      Dump_Stdout : Boolean := True;
+
    --  Start of processing for Analyze_Builder_Output
 
    begin
@@ -390,13 +392,20 @@ package body Gnatcheck.Compiler is
          elsif Index (Line (1 .. Line_Len), ".gpr:") /= 0
            or else Index (Line (1 .. Line_Len), "gprbuild: ") /= 0
          then
-            if not Errors then
-               Error ("error when calling gprbuild:");
+            Error ("error when calling gprbuild:");
+
+            if Is_Regular_File (File_Name & ".out") and then Dump_Stdout then
+               declare
+                  Str : String_Access := Read_File (File_Name & ".out");
+               begin
+                  Error_No_Tool_Name (Str (Str'First .. Str'Last - 1));
+                  Free (Str);
+                  Dump_Stdout := False;
+               end;
             end if;
 
             Error_No_Tool_Name (Line (1 .. Line_Len));
             Errors := True;
-            Detected_Compiler_Error := @ + 1;
 
          elsif Index (Line (1 .. Line_Len), "BUG DETECTED") /= 0 then
             --  If there is a bug box, we should skip the rest of
