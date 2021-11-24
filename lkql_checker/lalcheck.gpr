@@ -10,7 +10,8 @@ project Lalcheck is
    for Main use ("lalcheck.adb");
 
    package Builder is
-      For Switches ("Ada") use ("-j0");
+      for Executable ("lalcheck.adb") use "gnatcheck";
+      for Switches ("Ada") use ("-j0");
    end Builder;
 
    package Compiler is
