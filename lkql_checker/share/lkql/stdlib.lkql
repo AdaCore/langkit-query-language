@@ -283,7 +283,7 @@ fun get_subp_body(node) =
          | *                    => node.p_body_part())
     | TaskTypeDecl    => node.p_next_part_for_decl()
     | BasicDecl when node.p_is_subprogram()
-                      => node.p_body_part()
+                      => node.p_body_part_for_decl()
     | *               => null
 
 fun sloc_image(node) = {
