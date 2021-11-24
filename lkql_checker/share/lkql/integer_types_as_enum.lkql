@@ -22,7 +22,7 @@ fun types() = [c.p_referenced_decl()
                select CallExpr(p_referenced_decl() is TypeDecl)].to_list
 
 @unit_check(help="integer type may be replaced by an enumeration",
-            execution_cost=50)
+            execution_cost=30)
 fun integer_types_as_enum(unit) = {
     # arithmetic operators
     selector op_type | * => *ops();
@@ -37,7 +37,7 @@ fun integer_types_as_enum(unit) = {
       loc: n.p_defining_name()}
      for n in from unit.root select
      node@TypeDecl(p_is_int_type() is true,
-                   all op_type is t@* when t != node,
+                   all type_conv is t@* when t != node,
                    all inst_param is t@* when t != node,
-                   all type_conv is t@* when t != node)]
+                   all op_type is t@* when t != node)]
 }
