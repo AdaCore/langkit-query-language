@@ -1177,6 +1177,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-P" & Prj);
       end if;
 
+      if Debug_Mode then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-d");
+      end if;
+
       if Follow_Symbolic_Links then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-eL");

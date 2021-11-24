@@ -1423,10 +1423,13 @@ package body Gnatcheck.Source_Table is
          Msg : constant String := To_String (To_Text (Message));
 
       begin
-         --  Do not store "Memoized Error" messages which are cascaded errors
+         --  Only store internal error messages in Debug_Mode for now.
+         --  Also never store "Memoized Error" messages which are cascaded
+         --  errors.
 
          if Kind = Internal_Error
-           and then Has_Suffix (Msg, "Memoized Error")
+           and then (not Debug_Mode
+                     or else Has_Suffix (Msg, "Memoized Error"))
          then
             return;
          end if;
