@@ -157,7 +157,11 @@ fun param_pos(n, pos: int = 0) =
 # TODO: move this in LAL
 fun is_predefined_op(op) =
     |" Return true if op is a predefined operator
-    op is Op (p_referenced_decl() is null)
+{
+    val ref = op.p_referenced_decl();
+    # TODO: remove null check once all operators are synthesized (UB16-053)
+    ref == null or ref is SyntheticSubpDecl
+}
 
 fun is_standard_numeric(n) =
     |" Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
