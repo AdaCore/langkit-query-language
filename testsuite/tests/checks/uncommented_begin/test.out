@@ -1,4 +1,4 @@
 uncommented.adb:15:6: rule violation: mark BEGIN with package name
 15 | begin                 --  FLAG
-   |  
+   | 
 
