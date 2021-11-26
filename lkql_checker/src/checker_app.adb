@@ -592,7 +592,7 @@ package body Checker_App is
 
          procedure Internal (Id : LCO.Node_Type_Id);
 
-         Ret : Ada_Node_Kind_Set := (others => False);
+         Ret : Ada_Node_Kind_Set := [others => False];
 
          --------------
          -- Internal --

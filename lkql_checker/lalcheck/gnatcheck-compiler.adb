@@ -105,7 +105,7 @@ package body Gnatcheck.Compiler is
    --  Max_Task_Entries) may be active and may have zero parameter
 
    Restriction_Setting : array (All_Restrictions) of Restriction_State :=
-     (others => (False, null));
+     [others => (False, null)];
    --  This array represents only restrictions that are values of
    --  System.Rident.Restriction_Id. But we need to process restrictions that
    --  are not included in values of this type.
@@ -129,7 +129,7 @@ package body Gnatcheck.Compiler is
    --  'No_Dependence => Foo).
 
    Special_Restriction_Setting : array (All_Special_Restrictions)
-     of Boolean := (others => False);
+     of Boolean := [others => False];
    --  This array only indicates if a given special restriction is ON or OFF,
    --  we cannot store any restriction parameter information, because
    --  parameter format is restriction-specific

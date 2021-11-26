@@ -41,7 +41,7 @@ package Rules_Factory is
    --  Vector of Rule_Command values
 
    type Path_Array is
-      array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String;
+     array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String;
    Empty_Path_Array : constant Path_Array;
 
    function All_Rules
@@ -55,7 +55,7 @@ package Rules_Factory is
    --  program.
 
 private
-   Empty_Path_Array : constant Path_Array := (1 .. 0 => <>);
+   Empty_Path_Array : constant Path_Array := [];
 
    type Virtual_File_Array is array (Positive range <>) of Virtual_File;
 

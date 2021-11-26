@@ -336,7 +336,7 @@ package body Gnatcheck.Rules is
    is
       First_Param       : Boolean         := True;
       Rule_Name_Padding : constant String :=
-        (1 .. Rule.Name'Length + 3 => ' ');
+        [1 .. Rule.Name'Length + 3 => ' '];
 
       procedure Print
         (Param  : String;
@@ -417,7 +417,7 @@ package body Gnatcheck.Rules is
    is
       First_Param       : Boolean         := True;
       Rule_Name_Padding : constant String :=
-        (1 .. Rule.Name'Length + 3 => ' ');
+        [1 .. Rule.Name'Length + 3 => ' '];
 
       procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String);
       --  Print value Suffix of parameter Param if not null
@@ -470,7 +470,7 @@ package body Gnatcheck.Rules is
    is
       First_Param       : Boolean         := True;
       Rule_Name_Padding : constant String :=
-        (1 .. Rule.Name'Length + 3 => ' ');
+        [1 .. Rule.Name'Length + 3 => ' '];
 
       procedure Print
         (Param  : String;
@@ -786,7 +786,7 @@ package body Gnatcheck.Rules is
             Rule.Defined_At := new String'(Defined_At);
          else
             Rule.Integer_Param := Integer'First;
-            Rule.Boolean_Params := (others => Unset);
+            Rule.Boolean_Params := [others => Unset];
             Rule.Rule_State := Disabled;
          end if;
       else
@@ -810,7 +810,7 @@ package body Gnatcheck.Rules is
                   Error ("(" & Rule.Name.all & ") wrong parameter: " &
                          Param);
                   Rule.Integer_Param := Integer'First;
-                  Rule.Boolean_Params := (others => Unset);
+                  Rule.Boolean_Params := [others => Unset];
                   Rule.Rule_State := Disabled;
                end if;
 
@@ -837,7 +837,7 @@ package body Gnatcheck.Rules is
 
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
             Rule.Integer_Param := Integer'First;
-            Rule.Boolean_Params := (others => Unset);
+            Rule.Boolean_Params := [others => Unset];
             Rule.Rule_State := Disabled;
 
          else
@@ -1806,7 +1806,7 @@ package body Gnatcheck.Rules is
             C := To_Character (Element (Rule.Exclude, J));
 
             if C /= ',' then
-               XML_Report_No_EOL ((1 => C));
+               XML_Report_No_EOL ([C]);
             else
                XML_Report ("</parameter>", Indent_Level + 1);
                XML_Report_No_EOL ("<parameter>Exclude=", Indent_Level + 1);
@@ -1859,7 +1859,7 @@ package body Gnatcheck.Rules is
                   XML_Report_No_EOL ("<parameter>-", Indent_Level + 1);
                end if;
             else
-               XML_Report_No_EOL ((1 => C));
+               XML_Report_No_EOL ([C]);
             end if;
          end loop;
       end XML_Print;

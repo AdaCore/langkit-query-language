@@ -96,7 +96,7 @@ package body Rules_Factory is
             Containing_Directory (Containing_Directory (Executable.all));
 
          Builtin_Checkers_Dir : constant Virtual_File_Array :=
-           (1 => Create (+Compose (Compose (Prefix, "share"), "lkql")));
+           [Create (+Compose (Compose (Prefix, "share"), "lkql"))];
 
          Custom_Checkers_Dirs : Virtual_File_Array (Dirs'Range);
       begin

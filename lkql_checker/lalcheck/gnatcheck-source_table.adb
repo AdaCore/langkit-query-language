@@ -153,7 +153,7 @@ package body Gnatcheck.Source_Table is
    subtype Hash_Index_Type is Integer range 0 .. Hash_Max;
    --  Range of hash index values
 
-   Hash_Table : array (Hash_Index_Type) of SF_Id := (others => No_SF_Id);
+   Hash_Table : array (Hash_Index_Type) of SF_Id := [others => No_SF_Id];
    --  The hash table is used to locate existing entries in the files table.
    --  The entries point to the first names table entry whose hash value
    --  matches the hash code. Then subsequent names table entries with the
@@ -168,8 +168,7 @@ package body Gnatcheck.Source_Table is
 
    function Non_Case_Sensitive_File_Find
      (SF_Name        : String;
-      Use_Short_Name : Boolean := False)
-      return           SF_Id;
+      Use_Short_Name : Boolean := False) return SF_Id;
    --  Used as a part of the implementation of File_Find. Tries to locate the
    --  argument in the source table when all the path/file names are converted
    --  to lower case.
@@ -471,10 +470,10 @@ package body Gnatcheck.Source_Table is
       R_Last : constant Natural := R'Last;
 
       L_Dir_Separator : Natural :=
-        Index (L, (1 => Directory_Separator), Backward);
+        Index (L, [Directory_Separator], Backward);
 
       R_Dir_Separator : Natural :=
-        Index (R, (1 => Directory_Separator), Backward);
+        Index (R, [Directory_Separator], Backward);
 
       Base_L : constant String := Base_Name (L);
       Base_R : constant String := Base_Name (R);

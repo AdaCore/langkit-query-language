@@ -49,7 +49,7 @@ package Checker_App is
    type LKQL_Context is record
       Analysis_Ctx : Analysis_Context;
       Eval_Ctx     : Eval_Context;
-      Cached_Rules : Rules_By_Kind := (others => Rule_Vectors.Empty_Vector);
+      Cached_Rules : Rules_By_Kind := [others => Rule_Vectors.Empty_Vector];
       --  Data structure mapping node kinds to the checks that should be ran
       --  when this node type is encountered.
 

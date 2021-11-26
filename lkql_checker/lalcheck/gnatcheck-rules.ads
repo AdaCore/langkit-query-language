@@ -381,7 +381,7 @@ package Gnatcheck.Rules is
 
    type One_Integer_Or_Booleans_Parameter_Rule is new Rule_Template with record
       Integer_Param  : Integer := Integer'First;
-      Boolean_Params : Boolean_Parameters := (others => Unset);
+      Boolean_Params : Boolean_Parameters := [others => Unset];
    end record;
 
    overriding procedure Process_Rule_Parameter

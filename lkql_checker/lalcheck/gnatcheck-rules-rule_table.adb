@@ -1124,7 +1124,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Process_Rules (Ctx : in out LKQL_Context) is
       --  ### Add --rules-dirs parameter
-      Additional_Rules_Dirs : constant Path_Array := (1 .. 0 => <>);
+      Additional_Rules_Dirs : constant Path_Array := [];
 
       Rule : Rule_Access;
 
@@ -1226,7 +1226,7 @@ package body Gnatcheck.Rules.Rule_Table is
       function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set is
          procedure Internal (Id : LCO.Node_Type_Id);
 
-         Ret : Ada_Node_Kind_Set := (others => False);
+         Ret : Ada_Node_Kind_Set := [others => False];
 
          --------------
          -- Internal --

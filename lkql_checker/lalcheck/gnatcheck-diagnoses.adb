@@ -164,7 +164,7 @@ package body Gnatcheck.Diagnoses is
    --  exempted violations only.
 
    Diagnoses_To_Print : array (Rule_Violation .. Internal_Error)
-     of Boolean := (others => False);
+     of Boolean := [others => False];
    --  Specifies which diagnoses should be printed out by the following
    --  procedure
 
@@ -827,7 +827,7 @@ package body Gnatcheck.Diagnoses is
       end record;
 
       File_Counter : array (First_SF_Id .. Last_Argument_Source) of
-        Violations_Detected := (others => (False, False));
+        Violations_Detected := [others => (False, False)];
 
       procedure Count_Diagnoses (Position : Error_Messages_Storage.Cursor);
 
@@ -1300,10 +1300,10 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Exempted_Violations > 0 then
-         Diagnoses_To_Print := (Rule_Violation    => True,
+         Diagnoses_To_Print := [Rule_Violation    => True,
                                 Exemption_Warning => False,
                                 Compiler_Error    => False,
-                                Internal_Error    => False);
+                                Internal_Error    => False];
          Print_Exempted_Violations := True;
          Print_Diagnoses;
 
@@ -1326,10 +1326,10 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Non_Exempted_Violations > 0 then
-         Diagnoses_To_Print := (Rule_Violation    => True,
+         Diagnoses_To_Print := [Rule_Violation    => True,
                                 Exemption_Warning => False,
                                 Compiler_Error    => False,
-                                Internal_Error    => False);
+                                Internal_Error    => False];
          Print_Exempted_Violations := False;
          Print_Diagnoses;
 
@@ -1352,10 +1352,10 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Exemption_Warning > 0 then
-         Diagnoses_To_Print := (Rule_Violation    => False,
+         Diagnoses_To_Print := [Rule_Violation    => False,
                                 Exemption_Warning => True,
                                 Compiler_Error    => False,
-                                Internal_Error    => False);
+                                Internal_Error    => False];
          Print_Diagnoses;
 
       else
@@ -1378,10 +1378,10 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Compiler_Error > 0 then
-         Diagnoses_To_Print := (Rule_Violation    => False,
+         Diagnoses_To_Print := [Rule_Violation    => False,
                                 Exemption_Warning => False,
                                 Compiler_Error    => True,
-                                Internal_Error    => False);
+                                Internal_Error    => False];
          Print_Diagnoses;
 
       else
@@ -1403,10 +1403,10 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Detected_Internal_Error > 0 then
-         Diagnoses_To_Print := (Rule_Violation    => False,
+         Diagnoses_To_Print := [Rule_Violation    => False,
                                 Exemption_Warning => False,
                                 Compiler_Error    => False,
-                                Internal_Error    => True);
+                                Internal_Error    => True];
          Print_Diagnoses;
 
       else
@@ -1676,13 +1676,13 @@ package body Gnatcheck.Diagnoses is
       Exemption_Sections :=
         new Exemption_Sections_Array (First_Compiler_Check .. All_Rules.Last);
 
-      Exemption_Sections.all := (others =>
+      Exemption_Sections.all := [others =>
         (Line_Start    => 0,
          Col_Start     => 0,
          Line_End      => 0,
          Col_End       => 0,
          Justification => null,
-         Detected      => 0));
+         Detected      => 0)];
 
       Postponed_Exemption_Sections :=
         new Postponed_Exemption_Sections_Array
@@ -1698,7 +1698,7 @@ package body Gnatcheck.Diagnoses is
             Postponed_Exemption_Sections (Rule) :=
               new Postponed_Check_Exemption_Sections_Array
                 (First_SF_Id .. Last_Argument_Source);
-            Postponed_Exemption_Sections (Rule).all := (others => null);
+            Postponed_Exemption_Sections (Rule).all := [others => null];
          end if;
 
       end loop;
@@ -3452,7 +3452,7 @@ package body Gnatcheck.Diagnoses is
             Par_End :=
               (if Pars (Par_Start) = '.' then Par_Start + 1 else Par_Start);
          else
-            Par_End := Index (Pars (Par_Start + 1 .. Last_Idx), (1 => ','));
+            Par_End := Index (Pars (Par_Start + 1 .. Last_Idx), [',']);
          end if;
 
          if Par_End = 0 then
