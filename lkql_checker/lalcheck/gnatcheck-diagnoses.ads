@@ -32,8 +32,12 @@ with GNAT.OS_Lib;            use GNAT.OS_Lib;
 
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 with Gnatcheck.Ids;          use Gnatcheck.Ids;
+with Libadalang.Analysis;
+with Langkit_Support.Slocs;  use Langkit_Support.Slocs;
 
 package Gnatcheck.Diagnoses is
+
+   package LAL renames Libadalang;
 
    -----------------------
    -- Diagnoses storage --
@@ -61,6 +65,15 @@ package Gnatcheck.Diagnoses is
    --  Stores the diagnosis in the internal data structure. The same procedure
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
    --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
+
+   procedure Store_Diagnosis
+     (Full_File_Name : String;
+      Message        : String;
+      Sloc           : Source_Location;
+      Diagnosis_Kind : Diagnosis_Kinds;
+      SF             : SF_Id;
+      Rule           : Rule_Id       := No_Rule;
+      Justification  : String_Access := null);
 
    ------------------------
    -- Diagnoses Counters --
@@ -118,20 +131,20 @@ package Gnatcheck.Diagnoses is
                                --  compilers that do not know the modern
                                --  syntax of GNAT Annotate pragma
 
---   ###
---   function Exemption_Pragma_Kind (El : Asis.Element)
---     return Exemption_Pragma_Kinds;
-     --  Checks if the argument Element is either the GNAT Annotate pragma with
-     --  first parameter equal to 'gnatcheck', or some unknown pragma that can
-     --  be processed by old compilers and that can be used as an exemption
-     --  pragma for gnatcheck
+   function Exemption_Pragma_Kind (El : LAL.Analysis.Pragma_Node)
+     return Exemption_Pragma_Kinds;
+   --  Checks if the argument Element is either the GNAT Annotate pragma with
+   --  first parameter equal to 'gnatcheck', or some unknown pragma that can
+   --  be processed by old compilers and that can be used as an exemption
+   --  pragma for gnatcheck
 
---   ###
---   procedure Process_Exemption_Pragma
---     (El          : Asis.Element;
---      Pragma_Kind : Exemption_Pragma_Kinds);
+   procedure Process_Exemption_Pragma
+     (El          : LAL.Analysis.Pragma_Node;
+      Pragma_Kind : Exemption_Pragma_Kinds);
    --  Should never be called with Pragma_Kind equals to
-   --  Not_An_Exemption_Pragma. Analyses the argument element and stores the
+   --  Not_An_Exemption_Pragma.
+   --
+   --  Analyses the argument element and stores the
    --  information about exemption section. In most of the cases (for local
    --  rules, that are not checked on expanded instantiations) it is
    --  equivalent to turning the rule into exempted state, but for the
@@ -144,10 +157,9 @@ package Gnatcheck.Diagnoses is
    --  rule checking and processing of exemption pragmas on all the sources is
    --  completed.
 
---   ###
---   procedure Check_Unclosed_Rule_Exemptions
---     (SF   : SF_Id;
---      Unit : Asis.Element);
+   procedure Check_Unclosed_Rule_Exemptions
+     (SF   : SF_Id;
+      Unit : LAL.Analysis.Analysis_Unit);
    --  Is supposed to be called in the very end of processing of the source
    --  corresponding to SF. Checks if there exist some exempted rules. For each
    --  such rule, a warning is issued and exemption is turned OFF. Unit
