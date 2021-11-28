@@ -23,7 +23,7 @@ fun priority(spec, order) =
                                            *(f_type_def is AccessDef))
                           then index(order, "access") else index(order, "in")
 
-@check(message="parameter out of order", remediation="EASY", execution_cost=3)
+@check(message="parameter out of order", remediation="EASY")
 fun parameters_out_of_order(node,
                             order = ["in", "access", "in_out",
                                      "out", "defaulted_in"]) =

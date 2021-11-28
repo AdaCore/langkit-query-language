@@ -17,16 +17,15 @@ fun has_predicate(t) =
       or t?.p_has_aspect("Dynamic_Predicate")
       or has_predicate(t?.f_subtype?.f_name?.p_referenced_decl())
 
-@check(message="expression needs subtype predicate evaluation",
-       execution_cost=8)
+@check(message="expression needs subtype predicate evaluation")
 fun predicate_testing(node, except_assertions=false) =
     (match node
      # Flags a subtype mark[...]
      | Identifier(any parent(depth=2) is MembershipExpr) =>
-         has_predicate(node?.p_referenced_decl())
+         has_predicate(node.p_referenced_decl())
      # Flags 'Valid attribute reference[...]
-     | AttributeRef => (node?.f_attribute?.p_canonical_text() == "valid")
-         and has_predicate(node?.f_prefix?.p_expression_type())
+     | AttributeRef => (node.f_attribute?.p_canonical_text() == "valid")
+         and has_predicate(node.f_prefix?.p_expression_type())
      | *                   => false)
     # Exclude assert pragmas/aspect if except_assertions is set
     and not (except_assertions and stdlib.within_assert(node))

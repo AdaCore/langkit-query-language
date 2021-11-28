@@ -24,7 +24,7 @@ fun has_rep_aspect(node) =
    node.p_has_aspect("Volatile") or
    node.p_has_aspect("Volatile_Components")
 
-@unit_check(help="representation specification", execution_cost=6)
+@unit_check(help="representation specification")
 fun representation_specifications(unit, record_rep_clauses_only=false) = [
     {message: if n is BasicDecl
               then "declaration with a representation aspect"

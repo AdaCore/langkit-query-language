@@ -47,12 +47,201 @@ procedure Lalcheck is
    use type Ada.Calendar.Time;
 
    Ctx          : LKQL_Context;
-   GPRbuild_Pid : Process_Id;
+   GPRbuild_Pid : Process_Id := Invalid_Pid;
 
    E_Success   : constant := 0; --  No tool failure, no rule violation detected
    E_Violation : constant := 1; --  No tool failure, rule violation(s) detected
    E_Error     : constant := 2; --  Tool failure detected
    No_Check    : constant := 3; --  No file has been checked
+
+   function File_Name (Id : String; Job : Natural) return String is
+     (Global_Report_Dir.all & Id & Image (Job) & ".txt");
+   --  Return the full path for a temp file with a given Id
+
+   procedure Schedule_Files;
+   --  Schedule jobs per set of files
+
+   --------------------
+   -- Schedule_Files --
+   --------------------
+
+   procedure Schedule_Files is
+      Minimum_Files : constant := 10;
+      Num_Files     : Natural := 0;
+      Num_Jobs      : Natural := 0;
+      Current       : Natural := 0;
+      Files_Per_Job : Natural;
+      File          : Ada.Text_IO.File_Type;
+      Status        : Boolean;
+      Total_Jobs    : Natural;
+
+   begin
+      --  Compute number of files
+
+      for SF in First_SF_Id .. Last_Argument_Source loop
+         if Source_Info (SF) /= Ignore_Unit then
+            Num_Files := @ + 1;
+         end if;
+      end loop;
+
+      Files_Per_Job := (Num_Files + Process_Num - 1) / Process_Num;
+      Num_Jobs := Process_Num;
+
+      if Files_Per_Job >= 2 * Minimum_Files then
+         Files_Per_Job := (@ + 1) / 2;
+         Num_Jobs := @ * 2;
+
+      --  Reduce number of jobs if too few files
+
+      elsif Files_Per_Job < Minimum_Files then
+         Files_Per_Job := Minimum_Files;
+         Process_Num := (Num_Files + Files_Per_Job - 1) / Files_Per_Job;
+         Num_Jobs := Process_Num;
+      end if;
+
+      --  Create the rules file
+
+      Create (File, Out_File, File_Name ("rules", 0));
+
+      for Rule in All_Rules.First .. All_Rules.Last loop
+         if Is_Enabled (All_Rules.Table (Rule).all) then
+            Print_Rule_To_File (All_Rules.Table (Rule).all, File);
+            New_Line (File);
+         end if;
+      end loop;
+
+      Close (File);
+
+      Total_Jobs := Num_Jobs +
+                      (if Analyze_Compiler_Output then 1 else 0);
+
+      if not Quiet_Mode and not Progress_Indicator_Mode then
+         Info_No_EOL ("Jobs remaining:");
+         Info_No_EOL (Integer'Image (Total_Jobs) & ASCII.CR);
+      end if;
+
+      --  Process each job with all rules and a different subset of files
+
+      declare
+         Pids    : array (1 .. Num_Jobs) of Process_Id;
+         Pid     : Process_Id;
+         Next_SF : SF_Id := First_SF_Id;
+         Files   : Natural;
+
+         procedure Wait_Gnatcheck;
+         --  Wait for one gnatcheck child process to finish and
+         --  analyze its output. Also deal with the gprbuild child if any.
+
+         --------------------
+         -- Wait_Gnatcheck --
+         --------------------
+
+         procedure Wait_Gnatcheck is
+            Process_Found : Boolean := False;
+         begin
+            loop
+               Wait_Process (Pid, Status);
+
+               if Pid = Invalid_Pid then
+                  Info ("Error while waiting for gnatcheck process.");
+                  return;
+               end if;
+
+               Current := @ + 1;
+
+               if Progress_Indicator_Mode then
+                  declare
+                     Percent : String :=
+                       Integer'Image ((Current * 100) / Total_Jobs);
+                  begin
+                     Percent (1) := '(';
+                     Info ("completed" & Integer'Image (Current)
+                           & " out of" & Integer'Image (Total_Jobs) & " "
+                           & Percent & "%)...");
+                  end;
+               elsif not Quiet_Mode then
+                  Info_No_EOL ("Jobs remaining:");
+                  Info_No_EOL (Integer'Image (Total_Jobs - Current));
+                  Info_No_EOL ("     " & ASCII.CR);
+               end if;
+
+               if Pid = GPRbuild_Pid then
+                  Analyze_Output (Global_Report_Dir.all & "gprbuild.err",
+                                  Status);
+                  exit when Current = Total_Jobs;
+               else
+                  for Job in Pids'Range loop
+                     if Pids (Job) = Pid then
+                        Analyze_Output (File_Name ("gnatcheck-tmp", Job),
+                                        Status);
+                        Process_Found := True;
+                        exit;
+                     end if;
+                  end loop;
+
+                  if not Process_Found then
+                     Info ("Error while waiting for gprbuild process.");
+                  end if;
+
+                  exit;
+               end if;
+            end loop;
+         end Wait_Gnatcheck;
+
+      begin
+         for Job in 1 .. Num_Jobs loop
+            Create (File, Out_File, File_Name ("files", Job));
+            Files := 0;
+
+            for SF in Next_SF .. Last_Argument_Source loop
+               if Source_Info (SF) /= Ignore_Unit then
+                  Put_Line (File, Short_Source_Name (SF));
+                  Files := @ + 1;
+                  Set_Source_Status (SF, Processed);
+
+                  if Files = Files_Per_Job or else SF = Last_Argument_Source
+                  then
+                     Next_SF := SF + 1;
+                     exit;
+                  end if;
+               end if;
+            end loop;
+
+            Close (File);
+
+            --  Spawn gnatcheck with --subprocess switch and
+            --  -rules -from=rules0.txt -files=files?.txt
+
+            Pids (Job) :=
+              Spawn_Gnatcheck
+                (File_Name ("rules", 0),
+                 File_Name ("gnatcheck-tmp", Job),
+                 File_Name ("files", Job));
+
+            if Next_SF > Last_Argument_Source then
+               Total_Jobs := @ - Num_Jobs + Job;
+               exit;
+            end if;
+
+            if Job >= Process_Num then
+               Wait_Gnatcheck;
+            end if;
+         end loop;
+
+         --  Now that some processes are free, spawn gprbuild in background
+
+         if Analyze_Compiler_Output then
+            GPRbuild_Pid := Spawn_GPRbuild
+                              (Global_Report_Dir.all & "gprbuild.err");
+         end if;
+
+         --  Wait for remaining children
+
+         while Current /= Total_Jobs loop
+            Wait_Gnatcheck;
+         end loop;
+      end;
+   end Schedule_Files;
 
 begin
    Initialize_Option_Scan
@@ -124,17 +313,17 @@ begin
       Free_Eval_Context (Ctx.Eval_Ctx);
 
    else
-      --  Spawn gprbuild in background to process the files in parallel
-
-      if Analyze_Compiler_Output then
-         GPRbuild_Pid := Spawn_GPRbuild
-                           (Global_Report_Dir.all & "gprbuild.err");
-      end if;
-
       --  Implement -j via multiple processes
       --  In the default -j1 mode, process all sources in the main process.
 
       if Process_Num <= 1 then
+         --  Spawn gprbuild in background to process the files in parallel
+
+         if Analyze_Compiler_Output then
+            GPRbuild_Pid := Spawn_GPRbuild
+                              (Global_Report_Dir.all & "gprbuild.err");
+         end if;
+
          Process_Sources (Ctx);
 
          --  Wait for gprbuild to finish if we've launched it earlier and
@@ -160,170 +349,7 @@ begin
             end;
          end if;
       else
-         declare
-            Minimum_Cost : constant := 4;
-            Cost         : Natural := 0;
-            Cost_Per_Job : Natural;
-            Overall_Cost : Natural := 0;
-            Costs        : array (1 .. Process_Num) of Natural;
-            Pids         : array (1 .. Process_Num) of Process_Id;
-            Pid          : Process_Id;
-            First        : Boolean;
-            File         : Ada.Text_IO.File_Type;
-            Status       : Boolean;
-            Total_Procs  : Natural;
-            Source_File_Name : constant String :=
-              Global_Report_Dir.all & "files.txt";
-
-            function File_Name (Id : String; Job : Natural) return String is
-              (Global_Report_Dir.all & Id & Image (Job) & ".txt");
-            --  Return the full path for a temp file with a given Id
-
-         begin
-            --  Compute cost of all rules
-
-            for R in All_Rules.First .. All_Rules.Last loop
-               if Is_Enabled (All_Rules.Table (R).all) then
-                  Overall_Cost := @ + All_Rules.Table (R).Execution_Cost;
-               end if;
-            end loop;
-
-            --  Compute average cost per job
-
-            Cost_Per_Job := (Overall_Cost + Process_Num - 1) / Process_Num;
-
-            --  Reduce number of jobs if too few rules
-
-            if Cost_Per_Job < Minimum_Cost then
-               Cost_Per_Job := Minimum_Cost;
-               Process_Num := (Overall_Cost + Cost_Per_Job - 1) / Cost_Per_Job;
-            end if;
-
-            --  Create Source_File_Name with the list of source files to
-            --  analyze.
-
-            Create (File, Out_File, Source_File_Name);
-
-            for SF in First_SF_Id .. Last_Argument_Source loop
-               if Source_Info (SF) /= Ignore_Unit then
-                  Put_Line (File, Short_Source_Name (SF));
-               end if;
-            end loop;
-
-            Close (File);
-
-            --  Create one rule file per job using the average cost
-
-            for Job in 1 .. Process_Num loop
-               Create (File, Out_File, File_Name ("rules", Job));
-               Costs (Job) := 0;
-               First := True;
-
-               for Rule in All_Rules.First .. All_Rules.Last loop
-                  --  Look for active rules, with no job assigned yet and
-                  --  either this is the first rule for this job, or this is
-                  --  the last job, or we have not exceeded our execution
-                  --  budget yet.
-
-                  if Is_Enabled (All_Rules.Table (Rule).all)
-                    and then All_Rules.Table (Rule).Job = 0
-                    and then (First or else
-                              Job = Process_Num or else
-                              Costs (Job) +
-                                All_Rules.Table (Rule).Execution_Cost
-                                  <= Cost_Per_Job)
-                  then
-                     Costs (Job) := @ + All_Rules.Table (Rule).Execution_Cost;
-                     Cost := @ + All_Rules.Table (Rule).Execution_Cost;
-                     All_Rules.Table (Rule).Job := Job;
-                     Print_Rule_To_File
-                       (All_Rules.Table (Rule).all, File);
-
-                     if Debug_Mode then
-                        Put (File, " --  cost:" & Costs (Job)'Img);
-                     end if;
-
-                     New_Line (File);
-                     First := False;
-
-                     exit when Costs (Job) = Cost_Per_Job;
-
-                     --  Adjust Cost_Per_Job in case we exceeded it
-
-                     if Costs (Job) > Cost_Per_Job then
-                        Cost_Per_Job := Natural'Max
-                          (Minimum_Cost,
-                           (Overall_Cost - Cost + Process_Num - Job - 1) /
-                            (Process_Num - Job));
-                        exit;
-                     end if;
-                  end if;
-               end loop;
-
-               --  If First is True is means we have already scheduled all
-               --  rules. Adjust Process_Num and exit the loop.
-
-               if First then
-                  Delete (File);
-                  Process_Num := Job - 1;
-                  exit;
-               else
-                  Close (File);
-
-                  --  Spawn gnatcheck with --subprocess switch and
-                  --  -rules -from=rules?.txt.
-
-                  Pids (Job) :=
-                    Spawn_Gnatcheck
-                      (File_Name ("rules", Job),
-                       File_Name ("gnatcheck-tmp", Job),
-                       Source_File_Name);
-               end if;
-            end loop;
-
-            Total_Procs := Process_Num +
-                            (if Analyze_Compiler_Output then 1 else 0);
-
-            if not Quiet_Mode and not Progress_Indicator_Mode then
-               Info_No_EOL ("Jobs remaining:");
-               Info_No_EOL (Integer'Image (Total_Procs) & ASCII.CR);
-            end if;
-
-            --  Wait for all children to finish and process their output
-
-            for J in 1 .. Total_Procs loop
-               Wait_Process (Pid, Status);
-
-               if Progress_Indicator_Mode then
-                  declare
-                     Percent : String :=
-                       Integer'Image ((J * 100) / Total_Procs);
-                  begin
-                     Percent (1) := '(';
-                     Info ("completed" & Integer'Image (J) & " out of"
-                           & Integer'Image (Total_Procs) & " "
-                           & Percent & "%)...");
-                  end;
-               elsif not Quiet_Mode then
-                  Info_No_EOL ("Jobs remaining:");
-                  Info_No_EOL (Integer'Image (Total_Procs - J));
-                  Info_No_EOL ("     " & ASCII.CR);
-               end if;
-
-               if Pid = GPRbuild_Pid then
-                  Analyze_Output (Global_Report_Dir.all & "gprbuild.err",
-                                  Status);
-               else
-                  for Job in Pids'Range loop
-                     if Pids (Job) = Pid then
-                        Analyze_Output (File_Name ("gnatcheck-tmp", Job),
-                                        Status);
-                        exit;
-                     end if;
-                  end loop;
-               end if;
-            end loop;
-         end;
+         Schedule_Files;
       end if;
 
       Generate_Qualification_Report;

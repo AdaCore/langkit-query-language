@@ -6,7 +6,7 @@ fun num_expr(node) =
     |" node.
     (from node select e@Expr when e is not (Name or ParenExpr)).length
 
-@unit_check(help="maximum complexity of an expression", execution_cost=5)
+@unit_check(help="maximum complexity of an expression")
 fun maximum_expression_complexity(unit, n: int = 10) = [
     {message: "expression has too many sub-expressions (" &
               img(num_expr(node)) & ")", loc: node}

@@ -20,7 +20,7 @@ fun is_parent_primitive(body, decl, parent_type) =
              t@BaseTypeDecl
              when t.p_base_type() == parent_type.p_full_view()
 
-@check(message="non-dispatching call to primitive operation", execution_cost=11)
+@check(message="non-dispatching call to primitive operation")
 fun direct_calls_to_primitives(node, except_constructors=false) = node is
     BaseId(p_is_static_call() is true,
            p_referenced_decl() is

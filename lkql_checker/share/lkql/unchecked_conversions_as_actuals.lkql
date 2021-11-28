@@ -11,8 +11,7 @@ fun is_instance_of_uc(d) =
         name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"
     })
 
-@unit_check(message="instance of Unchecked_Conversion as actual parameter",
-            execution_cost=7)
+@unit_check(message="instance of Unchecked_Conversion as actual parameter")
 fun unchecked_conversions_as_actuals(unit) = [
     {message: "instance of Unchecked_Conversion as " &
               (if n is CallExpr(any parent is CallStmt)

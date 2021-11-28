@@ -25,7 +25,7 @@ fun outside_refs(body) =
                              body.p_subp_spec_or_null()
            | *            => false].to_list
 
-@unit_check(message="outside references from subprogram", execution_cost=18)
+@unit_check(message="outside references from subprogram")
 fun outside_references_from_subprograms(unit) = [
     {message: "outside references from subprogram", loc: n}
     for n in concat([outside_refs(body)

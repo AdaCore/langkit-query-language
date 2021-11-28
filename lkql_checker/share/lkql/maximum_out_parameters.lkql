@@ -14,8 +14,7 @@ fun num_out_params(node) =
      select n@DefiningName
      when n.parent.parent.f_mode is (ModeOut or ModeInOut)).length
 
-@unit_check(help="maximum number of subprogram OUT parameters",
-            execution_cost=3)
+@unit_check(help="maximum number of subprogram OUT parameters")
 fun maximum_out_parameters(unit, n: int = 3) = [
     {message: "too many formal OUT parameters (" & img(num_out_params(n)) & ")",
      loc: n.p_defining_name()}

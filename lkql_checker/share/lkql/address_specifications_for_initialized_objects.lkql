@@ -1,7 +1,7 @@
 # Flag address clauses and address aspect definitions if they are applied
 # to object declarations with explicit initializations.
 
-@check(message="address specification for initialized object", execution_cost=3)
+@check(message="address specification for initialized object")
 fun address_specifications_for_initialized_objects(node) =
     # for X'Address use ...
     node is a@AttributeDefClause(

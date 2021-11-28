@@ -2,8 +2,7 @@
 # to data objects declared in local subprogram bodies. Data objects
 # declared in library subprogram bodies are not flagged.
 
-@check(message="address specification for local object",
-       execution_cost=2)
+@check(message="address specification for local object")
 fun address_specifications_for_local_objects(node) =
     node is ObjectDecl (any parent is s@SubpBody
                         when not s.parent is LibraryItem)

@@ -9,7 +9,7 @@
 import stdlib
 
 @check(message="first parameter should have name 'This' and proper type",
-       remediation="EASY", execution_cost=3)
+       remediation="EASY")
 fun misnamed_controlling_parameters(node) =
     node is (BasicSubpDecl or
              BaseSubpBody(p_previous_part() is null) or

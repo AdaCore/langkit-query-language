@@ -6,7 +6,7 @@
 
 import stdlib
 
-@check(message="use of equality operation for fixed values", execution_cost=4)
+@check(message="use of equality operation for fixed values")
 fun fixed_equality_checks(node) =
     node is (RelationOp(f_op is op@(OpEq or OpNeq))
              when stdlib.is_predefined_op(op)

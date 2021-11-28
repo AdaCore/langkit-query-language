@@ -5,8 +5,7 @@
 
 import stdlib
 
-@check(message="integer literal as index value",
-       execution_cost=2)
+@check(message="integer literal as index value")
 fun numeric_indexing(node) =
     node is IntLiteral when {
         val n = if node.parent is UnOp(f_op is op@OpMinus

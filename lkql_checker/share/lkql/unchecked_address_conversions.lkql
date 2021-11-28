@@ -17,8 +17,7 @@ fun check_uc_params(source, target) =
     p_root_type().p_fully_qualified_name() == "System.Address"
 
 @check(message="address-to-access conversion",
-       follow_generic_instantiations=true,
-       execution_cost=2)
+       follow_generic_instantiations=true)
 fun unchecked_address_conversions(node) =
     node is GenericSubpInstantiation
     when ({

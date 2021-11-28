@@ -3,8 +3,7 @@
 # all pragmas by default are flagged, except the pragmas listed in the
 # ``allowed`` parameter.
 
-@unit_check(help="usage of specified attributes", parametric_exemption=true,
-            execution_cost=2)
+@unit_check(help="usage of specified attributes", parametric_exemption=true)
 fun forbidden_attributes(unit, all=false, forbidden=[], allowed=[]) = [
     {message: "use of attribute " & node.f_attribute.text, loc: node}
     for node in from unit.root select AttributeRef(f_attribute is id@Identifier)

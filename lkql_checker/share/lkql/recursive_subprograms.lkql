@@ -68,8 +68,7 @@ selector calls
 
 # Note: we keep skip_dispatching_calls for compatibility only
 
-@check(message="recursive subprogram",
-       follow_generic_instantiations=true, execution_cost=40)
+@check(message="recursive subprogram", follow_generic_instantiations=true)
 fun recursive_subprograms(node,
                           skip_dispatching_calls=true,
                           follow_dispatching_calls=false) =

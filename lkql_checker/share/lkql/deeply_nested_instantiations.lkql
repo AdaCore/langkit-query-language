@@ -16,6 +16,6 @@ fun check_instantiations(node, n : int) =
         when [x for x in c if check_instantiations(x, n - 1)]?[1] != ()
     | * => false
 
-@check(message="deeply nested instantiation", execution_cost=6)
+@check(message="deeply nested instantiation")
 fun deeply_nested_instantiations(node, n : int = 3) =
     node is GenericInstantiation when check_instantiations(node, n)

@@ -23,8 +23,7 @@ fun check_actual_param(spec, node, check_dot) =
     | EntrySpec => spec.f_entry_params.f_params[2] != null
     | *         => false
 
-@check(message="positional parameter association",
-       remediation="EASY", execution_cost=8)
+@check(message="positional parameter association", remediation="EASY")
 fun positional_parameters(node, all=false) =
     node is ParamAssoc(f_designator is null, parent is l@AssocList)
     when l.parent is c@CallExpr(f_name is id@*

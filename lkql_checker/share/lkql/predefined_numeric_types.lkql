@@ -3,8 +3,7 @@
 
 import stdlib
 
-@check(message="explicit reference to predefined numeric subtype",
-       execution_cost=10)
+@check(message="explicit reference to predefined numeric subtype")
 fun predefined_numeric_types(node) =
     node is Identifier(p_referenced_decl() is t@BaseTypeDecl
-    when stdlib.is_standard_numeric(t?.p_canonical_fully_qualified_name()))
+    when stdlib.is_standard_numeric(t.p_canonical_fully_qualified_name()))

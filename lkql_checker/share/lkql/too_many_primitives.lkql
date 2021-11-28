@@ -12,8 +12,7 @@ fun is_visible(type_decl) = type_decl.parent.parent is PublicPart
 # with follow_generic_instantiations
 @check(message="tagged type has too many primitives",
        remediation="MAJOR",
-       follow_generic_instantiations=true,
-       execution_cost=4)
+       follow_generic_instantiations=true)
 fun too_many_primitives(node, n : int = 5) =
     node is TypeDecl
     when node.p_is_tagged_type() and is_visible(node)

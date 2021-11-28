@@ -113,10 +113,6 @@ package Rule_Commands is
 
       Parametric_Exemption : Boolean;
       --  Whether this rule allows parametric exemption.
-
-      Execution_Cost : Natural;
-      --  The relative execution cost of this rule, a lower number means faster
-      --  execution time.
    end record;
 
    type Output_Style is (Default, GNATcheck, Silent);

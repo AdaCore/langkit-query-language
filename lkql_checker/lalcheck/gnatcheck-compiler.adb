@@ -1260,10 +1260,16 @@ package body Gnatcheck.Compiler is
       Args (3) := new String'("-k");
       Args (4) := new String'("-q");
       Args (5) := new String'("--subdirs=gnatcheck");
-      Args (6) := new String'("-j0");
-      Args (7) := new String'("--no-object-check");
-      Args (8) := new String'("--complete-output");
+
+      Args (6) := new String'("--no-object-check");
+      Args (7) := new String'("--complete-output");
+      Args (8) := new String'("--restricted-to-languages=ada");
       Num_Args := 8;
+
+      if Process_Num > 1 then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-j" & Image (Process_Num));
+      end if;
 
       if Prj /= "" then
          Num_Args := @ + 1;

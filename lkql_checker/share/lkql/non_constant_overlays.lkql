@@ -43,8 +43,7 @@ fun check_non_const_overlay(decl, overlaid) =
 # constant object overlays a variable
 # overlaying of a non-volatile variable object
 
-@check(message="constant object overlays a non-constant object",
-       execution_cost=3)
+@check(message="constant object overlays a non-constant object")
 fun non_constant_overlays(node) = match node
     | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
         when id.p_name_is("Address")

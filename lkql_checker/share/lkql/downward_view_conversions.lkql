@@ -1,6 +1,6 @@
 # Flag downward view conversions.
 
-@check(message="downward view conversion", execution_cost=7)
+@check(message="downward view conversion")
 fun downward_view_conversions(node) =
     node is CallExpr(p_referenced_decl() is
             # Select type conversions

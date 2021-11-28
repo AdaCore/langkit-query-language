@@ -12,7 +12,7 @@ fun is_predefined_boolean(n) =
     n.p_expression_type() is t@BaseTypeDecl
     when t.p_base_subtype() == n.p_bool_type()
 
-@check(message="comparison of Boolean values", execution_cost=8)
+@check(message="comparison of Boolean values")
 fun boolean_relational_operators(node) =
     (node is RelationOp
      when stdlib.is_predefined_op(node.f_op)

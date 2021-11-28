@@ -12,7 +12,7 @@ fun generic_nesting(node) =
     |" Return the number of GenericDecl found in parents of node
     [p for p in node.parents(include_self=false) if p is GenericDecl].length
 
-@unit_check(message="deeply nested generic", execution_cost=2)
+@unit_check(message="deeply nested generic")
 fun deeply_nested_generics(unit, n: int = 5) = [
     {message: "deeply nested generic (" & img(generic_nesting(node)) & ")",
      loc: node.p_defining_name()}

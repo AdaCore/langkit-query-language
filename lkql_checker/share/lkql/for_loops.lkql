@@ -25,8 +25,7 @@ fun has_references(node, id) =
     |" Return true if any reference to `id` starting from `node` is found
     (from node select first Identifier(p_name_matches(id) is true)) != null
 
-@check(message="while loop may be replaced by a for loop",
-       execution_cost=2)
+@check(message="while loop may be replaced by a for loop")
 fun for_loops(node) =
     # Find while loops of the form: while Id <relation op> ... loop
     node is WhileLoopStmt(f_spec is WhileLoopSpec(f_expr is

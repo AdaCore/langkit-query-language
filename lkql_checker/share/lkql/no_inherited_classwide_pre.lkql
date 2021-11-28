@@ -2,7 +2,7 @@
 # at least one of the operations it overrides or implements does not have
 # (explicitly defined or inherited) Pre'Class aspect defined for it.
 
-@unit_check(help="overridden operation has no Pre'Class", execution_cost=3)
+@unit_check(help="overridden operation has no Pre'Class")
 fun no_inherited_classwide_pre(unit) = [
     {message:
         "overriding operation that does not inherit Pre'Class (" &

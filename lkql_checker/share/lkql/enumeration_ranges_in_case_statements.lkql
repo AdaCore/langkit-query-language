@@ -13,8 +13,7 @@
 # existing `case' statement with an enumeration range that includes the
 # new literal.
 
-@check(message="enumeration range as a choice in a case statement",
-       execution_cost=2)
+@check(message="enumeration range as a choice in a case statement")
 fun enumeration_ranges_in_case_statements(node) =
     node is AlternativesList(
         any parent(depth=3) is CaseStmt(

@@ -3,7 +3,7 @@
 # spec. Formal functions are also checked. For a renaming declaration, only
 # renaming-as-declaration is checked.
 
-@check(message="overloading of an operator symbol", execution_cost=3)
+@check(message="overloading of an operator symbol")
 fun overloaded_operators(node) =
     match node
     | ClassicSubpDecl          => node.p_defining_name()?.p_is_operator_name()
