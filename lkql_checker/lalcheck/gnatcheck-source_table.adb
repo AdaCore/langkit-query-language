@@ -1548,15 +1548,18 @@ package body Gnatcheck.Source_Table is
 
          exception
             when E : others =>
-               Store_Diagnosis
-                 (Text           =>
-                    (if Full_Source_Locations
-                     then Source_Name (Next_SF)
-                     else Base_Name (Source_Name (Next_SF))) & ":1:1: " &
-                    Strip_LF (Exception_Information (E)),
-                  Diagnosis_Kind => Internal_Error,
-                  SF             => Next_SF,
-                  Rule           => No_Rule);
+               if Debug_Mode then
+                  Store_Diagnosis
+                    (Text           =>
+                       (if Full_Source_Locations
+                        then Source_Name (Next_SF)
+                        else Base_Name (Source_Name (Next_SF))) &
+                             ":1:1: internal error: " &
+                             Strip_LF (Exception_Information (E)),
+                     Diagnosis_Kind => Internal_Error,
+                     SF             => Next_SF,
+                     Rule           => No_Rule);
+               end if;
          end;
       end loop;
    end Process_Sources;

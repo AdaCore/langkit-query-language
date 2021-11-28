@@ -325,8 +325,8 @@ package body Gnatcheck.Compiler is
                                     Msg (Idx + 7 .. Last - 2) &
                                     Annotate_Rule (All_Rules.Table (Id).all),
                   Diagnosis_Kind =>
-                    (if Last - Idx > 24
-                       and then Msg (Idx + 7 .. Idx + 23) = "internal error at"
+                    (if Last - Idx > 21
+                       and then Msg (Idx + 7 .. Idx + 20) = "internal error"
                      then Internal_Error else Rule_Violation),
                   SF             => SF,
                   Rule           => Id);
