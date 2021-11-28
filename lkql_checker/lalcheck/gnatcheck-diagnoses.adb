@@ -60,17 +60,14 @@ package body Gnatcheck.Diagnoses is
    -----------------------
 
    type Diag_Message is record
-      Text               : String_Access;
-      Justification      : String_Access;
-      Diagnosis_Kind     : Diagnosis_Kinds;
-      Rule               : Rule_Id;
-      SF                 : SF_Id;
-      Num                : Positive;
+      Text           : String_Access;
+      Justification  : String_Access;
+      Diagnosis_Kind : Diagnosis_Kinds;
+      Rule           : Rule_Id;
+      SF             : SF_Id;
+      Num            : Positive;
       --  Is needed to order properly messages corresponding to the same SLOC.
    end record;
-
-   Instance_SLOC_Txt : constant String := " instance at ";
-   --  Part of the SLOC created for an element from expanded generic
 
    function SLOC_Less_Than (L, R : String) return Boolean;
    --  Provided that L and R have the "file:line:col" format, compares these
@@ -82,16 +79,6 @@ package body Gnatcheck.Diagnoses is
    function Diag_Is_Less_Than (L, R : Diag_Message) return Boolean;
    --  If L or R is null, raises Constraint_Error. Otherwise compares SLOC
    --  parts of L and R (file names are converted to lower case).
-   --  If SLOC parts do not contain instantiation chains, then they are
-   --  compared. If both SLOCs contain instantiation chains, first the SLOCs of
-   --  (the last) instantiations (that is, the rightmost SLOCs in the chains)
-   --  are compared, and if they are equal, the SLOCs in the templates (the
-   --  leftmost SLOCs in the chains) are compared. If one SLOC contains an
-   --  instantiation chain, but another one does not, then at the first step
-   --  the SLOC of the last instantiation is compared with another SLOC, and in
-   --  case if they are equal, the SLOC without instantiation chain is
-   --  considered as being less than the SLOC with the chain. All SLOCs are
-   --  compared lexicographically.
    --
    --  If comparing SLOCs based on the rules given above results in the fact
    --  that these SLOCs are equal, Num parts are compared.
@@ -223,8 +210,6 @@ package body Gnatcheck.Diagnoses is
    function Select_Column (Diag : String_Access) return Positive;
    --  Assuming that Diag is a diagnosis, gets the line/column number from it.
    --  The result is undefined if Diag does not have a syntax of the diagnosis.
-   --  At the moment this function does not work properly if Diag contains SLOC
-   --  pointing into expanded instantiation.
 
    ----------------------------------------------------------------------
    --  Data structures and local routines for rule exemption mechanism --
@@ -278,9 +263,8 @@ package body Gnatcheck.Diagnoses is
       Closing_Span : Source_Location_Range;
       SF           : SF_Id);
    --  Cleans up the stored exemption section for the argument Rule, for some
-   --  rules (global rules, rules checked of expanded instantiations, compiler
-   --  checks) the exemption section is stored in some rule-specific data
-   --  structure before being cleaning up.
+   --  rules (subprocess, compiler checks) the exemption section is stored in
+   --  some rule-specific data structure before being cleaning up.
 
    -----------------------------
    -- Parametric exemptions --
@@ -503,9 +487,8 @@ package body Gnatcheck.Diagnoses is
       Closing_Span :        Source_Location_Range;
       SF           :        SF_Id);
    --  Cleans up the stored exemption section for the argument Rule, for some
-   --  rules (global rules, rules checked of expanded instantiations, compiler
-   --  checks) the exemption section is stored in some rule-specific data
-   --  structure before being cleaning up.
+   --  rules (subprocess, compiler checks) the exemption section is stored in
+   --  some rule-specific data structure before being cleaning up.
 
    --------------------------------------
    --  Exemptions for postponed checks --
@@ -560,8 +543,7 @@ package body Gnatcheck.Diagnoses is
       return Boolean;
    --  Checks if the exemption processing for the argument rule should be
    --  postponed till all the sources are processed. For the moment returns
-   --  True for compiler checks, global rules and rules that are checked on
-   --  expanded generics
+   --  True for compiler checks.
 
    procedure Add_Exempted_Violation (For_Check : Rule_Id);
    --  Adds 1 to the detection counter for the currently accessed section for
@@ -570,12 +552,6 @@ package body Gnatcheck.Diagnoses is
    function Get_Justification (For_Check : Rule_Id) return String_Access;
    --  Gets justification from the currently accessed section for the argument
    --  check
-
-   function Get_Original_SF (Diag : Diag_Message) return SF_Id;
-   --  In case if the diagnosis is formulated for expanded instantiation,
-   --  returns the ID if the file containing the template code (or No_SF_Id if
-   --  this file is not a gnatcheck argument), otherwise returns the source
-   --  file ID stored in the diagnosis
 
    procedure Map_On_Postponed_Check_Exemption      --  ???
      (In_File     :     SF_Id;
@@ -969,7 +945,7 @@ package body Gnatcheck.Diagnoses is
       --     any digit, so for the predefined "<" a.ads:50:20 is less than
       --     a.ads 5:20
       --
-      --  3. we cannot use alphabetical comparision for the whole SLOC, because
+      --  3. we cannot use alphabetical comparison for the whole SLOC, because
       --     line and column numbers should be compared as digits
       --
       --  4. if Full_Source_Locations is ON, in Windows we may have ':' as a
@@ -1021,8 +997,8 @@ package body Gnatcheck.Diagnoses is
             R_End   := R_End - 1;
          end if;
 
-         L_Val   := Positive'Value (L (L_Start .. L_End));
-         R_Val   := Positive'Value (R (R_Start .. R_End));
+         L_Val := Positive'Value (L (L_Start .. L_End));
+         R_Val := Positive'Value (R (R_Start .. R_End));
 
          if L_Val < R_Val then
             return True;
@@ -1040,28 +1016,8 @@ package body Gnatcheck.Diagnoses is
                return False;
             end if;
 
-            L_Start := L_End + 2;
-            R_Start := R_End + 2;
-
-            L_End   := Index (L (L_Start .. L'Last), Instance_SLOC_Txt);
-            R_End   := Index (R (R_Start .. R'Last), Instance_SLOC_Txt);
-
-            if L_End = 0 then
-               L_End   := L'Last;
-            else
-               --  SLOC from instantiation
-               L_End := L_End - 1;
-            end if;
-
-            if R_End = 0 then
-               R_End   := R'Last;
-            else
-               --  SLOC from instantiation
-               R_End := R_End - 1;
-            end if;
-
-            L_Val := Positive'Value (L (L_Start .. L_End));
-            R_Val := Positive'Value (R (R_Start .. R_End));
+            L_Val := Positive'Value (L (L_End + 2 .. L'Last));
+            R_Val := Positive'Value (R (R_End + 2 .. R'Last));
 
             return L_Val < R_Val;
          end if;
@@ -1076,164 +1032,22 @@ package body Gnatcheck.Diagnoses is
       L_First : constant Natural := L.Text'First;
       R_First : constant Natural := R.Text'First;
 
-      L_SLOC_Start : Natural := L_First;
-      R_SLOC_Start : Natural := R_First;
-
-      L_SLOC_End : Natural := Index (L.Text.all, ": ") - 1;
-      R_SLOC_End : Natural := Index (R.Text.all, ": ") - 1;
-
-      L_Has_Chain : Boolean := False;
-      R_Has_Chain : Boolean := False;
-      Inst_Idx_L  : Natural;
-      Inst_Idx_R  : Natural;
-      --  If SLOC of the diagnoses has an instantiation chain, should be set to
-      --  point to the beginning of the last (rightmost) element in the SLOC
-      --  chain that is created in case if diagnosis (or warning) points inside
-      --  generic instaniation. Otherwise should be set to 0.
-
-      Instance_SLOC_Txt_Len : constant Natural := Instance_SLOC_Txt'Length;
-
-      function Get_Inst_Idx (Diag : String) return Natural;
-      --  Used to set Inst_Idx_L and Inst_Idx_R
-
-      Result : Boolean;
-
-      procedure Set_Instantiation_SLOC_End
-        (Message    :     String;
-         Sloc_Start :      Natural;
-         Sloc_End   : out Natural);
-      --  ???
-      --  Sets Sloc_Start and Sloc_End to point to the beginning and the end of
-      --  the SLOC of the latest (rightmost) element in the SLOC chain that is
-      --  created in case if diagnosis (or warning) points inside generic
-      --  instaniation. Note that the format of this SLOC may be different -
-      --  either 'source_name:line:col' or only 'source_name:line'
-
-      function Get_Inst_Idx (Diag : String) return Natural is
-         Diag_Last : constant Natural := Diag'Last;
-         Result    :          Natural := 0;
-         Idx       :          Natural := Diag'First;
-      begin
-         while Idx /= 0
-             and then
-               Idx < Diag_Last
-         loop
-            Idx := Index (Diag (Idx .. Diag_Last), " ");
-
-            if Idx = 0 then
-               exit;
-            end if;
-
-            if Diag_Last - Idx + 1 > Instance_SLOC_Txt_Len
-              and then
-               Diag (Idx .. Idx + Instance_SLOC_Txt_Len - 1) =
-                 Instance_SLOC_Txt
-            then
-               Result := Idx;
-               Idx    := Idx + Instance_SLOC_Txt_Len;
-            else
-               exit;
-            end if;
-
-         end loop;
-
-         return Result;
-      end Get_Inst_Idx;
-
-      procedure Set_Instantiation_SLOC_End
-        (Message    :     String;
-         Sloc_Start :     Natural;
-         Sloc_End   : out Natural) is
-      begin
-         --  We assume that Message indeed has instantiation chain, and we
-         --  have Sloc_Start properly set!
-
-         Sloc_End := Index (Message (Sloc_Start .. Message'Last), " ");
-
-         if Sloc_End = 0 then
-            Sloc_End := Message'Last;
-         else
-            Sloc_End := Sloc_End - 1;
-         end if;
-
-         if Message (Sloc_End) = ':' then
-            Sloc_End   := Sloc_End - 1;
-         end if;
-      end Set_Instantiation_SLOC_End;
+      L_SLOC_End : constant Natural := Index (L.Text.all, ": ") - 1;
+      R_SLOC_End : constant Natural := Index (R.Text.all, ": ") - 1;
 
    begin
       if Diag_Is_Equal (L, R) then
          return False;
       end if;
 
-      --  For computing L_Has_Chain and R_Has_Chain we have to check not only
-      --  the presence of Instance_SLOC_Txt in the diagnosis, but also to
-      --  verify that it is used as a SLOC of the diagnoses, but not as some
-      --  part of diagnoses text (some refinement etc.)
-      Inst_Idx_L := Get_Inst_Idx (L.Text.all);
-      Inst_Idx_R := Get_Inst_Idx (R.Text.all);
-
-      if Inst_Idx_L > 0 then
-         L_SLOC_Start := Inst_Idx_L + Instance_SLOC_Txt_Len;
-         L_Has_Chain  := True;
-      end if;
-
-      if Inst_Idx_R > 0 then
-         R_SLOC_Start := Inst_Idx_R + Instance_SLOC_Txt_Len;
-         R_Has_Chain  := True;
-      end if;
-
-      if L_Has_Chain then
-         Set_Instantiation_SLOC_End (L.Text.all, L_SLOC_Start, L_SLOC_End);
-      end if;
-
-      if R_Has_Chain then
-         Set_Instantiation_SLOC_End (R.Text.all, R_SLOC_Start, R_SLOC_End);
-      end if;
-
-      Result := SLOC_Less_Than (L.Text (L_SLOC_Start .. L_SLOC_End),
-                                R.Text (R_SLOC_Start .. R_SLOC_End));
-
-      if L.Text (L_SLOC_Start .. L_SLOC_End) /=
-         R.Text (R_SLOC_Start .. R_SLOC_End)
-      then
-         return Result;
+      if L.Text (L_First .. L_SLOC_End) /= R.Text (R_First .. R_SLOC_End) then
+         return SLOC_Less_Than (L.Text (L_First .. L_SLOC_End),
+                                R.Text (R_First .. R_SLOC_End));
       else
-         --  If we are here, SLOCs are the same
-         if L_Has_Chain and then not R_Has_Chain then
-            return False;
-         elsif not L_Has_Chain and then R_Has_Chain then
-            return True;
-         end if;
+         --  If we are here, we have equal SLOCs, so use Num to differentiate
+
+         return L.Num < R.Num;
       end if;
-
-      --  If we are here then either both SLOC have chains or none of them has
-      --  a chain. If we have chains, we have to compare SLOCs in templates:
-
-      if L_Has_Chain then
-         pragma Assert (R_Has_Chain);
-         L_SLOC_Start := L_First;
-         R_SLOC_Start := R_First;
-
-         L_SLOC_End := Index (L.Text.all, " ") - 1;
-         R_SLOC_End := Index (R.Text.all, " ") - 1;
-
-         if L.Text (L_SLOC_Start .. L_SLOC_End) /=
-            R.Text (R_SLOC_Start .. R_SLOC_End)
-         then
-            if L.Text (L_SLOC_Start .. L_SLOC_End) /=
-               R.Text (R_SLOC_Start .. R_SLOC_End)
-            then
-               return SLOC_Less_Than (L.Text (L_SLOC_Start .. L_SLOC_End),
-                                      R.Text (R_SLOC_Start .. R_SLOC_End));
-            end if;
-         end if;
-      end if;
-
-      --  And if we are here, we have equal SLOCs (both with instantiation
-      --  chains or both - without chains), so
-
-      return L.Num < R.Num;
    end Diag_Is_Less_Than;
 
    -----------------------------
@@ -1564,28 +1378,8 @@ package body Gnatcheck.Diagnoses is
    function Get_Justification (For_Check : Rule_Id) return String_Access is
    begin
       return Current_Postponed_Exemption_Sections (For_Check).
-                Exemption_Section.Justification;
+               Exemption_Section.Justification;
    end Get_Justification;
-
-   ---------------------
-   -- Get_Original_SF --
-   ---------------------
-
-   function Get_Original_SF (Diag : Diag_Message) return SF_Id is
-      Result    : SF_Id := Diag.SF;
-      Start_Idx : Natural;
-      End_Idx   : Natural := Index (Diag.Text.all, Instance_SLOC_Txt);
-   begin
-      if End_Idx > 0 then
-         End_Idx   := Index (Diag.Text.all, ":") - 1;
-         Start_Idx := Diag.Text'First;
-         Result :=
-           File_Find (Diag.Text (Start_Idx .. End_Idx),
-                      Use_Short_Name => True);
-      end if;
-
-      return Result;
-   end Get_Original_SF;
 
    -----------------------------
    -- Get_Param_Justification --
@@ -1597,8 +1391,7 @@ package body Gnatcheck.Diagnoses is
       SF                         : SF_Id;
       Line                       : Natural := 0;
       Col                        : Natural := 0;
-      Check_Postponed_Exemptions : Boolean := False)
-      return                       String_Access
+      Check_Postponed_Exemptions : Boolean := False) return String_Access
    is
       Result : String_Access;
 
@@ -1608,8 +1401,7 @@ package body Gnatcheck.Diagnoses is
       Fit_In_Section : Cursor;
    begin
       if Needs_Postponed_Exemption_Processing (Rule)
-        and then
-         not Check_Postponed_Exemptions
+        and then not Check_Postponed_Exemptions
       then
          return null;
       end if;
@@ -1617,9 +1409,7 @@ package body Gnatcheck.Diagnoses is
       declare
          Param : constant String := Rule_Parameter (Diag, Rule);
          pragma Assert (Param /= "" or else Rule = Warnings_Id);
-
       begin
-
          if Check_Postponed_Exemptions then
             Exem_Sections :=
               Postponed_Param_Exempt_Sections (Rule) (SF)'Unrestricted_Access;
@@ -1902,7 +1692,7 @@ package body Gnatcheck.Diagnoses is
    function Needs_Postponed_Exemption_Processing
      (Rule : Rule_Id) return Boolean is
    begin
-      return Rule in Compiler_Checks;  --  ### what about expanded code
+      return Rule in Compiler_Checks;  --  ### what about subprocess handling
    end Needs_Postponed_Exemption_Processing;
 
    ----------------------
@@ -2435,56 +2225,12 @@ package body Gnatcheck.Diagnoses is
         (Position : Error_Messages_Storage.Cursor);
 
       function Add_GPS_Prefix (Diag : String) return String is
-         Idx        : Natural;
-         Inst_Count : Natural;
+         Idx : Natural;
       begin
          if Progress_Indicator_Mode then
-            Idx        := Index (Diag, ": ");
-            Inst_Count := Ada.Strings.Fixed.Count (Diag, Instance_SLOC_Txt);
-
-            if Inst_Count = 0 then
-               return Diag (Diag'First .. Idx + 1) & GPS_Prefix & ' ' &
-                            Diag (Idx + 2 .. Diag'Last);
-            else
-               declare
-                  Result : String
-                    (1 .. Diag'Length + Inst_Count + GPS_Prefix'Length);
-                  Res_Idx    :          Natural := Result'First;
-                  Diag_Start :          Natural := Diag'First;
-                  Diag_End   :          Natural;
-                  Diag_Last  : constant Natural := Diag'Last;
-               begin
-                  while  Inst_Count > 0 loop
-                     Diag_End := Index (Diag (Diag_Start .. Diag_Last),
-                                        Instance_SLOC_Txt);
-
-                     Result (Res_Idx ..
-                             Res_Idx + (Diag_End - Diag_Start - 1)) :=
-                               Diag (Diag_Start .. Diag_End - 1);
-
-                     Res_Idx := Res_Idx + (Diag_End - Diag_Start);
-                     Result (Res_Idx) := ':';
-                     Res_Idx := @ + 1;
-
-                     Result (Res_Idx ..
-                             Res_Idx + Instance_SLOC_Txt'Length - 1) :=
-                               Instance_SLOC_Txt;
-
-                     Res_Idx := Res_Idx + Instance_SLOC_Txt'Length;
-
-                     Diag_Start := Diag_End + Instance_SLOC_Txt'Length;
-
-                     Inst_Count := Inst_Count - 1;
-                  end loop;
-
-                  Diag_End := Index (Diag (Diag_Start .. Diag_Last), ": ");
-
-                  return Result (Result'First .. Res_Idx - 1) &
-                         Diag (Diag_Start .. Diag_End)        &
-                         ' ' & GPS_Prefix                     &
-                         Diag (Diag_End + 1 .. Diag_Last);
-               end;
-            end if;
+            Idx := Index (Diag, ": ");
+            return Diag (Diag'First .. Idx + 1) & GPS_Prefix & ' ' &
+                         Diag (Idx + 2 .. Diag'Last);
          else
             return Diag;
          end if;
@@ -3138,7 +2884,7 @@ package body Gnatcheck.Diagnoses is
                return;
             end if;
 
-            SF := Get_Original_SF (Diag);
+            SF := Diag.SF;
 
             if not Present (SF) then
                --  This is the case when the diagnosis is generated for
