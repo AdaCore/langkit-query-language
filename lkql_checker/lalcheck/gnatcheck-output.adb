@@ -664,7 +664,6 @@ package body Gnatcheck.Output is
       Info (" --target=targetname - specify a target for cross platforms");
       Info (" --RTS=<runtime>     - use runtime <runtime>");
       Info ("");
-      Info (" -a   - process RTL units");
       Info (" -h   - print out the list of the currently implemented rules");
       Info (" -mn  - n is the maximal number of diagnoses in Stderr");
 

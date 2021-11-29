@@ -155,12 +155,6 @@ package Gnatcheck.Options is
    -- options related to program global state analysis --
    ------------------------------------------------------
 
-   Process_RTL_Units : Boolean := False;
-   --  If this flag is set ON, a tool tries to look into RTL units when
-   --  analyzing global properties of the argument sources, even if these RTL
-   --  units are not specified as tool arguments
-   --  '-a'
-
    Do_Transitive_Closure : Boolean := False;
    --  Flag indicating if the transitive closure of the call graph is needed.
 

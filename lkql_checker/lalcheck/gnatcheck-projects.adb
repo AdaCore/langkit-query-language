@@ -851,11 +851,9 @@ package body Gnatcheck.Projects is
                end if;
 
             when 'a' =>
-               if not First_Pass then
-                  if Full_Switch (Parser => Parser) = "a" then
-                     Process_RTL_Units := True;
-                  end if;
-               end if;
+               --  Ignore -a for compatibility
+
+               null;
 
             when 'd' =>
                if not First_Pass then
@@ -1054,6 +1052,7 @@ package body Gnatcheck.Projects is
                      raise Parameter_Error;
                   end if;
                end if;
+
             when '-' =>
                if not First_Pass then
                   if Full_Switch (Parser => Parser) = "-brief" then
