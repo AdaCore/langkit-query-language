@@ -3,5 +3,7 @@
 
 @check(message="null path", remediation="EASY")
 fun null_paths(node) =
-    node is StmtList(any parent is IfStmt or CaseStmt or BaseLoopStmt,
-                     all children is NullStmt)
+    node is StmtList
+    when node[1] != null
+     and node is StmtList(any parent is IfStmt or CaseStmt or BaseLoopStmt,
+                          all children is NullStmt)
