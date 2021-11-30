@@ -7,7 +7,7 @@ import stdlib
 
 @check(message="mark BEGIN with package name",
        help="BEGIN in package bodies not marked with package name comment",
-       remediation="EASY")
+       remediation="EASY", category="Style", subcategory="Readability")
 fun uncommented_begin_in_package_bodies(node) =
     node is HandledStmts(parent is p@PackageBody(f_decls is *(f_decls is l@*)))
     when l[1] != null

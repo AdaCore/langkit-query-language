@@ -2,7 +2,7 @@
 # designators as those that can be used in SPARK programs. The use of any other
 # attribute is flagged. [...]
 
-@check(message="attribute is not from the SPARK subset")
+@check(message="attribute is not from the SPARK subset", category="SPARK")
 fun non_spark_attributes(node) =
     node is AttributeRef
     when not (node.f_attribute?.p_name_is("Adjacent") or

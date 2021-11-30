@@ -1,5 +1,5 @@
 # Flag each occurrence of a simple loop statement, excluding while and for
 # loops.
 
-@check(message="simple loop statement")
+@check(message="simple loop statement", category="Feature")
 fun simple_loop_statements(node) = node is LoopStmt

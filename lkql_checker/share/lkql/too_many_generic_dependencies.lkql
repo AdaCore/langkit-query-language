@@ -14,6 +14,7 @@ fun check_deps(node, n : int) =
                    for w in (from unit.f_prelude select WithClause)].to_list)
                 if check_deps(x.p_referenced_decl()?.parent, n - 1)]?[1] != ())
 
-@check(message="unit has too many generic dependencies", remediation="MAJOR")
+@check(message="unit has too many generic dependencies", remediation="MAJOR",
+       category="Style", subcategory="Program Structure")
 fun too_many_generic_dependencies(node, n : int = 3) =
     node is LibraryItem when check_deps(node, n + 1)

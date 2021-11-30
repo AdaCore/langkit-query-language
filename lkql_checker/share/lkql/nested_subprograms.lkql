@@ -12,7 +12,8 @@ selector semantic_parent
     | null     => ()
     | *        => rec this.p_semantic_parent()
 
-@check(message="subprogram declared in executable body")
+@check(message="subprogram declared in executable body",
+       category="Style", subcategory="Programming Practice")
 fun nested_subprograms(node) =
     node is (SubpBody or ExprFunction or SubpBodyStub or BasicSubpDecl or
              GenericSubpInstantiation)

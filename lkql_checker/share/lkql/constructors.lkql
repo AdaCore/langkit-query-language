@@ -4,7 +4,8 @@
 
 import stdlib
 
-@check(message="declaration of constructor function")
+@check(message="declaration of constructor function",
+       category="Style", subcategory="Object Orientation")
 fun constructors(node) =
     node is (BasicSubpDecl or
              BaseSubpBody(p_previous_part() is null) or

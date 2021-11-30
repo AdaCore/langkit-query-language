@@ -1,4 +1,4 @@
 # Flag each block statement.
 
-@check(message="block statement")
+@check(message="block statement", category="Feature")
 fun blocks(node) = node is BlockStmt

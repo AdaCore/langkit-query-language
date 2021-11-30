@@ -147,6 +147,11 @@ package body Rule_Commands is
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
          Help_Arg              : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("help"));
+         Category_Arg          : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("category"));
+         Subcategory_Arg       : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name
+             (To_Unbounded_Text ("subcategory"));
          Parametric_Exemption_Arg : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("parametric_exemption"));
@@ -155,6 +160,8 @@ package body Rule_Commands is
              (To_Unbounded_Text ("remediation"));
          Msg                   : Unbounded_Text_Type;
          Help                  : Unbounded_Text_Type;
+         Category              : Unbounded_Text_Type;
+         Subcategory           : Unbounded_Text_Type;
          Remediation_Level     : Remediation_Levels := Medium;
          Parametric_Exemption  : Boolean := False;
          Name                  : constant Text_Type := Fn.F_Name.Text;
@@ -226,6 +233,8 @@ package body Rule_Commands is
 
          Get_Text (Msg_Arg, To_Unbounded_Text (Name), Msg);
          Get_Text (Help_Arg, Msg, Help);
+         Get_Text (Category_Arg, To_Unbounded_Text ("Misc"), Category);
+         Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
 
          if not Remediation_Arg.Is_Null then
             if Remediation_Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
@@ -253,6 +262,8 @@ package body Rule_Commands is
            (Name                  => To_Unbounded_Text (To_Lower (Name)),
             Message               => Msg,
             Help                  => Help,
+            Category              => Category,
+            Subcategory           => Subcategory,
             LKQL_Root             => Root,
             Function_Expr         => Fn.F_Fun_Expr.F_Body_Expr,
             Eval_Ctx              => Ctx.Create_New_Frame,

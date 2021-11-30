@@ -47,11 +47,6 @@ package Gnatcheck.Rules is
    --  Zero means that the rule has exactly one variant of the diagnostic
    --  message
 
-   subtype Rule_Name_Str  is String_Access;
-   subtype Rule_Help      is String_Access;
-   subtype Rule_Diagnosis is String_Access;
-   --  Subtypes for storing the string information.
-
    subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
 
    -----------------
@@ -66,20 +61,18 @@ package Gnatcheck.Rules is
    --   Disabled - the rule is disabled for the given gnatcheck run, this
    --              state cannot be changed during the gnatcheck run
 
-   type String_Loc is access all String;
-
    type Rule_Template is tagged record
-      Name : Rule_Name_Str;
+      Name : String_Access;
       --  The only means of rule identification outside gnatcheck. All the
       --  rules implemented in gnatcheck should have unique names, the casing
       --  is not important.
 
-      User_Synonym : Rule_Name_Str;
+      User_Synonym : String_Access;
       --  User-specified synonym for the rule name. It is used for
       --  documentation purposes only (to map gnatcheck rules onto rules from
       --  user's coding standard), it is not used for rule identification.
 
-      Defined_At : String_Loc;
+      Defined_At : String_Access;
       --  Location in the rule file where the rule has been enabled. Set to
       --  Nil_String_Loc if the rule has been enabled by command line option.
 
@@ -88,8 +81,14 @@ package Gnatcheck.Rules is
 
       Remediation_Level : Remediation_Levels;
 
-      Help_Info : Rule_Help;
+      Help_Info : String_Access;
       --  Short help information for the rule
+
+      Category : String_Access;
+      --  Category for this rule
+
+      Subcategory : String_Access;
+      --  Subcategory for this rule, "" if none
 
       Allows_Parametrized_Exemption : Boolean;
       --  Whether you can specify a rule parameter when defining an exemption

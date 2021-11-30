@@ -1,5 +1,5 @@
 # Flag all constructs that belong to access_to_subprogram_definition syntax
 # category, and all access definitions that define access to subprogram.
 
-@check(message="access to subprogram definition")
+@check(message="access to subprogram definition", category="Feature")
 fun subprogram_access(node) = node is AccessToSubpDef

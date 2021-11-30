@@ -5,7 +5,8 @@
 # This rule has parameter Only_Public: Do not flag variable declarations in
 # private library (generic) packages and in package private parts.
 
-@check(message="declaration of global variable")
+@check(message="declaration of global variable",
+       category="Style", subcategory="Programming Practice")
 fun global_variables(node, only_public=false) =
     node is ObjectDecl(f_has_constant is ConstantAbsent,
                        p_semantic_parent() is s @ * when {

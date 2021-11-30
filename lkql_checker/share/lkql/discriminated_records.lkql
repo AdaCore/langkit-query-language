@@ -44,7 +44,7 @@ fun is_using_discriminant_in_declaration(type_decl) =
         )
     )
 
-@check(message="declaration of discriminated record")
+@check(message="declaration of discriminated record", category="Feature")
 fun discriminated_records(node) =
    node is TypeDecl(
       any children(depth=2) is DiscriminantSpecList

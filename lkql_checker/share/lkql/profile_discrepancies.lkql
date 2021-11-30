@@ -46,7 +46,8 @@ fun entry_mismatch(e) = {
      count1 != count2 or param_mismatch(params1, params2, count1)
 }
 
-@unit_check(help="parameter profile discrepancies")
+@unit_check(help="parameter profile discrepancies",
+            category="Style", subcategory="Readability")
 fun profile_discrepancies(unit) = [
     {message: "structure of parameter profile differs from " &
               stdlib.sloc_image(n.p_decl_part()),

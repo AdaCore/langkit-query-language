@@ -1,6 +1,6 @@
 # Flag all objects and components of an anonymous access type.
 
-@check(message="anonymous access type")
+@check(message="anonymous access type", category="Feature")
 fun anonymous_access(node) =
     node is AnonymousTypeDecl(any parent is ObjectDecl or ComponentDecl,
                               f_type_def is TypeAccessDef)

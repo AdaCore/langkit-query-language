@@ -15,6 +15,7 @@ fun is_real_without_range(decl) =
          when (from decl.f_subtype.f_constraint select first RangeSpec) == null
           and is_real_without_range(decl.p_base_subtype())
 
-@check(message="real type with no range definition")
+@check(message="real type with no range definition",
+       category="Style", subcategory="Portability")
 fun no_explicit_real_range(node) =
     node is TypeDecl when node.p_is_real_type() and is_real_without_range(node)

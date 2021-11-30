@@ -5,7 +5,7 @@
 # flagged.
 
 @check(message="aggregate is not a part of a qualified expression",
-       remediation="EASY")
+       remediation="EASY", category="Feature")
 fun non_qualified_aggregates(node) =
     node is Aggregate
     when not (node is *(any parent is QualExpr or Aggregate) or

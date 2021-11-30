@@ -3,7 +3,7 @@
 # are not flagged.
 
 @check(message="implicit IN mode in parameter specification",
-       remediation="TRIVIAL")
+       remediation="TRIVIAL", category="Feature")
 fun implicit_in_mode_parameters(node) =
     node is ParamSpec(f_mode is ModeDefault)
     when not node.f_type_expr is

@@ -7,7 +7,8 @@ fun type_of(name) =
     then t.p_designated_type_decl()
     else null
 
-@check(message="membership test instead of 'Valid")
+@check(message="membership test instead of 'Valid",
+       category="Style", subcategory="Portability")
 fun membership_for_validity(node) =
     node is MembershipExpr(f_expr is var@Name)
     when node.f_membership_exprs[2] == null

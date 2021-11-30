@@ -43,7 +43,8 @@ fun denotes_local_object(n) = {
     | *          => false
 }
 
-@check(message="access attribute for local objects")
+@check(message="access attribute for local objects",
+       category="Style", subcategory="Programming Practice")
 fun access_to_local_objects(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Access")

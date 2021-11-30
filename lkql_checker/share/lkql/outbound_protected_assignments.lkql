@@ -4,7 +4,8 @@
 
 import stdlib
 
-@check(message="assignment from protected body to outside object")
+@check(message="assignment from protected body to outside object",
+       category="Style", subcategory="Programming Practice")
 fun outbound_protected_assignments(node) =
     node is AssignStmt(any parent is p@ProtectedBody
     when not (stdlib.ultimate_alias(node.f_dest) is

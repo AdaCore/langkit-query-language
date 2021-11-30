@@ -2131,7 +2131,7 @@ package body Gnatcheck.Rules is
 
    begin
       Info (Level * Indent_String &
-            "<check  switch=""+R" &
+            "<check switch=""+R" &
             Rule.Name.all         &
             ":ALL"""              &
             " label="""           &
@@ -2139,7 +2139,7 @@ package body Gnatcheck.Rules is
             " except explicitly disabled""/>");
 
       Info (Level * Indent_String &
-            "<check  switch=""+R" &
+            "<check switch=""+R" &
             Rule.Name.all         &
             ":GNAT"""             &
             " label="""           &

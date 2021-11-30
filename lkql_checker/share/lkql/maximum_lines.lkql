@@ -1,6 +1,7 @@
 # Flag each file exceeding N textual lines
 
-@unit_check(help="maximum number of lines in a file")
+@unit_check(help="maximum number of lines in a file",
+            category="Style", subcategory="Program Structure")
 fun maximum_lines(unit, n: int = 10000) = {
     val tokens = unit.tokens.to_list;
     val tok    = tokens[tokens.length];

@@ -11,7 +11,7 @@
 
 import stdlib
 
-@check(message="membership test")
+@check(message="membership test", category="Feature")
 fun membership_tests(node, multi_alternative_only=false, float_types_only=false, except_assertions=false) =
     node is MembershipExpr
     and ((not multi_alternative_only) or node.f_membership_exprs[2] != null)

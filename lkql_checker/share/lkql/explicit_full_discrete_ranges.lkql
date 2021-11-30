@@ -7,6 +7,7 @@ fun full_range(l, r) =
    # Exclude function calls which may return different values
    and l.f_prefix is not Name(p_is_call() is true)
 
-@check(message="range could be replaced by subtype mark or 'Range")
+@check(message="range could be replaced by subtype mark or 'Range",
+       category="Feature")
 fun explicit_full_discrete_ranges(node) =
    node is BinOp(f_op is OpDoubleDot) when full_range(node.f_left, node.f_right)

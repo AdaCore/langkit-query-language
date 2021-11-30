@@ -1,7 +1,8 @@
 # Flag each occurrence of a defining name whose length is shorter than N.
 # Numeric types are excluded.
 
-@check(message="identifier too short")
+@check(message="identifier too short",
+       category="Style", subcategory="Readability")
 fun min_identifier_length(node, n: int = 2) =
     node is DefiningName
     when node.text.length < n

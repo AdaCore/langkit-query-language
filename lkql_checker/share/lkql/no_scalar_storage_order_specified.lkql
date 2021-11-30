@@ -8,7 +8,8 @@ fun non_empty_rep_clause(n) =
     n.p_get_record_representation_clause() is
     RecordRepClause(f_components is *(any children(depth=1) is ComponentClause))
 
-@check(message="Scalar_Storage_Order is not specified", remediation="EASY")
+@check(message="Scalar_Storage_Order is not specified", remediation="EASY",
+       category="Style", subcategory="Portability")
 fun no_scalar_storage_order_specified(node) =
     (match node
      | RecordTypeDef  => not node.parent.p_has_aspect("Scalar_Storage_Order")

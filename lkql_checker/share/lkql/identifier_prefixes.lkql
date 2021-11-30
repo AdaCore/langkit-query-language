@@ -83,7 +83,8 @@ fun get_derived(t, derived) = {
 }
 
 @unit_check(help="prefixes in defining names", remediation="EASY",
-            parametric_exemption=true)
+            parametric_exemption=true,
+            category="Style", subcategory="Readability")
 fun identifier_prefixes(unit,
                         type="-",
                         concurrent="-",

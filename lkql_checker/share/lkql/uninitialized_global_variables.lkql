@@ -6,7 +6,8 @@
 
 import stdlib
 
-@check(message="uninitialized global variable")
+@check(message="uninitialized global variable",
+       category="Style", subcategory="Programming Practice")
 fun uninitialized_global_variables(node) =
     node is ObjectDecl
     when node.f_default_expr == null

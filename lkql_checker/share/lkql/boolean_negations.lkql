@@ -11,7 +11,8 @@ fun strip_parentheses(node) =
     |" Skip any ParenExpr and return the enclosing expression
     if node is ParenExpr then strip_parentheses(node.f_expr) else node
 
-@check(message="negation of boolean operator")
+@check(message="negation of boolean operator",
+       category="Style", subcategory="Programming Practice")
 fun boolean_negations(node) =
     node is UnOp(f_op is OpNot(p_referenced_decl() is null))
     when stdlib.is_standard_boolean(node)

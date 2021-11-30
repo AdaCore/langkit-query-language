@@ -3,7 +3,8 @@
 # Overlaying and Overlaid are identifiers both defined by object declarations
 # if Overlaying is not marked as imported.
 
-@check(message="not imported overlay")
+@check(message="not imported overlay",
+       category="Style", subcategory="Programming Practice")
 fun not_imported_overlays(node) =
     node is (
       AspectAssoc(f_id is Identifier(p_name_is("Address") is true),

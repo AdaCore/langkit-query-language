@@ -6,7 +6,8 @@
 fun lal_is_mod_type(n) =
     n.f_type_expr.p_designated_type_decl().f_type_def is ModIntTypeDef
 
-@check(message="bit record without layout definition")
+@check(message="bit record without layout definition",
+       category="Style", subcategory="Portability")
 fun bit_records_without_layout_definition(node) =
     node is TypeDecl
     when node.f_type_def is RecordTypeDef or DerivedTypeDef

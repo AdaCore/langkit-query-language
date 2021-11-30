@@ -17,7 +17,8 @@ fun has_visible_components(t) =
     | d@DerivedTypeDef => not d.f_has_with_private.p_as_bool()
     | *                => false
 
-@check(message="type defines publicly accessible components")
+@check(message="type defines publicly accessible components",
+       category="Style", subcategory="Object Orientation")
 fun visible_components(node, tagged_only=false) =
     node is TypeDecl(any parent(depth=2) is PublicPart(
         parent is BasePackageDecl(any parent is LibraryItem(

@@ -97,7 +97,8 @@ fun check_casing(id, scheme, exclude) =
     }
 
 @unit_check(help="casing of defining names", remediation="EASY",
-            parametric_exemption=true)
+            parametric_exemption=true,
+            category="Style", subcategory="Readability")
 fun identifier_casing(unit,
                       type="", enum="", constant="", exception="", others="",
                       exclude=[]) = [

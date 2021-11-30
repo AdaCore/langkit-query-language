@@ -9,7 +9,8 @@ fun check_alternatives(list, id) =
                     f_right is Expr(p_is_static_expr() is true))
          when id2.p_name_matches(id)].length == list.length
 
-@check(message="IF statement may be replaced by a CASE statement")
+@check(message="IF statement may be replaced by a CASE statement",
+       category="Style", subcategory="Programming Practice")
 fun case_statements(node) =
     # Find if statements of the form:
     # if Id <relation op> static-expr then

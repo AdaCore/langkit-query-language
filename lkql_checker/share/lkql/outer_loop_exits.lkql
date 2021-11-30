@@ -1,10 +1,10 @@
 # Flag each exit statement containing a loop name that is not the name of the
 # immediately enclosing loop statement.
 
-@check(message="exit out of the nesting loop")
+@check(message="exit out of the nesting loop", category="SPARK")
 fun outer_loop_exits(node) =
     node is ExitStmt(f_loop_name is Identifier)
     when [p for p in node.parents(include_self=false)
           if p is BaseLoopStmt].to_list[1] is l@BaseLoopStmt
-          when l?.f_end_name == null or
-           not l?.f_end_name?.f_name?.p_name_matches(node.f_loop_name)
+          when l.f_end_name == null or
+           not l.f_end_name?.f_name?.p_name_matches(node.f_loop_name)

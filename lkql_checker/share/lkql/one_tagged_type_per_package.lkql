@@ -1,7 +1,8 @@
 # Flag all package declarations with more than one tagged type declaration
 # in the public part.
 
-@check(message="more than one tagged type declared in package spec")
+@check(message="more than one tagged type declared in package spec",
+       category="Style", subcategory="Program Structure")
 fun one_tagged_type_per_package(node) =
     node is BasePackageDecl(f_public_part is *(f_decls is decls@*))
     when (from decls select t@BaseTypeDecl

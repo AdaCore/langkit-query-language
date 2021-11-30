@@ -1,4 +1,4 @@
 # Number declarations are flagged.
 
-@check(message="number declaration")
+@check(message="number declaration", category="Feature")
 fun number_declarations(node) = node is NumberDecl

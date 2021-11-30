@@ -3,7 +3,8 @@
 # Type_Invariant aspect that are parts of declarations of non-tagged types are
 # not flagged.
 
-@check(message="definition of non class-wide Type_Invariant aspect")
+@check(message="definition of non class-wide Type_Invariant aspect",
+       category="Style", subcategory="Object Orientation")
 fun specific_type_invariants(node) =
     node is AspectAssoc(f_id is id@Identifier)
     when id?.p_name_is("Type_Invariant")

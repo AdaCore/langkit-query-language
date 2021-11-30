@@ -4,7 +4,7 @@
 # local package that is declared in a subprogram body, the generic unit is
 # flagged.
 
-@check(message="generic definition in subprogram body")
+@check(message="generic definition in subprogram body", category="Feature")
 fun generics_in_subprograms(node) =
     node is GenericDecl(any parent is BaseSubpBody,
                         all parent is not GenericPackageDecl)

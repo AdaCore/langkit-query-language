@@ -1,6 +1,6 @@
 # Unconstrained array definitions are flagged.
 
-@check(message="unconstrained array definition")
+@check(message="unconstrained array definition", category="Feature")
 fun unconstrained_arrays(node) =
     node is ArrayTypeDef(f_indices is UnconstrainedArrayIndices,
                          all parent(depth=2) is not GenericFormalTypeDecl)

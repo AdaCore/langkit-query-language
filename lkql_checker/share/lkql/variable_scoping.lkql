@@ -25,7 +25,8 @@ fun check_references(list, subp) = {
         stdlib.enclosing_block(x.ref) != block]?[1] == ()
 }
 
-@unit_check(help="variables that can be moved to an inner block")
+@unit_check(help="variables that can be moved to an inner block",
+            category="Style", subcategory="Programming Practice")
 fun variable_scoping(unit) = [
     {message: n.text & " can be moved to inner block at line " &
               img(get_block(n.p_find_refs(stdlib.enclosing_body(n), null))?.

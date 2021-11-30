@@ -19,7 +19,7 @@ fun check_package(pkg) =
        | *                     => []
      if not is_operator(s)]?[1] != ()
 
-@unit_check(help="use clause")
+@unit_check(help="use clause", category="Feature")
 fun use_clauses(unit, exempt_operator_packages=false) = [
     {message: "use clause", loc: p}
     for p in concat([use.f_packages.children

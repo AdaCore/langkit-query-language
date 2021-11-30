@@ -54,7 +54,8 @@ fun enclosing_body_stmts(node) =
    | NullSubpDecl => null
    | p@*          => p.f_stmts
 
-@unit_check(help="OUT parameters do not get values in procedure bodies")
+@unit_check(help="OUT parameters do not get values in procedure bodies",
+            category="Feature")
 fun unassigned_out_parameters(unit, ignore_component_assignments=false) = [
     {message: "unassigned OUT parameter " & n.f_name.text, loc: n}
     for n in from unit.root

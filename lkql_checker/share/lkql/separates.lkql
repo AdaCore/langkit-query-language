@@ -1,4 +1,4 @@
 # Flag each occurrence of a separate unit
 
-@check(message="separate unit")
+@check(message="separate unit", category="Feature")
 fun separates(node) = node is Subunit

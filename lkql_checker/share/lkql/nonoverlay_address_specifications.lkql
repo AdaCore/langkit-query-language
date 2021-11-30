@@ -15,7 +15,8 @@ fun check_nonoverlay(overlaid) =
      and stdlib.ultimate_alias(overlaid.f_prefix, false)
          is not (ObjectDecl or ParamSpec)
 
-@check(message="nonoverlay address specification")
+@check(message="nonoverlay address specification",
+       category="Style", subcategory="Programming Practice")
 fun nonoverlay_address_specifications(node) =
     node is
         (AspectAssoc(f_id is id@Identifier, any parent(depth=3) is ObjectDecl

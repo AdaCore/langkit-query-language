@@ -4,6 +4,7 @@
 # one entry. Entries from the private part of the protected definition are also
 # checked.
 
-@check(message="more than one entry in protected definition")
+@check(message="more than one entry in protected definition",
+       category="Style", subcategory="Tasking")
 fun multiple_entries_in_protected_definitions(node) =
     node is EntryDecl(any prev_siblings is EntryDecl)

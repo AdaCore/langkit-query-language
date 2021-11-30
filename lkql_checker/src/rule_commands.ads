@@ -71,6 +71,12 @@ package Rule_Commands is
       --  Short help message associated with the rule.
       --  Defaults to Message if not specified.
 
+      Category      : Unbounded_Text_Type;
+      --  Category of this rule, if relevant
+
+      Subcategory   : Unbounded_Text_Type;
+      --  Subcategory of this rule, if relevant
+
       LKQL_Root     : L.LKQL_Node;
       --  Root of the LKQL AST
 

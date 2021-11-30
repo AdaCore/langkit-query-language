@@ -5,7 +5,7 @@ fun is_array_or_record(n) =
     n is BaseTypeDecl when n?.p_is_array_type() or n?.p_is_record_type()
 
 @check(message="aggregate with a positional component association",
-       remediation="EASY")
+       remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_components(node) =
     node is Aggregate(f_assocs is *(any children(depth=2) is a@AlternativesList
                       when a[1] == null))

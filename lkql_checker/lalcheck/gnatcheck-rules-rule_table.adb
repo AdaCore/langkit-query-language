@@ -19,6 +19,7 @@
 
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Containers.Ordered_Sets;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
@@ -1051,12 +1052,12 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Restrictions_Help (Level : Natural) is
    begin
-      Info (Level * Indent_String & "<category name =""Restriction rules"">");
+      Info (Level * Indent_String & "<category name=""Restriction rules"">");
 
-      Exception_Cases (Level + 1);
+      Exception_Cases (Level);
 
       for R in Rident.All_Restrictions loop
-         Restriction_Help (R, Level + 1);
+         Restriction_Help (R, Level);
       end loop;
 
       Info (Level * Indent_String & "</category>");
@@ -1066,19 +1067,74 @@ package body Gnatcheck.Rules.Rule_Table is
    -- XML_Help --
    --------------
 
+   function Name (R : Rule_Access) return String is
+     (R.Category.all & "/" & R.Subcategory.all);
+
+   function "<" (Left, Right : Rule_Access) return Boolean is
+     (Name (Left) < Name (Right));
+
+   function Equal (Left, Right : Rule_Access) return Boolean is
+     (Name (Left) = Name (Right));
+
+   package Category_Sets is new
+     Ada.Containers.Ordered_Sets (Rule_Access, "=" => Equal);
+
    procedure XML_Help is
-      Level : constant := 1;
+      Level    : Positive;
+      Set      : Category_Sets.Set;
+      Previous : Rule_Access;
+
    begin
       Info ("<?xml version=""1.0""?>");
       Info ("<gnatcheck>");
 
-      Info_No_EOL (Level * Indent_String & "<category name=""all"">");
-
       for J in First_Rule .. All_Rules.Last loop
-         XML_Rule_Help (All_Rules.Table (J).all, Level + 1);
+         Set.Include (All_Rules.Table (J));
       end loop;
 
-      Info (Level * Indent_String & "</category>");
+      for R of Set loop
+         Level := 1;
+
+         if Previous /= null
+           and then Previous.Subcategory.all /= ""
+           and then Previous.Category.all /= R.Category.all
+         then
+            Info (Indent_String & "</category>");
+         end if;
+
+         if R.Subcategory.all = "" then
+            Info (Indent_String & "<category name=""" &
+                  R.Category.all & """>");
+         else
+            if Previous = null
+              or else Previous.Category.all /= R.Category.all
+            then
+               Info (Indent_String & "<category name=""" &
+                     R.Category.all & """>");
+            end if;
+
+            Level := 2;
+            Info (2 * Indent_String & "<category name=""" &
+                  R.Subcategory.all & """>");
+         end if;
+
+         declare
+            Category : constant String := Name (R);
+         begin
+            for J in First_Rule .. All_Rules.Last loop
+               if Name (All_Rules.Table (J)) = Category then
+                  XML_Rule_Help (All_Rules.Table (J).all, Level + 1);
+               end if;
+            end loop;
+         end;
+
+         Info (Level * Indent_String & "</category>");
+         Previous := R;
+      end loop;
+
+      if Previous.Subcategory.all /= "" then
+         Info (Indent_String & "</category>");
+      end if;
 
       --  What about warnings and style checks???
 
@@ -1186,9 +1242,25 @@ package body Gnatcheck.Rules.Rule_Table is
                   end if;
             end case;
 
-            Rule.Name := new String'(Name);
-            Rule.Help_Info :=
+            Rule.Name        := new String'(Name);
+            Rule.Help_Info   :=
               new String'(To_String (To_Wide_Wide_String (R.Help)));
+
+            declare
+               Category : constant String :=
+                 To_String (To_Wide_Wide_String (R.Category));
+            begin
+               if Category = "Feature" then
+                  Rule.Category := new String'("Feature Usage Rules");
+               elsif Category = "Style" then
+                  Rule.Category := new String'("Style-Related Rules");
+               else
+                  Rule.Category := new String'(Category);
+               end if;
+            end;
+
+            Rule.Subcategory :=
+              new String'(To_String (To_Wide_Wide_String (R.Subcategory)));
 
             Rule.Parameters                    := R.Parameters;
             Rule.Remediation_Level             := R.Remediation_Level;

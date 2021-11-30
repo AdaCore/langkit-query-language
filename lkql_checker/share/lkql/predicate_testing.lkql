@@ -12,12 +12,13 @@ import stdlib
 # a parent type).
 fun has_predicate(t) =
     t is SubtypeDecl
-    when t?.p_has_aspect("Predicate")
-      or t?.p_has_aspect("Static_Predicate")
-      or t?.p_has_aspect("Dynamic_Predicate")
-      or has_predicate(t?.f_subtype?.f_name?.p_referenced_decl())
+    when t.p_has_aspect("Predicate")
+      or t.p_has_aspect("Static_Predicate")
+      or t.p_has_aspect("Dynamic_Predicate")
+      or has_predicate(t.f_subtype?.f_name?.p_referenced_decl())
 
-@check(message="expression needs subtype predicate evaluation")
+@check(message="expression needs subtype predicate evaluation",
+       category="Feature")
 fun predicate_testing(node, except_assertions=false) =
     (match node
      # Flags a subtype mark[...]

@@ -5,7 +5,7 @@
 
 import stdlib
 
-@unit_check(help="instantiations not properly located")
+@unit_check(help="instantiations not properly located", category="Feature")
 fun improperly_located_instantiations(unit) = [
      {message: "instantiation in a " &
                (if node is GenericInstantiation(any parent is BaseSubpBody)

@@ -1,5 +1,5 @@
 # Flag enumeration representation clauses.
 
-@check(message="enumeration representation clause")
+@check(message="enumeration representation clause", category="Feature")
 fun enumeration_representation_clauses(node) = 
    node is EnumRepClause

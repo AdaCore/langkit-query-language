@@ -19,7 +19,8 @@ fun check_raise(n, lib) = {
                    any parent is exc_lib@LibraryItem when exc_lib == lib))
 }
 
-@check(message="raised exception is not declared in visible part of enclosing library package")
+@check(message="raised exception is not declared in visible part of enclosing library package",
+       category="Style", subcategory="Program Structure")
 fun raising_external_exceptions(node) =
     node is RaiseStmt(f_exception_name is Name, any parent is lib@LibraryItem
     when match lib.f_item

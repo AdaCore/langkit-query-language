@@ -1,4 +1,5 @@
 # Flag each occurrence of a goto statement.
 
-@check(message="goto statement")
+@check(message="goto statement",
+       category="Style", subcategory="Programming Practice")
 fun goto_statements(node) = node is GotoStmt

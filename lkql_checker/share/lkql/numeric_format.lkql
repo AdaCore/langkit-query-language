@@ -4,7 +4,8 @@
 # - an underscore should separate groups of 4 digits for bases 2 or 16
 # - all letters (exponent symbol and digits above 9) should be in upper case.
 
-@check(message="incorrect format for numeric literal")
+@check(message="incorrect format for numeric literal",
+       category="Style", subcategory="Readability")
 fun numeric_format(node) =
     node is NumLiteral when match node.text
     # default base

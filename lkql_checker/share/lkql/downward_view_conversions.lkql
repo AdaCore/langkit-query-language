@@ -1,6 +1,7 @@
 # Flag downward view conversions.
 
-@check(message="downward view conversion")
+@check(message="downward view conversion",
+       category="Style", subcategory="Object Orientation")
 fun downward_view_conversions(node) =
     node is CallExpr(p_referenced_decl() is
             # Select type conversions
@@ -8,4 +9,4 @@ fun downward_view_conversions(node) =
                          target@BaseTypeDecl(p_is_tagged_type() is true)))
     # Where the target type is derived from the type of the conversion argument
     when
-    target?.p_is_derived_type(node.f_suffix[1].f_r_expr?.p_expression_type())
+    target.p_is_derived_type(node.f_suffix[1].f_r_expr?.p_expression_type())

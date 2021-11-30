@@ -2,7 +2,8 @@
 # containing exactly one choice, the other containing exactly one choice
 # or the `OTHERS' choice.
 
-@check(message="CASE statement can be replaced with IF statement")
+@check(message="CASE statement can be replaced with IF statement",
+       category="Style", subcategory="Programming Practice")
 fun binary_case_statements(node) =
     node is c@CaseStmt(
         f_alternatives is CaseStmtAlternativeList(

@@ -1,7 +1,7 @@
 # Flag a subprogram (or generic subprogram, or instantiation of a subprogram)
 # with an Inline aspect.
 
-@check(message="subprogram marked inline")
+@check(message="subprogram marked inline", category="Feature")
 fun explicit_inlining(node) =
     node is (SubpBody or GenericSubpInstantiation or ExprFunction or
              SubpBodyStub or BasicSubpDecl)

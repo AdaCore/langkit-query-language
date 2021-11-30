@@ -1,6 +1,7 @@
 # Flag any use of an others choice in a case statement.
 
-@check(message="OTHERS choice in case statement", remediation="EASY")
+@check(message="OTHERS choice in case statement", remediation="EASY",
+       category="Style", subcategory="Programming Practice")
 fun others_in_case_statements(node) =
     node is OthersDesignator(parent is AlternativesList(
                              parent is CaseStmtAlternative))

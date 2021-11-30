@@ -14,7 +14,8 @@
 
 import stdlib
 
-@unit_check(help="potential propagations of non-visible exceptions")
+@unit_check(help="potential propagations of non-visible exceptions",
+            category="Style", subcategory="Program Structure")
 fun non_visible_exceptions(unit) = [
     {message: if n is Identifier
               then "local exception not handled locally"

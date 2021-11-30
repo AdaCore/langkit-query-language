@@ -8,7 +8,7 @@
 fun is_universal_int(i) =
     i is IntLiteral or i is Name(p_referenced_decl() is NumberDecl)
 
-@check(message="range with universal integer bounds")
+@check(message="range with universal integer bounds", category="SPARK")
 fun universal_ranges(node) =
     node is (
         # index constraint or constrained array definition

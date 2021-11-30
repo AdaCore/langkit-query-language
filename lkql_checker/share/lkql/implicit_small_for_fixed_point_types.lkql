@@ -3,7 +3,8 @@
 # ordinary fixed point types, decimal fixed point type declarations are not
 # checked.
 
-@check(message="fixed point type declaration with no 'Small clause")
+@check(message="fixed point type declaration with no 'Small clause",
+       category="Style", subcategory="Portability")
 fun implicit_small_for_fixed_point_types(node) =
    node is TypeDecl(any children is OrdinaryFixedPointDef,
                     p_has_aspect("Small") is false)

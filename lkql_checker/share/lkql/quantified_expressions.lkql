@@ -4,7 +4,7 @@
 
 import stdlib
 
-@check(message="quantified expression")
+@check(message="quantified expression", category="Feature")
 fun quantified_expressions(node, except_assertions=false) =
     node is QuantifiedExpr
     when not (except_assertions and stdlib.within_assert(node))

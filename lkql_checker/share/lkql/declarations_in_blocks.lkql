@@ -2,7 +2,7 @@
 # block with an empty `declarative_part' or with a `declarative part'
 # containing only pragmas and/or `use' clauses is not flagged.
 
-@check(message="block statement with local declaration")
+@check(message="block statement with local declaration", category="Feature")
 fun declarations_in_blocks(node) =
     node is DeclBlock
     (any children(depth=1) is DeclarativePart

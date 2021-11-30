@@ -8,7 +8,8 @@
 
 import stdlib
 
-@check(message="extra return statement")
+@check(message="extra return statement",
+       category="Style", subcategory="Programming Practice")
 fun improper_returns(node) =
     node is ReturnStmt
      and stdlib.enclosing_body(node) is body@BaseSubpBody

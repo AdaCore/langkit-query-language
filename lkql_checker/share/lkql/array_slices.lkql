@@ -1,11 +1,12 @@
 # Flag for loop statements used instead of array slicing.
+# Specifically detect loops of the form:
+# for X in ... loop
+#    Array_Object (X) := Another_Array (...);
+# end loop;
 
-@check(message="for loop may be replaced by an array slice")
+@check(message="for loop may be replaced by an array slice",
+       category="Style", subcategory="Programming Practice")
 fun array_slices(node) =
-    # Find for loops of the form:
-    # for X in ... loop
-    #    Array_Object (X) := Another_Array (...);
-    # end loop;
     node is ForLoopStmt
     when node.f_stmts.children_count == 1
      and node.f_stmts[1] is AssignStmt(

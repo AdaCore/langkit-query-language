@@ -34,7 +34,8 @@ fun check_overlay(decl, overlaid) =
 # "overlaying of a volatile constant object"
 # "non-constant object overlays a constant"
 
-@check(message="non-constant object overlays a constant")
+@check(message="non-constant object overlays a constant",
+       category="Style", subcategory="Programming Practice")
 fun constant_overlays(node) = match node
     | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
         when id.p_name_is("address")

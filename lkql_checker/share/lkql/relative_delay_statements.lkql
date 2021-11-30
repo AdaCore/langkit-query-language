@@ -1,6 +1,6 @@
 # Relative delay statements are flagged. Delay until statements are not
 # flagged.
 
-@check(message="relative delay statement")
+@check(message="relative delay statement", category="Feature")
 fun relative_delay_statements(node) =
    node is DelayStmt(f_has_until is UntilAbsent)

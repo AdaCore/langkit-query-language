@@ -22,7 +22,7 @@ fun check_actual(spec, node) =
     | *         => false
 
 @check(message="use named notation when passing actual to defaulted parameter",
-       remediation="EASY")
+       remediation="EASY", category="Style", subcategory="Programming Practice")
 fun positional_actuals_for_defaulted_parameters(node) =
     node is ParamAssoc(f_designator is null, parent is l@AssocList)
     when l.parent is c@CallExpr when check_actual(c.p_called_subp_spec(), node)

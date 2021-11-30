@@ -26,7 +26,7 @@ fun check_parents(n, statements_only) =
     | Stmt            => true
     | *               => check_parents(n?.parent, statements_only)
 
-@check(message="numeric literal")
+@check(message="numeric literal", category="Feature")
 fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
     node is NumLiteral
     # check parameter N if we have an integer literal, unless ALL is set

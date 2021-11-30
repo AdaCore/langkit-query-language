@@ -5,7 +5,8 @@ fun contains_defining_name(l, name) =
     |" Return true if l contains the defining name `name`
     [n for n in l if n == name]?[1] != ()
 
-@unit_check(help="barrier references non component variable")
+@unit_check(help="barrier references non component variable",
+            category="Style", subcategory="Programming Practice")
 fun non_component_in_barriers(unit) = [
     {message: "barrier references non component variable", loc: n.f_barrier}
     for n in from unit.root select node@EntryBody(any parent is b@ProtectedBody)

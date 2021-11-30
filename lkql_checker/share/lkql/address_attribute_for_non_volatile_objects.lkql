@@ -13,7 +13,8 @@ fun is_non_volatile_object(o) =
               o?.p_has_aspect("Atomic") or
               o?.p_has_aspect("Shared"))
 
-@check(message="address attribute for non-volatile object")
+@check(message="address attribute for non-volatile object",
+       category="Style", subcategory="Programming Practice")
 fun address_attribute_for_non_volatile_objects(node) =
     node is AttributeRef
     when node.f_attribute?.p_name_is("Address")

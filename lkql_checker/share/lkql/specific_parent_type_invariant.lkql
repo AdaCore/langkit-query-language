@@ -7,7 +7,8 @@ fun check_aspect(n, aspect) = n != null and n.p_has_aspect(aspect)
 
 fun base_type(t) = if t is SubtypeDecl then base_type(t.p_base_subtype()) else t
 
-@check(message="parent type has specific Type_Invariant aspect")
+@check(message="parent type has specific Type_Invariant aspect",
+       category="Style", subcategory="Object Orientation")
 fun specific_parent_type_invariant(node) =
     # Flag any tagged type extension
     node is DerivedTypeDef

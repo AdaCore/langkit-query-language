@@ -1,4 +1,4 @@
 # Flag renaming declarations.
 
-@check(message="renaming declaration")
+@check(message="renaming declaration", category="Feature")
 fun renamings(node) = node is RenamingClause

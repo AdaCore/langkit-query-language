@@ -4,7 +4,8 @@
 
 import stdlib
 
-@unit_check(help="use of comment annotations", remediation="EASY")
+@unit_check(help="use of comment annotations", remediation="EASY",
+            category="SPARK")
 fun annotated_comments(unit, s=[]) = if s == [] then [] else [
     {message: "annotated comment", loc: tok}
     for tok in unit.tokens

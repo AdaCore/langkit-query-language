@@ -30,7 +30,8 @@ fun previous_non_blank_token_line(token) = {
     | *                => p.end_line
 }
 
-@check(message="more than one construct on the same line", remediation="EASY")
+@check(message="more than one construct on the same line", remediation="EASY",
+       category="Style", subcategory="Readability")
 fun one_construct_per_line(node) =
     # Flag any statement, declaration or representation clause
     node is (Stmt or BasicDecl or AttributeDefClause or

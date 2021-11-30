@@ -1,6 +1,7 @@
 # Flag all operator renamings.
 
-@check(message="renaming of an operator")
+@check(message="renaming of an operator",
+       category="Style", subcategory="Programming Practice")
 fun operator_renamings(node) =
    node is SubpRenamingDecl
    when node.f_renames?.f_renamed_object?.p_is_operator_name()
