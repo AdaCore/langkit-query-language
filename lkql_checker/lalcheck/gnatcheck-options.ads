@@ -34,6 +34,9 @@ package Gnatcheck.Options is
 
    Custom_RTS : GNAT.OS_Lib.String_Access;
 
+   Charset : GNAT.OS_Lib.String_Access := new String'("iso-8819-1");
+   --  Charset to use for parsing source files
+
    Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
 

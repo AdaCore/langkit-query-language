@@ -1589,7 +1589,7 @@ package body Gnatcheck.Source_Table is
       end if;
 
       Ctx.Analysis_Ctx := Create_Context
-        (Charset       => "iso-8859-1",   --  ### or UTF-8
+        (Charset       => Charset.all,
          Unit_Provider => Partition (Partition'First).Provider);
 
       --  It's too early to compute units, so provide an empty value for now,

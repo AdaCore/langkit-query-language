@@ -685,6 +685,7 @@ package body Gnatcheck.Output is
       Info (" --brief              - brief mode, only report detections in Stderr");
       Info (" --check-redefinition - issue warning if a rule parameter is redefined");
       Info (" --check-semantic     - check semantic validity of the source files");
+      Info (" --charset=<charset>  - specify the charset of the source files");
       Info ("");
 
       Info (" --include-file=filename - add the content of filename into generated report");

@@ -787,6 +787,7 @@ package body Gnatcheck.Projects is
               "m? files= a "           &
               "P: U X! vP! eL A: "     &   --  project-specific options
               "-brief "                &
+              "-charset="              &
               "-check-semantic "       &
               "-check-redefinition "   &
               "-target= "              &
@@ -1059,6 +1060,10 @@ package body Gnatcheck.Projects is
                      Quiet_Mode   := True;
                      Short_Report := True;
                      Brief_Mode   := True;
+
+                  elsif Full_Switch (Parser => Parser) = "-charset" then
+                     Free (Charset);
+                     Charset := new String'(Parameter (Parser => Parser));
 
                   elsif Full_Switch (Parser => Parser) = "-check-redefinition"
                   then
