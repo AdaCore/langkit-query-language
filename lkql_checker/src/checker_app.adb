@@ -582,8 +582,7 @@ package body Checker_App is
       Explicit_Rules_Names : constant Args.Rules.Result_Array :=
         Args.Rules.Get;
 
-      Additional_Rules_Dirs : constant Path_Array :=
-         Path_Array (Args.Rules_Dirs.Get);
+      Additional_Rules_Dirs : Path_Vector;
 
       Rules_Args_Map : Rules_Args_Maps.Map;
       --  Map from argument names to argument values.
@@ -649,6 +648,10 @@ package body Checker_App is
       if not Ctx.All_Rules.Is_Empty then
          return;
       end if;
+
+      for Dir of Args.Rules_Dirs.Get loop
+         Additional_Rules_Dirs.Append (To_String (Dir));
+      end loop;
 
       Ctx.All_Rules := All_Rules (Ctx.Eval_Ctx, Additional_Rules_Dirs);
 

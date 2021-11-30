@@ -22,6 +22,7 @@
 
 with GNAT.OS_Lib;
 with Gnatcheck.Projects;
+with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is
 
@@ -39,6 +40,9 @@ package Gnatcheck.Options is
 
    Global_Report_Dir : GNAT.OS_Lib.String_Access := new String'("./");
    --  The name of the directory to place the global results into
+
+   Additional_Rules_Dirs : Path_Vector;
+   --  Additional rules directories specified via --rules-dir
 
    Fatal_Error : exception;
    --  This exception should be raised when there is no sense any more to do

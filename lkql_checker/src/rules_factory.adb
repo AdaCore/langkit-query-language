@@ -33,11 +33,11 @@ package body Rules_Factory is
    ---------------
 
    function All_Rules
-     (Ctx : Eval_Context; Dirs : Path_Array := Empty_Path_Array)
+     (Ctx : Eval_Context; Dirs : Path_Vector := Path_Vectors.Empty_Vector)
       return Rule_Vector
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
-      Rules : Rule_Vector := Rule_Vectors.Empty_Vector;
+      Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
 
    begin
       --  We search (non recursively) for all .lkql files in the Rules_Dir.
@@ -67,7 +67,6 @@ package body Rules_Factory is
       end loop;
 
       return Rules;
-
    end All_Rules;
 
    ---------------------------
@@ -75,7 +74,7 @@ package body Rules_Factory is
    ---------------------------
 
    function Get_Rules_Directories
-     (Dirs : Path_Array) return Virtual_File_Array
+     (Dirs : Path_Vector) return Virtual_File_Array
    is
       use Ada;
       use GNAT.OS_Lib;
@@ -98,12 +97,16 @@ package body Rules_Factory is
          Builtin_Checkers_Dir : constant Virtual_File_Array :=
            [Create (+Compose (Compose (Prefix, "share"), "lkql"))];
 
-         Custom_Checkers_Dirs : Virtual_File_Array (Dirs'Range);
+         Custom_Checkers_Dirs : Virtual_File_Array
+                                  (1 .. Integer (Dirs.Length));
+         Index                : Positive := 1;
+
       begin
-         for I in Dirs'Range loop
-            Custom_Checkers_Dirs (I) :=
-               Create (+Ada.Strings.Unbounded.To_String (Dirs (I)));
+         for Dir of Dirs loop
+            Custom_Checkers_Dirs (Index) := Create (+Dir);
+            Index := @ + 1;
          end loop;
+
          Free (Executable);
          return Builtin_Checkers_Dir & Custom_Checkers_Dirs;
       end;

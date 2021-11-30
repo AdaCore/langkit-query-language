@@ -1179,11 +1179,7 @@ package body Gnatcheck.Rules.Rule_Table is
    -------------------
 
    procedure Process_Rules (Ctx : in out LKQL_Context) is
-      --  ### Add --rules-dirs parameter
-      Additional_Rules_Dirs : constant Path_Array := [];
-
       Rule : Rule_Access;
-
    begin
       if not Ctx.All_Rules.Is_Empty then
          return;

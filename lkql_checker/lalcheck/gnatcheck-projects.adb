@@ -790,8 +790,8 @@ package body Gnatcheck.Projects is
               "-charset="              &
               "-check-semantic "       &
               "-check-redefinition "   &
-              "-target= "              &
               "-subdirs= "             &
+              "-target= "              &
               "j! "                    &
               "d dd "                  &
               "o= "                    &
@@ -799,6 +799,7 @@ package body Gnatcheck.Projects is
               "-RTS= "                 &
               "l log "                 &
               "-include-file= "        &
+              "-rules-dir= "           &
               "-show-rule "            &
               "-subprocess "           &
               "-version -help "        &
@@ -1073,6 +1074,10 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-include-file" then
                      Gnatcheck.Diagnoses.Process_User_Filename
+                       (Parameter (Parser => Parser));
+
+                  elsif Full_Switch (Parser => Parser) = "-rules-dir" then
+                     Additional_Rules_Dirs.Append
                        (Parameter (Parser => Parser));
 
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
