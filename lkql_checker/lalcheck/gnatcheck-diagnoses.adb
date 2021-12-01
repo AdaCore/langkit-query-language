@@ -743,10 +743,11 @@ package body Gnatcheck.Diagnoses is
          if Is_Exempted (Rule) then
             Store_Diagnosis
               (Text               =>
-                 Short_Source_Name (SF)                       & ':'    &
+                 (if Full_Source_Locations
+                  then Source_Name (SF) else Short_Source_Name (SF)) & ':' &
                  Image (Exemption_Sections (Rule).Line_Start) & ':'    &
                  Image (Exemption_Sections (Rule).Col_Start)  & ": "   &
-                 "No matching 'exempt_OFF' annotation "       &
+                 "no matching 'exempt_OFF' annotation "       &
                  "for rule " & Rule_Name (Rule),
                Diagnosis_Kind     => Exemption_Warning,
                SF                 => SF);
@@ -777,7 +778,7 @@ package body Gnatcheck.Diagnoses is
                       (Next_Section).Exempt_Info.Line_Start) & ':'  &
                     Image (Parametrized_Exemption_Sections.Element
                       (Next_Section).Exempt_Info.Col_Start)  & ": " &
-                    "No matching 'exempt_OFF' annotation "          &
+                    "no matching 'exempt_OFF' annotation "          &
                     "for rule " & Rule_Name (Rule),
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
@@ -1991,6 +1992,12 @@ package body Gnatcheck.Diagnoses is
 
       procedure Print_Specified_Diagnoses
         (Position : Error_Messages_Storage.Cursor);
+      --  Print the given message if relevant.
+      --  Iterator for Error_Messages_Storage
+
+      -------------------------------
+      -- Print_Specified_Diagnoses --
+      -------------------------------
 
       procedure Print_Specified_Diagnoses
         (Position : Error_Messages_Storage.Cursor)
@@ -2415,40 +2422,27 @@ package body Gnatcheck.Diagnoses is
       end if;
    end Print_Violation_Summary;
 
-   ---------------------------
-   -- Exemption_Pragma_Kind --
-   ---------------------------
+   -------------------------
+   -- Is_Exemption_Pragma --
+   -------------------------
 
-   function Exemption_Pragma_Kind (El : LAL.Analysis.Pragma_Node)
-      return Exemption_Pragma_Kinds
+   function Is_Exemption_Pragma
+     (El : LAL.Analysis.Pragma_Node) return Boolean
    is
-      Result : Exemption_Pragma_Kinds := Not_An_Exemption_Pragma;
       Pragma_Name : constant Text_Type := To_Lower (El.F_Id.Text);
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
    begin
-
-      if Pragma_Name in "annotate" | "gnat_annotate"
+      return Pragma_Name in "annotate" | "gnat_annotate"
          and then not Pragma_Args.Is_Null
          and then To_Lower
-           (Pragma_Args.List_Child (1).P_Assoc_Expr.Text) = "gnatcheck"
-      then
-         Result := GNAT_Specific;
-      elsif Pragma_Name = "annotate_gnatcheck"
-      then
-         Result := Unknown;
-      end if;
-
-      return Result;
-   end Exemption_Pragma_Kind;
+           (Pragma_Args.List_Child (1).P_Assoc_Expr.Text) = "gnatcheck";
+   end Is_Exemption_Pragma;
 
    ------------------------------
    -- Process_Exemption_Pragma --
    ------------------------------
 
-   procedure Process_Exemption_Pragma
-     (El          : LAL.Analysis.Pragma_Node;
-      Pragma_Kind : Exemption_Pragma_Kinds)
-   is
+   procedure Process_Exemption_Pragma (El : LAL.Analysis.Pragma_Node) is
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
 
       Next_Arg      : LAL.Analysis.Expr;
@@ -2552,7 +2546,7 @@ package body Gnatcheck.Diagnoses is
             Store_Diagnosis
               (Full_File_Name     => El.Unit.Get_Filename,
                Sloc               => Start_Sloc (El.Sloc_Range),
-               Message            => ": rule " & Rule_Name (Rule) &
+               Message            => "rule " & Rule_Name (Rule) &
                                      " cannot have parametric " &
                                      "exemption, ignored",
                Diagnosis_Kind     => Exemption_Warning,
@@ -2628,16 +2622,14 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if Pragma_Args.Children_Count > 4 then
-         Next_Arg := Pragma_Args.List_Child
-           (if Pragma_Kind = GNAT_Specific then 5 else 4).P_Assoc_Expr;
-
+         Next_Arg := Pragma_Args.List_Child (5).P_Assoc_Expr;
          Store_Diagnosis
-           (Full_File_Name     => El.Unit.Get_Filename,
-            Sloc               => Start_Sloc (El.Sloc_Range),
-            Message            =>
+           (Full_File_Name => El.Unit.Get_Filename,
+            Sloc           => Start_Sloc (El.Sloc_Range),
+            Message        =>
               "rule exemption may have at most 4 parameters",
-            Diagnosis_Kind     => Exemption_Warning,
-            SF                 => SF);
+            Diagnosis_Kind => Exemption_Warning,
+            SF             => SF);
       end if;
 
       --  If Rule does not denote the enabled rule - nothing to do
@@ -2656,12 +2648,6 @@ package body Gnatcheck.Diagnoses is
     --  Now - processing of the exemption pragma. If we are here, we are
     --  sure, that:
     --  - Rule denotes and existing and enabled rule;
-    --  - if we are in an expanded instance, this rule should be checked on
-    --    the expanded code
-    --
-    --  Exemptions for global rules are not implemented yet!
-    --  Exemptions for local rules that should be checked on expanded
-    --  instantiations are not fully implemented!
 
       Exem_Span := El.Sloc_Range;
 
@@ -2718,7 +2704,7 @@ package body Gnatcheck.Diagnoses is
                     (Full_File_Name     => El.Unit.Get_Filename,
                      Sloc               => Start_Sloc (El.Sloc_Range),
                      Message            =>
-                       ": rule " & Rule_Name (Rule) &
+                       "rule " & Rule_Name (Rule) &
                        " is already exempted with the same parameters at line"
                        & Parametrized_Exemption_Sections.Element
                           (Exempted_At).Exempt_Info.Line_Start'Img,
@@ -2940,20 +2926,19 @@ package body Gnatcheck.Diagnoses is
                while Next_Postponed_Section /= null loop
                   if Next_Postponed_Section.Exemption_Section.Detected = 0 then
                      Store_Diagnosis
-                       (Text => Short_Source_Name (SF) & ':' &
-                                Image
-                                  (Next_Postponed_Section.Exemption_Section.
-                                     Line_End)
-                                & ':' &
-                                Image
-                                  (Next_Postponed_Section.Exemption_Section.
-                                     Col_End) &
-                                ": no detection for " &
-                                Rule_Name (Rule)                              &
-                                " rule in exemption section starting at line" &
-                                Next_Postponed_Section.Exemption_Section.
-                                  Line_Start'Img,
-
+                       (Text =>
+                          (if Full_Source_Locations
+                           then Source_Name (SF) else Short_Source_Name (SF)) &
+                          ':' &
+                          Image (Next_Postponed_Section.Exemption_Section.
+                                 Line_End) &
+                          ':' &
+                          Image (Next_Postponed_Section.Exemption_Section.
+                                 Col_End) &
+                          ": no detection for " & Rule_Name (Rule) &
+                          " rule in exemption section starting at line" &
+                          Next_Postponed_Section.Exemption_Section.
+                          Line_Start'Img,
                         Diagnosis_Kind => Exemption_Warning,
                         SF             => SF);
                   end if;
@@ -2977,19 +2962,21 @@ package body Gnatcheck.Diagnoses is
 
                      if Next_Par_S_Info.Exempt_Info.Detected = 0 then
                         Store_Diagnosis
-                          (Text => Short_Source_Name (SF) & ':'              &
-                                   Image (Next_Par_S_Info.Exempt_Info.Line_End)
-                                   & ':' &
-                                   Image (Next_Par_S_Info.Exempt_Info.Col_End)
-                                   & ": no detection for '" &
-                                   Rule_Name (Rule) & ": "                   &
-                                   Params_Img (Next_Par_S_Info.Params, Rule) &
-                                   "' rule in exemption section starting "   &
-                                   "at line"                                 &
-                                   Next_Par_S_Info.Exempt_Info.Line_Start'Img,
+                          (Text =>
+                             (if Full_Source_Locations
+                              then Source_Name (SF)
+                              else Short_Source_Name (SF)) &
+                             ':' &
+                             Image (Next_Par_S_Info.Exempt_Info.Line_End) &
+                             ':' &
+                             Image (Next_Par_S_Info.Exempt_Info.Col_End) &
+                             ": no detection for '" & Rule_Name (Rule) & ": " &
+                             Params_Img (Next_Par_S_Info.Params, Rule) &
+                             "' rule in exemption section starting "   &
+                             "at line" &
+                             Next_Par_S_Info.Exempt_Info.Line_Start'Img,
                            Diagnosis_Kind => Exemption_Warning,
                            SF             => SF);
-
                      end if;
 
                      Next_Post_Param_Section := Next (Next_Post_Param_Section);
@@ -3294,10 +3281,6 @@ package body Gnatcheck.Diagnoses is
          Justification  => Justification);
    end Store_Diagnosis;
 
-   ---------------------
-   -- Store_Diagnosis --
-   ---------------------
-
    procedure Store_Diagnosis
      (Text           : String;
       Diagnosis_Kind : Diagnosis_Kinds;
@@ -3420,14 +3403,15 @@ package body Gnatcheck.Diagnoses is
          Free (Exemption_Sections (Rule).Justification);
 
          Store_Diagnosis
-           (Text           => Short_Source_Name (SF) & ':' &
-                              Image (End_Sloc (Closing_Span)) &
-                              ": no detection for " &
-                              Rule_Name (Rule) &
-                              " rule in exemption section starting at line" &
-                               Exemption_Sections (Rule).Line_Start'Img,
-            Diagnosis_Kind     => Exemption_Warning,
-            SF                 => SF);
+           (Text           =>
+              (if Full_Source_Locations
+               then Source_Name (SF) else Short_Source_Name (SF)) & ':' &
+              Image (End_Sloc (Closing_Span)) & ": no detection for " &
+              Rule_Name (Rule) &
+              " rule in exemption section starting at line" &
+              Exemption_Sections (Rule).Line_Start'Img,
+            Diagnosis_Kind => Exemption_Warning,
+            SF             => SF);
       end if;
 
       Exemption_Sections (Rule).Line_Start    := 0;
@@ -3473,16 +3457,17 @@ package body Gnatcheck.Diagnoses is
             Free (Tmp);
 
             Store_Diagnosis
-              (Text => Short_Source_Name (SF) & ':' &
-                       Image (End_Sloc (Closing_Span)) &
-                       ": no detection for '" &
-                       Rule_Name (Rule) & ": " &
-                       Params_Img
-                         (Parametrized_Exemption_Sections.Element
-                           (Exempted_At).Params, Rule) &
-                       "' rule in exemption section starting at line" &
-                       Parametrized_Exemption_Sections.Element
-                         (Exempted_At).Exempt_Info.Line_Start'Img,
+              (Text =>
+                 (if Full_Source_Locations
+                  then Source_Name (SF) else Short_Source_Name (SF)) & ':' &
+                 Image (End_Sloc (Closing_Span)) & ": no detection for '" &
+                 Rule_Name (Rule) & ": " &
+                 Params_Img
+                   (Parametrized_Exemption_Sections.Element
+                     (Exempted_At).Params, Rule) &
+                 "' rule in exemption section starting at line" &
+                 Parametrized_Exemption_Sections.Element
+                   (Exempted_At).Exempt_Info.Line_Start'Img,
                Diagnosis_Kind => Exemption_Warning,
                SF             => SF);
          end if;

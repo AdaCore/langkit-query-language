@@ -580,20 +580,20 @@ package body Gnatcheck.Compiler is
 
    function Needs_Parameter_In_Exemption
      (R    : Restriction_Id;
-      SR   : Special_Restriction_Id)
-      return Boolean
-   is
-      Result : Boolean := False;
+      SR   : Special_Restriction_Id) return Boolean is
    begin
       if SR in All_Special_Parameter_Restrictions then
-         Result := True;
+         return True;
       elsif R in All_Parameter_Restrictions then
+
          --  Not all the restrictions from All_Parameter_Restrictions require
          --  restriction parameter in parametric exemptions
-         Result := R not in Integer_Parameter_Restrictions;
-      end if;
 
-      return Result;
+         return R not in Integer_Parameter_Restrictions;
+
+      else
+         return False;
+      end if;
    end Needs_Parameter_In_Exemption;
 
    ----------------------------------

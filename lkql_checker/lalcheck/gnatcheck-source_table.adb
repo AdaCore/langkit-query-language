@@ -1416,21 +1416,11 @@ package body Gnatcheck.Source_Table is
                    Start_Sloc (Current.Sloc_Range) < Start_Sloc (Sloc_Range))
                   and then It.Next (Current)
                loop
-                  declare
-                     K : Exemption_Pragma_Kinds := Not_An_Exemption_Pragma;
-                  begin
-                     if Current.Kind = Ada_Pragma_Node then
-                        K := Exemption_Pragma_Kind (Current.As_Pragma_Node);
-                     end if;
-
-                     case K is
-                        when GNAT_Specific | Unknown =>
-                           Process_Exemption_Pragma
-                             (Current.As_Pragma_Node, K);
-                        when others =>
-                           null;
-                     end case;
-                  end;
+                  if Current.Kind = Ada_Pragma_Node
+                    and then Is_Exemption_Pragma (Current.As_Pragma_Node)
+                  then
+                     Process_Exemption_Pragma (Current.As_Pragma_Node);
+                  end if;
                end loop;
             end Process_Exemption_Pragmas_Up_To;
 

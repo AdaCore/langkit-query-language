@@ -123,34 +123,16 @@ package Gnatcheck.Diagnoses is
    --  Initializes all the internal data structures needed for exemption
    --  mechanism
 
-   type Exemption_Pragma_Kinds is
-     (Not_An_Exemption_Pragma,
-      GNAT_Specific,           --  that is, a normal GNAT Annotate pragma
-      Unknown);                --  Unknown pragma, can be used with old
-                               --  compilers that do not know the modern
-                               --  syntax of GNAT Annotate pragma
+   function Is_Exemption_Pragma (El : LAL.Analysis.Pragma_Node) return Boolean;
+   --  Checks if the argument Element is the Annotate or GNAT_Annotate pragma
+   --  with the  first parameter equal to 'gnatcheck'.
 
-   function Exemption_Pragma_Kind (El : LAL.Analysis.Pragma_Node)
-     return Exemption_Pragma_Kinds;
-   --  Checks if the argument Element is either the GNAT Annotate pragma with
-   --  first parameter equal to 'gnatcheck', or some unknown pragma that can
-   --  be processed by old compilers and that can be used as an exemption
-   --  pragma for gnatcheck
-
-   procedure Process_Exemption_Pragma
-     (El          : LAL.Analysis.Pragma_Node;
-      Pragma_Kind : Exemption_Pragma_Kinds);
-   --  Should never be called with Pragma_Kind equals to
-   --  Not_An_Exemption_Pragma.
-   --
+   procedure Process_Exemption_Pragma (El : LAL.Analysis.Pragma_Node);
    --  Analyses the argument element and stores the
-   --  information about exemption section. In most of the cases (for local
-   --  rules, that are not checked on expanded instantiations) it is
+   --  information about exemption section. In most of the cases it is
    --  equivalent to turning the rule into exempted state, but for the
    --  following rule categories:
    --    * compiler checks
-   --    * global rules
-   --    * rules checked on expended instantiations
    --
    --  post-processing is needed. This postprocessing can be done when all the
    --  rule checking and processing of exemption pragmas on all the sources is
