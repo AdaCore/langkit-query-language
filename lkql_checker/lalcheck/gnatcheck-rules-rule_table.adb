@@ -25,7 +25,6 @@ with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
 with Ada.Text_IO;                use Ada.Text_IO;
 with Ada.Wide_Wide_Text_IO;
-with System.Rident;
 
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.OS_Lib;                use GNAT.OS_Lib;
@@ -52,8 +51,6 @@ with Liblkqllang.Analysis;
 package body Gnatcheck.Rules.Rule_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
-
-   package Rident is new System.Rident;
 
    -----------------------
    -- Local subprograms --

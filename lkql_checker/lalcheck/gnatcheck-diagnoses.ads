@@ -62,10 +62,6 @@ package Gnatcheck.Diagnoses is
       SF             : SF_Id;
       Rule           : Rule_Id       := No_Rule;
       Justification  : String_Access := null);
-   --  Stores the diagnosis in the internal data structure. The same procedure
-   --  is used for all diagnosis kinds, in case of Exemption_Warning,
-   --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
-
    procedure Store_Diagnosis
      (Full_File_Name : String;
       Message        : String;
@@ -74,6 +70,9 @@ package Gnatcheck.Diagnoses is
       SF             : SF_Id;
       Rule           : Rule_Id       := No_Rule;
       Justification  : String_Access := null);
+   --  Stores the diagnosis in the internal data structure. The same procedure
+   --  is used for all diagnosis kinds, in case of Exemption_Warning,
+   --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
 
    ------------------------
    -- Diagnoses Counters --

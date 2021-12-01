@@ -252,12 +252,9 @@ package body Gnatcheck.Diagnoses is
    --  Checks if Rule is in exempted state. Assumes Present (Rule).
 
    procedure Process_Postponed_Exemptions;
-   --  ??? To be fully specified and implemented.
-   --  The idea is to iterate through the stored diagnoses and to try to apply
-   --  postponed exemption to global rules and diagnoses generated for expanded
-   --  generics, and for compiler checks
+   --  Iterate through the stored diagnoses and apply postponed exemptions to
+   --  diagnoses generated for compiler and subprocess checks
 
---   To be reimplemented using Libadalang
    procedure Turn_Off_Exemption
      (Rule         : Rule_Id;
       Closing_Span : Source_Location_Range;
@@ -1483,14 +1480,12 @@ package body Gnatcheck.Diagnoses is
           (First_Compiler_Check .. All_Rules.Last);
 
       for Rule in Postponed_Exemption_Sections'Range loop
-
          if Needs_Postponed_Exemption_Processing (Rule) then
             Postponed_Exemption_Sections (Rule) :=
               new Postponed_Check_Exemption_Sections_Array
                 (First_SF_Id .. Last_Argument_Source);
             Postponed_Exemption_Sections (Rule).all := [others => null];
          end if;
-
       end loop;
 
       --  Parametric exemptions:
@@ -1504,7 +1499,6 @@ package body Gnatcheck.Diagnoses is
           (First_Compiler_Check .. All_Rules.Last);
 
       for Rule in Postponed_Exemption_Sections'Range loop
-
          if Needs_Postponed_Exemption_Processing (Rule)
            and then
             Allows_Parametrized_Exemption (Rule)
@@ -2484,18 +2478,9 @@ package body Gnatcheck.Diagnoses is
       use LCO;
 
    begin
-      --  We do not analyze exemption pragmas in instantiations - at the moment
-      --  it is not clear how to define reasonable exemption policy for nested
-      --  instantiations
-
-      --  TODO LAL: deactivate for now
-      --  if Is_Part_Of_Instance (El) then
-      --     return;
-      --  end if;
-
-    --  First, analyze the pragma format:
-    --
-    --  1. Check that we have at least three parameters
+      --  First, analyze the pragma format:
+      --
+      --  1. Check that we have at least three parameters
 
       if Pragma_Args.Children_Count < 3 then
          Store_Diagnosis
@@ -2863,9 +2848,6 @@ package body Gnatcheck.Diagnoses is
       --  then the diagnosis is exempted by adding the justification from the
       --  exemption section, and the corresponding exemption violation is
       --  counted for the given exemption section
-      --
-      --  At the moment this kind of diagnoses post-processing is implemented
-      --  for compiler checks only.
 
       procedure Map_Diagnosis (Position : Error_Messages_Storage.Cursor) is
          Diag : Diag_Message := Error_Messages_Storage.Element (Position);
@@ -2940,8 +2922,6 @@ package body Gnatcheck.Diagnoses is
    --  Start of processing for Process_Postponed_Exemptions
 
    begin
-      --  !!!??? Still does not work on rules checked on expanded generic!!!
-
       Error_Messages_Storage.Iterate
         (Container => All_Error_Messages,
          Process   => Map_Diagnosis'Access);

@@ -31,11 +31,16 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;             use Ada.Text_IO;
 with GNAT.OS_Lib;             use GNAT.OS_Lib;
+with System.Rident;
 
 with Liblkqllang.Analysis;
 with Rule_Commands;           use Rule_Commands;
 
 package Gnatcheck.Rules is
+
+   pragma Warnings (Off);
+   package Rident is new System.Rident;
+   pragma Warnings (On);
 
    package Exemption_Parameters is new Ada.Containers.Indefinite_Ordered_Sets
      (Element_Type => String);

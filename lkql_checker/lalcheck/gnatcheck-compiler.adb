@@ -22,8 +22,6 @@ with Ada.Command_Line;        use Ada.Command_Line;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 
-with System.Rident;
-
 with GNAT.Case_Util;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
@@ -38,6 +36,8 @@ with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;              use Gnatcheck.Ids;
 
 package body Gnatcheck.Compiler is
+
+   use Rident;
 
    Style_Options_String : String_Access := new String'("-gnaty");
    --  Stores parameters of the Style_Checks
@@ -90,12 +90,6 @@ package body Gnatcheck.Compiler is
    ---------------------------------------------------------
 
    subtype Option_Parameter is Natural;
-
-   package Gnatcheck_Restrictions is new System.Rident;
-   use Gnatcheck_Restrictions;
-   --  We cannot use the instantiation of System.Rident in System.Restrictions
-   --  because of the pragma Discard_Names that does not allow to use
-   --  Restriction_Id'Value when analyzing gnatcheck restriction parameters.
 
    type Restriction_State is record
       Active : Boolean;

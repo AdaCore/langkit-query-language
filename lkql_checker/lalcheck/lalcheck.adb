@@ -290,7 +290,9 @@ begin
 
    Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
 
-   Gnatcheck.Diagnoses.Init_Exemptions;
+   if not Subprocess_Mode then
+      Gnatcheck.Diagnoses.Init_Exemptions;
+   end if;
 
    if Check_Restrictions or else Use_gnatw_Option then
       Create_Restriction_Pragmas_File;
