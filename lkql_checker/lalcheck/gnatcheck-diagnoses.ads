@@ -112,13 +112,6 @@ package Gnatcheck.Diagnoses is
    -- Exemption mechanism --
    -------------------------
 
-   procedure Init_Postponed_Check_Exemptions;
-   --  Prepares the internal data structures for storing information about
-   --  postponed checks exemption sections in a source. Should be called in the
-   --  very beginning of analyzing a new source. For compiler checks, global
-   --  rules, rules that are checked on expanded generics we can do rule
-   --  exemptions only after completing processing of all the sources.
-
    procedure Init_Exemptions;
    --  Initializes all the internal data structures needed for exemption
    --  mechanism

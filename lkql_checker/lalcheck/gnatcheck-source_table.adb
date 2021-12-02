@@ -1392,8 +1392,6 @@ package body Gnatcheck.Source_Table is
 
          exit when not Present (Next_SF);
 
-         Gnatcheck.Diagnoses.Init_Postponed_Check_Exemptions;
-
          Output_Source (Next_SF);
 
          declare

@@ -253,15 +253,13 @@ package body Gnatcheck.Diagnoses is
 
    procedure Process_Postponed_Exemptions;
    --  Iterate through the stored diagnoses and apply postponed exemptions to
-   --  diagnoses generated for compiler and subprocess checks
+   --  diagnoses.
 
    procedure Turn_Off_Exemption
      (Rule         : Rule_Id;
       Closing_Span : Source_Location_Range;
       SF           : SF_Id);
-   --  Cleans up the stored exemption section for the argument Rule, for some
-   --  rules (subprocess, compiler checks) the exemption section is stored in
-   --  some rule-specific data structure before being cleaning up.
+   --  Cleans up the stored exemption section for the argument Rule.
 
    -----------------------------
    -- Parametric exemptions --
@@ -417,40 +415,24 @@ package body Gnatcheck.Diagnoses is
    --  caller is responsible for freeing the memory occupied by Par.
 
    function Get_Param_Justification
-     (Rule                       : Rule_Id;
-      Diag                       : String;
-      SF                         : SF_Id;
-      Line                       : Natural := 0;
-      Col                        : Natural := 0;
-      Check_Postponed_Exemptions : Boolean := False) return String_Access;
+     (Rule : Rule_Id;
+      Diag : String;
+      SF   : SF_Id;
+      Line : Natural;
+      Col  : Natural) return String_Access;
    --  Diag is supposed to be a diagnostic message (with all the parameters
    --  and variants resolved) generated for Rule (and Rule should allow
    --  parametric exemptions). It checks if Text corresponds to some
    --  parametric section for this Rule.
-   --
-   --  If Check_Postponed_Exemptions is ON, the check is made for stored for
-   --  postponed analysis parametric exemption sections, otherwise the check is
-   --  considered as performed for the currently analyzed source and
-   --  information about parametric exemption sections from
-   --  Rule_Param_Exempt_Sections is used.
    --
    --  If Diag fits into an exemption section, the result is the pointer to the
    --  corresponding justification and the diagnostic counter for this section
    --  is increased as a side effect of the function call. Otherwise the result
    --  is null.
    --
-   --  Parameters Line and Col are used only if Check_Postponed_Exemptions,
-   --  they should be set to the line and column numbers from the diagnosis.
-   --  If we analyze the diagnosis against postponed exemptions, we have the
-   --  full set of exemption sections for SF, so Line and Col are used to
-   --  filter out sections the diagnosis does not get into, and they
-   --  allow to break iterating through sections when we have visited all that
-   --  start before the diagnosis.
-   --
-   --  If Check_Postponed_Exemptions is OFF, the set of exemption sections
-   --  stored in Rule_Param_Exempt_Sections for Rule contains all those and
-   --  only those sections that covers the SLOC of diagnosis, so we do not need
-   --  Line and Col from the text of the diagnosis.
+   --  Parameters Line and Col should be set to the line and column numbers
+   --  from the diagnosis to filter out sections the diagnosis does not get
+   --  into.
 
    function Rule_Parameter (Diag : String; Rule : Rule_Id) return String;
    --  Provided that Rule allows parametric exemptions, and  Diag is a
@@ -458,41 +440,34 @@ package body Gnatcheck.Diagnoses is
    --  exemption parameter Diag corresponds to.
 
    function Get_Exem_Section
-     (Exem_Sections              : Parametrized_Exemption_Sections.Set;
-      Param                      : String;
-      Line                       : Natural := 0;
-      Col                        : Natural := 0;
-      Check_Postponed_Exemptions : Boolean := False)
-      return          Parametrized_Exemption_Sections.Cursor;
+     (Exem_Sections : Parametrized_Exemption_Sections.Set;
+      Param         : String;
+      Line          : Natural;
+      Col           : Natural) return Parametrized_Exemption_Sections.Cursor;
    --  Tries to locate in Exem_Sections the section that exempts the rule this
    --  Param is supposed to corresponds to (choosing the right set of exemption
    --  sections should be done outside the call) with Param. Returns
    --  No_Element if the attempt fails.
-   --  If Check_Postponed_Exemptions is ON, the function uses Line and Col to
-   --  optimize iteration through Exem_Sections (see comment to
-   --  Get_Param_Justification
 
    procedure Increase_Diag_Counter
      (Exem_Sections : in out Parametrized_Exemption_Sections.Set;
-      Section       :        Parametrized_Exemption_Sections.Cursor);
+      Section       : Parametrized_Exemption_Sections.Cursor);
    --  Adds 1 to the counter of detected violations for the exemption sections
    --  pointed by Section in Exem_Sections.
 
    procedure Turn_Off_Parametrized_Exemption
-     (Rule         :        Rule_Id;
+     (Rule         : Rule_Id;
       Exempted_At  : in out Parametrized_Exemption_Sections.Cursor;
-      Closing_Span :        Source_Location_Range;
-      SF           :        SF_Id);
-   --  Cleans up the stored exemption section for the argument Rule, for some
-   --  rules (subprocess, compiler checks) the exemption section is stored in
-   --  some rule-specific data structure before being cleaning up.
+      Closing_Span : Source_Location_Range;
+      SF           : SF_Id);
+   --  Cleans up the stored exemption section for the argument Rule.
 
    --------------------------------------
    --  Exemptions for postponed checks --
    --------------------------------------
 
    type Postponed_Rule_Exemption_Info;
-   type  Postponed_Rule_Exemption_Info_Access is access
+   type Postponed_Rule_Exemption_Info_Access is access
      Postponed_Rule_Exemption_Info;
 
    type Postponed_Rule_Exemption_Info is record
@@ -514,10 +489,10 @@ package body Gnatcheck.Diagnoses is
      Postponed_Exemption_Sections_Array;
 
    Postponed_Exemption_Sections : Postponed_Exemption_Sections_Array_Access;
-   --  For each argument source, stores all the compiler check exemption
-   --  sections found in this source. These sections are stored as they are
-   --  processed - that is, in alphabetical order. Sections for different kinds
-   --  of compiler checks are stored separately.
+   --  For each argument source, stores all the exemption sections found in
+   --  this source. These sections are stored as they are processed - that is,
+   --  in alphabetical order. Sections for different kinds of checks are stored
+   --  separately.
 
    type Current_Postponed_Exemption_Sections_Array is array
      (Rule_Id range <>) of Postponed_Rule_Exemption_Info_Access;
@@ -535,13 +510,6 @@ package body Gnatcheck.Diagnoses is
    --  Turn_Off_Exemption procedure. When mapping diagnoses onto exemption
    --  sections, ???
 
-   function Needs_Postponed_Exemption_Processing
-     (Rule : Rule_Id)
-      return Boolean;
-   --  Checks if the exemption processing for the argument rule should be
-   --  postponed till all the sources are processed. For the moment returns
-   --  True for compiler checks.
-
    procedure Add_Exempted_Violation (For_Check : Rule_Id);
    --  Adds 1 to the detection counter for the currently accessed section for
    --  the argument check
@@ -550,7 +518,7 @@ package body Gnatcheck.Diagnoses is
    --  Gets justification from the currently accessed section for the argument
    --  check
 
-   procedure Map_On_Postponed_Check_Exemption      --  ???
+   procedure Map_On_Postponed_Check_Exemption
      (In_File     :     SF_Id;
       For_Check   :     Rule_Id;
       For_Line    :     Positive;
@@ -1280,12 +1248,10 @@ package body Gnatcheck.Diagnoses is
    ----------------------
 
    function Get_Exem_Section
-     (Exem_Sections              : Parametrized_Exemption_Sections.Set;
-      Param                      : String;
-      Line                       : Natural := 0;
-      Col                        : Natural := 0;
-      Check_Postponed_Exemptions : Boolean := False)
-      return          Parametrized_Exemption_Sections.Cursor
+     (Exem_Sections : Parametrized_Exemption_Sections.Set;
+      Param         : String;
+      Line          : Natural;
+      Col           : Natural) return Parametrized_Exemption_Sections.Cursor
    is
       use Parametrized_Exemption_Sections;
       Result               : Cursor  := No_Element;
@@ -1293,44 +1259,33 @@ package body Gnatcheck.Diagnoses is
 
       Diag_In_Section      : Boolean := True;
       Diag_Before_Sections : Boolean := False;
-      --  These two Boolean flags are used only if Check_Postponed_Exemptions
-      --  is ON to control iterating through all the parametric exemption
+      --  Control iterating through all the parametric exemption
       --  sections for the source that are stored in Exem_Sections
 
       Next_Section_El : Parametrized_Exemption_Info;
    begin
       while Has_Element (Next_Section) loop
-
          Next_Section_El :=
            Parametrized_Exemption_Sections.Element (Next_Section);
 
-         if Check_Postponed_Exemptions then
-            Diag_Before_Sections :=
-              Line < Next_Section_El.Exempt_Info.Line_Start
-             or else
-              (Line = Next_Section_El.Exempt_Info.Line_Start
-              and then
-               Col < Next_Section_El.Exempt_Info.Col_Start);
+         Diag_Before_Sections :=
+           Line < Next_Section_El.Exempt_Info.Line_Start
+             or else (Line = Next_Section_El.Exempt_Info.Line_Start
+                      and then Col < Next_Section_El.Exempt_Info.Col_Start);
 
-            exit when Diag_Before_Sections;
+         exit when Diag_Before_Sections;
 
-            Diag_In_Section :=
-              (Line > Next_Section_El.Exempt_Info.Line_Start
-             or else
-              (Line = Next_Section_El.Exempt_Info.Line_Start
-              and then
-               Col > Next_Section_El.Exempt_Info.Col_Start))
-             and then
-              (Line < Next_Section_El.Exempt_Info.Line_End
-             or else
-              (Line = Next_Section_El.Exempt_Info.Line_End
-              and then
-               Col < Next_Section_El.Exempt_Info.Col_End));
-         end if;
+         Diag_In_Section :=
+           (Line > Next_Section_El.Exempt_Info.Line_Start
+            or else (Line = Next_Section_El.Exempt_Info.Line_Start
+                     and then Col > Next_Section_El.Exempt_Info.Col_Start))
+             and then (Line < Next_Section_El.Exempt_Info.Line_End
+                       or else (Line = Next_Section_El.Exempt_Info.Line_End
+                                and then
+                                  Col < Next_Section_El.Exempt_Info.Col_End));
 
          if Diag_In_Section
-           and then
-            Belongs (Param, Next_Section_El.Params)
+           and then Belongs (Param, Next_Section_El.Params)
          then
             Result := Next_Section;
             exit;
@@ -1384,12 +1339,11 @@ package body Gnatcheck.Diagnoses is
    -----------------------------
 
    function Get_Param_Justification
-     (Rule                       : Rule_Id;
-      Diag                       : String;
-      SF                         : SF_Id;
-      Line                       : Natural := 0;
-      Col                        : Natural := 0;
-      Check_Postponed_Exemptions : Boolean := False) return String_Access
+     (Rule : Rule_Id;
+      Diag : String;
+      SF   : SF_Id;
+      Line : Natural;
+      Col  : Natural) return String_Access
    is
       Result : String_Access;
 
@@ -1398,30 +1352,14 @@ package body Gnatcheck.Diagnoses is
       --  You should never assign containers!!!
       Fit_In_Section : Cursor;
    begin
-      if Needs_Postponed_Exemption_Processing (Rule)
-        and then not Check_Postponed_Exemptions
-      then
-         return null;
-      end if;
-
       declare
          Param : constant String := Rule_Parameter (Diag, Rule);
          pragma Assert (Param /= "" or else Rule = Warnings_Id);
       begin
-         if Check_Postponed_Exemptions then
-            Exem_Sections :=
-              Postponed_Param_Exempt_Sections (Rule) (SF)'Unrestricted_Access;
-         else
-            Exem_Sections :=
-              Rule_Param_Exempt_Sections (Rule)'Unrestricted_Access;
-         end if;
-
+         Exem_Sections :=
+           Postponed_Param_Exempt_Sections (Rule) (SF)'Unrestricted_Access;
          Fit_In_Section := Get_Exem_Section
-           (Exem_Sections.all,
-            Param,
-            Line,
-            Col,
-            Check_Postponed_Exemptions);
+           (Exem_Sections.all, Param, Line, Col);
 
          if Has_Element (Fit_In_Section) then
             Result :=
@@ -1481,12 +1419,9 @@ package body Gnatcheck.Diagnoses is
           (First_Compiler_Check .. All_Rules.Last);
 
       for Rule in Postponed_Exemption_Sections'Range loop
-         if Needs_Postponed_Exemption_Processing (Rule) then
-            Postponed_Exemption_Sections (Rule) :=
-              new Postponed_Check_Exemption_Sections_Array
-                (First_SF_Id .. Last_Argument_Source);
-            Postponed_Exemption_Sections (Rule).all := [others => null];
-         end if;
+         Postponed_Exemption_Sections (Rule) :=
+           new Postponed_Check_Exemption_Sections_Array
+             (First_SF_Id .. Last_Argument_Source);
       end loop;
 
       --  Parametric exemptions:
@@ -1500,31 +1435,13 @@ package body Gnatcheck.Diagnoses is
           (First_Compiler_Check .. All_Rules.Last);
 
       for Rule in Postponed_Exemption_Sections'Range loop
-         if Needs_Postponed_Exemption_Processing (Rule)
-           and then
-            Allows_Parametrized_Exemption (Rule)
-         then
+         if Allows_Parametrized_Exemption (Rule) then
             Postponed_Param_Exempt_Sections (Rule) :=
               new Per_Source_Postponed_Param_Exemp
                 (First_SF_Id .. Last_Argument_Source);
          end if;
       end loop;
    end Init_Exemptions;
-
-   -------------------------------------
-   -- Init_Postponed_Check_Exemptions --
-   -------------------------------------
-
-   procedure Init_Postponed_Check_Exemptions is
-   begin
-      --  !!!??? FREE THE MEMORY!!!
-
-      for Rule in Current_Postponed_Exemption_Sections'Range loop
-         if Needs_Postponed_Exemption_Processing (Rule) then
-            Current_Postponed_Exemption_Sections (Rule) := null;
-         end if;
-      end loop;
-   end Init_Postponed_Check_Exemptions;
 
    --------------
    -- Is_Equal --
@@ -1677,18 +1594,7 @@ package body Gnatcheck.Diagnoses is
            Current_Postponed_Exemption_Sections (For_Check).
              Next_Exemption_Section;
       end loop;
-
    end Map_On_Postponed_Check_Exemption;
-
-   ------------------------------------------
-   -- Needs_Postponed_Exemption_Processing --
-   ------------------------------------------
-
-   function Needs_Postponed_Exemption_Processing
-     (Rule : Rule_Id) return Boolean is
-   begin
-      return Rule in Compiler_Checks;  --  ### what about subprocess handling
-   end Needs_Postponed_Exemption_Processing;
 
    ----------------------
    -- Next_Message_Num --
@@ -2842,66 +2748,65 @@ package body Gnatcheck.Diagnoses is
          SF          : SF_Id;
          Is_Exempted : Boolean;
       begin
-         if Diag.Diagnosis_Kind = Rule_Violation
+         if Diag.Diagnosis_Kind /= Rule_Violation then
+            return;
+         end if;
+
+         if Diag.Justification /= null then
+            --  some diagnoses may be already exempted
+            --  ### review now that all exemptions are postponed
+            return;
+         end if;
+
+         SF := Diag.SF;
+
+         if not Present (SF) then
+            --  This is the case when the diagnosis is generated for
+            --  expanded generic, and the generic itself is not a
+            --  gnatcheck input.
+
+            return;
+         end if;
+
+         --  First, check for non-parametric exemptions:
+
+         Diag_Line := Select_Line (Diag.Text);
+
+         Map_On_Postponed_Check_Exemption
+           (In_File     => SF,
+            For_Check   => Diag.Rule,
+            For_Line    => Diag_Line,
+            Is_Exempted => Is_Exempted);
+
+         if Is_Exempted then
+            Add_Exempted_Violation (Diag.Rule);
+            Diag.Justification := Get_Justification (Diag.Rule);
+         end if;
+
+         --  Check for parametric exemptions
+
+         if not Is_Exempted
            and then
-             Needs_Postponed_Exemption_Processing (Diag.Rule)
+            Allows_Parametrized_Exemption (Diag.Rule)
+           and then
+            not Parametrized_Exemption_Sections.Is_Empty
+                  (Postponed_Param_Exempt_Sections (Diag.Rule) (SF))
          then
-            if Diag.Justification /= null then
-               --  some diagnoses may be already exempted as a part of the
-               --  regular processing
-               return;
-            end if;
+            Diag_Column := Select_Column (Diag.Text);
+            Diag.Justification :=
+              Get_Param_Justification
+                (Rule => Diag.Rule,
+                 Diag => Diag.Text.all,
+                 SF   => SF,
+                 Line => Diag_Line,
+                 Col  => Diag_Column);
+         end if;
 
-            SF := Diag.SF;
-
-            if not Present (SF) then
-               --  This is the case when the diagnosis is generated for
-               --  expanded generic, and the generic itself is not the
-               --  gnatcheck argument
-               return;
-            end if;
-
-            --  First, check for non-parametric exemptions:
-
-            Diag_Line := Select_Line (Diag.Text);
-
-            Map_On_Postponed_Check_Exemption
-              (In_File     => SF,
-               For_Check   => Diag.Rule,
-               For_Line    => Diag_Line,
-               Is_Exempted => Is_Exempted);
-
-            if Is_Exempted then
-               Add_Exempted_Violation (Diag.Rule);
-               Diag.Justification := Get_Justification (Diag.Rule);
-            end if;
-
-            --  Check for parametric exemptions
-
-            if not Is_Exempted
-              and then
-               Allows_Parametrized_Exemption (Diag.Rule)
-              and then
-               not Parametrized_Exemption_Sections.Is_Empty
-                     (Postponed_Param_Exempt_Sections (Diag.Rule) (SF))
-            then
-               Diag_Column := Select_Column (Diag.Text);
-               Diag.Justification :=
-                 Get_Param_Justification
-                   (Rule                       => Diag.Rule,
-                    Diag                       => Diag.Text.all,
-                    SF                         => SF,
-                    Line                       => Diag_Line,
-                    Col                        => Diag_Column,
-                    Check_Postponed_Exemptions => True);
-            end if;
-
-            if Diag.Justification /= null then
-               Error_Messages_Storage.Replace_Element
-                 (Container => All_Error_Messages,
-                  Position  => Position,
-                  New_Item  => Diag);
-            end if;
+         if Diag.Justification /= null then
+            Error_Messages_Storage.Replace_Element
+              (Container => All_Error_Messages,
+               Position  => Position,
+               New_Item  => Diag);
          end if;
       end Map_Diagnosis;
 
@@ -2916,75 +2821,72 @@ package body Gnatcheck.Diagnoses is
       --  warnings for those of them for which no exempted diagnoses are found.
 
       for Rule in First_Compiler_Check .. All_Rules.Last loop
-         if Needs_Postponed_Exemption_Processing (Rule) then
-            for SF in First_SF_Id .. Last_Argument_Source loop
+         for SF in First_SF_Id .. Last_Argument_Source loop
 
-               --  Non-parametric exemptions:
+            --  Non-parametric exemptions:
+            Next_Postponed_Section :=
+              Postponed_Exemption_Sections (Rule) (SF);
+
+            while Next_Postponed_Section /= null loop
+               if Next_Postponed_Section.Exemption_Section.Detected = 0 then
+                  Store_Diagnosis
+                    (Text =>
+                       (if Full_Source_Locations
+                        then Source_Name (SF) else Short_Source_Name (SF)) &
+                       ':' &
+                       Image (Next_Postponed_Section.Exemption_Section.
+                              Line_End) &
+                       ':' &
+                       Image (Next_Postponed_Section.Exemption_Section.
+                              Col_End) &
+                       ": no detection for " & Rule_Name (Rule) &
+                       " rule in exemption section starting at line" &
+                       Next_Postponed_Section.Exemption_Section.
+                       Line_Start'Img,
+                     Diagnosis_Kind => Exemption_Warning,
+                     SF             => SF);
+               end if;
+
                Next_Postponed_Section :=
-                 Postponed_Exemption_Sections (Rule) (SF);
+                 Next_Postponed_Section.Next_Exemption_Section;
+            end loop;
 
-               while Next_Postponed_Section /= null loop
-                  if Next_Postponed_Section.Exemption_Section.Detected = 0 then
+         --  Parametric exemptions:
+            if Allows_Parametrized_Exemption (Rule)
+              and then
+               not Is_Empty (Postponed_Param_Exempt_Sections (Rule) (SF))
+            then
+               Next_Post_Param_Section :=
+                 First (Postponed_Param_Exempt_Sections (Rule) (SF));
+
+               while Has_Element (Next_Post_Param_Section) loop
+                  Next_Par_S_Info :=
+                    Parametrized_Exemption_Sections.Element
+                      (Next_Post_Param_Section);
+
+                  if Next_Par_S_Info.Exempt_Info.Detected = 0 then
                      Store_Diagnosis
                        (Text =>
                           (if Full_Source_Locations
-                           then Source_Name (SF) else Short_Source_Name (SF)) &
+                           then Source_Name (SF)
+                           else Short_Source_Name (SF)) &
                           ':' &
-                          Image (Next_Postponed_Section.Exemption_Section.
-                                 Line_End) &
+                          Image (Next_Par_S_Info.Exempt_Info.Line_End) &
                           ':' &
-                          Image (Next_Postponed_Section.Exemption_Section.
-                                 Col_End) &
-                          ": no detection for " & Rule_Name (Rule) &
-                          " rule in exemption section starting at line" &
-                          Next_Postponed_Section.Exemption_Section.
-                          Line_Start'Img,
+                          Image (Next_Par_S_Info.Exempt_Info.Col_End) &
+                          ": no detection for '" & Rule_Name (Rule) & ": " &
+                          Params_Img (Next_Par_S_Info.Params, Rule) &
+                          "' rule in exemption section starting "   &
+                          "at line" &
+                          Next_Par_S_Info.Exempt_Info.Line_Start'Img,
                         Diagnosis_Kind => Exemption_Warning,
                         SF             => SF);
                   end if;
 
-                  Next_Postponed_Section :=
-                    Next_Postponed_Section.Next_Exemption_Section;
+                  Next_Post_Param_Section := Next (Next_Post_Param_Section);
                end loop;
-
-            --  Parametric exemptions:
-               if Allows_Parametrized_Exemption (Rule)
-                 and then
-                  not Is_Empty (Postponed_Param_Exempt_Sections (Rule) (SF))
-               then
-                  Next_Post_Param_Section :=
-                    First (Postponed_Param_Exempt_Sections (Rule) (SF));
-
-                  while Has_Element (Next_Post_Param_Section) loop
-                     Next_Par_S_Info :=
-                       Parametrized_Exemption_Sections.Element
-                         (Next_Post_Param_Section);
-
-                     if Next_Par_S_Info.Exempt_Info.Detected = 0 then
-                        Store_Diagnosis
-                          (Text =>
-                             (if Full_Source_Locations
-                              then Source_Name (SF)
-                              else Short_Source_Name (SF)) &
-                             ':' &
-                             Image (Next_Par_S_Info.Exempt_Info.Line_End) &
-                             ':' &
-                             Image (Next_Par_S_Info.Exempt_Info.Col_End) &
-                             ": no detection for '" & Rule_Name (Rule) & ": " &
-                             Params_Img (Next_Par_S_Info.Params, Rule) &
-                             "' rule in exemption section starting "   &
-                             "at line" &
-                             Next_Par_S_Info.Exempt_Info.Line_Start'Img,
-                           Diagnosis_Kind => Exemption_Warning,
-                           SF             => SF);
-                     end if;
-
-                     Next_Post_Param_Section := Next (Next_Post_Param_Section);
-                  end loop;
-               end if;
-
-            end loop;
-         end if;
+            end if;
+         end loop;
       end loop;
    end Process_Postponed_Exemptions;
 
@@ -3296,8 +3198,6 @@ package body Gnatcheck.Diagnoses is
          SF             => SF,
          Num            => Next_Message_Num);
 
-      use Parametrized_Exemption_Sections;
-
    begin
       --  We need this check to avoid diagnoses duplication. Our set container
       --  has broken "<" relation, so Insert may add diagnoses that are already
@@ -3315,24 +3215,12 @@ package body Gnatcheck.Diagnoses is
             Exemption_Sections (Rule).Detected := @ + 1;
          end if;
 
-         if Rule /= No_Rule
-         --  To skip compiler errors and exemption warnings
-           and then Justification = null
-           and then Allows_Parametrized_Exemption (Rule)
-           and then not Needs_Postponed_Exemption_Processing (Rule)
-           and then not Is_Empty (Rule_Param_Exempt_Sections (Rule))
-         then
-            Tmp.Justification :=
-              Get_Param_Justification (Rule, Text, SF,
-                                       Check_Postponed_Exemptions => False);
-            --  This call counts detections for parametric exemption sections
-         end if;
-
          Error_Messages_Storage.Insert
            (Container => All_Error_Messages,
             New_Item  => Tmp,
             Position  => Unused_Position,
             Inserted  => Unused_Inserted);
+
       else
          Free (Tmp.Text);
       end if;
@@ -3372,47 +3260,23 @@ package body Gnatcheck.Diagnoses is
    is
       Tmp : Postponed_Rule_Exemption_Info_Access;
    begin
-    --  Special processing for global rules, rules checked on expanded
-    --  generics and compiler checks is not implemented yet
+      Exemption_Sections (Rule).Line_End := Natural (Closing_Span.End_Line);
+      Exemption_Sections (Rule).Col_End  :=
+        Natural (Closing_Span.End_Column);
 
-      if Needs_Postponed_Exemption_Processing (Rule) then
-         --  Store compiler check exemption section
-         Exemption_Sections (Rule).Line_End := Natural (Closing_Span.End_Line);
-         Exemption_Sections (Rule).Col_End  :=
-           Natural (Closing_Span.End_Column);
+      Tmp := new Postponed_Rule_Exemption_Info'
+                   (Exemption_Section      => Exemption_Sections (Rule),
+                    SF                     => SF,
+                    Next_Exemption_Section => null);
 
-         Tmp := new Postponed_Rule_Exemption_Info'
-                      (Exemption_Section      => Exemption_Sections (Rule),
-                       SF                     => SF,
-                       Next_Exemption_Section => null);
-
-         if Postponed_Exemption_Sections (Rule) (SF) = null then
-            Postponed_Exemption_Sections (Rule) (SF) := Tmp;
-         else
-            Current_Postponed_Exemption_Sections (Rule).
-              Next_Exemption_Section := Tmp;
-         end if;
-
-         Current_Postponed_Exemption_Sections (Rule) := Tmp;
+      if Postponed_Exemption_Sections (Rule) (SF) = null then
+         Postponed_Exemption_Sections (Rule) (SF) := Tmp;
+      else
+         Current_Postponed_Exemption_Sections (Rule).
+           Next_Exemption_Section := Tmp;
       end if;
 
-      if Exemption_Sections (Rule).Detected = 0
-        and then not (Needs_Postponed_Exemption_Processing (Rule))
-      then
-         --  No one needs Justification
-         Free (Exemption_Sections (Rule).Justification);
-
-         Store_Diagnosis
-           (Text           =>
-              (if Full_Source_Locations
-               then Source_Name (SF) else Short_Source_Name (SF)) & ':' &
-              Image (End_Sloc (Closing_Span)) & ": no detection for " &
-              Rule_Name (Rule) &
-              " rule in exemption section starting at line" &
-              Exemption_Sections (Rule).Line_Start'Img,
-            Diagnosis_Kind => Exemption_Warning,
-            SF             => SF);
-      end if;
+      Current_Postponed_Exemption_Sections (Rule) := Tmp;
 
       Exemption_Sections (Rule).Line_Start    := 0;
       Exemption_Sections (Rule).Col_Start     := 0;
@@ -3435,7 +3299,7 @@ package body Gnatcheck.Diagnoses is
       Tmp         : String_Access;
       New_Section : Parametrized_Exemption_Info;
    begin
-      if Needs_Postponed_Exemption_Processing (Rule) then
+      if True then
          New_Section := Parametrized_Exemption_Sections.Element (Exempted_At);
 
          New_Section.Exempt_Info.Line_End := Natural (Closing_Span.End_Line);
@@ -3445,7 +3309,8 @@ package body Gnatcheck.Diagnoses is
            (Container => Postponed_Param_Exempt_Sections (Rule) (SF),
             New_Item  => New_Section);
          null;
-         --  !!!NOT IMPLEMENTED YET!!! @@  ???
+         --  ### NOT IMPLEMENTED YET!!!
+         --  remove dead code below once done
       else
          if Parametrized_Exemption_Sections.Element
                  (Exempted_At).Exempt_Info.Detected = 0
