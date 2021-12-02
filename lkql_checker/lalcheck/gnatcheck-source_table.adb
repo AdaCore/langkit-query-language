@@ -1277,12 +1277,7 @@ package body Gnatcheck.Source_Table is
          if not End_Of_File (Arg_File) then
             Get (Arg_File, Next_Ch);
 
-            while Is_White_Space (Next_Ch)
-               or else
-                  Next_Ch = ASCII.LF
-               or else
-                  Next_Ch = ASCII.CR
-            loop
+            while Next_Ch in ASCII.LF | ASCII.CR | ASCII.HT | ' ' loop
                exit when End_Of_File (Arg_File);
                Get (Arg_File, Next_Ch);
             end loop;
@@ -1386,6 +1381,103 @@ package body Gnatcheck.Source_Table is
       (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
       --  Remove trailing LF if any
 
+      procedure Store_Message
+        (Message    : Unbounded_Text_Type;
+         Unit       : Analysis_Unit;
+         Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
+         Sloc_Range : Source_Location_Range);
+      --  Callback to store messages
+
+      -------------------
+      -- Store_Message --
+      -------------------
+
+      procedure Store_Message
+        (Message    : Unbounded_Text_Type;
+         Unit       : Analysis_Unit;
+         Rule       : Unbounded_Text_Type;
+         Kind       : Message_Kinds;
+         Sloc_Range : Source_Location_Range)
+      is
+         Id : Rule_Id;
+
+         use Ada.Directories;
+
+         function Column_Image (Column : Natural) return String;
+         --  Return an image of Column with no leading space and a
+         --  leading '0' if column is less than 10.
+
+         ------------------
+         -- Column_Image --
+         ------------------
+
+         function Column_Image (Column : Natural) return String is
+            Image : constant String := Column'Image;
+         begin
+            if Column < 10 then
+               return "0" & Image (2 .. Image'Last);
+            else
+               return Image (2 .. Image'Last);
+            end if;
+         end Column_Image;
+
+         Msg : constant String := To_String (To_Text (Message));
+
+      begin
+         --  Only store internal error messages in Debug_Mode for now.
+         --  Also never store "Memoized Error" messages which are
+         --  cascaded errors.
+
+         if Kind = Internal_Error
+           and then (not Debug_Mode
+                     or else Has_Suffix (Msg, "Memoized Error"))
+         then
+            return;
+         end if;
+
+         GNAT.Task_Lock.Lock;
+
+         if Rule = Cached_Rule then
+            Id := Cached_Rule_Id;
+         else
+            Id             := Get_Rule (To_String (To_Text (Rule)));
+            Cached_Rule_Id := Id;
+            Cached_Rule    := Rule;
+         end if;
+
+         if Subprocess_Mode then
+            Put_Line
+              ((if Full_Source_Locations
+                then Unit.Get_Filename
+                else Simple_Name (Unit.Get_Filename))  & ":" &
+               Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
+               Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
+               "check: " & Msg &
+               Annotate_Rule (All_Rules.Table (Id).all));
+
+         else
+            Store_Diagnosis
+              (Text           =>
+                 (if Full_Source_Locations
+                  then Unit.Get_Filename
+                  else Simple_Name (Unit.Get_Filename)) & ":" &
+                 Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
+                 Column_Image (Natural (Sloc_Range.Start_Column)) &
+                 ": " &
+                 Msg & (if Id = No_Rule then ""
+                        else Annotate_Rule (All_Rules.Table (Id).all)),
+               Diagnosis_Kind => (case Kind is
+                                  when Rule_Violation => Rule_Violation,
+                                  when Internal_Error => Internal_Error),
+               SF             => Next_SF,
+               Rule           => Id,
+               Justification  => Exemption_Justification (Id));
+         end if;
+
+         GNAT.Task_Lock.Unlock;
+      end Store_Message;
+
    begin
       loop
          Next_SF := Next_Non_Processed_Source;
@@ -1398,139 +1490,25 @@ package body Gnatcheck.Source_Table is
             Unit : constant Analysis_Unit :=
               Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF));
 
-            It : Traverse_Iterator'Class := Traverse (Unit.Root);
+         begin
+            Process_Unit (Ctx, Unit, Store_Message'Access);
 
-            Current : Ada_Node;
+            --  Process exemption pragmas for Unit
 
-            procedure Process_Exemption_Pragmas_Up_To
-              (Sloc_Range : Source_Location_Range := No_Source_Location_Range);
+            declare
+               It      : Traverse_Iterator'Class := Traverse (Unit.Root);
+               Current : Ada_Node;
+               Dummy   : constant Boolean := It.Next (Current);
 
-            procedure Process_Exemption_Pragmas_Up_To
-              (Sloc_Range : Source_Location_Range := No_Source_Location_Range)
-            is
             begin
-               while
-                  (Sloc_Range = No_Source_Location_Range or else
-                   Start_Sloc (Current.Sloc_Range) < Start_Sloc (Sloc_Range))
-                  and then It.Next (Current)
-               loop
+               while It.Next (Current) loop
                   if Current.Kind = Ada_Pragma_Node
                     and then Is_Exemption_Pragma (Current.As_Pragma_Node)
                   then
                      Process_Exemption_Pragma (Current.As_Pragma_Node);
                   end if;
                end loop;
-            end Process_Exemption_Pragmas_Up_To;
-
-            procedure Store_Message
-              (Message    : Unbounded_Text_Type;
-               Unit       : Analysis_Unit;
-               Rule       : Unbounded_Text_Type;
-               Kind       : Message_Kinds;
-               Sloc_Range : Source_Location_Range);
-            --  Callback to store messages
-
-            -------------------
-            -- Store_Message --
-            -------------------
-
-            procedure Store_Message
-              (Message    : Unbounded_Text_Type;
-               Unit       : Analysis_Unit;
-               Rule       : Unbounded_Text_Type;
-               Kind       : Message_Kinds;
-               Sloc_Range : Source_Location_Range)
-            is
-               Id : Rule_Id;
-
-               use Ada.Directories;
-
-               function Column_Image (Column : Natural) return String;
-               --  Return an image of Column with no leading space and a
-               --  leading '0' if column is less than 10.
-
-               ------------------
-               -- Column_Image --
-               ------------------
-
-               function Column_Image (Column : Natural) return String is
-                  Image : constant String := Column'Image;
-               begin
-                  if Column < 10 then
-                     return "0" & Image (2 .. Image'Last);
-                  else
-                     return Image (2 .. Image'Last);
-                  end if;
-               end Column_Image;
-
-               Msg : constant String := To_String (To_Text (Message));
-
-            begin
-               --  Only store internal error messages in Debug_Mode for now.
-               --  Also never store "Memoized Error" messages which are
-               --  cascaded errors.
-
-               if Kind = Internal_Error
-                 and then (not Debug_Mode
-                           or else Has_Suffix (Msg, "Memoized Error"))
-               then
-                  return;
-               end if;
-
-               GNAT.Task_Lock.Lock;
-
-               Process_Exemption_Pragmas_Up_To (Sloc_Range);
-
-               if Rule = Cached_Rule then
-                  Id := Cached_Rule_Id;
-               else
-                  Id             := Get_Rule (To_String (To_Text (Rule)));
-                  Cached_Rule_Id := Id;
-                  Cached_Rule    := Rule;
-               end if;
-
-               if Subprocess_Mode then
-                  Put_Line
-                    ((if Full_Source_Locations
-                      then Unit.Get_Filename
-                      else Simple_Name (Unit.Get_Filename))  & ":" &
-                     Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-                     Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
-                     "check: " & Msg &
-                     Annotate_Rule (All_Rules.Table (Id).all));
-
-               else
-                  Store_Diagnosis
-                    (Text           =>
-                       (if Full_Source_Locations
-                        then Unit.Get_Filename
-                        else Simple_Name (Unit.Get_Filename)) & ":" &
-                       Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-                       Column_Image (Natural (Sloc_Range.Start_Column)) &
-                       ": " &
-                       Msg & (if Id = No_Rule then ""
-                              else Annotate_Rule (All_Rules.Table (Id).all)),
-                     Diagnosis_Kind => (case Kind is
-                                        when Rule_Violation => Rule_Violation,
-                                        when Internal_Error => Internal_Error),
-                     SF             => Next_SF,
-                     Rule           => Id,
-                     Justification  => Exemption_Justification (Id));
-               end if;
-
-               GNAT.Task_Lock.Unlock;
-            end Store_Message;
-
-            Dummy : Boolean;
-         begin
-            Dummy := It.Next (Current);
-
-            Process_Unit
-              (Ctx, Unit, Store_Message'Access);
-
-            --  Catch up processing of exemption pragmas up to the end of the
-            --  file.
-            Process_Exemption_Pragmas_Up_To (No_Source_Location_Range);
+            end;
 
             Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
 
