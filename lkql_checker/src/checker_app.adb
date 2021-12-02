@@ -34,6 +34,7 @@ with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Images; use Langkit_Support.Images;
 
 with Libadalang.Introspection;
+with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 
 with Ada_AST_Nodes; use Ada_AST_Nodes;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
@@ -762,8 +763,7 @@ package body Checker_App is
 
          case Context.App_Ctx.Provider.Kind is
             when Project_File =>
-               List_Sources_From_Project
-                 (Context.App_Ctx.Provider.Project.all, False, Files);
+               Files := Source_Files (Context.App_Ctx.Provider.Project.all);
 
                for F of Files loop
                   Units.Append

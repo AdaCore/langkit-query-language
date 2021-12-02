@@ -34,6 +34,7 @@ with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Liblkqllang.Analysis;
 with Liblkqllang.Public_Converters;
 
+with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Helpers; use Libadalang.Helpers;
 with Libadalang.Analysis; use Libadalang.Analysis;
 with Libadalang.Introspection; use Libadalang.Introspection;
@@ -126,7 +127,7 @@ package body Liblkqllang.Implementation.Extensions is
       Libadalang.Helpers.Load_Project
         (Image (Project_File.Content), Project => Project, Env => Env);
 
-      List_Sources_From_Project (Project.all, False, Files);
+      Files := Source_Files (Project.all);
 
       UFP := Project_To_Provider (Project);
       Ctx := Create_Context (Charset => "utf-8", Unit_Provider => UFP);
