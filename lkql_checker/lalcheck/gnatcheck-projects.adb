@@ -787,7 +787,7 @@ package body Gnatcheck.Projects is
               "m? files= a "           &
               "P: U X! vP! eL A: "     &   --  project-specific options
               "-brief "                &
-              "-charset="              &
+              "-charset= "             &
               "-check-semantic "       &
               "-check-redefinition "   &
               "-subdirs= "             &
