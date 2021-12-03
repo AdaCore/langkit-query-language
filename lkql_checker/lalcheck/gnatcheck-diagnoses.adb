@@ -367,9 +367,7 @@ package body Gnatcheck.Diagnoses is
    --  Rule_Exemption_Parameters sets to empty set. Note that if immediately
    --  after a call to this subprogram Rule_Exemption_Parameters is empty, then
    --  the corresponding exemption pragma is incorrect.
-   --  Parameters SF and SLOC are needed to form an error message - this
-   --  procedure does not have any ASIS Element to compute it from. They should
-   --  correspond to a pragma parameter denoting a rule (and parameters)
+   --  Parameters SF and SLOC are needed to form an error message.
 
    function Allows_Parametrized_Exemption (Rule : Rule_Id) return Boolean;
    --  Checks if Rule allows fine-tuned exemption (with specifying parameters
@@ -459,9 +457,9 @@ package body Gnatcheck.Diagnoses is
       SF           : SF_Id);
    --  Cleans up the stored exemption section for the argument Rule.
 
-   --------------------------------------
-   --  Exemptions for postponed checks --
-   --------------------------------------
+   -------------------------------------
+   -- Exemptions for postponed checks --
+   -------------------------------------
 
    type Postponed_Rule_Exemption_Info;
    type Postponed_Rule_Exemption_Info_Access is access
@@ -1258,10 +1256,10 @@ package body Gnatcheck.Diagnoses is
    ------------------------
 
    function Get_Exemption_Kind
-     (Image : Wide_Wide_String) return Exemption_Kinds is
+     (Image : Wide_Wide_String) return Exemption_Kinds
+   is
       Result : Exemption_Kinds;
    begin
-
       if Image (Image'First) = '"' then
 
          --  Old format of Annotate pragma. We have to cut out quotation marks
@@ -1454,7 +1452,7 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Is_Exempted_With_Pars
-     (Rule        :     Rule_Id;
+     (Rule        : Rule_Id;
       Exempted_At : out Parametrized_Exemption_Sections.Cursor)
    is
       use Parametrized_Exemption_Sections;

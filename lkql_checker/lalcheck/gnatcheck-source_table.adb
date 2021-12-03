@@ -1369,7 +1369,9 @@ package body Gnatcheck.Source_Table is
    -- Process_Sources --
    ---------------------
 
-   procedure Process_Sources (Ctx : LKQL_Context) is
+   procedure Process_Sources
+     (Ctx : LKQL_Context; Annotate_Only : Boolean := False)
+   is
       Next_SF : SF_Id;
       Cached_Rule_Id : Rule_Id;
       Cached_Rule    : Unbounded_Text_Type;
@@ -1470,7 +1472,15 @@ package body Gnatcheck.Source_Table is
                Diagnosis_Kind => (case Kind is
                                   when Rule_Violation => Rule_Violation,
                                   when Internal_Error => Internal_Error),
-               SF             => Next_SF,
+               SF             =>
+
+               --  If Follow_Instantiations is True then the relevant file id
+               --  may not be Next_SF, so perform a lookup.
+
+                 (if All_Rules.Table (Id).Follow_Instantiations
+                  then File_Find (Simple_Name (Unit.Get_Filename),
+                                  Use_Short_Name => True)
+                  else Next_SF),
                Rule           => Id,
                Justification  => Exemption_Justification (Id));
          end if;
@@ -1484,14 +1494,14 @@ package body Gnatcheck.Source_Table is
 
          exit when not Present (Next_SF);
 
-         Output_Source (Next_SF);
-
          declare
             Unit : constant Analysis_Unit :=
               Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF));
-
          begin
-            Process_Unit (Ctx, Unit, Store_Message'Access);
+            if not Annotate_Only then
+               Output_Source (Next_SF);
+               Process_Unit (Ctx, Unit, Store_Message'Access);
+            end if;
 
             --  Process exemption pragmas for Unit
 

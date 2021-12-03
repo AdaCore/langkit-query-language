@@ -82,15 +82,14 @@ package Gnatcheck.Source_Table is
       return           SF_Id;
    --  Returns the Id of the file with name SF_Name stored in the files
    --  table. Returns No_SF_Id if the table does not contain such a file.
-   --  In case if ASIS_UL.Common.Use_Project_File_Obsolete is set ON, or
-   --  Use_Short_Name parameter is set ON, the short file name is used to
+   --  if Use_Short_Name parameter is True, the short file name is used to
    --  locate the file; if the argument contains a directory information it is
-   --  stripped out.  Otherwise this function tries to locate the name with the
+   --  stripped out. Otherwise this function tries to locate the name with the
    --  full normalized name equal to SF_Name.
-   --  If Case_Sensitive is OFF, then this function first looks for the SF_Name
-   --  using the original casing of SF_Name and files stored in the Source
-   --  Table, and if it cannot locate the file, it repeats the search with all
-   --  the path/file names converted to lower case.
+   --  If Case_Sensitive is False, then this function first looks for the
+   --  SF_Name using the original casing of SF_Name and files stored in the
+   --  Source Table, and if it cannot locate the file, it repeats the search
+   --  with all the path/file names converted to lower case.
 
    procedure Adjust_From_Source_Table (S : in out String);
    --  Assuming that S is a name of some source file, tries to locate this
@@ -223,8 +222,10 @@ package Gnatcheck.Source_Table is
       Project : Arg_Project_Type'Class);
    --  Add all sources from Project to Ctx
 
-   procedure Process_Sources (Ctx : LKQL_Context);
-   --  Procedure all sources
+   procedure Process_Sources
+     (Ctx : LKQL_Context; Annotate_Only : Boolean := False);
+   --  Procedure all sources. Only process pragma Annotate if Annotate_Only
+   --  is true.
 
    ----------------------------------------
    -- Source file access/update routines --

@@ -189,6 +189,10 @@ procedure Lalcheck is
          end Wait_Gnatcheck;
 
       begin
+         --  Process sources to take pragma Annotate into account
+
+         Process_Sources (Ctx, Annotate_Only => True);
+
          for Job in 1 .. Num_Jobs loop
             Create (File, Out_File, File_Name ("files", Job));
             Files := 0;
