@@ -429,10 +429,8 @@ package body Gnatcheck.Compiler is
                      Store_Diagnosis
                        (Text           =>
                           Adjust_Message
-                            ((if Full_Source_Locations
-                              then Source_Name (SF)
-                              else Short_Source_Name (SF)) &
-                             ":1:1: fatal compiler error", Error),
+                            (Source_Table.File_Name (SF) &
+                             ":1:01: fatal compiler error", Error),
                         Diagnosis_Kind => Compiler_Error,
                         SF             => SF);
                   end if;

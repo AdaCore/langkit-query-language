@@ -74,6 +74,10 @@ package Gnatcheck.Diagnoses is
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
    --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
 
+   function Sloc_Image (Sloc : Source_Location) return String;
+   --  Return an image of line:column with Column having a leading '0' if less
+   --  than 10.
+
    ------------------------
    -- Diagnoses Counters --
    ------------------------
@@ -86,9 +90,9 @@ package Gnatcheck.Diagnoses is
    Detected_Compiler_Error    : Natural := 0;
    Detected_Internal_Error    : Natural := 0;
 
-   ------------------------
-   --  Report generation --
-   ------------------------
+   -----------------------
+   -- Report generation --
+   -----------------------
 
    procedure Generate_Qualification_Report;
    --  Generate the report oriented for using as qualification materials. There

@@ -25,6 +25,7 @@ with Ada.Containers.Indefinite_Ordered_Sets;
 
 with GNATCOLL.Projects;    use GNATCOLL.Projects;
 
+with Gnatcheck.Options;    use Gnatcheck.Options;
 with Gnatcheck.Projects;   use Gnatcheck.Projects;
 with Checker_App;          use Checker_App;
 
@@ -236,6 +237,13 @@ package Gnatcheck.Source_Table is
 
    function Short_Source_Name (SF : SF_Id) return String;
    --  Short file name with no directory information
+
+   function File_Name (SF : SF_Id) return String is
+     (if Full_Source_Locations
+      then Source_Name (SF)
+      else Short_Source_Name (SF));
+   --  Return a string corresponding to the file name of SF, taking
+   --  Full_Source_Locations into account.
 
    function Suffixless_Name (SF : SF_Id) return String;
    --  Returns the file name with no directory information and with

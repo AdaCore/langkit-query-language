@@ -35,13 +35,11 @@ with GNATCOLL.VFS;                use GNATCOLL.VFS;
 
 with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;               use Gnatcheck.Ids;
-with Gnatcheck.Options;           use Gnatcheck.Options;
 with Gnatcheck.Output;            use Gnatcheck.Output;
 with Gnatcheck.Rules;             use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table;  use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
 
-with Langkit_Support.Images;      use Langkit_Support.Images;
 with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with Langkit_Support.Text;        use Langkit_Support.Text;
 with Libadalang.Analysis;         use Libadalang.Analysis;
@@ -1383,6 +1381,13 @@ package body Gnatcheck.Source_Table is
       (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
       --  Remove trailing LF if any
 
+      function File_Name (Unit : Analysis_Unit) return String is
+        (if Full_Source_Locations
+         then Unit.Get_Filename
+         else Ada.Directories.Simple_Name (Unit.Get_Filename));
+      --  Return a string representing the name of Unit, taking
+      --  Options.Full_Source_Location into account.
+
       procedure Store_Message
         (Message    : Unbounded_Text_Type;
          Unit       : Analysis_Unit;
@@ -1405,24 +1410,6 @@ package body Gnatcheck.Source_Table is
          Id : Rule_Id;
 
          use Ada.Directories;
-
-         function Column_Image (Column : Natural) return String;
-         --  Return an image of Column with no leading space and a
-         --  leading '0' if column is less than 10.
-
-         ------------------
-         -- Column_Image --
-         ------------------
-
-         function Column_Image (Column : Natural) return String is
-            Image : constant String := Column'Image;
-         begin
-            if Column < 10 then
-               return "0" & Image (2 .. Image'Last);
-            else
-               return Image (2 .. Image'Last);
-            end if;
-         end Column_Image;
 
          Msg : constant String := To_String (To_Text (Message));
 
@@ -1450,23 +1437,16 @@ package body Gnatcheck.Source_Table is
 
          if Subprocess_Mode then
             Put_Line
-              ((if Full_Source_Locations
-                then Unit.Get_Filename
-                else Simple_Name (Unit.Get_Filename))  & ":" &
-               Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-               Column_Image (Natural (Sloc_Range.Start_Column)) & ": " &
+              (File_Name (Unit) & ":" &
+               Sloc_Image (Start_Sloc (Sloc_Range)) & ": " &
                "check: " & Msg &
                Annotate_Rule (All_Rules.Table (Id).all));
 
          else
             Store_Diagnosis
               (Text           =>
-                 (if Full_Source_Locations
-                  then Unit.Get_Filename
-                  else Simple_Name (Unit.Get_Filename)) & ":" &
-                 Stripped_Image (Integer (Sloc_Range.Start_Line)) & ":" &
-                 Column_Image (Natural (Sloc_Range.Start_Column)) &
-                 ": " &
+                 File_Name (Unit) & ":" &
+                 Sloc_Image (Start_Sloc (Sloc_Range)) & ": " &
                  Msg & (if Id = No_Rule then ""
                         else Annotate_Rule (All_Rules.Table (Id).all)),
                Diagnosis_Kind => (case Kind is
@@ -1527,11 +1507,9 @@ package body Gnatcheck.Source_Table is
                if Debug_Mode then
                   Store_Diagnosis
                     (Text           =>
-                       (if Full_Source_Locations
-                        then Source_Name (Next_SF)
-                        else Base_Name (Source_Name (Next_SF))) &
-                             ":1:1: internal error: " &
-                             Strip_LF (Exception_Information (E)),
+                       File_Name (Next_SF) &
+                       ":1:01: internal error: " &
+                       Strip_LF (Exception_Information (E)),
                      Diagnosis_Kind => Internal_Error,
                      SF             => Next_SF,
                      Rule           => No_Rule);

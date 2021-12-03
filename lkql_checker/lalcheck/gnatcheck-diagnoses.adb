@@ -47,8 +47,7 @@ with Gnatcheck.Rules;            use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
-with Langkit_Support.Images;     use Langkit_Support.Images;
-with Langkit_Support.Text;     use Langkit_Support.Text;
+with Langkit_Support.Text; use Langkit_Support.Text;
 with Libadalang.Common;
 
 package body Gnatcheck.Diagnoses is
@@ -665,8 +664,7 @@ package body Gnatcheck.Diagnoses is
          if Is_Exempted (Rule) then
             Store_Diagnosis
               (Text               =>
-                 (if Full_Source_Locations
-                  then Source_Name (SF) else Short_Source_Name (SF)) & ':' &
+                 File_Name (SF) & ':' &
                  Image (Exemption_Sections (Rule).Line_Start) & ':'    &
                  Image (Exemption_Sections (Rule).Col_Start)  & ": "   &
                  "no matching 'exempt_OFF' annotation "       &
@@ -871,7 +869,7 @@ package body Gnatcheck.Diagnoses is
       --  4. if Full_Source_Locations is ON, in Windows we may have ':' as a
       --     part of a full file name.
       --
-      --  5. SLOC may or may not cotain a column position
+      --  5. SLOC may or may not contain a column position
 
       if L_End = L_Start + 1
         and then L (L_End + 1) in '\' | '/'
@@ -2395,7 +2393,7 @@ package body Gnatcheck.Diagnoses is
            (Rule,
             Tmp_Str (First_Par_Idx .. Pars_End),
             SF,
-            Image (Start_Sloc (El.Sloc_Range)));
+            Sloc_Image (Start_Sloc (El.Sloc_Range)));
 
          if Is_Empty (Rule_Exemption_Parameters) then
             Free (Tmp_Str);
@@ -2747,12 +2745,9 @@ package body Gnatcheck.Diagnoses is
                if Next_Postponed_Section.Exemption_Section.Detected = 0 then
                   Store_Diagnosis
                     (Text =>
-                       (if Full_Source_Locations
-                        then Source_Name (SF) else Short_Source_Name (SF)) &
-                       ':' &
+                       File_Name (SF) & ':' &
                        Image (Next_Postponed_Section.Exemption_Section.
-                              Line_End) &
-                       ':' &
+                              Line_End) & ':' &
                        Image (Next_Postponed_Section.Exemption_Section.
                               Col_End) &
                        ": no detection for " & Rule_Name (Rule) &
@@ -2783,12 +2778,8 @@ package body Gnatcheck.Diagnoses is
                   if Next_Par_S_Info.Exempt_Info.Detected = 0 then
                      Store_Diagnosis
                        (Text =>
-                          (if Full_Source_Locations
-                           then Source_Name (SF)
-                           else Short_Source_Name (SF)) &
-                          ':' &
-                          Image (Next_Par_S_Info.Exempt_Info.Line_End) &
-                          ':' &
+                          File_Name (SF) & ':' &
+                          Image (Next_Par_S_Info.Exempt_Info.Line_End) & ':' &
                           Image (Next_Par_S_Info.Exempt_Info.Col_End) &
                           ": no detection for '" & Rule_Name (Rule) & ": " &
                           Params_Img (Next_Par_S_Info.Params, Rule) &
@@ -3014,23 +3005,23 @@ package body Gnatcheck.Diagnoses is
 
             if not Success then
                Store_Diagnosis
-                 (Text               => SLOC &
-                                        ": parameter "   &
-                                        Pars (Par_Start .. Par_End) &
-                                        " duplicated in rule exemption",
-                  Diagnosis_Kind     => Exemption_Warning,
-                  SF                 => SF);
+                 (Text           => File_Name (SF) & ":" & SLOC &
+                                    ": parameter " &
+                                    Pars (Par_Start .. Par_End) &
+                                    " duplicated in rule exemption",
+                  Diagnosis_Kind => Exemption_Warning,
+                  SF             => SF);
             end if;
 
          else
             Store_Diagnosis
-              (Text               => SLOC &
-                                     ": parameter "   &
-                                     Pars (Par_Start .. Par_End) &
-                                     " is not allowed in exemption for rule " &
-                                     Rule_Name (Rule),
-               Diagnosis_Kind     => Exemption_Warning,
-               SF                 => SF);
+              (Text           => File_Name (SF) & ":" & SLOC &
+                                 ": parameter " &
+                                 Pars (Par_Start .. Par_End) &
+                                 " is not allowed in exemption for rule " &
+                                 Rule_Name (Rule),
+               Diagnosis_Kind => Exemption_Warning,
+               SF             => SF);
 
             Clear (Rule_Exemption_Parameters);
          end if;
@@ -3050,6 +3041,23 @@ package body Gnatcheck.Diagnoses is
       end loop;
    end Set_Rule_Exempt_Pars;
 
+   ----------------
+   -- Sloc_Image --
+   ----------------
+
+   function Sloc_Image (Sloc : Source_Location) return String is
+      Line_Image : constant String := Sloc.Line'Image;
+      Col_Image  : constant String := Sloc.Column'Image;
+   begin
+      if Sloc.Column < 10 then
+         return Line_Image (2 .. Line_Image'Last) & ":0" &
+                Col_Image (2 .. Col_Image'Last);
+      else
+         return Line_Image (2 .. Line_Image'Last) & ":" &
+                Col_Image (2 .. Col_Image'Last);
+      end if;
+   end Sloc_Image;
+
    ---------------------
    -- Store_Diagnosis --
    ---------------------
@@ -3065,30 +3073,14 @@ package body Gnatcheck.Diagnoses is
    is
       use Ada.Directories;
 
-      function Column_Image (Column : Natural) return String;
-
-      ------------------
-      -- Column_Image --
-      ------------------
-
-      function Column_Image (Column : Natural) return String is
-         Image : constant String := Column'Image;
-      begin
-         if Column < 10 then
-            return "0" & Image (2 .. Image'Last);
-         else
-            return Image (2 .. Image'Last);
-         end if;
-      end Column_Image;
-
    begin
       Store_Diagnosis
         (Text           =>
            (if Full_Source_Locations
             then Full_File_Name
             else Simple_Name (Full_File_Name)) & ":" &
-           Stripped_Image (Integer (Sloc.Line)) & ":" &
-           Column_Image (Natural (Sloc.Column)) & ": " & Message
+           Sloc_Image (Sloc) & ": " &
+           Message
            & (if Rule /= No_Rule
               then Annotate_Rule (All_Rules.Table (Rule).all)
               else ""),
@@ -3231,8 +3223,7 @@ package body Gnatcheck.Diagnoses is
 
             Store_Diagnosis
               (Text =>
-                 (if Full_Source_Locations
-                  then Source_Name (SF) else Short_Source_Name (SF)) & ':' &
+                 File_Name (SF) & ':' &
                  Image (End_Sloc (Closing_Span)) & ": no detection for '" &
                  Rule_Name (Rule) & ": " &
                  Params_Img
