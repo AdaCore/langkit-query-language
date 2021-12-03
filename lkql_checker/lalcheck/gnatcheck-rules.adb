@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
-with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 
@@ -1558,6 +1558,114 @@ package body Gnatcheck.Rules is
       pragma Unreferenced (Diag);
    begin
       return "";
+   end Rule_Parameter;
+
+   overriding function Rule_Parameter
+     (Rule : Forbidden_Rule;
+      Diag : String) return String
+   is
+      pragma Unreferenced (Rule);
+      First_Idx : constant Natural := Index (Diag, " ", Going => Backward) + 1;
+   begin
+      return To_Lower (Diag (First_Idx .. Diag'Last));
+   end Rule_Parameter;
+
+   overriding function Rule_Parameter
+     (Rule : Identifier_Casing_Rule;
+      Diag : String) return String
+   is
+      pragma Unreferenced (Rule);
+      First_Idx : Natural := Index (Diag, " for ");
+   begin
+      if First_Idx > 0 then
+         First_Idx := First_Idx + 5;
+
+         case Diag (First_Idx) is
+            when 'c' =>
+               return "constant";
+            when 'e' =>
+               if Diag (First_Idx + 1) = 'n' then
+                  return "enum";
+               else
+                  return "exception";
+               end if;
+
+            when 's' =>
+               return "type";
+            when others =>
+               raise Constraint_Error with
+                 "identifier_Casing: bug in exemption parameter processing";
+         end case;
+      end if;
+
+      First_Idx := Index (Diag, " in ");
+
+      if First_Idx > 0 then
+         return "exclude";
+      else
+         return "others";
+      end if;
+   end Rule_Parameter;
+
+   overriding function Rule_Parameter
+     (Rule : Identifier_Suffixes_Rule;
+      Diag : String) return String
+   is
+      pragma Unreferenced (Rule);
+   begin
+      if Index (Diag, "access-to-class") /= 0 then
+         return "class_access";
+      elsif Index (Diag, "access object") /= 0 then
+         return "access_obj";
+      elsif Index (Diag, "access") /= 0 then
+         return "access";
+      elsif Index (Diag, "class-wide") /= 0 then
+         return "class_subtype";
+      elsif Index (Diag, "constant") /= 0 then
+         return "constant";
+      elsif Index (Diag, "type") /= 0 then
+         return "type";
+      elsif Index (Diag, "renaming") /= 0 then
+         return "renaming";
+      elsif Index (Diag, "interrupt") /= 0 then
+         return "interrupt";
+      else
+         return "";
+      end if;
+   end Rule_Parameter;
+
+   overriding function Rule_Parameter
+     (Rule : Identifier_Prefixes_Rule;
+      Diag : String) return String
+   is
+      pragma Unreferenced (Rule);
+   begin
+      if Index (Diag, "task") /= 0
+        or else
+         Index (Diag, "protected") /= 0
+      then
+         return "concurrent";
+      elsif Index (Diag, "access-to-class") /= 0 then
+         return "class_access";
+      elsif Index (Diag, "access-to-subprogram") /= 0 then
+         return "subprogram_access";
+      elsif Index (Diag, "derived") /= 0 then
+         return "derived";
+      elsif Index (Diag, "constant") /= 0 then
+         return "constant";
+      elsif Index (Diag, "enumeration") /= 0 then
+         return "enum";
+      elsif Index (Diag, "exception") /= 0 then
+         return "exception";
+      elsif Index (Diag, "access") /= 0 then
+         return "access";
+      elsif Index (Diag, "subtype") /= 0 then
+         return "type";
+      elsif Index (Diag, "exclusive") /= 0 then
+         return "exclusive";
+      else
+         return "";
+      end if;
    end Rule_Parameter;
 
    ------------------

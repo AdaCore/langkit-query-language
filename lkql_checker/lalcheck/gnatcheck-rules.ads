@@ -26,6 +26,7 @@
 --  This is the top of gnatcheck hierarchy that defines individual rules, rule
 --  table and rule checking process. It contains some basic type declarations
 
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Unbounded;
@@ -116,8 +117,7 @@ package Gnatcheck.Rules is
 
    function Allowed_As_Exemption_Parameter
      (Ignored_Rule  : Rule_Template;
-      Ignored_Param : String)
-      return Boolean is (False);
+      Ignored_Param : String) return Boolean is (False);
    --  Checks if Param can be used as a rule parameter when defining an
    --  exemption section for Rule.
 
@@ -249,9 +249,9 @@ package Gnatcheck.Rules is
    --  If Has_Synonym (Rule) then returns the rule synonym, otherwise returns
    --  an empty string.
 
-   -----------------------------------
-   -- "One integer parameter" rule" --
-   -----------------------------------
+   ----------------------------------
+   -- "One integer parameter" rule --
+   ----------------------------------
 
    type One_Integer_Parameter_Rule is new Rule_Template with record
       Param : Integer := Integer'First;
@@ -291,9 +291,9 @@ package Gnatcheck.Rules is
      (Rule         : One_Integer_Parameter_Rule;
       Indent_Level : Natural := 0);
 
-   -----------------------------------
-   -- "One boolean parameter" rule" --
-   -----------------------------------
+   ----------------------------------
+   -- "One boolean parameter" rule --
+   ----------------------------------
 
    type Tri_State is (Unset, On, Off);
 
@@ -324,9 +324,9 @@ package Gnatcheck.Rules is
      (Rule         : One_Boolean_Parameter_Rule;
       Indent_Level : Natural := 0);
 
-   ----------------------------------
-   -- "One string parameter" rule" --
-   ----------------------------------
+   ---------------------------------
+   -- "One string parameter" rule --
+   ---------------------------------
 
    type One_String_Parameter_Rule is new Rule_Template with record
       Param : Unbounded_Wide_Wide_String;
@@ -356,9 +356,9 @@ package Gnatcheck.Rules is
      (Rule         : One_String_Parameter_Rule;
       Indent_Level : Natural := 0);
 
-   ---------------------------------
-   -- "One array parameter" rule" --
-   ---------------------------------
+   --------------------------------
+   -- "One array parameter" rule --
+   --------------------------------
 
    type One_Array_Parameter_Rule is new One_String_Parameter_Rule
    with null record;
@@ -373,9 +373,9 @@ package Gnatcheck.Rules is
      (Rule : One_Array_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
-   --------------------------------------------------------
-   -- "One Integer and/or Many Booleans parameter" rule" --
-   --------------------------------------------------------
+   -------------------------------------------------------
+   -- "One Integer and/or Many Booleans parameter" rule --
+   -------------------------------------------------------
 
    type Boolean_Parameters is array (2 .. 10) of Tri_State;
 
@@ -423,11 +423,22 @@ package Gnatcheck.Rules is
       Interrupt_Suffix : Unbounded_Wide_Wide_String;
    end record;
 
+   overriding function Rule_Parameter
+     (Rule : Identifier_Suffixes_Rule;
+      Diag : String) return String;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Suffixes_Rule;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding function Allowed_As_Exemption_Parameter
+     (Rule      : Identifier_Suffixes_Rule;
+      Parameter : String) return Boolean is
+   (To_Lower (Parameter) in
+      "access" | "access_obj" | "class_access" | "class_subtype" |
+      "constant" | "renaming" | "interrupt" | "type");
 
    overriding procedure Map_Parameters
      (Rule : Identifier_Suffixes_Rule;
@@ -459,11 +470,22 @@ package Gnatcheck.Rules is
       Exclusive   : Tri_State := Unset;
    end record;
 
+   overriding function Rule_Parameter
+     (Rule : Identifier_Prefixes_Rule;
+      Diag : String) return String;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Prefixes_Rule;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding function Allowed_As_Exemption_Parameter
+     (Rule      : Identifier_Prefixes_Rule;
+      Parameter : String) return Boolean is
+   (To_Lower (Parameter) in
+      "type" | "concurrent" | "access" | "class_access" | "subprogram_access" |
+      "derived" | "constant" | "enum" | "exception" | "exclusive");
 
    overriding procedure Map_Parameters
      (Rule : Identifier_Prefixes_Rule;
@@ -495,11 +517,21 @@ package Gnatcheck.Rules is
       Exclude : Unbounded_Wide_Wide_String;
    end record;
 
+   overriding function Rule_Parameter
+     (Rule : Identifier_Casing_Rule;
+      Diag : String) return String;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Casing_Rule;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   overriding function Allowed_As_Exemption_Parameter
+     (Rule      : Identifier_Casing_Rule;
+      Parameter : String) return Boolean is
+   (To_Lower (Parameter) in
+      "type" | "constant" | "enum" | "exception" | "others" | "exclude");
 
    overriding procedure Map_Parameters
      (Rule : Identifier_Casing_Rule;
@@ -528,11 +560,19 @@ package Gnatcheck.Rules is
       Allowed   : Unbounded_Wide_Wide_String;
    end record;
 
+   overriding function Rule_Parameter
+     (Rule : Forbidden_Rule;
+      Diag : String) return String;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Forbidden_Rule;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
+
+   function Allowed_As_Exemption_Parameter
+     (Ignored_Rule  : Forbidden_Rule;
+      Ignored_Param : String) return Boolean is (True);
 
    overriding procedure Map_Parameters
      (Rule : Forbidden_Rule;

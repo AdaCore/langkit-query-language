@@ -116,41 +116,43 @@ fun identifier_prefixes(unit,
         (enum != "-" and not str.starts_with(enum)) or
         check_exclusive(str, exclusive=exclusive, enum_exclusive=false);
 
-    val str_prefix = " does not start with prefix ";
+    val str_prefix = " does not start with ";
 
     [{message: n.text &
       (match n.parent
        | p@(TaskTypeDecl or ProtectedTypeDecl or
             SubtypeDecl(p_canonical_type() is TaskTypeDecl or ProtectedTypeDecl))
          when p is not SingleTaskTypeDecl and concurrent != "-"
-       => str_prefix & concurrent
+       => str_prefix & "concurrent prefix " & concurrent
        | (TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
           AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) or
           SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
                       TypeAccessDef(f_subtype_indication is *(f_name is
           AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
-         when class_access != "-" => str_prefix & class_access
+         when class_access != "-" => str_prefix & "access-to-class prefix " & class_access
        | (TypeDecl(f_type_def is AccessToSubpDef) or
           SubtypeDecl(p_canonical_type() is
                       TypeDecl(f_type_def is AccessToSubpDef)))
-         when subprogram_access != "-" => str_prefix & subprogram_access
+         when subprogram_access != "-" =>
+           str_prefix & "access-to-subprogram prefix " & subprogram_access
        | (TypeDecl(f_type_def is AccessDef) or
           SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
-         when access != "-" => str_prefix & access
+         when access != "-" => str_prefix & "access prefix " & access
 
        | p@(TypeDecl(f_type_def is DerivedTypeDef) or SubtypeDecl)
          when derived != [] and
               p.p_canonical_type().p_base_type() is t@BaseTypeDecl
               when get_derived(t, derived) != ""
        =>
-           str_prefix & get_derived(t, derived).split(":")[2]
+           str_prefix & "derived prefix " & get_derived(t, derived).split(":")[2]
 
-       | BaseTypeDecl    => str_prefix & type
-       | EnumLiteralDecl => str_prefix & enum
+       | BaseTypeDecl    => str_prefix & "subtype prefix " & type
+       | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
        | p@* => match p.parent
-                | ObjectDecl or NumberDecl => str_prefix & constant
-                | SubpRenamingDecl         => str_prefix & enum
-                | ExceptionDecl            => str_prefix & exception
+                | ObjectDecl or NumberDecl =>
+                    str_prefix & "constant prefix " & constant
+                | SubpRenamingDecl         => str_prefix & "enumeration prefix " & enum
+                | ExceptionDecl            => str_prefix & "exception prefix " & exception
                 | * => " does not have an exclusive prefix"),
       loc: n}
     for n in from unit.root select node@DefiningName when match node.parent

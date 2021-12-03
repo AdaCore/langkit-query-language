@@ -2700,11 +2700,9 @@ package body Gnatcheck.Diagnoses is
          --  Check for parametric exemptions
 
          if not Is_Exempted
-           and then
-            Allows_Parametrized_Exemption (Diag.Rule)
-           and then
-            not Parametrized_Exemption_Sections.Is_Empty
-                  (Postponed_Param_Exempt_Sections (Diag.Rule) (SF))
+           and then Allows_Parametrized_Exemption (Diag.Rule)
+           and then not Parametrized_Exemption_Sections.Is_Empty
+                          (Postponed_Param_Exempt_Sections (Diag.Rule) (SF))
          then
             Diag_Column := Select_Column (Diag.Text);
             Diag.Justification :=

@@ -1,28 +1,28 @@
-interrupts.ads:8:17: rule violation: Handler1 does not end with suffix _Hdl
+interrupts.ads:8:17: rule violation: Handler1 does not end with interrupt suffix _Hdl
 8 |       procedure Handler1 with Interrupt_Handler;                --  FLAG
   |                 ^^^^^^^^
 
-interrupts.ads:10:17: rule violation: Handler2 does not end with suffix _Hdl
+interrupts.ads:10:17: rule violation: Handler2 does not end with interrupt suffix _Hdl
 10 |       procedure Handler2;                                       --  FLAG
    |                 ^^^^^^^^
 
-interrupts.ads:19:17: rule violation: Handler5 does not end with suffix _Hdl
+interrupts.ads:19:17: rule violation: Handler5 does not end with interrupt suffix _Hdl
 19 |       procedure Handler5 with Attach_Handler => Get_Interrupt;  --  FLAG
    |                 ^^^^^^^^
 
-interrupts.ads:21:17: rule violation: Handler6 does not end with suffix _Hdl
+interrupts.ads:21:17: rule violation: Handler6 does not end with interrupt suffix _Hdl
 21 |       procedure Handler6;                                       --  FLAG
    |                 ^^^^^^^^
 
-suffix.ads:2:9: rule violation: Int does not end with suffix _T
+suffix.ads:2:9: rule violation: Int does not end with type suffix _T
 2 |    type Int   is range 0 .. 100;      --  FLAG
   |         ^^^
 
-suffix.ads:5:9: rule violation: Int_A does not end with suffix _PTR
+suffix.ads:5:9: rule violation: Int_A does not end with access suffix _PTR
 5 |    type Int_A   is access Int;        --  FLAG
   |         ^^^^^
 
-suffix.ads:8:4: rule violation: Const does not end with suffix _C
+suffix.ads:8:4: rule violation: Const does not end with constant suffix _C
 8 |    Const   : constant Int := 1;       --  FLAG
   |    ^^^^^
 
