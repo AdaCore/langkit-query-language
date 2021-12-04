@@ -1641,8 +1641,7 @@ package body Gnatcheck.Rules is
       pragma Unreferenced (Rule);
    begin
       if Index (Diag, "task") /= 0
-        or else
-         Index (Diag, "protected") /= 0
+        or else Index (Diag, "protected") /= 0
       then
          return "concurrent";
       elsif Index (Diag, "access-to-class") /= 0 then

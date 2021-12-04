@@ -207,14 +207,6 @@ package Gnatcheck.Source_Table is
    --  progress indicator. (Unconditionally) decreases the counter of the
    --  sources which have to be processed (Sources_Left)
 
-   procedure Source_Clean_Up
-     (SF             : SF_Id;
-      Keep_ALI_Files : Boolean := False);
-   --  Minimal clean-up needed for one source (closing and dissociating the
-   --  Context, removing the tree and ALI files created for this source in
-   --  the temporary directory, if Keep_ALI_Files is set ON, ALI file(s) is
-   --  (are) not deleted).
-
    function Create_Context return LKQL_Context;
    --  Create the LKQL context
 

@@ -1171,21 +1171,6 @@ package body Gnatcheck.Source_Table is
       return Source_Table (SF).Short_Source_Name.all;
    end Short_Source_Name;
 
-   ---------------------
-   -- Source_Clean_Up --
-   ---------------------
-
-   procedure Source_Clean_Up
-     (SF             : SF_Id;
-      Keep_ALI_Files : Boolean := False)
-   is
-      Success : Boolean;
-   begin
-      if not Keep_ALI_Files then
-         Delete_File (Suffixless_Name (SF) & ".ali", Success);
-      end if;
-   end Source_Clean_Up;
-
    -----------------
    -- Source_Name --
    -----------------

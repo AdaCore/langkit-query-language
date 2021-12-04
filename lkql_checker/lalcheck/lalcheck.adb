@@ -55,7 +55,7 @@ procedure Lalcheck is
    No_Check    : constant := 3; --  No file has been checked
 
    function File_Name (Id : String; Job : Natural) return String is
-     (Global_Report_Dir.all & Id & Image (Job) & ".txt");
+     (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
    --  Return the full path for a temp file with a given Id
 
    procedure Schedule_Files;
@@ -169,12 +169,18 @@ procedure Lalcheck is
                   Analyze_Output (Global_Report_Dir.all & "gprbuild.err",
                                   Status);
                   exit when Current = Total_Jobs;
+
                else
                   for Job in Pids'Range loop
                      if Pids (Job) = Pid then
-                        Analyze_Output (File_Name ("gnatcheck-tmp", Job),
-                                        Status);
+                        Analyze_Output (File_Name ("out", Job), Status);
                         Process_Found := True;
+
+                        if not Debug_Mode then
+                           Delete_File (File_Name ("out", Job), Status);
+                           Delete_File (File_Name ("files", Job), Status);
+                        end if;
+
                         exit;
                      end if;
                   end loop;
@@ -219,7 +225,7 @@ procedure Lalcheck is
             Pids (Job) :=
               Spawn_Gnatcheck
                 (File_Name ("rules", 0),
-                 File_Name ("gnatcheck-tmp", Job),
+                 File_Name ("out", Job),
                  File_Name ("files", Job));
 
             if Next_SF > Last_Argument_Source then
@@ -244,6 +250,10 @@ procedure Lalcheck is
          while Current /= Total_Jobs loop
             Wait_Gnatcheck;
          end loop;
+
+         if not Debug_Mode then
+            Delete_File (File_Name ("rules", 0), Status);
+         end if;
       end;
    end Schedule_Files;
 

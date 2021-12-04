@@ -98,6 +98,9 @@ package body Gnatcheck.Projects is
 
    procedure Clean_Up (My_Project : Arg_Project_Type) is
       Root_Prj : Project_Type;
+      Success  : Boolean;
+      Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
+
    begin
       if Is_Specified (My_Project) then
          Root_Prj := Root_Project (My_Project);
@@ -105,6 +108,12 @@ package body Gnatcheck.Projects is
          if Root_Prj /= No_Project then
             GNATCOLL.Projects.Aux.Delete_All_Temp_Files (Root_Prj);
          end if;
+      end if;
+
+      if not (Subprocess_Mode or Debug_Mode) then
+         Delete_File (Gnatcheck_Config_File.all, Success);
+         Delete_File (Gprbuild, Success);
+         Delete_File (Gprbuild & ".out", Success);
       end if;
    end Clean_Up;
 
