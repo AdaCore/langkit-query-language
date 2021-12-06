@@ -693,7 +693,7 @@ package body Gnatcheck.Output is
 
       Info ("");
 
-      Info (" -o filename   - specify the name of the next report file");
+      Info (" -o filename   - specify the name of the text report file");
       Info (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
       Info ("");
 
