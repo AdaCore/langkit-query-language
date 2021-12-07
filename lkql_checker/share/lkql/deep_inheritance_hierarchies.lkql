@@ -8,9 +8,15 @@
 # maximal allowed depth of any inheritance hierarchy. If the rule parameter is
 # set to -1, the rule flags all the declarations of tagged and interface types.
 
+fun deep_inheritance(type, n) =
+    if n == 0 then true
+    else [t for t in type.p_base_types() if deep_inheritance(t, n-1)]?[1] != ()
+
 @check(message="derivation tree is too deep",
        follow_generic_instantiations=true,
        category="Style", subcategory="Object Orientation")
 fun deep_inheritance_hierarchies(node, n: int = 2) =
     node is TypeDecl(parent is not GenericFormalTypeDecl,
-                     any super_types(depth=n+1) is *)
+                     f_type_def is not
+                     DerivedTypeDef(f_has_with_private is WithPrivatePresent))
+    when deep_inheritance(node, n+1)
