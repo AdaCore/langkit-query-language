@@ -95,7 +95,7 @@ fun identifier_suffixes(unit,
                   if access_access_suffix != "" and
                      p.p_accessed_type() is
                          BaseTypeDecl(p_is_access_type() is true)
-                  then "access suffix " & access_suffix & access_access_suffix
+                  then "access-to-access suffix " & access_suffix & access_access_suffix
                   else "access suffix " & access_suffix
               | TypeDecl => "type suffix " & type_suffix
               | PackageRenamingDecl => "renaming suffix " & renaming_suffix

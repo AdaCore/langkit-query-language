@@ -12,7 +12,7 @@ fun num_interfaces(n) = match n
     | SingleProtectedDecl => n.f_interfaces.children_count
     | *                   => 0
 
-@check(message="too many parents", remediation="MAJOR",
+@check(message="type has too many parents", remediation="MAJOR",
        category="Style", subcategory="Object Orientation")
 fun too_many_parents(node, n : int = 5) =
     node is BasicDecl

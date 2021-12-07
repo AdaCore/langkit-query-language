@@ -12,4 +12,5 @@
        follow_generic_instantiations=true,
        category="Style", subcategory="Object Orientation")
 fun deep_inheritance_hierarchies(node, n: int = 2) =
-    node is TypeDecl(any super_types(depth=n+1) is *)
+    node is TypeDecl(parent is not GenericFormalTypeDecl,
+                     any super_types(depth=n+1) is *)

@@ -1,8 +1,8 @@
-overlay.adb:5:4: rule violation: constant object overlays a non-constant object
+overlay.adb:5:4: rule violation: constant object overlays a variable object
 5 |    for C'Address use V'Address;    --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-overlay.adb:9:4: rule violation: constant object overlays a non-constant object
+overlay.adb:9:4: rule violation: constant object overlays a variable object
 9 |    for V'Address use C'Address;           --  FLAG: C is not Volatile
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -9,17 +9,23 @@
        category="Style", subcategory="Programming Practice")
 fun global_variables(node, only_public=false) =
     node is ObjectDecl(f_has_constant is ConstantAbsent,
-                       p_semantic_parent() is s @ * when {
+                       p_semantic_parent() is s@* when {
 
         # Grab the enclosing package when the semantic parent is either
         val pkg = match s
             # 1. A private part and we're not looking only for public variables
-            | p @ PrivatePart when not only_public => p?.p_semantic_parent()
+            | p@PrivatePart when not only_public => p.p_semantic_parent()
             # 2. A package decl
-            | p @ BasePackageDecl when not (
+            | p@PackageDecl when not (
                 #  (if only public, filter private packages)
                 only_public
-                and p?.parent is LibraryItem(f_has_private is PrivatePresent)
+                and p.parent is LibraryItem(f_has_private is PrivatePresent)
+            ) => p
+            # 3. A generic package decl
+            | p@GenericPackageInternal when not (
+                #  (if only public, filter private packages)
+                only_public
+                and p.parent.parent is LibraryItem(f_has_private is PrivatePresent)
             ) => p
             | * => null;
 

@@ -10,7 +10,7 @@ fun canonical_exception(name) = {
 
    if ren == null
    then exception_decl
-   else canonical_exception(ren?.f_renamed_object)
+   else canonical_exception(ren.f_renamed_object)
 }
 
 # TODO customize message to add line # of exception handler
