@@ -104,16 +104,18 @@ package body LKQL.Functions is
               (Receiver.Kind,
                Symbol (Node.F_Member));
 
-            Cur          : constant Builtin_Methods_Maps.Cursor :=
-              Get_Builtin_Methods (Ctx.Kernel).Find (Builtin_Desc);
-
+            Cur          : Builtin_Methods_Maps.Cursor;
          begin
-            if Builtin_Methods_Maps.Has_Element (Cur) then
-               return Call_Builtin
-                 (Ctx,
-                  Builtin_Methods_Maps.Element (Cur).all,
-                  Call,
-                  Receiver);
+            --  No builtins on namespaces
+            if Receiver.Kind /= Kind_Namespace then
+               Cur := Get_Builtin_Methods (Ctx.Kernel).Find (Builtin_Desc);
+               if Builtin_Methods_Maps.Has_Element (Cur) then
+                  return Call_Builtin
+                    (Ctx,
+                     Builtin_Methods_Maps.Element (Cur).all,
+                     Call,
+                     Receiver);
+               end if;
             end if;
          end;
       end if;

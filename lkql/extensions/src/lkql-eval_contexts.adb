@@ -310,12 +310,16 @@ package body LKQL.Eval_Contexts is
    -- Lookup --
    ------------
 
-   function Lookup (Env : Environment;
-                    Key : Symbol_Type) return String_Value_Maps.Cursor
+   function Lookup
+     (Env   : Environment;
+      Key   : Symbol_Type;
+      Local : Boolean := False) return String_Value_Maps.Cursor
    is
       Lookup_Result : constant Cursor := Env.Local_Bindings.Find (Key);
    begin
-      if not Has_Element (Lookup_Result) and then Env.Parent /= null then
+      if not Has_Element (Lookup_Result)
+         and then not Local and then Env.Parent /= null
+      then
          return Lookup (Env.Parent.all, Key);
       end if;
 

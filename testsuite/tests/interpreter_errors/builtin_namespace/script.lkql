@@ -1,0 +1,6 @@
+import dep
+print(dep.a)
+# This shouldn't try to call the reduce built-in, because
+# built-ins are not available on packages (via the dot
+# notation)
+print(dep.reduce)

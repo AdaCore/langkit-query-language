@@ -58,11 +58,13 @@ package LKQL.Eval_Contexts is
 
    type Environment is private;
 
-   function Lookup (Env : Environment;
-                    Key : Symbol_Type) return String_Value_Maps.Cursor;
+   function Lookup (Env   : Environment;
+                    Key   : Symbol_Type;
+                    Local : Boolean := False) return String_Value_Maps.Cursor;
    --  Lookup the given key in the local environment.
-   --  If the local environment doesn't contain the given key, the lookup will
-   --  be attempted on the parent env, if any.
+   --  If the local environment doesn't contain the given key, and ``Local`` is
+   --  False, the lookup will be attempted on the parent env,
+   --  if any.
 
    type Environment_Access is access all Environment;
 

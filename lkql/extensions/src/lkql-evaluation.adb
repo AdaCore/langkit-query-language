@@ -598,9 +598,12 @@ package body LKQL.Evaluation is
 
          Cur          : constant Builtin_Methods_Maps.Cursor :=
            Get_Builtin_Methods (Ctx.Kernel).Find (Builtin_Desc);
+         use Builtin_Methods_Maps;
       begin
-         if Builtin_Methods_Maps.Has_Element (Cur) then
-            return Builtin_Methods_Maps.Element (Cur).Fn_Access
+         --  Since this is a propertylike call to a builtin function, we filter
+         --  builtin functions that have more than one argument.
+         if Has_Element (Cur) and then Element (Cur).N = 1 then
+            return Element (Cur).Fn_Access
               (Ctx, (1 => Receiver));
          end if;
       end;
@@ -635,7 +638,8 @@ package body LKQL.Evaluation is
                  Lookup
                    (Eval_Contexts.Environment_Access
                       (Receiver.Namespace).all,
-                    Symbol (Node.F_Member));
+                    Symbol (Node.F_Member),
+                    Local => True);
             begin
                if String_Value_Maps.Has_Element (R) then
                   return String_Value_Maps.Element (R);
