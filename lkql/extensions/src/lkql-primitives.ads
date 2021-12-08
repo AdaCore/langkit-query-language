@@ -472,7 +472,8 @@ package LKQL.Primitives is
 
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access;
-   --  Return a pointer to the elements of a list primitive
+   --  Return a pointer to the elements of a list or iterable primitive. If the
+   --  primitive is an iterator, consume it beforehand.
 
    function Data
      (Value       : Primitive;

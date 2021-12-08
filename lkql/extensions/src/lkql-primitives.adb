@@ -419,7 +419,15 @@ package body LKQL.Primitives is
    function Elements
      (Value : Primitive) return not null Primitive_Vector_Access is
    begin
-      return Value.List_Val.Elements'Access;
+      case Value.Kind is
+         when Kind_List =>
+            return Value.List_Val.Elements'Access;
+         when Kind_Iterator =>
+            Consume (Value);
+            return Value.Iter_Cache.Elements'Access;
+         when others =>
+            raise Unsupported_Error with "Invalid kind for elements";
+      end case;
    end Elements;
 
    ------------------------
