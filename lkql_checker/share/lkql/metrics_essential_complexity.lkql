@@ -1,11 +1,15 @@
+# The Metrics_Essential_Complexity rule takes a positive integer as upper
+# bound. A program unit that is an executable body exceeding this limit will be
+# flagged.
+# The Ada essential complexity metric is a McCabe cyclomatic complexity metric
+# counted for the code that is reduced by excluding all the pure structural Ada
+# control statements.
+
 import metrics
 
 @unit_check(help="essential complexity", execution_cost=3)
 fun metrics_essential_complexity(unit, n : int = 3) = [
-    {
-        message: "essential complexity is too high:  " & img(t[2]),
-        loc: t[1]
-    }
+    { message: "essential complexity is too high: " & img(t[2]), loc: t[1] }
     for t in [(body, metrics.essential_complexity(body))
               for body in (from unit.root select BaseSubpBody)]
     if t[2] > n

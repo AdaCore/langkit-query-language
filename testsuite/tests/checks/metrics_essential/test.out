@@ -1,4 +1,4 @@
-proc.adb:2:1: rule violation: essential complexity is too high:  4
+proc.adb:2:1: rule violation: essential complexity is too high: 4
 2 | procedure Proc (I : in out Integer; S : String) is   --  FLAG
   | ^^^^^^^^^
 
