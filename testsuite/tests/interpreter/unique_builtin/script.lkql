@@ -1,0 +1,2 @@
+print(unique([1, 2, 3, 4, 5, 1]))
+print(unique((select BasicDecl).to_list & (select BasicDecl).to_list))

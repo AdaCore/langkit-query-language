@@ -21,6 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Hashed_Sets;
 with Ada.Directories;
 with Ada.Finalization;
 with Ada.Strings.Wide_Wide_Fixed;
@@ -997,6 +998,39 @@ package body LKQL.Builtin_Functions is
       end case;
    end Eval_Reduce;
 
+   package Primitive_Sets is new Ada.Containers.Hashed_Sets
+    (Primitive, Hash, Equals, Equals);
+
+   -----------------
+   -- Eval_Unique --
+   -----------------
+
+   function Eval_Unique
+     (Ctx : Eval_Context;
+      Args : Primitive_Array) return Primitive;
+
+   function Eval_Unique
+     (Ctx : Eval_Context;
+      Args : Primitive_Array) return Primitive
+   is
+      S    : Primitive_Sets.Set;
+      List : constant Primitive_Vector_Access := Elements (Args (1));
+   begin
+      for El of List.all loop
+         S.Include (El);
+      end loop;
+
+      declare
+         Ret : constant Primitive :=
+           LKQL.Primitives.Make_Empty_List (Ctx.Pool);
+      begin
+         for El of S loop
+            Ret.List_Val.Elements.Append (El);
+         end loop;
+         return Ret;
+      end;
+   end Eval_Unique;
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -1015,6 +1049,12 @@ package body LKQL.Builtin_Functions is
          Eval_Reduce'Access,
          "Given a collection, a reduction function, and an initial value" &
          " reduce the result"),
+
+      Create
+        ("unique",
+        (1 => Param ("indexable")),
+         Eval_Unique'Access,
+         ""),
 
       Create
         ("img",
