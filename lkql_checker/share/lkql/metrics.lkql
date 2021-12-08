@@ -15,12 +15,12 @@ fun in_quantified_expr(s) =
     |" Helper: Whether ``s`` is in a quantified expression or not
     [p for p in s.parents() if p is QuantifiedExpr]?[1] != ()
 
-fun expr_complexity(body) =
+fun expr_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity of expressions in the given body
 {
     fun node_weight (n) = match n
         | BinOp(f_op is OpOrElse or OpAndThen) or IfExpr or ElsifExprPart => 1
-        | CaseExpr(f_cases is c@*) => c.children_count - 1
+        | CaseExpr(f_cases is c@*) => if exempt_case then 1 else c.children_count - 1
         | QuantifiedExpr => 2
         | * => 0;
 
@@ -53,9 +53,9 @@ fun statement_complexity(body, exempt_case=false) =
     )
 } 
 
-fun cyclomatic_complexity(body, exempt_case=false) = 
+fun cyclomatic_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity for the given body
-    statement_complexity(body, exempt_case) + expr_complexity(body)
+    statement_complexity(body, exempt_case) + expr_complexity(body, exempt_case)
 
 selector composite_parents
     |" Return a list of composite statement parents, stopping at the enclosing
