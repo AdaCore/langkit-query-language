@@ -1,0 +1,2 @@
+print(reduce([1, 2, 3, 4, 5], (acc, cur) => acc + cur, 0))
+print(reduce([i * 2 for i in [1, 2, 3, 4, 5]], (acc, cur) => acc + cur, 0))

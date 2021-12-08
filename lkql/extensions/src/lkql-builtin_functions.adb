@@ -40,6 +40,8 @@ with LKQL.Evaluation; use LKQL.Evaluation;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.String_Utils; use LKQL.String_Utils;
 with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
+with LKQL.Errors; use LKQL.Errors;
+with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 package body LKQL.Builtin_Functions is
 
@@ -909,6 +911,80 @@ package body LKQL.Builtin_Functions is
        (H.Create_Node (Args (1)
         .Analysis_Unit_Val.Unchecked_Get.Root), Ctx.Pool));
 
+   --------------------
+   -- Eval_Reduce --
+   --------------------
+
+   function Eval_Reduce
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Reduce
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      List     : constant Primitive_Vector_Access := Elements (Args (1));
+      Fn       : constant Primitive := Args (2);
+      Init_Val : constant Primitive := Args (3);
+   begin
+      case Fn.Kind is
+      when Kind_Function =>
+         declare
+            D        : L.Base_Function;
+            First_Arg_Name, Second_Arg_Name : Symbol_Type;
+            Env : constant LKQL.Primitives.Environment_Access :=
+              Fn.Frame;
+            Eval_Ctx : constant Eval_Context :=
+              Eval_Context'
+                (Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
+
+            function Eval_Call
+              (Accumulator_Value : Primitive;
+               Current_Value     : Primitive) return Primitive;
+
+            function Eval_Call
+              (Accumulator_Value : Primitive;
+               Current_Value     : Primitive) return Primitive
+            is
+               Args_Bindings : Environment_Map;
+            begin
+               Args_Bindings.Insert (First_Arg_Name, Accumulator_Value);
+               Args_Bindings.Insert (Second_Arg_Name, Current_Value);
+               return Eval
+                 (Eval_Ctx, D.F_Body_Expr, Local_Bindings => Args_Bindings);
+            end Eval_Call;
+
+         begin
+            D := Fn.Fun_Node;
+
+            if D.F_Parameters.Children_Count /= 2 then
+               Raise_And_Record_Error
+                 (Ctx,
+                  Make_Eval_Error
+                    (L.No_LKQL_Node,
+                     "Function passed to reduce should have arity of two"));
+            end if;
+
+            First_Arg_Name :=
+              Symbol (D.F_Parameters.Child (1).As_Parameter_Decl.P_Identifier);
+
+            Second_Arg_Name :=
+              Symbol (D.F_Parameters.Child (2).As_Parameter_Decl.P_Identifier);
+
+            declare
+               Accum : Primitive := Init_Val;
+            begin
+               for El of List.all loop
+                  Accum := Eval_Call (Accum, El);
+               end loop;
+               return Accum;
+            end;
+         end;
+
+      when others =>
+         Raise_Invalid_Type
+           (Ctx, L.No_LKQL_Node, "function", Fn);
+      end case;
+   end Eval_Reduce;
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -920,6 +996,13 @@ package body LKQL.Builtin_Functions is
           Param ("new_line", Kind_Bool, To_Primitive (True))),
          Eval_Print'Access,
          "Built-in print function. Prints whatever is passed as an argument"),
+
+      Create
+        ("reduce",
+        (Param ("indexable"), Param ("fn"), Param ("init")),
+         Eval_Reduce'Access,
+         "Given a collection, a reduction function, and an initial value" &
+         " reduce the result"),
 
       Create
         ("img",
