@@ -1,12 +1,20 @@
+# Flag each program unit that is an executable body exceeding the limit N.
+# This rule has the following optional parameter:
+# Exempt_Case_Statements: Count the complexity introduced by CASE statement or
+# CASE expression as 1.
+
 import metrics
 
-@unit_check(help="cyclomatic complexity", execution_cost=3)
-fun metrics_cyclomatic_complexity(unit, n : int = 5, exempt_case_statements=false) = [
+@unit_check(help="cyclomatic complexity", execution_cost=3, category="Metrics")
+fun metrics_cyclomatic_complexity(unit, n : int = 5,
+                                  exempt_case_statements=false) = [
     {
-        message: "cyclomatic complexity is too high:  " & img(t[2]),
+        message: "cyclomatic complexity is too high: " & img(t[2]),
         loc: t[1]
     }
+    # TODO: add TaskBody/ProtectedBody/PackageBody
     for t in [(body, metrics.cyclomatic_complexity(body, exempt_case_statements))
               for body in (from unit.root select BaseSubpBody)]
     if t[2] > n
 ]
+
