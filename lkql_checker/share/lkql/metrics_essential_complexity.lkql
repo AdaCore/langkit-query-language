@@ -1,0 +1,12 @@
+import metrics
+
+@unit_check(help="essential complexity", execution_cost=3)
+fun metrics_essential_complexity(unit, n : int = 3) = [
+    {
+        message: "essential complexity is too high:  " & img(t[2]),
+        loc: t[1]
+    }
+    for t in [(body, metrics.essential_complexity(body))
+              for body in (from unit.root select BaseSubpBody)]
+    if t[2] > n
+]

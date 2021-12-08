@@ -1,0 +1,140 @@
+import stdlib
+
+selector eligible_children
+    |" Return all children nodes starting from a base subprogram body, but not
+    |" entering in nested subprogram bodies.
+
+    | SubpBody =>
+        # Don't recurse on subp bodies except if it's the root node (depth == 0)
+        rec *(if depth == 0 then this.children else [])
+    | n@Pragma when n.p_is_ghost_code() => ()
+    | null     => ()
+    | *        => rec *this.children
+
+fun in_quantified_expr(s) =
+    |" Helper: Whether ``s`` is in a quantified expression or not
+    [p for p in s.parents() if p is QuantifiedExpr]?[1] != ()
+
+fun expr_complexity(body) =
+    |" Return the cyclomatic complexity of expressions in the given body
+{
+    fun node_weight (n) = match n
+        | BinOp(f_op is OpOrElse or OpAndThen) or IfExpr or ElsifExprPart => 1
+        | CaseExpr(f_cases is c@*) => c.children_count - 1
+        | QuantifiedExpr => 2
+        | * => 0;
+
+    reduce([i for i in eligible_children(body)],
+           (comp, node) => comp + node_weight(node),
+           0)
+}
+
+fun statement_complexity(body, exempt_case=false) = 
+    |" Return the cyclomatic complexity of statements in the given body
+{
+    fun node_weight (n) = match n
+        | IfStmt or ElsifStmtPart or WhileLoopSpec => 1
+        | f@ForLoopSpec when not in_quantified_expr(f) => 1
+        | c@CaseStmt => if exempt_case then 1 else c.f_alternatives.children_count - 1
+        | e@ExitStmt(f_cond_expr is not null) => 1
+        | s@SelectStmt(
+            f_guards is guards@*,
+            f_else_stmts is elses_stmts@*,
+            f_abort_stmts is abort_stmts@*
+        ) => guards.children_count
+             + (if elses_stmts.children_count == 0 then 0 else 1)
+             + (if abort_stmts.children_count == 0 then 0 else 1)
+        | * => 0;
+
+    reduce(
+        [i for i in eligible_children(body)],
+        (comp, node) => comp + node_weight(node),
+        1
+    )
+} 
+
+fun cyclomatic_complexity(body, exempt_case=false) = 
+    |" Return the cyclomatic complexity for the given body
+    statement_complexity(body, exempt_case) + expr_complexity(body)
+
+selector composite_parents
+    |" Return a list of composite statement parents, stopping at the enclosing
+    |" declaration.
+    | *(parent is CaseStmt or IfStmt or ForLoopStmt
+        or LoopStmt or WhileLoopStmt or SelectStmt) => rec this.parent
+
+    # Stop exploring downwards when we get out of the current decl
+    | BasicDecl => () 
+
+    # Skip every other node
+    | * => skip this.parent
+
+# TODO: There might be a way to build on top of ``composite_parents``, rt.
+# duplicating it
+selector composite_parents_stop_at_loop
+    |" Return a list of composite statement parents, stopping at the enclosing
+    |" declaration or at the enclosing loop.
+    | *(parent is ForLoopStmt or LoopStmt or WhileLoopStmt) => this.parent
+    | *(parent is CaseStmt or IfStmt or SelectStmt) => rec this.parent
+    # Stop exploring downwards when we get out of the current decl
+    | BasicDecl => () 
+    | * => skip this.parent
+
+
+fun essential_complexity(body, treat_exit_as_goto=true) =
+    |" Return the essential complexity of the given body
+{
+    val jump_nodes = [
+        i for i in stdlib.children_no_nested_subps(body)
+        if i is ReturnStmt or RaiseStmt or TerminateAlternative or GotoStmt
+             or (ExitStmt when treat_exit_as_goto)
+    ];
+
+    val to_count_nodes = 
+        if jump_nodes.length == 0 then []
+        else reduce(
+            jump_nodes,
+            (comp, jump_node) => (
+                if jump_node is ExitStmt
+                then composite_parents_stop_at_loop(jump_node).to_list & comp
+                else composite_parents(jump_node).to_list & comp
+            ),
+            []
+        );
+
+    unique(to_count_nodes).length + 1
+}
+
+fun logical_slocs (node) =
+    |" Return the logical slocs count of the given node
+{
+    # TODO: And pattern
+
+    val nodes = (from node select (
+        s@Stmt when s is not (Label or TerminateAlternative or NamedStmt)
+    ) or (
+        b@(BasicDecl or EntryIndexSpec) when b is not (
+            GenericFormal or GenericPackageInternal or AnonymousTypeDecl 
+            or NamedStmtDecl or LabelDecl or SingleTaskTypeDecl
+            or GenericSubpInternal or ExceptionHandler
+        )
+    ) or ExceptionHandler(f_exception_name is not null));
+
+    nodes.length
+}
+
+fun report(body) =
+    |" Helper function to develop metrics. Print a report of common metrics for
+    |" the given body
+{
+    val dummy = print(body);
+    val dummy2 = print("===========================");
+    val stmt = statement_complexity(body);
+    val xpr = expr_complexity(body);
+    val dummy3 = print("    statement complexity: " & img(stmt));
+    val dummy4 = print("    expr complexity: " & img(xpr));
+    val dummy5 = print("    cyclomatic complexity: " & img(xpr + stmt));
+    val dummy6 = print("    essential complexity: " & img(essential_complexity(body, true)));
+    val dummy7 = print("    logical slocs: " & img(logical_slocs(body)));
+    print("")
+}

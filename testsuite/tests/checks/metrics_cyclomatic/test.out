@@ -1,0 +1,4 @@
+proc.adb:2:1: rule violation: cyclomatic complexity is too high:  7
+2 | procedure Proc (I : in out Integer; S : String) is   --  FLAG
+  | ^^^^^^^^^
+
