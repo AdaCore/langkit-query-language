@@ -1,0 +1,3 @@
+print([1, 2, 3, 4].to_list) # This just copies the list
+print([i * 2 for i in [1, 2, 3, 4]].to_list) # Iterator to list
+print(children(select first BasicDecl).to_list) # Selector list to list

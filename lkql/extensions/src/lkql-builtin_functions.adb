@@ -235,9 +235,21 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       Result : constant Primitive := Make_Empty_List (Ctx.Pool);
+      Lst    : constant Primitive := Args (1);
+      Els    : Primitive_Vector_Access;
    begin
-      Consume (Args (1));
-      for El of Args (1).Iter_Cache.Elements loop
+      case Lst.Kind is
+      when Kind_List | Kind_Iterator =>
+         Els := Elements (Lst);
+      when Kind_Selector_List =>
+         Els := To_List (Lst.Selector_List_Val, Ctx.Pool)
+                .List_Val.Elements'Access;
+      when others =>
+         Raise_Invalid_Type
+           (Ctx, L.No_LKQL_Node, "iterable", Lst);
+      end case;
+
+      for El of Els.all loop
          Append (Result, El);
       end loop;
       return Result;
@@ -1026,7 +1038,7 @@ package body LKQL.Builtin_Functions is
 
       Create
         ("to_list",
-         (1 => Param ("it", Kind_Iterator)),
+         (1 => Param ("it")),
          Eval_To_List'Access,
          "Transform an iterator into a list",
          Only_Dot_Calls => True),
