@@ -29,12 +29,12 @@ package body LKQL.Selector_Lists is
    -- Nodes --
    -----------
 
-   function Nodes (Self : Selector_List) return AST_Node_Array is
-      Depth_Node_Values : constant Depth_Node_Array := Self.Depth_Nodes;
+   function Nodes (Self : Selector_List) return AST_Node_Vector is
+      Depth_Node_Values : constant Depth_Node_Vector := Self.Depth_Nodes;
    begin
-      return Result : AST_Node_Array (1 .. Depth_Node_Values'Length) do
-         for I in Result'Range loop
-            Result (I) := Depth_Node_Values (I).Node;
+      return Result : AST_Node_Vector do
+         for El of Depth_Node_Values loop
+            Result.Append (El.Node);
          end loop;
       end return;
    end Nodes;
@@ -43,7 +43,7 @@ package body LKQL.Selector_Lists is
    -- Values --
    ------------
 
-   function Depth_Nodes (Self : Selector_List) return Depth_Node_Array is
+   function Depth_Nodes (Self : Selector_List) return Depth_Node_Vector is
       (Self.Data.Get.Values);
 
    ---------------
@@ -177,22 +177,17 @@ package body LKQL.Selector_Lists is
    ------------
 
    function Values
-     (Data : in out Selector_Shared_Data) return Depth_Node_Array
+     (Data : in out Selector_Shared_Data) return Depth_Node_Vector
    is
       use Depth_Node_Iters.Element_Options;
-      Elements_Vec    : Depth_Node_Vector;
       Current_Pos     : Positive := 1;
       Current_Element : Option := Data.Nth_Node (Current_Pos);
    begin
-      while Is_Some (Current_Element) loop
-         Elements_Vec.Append (Extract (Current_Element));
-         Current_Pos := Current_Pos + 1;
-         Current_Element := Data.Nth_Node (Current_Pos);
-      end loop;
-
-      return Result : Depth_Node_Array (1 .. Integer (Elements_Vec.Length)) do
-         for I in Result'Range loop
-            Result (I) := Elements_Vec.Element (I);
+      return Elements_Vec : Depth_Node_Vector do
+         while Is_Some (Current_Element) loop
+            Elements_Vec.Append (Extract (Current_Element));
+            Current_Pos := Current_Pos + 1;
+            Current_Element := Data.Nth_Node (Current_Pos);
          end loop;
       end return;
    end Values;
@@ -240,7 +235,7 @@ package body LKQL.Selector_Lists is
    is
    begin
       if Data.Total_Length = -1 then
-         Data.Total_Length := Data.Values'Length;
+         Data.Total_Length := Integer (Data.Values.Length);
       end if;
 
       return Data.Total_Length;

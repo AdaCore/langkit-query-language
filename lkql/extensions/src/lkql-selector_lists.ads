@@ -29,10 +29,10 @@ package LKQL.Selector_Lists is
 
    type Selector_List is new Depth_Node_Iter with private;
 
-   function Nodes (Self : Selector_List) return AST_Node_Array;
+   function Nodes (Self : Selector_List) return AST_Node_Vector;
    --  Return an array containing the Ada_Node values returned by the selector
 
-   function Depth_Nodes (Self : Selector_List) return Depth_Node_Array;
+   function Depth_Nodes (Self : Selector_List) return Depth_Node_Vector;
    --  Return an array containing the Depth_Node values returned by the
    --  selector.
 
@@ -109,7 +109,7 @@ private
    --  Data shared by multiple references to the same selector list
 
    function Values
-     (Data : in out Selector_Shared_Data) return Depth_Node_Array;
+     (Data : in out Selector_Shared_Data) return Depth_Node_Vector;
    --  Return the nodes yielded by the selector
 
    function Nth_Node (Data : in out Selector_Shared_Data;

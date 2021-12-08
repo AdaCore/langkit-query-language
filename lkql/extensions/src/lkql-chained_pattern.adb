@@ -154,12 +154,12 @@ package body LKQL.Chained_Pattern is
    is
       Link             : constant L.Chained_Pattern_Link :=
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
-      Nodes            : constant AST_Node_Array :=
+      Nodes            : constant AST_Node_Vector :=
         Eval_Link (Iter.Ctx, Root, Link);
       Pattern_Binding  : constant Symbol_Type :=
         Symbol (Link.F_Pattern.P_Binding_Name);
    begin
-      if Nodes'Length = 0 then
+      if Nodes.Is_Empty then
          return;
       end if;
 
@@ -180,7 +180,7 @@ package body LKQL.Chained_Pattern is
    function Eval_Link (Ctx             : Eval_Context;
                        Root            : H.AST_Node_Holder;
                        Link            : L.Chained_Pattern_Link)
-                       return AST_Node_Array
+                       return AST_Node_Vector
    is
       Pattern : L.Base_Pattern renames Link.F_Pattern;
    begin
@@ -189,11 +189,11 @@ package body LKQL.Chained_Pattern is
             return Eval_Selector_Link
               (Ctx, Root, Link.As_Selector_Link);
          when LCO.LKQL_Field_Link =>
-            return Filter_Node_Array
+            return Filter_Node_Vector
               (Ctx, Pattern,
                Eval_Field_Link (Ctx, Root, Link.As_Field_Link));
          when LCO.LKQL_Property_Link =>
-            return Filter_Node_Array
+            return Filter_Node_Vector
               (Ctx, Pattern,
                Eval_Property_Link (Ctx, Root, Link.As_Property_Link));
          when others =>
@@ -209,17 +209,16 @@ package body LKQL.Chained_Pattern is
    function Eval_Selector_Link (Ctx             : Eval_Context;
                                 Root            : H.AST_Node_Holder;
                                 Selector        : L.Selector_Link)
-                                return AST_Node_Array
+                                return AST_Node_Vector
    is
       S_List       : Selector_List;
       Call         : constant L.Selector_Call := Selector.F_Selector;
       Binding_Name : constant Symbol_Type := Symbol (Call.P_Binding_Name);
-      Empty_Array  : AST_Node_Array (1 .. 0);
    begin
       if not Eval_Selector
         (Ctx, Root, Call, Selector.F_Pattern, S_List)
       then
-         return Empty_Array;
+         return AST_Node_Vectors.Empty_Vector;
       end if;
 
       if Binding_Name /= null then
@@ -236,7 +235,7 @@ package body LKQL.Chained_Pattern is
    function Eval_Field_Link (Ctx   : Eval_Context;
                              Root  : H.AST_Node_Holder;
                              Field : L.Field_Link)
-                             return AST_Node_Array
+                             return AST_Node_Vector
    is
       use LKQL.Node_Data;
       Field_Value : constant Primitive :=
@@ -249,7 +248,7 @@ package body LKQL.Chained_Pattern is
            (Ctx, Field.As_LKQL_Node, Kind_List, Field_Value);
       end if;
 
-      return To_Ada_Node_Array (Field_Value);
+      return To_AST_Node_Vector (Field_Value);
    end Eval_Field_Link;
 
    ------------------------
@@ -259,7 +258,7 @@ package body LKQL.Chained_Pattern is
    function Eval_Property_Link (Ctx : Eval_Context;
                                 Root : H.AST_Node_Holder;
                                 Property : L.Property_Link)
-                                return AST_Node_Array
+                                return AST_Node_Vector
    is
       use LKQL.Node_Data;
       Call        : constant L.Fun_Call := Property.F_Property;
@@ -274,33 +273,29 @@ package body LKQL.Chained_Pattern is
            (Ctx, Property.As_LKQL_Node, Kind_List, Property_Value);
       end if;
 
-      return To_Ada_Node_Array (Property_Value);
+      return To_AST_Node_Vector (Property_Value);
    end Eval_Property_Link;
 
    -----------------------
    -- To_Ada_Node_Array --
    -----------------------
 
-   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Array is
+   function To_AST_Node_Vector (Value : Primitive) return AST_Node_Vector is
+      Result : AST_Node_Vector;
    begin
       case Kind (Value) is
          when Kind_Node =>
-            return Result : AST_Node_Array (1 .. 1) do
-               Result (1) := Node_Val (Value);
-            end return;
-
+            Result.Append (Node_Val (Value));
          when Kind_List =>
-            return Result : AST_Node_Array (1 .. Length (Value)) do
-               for I in 1 .. Length (Value) loop
-                  Result (I) := Node_Val (Get (Value, I));
-               end loop;
-            end return;
-
+            for I in 1 .. Length (Value) loop
+               Result.Append (Node_Val (Get (Value, I)));
+            end loop;
          when others =>
             raise Assertion_Error with
               "Cannot make an ada node array from a value of kind: " &
               Kind_Name (Value);
       end case;
-   end To_Ada_Node_Array;
+      return Result;
+   end To_AST_Node_Vector;
 
 end LKQL.Chained_Pattern;

@@ -112,7 +112,7 @@ private
    function Eval_Link (Ctx             : Eval_Context;
                        Root            : H.AST_Node_Holder;
                        Link            : L.Chained_Pattern_Link)
-                       return AST_Node_Array;
+                       return AST_Node_Vector;
    --  Return the result of a link's evaluation.
    --  If the link introduces new bindings, they will be added to 'Bindings'.
    --  If 'Link' is a selector link, the related pattern is used to verify the
@@ -121,18 +121,18 @@ private
    function Eval_Selector_Link (Ctx             : Eval_Context;
                                 Root            : H.AST_Node_Holder;
                                 Selector        : L.Selector_Link)
-                                return AST_Node_Array;
+                                return AST_Node_Vector;
 
    function Eval_Field_Link (Ctx   : Eval_Context;
                              Root  : H.AST_Node_Holder;
                              Field : L.Field_Link)
-                             return AST_Node_Array;
+                             return AST_Node_Vector;
 
    function Eval_Property_Link (Ctx : Eval_Context;
                                 Root : H.AST_Node_Holder;
                                 Property : L.Property_Link)
-                                return AST_Node_Array;
+                                return AST_Node_Vector;
 
-   function To_Ada_Node_Array (Value : Primitive) return AST_Node_Array;
+   function To_AST_Node_Vector (Value : Primitive) return AST_Node_Vector;
 
 end LKQL.Chained_Pattern;

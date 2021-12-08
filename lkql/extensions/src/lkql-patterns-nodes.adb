@@ -35,14 +35,14 @@ with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 package body LKQL.Patterns.Nodes is
 
-   -----------------------
-   -- Filter_Node_Array --
-   -----------------------
+   ------------------------
+   -- Filter_Node_Vector --
+   ------------------------
 
-   function Filter_Node_Array (Ctx     : Eval_Context;
-                               Pattern : L.Base_Pattern;
-                               Nodes   : AST_Node_Array)
-                               return AST_Node_Array
+   function Filter_Node_Vector
+     (Ctx     : Eval_Context;
+      Pattern : L.Base_Pattern;
+      Nodes   : AST_Node_Vector) return AST_Node_Vector
    is
       Filtered : AST_Node_Vector;
    begin
@@ -53,12 +53,8 @@ package body LKQL.Patterns.Nodes is
          end if;
       end loop;
 
-      return Result : AST_Node_Array (1 .. Filtered.Last_Index) do
-         for I in 1 .. Filtered.Last_Index loop
-            Result (I) := Filtered (I);
-         end loop;
-      end return;
-   end Filter_Node_Array;
+      return Filtered;
+   end Filter_Node_Vector;
 
    ------------------------
    -- Match_Node_Pattern --
