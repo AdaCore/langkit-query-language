@@ -1,4 +1,4 @@
-foo.ads:1:1: rule violation: LSLOC is too high:  21
+foo.ads:1:1: rule violation: LSLOC is too high: 21
 1 | package Pack is                             --  FLAG
   | ^^^^^^^^^
 
