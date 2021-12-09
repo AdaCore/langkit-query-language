@@ -51,8 +51,10 @@ FunDecl
 |  |  |  |  |  |  |  |  |f_kind_name:
 |  |  |  |  |  |  |  |  |  Identifier: OrdinaryFixedPointDef
 |  |  |  |f_predicate:
-|  |  |  |  NotNode
-|  |  |  |  |f_value:
+|  |  |  |  UnOp
+|  |  |  |  |f_op:
+|  |  |  |  |  OpNot
+|  |  |  |  |f_operand:
 |  |  |  |  |  FunCall
 |  |  |  |  |  |f_name:
 |  |  |  |  |  |  DotAccess

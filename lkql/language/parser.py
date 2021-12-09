@@ -104,7 +104,7 @@ class Op(LKQLNode):
     enum_node = True
     alternatives = [
         'plus', 'minus', 'mul', 'div', 'and', 'or', 'eq', 'neq', 'concat',
-        'lt', 'leq', 'gt', 'geq'
+        'lt', 'leq', 'gt', 'geq', 'not'
     ]
 
 
@@ -300,13 +300,6 @@ class ParameterDecl(Declaration):
         return Self.param_identifier.text
 
 
-class Not(Expr):
-    """
-    Negation of a boolean value.
-    """
-    value = Field(type=Expr)
-
-
 class BinOp(Expr):
     """
     Binary operation.
@@ -314,6 +307,14 @@ class BinOp(Expr):
     left = Field(type=Expr)
     op = Field(type=Op)
     right = Field(type=Expr)
+
+
+class UnOp(Expr):
+    """
+    Unary operator (+/-)
+    """
+    op = Field(type=Op)
+    operand = Field(type=Expr)
 
 
 class RelBinOp(BinOp):
@@ -1214,21 +1215,19 @@ lkql_grammar.add_rules(
         BinOp(
             G.expr,
             Or(Op.alt_and("and"), Op.alt_or("or")),
-            G.comp_expr
+            G.not_expr
         ),
-        G.comp_expr,
-        G.block_expr,
-        G.tuple_expr,
+        G.not_expr,
     ),
 
-    tuple_expr=Tuple(
-        "(", List(G.expr, sep=","), ")"
+    not_expr=Or(
+        UnOp(Op.alt_not("not"), G.comp_expr),
+        G.comp_expr
     ),
 
     comp_expr=Or(
         IsClause(G.comp_expr, "is", G.pattern),
         InClause(G.comp_expr, "in", G.expr),
-        Not("not", G.expr),
         RelBinOp(
             G.comp_expr,
             Or(Op.alt_eq("=="),
@@ -1259,8 +1258,13 @@ lkql_grammar.add_rules(
                    Or(Op.alt_mul("*"), Op.alt_div("/")),
                    G.value_expr),
 
-        G.value_expr
+        G.unop
 
+    ),
+
+    unop=Or(
+        UnOp(Or(Op.alt_plus("+"), Op.alt_minus("-")), G.value_expr),
+        G.value_expr,
     ),
 
     value_expr=Or(
@@ -1274,6 +1278,10 @@ lkql_grammar.add_rules(
             G.value_expr, Safe("?"),
             "(", c(), List(G.arg, empty_valid=True, sep=","), ")"
         ),
+        G.term
+    ),
+
+    term=Or(
         G.query,
         G.listcomp,
         G.listlit,
@@ -1288,7 +1296,13 @@ lkql_grammar.add_rules(
         G.integer,
         G.anonymous_function,
         Pick("(", G.expr, ")"),
-        G.if_then_else
+        G.if_then_else,
+        G.block_expr,
+        G.tuple_expr,
+    ),
+
+    tuple_expr=Tuple(
+        "(", List(G.expr, sep=","), ")"
     ),
 
     anonymous_function=AnonymousFunction(

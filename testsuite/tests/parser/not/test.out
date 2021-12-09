@@ -1,7 +1,9 @@
 IfThenElse
 |f_condition:
-|  NotNode
-|  |f_value:
+|  UnOp
+|  |f_op:
+|  |  OpNot
+|  |f_operand:
 |  |  RelBinOp
 |  |  |f_left:
 |  |  |  FunCall

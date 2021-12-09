@@ -146,7 +146,7 @@ declared:
         fun fib(a) =
             if a == 0 then 0
             else (if a == 1 then 1
-                  else fib(a -1) + fib (a - 2))
+                  else fib(a - 1) + fib (a - 2))
 
         val fib_30 = fib(30)
         print(fib_30)
@@ -555,7 +555,7 @@ Literals and Operators
 .. lkql_doc_class:: Literal
 .. lkql_doc_class:: SubBlockLiteral
 .. lkql_doc_class:: ArithBinOp
-.. lkql_doc_class:: NotNode
+.. lkql_doc_class:: UnOp
 
 LKQL has literals for booleans, integers, strings, and null values:
 

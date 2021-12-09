@@ -70,10 +70,11 @@ package body LKQL.Evaluation is
    function Eval_If_Then_Else
      (Ctx : Eval_Context; Node : L.If_Then_Else) return Primitive;
 
-   function Eval_Not (Ctx : Eval_Context; Node : L.Not_Node) return Primitive;
-
    function Eval_Bin_Op
      (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive;
+
+   function Eval_Un_Op
+     (Ctx : Eval_Context; Node : L.Un_Op) return Primitive;
 
    function Eval_Non_Short_Circuit_Op
      (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive;
@@ -211,10 +212,10 @@ package body LKQL.Evaluation is
             Result := Eval_Unit_Literal (Node.As_Unit_Literal);
          when LCO.LKQL_If_Then_Else =>
             Result := Eval_If_Then_Else (Local_Context, Node.As_If_Then_Else);
-         when LCO.LKQL_Not_Node =>
-            Result := Eval_Not (Local_Context, Node.As_Not_Node);
          when LCO.LKQL_Bin_Op_Range =>
             Result := Eval_Bin_Op (Local_Context, Node.As_Bin_Op);
+         when LCO.LKQL_Un_Op_Range =>
+            Result := Eval_Un_Op (Local_Context, Node.As_Un_Op);
          when LCO.LKQL_Dot_Access =>
             Result := Eval_Dot_Access (Local_Context, Node.As_Dot_Access);
          when LCO.LKQL_Safe_Access =>
@@ -462,24 +463,11 @@ package body LKQL.Evaluation is
               else Eval (Ctx, Node.F_Else_Expr));
    end Eval_If_Then_Else;
 
-   --------------
-   -- Eval_Not --
-   --------------
-
-   function Eval_Not (Ctx : Eval_Context; Node : L.Not_Node) return Primitive
-   is
-      Value : constant Primitive :=
-        Eval (Ctx, Node.F_Value, Expected_Kind => Kind_Bool);
-   begin
-      return To_Primitive (not Bool_Val (Value));
-   end Eval_Not;
-
    -----------------
    -- Eval_Bin_Op --
    -----------------
 
-   function Eval_Bin_Op
-     (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive
+   function Eval_Bin_Op (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive
    is
    begin
       return (case Node.F_Op.Kind is
@@ -490,6 +478,22 @@ package body LKQL.Evaluation is
                  when others =>
                     Eval_Non_Short_Circuit_Op (Ctx, Node));
    end Eval_Bin_Op;
+
+   function Eval_Un_Op (Ctx : Eval_Context; Node : L.Un_Op) return Primitive is
+   begin
+      case Node.F_Op.Kind is
+      when LCO.LKQL_Op_Plus =>
+         return Eval (Ctx, Node.F_Operand, Kind_Int);
+      when LCO.LKQL_Op_Minus =>
+         return To_Primitive
+           (-Int_Val (Eval (Ctx, Node.F_Operand, Kind_Int)), Ctx.Pool);
+      when LCO.LKQL_Op_Not =>
+         return To_Primitive
+           (not Bool_Val (Eval (Ctx, Node.F_Operand, Kind_Bool)));
+      when others =>
+         raise Assertion_Error;
+      end case;
+   end Eval_Un_Op;
 
    -------------------------------
    -- Eval_Non_Short_Circuit_Op --
