@@ -1470,6 +1470,39 @@ This rule has no parameters.
    Var2 : array (1 .. 10) of Integer;      --  FLAG
 
 
+.. _Array_Slices:
+
+``Array_Slices``
+^^^^^^^^^^^^^^^^
+
+.. index:: Array_Slices
+
+Flag ``FOR`` loops if a loop contains a single assignment statement, and
+this statement is an assignment between array components and such a loop can
+be replaced by a single assignment statement with array slices or
+array objects as the source and the target of the assignment.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 6, 10
+
+      type Table_Array_Type is array (1 .. 10) of Integer;
+      Primary_Table   : Table_Array_Type;
+      Secondary_Table : Table_Array_Type;
+
+   begin
+      for I in Table_Array_Type'Range loop   --  FLAG
+         Secondary_Table (I) := Primary_Table (I);
+      end loop;
+
+      for I in 2 .. 5 loop                   --  FLAG
+         Secondary_Table (I) := Primary_Table (I + 1);
+      end loop;
+
+
 .. _Binary_Case_Statements:
 
 ``Binary_Case_Statements``
@@ -4075,6 +4108,38 @@ This rule has no parameters.
    private
       type Figure is abstract tagged null record;          --  FLAG
    end Foo;
+
+.. _Anonymous_Access:
+
+``Anonymous_Access``
+--------------------
+
+.. index:: Anonymous_Access
+
+Flag object declarations, formal object declarations and component declarations with
+anonymous access type definitions. Discriminant specifications and parameter
+specifications are not flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 10, 13
+
+   procedure Anon (X : access Some_Type) is   --  NO FLAG
+      type Square
+        (Location : access Coordinate)        --  NO FLAG
+      is record
+         null;
+      end record;
+
+      type Cell is record
+         Some_Data : Integer;
+         Next      : access Cell;             --  FLAG
+      end record;
+
+      Link : access Cell;                     --  FLAG
 
 .. _Anonymous_Subtypes:
 

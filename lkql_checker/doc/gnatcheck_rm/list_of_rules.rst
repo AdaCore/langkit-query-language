@@ -29,10 +29,16 @@ GNATcheck rules.
   :ref:`Annotated_Comments`
 
 *
+  :ref:`Anonymous_Access`
+
+*
   :ref:`Anonymous_Arrays`
 
 *
   :ref:`Anonymous_Subtypes`
+
+*
+  :ref:`Array_Slices`
 
 *
   :ref:`Binary_Case_Statements`
