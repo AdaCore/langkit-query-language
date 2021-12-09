@@ -15,38 +15,38 @@ all: lkql lkql_checker lalcheck doc
 lkql: build/bin/liblkqllang_parse
 
 automated:
-	rm -rf $(PREFIX)
-	mkdir -p $(PREFIX)/share/lkql
+	rm -rf "$(PREFIX)"
+	mkdir -p "$(PREFIX)/share/lkql"
 	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS)
 	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr
 	$(GPRBUILD) -Plkql_checker/lalcheck.gpr
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lalcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
-	cp -p lkql_checker/share/lkql/*.lkql $(PREFIX)/share/lkql
+	cp -p lkql_checker/share/lkql/*.lkql "$(PREFIX)/share/lkql"
 
 automated-cov:
-	rm -rf $(PREFIX) $(BUILD_DIR)
-	mkdir -p $(PREFIX)/share/lkql $(LKQL_DIR)
+	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
+	mkdir -p "$(PREFIX)/share/lkql" "$(LKQL_DIR)"
 	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) --coverage
 	$(PYTHON) lkql/manage.py install $(MANAGE_ARGS) $(PREFIX)
 	# Build and install the lkql_checker program. Instrument it first.
 	# Note that we just copy the sources to the build directory since
 	# "gnatcov instrument" does not support build tree relocation.
-	cp -pr lkql_checker $(BUILD_DIR)
-	gnatcov instrument -P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr \
+	cp -pr lkql_checker "$(BUILD_DIR)"
+	gnatcov instrument "-P$(BUILD_DIR)"/lkql_checker/lkql_checker.gpr" \
 	  --level=stmt --no-subprojects --dump-trigger=atexit \
 	  -XBUILD_MODE=$(BUILD_MODE)
-	$(GPRBUILD) -P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr \
+	$(GPRBUILD) "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
 	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-	$(GPRINSTALL) --mode=dev -P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr
-	cp -p lkql_checker/share/lkql/*.lkql $(PREFIX)/share/lkql
+	$(GPRINSTALL) --mode=dev "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr"
+	cp -p lkql_checker/share/lkql/*.lkql "$(PREFIX)/share/lkql"
 	# Ship coverage data files for liblkqllang and lkql_checker so that the
 	# testsuite can use them.
-	cp -p $(LKQL_DIR)/obj/instr/sids/*.sid $(PREFIX)/lib/liblkqllang.static
-	mkdir -p $(PREFIX)/lib/lkql_checker
-	cp -p $(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/*.sid \
-	  $(PREFIX)/lib/lkql_checker
+	cp -p "$(LKQL_DIR)/obj/instr/sids/"*.sid "$(PREFIX)/lib/liblkqllang.static"
+	mkdir -p "$(PREFIX)/lib/lkql_checker"
+	cp -p "$(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/"*.sid \
+	  "$(PREFIX)/lib/lkql_checker"
 
 doc:
 	cd user_manual && make clean html
