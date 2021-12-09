@@ -1,4 +1,9 @@
-# Flag if statements which could be replaced by a case statement
+# Flag if statements which could be replaced by a case statement.
+# That is, if statements of the form:
+#   if Id <relation op> static-expr then
+#   elsif Id <relation op> static-expr then
+#   [...]
+#   end if;
 
 fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
@@ -12,10 +17,6 @@ fun check_alternatives(list, id) =
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
 fun case_statements(node) =
-    # Find if statements of the form:
-    # if Id <relation op> static-expr then
-    # elsif Id <relation op> static-expr then
-    # [...]
     node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
                    f_cond_expr is
                        RelationOp(f_left is id@Identifier,
