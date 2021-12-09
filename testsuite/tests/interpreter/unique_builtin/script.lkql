@@ -1,2 +1,8 @@
 print(unique([1, 2, 3, 4, 5, 1]))
-print(unique((select BasicDecl).to_list & (select BasicDecl).to_list))
+
+# TODO: For the moment we test unique with a single element list, because the
+# output is not sorted, so the test output for a list with several elements
+# would vary. We don't want ``unique`` to use sorted sets by default because
+# they're slower, so ideally we would have use a sort here.
+val a = select first BasicDecl
+print(unique([a, a]))
