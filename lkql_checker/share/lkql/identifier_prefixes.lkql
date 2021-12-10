@@ -228,15 +228,9 @@ fun identifier_prefixes(unit,
     | EnumLiteralDecl => check_enum(node.f_name.text)
 
     # Look one level up for remaining cases
-    | p@* => match p?.parent
+    | p@* => match p.parent
         # Constants
-        | (o@ObjectDecl
-           when (o?.f_has_constant?.p_as_bool() or
-                 # Renaming of a constant
-                 (o?.f_renaming_clause != null and
-                  stdlib.ultimate_alias(o?.f_renaming_clause?.f_renamed_object) is
-                  ObjectDecl(f_has_constant is ConstantPresent)))
-            and o?.p_public_part_decl() == null)
+        | ObjectDecl(p_is_constant_object() is true, p_public_part_decl() is null)
           or NumberDecl
         =>
             (constant != "-" and not node.f_name.text.starts_with(constant)) or
@@ -247,7 +241,7 @@ fun identifier_prefixes(unit,
 
         # Function renaming an enum literal
         | r@SubpRenamingDecl
-          when r?.f_renames?.f_renamed_object?.p_referenced_decl() is EnumLiteralDecl
+          when r.f_renames?.f_renamed_object?.p_referenced_decl() is EnumLiteralDecl
         => check_enum(node.f_name.text)
 
         # Exceptions

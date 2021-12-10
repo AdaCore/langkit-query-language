@@ -11,23 +11,16 @@ import stdlib
 fun check_overlay(decl, overlaid) =
     # Check overlaid'Address
     overlaid is AttributeRef
-    when overlaid?.f_attribute?.p_name_is("address")
+    when overlaid.f_attribute?.p_name_is("address")
      # Check that overlaid is a constant object or formal of mode IN
      and ({
-         val overlaid_object = stdlib.ultimate_alias(overlaid?.f_prefix);
-         # TODO use o?.p_is_constant_object() once available, see U330-040
-         (match overlaid_object
-          | o@ObjectDecl =>
-              o?.f_has_constant?.p_as_bool() or
-              o?.f_mode is ModeIn or
-              (o?.f_mode is ModeDefault and o?.parent is GenericFormalObjDecl)
-          | p@ParamSpec  => p?.f_mode is ModeDefault or p?.f_mode is ModeIn
-          | *            => false)
+         val overlaid_object = stdlib.ultimate_alias(overlaid.f_prefix);
+         stdlib.is_constant_object(overlaid_object)
          # Check that overlaying is not constant
-         and ((not decl?.f_has_constant?.p_as_bool())
+         and (not stdlib.is_constant_object(decl)
               # or either object is marked volatile
-              or decl?.p_has_aspect("Volatile")
-              or overlaid_object?.p_has_aspect("Volatile"))})
+              or decl.p_has_aspect("Volatile")
+              or overlaid_object.p_has_aspect("Volatile"))})
 
 # TODO customize message:
 # "volatile object overlays a constant object"

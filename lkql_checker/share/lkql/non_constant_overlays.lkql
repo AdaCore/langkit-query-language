@@ -19,18 +19,11 @@ fun check_non_const_overlay(decl, overlaid) =
      # Check that overlaid is a variable object or formal of mode [IN] OUT
      and ({
          val overlaid_object = stdlib.ultimate_alias(overlaid.f_prefix);
-         # TODO use o.p_is_constant_object() once available, see U330-040
-         (match overlaid_object
-          | o@ObjectDecl =>
-              o.f_mode is (ModeOut or ModeInOut)
-              or (o.parent is not GenericFormalObjDecl and
-                  o.f_has_constant is ConstantAbsent)
-          | p@ParamSpec  => p.f_mode is ModeOut or ModeInOut
-          | *            => false)
+         not stdlib.is_constant_object(overlaid_object)
          # Check that overlaying is constant
-         and (decl.f_has_constant.p_as_bool()
+         and (stdlib.is_constant_object(decl)
               # or overlaying object is not marked volatile
-              or (not decl.p_has_aspect("Volatile"))
+              or not decl.p_has_aspect("Volatile")
               # or if overlaid object is not a parameter, it is not marked as
               # Volatile
               or (overlaid_object is

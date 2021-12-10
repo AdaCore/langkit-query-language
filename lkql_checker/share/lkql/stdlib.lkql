@@ -251,10 +251,10 @@ fun is_controlling_param_type(t, spec) =
     |" parameter of the subprogram spec `spec`.
     |" TODO: move this to LAL
     t is TypeExpr(p_designated_type_decl() is d@BaseTypeDecl)
-    when ((d?.p_is_tagged_type() and not is_classwide_type(d)) or
+    when ((d.p_is_tagged_type() and not is_classwide_type(d)) or
           (d is AnonymousTypeDecl and
-           d?.p_accessed_type()?.p_is_tagged_type() and
-           not is_classwide_type(d?.p_accessed_type())))
+           d.p_accessed_type()?.p_is_tagged_type() and
+           not is_classwide_type(d.p_accessed_type())))
      # Check that t is in the same package decl as spec
      and (enclosing_package(t) is p@BasePackageDecl
           when p == enclosing_package(spec))
@@ -265,6 +265,10 @@ fun is_constructor(spec) =
     is_controlling_param_type(spec.p_returns(), spec)
      and [p for p in spec.p_params()
           if is_controlling_param_type(p.f_type_expr, spec)]?[1] == ()
+
+fun is_constant_object(node) =
+    |" Return true is node represents a constant object, false otherwise
+    node is ObjectDecl or ParamSpec and node.p_is_constant_object()
 
 @memoized
 fun get_subp_body(node) =
