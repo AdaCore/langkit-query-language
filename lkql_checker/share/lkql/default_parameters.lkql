@@ -1,5 +1,5 @@
-# Flag all parameter specifications with more than N parameters with a default
-# value.
+# Flag formal part (in subprogram specifications and entry declarations)
+# with more than N parameters with a default value.
 
 # The `ignore` parameter is just there to allow using default_parameters with
 # default values (all other rules with a single integer require setting a
