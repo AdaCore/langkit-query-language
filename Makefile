@@ -34,7 +34,7 @@ automated-cov:
 	# Note that we just copy the sources to the build directory since
 	# "gnatcov instrument" does not support build tree relocation.
 	cp -pr lkql_checker "$(BUILD_DIR)"
-	gnatcov instrument "-P$(BUILD_DIR)"/lkql_checker/lkql_checker.gpr" \
+	gnatcov instrument "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
 	  --level=stmt --no-subprojects --dump-trigger=atexit \
 	  -XBUILD_MODE=$(BUILD_MODE)
 	$(GPRBUILD) "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
