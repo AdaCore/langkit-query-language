@@ -4518,20 +4518,27 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
 
 .. index:: Default_Parameters
 
-Flag all default expressions in parameters specifications. All parameter
-specifications are checked: in subprograms (including formal, generic and
-protected subprograms) and in task and protected entries (including accept
-statements and entry bodies).
+Flag formal part (in subprogram specifications and entry declarations)
+if it defines more than N parameters with default values, when N is a
+rule parameter. If no parameter is provided for the rule then all the
+formal parts with defaulted parameters are flagged.
 
-This rule has no parameters.
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*N*
+  Integer not less than 0 specifying the minimal allowed number of
+  defaulted parameters.
+
 
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 1
+   :emphasize-lines: 3,4
 
-   procedure P (I : in out Integer; J : Integer := 0);   --  FLAG
+   procedure P (I : in out Integer; J : Integer := 0);  -- No FLAG (if parameter is 1)
    procedure Q (I : in out Integer; J : Integer);
+   procedure R (I, J : Integer := 0; K : Integer := 0); --  FLAG (if parameter is 2 or less)
+   procedure S (I : Integer; J, K : Integer := 0);      --  FLAG (if parameter is 2 or less)
 
 
 .. _Discriminated_Records:
@@ -4595,6 +4602,33 @@ This rule has no parameters.
       for J in Idx loop
          L := L + J;
       end loop;
+
+
+.. _Explicit_Inlining:
+
+``Explicit_Inlining``
+---------------------
+
+.. index:: Explicit_Inlining
+
+Flag a subprogram declaration, a generic subprogram declaration or
+a subprogram instantiation if this declaration has an Inline aspect specified
+or an Inline pragma applied to it. If a generic subprogram declaration
+has an Inline aspect specified or pragma Inline applied, then only
+generic subprogram declaration is flagged but not its instantiations.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1, 4
+
+   procedure Swap (I, J : in out Integer);                    --  FLAG
+   pragma Inline (Swap);
+
+   function Increment (I : Integer) return Integer is (I + 1) --  FLAG
+     with Inline;
 
 
 .. _Expression_Functions:

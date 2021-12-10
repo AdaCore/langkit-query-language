@@ -122,6 +122,9 @@ GNATcheck rules.
   :ref:`Explicit_Full_Discrete_Ranges`
 
 *
+  :ref:`Explicit_Inlining`
+
+*
   :ref:`Expression_Functions`
 
 *
