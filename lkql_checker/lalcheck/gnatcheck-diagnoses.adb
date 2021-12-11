@@ -3087,7 +3087,6 @@ package body Gnatcheck.Diagnoses is
            & (if Rule /= No_Rule
               then Annotate_Rule (All_Rules.Table (Rule).all)
               else ""),
-
          Diagnosis_Kind => Diagnosis_Kind,
          SF             => SF,
          Rule           => Rule,
@@ -3119,6 +3118,12 @@ package body Gnatcheck.Diagnoses is
                (Container => All_Error_Messages,
                 Item      => Tmp)
       then
+         if Diagnosis_Kind = Compiler_Error then
+            Set_Source_Status (SF, Not_A_Legal_Source);
+         elsif Diagnosis_Kind = Internal_Error then
+            Set_Source_Status (SF, Error_Detected);
+         end if;
+
          if Justification /= null then
             --  Here we count detections for non-parametric exemption
             --  sections only
