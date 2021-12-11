@@ -4,6 +4,10 @@
 #   elsif Id <relation op> static-expr then
 #   [...]
 #   end if;
+#
+# where <relation op> is a predefined relational operator.
+
+import stdlib
 
 fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
@@ -11,7 +15,8 @@ fun check_alternatives(list, id) =
     [x for x in list
      if x.f_cond_expr is
          RelationOp(f_left is id2@Identifier,
-                    f_right is Expr(p_is_static_expr() is true))
+                    f_right is Expr(p_is_static_expr() is true),
+                    f_op is op@Op when stdlib.is_predefined_op(op))
          when id2.p_name_matches(id)].length == list.length
 
 @check(message="IF statement may be replaced by a CASE statement",
@@ -20,5 +25,6 @@ fun case_statements(node) =
     node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
                    f_cond_expr is
                        RelationOp(f_left is id@Identifier,
-                                  f_right is Expr(p_is_static_expr() is true)))
+                                  f_right is Expr(p_is_static_expr() is true),
+                                  f_op is op@Op when stdlib.is_predefined_op(op)))
     when check_alternatives(from node.f_alternatives select ElsifStmtPart, id)
