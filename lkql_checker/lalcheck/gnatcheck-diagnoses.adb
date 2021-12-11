@@ -2672,7 +2672,6 @@ package body Gnatcheck.Diagnoses is
 
          if Diag.Justification /= null then
             --  some diagnoses may be already exempted
-            --  ### review now that all exemptions are postponed
             return;
          end if;
 
@@ -2828,7 +2827,8 @@ package body Gnatcheck.Diagnoses is
          when Restrictions_Id =>
             return Restriction_Rule_Parameter (Diag);
          when Style_Checks_Id =>
-            return "";   --  ??? NOT IMPLEMENTED YET!!!!!!!
+            --  ??? would need a -gnaty switch similar to -gnatw.d
+            return "";
          when Warnings_Id     =>
             return Warning_Rule_Parameter (Diag);
          when others =>
@@ -3204,47 +3204,15 @@ package body Gnatcheck.Diagnoses is
       Closing_Span : Source_Location_Range;
       SF           : SF_Id)
    is
-      Tmp         : String_Access;
       New_Section : Parametrized_Exemption_Info;
    begin
-      if True then
-         New_Section := Parametrized_Exemption_Sections.Element (Exempted_At);
+      New_Section := Parametrized_Exemption_Sections.Element (Exempted_At);
+      New_Section.Exempt_Info.Line_End := Natural (Closing_Span.End_Line);
+      New_Section.Exempt_Info.Col_End  := Natural (Closing_Span.End_Column);
 
-         New_Section.Exempt_Info.Line_End := Natural (Closing_Span.End_Line);
-         New_Section.Exempt_Info.Col_End  := Natural (Closing_Span.End_Column);
-
-         Parametrized_Exemption_Sections.Insert
-           (Container => Postponed_Param_Exempt_Sections (Rule) (SF),
-            New_Item  => New_Section);
-         null;
-         --  ### NOT IMPLEMENTED YET!!!
-         --  remove dead code below once done
-      else
-         if Parametrized_Exemption_Sections.Element
-                 (Exempted_At).Exempt_Info.Detected = 0
-         then
-            --  No one needs Justification
-            Tmp := Parametrized_Exemption_Sections.Element
-                    (Exempted_At).Exempt_Info.Justification;
-
-            Free (Tmp);
-
-            Store_Diagnosis
-              (Text =>
-                 File_Name (SF) & ':' &
-                 Image (End_Sloc (Closing_Span)) & ": no detection for '" &
-                 Rule_Name (Rule) & ": " &
-                 Params_Img
-                   (Parametrized_Exemption_Sections.Element
-                     (Exempted_At).Params, Rule) &
-                 "' rule in exemption section starting at line" &
-                 Parametrized_Exemption_Sections.Element
-                   (Exempted_At).Exempt_Info.Line_Start'Img,
-               Diagnosis_Kind => Exemption_Warning,
-               SF             => SF);
-         end if;
-      end if;
-
+      Parametrized_Exemption_Sections.Insert
+        (Container => Postponed_Param_Exempt_Sections (Rule) (SF),
+         New_Item  => New_Section);
       Parametrized_Exemption_Sections.Delete
         (Rule_Param_Exempt_Sections (Rule), Exempted_At);
    end Turn_Off_Parametrized_Exemption;
