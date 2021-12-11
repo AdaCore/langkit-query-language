@@ -1,4 +1,6 @@
 # Flag each compilation unit not starting with the given `header`.
+# For gnatcheck: the Header parameter is the name of a file containing the
+# expected header.
 
 @unit_check(help="compilation unit does not start with header",
             category="Style", subcategory="Readability")
