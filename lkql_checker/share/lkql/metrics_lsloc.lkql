@@ -11,14 +11,14 @@ import metrics
 
 @unit_check(help="Logical source lines", execution_cost=3)
 fun metrics_lsloc(unit, n : int = 5, subprograms=false) = {
-    # TODO: not sure about this logic, but it seems that in the normal case,
-    # this only checks the toplevel program unit. But according to the tests in
-    # the internal testsuite, when run in "subprograms" mode, this checks every
-    # subprogram in the unit.
     val nodes =
         if subprograms
         then (from unit.root select BaseSubpBody)
-        else [(from unit.root select first BasicDecl)];
+        else (from unit.root select
+              BasePackageDecl or PackageBody or
+              BaseSubpBody or
+              TaskTypeDecl or SingleTaskDecl or TaskBody or
+              SingleProtectedDecl or ProtectedTypeDecl or ProtectedBody);
 
     [
         { message: "LSLOC is too high: " & img(t[2]), loc: t[1] }
