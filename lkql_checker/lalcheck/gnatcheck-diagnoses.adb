@@ -665,10 +665,10 @@ package body Gnatcheck.Diagnoses is
             Store_Diagnosis
               (Text               =>
                  File_Name (SF) & ':' &
-                 Image (Exemption_Sections (Rule).Line_Start) & ':'    &
-                 Image (Exemption_Sections (Rule).Col_Start)  & ": "   &
-                 "no matching 'exempt_OFF' annotation "       &
-                 "for rule " & Rule_Name (Rule),
+                 Sloc_Image (Exemption_Sections (Rule).Line_Start,
+                             Exemption_Sections (Rule).Col_Start) &
+                 ": no matching 'exempt_OFF' annotation for rule " &
+                 Rule_Name (Rule),
                Diagnosis_Kind     => Exemption_Warning,
                SF                 => SF);
 
@@ -694,12 +694,12 @@ package body Gnatcheck.Diagnoses is
                Store_Diagnosis
                  (Text               =>
                     Short_Source_Name (SF) & ':'                    &
-                    Image (Parametrized_Exemption_Sections.Element
-                      (Next_Section).Exempt_Info.Line_Start) & ':'  &
-                    Image (Parametrized_Exemption_Sections.Element
-                      (Next_Section).Exempt_Info.Col_Start)  & ": " &
-                    "no matching 'exempt_OFF' annotation "          &
-                    "for rule " & Rule_Name (Rule),
+                    Sloc_Image (Parametrized_Exemption_Sections.Element
+                                  (Next_Section).Exempt_Info.Line_Start,
+                                Parametrized_Exemption_Sections.Element
+                                  (Next_Section).Exempt_Info.Col_Start) &
+                    ": no matching 'exempt_OFF' annotation for rule " &
+                    Rule_Name (Rule),
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
                Turn_Off_Parametrized_Exemption
@@ -2744,10 +2744,10 @@ package body Gnatcheck.Diagnoses is
                   Store_Diagnosis
                     (Text =>
                        File_Name (SF) & ':' &
-                       Image (Next_Postponed_Section.Exemption_Section.
-                              Line_End) & ':' &
-                       Image (Next_Postponed_Section.Exemption_Section.
-                              Col_End) &
+                       Sloc_Image (Next_Postponed_Section.Exemption_Section.
+                                   Line_End,
+                                   Next_Postponed_Section.Exemption_Section.
+                                   Col_End) &
                        ": no detection for " & Rule_Name (Rule) &
                        " rule in exemption section starting at line" &
                        Next_Postponed_Section.Exemption_Section.
@@ -2777,8 +2777,8 @@ package body Gnatcheck.Diagnoses is
                      Store_Diagnosis
                        (Text =>
                           File_Name (SF) & ':' &
-                          Image (Next_Par_S_Info.Exempt_Info.Line_End) & ':' &
-                          Image (Next_Par_S_Info.Exempt_Info.Col_End) &
+                          Sloc_Image (Next_Par_S_Info.Exempt_Info.Line_End,
+                                      Next_Par_S_Info.Exempt_Info.Col_End) &
                           ": no detection for '" & Rule_Name (Rule) & ": " &
                           Params_Img (Next_Par_S_Info.Params, Rule) &
                           "' rule in exemption section starting "   &
@@ -3043,17 +3043,22 @@ package body Gnatcheck.Diagnoses is
    -- Sloc_Image --
    ----------------
 
-   function Sloc_Image (Sloc : Source_Location) return String is
-      Line_Image : constant String := Sloc.Line'Image;
-      Col_Image  : constant String := Sloc.Column'Image;
+   function Sloc_Image (Line, Column : Natural) return String is
+      Line_Image : constant String := Line'Image;
+      Col_Image  : constant String := Column'Image;
    begin
-      if Sloc.Column < 10 then
+      if Column < 10 then
          return Line_Image (2 .. Line_Image'Last) & ":0" &
                 Col_Image (2 .. Col_Image'Last);
       else
          return Line_Image (2 .. Line_Image'Last) & ":" &
                 Col_Image (2 .. Col_Image'Last);
       end if;
+   end Sloc_Image;
+
+   function Sloc_Image (Sloc : Source_Location) return String is
+   begin
+      return Sloc_Image (Natural (Sloc.Line), Natural (Sloc.Column));
    end Sloc_Image;
 
    ---------------------

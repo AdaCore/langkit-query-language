@@ -74,6 +74,7 @@ package Gnatcheck.Diagnoses is
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
    --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
 
+   function Sloc_Image (Line, Column : Natural) return String;
    function Sloc_Image (Sloc : Source_Location) return String;
    --  Return an image of line:column with Column having a leading '0' if less
    --  than 10.
