@@ -6,3 +6,11 @@ proc.adb:6:7: rule violation: negation of boolean operator
 6 |    if not (not Is_Data_Available) then             --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+proc2.adb:36:13: rule violation: negation of boolean operator
+36 |     Bool := not (not Bool);             --  FLAG
+   |             ^^^^^^^^^^^^^^
+
+proc2.adb:40:13: rule violation: negation of boolean operator
+40 |     Bool := not (Var1 > Var2);          --  FLAG
+   |             ^^^^^^^^^^^^^^^^^
+
