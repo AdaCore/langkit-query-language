@@ -651,7 +651,7 @@ package body Gnatcheck.Rules is
             begin
                Rule.Param := Integer'Value (Param);
 
-               if Rule.Param >= 0 then
+               if Rule.Param >= -1 then
                   Rule.Rule_State := Enabled;
                   Rule.Defined_At := new String'(Defined_At);
                else
