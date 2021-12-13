@@ -1085,10 +1085,6 @@ package body Gnatcheck.Projects is
                      Gnatcheck.Diagnoses.Process_User_Filename
                        (Parameter (Parser => Parser));
 
-                  elsif Full_Switch (Parser => Parser) = "-rules-dir" then
-                     Additional_Rules_Dirs.Append
-                       (Parameter (Parser => Parser));
-
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
 
@@ -1144,6 +1140,10 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-subdirs" then
                      Set_Subdir_Name (Parameter (Parser => Parser));
+
+                  elsif Full_Switch (Parser => Parser) = "-rules-dir" then
+                     Additional_Rules_Dirs.Append
+                       (Parameter (Parser => Parser));
                   end if;
                end if;
 
