@@ -10,6 +10,8 @@
 #      end loop;
 #      [no reference to Id]
 
+import stdlib
+
 fun write_references(node, id) =
     |" Return all the write references to `id`, starting from `node`
     from node select Identifier(p_name_matches(id) is true,
@@ -30,7 +32,8 @@ fun has_references(node, id) =
 fun for_loops(node) =
     # Find while loops of the form: while Id <relation op> ... loop
     node is WhileLoopStmt(f_spec is WhileLoopSpec(f_expr is
-                          RelationOp(f_left is id@Identifier)))
+                          rel@RelationOp(f_left is id@Identifier)
+                          when stdlib.is_predefined_op(rel.f_op)))
     when {
         val refs = write_references(node.f_stmts, id);
         # Look for a single write reference to id
@@ -38,7 +41,8 @@ fun for_loops(node) =
         # which is of the form: id := id +/- 1
         refs[1].parent is
         assign@AssignStmt(f_expr is
-            expr@BinOp(f_op is OpPlus or OpMinus,
+            expr@BinOp(f_op is op@(OpPlus or OpMinus)
+                           when stdlib.is_predefined_op(op),
                        f_right is i@IntLiteral
                        when i.p_denoted_value() == 1,
                        f_left is Identifier(p_name_matches(id) is true)))
