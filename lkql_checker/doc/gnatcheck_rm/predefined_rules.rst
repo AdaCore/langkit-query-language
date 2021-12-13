@@ -1528,6 +1528,65 @@ This rule has no parameters.
          null;
    end case;
 
+.. _Boolean_Negations:
+
+``Boolean_Negations``
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Boolean_Negations
+
+Flag any infix call to the predefined ``NOT`` operator for the predefined
+Boolean type if its argument is an infix call to a predefined relation
+operator or another call to the predefined ``NOT`` operator. Such expressions
+can be simplified by excluding the outer call to the predefined ``NOT``
+operator. Calls to ``NOT`` operators for the types derived from
+Standard.Boolean are not flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
+
+
+.. _Case_Statements:
+
+``Case_Statements``
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: Case_Statements
+
+Flag an ``IF`` statement if this statement could be replaced by a
+``CASE`` statement. An ``IF`` statement is considered as being
+replaceable by a ``CASE`` statement if:
+
+*
+  it contains at least one ``ELSIF`` alternative;
+
+*
+  all the conditions are infix calls to some predefined relation operator,
+  for all of them one operand is the reference to the same variable, and
+  another one is some static expression.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   if I = 1 then      --  FLAG
+      I := I + 1;
+   elsif I > 2 then
+      I := I + 2;
+   else
+      I := 0;
+   end if;
+
+
 .. _Constant_Overlays:
 
 ``Constant_Overlays``

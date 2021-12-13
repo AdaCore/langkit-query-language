@@ -50,7 +50,13 @@ GNATcheck rules.
   :ref:`Blocks`
 
 *
+  :ref:`Boolean_Negations`
+
+*
   :ref:`Boolean_Relational_Operators`
+
+*
+  :ref:`Case_Statements`
 
 *
   :ref:`Complex_Inlined_Subprograms`
