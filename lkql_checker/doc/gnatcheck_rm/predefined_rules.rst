@@ -3123,6 +3123,27 @@ Readability
 The rules described in this subsection may be used to enforce feature usages
 that contribute towards readability.
 
+.. _Headers:
+
+``Headers``
+^^^^^^^^^^^
+
+.. index:: Headers
+
+Check that the source text of a compilation unit starts from
+the text fragment specified as a rule parameter.
+
+This rule has the following (mandatory) parameters for the ``+R`` option:
+
+*header*
+  The name of a header file.
+
+A header file is a plain text file. The rule checks that
+the beginning of the compilation unit source text is literally
+the same as the content of the header file. Blank lines and trailing
+spaces are not ignored and are taken into account, casing is important.
+The format of the line breaks (DOS or UNIX) is not important.
+
 .. _Identifier_Casing:
 
 ``Identifier_Casing``
@@ -4793,9 +4814,11 @@ This rule has no parameters.
 
 Flag each procedure that can be rewritten as a function. A procedure can be
 converted into a function if it has exactly one parameter of mode ``out``
-and no parameters of mode ``in out``. Procedure declarations,
-formal procedure declarations, and generic procedure declarations are always
-checked. Procedure
+and no parameters of mode ``in out``, with no ``Global`` aspect
+specified or with explicit specification that its ``Global`` aspect is set to
+``null`` (either by aspect specification or by pragma Global). Procedure
+declarations, formal procedure declarations, and generic procedure declarations
+are always checked. Procedure
 bodies and body stubs are flagged only if they do not have corresponding
 separate declarations. Procedure renamings and procedure instantiations are
 not flagged.

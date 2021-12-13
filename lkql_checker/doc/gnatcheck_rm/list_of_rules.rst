@@ -161,6 +161,9 @@ GNATcheck rules.
   :ref:`GOTO_Statements`
 
 *
+  :ref:`Headers`
+
+*
   :ref:`Identifier_Casing`
 
 *
