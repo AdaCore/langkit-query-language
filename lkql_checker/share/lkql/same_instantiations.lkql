@@ -1,5 +1,9 @@
-# Flag each generic package instantiation with the same actual parameters as
-# another generic instantiation.
+# Flag each generic package instantiation when it can be determined that
+# it has the same actual parameters as another generic instantiation.
+# This determination is conservative and will check for a match on:
+# - integer, character and string literals
+# - identifier names other than function calls (e.g. types, variables,
+#   subprogram names).
 
 import stdlib
 
