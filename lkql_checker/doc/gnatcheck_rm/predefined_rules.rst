@@ -1828,6 +1828,56 @@ This rule has the following (optional) parameter for the +R option:
    end Bar;
 
 
+.. _For_Loops:
+
+``For_Loops``
+-------------
+
+.. index:: For_Loops
+
+Flag ``WHILE`` loops which could be replaced by a ``FOR`` loop. The rule detects
+the following code patterns:
+
+.. rubric:: Example
+
+.. code-block:: ada
+
+      ...
+      Id : Some_Integer_Type ...;
+      ... -- no write reference to Id
+   begin
+      ...
+      while Id <relation_operator> Limit loop
+         ...  -- no write reference to Id
+         Id := Id <increment_operator> 1;
+      end loop;
+      ...  -- no reference to Id
+   end;
+
+where relation operator in the loop condition should be some predefined
+relation operator, and increment_operator should be a predefined "+" or
+"-" operator.
+
+Note, that the rule only informs about a possibility to replace a
+``WHILE`` loop by a ``FOR``, but does not guarantee that this is
+really possible, additional human analysis is required for all the
+loops marked by the rule.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+      Idx : Integer := 1;
+   begin
+      while Idx <= 10 loop    --  FLAG
+         Idx := Idx + 1;
+      end loop;
+   end;
+
+
 .. _Global_Variables:
 
 ``Global_Variables``
@@ -1956,6 +2006,23 @@ flagged. The rule has an optional parameter for +R option:
       procedure Inner is
          use type Pack2.T;     --  FLAG (if Except_USE_TYPE_Clauses is not set)
       ...
+
+
+.. _Maximum_Lines:
+
+``Maximum_Lines``
+^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_Lines
+
+Flags the file containing the source text of a compilation unit if this
+file contains more than N lines where N is a rule parameter
+
+This rule has the following (mandatory) parameters for the ``+R`` option:
+
+*N*
+  Positive integer specifying the maximum allowed number of lines in
+  the compilation unit source text.
 
 
 .. _Maximum_Parameters:

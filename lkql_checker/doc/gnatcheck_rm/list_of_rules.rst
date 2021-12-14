@@ -140,6 +140,9 @@ GNATcheck rules.
   :ref:`Float_Equality_Checks`
 
 *
+  :ref:`For_Loops`
+
+*
   :ref:`Forbidden_Attributes`
 
 *
@@ -198,6 +201,9 @@ GNATcheck rules.
 
 *
   :ref:`Max_Identifier_Length`
+
+*
+  :ref:`Maximum_Lines`
 
 *
   :ref:`Maximum_Parameters`
