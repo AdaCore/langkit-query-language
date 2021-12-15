@@ -15,7 +15,7 @@ fun num_out_params(node) =
      when n.parent.parent.f_mode is (ModeOut or ModeInOut)).length
 
 @unit_check(help="maximum number of subprogram OUT parameters",
-            category="Style", subcategory="Program Structure")
+            category="Style", subcategory="Programming Practice")
 fun maximum_out_parameters(unit, n: int = 3) = [
     {message: "too many formal OUT parameters (" & img(num_out_params(n)) & ")",
      loc: n.p_defining_name()}

@@ -1552,41 +1552,6 @@ This rule has no parameters.
    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
 
 
-.. _Case_Statements:
-
-``Case_Statements``
-^^^^^^^^^^^^^^^^^^^
-
-.. index:: Case_Statements
-
-Flag an ``IF`` statement if this statement could be replaced by a
-``CASE`` statement. An ``IF`` statement is considered as being
-replaceable by a ``CASE`` statement if:
-
-*
-  it contains at least one ``ELSIF`` alternative;
-
-*
-  all the conditions are infix calls to some predefined relation operator,
-  for all of them one operand is the reference to the same variable, and
-  another one is some static expression.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 1
-
-   if I = 1 then      --  FLAG
-      I := I + 1;
-   elsif I > 2 then
-      I := I + 2;
-   else
-      I := 0;
-   end if;
-
-
 .. _Constant_Overlays:
 
 ``Constant_Overlays``
@@ -1828,56 +1793,6 @@ This rule has the following (optional) parameter for the +R option:
    end Bar;
 
 
-.. _For_Loops:
-
-``For_Loops``
--------------
-
-.. index:: For_Loops
-
-Flag ``WHILE`` loops which could be replaced by a ``FOR`` loop. The rule detects
-the following code patterns:
-
-.. rubric:: Example
-
-.. code-block:: ada
-
-      ...
-      Id : Some_Integer_Type ...;
-      ... -- no write reference to Id
-   begin
-      ...
-      while Id <relation_operator> Limit loop
-         ...  -- no write reference to Id
-         Id := Id <increment_operator> 1;
-      end loop;
-      ...  -- no reference to Id
-   end;
-
-where relation operator in the loop condition should be some predefined
-relation operator, and increment_operator should be a predefined "+" or
-"-" operator.
-
-Note, that the rule only informs about a possibility to replace a
-``WHILE`` loop by a ``FOR``, but does not guarantee that this is
-really possible, additional human analysis is required for all the
-loops marked by the rule.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 3
-
-      Idx : Integer := 1;
-   begin
-      while Idx <= 10 loop    --  FLAG
-         Idx := Idx + 1;
-      end loop;
-   end;
-
-
 .. _Global_Variables:
 
 ``Global_Variables``
@@ -2023,6 +1938,44 @@ This rule has the following (mandatory) parameters for the ``+R`` option:
 *N*
   Positive integer specifying the maximum allowed number of lines in
   the compilation unit source text.
+
+
+.. _Maximum_OUT_Parameters:
+
+``Maximum_OUT_Parameters``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_OUT_Parameters
+
+Flag any subprogram declaration, subprogram body declaration, expression
+function declaration, null procedure declaration, subprogram
+body stub or generic subprogram declaration if the corresponding
+subprogram has more than *N* formal parameters of mode ``IN`` or
+``IN OUT``, where *N* is a parameter of the rule.
+
+A subprogram body, an expression function, a null procedure or
+a subprogram body stub is flagged only if there is
+no separate declaration for this subprogram. Subprogram renaming
+declarations and subprogram instantiations, as well as declarations
+inside expanded generic instantiations are never flagged.
+
+This rule has the following (mandatory) parameters for the ``+R`` option:
+
+
+
+*N*
+  Positive integer specifying the maximum allowed total number of
+  subprogram formal parameters of modes ``IN`` and ``IN OUT``.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4
+
+   procedure Proc_1 (I : in out Integer);          --  NO FLAG
+   procedure Proc_2 (I, J : in out Integer);       --  NO FLAG
+   procedure Proc_3 (I, J, K : in out Integer);    --  NO FLAG
+   procedure Proc_4 (I, J, K, L : in out Integer); --  FLAG (if rule parameter is 3)
 
 
 .. _Maximum_Parameters:
@@ -3123,6 +3076,41 @@ The rule has no parameters.
       end if;
    end Bar;
 
+
+.. _Use_Case_Statements:
+
+``Use_Case_Statements``
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_Case_Statements
+
+Flag an ``IF`` statement if this statement could be replaced by a
+``CASE`` statement. An ``IF`` statement is considered as being
+replaceable by a ``CASE`` statement if:
+
+*
+  it contains at least one ``ELSIF`` alternative;
+
+*
+  all the conditions are infix calls to some predefined relation operator,
+  for all of them one operand is the reference to the same variable, and
+  another one is some static expression.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   if I = 1 then      --  FLAG
+      I := I + 1;
+   elsif I > 2 then
+      I := I + 2;
+   else
+      I := 0;
+   end if;
+
 .. _USE_Clauses:
 
 ``USE_Clauses``
@@ -3156,6 +3144,57 @@ This rule has the following optional parameter for the ``+R`` option:
    with Pack, Operator_Pack;
    use Pack;                   --  FLAG
    use Operator_Pack;          --  FLAG only if Exempt_Operator_Packages is not set
+
+
+.. _Use_For_Loops:
+
+``Use_For_Loops``
+-----------------
+
+.. index:: Use_For_Loops
+
+Flag ``WHILE`` loops which could be replaced by a ``FOR`` loop. The rule detects
+the following code patterns:
+
+.. rubric:: Example
+
+.. code-block:: ada
+
+      ...
+      Id : Some_Integer_Type ...;
+      ... -- no write reference to Id
+   begin
+      ...
+      while Id <relation_operator> Limit loop
+         ...  -- no write reference to Id
+         Id := Id <increment_operator> 1;
+      end loop;
+      ...  -- no reference to Id
+   end;
+
+where relation operator in the loop condition should be some predefined
+relation operator, and increment_operator should be a predefined "+" or
+"-" operator.
+
+Note, that the rule only informs about a possibility to replace a
+``WHILE`` loop by a ``FOR``, but does not guarantee that this is
+really possible, additional human analysis is required for all the
+loops marked by the rule.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+      Idx : Integer := 1;
+   begin
+      while Idx <= 10 loop    --  FLAG
+         Idx := Idx + 1;
+      end loop;
+   end;
+
 
 
 .. _USE_PACKAGE_Clauses:

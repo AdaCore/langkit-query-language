@@ -56,9 +56,6 @@ GNATcheck rules.
   :ref:`Boolean_Relational_Operators`
 
 *
-  :ref:`Case_Statements`
-
-*
   :ref:`Complex_Inlined_Subprograms`
 
 *
@@ -140,9 +137,6 @@ GNATcheck rules.
   :ref:`Float_Equality_Checks`
 
 *
-  :ref:`For_Loops`
-
-*
   :ref:`Forbidden_Attributes`
 
 *
@@ -204,6 +198,9 @@ GNATcheck rules.
 
 *
   :ref:`Maximum_Lines`
+
+*
+  :ref:`Maximum_OUT_Parameters`
 
 *
   :ref:`Maximum_Parameters`
@@ -431,7 +428,13 @@ GNATcheck rules.
   :ref:`Unnamed_Blocks_And_Loops`
 
 *
+  :ref:`Use_Case_Statements`
+
+*
   :ref:`USE_Clauses`
+
+*
+  :ref:`Use_For_Loops`
 
 *
   :ref:`USE_PACKAGE_Clauses`
