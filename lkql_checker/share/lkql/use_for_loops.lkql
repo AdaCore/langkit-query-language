@@ -29,7 +29,7 @@ fun has_references(node, id) =
 
 @check(message="while loop may be replaced by a for loop",
        category="Style", subcategory="Programming Practice")
-fun for_loops(node) =
+fun use_for_loops(node) =
     # Find while loops of the form: while Id <relation op> ... loop
     node is WhileLoopStmt(f_spec is WhileLoopSpec(f_expr is
                           rel@RelationOp(f_left is id@Identifier)
