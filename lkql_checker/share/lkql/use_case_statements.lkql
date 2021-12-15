@@ -6,6 +6,7 @@
 #   end if;
 #
 # where <relation op> is a predefined relational operator.
+# TODO: recognize membership tests
 
 import stdlib
 
@@ -21,7 +22,7 @@ fun check_alternatives(list, id) =
 
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
-fun case_statements(node) =
+fun use_case_statements(node) =
     node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
                    f_cond_expr is
                        RelationOp(f_left is id@Identifier,
