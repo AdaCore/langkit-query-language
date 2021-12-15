@@ -1,10 +1,17 @@
 # Flag any expression not directly part of another expression which contains
-# more than N sub-expressions.
+# more than N expressions of the following kind (each count for 1):
+# - Identifiers
+# - Literals
+# - Conditional expressions
+# - Quantified expressions
+# - Aggregates
+# - @ symbols
 
 fun num_expr(node) =
-    |" Return the number of Expr (excluding Name and ParenExpr) of a given
+    |" Return the number of relevant expressions as defined above of a given
     |" node.
-    (from node select e@Expr when e is not (Name or ParenExpr)).length
+    (from node select (e@SingleTokNode when e is not Op) or CondExpr or
+                       QuantifiedExpr or BaseAggregate or TargetName).length
 
 @unit_check(help="maximum complexity of an expression",
             category="Style", subcategory="Program Structure")
@@ -15,4 +22,7 @@ fun maximum_expression_complexity(unit, n: int = 10) = [
     # Note: using "all parent is not Expr" would be more accurate but would
     # slow down this rule significantly and checking one level is good enough
     # in practice.
-    expr@Expr(parent is not Expr) when num_expr(expr) > n]
+    # Exclude standalone identifiers which are not expressions per se.
+    expr@Expr(parent is not Expr)
+    when expr is not (Identifier or DefiningName or EndName)
+     and num_expr(expr) > n]

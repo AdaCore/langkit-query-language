@@ -2,4 +2,4 @@ driver: 'checker'
 rule_name: Maximum_Expression_Complexity
 input_sources: ['statements.adb']
 rule_arguments:
-    maximum_expression_complexity.n: 8
+    maximum_expression_complexity.n: 1
