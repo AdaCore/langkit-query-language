@@ -1,4 +1,4 @@
 op.adb:2:9: rule violation: integer type may be replaced by an enumeration
-2 |    type Enum is range 1 .. 3;  --  FLAG
+2 |    type Enum is range 1 .. 3;    --  FLAG
   |         ^^^^
 

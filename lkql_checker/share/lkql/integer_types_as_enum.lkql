@@ -3,6 +3,7 @@
 # - no use of any arithmetic operator
 # - no reference in generic instantiations
 # - no type conversion
+# - no type derivation
 
 @memoized
 fun ops() = [op.p_expression_type()
@@ -18,8 +19,14 @@ fun insts() = [id.p_referenced_decl()
 
 @memoized
 fun types() = [c.p_referenced_decl()
-               for c in 
+               for c in
                select CallExpr(p_referenced_decl() is TypeDecl)].to_list
+
+@memoized
+fun derivations() = [c.f_type_def.f_subtype_indication?.
+                       f_name?.p_referenced_decl()
+                     for c in
+                     select TypeDecl(f_type_def is DerivedTypeDef)].to_list
 
 @unit_check(help="integer type may be replaced by an enumeration",
             category="Style", subcategory="Programming Practice")
@@ -33,11 +40,15 @@ fun integer_types_as_enum(unit) = {
     # type conversions
     selector type_conv | * => *types();
 
+    # type derivations
+    selector type_deriv | * => *derivations();
+
     [{message: "integer type may be replaced by an enumeration",
       loc: n.p_defining_name()}
      for n in from unit.root select
      node@TypeDecl(p_is_int_type() is true,
                    all type_conv is t@* when t != node,
+                   all type_deriv is t@* when t != node,
                    all inst_param is t@* when t != node,
                    all op_type is t@* when t != node)]
 }
