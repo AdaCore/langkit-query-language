@@ -1234,6 +1234,71 @@ This rule has no parameters.
 ``Non_Visible_Exceptions``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
+.. _Maximum_Expression_Complexity:
+
+``Maximum_Expression_Complexity``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_Expression_Complexity
+
+Flag any expression that is not directly a part of another expression
+which contains more than N expressions of the following kinds (each count for 1)
+as its subcomponents, N is a rule parameter:
+
+*
+  Identifiers;
+
+*
+  Numeric, string or character literals;
+
+*
+  Conditional expressions;
+
+*
+  Quantified expressions;
+
+*
+  Aggregates;
+
+*
+  @ symbols (target names).
+
+This rule has the following (mandatory) parameter for the ``+R`` option:
+
+*N*
+  Positive integer specifying the maximum allowed number of expression
+  subcomponents.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1-3
+
+   I := 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10;  --  FLAG if N < 10
+   I := F (I);   --  FLAG if N < 2
+   I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);   --  FLAG (twice) if N < 5
+
+
+.. _Maximum_Subprogram_Lines:
+
+``Maximum_Subprogram_Lines``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Maximum_Subprogram_Lines
+
+Flag handled sequences of statements of subprogram bodies exceeding *N* textual
+lines (*N* is the rule parameter). Lines are counted from the beginning of the
+first to the end of the last statement, including blank and comment lines
+
+This rule has the following (mandatory) parameter for the ``+R`` option:
+
+*N*
+  Positive integer specifying the maximum allowed number of lines in the
+  subprogram statement sequence.
+
+
+
 .. index:: Non_Visible_Exceptions
 
 Flag constructs leading to the possibility of propagating an exception

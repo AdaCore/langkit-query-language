@@ -197,6 +197,9 @@ GNATcheck rules.
   :ref:`Max_Identifier_Length`
 
 *
+  :ref:`Maximum_Expression_Complexity`
+
+*
   :ref:`Maximum_Lines`
 
 *
@@ -204,6 +207,9 @@ GNATcheck rules.
 
 *
   :ref:`Maximum_Parameters`
+
+*
+  :ref:`Maximum_Subprogram_Lines`
 
 *
   :ref:`Membership_Tests`

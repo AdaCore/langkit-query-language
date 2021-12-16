@@ -1,5 +1,6 @@
-# Flag handled statement of sequence of subprogram bodies exceeding N textual
-# lines, not counting the begin/end lines.
+# Flag handled sequences of statements of subprogram bodies exceeding N textual
+# lines. Lines are counted from the beginning of the first to
+# the end of the last statement, including blank and comment lines.
 
 fun count_lines(node) =
     node.token_end().end_line - node.token_start().start_line + 1
