@@ -2,8 +2,9 @@
 # enumeration type. All the following criterias are considered:
 # - no use of any arithmetic operator
 # - no reference in generic instantiations
-# - no type conversion
+# - no type conversion from or to the given type
 # - no type derivation
+# - no subtype definition
 
 @memoized
 fun ops() = [op.p_expression_type()
@@ -18,9 +19,13 @@ fun insts() = [id.p_referenced_decl()
                select Identifier].to_list
 
 @memoized
-fun types() = [c.p_referenced_decl()
-               for c in
-               select CallExpr(p_referenced_decl() is TypeDecl)].to_list
+fun types() =
+    |" Return a list of TypeDecl matching all type conversions (both as source
+    |" and target) and subtype declarations in the project.
+    concat([[c.p_referenced_decl(), c.f_suffix[1].f_r_expr.p_expression_type()]
+            for c in select CallExpr(p_referenced_decl() is TypeDecl)].to_list)
+    & [s.f_subtype.f_name.p_referenced_decl()
+       for s in select SubtypeDecl].to_list
 
 @memoized
 fun derivations() = [c.f_type_def.f_subtype_indication?.
