@@ -1193,6 +1193,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-l");
       end if;
 
+      for Dir of Additional_Rules_Dirs loop
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--rules-dir=" & Dir);
+      end loop;
+
       if U_Option_Set then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-U");
