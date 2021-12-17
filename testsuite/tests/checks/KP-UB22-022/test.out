@@ -1,0 +1,8 @@
+for_loop_constraint_error.adb:16:7: rule violation: possible occurrence of KP UB22-022
+16 |       for Element of Self.Float_List.A loop   --  FLAG
+   |       ^^^^^^^^^
+
+for_loop_constraint_error.adb:29:4: rule violation: possible occurrence of KP UB22-022
+29 |    for Element of O.Float_List.A loop        --  FLAG
+   |    ^^^^^^^^^
+
