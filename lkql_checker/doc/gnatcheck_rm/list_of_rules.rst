@@ -212,6 +212,9 @@ GNATcheck rules.
   :ref:`Maximum_Subprogram_Lines`
 
 *
+  :ref:`Membership_For_Validity`
+
+*
   :ref:`Membership_Tests`
 
 *
@@ -222,6 +225,9 @@ GNATcheck rules.
 
 *
   :ref:`Metrics_LSLOC`
+
+*
+  :ref:`Min_Identifier_Length`
 
 *
   :ref:`Misnamed_Controlling_Parameters`

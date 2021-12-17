@@ -934,6 +934,40 @@ This rule has no parameters.
       end record;
    end Pack;
 
+
+.. _Membership_For_Validity:
+
+``Membership_For_Validity``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Membership_For_Validity
+
+Flag membership tests that can be replaced by a ``'Valid`` attribute.
+Two forms of membership tests are flagged:
+
+*
+  X in Subtype_Of_X
+
+*
+  X in Subtype_Of_X'First .. Subtype_Of_X'Last
+
+where X is a data object except for a loop parameter, and ``Subtype_Of_X``
+is the subtype of the object as given by the corresponding declaration.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 5
+
+      subtype My_Int is Integer range 1 .. 10;
+      X : My_Int;
+      Y : Integer;
+   begin
+      if X in My_Int then                           --  FLAG
+
+
 .. _No_Explicit_Real_Range:
 
 ``No_Explicit_Real_Range``
@@ -4097,6 +4131,31 @@ flagged. The rule has a mandatory parameter for +R option:
 
    type My_Type is range -100 .. 100;
    My_Variable_With_A_Long_Name : My_Type;  -- FLAG (if rule parameter is 27 or smaller)
+
+
+.. _Mix_Identifier_Length:
+
+``Mix_Identifier_Length``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Mix_Identifier_Length
+
+Flag any defining identifier that has length shorter than specified by
+the rule parameter. Defining identifiers of objects and components of
+numeric types are not flagged.
+
+The rule has a mandatory parameter for +R option:
+
+*N*
+   The minimal allowed identifier length specification.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   I : Integer;              --  NO FLAG
+   J : String (1 .. 10);     --  FLAG
 
 
 .. _Misnamed_Controlling_Parameters:
