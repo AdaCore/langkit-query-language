@@ -1229,6 +1229,10 @@ package body Gnatcheck.Rules.Rule_Table is
                      Rule := new Forbidden_Rule;
                      Init_Rule (Forbidden_Rule (Rule.all));
 
+                  elsif Name = "silent_exception_handlers" then
+                     Rule := new Silent_Exception_Handlers_Rule;
+                     Init_Rule (Silent_Exception_Handlers_Rule (Rule.all));
+
                   else
                      Rule := new Rule_Template;
                      Init_Rule (Rule_Template (Rule.all));

@@ -1,0 +1,4 @@
+exc.adb:11:7: rule violation: silent exception handler
+11 |       when others =>   --  FLAG
+   |       ^^^^^^^^
+

@@ -1,0 +1,21 @@
+# Flag any exception handler with no raise/re-raise and no call
+# to a given list of subprograms (as listed by the parameter subprograms)
+# and subprogram regexps (as listed by subprogram_regexps).
+# For gnatcheck users: each parameter given is a fully qualified name of a
+# subprogram. If the parameter is quoted ("") then it is handled as a case
+# sensitive regular expression as defined in s-regpat.ads, otherwise a case
+# insensitive comparison is performed.
+
+@check(message="silent exception handler",
+       category="Style", subcategory="Programming Practice")
+fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
+    node is ExceptionHandler
+    when (from node.f_stmts
+          select first RaiseStmt or
+              n@BaseId(p_is_call() is true) when {
+                  val name = n.p_referenced_decl()?.p_fully_qualified_name();
+                  match name.to_lower_case
+                  | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
+                  | n@* => [s for s in subprograms if n == s] or
+                           [r for r in subprogram_regexps
+                            if name.contains(pattern(r))]}) == null

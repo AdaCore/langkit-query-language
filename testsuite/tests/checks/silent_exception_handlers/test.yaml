@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: silent_exception_handlers
+input_sources: ['exc.adb']
+arguments:
+   silent_exception_handlers.subprograms: '["ada.exceptions.exception_message"]'
+   silent_exception_handlers.subprogram_regexps: '["\.Log$"]'

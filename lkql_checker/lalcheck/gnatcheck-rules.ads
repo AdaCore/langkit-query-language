@@ -591,4 +591,36 @@ package Gnatcheck.Rules is
      (Rule         : Forbidden_Rule;
       Indent_Level : Natural := 0);
 
+   ------------------------------------
+   -- Silent_Exception_Handlers rule --
+   ------------------------------------
+
+   type Silent_Exception_Handlers_Rule is new Rule_Template with record
+      Subprograms        : Unbounded_Wide_Wide_String;
+      Subprogram_Regexps : Unbounded_Wide_Wide_String;
+   end record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Silent_Exception_Handlers_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : in out Silent_Exception_Handlers_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : Silent_Exception_Handlers_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : Silent_Exception_Handlers_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : Silent_Exception_Handlers_Rule;
+      Indent_Level : Natural := 0);
+
 end Gnatcheck.Rules;

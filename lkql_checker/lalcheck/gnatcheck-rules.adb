@@ -587,6 +587,51 @@ package body Gnatcheck.Rules is
       end if;
    end Print_Rule_To_File;
 
+   overriding procedure Print_Rule_To_File
+     (Rule         : Silent_Exception_Handlers_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0)
+   is
+      First_Param : Boolean := True;
+
+      procedure Print
+        (Items : Unbounded_Wide_Wide_String; Quote : Boolean := False);
+      --  Print Items as parameters if not empty.
+      --  If Quote is True, put each parameter within quotes ("").
+
+      -----------
+      -- Print --
+      -----------
+
+      procedure Print
+        (Items : Unbounded_Wide_Wide_String; Quote : Boolean := False) is
+      begin
+         if Length (Items) = 0 then
+            return;
+         end if;
+
+         if First_Param then
+            Put (Rule_File, ":");
+            First_Param := False;
+         else
+            Put_Line (Rule_File, ",");
+            Put (Rule_File, Indent_Level * Indent_String);
+         end if;
+
+         if Quote then
+            Put (Rule_File,
+                 '"' & To_String (To_Wide_Wide_String (Items)) & '"');
+         else
+            Put (Rule_File, To_String (To_Wide_Wide_String (Items)));
+         end if;
+      end Print;
+
+   begin
+      Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
+      Print (Rule.Subprograms);
+      Print (Rule.Subprogram_Regexps, Quote => True);
+   end Print_Rule_To_File;
+
    ---------------------
    -- Print_Rule_Help --
    ---------------------
@@ -1405,6 +1450,57 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Rule_Parameter;
 
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Silent_Exception_Handlers_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String)
+   is
+      procedure Add_To
+        (Str   : in out Unbounded_Wide_Wide_String;
+         Param : String);
+      --  Add parameter Param to Str, separated with ","
+
+      ------------
+      -- Add_To --
+      ------------
+
+      procedure Add_To
+        (Str   : in out Unbounded_Wide_Wide_String;
+         Param : String) is
+      begin
+         if Length (Str) /= 0 then
+            Append (Str, ",");
+         end if;
+
+         Append (Str, To_Wide_Wide_String (Param));
+      end Add_To;
+
+   begin
+      if Param = "" then
+         if Enable then
+            Rule.Rule_State := Enabled;
+         else
+            Rule.Rule_State := Disabled;
+         end if;
+      elsif Enable then
+         if Param (Param'First) = '"' then
+            Add_To (Rule.Subprogram_Regexps,
+                    Param (Param'First + 1 .. Param'Last - 1));
+         else
+            Add_To (Rule.Subprograms, To_Lower (Param));
+         end if;
+
+         Rule.Rule_State := Enabled;
+         Rule.Defined_At := new String'(Defined_At);
+
+      else
+         Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
+         Rule.Rule_State := Disabled;
+         Rule.Defined_At := new String'(Defined_At);
+      end if;
+   end Process_Rule_Parameter;
+
    --------------------
    -- Map_Parameters --
    --------------------
@@ -1562,6 +1658,14 @@ package body Gnatcheck.Rules is
 
       Append_Array_Param (Args, "forbidden", Rule.Forbidden);
       Append_Array_Param (Args, "allowed", Rule.Allowed);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Rule : in out Silent_Exception_Handlers_Rule;
+      Args : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_Array_Param (Args, "subprograms", Rule.Subprograms);
+      Append_Array_Param (Args, "subprogram_regexps", Rule.Subprogram_Regexps);
    end Map_Parameters;
 
    ---------------
@@ -2012,6 +2116,54 @@ package body Gnatcheck.Rules is
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Rule;
 
+   overriding procedure XML_Print_Rule
+     (Rule         : Silent_Exception_Handlers_Rule;
+      Indent_Level : Natural := 0)
+   is
+      procedure XML_Print
+        (Items  : Unbounded_Wide_Wide_String;
+         Quote : Boolean);
+      --  Print Items if not empty. If Quote is True, these items are quoted.
+
+      ---------------
+      -- XML_Print --
+      ---------------
+
+      procedure XML_Print
+        (Items  : Unbounded_Wide_Wide_String;
+         Quote : Boolean)
+      is
+         C   : Character;
+         Str : constant String := (if Quote then """" else "");
+      begin
+         if Length (Items) = 0 then
+            return;
+         end if;
+
+         XML_Report_No_EOL ("<parameter>" & Str, Indent_Level + 1);
+
+         for J in 1 .. Length (Items) loop
+            C := To_Character (Element (Items, J));
+
+            if C = ',' then
+               XML_Report (Str & "</parameter>", Indent_Level + 1);
+               XML_Report_No_EOL ("<parameter>" & Str, Indent_Level + 1);
+            else
+               XML_Report_No_EOL ([C]);
+            end if;
+         end loop;
+      end XML_Print;
+
+   begin
+      XML_Report
+        ("<rule id=""" & Rule_Name (Rule) & """>",
+         Indent_Level);
+
+      XML_Print (Rule.Subprograms, False);
+      XML_Print (Rule.Subprogram_Regexps, True);
+      XML_Report ("</rule>", Indent_Level);
+   end XML_Print_Rule;
+
    -------------------
    -- XML_Rule_Help --
    -------------------
@@ -2293,6 +2445,19 @@ package body Gnatcheck.Rules is
             "do not detect specified " &
             Str & " (use ',' as separator)""" &
             " separator="":""/>");
+   end XML_Rule_Help;
+
+   procedure XML_Rule_Help
+     (Rule  : Silent_Exception_Handlers_Rule;
+      Level : Natural) is
+   begin
+      Info (Level * Indent_String &
+            "<field switch=""+R"  &
+            Rule.Name.all         &
+            """ separator="":"""  &
+            " label="""           &
+            Rule.Help_Info.all    &
+            """/>");
    end XML_Rule_Help;
 
    -----------------------
