@@ -782,8 +782,12 @@ package body Gnatcheck.Rules is
    begin
       if Param = "" then
          if Enable then
-            Rule.Rule_State := Enabled;
-            Rule.Defined_At := new String'(Defined_At);
+            if Rule.Name.all = "no_others_in_exception_handlers" then
+               Error ("(" & Rule.Name.all & ") parameter is required for +R");
+            else
+               Rule.Rule_State := Enabled;
+               Rule.Defined_At := new String'(Defined_At);
+            end if;
          else
             Rule.Integer_Param := Integer'First;
             Rule.Boolean_Params := [others => Unset];
