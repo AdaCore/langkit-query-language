@@ -2,4 +2,4 @@ driver: 'checker'
 rule_name: no_others_in_exception_handlers
 input_sources: ['other.adb']
 rule_arguments:
-    no_others_in_exception_handlers.all: 'true'
+    no_others_in_exception_handlers.all_handlers: 'true'
