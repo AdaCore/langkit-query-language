@@ -1,31 +1,34 @@
 # Flag if statements which could be replaced by a case statement.
 # That is, if statements of the form:
-#   if Id <relation op> static-expr then
-#   elsif Id <relation op> static-expr then
+#   if Id <relation op with static-expr | membership test> then
+#   elsif Id <relation op static-expr | membership test> then
 #   [...]
 #   end if;
 #
 # where <relation op> is a predefined relational operator.
-# TODO: recognize membership tests
 
 import stdlib
+
+fun is_static_relation(expr) =
+    expr is RelationOp(f_right is Expr(p_is_static_expr() is true),
+                       f_op is op@Op when stdlib.is_predefined_op(op))
 
 fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
     |" Id <relation op> static-expr
     [x for x in list
      if x.f_cond_expr is
-         RelationOp(f_left is id2@Identifier,
-                    f_right is Expr(p_is_static_expr() is true),
-                    f_op is op@Op when stdlib.is_predefined_op(op))
-         when id2.p_name_matches(id)].length == list.length
+         (r@RelationOp(f_left is id2@Identifier) when is_static_relation(r)) or
+         m@MembershipExpr(f_expr is id2@Identifier) and
+        id2.p_name_matches(id)
+     ].length == list.length
 
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
 fun use_case_statements(node) =
     node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
                    f_cond_expr is
-                       RelationOp(f_left is id@Identifier,
-                                  f_right is Expr(p_is_static_expr() is true),
-                                  f_op is op@Op when stdlib.is_predefined_op(op)))
+                       (r@RelationOp(f_left is id@Identifier)
+                        when is_static_relation(r)) or
+                       m@MembershipExpr(f_expr is id@Identifier))
     when check_alternatives(from node.f_alternatives select ElsifStmtPart, id)

@@ -10,6 +10,14 @@ begin
       null;
    end if;
 
+   if Result in OK then   --  FLAG
+      null;
+   elsif Result in Partial .. Partial then
+      null;
+   elsif Result = KO then
+      null;
+   end if;
+
    if Result = OK then   --  NO FLAG
       null;
    else
