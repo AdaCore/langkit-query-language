@@ -1949,6 +1949,57 @@ This rule has no parameters.
    <<Quit>>
    return;
 
+
+
+.. _Integer_Types_As_Enum:
+
+``Integer_Types_As_Enum``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Integer_Types_As_Enum
+
+Flag each integer type declaration (including types derived from
+integer types) if this integer type may benefit from
+being replaced by an enumeration type. An integer type is considered
+as being potentially replaceable by an enumeration type if all the
+following conditions are true:
+
+*
+  there is no infix calls to any arithmetic operator for objects
+  of this type;
+
+*
+  this type is not referenced in an actual parameter of a generics
+  instantiation;
+
+*
+  there is no type conversion from or to this type;
+
+*
+  no type is derived from this type;
+
+*
+  no subtype is declared for this type.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   procedure Proc is
+      type Enum is range 1 .. 3;    --  FLAG
+      type Int is range 1 .. 3;     --  NO FLAG
+
+      X : Enum := 1;
+      Y : Int := 1;
+   begin
+      X := 2;
+      Y := Y + 1;
+   end Proc;
+
+
 .. _Improper_Returns:
 
 ``Improper_Returns``
@@ -2212,6 +2263,75 @@ This rule has no parameters.
       end Proc1;
 
    begin
+
+
+
+.. _No_Others_In_Exception_Handlers:
+
+``No_Others_In_Exception_Handlers``
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: No_Others_In_Exception_Handlers
+
+Flag handled sequences of statements that do not contain exception
+handler with ``OTHERS``, depending on the rule parameter(s)
+specified.
+
+This rule has three parameters for +R option:
+
+*
+  Subprogram
+
+    Flag a subprogram body if the handled sequence of statements
+    of this body does not contain an exception handler with
+    ``OTHERS`` choice. This includes the case when the body does
+    not contain any exception handler at all. The diagnostic
+    message points to the beginning of the subprogram body.
+
+*
+  Task
+
+    Flag a task body if the handled sequence of statements
+    of this body does not contain an exception handler with
+    ``OTHERS`` choice. This includes the case when the body does
+    not contain any exception handler at all. The diagnostic
+    message points to the beginning of the task body.
+
+*
+  All_Handlers
+
+   Flag a handled sequence of statements if it does contain
+   at least one exception handler, but it does not contain an
+   exception handler with ``OTHERS`` choice. If a handled sequence
+   of statements does not have any exception handler, nothing is
+   flagged for it. The diagnostic  message points to the
+   ``EXCEPTION`` keyword in the handled sequence of statements.
+
+At least one parameter should be specified for the rule. If
+more than one parameter is specified, each of the specified
+parameters has its effect.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 5
+
+procedure Other (I, J : in out Integer) is
+begin
+   begin
+      I := I + 1;
+   exception                --  FLAG (if All_Handlers parameter is set)
+      when Constraint_Error => null;
+   end;
+
+exception                    --  NO FLAG
+   when Constraint_Error =>
+      I := Integer'Last;
+   when others =>
+      I := J;
+      raise;
+end Other;
+
 
 
 .. _Non_Constant_Overlays:

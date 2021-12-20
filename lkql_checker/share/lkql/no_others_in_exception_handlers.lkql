@@ -1,7 +1,7 @@
 # Flag each occurrence of a subprogram body (if `subprogram` is true) or task
 # body (if `task` is true) with no others exception handler, or any handled
-# statement with exception handlers (if `all_handlers` is true) with no others
-# handler.
+# sequence of statements with exception handlers (if `all_handlers` is true)
+# with no others handler.
 
 fun check_others(stmts) =
     stmts.f_exceptions is AdaNodeList(all children(depth=3)

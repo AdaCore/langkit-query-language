@@ -185,6 +185,9 @@ GNATcheck rules.
   :ref:`Incomplete_Representation_Specifications`
 
 *
+  :ref:`Integer_Types_As_Enum`
+
+*
   :ref:`Library_Level_Subprograms`
 
 *
@@ -249,6 +252,9 @@ GNATcheck rules.
 
 *
   :ref:`No_Inherited_Classwide_Pre`
+
+*
+  :ref:`No_Others_In_Exception_Handlers`
 
 *
   :ref:`No_Scalar_Storage_Order_Specified`
