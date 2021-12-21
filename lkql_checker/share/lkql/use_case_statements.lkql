@@ -1,7 +1,7 @@
 # Flag if statements which could be replaced by a case statement.
 # That is, if statements of the form:
-#   if Id <relation op with static-expr | membership test> then
-#   elsif Id <relation op static-expr | membership test> then
+#   if Id <relation op with static-expr> then
+#   elsif Id <relation op static-expr | membership test with literals> then
 #   [...]
 #   end if;
 #
@@ -16,11 +16,19 @@ fun is_static_relation(expr) =
 fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
     |" Id <relation op> static-expr
+    |"   or
+    |" Id "in" <literal or named numbers>
     [x for x in list
      if x.f_cond_expr is
          (r@RelationOp(f_left is id2@Identifier) when is_static_relation(r)) or
-         m@MembershipExpr(f_expr is id2@Identifier) and
-        id2.p_name_matches(id)
+         (m@MembershipExpr(f_op is OpIn,
+                           f_expr is id2@Identifier)
+          when (from m.f_membership_exprs select first
+                n@Name when n is not
+                    (NumLiteral or Op or
+                     Identifier(p_referenced_decl() is
+                                NumberDecl or EnumLiteralDecl))) == null) and
+         id2.p_name_matches(id)
      ].length == list.length
 
 @check(message="IF statement may be replaced by a CASE statement",
@@ -29,6 +37,5 @@ fun use_case_statements(node) =
     node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
                    f_cond_expr is
                        (r@RelationOp(f_left is id@Identifier)
-                        when is_static_relation(r)) or
-                       m@MembershipExpr(f_expr is id@Identifier))
+                        when is_static_relation(r)))
     when check_alternatives(from node.f_alternatives select ElsifStmtPart, id)

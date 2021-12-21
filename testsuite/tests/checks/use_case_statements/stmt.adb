@@ -1,6 +1,18 @@
 procedure Stmt is
    type Enum is (OK, Partial, KO);
    Result, Result2 : Enum;
+
+   procedure Proc (I, L, R : in out Integer) is
+   begin
+      if I < 1 then    --  NO FLAG
+         I := I + 1;
+      elsif I in L .. R then
+         I := I - 1;
+      else
+         I := 0;
+      end if;
+   end Proc;
+
 begin
    if Result = OK then   --  FLAG
       null;
@@ -10,11 +22,11 @@ begin
       null;
    end if;
 
-   if Result in OK then   --  FLAG
+   if Result = OK then   --  FLAG
       null;
    elsif Result in Partial .. Partial then
       null;
-   elsif Result = KO then
+   elsif Result in KO then
       null;
    end if;
 

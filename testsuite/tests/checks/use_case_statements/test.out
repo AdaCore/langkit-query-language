@@ -1,8 +1,8 @@
-stmt.adb:5:4: rule violation: IF statement may be replaced by a CASE statement
-5 |    if Result = OK then   --  FLAG
-  |    ^^^^^^^
+stmt.adb:17:4: rule violation: IF statement may be replaced by a CASE statement
+17 |    if Result = OK then   --  FLAG
+   |    ^^^^^^^
 
-stmt.adb:13:4: rule violation: IF statement may be replaced by a CASE statement
-13 |    if Result in OK then   --  FLAG
+stmt.adb:25:4: rule violation: IF statement may be replaced by a CASE statement
+25 |    if Result = OK then   --  FLAG
    |    ^^^^^^^
 
