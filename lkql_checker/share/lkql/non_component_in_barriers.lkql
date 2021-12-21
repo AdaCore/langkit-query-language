@@ -1,9 +1,12 @@
 # Flag each occurrence of a protected entry barrier referencing variables
 # other than components of the protected object.
 
-fun contains_defining_name(l, name) =
-    |" Return true if l contains the defining name `name`
-    [n for n in l if n == name]?[1] != ()
+fun is_protected_component(id, decl, names) = {
+    val name = decl.p_defining_name();
+    [n for n in names if n == name]?[1] != () or
+    (id.parent is p@DottedName and
+     is_protected_component(p, p.f_prefix.p_referenced_decl(), names))
+}
 
 @unit_check(help="barrier references non component variable",
             category="Style", subcategory="Programming Practice")
@@ -16,8 +19,7 @@ fun non_component_in_barriers(unit) = [
         [id for id in (from node.f_barrier select Identifier)
          if id.p_referenced_decl() is
             ObjectDecl or ParamSpec or
-            d@ComponentDecl
-                when not contains_defining_name(names, d.p_defining_name())].
+            d@ComponentDecl when not is_protected_component(id, d, names)].
         length != 0
     })
 ]
