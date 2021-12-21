@@ -290,6 +290,9 @@ GNATcheck rules.
   :ref:`Number_Declarations`
 
 *
+  :ref:`Numeric_Format`
+
+*
   :ref:`Numeric_Indexing`
 
 *

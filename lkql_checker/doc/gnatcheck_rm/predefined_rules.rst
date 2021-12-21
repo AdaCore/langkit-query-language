@@ -2419,7 +2419,35 @@ user-defined ``and`` and ``or`` and to operators defined by renaming
 declarations are not flagged. Calls to predefined ``and`` and ``or``
 operators for modular types or boolean array types are not flagged.
 
-This rule has no parameters.
+The rule has an optional parameter for +R option:
+
+*Except_Assertions*
+  Do not flag the use of non-short-circuit_operators inside
+  assertion-related pragmas or aspect specifications.
+
+A pragma or an aspect is considered as assertion-related if its name
+is from the following list:
+
+``Assert``
+``Assert_And_Cut``
+``Assume``
+``Contract_Cases``
+``Debug``
+``Default_Initial_Condition``
+``Dynamic_Predicate``
+``Invariant``
+``Loop_Invariant``
+``Loop_Variant``
+``Post``
+``Postcondition``
+``Pre``
+``Precondition``
+``Predicate``
+``Predicate_Failure``
+``Refined_Post``
+``Static_Predicate``
+``Type_Invariant``
+
 
 .. rubric:: Example
 
@@ -4354,6 +4382,46 @@ A line containing one or more identifiers may end with a comment.
    One          : constant Integer := 1;     --  FLAG
    Two          : constant Float   := 2.0;   --  FLAG
    Constant_One : constant Float   := 1.0;
+
+
+.. _Numeric_Format:
+
+``Numeric_Format``
+^^^^^^^^^^^^^^^^^^
+
+.. index:: Numeric_Format
+
+Flag each numeric literal which does not satisfy at least one of the
+following requirements:
+
+*
+  the literal is given in the conventional decimal notation given,
+  or, if its base is specified explicitly, this base should be
+  2, 8, 10 or 16 only;
+
+*
+  if the literal base is 8 or 10, an underscore should separate groups
+  of 3 digits starting from the right end of the literal;
+
+*
+  if the literal base is 2 or 16, an underscore should separate groups
+  of 4 digits starting from the right end of the literal;
+
+*
+  all letters (exponent symbol and digits above 9) should be in upper case.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4, 5
+
+   D : constant := 16#12AB_C000#;          --  NO FLAG
+   E : constant := 3.5E3;                  --  NO FLAG
+
+   F : constant := 1000000;                --  FLAG
+   G : constant := 2#0001000110101011#;    --  FLAG
 
 
 .. _Object_Declarations_Out_Of_Order:
