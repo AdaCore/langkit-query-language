@@ -37,5 +37,6 @@ fun use_case_statements(node) =
     node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
                    f_cond_expr is
                        (r@RelationOp(f_left is id@Identifier)
-                        when is_static_relation(r)))
+                        when id.p_expression_type().p_is_discrete_type() and
+                             is_static_relation(r)))
     when check_alternatives(from node.f_alternatives select ElsifStmtPart, id)

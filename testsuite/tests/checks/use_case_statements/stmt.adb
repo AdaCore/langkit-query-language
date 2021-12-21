@@ -56,4 +56,17 @@ begin
          I := 0;
       end if;
    end;
+
+   declare
+      F : Float;
+      I : Integer;
+   begin
+      if F >= 1.0 then   --  NO FLAG
+         I := I + 1;
+      elsif F <= 0.0 then
+         I := I - 1;
+      else
+         I := 0;
+      end if;
+   end;
 end Stmt;
