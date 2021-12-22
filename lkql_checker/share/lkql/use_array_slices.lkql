@@ -6,7 +6,7 @@
 
 @check(message="for loop may be replaced by an array slice",
        category="Style", subcategory="Programming Practice")
-fun array_slices(node) =
+fun use_array_slices(node) =
     node is ForLoopStmt
     when node.f_stmts.children_count == 1
      and node.f_stmts[1] is AssignStmt(
