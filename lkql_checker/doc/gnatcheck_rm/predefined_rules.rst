@@ -1390,6 +1390,32 @@ This rule has no parameters.
    end Bar;
 
 
+.. _One_Tagged_Type_Per_Package:
+
+``One_Tagged_Type_Per_Package``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: One_Tagged_Type_Per_Package
+
+Flag all package declarations with more than one tagged type declaration
+in the visible part.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+package P is  --  FLAG
+
+   type T is tagged null record;
+   type T2 is tagged null record;
+
+end P;
+
+
+
 .. _Raising_External_Exceptions:
 
 ``Raising_External_Exceptions``
@@ -1567,39 +1593,6 @@ This rule has no parameters.
    type Arr is array (1 .. 10) of Integer;
    Var1 : Arr;
    Var2 : array (1 .. 10) of Integer;      --  FLAG
-
-
-.. _Array_Slices:
-
-``Array_Slices``
-^^^^^^^^^^^^^^^^
-
-.. index:: Array_Slices
-
-Flag ``FOR`` loops if a loop contains a single assignment statement, and
-this statement is an assignment between array components and such a loop can
-be replaced by a single assignment statement with array slices or
-array objects as the source and the target of the assignment.
-
-This rule has no parameters.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 6, 10
-
-      type Table_Array_Type is array (1 .. 10) of Integer;
-      Primary_Table   : Table_Array_Type;
-      Secondary_Table : Table_Array_Type;
-
-   begin
-      for I in Table_Array_Type'Range loop   --  FLAG
-         Secondary_Table (I) := Primary_Table (I);
-      end loop;
-
-      for I in 2 .. 5 loop                   --  FLAG
-         Secondary_Table (I) := Primary_Table (I + 1);
-      end loop;
 
 
 .. _Binary_Case_Statements:
@@ -3324,6 +3317,39 @@ The rule has no parameters.
    end Bar;
 
 
+.. _Use_Array_Slices:
+
+``Use_Array_Slices``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_Array_Slices
+
+Flag ``FOR`` loops if a loop contains a single assignment statement, and
+this statement is an assignment between array components and such a loop can
+be replaced by a single assignment statement with array slices or
+array objects as the source and the target of the assignment.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 6, 10
+
+      type Table_Array_Type is array (1 .. 10) of Integer;
+      Primary_Table   : Table_Array_Type;
+      Secondary_Table : Table_Array_Type;
+
+   begin
+      for I in Table_Array_Type'Range loop   --  FLAG
+         Secondary_Table (I) := Primary_Table (I);
+      end loop;
+
+      for I in 2 .. 5 loop                   --  FLAG
+         Secondary_Table (I) := Primary_Table (I + 1);
+      end loop;
+
+
 .. _Use_Case_Statements:
 
 ``Use_Case_Statements``
@@ -3339,9 +3365,20 @@ replaceable by a ``CASE`` statement if:
   it contains at least one ``ELSIF`` alternative;
 
 *
-  all the conditions are infix calls to some predefined relation operator,
-  for all of them one operand is the reference to the same variable, and
-  another one is some static expression.
+  all the conditions are infix calls to some predefined relation operator
+  or a membership test, for all of them one operand is the reference
+  to the same variable of some discrete type;
+
+*
+  for calls to relation operator another operand is some static expression;
+
+*
+  for membership test each membership choice is either an expression or a range,
+  an expression and each range bound should be one of the following:
+  an integer literal, and enumeration literal or a reference to a named number.
+
+If an ``IF`` statement has a membership test as its first condition (that is,
+in the ``IF`` alternative), it is not flagged.
 
 This rule has no parameters.
 

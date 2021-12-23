@@ -38,9 +38,6 @@ GNATcheck rules.
   :ref:`Anonymous_Subtypes`
 
 *
-  :ref:`Array_Slices`
-
-*
   :ref:`Binary_Case_Statements`
 
 *
@@ -308,6 +305,9 @@ GNATcheck rules.
   :ref:`One_Construct_Per_Line`
 
 *
+  :ref:`One_Tagged_Type_Per_Package`
+
+*
   :ref:`OTHERS_In_Aggregates`
 
 *
@@ -447,6 +447,9 @@ GNATcheck rules.
 
 *
   :ref:`Unnamed_Blocks_And_Loops`
+
+*
+  :ref:`Use_Array_Slices`
 
 *
   :ref:`Use_Case_Statements`
