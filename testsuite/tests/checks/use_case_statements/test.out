@@ -2,7 +2,3 @@ stmt.adb:17:4: rule violation: IF statement may be replaced by a CASE statement
 17 |    if Result = OK then   --  FLAG
    |    ^^^^^^^
 
-stmt.adb:25:4: rule violation: IF statement may be replaced by a CASE statement
-25 |    if Result = OK then   --  FLAG
-   |    ^^^^^^^
-

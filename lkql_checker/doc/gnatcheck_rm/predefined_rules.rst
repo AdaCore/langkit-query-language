@@ -3387,20 +3387,12 @@ replaceable by a ``CASE`` statement if:
   it contains at least one ``ELSIF`` alternative;
 
 *
-  all the conditions are infix calls to some predefined relation operator
-  or a membership test, for all of them one operand is the reference
-  to the same variable of some discrete type;
+  all the conditions are infix calls to some predefined relation operator,
+  for all of them one operand is the reference to the same variable of some
+  discrete type;
 
 *
   for calls to relation operator another operand is some static expression;
-
-*
-  for membership test each membership choice is either an expression or a range,
-  an expression and each range bound should be one of the following:
-  an integer literal, and enumeration literal or a reference to a named number.
-
-If an ``IF`` statement has a membership test as its first condition (that is,
-in the ``IF`` alternative), it is not flagged.
 
 This rule has no parameters.
 

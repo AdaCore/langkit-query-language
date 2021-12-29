@@ -1,7 +1,7 @@
 # Flag if statements which could be replaced by a case statement.
 # That is, if statements of the form:
 #   if Id <relation op with static-expr> then
-#   elsif Id <relation op static-expr | membership test with literals> then
+#   elsif Id <relation op static-expr> then
 #   [...]
 #   end if;
 #
@@ -20,14 +20,7 @@ fun check_alternatives(list, id) =
     |" Id "in" <literal or named numbers>
     [x for x in list
      if x.f_cond_expr is
-         (r@RelationOp(f_left is id2@Identifier) when is_static_relation(r)) or
-         (m@MembershipExpr(f_op is OpIn,
-                           f_expr is id2@Identifier)
-          when (from m.f_membership_exprs select first
-                n@Name when n is not
-                    (NumLiteral or Op or
-                     Identifier(p_referenced_decl() is
-                                NumberDecl or EnumLiteralDecl))) == null) and
+         r@RelationOp(f_left is id2@Identifier) when is_static_relation(r) and
          id2.p_name_matches(id)
      ].length == list.length
 
