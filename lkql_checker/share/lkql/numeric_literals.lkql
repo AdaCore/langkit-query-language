@@ -4,7 +4,7 @@
 # - a literal occurring in an aspect definition or in an aspect clause, or
 # - an integer literal that is less than or equal to a value specified by the
 #   N rule parameter.
-# - As the right expression of an exponentiation operator
+# - As the immediate right expression of an infix exponentiation operator
 # - As an indexing of an array attribute
 # - a literal occurring in a declaration in case the Statements_Only rule
 #   parameter is given.
