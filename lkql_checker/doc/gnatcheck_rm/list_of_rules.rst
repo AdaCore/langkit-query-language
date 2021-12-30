@@ -308,6 +308,9 @@ GNATcheck rules.
   :ref:`One_Tagged_Type_Per_Package`
 
 *
+  :ref:`Operator_Renamings`
+
+*
   :ref:`OTHERS_In_Aggregates`
 
 *

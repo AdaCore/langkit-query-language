@@ -2569,6 +2569,28 @@ This rule has no parameters.
    end Foo;
 
 
+.. _Operator_Renamings:
+
+``Operator_Renamings``
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Operator_Renamings
+
+Flag subprogram renaming declarations that have an operator symbol as
+the name of renamed subprogram.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   function Foo (I, J : Integer)           --  FLAG
+     return Integer renames Standard."+";
+   function "-" (I, J : Integer)           --  NO FLAG
+     return Integer renames Bar;
+
 .. _OTHERS_In_Aggregates:
 
 ``OTHERS_In_Aggregates``
@@ -5633,11 +5655,19 @@ Flag each use of a numeric literal except for the following:
 
 *
   an integer literal that is less than or equal to a value
-  specified by the *N* rule parameter.
+  specified by the *N* rule parameter, or
+
+*
+  an integer literal that is the right operand of an infix call to a
+  predefined exponentiation operator, or
+
+*
+  an integer literal that denotes a dimension in array types attributes
+  ``First``, ``Last`` and ``Length``, or
 
 *
   a literal occurring in a declaration in case the *Statements_Only*
-  rule parameter is given
+  rule parameter is given.
 
 This rule may have the following parameters for the ``+R`` option:
 
