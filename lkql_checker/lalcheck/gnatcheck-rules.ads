@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 S p e c                                  --
 --                                                                          --
---                     Copyright (C) 2004-2021, AdaCore                     --
+--                     Copyright (C) 2004-2022, AdaCore                     --
 --                                                                          --
 -- GNATCHECK  is  free  software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU  General Public License as published by the Free --
@@ -194,7 +194,7 @@ package Gnatcheck.Rules is
    --    set for a given rule and that the parameter is ignored.
 
    procedure Map_Parameters
-     (Rule : Rule_Template; Args : in out Rule_Argument_Vectors.Vector)
+     (Rule : in out Rule_Template; Args : in out Rule_Argument_Vectors.Vector)
    is null;
    --  After parameters have been processed, store the relevant parameters for
    --  Rule in Map.
@@ -275,7 +275,7 @@ package Gnatcheck.Rules is
    --  the rule parameter.
 
    overriding procedure Map_Parameters
-     (Rule : One_Integer_Parameter_Rule;
+     (Rule : in out One_Integer_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -308,7 +308,7 @@ package Gnatcheck.Rules is
       Defined_At : String);
 
    overriding procedure Map_Parameters
-     (Rule : One_Boolean_Parameter_Rule;
+     (Rule : in out One_Boolean_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -340,7 +340,7 @@ package Gnatcheck.Rules is
       Defined_At : String);
 
    overriding procedure Map_Parameters
-     (Rule : One_String_Parameter_Rule;
+     (Rule : in out One_String_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -370,7 +370,7 @@ package Gnatcheck.Rules is
       Defined_At : String);
 
    overriding procedure Map_Parameters
-     (Rule : One_Array_Parameter_Rule;
+     (Rule : in out One_Array_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    -------------------------------------------------------
@@ -391,7 +391,7 @@ package Gnatcheck.Rules is
       Defined_At : String);
 
    overriding procedure Map_Parameters
-     (Rule : One_Integer_Or_Booleans_Parameter_Rule;
+     (Rule : in out One_Integer_Or_Booleans_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -441,7 +441,7 @@ package Gnatcheck.Rules is
       "constant" | "renaming" | "interrupt" | "type");
 
    overriding procedure Map_Parameters
-     (Rule : Identifier_Suffixes_Rule;
+     (Rule : in out Identifier_Suffixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -488,7 +488,7 @@ package Gnatcheck.Rules is
       "derived" | "constant" | "enum" | "exception" | "exclusive");
 
    overriding procedure Map_Parameters
-     (Rule : Identifier_Prefixes_Rule;
+     (Rule : in out Identifier_Prefixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -534,7 +534,7 @@ package Gnatcheck.Rules is
       "type" | "constant" | "enum" | "exception" | "others" | "exclude");
 
    overriding procedure Map_Parameters
-     (Rule : Identifier_Casing_Rule;
+     (Rule : in out Identifier_Casing_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
@@ -575,7 +575,7 @@ package Gnatcheck.Rules is
       Ignored_Param : String) return Boolean is (True);
 
    overriding procedure Map_Parameters
-     (Rule : Forbidden_Rule;
+     (Rule : in out Forbidden_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help

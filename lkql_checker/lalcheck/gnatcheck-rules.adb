@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---                     Copyright (C) 2004-2021, AdaCore                     --
+--                     Copyright (C) 2004-2022, AdaCore                     --
 --                                                                          --
 -- GNATCHECK  is  free  software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU  General Public License as published by the Free --
@@ -27,6 +27,7 @@ with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
+with GNAT.String_Split;          use GNAT.String_Split;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
@@ -875,6 +876,15 @@ package body Gnatcheck.Rules is
             Load_Dictionary (Param, Rule, Rule.Param);
             Rule.Defined_At := new String'(Defined_At);
          else
+            if Rule.Name.all = "parameters_out_of_order"
+              and then Param not in
+                "in" | "defaulted_in" | "in_out" | "access" | "out"
+            then
+               Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
+               Rule.Rule_State := Disabled;
+               return;
+            end if;
+
             if Length (Rule.Param) /= 0 then
                Append (Rule.Param, ",");
             end if;
@@ -1400,7 +1410,7 @@ package body Gnatcheck.Rules is
    --------------------
 
    overriding procedure Map_Parameters
-     (Rule : One_Integer_Parameter_Rule;
+     (Rule : in out One_Integer_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       if Rule.Param /= Integer'First then
@@ -1415,7 +1425,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : One_Boolean_Parameter_Rule;
+     (Rule : in out One_Boolean_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       if Rule.Param /= Unset then
@@ -1430,7 +1440,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : One_String_Parameter_Rule;
+     (Rule : in out One_String_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Param (Args,
@@ -1440,7 +1450,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : One_Integer_Or_Booleans_Parameter_Rule;
+     (Rule : in out One_Integer_Or_Booleans_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector)
    is
    begin
@@ -1469,9 +1479,21 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : One_Array_Parameter_Rule;
+     (Rule : in out One_Array_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
+      --  Check whether we have 5 arguments for parameters_out_of_order
+
+      if Rule.Name.all = "parameters_out_of_order"
+        and then Length (Rule.Param) /= 0
+        and then Slice_Count (Create (To_String (Rule.Param), ",")) /= 5
+      then
+         Error ("(" & Rule.Name.all & ") requires 5 parameters, got: " &
+                To_String (Rule.Param));
+         Rule.Rule_State := Disabled;
+         return;
+      end if;
+
       Append_Array_Param
         (Args,
          Rule.Parameters.Child (2).As_Parameter_Decl.F_Param_Identifier.Text,
@@ -1479,7 +1501,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : Identifier_Suffixes_Rule;
+     (Rule : in out Identifier_Suffixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Param (Args, "type_suffix", Rule.Type_Suffix);
@@ -1494,7 +1516,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : Identifier_Prefixes_Rule;
+     (Rule : in out Identifier_Prefixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Param (Args, "type", Rule.Type_Prefix);
@@ -1516,7 +1538,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : Identifier_Casing_Rule;
+     (Rule : in out Identifier_Casing_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_Param (Args, "type", Rule.Type_Casing);
@@ -1528,7 +1550,7 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
-     (Rule : Forbidden_Rule;
+     (Rule : in out Forbidden_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       if Rule.All_Flag = On then
