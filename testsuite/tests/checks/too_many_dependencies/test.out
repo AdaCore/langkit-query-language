@@ -1,4 +1,4 @@
-pack1-flag.ads:9:1: rule violation: unit has too many dependencies
+pack1-flag.ads:9:1: rule violation: unit has too many dependencies (6)
 9 | package Pack1.Flag is
   | ^^^^^^^^^^^^^^^
 

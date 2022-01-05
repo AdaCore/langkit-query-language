@@ -5,21 +5,46 @@
 # This rule has the N parameter: Positive integer specifying the maximal
 # number of dependencies when the library item or subunit is not flagged.
 
-fun num_deps(unit, node) = {
-    val parent = node.p_semantic_parent();
+fun is_starter(name, l) =
+    |" Given a list of strings l, return 0 if none of the strings start with
+    |" name, 1 otherwise.
+    if [n for n in l if n.starts_with(name)]?[1] == () then 1 else 0
 
-    unique(concat([[p for p in w.f_packages.children
-                    if p.p_referenced_decl() != parent].to_list
-                   for w in (from unit.f_prelude select WithClause)].to_list))
-    .length +
-    (if unit.f_body is lib@LibraryItem and lib.f_item is body@Body and
-        body.p_previous_part() is prev@AdaNode
-     then num_deps(prev.parent.parent, node)
-     else 0)
+fun comp_unit(node) =
+    if node is *(any parent is c@CompilationUnit) then c else null
+
+fun dependencies(unit, parent) = {
+    |" Return all the dependencies of unit
+    val l = concat(
+        [[p.p_referenced_decl().p_canonical_fully_qualified_name()
+          for p in w.f_packages.children
+          if p.p_referenced_decl() != parent].to_list
+         for w in (from unit.f_prelude select WithClause)].to_list);
+    unique(match unit.f_body
+           | lib@LibraryItem when lib.f_item is body@Body and
+             body.p_previous_part() is prev@BasicDecl
+               => l & dependencies(comp_unit(prev), parent)
+           | sub@Subunit when sub.f_body.p_previous_part() is prev@BasicDecl
+               => l & dependencies(comp_unit(prev), parent)
+           | * => l)
 }
 
-@check(message="unit has too many dependencies", remediation="MAJOR",
-       category="Feature")
-fun too_many_dependencies(node, n : int = 5) =
-    node is (LibraryItem when num_deps(node.parent, node.f_item) > n) or
-            Subunit when num_deps(node.parent, node) > n
+@memoized
+fun num_deps(unit, parent) = {
+    val l = dependencies(unit, parent);
+    reduce(l, (comp, name) => comp + is_starter(name & ".", l), 0)
+}
+
+@unit_check(help="unit has too many dependencies", remediation="MAJOR",
+            category="Feature")
+fun too_many_dependencies(unit, n : int = 5) = [
+    {message: "unit has too many dependencies (" &
+              img(if node is LibraryItem
+                  then num_deps(node.parent, node.f_item.p_semantic_parent())
+                  else num_deps(node.parent, node.p_semantic_parent())) & ")",
+     loc: node}
+    for node in from unit.root select
+        lib@(LibraryItem when num_deps(lib.parent,
+                                       lib.f_item.p_semantic_parent()) > n) or
+        sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n
+]
