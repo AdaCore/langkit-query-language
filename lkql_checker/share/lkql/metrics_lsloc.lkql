@@ -15,7 +15,7 @@ fun metrics_lsloc(unit, n : int = 5, subprograms=false) = {
         if subprograms
         then (from unit.root select BaseSubpBody)
         else (from unit.root select
-              BasePackageDecl or PackageBody or
+              GenericPackageDecl or PackageDecl or PackageBody or
               BaseSubpBody or
               TaskTypeDecl or SingleTaskDecl or TaskBody or
               SingleProtectedDecl or ProtectedTypeDecl or ProtectedBody);
