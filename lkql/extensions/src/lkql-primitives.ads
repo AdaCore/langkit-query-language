@@ -26,6 +26,8 @@ with Ada.Containers.Vectors;
 with Ada.Containers; use Ada.Containers;
 with Ada.Unchecked_Deallocation;
 
+with GNAT.Regpat;
+
 with Langkit_Support.Text;   use Langkit_Support.Text;
 
 with Options;
@@ -101,6 +103,9 @@ package LKQL.Primitives is
 
       Kind_Token,
       --  Langkit token
+
+      Kind_Regex,
+      --  Regex pattern
 
       Kind_Analysis_Unit,
       --  Langkit analysis unit
@@ -271,6 +276,8 @@ package LKQL.Primitives is
    procedure Free
    is new Ada.Unchecked_Deallocation (Text_Type, Text_Type_Access);
 
+   type Regex_Access is access all GNAT.Regpat.Pattern_Matcher;
+
    type Primitive_Data (Kind : Valid_Primitive_Kind) is record
       Pool : Primitive_Pool;
       case Kind is
@@ -280,6 +287,8 @@ package LKQL.Primitives is
             Int_Val           : Adaptive_Integer;
          when Kind_Str =>
             Str_Val           : Text_Type_Access;
+         when Kind_Regex =>
+            Regex_Val         : Regex_Access;
          when Kind_Bool =>
             Bool_Val          : Boolean;
          when Kind_Node =>
@@ -546,6 +555,10 @@ package LKQL.Primitives is
    function Make_Namespace
      (N : Environment_Access;
       Module : L.LKQL_Node;
+      Pool : Primitive_Pool) return Primitive;
+
+   function Make_Regex
+     (Regex : GNAT.Regpat.Pattern_Matcher;
       Pool : Primitive_Pool) return Primitive;
 
    ---------------------

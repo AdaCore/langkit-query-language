@@ -266,6 +266,8 @@ package body LKQL.Primitives is
    -------------
 
    procedure Release (Data : in out Primitive_Data) is
+      procedure Free_Regex is new Ada.Unchecked_Deallocation
+        (GNAT.Regpat.Pattern_Matcher, Regex_Access);
    begin
       case Data.Kind is
          when Kind_List =>
@@ -289,6 +291,8 @@ package body LKQL.Primitives is
             --  We don't ever free built-in functions, since their data is
             --  freed directly in the builtin functions package.
             null;
+         when Kind_Regex =>
+            Free_Regex (Data.Regex_Val);
          when others =>
             null;
       end case;
@@ -699,6 +703,21 @@ package body LKQL.Primitives is
           Pool      => Pool));
    end Make_Namespace;
 
+   ----------------
+   -- Make_Regex --
+   ----------------
+
+   function Make_Regex
+     (Regex : GNAT.Regpat.Pattern_Matcher;
+      Pool : Primitive_Pool) return Primitive
+   is
+   begin
+      return Create_Primitive
+        ((Kind      => Kind_Regex,
+          Regex_Val => new GNAT.Regpat.Pattern_Matcher'(Regex),
+          Pool      => Pool));
+   end Make_Regex;
+
    -------------------
    -- Make_Function --
    -------------------
@@ -982,6 +1001,7 @@ package body LKQL.Primitives is
                To_Unbounded_Text
                 (To_Text (Image (Str_Val (Val),
                  With_Quotes => True))),
+               when Kind_Regex => To_Unbounded_Text ("<regex>"),
                when Kind_Bool          =>
                  Bool_Image (Bool_Val (Val)),
                when Kind_Node          =>
@@ -1035,6 +1055,7 @@ package body LKQL.Primitives is
                  when Kind_Unit               => "Unit",
                  when Kind_Int                => "Int",
                  when Kind_Str                => "Str",
+                 when Kind_Regex              => "Regex",
                  when Kind_Bool               => "Bool",
                  when Kind_Node               => "Node",
                  when Kind_Token              => "Token",
@@ -1438,6 +1459,8 @@ package body LKQL.Primitives is
             return Ada.Strings.Hash (Image (Self.Int_Val));
          when Kind_Str =>
             return Hash (Self.Str_Val.all);
+         when Kind_Regex =>
+            raise Constraint_Error with "Hash not supported on regex";
          when Kind_Bool =>
             return Hash_Type (Boolean'Pos (Self.Bool_Val));
          when Kind_Node =>
@@ -1522,6 +1545,8 @@ package body LKQL.Primitives is
                 Analysis_Unit_Val => Self.Analysis_Unit_Val, Pool => Pool));
          when Kind_Iterator =>
             raise Constraint_Error with "Copy not supported on iterators";
+         when Kind_Regex =>
+            raise Constraint_Error with "Copy not supported on regex";
          when Kind_Token =>
             return Create_Primitive
               ((Kind => Kind_Token, Token_Val => Self.Token_Val,

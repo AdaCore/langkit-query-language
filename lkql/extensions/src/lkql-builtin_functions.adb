@@ -30,6 +30,7 @@ with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
 
 with GNAT.Array_Split;
+with GNAT.Regpat;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
@@ -87,9 +88,6 @@ package body LKQL.Builtin_Functions is
    function Eval_Concat
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
-   function Eval_Contains
-     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
-
    function Eval_Split
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -134,6 +132,19 @@ package body LKQL.Builtin_Functions is
 
    function Eval_Token_Kind
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Find
+     (Ctx  : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Find_Pattern_Or_String
+     (Ctx : Eval_Context;
+      Str : Text_Type;
+      To_Find : Primitive) return Natural;
+   --  Find ``To_Find`` in ``Str``. ``To_Find`` can be either a string or a
+   --  regex value. Return position of match or 0 if no match.
+
+   function Eval_Contains
+     (Ctx  : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Create
      (Name           : Text_Type;
@@ -454,13 +465,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Contains
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      pragma Unreferenced (Ctx);
-      use Ada.Strings.Wide_Wide_Fixed;
-
-      Str     : constant Text_Type := Str_Val (Args (1));
-      Sub_Str : constant Text_Type := Str_Val (Args (2));
    begin
-      return To_Primitive (Index (Str, Sub_Str) > 0);
+      return To_Primitive
+        (Find_Pattern_Or_String (Ctx, Str_Val (Args (1)), Args (2)) > 0);
    end Eval_Contains;
 
    ----------------
@@ -1031,6 +1038,47 @@ package body LKQL.Builtin_Functions is
       end;
    end Eval_Unique;
 
+   -------------------------
+   -- Eval_Create_Pattern --
+   -------------------------
+
+   function Eval_Create_Pattern
+     (Ctx  : Eval_Context;
+      Args : Primitive_Array) return Primitive
+   is
+     (Make_Regex
+        (GNAT.Regpat.Compile (Image (Str_Val (Args (1)))), Ctx.Pool));
+
+   ----------------
+   -- Eval_Find --
+   ----------------
+
+   function Eval_Find
+     (Ctx  : Eval_Context;
+      Args : Primitive_Array) return Primitive
+   is
+   begin
+      return To_Primitive
+        (Find_Pattern_Or_String (Ctx, Str_Val (Args (1)), Args (2)), Ctx.Pool);
+   end Eval_Find;
+
+   function Find_Pattern_Or_String
+     (Ctx : Eval_Context;
+      Str : Text_Type;
+      To_Find : Primitive) return Natural
+   is
+      use Ada.Strings.Wide_Wide_Fixed;
+   begin
+      if To_Find.Kind = Kind_Regex then
+         return GNAT.Regpat.Match (To_Find.Regex_Val.all, Image (Str));
+      elsif To_Find.Kind = Kind_Str then
+         return Index (Str, Str_Val (To_Find));
+      else
+         Raise_Invalid_Type
+           (Ctx, L.No_LKQL_Node, "string or pattern", To_Find);
+      end if;
+   end Find_Pattern_Or_String;
+
    -----------------------
    -- Builtin_Functions --
    -----------------------
@@ -1192,6 +1240,23 @@ package body LKQL.Builtin_Functions is
          "Given an unit, return an iterator on its tokens",
          Only_Dot_Calls => True),
 
+      Create
+        ("pattern",
+         (1 => Param ("string_pattern", Kind_Str)),
+        Eval_Create_Pattern'Access,
+        "Given a regex pattern string, create a pattern object",
+        Only_Dot_Calls => False),
+
+      Create
+        ("find",
+         (1 => Param ("string", Kind_Str),
+          2 => Param ("to_find")),
+          Eval_Find'Access,
+          "Search for `to_find` in the given string. "
+          & "Return position of the match, or -1 if no match. "
+          & "``to_find`` can be either a pattern or a string",
+         Only_Dot_Calls => True),
+
       --  String builtins
 
       Create
@@ -1248,10 +1313,11 @@ package body LKQL.Builtin_Functions is
 
       Create
         ("contains",
-         (Param ("str", Kind_Str), Param ("substr", Kind_Str)),
+         (Param ("str", Kind_Str), Param ("substr")),
          Eval_Contains'Access,
-         "Given two strings, return whether the second one is included in "
-         & "the first one",
+          "Search for `to_find` in the given string. "
+          & "Return whether a match is found. "
+          & "``to_find`` can be either a pattern or a string",
          Only_Dot_Calls => True),
 
       Create
@@ -1309,11 +1375,12 @@ package body LKQL.Builtin_Functions is
          Eval_Get_Builtin_Methods_Info'Access,
          "Return information about builtin methods"),
 
-        Create
-          ("help",
-           (1 => Param ("obj")),
-           Eval_Help'Access,
-           "Given any object, return formatted help for it")
+      Create
+       ("help",
+        (1 => Param ("obj")),
+         Eval_Help'Access,
+        "Given any object, return formatted help for it")
+
       );
 
    ------------------

@@ -55,6 +55,10 @@ Basic data types
   general language subset, through `Field access`_, or via the `Tree
   query language subset`_.
 
+* Patterns: Patterns are compiled regular expressions that can be used in a few
+  contexts to match a string against, notably in the string built-in functions
+  ``contains`` and ``find``.
+
 Composite data types
 ^^^^^^^^^^^^^^^^^^^^
 

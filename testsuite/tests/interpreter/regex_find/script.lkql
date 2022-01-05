@@ -1,0 +1,14 @@
+val str = "Hello world!"
+val pt = pattern(" .*?ld!")
+val pt2 = pattern("oaieu")
+val sub = "world"
+val sub2 = "wolrd"
+
+print(str.find(pt))
+print(str.contains(pt))
+print(str.find(pt2))
+print(str.contains(pt2))
+print(str.find(sub))
+print(str.contains(sub))
+print(str.find(sub2))
+print(str.contains(sub2))
