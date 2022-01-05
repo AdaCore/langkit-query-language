@@ -12,8 +12,9 @@ fun num_deps(unit, node) = {
                     if p.p_referenced_decl() != parent].to_list
                    for w in (from unit.f_prelude select WithClause)].to_list))
     .length +
-    (if unit.f_body.f_item is body@(Body or Subunit)
-     then num_deps(body.p_previous_part().parent.parent, node)
+    (if unit.f_body is lib@LibraryItem and lib.f_item is body@Body and
+        body.p_previous_part() is prev@AdaNode
+     then num_deps(prev.parent.parent, node)
      else 0)
 }
 
@@ -21,4 +22,4 @@ fun num_deps(unit, node) = {
        category="Feature")
 fun too_many_dependencies(node, n : int = 5) =
     node is (LibraryItem when num_deps(node.parent, node.f_item) > n) or
-            Subunit when num_deps(node.parent, node, n) > n
+            Subunit when num_deps(node.parent, node) > n
