@@ -49,6 +49,7 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Libadalang.Common;
+with Libadalang.Expr_Eval;
 
 package body Gnatcheck.Diagnoses is
 
@@ -2406,19 +2407,30 @@ package body Gnatcheck.Diagnoses is
       if Pragma_Args.Children_Count >= 4 then
          Next_Arg := Pragma_Args.List_Child (4).P_Assoc_Expr;
 
-         if Next_Arg.Kind = LCO.Ada_String_Literal then
-            Tmp_Str := new String'(Image (Next_Arg.Text));
-         end if;
-
-         if Tmp_Str = null then
-            Store_Diagnosis
-              (Full_File_Name     => El.Unit.Get_Filename,
-               Sloc               => Start_Sloc (El.Sloc_Range),
-               Message            =>
-                 "exemption justification should be a string",
-               Diagnosis_Kind     => Exemption_Warning,
-               SF                 => SF);
-         end if;
+         --  Evaluate the static string expression of the fourth parameter via
+         --  Libadalang.Expr_Eval.
+         begin
+            declare
+               use Libadalang.Expr_Eval;
+               Eval_Res : constant Eval_Result :=
+                 Expr_Eval (Pragma_Args.List_Child (4).P_Assoc_Expr);
+            begin
+               Tmp_Str :=
+                 new String'(Image (To_Text (As_String (Eval_Res))));
+            end;
+         exception
+            when Property_Error =>
+               --  If we couldn't evaluate the expression as a string, a
+               --  property_error will have been raised. In that case, emit a
+               --  diagnosis.
+               Store_Diagnosis
+                 (Full_File_Name     => El.Unit.Get_Filename,
+                  Sloc               => Start_Sloc (El.Sloc_Range),
+                  Message            =>
+                    "exemption justification should be a string",
+                  Diagnosis_Kind     => Exemption_Warning,
+                  SF                 => SF);
+         end;
 
          --  5. Fourth parameter is ignored if exemption is turned OFF
 
@@ -2479,7 +2491,7 @@ package body Gnatcheck.Diagnoses is
          when Exempt_On =>
 
             if Tmp_Str = null then
-               Tmp_Str := new String'("""unjustified""");
+               Tmp_Str := new String'("unjustified");
             end if;
 
             if Is_Exempted (Rule) then
@@ -2579,7 +2591,7 @@ package body Gnatcheck.Diagnoses is
                         Col_End       => 0,
                         Justification => new
                           String'((Tmp_Str
-                                   (Tmp_Str'First + 1 .. Tmp_Str'Last - 1))),
+                                   (Tmp_Str'First .. Tmp_Str'Last))),
                         Detected      => 0),
                      Rule        => Rule,
                      SF          => SF,
@@ -2593,7 +2605,7 @@ package body Gnatcheck.Diagnoses is
                   Col_End       => 0,
                   Justification =>
                     new String'((Tmp_Str
-                                   (Tmp_Str'First + 1 .. Tmp_Str'Last - 1))),
+                                   (Tmp_Str'First .. Tmp_Str'Last))),
                   Detected      => 0);
             end if;
 
