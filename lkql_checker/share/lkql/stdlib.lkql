@@ -233,10 +233,11 @@ fun enclosing_body(n) =
 
 @memoized
 fun enclosing_package(n) =
-    |" Return the first BasePackageDecl enclosing n if any, null otherwise
+    |" Return the first BasePackageDecl or PackageBody enclosing n if any,
+    |" null otherwise
 {
     val pkg = [p for p in n.parents(include_self=false)
-                  if p is BasePackageDecl]?[1];
+                  if p is BasePackageDecl or PackageBody]?[1];
     if pkg == () then null else pkg
 }
 
@@ -256,11 +257,11 @@ fun is_controlling_param_type(t, spec) =
            d.p_accessed_type()?.p_is_tagged_type() and
            not is_classwide_type(d.p_accessed_type())))
      # Check that t is in the same package decl as spec
-     and (enclosing_package(t) is p@BasePackageDecl
-          when p == enclosing_package(spec))
+     and (enclosing_package(t) == enclosing_package(spec))
 
 fun is_constructor(spec) =
-    |" Return true if spec is a subprogram spec of a constructor
+    |" Return true if spec is a subprogram spec of a constructor, that is, has
+    |" a controlling result and no controlling parameter.
     |" TODO: move this to LAL?
     is_controlling_param_type(spec.p_returns(), spec)
      and [p for p in spec.p_params()
