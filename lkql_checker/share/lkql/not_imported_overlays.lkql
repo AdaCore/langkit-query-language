@@ -3,6 +3,8 @@
 # Overlaying and Overlaid are identifiers both defined by object declarations
 # if Overlaying is not marked as imported.
 
+import stdlib
+
 @check(message="not imported overlay",
        category="Style", subcategory="Programming Practice")
 fun not_imported_overlays(node) =
@@ -12,9 +14,10 @@ fun not_imported_overlays(node) =
                   when not o.p_has_aspect("Import")))
     or (AttributeDefClause(f_attribute_expr is at@AttributeRef
         when at.f_attribute.p_name_is("Address")
-         and not at.f_prefix.p_referenced_decl().p_has_aspect("Import")))
-    # Check that we have an Overlaid'Address expression and that overlaid is
-    # an identifier corresponding to an ObjectDecl
+         and at.f_prefix.p_referenced_decl() is o@ObjectDecl
+         and not o.p_has_aspect("Import")))
+    # Check that we have an Overlaid'Address expression and that Overlaid is
+    # an identifier corresponding to an ObjectDecl or ParamSpec
     and node.f_expr is at@AttributeRef
         when at.f_attribute.p_name_is("Address")
-         and at.f_prefix.p_referenced_decl() is ObjectDecl
+         and stdlib.ultimate_alias(at.f_prefix, false) is ObjectDecl or ParamSpec
