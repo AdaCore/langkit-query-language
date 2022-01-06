@@ -8,12 +8,12 @@ import stdlib
 
 fun check_nonoverlay(overlaid) =
     # Check overlaid'Address
-    overlaid is AttributeRef
-    when overlaid.f_attribute.p_name_is("address")
-     # Check that overlaid does NOT correspond to an object or parameter
-     # specification.
-     and stdlib.ultimate_alias(overlaid.f_prefix, false)
-         is not (ObjectDecl or ParamSpec)
+    overlaid is not AttributeRef or
+    not overlaid.f_attribute.p_name_is("address") or
+    # Check that overlaid does NOT correspond to an object or parameter
+    # specification.
+    stdlib.ultimate_alias(overlaid.f_prefix, false)
+    is not (ObjectDecl or ParamSpec)
 
 @check(message="nonoverlay address specification",
        category="Style", subcategory="Programming Practice")
@@ -23,4 +23,5 @@ fun nonoverlay_address_specifications(node) =
          when id.p_name_is("address") and check_nonoverlay (node.f_expr)))
     or AttributeDefClause(f_attribute_expr is at@AttributeRef
                           when at.f_attribute.p_name_is("address")
+                           and at.f_prefix.p_referenced_decl() is ObjectDecl
                            and check_nonoverlay(node.f_expr))
