@@ -18,7 +18,7 @@ fun is_parent_primitive(body, decl, parent_type) =
          p_name_matches(body.p_defining_name()?.f_name) and
          body.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() is
              t@BaseTypeDecl
-             when t.p_base_type() == parent_type.p_full_view()
+             when t.p_base_type().p_full_view() == parent_type.p_full_view()
 
 @check(message="non-dispatching call to primitive operation",
        category="Style", subcategory="Object Orientation")
