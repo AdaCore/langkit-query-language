@@ -1,6 +1,6 @@
-# Flag a subtype mark if it denotes a subtype defined with (static or dynamic)
-# subtype predicate and is used as a membership choice in a membership test
-# expression.
+# Flag a membership test if at least one of its membership choice contains a
+# subtype mark denoting a subtype defined with (static or dynamic)
+# subtype predicate.
 # Flags 'Valid attribute reference if the nominal subtype of the attribute
 # prefix has (static or dynamic) subtype predicate.
 # This rule has the parameter Except_Assertions: Do not flag a construct
@@ -21,12 +21,14 @@ fun has_predicate(t) =
        category="Feature")
 fun predicate_testing(node, except_assertions=false) =
     (match node
-     # Flags a subtype mark[...]
-     | Identifier(any parent(depth=2) is MembershipExpr) =>
-         has_predicate(node.p_referenced_decl())
+     # Flags a subtype mark[...] used as a membership choice
+     | MembershipExpr =>
+         (from node.f_membership_exprs
+          select first id@Identifier
+          when has_predicate(id.p_referenced_decl())) != null
      # Flags 'Valid attribute reference[...]
-     | AttributeRef => (node.f_attribute?.p_canonical_text() == "valid")
-         and has_predicate(node.f_prefix?.p_expression_type())
+     | AttributeRef => node.f_attribute.p_name_is("Valid")
+         and has_predicate(node.f_prefix.p_expression_type())
      | *                   => false)
     # Exclude assert pragmas/aspect if except_assertions is set
     and not (except_assertions and stdlib.within_assert(node))
