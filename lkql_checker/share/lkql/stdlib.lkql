@@ -152,7 +152,7 @@ fun is_in_library_unit_body(o) =
 
 fun param_pos(n, pos: int = 0) =
     |" Return the position of node ``n`` in its current list of siblings
-    if n == null then pos else param_pos(n?.previous_sibling, pos+1)
+    if not n then pos else param_pos(n?.previous_sibling, pos+1)
 
 # TODO: move this in LAL
 fun is_predefined_op(op) =
@@ -160,7 +160,7 @@ fun is_predefined_op(op) =
 {
     val ref = op.p_referenced_decl();
     # TODO: remove null check once all operators are synthesized (UB16-053)
-    ref == null or ref is SyntheticSubpDecl
+    not ref or ref is SyntheticSubpDecl
 }
 
 fun is_standard_numeric(n) =
@@ -196,7 +196,7 @@ fun is_predefined_type(n) =
         if p is BasePackageDecl
     ].to_list;
 
-    packages.length != 0 and packages[packages.length] is
+    packages and packages[packages.length] is
         BasePackageDecl(f_package_name is
                         DefiningName(p_canonical_part() is name@DefiningName))
         when name.p_name_is("Standard")
@@ -209,8 +209,8 @@ fun in_generic_template(n) =
     |" Return true if ``n`` is declared as part of a generic template (spec
     |" or body). Return false otherwise, including inside a generic
     |" instantiation.
-    n != null and
-    n?.p_generic_instantiations().length == 0 and
+    n and
+    not n.p_generic_instantiations() and
     ((n is *(any parent is GenericDecl)) or
      n is *(any parent is PackageBody(p_decl_part() is GenericPackageInternal)))
 
@@ -219,7 +219,7 @@ fun enclosing_block(n) =
 {
     val block = [p for p in n.parents(include_self=false)
                   if p is DeclBlock]?[1];
-    if block == () then null else block
+    if block then block else null
 }
 
 @memoized
@@ -228,7 +228,7 @@ fun enclosing_body(n) =
 {
     val body = [p for p in n.parents(include_self=false)
                   if p is Body]?[1];
-    if body == () then null else body
+    if body then body else null
 }
 
 @memoized
@@ -238,7 +238,7 @@ fun enclosing_package(n) =
 {
     val pkg = [p for p in n.parents(include_self=false)
                   if p is BasePackageDecl or PackageBody]?[1];
-    if pkg == () then null else pkg
+    if pkg then pkg else null
 }
 
 fun is_classwide_type(t) =
@@ -264,8 +264,8 @@ fun is_constructor(spec) =
     |" a controlling result and no controlling parameter.
     |" TODO: move this to LAL?
     is_controlling_param_type(spec.p_returns(), spec)
-     and [p for p in spec.p_params()
-          if is_controlling_param_type(p.f_type_expr, spec)]?[1] == ()
+     and not [p for p in spec.p_params()
+              if is_controlling_param_type(p.f_type_expr, spec)]
 
 fun is_constant_object(node) =
     |" Return true is node represents a constant object, false otherwise

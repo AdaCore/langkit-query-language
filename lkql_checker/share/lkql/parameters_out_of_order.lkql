@@ -12,7 +12,7 @@ fun index(order, str) =
     [n for n in [1, 2, 3, 4, 5] if order[n] == str].to_list[1]
 
 fun priority(spec, order) =
-    if spec.f_default_expr != null
+    if spec.f_default_expr
     then index(order, "defaulted_in")
     else match spec.f_mode
          | ModeOut     => index(order, "out")

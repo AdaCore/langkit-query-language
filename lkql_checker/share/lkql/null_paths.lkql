@@ -5,6 +5,6 @@
        category="Style", subcategory="Programming Practice")
 fun null_paths(node) =
     node is StmtList
-    when node[1] != null
+    when node[1]
      and node is StmtList(any parent is IfStmt or CaseStmt or BaseLoopStmt,
                           all children is NullStmt)

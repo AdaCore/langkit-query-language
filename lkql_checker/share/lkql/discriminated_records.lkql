@@ -15,10 +15,7 @@
 # U407-040 for list iterators
 # U407-032 for in list checks
 fun nodelist_contains_id(l, id) =
-    l is *(
-        any children is i@BaseId
-        when i?.p_name_matches(id)
-    )
+    l is *(any children is BaseId(p_name_matches(id) is true))
 
 # Return true iff id identifies a discriminant of type_def
 fun id_is_a_discriminant(id, type_def) =
@@ -28,8 +25,7 @@ fun id_is_a_discriminant(id, type_def) =
             when i?.p_name_matches(id)
         )
         # f_ids contains the defining name (named assoc.) or is null (positional)
-        when (nodelist_contains_id(assoc.f_ids, id)
-           or assoc.f_ids[1] == null)
+        when nodelist_contains_id(assoc.f_ids, id) or not assoc.f_ids[1]
     )
 
 # Return true iff type_decl has discriminant it uses in its own declaration

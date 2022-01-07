@@ -7,5 +7,5 @@
        category="Style", subcategory="Programming Practice")
 fun default_values_for_record_components(node) =
    node is ComponentDecl
-   when node.f_default_expr != null
+   when node.f_default_expr
    and not node is *(any parent is ProtectedDef)

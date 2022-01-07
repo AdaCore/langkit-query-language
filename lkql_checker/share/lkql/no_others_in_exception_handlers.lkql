@@ -22,8 +22,8 @@ fun no_others_in_exception_handlers(unit,
                     loc: n.f_exceptions.token_start().previous})
     for n in from unit.root select
         (node@((TaskBody when task) or (SubpBody when subprogram))
-         when node.f_stmts.f_exceptions[1] == null or check_others(node.f_stmts))
+         when not node.f_stmts.f_exceptions[1] or check_others(node.f_stmts))
         or node@HandledStmts
-           when all_handlers and node.f_exceptions[1] != null and
+           when all_handlers and node.f_exceptions[1] and
                 check_others(node)
 ]

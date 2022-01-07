@@ -9,11 +9,11 @@ fun check_instantiations(node, n : int) =
     | GenericPackageInstantiation =>
         node.f_generic_pkg_name?.p_referenced_decl() is
         *(any c@children is GenericInstantiation)
-        when [x for x in c if check_instantiations(x, n - 1)]?[1] != ()
+        when [x for x in c if check_instantiations(x, n - 1)]
     | GenericSubpInstantiation =>
         node.f_generic_subp_name?.p_referenced_decl() is
         *(any c@children is GenericInstantiation)
-        when [x for x in c if check_instantiations(x, n - 1)]?[1] != ()
+        when [x for x in c if check_instantiations(x, n - 1)]
     | * => false
 
 @check(message="deeply nested instantiation",

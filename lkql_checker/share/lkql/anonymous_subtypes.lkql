@@ -19,7 +19,7 @@
 
 # Any part of the tree is a discriminant of the enclosing type decl
 fun is_using_discriminant(node, type_decl) =
-    type_decl != null and
+    type_decl and
     node is *(any children is id@Identifier
               when type_decl is TypeDecl(
                  any children(depth=3) is DiscriminantSpec(
@@ -32,7 +32,7 @@ fun get_type_decl(node) =
 
 # A self-reference has the form Type'Access
 fun is_self_referencing(expr, type_decl) =
-    type_decl != null and
+    type_decl and
     expr is *(any children is at@AttributeRef
               when at.f_attribute.p_name_is("Access")
                and at.f_prefix.p_name_matches(type_decl.f_name?.f_name))

@@ -7,7 +7,7 @@
 fun overloaded_operators(node) =
     match node
     | ClassicSubpDecl          => node.p_defining_name()?.p_is_operator_name()
-    | BaseSubpBody             => node.p_decl_part() == null and
+    | BaseSubpBody             => not node.p_decl_part() and
                                   node.p_defining_name()?.p_is_operator_name()
     | GenericSubpInstantiation => node.f_subp_name?.p_is_operator_name()
     | *                        => false

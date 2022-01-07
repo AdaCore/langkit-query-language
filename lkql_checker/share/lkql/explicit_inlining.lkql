@@ -7,4 +7,4 @@ fun explicit_inlining(node) =
              SubpBodyStub or BasicSubpDecl)
     when node.p_has_aspect("Inline")
      and (node is (BasicSubpDecl or GenericSubpInstantiation) or
-          node.p_previous_part() == null)
+          not node.p_previous_part())

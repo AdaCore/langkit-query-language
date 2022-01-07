@@ -27,7 +27,7 @@ fun unchecked_address_conversions(node) =
         name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"})
      and node.f_params is params@AssocList
          when params.children_count == 2
-          and if params[1].f_designator == null or
+          and if not params[1].f_designator or
                  params[1].f_designator.p_name_is("source") 
               then check_uc_params(params[1], params[2])
               else check_uc_params(params[2], params[1])

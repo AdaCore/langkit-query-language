@@ -10,7 +10,7 @@
 
 fun deep_inheritance(type, n) =
     if n == 0 then true
-    else [t for t in type.p_base_types() if deep_inheritance(t, n-1)]?[1] != ()
+    else [t for t in type.p_base_types() if deep_inheritance(t, n-1)]
 
 @check(message="derivation tree is too deep",
        follow_generic_instantiations=true,

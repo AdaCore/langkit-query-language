@@ -61,7 +61,7 @@ fun bodies(name) =
     if name is Expr(p_is_dispatching_call() is true) then {
         val root  = name.p_referenced_decl().p_canonical_part();
         val roots = root_subp_decls(root);
-        val subp  = if roots.length == 0 then root else roots[1];
+        val subp  = if not roots then root else roots[1];
         [stdlib.get_subp_body(subp)] &
         [stdlib.get_subp_body(s) for s in find_all_overrides(subp)].to_list
     } else [get_body(name)]

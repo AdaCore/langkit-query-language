@@ -4,4 +4,4 @@
 @check(message="enumeration type definition with a single enumeration literal",
        category="Style", subcategory="Programming Practice")
 fun single_value_enumeration_types(node) =
-    node is EnumTypeDef when node.f_enum_literals[2] == null
+    node is EnumTypeDef when not node.f_enum_literals[2]

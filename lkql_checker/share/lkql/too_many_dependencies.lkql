@@ -5,10 +5,10 @@
 # This rule has the N parameter: Positive integer specifying the maximal
 # number of dependencies when the library item or subunit is not flagged.
 
-fun is_starter(name, l) =
-    |" Given a list of strings l, return 0 if none of the strings start with
-    |" name, 1 otherwise.
-    if [n for n in l if n.starts_with(name)]?[1] == () then 1 else 0
+fun is_not_starter(name, l) =
+    |" Given a list of strings l, return 1 if none of the strings start with
+    |" name, 0 otherwise.
+    if not [n for n in l if n.starts_with(name)] then 1 else 0
 
 fun comp_unit(node) =
     if node is *(any parent is c@CompilationUnit) then c else null
@@ -32,7 +32,7 @@ fun dependencies(unit, parent) = {
 @memoized
 fun num_deps(unit, parent) = {
     val l = dependencies(unit, parent);
-    reduce(l, (comp, name) => comp + is_starter(name & ".", l), 0)
+    reduce(l, (comp, name) => comp + is_not_starter(name & ".", l), 0)
 }
 
 @unit_check(help="unit has too many dependencies", remediation="MAJOR",

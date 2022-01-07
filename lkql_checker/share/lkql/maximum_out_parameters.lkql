@@ -22,5 +22,5 @@ fun maximum_out_parameters(unit, n: int = 3) = [
     for n in from unit.root select
     node@(SubpBody or ExprFunction or NullSubpDecl or SubpBodyStub or
           ClassicSubpDecl)
-    when (node is ClassicSubpDecl or node.p_previous_part() == null)
+    when (node is ClassicSubpDecl or not node.p_previous_part())
      and num_out_params(node) > n]

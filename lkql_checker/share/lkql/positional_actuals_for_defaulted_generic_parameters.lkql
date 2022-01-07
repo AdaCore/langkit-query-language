@@ -16,7 +16,7 @@ fun check_generic(n, node) =
     get_formal(n.p_referenced_decl().f_formal_part.f_decls,
                stdlib.param_pos(node)) is
     GenericFormal(f_decl is d@(FormalSubpDecl or ObjectDecl)
-                  when d.f_default_expr != null)
+                  when d.f_default_expr)
 
 @check(message="use named notation when passing actual to defaulted generic parameter",
        remediation="EASY", category="Style", subcategory="Programming Practice")

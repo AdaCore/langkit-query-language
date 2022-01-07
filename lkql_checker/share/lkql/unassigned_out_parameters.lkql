@@ -68,10 +68,10 @@ fun unassigned_out_parameters(unit, ignore_component_assignments=false) = [
         val f = enclosing_body_stmts(node);
         val decl = node.p_basic_decl();
 
-        f != null and not (
+        f and not (
         check_stmts(decl, node.f_name, f.f_stmts, ignore_component_assignments)
-        and [m for m in (from f.f_exceptions select h@ExceptionHandler
+        and not [m for m in (from f.f_exceptions select h@ExceptionHandler
              when not check_exception_handler(decl, node.f_name, h,
                                               ignore_component_assignments))
-            ]?[1] == ())
+            ])
     }]

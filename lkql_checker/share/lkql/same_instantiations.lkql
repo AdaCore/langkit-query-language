@@ -51,4 +51,4 @@ fun same_instantiations(unit) =
     [{message: "same instantiation found at " &
                stdlib.sloc_image(same_instance(n)), loc: n}
      for n in from unit.root select GenericPackageInstantiation
-              if same_instance(n) != ()]
+              if same_instance(n)]

@@ -11,7 +11,7 @@ fun is_predefined_raise(id) =
 fun canonical_exception_name(name) = {
    val ren = name?.p_referenced_decl()?.f_renames;
 
-   if ren == null
+   if not ren
    then name
    else canonical_exception_name(ren?.f_renamed_object)
 }

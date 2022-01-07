@@ -8,7 +8,7 @@ fun canonical_exception(name) = {
    val exception_decl = name?.p_referenced_decl();
    val ren = exception_decl?.f_renames;
 
-   if ren == null
+   if not ren
    then exception_decl
    else canonical_exception(ren.f_renamed_object)
 }

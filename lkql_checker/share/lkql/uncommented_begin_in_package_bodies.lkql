@@ -10,6 +10,6 @@ import stdlib
        remediation="EASY", category="Style", subcategory="Readability")
 fun uncommented_begin_in_package_bodies(node) =
     node is HandledStmts(parent is p@PackageBody(f_decls is *(f_decls is l@*)))
-    when l[1] != null
+    when l[1]
      and not stdlib.find_comment(node.token_start().previous,
                                  p.f_package_name.text)

@@ -11,7 +11,7 @@ fun type_of(name) =
        category="Style", subcategory="Portability")
 fun membership_for_validity(node) =
     node is MembershipExpr(f_expr is var@Name)
-    when node.f_membership_exprs[2] == null
+    when not node.f_membership_exprs[2]
      and node.f_membership_exprs[1] is
          (typ@Name when type_of(var) == typ.p_referenced_decl()) or
          BinOp(f_op is OpDoubleDot,

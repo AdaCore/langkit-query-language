@@ -12,6 +12,6 @@ fun bit_records_without_layout_definition(node) =
     node is TypeDecl
     when node.f_type_def is RecordTypeDef or DerivedTypeDef
      and node.p_has_aspect("Pack")
-     and node.p_get_record_representation_clause() == null
+     and not node.p_get_record_representation_clause()
      and node is *(any children is c@(ComponentDef or DiscriminantSpec)
                    when lal_is_mod_type(c))

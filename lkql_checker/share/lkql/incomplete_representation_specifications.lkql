@@ -5,5 +5,5 @@
        category="Style", subcategory="Portability")
 fun incomplete_representation_specifications(node) =
     node is TypeDecl
-    when node.p_get_record_representation_clause() != null
+    when node.p_get_record_representation_clause()
      and ((not node.p_has_aspect("Size")) or not node.p_get_aspect("Pack").exists)

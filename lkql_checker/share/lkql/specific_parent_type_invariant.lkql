@@ -24,4 +24,4 @@ fun specific_parent_type_invariant(node) =
          [t for t in [base] & base.p_base_types()
           if t.p_has_aspect("Type_Invariant") or
              check_aspect(t.p_previous_part(), "Type_Invariant") or
-             check_aspect(t.p_full_view(), "Type_Invariant")]?[1] != () })
+             check_aspect(t.p_full_view(), "Type_Invariant")] })

@@ -14,7 +14,7 @@ fun no_inherited_classwide_pre(unit) = [
      loc: n.p_defining_name()}
     for n in from unit.root select node@(BasicSubpDecl or BaseSubpBody)
     # Get subprogram declarations that are primitive of a tagged type
-    when node.p_subp_spec_or_null()?.p_primitive_subp_tagged_type() != null
+    when node.p_subp_spec_or_null()?.p_primitive_subp_tagged_type()
      and ({
         val decls = node.p_base_subp_declarations();
         # If decls.length is greater than 1, it means we are overriding

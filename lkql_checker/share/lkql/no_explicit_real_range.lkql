@@ -8,11 +8,11 @@ fun is_real_without_range(decl) =
          when decl.f_type_def is
               RealTypeDef(f_range is null) or
               d@DerivedTypeDef
-              when (from d.f_subtype_indication.f_constraint
-                    select first RangeSpec) == null
+              when not (from d.f_subtype_indication.f_constraint
+                        select first RangeSpec)
                and is_real_without_range(decl.p_base_type()))
       or SubtypeDecl
-         when (from decl.f_subtype.f_constraint select first RangeSpec) == null
+         when not (from decl.f_subtype.f_constraint select first RangeSpec)
           and is_real_without_range(decl.p_base_subtype())
 
 @check(message="real type with no range definition",

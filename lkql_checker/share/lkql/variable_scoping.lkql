@@ -20,9 +20,9 @@ fun check_references(list, subp) = {
     # Then check that no reference is outside this block apart from the
     # defining name itself.
 
-    [x for x in list
+    not [x for x in list
      if (not x.ref.p_is_defining()) and
-        stdlib.enclosing_block(x.ref) != block]?[1] == ()
+        stdlib.enclosing_block(x.ref) != block]
 }
 
 @unit_check(help="variables that can be moved to an inner block",

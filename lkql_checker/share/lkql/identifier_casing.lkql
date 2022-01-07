@@ -44,7 +44,7 @@ fun strip_first_last(s) = s.substring(2, s.length - 1)
 fun check_casing(id, scheme, exclude) =
     |" Return true if `id` does not follow the casing specified by `scheme`
 
-    if exclude.length == 0
+    if not exclude
     then wrong_casing(id.text, scheme)
     else {
         fun check_words(words, first, last) = last >= first and ({
@@ -54,16 +54,16 @@ fun check_casing(id, scheme, exclude) =
                           s.to_lower_case == strip_first_last(pat).
                                              to_lower_case
                       | *          => false].to_list;
-            (ex.length != 0 and
+            (ex and
              s != strip_first_last(ex[ex.length])) or
-            (ex.length == 0 and wrong_casing(s, scheme))   or
+            (not ex and wrong_casing(s, scheme))   or
             check_words(words, first, last - 1)
         });
 
         # First look for id as a whole word in exclude
         val ex = [s for s in exclude if id.p_name_is(s)].to_list;
         # If found, determine whether the names match and we are done
-        if ex.length != 0
+        if ex
         then id.text != ex[ex.length]
         else {
             val words = id.text.split("_");
@@ -73,7 +73,7 @@ fun check_casing(id, scheme, exclude) =
                             | "^[^*]+\*$" => first == strip_last(s).to_lower_case
                             | *           => false].to_list;
             # If we do and the casing differs, we are done
-            (first_ex.length != 0 and
+            (first_ex and
              words[1] != strip_last(first_ex[first_ex.length])) or
             # Check whether we have a match on the last word
             ({
@@ -83,14 +83,14 @@ fun check_casing(id, scheme, exclude) =
                                                  strip_first(s).to_lower_case
                                 | *           => false].to_list;
                 # If we do and the casing differs, we are done
-                (last_ex.length != 0 and
+                (last_ex and
                  words[words.length] !=
                  strip_first(last_ex[last_ex.length])) or
                 # Now check all remaining words, excluding first and/or last
                 # if we already found them in the dictionary.
                 check_words(words,
-                            first=if first_ex.length == 0 then 1 else 2,
-                            last=if last_ex.length == 0
+                            first=if not first_ex then 1 else 2,
+                            last=if not last_ex
                                  then words.length else words.length - 1)
             })
         }

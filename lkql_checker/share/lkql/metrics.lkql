@@ -11,9 +11,9 @@ selector eligible_children
     | null     => ()
     | *        => rec *this.children
 
-fun in_quantified_expr(s) =
-    |" Helper: Whether ``s`` is in a quantified expression or not
-    [p for p in s.parents() if p is QuantifiedExpr]?[1] != ()
+fun parent_quantified_expr(s) =
+    |" Helper: All quantified expressions containing ``s``
+    [p for p in s.parents() if p is QuantifiedExpr]
 
 fun expr_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity of expressions in the given body
@@ -34,7 +34,7 @@ fun statement_complexity(body, exempt_case=false) =
 {
     fun node_weight (n) = match n
         | IfStmt or ElsifStmtPart or WhileLoopSpec => 1
-        | f@ForLoopSpec when not in_quantified_expr(f) => 1
+        | f@ForLoopSpec when not parent_quantified_expr(f) => 1
         | c@CaseStmt => if exempt_case then 1 else c.f_alternatives.children_count - 1
         | e@ExitStmt(f_cond_expr is not null) => 1
         | s@SelectStmt(
@@ -91,7 +91,7 @@ fun essential_complexity(body, treat_exit_as_goto=true) =
     ];
 
     val to_count_nodes = 
-        if jump_nodes.length == 0 then []
+        if not jump_nodes then []
         else reduce(
             jump_nodes,
             (comp, jump_node) => (

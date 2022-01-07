@@ -10,8 +10,8 @@
 # limited type, it is not flagged.
 # Protected procedures are not flagged. Null procedures also are not flagged.
 
-fun no_in_out_params(s) =
-    [p for p in s.p_params() if p.f_mode is ModeInOut]?[1] == ()
+fun in_out_params(s) =
+    [p for p in s.p_params() if p.f_mode is ModeInOut]
 
 fun params_out(s) =
     [p for p in s.p_params() if p.f_mode is ModeOut].to_list
@@ -22,10 +22,10 @@ fun is_limited(t) = t.f_has_limited.p_as_bool()
 fun function_style_procedures(node) =
     node is (SubpBody or SubpBodyStub or ClassicSubpDecl or GenericSubpInternal)
     when (node is (ClassicSubpDecl or GenericSubpInternal) or
-          node.p_previous_part() == null)
+          not node.p_previous_part())
      and node.f_subp_spec.f_subp_kind is SubpKindProcedure
      and node.p_get_aspect_spec_expr("Global") is null or NullLiteral
-     and no_in_out_params(node.f_subp_spec)
+     and not in_out_params(node.f_subp_spec)
      and ({
          # Check for 1 out parameter of a non limited type
          val p_out=params_out(node.f_subp_spec);

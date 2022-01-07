@@ -38,8 +38,8 @@ fun complex_statement(stmts) =
 
 fun is_complex_subp(node, n) =
     |" Return true is node is a complex subprogram body as defined above
-    complex_declaration(node?.f_decls) != null or
-    complex_statement(node?.f_stmts) != null or
+    complex_declaration(node?.f_decls) or
+    complex_statement(node?.f_stmts) or
     # Check for number of statements
     [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n
 

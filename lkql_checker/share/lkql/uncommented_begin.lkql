@@ -15,7 +15,7 @@ fun uncommented_begin(unit) = [
                                           EntryBody or ProtectedBody or
                                           TaskBody))
     when p.f_decls is *(f_decls is l@*)
-         when l[1] != null
+         when l[1]
           and not stdlib.find_comment(node.token_start().previous,
                                       p.p_defining_name().text)
 ]

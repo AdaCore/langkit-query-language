@@ -36,7 +36,7 @@ fun deeply_nested_inlining(node, n: int = 3) =
                                   check_inlining(node.p_body_part(), n + 1)
     | GenericSubpDecl          => node.p_has_aspect("Inline") and
                                   check_inlining(node.p_body_part(), n + 1)
-    | BaseSubpBody             => node.p_previous_part() == null and
+    | BaseSubpBody             => not node.p_previous_part() and
                                   node.p_has_aspect("Inline") and
                                   check_inlining(node, n + 1)
     | GenericSubpInstantiation => node.f_generic_subp_name?.p_referenced_decl()

@@ -27,7 +27,7 @@ fun check_alternatives(list, id) =
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
 fun use_case_statements(node) =
-    node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1] != null,
+    node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1],
                    f_cond_expr is
                        (r@RelationOp(f_left is id@Identifier)
                         when id.p_expression_type().p_is_discrete_type() and

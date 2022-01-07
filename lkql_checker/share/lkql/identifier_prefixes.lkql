@@ -79,7 +79,7 @@ fun get_derived(t, derived) = {
    val name = t.p_canonical_type().
               p_canonical_fully_qualified_name();
    val res = [n for n in derived if name == n.split(":")[1]].to_list;
-   if res.length == 0 then "" else res[res.length]
+   if not res then "" else res[res.length]
 }
 
 @unit_check(help="prefixes in defining names", remediation="EASY",
@@ -254,8 +254,7 @@ fun identifier_prefixes(unit,
         # Check all other defining names for exclusion except for completions
         # and renaming-as-body
         | p2@* =>
-            ((not p2 is (Body or SubpRenamingDecl)) or
-             p2?.p_previous_part() == null) and
-            ((not p2 is ObjectDecl) or p2?.p_public_part_decl() == null) and
+            (not p2 is (Body or SubpRenamingDecl) or not p2.p_previous_part()) and
+            (not p2 is ObjectDecl or not p2.p_public_part_decl()) and
             check_exclusive(node.f_name.text, exclusive=exclusive)]
 }
