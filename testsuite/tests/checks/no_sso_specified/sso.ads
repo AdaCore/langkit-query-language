@@ -23,7 +23,7 @@ package SSO is
    end record;
 
    for Tag1 use record
-      I at 0 range 0 .. 31;
+      I at 8 range 0 .. 31;
    end record;
 
    type Tag2 is new Tag1 with record   --  FLAG
@@ -31,7 +31,7 @@ package SSO is
    end record;
 
    for Tag2 use record
-      J at 4 range 0 .. 31;
+      J at 12 range 0 .. 31;
    end record;
 
    type Tag3 is new Tag1 with null record;   --  NO FLAG
@@ -42,7 +42,7 @@ package SSO is
    end record;
 
    for Tag4 use record
-      J at 4 range 0 .. 31;
+      J at 16 range 0 .. 31;
    end record;
 
 end SSO;
