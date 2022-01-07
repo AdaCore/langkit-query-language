@@ -5,3 +5,11 @@ print(if not empty then "empty OK" else "NOK")
 print(if empty or not_empty then "or OK" else "NOK")
 print(select ObjectDecl when not empty)
 print(select ObjectDecl when empty)
+print(select ObjectDecl when not not_empty)
+print(select ObjectDecl when not_empty)
+
+print(if [e for e in not_empty] then "not empty iterator OK" else "NOK")
+print(if not [e for e in empty] then "empty iterator OK" else "NOK")
+val it_not_empty = [e for e in [1]]
+print(if it_not_empty and it_not_empty then "safe iteration OK" else "NOK")
+print(if empty and empty[empty.length] then "NOK" else "short circuit op OK")

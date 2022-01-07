@@ -550,6 +550,36 @@ package body LKQL.Primitives is
               else True);
    end Booleanize;
 
+   ------------
+   -- Truthy --
+   ------------
+
+   function Truthy (Value : Primitive; Has_Truthy : out Boolean) return Boolean
+   is
+   begin
+      Has_Truthy := True;
+
+      case Kind (Value) is
+         when Kind_Node | Kind_Unit =>
+            return Booleanize (Value);
+         when Kind_Bool =>
+            return Bool_Val (Value);
+         when Kind_Iterator =>
+            declare
+               Iterator_Clone : Primitive_Iters.Iterator_Interface'Class
+                 := Primitive_Iters.Clone (Iter_Val (Value).Iter.all);
+               Dummy_Element : Primitive;
+            begin
+               return Primitive_Iters.Next (Iterator_Clone, Dummy_Element);
+            end;
+         when Kind_List =>
+            return Primitives.Length (Value) /= 0;
+         when others =>
+            Has_Truthy := False;
+            return False;
+      end case;
+   end Truthy;
+
    ------------------
    -- To_Primitive --
    ------------------

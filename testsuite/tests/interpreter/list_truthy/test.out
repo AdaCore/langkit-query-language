@@ -3,3 +3,9 @@ empty OK
 or OK
 [<ObjectDecl ["Message"] main.adb:4:4-4:48>, <ObjectDecl ["ConstantMessage"] main.adb:5:4-5:66>]
 []
+[]
+[<ObjectDecl ["Message"] main.adb:4:4-4:48>, <ObjectDecl ["ConstantMessage"] main.adb:5:4-5:66>]
+not empty iterator OK
+empty iterator OK
+safe iteration OK
+short circuit op OK

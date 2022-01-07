@@ -503,6 +503,16 @@ package LKQL.Primitives is
    --  * ``false``, the unit value and the null node are False
    --  * Everything else is True
 
+   function Truthy (Value : Primitive; Has_Truthy : out Boolean)
+                    return Boolean;
+   --  Given a primitive, returns true iif it can be evaluated as being
+   --  "true", ie it is a Boolean with the value True, a non-null node, a
+   --  a non-empty list, or a non-empty iterable.
+   --  Returns false for unit primitives that represent absence of result
+   --  for eg. has_aspect calls.
+   --  If the primitive doesn't have a truthy value, Has_Truthy is set to False
+   --  and the function result is False.
+
    ----------------------------------
    -- Creation of Primitive values --
    ----------------------------------

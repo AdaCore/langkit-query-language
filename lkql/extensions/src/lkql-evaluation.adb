@@ -126,34 +126,32 @@ package body LKQL.Evaluation is
    --  environments produced by this list of Arrow_Assoc in the context of a
    --  list comprehension.
 
-   function Truthy (Ctx   : Eval_Context;
-                    Node  : L.LKQL_Node;
-                    Value : Primitive)
-                    return Primitive;
-   --  Given a primitive, returns a Boolean primitive that is True
-   --  iif the node is a Boolean with the value True, or a non-empty list.
+   function Get_Truthy (Ctx   : Eval_Context;
+                        Node  : L.LKQL_Node;
+                        Value : Primitive)
+                        return Primitive;
+   --  Given a primitive, returns its truthy value if it has one.
    --  Raise an exception and register an error in the evaluation context if
-   --  `Value` isn't a Boolean or List
+   --  the primitive has no truthy value.
 
-   ------------
-   -- Truthy --
-   ------------
+   ----------------
+   -- Get_Truthy --
+   ----------------
 
-   function Truthy (Ctx   : Eval_Context;
-                    Node  : L.LKQL_Node;
-                    Value : Primitive)
-                    return Primitive
+   function Get_Truthy (Ctx   : Eval_Context;
+                        Node  : L.LKQL_Node;
+                        Value : Primitive)
+                        return Primitive
    is
+      Has_Truthy : Boolean;
+      Truthy_Value : constant Boolean := Truthy (Value, Has_Truthy);
    begin
-      case Kind (Value) is
-         when Kind_Bool =>
-            return Value;
-         when Kind_List =>
-            return To_Primitive (Primitives.Length (Value) /= 0);
-         when others =>
-            Raise_Invalid_Kind (Ctx, Node, Kind_Bool, Value);
-      end case;
-   end Truthy;
+      if Has_Truthy then
+         return To_Primitive (Truthy_Value);
+      else
+         Raise_Invalid_Kind (Ctx, Node, Kind_Bool, Value);
+      end if;
+   end Get_Truthy;
 
    ----------------
    -- Check_Kind --
@@ -260,7 +258,7 @@ package body LKQL.Evaluation is
       end case;
 
       if Expected_Kind = Kind_Bool then
-         Result := Truthy (Local_Context, Node.As_LKQL_Node, Result);
+         Result := Get_Truthy (Local_Context, Node.As_LKQL_Node, Result);
       elsif Expected_Kind in Valid_Primitive_Kind then
          Check_Kind (Local_Context, Node.As_LKQL_Node, Expected_Kind, Result);
       end if;
@@ -566,7 +564,8 @@ package body LKQL.Evaluation is
       Left    : constant L.LKQL_Node := Node.F_Left.As_LKQL_Node;
       Right   : constant L.LKQL_Node := Node.F_Right.As_LKQL_Node;
 
-      Left_Result  : constant Boolean := Booleanize (Eval (Ctx, Left));
+      Left_Result  : constant Boolean
+        := Bool_Val (Eval (Ctx, Left, Expected_Kind => Kind_Bool));
    begin
 
       --  We eval the result of the right side expression inline to keep the
@@ -575,9 +574,11 @@ package body LKQL.Evaluation is
       Result :=
         (case Node.F_Op.Kind is
             when LCO.LKQL_Op_And =>
-              Left_Result and then Booleanize (Eval (Ctx, Right)),
+              Left_Result and then Bool_Val (Eval
+                (Ctx, Right, Expected_Kind => Kind_Bool)),
             when LCO.LKQL_Op_Or  =>
-              Left_Result or else Booleanize (Eval (Ctx, Right)),
+              Left_Result or else Bool_Val (Eval
+                (Ctx, Right, Expected_Kind => Kind_Bool)),
             when others          =>
                raise Assertion_Error
                  with "Not a short-circuit operator kind: "
