@@ -6,7 +6,6 @@
 @check(message="definition of non class-wide Type_Invariant aspect",
        category="Style", subcategory="Object Orientation")
 fun specific_type_invariants(node) =
-    node is AspectAssoc(f_id is id@Identifier)
-    when id?.p_name_is("Type_Invariant")
-     and node is *(any parent(depth=3) is p@BaseTypeDecl
-                   when p?.p_is_tagged_type())
+    node is AspectAssoc(
+        f_id is Identifier(p_name_is("Type_Invariant") is true),
+        any parent(depth=3) is BaseTypeDecl(p_is_tagged_type() is true))

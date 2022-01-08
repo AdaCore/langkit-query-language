@@ -11,17 +11,15 @@ fun base_type(t) = if t is SubtypeDecl then base_type(t.p_base_subtype()) else t
        category="Style", subcategory="Object Orientation")
 fun specific_parent_type_invariant(node) =
     # Flag any tagged type extension
-    node is DerivedTypeDef
-    when node.parent.p_is_tagged_type()
-     # exclude private completions
-     and (not node.parent.p_previous_part() is
-              TypeDecl(f_type_def is DerivedTypeDef(f_has_with_private
-                                                    is WithPrivatePresent)))
+    node is DerivedTypeDef(parent is p@BaseTypeDecl(p_is_tagged_type() is true))
+    # exclude private completions
+    when not p.p_previous_part() is TypeDecl(
+        f_type_def is DerivedTypeDef(f_has_with_private is WithPrivatePresent))
      # check for a parent type with a Type_Invariant aspect (current or public
      # view)
      and ({
-         val base = base_type(node.parent.p_base_type());
-         [p for p in [base] & base.p_base_types()
-          if p.p_has_aspect("Type_Invariant") or
-             check_aspect(p.p_previous_part(), "Type_Invariant") or
-             check_aspect(p.p_full_view(), "Type_Invariant")]?[1] != () })
+         val base = base_type(p.p_base_type());
+         [t for t in [base] & base.p_base_types()
+          if t.p_has_aspect("Type_Invariant") or
+             check_aspect(t.p_previous_part(), "Type_Invariant") or
+             check_aspect(t.p_full_view(), "Type_Invariant")]?[1] != () })
