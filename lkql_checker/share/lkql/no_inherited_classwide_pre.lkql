@@ -8,8 +8,7 @@ fun no_inherited_classwide_pre(unit) = [
     {message:
         "overriding operation that does not inherit Pre'Class (" &
         ({
-            val tok = [p for p in n.p_base_subp_declarations()
-                       if not p.p_has_aspect("Pre'Class")][1]?.token_start();
+            val tok = n.p_base_subp_declarations()[1].token_start();
             tok.unit.name.base_name & ":" &
             img(tok.start_line) & ":" & img(tok.start_column) & ")"}),
      loc: n.p_defining_name()}
@@ -20,8 +19,6 @@ fun no_inherited_classwide_pre(unit) = [
         val decls = node.p_base_subp_declarations();
         # If decls.length is greater than 1, it means we are overriding
         decls.length > 1 and
-        # Check if some of the overriden operation defines Pre'Class
-        [p for p in decls
-         if p != node and p.p_has_aspect("Pre'Class")]
-         .length != decls.length - 1
+        # Check whether the root operation defines Pre'Class
+        not decls[1].p_has_aspect("Pre'Class")
      })]
