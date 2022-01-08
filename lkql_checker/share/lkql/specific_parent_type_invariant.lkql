@@ -15,6 +15,8 @@ fun specific_parent_type_invariant(node) =
     # exclude private completions
     when not p.p_previous_part() is TypeDecl(
         f_type_def is DerivedTypeDef(f_has_with_private is WithPrivatePresent))
+     # exclude also formal derived types
+     and p.parent is not GenericFormalTypeDecl
      # check for a parent type with a Type_Invariant aspect (current or public
      # view)
      and ({
