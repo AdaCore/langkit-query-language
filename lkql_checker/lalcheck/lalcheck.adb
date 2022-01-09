@@ -299,11 +299,6 @@ begin
 
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
-   --  The call to Create_Context above was made before sources are computed
-   --  by Check_Parameters, so reset them now.
-
-   Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
-
    if not Subprocess_Mode then
       Gnatcheck.Diagnoses.Init_Exemptions;
    end if;
@@ -323,16 +318,22 @@ begin
       --  In this case we spawn gnatcheck for each project being aggregated
       Gnatcheck.Projects.Aggregate.Process_Aggregated_Projects (Gnatcheck_Prj);
 
-   elsif Subprocess_Mode then
-      Process_Sources (Ctx);
-      Rules_Factory.Finalize_Rules (Ctx.Eval_Ctx);
-      Free_Eval_Context (Ctx.Eval_Ctx);
-
    else
+      --  The call to Create_Context above was made before sources are computed
+      --  by Check_Parameters, so reset them now.
+
+      Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
+
+      if Subprocess_Mode then
+         Process_Sources (Ctx);
+         Rules_Factory.Finalize_Rules (Ctx.Eval_Ctx);
+         Free_Eval_Context (Ctx.Eval_Ctx);
+
       --  Implement -j via multiple processes
       --  In the default -j1 mode, process all sources in the main process.
 
-      if Process_Num <= 1 then
+      elsif Process_Num <= 1 then
+
          --  Spawn gprbuild in background to process the files in parallel
 
          if Analyze_Compiler_Output then

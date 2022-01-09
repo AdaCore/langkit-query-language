@@ -21,6 +21,7 @@ with Ada.Command_Line;  use Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
 with Ada.Strings;       use Ada.Strings;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
+with Ada.Text_IO;       use Ada.Text_IO;
 
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
@@ -315,6 +316,24 @@ package body Gnatcheck.Projects.Aggregate is
                                               Out_Args (4).all)
                                        else
                                           ""));
+
+         if Debug_Mode then
+            Put (Full_Tool_Name.all);
+
+            for Arg of Prj_Args loop
+               Put (" " & Arg.all);
+            end loop;
+
+            for Arg of Out_Args (1 .. Out_Args_Count) loop
+               Put (" " & Arg.all);
+            end loop;
+
+            for Arg of Args (1 .. Arg_Count) loop
+               Put (" " & Arg.all);
+            end loop;
+
+            New_Line;
+         end if;
 
          Exit_Code := Spawn (Program_Name => Full_Tool_Name.all,
                              Args         => Prj_Args                       &
