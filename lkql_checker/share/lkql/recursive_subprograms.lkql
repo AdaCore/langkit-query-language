@@ -6,7 +6,9 @@
 # calls nor calls through access-to-subprograms are considered as direct calls
 # by this rule. If Follow_Dispatching_Calls is set, gnatcheck considers a
 # dispatching call as a set of calls to all the subprograms the dispatching
-# call may dispatch to, otherwise dispatching calls are ignored.
+# call may dispatch to, otherwise dispatching calls are ignored. As a
+# limitation, primitive operations declared in generic instantiations are not
+# taken into account.
 #
 # This rule does not take into account calls that may happen as the result of
 # subprogram import or more generally unavailable subprogram bodies. See rule
@@ -16,20 +18,30 @@
 # Recursive subprograms in expanded generic instantiations are flagged.
 #
 # This rule does not take into account subprogram calls in aspect definitions
-# nor (for now) implicit calls made via type initialization.
+# nor implicit calls made via type initialization.
 
 import stdlib
+
+fun get_body(node) =
+    match node
+    | GenericPackageInstantiation
+                      => node.f_generic_pkg_name.p_referenced_decl()
+    | GenericSubpInstantiation
+                      => node.f_generic_subp_name.p_referenced_decl()
+    | Name            => stdlib.get_subp_body(node.p_referenced_decl())
+    | BasicDecl       => stdlib.get_subp_body(node)
+    | *               => null
 
 # Get the bodies of the functions called statically by a given function body
 @memoized
 selector static_calls
-    | b@Body => rec *
+    | b@(Body or GenericDecl) => rec *
         # Grab the bodies for every static call
-        [stdlib.get_subp_body(a.p_referenced_decl())
+        [get_body(a)
          for a in stdlib.children_no_nested_subps(b)
-         if a is BaseId
-         when a.p_is_static_call() or
-              a.p_referenced_decl() is TaskTypeDecl].to_list
+         if a is GenericInstantiation or
+                 BaseId when a.p_is_static_call() or
+                             a.p_referenced_decl() is TaskTypeDecl].to_list
     | *      => ()
 
 @memoized
@@ -52,17 +64,18 @@ fun bodies(name) =
         val subp  = if roots.length == 0 then root else roots[1];
         [stdlib.get_subp_body(subp)] &
         [stdlib.get_subp_body(s) for s in find_all_overrides(subp)].to_list
-    } else [stdlib.get_subp_body(name.p_referenced_decl())]
+    } else [get_body(name)]
 
 fun calls_helper(b) = 
       concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
-              if a is BaseId
-              when a.p_is_direct_call() or
-                   a.p_referenced_decl() is TaskTypeDecl].to_list)
+              if a is GenericInstantiation or
+                      (BaseId when a.p_is_direct_call() or
+                                   a.p_referenced_decl() is TaskTypeDecl)].
+             to_list)
 
 @memoized
 selector calls
-   | b@Body => rec * calls_helper(b)
+   | b@(Body or GenericDecl) => rec * calls_helper(b)
        # Grab the bodies for every direct call
    | *      => ()
 
@@ -73,7 +86,7 @@ selector calls
 fun recursive_subprograms(node,
                           skip_dispatching_calls=true,
                           follow_dispatching_calls=false) =
-    node is (ClassicSubpDecl or
+    node is (ClassicSubpDecl or SubpBodyStub(p_previous_part() is null) or
              BaseSubpBody(p_previous_part() is null or GenericSubpDecl))
     when (not stdlib.in_generic_template(node))
      and stdlib.get_subp_body(node) is b@BaseSubpBody when

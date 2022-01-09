@@ -282,7 +282,7 @@ fun get_subp_body(node) =
     | ClassicSubpDecl => node.p_body_part()
     | GenericSubpInstantiation
                       => node.p_designated_generic_decl().p_body_part()
-    | SubpBodyStub    => node
+    | SubpBodyStub    => node.p_body_part_for_decl()
     | EntryDecl       =>
         # For a task entry decl, return the task body as an over approximation
         # TODO: replace p_next_part_for_decl once U920-016 if fixed.
