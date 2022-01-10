@@ -1485,7 +1485,9 @@ package body Gnatcheck.Source_Table is
                end loop;
             end;
 
-            Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
+            if not Subprocess_Mode then
+               Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
+            end if;
 
          exception
             when E : others =>
