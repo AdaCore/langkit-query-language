@@ -2,7 +2,7 @@
 # derived record type declaration if a record_representation_clause that has at
 # least one component clause applies to it (or an ancestor), but neither the
 # type nor any of its ancestors has an explicitly specified
-# Scalar_Storage_Order attribute.
+# Scalar_Storage_Order aspect.
 
 fun non_empty_rep_clause(n) =
     n.p_get_record_representation_clause() is
