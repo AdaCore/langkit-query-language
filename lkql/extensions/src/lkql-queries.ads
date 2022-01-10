@@ -21,15 +21,15 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Eval_Contexts;   use LKQL.Eval_Contexts;
-with LKQL.Chained_Pattern; use LKQL.Chained_Pattern;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
+with LKQL.Eval_Contexts;      use LKQL.Eval_Contexts;
+with LKQL.Chained_Pattern;    use LKQL.Chained_Pattern;
+with LKQL.Lk_Nodes_Iterators; use LKQL.Lk_Nodes_Iterators;
 
 private package LKQL.Queries is
 
-   function Make_Query_Iterator (Ctx  : Eval_Context;
-                                 Node : L.Query)
-                                 return AST_Node_Iterator'Class;
+   function Make_Query_Iterator
+     (Ctx  : Eval_Context;
+      Node : L.Query) return Lk_Node_Iterator'Class;
    --  Returns an iterator over the AST nodes, yielding only the elements that
    --  belong to the result of the given query.
 
@@ -37,7 +37,7 @@ private package LKQL.Queries is
    -- Query_Predicate --
    ---------------------
 
-   type Query_Predicate is new AST_Node_Iterator_Predicate with record
+   type Query_Predicate is new Lk_Node_Iterator_Predicate with record
       Ctx     : Eval_Context;
       Pattern : L.Base_Pattern;
    end record;
@@ -54,7 +54,7 @@ private package LKQL.Queries is
    --  that belongs to the result set of the given query.
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : H.AST_Node_Holder) return Boolean;
+     (Self : in out Query_Predicate; Node : Lk_Node) return Boolean;
    --  Evaluate the given predicate against 'Node'
 
    overriding function Clone
@@ -67,13 +67,13 @@ private package LKQL.Queries is
    -- Chained_Pattern_Query_Iter --
    --------------------------------
 
-   type Chained_Pattern_Query_Iter is new AST_Node_Iterator with record
+   type Chained_Pattern_Query_Iter is new Lk_Node_Iterator with record
       Ctx       : Eval_Context;
       Iter      : Chained_Pattern_Iterator;
    end record;
 
    overriding function Next (Iter   : in out Chained_Pattern_Query_Iter;
-                             Result : out H.AST_Node_Holder) return Boolean;
+                             Result : out Lk_Node) return Boolean;
 
    overriding function Clone (Iter : Chained_Pattern_Query_Iter)
                               return Chained_Pattern_Query_Iter;

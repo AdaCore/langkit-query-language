@@ -30,6 +30,6 @@ package body LKQL.Depth_Nodes is
    ----------
 
    function Hash (Value : Depth_Node) return Ada.Containers.Hash_Type is
-    (H.Hash (Value.Node));
+    (LK.Hash (Value.Node));
 
 end LKQL.Depth_Nodes;

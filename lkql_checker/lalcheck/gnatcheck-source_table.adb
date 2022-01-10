@@ -46,8 +46,9 @@ with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Helpers;          use Libadalang.Helpers;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
+with Libadalang.Generic_API;      use Libadalang.Generic_API;
+with Libadalang.Common;
 
-with Ada_AST_Nodes;      use Ada_AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Errors;        use LKQL.Errors;
 with LKQL.Primitives;    use LKQL.Primitives;
@@ -248,8 +249,17 @@ package body Gnatcheck.Source_Table is
          end if;
       end loop;
 
-      Set_Units (Ctx.Eval_Ctx, Units);
-      Unchecked_Free (Files);
+      declare
+         Lk_Units : LK_Unit_Array (Units.First_Index .. Units.Last_Index);
+      begin
+         for I in Lk_Units'Range loop
+            Lk_Units (I) := To_Generic_Unit (Units (I));
+            Set_Units (Ctx.Eval_Ctx, Lk_Units);
+         end loop;
+
+         Unchecked_Free (Files);
+      end;
+
    end Add_Sources_To_Context;
 
    ---------------------------
@@ -1360,22 +1370,21 @@ package body Gnatcheck.Source_Table is
       Cached_Rule    : Unbounded_Text_Type;
 
       use Libadalang.Iterators;
-      use LALCO;
 
       function Strip_LF (S : String) return String is
       (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
       --  Remove trailing LF if any
 
-      function File_Name (Unit : Analysis_Unit) return String is
+      function File_Name (Unit : LK.Lk_Unit) return String is
         (if Full_Source_Locations
-         then Unit.Get_Filename
-         else Ada.Directories.Simple_Name (Unit.Get_Filename));
+         then Unit.Filename
+         else Ada.Directories.Simple_Name (Unit.Filename));
       --  Return a string representing the name of Unit, taking
       --  Options.Full_Source_Location into account.
 
       procedure Store_Message
         (Message    : Unbounded_Text_Type;
-         Unit       : Analysis_Unit;
+         Unit       : LK.Lk_Unit;
          Rule       : Unbounded_Text_Type;
          Kind       : Message_Kinds;
          Sloc_Range : Source_Location_Range);
@@ -1387,7 +1396,7 @@ package body Gnatcheck.Source_Table is
 
       procedure Store_Message
         (Message    : Unbounded_Text_Type;
-         Unit       : Analysis_Unit;
+         Unit       : LK.Lk_Unit;
          Rule       : Unbounded_Text_Type;
          Kind       : Message_Kinds;
          Sloc_Range : Source_Location_Range)
@@ -1443,7 +1452,7 @@ package body Gnatcheck.Source_Table is
                --  may not be Next_SF, so perform a lookup.
 
                  (if All_Rules.Table (Id).Follow_Instantiations
-                  then File_Find (Simple_Name (Unit.Get_Filename),
+                  then File_Find (Simple_Name (Unit.Filename),
                                   Use_Short_Name => True)
                   else Next_SF),
                Rule           => Id,
@@ -1475,6 +1484,7 @@ package body Gnatcheck.Source_Table is
                Current : Ada_Node;
                Dummy   : constant Boolean := It.Next (Current);
 
+               use Libadalang.Common;
             begin
                while It.Next (Current) loop
                   if Current.Kind = Ada_Pragma_Node
@@ -1536,10 +1546,13 @@ package body Gnatcheck.Source_Table is
       --  It's too early to compute units, so provide an empty value for now,
       --  until Add_Sources_To_Context is called.
 
-      Ctx.Eval_Ctx := Make_Eval_Context (Unit_Vectors.Empty_Vector);
+      Ctx.Eval_Ctx := Make_Eval_Context
+        (LK.Lk_Node_Array'(1 .. 0 => LK.No_Lk_Node), Ada_Lang_Id);
+
       LKQL.Errors.Property_Error_Recovery := LKQL.Errors.Continue_And_Warn;
 
       return Ctx;
+
    end Create_Context;
 
 end Gnatcheck.Source_Table;

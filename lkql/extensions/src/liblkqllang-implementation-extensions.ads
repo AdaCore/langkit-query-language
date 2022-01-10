@@ -23,6 +23,9 @@
 
 package Liblkqllang.Implementation.Extensions is
 
+   type Unbounded_Text_Array
+   is array (Positive range <>) of Unbounded_Text_Type;
+
    function Lkql_Node_P_Interp_Init_From_Project
      (Node : Bare_Lkql_Node; Project_File : String_Type) return Boolean;
 

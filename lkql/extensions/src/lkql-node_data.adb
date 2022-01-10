@@ -21,52 +21,86 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Errors;         use LKQL.Errors;
-with LKQL.Evaluation;     use LKQL.Evaluation;
-with LKQL.Error_Handling; use LKQL.Error_Handling;
+with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
+with LKQL.Errors;            use LKQL.Errors;
+with LKQL.Evaluation;        use LKQL.Evaluation;
+with LKQL.Error_Handling;    use LKQL.Error_Handling;
 
 with Ada.Exceptions; use Ada.Exceptions;
 with Langkit_Support.Errors;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with GNATCOLL.GMP.Integers;
+
 package body LKQL.Node_Data is
+
+   function Make_Primitive
+     (Ctx   : Eval_Context;
+      Value : LKI.Value_Ref) return Primitive;
+
+   function Make_Value_Type
+     (Value       : Primitive;
+      Target_Type : LKI.Type_Ref;
+      Ctx         : Eval_Context) return LKI.Value_Ref;
+
+   function List_To_Value_Ref
+     (Value        : Primitive_List;
+      Array_Type   : LKI.Type_Ref;
+      Ctx          : Eval_Context) return LKI.Value_Ref;
+
+   ---------------------------
+   -- Get_Struct_Member_Ref --
+   ---------------------------
+
+   function Get_Struct_Member_Ref
+     (Ctx        : Eval_Context;
+      Receiver   : LK.Lk_Node;
+      Field_Name : L.Identifier) return LKI.Struct_Member_Ref
+   is
+      T  : constant LKI.Type_Ref := LKI.Type_Of (Receiver);
+   begin
+      return Ctx.Get_Name_Map.Lookup_Struct_Member
+        (T, Symbol (Field_Name));
+   end Get_Struct_Member_Ref;
 
    -----------------------
    -- Access_Node_Field --
    -----------------------
 
    function Access_Node_Field (Ctx        : Eval_Context;
-                               Receiver   : H.AST_Node_Holder;
+                               Receiver   : LK.Lk_Node;
                                Field_Name : L.Identifier) return Primitive
    is
-      Result : Primitive;
+      Ref    : constant LKI.Struct_Member_Ref :=
+        Get_Struct_Member_Ref (Ctx, Receiver, Field_Name);
 
-      Real_Name : constant Text_Type := Field_Name.Text;
+      use LKI;
    begin
-      if Real_Name = "image" then
-         return To_Primitive (Receiver.Unchecked_Get.Text_Image, Ctx.Pool);
+      if Ref = LKI.No_Struct_Member_Ref then
+         Raise_And_Record_Error
+           (Ctx, Make_Eval_Error (Field_Name, "No such field"));
+      elsif LKI.Is_Property (Ref) then
+
+         --  TODO: This is a special case for some properties, but that's ugly
+         --  as hell.
+         if LKI.Member_Last_Argument (Ref) = No_Argument_Index then
+            declare
+               S : constant Symbol_Type := Symbol (Field_Name);
+            begin
+               if S.all in "children" | "unit" | "parent" then
+                  return Make_Primitive
+                    (Ctx, LKI.Eval_Node_Member (Receiver, Ref));
+               end if;
+            end;
+         end if;
+
+         return Make_Property_Reference (Receiver, Ref, Ctx.Pool);
       end if;
 
-      if Receiver.Unchecked_Get.Is_Field_Name (Real_Name) then
-
-         Result := Receiver.Unchecked_Get.Access_Field
-           (Receiver.Unchecked_Get.Get_Member_Reference (Real_Name), Ctx);
-
-         return Result;
-
-      elsif Receiver.Unchecked_Get.Is_Property_Name (Real_Name) then
-         return Make_Property_Reference
-           (To_Primitive (Receiver, Ctx.Pool),
-            H.Create_Member_Ref
-              (Receiver.Unchecked_Get.Get_Member_Reference (Real_Name)),
-            Ctx.Pool);
-      else
-         Raise_No_Such_Field (Ctx, Receiver, Field_Name);
-      end if;
-
+      return Make_Primitive (Ctx, LKI.Eval_Node_Member (Receiver, Ref));
    exception
-      when Error : Introspection_Error =>
+      when Error : LKE.Precondition_Failure =>
          Raise_And_Record_Error
            (Ctx, Make_Eval_Error (Field_Name,
                                   To_Text (Exception_Message (Error))));
@@ -77,23 +111,28 @@ package body LKQL.Node_Data is
    ------------------------
 
    function Eval_Node_Property (Ctx           : Eval_Context;
-                                Receiver      : H.AST_Node_Holder;
+                                Receiver      : LK.Lk_Node;
                                 Property_Name : L.Identifier;
                                 Args          : L.Arg_List) return Primitive
    is
-      Real_Name     : constant Text_Type := Property_Name.Text;
+
+      Ref    : constant LKI.Struct_Member_Ref :=
+        Get_Struct_Member_Ref (Ctx, Receiver, Property_Name);
+
+      use LKI;
    begin
-      if not Receiver.Unchecked_Get.Is_Property_Name (Real_Name) then
-         Raise_No_Such_Property (Ctx, Receiver, Property_Name);
+      if Ref = LKI.No_Struct_Member_Ref then
+         Raise_And_Record_Error
+           (Ctx, Make_Eval_Error (Property_Name, "No such field"));
       end if;
 
-      declare
-         Ref : constant AST_Node_Member_Reference'Class :=
-           Receiver.Unchecked_Get.Get_Member_Reference (Real_Name);
-      begin
-         return Eval_Node_Property
-           (Ctx, Receiver.Unchecked_Get.all, Ref, Args);
-      end;
+      return Eval_Node_Property (Ctx, Receiver, Ref, Args);
+   exception
+      when Error : LKE.Precondition_Failure =>
+         Raise_And_Record_Error
+           (Ctx, Make_Eval_Error (Property_Name,
+                                  To_Text (Exception_Message (Error))));
+
    end Eval_Node_Property;
 
    ------------------------
@@ -102,64 +141,72 @@ package body LKQL.Node_Data is
 
    function Eval_Node_Property
      (Ctx           : Eval_Context;
-      Receiver      : AST_Node'Class;
-      Property_Ref  : AST_Node_Member_Reference'Class;
+      Receiver      : LK.Lk_Node;
+      Property_Ref  : LKI.Struct_Member_Ref;
       Args          : L.Arg_List) return Primitive
    is
 
-      function Primitive_List_From_Args
+      Arity  : constant Natural
+        := Natural (LKI.Member_Last_Argument (Property_Ref));
+
+      function Value_Ref_Array_From_Args
         (Ctx           : Eval_Context;
-         Ref           : AST_Node_Member_Reference'Class;
+         Ref           : LKI.Struct_Member_Ref;
          Args          : L.Arg_List)
-         return Primitive_List;
+         return LKI.Value_Ref_Array;
       --  Evaluate the given arguments and convert them to Value_Type values.
 
-      ----------------------------------------
-      -- Introspection_Value_Array_From_Arg --
-      ----------------------------------------
+      -------------------------------
+      -- Value_Ref_Array_From_Args --
+      -------------------------------
 
-      function Primitive_List_From_Args
+      function Value_Ref_Array_From_Args
         (Ctx           : Eval_Context;
-         Ref           : AST_Node_Member_Reference'Class;
-         Args          : L.Arg_List)
-         return Primitive_List
+         Ref           : LKI.Struct_Member_Ref;
+         Args          : L.Arg_List) return LKI.Value_Ref_Array
       is
-         Arity  : constant Natural := Ref.Property_Arity;
-         Result : Primitive_List;
+         Result : LKI.Value_Ref_Array (1 .. Arity);
+         use LKI;
       begin
          for I in 1 .. Arity loop
             declare
-               Val : constant Primitive :=
+               Val : constant LKI.Value_Ref :=
                  (if I <= Args.Children_Count
-                  then Eval (Ctx, Args.List_Child (I).P_Expr)
-                  else Ref.Default_Arg_Value (I, Ctx));
+                  then Make_Value_Type
+                    (Eval (Ctx, Args.List_Child (I).P_Expr),
+                     Member_Argument_Type (Ref, Argument_Index (I)),
+                     Ctx)
+                  else Member_Argument_Default_Value
+                    (Ref, Argument_Index (I)));
             begin
-               if Val = null then
+               if Val = No_Value_Ref then
                   Raise_Invalid_Arity (Ctx, Arity, Args);
                else
-                  Result.Elements.Append (Val);
+                  Result (I) := Val;
                end if;
             end;
          end loop;
 
          return Result;
-      end Primitive_List_From_Args;
+      end Value_Ref_Array_From_Args;
 
       Result        : Primitive;
-      Property_Args : constant Primitive_List :=
-        Primitive_List_From_Args
+      Property_Args : constant LKI.Value_Ref_Array :=
+        Value_Ref_Array_From_Args
           (Ctx, Property_Ref, Args);
 
    begin
-      if Args.Children_Count > Property_Ref.Property_Arity then
-         Raise_Invalid_Arity (Ctx, Property_Ref.Property_Arity, Args);
+      if Args.Children_Count > Arity then
+         Raise_Invalid_Arity
+           (Ctx, Natural (LKI.Member_Last_Argument (Property_Ref)), Args);
       end if;
 
-      Result := Property_Ref.Evaluate_Property (Receiver, Property_Args, Ctx);
+      Result := Make_Primitive
+        (Ctx, LKI.Eval_Node_Member (Receiver, Property_Ref, Property_Args));
 
       return Result;
    exception
-      when Error : Introspection_Error =>
+      when Error : LKE.Precondition_Failure =>
          Raise_And_Record_Error
            (Ctx, Make_Eval_Error (Args.Parent,
             To_Text (Exception_Message (Error))));
@@ -175,5 +222,187 @@ package body LKQL.Node_Data is
                --  data.
                Property_Error_Info => Save_Occurrence (Error)));
    end Eval_Node_Property;
+
+   --------------------
+   -- Make_Primitive --
+   --------------------
+
+   function Make_Primitive
+     (Ctx   : Eval_Context; Value : LKI.Value_Ref) return Primitive
+   is
+      T : constant LKI.Type_Ref := LKI.Type_Of (Value);
+      use LKI;
+   begin
+      case LKI.Category (T) is
+         when Analysis_Unit_Category =>
+            return To_Primitive (LKI.As_Unit (Value), Ctx.Pool);
+         when Big_Int_Category =>
+            return To_Primitive
+              (Adaptive_Integers.Create
+                 (GNATCOLL.GMP.Integers.Image (LKI.As_Big_Int (Value))),
+               Ctx.Pool);
+         when Bool_Category =>
+            return To_Primitive (LKI.As_Bool (Value));
+         when Int_Category =>
+            return To_Primitive (LKI.As_Int (Value), Ctx.Pool);
+         when String_Category =>
+            return To_Primitive (LKI.As_String (Value), Ctx.Pool);
+         when Token_Category =>
+            return To_Primitive (LKI.As_Token (Value), Ctx.Pool);
+         when Symbol_Category =>
+            return To_Primitive (LKI.As_Symbol (Value), Ctx.Pool);
+         when Enum_Category =>
+            return To_Primitive
+              (LKN.Format_Name
+                 (LKI.Enum_Value_Name (LKI.As_Enum (Value)), LKN.Lower),
+               Ctx.Pool);
+         when Array_Category =>
+            declare
+               Res : constant Primitive := Make_Empty_List (Ctx.Pool);
+               Arr : constant Value_Ref_Array := LKI.As_Array (Value);
+            begin
+               for J in Arr'Range loop
+                  declare
+                     V    : constant LKI.Value_Ref := Arr (J);
+                     Prim : constant Primitive :=
+                       Make_Primitive (Ctx, V);
+                  begin
+                     Res.List_Val.Elements.Append (Prim);
+                  end;
+               end loop;
+
+               return Res;
+            end;
+         when Struct_Category =>
+            if LKI.Is_Node_Type (T) then
+               return To_Primitive (LKI.As_Node (Value), Ctx.Pool);
+            else
+               --  Structs are mapped to LKQL objects
+               declare
+                  Membs : constant Struct_Member_Ref_Array := Members (T);
+                  Ret   : constant Primitive := Make_Empty_Object (Ctx.Pool);
+               begin
+                  for Member of Membs loop
+                     Ret.Obj_Assocs.Elements.Include
+                       (Find (Get_Context (Ctx.Kernel.all).Get_Symbol_Table,
+                              LKN.Format_Name
+                                (LKI.Member_Name (Member), LKN.Lower)),
+                        Make_Primitive (Ctx, LKI.Eval_Member (Value, Member)));
+                  end loop;
+                  return Ret;
+               end;
+            end if;
+
+         when others =>
+            Ctx.Raise_Error
+              (L.No_Lkql_Node,
+               "Unsupported value type from the introspection API: " &
+               LKI.Category (T)'Wide_Wide_Image);
+      end case;
+
+   end Make_Primitive;
+
+   ---------------------
+   -- Make_Value_Type --
+   ---------------------
+
+   function Make_Value_Type
+     (Value       : Primitive;
+      Target_Type : LKI.Type_Ref;
+      Ctx         : Eval_Context) return LKI.Value_Ref
+   is
+      use LKI;
+
+      Target_Cat : constant LKI.Type_Category := Category (Target_Type);
+
+      Id : constant Langkit_Support.Generic_API.Language_Id :=
+        Language (Target_Type);
+   begin
+      case Value.Kind is
+         when Kind_List =>
+            if Target_Cat = LKI.Array_Category then
+               return List_To_Value_Ref
+                 (Value.List_Val.all, Target_Type, Ctx);
+            end if;
+
+         when Kind_Str =>
+            if Target_Cat = LKI.Enum_Category then
+
+               --  TODO: This actually can't be tested with LAL because we have
+               --  no properties that take enums as parameters, and we don't
+               --  want to add one just for the sake of testing that. Let's see
+               --  if we add such a property someday, or when we have the
+               --  possibility of testing with various Langkit based languages.
+
+               return LKI.Create_Enum
+                 (Ctx.Get_Name_Map.Lookup_Enum_Value
+                   (Target_Type,
+                    Ctx.Symbol (Value.Str_Val.all)));
+
+            elsif Target_Cat = LKI.Symbol_Category then
+               return LKI.From_Symbol
+                 (Id, Value.Str_Val.all);
+            else
+               return LKI.From_String
+                 (Id, Value.Str_Val.all);
+            end if;
+
+         when Kind_Int =>
+            if Target_Cat = LKI.Int_Category then
+               return LKI.From_Int (Id, +Value.Int_Val);
+            elsif Target_Cat = LKI.Big_Int_Category then
+               return LKI.From_Big_Int
+                 (Id, GNATCOLL.GMP.Integers.Make (Image (Value.Int_Val)));
+            end if;
+
+         when Kind_Bool =>
+            if Target_Cat = LKI.Bool_Category then
+               return LKI.From_Bool (Id, Value.Bool_Val);
+            end if;
+
+         when Kind_Node =>
+            if LKI.Is_Node_Type (Target_Type) then
+               return LKI.From_Node (Id, Value.Node_Val);
+            else
+               Ctx.Raise_Error (L.No_Lkql_Node, "Cannot pass struct in");
+            end if;
+
+         when Kind_Analysis_Unit =>
+            if Target_Cat = LKI.Analysis_Unit_Category then
+               return LKI.From_Unit (Id, Value.Analysis_Unit_Val);
+            end if;
+
+         when others => null;
+      end case;
+
+      Ctx.Raise_Error
+        (L.No_Lkql_Node,
+         To_Text
+           ("Cannot convert a " & Valid_Primitive_Kind'Image (Value.Kind)
+            & " to a " & Debug_Name (Target_Type)));
+   end Make_Value_Type;
+
+   -----------------------
+   -- List_To_Value_Ref --
+   -----------------------
+
+   function List_To_Value_Ref
+     (Value        : Primitive_List;
+      Array_Type   : LKI.Type_Ref;
+      Ctx          : Eval_Context) return LKI.Value_Ref
+   is
+      Values : LKI.Value_Ref_Array
+        (Value.Elements.First_Index .. Value.Elements.Last_Index);
+
+      Element_Type : constant LKI.Type_Ref :=
+        LKI.Array_Element_Type (Array_Type);
+
+   begin
+      for I in Value.Elements.First_Index .. Value.Elements.Last_Index loop
+         Values (I) := Make_Value_Type (Value.Elements (I), Element_Type, Ctx);
+      end loop;
+
+      return LKI.Create_Array (Array_Type, Values);
+   end List_To_Value_Ref;
 
 end LKQL.Node_Data;

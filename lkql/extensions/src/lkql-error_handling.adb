@@ -20,7 +20,6 @@
 -- the files COPYING3 and COPYING.RUNTIME respectively.  If not, see        --
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
-with LKQL.AST_Nodes;
 
 package body LKQL.Error_Handling is
 
@@ -240,7 +239,7 @@ package body LKQL.Error_Handling is
    -------------------------
 
    procedure Raise_No_Such_Field (Ctx        : Eval_Context;
-                                  Node       : H.AST_Node_Holder;
+                                  Node       : Lk_Node;
                                   Field_Name : L.Identifier)
    is
    begin
@@ -252,7 +251,7 @@ package body LKQL.Error_Handling is
    ----------------------------
 
    procedure Raise_No_Such_Property (Ctx           : Eval_Context;
-                                     Node          : H.AST_Node_Holder;
+                                     Node          : Lk_Node;
                                      Property_Name : L.Identifier)
    is
    begin
@@ -264,13 +263,13 @@ package body LKQL.Error_Handling is
    -------------------------
 
    procedure Raise_No_Such_Datum (Ctx            : Eval_Context;
-                                  Node           : H.AST_Node_Holder;
+                                  Node           : Lk_Node;
                                   Field_Name     : L.Identifier;
                                   Data_Type_Name : Text_Type)
    is
       Message : constant Text_Type :=
         "No " & Data_Type_Name & " named " & Field_Name.Text & " on nodes of" &
-        " kind: " & To_Text (Node.Unchecked_Get.Kind_Name);
+        " kind: " & To_Text (LKI.Debug_Name (LKI.Type_Of (Node)));
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Field_Name, Message));
    end Raise_No_Such_Datum;

@@ -29,10 +29,10 @@ package body LKQL.Selector_Lists is
    -- Nodes --
    -----------
 
-   function Nodes (Self : Selector_List) return AST_Node_Vector is
+   function Nodes (Self : Selector_List) return Lk_Node_Vector is
       Depth_Node_Values : constant Depth_Node_Vector := Self.Depth_Nodes;
    begin
-      return Result : AST_Node_Vector do
+      return Result : Lk_Node_Vector do
          for El of Depth_Node_Values loop
             Result.Append (El.Node);
          end loop;

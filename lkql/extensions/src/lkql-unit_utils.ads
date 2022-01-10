@@ -21,29 +21,29 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+
 package LKQL.Unit_Utils is
 
    Unit_Creation_Error : exception;
 
-   procedure Run_Preprocessor (Unit : L.Analysis_Unit);
+   procedure Run_Preprocessor
+     (Context : Eval_Context; Unit : L.Analysis_Unit);
    --  Run LKQL preprocessor on the unit, which associates precomputed data
    --  to key nodes in order to accelerate runtime evaluation. This phase is
    --  required for all units that must be evaluated. It is already performed
    --  by the routines defined below.
 
    function Make_Lkql_Unit
-     (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit;
+     (Eval_Ctx : Eval_Context;
+      Path     : String) return L.Analysis_Unit;
    --  Create an LKQL analysis unit in the context 'Context' from the given
    --  file.
 
    function Make_Lkql_Unit_From_Code
-     (Lkql_Code : String) return L.Analysis_Unit;
-   --  Create an LKQL analysis unit from the given LKQL code
-
-   function Make_Lkql_Unit_From_Code (Context   : L.Analysis_Context;
-                                      Lkql_Code : String;
-                                      Unit_Name : String := "[inline code]")
-                                      return L.Analysis_Unit;
+     (Eval_Ctx  : Eval_Context;
+      Lkql_Code : String;
+      Unit_Name : String := "[inline code]") return L.Analysis_Unit;
    --  Create an LKQL analysis unit in the context 'Context' from the given
    --  Lkql_Code.
 

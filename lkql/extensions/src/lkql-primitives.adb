@@ -31,13 +31,13 @@ use Ada.Strings.Wide_Wide_Unbounded.Wide_Wide_Text_IO;
 with Ada.Wide_Wide_Text_IO;
 with Ada.Strings.Hash;
 
-with LKQL.AST_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
 
 with Langkit_Support.Hashes; use Langkit_Support.Hashes;
+with Langkit_Support.Names; use Langkit_Support.Names;
 
 with GNAT.Case_Util;
 
@@ -139,7 +139,7 @@ package body LKQL.Primitives is
       Image   : Unbounded_Text_Type;
    begin
       for D of Value.Depth_Nodes loop
-         Append (Image, Text_Type'(D.Node.Unchecked_Get.Text_Image) & LF);
+         Append (Image, To_Text (D.Node.Image) & LF);
       end loop;
 
       return Image;
@@ -392,7 +392,7 @@ package body LKQL.Primitives is
    -- Node_Val --
    --------------
 
-   function Node_Val (Value : Primitive) return H.AST_Node_Holder is
+   function Node_Val (Value : Primitive) return LK.Lk_Node is
       (Value.Node_Val);
 
    --------------
@@ -532,7 +532,7 @@ package body LKQL.Primitives is
    function Is_Nullish (Value : Primitive) return Boolean
    is
      ((Kind (Value) = Kind_Node
-      and then Value.Node_Val.Unchecked_Get.Is_Null_Node)
+      and then Value.Node_Val.Is_Null)
       or else Kind (Value) = Kind_Unit);
 
    ----------------
@@ -545,7 +545,7 @@ package body LKQL.Primitives is
               and then not Value.Bool_Val)
               or else Value.Kind = Kind_Unit
               or else (Value.Kind = Kind_Node
-                and then Value.Node_Val.Unchecked_Get.Is_Null_Node)
+                and then Value.Node_Val.Is_Null)
               then False
               else True);
    end Booleanize;
@@ -621,7 +621,7 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive
-     (Node : H.AST_Node_Holder; Pool : Primitive_Pool) return Primitive
+     (Node : LK.Lk_Node; Pool : Primitive_Pool) return Primitive
    is
    begin
       return Create_Primitive ((Kind_Node, Pool, Node));
@@ -632,7 +632,7 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive
-     (Token : H.AST_Token_Holder; Pool : Primitive_Pool) return Primitive
+     (Token : LK.Lk_Token; Pool : Primitive_Pool) return Primitive
    is
    begin
       return Create_Primitive ((Kind_Token, Pool, Token));
@@ -643,7 +643,7 @@ package body LKQL.Primitives is
    ------------------
 
    function To_Primitive
-     (Unit : H.AST_Unit_Holder; Pool : Primitive_Pool) return Primitive
+     (Unit : LK.Lk_Unit; Pool : Primitive_Pool) return Primitive
    is
    begin
       return Create_Primitive ((Kind_Analysis_Unit, Pool, Unit));
@@ -773,15 +773,15 @@ package body LKQL.Primitives is
    -----------------------------
 
    function Make_Property_Reference
-     (Node_Val     : Primitive;
-      Property_Ref : H.AST_Node_Member_Ref_Holder;
+     (Node_Val     : LK.Lk_Node;
+      Property_Ref : LKI.Struct_Member_Ref;
       Pool         : Primitive_Pool) return Primitive
    is
    begin
       return Create_Primitive
         ((Kind           => Kind_Property_Reference,
           Ref            => Property_Ref,
-          Property_Node  => Node_Val.Node_Val,
+          Property_Node  => Node_Val,
           Pool           => Pool));
    end Make_Property_Reference;
 
@@ -1007,11 +1007,11 @@ package body LKQL.Primitives is
    -----------------------
 
    function To_Unbounded_Text (Val : Primitive) return Unbounded_Text_Type is
-      function Node_Image (N : H.AST_Node_Holder) return Text_Type
+      function Node_Image (N : LK.Lk_Node) return Text_Type
       is
-         (if N.Unchecked_Get.Is_Null_Node
+         (if N.Is_Null
           then "null"
-          else N.Unchecked_Get.Text_Image);
+          else To_Text (N.Image));
 
       package D renames Ada.Directories;
 
@@ -1041,10 +1041,10 @@ package body LKQL.Primitives is
                    ("<AnalysisUnit """
                     & To_Text
                        (D.Simple_Name
-                          (Image (Val.Analysis_Unit_Val.Unchecked_Get.Name)))
+                          (Val.Analysis_Unit_Val.Filename))
                     & """>"),
                when Kind_Token         =>
-                  To_Unbounded_Text (Val.Token_Val.Unchecked_Get.Image),
+                  To_Unbounded_Text (To_Text (Val.Token_Val.Image)),
                when Kind_Iterator      =>
                  Iterator_Image (Val),
                when Kind_List          =>
@@ -1066,7 +1066,8 @@ package body LKQL.Primitives is
                when Kind_Property_Reference =>
                  To_Unbounded_Text
                    ("<PropertyRef " & Node_Image (Val.Property_Node)
-                    & Val.Ref.Unchecked_Get.Name & ">"),
+                    & Format_Name (LKI.Member_Name (Val.Ref), Lower) & ">"),
+                    --  TODO: Use Struct_Member_Ref.Name when it is implemented
                when Kind_Namespace        =>
                  To_Unbounded_Text
                   (To_Text (Env_Image
@@ -1110,10 +1111,10 @@ package body LKQL.Primitives is
    begin
       return (case Value.Kind is
                  when Kind_Node =>
-                (if Value.Node_Val.Unchecked_Get.Is_Null_Node
+                (if Value.Node_Val.Is_Null
                  then "No_Kind"
                  else
-                   (Value.Node_Val.Unchecked_Get.Kind_Name)),
+                   (LKI.Debug_Name (LKI.Type_Of (Value.Node_Val)))),
                  when others =>
                    To_String (Kind (Value)));
    end Kind_Name;
@@ -1180,7 +1181,7 @@ package body LKQL.Primitives is
          when Kind_List | Kind_Tuple =>
             return Deep_Equals (List_Val (Left), List_Val (Right));
          when Kind_Node =>
-            return H."=" (Left.Node_Val, Right.Node_Val);
+            return LK."=" (Left.Node_Val, Right.Node_Val);
          when Kind_Str =>
             return Left.Str_Val.all = Right.Str_Val.all;
          when others =>
@@ -1494,9 +1495,9 @@ package body LKQL.Primitives is
          when Kind_Bool =>
             return Hash_Type (Boolean'Pos (Self.Bool_Val));
          when Kind_Node =>
-            return H.Hash (Self.Node_Val);
+            return LK.Hash (Self.Node_Val);
          when Kind_Analysis_Unit =>
-            return H.Hash (Self.Analysis_Unit_Val);
+            return LK.Hash (Self.Analysis_Unit_Val);
          when Kind_Iterator =>
             raise Constraint_Error with "Hash not supported on iterators";
          when Kind_Token =>

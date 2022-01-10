@@ -42,9 +42,9 @@ package body LKQL.Patterns.Nodes is
    function Filter_Node_Vector
      (Ctx     : Eval_Context;
       Pattern : L.Base_Pattern;
-      Nodes   : AST_Node_Vector) return AST_Node_Vector
+      Nodes   : Lk_Node_Vector) return Lk_Node_Vector
    is
-      Filtered : AST_Node_Vector;
+      Filtered : Lk_Node_Vector;
    begin
       for N of Nodes loop
          if Match_Pattern (Ctx, Pattern, To_Primitive (N, Ctx.Pool)).Is_Success
@@ -63,10 +63,10 @@ package body LKQL.Patterns.Nodes is
    function Match_Node_Pattern
      (Ctx     : Eval_Context;
       Pattern : L.Node_Pattern;
-      Node    : H.AST_Node_Holder) return Match_Result
+      Node    : Lk_Node) return Match_Result
    is
    begin
-      if Node.Unchecked_Get.Is_Null_Node then
+      if Node.Is_Null then
          return Match_Failure;
       end if;
 
@@ -90,12 +90,13 @@ package body LKQL.Patterns.Nodes is
    function Match_Kind_pattern
      (Ctx     : Eval_Context;
       Pattern : L.Node_Kind_Pattern;
-      Node    : H.AST_Node_Holder) return Match_Result
+      Node    : Lk_Node) return Match_Result
    is
       Ext : constant Node_Extensions.Ext := Node_Extensions.Get_Ext (Pattern);
    begin
       return
-        (if Ext.Content.Expected_Kind.Matches_Kind_Of (Node.Unchecked_Get.all)
+        (if LKI.Type_Matches
+           (LKI.From_Node (Ctx.Lang_Id, Node), Ext.Content.Expected_Type)
          then Make_Match_Success (To_Primitive (Node, Ctx.Pool))
          else Match_Failure);
    exception
@@ -107,10 +108,10 @@ package body LKQL.Patterns.Nodes is
    -- Match_Extended_Pattern --
    ----------------------------
 
-   function Match_Extended_Pattern (Ctx     : Eval_Context;
-                                    Pattern : L.Extended_Node_Pattern;
-                                    Node    : H.AST_Node_Holder)
-                                    return Match_Result
+   function Match_Extended_Pattern
+     (Ctx     : Eval_Context;
+      Pattern : L.Extended_Node_Pattern;
+      Node    : LK.Lk_Node) return Match_Result
    is
       Match : constant Match_Result :=
         Match_Value
@@ -127,10 +128,10 @@ package body LKQL.Patterns.Nodes is
    -- Match_Pattern_Details --
    ---------------------------
 
-   function Match_Pattern_Details (Ctx     : Eval_Context;
-                                   Details : L.Node_Pattern_Detail_List;
-                                   Node    : H.AST_Node_Holder)
-                                   return Match_Result
+   function Match_Pattern_Details
+     (Ctx     : Eval_Context;
+      Details : L.Node_Pattern_Detail_List;
+      Node    : LK.Lk_Node) return Match_Result
    is
       Current_Match : Match_Result;
    begin
@@ -150,10 +151,10 @@ package body LKQL.Patterns.Nodes is
    -- Match_Pattern_Detail --
    --------------------------
 
-   function Match_Pattern_Detail (Ctx    : Eval_Context;
-                                  Node   : H.AST_Node_Holder;
-                                  Detail : L.Node_Pattern_Detail'Class)
-                                  return Match_Result
+   function Match_Pattern_Detail
+     (Ctx    : Eval_Context;
+      Node   : LK.Lk_Node;
+      Detail : L.Node_Pattern_Detail'Class) return Match_Result
    is
    begin
       case Detail.Kind is
@@ -177,7 +178,7 @@ package body LKQL.Patterns.Nodes is
    -------------------------
 
    function Match_Pattern_Field (Ctx    : Eval_Context;
-                                 Node   : H.AST_Node_Holder;
+                                 Node   : LK.Lk_Node;
                                  Field  : L.Node_Pattern_Field)
                                  return Match_Result
    is
@@ -192,10 +193,10 @@ package body LKQL.Patterns.Nodes is
    -- Match_Pattern_Property --
    ----------------------------
 
-   function Match_Pattern_Property (Ctx      : Eval_Context;
-                                    Node     : H.AST_Node_Holder;
-                                    Property : L.Node_Pattern_Property)
-                                    return Match_Result
+   function Match_Pattern_Property
+     (Ctx      : Eval_Context;
+      Node     : LK.Lk_Node;
+      Property : L.Node_Pattern_Property) return Match_Result
    is
       use LKQL.Node_Data;
       Property_Value : constant Primitive :=
@@ -212,10 +213,10 @@ package body LKQL.Patterns.Nodes is
    -- Match_Pattern_Selector --
    ----------------------------
 
-   function Match_Pattern_Selector (Ctx      : Eval_Context;
-                                    Node     : H.AST_Node_Holder;
-                                    Selector : L.Node_Pattern_Selector)
-                                    return Match_Result
+   function Match_Pattern_Selector
+     (Ctx      : Eval_Context;
+      Node     : LK.Lk_Node;
+      Selector : L.Node_Pattern_Selector) return Match_Result
    is
       S_List       : Selector_List;
       Binding_Name : constant Symbol_Type :=
@@ -238,11 +239,12 @@ package body LKQL.Patterns.Nodes is
    -- Eval_Selector --
    -------------------
 
-   function Eval_Selector (Ctx     : Eval_Context;
-                           Node    : H.AST_Node_Holder;
-                           Call    : L.Selector_Call;
-                           Pattern : L.Base_Pattern;
-                           Result  : out Selector_List) return Boolean
+   function Eval_Selector
+     (Ctx     : Eval_Context;
+      Node    : LK.Lk_Node;
+      Call    : L.Selector_Call;
+      Pattern : L.Base_Pattern;
+      Result  : out Selector_List) return Boolean
    is
       Quantifier_Name   : constant String :=
         To_UTF8 (Call.P_Quantifier_Name);

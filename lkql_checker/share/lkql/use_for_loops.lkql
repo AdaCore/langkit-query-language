@@ -47,7 +47,7 @@ fun use_for_loops(node) =
                        when i.p_denoted_value() == 1,
                        f_left is Identifier(p_name_matches(id) is true)))
         # located at the very end of the loop
-        when not assign.next_sibling
+        when not assign.next_sibling()
          # and where id is declared in the same enclosing scope as the loop
          and id.p_referenced_decl() is decl@ObjectDecl
              when node.p_semantic_parent() == decl.p_semantic_parent()

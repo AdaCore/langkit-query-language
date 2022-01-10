@@ -21,18 +21,21 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Options;
-with Iters.Iterators;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
-
 with Ada.Containers;
 with Ada.Containers.Vectors;
 
+with Langkit_Support.Generic_API.Analysis;
+
+with Options;
+with Iters.Iterators;
+
 package LKQL.Depth_Nodes is
+
+   package LK renames Langkit_Support.Generic_API.Analysis;
 
    type Depth_Node is record
       Depth : Natural;
-      Node  : H.AST_Node_Holder;
+      Node  : LK.Lk_Node;
    end record;
    --  Depth-mapped AST node used in (and returned by) selectors
 

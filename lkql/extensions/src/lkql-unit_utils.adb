@@ -30,8 +30,6 @@ with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Diagnostics.Output;
 
 with LKQL.Node_Extensions; use LKQL.Node_Extensions;
-with LKQL.Primitives;
-with Ada_AST_Nodes;
 with GNAT.Regpat;
 
 package body LKQL.Unit_Utils is
@@ -41,13 +39,6 @@ package body LKQL.Unit_Utils is
    function Preprocess_String (S : Text_Type) return Text_Type;
    --  Preprocess the given text, which is the content of a string literal.
    --  Today, this is solely processing escape sequences.
-
-   function Preprocess_Visitor
-     (Node : L.Lkql_Node'Class) return LCO.Visit_Status;
-   --  Visitor for the preprocessing pass of LKQL, where we will do some
-   --  preprocessing/compilation like computations. TODO: For the moment this
-   --  is in unit utils, but clearly this should have its own dedicated module
-   --  eventually.
 
    ------------------
    -- Output_Error --
@@ -123,186 +114,195 @@ package body LKQL.Unit_Utils is
       return To_Text (Ret);
    end Preprocess_String;
 
-   ------------------------
-   -- Preprocess_Visitor --
-   ------------------------
-
-   function Preprocess_Visitor
-     (Node : L.Lkql_Node'Class) return LCO.Visit_Status
-   is
-   begin
-      L.Init_Extension (Node);
-
-      declare
-         Ext_Val : constant Ext := Get_Ext (Node);
-      begin
-         case Node.Kind is
-
-         when LCO.Lkql_Base_Function =>
-
-            --  Base function case: Pre process function parameters, put them
-            --  in a name -> info map so that we can speed up function calls.
-
-            Ext_Val.Content :=
-              Node_Ext'(Kind => LCO.Lkql_Anonymous_Function, Params => <>);
-            declare
-               Fun : constant L.Parameter_Decl_List
-                 := Node.As_Base_Function.F_Parameters;
-            begin
-               for I in Fun.First_Child_Index .. Fun.Last_Child_Index loop
-                  declare
-                     Param : constant L.Parameter_Decl :=
-                       Fun.Child (I).As_Parameter_Decl;
-                  begin
-                     Ext_Val.Content.Params.Include
-                       (Symbol (Param.F_Param_Identifier), (Param, I));
-                  end;
-               end loop;
-            end;
-
-         when LCO.Lkql_Fun_Call =>
-
-            --  Function calls: Check that positional arguments are always
-            --  before named arguments.
-            declare
-               Has_Seen_Named : Boolean := False;
-            begin
-               for Arg of Node.As_Fun_Call.F_Arguments loop
-                  case Arg.Kind is
-                     when LCO.Lkql_Named_Arg =>
-                        Has_Seen_Named := True;
-                     when LCO.Lkql_Expr_Arg =>
-                        if Has_Seen_Named then
-                           Output_Error
-                             (Arg.As_Lkql_Node,
-                              "positional argument after named argument");
-                        end if;
-                     when others => null;
-                  end case;
-               end loop;
-            end;
-
-         when LCO.Lkql_Regex_Pattern =>
-
-            --  Regular expressions: precompile regex patterns to speed up
-            --  matching at runtime.
-            declare
-               use GNAT.Regpat;
-               use Ada.Strings.Wide_Wide_Unbounded;
-
-               Regex_Node : constant L.Regex_Pattern := Node.As_Regex_Pattern;
-
-               Quoted_Pattern : constant Unbounded_Text_Type :=
-                  To_Unbounded_Text (Regex_Node.Text);
-
-               Pattern_Str : constant Unbounded_Text_Type :=
-                  Unbounded_Slice
-                    (Quoted_Pattern, 2, Length (Quoted_Pattern) - 1);
-
-               Pattern_Utf8 : constant String :=
-                  To_UTF8 (To_Text (Pattern_Str));
-            begin
-               Ext_Val.Content := Node_Ext'
-                 (Kind => LCO.Lkql_Regex_Pattern,
-                  Compiled_Pattern =>
-                     new Pattern_Matcher'(Compile (Pattern_Utf8)));
-            exception
-               when Expression_Error =>
-                  Output_Error
-                    (Node.As_Lkql_Node,
-                     "Failed to compile regular expression.");
-            end;
-
-         when LCO.Lkql_Node_Kind_Pattern =>
-            declare
-               Pattern : constant L.Node_Kind_Pattern :=
-                  Node.As_Node_Kind_Pattern;
-
-               Kind    : Ada_AST_Nodes.Ada_AST_Node_Kind;
-               --  TODO: Here we explicitly reference Ada_AST_Nodes, because
-               --  we have no runtime information at this point indicating
-               --  which language LKQL is targetting. This should be solved
-               --  once we have the generic introspection API in langkit,
-               --  for example by having a global variable "Target_Language"
-               --  of type "Langkit.Language_Descriptor" (names are fictional)
-               --  from which we could easily lookup node kind names.
-            begin
-               Kind := Ada_AST_Nodes.Get_Kind_From_Name
-                 (Pattern.F_Kind_Name.Text);
-               Ext_Val.Content := Node_Ext'
-                 (Kind          => LCO.Lkql_Node_Kind_Pattern,
-                  Expected_Kind => new Ada_AST_Nodes.Ada_AST_Node_Kind'(Kind));
-            exception
-               when Primitives.Unsupported_Error =>
-                  Output_Error (Node.As_Lkql_Node, "Invalid kind name");
-            end;
-
-         when LCO.Lkql_String_Literal =>
-            declare
-               T : Text_Type renames Node.Text;
-               No_Quotes : constant Text_Type := T (T'First + 1 .. T'Last - 1);
-            begin
-               Ext_Val.Content :=
-                 Node_Ext'(Kind => LCO.Lkql_String_Literal,
-                           Denoted_Value =>
-                              new Text_Type'(Preprocess_String (No_Quotes)));
-            end;
-         when LCO.Lkql_Block_String_Literal =>
-            declare
-               Ret      : Unbounded_Text_Type;
-               package W renames Ada.Strings.Wide_Wide_Unbounded;
-            begin
-               if Node.Children_Count > 0 then
-                  --  The block string will be aligned on the start of the
-                  --  first non blank char of the first block literal
-                  declare
-                     First_Sub_Block : constant L.Sub_Block_Literal :=
-                       Node.As_Block_String_Literal
-                         .F_Docs.Child (1).As_Sub_Block_Literal;
-                     Text            : constant Text_Type :=
-                       First_Sub_Block.Text;
-
-                     Stripped        : constant Text_Type :=
-                       Text (Text'First + 2 .. Text'Last);
-                     --  Strip the |" prefix
-
-                     Non_Blank_Index : constant Positive :=
-                       Index_Non_Blank (Stripped) - Text'First;
-                     --  Get the first non blank index
-                  begin
-                     for Doc_Lit of
-                       Node.As_Block_String_Literal.F_Docs.Children
-                     loop
-                        declare
-                           T : constant Text_Type := Doc_Lit.Text;
-                        begin
-                           W.Append
-                             (Ret,
-                              To_Unbounded_Text
-                                (T (T'First + Non_Blank_Index .. T'Last)));
-                           W.Append (Ret, To_Text ("" & ASCII.LF));
-                        end;
-                     end loop;
-                  end;
-               end if;
-               Ext_Val.Content :=
-                 Node_Ext'
-                   (Kind          => LCO.Lkql_Block_String_Literal,
-                    Denoted_Value =>
-                       new Text_Type'(Preprocess_String (To_Text (Ret))));
-            end;
-         when others => null;
-         end case;
-      end;
-
-      return LCO.Into;
-   end Preprocess_Visitor;
-
    ----------------------
    -- Run_Preprocessor --
    ----------------------
 
-   procedure Run_Preprocessor (Unit : L.Analysis_Unit) is
+   procedure Run_Preprocessor
+     (Context : Eval_Context; Unit : L.Analysis_Unit)
+   is
+
+      function Preprocess_Visitor
+        (Node : L.Lkql_Node'Class) return LCO.Visit_Status;
+      --  Visitor for the preprocessing pass of LKQL, where we will do some
+      --  preprocessing/compilation like computations. TODO: For the moment
+      --  this is in unit utils, but clearly this should have its own
+      --  dedicated module eventually.
+
+      ------------------------
+      -- Preprocess_Visitor --
+      ------------------------
+
+      function Preprocess_Visitor
+        (Node : L.Lkql_Node'Class) return LCO.Visit_Status
+      is
+      begin
+         L.Init_Extension (Node);
+
+         declare
+            Ext_Val : constant Ext := Get_Ext (Node);
+         begin
+            case Node.Kind is
+
+            when LCO.Lkql_Base_Function =>
+
+               --  Base function case: Pre process function parameters, put
+               --  them in a name -> info map so that we can speed up function
+               --  calls.
+
+               Ext_Val.Content :=
+                 Node_Ext'(Kind => LCO.Lkql_Anonymous_Function, Params => <>);
+               declare
+                  Fun : constant L.Parameter_Decl_List
+                    := Node.As_Base_Function.F_Parameters;
+               begin
+                  for I in Fun.First_Child_Index .. Fun.Last_Child_Index loop
+                     declare
+                        Param : constant L.Parameter_Decl :=
+                          Fun.Child (I).As_Parameter_Decl;
+                     begin
+                        Ext_Val.Content.Params.Include
+                          (Symbol (Param.F_Param_Identifier), (Param, I));
+                     end;
+                  end loop;
+               end;
+
+            when LCO.Lkql_Fun_Call =>
+
+               --  Function calls: Check that positional arguments are always
+               --  before named arguments.
+               declare
+                  Has_Seen_Named : Boolean := False;
+               begin
+                  for Arg of Node.As_Fun_Call.F_Arguments loop
+                     case Arg.Kind is
+                        when LCO.Lkql_Named_Arg =>
+                           Has_Seen_Named := True;
+                        when LCO.Lkql_Expr_Arg =>
+                           if Has_Seen_Named then
+                              Output_Error
+                                (Arg.As_Lkql_Node,
+                                 "positional argument after named argument");
+                           end if;
+                        when others => null;
+                     end case;
+                  end loop;
+               end;
+
+            when LCO.Lkql_Regex_Pattern =>
+
+               --  Regular expressions: precompile regex patterns to speed up
+               --  matching at runtime.
+               declare
+                  use GNAT.Regpat;
+                  use Ada.Strings.Wide_Wide_Unbounded;
+
+                  Regex_Node : constant L.Regex_Pattern
+                    := Node.As_Regex_Pattern;
+
+                  Quoted_Pattern : constant Unbounded_Text_Type :=
+                     To_Unbounded_Text (Regex_Node.Text);
+
+                  Pattern_Str : constant Unbounded_Text_Type :=
+                     Unbounded_Slice
+                       (Quoted_Pattern, 2, Length (Quoted_Pattern) - 1);
+
+                  Pattern_Utf8 : constant String :=
+                     To_UTF8 (To_Text (Pattern_Str));
+               begin
+                  Ext_Val.Content := Node_Ext'
+                    (Kind => LCO.Lkql_Regex_Pattern,
+                     Compiled_Pattern =>
+                        new Pattern_Matcher'(Compile (Pattern_Utf8)));
+               exception
+                  when Expression_Error =>
+                     Output_Error
+                       (Node.As_Lkql_Node,
+                        "Failed to compile regular expression.");
+               end;
+
+            when LCO.Lkql_Node_Kind_Pattern =>
+               declare
+                  Pattern : constant L.Node_Kind_Pattern :=
+                     Node.As_Node_Kind_Pattern;
+
+                  T : constant LKI.Type_Ref :=
+                    Context.Get_Name_Map.Lookup_Type
+                      (Context.Symbol (Pattern.F_Kind_Name.Text));
+
+                  use LKI;
+               begin
+                  if T = LKI.No_Type_Ref then
+                     Output_Error (Node.As_Lkql_Node, "Invalid kind name");
+                  end if;
+
+                  Ext_Val.Content := Node_Ext'
+                    (Kind          => LCO.Lkql_Node_Kind_Pattern,
+                     Expected_Type => T);
+               end;
+
+            when LCO.Lkql_String_Literal =>
+               declare
+                  T : Text_Type renames Node.Text;
+                  No_Quotes : constant Text_Type :=
+                    T (T'First + 1 .. T'Last - 1);
+               begin
+                  Ext_Val.Content :=
+                    Node_Ext'
+                      (Kind => LCO.Lkql_String_Literal,
+                       Denoted_Value =>
+                         new Text_Type'(Preprocess_String (No_Quotes)));
+               end;
+            when LCO.Lkql_Block_String_Literal =>
+               declare
+                  Ret      : Unbounded_Text_Type;
+                  package W renames Ada.Strings.Wide_Wide_Unbounded;
+               begin
+                  if Node.Children_Count > 0 then
+                     --  The block string will be aligned on the start of the
+                     --  first non blank char of the first block literal
+                     declare
+                        First_Sub_Block : constant L.Sub_Block_Literal :=
+                          Node.As_Block_String_Literal
+                            .F_Docs.Child (1).As_Sub_Block_Literal;
+                        Text            : constant Text_Type :=
+                          First_Sub_Block.Text;
+
+                        Stripped        : constant Text_Type :=
+                          Text (Text'First + 2 .. Text'Last);
+                        --  Strip the |" prefix
+
+                        Non_Blank_Index : constant Positive :=
+                          Index_Non_Blank (Stripped) - Text'First;
+                        --  Get the first non blank index
+                     begin
+                        for Doc_Lit of
+                          Node.As_Block_String_Literal.F_Docs.Children
+                        loop
+                           declare
+                              T : constant Text_Type := Doc_Lit.Text;
+                           begin
+                              W.Append
+                                (Ret,
+                                 To_Unbounded_Text
+                                   (T (T'First + Non_Blank_Index .. T'Last)));
+                              W.Append (Ret, To_Text ("" & ASCII.LF));
+                           end;
+                        end loop;
+                     end;
+                  end if;
+                  Ext_Val.Content :=
+                    Node_Ext'
+                      (Kind          => LCO.Lkql_Block_String_Literal,
+                       Denoted_Value =>
+                          new Text_Type'(Preprocess_String (To_Text (Ret))));
+               end;
+            when others => null;
+            end case;
+         end;
+
+         return LCO.Into;
+      end Preprocess_Visitor;
    begin
       --  TODO: Ideally we would check here that the unit has not already
       --  been preprocessed.
@@ -314,12 +314,13 @@ package body LKQL.Unit_Utils is
    --------------------
 
    function Make_Lkql_Unit
-     (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit
+     (Eval_Ctx : Eval_Context;
+      Path     : String) return L.Analysis_Unit
    is
       Ret : constant L.Analysis_Unit :=
-        Unit_Or_Error (Context.Get_From_File (Path));
+        Unit_Or_Error (Get_Context (Eval_Ctx.Kernel.all).Get_From_File (Path));
    begin
-      Run_Preprocessor (Ret);
+      Run_Preprocessor (Eval_Ctx, Ret);
       return Ret;
    end Make_Lkql_Unit;
 
@@ -328,23 +329,15 @@ package body LKQL.Unit_Utils is
    ------------------------------
 
    function Make_Lkql_Unit_From_Code
-     (Lkql_Code : String) return L.Analysis_Unit
-   is (Make_Lkql_Unit_From_Code (L.Create_Context, Lkql_Code));
-
-   ------------------------------
-   -- Make_Lkql_Unit_From_Code --
-   ------------------------------
-
-   function Make_Lkql_Unit_From_Code (Context   : L.Analysis_Context;
-                                      Lkql_Code : String;
-                                      Unit_Name : String := "[inline code]")
-                                      return L.Analysis_Unit
+     (Eval_Ctx : Eval_Context;
+      Lkql_Code : String;
+      Unit_Name : String := "[inline code]") return L.Analysis_Unit
    is
       Ret : constant L.Analysis_Unit := Unit_Or_Error
-        (Context.Get_From_Buffer
-             (Filename => Unit_Name, Buffer => Lkql_Code));
+        (Get_Context (Eval_Ctx.Kernel.all).Get_From_Buffer
+          (Filename => Unit_Name, Buffer => Lkql_Code));
    begin
-      Run_Preprocessor (Ret);
+      Run_Preprocessor (Eval_Ctx, Ret);
       return Ret;
    end Make_Lkql_Unit_From_Code;
 

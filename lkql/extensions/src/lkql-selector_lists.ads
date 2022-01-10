@@ -22,14 +22,13 @@
 ------------------------------------------------------------------------------
 
 with LKQL.Depth_Nodes; use LKQL.Depth_Nodes;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 with GNATCOLL.Refcount; use GNATCOLL.Refcount;
 
 package LKQL.Selector_Lists is
 
    type Selector_List is new Depth_Node_Iter with private;
 
-   function Nodes (Self : Selector_List) return AST_Node_Vector;
+   function Nodes (Self : Selector_List) return Lk_Node_Vector;
    --  Return an array containing the Ada_Node values returned by the selector
 
    function Depth_Nodes (Self : Selector_List) return Depth_Node_Vector;

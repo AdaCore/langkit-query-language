@@ -26,7 +26,6 @@ with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
 with LKQL.Evaluation;        use LKQL.Evaluation;
 with LKQL.Error_Handling;    use LKQL.Error_Handling;
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
-with LKQL.AST_Nodes;
 
 package body LKQL.Custom_Selectors is
 
@@ -40,7 +39,7 @@ package body LKQL.Custom_Selectors is
 
    procedure Add_Node (Iter          : in out Custom_Selector_Iter;
                        Current_Depth : Natural;
-                       Node          : H.AST_Node_Holder;
+                       Node          : LK.Lk_Node;
                        Mode          : L.Selector_Expr_Mode;
                        Cache_Vector  : Node_Vector);
    --  Add the given node to the values produced by the selector.
@@ -118,7 +117,7 @@ package body LKQL.Custom_Selectors is
      (Ctx                            : Eval_Context;
       Selector                       : Primitive;
       Min_Depth_Expr, Max_Depth_Expr : L.Expr;
-      Root                           : H.AST_Node_Holder)
+      Root                           : LK.Lk_Node)
       return Custom_Selector_Iter
    is
 
@@ -271,7 +270,7 @@ package body LKQL.Custom_Selectors is
    procedure Add_Node
      (Iter          : in out Custom_Selector_Iter;
       Current_Depth : Natural;
-      Node          : H.AST_Node_Holder;
+      Node          : LK.Lk_Node;
       Mode          : L.Selector_Expr_Mode;
       Cache_Vector  : Node_Vector)
    is
@@ -308,7 +307,7 @@ package body LKQL.Custom_Selectors is
       end Add_If_Unseen;
 
    begin
-      if Node.Unchecked_Get.Is_Null_Node then
+      if Node.Is_Null then
          return;
       end if;
 

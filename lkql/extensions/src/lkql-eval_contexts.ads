@@ -26,16 +26,18 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with LKQL.Errors;     use LKQL.Errors;
 with LKQL.Primitives; use LKQL.Primitives;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
-with Libadalang.Helpers;   use Libadalang.Helpers;
 
 with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers; use Ada.Containers;
 
 package LKQL.Eval_Contexts is
+
+   type Lk_Node_Array_Access is access all LK.Lk_Node_Array;
+
+   type LK_Unit_Array is array (Positive range <>) of LK.Lk_Unit;
 
    package String_Value_Maps is new Ada.Containers.Hashed_Maps
      (Key_Type        => Symbol_Type,
@@ -118,6 +120,8 @@ package LKQL.Eval_Contexts is
      (Self : Global_Data_Access) return Builtin_Methods_Map_Access;
    --  Return a map of ``(name, kind) -> Builtin_Method_Descriptor``
 
+   type Name_Map_Access is access all LKI.Name_Map;
+
    ------------------
    -- Eval_Context --
    ------------------
@@ -130,6 +134,9 @@ package LKQL.Eval_Contexts is
       --  Chain of environments from the local frame to the global env
    end record;
    --  Store the evaluation context.
+
+   function Get_Name_Map (Ctx : Eval_Context) return Name_Map_Access;
+   --  Return a Name_Map for the target language.
 
    function Pools (Ctx : Eval_Context) return Primitive_Pool_Stack;
    --  Return the primitive pool associated with this context
@@ -149,20 +156,21 @@ package LKQL.Eval_Contexts is
    function Last_Error (Ctx : Eval_Context) return Error_Data;
    --  Return the value of the last registered error
 
+   procedure Attach_Node_To_Last_Error
+     (Ctx  : Eval_Context; Node : L.Lkql_Node);
+   --  Attach given node to the last error
+
    function Exists_In_Local_Env (Ctx : Eval_Context;
                                  Key : Symbol_Type) return Boolean;
    --  Return whether the given name is associated to a value in the local
    --  environment.
 
-   function Null_Node (Ctx : Eval_Context) return H.AST_Node_Holder;
-   --  Return the node produced by a "null" literal
-
-   function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access;
+   function AST_Roots (Ctx : Eval_Context) return Lk_Node_Array_Access;
    --  Return the evaluation context's AST root
 
    procedure Set_Units
      (Ctx   : Eval_Context;
-      Units : Unit_Vectors.Vector);
+      Units : LK_Unit_Array);
    --  Set the units of a given Ctx
 
    function Ref_Frame (Ctx : Eval_Context) return Eval_Context;
@@ -199,12 +207,15 @@ package LKQL.Eval_Contexts is
    --  An Assertion_Error will be raised is 'Ctx' is the root context.
 
    function Make_Eval_Context
-     (Ast_Roots    : AST_Node_Array;
-      Null_Node    : H.AST_Node_Holder;
+     (Ast_Roots    : LK.Lk_Node_Array;
+      Lang_Id      : Langkit_Support.Generic_API.Language_Id;
       Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
       return Eval_Context;
    --  Create a new Eval_Context with the given Ast_Root and error recovery
    --  flag. If passed an analysis context, use this instead of creating one.
+
+   function Lang_Id
+     (Ctx : Eval_Context) return Langkit_Support.Generic_API.Language_Id;
 
    procedure Free_Eval_Context (Ctx : in out Eval_Context);
    --  Release the memory allocated for the evaluation context.
@@ -222,6 +233,12 @@ package LKQL.Eval_Contexts is
    procedure Add_Lkql_Path (Ctx : in out Eval_Context; Path : String);
    --  Add a path to the LKQL_PATH
 
+   procedure Raise_Error
+     (Ctx : Eval_Context;
+      N : L.Lkql_Node'Class;
+      Err : Text_Type) with No_Return;
+   --  Raise an error with given error message
+
 private
 
    package String_Vectors
@@ -232,12 +249,9 @@ private
    -----------------
 
    type Global_Data is record
-      Ast_Roots : AST_Node_Array_Access;
+      Ast_Roots : Lk_Node_Array_Access;
       --  Root node for each libadalang analysis unit that will be analysed in
       --  the context.
-
-      Null_Node : H.AST_Node_Holder;
-      --  Value produced by a "null" literal
 
       Last_Error : Error_Data := Make_Empty_Error;
       --  Store data about the last error, if any.
@@ -249,6 +263,11 @@ private
 
       Builtin_Methods : Builtin_Methods_Map;
       --  Map of builtin methods by (self_kind, name)
+
+      Lang_Id         : Langkit_Support.Generic_API.Language_Id;
+      --  Language_Id for the target language
+
+      Name_Map        : Name_Map_Access;
    end record;
    --  Stores the global data structures shared by every evaluation context
 

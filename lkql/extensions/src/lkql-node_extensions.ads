@@ -26,8 +26,6 @@ with GNAT.Regpat;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with LKQL.AST_Nodes;
-
 --  This package is the user facing parts of the LKQL node extension mechanism.
 --  It allows us to extend nodes with pre-computed information stored in
 --  ``Node_Ext`` records that are allocated and attached to LKQL nodes.
@@ -62,12 +60,6 @@ package LKQL.Node_Extensions is
    --  Store a compiled regular expression pattern. Used by LKQL's pattern
    --  matching routine to avoid having to recompile patterns for each query.
 
-   type AST_Node_Kind_Access is access AST_Nodes.AST_Node_Kind'Class;
-   --  Reference to a node kind descriptor, that allows querying efficiently
-   --  whether a given node is of this kind or not. used by LKQL's node kind
-   --  pattern matcher to avoid doing too much string manipulations to answer
-   --  this query.
-
    ------------------------
    -- Node extension API --
    ------------------------
@@ -87,7 +79,7 @@ package LKQL.Node_Extensions is
             Compiled_Pattern : Regex_Matcher_Access;
 
          when LCO.Lkql_Node_Kind_Pattern =>
-            Expected_Kind : AST_Node_Kind_Access;
+            Expected_Type : LKI.Type_Ref;
 
          when LCO.Lkql_Base_String_Literal =>
             Denoted_Value : Text_Access;

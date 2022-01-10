@@ -9,7 +9,7 @@ import stdlib
 fun annotated_comments(unit, s=[]) = if not s then [] else [
     {message: "annotated comment", loc: tok}
     for tok in unit.tokens
-    if tok.kind == "ADA_COMMENT" and
+    if tok.kind == "comment" and
        [str for str in s if
         tok.text.starts_with("--" & str.substring(1, 1)) and
         tok.text.substring(stdlib.first_non_blank(tok.text, 4),

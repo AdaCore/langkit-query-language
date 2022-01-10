@@ -7,4 +7,4 @@ fun declarations_in_blocks(node) =
     node is DeclBlock
     (any children(depth=1) is DeclarativePart
         (f_decls is AdaNodeList(all children(depth=2) is not
-                                (UseClause or Pragma))))
+                                (UseClause or PragmaNode))))

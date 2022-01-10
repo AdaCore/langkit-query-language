@@ -21,13 +21,13 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Node_Data;
-with LKQL.Error_Handling; use LKQL.Error_Handling;
-with LKQL.Patterns.Match; use LKQL.Patterns.Match;
-with LKQL.Patterns.Nodes; use LKQL.Patterns.Nodes;
-with LKQL.Selector_Lists; use LKQL.Selector_Lists;
+with Ada.Assertions;          use Ada.Assertions;
 
-with Ada.Assertions;                  use Ada.Assertions;
+with LKQL.Node_Data;
+with LKQL.Error_Handling;     use LKQL.Error_Handling;
+with LKQL.Patterns.Match;     use LKQL.Patterns.Match;
+with LKQL.Patterns.Nodes;     use LKQL.Patterns.Nodes;
+with LKQL.Selector_Lists;     use LKQL.Selector_Lists;
 
 package body LKQL.Chained_Pattern is
 
@@ -39,7 +39,7 @@ package body LKQL.Chained_Pattern is
                              Result : out Match_Result)
                              return Boolean
    is
-      Current_Root : H.AST_Node_Holder;
+      Current_Root : Lk_Node;
    begin
       while Iter.Next_Values.Is_Empty and then
         Iter.Root_Nodes_Iterator.Next (Current_Root)
@@ -70,8 +70,8 @@ package body LKQL.Chained_Pattern is
          Next_Values            => Iter.Next_Values,
          Pattern                => Iter.Pattern,
          Root_Nodes_Iterator =>
-           new AST_Node_Iterator'Class'
-             (AST_Node_Iterator'Class
+           new Lk_Node_Iterator'Class'
+             (Lk_Node_Iterator'Class
                ((Iter.Root_Nodes_Iterator.Clone))),
          Yielded_Elements       => Node_Sets.Empty_Set);
    end Clone;
@@ -83,7 +83,7 @@ package body LKQL.Chained_Pattern is
    overriding procedure Release (Iter : in out Chained_Pattern_Iterator) is
    begin
       Iter.Ctx.Release_Current_Frame;
-      AST_Node_Iterators.Free_Iterator (Iter.Root_Nodes_Iterator);
+      Lk_Node_Iterators.Free_Iterator (Iter.Root_Nodes_Iterator);
    end Release;
 
    -------------------------------
@@ -92,7 +92,7 @@ package body LKQL.Chained_Pattern is
 
    function Make_Chained_Pattern_Iterator
      (Ctx           : Eval_Context;
-      Root_Iterator : AST_Node_Iterator_Access;
+      Root_Iterator : Lk_Node_Iterator_Access;
       Pattern       : L.Chained_Node_Pattern) return Chained_Pattern_Iterator
    is
    begin
@@ -107,8 +107,9 @@ package body LKQL.Chained_Pattern is
    -- Eval_Element --
    ------------------
 
-   procedure Eval_Element (Iter : in out Chained_Pattern_Iterator;
-                           Root : H.AST_Node_Holder)
+   procedure Eval_Element
+     (Iter : in out Chained_Pattern_Iterator;
+      Root : Lk_Node)
    is
       Match : constant Match_Result :=
         Match_Pattern
@@ -127,9 +128,10 @@ package body LKQL.Chained_Pattern is
    -- Eval_Chain_From --
    ---------------------
 
-   procedure Eval_Chain_From (Iter        : in out Chained_Pattern_Iterator;
-                              Root        : H.AST_Node_Holder;
-                              Link_Nb     : Positive)
+   procedure Eval_Chain_From
+     (Iter        : in out Chained_Pattern_Iterator;
+      Root        : Lk_Node;
+      Link_Nb     : Positive)
    is
    begin
       if Link_Nb > Iter.Pattern.F_Chain.Children_Count and then
@@ -149,12 +151,12 @@ package body LKQL.Chained_Pattern is
 
    procedure Eval_Chain_From_Link
      (Iter        : in out Chained_Pattern_Iterator;
-      Root        : H.AST_Node_Holder;
+      Root        : Lk_Node;
       Link_Nb     : Positive)
    is
       Link             : constant L.Chained_Pattern_Link :=
         Iter.Pattern.F_Chain.List_Child (Link_Nb);
-      Nodes            : constant AST_Node_Vector :=
+      Nodes            : constant Lk_Node_Vector :=
         Eval_Link (Iter.Ctx, Root, Link);
       Pattern_Binding  : constant Symbol_Type :=
         Symbol (Link.F_Pattern.P_Binding_Name);
@@ -177,10 +179,10 @@ package body LKQL.Chained_Pattern is
    -- Eval_Chain_Link --
    ---------------------
 
-   function Eval_Link (Ctx             : Eval_Context;
-                       Root            : H.AST_Node_Holder;
-                       Link            : L.Chained_Pattern_Link)
-                       return AST_Node_Vector
+   function Eval_Link
+     (Ctx             : Eval_Context;
+      Root            : Lk_Node;
+      Link            : L.Chained_Pattern_Link) return Lk_Node_Vector
    is
       Pattern : L.Base_Pattern renames Link.F_Pattern;
    begin
@@ -206,10 +208,10 @@ package body LKQL.Chained_Pattern is
    -- Eval_Selector_Link --
    ------------------------
 
-   function Eval_Selector_Link (Ctx             : Eval_Context;
-                                Root            : H.AST_Node_Holder;
-                                Selector        : L.Selector_Link)
-                                return AST_Node_Vector
+   function Eval_Selector_Link
+     (Ctx             : Eval_Context;
+      Root            : Lk_Node;
+      Selector        : L.Selector_Link) return Lk_Node_Vector
    is
       S_List       : Selector_List;
       Call         : constant L.Selector_Call := Selector.F_Selector;
@@ -218,7 +220,7 @@ package body LKQL.Chained_Pattern is
       if not Eval_Selector
         (Ctx, Root, Call, Selector.F_Pattern, S_List)
       then
-         return AST_Node_Vectors.Empty_Vector;
+         return Lk_Node_Vectors.Empty_Vector;
       end if;
 
       if Binding_Name /= null then
@@ -232,10 +234,10 @@ package body LKQL.Chained_Pattern is
    -- Eval_Field_Link --
    ---------------------
 
-   function Eval_Field_Link (Ctx   : Eval_Context;
-                             Root  : H.AST_Node_Holder;
-                             Field : L.Field_Link)
-                             return AST_Node_Vector
+   function Eval_Field_Link
+     (Ctx   : Eval_Context;
+      Root  : Lk_Node;
+      Field : L.Field_Link) return Lk_Node_Vector
    is
       use LKQL.Node_Data;
       Field_Value : constant Primitive :=
@@ -255,10 +257,10 @@ package body LKQL.Chained_Pattern is
    -- Eval_Property_Link --
    ------------------------
 
-   function Eval_Property_Link (Ctx : Eval_Context;
-                                Root : H.AST_Node_Holder;
-                                Property : L.Property_Link)
-                                return AST_Node_Vector
+   function Eval_Property_Link
+     (Ctx : Eval_Context;
+      Root : Lk_Node;
+      Property : L.Property_Link) return Lk_Node_Vector
    is
       use LKQL.Node_Data;
       Call        : constant L.Fun_Call := Property.F_Property;
@@ -280,8 +282,8 @@ package body LKQL.Chained_Pattern is
    -- To_Ada_Node_Array --
    -----------------------
 
-   function To_AST_Node_Vector (Value : Primitive) return AST_Node_Vector is
-      Result : AST_Node_Vector;
+   function To_AST_Node_Vector (Value : Primitive) return Lk_Node_Vector is
+      Result : Lk_Node_Vector;
    begin
       case Kind (Value) is
          when Kind_Node =>

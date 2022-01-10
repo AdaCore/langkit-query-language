@@ -21,30 +21,36 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.AST_Nodes;     use LKQL.AST_Nodes;
-with LKQL.Partial_AST_Nodes;     use LKQL.Partial_AST_Nodes;
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
 package LKQL.Node_Data is
 
+   function Get_Struct_Member_Ref
+     (Ctx        : Eval_Context;
+      Receiver   : LK.Lk_Node;
+      Field_Name : L.Identifier) return LKI.Struct_Member_Ref;
+   --  Get the member reference for given receiver and field name. This
+   --  function exists so that the evaluator can eventually cache the member
+   --  reference rt. recompute it everytime.
+
    function Access_Node_Field
      (Ctx        : Eval_Context;
-      Receiver   : H.AST_Node_Holder;
+      Receiver   : LK.Lk_Node;
       Field_Name : L.Identifier) return Primitive;
    --  Return the value of the field designated by 'Field_Name' on 'Receiver'.
    --  An exception will be raised if there is no such field.
 
    function Eval_Node_Property
      (Ctx           : Eval_Context;
-      Receiver      : H.AST_Node_Holder;
+      Receiver      : LK.Lk_Node;
       Property_Name : L.Identifier;
       Args          : L.Arg_List) return Primitive
      with Pre => not Args.Is_Null;
    function Eval_Node_Property
      (Ctx           : Eval_Context;
-      Receiver      : AST_Node'Class;
-      Property_Ref  : AST_Node_Member_Reference'Class;
+      Receiver      : LK.Lk_Node;
+      Property_Ref  : LKI.Struct_Member_Ref;
       Args          : L.Arg_List) return Primitive;
    --  Evaluate the property designated by 'Property_Name' on 'Receiver'.
    --  An exception will be raised if there is no such property or if the call
