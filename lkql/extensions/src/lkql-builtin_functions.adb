@@ -21,6 +21,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Containers.Hashed_Sets;
 with Ada.Directories;
 with Ada.Finalization;
@@ -1047,7 +1048,7 @@ package body LKQL.Builtin_Functions is
       Args : Primitive_Array) return Primitive
    is
      (Make_Regex
-        (GNAT.Regpat.Compile (Image (Str_Val (Args (1)))), Ctx.Pool));
+        (GNAT.Regpat.Compile (To_String (Str_Val (Args (1)))), Ctx.Pool));
 
    ----------------
    -- Eval_Find --
