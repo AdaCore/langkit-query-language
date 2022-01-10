@@ -1000,7 +1000,7 @@ Flag each record type declaration, record extension declaration, and
 untagged derived record type declaration if a
 record_representation_clause that has at least one component clause
 applies to it (or an ancestor), but neither the type nor any of its
-ancestors has an explicitly specified Scalar_Storage_Order attribute.
+ancestors has an explicitly specified Scalar_Storage_Order aspect.
 
 This rule has no parameters.
 
@@ -1023,14 +1023,14 @@ This rule has no parameters.
 
       type Rec2 is  record
          I : Integer;
-      end record;
+      end record
+        with Scalar_Storage_Order => System.Low_Order_First;
 
       for Rec2 use
          record
             I at 0 range 0 .. 31;
          end record;
 
-      pragma Attribute_Definition (Scalar_Storage_Order, Rec2, System.Low_Order_First);
    end Foo;
 
 
@@ -5650,8 +5650,8 @@ Flag each use of a numeric literal except for the following:
   specified by the *N* rule parameter, or
 
 *
-  an integer literal that is the right operand of an infix call to a
-  predefined exponentiation operator, or
+  an integer literal that is the right operand of an infix call to an
+  exponentiation operator, or
 
 *
   an integer literal that denotes a dimension in array types attributes
@@ -5705,31 +5705,33 @@ not be limited by statements only.
 
 .. index:: Parameters_Out_Of_Order
 
-Flag each subprogram and entry declaration whose formal parameters are not
-ordered according to the following scheme:
+Flag each parameter specification if it does not follow the required
+ordering of parameter specifications in a formal part. The required
+order may be specified by the following rule parameters:
 
+*in*
+  ``in`` non-access parameters without initialization expressions;
 
-* ``in`` and ``access`` parameters first,
-  then ``in out`` parameters,
-  and then ``out`` parameters;
+*access*
+  ``access`` parameters  without initialization expressions;
 
-* for ``in`` mode, parameters with default initialization expressions
-  occur last
+*in_out*
+  ``in out`` parameters;
 
-Only the first violation of the described order is flagged.
+*out*
+  ``out`` parameters;
 
-The following constructs are checked:
+*defaulted_in*
+  parameters with initialization expressions (the order of ``access``
+  and non-access parameters is not checked.
 
-* subprogram declarations (including null procedures);
-* generic subprogram declarations;
-* formal subprogram declarations;
-* entry declarations;
-* subprogram bodies and subprogram body stubs that do not
-  have separate specifications
+When the rule is used with parameters, all the five parameters should
+be given, and each parameter should be specified only once.
 
-Subprogram renamings are not checked.
+The rule can be called without parameters, in this case it checks the
+default ordering that corresponds to the order in which the
+rule parameters are listed above.
 
-This rule has no parameters.
 
 .. rubric:: Example
 
