@@ -257,6 +257,9 @@ GNATcheck rules.
   :ref:`No_Scalar_Storage_Order_Specified`
 
 *
+  :ref:`Non_Component_In_Barriers`
+
+*
   :ref:`Non_Constant_Overlays`
 
 *

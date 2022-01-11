@@ -2327,6 +2327,55 @@ end Other;
 
 
 
+.. _Non_Component_In_Barriers:
+
+``Non_Component_In_Barriers``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Non_Component_In_Barriers
+
+Flag a barrier condition expression in an entry body declaration
+if this expression contains a reference to a data object that is
+not a (sub)component of the enclosing record the entry belongs to.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 21
+
+   protected Obj is
+      entry E1;
+      entry E2;
+   private
+      Value  : Integer;
+      Is_Set : Boolean := False;
+   end Obj;
+
+   Global_Bool : Boolean := False;
+
+   protected body Obj is
+
+      entry E1
+         when Is_Set and then Value > 0 is  --  NO FLAG
+      begin
+         Value  := Value - 1;
+         Is_Set := False;
+      end E1;
+
+      entry E2
+         when Global_Bool is                --  FLAG
+      begin
+         Is_Set := True;
+      end E2;
+
+   end Obj;
+
+
+
+
+
 .. _Non_Constant_Overlays:
 
 ``Non_Constant_Overlays``
@@ -2421,25 +2470,44 @@ The rule has an optional parameter for +R option:
 A pragma or an aspect is considered as assertion-related if its name
 is from the following list:
 
-``Assert``
-``Assert_And_Cut``
-``Assume``
-``Contract_Cases``
-``Debug``
-``Default_Initial_Condition``
-``Dynamic_Predicate``
-``Invariant``
-``Loop_Invariant``
-``Loop_Variant``
-``Post``
-``Postcondition``
-``Pre``
-``Precondition``
-``Predicate``
-``Predicate_Failure``
-``Refined_Post``
-``Static_Predicate``
-``Type_Invariant``
+*
+  ``Assert``
+*
+  ``Assert_And_Cut``
+*
+  ``Assume``
+*
+  ``Contract_Cases``
+*
+  ``Debug``
+*
+  ``Default_Initial_Condition``
+*
+  ``Dynamic_Predicate``
+*
+  ``Invariant``
+*
+  ``Loop_Invariant``
+*
+  ``Loop_Variant``
+*
+  ``Post``
+*
+  ``Postcondition``
+*
+  ``Pre``
+*
+  ``Precondition``
+*
+  ``Predicate``
+*
+  ``Predicate_Failure``
+*
+  ``Refined_Post``
+*
+  ``Static_Predicate``
+*
+  ``Type_Invariant``
 
 
 .. rubric:: Example
@@ -2469,9 +2537,6 @@ is a part of an object declaration of the object ``Overlaying`` and
 if the aspect value has the form ``Overlaid'Address`` where ``Overlaid``
 is an identifier defined by an object declaration if the object ``Overlaying``
 is not marked as imported.
-
-Note that if the rule Nonoverlay_Address_Specifications flags the
-argument Element then this rule does not flag it.
 
 This rule has no parameters.
 
@@ -3097,35 +3162,37 @@ Flags specs (and bodies that act as specs) of recursive subprograms. A
 subprogram is considered as recursive in a given context if there exists
 a chain of direct calls starting from the body of, and ending at
 this subprogram within this context. A context is provided by the set
-of Ada sources specified as arguments of a given gnatcheck call.
+of Ada sources specified as arguments of a given *gnatcheck* call.
 Neither dispatching calls nor calls through access-to-subprograms
-are considered as direct calls by this rule. If *Skip_Dispatching_Calls*
-is not set, gnatcheck considers a dispatching call as a set of calls
-to all the subprograms the dispatching call may dispatch to.
+are considered as direct calls by this rule. If *Follow_Dispatching_Calls*
+rule parameter is set, *gnatcheck* considers a dispatching call as a set
+of calls to all the subprograms the dispatching call may dispatch to,
+otherwise dispatching calls are ignored. The current rule limitation is
+that when processing dispatching calls the rule does not take into account
+type primitive operations declared in generic instantiations.
 
-This rule does not take into account calls that may happen as
-the result of subprogram import and export. *gnatcheck* issues a warning
-when it encounters an imported or exported subprogram or instantiation
-from a generic subprogram with imported body.
+This rule does not take into account calls to subprograms whose
+bodies are not available because of any reason (a subprogram is imported,
+the Ada source containing the body is not provided as *gnatcheck*
+argument source etc.). The *Unavailable_Body_Calls* rule can be used to
+detect these cases.
 
 Generic subprograms and subprograms detected in generic units are not
-flagged. Recursive subprograms in expanded generic instantiations
+flagged. Recursive subprograms in generic instantiations
 are flagged.
 
-This rule does not take into account subprogram calls in aspect
-definitions.
+The rule does not take into account implicit calls that are the
+result of computing default initial values for an object or a subcomponent
+thereof as a part of the elaboration of an object declaration.
 
-This rule requires the global analysis of all the compilation units that
-are *gnatcheck* arguments; such analysis may affect the tool's
-performance. If gnatcheck generates warnings saying that "*body is not
-analyzed for ...*", this means that such an analysis is incomplete, this
-may result in rule false negatives.
+The rule also does not take into account subprogram calls inside
+aspect definitions.
 
-The rule has an optional parameters for ``+R`` option:
+The rule has an optional parameter for ``+R`` option:
 
-*Skip_Dispatching_Calls*
-   Do not take into account dispatching calls when building and analyzing
-   call chains.
+*Follow_Dispatching_Calls*
+   Treat a dispatching call as a set of calls to all the subprograms
+   the dispatching call may dispatch to.
 
 .. rubric:: Example
 
@@ -5748,9 +5815,9 @@ rule parameters are listed above.
 
 .. index:: Predicate_Testing
 
-Flag a subtype mark if it denotes a subtype defined with (static or
-dynamic) subtype predicate and is used as a membership choice in a
-membership test expression.
+Flag a membership test if at least one of its membership choice contains a
+subtype mark denoting a subtype defined with (static or dynamic)
+subtype predicate.
 
 Flags 'Valid attribute reference if the nominal subtype of the attribute
 prefix has (static or dynamic) subtype predicate.
@@ -5758,106 +5825,51 @@ prefix has (static or dynamic) subtype predicate.
 
 This rule has the following (optional) parameters for the ``+R`` option:
 
-
-
 *Except_Assertions*
-  Do not flag a construct described above if it is a subcomponent
-  of the following constructs:
+  Do not flag the use of non-short-circuit_operators inside
+  assertion-related pragmas or aspect specifications.
 
-
-
-*argument of the following pragmas*
-
-
-*Language-defined*
+A pragma or an aspect is considered as assertion-related if its name
+is from the following list:
 
 *
   ``Assert``
-
-
-*GNAT-specific*
-
 *
   ``Assert_And_Cut``
-
 *
   ``Assume``
-
 *
   ``Contract_Cases``
-
 *
   ``Debug``
-
 *
-  ``Invariant``
-
-*
-  ``Loop_Invariant``
-
-*
-  ``Loop_Variant``
-
-*
-  ``Postcondition``
-
-*
-  ``Precondition``
-
-*
-  ``Predicate``
-
-*
-  ``Refined_Post``
-
-
-
-*definition of the following aspects*
-
-
-*Language-defined*
-
-*
-  ``Static_Predicate``
-
+  ``Default_Initial_Condition``
 *
   ``Dynamic_Predicate``
-
-*
-  ``Pre``
-
-*
-  ``Pre'Class``
-
-*
-  ``Post``
-
-*
-  ``Post'Class``
-
-*
-  ``Type_Invariant``
-
-*
-  ``Type_Invariant'Class``
-
-
-*GNAT-specific*
-
-*
-  ``Contract_Cases``
-
 *
   ``Invariant``
-
 *
-  ``Invariant'Class``
-
+  ``Loop_Invariant``
+*
+  ``Loop_Variant``
+*
+  ``Post``
+*
+  ``Postcondition``
+*
+  ``Pre``
+*
+  ``Precondition``
 *
   ``Predicate``
-
+*
+  ``Predicate_Failure``
 *
   ``Refined_Post``
+*
+  ``Static_Predicate``
+*
+  ``Type_Invariant``
 
 
 .. rubric:: Example
