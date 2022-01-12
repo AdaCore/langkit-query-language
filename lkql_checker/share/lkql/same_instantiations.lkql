@@ -4,6 +4,9 @@
 # - integer, character and string literals
 # - identifier names other than function calls (e.g. types, variables,
 #   subprogram names).
+# Note that no verification is made to check if the instantiation declares
+# global variables (if they do, removing the flagged duplicates will likely not
+# be possible).
 
 import stdlib
 
