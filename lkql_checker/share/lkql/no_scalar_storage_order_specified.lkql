@@ -13,12 +13,12 @@ fun non_empty_rep_clause(n) =
 fun no_scalar_storage_order_specified(unit) = [
     {message: "Scalar_Storage_Order is not specified", loc: n}
     for n in from unit.root select node@TypeDecl
-    when node.f_type_def is
+    when (node.f_type_def is
         (RecordTypeDef when not node.p_has_aspect("Scalar_Storage_Order")) or
         DerivedTypeDef when not
             (node.p_has_aspect("Scalar_Storage_Order")
              or [p for p in node.p_base_types()
-                 if p.p_has_aspect("Scalar_Storage_Order")]?[1] != ())
+                 if p.p_has_aspect("Scalar_Storage_Order")]))
      and (non_empty_rep_clause(node) or
-          [p for p in node.p_base_types() if non_empty_rep_clause(p)]?[1] != ())
+          [p for p in node.p_base_types() if non_empty_rep_clause(p)])
 ]
