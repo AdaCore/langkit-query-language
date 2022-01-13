@@ -555,7 +555,7 @@ package Gnatcheck.Rules is
    -----------------------
 
    type Forbidden_Rule is new Rule_Template with record
-      All_Flag  : Tri_State;
+      All_Flag  : Tri_State := Unset;
       Forbidden : Unbounded_Wide_Wide_String;
       Allowed   : Unbounded_Wide_Wide_String;
    end record;
