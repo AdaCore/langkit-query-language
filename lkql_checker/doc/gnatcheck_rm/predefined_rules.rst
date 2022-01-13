@@ -6111,6 +6111,64 @@ This rule has no parameters.
       raise Constraint_Error;    --  FLAG
 
 
+.. _Separates:
+
+``Separates``
+-------------
+
+.. index:: Separates
+
+Flags subunits.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 7
+
+   package body P is
+
+      procedure Sep is separate;
+
+   end P;
+
+   separate(P)       --  FLAG
+   procedure Sep is
+      procedure Q is separate;
+   begin
+      null;
+   end Sep;
+
+
+
+.. _Simple_Loop_Statements:
+
+``Simple_Loop_Statements``
+--------------------------
+
+.. index:: Simple_Loop_Statements
+
+Flags simple loop statements (loop statements that do not
+have iteration schemes).
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   loop                    --  FLAG
+      I := I + 1;
+      exit when I > 10;
+   end loop;
+
+   while I > 0 loop        --  NO FLAG
+      I := I - 1;
+   end loop;
+
+
 .. _Subprogram_Access:
 
 ``Subprogram_Access``

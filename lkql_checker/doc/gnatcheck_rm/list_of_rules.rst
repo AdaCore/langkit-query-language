@@ -395,6 +395,12 @@ GNATcheck rules.
   :ref:`Separate_Numeric_Error_Handlers`
 
 *
+  :ref:`Separates`
+
+*
+  :ref:`Simple_Loop_Statements`
+
+*
   :ref:`Single_Value_Enumeration_Types`
 
 *
