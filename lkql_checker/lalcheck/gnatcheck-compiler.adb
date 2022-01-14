@@ -467,14 +467,14 @@ package body Gnatcheck.Compiler is
             pragma Assert (False);
             return "";
          when Warning =>
-            return " [Warnings" &
+            return " [warnings" &
                    (if Parameter = "" then "" else ":" & Parameter) & "]";
          when Style =>
-            return " [Style_Checks]";
+            return " [style_checks]";
          when Restriction =>
-            return " [Restrictions]";
+            return " [restrictions]";
          when Error =>
-            return " [Errors]";
+            return " [errors]";
       end case;
    end Annotation;
 
@@ -1324,11 +1324,11 @@ package body Gnatcheck.Compiler is
 
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx :          Natural;
-      String_To_Search    : constant String := "[Warnings:";
+      String_To_Search    : constant String := "[warnings:";
    begin
       --  This function returns non-empty result only if .d parameter is
       --  specified for Warnings rule or if --show-rule gnatcheck option is
-      --  set (that is, if Diag ends with "[Warnings:<option>]"
+      --  set (that is, if Diag ends with "[warnings:<option>]"
 
       First_Idx := Index (Diag, String_To_Search);
 
