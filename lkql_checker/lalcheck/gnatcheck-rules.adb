@@ -2198,7 +2198,7 @@ package body Gnatcheck.Rules is
             """ min=""0"""                   &
             " max=""99999"""                 &
             " default=""-1"""                &
-            """ separator="":"""             &
+            " separator="":"""               &
             "/>");
    end XML_Rule_Help;
 
