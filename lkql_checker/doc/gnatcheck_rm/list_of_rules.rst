@@ -398,6 +398,9 @@ GNATcheck rules.
   :ref:`Separates`
 
 *
+  :ref:`Silent_Exception_Handlers`
+
+*
   :ref:`Simple_Loop_Statements`
 
 *

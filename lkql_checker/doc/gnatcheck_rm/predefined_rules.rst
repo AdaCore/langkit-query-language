@@ -3208,6 +3208,75 @@ The rule has an optional parameter for ``+R`` option:
       end if;
    end Factorial;
 
+
+.. _Silent_Exception_Handlers:
+
+``Silent_Exception_Handlers``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Silent_Exception_Handlers
+
+Flag any exception handler that neither raises an exception by
+``RAISE`` statement or a call to ``Ada.Exceptions.Raise_Exception`` or
+to ``Ada.Exceptions.Reraise_Occurrence` nor contains a call to some subprogram
+specified by the rule parameters. The rule can have any number of parameters,
+each parameter should be of one of the following kinds:
+
+*
+  a full qualified Ada name of a subprogram that starts from some
+  root unit name (when gnatcheck compares full expanded Ada names
+  of the called subprograms it does it in non-case-sensitive way);
+
+*
+  if a parameter has a format of an Ada string constant, then the content
+  of this constant (without outer string quotes) is treated as a
+  case-sensitive regular expression as defined in ``s-regpat.ads``.
+  An exception handler is not flagged if it contains a call to a subprogram
+  that has a full expanded Ada name that matches this regular
+  expression.
+
+Note that if you specify the rule with parameters in a command shell, you may
+need to escape its parameters. The best and the safest way of using this rule
+is to place it into a rule file and to use this rule file as a parameter of
+``-rules=`` option in gnatcheck call, no escaping is needed in this case.
+
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 12
+
+   with Ada.Exceptions; use Ada.Exceptions;
+
+   procedure Exc is
+      procedure Log (Msg : String) with Import;
+      --  Suppose the rule parameters are:
+     --      ada.exceptions.exception_message,"\.Log$"
+      I : Integer := 0;
+   begin
+      begin
+         I := I + 1;
+      exception
+         when others =>   --  FLAG
+            null;
+      end;
+
+   exception
+      when Constraint_Error =>  --  NO FLAG
+         raise;
+      when Program_Error =>     --  NO FLAG
+         Log ("");
+      when E : others =>        --  NO FLAG
+         I := 0;
+         Log (Exception_Message (E));
+   end Exc;
+
+
+
+
+
+
 .. _Single_Value_Enumeration_Types:
 
 ``Single_Value_Enumeration_Types``
