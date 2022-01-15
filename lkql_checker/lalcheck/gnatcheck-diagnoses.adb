@@ -65,8 +65,6 @@ package body Gnatcheck.Diagnoses is
       Diagnosis_Kind : Diagnosis_Kinds;
       Rule           : Rule_Id;
       SF             : SF_Id;
-      Num            : Positive;
-      --  Is needed to order properly messages corresponding to the same SLOC.
    end record;
 
    function SLOC_Less_Than (L, R : String) return Boolean;
@@ -81,7 +79,7 @@ package body Gnatcheck.Diagnoses is
    --  parts of L and R (file names are converted to lower case).
    --
    --  If comparing SLOCs based on the rules given above results in the fact
-   --  that these SLOCs are equal, Num parts are compared.
+   --  that these SLOCs are equal, the rest of the message is compared.
 
    function Diag_Is_Equal (L, R : Diag_Message) return Boolean;
    --  If L or R is null, raises Constraint_Error. Otherwise returns
@@ -112,9 +110,6 @@ package body Gnatcheck.Diagnoses is
    Sources_With_Violations          : Natural := 0;
    Sources_With_Exempted_Violations : Natural := 0;
    Ignored_Sources                  : Natural := 0;
-
-   function Next_Message_Num return Positive;
-   --  Returns next value for the Num field of diagnostic message
 
    -------------------------------------------
    --  Local routines for report generation --
@@ -869,8 +864,6 @@ package body Gnatcheck.Diagnoses is
       --
       --  4. if Full_Source_Locations is ON, in Windows we may have ':' as a
       --     part of a full file name.
-      --
-      --  5. SLOC may or may not contain a column position
 
       if L_End = L_Start + 1
         and then L (L_End + 1) in '\' | '/'
@@ -925,7 +918,7 @@ package body Gnatcheck.Diagnoses is
             return False;
          else
             --  line numbers are also the same, comparing columns if both
-            --  SLOCs have them
+            --  SLOCs have them (which should always be the case).
 
             if not (L_Has_Column or else R_Has_Column) then
                return False;
@@ -963,9 +956,10 @@ package body Gnatcheck.Diagnoses is
          return SLOC_Less_Than (L.Text (L_First .. L_SLOC_End),
                                 R.Text (R_First .. R_SLOC_End));
       else
-         --  If we are here, we have equal SLOCs, so use Num to differentiate
+         --  If we are here, we have equal SLOCs, so compare messages
 
-         return L.Num < R.Num;
+         return L.Text (L_SLOC_End + 1 .. L.Text'Last)
+                  < R.Text (R_SLOC_End + 1 .. R.Text'Last);
       end if;
    end Diag_Is_Less_Than;
 
@@ -1516,18 +1510,6 @@ package body Gnatcheck.Diagnoses is
          Section := @.Next_Exemption_Section;
       end loop;
    end Map_On_Postponed_Check_Exemption;
-
-   ----------------------
-   -- Next_Message_Num --
-   ----------------------
-
-   Next_Message_Num_Value : Natural := 0;
-
-   function Next_Message_Num return Positive is
-   begin
-      Next_Message_Num_Value := @ + 1;
-      return Next_Message_Num_Value;
-   end Next_Message_Num;
 
    -------------------------------------------
    -- Parametrized_Exem_Section_Debug_Image --
@@ -3117,8 +3099,7 @@ package body Gnatcheck.Diagnoses is
          Justification  => Justification,
          Diagnosis_Kind => Diagnosis_Kind,
          Rule           => Rule,
-         SF             => SF,
-         Num            => Next_Message_Num);
+         SF             => SF);
 
    begin
       --  We need this check to avoid diagnoses duplication. Our set container
