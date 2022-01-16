@@ -275,25 +275,26 @@ fun is_constant_object(node) =
 fun get_subp_body(node) =
     |" Return the SubpBody or TaskBody corresponding to node, if any, null
     |" otherwise.
-    |" TODO: take renamings into account
     match node
-    | BaseSubpBody    => node
-    | EnumLiteralDecl => null
-    | ClassicSubpDecl => node.p_body_part()
+    | SubpRenamingDecl =>
+        get_subp_body(node.f_renames.f_renamed_object.p_referenced_decl())
+    | BaseSubpBody     => node
+    | EnumLiteralDecl  => null
+    | ClassicSubpDecl  => node.p_body_part()
     | GenericSubpInstantiation
-                      => node.p_designated_generic_decl().p_body_part()
-    | SubpBodyStub    => node.p_body_part_for_decl()
-    | EntryDecl       =>
+                       => node.p_designated_generic_decl().p_body_part()
+    | SubpBodyStub     => node.p_body_part_for_decl()
+    | EntryDecl        =>
         # For a task entry decl, return the task body as an over approximation
         # TODO: replace p_next_part_for_decl once U920-016 if fixed.
         (match node.p_semantic_parent()
          | d@SingleTaskTypeDecl => d.parent.p_next_part_for_decl()
          | d@TaskTypeDecl       => d.p_next_part_for_decl()
          | *                    => node.p_body_part())
-    | TaskTypeDecl    => node.p_next_part_for_decl()
+    | TaskTypeDecl     => node.p_next_part_for_decl()
     | BasicDecl when node.p_is_subprogram()
-                      => node.p_body_part_for_decl()
-    | *               => null
+                       => node.p_body_part_for_decl()
+    | *                => null
 
 fun sloc_image(node) = {
     |" Return a string with basename:line corresponding to node's sloc

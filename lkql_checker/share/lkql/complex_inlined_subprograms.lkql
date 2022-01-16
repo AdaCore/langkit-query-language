@@ -11,6 +11,7 @@
 
 import stdlib
 
+@memoized
 fun complex_declaration(decls) =
     |" Return the first complex declaration found in decls, null otherwise
     if decls is *(any children is c@* when match c
@@ -25,6 +26,7 @@ fun complex_declaration(decls) =
                   | * => false)
     then c else null
 
+@memoized
 fun complex_statement(stmts) =
     |" Return the first complex statement found in stmts, null otherwise
     if stmts is *(any children is c@Stmt when match c
@@ -52,7 +54,8 @@ fun complex_inlined_subprograms(unit, n : int = 5) = [
                     then "branching in inlined subprogram (line " &
                          img(stmt?.token_start().start_line) & ")"
                     else "too many statements in inlined subprogram"),
-     loc: nod?.p_defining_name()}
-    for nod in from unit.root select node@(SubpBody or GenericSubpInstantiation)
+     loc: if nod is SubpRenamingDecl then stdlib.get_subp_body(nod) else nod}
+    for nod in from unit.root
+    select node@(SubpBody or GenericSubpInstantiation or SubpRenamingDecl)
     when node.p_has_aspect("Inline")
      and is_complex_subp(stdlib.get_subp_body(node), n)]
