@@ -1277,10 +1277,6 @@ package body Gnatcheck.Projects is
       if Analyze_Compiler_Output then
          Store_Compiler_Option ("-gnatcU");
 
-         if Full_Source_Locations then
-            Store_Compiler_Option ("-gnatef");
-         end if;
-
          if Use_gnatw_Option then
             Store_Compiler_Option ("-gnatwnA");
             Store_Compiler_Option (Get_Warning_Option);
