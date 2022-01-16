@@ -209,7 +209,8 @@ package body Gnatcheck.Compiler is
 
          First_Idx : constant Natural := Msg'First;
          Idx       : Natural := First_Idx;
-         Word_End  : Natural  := 0;
+         File_Idx  : Natural;
+         Word_End  : Natural := 0;
          Kind      : Diagnosis_Kinds := Rule_Violation;
 
          procedure Format_Error;
@@ -236,14 +237,6 @@ package body Gnatcheck.Compiler is
          --  We assume the following format of the message:
          --
          --   filename:line:column: <message body>
-         --
-         --  If -dJ is set, <message body> has the following structure
-         --
-         --    [warning] scopename: line:col: text
-         --
-         --  So the first thing we have to do is to skip 3 colons and to define
-         --  the source the message is siiued for, and the line and column
-         --  numbers:
 
          Idx := Index (Msg (Idx .. Msg'Last), ":");
 
@@ -252,6 +245,7 @@ package body Gnatcheck.Compiler is
             return;
          end if;
 
+         File_Idx := Idx;
          SF := File_Find (Msg (First_Idx .. Idx - 1), Use_Short_Name => True);
 
          if not Is_Argument_Source (SF) then
@@ -355,8 +349,14 @@ package body Gnatcheck.Compiler is
             return;
          end if;
 
+         --  Use File_Name to always use the same filename (including proper
+         --  casing for case insensitive systems).
+
          Store_Diagnosis
-           (Text           => Adjust_Message (Msg, Message_Kind),
+           (Text           => Adjust_Message
+                                (Gnatcheck.Source_Table.File_Name (SF) &
+                                 Msg (File_Idx .. Msg'Last),
+                                 Message_Kind),
             Diagnosis_Kind => Kind,
             SF             => SF,
             Rule           => (if Message_Kind = Error then No_Rule
