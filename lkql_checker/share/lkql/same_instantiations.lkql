@@ -26,12 +26,15 @@ fun same_exprs(e1, e2) =
 
 fun params_equal(l1, l2, i: int) =
     if i == 0 then true
-    else same_exprs(l1[i].f_r_expr, l2[i].f_r_expr) and
-         params_equal(l1, l2, i - 1)
+    else l1[i].param == l2[i].param and
+         same_exprs(l1[i].actual, l2[i].actual)
+         and params_equal(l1, l2, i - 1)
 
 fun same_params(p1, p2) = {
-    val count = p1.children_count;
-    count == p2.children_count and params_equal(p1, p2, count)
+    val params1 = p1.p_zip_with_params();
+    val params2 = p2.p_zip_with_params();
+    val length = params1.length;
+    length == params2.length and params_equal(params1, params2, length)
 }
 
 @memoized
