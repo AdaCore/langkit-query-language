@@ -443,6 +443,9 @@ GNATcheck rules.
   :ref:`Unchecked_Conversions_As_Actuals`
 
 *
+  :ref:`Uncommented_BEGIN`
+
+*
   :ref:`Uncommented_BEGIN_In_Package_Bodies`
 
 *

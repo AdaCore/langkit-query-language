@@ -4685,6 +4685,32 @@ This rule has no parameters.
       I := J; J := Tmp;      --  FLAG
    end Swap;
 
+.. _Uncommented_BEGIN:
+
+``Uncommented_BEGIN``
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Uncommented_BEGIN
+
+Flags ``BEGIN`` keywords in program unit bodies if the body contains
+both declarations and a statement part and if there is no trailing
+comment just after the keyword (on the same line) with the unit
+name as the only content of the comment, the casing of the unit
+name in the comment should be the same as the casing of the defining
+unit name in the unit body declaration.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+   procedure Proc (I : out Integer) is
+      B : Boolean;
+   begin
+      I := Var;
+   end Proc;
+
+
 .. _Uncommented_BEGIN_In_Package_Bodies:
 
 ``Uncommented_BEGIN_In_Package_Bodies``
@@ -4692,18 +4718,12 @@ This rule has no parameters.
 
 .. index:: Uncommented_BEGIN_In_Package_Bodies
 
-Flags each package body with declarations and a statement part that does not
-include a trailing comment on the line containing the ``begin`` keyword;
-this trailing comment needs to specify the package name and nothing else.
-The ``begin`` is not flagged if the package body does not
-contain any declarations.
-
-If the ``begin`` keyword is placed on the
-same line as the last declaration or the first statement, it is flagged
-independently of whether the line contains a trailing comment. The
-diagnostic message is attached to the line containing the first statement.
-
-This rule has no parameters.
+Flags ``BEGIN`` keywords in package bodies if the body contains
+both declarations and a statement part and if there is no trailing
+comment just after the keyword (on the same line) with the package
+name as the only content of the comment, the casing of the package
+name in the comment should be the same as the casing of the defining
+unit name in the package body.
 
 .. rubric:: Example
 
