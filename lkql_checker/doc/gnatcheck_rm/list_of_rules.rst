@@ -1,8 +1,8 @@
 .. _List_of_Rules:
 
-*************
-List of Rules
-*************
+**************************
+Alphabetical List of Rules
+**************************
 
 This section contains an alphabetized list of all the predefined
 GNATcheck rules.

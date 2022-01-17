@@ -1,16 +1,19 @@
+.. _LKQL_language_reference:
+
 LKQL language reference
 #######################
 
-LKQL (short for Langkit query language) is a query language enabling users to
+LKQL (short for LangKit Query Language) is a query language enabling users to
 run queries on top of source code.
 
 LKQL is based upon the [https://github.com/AdaCore/langkit](langkit)
 technology. As such, it is theoretically capable of running queries on any
 language with a Langkit frontend. In practice for the moment, LKQL is hardwired
-for Ada.
+for Ada (and Libadalang).
+
 LKQL today is the mixture of two language subsets:
 
-* The first is a general, dynamically typed, functional, small but general
+* The first is a dynamically typed, functional, small but general
   purpose programming language, including function definitions, common
   expressions, very basic support for numeric types and computations, list
   comprehensions, etc.
@@ -352,7 +355,7 @@ when an out of bound access is done:
 .. code-block:: lkql
 
     val lst = [1, 2, 3]
-    print(lst[5]) # Prints ()
+    print(lst?[5]) # Prints ()
 
 
 Comparison expression

@@ -1,9 +1,9 @@
 GNATcheck Reference Manual
 ==========================
 
-*GNAT, The GNU Ada Development Environment*
+*GNATcheck, The GNAT coding standard checker*
 
-| The GNAT Ada Compiler
+| GNATcheck
 | Version |version|
 
 Permission is granted to copy, distribute and/or modify this document
@@ -20,7 +20,6 @@ A copy of the license is included in the section entitled
    :numbered:
    :maxdepth: 2
 
-   gnatcheck_rm/about_this_manual
    gnatcheck_rm/introduction
    gnatcheck_rm/format_of_the_report_file
    gnatcheck_rm/general_gnatcheck_switches
@@ -31,7 +30,9 @@ A copy of the license is included in the section entitled
    gnatcheck_rm/rule_exemption
    gnatcheck_rm/predefined_rules
    gnatcheck_rm/example_of_gnatcheck_usage
-   gnatcheck_rm/list_of_rules
+   gnatcheck_rm/writing_your_own_rules
+   gnatcheck_rm/language_reference
+   gnatcheck_rm/lkql_api_doc
 
 .. raw:: latex
 
@@ -40,4 +41,5 @@ A copy of the license is included in the section entitled
 .. toctree::
    :maxdepth: 2
 
+   gnatcheck_rm/list_of_rules
    share/gnu_free_documentation_license

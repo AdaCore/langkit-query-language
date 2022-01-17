@@ -1407,13 +1407,12 @@ This rule has no parameters.
 .. code-block:: ada
    :emphasize-lines: 1
 
-package P is  --  FLAG
+   package P is  --  FLAG
 
-   type T is tagged null record;
-   type T2 is tagged null record;
+      type T is tagged null record;
+      type T2 is tagged null record;
 
-end P;
-
+   end P;
 
 
 .. _Raising_External_Exceptions:
@@ -2171,7 +2170,7 @@ This rule has the following (mandatory) parameters for the ``+R`` option:
 .. _Misplaced_Representation_Items:
 
 ``Misplaced_Representation_Items``
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: Misplaced_Representation_Items
 
@@ -2262,7 +2261,7 @@ This rule has no parameters.
 .. _No_Others_In_Exception_Handlers:
 
 ``No_Others_In_Exception_Handlers``
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: No_Others_In_Exception_Handlers
 
@@ -2309,22 +2308,21 @@ parameters has its effect.
 .. code-block:: ada
    :emphasize-lines: 5
 
-procedure Other (I, J : in out Integer) is
-begin
+   procedure Other (I, J : in out Integer) is
    begin
-      I := I + 1;
-   exception                --  FLAG (if All_Handlers parameter is set)
-      when Constraint_Error => null;
-   end;
+      begin
+         I := I + 1;
+      exception                --  FLAG (if All_Handlers parameter is set)
+         when Constraint_Error => null;
+      end;
 
-exception                    --  NO FLAG
-   when Constraint_Error =>
-      I := Integer'Last;
-   when others =>
-      I := J;
-      raise;
-end Other;
-
+   exception                    --  NO FLAG
+      when Constraint_Error =>
+         I := Integer'Last;
+      when others =>
+         I := J;
+         raise;
+   end Other;
 
 
 .. _Non_Component_In_Barriers:
@@ -3218,7 +3216,7 @@ The rule has an optional parameter for ``+R`` option:
 
 Flag any exception handler that neither raises an exception by
 ``RAISE`` statement or a call to ``Ada.Exceptions.Raise_Exception`` or
-to ``Ada.Exceptions.Reraise_Occurrence` nor contains a call to some subprogram
+to ``Ada.Exceptions.Reraise_Occurrence`` nor contains a call to some subprogram
 specified by the rule parameters. The rule can have any number of parameters,
 each parameter should be of one of the following kinds:
 
@@ -3280,7 +3278,7 @@ is to place it into a rule file and to use this rule file as a parameter of
 .. _Single_Value_Enumeration_Types:
 
 ``Single_Value_Enumeration_Types``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: Single_Value_Enumeration_Types
 
@@ -3511,7 +3509,7 @@ This rule has no parameters.
 .. _Use_Case_Statements:
 
 ``Use_Case_Statements``
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: Use_Case_Statements
 
@@ -4468,12 +4466,12 @@ flagged. The rule has a mandatory parameter for +R option:
    My_Variable_With_A_Long_Name : My_Type;  -- FLAG (if rule parameter is 27 or smaller)
 
 
-.. _Mix_Identifier_Length:
+.. _Min_Identifier_Length:
 
-``Mix_Identifier_Length``
+``Min_Identifier_Length``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: Mix_Identifier_Length
+.. index:: Min_Identifier_Length
 
 Flag any defining identifier that has length shorter than specified by
 the rule parameter. Defining identifiers of objects and components of
@@ -5739,7 +5737,7 @@ This rule has no parameters.
 .. _Number_Declarations:
 
 ``Number_Declarations``
----------------------
+-----------------------
 
 .. index:: Number_Declarations
 
