@@ -8,10 +8,18 @@ fun non_empty_rep_clause(n) =
     n.p_get_record_representation_clause() is
     RecordRepClause(f_components is *(any children(depth=1) is ComponentClause))
 
+fun bit_order_image(n) = {
+    val aspect = n.p_get_aspect("Bit_Order");
+    if aspect.exists and aspect.value is Name
+    then " (Bit_Order is " & aspect.value.p_relative_name().text & ")"
+    else ""
+}
+
 @unit_check(help="Scalar_Storage_Order is not specified", remediation="EASY",
             category="Style", subcategory="Portability")
 fun no_scalar_storage_order_specified(unit) = [
-    {message: "Scalar_Storage_Order is not specified", loc: n}
+    {message: "Scalar_Storage_Order is not specified" & bit_order_image(n),
+     loc: n}
     for n in from unit.root select node@TypeDecl
     when (node.f_type_def is
         (RecordTypeDef when not node.p_has_aspect("Scalar_Storage_Order")) or
