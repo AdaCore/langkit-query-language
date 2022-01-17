@@ -31,6 +31,16 @@ procedure Params is
       Proc1 (P1 (1), P3);
    end;
 
+   procedure Proc3
+     (R1 : out Rec2;     --  FLAG with ignore_component_assignments
+      R2 : out Rec2)     --  FLAG with ignore_component_assignments
+   is
+      X : Integer renames R2.F1;
+   begin
+      R1.F1 := 1;
+      X     := 1;
+   end;
+
 begin
    null;
 end Params;

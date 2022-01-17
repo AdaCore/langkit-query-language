@@ -6,3 +6,11 @@ params.adb:25:7: rule violation: unassigned OUT parameter P2
 25 |       P2 : out Rec;        --  FLAG with ignore_component_assignments
    |       ^^
 
+params.adb:35:7: rule violation: unassigned OUT parameter R1
+35 |      (R1 : out Rec2;     --  FLAG with ignore_component_assignments
+   |       ^^
+
+params.adb:36:7: rule violation: unassigned OUT parameter R2
+36 |       R2 : out Rec2)     --  FLAG with ignore_component_assignments
+   |       ^^
+
