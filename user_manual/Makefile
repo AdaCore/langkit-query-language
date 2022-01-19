@@ -21,3 +21,6 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 %: Makefile
 	LKQL_PATH=$(ROOT_DIR)/../lkql_checker/share/lkql python generate_apidoc.py --std -O generated stdlib
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+apidoc:
+	LKQL_PATH=$(ROOT_DIR)/../lkql_checker/share/lkql python generate_apidoc.py --std -O generated stdlib

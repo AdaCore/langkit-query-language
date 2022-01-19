@@ -24,6 +24,10 @@ automated:
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lalcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
 	cp -p lkql_checker/share/lkql/*.lkql "$(PREFIX)/share/lkql"
+	$(MAKE) -C user_manual apidoc
+	$(MAKE) -C lkql_checker/doc html-all
+	mkdir -p "$(PREFIX)/share/doc"
+	cp -pr lkql_checker/doc/build/gnatcheck_rm "$(PREFIX)/share/doc/gnatcheck"
 
 automated-cov:
 	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
