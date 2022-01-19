@@ -1,0 +1,49 @@
+# Flag syntactically equivalent branch bodies in a common 'case' or
+# 'if' construct.
+# The optional parameters min_size and min_stmt provide a way to
+# parametrize a threshold to decide when two branches are worth reporting.
+# min_size represents the minimum number of tokens to consider (SingleTokNode
+# in Libadalang terms).
+# min_stmt represents the minimum number of statements to consider.
+# If any of the parameters match, the branch is considered.
+
+import stdlib
+
+fun check_size(n, min_size, min_stmt) =
+    (from n select Stmt).length >= min_stmt or
+    (from n select SingleTokNode).length >= min_size
+
+fun check_list(l, min_size, min_stmt) =
+    [e for e in l if check_size(e, min_size, min_stmt) and
+        [f for f in l if e != f and stdlib.same_tokens(e, f)]]?[1] != ()
+
+fun gather_stmts(node) =
+    match node
+    | IfStmt   =>
+        [node.f_then_stmts] &
+        [n.f_stmts for n in node.f_alternatives.children].to_list &
+        [node.f_else_stmts]
+    | IfExpr   =>
+        [node.f_then_expr] &
+        [n.f_then_expr for n in node.f_alternatives.children].to_list &
+        [node.f_else_expr]
+    | CaseStmt => [n.f_stmts for n in node.f_alternatives.children].to_list
+    | CaseExpr => [n.f_expr for n in node.f_cases.children].to_list
+
+fun message(node, min_size, min_stmt) = {
+    val l = gather_stmts(node);
+    val e = [e for e in l if check_size(e, min_size, min_stmt) and
+                [f for f in l if e != f and stdlib.same_tokens(e, f)]][1];
+    val f = [f for f in l if e != f and stdlib.same_tokens(e, f)][1];
+    {message: "code duplicated at line " & img(f.token_start().start_line),
+     loc: e}
+}
+
+@unit_check(help="duplicate branch",
+            category="Style", subcategory="Programming Practice")
+fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) = [
+    message(n, min_size, min_stmt)
+    for n in from unit.root
+    select node@(IfStmt or IfExpr or CaseStmt or CaseExpr)
+    when check_list(gather_stmts(node), min_size, min_stmt)
+]

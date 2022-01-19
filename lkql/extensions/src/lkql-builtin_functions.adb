@@ -812,8 +812,9 @@ package body LKQL.Builtin_Functions is
 
       use LKQL.AST_Nodes;
    begin
-      while Token.Unchecked_Get.all /= Last_Token.Unchecked_Get.all loop
+      loop
          Tokens.Append (To_Primitive (Token, Ctx.Pool));
+         exit when Token.Unchecked_Get.all = Last_Token.Unchecked_Get.all;
          Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
       end loop;
 

@@ -1,0 +1,36 @@
+# Flag a chain of the same boolean operator (and, or, and then, or else)
+# that contains two syntactically equivalent operands.
+
+import stdlib
+
+fun check_list(l) =
+    [e for e in l if [f for f in l if e != f and stdlib.same_tokens(e, f)]]
+
+fun gather_ops(node, kind) =
+    [node.f_left, node.f_right] &
+    (if node.f_left is l@BinOp when l.f_op.kind == kind
+     then gather_ops(l, kind) else [])
+
+fun message(node) = {
+    val l = gather_ops(node, node.f_op.kind);
+    val e = [e for e in l if
+             [f for f in l if e != f and stdlib.same_tokens(e, f)]][1];
+    val f = [f for f in l if e != f and stdlib.same_tokens(e, f)][1];
+    {message: "same operand found at " &
+              (if e.token_start().start_line == f.token_start().start_line
+               then "column " & img(f.token_start().start_column)
+               else "line " & img(f.token_start().start_line)), loc: e}
+}
+
+@unit_check(help="same logic",
+            category="Style", subcategory="Programming Practice")
+fun same_logic(unit) = [
+    message (n)
+    for n in from unit.root
+    select node@BinOp(f_op is op@(OpAnd or OpAndThen or OpOr or OpOrElse))
+    when {
+        val kind = op.kind;
+        not (node.parent is p@BinOp when p.f_op.kind == kind) and
+        check_list(gather_ops(node, kind))
+    }
+]

@@ -1,0 +1,4 @@
+same.adb:5:7: rule violation: test duplicated at line 9
+5 |    if Str = A then                --  FLAG with line 9
+  |       ^^^^^^^
+

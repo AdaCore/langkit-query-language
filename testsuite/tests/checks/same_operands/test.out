@@ -1,0 +1,4 @@
+same.adb:7:14: rule violation: same operands
+7 |       return (X + 1) / (X +  1);     --  FLAG
+  |              ^^^^^^^^^^^^^^^^^^
+
