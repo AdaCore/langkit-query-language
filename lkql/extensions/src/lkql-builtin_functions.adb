@@ -59,6 +59,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Dump
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Node_Kind
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Image
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -280,6 +283,20 @@ package body LKQL.Builtin_Functions is
       Ada_AST_Node (Args (1).Node_Val.Unchecked_Get.all).Node.Print;
       return Make_Unit_Primitive;
    end Eval_Dump;
+
+   --------------------
+   -- Eval_Node_Kind --
+   --------------------
+
+   function Eval_Node_Kind
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+   begin
+      return To_Primitive
+        (To_Text
+          (Ada_AST_Node (Args (1).Node_Val.Unchecked_Get.all).Kind_Name),
+         Ctx.Pool);
+   end Eval_Node_Kind;
 
    ----------------
    -- Eval_Image --
@@ -1116,6 +1133,13 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("node", Kind_Node)),
          Eval_Dump'Access,
          "Given an ast node, return a structured dump of the subtree",
+         Only_Dot_Calls => True),
+
+      Create
+        ("kind",
+         (1 => Param ("node", Kind_Node)),
+         Eval_Node_Kind'Access,
+         "Return the kind of this node, as a string",
          Only_Dot_Calls => True),
 
       Create
