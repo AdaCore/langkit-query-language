@@ -1452,6 +1452,57 @@ This rule has no parameters.
       end Proc;
    end Foo;
 
+.. _Same_Instantiations:
+
+``Same_Instantiations``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Same_Instantiations
+
+Flag each generic package instantiation when it can be determined that
+a set of the *gnatcheck* argument sources contains an instantiation
+of the same generic with the same actual parameters. This determination
+is conservative, it checks only for the following matching parameters:
+
+*
+  integer, character and string literals;
+
+*
+  Ada names that denote the same entity.
+
+If some instantiation if marked by the rule, additional investigation
+is required to decide if one of the duplicated instantiations can be
+removed to simplify the code. In particular, the rule does not check if
+these instantiations declare any global variable or perform some
+non-trivial actions as a part of their elaboration.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 10, 17
+
+   generic
+      type T is private;
+      X : Integer;
+   package Gen is
+   end Gen;
+
+   with Gen;
+
+   package Inst1 is
+      package Inst_1 is new Gen (Integer, 2);  --  FLAG
+      package Inst_2 is new Gen (Integer, 3);  --  NO FLAG
+   end Inst1;
+
+   with Gen;
+
+   package Inst2 is
+      package Inst_3 is new Gen (Integer, 2);  --  FLAG
+   end Inst2;
+
+
 
 
 .. _Programming_Practice:
@@ -6343,13 +6394,16 @@ The following are treated as assignments to an ``out`` parameter:
   ``in out`` parameter, except for the case when it is passed to the
   call of an attribute subprogram.
 
-This rule has no parameters.
+The rule has an optional parameter for +R option:
+
+*Ignore_Component_Assignments*
+  Ignore assignments to subcomponents of an ``out`` parameter when detecting
+  if the parameter is assigned.
 
 .. warning:: This rule only detects a trivial case of an unassigned variable
    and doesn't provide a guarantee that there is no uninitialized access.
-   The rule does not check function parameters (starting from Ada 2012 functions
-   can have ``out`` parameters). It is not a replacement for rigorous check for
-   uninitialized access provided by advanced static analysis tools.
+   It is not a replacement for rigorous check for uninitialized access provided
+   by advanced static analysis tools.
 
 .. rubric:: Example
 

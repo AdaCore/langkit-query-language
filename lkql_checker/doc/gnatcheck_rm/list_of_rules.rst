@@ -392,6 +392,9 @@ GNATcheck rules.
   :ref:`Representation_Specifications`
 
 *
+  :ref:`Same_Instantiations`
+
+*
   :ref:`Separate_Numeric_Error_Handlers`
 
 *
