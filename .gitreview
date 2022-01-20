@@ -1,5 +1,5 @@
 [gerrit]
 host = git.adacore.com
 project = language-query-toolkit
-defaultbranch = 22.1
+defaultbranch = 22.2
 defaultremote = origin
