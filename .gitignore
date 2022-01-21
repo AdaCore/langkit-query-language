@@ -46,5 +46,4 @@ testsuite/tmp/
 out/
 tmp/
 .clang-format
-user_manual/generated/
 asis/

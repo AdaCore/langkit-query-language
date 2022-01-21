@@ -1,0 +1,153 @@
+API doc for module stdlib
+--------------------------------
+
+LKQL stdlib module
+
+This module contains functions that are shared accross lkql_checker rules.
+All of them should be both:
+
+* Candidates for Libadalang integration
+* Candidates for integration in lkql's stdlib
+
+.. function:: ultimate_subprogram_alias(name)
+
+    Return the ultimately designated ``BasicSubpDecl``, going through renamings
+
+.. function:: enclosing_body(n)
+
+    Return the first Body enclosing n if any, null otherwise
+
+.. function:: is_classwide_type(t)
+
+    Return true if t is a classwide TypeDecl.
+    TODO: move to LAL
+
+.. function:: ultimate_exception_alias(name)
+
+    Return the ultimately designated ``ExceptionDecl``, going through renamings
+
+.. function:: same_tokens(l, r)
+
+    Return true if `l` and `r` are syntactically equivalent, ignoring
+    blank and comment tokens.
+
+.. function:: is_local_object(o)
+
+    Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
+
+.. function:: get_subp_body(node)
+
+    Return the SubpBody or TaskBody corresponding to node, if any, null
+    otherwise.
+
+.. function:: is_in_package_scope(o)
+
+    Return ``true`` if ``o`` is immediately in the scope of a package spec,
+    body or generic package.
+
+.. function:: is_constructor(spec)
+
+    Return true if spec is a subprogram spec of a constructor, that is, has
+    a controlling result and no controlling parameter.
+    TODO: move this to LAL?
+
+.. function:: is_assert_pragma(s)
+
+    Return ``true`` if the string ``s`` is the name of an assert pragma
+
+.. function:: first_non_blank(s, ind=1)
+
+    Return the index of the first non blank character of s, starting at ind
+
+.. function:: within_assert(node)
+
+    Return ``true`` if ``node`` is part of an assertion-related pragma or
+    aspect.
+
+.. function:: find_comment(token, name)
+
+    Return true if a comment token immediately following the previous
+    "begin" keyword is found and containing only the package name.
+
+.. function:: is_standard_boolean(n)
+
+    Return true if the root type of n is Standard.Boolean
+
+.. function:: children_no_nested_subps
+
+    Return all children nodes starting from a base subprogram body, but not
+    entering in nested subprogram bodies.
+
+.. function:: is_in_library_unit_body(o)
+
+    Return ``true`` if ``o`` is located in a library unit body
+
+.. function:: is_controlling_param_type(t, spec)
+
+    Return true if `t` is a TypeExpr corresponding to a controlling
+    parameter of the subprogram spec `spec`.
+    TODO: move this to LAL
+
+.. function:: is_predefined_op(op)
+
+    Return true if op is a predefined operator
+
+.. function:: semantic_parent
+
+    Return all semantic parent nodes starting from a given node.
+
+.. function:: is_predefined_type(n)
+
+    Return true if n is the name of a type declared in a predefined package
+    spec.
+
+.. function:: has_local_scope(n)
+
+    Return ``true`` if ``n`` is enclosed in a local scope
+
+.. function:: sloc_image(node)
+
+
+
+.. function:: ultimate_alias(name, all_nodes=true, strip_component=false)
+
+    Return the ultimately designated `ObjectDecl`, going through renamings
+    This will not go through generic instantiations. If all_nodes is true,
+    consider all kinds of nodes, otherwise consider only BaseId and
+    DottedName. If strip_component is true, go to the prefix when
+    encountering a component, otherwise stop at the ComponentDecl.
+
+.. function:: param_pos(n, pos: int = 0)
+
+    Return the position of node ``n`` in its current list of siblings
+
+.. function:: enclosing_block(n)
+
+    Return the first DeclBlock enclosing n if any, null otherwise
+
+.. function:: is_assert_aspect(s)
+
+    Return ``true`` if the string ``s`` is the name of an assert aspect
+
+.. function:: is_standard_numeric(n)
+
+    Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
+
+.. function:: is_constant_object(node)
+
+    Return true is node represents a constant object, false otherwise
+
+.. function:: enclosing_package(n)
+
+    Return the first BasePackageDecl or PackageBody enclosing n if any,
+    null otherwise
+
+.. function:: is_program_unit(n)
+
+    Return ``true`` if ``n`` is a program unit spec, body or stub
+
+.. function:: in_generic_template(n)
+
+    Return true if ``n`` is declared as part of a generic template (spec
+    or body). Return false otherwise, including inside a generic
+    instantiation.
