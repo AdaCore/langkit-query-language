@@ -83,12 +83,37 @@ These functions are marked with the ``@unit_check`` decorator:
 .. code-block:: lkql
 
    @unit_check
-   fun goto(unit) = [
-      {message: "goto statement at line " &
-                img(node.token_start().start_line),
-       loc: node}
+   fun goto_line(unit) = [
+      {message:
+         "go to line " &
+         img(node.f_label_name.p_referenced_decl().token_start().start_line),
+       loc: node.f_label_name}
       for node in (from unit.root select GotoStmt)
    ]
+
+The above checker will find each goto statement and generate a message for
+each, listing the line where the target label of the goto is defined.
+
+For example given this code:
+
+..  code-block:: ada
+    :linenos:
+
+    procedure Go_To is
+    begin
+       goto Foo;
+       ...
+    <<Foo>>
+       ...
+    end Go_To;
+
+The following gnatcheck call (assuming the file :file:`goto_line.lkql` is found
+in the current directory) will output:
+
+.. code-block:: sh
+
+    $ gnatcheck go_to.adb --rules-dir=. -rules +Rgoto_line
+    go_to.adb:3:09: go to line 5
 
 Checks arguments
 ~~~~~~~~~~~~~~~~
