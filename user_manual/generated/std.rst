@@ -4,73 +4,73 @@ Standard library
 Builtin functions
 ^^^^^^^^^^^^^^^^^
 
-.. function:: super_types
-
-    Given a TypeDecl node, yields all the super types of the type
-
-.. function:: get_symbols(package=())
-
-    Given a module, return the symbols stored in it. If given no module, return the local symbols
-
 .. function:: base_name(str)
 
     Given a string that represents a file name, returns the basename
-
-.. function:: concat(lists)
-
-    Given a list of lists, return a concatenated list
-
-.. function:: prev_siblings
-
-    Yields the siblings preceding the given node in the tree
-
-.. function:: next_siblings
-
-    Yields the siblings following the given node in the tree
-
-.. function:: doc(obj)
-
-    Given any object, return the documentation associated with it
-
-.. function:: help(obj)
-
-    Given any object, return formatted help for it
-
-.. function:: reduce(indexable, fn, init)
-
-    Given a collection, a reduction function, and an initial value reduce the result
-
-.. function:: print(val, new_line=true)
-
-    Built-in print function. Prints whatever is passed as an argument
-
-.. function:: parent
-
-    Yields the parents (ancestors) of the given node in the tree
-
-.. function:: profile(obj)
-
-    Given any object, if it is a callable, return its profile as text
-
-.. function:: img(val)
-
-    Return a string representation of an object
-
-.. function:: unique(indexable)
-
-
 
 .. function:: children
 
     Yields all the descendants of the given node in the tree
 
-.. function:: pattern(string_pattern)
+.. function:: concat(lists)
 
-    Given a regex pattern string, create a pattern object
+    Given a list of lists, return a concatenated list
+
+.. function:: doc(obj)
+
+    Given any object, return the documentation associated with it
 
 .. function:: get_builtin_methods_info()
 
     Return information about builtin methods
+
+.. function:: get_symbols(package=())
+
+    Given a module, return the symbols stored in it. If given no module, return the local symbols
+
+.. function:: help(obj)
+
+    Given any object, return formatted help for it
+
+.. function:: img(val)
+
+    Return a string representation of an object
+
+.. function:: next_siblings
+
+    Yields the siblings following the given node in the tree
+
+.. function:: parent
+
+    Yields the parents (ancestors) of the given node in the tree
+
+.. function:: pattern(string_pattern)
+
+    Given a regex pattern string, create a pattern object
+
+.. function:: prev_siblings
+
+    Yields the siblings preceding the given node in the tree
+
+.. function:: print(val, new_line=true)
+
+    Built-in print function. Prints whatever is passed as an argument
+
+.. function:: profile(obj)
+
+    Given any object, if it is a callable, return its profile as text
+
+.. function:: reduce(indexable, fn, init)
+
+    Given a collection, a reduction function, and an initial value reduce the result
+
+.. function:: super_types
+
+    Given a TypeDecl node, yields all the super types of the type
+
+.. function:: unique(indexable)
+
+
 
 .. function:: units()
 

@@ -145,7 +145,7 @@ class App(object):
         )
 
         if self.args.std:
-            local_symbols = eval(self.eval("get_symbols()"))
+            local_symbols = sorted(eval(self.eval("get_symbols()")))
             with self.output_file('std.rst'):
                 self.write('Standard library')
                 self.write('----------------')
@@ -178,8 +178,8 @@ class App(object):
 
         for module_name in self.args.modules:
             self.eval(f"import {module_name}")
-            module_symbols = eval(self.eval(
-                f"get_symbols({module_name})")
+            module_symbols = sorted(eval(self.eval(
+                f"get_symbols({module_name})"))
             )
             with self.output_file(f'{module_name}.rst'):
                 self.write(f'API doc for module {module_name}')
