@@ -1,0 +1,8 @@
+project Liblkqllang_Encapsulated extends "liblkqllang" is
+
+   for Library_Kind use "relocatable";
+   for Library_Name use "lkqllang";
+   for Library_Standalone use "encapsulated";
+   for Library_Dir use "encapsulated";
+
+end Liblkqllang_Encapsulated;

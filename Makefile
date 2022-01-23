@@ -16,14 +16,22 @@ lkql: build/bin/liblkqllang_parse
 
 automated:
 	rm -rf "$(PREFIX)"
-	mkdir -p "$(PREFIX)/share/lkql"
+	mkdir -p "$(PREFIX)/share/lkql" "$(PREFIX)/lib"
 	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS)
-	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr
-	$(GPRBUILD) -Plkql_checker/lalcheck.gpr
+	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
+	$(GPRBUILD) -Plkql_checker/lalcheck.gpr -largs -s
+	$(GPRBUILD) -Plkql/liblkqllang_encapsulated -XLIBRARY_TYPE=static-pic -largs -s
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lalcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
 	cp -p lkql_checker/share/lkql/*.lkql "$(PREFIX)/share/lkql"
+	cp -p lkql_repl.py "$(PREFIX)/bin"
+	cp -pr "$(BUILD_DIR)/lkql/python" "$(PREFIX)/lib"
+ifeq ($(OS),Windows_NT)
+	cp -p lkql/encapsulated/*.dll "$(PREFIX)/bin"
+else
+	cp -p lkql/encapsulated/*.so "$(PREFIX)/lib/python/liblkqllang"
+endif
 
 doc-auto:
 	$(MAKE) -C lkql_checker/doc html-all
