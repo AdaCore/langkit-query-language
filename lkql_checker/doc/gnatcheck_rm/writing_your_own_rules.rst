@@ -178,7 +178,7 @@ You then need to setup the proper environment by adding the directory
 :file:`LKQL install root/lib/python` to the ``PYTHONPATH`` environment
 variable, and if you are under Linux, by also adding the directory
 :file:`LKQL install root/lib` to the ``LD_LIBRARY_PATH``
-environment variable,
+environment variable.
 
 For example under a Linux shell, assuming LKQL is installed under
 :file:`/opt/lkql`:
