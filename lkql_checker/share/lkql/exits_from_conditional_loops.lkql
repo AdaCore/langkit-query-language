@@ -8,4 +8,4 @@
 fun exits_from_conditional_loops(node) =
     node is ExitStmt
     when [l for l in node.parents(include_self=false)
-          if l is BaseLoopStmt].to_list[1] is ForLoopStmt or WhileLoopStmt
+          if l is BaseLoopStmt][1] is ForLoopStmt or WhileLoopStmt
