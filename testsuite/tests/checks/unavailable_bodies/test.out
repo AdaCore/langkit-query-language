@@ -1,4 +1,20 @@
-calls.adb:9:4: rule violation: call to unavailable body
-9 |    Unknown;                 --  FLAG
-  |    ^^^^^^^
+calls.adb:16:4: rule violation: call to unavailable body
+16 |    Unknown;     --  FLAG
+   |    ^^^^^^^
+
+calls.adb:17:4: rule violation: call to unavailable body
+17 |    X.all (1);   --  FLAG
+   |    ^^^^^^^^^
+
+calls.adb:17:4: rule violation: call to unavailable body
+17 |    X.all (1);   --  FLAG
+   |    ^^^^^
+
+calls.adb:18:4: rule violation: call to unavailable body
+18 |    X (1);       --  FLAG
+   |    ^^^^^
+
+calls.adb:19:4: rule violation: call to unavailable body
+19 |    Y.all;       --  FLAG
+   |    ^^^^^
 
