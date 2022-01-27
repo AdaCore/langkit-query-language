@@ -1,4 +1,8 @@
-p.ads:3:1: rule violation: unit has too many generic dependencies
-3 | package P is   --  FLAG
-  | ^^^^^^
+p.ads:1:6: rule violation: too many generic dependencies
+1 | with A;
+  |      ^
+
+q-proc.adb:1:6: rule violation: too many generic dependencies
+1 | with A;   --  FLAG
+  |      ^
 

@@ -1,5 +1,5 @@
-# Flag a library item that depends on a chain of more than N generic library
-# units.
+# Flag each generic unit in a with clause that depends on a chain of more
+# than N generic library units (including itself).
 # This rule has the N parameter: Positive integer specifying the maximal
 # number of dependencies.
 
@@ -14,7 +14,14 @@ fun check_deps(node, n : int) =
                    for w in (from unit.f_prelude select WithClause)].to_list)
                 if check_deps(x.p_referenced_decl()?.parent, n - 1)])
 
-@check(message="unit has too many generic dependencies", remediation="MAJOR",
-       category="Style", subcategory="Program Structure")
-fun too_many_generic_dependencies(node, n : int = 3) =
-    node is LibraryItem when check_deps(node, n + 1)
+@unit_check(help="too many generic dependencies", remediation="MAJOR",
+            category="Style", subcategory="Program Structure")
+fun too_many_generic_dependencies(unit, n : int = 3) =
+    if unit.root is CompilationUnit then
+        [{message: "too many generic dependencies", loc: x}
+         for x in
+         concat([[p for p in w.f_packages.children
+                    if p.p_referenced_decl() is decl@GenericDecl and
+                       check_deps(decl.parent, n)].to_list
+                 for w in from unit.root.f_prelude select WithClause].to_list)]
+    else []
