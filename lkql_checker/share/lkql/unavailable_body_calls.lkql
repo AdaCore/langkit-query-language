@@ -10,5 +10,4 @@ fun unavailable_body_calls(node, indirect_calls = false) =
     node is Name
     when (indirect_calls and node.p_is_access_call()) or
          node is BaseId(p_is_static_call() is true,
-                        p_referenced_decl() is
-                            ClassicSubpDecl(p_body_part() is null))
+                        p_referenced_decl() is SubpDecl(p_body_part() is null))
