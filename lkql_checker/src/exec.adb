@@ -31,37 +31,37 @@ with Ada_AST_Nodes; use Ada_AST_Nodes;
 package body Exec is
 
    ---------------
-   -- LKQL_Eval --
+   -- Lkql_Eval --
    ---------------
 
-   function LKQL_Eval
+   function Lkql_Eval
      (Context      : Eval_Context;
-      LKQL_Script  : String;
-      LKQL_Context : L.Analysis_Context :=
+      Lkql_Script  : String;
+      Lkql_Context : L.Analysis_Context :=
         L.No_Analysis_Context;
       Expected_Kind  : Base_Primitive_Kind := No_Kind) return Primitive
    is
    begin
       return Eval
         (Context,
-         Make_LKQL_Unit_From_Code (LKQL_Context, LKQL_Script).Root,
+         Make_Lkql_Unit_From_Code (Lkql_Context, Lkql_Script).Root,
          Expected_Kind);
-   end LKQL_Eval;
+   end Lkql_Eval;
 
    ---------------
-   -- LKQL_Eval --
+   -- Lkql_Eval --
    ---------------
 
-   function LKQL_Eval
-     (LKQL_Script : String;
-      LKQL_Context : L.Analysis_Context :=
+   function Lkql_Eval
+     (Lkql_Script : String;
+      Lkql_Context : L.Analysis_Context :=
         L.No_Analysis_Context) return Primitive
    is
       Ctx : constant Eval_Context := Make_Eval_Context
         (LKQL.Partial_AST_Nodes.Empty_Ast_Node_Array,
          Make_Ada_AST_Node (No_Ada_Node));
    begin
-      return LKQL_Eval (Ctx, LKQL_Script, LKQL_Context);
-   end LKQL_Eval;
+      return Lkql_Eval (Ctx, Lkql_Script, Lkql_Context);
+   end Lkql_Eval;
 
 end Exec;

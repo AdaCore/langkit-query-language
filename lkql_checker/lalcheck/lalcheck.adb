@@ -46,7 +46,7 @@ procedure Lalcheck is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
 
-   Ctx          : LKQL_Context;
+   Ctx          : Lkql_Context;
    GPRbuild_Pid : Process_Id := Invalid_Pid;
 
    E_Success   : constant := 0; --  No tool failure, no rule violation detected

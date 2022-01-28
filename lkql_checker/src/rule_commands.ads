@@ -77,7 +77,7 @@ package Rule_Commands is
       Subcategory   : Unbounded_Text_Type;
       --  Subcategory of this rule, if relevant
 
-      LKQL_Root     : L.LKQL_Node;
+      Lkql_Root     : L.Lkql_Node;
       --  Root of the LKQL AST
 
       Function_Expr : L.Expr;
@@ -87,7 +87,7 @@ package Rule_Commands is
       Rule_Args    : Rule_Argument_Vectors.Vector;
       --  Optional arguments to pass to the rule. Empty by default.
 
-      Code          : L.LKQL_Node;
+      Code          : L.Lkql_Node;
       --  Store (cache) the code for the rule, so as to not recompute it
       --  everytime we want to evaluate it.
 
@@ -144,7 +144,7 @@ package Rule_Commands is
    procedure Prepare (Self : in out Rule_Command);
 
    function Create_Rule_Command
-     (LKQL_File_Path : String;
+     (Lkql_File_Path : String;
       Ctx            : Eval_Context;
       Rc             : out Rule_Command) return Boolean;
    --  Create a Rule_Command value with the given name and arguments and

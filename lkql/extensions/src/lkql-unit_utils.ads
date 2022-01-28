@@ -31,21 +31,21 @@ package LKQL.Unit_Utils is
    --  required for all units that must be evaluated. It is already performed
    --  by the routines defined below.
 
-   function Make_LKQL_Unit
+   function Make_Lkql_Unit
      (Context : L.Analysis_Context; Path : String) return L.Analysis_Unit;
    --  Create an LKQL analysis unit in the context 'Context' from the given
    --  file.
 
-   function Make_LKQL_Unit_From_Code
-     (LKQL_Code : String) return L.Analysis_Unit;
+   function Make_Lkql_Unit_From_Code
+     (Lkql_Code : String) return L.Analysis_Unit;
    --  Create an LKQL analysis unit from the given LKQL code
 
-   function Make_LKQL_Unit_From_Code (Context   : L.Analysis_Context;
-                                      LKQL_Code : String;
+   function Make_Lkql_Unit_From_Code (Context   : L.Analysis_Context;
+                                      Lkql_Code : String;
                                       Unit_Name : String := "[inline code]")
                                       return L.Analysis_Unit;
    --  Create an LKQL analysis unit in the context 'Context' from the given
-   --  LKQL_Code.
+   --  Lkql_Code.
 
 private
 

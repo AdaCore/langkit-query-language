@@ -71,10 +71,10 @@ package body LKQL.Patterns.Nodes is
       end if;
 
       case Pattern.Kind is
-         when LCO.LKQL_Node_Kind_Pattern =>
+         when LCO.Lkql_Node_Kind_Pattern =>
             return Match_Kind_pattern
               (Ctx, Pattern.As_Node_Kind_Pattern, Node);
-         when LCO.LKQL_Extended_Node_Pattern =>
+         when LCO.Lkql_Extended_Node_Pattern =>
             return Match_Extended_Pattern
               (Ctx, Pattern.As_Extended_Node_Pattern, Node);
          when others =>
@@ -157,13 +157,13 @@ package body LKQL.Patterns.Nodes is
    is
    begin
       case Detail.Kind is
-         when LCO.LKQL_Node_Pattern_Field =>
+         when LCO.Lkql_Node_Pattern_Field =>
             return Match_Pattern_Field
               (Ctx, Node, Detail.As_Node_Pattern_Field);
-         when LCO.LKQL_Node_Pattern_Property =>
+         when LCO.Lkql_Node_Pattern_Property =>
             return Match_Pattern_Property
               (Ctx, Node, Detail.As_Node_Pattern_Property);
-         when LCO.LKQL_Node_Pattern_Selector =>
+         when LCO.Lkql_Node_Pattern_Selector =>
             return Match_Pattern_Selector
               (Ctx, Node, Detail.As_Node_Pattern_Selector);
          when others =>
@@ -322,7 +322,7 @@ package body LKQL.Patterns.Nodes is
    is
       use LCO;
    begin
-      if Detail.Kind = LKQL_Detail_Expr then
+      if Detail.Kind = Lkql_Detail_Expr then
          declare
             Detail_Value : constant Primitive :=
               Eval (Ctx, Detail.As_Detail_Expr.F_Expr_Value,

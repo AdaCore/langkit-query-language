@@ -42,7 +42,7 @@ private package LKQL.Error_Handling is
    --      user chooses not to ignore the error
 
    procedure Raise_From_Exception
-     (Ctx : Eval_Context; E : Exception_Occurrence; N : L.LKQL_Node'Class)
+     (Ctx : Eval_Context; E : Exception_Occurrence; N : L.Lkql_Node'Class)
      with No_Return;
    --  Shortcut around ``Raise_And_Record_Error`` that raises from an exception
    --  occurrence.
@@ -68,7 +68,7 @@ private package LKQL.Error_Handling is
    --  to the evaluation context.
 
    procedure Raise_Invalid_Type (Ctx      : Eval_Context;
-                                 Node     : L.LKQL_Node;
+                                 Node     : L.Lkql_Node;
                                  Expected : Text_Type;
                                  Value    : Primitive)
       with No_Return;
@@ -76,7 +76,7 @@ private package LKQL.Error_Handling is
    --  describing the error to the evaluation context.
 
    procedure Raise_Invalid_Kind (Ctx      : Eval_Context;
-                                 Node     : L.LKQL_Node;
+                                 Node     : L.Lkql_Node;
                                  Expected : Valid_Primitive_Kind;
                                  Value    : Primitive)
       with No_Return;
@@ -97,7 +97,7 @@ private package LKQL.Error_Handling is
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
                                             Identifier : Symbol_Type;
-                                            Node       : L.LKQL_Node)
+                                            Node       : L.Lkql_Node)
      with No_Return;
    --  Raise an exception signaling an attempt to create a binding using a name
    --  that is already bound to a value in the local context,
@@ -131,7 +131,7 @@ private package LKQL.Error_Handling is
    --  at least two identically-named arguments.
 
    procedure Raise_Invalid_Kind_For_Selector (Ctx   : Eval_Context;
-                                              Node  : L.LKQL_Node'Class;
+                                              Node  : L.Lkql_Node'Class;
                                               Value : Primitive)
      with No_Return;
    --  Raise an exception signaling the use of a value that is neither a node

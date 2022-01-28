@@ -62,7 +62,7 @@ package body Liblkqllang.Implementation.Extensions is
    --  Return all the units for the LKQL context.
 
    function Eval
-     (Ctx : Eval_Context; Node : Analysis.LKQL_Node'Class)
+     (Ctx : Eval_Context; Node : Analysis.Lkql_Node'Class)
       return Primitive;
    --  Evaluate the given node in the given context. Also ensures that
    --  the unit in which ``Node`` belongs has been pre-processed.
@@ -71,7 +71,7 @@ package body Liblkqllang.Implementation.Extensions is
    --  LKQL context.
    Ctx      : Libadalang.Analysis.Analysis_Context;
    Files    : String_Vectors.Vector;
-   LKQL_Ctx : Eval_Context;
+   Lkql_Ctx : Eval_Context;
    Project  : Project_Tree_Access;
    Env      : Project_Environment_Access;
    Init     : Boolean := False;
@@ -94,7 +94,7 @@ package body Liblkqllang.Implementation.Extensions is
    ----------
 
    function Eval
-     (Ctx : Eval_Context; Node : Analysis.LKQL_Node'Class)
+     (Ctx : Eval_Context; Node : Analysis.Lkql_Node'Class)
       return Primitive
    is
    begin
@@ -103,11 +103,11 @@ package body Liblkqllang.Implementation.Extensions is
    end Eval;
 
    ------------------------------------------
-   -- LKQL_Node_P_Interp_Init_From_Project --
+   -- Lkql_Node_P_Interp_Init_From_Project --
    ------------------------------------------
 
-   function LKQL_Node_P_Interp_Init_From_Project
-     (Node : Bare_LKQL_Node; Project_File : String_Type) return Boolean
+   function Lkql_Node_P_Interp_Init_From_Project
+     (Node : Bare_Lkql_Node; Project_File : String_Type) return Boolean
    is
       UFP : Unit_Provider_Reference;
    begin
@@ -118,7 +118,7 @@ package body Liblkqllang.Implementation.Extensions is
          --  controlled type.
 
          --  Free the LKQL eval context
-         Free_Eval_Context (LKQL_Ctx);
+         Free_Eval_Context (Lkql_Ctx);
 
          Free (Project);
          Free (Env);
@@ -133,18 +133,18 @@ package body Liblkqllang.Implementation.Extensions is
       Ctx := Create_Context (Charset => "utf-8", Unit_Provider => UFP);
 
       --  Use the context from this node to create the LKQL context.
-      LKQL_Ctx := Make_Eval_Context
+      Lkql_Ctx := Make_Eval_Context
         (Units, Public_Converters.Wrap_Context (Node.Unit.Context));
 
       Init := True;
       return True;
-   end LKQL_Node_P_Interp_Init_From_Project;
+   end Lkql_Node_P_Interp_Init_From_Project;
 
    -----------------------------
-   -- LKQL_Node_P_Interp_Eval --
+   -- Lkql_Node_P_Interp_Eval --
    -----------------------------
 
-   function LKQL_Node_P_Interp_Eval (Node : Bare_LKQL_Node) return Symbol_Type
+   function Lkql_Node_P_Interp_Eval (Node : Bare_Lkql_Node) return Symbol_Type
    is
       Public_Unit : constant Analysis.Analysis_Unit
         := Public_Converters.Wrap_Unit (Node.Unit);
@@ -163,12 +163,12 @@ package body Liblkqllang.Implementation.Extensions is
            (Node.Unit.Context.Symbols,
             To_Text
               (To_Unbounded_Text
-                   (Eval (LKQL_Ctx, Public_Converters.Wrap_Node (Node)))));
+                   (Eval (Lkql_Ctx, Public_Converters.Wrap_Node (Node)))));
    exception
       when E : LKQL.Errors.Stop_Evaluation_Error =>
          return Find (Node.Unit.Context.Symbols,
                       To_Text ("<ERROR>: " & Exception_Message (E)));
-   end LKQL_Node_P_Interp_Eval;
+   end Lkql_Node_P_Interp_Eval;
 
    --------------------------------
    -- Get_All_Completions_For_Id --
@@ -220,11 +220,11 @@ package body Liblkqllang.Implementation.Extensions is
    end Get_All_Completions_For_Id;
 
    ---------------------------------
-   -- LKQL_Node_P_Interp_Complete --
+   -- Lkql_Node_P_Interp_Complete --
    ---------------------------------
 
-   function LKQL_Node_P_Interp_Complete
-     (Node : Bare_LKQL_Node) return Symbol_Type_Array_Access
+   function Lkql_Node_P_Interp_Complete
+     (Node : Bare_Lkql_Node) return Symbol_Type_Array_Access
    is
 
       function Make_Sym_Array
@@ -253,7 +253,7 @@ package body Liblkqllang.Implementation.Extensions is
 
       use Liblkqllang.Analysis;
 
-      PNode      : constant LKQL_Node := Public_Converters.Wrap_Node (Node);
+      PNode      : constant Lkql_Node := Public_Converters.Wrap_Node (Node);
       Last_Token : constant Token_Kind := Kind (Data (PNode.Token_End));
 
    begin
@@ -263,33 +263,33 @@ package body Liblkqllang.Implementation.Extensions is
 
       case Node.Kind is
 
-      when LKQL_Query =>
+      when Lkql_Query =>
 
          --  select |
 
-         if Last_Token not in LKQL_Select_Tok then
+         if Last_Token not in Lkql_Select_Tok then
             return No_Symbol_Type_Array_Type;
          end if;
 
          return Make_Sym_Array (Kind_Names);
 
-      when LKQL_Node_Pattern_Property
-         | LKQL_Node_Pattern_Field =>
+      when Lkql_Node_Pattern_Property
+         | Lkql_Node_Pattern_Field =>
 
          --  Node(a=|
          --  Node(a() is |
 
-         if Last_Token not in LKQL_Eq | LKQL_Is then
+         if Last_Token not in Lkql_Eq | Lkql_Is then
             return No_Symbol_Type_Array_Type;
          end if;
 
          return Make_Sym_Array (Kind_Names);
 
-      when LKQL_Extended_Node_Pattern =>
+      when Lkql_Extended_Node_Pattern =>
 
          --  Node(|
 
-         if Last_Token not in LKQL_L_Par | LKQL_Coma then
+         if Last_Token not in Lkql_L_Par | Lkql_Coma then
             return No_Symbol_Type_Array_Type;
          end if;
 
@@ -297,7 +297,7 @@ package body Liblkqllang.Implementation.Extensions is
             VP : constant Value_Pattern :=
               PNode.As_Extended_Node_Pattern.F_Node_Pattern;
          begin
-            if VP.Kind = LKQL_Node_Kind_Pattern then
+            if VP.Kind = Lkql_Node_Kind_Pattern then
                return Make_Sym_Array
                  (Get_All_Completions_For_Id
                     (Kind (VP.As_Node_Kind_Pattern.F_Kind_Name.Text)));
@@ -306,7 +306,7 @@ package body Liblkqllang.Implementation.Extensions is
             end if;
          end;
 
-      when LKQL_Dot_Access =>
+      when Lkql_Dot_Access =>
          declare
             LHS : constant Analysis.Expr := PNode.As_Dot_Access.F_Receiver;
          begin
@@ -314,15 +314,15 @@ package body Liblkqllang.Implementation.Extensions is
             --  a.|
             --  where a is a dot access/simple identifier, not a complex expr
 
-            if Last_Token /= LKQL_Dot
+            if Last_Token /= Lkql_Dot
               or else LHS.Kind not in
-                LKQL_Dot_Access | LKQL_Identifier | LKQL_Safe_Access
+                Lkql_Dot_Access | Lkql_Identifier | Lkql_Safe_Access
             then
                return No_Symbol_Type_Array_Type;
             end if;
 
             declare
-               Val : constant Primitive := Eval (LKQL_Ctx, LHS);
+               Val : constant Primitive := Eval (Lkql_Ctx, LHS);
             begin
                if Val.Kind = Kind_Node then
                   return Make_Sym_Array
@@ -339,6 +339,6 @@ package body Liblkqllang.Implementation.Extensions is
       when others =>
          return No_Symbol_Type_Array_Type;
       end case;
-   end LKQL_Node_P_Interp_Complete;
+   end Lkql_Node_P_Interp_Complete;
 
 end Liblkqllang.Implementation.Extensions;

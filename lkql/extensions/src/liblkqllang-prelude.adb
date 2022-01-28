@@ -61,7 +61,7 @@ package body Liblkqllang.Prelude is
 
    function Prelude_Unit (Context : Analysis_Context) return Analysis_Unit is
    begin
-      return LKQL.Unit_Utils.Make_LKQL_Unit_From_Code
+      return LKQL.Unit_Utils.Make_Lkql_Unit_From_Code
         (Context, Prelude_Content, "prelude");
    end Prelude_Unit;
 

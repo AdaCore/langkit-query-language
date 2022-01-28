@@ -46,7 +46,7 @@ package Checker_App is
 
    type Rules_By_Kind is array (Ada_Node_Kind_Type) of Rule_Vector;
 
-   type LKQL_Context is record
+   type Lkql_Context is record
       Analysis_Ctx : Analysis_Context;
       Eval_Ctx     : Eval_Context;
       Cached_Rules : Rules_By_Kind := [others => Rule_Vectors.Empty_Vector];
@@ -65,7 +65,7 @@ package Checker_App is
    --  Context giving access to all the "global" data structures for an LKQL
    --  analysis.
 
-   type LKQL_Context_Access is access all LKQL_Context;
+   type Lkql_Context_Access is access all Lkql_Context;
    --  Access to an LKQL context
 
    procedure App_Setup
@@ -75,7 +75,7 @@ package Checker_App is
    type Message_Kinds is (Rule_Violation, Internal_Error);
 
    procedure Process_Unit
-     (Ctx                     : LKQL_Context;
+     (Ctx                     : Lkql_Context;
       Unit                    : Analysis_Unit;
       Emit_Message            :
         access procedure (Message    : Unbounded_Text_Type;

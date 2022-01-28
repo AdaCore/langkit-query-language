@@ -230,7 +230,7 @@ package body Gnatcheck.Source_Table is
    ----------------------------
 
    procedure Add_Sources_To_Context
-     (Ctx     : LKQL_Context;
+     (Ctx     : Lkql_Context;
       Project : Arg_Project_Type'Class)
    is
       Units : Unit_Vectors.Vector;
@@ -1353,7 +1353,7 @@ package body Gnatcheck.Source_Table is
    ---------------------
 
    procedure Process_Sources
-     (Ctx : LKQL_Context; Annotate_Only : Boolean := False)
+     (Ctx : Lkql_Context; Annotate_Only : Boolean := False)
    is
       Next_SF : SF_Id;
       Cached_Rule_Id : Rule_Id;
@@ -1511,8 +1511,8 @@ package body Gnatcheck.Source_Table is
 
    Partition : Provider_And_Projects_Array_Access;
 
-   function Create_Context return LKQL_Context is
-      Ctx   : LKQL_Context;
+   function Create_Context return Lkql_Context is
+      Ctx   : Lkql_Context;
       Dummy : Primitive;
 
    begin

@@ -44,13 +44,13 @@ package body LKQL.Error_Handling is
    --------------------------
 
    procedure Raise_From_Exception
-     (Ctx : Eval_Context; E : Exception_Occurrence; N : L.LKQL_Node'Class) is
+     (Ctx : Eval_Context; E : Exception_Occurrence; N : L.Lkql_Node'Class) is
    begin
       Raise_And_Record_Error
         (Ctx,
          Error_Data'
            (Eval_Error,
-            N.As_LKQL_Node,
+            N.As_Lkql_Node,
             To_Unbounded_Text (To_Text (Exception_Message (E))),
             Property_Error_Info => null));
    end Raise_From_Exception;
@@ -99,7 +99,7 @@ package body LKQL.Error_Handling is
    ------------------------
 
    procedure Raise_Invalid_Type (Ctx      : Eval_Context;
-                                 Node     : L.LKQL_Node;
+                                 Node     : L.Lkql_Node;
                                  Expected : Text_Type;
                                  Value    : Primitive)
    is
@@ -115,7 +115,7 @@ package body LKQL.Error_Handling is
    ------------------------
 
    procedure Raise_Invalid_Kind (Ctx      : Eval_Context;
-                                 Node     : L.LKQL_Node;
+                                 Node     : L.Lkql_Node;
                                  Expected : Valid_Primitive_Kind;
                                  Value    : Primitive)
    is
@@ -156,7 +156,7 @@ package body LKQL.Error_Handling is
 
    procedure Raise_Already_Existing_Symbol (Ctx        : Eval_Context;
                                             Identifier : Symbol_Type;
-                                            Node       : L.LKQL_Node)
+                                            Node       : L.Lkql_Node)
    is
       Message : constant Text_Type :=
         "Already existing symbol: " & Identifier.all;
@@ -225,7 +225,7 @@ package body LKQL.Error_Handling is
    -------------------------------------
 
    procedure Raise_Invalid_Kind_For_Selector (Ctx   : Eval_Context;
-                                              Node  : L.LKQL_Node'Class;
+                                              Node  : L.Lkql_Node'Class;
                                               Value : Primitive)
    is
       Value_Kind_Name : constant Text_Type := To_Text (Kind_Name (Value));

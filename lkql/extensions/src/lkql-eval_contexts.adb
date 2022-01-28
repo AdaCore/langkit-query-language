@@ -228,7 +228,7 @@ package body LKQL.Eval_Contexts is
            (if Analysis_Ctx = L.No_Analysis_Context
             then L.Create_Context
             else Analysis_Ctx),
-           LKQL_Path_List     => <>,
+           Lkql_Path_List     => <>,
            Builtin_Methods => <>);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment (Create_Pool => True));
@@ -269,21 +269,21 @@ package body LKQL.Eval_Contexts is
          end loop;
       end;
 
-      --  Set up LKQL_PATH for the context
-      if E.Exists ("LKQL_PATH") then
+      --  Set up Lkql_PATH for the context
+      if E.Exists ("Lkql_PATH") then
          declare
             function Add_Path (Path : String) return Boolean;
 
-            LKQL_Path_Content : constant String := E.Value ("LKQL_PATH");
+            Lkql_Path_Content : constant String := E.Value ("Lkql_PATH");
 
             function Add_Path (Path : String) return Boolean is
             begin
-               Add_LKQL_Path (Ret, Path);
+               Add_Lkql_Path (Ret, Path);
                return True;
             end Add_Path;
          begin
             GNATCOLL.Utils.Split
-              (LKQL_Path_Content,
+              (Lkql_Path_Content,
                GNAT.OS_Lib.Path_Separator & "",
                Add_Path'Access);
          end;
@@ -463,10 +463,10 @@ package body LKQL.Eval_Contexts is
    end Get_Pools;
 
    -------------------
-   -- Get_LKQL_Unit --
+   -- Get_Lkql_Unit --
    -------------------
 
-   function Get_LKQL_Unit
+   function Get_Lkql_Unit
      (Ctx          : Eval_Context;
       Package_Name : String;
       From         : L.Analysis_Unit := L.No_Analysis_Unit)
@@ -488,7 +488,7 @@ package body LKQL.Eval_Contexts is
            D.Compose (Dir, Package_Name, "lkql");
       begin
          if D.Exists (Tentative_File_Name) then
-            return Make_LKQL_Unit (Ctx.Kernel.Context, Tentative_File_Name);
+            return Make_Lkql_Unit (Ctx.Kernel.Context, Tentative_File_Name);
          else
             return L.No_Analysis_Unit;
          end if;
@@ -507,7 +507,7 @@ package body LKQL.Eval_Contexts is
       end if;
 
       --  Then check the LKQL path.
-      for Path of Ctx.Kernel.LKQL_Path_List loop
+      for Path of Ctx.Kernel.Lkql_Path_List loop
          Unit := Get_Unit_From_Dir (To_String (Path));
          if Unit /= L.No_Analysis_Unit then
             return Unit;
@@ -515,16 +515,16 @@ package body LKQL.Eval_Contexts is
       end loop;
 
       return L.No_Analysis_Unit;
-   end Get_LKQL_Unit;
+   end Get_Lkql_Unit;
 
    -------------------
-   -- Add_LKQL_Path --
+   -- Add_Lkql_Path --
    -------------------
 
-   procedure Add_LKQL_Path (Ctx : in out Eval_Context; Path : String) is
+   procedure Add_Lkql_Path (Ctx : in out Eval_Context; Path : String) is
    begin
-      Ctx.Kernel.LKQL_Path_List.Append (To_Unbounded_String (Path));
-   end Add_LKQL_Path;
+      Ctx.Kernel.Lkql_Path_List.Append (To_Unbounded_String (Path));
+   end Add_Lkql_Path;
 
    -----------------
    -- Get_Env_Map --

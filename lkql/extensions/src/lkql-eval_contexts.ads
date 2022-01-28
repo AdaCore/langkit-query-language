@@ -212,15 +212,15 @@ package LKQL.Eval_Contexts is
    --  Use Release_Local_Frame to release the memory allocated for a local
    --  environment.
 
-   function Get_LKQL_Unit
+   function Get_Lkql_Unit
      (Ctx          : Eval_Context;
       Package_Name : String;
       From         : L.Analysis_Unit := L.No_Analysis_Unit)
       return L.Analysis_Unit;
-   --  Get a LKQL unit, searching on the context's LKQL_PATH
+   --  Get a LKQL unit, searching on the context's Lkql_PATH
 
-   procedure Add_LKQL_Path (Ctx : in out Eval_Context; Path : String);
-   --  Add a path to the LKQL_PATH
+   procedure Add_Lkql_Path (Ctx : in out Eval_Context; Path : String);
+   --  Add a path to the Lkql_PATH
 
 private
 
@@ -245,7 +245,7 @@ private
       Context : L.Analysis_Context;
       --  LKQL analysis context, used to hold data of the prelude
 
-      LKQL_Path_List : String_Vectors.Vector;
+      Lkql_Path_List : String_Vectors.Vector;
 
       Builtin_Methods : Builtin_Methods_Map;
       --  Map of builtin methods by (self_kind, name)

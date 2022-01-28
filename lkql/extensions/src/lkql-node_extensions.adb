@@ -36,14 +36,14 @@ package body LKQL.Node_Extensions is
         (AST_Nodes.AST_Node_Kind'Class, AST_Node_Kind_Access);
 
       procedure Free is new Ada.Unchecked_Deallocation
-        (LKQL_Node_Extension, Ext);
+        (Lkql_Node_Extension, Ext);
    begin
       case Self.Content.Kind is
-         when LCO.LKQL_Regex_Pattern =>
+         when LCO.Lkql_Regex_Pattern =>
             Free_Pattern (Self.Content.Compiled_Pattern);
-         when LCO.LKQL_Node_Kind_Pattern =>
+         when LCO.Lkql_Node_Kind_Pattern =>
             Free_Node_Kind (Self.Content.Expected_Kind);
-         when LCO.LKQL_Base_String_Literal =>
+         when LCO.Lkql_Base_String_Literal =>
             Free (Self.Content.Denoted_Value);
          when others =>
             null;

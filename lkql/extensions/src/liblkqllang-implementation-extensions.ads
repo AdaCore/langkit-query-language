@@ -23,12 +23,12 @@
 
 package Liblkqllang.Implementation.Extensions is
 
-   function LKQL_Node_P_Interp_Init_From_Project
-     (Node : Bare_LKQL_Node; Project_File : String_Type) return Boolean;
+   function Lkql_Node_P_Interp_Init_From_Project
+     (Node : Bare_Lkql_Node; Project_File : String_Type) return Boolean;
 
-   function LKQL_Node_P_Interp_Eval (Node : Bare_LKQL_Node) return Symbol_Type;
+   function Lkql_Node_P_Interp_Eval (Node : Bare_Lkql_Node) return Symbol_Type;
 
-   function LKQL_Node_P_Interp_Complete
-     (Node : Bare_LKQL_Node) return Symbol_Type_Array_Access;
+   function Lkql_Node_P_Interp_Complete
+     (Node : Bare_Lkql_Node) return Symbol_Type_Array_Access;
 
 end Liblkqllang.Implementation.Extensions;

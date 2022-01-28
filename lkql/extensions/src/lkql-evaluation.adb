@@ -42,7 +42,7 @@ package body LKQL.Evaluation is
    use all type Unbounded_Text_Type;
 
    function Eval_List
-     (Ctx : Eval_Context; Node : L.LKQL_Node_List) return Primitive;
+     (Ctx : Eval_Context; Node : L.Lkql_Node_List) return Primitive;
 
    function Eval_Val_Decl
      (Ctx : Eval_Context; Node : L.Val_Decl) return Primitive;
@@ -127,7 +127,7 @@ package body LKQL.Evaluation is
    --  list comprehension.
 
    function Get_Truthy (Ctx   : Eval_Context;
-                        Node  : L.LKQL_Node;
+                        Node  : L.Lkql_Node;
                         Value : Primitive)
                         return Primitive;
    --  Given a primitive, returns its truthy value if it has one.
@@ -139,7 +139,7 @@ package body LKQL.Evaluation is
    ----------------
 
    function Get_Truthy (Ctx   : Eval_Context;
-                        Node  : L.LKQL_Node;
+                        Node  : L.Lkql_Node;
                         Value : Primitive)
                         return Primitive
    is
@@ -158,7 +158,7 @@ package body LKQL.Evaluation is
    ----------------
 
    procedure Check_Kind (Ctx           : Eval_Context;
-                         Node          : L.LKQL_Node;
+                         Node          : L.Lkql_Node;
                          Expected_Kind : Valid_Primitive_Kind;
                          Value         : Primitive)
    is
@@ -173,7 +173,7 @@ package body LKQL.Evaluation is
    ----------
 
    function Eval (Ctx            : Eval_Context;
-                  Node           : L.LKQL_Node'Class;
+                  Node           : L.Lkql_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
                   Local_Bindings : Environment_Map :=
                     String_Value_Maps.Empty_Map)
@@ -186,70 +186,70 @@ package body LKQL.Evaluation is
    begin
 
       case Node.Kind is
-         when LCO.LKQL_LKQL_Node_List =>
-            Result := Eval_List (Local_Context, Node.As_LKQL_Node_List);
-         when LCO.LKQL_Val_Decl =>
+         when LCO.Lkql_Lkql_Node_List =>
+            Result := Eval_List (Local_Context, Node.As_Lkql_Node_List);
+         when LCO.Lkql_Val_Decl =>
             Result := Eval_Val_Decl (Local_Context, Node.As_Val_Decl);
 
-         when LCO.LKQL_Import =>
+         when LCO.Lkql_Import =>
             Result := Eval_Import (Local_Context, Node.As_Import);
-         when LCO.LKQL_Identifier =>
+         when LCO.Lkql_Identifier =>
             Result := Eval_Identifier (Local_Context, Node.As_Identifier);
-         when LCO.LKQL_Integer_Literal =>
+         when LCO.Lkql_Integer_Literal =>
             Result := To_Primitive
               (Adaptive_Integers.Create (To_UTF8 (Node.Text)),
                Local_Context.Pool);
-         when LCO.LKQL_Tuple =>
+         when LCO.Lkql_Tuple =>
             Result := Eval_Tuple (Local_Context, Node.As_Tuple);
-         when LCO.LKQL_String_Literal | LCO.LKQL_Block_String_Literal =>
+         when LCO.Lkql_String_Literal | LCO.Lkql_Block_String_Literal =>
             Result := To_Primitive
               (Get_Ext (Node).Content.Denoted_Value.all, Local_Context.Pool);
-         when LCO.LKQL_Bool_Literal =>
+         when LCO.Lkql_Bool_Literal =>
             Result := Eval_Bool_Literal (Node.As_Bool_Literal);
-         when LCO.LKQL_Unit_Literal =>
+         when LCO.Lkql_Unit_Literal =>
             Result := Eval_Unit_Literal (Node.As_Unit_Literal);
-         when LCO.LKQL_If_Then_Else =>
+         when LCO.Lkql_If_Then_Else =>
             Result := Eval_If_Then_Else (Local_Context, Node.As_If_Then_Else);
-         when LCO.LKQL_Bin_Op_Range =>
+         when LCO.Lkql_Bin_Op_Range =>
             Result := Eval_Bin_Op (Local_Context, Node.As_Bin_Op);
-         when LCO.LKQL_Un_Op_Range =>
+         when LCO.Lkql_Un_Op_Range =>
             Result := Eval_Un_Op (Local_Context, Node.As_Un_Op);
-         when LCO.LKQL_Dot_Access =>
+         when LCO.Lkql_Dot_Access =>
             Result := Eval_Dot_Access (Local_Context, Node.As_Dot_Access);
-         when LCO.LKQL_Safe_Access =>
+         when LCO.Lkql_Safe_Access =>
             Result := Eval_Safe_Access (Local_Context, Node.As_Safe_Access);
-         when LCO.LKQL_Is_Clause =>
+         when LCO.Lkql_Is_Clause =>
             Result := Eval_Is (Local_Context, Node.As_Is_Clause);
-         when LCO.LKQL_In_Clause =>
+         when LCO.Lkql_In_Clause =>
             Result := Eval_In (Local_Context, Node.As_In_Clause);
-         when LCO.LKQL_Query =>
+         when LCO.Lkql_Query =>
             Result := Eval_Query (Local_Context, Node.As_Query);
-         when LCO.LKQL_Indexing | LCO.LKQL_Safe_Indexing =>
+         when LCO.Lkql_Indexing | LCO.Lkql_Safe_Indexing =>
             Result := Eval_Indexing (Local_Context, Node.As_Indexing);
-         when LCO.LKQL_List_Comprehension =>
+         when LCO.Lkql_List_Comprehension =>
             Result := Eval_List_Comprehension
               (Local_Context, Node.As_List_Comprehension);
-         when LCO.LKQL_Block_Expr =>
+         when LCO.Lkql_Block_Expr =>
             Result := Eval_Block_Expr (Local_Context, Node.As_Block_Expr);
-         when LCO.LKQL_Fun_Decl =>
+         when LCO.Lkql_Fun_Decl =>
             Result := Eval_Fun_Decl (Local_Context, Node.As_Fun_Decl);
-         when LCO.LKQL_Selector_Decl =>
+         when LCO.Lkql_Selector_Decl =>
             Result :=
               Eval_Selector_Decl (Local_Context, Node.As_Selector_Decl);
-         when LCO.LKQL_Anonymous_Function =>
+         when LCO.Lkql_Anonymous_Function =>
             Result := Eval_Fun_Expr (Local_Context, Node.As_Base_Function);
-         when LCO.LKQL_Fun_Call =>
+         when LCO.Lkql_Fun_Call =>
             Result := Eval_Call (Local_Context, Node.As_Fun_Call);
-         when LCO.LKQL_Match =>
+         when LCO.Lkql_Match =>
             Result := Eval_Match (Local_Context, Node.As_Match);
-         when LCO.LKQL_Unwrap =>
+         when LCO.Lkql_Unwrap =>
             Result := Eval_Unwrap (Local_Context, Node.As_Unwrap);
-         when LCO.LKQL_Null_Literal =>
+         when LCO.Lkql_Null_Literal =>
             Result := To_Primitive
               (Local_Context.Null_Node, Local_Context.Pool);
-         when LCO.LKQL_List_Literal =>
+         when LCO.Lkql_List_Literal =>
             Result := Eval_List_Literal (Local_Context, Node.As_List_Literal);
-         when LCO.LKQL_Object_Literal =>
+         when LCO.Lkql_Object_Literal =>
             Result := Eval_Object_Literal
               (Local_Context, Node.As_Object_Literal);
          when others =>
@@ -258,9 +258,9 @@ package body LKQL.Evaluation is
       end case;
 
       if Expected_Kind = Kind_Bool then
-         Result := Get_Truthy (Local_Context, Node.As_LKQL_Node, Result);
+         Result := Get_Truthy (Local_Context, Node.As_Lkql_Node, Result);
       elsif Expected_Kind in Valid_Primitive_Kind then
-         Check_Kind (Local_Context, Node.As_LKQL_Node, Expected_Kind, Result);
+         Check_Kind (Local_Context, Node.As_Lkql_Node, Expected_Kind, Result);
       end if;
 
       if Local_Context /= Ctx then
@@ -283,7 +283,7 @@ package body LKQL.Evaluation is
    ---------------
 
    function Eval_List
-     (Ctx : Eval_Context; Node : L.LKQL_Node_List) return Primitive
+     (Ctx : Eval_Context; Node : L.Lkql_Node_List) return Primitive
    is
       Result : Primitive;
    begin
@@ -312,7 +312,7 @@ package body LKQL.Evaluation is
       if Ctx.Exists_In_Local_Env (Identifier) then
          Raise_Already_Existing_Symbol (Ctx,
                                         Identifier,
-                                        Node.F_Identifier.As_LKQL_Node);
+                                        Node.F_Identifier.As_Lkql_Node);
       end if;
 
       Ctx.Add_Binding (Identifier, Eval (Ctx, Node.F_Value));
@@ -331,7 +331,7 @@ package body LKQL.Evaluation is
       if Ctx.Exists_In_Local_Env (Identifier) then
          Raise_Already_Existing_Symbol (Ctx,
                                         Identifier,
-                                        Node.F_Name.As_LKQL_Node);
+                                        Node.F_Name.As_Lkql_Node);
       end if;
 
       Ctx.Add_Binding
@@ -359,7 +359,7 @@ package body LKQL.Evaluation is
       if Ctx.Exists_In_Local_Env (Identifier) then
          Raise_Already_Existing_Symbol (Ctx,
                                         Identifier,
-                                        Node.F_Name.As_LKQL_Node);
+                                        Node.F_Name.As_Lkql_Node);
       end if;
 
       --  The selector declaration will hold a reference to its original env,
@@ -433,8 +433,8 @@ package body LKQL.Evaluation is
    -------------------------
 
    function Eval_Bool_Literal (Node : L.Bool_Literal) return Primitive is
-      use type LCO.LKQL_Node_Kind_Type;
-      Value : constant Boolean := (Node.Kind = LCO.LKQL_Bool_Literal_True);
+      use type LCO.Lkql_Node_Kind_Type;
+      Value : constant Boolean := (Node.Kind = LCO.Lkql_Bool_Literal_True);
    begin
       return To_Primitive (Value);
    end Eval_Bool_Literal;
@@ -469,8 +469,8 @@ package body LKQL.Evaluation is
    is
    begin
       return (case Node.F_Op.Kind is
-                 when LCO.LKQL_Op_And
-                    | LCO.LKQL_Op_Or
+                 when LCO.Lkql_Op_And
+                    | LCO.Lkql_Op_Or
                  =>
                     Eval_Short_Circuit_Op (Ctx, Node),
                  when others =>
@@ -480,12 +480,12 @@ package body LKQL.Evaluation is
    function Eval_Un_Op (Ctx : Eval_Context; Node : L.Un_Op) return Primitive is
    begin
       case Node.F_Op.Kind is
-      when LCO.LKQL_Op_Plus =>
+      when LCO.Lkql_Op_Plus =>
          return Eval (Ctx, Node.F_Operand, Kind_Int);
-      when LCO.LKQL_Op_Minus =>
+      when LCO.Lkql_Op_Minus =>
          return To_Primitive
            (-Int_Val (Eval (Ctx, Node.F_Operand, Kind_Int)), Ctx.Pool);
-      when LCO.LKQL_Op_Not =>
+      when LCO.Lkql_Op_Not =>
          return To_Primitive
            (not Bool_Val (Eval (Ctx, Node.F_Operand, Kind_Bool)));
       when others =>
@@ -505,25 +505,25 @@ package body LKQL.Evaluation is
    begin
       case Node.F_Op.Kind is
 
-      when LCO.LKQL_Op_Plus   =>
+      when LCO.Lkql_Op_Plus   =>
          Check_Kind (Kind_Int, Left);
          Check_Kind (Kind_Int, Right);
          return To_Primitive
            (Int_Val (Left) + Int_Val (Right), Ctx.Pool);
 
-      when LCO.LKQL_Op_Minus  =>
+      when LCO.Lkql_Op_Minus  =>
          Check_Kind (Kind_Int, Left);
          Check_Kind (Kind_Int, Right);
          return To_Primitive
            (Int_Val (Left) - Int_Val (Right), Ctx.Pool);
 
-      when LCO.LKQL_Op_Mul    =>
+      when LCO.Lkql_Op_Mul    =>
          Check_Kind (Kind_Int, Left);
          Check_Kind (Kind_Int, Right);
          return To_Primitive
            (Int_Val (Left) * Int_Val (Right), Ctx.Pool);
 
-      when LCO.LKQL_Op_Div    =>
+      when LCO.Lkql_Op_Div    =>
          Check_Kind (Kind_Int, Left);
          Check_Kind (Kind_Int, Right);
          if Int_Val (Right) = Zero then
@@ -532,17 +532,17 @@ package body LKQL.Evaluation is
          return To_Primitive
            (Int_Val (Left) / Int_Val (Right), Ctx.Pool);
 
-      when LCO.LKQL_Op_Eq     =>
+      when LCO.Lkql_Op_Eq     =>
          return Equals (Left, Right);
-      when LCO.LKQL_Op_Neq    =>
+      when LCO.Lkql_Op_Neq    =>
          return To_Primitive (not Bool_Val (Equals (Left, Right)));
 
-      when LCO.LKQL_Op_Concat => return Concat (Left, Right, Ctx.Pool);
+      when LCO.Lkql_Op_Concat => return Concat (Left, Right, Ctx.Pool);
 
-      when LCO.LKQL_Op_Lt     => return Lt (Left, Right);
-      when LCO.LKQL_Op_Leq    => return Lte (Left, Right);
-      when LCO.LKQL_Op_Gt     => return Gt (Left, Right);
-      when LCO.LKQL_Op_Geq    => return Gte (Left, Right);
+      when LCO.Lkql_Op_Lt     => return Lt (Left, Right);
+      when LCO.Lkql_Op_Leq    => return Lte (Left, Right);
+      when LCO.Lkql_Op_Gt     => return Gt (Left, Right);
+      when LCO.Lkql_Op_Geq    => return Gte (Left, Right);
       when others =>
          raise Assertion_Error with
            "Not a non-short-cirtcuit operator kind: " &
@@ -561,8 +561,8 @@ package body LKQL.Evaluation is
      (Ctx : Eval_Context; Node : L.Bin_Op) return Primitive
    is
       Result  : Boolean;
-      Left    : constant L.LKQL_Node := Node.F_Left.As_LKQL_Node;
-      Right   : constant L.LKQL_Node := Node.F_Right.As_LKQL_Node;
+      Left    : constant L.Lkql_Node := Node.F_Left.As_Lkql_Node;
+      Right   : constant L.Lkql_Node := Node.F_Right.As_Lkql_Node;
 
       Left_Result  : constant Boolean
         := Bool_Val (Eval (Ctx, Left, Expected_Kind => Kind_Bool));
@@ -573,10 +573,10 @@ package body LKQL.Evaluation is
 
       Result :=
         (case Node.F_Op.Kind is
-            when LCO.LKQL_Op_And =>
+            when LCO.Lkql_Op_And =>
               Left_Result and then Bool_Val (Eval
                 (Ctx, Right, Expected_Kind => Kind_Bool)),
-            when LCO.LKQL_Op_Or  =>
+            when LCO.Lkql_Op_Or  =>
               Left_Result or else Bool_Val (Eval
                 (Ctx, Right, Expected_Kind => Kind_Bool)),
             when others          =>
@@ -721,7 +721,7 @@ package body LKQL.Evaluation is
 
       use LCO;
    begin
-      if Node.F_Query_Kind.Kind = LKQL_Query_Kind_First then
+      if Node.F_Query_Kind.Kind = Lkql_Query_Kind_First then
          if Iter.Next (Current_Node) then
             Result := To_Primitive (Current_Node, Ctx.Pool);
          else
@@ -750,12 +750,12 @@ package body LKQL.Evaluation is
 
       use LCO;
       Raise_If_OOB : constant Boolean :=
-        L.Kind (Node) /= LCO.LKQL_Safe_Indexing;
+        L.Kind (Node) /= LCO.Lkql_Safe_Indexing;
    begin
       if Kind (List) not in Kind_List | Kind_Tuple | Kind_Node | Kind_Iterator
       then
          Raise_Invalid_Type
-           (Ctx, Node.As_LKQL_Node, "list, tuple, node or iterator", List);
+           (Ctx, Node.As_Lkql_Node, "list, tuple, node or iterator", List);
       end if;
 
       declare
@@ -897,7 +897,7 @@ package body LKQL.Evaluation is
    is
       Package_Name : constant String := Image (Node.F_Name.Text);
       Unit         : constant L.Analysis_Unit :=
-        Ctx.Get_LKQL_Unit (Package_Name, From => Node.Unit);
+        Ctx.Get_Lkql_Unit (Package_Name, From => Node.Unit);
       Frame        : constant Eval_Context := Ctx.Create_New_Frame;
       Dummy        : constant Primitive := Eval (Frame, Unit.Root);
       NS           : constant Primitive :=

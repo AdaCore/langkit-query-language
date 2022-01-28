@@ -62,7 +62,7 @@ package LKQL.Errors is
             null;
             --  Represents the absence of error
          when Eval_Error =>
-            AST_Node     : L.LKQL_Node;
+            AST_Node     : L.Lkql_Node;
             --  Node whose evaluation triggered this error
 
             Short_Message : Unbounded_Text_Type;
@@ -85,7 +85,7 @@ package LKQL.Errors is
    function Make_Empty_Error return Error_Data;
 
    function Make_Eval_Error
-     (AST_Node            : L.LKQL_Node'Class;
+     (AST_Node            : L.Lkql_Node'Class;
       Short_Message       : Text_Type;
       Property_Error_Info : Exception_Occurrence_Access := null)
       return Error_Data;

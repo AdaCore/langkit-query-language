@@ -722,7 +722,7 @@ package body LKQL.Primitives is
 
    function Make_Namespace
      (N      : Environment_Access;
-      Module : L.LKQL_Node;
+      Module : L.Lkql_Node;
       Pool   : Primitive_Pool) return Primitive
    is
    begin
@@ -1316,7 +1316,7 @@ package body LKQL.Primitives is
       Key           : Text_Type;
       Ctx           : LKQL.Eval_Contexts.Eval_Context;
       Expected_Kind : Base_Primitive_Kind := No_Kind;
-      Location      : L.LKQL_Node := L.No_LKQL_Node) return Primitive
+      Location      : L.Lkql_Node := L.No_Lkql_Node) return Primitive
    is
       Sym  : constant Symbol_Type := Ctx.Symbol (Key);
       Cur : constant Primitive_Maps.Cursor

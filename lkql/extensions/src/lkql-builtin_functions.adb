@@ -262,7 +262,7 @@ package body LKQL.Builtin_Functions is
                 .List_Val.Elements'Access;
       when others =>
          Raise_Invalid_Type
-           (Ctx, L.No_LKQL_Node, "iterable", Lst);
+           (Ctx, L.No_Lkql_Node, "iterable", Lst);
       end case;
 
       for El of Els.all loop
@@ -587,10 +587,10 @@ package body LKQL.Builtin_Functions is
             end if;
 
             declare
-               First_Child : constant L.LKQL_Node :=
+               First_Child : constant L.Lkql_Node :=
                  Obj.Module.Child (1);
             begin
-               if First_Child.Kind in LCO.LKQL_Base_String_Literal then
+               if First_Child.Kind in LCO.Lkql_Base_String_Literal then
                   return Str_Val (Eval (Ctx, First_Child));
                end if;
                return "";
@@ -998,7 +998,7 @@ package body LKQL.Builtin_Functions is
                Raise_And_Record_Error
                  (Ctx,
                   Make_Eval_Error
-                    (L.No_LKQL_Node,
+                    (L.No_Lkql_Node,
                      "Function passed to reduce should have arity of two"));
             end if;
 
@@ -1020,7 +1020,7 @@ package body LKQL.Builtin_Functions is
 
       when others =>
          Raise_Invalid_Type
-           (Ctx, L.No_LKQL_Node, "function", Fn);
+           (Ctx, L.No_Lkql_Node, "function", Fn);
       end case;
    end Eval_Reduce;
 
@@ -1094,7 +1094,7 @@ package body LKQL.Builtin_Functions is
          return Index (Str, Str_Val (To_Find));
       else
          Raise_Invalid_Type
-           (Ctx, L.No_LKQL_Node, "string or pattern", To_Find);
+           (Ctx, L.No_Lkql_Node, "string or pattern", To_Find);
       end if;
    end Find_Pattern_Or_String;
 

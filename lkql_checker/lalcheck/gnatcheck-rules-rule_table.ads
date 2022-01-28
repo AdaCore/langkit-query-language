@@ -142,11 +142,11 @@ package Gnatcheck.Rules.Rule_Table is
    --  Checks if the argument is enabled (works for compiler checks as well).
    --  Assumes Present (Rule), otherwise raises Fatal_Error.
 
-   procedure Process_Rules (Ctx : in out LKQL_Context);
+   procedure Process_Rules (Ctx : in out Lkql_Context);
    --  Process input rules: Put the rules that have been requested by the user
    --  in internal data structures.
 
-   procedure Process_Requested_Rules (Ctx : in out LKQL_Context);
+   procedure Process_Requested_Rules (Ctx : in out Lkql_Context);
    --  Process the rules enabled and set Ctx.Traverse_Instantiations
 
 end Gnatcheck.Rules.Rule_Table;

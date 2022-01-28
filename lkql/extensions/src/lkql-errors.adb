@@ -35,7 +35,7 @@ package body LKQL.Errors is
    --  Return a String representing the source code containing the error, where
    --  the location of the error has been underlined.
 
-   function Error_Description (Ast_Node : L.LKQL_Node;
+   function Error_Description (Ast_Node : L.Lkql_Node;
                                Message  : Unbounded_Text_Type)
                                return Unbounded_Text_Type;
    --  Return a detailed description of the error with the given message that
@@ -76,7 +76,7 @@ package body LKQL.Errors is
    -- Error_description --
    -----------------------
 
-   function Error_Description (Ast_Node : L.LKQL_Node;
+   function Error_Description (Ast_Node : L.Lkql_Node;
                                Message  : Unbounded_Text_Type)
                                return Unbounded_Text_Type
    is
@@ -121,12 +121,12 @@ package body LKQL.Errors is
    ---------------------
 
    function Make_Eval_Error
-     (AST_Node            : L.LKQL_Node'Class;
+     (AST_Node            : L.Lkql_Node'Class;
       Short_Message       : Text_Type;
       Property_Error_Info : Exception_Occurrence_Access := null)
       return Error_Data
    is (Kind                => Eval_Error,
-       AST_Node            => AST_Node.As_LKQL_Node,
+       AST_Node            => AST_Node.As_Lkql_Node,
        Short_Message       => To_Unbounded_Text (Short_Message),
        Property_Error_Info => Property_Error_Info);
 

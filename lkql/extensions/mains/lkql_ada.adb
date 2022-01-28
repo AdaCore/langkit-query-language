@@ -45,7 +45,7 @@ with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 -- Main --
 ----------
 
-procedure LKQL_Ada is
+procedure Lkql_Ada is
 
    package L renames Liblkqllang.Analysis;
 
@@ -55,7 +55,7 @@ procedure LKQL_Ada is
      (Context : App_Job_Context);
 
    procedure Evaluate
-     (Context : Eval_Context; LKQL_Script : L.LKQL_Node);
+     (Context : Eval_Context; Lkql_Script : L.Lkql_Node);
 
    package App is new Libadalang.Helpers.App
      (Name               => "lkql_ada_interpreter",
@@ -64,7 +64,7 @@ procedure LKQL_Ada is
       Job_Post_Process   => Job_Post_Process,
       Job_Setup          => Job_Setup);
 
-   LKQL_Unit           : L.Analysis_Unit;
+   Lkql_Unit           : L.Analysis_Unit;
 
    package Args is
       use GNATCOLL.Opt_Parse;
@@ -97,11 +97,11 @@ procedure LKQL_Ada is
    --------------
 
    procedure Evaluate
-     (Context : Eval_Context; LKQL_Script : L.LKQL_Node)
+     (Context : Eval_Context; Lkql_Script : L.Lkql_Node)
    is
       Ignore : Primitive;
    begin
-      Ignore := Eval (Context, LKQL_Script);
+      Ignore := Eval (Context, Lkql_Script);
    exception
       when Stop_Evaluation_Error =>
          pragma Assert (Is_Error (Context.Last_Error),
@@ -109,7 +109,7 @@ procedure LKQL_Ada is
                           "error to the evaluation context");
 
          declare
-            N : L.LKQL_Node renames Context.Last_Error.AST_Node;
+            N : L.Lkql_Node renames Context.Last_Error.AST_Node;
             D : constant Diagnostic := Langkit_Support.Diagnostics.Create
               (N.Sloc_Range,
                To_Text (Context.Last_Error.Short_Message));
@@ -127,10 +127,10 @@ procedure LKQL_Ada is
      (Context : App_Job_Context) is
    begin
       Interpreter_Context := Make_Eval_Context (Context.Units_Processed);
-      LKQL_Unit := Make_LKQL_Unit
+      Lkql_Unit := Make_Lkql_Unit
         (Get_Context (Interpreter_Context.Kernel.all),
          To_String (Args.Script_Path.Get));
-      Evaluate (Interpreter_Context, LKQL_Unit.Root);
+      Evaluate (Interpreter_Context, Lkql_Unit.Root);
       Interpreter_Context.Free_Eval_Context;
    exception
       when Unit_Creation_Error => null;
@@ -138,4 +138,4 @@ procedure LKQL_Ada is
 
 begin
    App.Run;
-end LKQL_Ada;
+end Lkql_Ada;

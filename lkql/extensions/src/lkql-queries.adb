@@ -98,7 +98,7 @@ package body LKQL.Queries is
                            Raise_And_Record_Error
                              (Ctx,
                               Make_Eval_Error
-                                (Node.F_From_Expr.As_LKQL_Node,
+                                (Node.F_From_Expr.As_Lkql_Node,
                                  "Wrong kind of element in list for "
                                  & "`from clause`"));
                         end if;
@@ -110,7 +110,7 @@ package body LKQL.Queries is
                      Raise_And_Record_Error
                        (Ctx,
                         Make_Eval_Error
-                          (Node.F_From_Expr.As_LKQL_Node,
+                          (Node.F_From_Expr.As_Lkql_Node,
                            "Wrong kind of element in `from clause`"));
                end case;
 
@@ -122,7 +122,7 @@ package body LKQL.Queries is
       end Roots;
    begin
       case Node.F_Pattern.Kind is
-      when LCO.LKQL_Chained_Node_Pattern_Range =>
+      when LCO.Lkql_Chained_Node_Pattern_Range =>
          declare
             Chained : constant Chained_Pattern_Iterator :=
               Make_Chained_Pattern_Iterator

@@ -185,14 +185,14 @@ package body LKQL.Chained_Pattern is
       Pattern : L.Base_Pattern renames Link.F_Pattern;
    begin
       case Link.Kind is
-         when LCO.LKQL_Selector_Link =>
+         when LCO.Lkql_Selector_Link =>
             return Eval_Selector_Link
               (Ctx, Root, Link.As_Selector_Link);
-         when LCO.LKQL_Field_Link =>
+         when LCO.Lkql_Field_Link =>
             return Filter_Node_Vector
               (Ctx, Pattern,
                Eval_Field_Link (Ctx, Root, Link.As_Field_Link));
-         when LCO.LKQL_Property_Link =>
+         when LCO.Lkql_Property_Link =>
             return Filter_Node_Vector
               (Ctx, Pattern,
                Eval_Property_Link (Ctx, Root, Link.As_Property_Link));
@@ -245,7 +245,7 @@ package body LKQL.Chained_Pattern is
         and then Kind (Field_Value) /= Kind_List
       then
          Raise_Invalid_Kind
-           (Ctx, Field.As_LKQL_Node, Kind_List, Field_Value);
+           (Ctx, Field.As_Lkql_Node, Kind_List, Field_Value);
       end if;
 
       return To_AST_Node_Vector (Field_Value);
@@ -270,7 +270,7 @@ package body LKQL.Chained_Pattern is
         and then Kind (Property_Value) /= Kind_List
       then
          Raise_Invalid_Kind
-           (Ctx, Property.As_LKQL_Node, Kind_List, Property_Value);
+           (Ctx, Property.As_Lkql_Node, Kind_List, Property_Value);
       end if;
 
       return To_AST_Node_Vector (Property_Value);

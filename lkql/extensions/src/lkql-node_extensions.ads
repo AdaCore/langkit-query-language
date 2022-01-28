@@ -76,20 +76,20 @@ package LKQL.Node_Extensions is
    --  with node extensions. At a high level, the most important entry point is
    --  the ``Get_Ext`` function.
 
-   type Node_Ext (Kind : LCO.LKQL_Node_Kind_Type := LCO.LKQL_Expr_Arg)
+   type Node_Ext (Kind : LCO.Lkql_Node_Kind_Type := LCO.Lkql_Expr_Arg)
    is record
       case Kind is
-         when LCO.LKQL_Base_Function =>
+         when LCO.Lkql_Base_Function =>
             Params : Params_Maps.Map;
             --  Param_Map for the function, used to speedup lookup of
             --  parameters in calls.
-         when LCO.LKQL_Regex_Pattern =>
+         when LCO.Lkql_Regex_Pattern =>
             Compiled_Pattern : Regex_Matcher_Access;
 
-         when LCO.LKQL_Node_Kind_Pattern =>
+         when LCO.Lkql_Node_Kind_Pattern =>
             Expected_Kind : AST_Node_Kind_Access;
 
-         when LCO.LKQL_Base_String_Literal =>
+         when LCO.Lkql_Base_String_Literal =>
             Denoted_Value : Text_Access;
 
          when others => null;
@@ -99,13 +99,13 @@ package LKQL.Node_Extensions is
    --  node. This type is wrapped because we cannot have a default value
    --  discriminated record inheriting from L.Extension_Base.
 
-   type LKQL_Node_Extension is new L.Extension_Base with record
+   type Lkql_Node_Extension is new L.Extension_Base with record
       Content : Node_Ext;
    end record;
    --  Wrapper containing the ``Node_Ext`` instance that actually contains the
    --  info.
 
-   type Ext is access all LKQL_Node_Extension;
+   type Ext is access all Lkql_Node_Extension;
    --  Access to an extension record.
 
    procedure Destroy (Self : in out Ext);
@@ -113,7 +113,7 @@ package LKQL.Node_Extensions is
 
    function Get_Ext
      is new L.Get_Extension
-     (LKQL_Node_Extension, Ext);
+     (Lkql_Node_Extension, Ext);
    --  Main entry point. Returns the extension for a given node.
 
 end LKQL.Node_Extensions;

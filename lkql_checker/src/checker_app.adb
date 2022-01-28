@@ -54,18 +54,18 @@ with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 package body Checker_App is
 
-   type LKQL_Context_Array is array (Job_ID range <>) of LKQL_Context_Access;
-   --  Array of LKQL_Contexts
+   type Lkql_Context_Array is array (Job_ID range <>) of Lkql_Context_Access;
+   --  Array of Lkql_Contexts
 
-   type LKQL_Context_Array_Access is access all LKQL_Context_Array;
+   type Lkql_Context_Array_Access is access all Lkql_Context_Array;
    --  Access to array of contexts
 
-   LKQL_Contexts : LKQL_Context_Array_Access := null;
+   Lkql_Contexts : Lkql_Context_Array_Access := null;
    --  Global reference to an array of LKQL contexts. Each Job will get one
    --  context.
 
-   function Get_Context (ID : Job_ID) return LKQL_Context_Access
-   is (LKQL_Contexts (ID));
+   function Get_Context (ID : Job_ID) return Lkql_Context_Access
+   is (Lkql_Contexts (ID));
    --  Helper to get the context corresponding to a job ID
 
    ------------------
@@ -73,7 +73,7 @@ package body Checker_App is
    ------------------
 
    procedure Process_Unit
-     (Ctx          : LKQL_Context;
+     (Ctx          : Lkql_Context;
       Unit         : Analysis_Unit;
       Emit_Message :
         access procedure (Message    : Unbounded_Text_Type;
@@ -104,9 +104,9 @@ package body Checker_App is
       begin
          declare
             Data      : constant Error_Data := Ctx.Eval_Ctx.Last_Error;
-            LKQL_Node : constant LKQL.L.LKQL_Node := Data.AST_Node;
+            Lkql_Node : constant LKQL.L.Lkql_Node := Data.AST_Node;
             Diag      : constant Diagnostic :=
-              (Sloc_Range => LKQL_Node.Sloc_Range,
+              (Sloc_Range => Lkql_Node.Sloc_Range,
                Message    => Data.Short_Message);
             E         : Exception_Occurrence_Access :=
               Data.Property_Error_Info;
@@ -123,14 +123,14 @@ package body Checker_App is
                  (To_Unbounded_Wide_Wide_String
                     (Msg & " at " &
                      To_Wide_Wide_String
-                       (Simple_Name (LKQL_Node.Unit.Get_Filename)) & ":" &
+                       (Simple_Name (Lkql_Node.Unit.Get_Filename)) & ":" &
                      To_Wide_Wide_String
                        (Stripped_Image
-                         (Integer (LKQL_Node.Sloc_Range.Start_Line))) &
+                         (Integer (Lkql_Node.Sloc_Range.Start_Line))) &
                      ":" &
                      To_Wide_Wide_String
                        (Stripped_Image
-                         (Integer (LKQL_Node.Sloc_Range.Start_Column))) &
+                         (Integer (Lkql_Node.Sloc_Range.Start_Column))) &
                      ": " &
                      To_Wide_Wide_String
                        (Strip_LF
@@ -171,8 +171,8 @@ package body Checker_App is
 
                   Langkit_Support.Diagnostics.Output.Print_Diagnostic
                     (Self        => Diag,
-                     Buffer      => LKQL_Node.Unit,
-                     Path        => LKQL_Node.Unit.Get_Filename,
+                     Buffer      => Lkql_Node.Unit,
+                     Path        => Lkql_Node.Unit.Get_Filename,
                      Output_File => Standard_Error);
 
                   if E /= null then
@@ -411,19 +411,19 @@ package body Checker_App is
                      List := Result.Iter_Cache;
                   else
                      Check_Kind
-                       (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_List, Result);
+                       (Rule.Eval_Ctx, Rule.Lkql_Root, Kind_List, Result);
 
                      List := Result.List_Val;
                   end if;
 
                   for El of List.Elements loop
                      Check_Kind
-                       (Rule.Eval_Ctx, Rule.LKQL_Root, Kind_Object, El);
+                       (Rule.Eval_Ctx, Rule.Lkql_Root, Kind_Object, El);
 
                      declare
                         Loc_Val : constant Primitive :=
                           Extract_Value (El, "loc", Rule.Eval_Ctx, No_Kind,
-                                         Location => Rule.LKQL_Root);
+                                         Location => Rule.Lkql_Root);
 
                         Loc : Source_Location_Range;
 
@@ -431,7 +431,7 @@ package body Checker_App is
                           To_Unbounded_Text
                             (Extract_Value
                                (El, "message", Rule.Eval_Ctx, Kind_Str,
-                                Location => Rule.LKQL_Root).Str_Val.all);
+                                Location => Rule.Lkql_Root).Str_Val.all);
 
                         Diag     : Diagnostic;
                         Loc_Unit : Analysis_Unit;
@@ -552,7 +552,7 @@ package body Checker_App is
       Equivalent_Keys => Ada.Strings.Wide_Wide_Unbounded."=",
       "="             => Rule_Argument_Vectors."=");
 
-   procedure Process_Rules (Ctx : in out LKQL_Context);
+   procedure Process_Rules (Ctx : in out Lkql_Context);
    --  Process input rules: Put the rules that have been requested by the user
    --  in the ``Cached_Rules`` data structures.
 
@@ -560,7 +560,7 @@ package body Checker_App is
    -- Rules --
    -----------
 
-   procedure Process_Rules (Ctx : in out LKQL_Context) is
+   procedure Process_Rules (Ctx : in out Lkql_Context) is
       package LI renames Libadalang.Introspection;
       package LCO renames Libadalang.Common;
 
@@ -741,9 +741,9 @@ package body Checker_App is
    is
       pragma Unreferenced (Context);
    begin
-      LKQL_Contexts := new LKQL_Context_Array (Jobs'Range);
-      for I in LKQL_Contexts'Range loop
-         LKQL_Contexts (I) := new LKQL_Context;
+      Lkql_Contexts := new Lkql_Context_Array (Jobs'Range);
+      for I in Lkql_Contexts'Range loop
+         Lkql_Contexts (I) := new Lkql_Context;
       end loop;
    end App_Setup;
 
@@ -758,7 +758,7 @@ package body Checker_App is
 
    begin
       declare
-         Ctx : LKQL_Context_Access renames Get_Context (Context.ID);
+         Ctx : Lkql_Context_Access renames Get_Context (Context.ID);
       begin
 
          case Context.App_Ctx.Provider.Kind is
@@ -789,7 +789,7 @@ package body Checker_App is
             --  Eval the rule's code (which should contain only definitions).
             --  TODO this should be encapsulated.
             begin
-               Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
+               Dummy := Eval (Rule.Eval_Ctx, Rule.Lkql_Root);
             exception
                when others =>
                   Put ("internal error loading rule ");
@@ -807,7 +807,7 @@ package body Checker_App is
    end Job_Setup;
 
    procedure Job_Post_Process (Context : App_Job_Context) is
-      Ctx : LKQL_Context renames Get_Context (Context.ID).all;
+      Ctx : Lkql_Context renames Get_Context (Context.ID).all;
    begin
       Finalize_Rules (Ctx.Eval_Ctx);
       Free_Eval_Context (Ctx.Eval_Ctx);

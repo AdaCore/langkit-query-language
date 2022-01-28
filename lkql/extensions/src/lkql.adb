@@ -28,7 +28,7 @@ package body LKQL is
    -- Node_Text --
    ---------------
 
-   function Node_Text (Self : L.LKQL_Node'Class) return String is
+   function Node_Text (Self : L.Lkql_Node'Class) return String is
    begin
       return Image (L.Text (Self));
    end Node_Text;

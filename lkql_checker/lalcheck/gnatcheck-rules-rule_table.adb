@@ -1175,7 +1175,7 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Process_Rules --
    -------------------
 
-   procedure Process_Rules (Ctx : in out LKQL_Context) is
+   procedure Process_Rules (Ctx : in out Lkql_Context) is
       Rule : Rule_Access;
    begin
       if not Ctx.All_Rules.Is_Empty then
@@ -1272,7 +1272,7 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Process_Requested_Rules --
    -----------------------------
 
-   procedure Process_Requested_Rules (Ctx : in out LKQL_Context) is
+   procedure Process_Requested_Rules (Ctx : in out Lkql_Context) is
       package LI renames Libadalang.Introspection;
       package LCO renames Libadalang.Common;
 
@@ -1421,7 +1421,7 @@ package body Gnatcheck.Rules.Rule_Table is
          --  Eval the rule's code (which should contain only definitions). TODO
          --  this should be encapsulated.
          begin
-            Dummy := Eval (Rule.Eval_Ctx, Rule.LKQL_Root);
+            Dummy := Eval (Rule.Eval_Ctx, Rule.Lkql_Root);
          exception
             when others =>
                Put ("internal error loading rule ");

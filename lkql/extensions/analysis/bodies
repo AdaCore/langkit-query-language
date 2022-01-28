@@ -1,6 +1,6 @@
 ##  vim: ft=makoada
 
-function Get_Extension (Node : LKQL_Node'Class) return Extension_Type_Access
+function Get_Extension (Node : Lkql_Node'Class) return Extension_Type_Access
 is
    procedure Register_Destroyable is new Register_Destroyable_Gen
      (Extension_Type, Extension_Type_Access, Destroy);
@@ -18,7 +18,7 @@ begin
    return Ret;
 end Get_Extension;
 
-procedure Init_Extension (Node : LKQL_Node'Class) is
+procedure Init_Extension (Node : Lkql_Node'Class) is
    --  Define a dummy access type ..
    type Dummy_Access is access all Integer;
 

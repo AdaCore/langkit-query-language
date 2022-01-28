@@ -16,7 +16,7 @@ from language.lexer import Token, lkql_lexer as L
 
 @abstract
 @has_abstract_list
-class LKQLNode(ASTNode):
+class LkqlNode(ASTNode):
     """
     Root node class for LKQL AST nodes.
     """
@@ -51,7 +51,7 @@ class LKQLNode(ASTNode):
         pass
 
 
-class DeclAnnotation(LKQLNode):
+class DeclAnnotation(LkqlNode):
     """
     Compile time annotation attached to a declaration. For the moment, only
     used for @checker annotation in lkql_checker.
@@ -68,7 +68,7 @@ class DeclAnnotation(LKQLNode):
 
 
 @abstract
-class Declaration(LKQLNode):
+class Declaration(LkqlNode):
     """
     Root node class for LKQL declarations.
     """
@@ -82,14 +82,14 @@ class Declaration(LKQLNode):
 
 
 @abstract
-class Expr(LKQLNode):
+class Expr(LkqlNode):
     """
     Root node class for LKQL expressions.
     """
     pass
 
 
-class TopLevelList(LKQLNode.list):
+class TopLevelList(LkqlNode.list):
     """
     Holder for the top-level environment
     """
@@ -97,7 +97,7 @@ class TopLevelList(LKQLNode.list):
 
 
 @abstract
-class Op(LKQLNode):
+class Op(LkqlNode):
     """
     Base class for operators.
     """
@@ -181,7 +181,7 @@ class NullLiteral(Literal):
     token_node = True
 
 
-class SubBlockLiteral(LKQLNode):
+class SubBlockLiteral(LkqlNode):
     """
     Wrapper for a SubBlockLiteral token.
     """
@@ -205,7 +205,7 @@ class Unwrap(Expr):
 
 
 @abstract
-class Arg(LKQLNode):
+class Arg(LkqlNode):
     """
     Base class for arguments
     """
@@ -400,7 +400,7 @@ class SafeIndexing(Indexing):
 
 
 @abstract
-class BasePattern(LKQLNode):
+class BasePattern(LkqlNode):
     """
     Root node class for patterns.
     """
@@ -551,7 +551,7 @@ class NotPattern(ValuePattern):
 
 
 @abstract
-class QueryKind(LKQLNode):
+class QueryKind(LkqlNode):
     """
     Base class for operators.
     """
@@ -574,7 +574,7 @@ class Query(Expr):
     pattern = Field(type=BasePattern)
 
 
-class ListCompAssoc(LKQLNode):
+class ListCompAssoc(LkqlNode):
     """
     Arrow association of the form: id <- expr.
     This construction is meant to be used a part of a list comprehension
@@ -612,7 +612,7 @@ class ObjectLiteral(Expr):
     assocs = Field(type=T.ObjectAssoc.list)
 
 
-class ObjectAssoc(LKQLNode):
+class ObjectAssoc(LkqlNode):
     """
     Object assoc in an object literal:
         label: <value>
@@ -733,7 +733,7 @@ class FunDecl(Declaration):
         return Self.fun_expr.doc
 
 
-class Safe(LKQLNode):
+class Safe(LkqlNode):
     """
     Qualifier for safe accesses.
     """
@@ -778,7 +778,7 @@ class FunCall(Expr):
                (Self.name.text == String("list"))
 
 
-class SelectorExprMode(LKQLNode):
+class SelectorExprMode(LkqlNode):
     """
     Modes for selector values:
         - default: add the value to the result set
@@ -792,7 +792,7 @@ class SelectorExprMode(LKQLNode):
     alternatives = ['default', 'rec', 'skip']
 
 
-class SelectorExpr(LKQLNode):
+class SelectorExpr(LkqlNode):
     """
     Expression appearing in the right part of a selector arm.
     """
@@ -800,7 +800,7 @@ class SelectorExpr(LKQLNode):
     expr = Field(type=Expr)
 
 
-class SelectorArm(LKQLNode):
+class SelectorArm(LkqlNode):
     """
     Represents one case of a selector
 
@@ -841,7 +841,7 @@ class SelectorDecl(Declaration):
         return Self.arms.map(lambda x: x.pattern.as_entity)
 
 
-class SelectorCall(LKQLNode):
+class SelectorCall(LkqlNode):
     """
     Root node for selector patterns
     """
@@ -929,7 +929,7 @@ class NodeKindPattern(NodePattern):
 
 
 @abstract
-class DetailValue(LKQLNode):
+class DetailValue(LkqlNode):
     """
     Root node class for pattern data values.
     Pattern data values can be expressions or patterns.
@@ -952,7 +952,7 @@ class DetailPattern(DetailValue):
 
 
 @abstract
-class NodePatternDetail(LKQLNode):
+class NodePatternDetail(LkqlNode):
     """
     Access to a field, property or selector inside a node pattern.
     """
@@ -997,7 +997,7 @@ class ExtendedNodePattern(NodePattern):
 
 
 @abstract
-class ChainedPatternLink(LKQLNode):
+class ChainedPatternLink(LkqlNode):
     """
     Element of a chained pattern of the form:
         (selector|field|property) pattern
@@ -1041,7 +1041,7 @@ class ChainedNodePattern(ValuePattern):
     chain = Field(type=ChainedPatternLink.list)
 
 
-class MatchArm(LKQLNode):
+class MatchArm(LkqlNode):
     """
     Represents one case of a 'match'.
     """
@@ -1079,7 +1079,7 @@ class Match(Expr):
         return Self.arms.map(lambda x: x.pattern.as_entity)
 
 
-class Import(LKQLNode):
+class Import(LkqlNode):
     """
     Import.
     """

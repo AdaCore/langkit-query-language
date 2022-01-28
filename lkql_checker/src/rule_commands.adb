@@ -43,7 +43,7 @@ package body Rule_Commands is
    package LCO renames Liblkqllang.Common;
 
    function Find_Toplevel_Node_Kind_Pattern
-     (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern;
+     (Node : L.Lkql_Node'Class) return L.Node_Kind_Pattern;
 
    function Find_Param_Kind
      (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
@@ -54,21 +54,21 @@ package body Rule_Commands is
    --------------------------------
 
    function Find_Toplevel_Node_Kind_Pattern
-     (Node : L.LKQL_Node'Class) return L.Node_Kind_Pattern is
+     (Node : L.Lkql_Node'Class) return L.Node_Kind_Pattern is
    begin
       case Node.Kind is
-         when LCO.LKQL_Is_Clause =>
+         when LCO.Lkql_Is_Clause =>
             return Find_Toplevel_Node_Kind_Pattern
               (Node.As_Is_Clause.F_Pattern);
-         when LCO.LKQL_Node_Kind_Pattern =>
+         when LCO.Lkql_Node_Kind_Pattern =>
             return Node.As_Node_Kind_Pattern;
-         when LCO.LKQL_Extended_Node_Pattern =>
+         when LCO.Lkql_Extended_Node_Pattern =>
             return Find_Toplevel_Node_Kind_Pattern
               (Node.As_Extended_Node_Pattern.F_Node_Pattern);
-         when LCO.LKQL_Filtered_Pattern =>
+         when LCO.Lkql_Filtered_Pattern =>
             return Find_Toplevel_Node_Kind_Pattern
               (Node.As_Filtered_Pattern.F_Pattern);
-         when LCO.LKQL_Binding_Pattern =>
+         when LCO.Lkql_Binding_Pattern =>
             return Find_Toplevel_Node_Kind_Pattern
               (Node.As_Binding_Pattern.F_Value_Pattern);
          when others =>
@@ -87,20 +87,20 @@ package body Rule_Commands is
          return No_Param;
       elsif Params.Last_Child_Index = 2 then
          case Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind is
-            when LCO.LKQL_Integer_Literal => return One_Integer;
-            when LCO.LKQL_Bool_Literal    => return One_Boolean;
-            when LCO.LKQL_String_Literal  => return One_String;
-            when LCO.LKQL_List_Literal    => return One_Array;
+            when LCO.Lkql_Integer_Literal => return One_Integer;
+            when LCO.Lkql_Bool_Literal    => return One_Boolean;
+            when LCO.Lkql_String_Literal  => return One_String;
+            when LCO.Lkql_List_Literal    => return One_Array;
             when others                   => null;
          end case;
       else
          if Params.Last_Child_Index <= 10
            and then Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind in
-                    LCO.LKQL_Integer_Literal | LCO.LKQL_Bool_Literal
+                    LCO.Lkql_Integer_Literal | LCO.Lkql_Bool_Literal
          then
             for J in 3 .. Params.Last_Child_Index loop
                if Params.Child (J).As_Parameter_Decl.F_Default_Expr.Kind
-                 not in LCO.LKQL_Bool_Literal
+                 not in LCO.Lkql_Bool_Literal
                then
                   return Custom;
                end if;
@@ -118,17 +118,17 @@ package body Rule_Commands is
    -------------------------
 
    function Create_Rule_Command
-     (LKQL_File_Path : String;
+     (Lkql_File_Path : String;
       Ctx            : Eval_Context;
       Rc             : out Rule_Command) return Boolean
    is
-      Root    : constant L.LKQL_Node :=
-        Make_LKQL_Unit (Get_Context (Ctx.Kernel.all), LKQL_File_Path).Root;
+      Root    : constant L.Lkql_Node :=
+        Make_Lkql_Unit (Get_Context (Ctx.Kernel.all), Lkql_File_Path).Root;
 
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
           (Root,
-           Kind_Is (LCO.LKQL_Decl_Annotation)
+           Kind_Is (LCO.Lkql_Decl_Annotation)
            and Child_With (LCO.Decl_Annotation_F_Name,
                            Text_Is ("check") or Text_Is ("unit_check")))
           .As_Decl_Annotation;
@@ -196,7 +196,7 @@ package body Rule_Commands is
             else
                --  Make sure that the message is a string literal
 
-               if Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
+               if Arg.P_Expr.Kind /= LCO.Lkql_String_Literal then
                   raise Rule_Error with
                     "argument for @" &
                     To_String (Check_Annotation.F_Name.Text) &
@@ -237,7 +237,7 @@ package body Rule_Commands is
          Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
 
          if not Remediation_Arg.Is_Null then
-            if Remediation_Arg.P_Expr.Kind /= LCO.LKQL_String_Literal then
+            if Remediation_Arg.P_Expr.Kind /= LCO.Lkql_String_Literal then
                raise Rule_Error with
                  "argument for @" &
                  To_String (Check_Annotation.F_Name.Text) &
@@ -264,7 +264,7 @@ package body Rule_Commands is
             Help                  => Help,
             Category              => Category,
             Subcategory           => Subcategory,
-            LKQL_Root             => Root,
+            Lkql_Root             => Root,
             Function_Expr         => Fn.F_Fun_Expr.F_Body_Expr,
             Eval_Ctx              => Ctx.Create_New_Frame,
             Rule_Args             => <>,
@@ -288,7 +288,7 @@ package body Rule_Commands is
    procedure Prepare (Self : in out Rule_Command) is
       Code : Unbounded_Text_Type;
    begin
-      --  Create the code snippet that will be passed to LKQL_Eval, along with
+      --  Create the code snippet that will be passed to Lkql_Eval, along with
       --  the optional arguments passed to the rule via the command line.
 
       Append (Code, To_Text (Self.Name));
@@ -305,7 +305,7 @@ package body Rule_Commands is
       Append (Code, ")");
 
       Self.Code :=
-        Make_LKQL_Unit_From_Code
+        Make_Lkql_Unit_From_Code
           (Get_Context (Self.Eval_Ctx.Kernel.all),
            Image (To_Text (Code)),
            "[" & Image (To_Text (Self.Name)) & " inline code]").Root;
@@ -332,7 +332,7 @@ package body Rule_Commands is
               (To_Text (Self.Rule_Args (I).Name),
                Eval
                  (Self.Eval_Ctx,
-                  Make_LKQL_Unit_From_Code
+                  Make_Lkql_Unit_From_Code
                     (Get_Context (Self.Eval_Ctx.Kernel.all),
                      Image (To_Text (Self.Rule_Args (I).Value)),
                      "[" & Image (To_Text (Self.Name)) & " inline code]")
@@ -358,16 +358,16 @@ package body Rule_Commands is
    begin
 
       --  Eval the rule's code (which should contain only definitions)
-      Dummy := Eval (Ctx, Self.LKQL_Root);
+      Dummy := Eval (Ctx, Self.Lkql_Root);
 
       --  Eval the call to the check function
-      Nodes := LKQL_Eval (Ctx, Image (To_Text (Code)),
+      Nodes := Lkql_Eval (Ctx, Image (To_Text (Code)),
                           Get_Context (Self.Eval_Ctx.Kernel.all));
 
-      Check_Kind (Ctx, Self.LKQL_Root, Kind_List, Nodes);
+      Check_Kind (Ctx, Self.Lkql_Root, Kind_List, Nodes);
 
       for N of List_Val (Nodes).Elements loop
-         Check_Kind (Ctx, Self.LKQL_Root, Kind_Node, N);
+         Check_Kind (Ctx, Self.Lkql_Root, Kind_Node, N);
 
          declare
             Wrapped_Node : constant H.AST_Node_Holder := Node_Val (N);

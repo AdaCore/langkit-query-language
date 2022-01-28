@@ -237,10 +237,10 @@ package body LKQL.Custom_Selectors is
                                 Expr         : L.Selector_Expr;
                                 Cache_Vector : Node_Vector)
    is
-      use type LCO.LKQL_Node_Kind_Type;
+      use type LCO.Lkql_Node_Kind_Type;
 
       Expr_Value : constant Primitive :=
-        (if Expr.F_Expr.Kind = LCO.LKQL_Unpack
+        (if Expr.F_Expr.Kind = LCO.Lkql_Unpack
          then Eval (Local_Ctx, Expr.F_Expr.As_Unpack.F_Collection_Expr)
          else Eval (Local_Ctx, Expr.F_Expr));
 
@@ -252,7 +252,7 @@ package body LKQL.Custom_Selectors is
       --  TODO: This only handles lists, we should handle any kind of sequence
       --  here.
       elsif Kind (Expr_Value) = Kind_List and then
-        Expr.F_Expr.Kind = LCO.LKQL_Unpack
+        Expr.F_Expr.Kind = LCO.Lkql_Unpack
       then
          for N of List_Val (Expr_Value).Elements loop
             Add_Node (Iter, Depth, Node_Val (N), Expr.F_Mode, Cache_Vector);
@@ -282,10 +282,10 @@ package body LKQL.Custom_Selectors is
       --  Add 'Node' to the target list if it's node value is not already in
       --  the cache, and cache it.
 
-      use type LCO.LKQL_Node_Kind_Type;
+      use type LCO.Lkql_Node_Kind_Type;
 
       Depth_Offset : constant Integer :=
-        (if Mode.Kind = LCO.LKQL_Selector_Expr_Mode_Skip then 0 else 1);
+        (if Mode.Kind = LCO.Lkql_Selector_Expr_Mode_Skip then 0 else 1);
 
       With_Depth : constant Depth_Node :=
         Depth_Node'(Current_Depth + Depth_Offset, Node);
@@ -314,14 +314,14 @@ package body LKQL.Custom_Selectors is
 
       --  If the node's depth is too low we want to visit it without adding
       --  it to the list of nodes to be yielded.
-      if Mode.Kind /= LCO.LKQL_Selector_Expr_Mode_Skip then
+      if Mode.Kind /= LCO.Lkql_Selector_Expr_Mode_Skip then
          if Cache_Vector /= null then
             Cache_Vector.Append ((Node, Mode));
          end if;
          Add_If_Unseen (With_Depth, Iter.Already_Yielded, Iter.Next_Values);
       end if;
 
-      if Mode.Kind /= LCO.LKQL_Selector_Expr_Mode_Default then
+      if Mode.Kind /= LCO.Lkql_Selector_Expr_Mode_Default then
          Add_If_Unseen (With_Depth, Iter.Already_Visited, Iter.Next_To_Visit);
       end if;
    end Add_Node;

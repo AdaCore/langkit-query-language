@@ -313,7 +313,7 @@ package LKQL.Primitives is
             Property_Node     : H.AST_Node_Holder;
          when Kind_Namespace =>
             Namespace         : Environment_Access;
-            Module            : L.LKQL_Node;
+            Module            : L.Lkql_Node;
          when Kind_Function | Kind_Selector =>
             Frame             : Environment_Access;
             case Kind is
@@ -537,7 +537,7 @@ package LKQL.Primitives is
 
    function To_Primitive
      (Node : H.AST_Node_Holder; Pool : Primitive_Pool) return Primitive;
-   --  Create a Primitive value from the LKQL_Node value
+   --  Create a Primitive value from the Lkql_Node value
 
    function To_Primitive
      (Token : H.AST_Token_Holder; Pool : Primitive_Pool) return Primitive;
@@ -564,7 +564,7 @@ package LKQL.Primitives is
 
    function Make_Namespace
      (N : Environment_Access;
-      Module : L.LKQL_Node;
+      Module : L.Lkql_Node;
       Pool : Primitive_Pool) return Primitive;
 
    function Make_Regex
@@ -648,7 +648,7 @@ package LKQL.Primitives is
       Key           : Text_Type;
       Ctx           : LKQL.Eval_Contexts.Eval_Context;
       Expected_Kind : Base_Primitive_Kind := No_Kind;
-      Location      : L.LKQL_Node := L.No_LKQL_Node) return Primitive;
+      Location      : L.Lkql_Node := L.No_Lkql_Node) return Primitive;
    --  Extract a value from a primitive object, with the given key, doing the
    --  appropriate checks along the way.
 

@@ -31,7 +31,7 @@ with LKQL.Eval_Contexts;    use LKQL.Eval_Contexts;
 package LKQL.Evaluation is
 
    function Eval (Ctx            : Eval_Context;
-                  Node           : L.LKQL_Node'Class;
+                  Node           : L.Lkql_Node'Class;
                   Expected_Kind  : Base_Primitive_Kind := No_Kind;
                   Local_Bindings : Environment_Map :=
                     String_Value_Maps.Empty_Map) return Primitive;
@@ -41,7 +41,7 @@ package LKQL.Evaluation is
 
    function Eval_Default
      (Ctx            : Eval_Context;
-      Node           : L.LKQL_Node'Class;
+      Node           : L.Lkql_Node'Class;
       Default        : Primitive;
       Expected_Kind  : Base_Primitive_Kind := No_Kind;
       Local_Bindings : Environment_Map :=
@@ -53,7 +53,7 @@ package LKQL.Evaluation is
    --  given arguments.
 
    procedure Check_Kind (Ctx           : Eval_Context;
-                         Node          : L.LKQL_Node;
+                         Node          : L.Lkql_Node;
                          Expected_Kind : Valid_Primitive_Kind;
                          Value         : Primitive);
    --  Raise an exception and register an error in the evaluation context if

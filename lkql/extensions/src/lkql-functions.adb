@@ -96,7 +96,7 @@ package body LKQL.Functions is
       --  closures for built-in methods, we make a special case here where we
       --  recognize the case when the called entity can be a built-in method
       --  reference, and call them directly.
-      if Call.F_Name.Kind = LKQL_Dot_Access then
+      if Call.F_Name.Kind = Lkql_Dot_Access then
          declare
             Node : constant L.Dot_Access := Call.F_Name.As_Dot_Access;
             Receiver : constant Primitive := Eval (Ctx, Node.F_Receiver);
@@ -132,7 +132,7 @@ package body LKQL.Functions is
         Kind_Function | Kind_Selector | Kind_Builtin_Function
           | Kind_Property_Reference
       then
-         Raise_Invalid_Type (Ctx, Call.As_LKQL_Node,
+         Raise_Invalid_Type (Ctx, Call.As_Lkql_Node,
                              "function or selector", Func);
       end if;
 

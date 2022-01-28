@@ -67,7 +67,7 @@ package body LKQL.Patterns.Match is
                            Value   : Primitive) return Match_Result
    is
    begin
-      return (if Pattern.Kind in LCO.LKQL_Unfiltered_Pattern
+      return (if Pattern.Kind in LCO.Lkql_Unfiltered_Pattern
               then Match_Unfiltered (Ctx, Pattern.As_Unfiltered_Pattern, Value)
               else Match_Filtered (Ctx, Pattern.As_Filtered_Pattern, Value));
    end Match_Pattern;
@@ -106,9 +106,9 @@ package body LKQL.Patterns.Match is
                               Value   : Primitive) return Match_Result
    is
       (case Pattern.Kind is
-          when LCO.LKQL_Value_Pattern =>
+          when LCO.Lkql_Value_Pattern =>
              Match_Value (Ctx, Pattern.As_Value_Pattern, Value),
-          when LCO.LKQL_Binding_Pattern =>
+          when LCO.Lkql_Binding_Pattern =>
              Match_Binding (Ctx, Pattern.As_Binding_Pattern, Value),
           when others =>
              raise Assertion_Error with
@@ -125,11 +125,11 @@ package body LKQL.Patterns.Match is
       use LKQL.Error_Handling;
    begin
       case Pattern.Kind is
-         when LCO.LKQL_Paren_Pattern =>
+         when LCO.Lkql_Paren_Pattern =>
             return Match_Pattern
               (Ctx, Pattern.As_Paren_Pattern.F_Pattern, Value);
 
-         when LCO.LKQL_Or_Pattern =>
+         when LCO.Lkql_Or_Pattern =>
             declare
                Or_Pat   : constant L.Or_Pattern := Pattern.As_Or_Pattern;
                Left_Res : constant Match_Result :=
@@ -142,7 +142,7 @@ package body LKQL.Patterns.Match is
                end if;
             end;
 
-         when LCO.LKQL_Not_Pattern =>
+         when LCO.Lkql_Not_Pattern =>
             declare
                Res : constant Match_Result :=
                   Match_Value (Ctx, Pattern.As_Not_Pattern.F_Pattern, Value);
@@ -154,23 +154,23 @@ package body LKQL.Patterns.Match is
                end if;
             end;
 
-         when LCO.LKQL_Node_Pattern =>
+         when LCO.Lkql_Node_Pattern =>
             if not (Kind (Value) = Kind_Node) then
                Raise_Invalid_Kind
-                 (Ctx, Pattern.As_LKQL_Node, Kind_Node, Value);
+                 (Ctx, Pattern.As_Lkql_Node, Kind_Node, Value);
             end if;
 
             return Match_Node_Pattern
               (Ctx, Pattern.As_Node_Pattern, Node_Val (Value));
 
-         when LCO.LKQL_Universal_Pattern =>
+         when LCO.Lkql_Universal_Pattern =>
             return Make_Match_Success (Value);
 
-         when LCO.LKQL_Regex_Pattern =>
+         when LCO.Lkql_Regex_Pattern =>
             return Match_Regex
               (Ctx, Pattern.As_Regex_Pattern, Value);
 
-         when LCO.LKQL_Null_Pattern =>
+         when LCO.Lkql_Null_Pattern =>
             if Value.Node_Val.Unchecked_Get.Is_Null_Node then
                return Make_Match_Success (Value);
             else

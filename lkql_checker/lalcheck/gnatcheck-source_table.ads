@@ -207,16 +207,16 @@ package Gnatcheck.Source_Table is
    --  progress indicator. (Unconditionally) decreases the counter of the
    --  sources which have to be processed (Sources_Left)
 
-   function Create_Context return LKQL_Context;
+   function Create_Context return Lkql_Context;
    --  Create the LKQL context
 
    procedure Add_Sources_To_Context
-     (Ctx     : LKQL_Context;
+     (Ctx     : Lkql_Context;
       Project : Arg_Project_Type'Class);
    --  Add all sources from Project to Ctx
 
    procedure Process_Sources
-     (Ctx : LKQL_Context; Annotate_Only : Boolean := False);
+     (Ctx : Lkql_Context; Annotate_Only : Boolean := False);
    --  Procedure all sources. Only process pragma Annotate if Annotate_Only
    --  is true.
 
