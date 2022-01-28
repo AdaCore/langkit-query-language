@@ -1,0 +1,8 @@
+gen_cmp.adb:29:32: rule violation: possible occurrence of KP V127-049
+29 |                                ">"          => Less_Than);  --  FLAG
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gen_cmp.adb:31:58: rule violation: possible occurrence of KP V127-049
+31 |    procedure Flag2 is new Gen (Integer, Alpha, My_Array, Less_Than);  --  FLAG
+   |                                                          ^^^^^^^^^
+

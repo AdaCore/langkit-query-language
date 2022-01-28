@@ -1,0 +1,34 @@
+# Flag actual parameters of generic instantiations that are functions taking
+# two standard integer types and returning a boolean, when the formal parameter
+# is an operator function.
+
+fun has_two_integer_params(params) =
+    (from params select DefiningName).length == 2 and not
+    [t for t in (from params select TypeExpr)
+       if not (t.p_designated_type_decl().p_base_subtype() is base@BaseTypeDecl
+               when base.p_is_int_type()
+                and base.p_canonical_fully_qualified_name().starts_with("standard."))]
+
+fun find_element(params, expr, n) =
+    if n == 0 then null
+    else if params[n].actual == expr then params[n]
+    else find_element(params, expr, n - 1)
+
+fun is_operator(params, expr) =
+    find_element(params, expr, params.length).param.p_is_operator_name()
+
+@check(message="possible occurrence of KP V127-049")
+fun kp_v127_049(node) =
+    # Look for parameter associations of generic instantiations
+    node is ParamAssoc(parent is l@AssocList(parent is GenericInstantiation),
+                       f_r_expr is expr@Name)
+    # where the parameter is a subprogram
+    when expr.p_referenced_decl() is decl@(BaseSubpBody or ClassicSubpDecl or
+                                           SubpBodyStub)
+     # returning a boolean (sub)type
+     and (decl.f_subp_spec.f_subp_returns is t@TypeExpr
+          when t.p_designated_type_decl().p_base_subtype() == t.p_bool_type())
+     # taking two integer (sub)types
+     and has_two_integer_params(decl.f_subp_spec.f_subp_params)
+     # and whose formal is an operator
+     and is_operator(l.p_zip_with_params(), expr)
