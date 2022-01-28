@@ -112,7 +112,7 @@ in the current directory) will output:
 
 .. code-block:: sh
 
-    $ gnatcheck go_to.adb --rules-dir=. -rules +Rgoto_line
+    $ gnatcheck -d go_to.adb --rules-dir=. -rules +Rgoto_line
     go_to.adb:3:09: go to line 5
 
 Rule arguments
@@ -156,6 +156,13 @@ Here is an example rule:
 
 Debugging Your Rules
 --------------------
+
+When writing new rules, you should first enable the gnatcheck switch ``-d``
+so that any LKQL runtime error (such as type mismatches, wrong nodes or syntax
+errors) are reported as part of the gnatcheck output.
+
+You can then use one (or a mix) of the approaches described in the following
+sections.
 
 The LKQL REPL
 ~~~~~~~~~~~~~
