@@ -269,12 +269,12 @@ package body LKQL.Eval_Contexts is
          end loop;
       end;
 
-      --  Set up Lkql_PATH for the context
-      if E.Exists ("Lkql_PATH") then
+      --  Set up LKQL_PATH for the context
+      if E.Exists ("LKQL_PATH") then
          declare
             function Add_Path (Path : String) return Boolean;
 
-            Lkql_Path_Content : constant String := E.Value ("Lkql_PATH");
+            Lkql_Path_Content : constant String := E.Value ("LKQL_PATH");
 
             function Add_Path (Path : String) return Boolean is
             begin

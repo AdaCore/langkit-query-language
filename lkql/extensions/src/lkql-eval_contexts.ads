@@ -217,10 +217,10 @@ package LKQL.Eval_Contexts is
       Package_Name : String;
       From         : L.Analysis_Unit := L.No_Analysis_Unit)
       return L.Analysis_Unit;
-   --  Get a LKQL unit, searching on the context's Lkql_PATH
+   --  Get a LKQL unit, searching on the context's LKQL_PATH
 
    procedure Add_Lkql_Path (Ctx : in out Eval_Context; Path : String);
-   --  Add a path to the Lkql_PATH
+   --  Add a path to the LKQL_PATH
 
 private
 
