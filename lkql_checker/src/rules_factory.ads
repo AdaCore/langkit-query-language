@@ -45,8 +45,8 @@ package Rules_Factory is
    subtype Path_Vector is Path_Vectors.Vector;
 
    function All_Rules
-     (Ctx : Eval_Context; Dirs : Path_Vector := Path_Vectors.Empty_Vector)
-      return Rule_Vector;
+     (Ctx  : in out Eval_Context;
+      Dirs : Path_Vector := Path_Vectors.Empty_Vector) return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
 

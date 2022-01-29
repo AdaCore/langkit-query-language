@@ -33,8 +33,8 @@ package body Rules_Factory is
    ---------------
 
    function All_Rules
-     (Ctx : Eval_Context; Dirs : Path_Vector := Path_Vectors.Empty_Vector)
-      return Rule_Vector
+     (Ctx  : in out Eval_Context;
+      Dirs : Path_Vector := Path_Vectors.Empty_Vector) return Rule_Vector
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
@@ -45,6 +45,8 @@ package body Rules_Factory is
       --  helper functions.
 
       for Rules_Dir of Rules_Dirs loop
+         Ctx.Add_Lkql_Path (+Rules_Dir.Full_Name);
+
          declare
             Dir : File_Array_Access := Read_Dir (Rules_Dir);
          begin
@@ -94,8 +96,11 @@ package body Rules_Factory is
          Prefix : constant String :=
             Containing_Directory (Containing_Directory (Executable.all));
 
+         Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
+         Kp   : constant String := Compose (Lkql, "kp");
+
          Builtin_Checkers_Dir : constant Virtual_File_Array :=
-           [Create (+Compose (Compose (Prefix, "share"), "lkql"))];
+           [Create (+Lkql), Create (+Kp)];
 
          Custom_Checkers_Dirs : Virtual_File_Array
                                   (1 .. Integer (Dirs.Length));
