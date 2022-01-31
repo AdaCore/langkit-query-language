@@ -1,0 +1,12 @@
+# Flags comments that are not on their own line
+
+import stdlib
+
+@unit_check(help="end of line comments", remediation="EASY",
+            category="Style", subcategory="Readability")
+fun end_of_line_comments(unit) = [
+    {message: "end of line comment", loc: tok}
+    for tok in unit.tokens
+    if tok.kind == "ADA_COMMENT" and
+       stdlib.previous_non_blank_token_line(tok) == tok.start_line
+]

@@ -344,3 +344,27 @@ fun same_tokens(l, r) =
 
     compare_tokens(tok_l, tok_r, tok_l.length, tok_r.length)
 }
+
+fun next_non_blank_token_line(token) =
+    |" Return the start line of the next non blank token, or the next line for
+    |" a comment, or 0 if none.
+{
+    val n = token.next;
+    match n.kind
+    | "ADA_WHITESPACE" => next_non_blank_token_line(n)
+    | "ADA_COMMENT"    => n.start_line + 1
+    | "NO_TOKEN"       => 0
+    | *                => n.start_line
+}
+
+fun previous_non_blank_token_line(token) =
+    |" Return the end line of the previous non blank token, or the previous
+    |" line for a comment, or 0 if none.
+{
+    val p = token.previous;
+    match p.kind
+    | "ADA_WHITESPACE" => previous_non_blank_token_line(p)
+    | "ADA_COMMENT"    => p.start_line - 1
+    | "NO_TOKEN"       => 0
+    | *                => p.end_line
+}

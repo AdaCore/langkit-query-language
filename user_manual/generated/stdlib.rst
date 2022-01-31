@@ -114,9 +114,19 @@ All of them should be both:
 
     Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
 
+.. function:: next_non_blank_token_line(token)
+
+    Return the start line of the next non blank token, or the next line for
+    a comment, or 0 if none.
+
 .. function:: param_pos(n, pos: int = 0)
 
     Return the position of node ``n`` in its current list of siblings
+
+.. function:: previous_non_blank_token_line(token)
+
+    Return the end line of the previous non blank token, or the previous
+    line for a comment, or 0 if none.
 
 .. function:: same_tokens(l, r)
 

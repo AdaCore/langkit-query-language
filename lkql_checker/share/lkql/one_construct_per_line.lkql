@@ -8,27 +8,7 @@
 # - loop parameter specification;
 # - entry index specification;
 
-fun next_non_blank_token_line(token) = {
-    |" Return the start line of the next non blank token, or the next line for
-    |" a comment, or 0 if none.
-    val n = token.next;
-    match n.kind
-    | "ADA_WHITESPACE" => next_non_blank_token_line(n)
-    | "ADA_COMMENT"    => n.start_line + 1
-    | "NO_TOKEN"       => 0
-    | *                => n.start_line
-}
-
-fun previous_non_blank_token_line(token) = {
-    |" Return the end line of the previous non blank token, or the previous
-    |" line for a comment, or 0 if none.
-    val p = token.previous;
-    match p.kind
-    | "ADA_WHITESPACE" => previous_non_blank_token_line(p)
-    | "ADA_COMMENT"    => p.start_line - 1
-    | "NO_TOKEN"       => 0
-    | *                => p.end_line
-}
+import stdlib
 
 @check(message="more than one construct on the same line", remediation="EASY",
        category="Style", subcategory="Readability")
@@ -46,6 +26,6 @@ fun one_construct_per_line(node) =
                        LabelDecl or GenericSubpInternal or
                        ExtendedReturnStmtObjectDecl))
      and (node.token_end().end_line ==
-          next_non_blank_token_line(node.token_end())
+          stdlib.next_non_blank_token_line(node.token_end())
           or node.token_start().start_line ==
-             previous_non_blank_token_line(node.token_start()))
+             stdlib.previous_non_blank_token_line(node.token_start()))
