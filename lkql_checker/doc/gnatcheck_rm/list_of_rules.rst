@@ -431,6 +431,9 @@ GNATcheck rules.
   :ref:`Too_Many_Dependencies`
 
 *
+  :ref:`Too_Many_Generic_Dependencies`
+
+*
   :ref:`Too_Many_Parents`
 
 *
@@ -438,6 +441,9 @@ GNATcheck rules.
 
 *
   :ref:`Unassigned_OUT_Parameters`
+
+*
+  :ref:`Unavailable_Body_Calls`
 
 *
   :ref:`Unchecked_Address_Conversions`

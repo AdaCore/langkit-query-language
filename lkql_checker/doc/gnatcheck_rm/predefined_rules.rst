@@ -1504,6 +1504,57 @@ This rule has no parameters.
 
 
 
+.. _Too_Many_Generic_Dependencies:
+
+``Too_Many_Generic_Dependencies``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Too_Many_Generic_Dependencies
+
+Flags a ``WITH`` clause that mentions a
+generic unit that in turn directly depends (mentions in its ``WITH``
+clause) on another generic unit, and so on, and the length of the
+chain of these dependencies on generics is more than N where N is
+a rule parameter.
+
+This rule has the following (mandatory) parameter for the ``+R`` option:
+
+
+
+*N*
+  Non-negative integer specifying the maximal allowed length of the
+  chain of dependencies on generic units.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 20
+
+   generic
+   package D is
+   end D;
+
+   with D;
+   generic
+   package C is
+   end C;
+
+   with C;
+   generic
+   package B is
+   end B;
+
+   with B;
+   generic
+   package A is
+   end A;
+
+   with A;        --  FLAG (if N <= 3)
+   package P is
+      procedure Proc;
+   end P;
+
+
 
 .. _Programming_Practice:
 
@@ -3345,6 +3396,46 @@ This rule has no parameters.
 
    type Enum3 is (A, B, C);
    type Enum1 is (D);      --  FLAG
+
+
+
+
+
+.. _Unavailable_Body_Calls:
+
+``Unavailable_Body_Calls``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Unavailable_Body_Calls
+
+Flag any subprogram call if the set of argument sources does not
+contain a body of the called subprogram because of any reason.
+Calls to formal subprograms in generic bodies are not flagged.
+This rule can be useful as a complementary rule for the
+*Recursive_Subprograms* rule - it flags potentially missing recursion
+detection and identify potential missing checks.
+
+This rule has the following (optional) parameters for the ``+R`` option:
+
+
+*Indirect_Calls*
+   Flag all the indirect calls (that is, calls through access-to-subprogram
+   values).
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 7,8
+
+   procedure Calls is
+      procedure Unknown with Import;
+
+      type Proc_A is access procedure (X : Integer);
+      X : Proc_A := Some_Proc'Access;
+   begin
+      Unknown;     --  FLAG
+      X (1);       --  FLAG (if Indirect_Calls is enabled)
 
 
 .. _Unchecked_Address_Conversions:
