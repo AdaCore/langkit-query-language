@@ -1,0 +1,8 @@
+bool.ads:4:4: rule violation: possible occurrence of KP UC22-009
+4 |    for My_Bool use (True => 0, False => 1);   --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+bool.ads:7:4: rule violation: possible occurrence of KP UC22-009
+7 |    for My_Bool2 use (11, 99);                 --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
