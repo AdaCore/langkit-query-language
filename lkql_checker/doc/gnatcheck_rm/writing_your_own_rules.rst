@@ -5,7 +5,7 @@ Writing Your Own Rules
 **********************
 
 All the predefined rules in GNATcheck are implemented via a pattern matching
-language called LQKL (LangKit Query Language) which is a functional,
+language called LKQL (LangKit Query Language) which is a functional,
 turing complete language, and provides as an advanced usage the ability to
 write an infinite number of custom checks.
 
