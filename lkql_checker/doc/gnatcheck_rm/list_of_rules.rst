@@ -101,6 +101,9 @@ GNATcheck rules.
   :ref:`Downward_View_Conversions`
 
 *
+  :ref:`End_Of_Line_Comments`
+
+*
   :ref:`Enumeration_Ranges_In_CASE_Statements`
 
 *
@@ -492,6 +495,9 @@ GNATcheck rules.
 
 *
   :ref:`Visible_Components`
+
+*
+  :ref:`Variable_Scoping`
 
 *
   :ref:`Volatile_Objects_Without_Address_Clauses`

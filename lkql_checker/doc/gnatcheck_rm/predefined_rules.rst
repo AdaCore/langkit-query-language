@@ -3793,6 +3793,46 @@ This rule has no parameters.
    procedure Bar (S : in out String) is
 
 
+
+.. _Variable_Scoping:
+
+``Variable_Scoping``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Variable_Scoping
+
+Flag local object declarations that can be moved into declare blocks
+nested into the declaration scope. A declaration is considered as movable
+into a nested scope if:
+
+*
+  The declaration does not contain an initialization expression;
+
+*
+  The declared object is used only in a nested block statement,
+  and this block statement has a declare part;
+
+*
+  the block statement is not enclosed into a loop statement.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   procedure Scope is
+      X : Integer;  --  FLAG
+   begin
+      declare
+         Y : Integer := 42;
+      begin
+         X := Y;
+      end;
+   end;
+
+
 .. _Readability:
 
 Readability
@@ -3802,6 +3842,29 @@ Readability
 
 The rules described in this subsection may be used to enforce feature usages
 that contribute towards readability.
+
+.. _End_Of_Line_Comments:
+
+``End_Of_Line_Comments``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: End_Of_Line_Comments
+
+Flags comments that are located in the source lines that
+contains Ada code.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3,4
+
+   package A is
+      -- NO FLAG
+      I : Integer;  -- FLAG
+   end A;  --  FLAG
+
 
 .. _Headers:
 
