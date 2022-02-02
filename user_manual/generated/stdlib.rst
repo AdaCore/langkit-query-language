@@ -4,10 +4,8 @@ API doc for module stdlib
 LKQL stdlib module
 
 This module contains functions that are shared accross lkql_checker rules.
-All of them should be both:
-
-* Candidates for Libadalang integration
-* Candidates for integration in lkql's stdlib
+These functions may be moved in the future in Libadalang or LKQL's builtin
+library.
 
 .. function:: children_no_nested_subps
 
@@ -62,7 +60,6 @@ All of them should be both:
 .. function:: is_classwide_type(t)
 
     Return true if t is a classwide TypeDecl.
-    TODO: move to LAL
 
 .. function:: is_constant_object(node)
 
@@ -72,13 +69,11 @@ All of them should be both:
 
     Return true if spec is a subprogram spec of a constructor, that is, has
     a controlling result and no controlling parameter.
-    TODO: move this to LAL?
 
 .. function:: is_controlling_param_type(t, spec)
 
     Return true if `t` is a TypeExpr corresponding to a controlling
     parameter of the subprogram spec `spec`.
-    TODO: move this to LAL
 
 .. function:: is_in_library_unit_body(o)
 
@@ -139,7 +134,7 @@ All of them should be both:
 
 .. function:: sloc_image(node)
 
-
+    Return a string with basename:line corresponding to node's sloc
 
 .. function:: ultimate_alias(name, all_nodes=true, strip_component=false)
 

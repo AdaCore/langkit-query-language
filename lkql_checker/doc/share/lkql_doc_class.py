@@ -18,7 +18,7 @@ import traceback
 lkql_classes = [
     v for _, v in liblkqllang.__dict__.items()
     if (type(v) == type
-        and issubclass(v, liblkqllang.LKQLNode))
+        and issubclass(v, liblkqllang.LkqlNode))
 ]
 
 
@@ -29,7 +29,7 @@ def lkql_cls_subclasses():
     """
     res = defaultdict(list)
     for cls in lkql_classes:
-        if cls != liblkqllang.LKQLNode:
+        if cls != liblkqllang.LkqlNode:
             res[cls.__base__].append(cls)
     return res
 
@@ -41,7 +41,7 @@ def is_class_documented(lkql_class):
     account (if all subclasses of a class are documented, then the class is
     documented).
     """
-    if issubclass(lkql_class, liblkqllang.LKQLNodeBaseList):
+    if issubclass(lkql_class, liblkqllang.LkqlNodeBaseList):
         return True
     subclasses = lkql_cls_subclasses()[lkql_class]
     return (

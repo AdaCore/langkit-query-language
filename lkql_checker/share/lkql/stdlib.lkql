@@ -1,10 +1,8 @@
 |" LKQL stdlib module
 |"
 |" This module contains functions that are shared accross lkql_checker rules.
-|" All of them should be both:
-|"
-|" * Candidates for Libadalang integration
-|" * Candidates for integration in lkql's stdlib
+|" These functions may be moved in the future in Libadalang or LKQL's builtin
+|" library.
 
 selector semantic_parent
     |" Return all semantic parent nodes starting from a given node.
@@ -241,16 +239,16 @@ fun enclosing_package(n) =
     if pkg then pkg else null
 }
 
+# TODO: move to LAL
 fun is_classwide_type(t) =
     |" Return true if t is a classwide TypeDecl.
-    |" TODO: move to LAL
     t is ClasswideTypeDecl or
          BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
 
+# TODO: move to LAL
 fun is_controlling_param_type(t, spec) =
     |" Return true if `t` is a TypeExpr corresponding to a controlling
     |" parameter of the subprogram spec `spec`.
-    |" TODO: move this to LAL
     t is TypeExpr(p_designated_type_decl() is d@BaseTypeDecl)
     when ((d.p_is_tagged_type() and not is_classwide_type(d)) or
           (d is AnonymousTypeDecl and
@@ -259,10 +257,10 @@ fun is_controlling_param_type(t, spec) =
      # Check that t is in the same package decl as spec
      and (enclosing_package(t) == enclosing_package(spec))
 
+# TODO: move to LAL?
 fun is_constructor(spec) =
     |" Return true if spec is a subprogram spec of a constructor, that is, has
     |" a controlling result and no controlling parameter.
-    |" TODO: move this to LAL?
     is_controlling_param_type(spec.p_returns(), spec)
      and not [p for p in spec.p_params()
               if is_controlling_param_type(p.f_type_expr, spec)]
@@ -296,8 +294,9 @@ fun get_subp_body(node) =
                        => node.p_body_part_for_decl()
     | *                => null
 
-fun sloc_image(node) = {
+fun sloc_image(node) =
     |" Return a string with basename:line corresponding to node's sloc
+{
     val tok = node.token_start();
     tok.unit.name.base_name & ":" & img(tok.start_line)
 }

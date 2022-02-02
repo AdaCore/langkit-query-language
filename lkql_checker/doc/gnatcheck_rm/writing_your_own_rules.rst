@@ -34,7 +34,11 @@ Here is a simple rule example, that will just flag every body:
 
 Adding this source in the ``bodies.lkql`` file in a directory listed via
 ``--rules-dir`` will add a rule to GNATcheck dynamically, without the need to
-modify GNATcheck itself.
+modify GNATcheck itself. For example:
+
+.. code-block:: sh
+
+    $ gnatcheck -Pprj --rules-dir=. -rules +Rbodies
 
 Boolean rules
 ~~~~~~~~~~~~~
