@@ -29,8 +29,7 @@ A copy of the license is included in the section entitled
    gnatcheck_rm/rule_exemption
    gnatcheck_rm/predefined_rules
    gnatcheck_rm/writing_your_own_rules
-   gnatcheck_rm/language_reference
-   gnatcheck_rm/lkql_api_doc
+   gnatcheck_rm/lkql_language_reference
 
 .. raw:: latex
 
