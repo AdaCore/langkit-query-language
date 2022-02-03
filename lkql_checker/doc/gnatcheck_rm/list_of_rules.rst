@@ -395,6 +395,9 @@ GNATcheck rules.
   :ref:`Representation_Specifications`
 
 *
+  :ref:`Restrictions`
+
+*
   :ref:`Same_Instantiations`
 
 *
@@ -426,6 +429,9 @@ GNATcheck rules.
 
 *
   :ref:`Specific_Type_Invariants`
+
+*
+  :ref:`Style_Checks`
 
 *
   :ref:`Subprogram_Access`
@@ -501,3 +507,6 @@ GNATcheck rules.
 
 *
   :ref:`Volatile_Objects_Without_Address_Clauses`
+
+*
+  :ref:`Warnings`
