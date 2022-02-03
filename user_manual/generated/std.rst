@@ -1,7 +1,7 @@
-Standard library
+Standard Library
 ----------------
 
-Builtin functions
+Builtin Functions
 ^^^^^^^^^^^^^^^^^
 
 .. function:: base_name(str)
@@ -76,7 +76,7 @@ Builtin functions
 
     Return an iterator on all units
 
-Builtin methods
+Builtin Methods
 ^^^^^^^^^^^^^^^
 
 .. method:: Str.base_name ({params})

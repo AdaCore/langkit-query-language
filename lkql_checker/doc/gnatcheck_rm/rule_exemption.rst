@@ -1,7 +1,7 @@
 .. _Rule_exemption:
 
 **************
-Rule exemption
+Rule Exemption
 **************
 
 .. index:: Rule exemption

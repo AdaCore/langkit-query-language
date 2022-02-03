@@ -1,4 +1,4 @@
-API doc for module stdlib
+API Doc For Module stdlib
 --------------------------------
 
 LKQL stdlib module

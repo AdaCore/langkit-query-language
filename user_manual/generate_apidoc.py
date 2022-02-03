@@ -147,16 +147,16 @@ class App(object):
         if self.args.std:
             local_symbols = sorted(eval(self.eval("get_symbols()")))
             with self.output_file('std.rst'):
-                self.write('Standard library')
+                self.write('Standard Library')
                 self.write('----------------')
                 self.write('')
 
-                self.write('Builtin functions')
+                self.write('Builtin Functions')
                 self.write('^^^^^^^^^^^^^^^^^')
                 self.write('')
                 self.generate_module_doc(local_symbols)
 
-                self.write('Builtin methods')
+                self.write('Builtin Methods')
                 self.write('^^^^^^^^^^^^^^^')
                 self.write('')
                 builtin_methods = eval(self.eval("get_builtin_methods_info()"))
@@ -182,7 +182,7 @@ class App(object):
                 f"get_symbols({module_name})"))
             )
             with self.output_file(f'{module_name}.rst'):
-                self.write(f'API doc for module {module_name}')
+                self.write(f'API Doc For Module {module_name}')
                 self.write('--------------------------------')
                 self.write('')
                 self.generate_module_doc(module_symbols, module_name)

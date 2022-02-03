@@ -1,6 +1,6 @@
 .. _LKQL_language_reference:
 
-LKQL language reference
+LKQL Language Reference
 #######################
 
 LKQL (short for LangKit Query Language) is a query language enabling users to
@@ -26,7 +26,7 @@ Those two languages will be documented separately. The general language will be
 documented first, because its knowledge is needed for understanding the tree
 query language.
 
-General purpose language subset
+General Purpose Language Subset
 ===============================
 
 This language subset is composed of a reduced set of declarations and

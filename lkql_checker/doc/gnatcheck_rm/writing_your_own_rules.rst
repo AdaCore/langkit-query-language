@@ -16,7 +16,7 @@ The APIs available in LKQL are described in the :ref:`LKQL_API_doc`.
 This chapter gives some additional information on how to use this language to
 create your own rules and checkers.
 
-How to write rules
+How To Write Rules
 ------------------
 
 Rules are written in the LKQL language, and put either in the predefined
