@@ -5086,13 +5086,10 @@ the *gnatcheck* messages.
 
 This rule takes a parameter in one of the following forms:
 
-*
-  *All_Checks*,
-      which enables the standard style checks corresponding to the ``-gnatyy``
-      GNAT style check option, or
+* *All_Checks*, which enables the standard style checks corresponding
+  to the ``-gnatyy`` GNAT style check option,
 
-*
-  a string with the same
+* A string with the same
   structure and semantics as the ``string_LITERAL`` parameter of the
   GNAT pragma ``Style_Checks``
   (see ``Pragma Style_Checks`` in the GNAT Reference Manual).
