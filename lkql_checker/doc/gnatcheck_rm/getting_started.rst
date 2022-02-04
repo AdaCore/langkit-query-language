@@ -4,7 +4,7 @@
 Getting Started
 ***************
 
-The *gnatcheck* tool is a utility that checks properties
+The ``gnatcheck`` tool is a utility that checks properties
 of Ada source files according to a given set of syntactic and semantic rules.
 
 It can be used to enforce coding standards by analyzing Ada source programs
@@ -13,13 +13,13 @@ with respect to a set of *rules* supplied at tool invocation.
 It can also be used as a static analysis tool to detect potential errors
 (problematic or dangerous code patterns) or find areas of code improvement.
 
-A number of rules are predefined in *gnatcheck* and are described
+A number of rules are predefined in ``gnatcheck`` and are described
 in :ref:`Predefined_Rules`. In addition, it is possible to write new rules
 as described in :ref:`Writing_Your_Own_Rules`
 using a dedicated pattern matching language called `LKQL`,
 used to implement all the predefined rules.
 
-Invoking *gnatcheck* on the command line has the form::
+Invoking ``gnatcheck`` on the command line has the form::
 
   $ gnatcheck [switches] {filename}
         [-files=arg_list_filename]
@@ -38,11 +38,11 @@ where
   or line breaks.
 
 * `rule_options` is a list of options for controlling a set of
-  rules to be checked by *gnatcheck* (:ref:`gnatcheck_Rule_Options`).
+  rules to be checked by ``gnatcheck`` (:ref:`gnatcheck_Rule_Options`).
 
 * `gcc_switches` is a list of switches for
-  *gcc*. They will be passed on to a compiler invocation made by
-  *gnatcheck* to collect compiler warnings and to add them to the report
+  ``gcc``. They will be passed on to a compiler invocation made by
+  ``gnatcheck`` to collect compiler warnings and to add them to the report
   file. Here you can provide e.g. ``-gnatxx`` switches such as ``-gnat2012``,
   etc.
 
@@ -51,8 +51,8 @@ supplied.
 
 .. _Example_of_gnatcheck_Usage:
 
-Example of *gnatcheck* Usage
-----------------------------
+Example of GNATcheck Usage
+--------------------------
 
 Here is a complete example. Suppose that in the current directory we have a
 project file named :file:`gnatcheck_example.gpr` with the following content:
@@ -150,15 +150,15 @@ and :file:`main.adb`:
      end loop;
   end Main;
 
-And suppose we call *gnatcheck* from the current directory using
+And suppose we call ``gnatcheck`` from the current directory using
 the project file as the only parameter of the call::
 
      gnatcheck -Pgnatcheck_example.gpr
 
 
-As a result, *gnatcheck* is called to check all the files from the
+As a result, ``gnatcheck`` is called to check all the files from the
 project :file:`gnatcheck_example.gpr` using the coding standard defined by
-the file :file:`coding_standard`. The *gnatcheck*
+the file :file:`coding_standard`. The ``gnatcheck``
 report file named :file:`gnatcheck.out` will be created in the ``obj``
 directory, and it will have the following content::
 
