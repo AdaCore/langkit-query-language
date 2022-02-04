@@ -45,27 +45,30 @@ package body Rules_Factory is
       --  helper functions.
 
       for Rules_Dir of Rules_Dirs loop
-         Ctx.Add_Lkql_Path (+Rules_Dir.Full_Name);
+         if Is_Directory (Rules_Dir) then
+            Ctx.Add_Lkql_Path (+Rules_Dir.Full_Name);
 
-         declare
-            Dir : File_Array_Access := Read_Dir (Rules_Dir);
-         begin
-            for File of Dir.all loop
-               if File.File_Extension = +".lkql" then
-                  declare
-                     Rc : Rule_Command;
+            declare
+               Dir : File_Array_Access := Read_Dir (Rules_Dir);
+            begin
+               for File of Dir.all loop
+                  if File.File_Extension = +".lkql" then
+                     declare
+                        Rc : Rule_Command;
 
-                     Has_Rule : constant Boolean := Create_Rule_Command
-                       (+File.Full_Name, Ctx, Rc);
-                  begin
-                     if Has_Rule then
-                        Rules.Append (Rc);
-                     end if;
-                  end;
-               end if;
-            end loop;
-            Unchecked_Free (Dir);
-         end;
+                        Has_Rule : constant Boolean := Create_Rule_Command
+                          (+File.Full_Name, Ctx, Rc);
+                     begin
+                        if Has_Rule then
+                           Rules.Append (Rc);
+                        end if;
+                     end;
+                  end if;
+               end loop;
+
+               Unchecked_Free (Dir);
+            end;
+         end if;
       end loop;
 
       return Rules;
