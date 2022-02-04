@@ -1,5 +1,7 @@
 .. include:: ../../../user_manual/source/language_reference.rst
 
+.. _LKQL_API_doc:
+
 LKQL API
 ========
 

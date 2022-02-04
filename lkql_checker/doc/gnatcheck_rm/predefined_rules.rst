@@ -3892,7 +3892,7 @@ This rule has no parameters.
 ``Warnings``
 ^^^^^^^^^^^^
 
-.. index::
+.. index:: Warnings
 
 Flags construct that would result in issuing a GNAT warning if an argument
 source would be compiled with warning options corresponding to the rule
