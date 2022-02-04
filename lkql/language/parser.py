@@ -904,7 +904,7 @@ class SelectorCall(LkqlNode):
     @langkit_property(return_type=Expr, public=True, memoized=True)
     def min_depth_expr():
         """
-        If the 'min_depth' arg is set and 'depth" is not set, return the
+        If the 'min_depth' arg is set and 'depth' is not set, return the
         expression for 'min_depth'. If 'depth' is set return its expression.
         If neither 'depth' or 'min_depth' is set, return a null expression.
         """
