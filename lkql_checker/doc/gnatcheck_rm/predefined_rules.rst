@@ -6946,13 +6946,17 @@ rule to specific constructs:
       procedure Proc10 (I : in out Integer);
    end Pack;
 
-SPARK Ada Rules
-===============
+SPARK 2005 Rules
+================
 
-.. index:: SPARK Ada related rules
+.. index:: SPARK related rules
 
 The rules in this section can be used to enforce
-compliance with the Ada subset allowed by the SPARK tools.
+compliance with the Ada subset allowed by the SPARK 2005 language.
+
+More recent versions of SPARK support these language constructs,
+so if you want to further restrict the SPARK constructs allowed
+in your coding standard, you can use some of the following rules.
 
 .. _Annotated_Comments:
 
@@ -6963,26 +6967,17 @@ compliance with the Ada subset allowed by the SPARK tools.
 
 Flags comments that are used as annotations or as
 special sentinels/markers. Such comments have the following
-structure
-
-
-::
+structure::
 
     --<special_character> <comment_marker>
 
-
 where
 
+*<special_character>* is a character (such as '#', '$', '|' etc.)
+  indicating that the comment is used for a specific purpose
 
-
-*<special_character>*
-  character (such as '#', '$', '|' etc.) indicating that the comment is used
-  for a specific purpose
-
-
-*<comment_marker>*
-  a word identifying the annotation or special usage (word here is any sequence
-  of characters except white space)
+*<comment_marker>* is a word identifying the annotation or special usage
+  (word here is any sequence of characters except white space)
 
 There may be any amount of white space (including none at all) between
 ``<special_character>`` and ``<comment_marker>``, but no white space
@@ -6996,8 +6991,6 @@ flags each comment that starts with ``--<special_character>`` and
 that does not contain any other character except white space
 
 The rule has the following (mandatory) parameter for the ``+R`` option:
-
-
 
 *S*
   String with the following interpretation: the first character
@@ -7013,14 +7006,11 @@ Example:
 
 The rule
 
-
 ::
 
   +RAnnotated_Comments:#hide
 
-
 will flag the following comment lines
-
 
 .. code-block:: ada
 
@@ -7030,24 +7020,19 @@ will flag the following comment lines
 
      I := I + 1; --# hide
 
-
 But the line
-
 
 .. code-block:: ada
 
   -- # hide
 
-
 will not be flagged, because of the space between '--' and '#'.
 
 The line
 
-
 .. code-block:: ada
 
   --#Hide
-
 
 will not be flagged, because the string parameter is case sensitive.
 
