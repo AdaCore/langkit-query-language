@@ -21,9 +21,7 @@ A copy of the license is included in the section entitled
    :maxdepth: 2
 
    gnatcheck_rm/getting_started
-   gnatcheck_rm/general_gnatcheck_switches
-   gnatcheck_rm/gnatcheck_rule_options
-   gnatcheck_rm/gnatcheck_exit_codes
+   gnatcheck_rm/gnatcheck_switches
    gnatcheck_rm/mapping_gnatcheck_rules_onto_coding_standards
    gnatcheck_rm/format_of_the_report_file
    gnatcheck_rm/rule_exemption

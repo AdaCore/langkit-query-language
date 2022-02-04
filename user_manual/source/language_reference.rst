@@ -6,7 +6,7 @@ LKQL Language Reference
 LKQL (short for LangKit Query Language) is a query language enabling users to
 run queries on top of source code.
 
-LKQL is based upon the [https://github.com/AdaCore/langkit](langkit)
+LKQL is based upon the `langkit <https://github.com/AdaCore/langkit>`_
 technology. As such, it is theoretically capable of running queries on any
 language with a Langkit frontend. In practice for the moment, LKQL is hardwired
 for Ada (and Libadalang).

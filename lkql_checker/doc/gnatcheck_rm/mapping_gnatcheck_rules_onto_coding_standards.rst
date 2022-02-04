@@ -1,13 +1,13 @@
 .. _Mapping_gnatcheck_Rules_Onto_Coding_Standards:
 
-***********************************************
-Mapping *gnatcheck* Rules Onto Coding Standards
-***********************************************
+*********************************************
+Mapping GNATcheck Rules Onto Coding Standards
+*********************************************
 
-If a user would like to use *gnatcheck* to check if some code
+If a user would like to use ``gnatcheck`` to check if some code
 follows a given coding standard, the following approach can be
 used to simplify mapping of the coding standard requirements onto
-*gnatcheck* rules:
+``gnatcheck`` rules:
 
 *
    when specifying rule options, use synonyms for the rule names
@@ -18,7 +18,7 @@ used to simplify mapping of the coding standard requirements onto
      +R :My_Coding_Rule_N: Gnatcheck_Rule_N
 
 *
-   call *gnatcheck* with the `--show-rule` option that adds the rule names
+   call ``gnatcheck`` with the ``--show-rule`` option that adds the rule names
    to the generated diagnoses. If a synonym is used in the rule option that
    enables the rule, then this synonym will be used to annotate the diagnosis
    instead of the rule name::
@@ -28,5 +28,5 @@ used to simplify mapping of the coding standard requirements onto
      bar.ads:17:3: this is not good [My_Coding_Rule_N]
 
 Currently this approach does not work for compiler-based checks integrated
-in *gnatcheck* (implemented by `Restrictions`, `Style_Checks` and
-`Warnings` rules.
+in ``gnatcheck`` (implemented by ``Restrictions``, ``Style_Checks`` and
+``Warnings`` rules.
