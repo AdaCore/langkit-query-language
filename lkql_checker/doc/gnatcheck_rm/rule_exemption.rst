@@ -6,7 +6,7 @@ Rule Exemption
 
 .. index:: Rule exemption
 
-One of the most useful applications of *gnatcheck* is to
+One of the most useful applications of ``gnatcheck`` is to
 automate the enforcement of project-specific coding standards,
 for example in safety-critical systems where particular features
 must be restricted in order to simplify the certification effort.
@@ -15,15 +15,15 @@ and in such cases the rationale for the violation should be provided
 in the source program itself so that the individuals
 reviewing or maintaining the program can immediately understand the intent.
 
-The *gnatcheck* tool supports this practice with the notion of
+The ``gnatcheck`` tool supports this practice with the notion of
 a 'rule exemption' covering a specific source code section. Normally
 rule violation messages are issued both on :file:`stderr`
 and in a report file. In contrast, exempted violations are not listed on
-:file:`stderr`; thus users invoking *gnatcheck* interactively
-(e.g. in its GPS interface) do not need to pay attention to known and
+:file:`stderr`; thus users invoking ``gnatcheck`` interactively
+(e.g. in its GNAT Studio interface) do not need to pay attention to known and
 justified violations. However, exempted violations along with their
 justification are documented in a special section of the report file that
-*gnatcheck* generates.
+``gnatcheck`` generates.
 
 .. _Using_pragma_``Annotate``_to_Control_Rule_Exemption:
 
@@ -33,7 +33,7 @@ Using pragma ``Annotate`` to Control Rule Exemption
 .. index:: Using pragma Annotate to control rule exemption
 
 Rule exemption is controlled by pragma ``Annotate`` when its first
-argument is 'gnatcheck'. The syntax of *gnatcheck*'s
+argument is 'gnatcheck'. The syntax of ``gnatcheck``'s
 exemption control annotations is as follows:
 
 
@@ -52,16 +52,16 @@ string expression. A string literal is enough in most cases, but you
 may want to use concatenation of string literals if you need
 a long message but you have to follow line length limitation.
 
-When a *gnatcheck* annotation has more than four arguments,
-*gnatcheck* issues a warning and ignores the additional arguments.
+When a ``gnatcheck`` annotation has more than four arguments,
+``gnatcheck`` issues a warning and ignores the additional arguments.
 If the arguments do not follow the syntax above,
-*gnatcheck* emits a warning and ignores the annotation.
+``gnatcheck`` emits a warning and ignores the annotation.
 
 The ``Rule_Name`` argument should be the name of some existing
-*gnatcheck* rule.
+``gnatcheck`` rule.
 Otherwise a warning message is generated and the pragma is
 ignored. If ``Rule_Name`` denotes a rule that is not activated by the given
-*gnatcheck* call, the pragma is ignored and no warning is issued. The
+``gnatcheck`` call, the pragma is ignored and no warning is issued. The
 exception from this rule is that exemption sections for ``Warnings`` rule are
 fully processed when ``Restrictions`` rule is activated.
 
@@ -109,10 +109,10 @@ version of the GNAT compiler that does not support the format of
 pragma ``Annotate`` given above. Old GNAT versions may issue warning about
 unknown pragma when compiling a source that contains pragma ``GNAT_Annotate``.
 
-.. _*gnatcheck*_Annotations_Rules:
+.. _gnatcheck_Annotations_Rules:
 
-*gnatcheck* Annotations Rules
-=============================
+GNATcheck Annotations Rules
+===========================
 
 .. index:: gnatcheck annotations rules
 
