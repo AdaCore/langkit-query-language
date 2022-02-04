@@ -110,11 +110,11 @@ The following switches control the general ``gnatcheck`` behavior
 
 
 ``-j``\ nnnn
-  Use *nnnn* processes to carry out the tree creations (internal
-  representations of the argument sources). On a multiprocessor machine
-  this speeds up processing of big sets of argument sources.
-  If `n` is 0, then the maximum number of parallel tree creations is
-  the number of core processors on the platform.
+  Use *nnnn* processes to analyze the source files.
+  On a multi-core machine, this speeds up processing by analyzing subset
+  of files separately under multiple processes running in parallel.
+  If ``n`` is 0, then the maximum number processes is the number of
+  core processors detected on the platform.
 
   .. index:: -l
 
@@ -163,33 +163,29 @@ The following switches control the general ``gnatcheck`` behavior
 
 
 ``-xml``
-  Generate the report file in XML format. Is not allowed in incremental mode.
+  Generate the report file in XML format.
 
   .. index:: -nt
 
 
 ``-nt``
-  Do not generate the report file in text format. Enforces  ``-xml``,
-  is not allowed in incremental mode.
+  Do not generate the report file in text format. Enforces  ``-xml``.
 
 
   .. index:: -files
 
 
 ``-files=filename``
-    Take the argument source files from the specified file. This file should be an
-    ordinary text file containing file names separated by spaces or
-    line breaks. You can use this switch more than once in the same call to
-    ``gnatcheck``. You also can combine this switch with
-    an explicit list of files.
-
+  Take the argument source files from the specified file. This file should be an
+  ordinary text file containing file names separated by spaces or
+  line breaks. This switch can be specified only once, but can be combined with
+  an explicit list of files.
 
   .. index:: --ignore
 
 
 ``--ignore=filename``
-    Do not process the sources listed in a specified file. This option cannot
-    be used in incremental mode.
+  Do not process the sources listed in a specified file.
 
 
   .. index:: --show-rule
@@ -236,8 +232,7 @@ The following switches control the general ``gnatcheck`` behavior
 
 
 ``-ox report_file``
-  Set name of the XML report file to `report_file`. Enforces  ``-xml``,
-  is not allowed in incremental mode.
+  Set name of the XML report file to `report_file`. Enforces  ``-xml``.
 
   .. index:: --write-rules
 

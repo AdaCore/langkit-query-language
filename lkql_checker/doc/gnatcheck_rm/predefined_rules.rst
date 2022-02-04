@@ -3777,7 +3777,7 @@ This rule has the following optional parameter for the ``+R`` option:
 .. _Use_For_Loops:
 
 ``Use_For_Loops``
------------------
+^^^^^^^^^^^^^^^^^
 
 .. index:: Use_For_Loops
 

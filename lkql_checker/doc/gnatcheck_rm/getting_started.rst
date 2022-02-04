@@ -28,7 +28,7 @@ Invoking ``gnatcheck`` on the command line has the form::
 
 where
 
-* `switches` specify the general tool options
+* `switches` specify the :ref:`General_gnatcheck_Switches` such as ``-P project``
 
 * Each `filename` is the name (including the extension) of a source
   file to process, the file name may contain path information.
