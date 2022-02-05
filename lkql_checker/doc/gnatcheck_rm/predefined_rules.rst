@@ -3784,8 +3784,6 @@ This rule has the following optional parameter for the ``+R`` option:
 Flag ``WHILE`` loops which could be replaced by a ``FOR`` loop. The rule detects
 the following code patterns:
 
-.. rubric:: Example
-
 .. code-block:: ada
 
       ...
