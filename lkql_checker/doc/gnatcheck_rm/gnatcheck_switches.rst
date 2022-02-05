@@ -345,6 +345,6 @@ GNATcheck Exit Codes
 
 * ``2``: A fatal tool failure was detected, or a non-fatal tool failure was
   detected while no rule violation was detected (in this case the results
-  of the gnatcheck run cannot de trusted).
+  of the gnatcheck run cannot be trusted).
 
 * ``3``: No Ada source file was checked.

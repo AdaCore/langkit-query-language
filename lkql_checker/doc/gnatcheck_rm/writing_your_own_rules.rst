@@ -6,7 +6,7 @@ Writing Your Own Rules
 
 All the predefined rules in GNATcheck are implemented via a pattern matching
 language called LKQL (LangKit Query Language) which is a functional,
-turing complete language, and provides as an advanced usage the ability to
+Turing-complete language, and provides as an advanced usage the ability to
 write an infinite number of custom checks.
 
 The general description of this language can be found in the
@@ -70,7 +70,7 @@ Unit rules
 
 Unit rules are functions that take an analysis unit and return a list of
 objects containing a message and a location. They're meant to be ultimately
-flexible, and fullfill the needs that boolean rules can't fullfill, as for example:
+flexible, and fulfill the needs that boolean rules can't fulfill, for example:
 
 - Customizing messages.
 - Having a non 1 to 1 relationship between messages and nodes.
