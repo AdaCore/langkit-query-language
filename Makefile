@@ -34,9 +34,12 @@ else
 endif
 
 doc-auto:
-	$(MAKE) -C lkql_checker/doc html-all
-	mkdir -p "$(PREFIX)/share/doc"
-	cp -pr lkql_checker/doc/build/gnatcheck_rm "$(PREFIX)/share/doc/gnatcheck"
+	$(MAKE) -C lkql_checker/doc all
+	mkdir -p "$(PREFIX)/share/doc/gnatcheck/pdf"
+	cp -p lkql_checker/doc/build/gnatcheck_rm/pdf/*.pdf "$(PREFIX)/share/doc/gnatcheck/pdf"
+	for d in html info txt; do \
+	  cp -pr lkql_checker/doc/build/gnatcheck_rm/$$d "$(PREFIX)/share/doc/gnatcheck"; \
+	done
 
 automated-cov:
 	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
