@@ -22,7 +22,6 @@ A copy of the license is included in the section entitled
 
    gnatcheck_rm/getting_started
    gnatcheck_rm/gnatcheck_switches
-   gnatcheck_rm/mapping_gnatcheck_rules_onto_coding_standards
    gnatcheck_rm/format_of_the_report_file
    gnatcheck_rm/rule_exemption
    gnatcheck_rm/predefined_rules
