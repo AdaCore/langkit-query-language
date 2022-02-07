@@ -18,12 +18,10 @@ A copy of the license is included in the section entitled
 
 .. toctree::
    :numbered:
-   :maxdepth: 2
+   :maxdepth: 4
 
    gnatcheck_rm/getting_started
-   gnatcheck_rm/gnatcheck_switches
-   gnatcheck_rm/format_of_the_report_file
-   gnatcheck_rm/rule_exemption
+   gnatcheck_rm/using_gnatcheck
    gnatcheck_rm/predefined_rules
    gnatcheck_rm/writing_your_own_rules
    gnatcheck_rm/lkql_language_reference

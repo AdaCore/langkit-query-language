@@ -1,8 +1,8 @@
-.. _gnatcheck_Switches:
+.. _using_gnatcheck:
 
-******************
-GNATcheck Switches
-******************
+***************
+Using GNATcheck
+***************
 
 .. _General_gnatcheck_Switches:
 
@@ -375,3 +375,193 @@ GNATcheck Exit Codes
   of the gnatcheck run cannot be trusted).
 
 * ``3``: No Ada source file was checked.
+
+.. _Format_of_the_Report_File:
+
+Format of the Report File
+=========================
+
+.. index:: Format of the Report File
+
+The ``gnatcheck`` tool outputs on :file:`stderr` all messages concerning
+rule violations except if running in quiet mode.  By default it also creates a
+text file that contains the complete report of the last gnatcheck run, this file
+is named :file:`gnatcheck.out`. A user can specify generation of
+the XML version of the report file (its default name is :file:`gnatcheck.xml`)
+If ``gnatcheck`` is called with a project
+file, the report file is located in the object directory defined by the project
+file (or in the directory where the argument project file is located if no
+object directory is defined), if ``--subdirs`` option is specified, the
+file is placed in the subdirectory of this directory specified by this option.
+Otherwise it is located in the
+current directory; the ``-o`` or ``-ox`` option can be used to
+change the name and/or location of the text or XML report file.
+This text report contains:
+
+
+* general details of the ``gnatcheck`` run: date and time of the run,
+  the version of the tool that has generated this report, full parameters
+  of the  ``gnatcheck`` invocation, reference to the list of checked
+  sources and applied rules (coding standard);
+* summary of the run (number of checked sources and detected violations);
+* list of exempted coding standard violations;
+* list of non-exempted coding standard violations;
+* list of problems in the definition of exemption sections;
+* list of language violations (compile-time errors) detected in processed sources;
+
+The references to the list of checked sources and applied rules are
+references to the text files that contain the corresponding information.
+These files could be either files supplied as ``gnatcheck`` parameters or
+files created by ``gnatcheck``; in the latter case
+these files are located in the same directory as the report file.
+
+The content of the XML report is similar to the text report except that
+it explores the set of files processed by gnatcheck and the coding standard
+used for checking these files.
+
+.. _Rule_exemption:
+
+Rule Exemption
+==============
+
+.. index:: Rule exemption
+
+One of the most useful applications of ``gnatcheck`` is to
+automate the enforcement of project-specific coding standards,
+for example in safety-critical systems where particular features
+must be restricted in order to simplify the certification effort.
+However, it may sometimes be appropriate to violate a coding standard rule,
+and in such cases the rationale for the violation should be provided
+in the source program itself so that the individuals
+reviewing or maintaining the program can immediately understand the intent.
+
+The ``gnatcheck`` tool supports this practice with the notion of
+a 'rule exemption' covering a specific source code section. Normally
+rule violation messages are issued both on :file:`stderr`
+and in a report file. In contrast, exempted violations are not listed on
+:file:`stderr`; thus users invoking ``gnatcheck`` interactively
+(e.g. in its GNAT Studio interface) do not need to pay attention to known and
+justified violations. However, exempted violations along with their
+justification are documented in a special section of the report file that
+``gnatcheck`` generates.
+
+.. _Using_pragma_``Annotate``_to_Control_Rule_Exemption:
+
+Using pragma ``Annotate`` to Control Rule Exemption
+---------------------------------------------------
+
+.. index:: Using pragma Annotate to control rule exemption
+
+Rule exemption is controlled by pragma ``Annotate`` when its first
+argument is 'gnatcheck'. The syntax of ``gnatcheck``'s
+exemption control annotations is as follows:
+
+
+::
+
+  pragma Annotate (gnatcheck, exemption_control, Rule_Name [, justification]);
+
+  exemption_control ::= Exempt_On | Exempt_Off
+
+  Rule_Name         ::= string_literal
+
+  justification     ::= expression
+
+An expression used as an exemption justification should be a static
+string expression. A string literal is enough in most cases, but you
+may want to use concatenation of string literals if you need
+a long message but you have to follow line length limitation.
+
+When a ``gnatcheck`` annotation has more than four arguments,
+``gnatcheck`` issues a warning and ignores the additional arguments.
+If the arguments do not follow the syntax above,
+``gnatcheck`` emits a warning and ignores the annotation.
+
+The ``Rule_Name`` argument should be the name of some existing
+``gnatcheck`` rule.
+Otherwise a warning message is generated and the pragma is
+ignored. If ``Rule_Name`` denotes a rule that is not activated by the given
+``gnatcheck`` call, the pragma is ignored and no warning is issued. The
+exception from this rule is that exemption sections for ``Warnings`` rule are
+fully processed when ``Restrictions`` rule is activated.
+
+A source code section where an exemption is active for a given rule is
+delimited by an ``exempt_on`` and ``exempt_off`` annotation pair:
+
+
+.. code-block:: ada
+
+  pragma Annotate (gnatcheck, Exempt_On, "Rule_Name", "justification");
+  -- source code section
+  pragma Annotate (gnatcheck, Exempt_Off, "Rule_Name");
+
+
+For some rules it is possible specify rule parameter(s) when defining
+an exemption section for a rule. This means that only the checks
+corresponding to the given rule parameter(s) are exempted in this section:
+
+.. code-block:: ada
+
+  pragma Annotate (gnatcheck, Exempt_On, "Rule_Name: Par1, Par2", "justification");
+  -- source code section
+  pragma Annotate (gnatcheck, Exempt_Off, "Rule_Name: Par1, Par2");
+
+
+A parametric exemption section can be defined for a rule if a rule has
+parameters and these parameters change the scope of the checks performed
+by a rule. For example, if you define an exemption section for 'Restriction'
+rule with the parameter 'No_Allocators', then in this section only the
+checks for ``No_Allocators`` will be exempted, and the checks for all
+the other restrictions from your coding standard will be performed as usual.
+
+See the description of individual rules to check if parametric exemptions
+are available for them and what is the format of the rule parameters to
+be used in the corresponding parameters of the ``Annotate`` pragmas.
+
+If a rule has a parameter, but its documentation does not explicitly say that
+the parameter can be used when defining exemption sections for the rule,
+this means that the parametric exemption cannot be used for this rule.
+
+You may also use pragma ``GNAT_Annotate`` instead of pragma ``Annotate``, this
+pragma has exactly the same format. This may be needed if you are using an old
+version of the GNAT compiler that does not support the format of
+pragma ``Annotate`` given above. Old GNAT versions may issue warning about
+unknown pragma when compiling a source that contains pragma ``GNAT_Annotate``.
+
+.. _gnatcheck_Annotations_Rules:
+
+GNATcheck Annotations Rules
+---------------------------
+
+.. index:: gnatcheck annotations rules
+
+* An 'Exempt_Off' annotation can only appear after a corresponding
+  'Exempt_On' annotation.
+
+* Exempted source code sections are only based on the source location of the
+  annotations. Any source construct between the two
+  annotations is part of the exempted source code section.
+
+* Exempted source code sections for different rules are independent. They can
+  be nested or intersect with one another without limitation.
+  Creating nested or intersecting source code sections for the same rule is
+  not allowed.
+
+* A matching 'Exempt_Off' annotation pragma for an 'Exempt_On' pragma
+  that defines a parametric exemption section is the pragma that contains
+  exactly the same set of rule parameters for the same rule.
+
+* Parametric exemption sections for the same rule with different parameters
+  can intersect or overlap in case if the parameter sets for such sections
+  have an empty intersection.
+
+* Malformed exempted source code sections are reported by a warning, and
+  the corresponding rule exemptions are ignored.
+
+* When an exempted source code section does not contain at least one violation
+  of the exempted rule, a warning is emitted on :file:`stderr`.
+
+* If an 'Exempt_On' annotation pragma does not have a matching
+  'Exempt_Off' annotation pragma in the same compilation unit, a warning is
+  issued and the exemption section is considered to last until the
+  end of the compilation unit source.
