@@ -63,51 +63,36 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: --subdirs=dir
 
-
 ``--subdirs=dir``
   Use the specified subdirectory of the project objects file (or of the
   project file directory if the project does not specify an object directory)
   for tool output files. Has no effect if no project is specified as
   tool argument.
 
-  .. index:: --no_objects_dir
+  .. index:: -eL
 
-
-``--no_objects_dir``
-  Place all the result files into the current directory instead of
-  project objects directory.
-
-  .. index:: --RTS
-
-
-``--RTS=rts-path``
-  Specifies the default location of the runtime library.
+``-eL``
+  Follow all symbolic links when processing project files. By default,
+  symbolic links are not resolved and kept as is. In some cases, resolving
+  the target of symbolic links is needed for proper loading of project files.
 
   .. index:: --target
-
 
 ``--target=targetname``
   Specify a target for cross platforms, this is needed to locate the proper
   runtime library.
 
+  .. index:: --RTS
 
-
-  .. index:: -a
-
-
-``-a``
-  Process all units including those with read-only ALI files such as
-  those from the GNAT Run-Time library.
-
+``--RTS=rts-path``
+  Specifies the default location of the runtime library.
 
   .. index:: -h
-
 
 ``-h``
   List all the rules checked by the given ``gnatcheck`` version.
 
   .. index:: -j
-
 
 ``-j``\ nnnn
   Use *nnnn* processes to analyze the source files.
@@ -118,7 +103,6 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -l
 
-
 ``-l``
   Use full source locations references in the report file. For a construct from
   a generic instantiation a full source location is a chain from the location
@@ -126,7 +110,6 @@ The following switches control the general ``gnatcheck`` behavior
   instantiated.
 
   .. index:: -log
-
 
 ``-log``
   Duplicate all the output sent to :file:`stderr` into a log file. The log file
@@ -138,7 +121,6 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -m
 
-
 ``-m``\ nnnn
   Maximum number of diagnostics to be sent to :file:`stdout`, where *nnnn* is in
   the range 0...1000;
@@ -147,13 +129,11 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -q
 
-
 ``-q``
   Quiet mode. All the diagnostics about rule violations are placed in the
   ``gnatcheck`` report file only, without duplication on :file:`stdout`.
 
   .. index:: -s
-
 
 ``-s``
   Short format of the report file (no version information, no list of applied
@@ -161,19 +141,15 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -xml
 
-
 ``-xml``
   Generate the report file in XML format.
 
   .. index:: -nt
 
-
 ``-nt``
   Do not generate the report file in text format. Enforces  ``-xml``.
 
-
   .. index:: -files
-
 
 ``-files=filename``
   Take the argument source files from the specified file. This file should be an
@@ -183,40 +159,63 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: --ignore
 
-
 ``--ignore=filename``
   Do not process the sources listed in a specified file.
 
-
   .. index:: --show-rule
-
 
 ``--show-rule``
   Add the corresponding rule name to the diagnosis generated for its
   violation.
 
-  .. index:: --check-redefinition
+  .. index:: --brief
 
+``--brief``
+  Brief mode, report detections to Stderr. This switch also implies ``-q``
+  in terms of verbosity, and ``-s``.
+
+  .. index:: --check-redefinition
 
 ``--check-redefinition``
   For a parametrized rule check if a rule parameter is defined more than once
   in the set of rule options specified and issue a warning if parameter redefinition
   is detected
 
-  .. index:: --include-file=file
+  .. index:: --check-semantic
 
+``--check-semantic``
+  Check semantic validity of the source files by running gprbuild with
+  the ``-gnatc`` switch, and report any legality error as part of the
+  GNATcheck messages. By default, GNATcheck does not check that sources
+  are semantically valid and will perform a best effort when encountering
+  invalid source files. If you want to ensure and detect that your source
+  files are valid as part of running GNATcheck, you should use this switch.
+
+  .. index:: --charset
+
+``--charset=charset``
+  Specify the charset of the source files. By default, ``ISO-8859-1`` is
+  used if no charset is specified.
+
+  .. index:: --rules-dir
+
+``--rules-dir=dir``
+  Specify an alternate directory containing rule files.
+  You can specify this switch multiple times. Each of the directories
+  specified will be scanned and all filed with the extension :file:`.lkql`
+  will be loaded by ``GNATcheck`` to provide additional rules.
+
+  .. index:: --include-file=file
 
 ``--include-file=file``
   Append the content of the specified text file to the report file
 
   .. index:: -t
 
-
 ``-t``
   Print out execution time.
 
   .. index:: -v
-
 
 ``-v``
   Verbose mode; ``gnatcheck`` generates version information and then
@@ -224,31 +223,27 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -o
 
-
 ``-o report_file``
   Set name of the text report file to `report_file`.
 
   .. index:: -ox
-
 
 ``-ox report_file``
   Set name of the XML report file to `report_file`. Enforces  ``-xml``.
 
   .. index:: --write-rules
 
-
 ``--write-rules=template_file``
   Write to `template_file` the template rule file that contains all the rules
   currently implemented in ``gnatcheck`` turned off. A user may edit this
   template file manually to get his own coding standard file.
-
 
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no
 ``-U`` is specified, then the set of processed sources is
 all the immediate units of the argument project.
 
-If the argument project file is defines aggregate project, and it aggregates
+If the argument project file is an aggregate project, and it aggregates
 more than one (non-aggregate) project, gnatcheck runs separately for each
 (non-aggregate) project being aggregated by the argument project, and a
 separate report file is created for each of these runs. Also such a run
@@ -256,7 +251,7 @@ creates an umbrella report file that lists all the (non-aggregate)
 projects that are processed separately and for each of these projects
 contains the reference for the corresponding report file.
 
-If the argument project file defines an aggregate project but it aggregates only
+If the argument project file defines an aggregate project that aggregates only
 one (non-aggregate) project, the gnatcheck behavior is the same as for the
 case of non-aggregate argument project file.
 
