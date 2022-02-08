@@ -1097,12 +1097,7 @@ Flag source code text characters that are not part of the printable
 ASCII character set, a line feed, or a carriage return character (i.e.
 values 10, 13 and 32 .. 126 of the ASCII Character set).
 
-If a code line contains more than one symbol that does not belong to the
-printable ASCII character set, the generated diagnosis points to the
-first (leftmost) character and says that there are more in this line.
-
 This rule has no parameters.
-
 
 .. _Separate_Numeric_Error_Handlers:
 
