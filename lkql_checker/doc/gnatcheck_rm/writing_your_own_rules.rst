@@ -40,7 +40,7 @@ modify GNATcheck itself. For example:
 
     $ gnatcheck -Pprj --rules-dir=. -rules +Rbodies
 
-Boolean rules
+Boolean Rules
 ~~~~~~~~~~~~~
 
 Boolean rules are functions that take a node and return a boolean and are
@@ -65,7 +65,7 @@ long as they return a boolean, e.g:
        | *            => false
 
 
-Unit rules
+Unit Rules
 ~~~~~~~~~~
 
 Unit rules are functions that take an analysis unit and return a list of
@@ -119,7 +119,7 @@ in the current directory) will output:
     $ gnatcheck -d go_to.adb --rules-dir=. -rules +Rgoto_line
     go_to.adb:3:09: go to line 5
 
-Rule arguments
+Rule Arguments
 ~~~~~~~~~~~~~~
 
 Rules can take different optional arguments:

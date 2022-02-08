@@ -35,13 +35,13 @@ expressions that forms a minimal but turing complete language.
 For the time being, *it has no side effects*, which is intended since the
 purpose of LKQL is strictly to express queries.
 
-Data types
+Data Types
 ----------
 
 LKQL has a very limited number of data types for the moment. Here are the
 current data types:
 
-Basic data types
+Basic Data Types
 ^^^^^^^^^^^^^^^^
 
 * Integers: Very often used as parameters in queries, supports simple
@@ -62,7 +62,7 @@ Basic data types
   contexts to match a string against, notably in the string built-in functions
   ``contains`` and ``find``.
 
-Composite data types
+Composite Data Types
 ^^^^^^^^^^^^^^^^^^^^
 
 LKQL has two composite data types, lists and objects.
@@ -83,7 +83,7 @@ Declarations in LKQL only belong at the top level. There is no support
 currently for nested declarations, except for `Value declarations <Value
 declaration>`_ in the `Block expression`_.
 
-Function declaration
+Function Declaration
 ^^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: FunDecl
@@ -158,7 +158,7 @@ declared:
         val fib_30 = fib(30)
         print(fib_30)
 
-Value declaration
+Value Declaration
 ^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ValDecl
@@ -203,7 +203,7 @@ They're part of the AST and are directly attached to the declaration.
 Expressions
 -----------
 
-Block expression
+Block Expression
 ^^^^^^^^^^^^^^^^
 
 .. raw:: html
@@ -227,7 +227,7 @@ As you can see in the example above, value declarations are ended by
 semicolons. After the last value declaration, you write the block's result
 expression, without an ending semicolon.
 
-Field access
+Field Access
 ^^^^^^^^^^^^
 
 .. lkql_doc_class:: DotAccess
@@ -255,7 +255,7 @@ For a reference of the existing fields for syntax nodes for Ada, look at the
 `Libadalang API doc
 <https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_.
 
-Property call
+Property Call
 ^^^^^^^^^^^^^
 
 Properties are methods on syntax nodes, returning results of high level
@@ -276,7 +276,7 @@ null if the object is null.
 
     object_decl?.p_is_static_decl()
 
-Unwrap expression
+Unwrap Expression
 ^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Unwrap
@@ -291,7 +291,7 @@ for example.
 
 Unwrap will raise an error if the value is null.
 
-Function call
+Function Call
 ^^^^^^^^^^^^^
 
 .. lkql_doc_class:: FunCall
@@ -325,7 +325,7 @@ the callee is null:
     val fn = if true then null else add
     fn?(1, 2) # Returns null
 
-Indexing expression
+Indexing Expression
 ^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Indexing
@@ -358,7 +358,7 @@ when an out of bound access is done:
     print(lst?[5]) # Prints ()
 
 
-Comparison expression
+Comparison Expression
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
@@ -367,7 +367,7 @@ Comparison expression
 Comparison expressions are used to compare an object to another object, or
 pattern.
 
-Membership expression
+Membership Expression
 """""""""""""""""""""
 
 .. lkql_doc_class:: InClause
@@ -379,7 +379,7 @@ contains the given value.
 
     12 in list
 
-Is expression
+Is Expression
 """""""""""""
 
 .. lkql_doc_class:: IsClause
@@ -392,7 +392,7 @@ The "is" expression verifies if a node object matches a `Pattern`_.
    val a = select AdaNode
    val b = a[1] is ObjectDecl
 
-Comparison operators
+Comparison Operators
 """"""""""""""""""""
 
 .. lkql_doc_class:: RelBinOp
@@ -406,7 +406,7 @@ The usual comparison operators are available. Order dependent operators
    a == b
    b != c
 
-Object literals
+Object Literals
 ^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ObjectLiteral
@@ -427,7 +427,7 @@ Objects are immutable, and objects literals are the primary way to create new
 lists from nothing, with list comprehensions being the way to create new lists
 from existing lists.
 
-List literals
+List Literals
 ^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ListLiteral
@@ -446,7 +446,7 @@ Lists being immutable, lists literals are the primary way to create new lists
 from nothing, with list comprehensions being the way to create new lists from
 existing lists.
 
-List comprehension
+List Comprehension
 ^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ListComprehension
@@ -477,7 +477,7 @@ operation.
 A list comprehension is a basic language construct, that, since LKQL is purely
 functional, replaces traditional for loops.
 
-If expression
+If Expression
 ^^^^^^^^^^^^^
 
 .. lkql_doc_class:: IfThenElse
@@ -494,7 +494,7 @@ when the condition is false.
    # No parentheses required
    val a = if b < 12 then c() else d()
 
-Match expression
+Match Expression
 ^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: Match
@@ -518,7 +518,7 @@ the evaluation of the associated expression in the match arm.
    match expression where no arm has matched will raise an exception at
    runtime.
 
-Tuple expression
+Tuple Expression
 ^^^^^^^^^^^^^^^^
 
 .. raw:: html
@@ -541,7 +541,7 @@ data structure composed of several elements of distinct types:
 Tuples are useful as function return values, or to aggregate data, since LKQL
 doesn't have structs yet.
 
-Anonymous functions
+Anonymous Functions
 ^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: BaseFunction
@@ -635,7 +635,7 @@ LKQL will search for files:
    There is no way to create hierarchies of modules for now, only flat modules
    are supported.
 
-Tree query language subset
+Tree Query Language Subset
 ==========================
 
 The tree query language subset is mainly composed of three language constructs:
@@ -700,7 +700,7 @@ chain.
       | AdaNode => rec *it.parent
       | *       => ()
 
-Query expression
+Query Expression
 ----------------
 
 .. raw:: html
@@ -763,7 +763,7 @@ node or collection of nodes for each matched node. In the context of an ``is``
 comparison expression, lkql will check that the node matches the pattern, and
 produce ``true`` if it does.
 
-High level pattern kinds
+High Level Pattern Kinds
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are two kinds of top-level patterns: chained patterns and nested patterns
@@ -791,7 +791,7 @@ case, the sub-pattern doesn't change what is returned, it only adds a filtering
 condition, whereas in the second case, the chained pattern makes the pattern
 return a sub object.
 
-Simple value patterns
+Simple Value Patterns
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
@@ -815,7 +815,7 @@ parentheses, which brings us to the next section.
 The ``null`` pattern is a shortcut, which doesn't seem very useful in the query
 above, but is useful in nested queries.
 
-Nested sub patterns
+Nested Sub Patterns
 ^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: NodePatternDetail
@@ -828,7 +828,7 @@ Inside the optional parentheses of value patterns, the user can add
 sub-patterns that will help refine the query. Those patterns can be of three
 different kind:
 
-Selector predicate
+Selector Predicate
 """"""""""""""""""
 
 A selector predicate is a sub-pattern that allows you to run a sub-query and to
@@ -846,7 +846,7 @@ alter how the sub-pattern matches:
 
 Any of the `Built-in selectors`_ can be used, or even custom selectors.
 
-Field predicate
+Field Predicate
 """""""""""""""
 
 A field predicate is a sub-pattern that allows you to match a sub-pattern
@@ -857,7 +857,7 @@ construct in the introduction, and it's one of the simplest kind of patterns.
 
    select ObjectDecl(p_default_val() is IntLiteral)
 
-Property call predicate
+Property Call Predicate
 """""""""""""""""""""""
 
 A property predicate is very similar to a field predicate, except that a
@@ -868,7 +868,7 @@ this is denoted by the parentheses after the property name.
 
    select BaseId(p_referenced_decl() is ObjectDecl)
 
-Chained sub patterns
+Chained Sub Patterns
 ^^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: ChainedPatternLink
@@ -883,7 +883,7 @@ node.
 You have the three different kind of chained patterns, corresponding to the
 nested ones.
 
-Selector chain
+Selector Chain
 """"""""""""""
 
 A selector chain is a sub-pattern that allows you to recursively yield a
@@ -896,7 +896,7 @@ sub-query via a selector call:
 The quantifier part (``any``) can be either ``any`` or ``all``, which will
 alter how the sub-pattern matches:
 
-Field chain
+Field Chain
 """""""""""
 
 A field chain is a sub-pattern that allows you to yield a specific field in the
@@ -909,7 +909,7 @@ parent object, given that it satisfies a pattern.
 This will yield the default exprssions for object decls, given that those
 default expressions are int literals.
 
-Property chain
+Property Chain
 """"""""""""""
 
 A property chain is very similar to a field chain, except that a property of
@@ -920,7 +920,7 @@ by the parentheses after the property name.
 
    select BaseId.p_referenced_decl() is ObjectDecl
 
-Filtered patterns and binding patterns
+Filtered Patterns and Binding Patterns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. lkql_doc_class:: FilteredPattern
@@ -945,7 +945,7 @@ This is done via binding patterns:
    val a = select BasicDecl
    select b @ BaseId when b.p_referenced_decl() == a
 
-Selector declaration
+Selector Declaration
 --------------------
 
 .. lkql_doc_class:: SelectorDecl
@@ -974,7 +974,7 @@ You've already seen selectors used in previous sections, and, most of the time,
 you might not need to define your own, but in case you need to, here is how
 they work.
 
-Defining a selector
+Defining a Selector
 ^^^^^^^^^^^^^^^^^^^
 
 A selector is a recursive function. It has a single implicit `it` argument that
@@ -1007,7 +1007,7 @@ example how the ``super_types`` selector is expressed:
         | BaseTypeDecl      => rec *it.p_base_types()
         | *                 => ()
 
-Built-in selectors
+Built-in Selectors
 ^^^^^^^^^^^^^^^^^^
 
 The built-in selectors are:
