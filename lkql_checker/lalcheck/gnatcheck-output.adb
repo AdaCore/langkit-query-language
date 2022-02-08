@@ -649,7 +649,7 @@ package body Gnatcheck.Output is
       pragma Style_Checks ("M200"); -- Allow long lines
 
       Info ("gnatcheck: the GNAT rule checking tool");
-      Info ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches");
+      Info ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
       Info ("options:");
       Info (" --version - Display version and exit");
       Info (" --help    - Display usage and exit");
@@ -702,7 +702,6 @@ package body Gnatcheck.Output is
       Info ("-files=filename          - the name of the text file containing a list of Ada");
       Info ("                           source files to analyze");
       Info ("--ignore=filename        - do not process sources listed in filename");
-      Info ("--write-rules=filename   - the name of a template rule file");
       Info ("");
 
       Info ("rule_switches          - a list of the following switches");

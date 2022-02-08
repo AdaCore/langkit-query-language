@@ -202,7 +202,7 @@ The following switches control the general ``gnatcheck`` behavior
 ``--rules-dir=dir``
   Specify an alternate directory containing rule files.
   You can specify this switch multiple times. Each of the directories
-  specified will be scanned and all filed with the extension :file:`.lkql`
+  specified will be scanned and all files with the extension :file:`.lkql`
   will be loaded by ``GNATcheck`` to provide additional rules.
 
   .. index:: --include-file=file
@@ -230,13 +230,6 @@ The following switches control the general ``gnatcheck`` behavior
 
 ``-ox report_file``
   Set name of the XML report file to `report_file`. Enforces  ``-xml``.
-
-  .. index:: --write-rules
-
-``--write-rules=template_file``
-  Write to `template_file` the template rule file that contains all the rules
-  currently implemented in ``gnatcheck`` turned off. A user may edit this
-  template file manually to get his own coding standard file.
 
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no

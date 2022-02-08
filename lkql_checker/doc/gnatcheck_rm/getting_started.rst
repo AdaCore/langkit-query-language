@@ -23,8 +23,7 @@ Invoking ``gnatcheck`` on the command line has the form::
 
   $ gnatcheck [switches] {filename}
         [-files=arg_list_filename]
-        -rules rule_options
-        [-cargs gcc_switches] -rules rule_options
+        -rules rule_options [-cargs gcc_switches]
 
 where
 
@@ -43,8 +42,9 @@ where
 * `gcc_switches` is a list of switches for
   ``gcc``. They will be passed on to a compiler invocation made by
   ``gnatcheck`` to collect compiler warnings and to add them to the report
-  file. Here you can provide e.g. ``-gnatxx`` switches such as ``-gnat2012``,
-  etc.
+  file and to check the legality of argument sources if ``--check-semantic``
+  option is specified. Here you can provide e.g. ``-gnatxx`` switches
+  such as ``-gnat2012``,  etc.
 
 Either a :file:`filename` or an :file:`arg_list_filename` must be
 supplied.
