@@ -297,6 +297,7 @@ begin
       Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments;
 
+   Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
    if not Subprocess_Mode then
@@ -389,6 +390,8 @@ begin
       Info ("Execution time:" &
             Duration'Image (Ada.Calendar.Clock - Time_Start));
    end if;
+
+   Close_Log_File;
 
    OS_Exit (if (Detected_Non_Exempted_Violations > 0
                 or else Detected_Compiler_Error > 0)
