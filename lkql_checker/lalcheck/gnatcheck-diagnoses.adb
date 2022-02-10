@@ -790,11 +790,13 @@ package body Gnatcheck.Diagnoses is
             Mode => In_File,
             Name => User_Info_File_Full_Path.all);
 
-      Get_Line (File => User_File,
-                Item => Line_Buf,
-                Last => Line_Len);
+      loop
+         exit when End_Of_File (User_File);
 
-      while not End_Of_File (User_File) loop
+         Get_Line (File => User_File,
+                   Item => Line_Buf,
+                   Last => Line_Len);
+
          if Text_Report_ON then
             Report (Line_Buf (1 .. Line_Len));
          end if;
@@ -802,10 +804,6 @@ package body Gnatcheck.Diagnoses is
          if XML_Report_ON then
             XML_Report (Line_Buf (1 .. Line_Len), 1);
          end if;
-
-         Get_Line (File => User_File,
-                   Item => Line_Buf,
-                   Last => Line_Len);
       end loop;
 
       Close (User_File);
