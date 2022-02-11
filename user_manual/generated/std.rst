@@ -131,6 +131,10 @@ Builtin Methods
 
     Return a string representation of an object
 
+.. method:: Token.is_equivalent ({params})
+
+    Return whether two tokens are structurally equivalent
+
 .. method:: Str.is_lower_case ({params})
 
     Return whether the given string contains lower case characters only
@@ -138,6 +142,10 @@ Builtin Methods
 .. method:: Str.is_mixed_case ({params})
 
     Return whether the given string is written in mixed case, that is, with only lower case characters except the first one and every character following an underscore
+
+.. method:: Token.is_trivia ({params})
+
+    Return whether this token is a trivia
 
 .. method:: Str.is_upper_case ({params})
 

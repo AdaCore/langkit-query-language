@@ -33,6 +33,7 @@ with Ada.Wide_Wide_Text_IO;
 with GNAT.Array_Split;
 with GNAT.Regpat;
 
+with Liblkqllang.Common; use Liblkqllang.Common;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with LKQL.AST_Nodes;
@@ -129,6 +130,12 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Unit_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Token_Is_Equivalent
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
+   function Eval_Token_Is_Trivia
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
    function Eval_Token_Text
@@ -842,6 +849,32 @@ package body LKQL.Builtin_Functions is
         (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Units)), Ctx.Pool);
    end Eval_Units;
 
+   ------------------------------
+   -- Eval_Token_Is_Equivalent --
+   ------------------------------
+
+   function Eval_Token_Is_Equivalent
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+   begin
+      return To_Primitive
+               (Args (1).Token_Val.Unchecked_Get.Is_Equivalent
+                  (Args (2).Token_Val.Unchecked_Get.all));
+   end Eval_Token_Is_Equivalent;
+
+   --------------------------
+   -- Eval_Token_Is_Trivia --
+   --------------------------
+
+   function Eval_Token_Is_Trivia
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+   begin
+      return To_Primitive (Args (1).Token_Val.Unchecked_Get.Is_Trivia);
+   end Eval_Token_Is_Trivia;
+
    ---------------------
    -- Eval_Token_Text --
    ---------------------
@@ -1185,6 +1218,21 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("token", Kind_Token)),
          Eval_Token_Kind'Access,
          "Return the kind for this token, as a string",
+         Only_Dot_Calls => True),
+
+      Create
+        ("is_equivalent",
+         (1 => Param ("self", Kind_Token),
+          2 => Param ("token", Kind_Token)),
+         Eval_Token_Is_Equivalent'Access,
+         "Return whether two tokens are structurally equivalent",
+         Only_Dot_Calls => True),
+
+      Create
+        ("is_trivia",
+         (1 => Param ("token", Kind_Token)),
+         Eval_Token_Is_Trivia'Access,
+         "Return whether this token is a trivia",
          Only_Dot_Calls => True),
 
       Create

@@ -160,8 +160,14 @@ package LKQL.AST_Nodes is
    function Image (Self : AST_Token) return Text_Type is abstract;
    --  Return a string representation of this token
 
+   function Is_Equivalent (L, R : AST_Token) return Boolean is abstract;
+   --  Return whether L and R are structurally equivalent
+
    function Is_Null (Self : AST_Token) return Boolean is abstract;
    --  Return whether `Self` denotes a null token value or not
+
+   function Is_Trivia (Self : AST_Token) return Boolean is abstract;
+   --  Return whether `Self` denotes a trivia token value or not
 
    function Token_Start (Node : AST_Node) return AST_Token'Class is abstract;
    --  Return the starting token for this AST node

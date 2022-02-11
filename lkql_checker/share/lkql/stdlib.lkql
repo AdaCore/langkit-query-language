@@ -323,20 +323,19 @@ fun same_tokens(l, r) =
     |" Return true if `l` and `r` are syntactically equivalent, ignoring
     |" blank and comment tokens.
 {
-    fun is_trivia(kind) = kind == "ADA_WHITESPACE" or kind == "ADA_COMMENT";
     fun compare_tokens(l, r, l_pos, r_pos) =
         |" compare tokens in `l` and `r` backwards starting at `l[l_pos]` and `r[r_pos]`,
-        |" ignoring whitespace tokens.
+        |" ignoring trivia tokens.
         if l_pos == 0 then
             r_pos == 0
         else if r_pos == 0 then
             false
-        else if is_trivia(l[l_pos].kind()) then
+        else if l[l_pos].is_trivia() then
             compare_tokens(l, r, l_pos - 1, r_pos)
-        else if is_trivia(r[r_pos].kind()) then
+        else if r[r_pos].is_trivia() then
             compare_tokens(l, r, l_pos, r_pos - 1)
         else
-            l[l_pos].text == r[r_pos].text and
+            l[l_pos].is_equivalent(r[r_pos]) and
             compare_tokens(l, r, l_pos - 1, r_pos - 1);
     val tok_l = l.tokens;
     val tok_r = r.tokens;

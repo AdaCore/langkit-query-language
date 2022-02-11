@@ -599,6 +599,15 @@ package body Ada_AST_Nodes is
                             Unit  => Node.Node.Unit);
    end Token_End;
 
+   -------------------
+   -- Is_Equivalent --
+   -------------------
+
+   overriding function Is_Equivalent (L, R : Ada_AST_Token) return Boolean is
+   begin
+      return LCO.Is_Equivalent (L.Token, R.Token);
+   end Is_Equivalent;
+
    -------------
    -- Is_Null --
    -------------
@@ -607,6 +616,15 @@ package body Ada_AST_Nodes is
    begin
       return LCO.Kind (LCO.Data (Self.Token)) = LCO.Ada_Termination;
    end Is_Null;
+
+   ---------------
+   -- Is_Trivia --
+   ---------------
+
+   overriding function Is_Trivia (Self : Ada_AST_Token) return Boolean is
+   begin
+      return LCO.Is_Trivia (Self.Token);
+   end Is_Trivia;
 
    ----------
    -- Unit --
