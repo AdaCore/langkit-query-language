@@ -1,0 +1,25 @@
+# Flag a record component whose type is a record type with an Unchecked_Union
+# and a representation clause specifying a size that is not a power of two for
+# some of the fields.
+
+fun is_power_of_two(i) = i == 8 or i == 16 or i == 32 or i == 64
+
+@memoize
+fun check_type(t) =
+    # Check whether t is a record type
+    t.p_is_record_type() and
+    # with an Unchecked_Union
+    t.p_has_aspect("Unchecked_Union") and
+    # a representation clause
+    t.p_get_record_representation_clause() is rep@RecordRepClause and
+    # and at least one component clause has a size that is not a power of two
+    [f for f in (from rep select ComponentClause)
+     if f.f_range is RangeSpec(f_range is r@BinOp(f_op is OpDoubleDot)) and
+        not is_power_of_two(r.f_right.p_eval_as_int() -
+                            r.f_left.p_eval_as_int() + 1)]
+
+@check(message="possible occurrence of KP V120-015")
+fun kp_v120_015(node) =
+    node is ComponentDecl
+    when node.f_component_def.f_type_expr.p_designated_type_decl() is t@TypeDecl
+     and check_type(t)
