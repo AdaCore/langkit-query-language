@@ -177,7 +177,7 @@ properties and functions via the code completion provided by this interactive
 environment.
 
 The REPL is a python script called ``lkql_repl.py`` which is found in the
-:file:`bin` directory of your LKQL installation. In order to execute it,
+:file:`bin` directory of your GNATcheck installation. In order to execute it,
 you need a Python installation (3.7 or later), along with the ``prompt_toolkit``
 module installed:
 
@@ -186,13 +186,13 @@ module installed:
    $ pip install prompt_toolkit
 
 You then need to setup the proper environment by adding the directory
-:file:`LKQL install root/lib/python` to the ``PYTHONPATH`` environment
-variable. For example under a Linux shell, assuming LKQL is installed under
-:file:`/opt/lkql`:
+:file:`install root/lib/python` to the ``PYTHONPATH`` environment
+variable. For example under a Linux shell, assuming GNATcheck is installed
+under :file:`/opt/gnatcheck`:
 
 .. code-block:: sh
 
-   $ export PYTHONPATH=/opt/lkql/lib/python:$PYTHONPATH
+   $ export PYTHONPATH=/opt/gnatcheck/lib/python:$PYTHONPATH
 
 Once done, you should be able to run ``lkql_repl.py``:
 
@@ -201,8 +201,8 @@ Once done, you should be able to run ``lkql_repl.py``:
    $ lkql_repl.py -Pprj
 
 where prj is your project file :file:`prj.gpr`. From there you have access to
-an interactive shell which provide a history of commands available via e.g. the
-up and down keys, as well as automatic completion. To exit this shell, you
+an interactive shell which provides a history of commands available via e.g.
+the up and down keys, as well as automatic completion. To exit this shell, you
 can use the :kbd:`Control-D` key combination.
 
 Here is an example session:
@@ -219,7 +219,7 @@ Here is an example session:
     > val root=select first AdaNode
    ()
     > print(root)
-   <CompilationUnit loop3.adb:1:1-41:11>
+   <CompilationUnit file1.adb:1:1-41:11>
    ()
     > root.dump
    CompilationUnit[1:1-41:11]
