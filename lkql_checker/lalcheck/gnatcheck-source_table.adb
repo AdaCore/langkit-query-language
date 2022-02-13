@@ -236,17 +236,25 @@ package body Gnatcheck.Source_Table is
       Units : Unit_Vectors.Vector;
       Files : File_Array_Access;
    begin
-      --  We want to add all sources from the project and not just the sources
-      --  from Source_Name, so that global queries are complete.
+      --  If no project specified, register all files listed explicitly
 
-      Files := Project.Root_Project.Source_Files (Recursive => True);
+      if Project.Root_Project = No_Project then
+         for J in First_SF_Id .. Last_Argument_Source loop
+            Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
+         end loop;
+      else
+         --  We want to add all sources from the project and not just the
+         --  sources from Source_Name, so that global queries are complete.
 
-      for File of Files.all loop
-         if Is_Ada_File (File, Project) then
-            Units.Append
-              (Ctx.Analysis_Ctx.Get_From_File (File.Display_Full_Name));
-         end if;
-      end loop;
+         Files := Project.Root_Project.Source_Files (Recursive => True);
+
+         for File of Files.all loop
+            if Is_Ada_File (File, Project) then
+               Units.Append
+                 (Ctx.Analysis_Ctx.Get_From_File (File.Display_Full_Name));
+            end if;
+         end loop;
+      end if;
 
       Set_Units (Ctx.Eval_Ctx, Units);
       Unchecked_Free (Files);

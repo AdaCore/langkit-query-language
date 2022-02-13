@@ -1,3 +1,3 @@
 driver: 'checker'
 rule_name: Integer_Types_As_Enum
-input_sources: ['op.adb']
+project: 'prj.gpr'
