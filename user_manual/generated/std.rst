@@ -187,6 +187,10 @@ Builtin Methods
 
     Return the root for this unit
 
+.. method:: Node.same_tokens ({params})
+
+    Return whether two nodes have the same tokens, ignoring trivias
+
 .. method:: Str.split ({params})
 
     Given a string, return an iterator on the words contained by str separated by separator

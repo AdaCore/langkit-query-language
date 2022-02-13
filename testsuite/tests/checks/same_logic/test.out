@@ -1,8 +1,8 @@
-same.adb:5:34: rule violation: same operand found at column 14
+same.adb:5:34: rule violation: same expression found at column 14
 5 |       return A or else B or else A;  --  FLAG
   |                                  ^
 
-same.adb:6:14: rule violation: same operand found at column 31
+same.adb:6:14: rule violation: same expression found at column 31
 6 |       return (A or B) or else (A or B);  --  FLAG
   |              ^^^^^^^^
 

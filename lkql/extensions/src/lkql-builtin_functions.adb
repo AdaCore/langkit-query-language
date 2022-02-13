@@ -126,6 +126,9 @@ package body LKQL.Builtin_Functions is
    function Eval_Tokens
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
+   function Eval_Same_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
+
    function Eval_Units
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive;
 
@@ -800,7 +803,6 @@ package body LKQL.Builtin_Functions is
          Iter.Release;
          return Ret;
       end;
-
    end Eval_Unit_Tokens;
 
    -----------------
@@ -828,6 +830,65 @@ package body LKQL.Builtin_Functions is
       return To_Primitive
         (Primitive_Iter (Primitive_Vec_Iters.To_Iterator (Tokens)), Ctx.Pool);
    end Eval_Tokens;
+
+   ----------------------
+   -- Eval_Same_Tokens --
+   ----------------------
+
+   function Eval_Same_Tokens
+     (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
+   is
+      pragma Unreferenced (Ctx);
+
+      L : constant H.AST_Node_Holder := Args (1).Node_Val;
+      R : constant H.AST_Node_Holder := Args (2).Node_Val;
+      L_Token      : H.AST_Token_Holder :=
+        H.Create_Token_Ref (L.Unchecked_Get.Token_Start);
+      L_Last_Token : constant H.AST_Token_Holder :=
+        H.Create_Token_Ref (L.Unchecked_Get.Token_End);
+      R_Token      : H.AST_Token_Holder :=
+        H.Create_Token_Ref (R.Unchecked_Get.Token_Start);
+      R_Last_Token : constant H.AST_Token_Holder :=
+        H.Create_Token_Ref (R.Unchecked_Get.Token_End);
+
+      use LKQL.AST_Nodes;
+
+      procedure Next_Non_Trivia (Token : in out H.AST_Token_Holder);
+      --  Move Token to the next non trivia token
+
+      ---------------------
+      -- Next_Non_Trivia --
+      ---------------------
+
+      procedure Next_Non_Trivia (Token : in out H.AST_Token_Holder) is
+      begin
+         while Token.Unchecked_Get.Is_Trivia loop
+            Token := H.Create_Token_Ref (Token.Unchecked_Get.Next);
+         end loop;
+      end Next_Non_Trivia;
+
+   begin
+      loop
+         Next_Non_Trivia (L_Token);
+         Next_Non_Trivia (R_Token);
+
+         if not Is_Equivalent
+                  (L_Token.Unchecked_Get.all, R_Token.Unchecked_Get.all)
+         then
+            return To_Primitive (False);
+         end if;
+
+         if L_Token.Unchecked_Get.all = L_Last_Token.Unchecked_Get.all then
+            return To_Primitive (R_Token.Unchecked_Get.all =
+                                   R_Last_Token.Unchecked_Get.all);
+         elsif R_Token.Unchecked_Get.all = R_Last_Token.Unchecked_Get.all then
+            return To_Primitive (False);
+         end if;
+
+         L_Token := H.Create_Token_Ref (L_Token.Unchecked_Get.Next);
+         R_Token := H.Create_Token_Ref (R_Token.Unchecked_Get.Next);
+      end loop;
+   end Eval_Same_Tokens;
 
    ----------------
    -- Eval_Units --
@@ -1202,6 +1263,14 @@ package body LKQL.Builtin_Functions is
          (1 => Param ("node", Kind_Node)),
          Eval_Tokens'Access,
          "Given a node, return an iterator on its tokens",
+         Only_Dot_Calls => True),
+
+      Create
+        ("same_tokens",
+         (1 => Param ("self", Kind_Node),
+          2 => Param ("node", Kind_Node)),
+         Eval_Same_Tokens'Access,
+         "Return whether two nodes have the same tokens, ignoring trivias",
          Only_Dot_Calls => True),
 
       --  Token builtins

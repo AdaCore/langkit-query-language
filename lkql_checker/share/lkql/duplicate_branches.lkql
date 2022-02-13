@@ -7,15 +7,13 @@
 # min_stmt represents the minimum number of statements to consider.
 # If any of the parameters match, the branch is considered.
 
-import stdlib
-
 fun check_size(n, min_size, min_stmt) =
     (from n select Stmt).length >= min_stmt or
     (from n select SingleTokNode).length >= min_size
 
 fun check_list(l, min_size, min_stmt) =
     [e for e in l if check_size(e, min_size, min_stmt) and
-        [f for f in l if e != f and stdlib.same_tokens(e, f)]]?[1] != ()
+        [f for f in l if e != f and e.same_tokens(f)]]?[1] != ()
 
 fun gather_stmts(node) =
     match node
@@ -33,8 +31,8 @@ fun gather_stmts(node) =
 fun message(node, min_size, min_stmt) = {
     val l = gather_stmts(node);
     val e = [e for e in l if check_size(e, min_size, min_stmt) and
-                [f for f in l if e != f and stdlib.same_tokens(e, f)]][1];
-    val f = [f for f in l if e != f and stdlib.same_tokens(e, f)][1];
+                [f for f in l if e != f and e.same_tokens(f)]][1];
+    val f = [f for f in l if e != f and e.same_tokens(f)][1];
     {message: "code duplicated at line " & img(f.token_start().start_line),
      loc: e}
 }

@@ -1,10 +1,8 @@
 # Flag a chain of the same boolean operator (and, or, and then, or else)
 # that contains two syntactically equivalent operands.
 
-import stdlib
-
 fun check_list(l) =
-    [e for e in l if [f for f in l if e != f and stdlib.same_tokens(e, f)]]
+    [e for e in l if [f for f in l if e != f and e.same_tokens(f)]]
 
 fun gather_ops(node, kind) =
     [node.f_left, node.f_right] &
@@ -14,9 +12,9 @@ fun gather_ops(node, kind) =
 fun message(node) = {
     val l = gather_ops(node, node.f_op.kind);
     val e = [e for e in l if
-             [f for f in l if e != f and stdlib.same_tokens(e, f)]][1];
-    val f = [f for f in l if e != f and stdlib.same_tokens(e, f)][1];
-    {message: "same operand found at " &
+             [f for f in l if e != f and e.same_tokens(f)]][1];
+    val f = [f for f in l if e != f and e.same_tokens(f)][1];
+    {message: "same expression found at " &
               (if e.token_start().start_line == f.token_start().start_line
                then "column " & img(f.token_start().start_column)
                else "line " & img(f.token_start().start_line)), loc: e}

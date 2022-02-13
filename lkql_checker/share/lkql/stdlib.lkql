@@ -318,31 +318,6 @@ fun first_non_blank(s, ind=1) =
     | "[ \t]" => first_non_blank(s, ind + 1)
     | *       => ind
 
-@memoize
-fun same_tokens(l, r) =
-    |" Return true if `l` and `r` are syntactically equivalent, ignoring
-    |" blank and comment tokens.
-{
-    fun compare_tokens(l, r, l_pos, r_pos) =
-        |" compare tokens in `l` and `r` backwards starting at `l[l_pos]` and `r[r_pos]`,
-        |" ignoring trivia tokens.
-        if l_pos == 0 then
-            r_pos == 0
-        else if r_pos == 0 then
-            false
-        else if l[l_pos].is_trivia() then
-            compare_tokens(l, r, l_pos - 1, r_pos)
-        else if r[r_pos].is_trivia() then
-            compare_tokens(l, r, l_pos, r_pos - 1)
-        else
-            l[l_pos].is_equivalent(r[r_pos]) and
-            compare_tokens(l, r, l_pos - 1, r_pos - 1);
-    val tok_l = l.tokens;
-    val tok_r = r.tokens;
-
-    compare_tokens(tok_l, tok_r, tok_l.length, tok_r.length)
-}
-
 fun next_non_blank_token_line(token) =
     |" Return the start line of the next non blank token, or the next line for
     |" a comment, or 0 if none.

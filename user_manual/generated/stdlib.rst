@@ -123,11 +123,6 @@ library.
     Return the end line of the previous non blank token, or the previous
     line for a comment, or 0 if none.
 
-.. function:: same_tokens(l, r)
-
-    Return true if `l` and `r` are syntactically equivalent, ignoring
-    blank and comment tokens.
-
 .. function:: semantic_parent
 
     Return all semantic parent nodes starting from a given node.
