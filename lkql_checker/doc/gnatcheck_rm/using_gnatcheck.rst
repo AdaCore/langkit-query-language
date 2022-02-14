@@ -48,10 +48,9 @@ The following switches control the general ``gnatcheck`` behavior
   If a project file is specified and no argument source is explicitly
   specified (either directly or by means of ``-files`` option), process
   the closure of units rooted at `main_unit`. Otherwise this option
-  has no effect. `main_unit` should be the name of a source file that contains
-  the main unit of closure. This option works properly only if `main_unit`
-  has been successfully built (to compute the closure, ``gnatcheck`` needs
-  to analyze `ALI` files).
+  has no effect. ``main_unit`` should be the name of a source file that contains
+  the main unit of closure. Note that this option is currently ignored (it is
+  equivalent to ``-U``) and will be implemented in a future version.
 
   .. index:: -Xname=value
 
