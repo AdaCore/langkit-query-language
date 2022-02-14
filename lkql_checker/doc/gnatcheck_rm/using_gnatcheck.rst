@@ -566,47 +566,34 @@ Transition from ASIS-based GNATcheck
 ====================================
 
 Originally ``gnatcheck`` was implemented on top of the ASIS technology and
-then it was re-implemented on top of the libadalang technology. This reimplementation
-has kept most of the old gnatcheck interface and functionality, so transition
-from the old ASIS-based ``gnatcheck`` to its current version should be smooth
-and transparent, but there are some aspects to be taken into account by the users
-who are used to ASIS-based ``gnatcheck``.
+starting with version 23, it was re-implemented on top of the libadalang
+technology. This reimplementation has kept most of the old gnatcheck interface
+and functionality, so transition from the old ``gnatcheck`` to the current
+version should be smooth and transparent, except possibly for a few aspects to
+be taken into account by users of the old technology.
 
-.. _Some_Switches_No_Longer_Supported:
+.. _Switches_No_Longer_Supported:
 
-Some Switches No Longer Supported
--------------------------------------
+Switches No Longer Supported
+----------------------------
 
 .. index:: old unsupported switches
 
-The following switches from the old ASIS-bases ``gnatcheck`` are no longer
-supported:
-
-``--no_objects_dir``
-  Place all the result files into the current directory instead of
-  project objects directory.
+The following switches from the old ``gnatcheck`` are no longer supported:
 
 ``-a``
-  Process all units including those with read-only ALI files such as
-  those from the GNAT Run-Time library.
-
+  In order to process GNAT Run-Time library units, you need to explicitly
+  include them in a project file.
 
 ``--incremental``
-
-  Incremental processing on a per-file basis. Source files are only
-  processed if they have been modified, or if files they depend on have
-  been modified. This is similar to the way gnatmake/gprbuild only
-  compiles files that need to be recompiled. A project file is required
-  in this mode, and the gnat driver (as in *gnat check*) is not
-  supported.  Note that rules requiring a global analysis
-  (Recursive_Subprograms, Deeply_Nested_Inlining) are not supported in
-  ``--incremental`` mode.
+  GNATcheck no longer makes the distinction between "local" and "global"
+  rules, so this switch is no longer supported. You can use the ``-j``
+  switch instead which provides a significant speed up compared to the old
+  version.
 
 ``--write-rules=template_file``
-  Write to `template_file` the template rule file that contains all the rules
-  currently implemented in *gnatcheck* turned off. A user may edit this
-  template file manually to get his own coding standard file.
-
+  This switch is no longer supported. You can use the GNAT Studio rule editor
+  instead to create a coding standard file.
 
 .. _Rule_Aliases_No_Longer_Supported:
 
@@ -615,127 +602,54 @@ Rule Aliases No Longer Supported
 
 .. index:: rule aliases no longer supported
 
-Because of historical reasons the ASIS-based ``gnatcheck`` allows aliases for
+Because of historical reasons the old ``gnatcheck`` allowed aliases for
 some rules. These aliases are not documented, but there is some possibility that
-they could be used in some legacy rule files. Currently ``gnatcheck`` does not
-support any rule aliases. Here is the (alphabetically ordered) list of all the
-aliases accepted by ASIS-based ``gnatcheck``:
+they could be used in some legacy rule files. ``GNATcheck`` no longer support
+these aliases. Here is the (alphabetically ordered) list of all the
+aliases formerly accepted and their replacement:
 
-``Abstr_Types``
-  For Abstract_Type_Declarations rule
-
-``Bool_Relation_Ops``
-  For Boolean_Relational_Operators rule
-
-``Contr_Types``
-  For Controlled_Type_Declarations rule
-
-``Control_Structure_Nesting``
-  For Overly_Nested_Control_Structures rule
-
-``Decl_Blocks``
-  For Declarations_In_Blocks rule
-
-``Default_Par``
-  For Default_Parameters rule
-
-``Derived_Types``
-  For Non_Tagged_Derived_Types rule
-
-``Discr_Rec``
-  For Discriminated_Records rule
-
-``Explicit_Discrete_Ranges``
-  For Explicit_Full_Discrete_Ranges rule
-
-``Functionlike_Procedures``
-  For Function_Style_Procedures rule
-
-``Global_Loop_Exit``
-  For Outer_Loop_Exits rule
-
-``Goto``
-  For GOTO_Statements rule
-
-``Implicit_IN_Parameter_Mode``
-  For Implicit_IN_Mode_Parameters rule
-
-``LL_Subpr``
-  For Library_Level_Subprograms rule
-
-``Local_Pckg``
-  For Local_Packages rule
-
-``Misnamed_Identifiers``
-  For Identifier_Suffixes rule
-
-``Missing_Small_For_Fixed_Point_Type``
-  For Implicit_SMALL_For_Fixed_Point_Types rule
-
-``Non_Marked_BEGIN_In_Package_Body``
-  For Uncommented_BEGIN_In_Package_Bodies rule
-
-``Non_Named_Blocks_And_Loops``
-  For Unnamed_Blocks_And_Loops rule
-
-``One_Entry_In_PO``
-  For Multiple_Entries_In_Protected_Definitions rule
-
-``Parameter_Mode_Ordering``
-  For Parameters_Out_Of_Order rule
-
-``Positional_Component_Associations``
-  For Positional_Components rule
-
-``Positional_Generic_Associations``
-  For Positional_Generic_Parameters rule
-
-``Positional_Parameter_Associations``
-  For Positional_Parameters rule
-
-``Pragma_Usage``
-  For Forbidden_Pragmas rule
-
-``Predefined_Exceptions``
-  For Raising_Predefined_Exceptions rule
-
-``Proper_Returns``
-  For Improper_Returns rule
-
-``Qualified_Aggr``
-  For Non_Qualified_Aggregates rule
-
-``Restrict_Name_Space``
-  For Name_Clashes rule
-
-``Simple_Loop_Exit_Names``
-  For Expanded_Loop_Exit_Names rule
-
-``SPARK_Attributes``
-  For Non_SPARK_Attributes rule
-
-``Unconstr_Array_Return``
-  For Unconstrained_Array_Returns rule
-
-``Universl_Ranges``
-  For Universal_Ranges rule
-
-``Unreasonable_Places_For_Instantiations``
-  For Improperly_Located_Instantiations rule
-
-``Use_Pckg_Clauses``
-  For USE_PACKAGE_Clauses rule
-
-``Use_Of_Non_Short_Circuit``
-  For Non_Short_Circuit_Operators rule
-
-``Visible_Exceptions``
-  For Raising_External_Exceptions rule
-
-``Volatile_Requires_Addr_Clause``
-  For Volatile_Objects_Without_Address_Clauses rule
-
-
+====================================== ========================================
+Rule                                   Replacement
+====================================== ========================================
+Abstr_Types                            Abstract_Type_Declarations
+Bool_Relation_Ops                      Boolean_Relational_Operators
+Contr_Types                            Controlled_Type_Declarations
+Control_Structure_Nesting              Overly_Nested_Control_Structures
+Decl_Blocks                            Declarations_In_Blocks
+Default_Par                            Default_Parameters
+Derived_Types                          Non_Tagged_Derived_Types
+Discr_Rec                              Discriminated_Records
+Explicit_Discrete_Ranges               Explicit_Full_Discrete_Ranges
+Functionlike_Procedures                Function_Style_Procedures
+Global_Loop_Exit                       Outer_Loop_Exits
+Goto                                   GOTO_Statements
+Implicit_IN_Parameter_Mode             Implicit_IN_Mode_Parameters
+LL_Subpr                               Library_Level_Subprograms
+Local_Pckg                             Local_Packages
+Misnamed_Identifiers                   Identifier_Suffixes
+Missing_Small_For_Fixed_Point_Type     Implicit_SMALL_For_Fixed_Point_Types
+Non_Marked_BEGIN_In_Package_Body       Uncommented_BEGIN_In_Package_Bodies
+Non_Named_Blocks_And_Loops             Unnamed_Blocks_And_Loops
+One_Entry_In_PO                        Multiple_Entries_In_Protected_Definitions
+Parameter_Mode_Ordering                Parameters_Out_Of_Order
+Positional_Component_Associations      Positional_Components
+Positional_Generic_Associations        Positional_Generic_Parameters
+Positional_Parameter_Associations      Positional_Parameters
+Pragma_Usage                           Forbidden_Pragmas
+Predefined_Exceptions                  Raising_Predefined_Exceptions
+Proper_Returns                         Improper_Returns
+Qualified_Aggr                         Non_Qualified_Aggregates
+Restrict_Name_Space                    Name_Clashes
+Simple_Loop_Exit_Names                 Expanded_Loop_Exit_Names
+SPARK_Attributes                       Non_SPARK_Attributes
+Unconstr_Array_Return                  Unconstrained_Array_Returns
+Universl_Ranges                        Universal_Ranges
+Unreasonable_Places_For_Instantiations Improperly_Located_Instantiations
+Use_Pckg_Clauses                       USE_PACKAGE_Clauses
+Use_Of_Non_Short_Circuit               Non_Short_Circuit_Operators
+Visible_Exceptions                     Raising_External_Exceptions
+Volatile_Requires_Addr_Clause          Volatile_Objects_Without_Address_Clauses
+====================================== ========================================
 
 .. _New_Defaults_For_Recursive_Subprograms_Rule:
 
@@ -744,17 +658,11 @@ New Defaults For Recursive Subprograms Rule
 
 .. index:: new defaults for recursive subprograms rule
 
-In ASIS-based ``gnatcheck`` for ``Recursive_Subprograms`` rule gnatcheck
-by default considers each dispatching call as a set of calls to all the subprograms
-the dispatching call may dispatch to, and the rule has a ``Skip_Dispatching_Calls``
-parameter to turn this off and to ignore discpatching calls. The situation in
-the current gnatcheck is opposite - by default the rule ignores
-dispatching calls, and it has ``Follow_Dispatching_Calls`` parameter that
-enforces the rule to treat each dispatching call as a set of calls to all
-the subprograms the dispatching call may dispatch to
-
-
-
+The ``Recursive_Subprograms`` rule now defaults to skipping dispatching calls
+and a new parameter ``Follow_Dispatching_Calls`` is available (the old
+``Skip_Dispatching_Calls`` is still accepted for compatibility and is ignored
+since it's the default). In addition, implicit calls made via default
+object initialization are not taken into account.
 
 .. _Argument_Sources_Legality_And_Project_Files:
 
@@ -763,22 +671,22 @@ Argument Sources Legality And Project Files
 
 .. index:: argument sources legality and project files
 
-An ASIS-based ``gnatcheck`` compiles its argument sources to create so-called
-tree files needed by ASIS. Two important consequences from this are: first,
-this ``gnatcheck`` can analyze only legal Ada sources, and second, for each
-legal argument source ``gnatcheck`` has full static semantic information.
-Situation with current ``gnatcheck`` is different.
+The old ``gnatcheck`` compiled its argument sources to create the
+so-called ASIS tree files. This had two important consequences: first,
+``gnatcheck`` could analyze only legal Ada sources, and second, for each
+legal argument source ``gnatcheck`` had full static semantic information.
+The situation with the current ``gnatcheck`` is different.
 
-First, current ``gnatcheck`` can analyze Ada sources that are not legal, and it
+First, ``gnatcheck`` can now analyze Ada sources that are not legal, and it
 is trying to do its best to check the rules specified. This may result in
 false negatives caused by the absence of necessary semantic information or
-by some other problems in the argument source that impede a full check
-of this or that rule. Use ``--check-semantic`` option to check if argument
-Ada sources are legal sources according to the Ada Standard.
+by some other problems in the argument source that impede a full check of
+some rules. You can use the ``--check-semantic`` option to check if your
+Ada sources are legal sources.
 
-Second, if gnatcheck is called for some Ada source and it does not have a
+Second, if ``gnatcheck`` is called for some Ada source and it does not have a
 project file as a parameter, it will see only the information contained
-in this source and it will not follow the semantic dependencies on other
+in the sources specified and will not follow the semantic dependencies on other
 sources if any. This is why it is strongly recommended to call ``gnatcheck``
 with a project file. When called with a project file, ``gnatcheck`` follows
 all the semantic dependencies for sources located in the project file source
