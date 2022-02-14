@@ -520,7 +520,7 @@ package body Gnatcheck.Projects is
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type) is
       Dir : Virtual_File;
    begin
-      if Gnatcheck_Prj.Is_Specified then
+      if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
          Dir := My_Project.Root_Project.Object_Dir;
 
          if Dir = No_File then
@@ -799,6 +799,7 @@ package body Gnatcheck.Projects is
               "-charset= "             &
               "-check-semantic "       &
               "-check-redefinition "   &
+              "-no_objects_dir "       &
               "-subdirs= "             &
               "-target= "              &
               "j! "                    &
@@ -1140,6 +1141,9 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-subdirs" then
                      Set_Subdir_Name (Parameter (Parser => Parser));
+
+                  elsif Full_Switch (Parser => Parser) = "-no_objects_dir" then
+                     No_Object_Dir := True;
 
                   elsif Full_Switch (Parser => Parser) = "-rules-dir" then
                      Additional_Rules_Dirs.Append

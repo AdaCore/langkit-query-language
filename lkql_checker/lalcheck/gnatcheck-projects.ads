@@ -190,6 +190,13 @@ package Gnatcheck.Projects is
    --  of values of Default_Switches and Switches attributes in the tool
    --  package in the project file.
 
+   ----------------------------------------------------------------
+   -- --no_object_dir : do not place the results into object dir --
+   ----------------------------------------------------------------
+
+   No_Object_Dir : Boolean := False;
+   --  If this flag is ON, the output files are placed in the current directory
+
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------

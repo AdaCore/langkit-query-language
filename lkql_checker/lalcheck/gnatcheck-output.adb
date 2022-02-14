@@ -659,6 +659,7 @@ package body Gnatcheck.Output is
       Info (" -U main          - check the closure of units rooted at unit main");
       Info (" -Xname=value     - specify an external reference for argument project file");
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
+      Info (" --no_objects_dir - place results into current dir instead of project dir");
       Info (" -eL              - follow all symbolic links when processing project files");
       Info ("");
       Info (" --target=targetname - specify a target for cross platforms");

@@ -69,6 +69,12 @@ The following switches control the general ``gnatcheck`` behavior
   for tool output files. Has no effect if no project is specified as
   tool argument.
 
+  .. index:: --no_objects_dir
+
+``--no_objects_dir``
+  Put gnatcheck output files in the current directory instead of using the
+  project file's object directory.
+
   .. index:: -eL
 
 ``-eL``

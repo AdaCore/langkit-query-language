@@ -99,10 +99,6 @@ package body Gnatcheck.Source_Table is
       Switches : String_List_Access;
       --  Used only if a project file is processed as a tool argument. Contains
       --  the list of options to be passed to the compiler to create the tree.
-
-      Result_Dir : String_Access;
-      --  Used only if a project file is processed as a tool argument. Contains
-      --  the path to the directory the per-source results should be placed in.
    end record;
 
    package Source_File_Table is new GNAT.Table (
@@ -133,7 +129,6 @@ package body Gnatcheck.Source_Table is
       Status            => Waiting,
       Hash_Link         => No_SF_Id,
       Switches          => null,
-      Result_Dir        => null,
       Info              => 0);
    --  Used to set the initial attributes for the new source file
 
@@ -540,19 +535,6 @@ package body Gnatcheck.Source_Table is
    begin
       return "COMPILER_OUT_" & Image (Integer (SF));
    end Get_Compiler_Out_File_Name;
-
-   --------------------
-   -- Get_Result_Dir --
-   --------------------
-
-   function Get_Result_Dir (SF : SF_Id) return String is
-   begin
-      if Source_Table (SF).Result_Dir = null then
-         return "";
-      else
-         return Source_Table (SF).Result_Dir.all & Directory_Separator;
-      end if;
-   end Get_Result_Dir;
 
    ----------
    -- Hash --
@@ -1079,15 +1061,6 @@ package body Gnatcheck.Source_Table is
    begin
       Source_Table (SF).CU_Name := new String'(N);
    end Set_CU_Name;
-
-   --------------------
-   -- Set_Result_Dir --
-   --------------------
-
-   procedure Set_Result_Dir (SF : SF_Id; Path : String) is
-   begin
-      Source_Table (SF).Result_Dir := new String'(Path);
-   end Set_Result_Dir;
 
    ---------------------
    -- Set_Source_Info --
