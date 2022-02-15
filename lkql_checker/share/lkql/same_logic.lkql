@@ -25,7 +25,8 @@ fun message(node) = {
 fun same_logic(unit) = [
     message (n)
     for n in from unit.root
-    select node@BinOp(f_op is op@(OpAnd or OpAndThen or OpOr or OpOrElse))
+    select node@BinOp(f_op is op@(OpAnd or OpAndThen or OpOr or OpOrElse or
+                                  OpXor))
     when {
         val kind = op.kind;
         not (node.parent is p@BinOp when p.f_op.kind == kind) and

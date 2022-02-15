@@ -10,5 +10,5 @@ fun is_float_eq(n) =
        category="Style", subcategory="Programming Practice")
 fun same_operands(node) =
     node is BinOp(f_op is OpDiv or OpEq or OpGt or OpGte or OpLt or OpLte or
-                          OpMinus or OpMod or OpNeq or OpRem or OpXor)
+                          OpMinus or OpMod or OpNeq or OpRem)
     when not is_float_eq(node) and node.f_left.same_tokens(node.f_right)
