@@ -3358,6 +3358,80 @@ contains ``pragma Ignore_Pragma (Warnings);``.
    end Proc;
 
 
+
+.. _Same_Logic:
+
+``Same_Logic``
+^^^^^^^^^^^^^^
+
+.. index:: Same_Logic
+
+Flags expressions that contain a chain of infix calls to the same boolean
+operator (``AND``, ``OR``, ``AND THEN``, ``OR ELSE``, ``XOR) if an expression
+contains syntactically equivalent operands. The check for syntactical
+equivalence of operands is case-sensitive.
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   B := Var1 and Var2;            --  NO FLAG
+   return A or else B or else A;  --  FLAG
+
+
+.. _Same_Operands:
+
+``Same_Operands``
+^^^^^^^^^^^^^^^^^
+
+.. index:: Same_Operands
+
+Flags infix calls to binary operators ``/``, ``=``, ``/=``, ``>``, ``>=``,
+``<``, ``<=``, ``-``, ``MOD``, ``REM`` (except for the
+calls to ``=`` and ``/=`` operators for float types) if operands
+of a call are syntactically equivalent. The check for syntactical equivalence
+of operands is case-sensitive.
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   Y := (X + 1) / (X - 1);        --  NO FLAG
+   Z := (X + 1) / (X + 1);        --  FLAG
+
+
+.. _Same_Tests:
+
+``Same_Tests``
+^^^^^^^^^^^^^^
+
+.. index:: Same_Tests
+
+Flags condition expressions in ``IF`` statements or ``IF`` expressions if
+a statement or expression contains another condition expression that is
+syntactically equivalent to the first one. The check for syntactical equivalence
+is case-sensitive.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1, 5
+
+   if Str = A then                --  FLAG: same test at line 5
+      Put_Line("Hello, tata!");
+   elsif Str = B then
+      Put_Line("Hello, titi!");
+   elsif Str = A then
+      Put_Line("Hello, toto!");
+   else
+      Put_Line("Hello, world!");
+   end if;
+
+
 .. _Silent_Exception_Handlers:
 
 ``Silent_Exception_Handlers``

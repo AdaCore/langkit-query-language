@@ -401,6 +401,15 @@ GNATcheck rules.
   :ref:`Same_Instantiations`
 
 *
+  :ref:`Same_Logic`
+
+*
+  :ref:`Same_Operands`
+
+*
+  :ref:`Same_Tests`
+
+*
   :ref:`Separate_Numeric_Error_Handlers`
 
 *
