@@ -1826,6 +1826,57 @@ This rule has no parameters.
       type T is new Integer;         --  FLAG
    end Foo;
 
+
+
+.. _Duplicate_Branches:
+
+``Duplicate_Branches``
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Duplicate_Branches
+
+Flag a sequence of statements that is a component of an ``IF`` statement
+or of a ``CASE`` statement alternative, if the same ``IF`` or ``CASE``
+statement contains another sequence of statements as its component
+(or a component of its ``CASE`` statement alternative) that is
+syntactically equivalent to the sequence of statements in question.
+The check for syntactical equivalence of operands is case-sensitive,
+it does not take into account line breaks, white spaces and
+comments.
+
+Small sequences of statements are not flagged by this rule.
+
+This rule has no parameters.
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2, 11
+
+   if X > 0 then
+      declare       --  FLAG: code duplicated of line 11
+         A : Integer := X;
+         B : Integer := A + 1;
+         C : Integer := B + 1;
+         D : Integer := C + 1;
+      begin
+         return D;
+      end;
+   else
+      declare
+         A : Integer := X;
+         B : Integer := A + 1;
+         C : Integer := B + 1;
+         D : Integer := C + 1;
+      begin
+         return D;
+      end;
+   end if;
+
+
+
+
 .. _Enumeration_Ranges_In_CASE_Statements:
 
 ``Enumeration_Ranges_In_CASE_Statements``
@@ -3371,6 +3422,8 @@ operator (``AND``, ``OR``, ``AND THEN``, ``OR ELSE``, ``XOR) if an expression
 contains syntactically equivalent operands. The check for syntactical
 equivalence of operands is case-sensitive.
 
+This rule has no parameters.
+
 
 .. rubric:: Example
 
@@ -3394,6 +3447,8 @@ calls to ``=`` and ``/=`` operators for float types) if operands
 of a call are syntactically equivalent. The check for syntactical equivalence
 of operands is case-sensitive.
 
+This rule has no parameters.
+
 
 .. rubric:: Example
 
@@ -3415,6 +3470,8 @@ Flags condition expressions in ``IF`` statements or ``IF`` expressions if
 a statement or expression contains another condition expression that is
 syntactically equivalent to the first one. The check for syntactical equivalence
 is case-sensitive.
+
+This rule has no parameters.
 
 .. rubric:: Example
 

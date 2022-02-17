@@ -101,6 +101,9 @@ GNATcheck rules.
   :ref:`Downward_View_Conversions`
 
 *
+  :ref:`Duplicate_Branches`
+
+*
   :ref:`End_Of_Line_Comments`
 
 *
