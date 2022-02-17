@@ -316,7 +316,7 @@ package Gnatcheck.Projects is
 
    procedure Report_Aggregated_Project
      (Aggregate_Prj          : Arg_Project_Type;
-      Arrgegated_Prj_Name    : String;
+      Aggregated_Prj_Name    : String;
       Expected_Text_Out_File : String;
       Expected_XML_Out_File  : String);
    --  Starts a record about processing of an aggregated project in a summary

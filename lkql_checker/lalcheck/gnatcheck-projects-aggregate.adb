@@ -206,8 +206,6 @@ package body Gnatcheck.Projects.Aggregate is
         (if Prj_XML_Dot = 0 then ""
          else Prj_XML_File (Prj_XML_Dot .. Prj_XML_Last));
 
-      Idx : Natural;
-
       Prj_Args       : Argument_List (1 .. 2);
       Out_Args       : Argument_List (1 .. 4);
       Out_Args_Count : constant Integer :=
@@ -255,20 +253,15 @@ package body Gnatcheck.Projects.Aggregate is
             if Skip_Next then
                Skip_Next := False;
             else
+               --  Ignore -o/-ox switches
+
                if Arg = "-o" or else Arg = "-ox" then
                   Skip_Next := True;
-               else
-                  Idx := Index (Arg, "-o=", Forward);
-
-                  if Idx = 0 then
-                     Idx := Index (Arg, "-ox=", Forward);
-                  end if;
-
-                  if Idx = 0 then
-                     Arg_Count := Arg_Count + 1;
-
-                     Args (Arg_Count) := new String'(Arg);
-                  end if;
+               elsif Index (Arg, "-o=", Forward) = 0
+                 and then Index (Arg, "-ox=", Forward) = 0
+               then
+                  Arg_Count := @ + 1;
+                  Args (Arg_Count) := new String'(Arg);
                end if;
             end if;
          end;
@@ -304,7 +297,7 @@ package body Gnatcheck.Projects.Aggregate is
 
          Report_Aggregated_Project
            (Aggregate_Prj          => My_Project,
-            Arrgegated_Prj_Name    => Prj_Args (2).all,
+            Aggregated_Prj_Name    => Prj_Args (2).all,
             Expected_Text_Out_File => (if Text_Report_ON then
                                           Out_Args (2).all
                                        else

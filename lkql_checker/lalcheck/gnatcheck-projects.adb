@@ -461,7 +461,7 @@ package body Gnatcheck.Projects is
 
    procedure Report_Aggregated_Project
      (Aggregate_Prj          : Arg_Project_Type;
-      Arrgegated_Prj_Name    : String;
+      Aggregated_Prj_Name    : String;
       Expected_Text_Out_File : String;
       Expected_XML_Out_File  : String)
    is
@@ -470,7 +470,7 @@ package body Gnatcheck.Projects is
 
       if Text_Report_ON then
          Report ("");
-         Report ("Processing aggregated project " & Arrgegated_Prj_Name);
+         Report ("Processing aggregated project " & Aggregated_Prj_Name);
          Report ("Expected report file: " & Expected_Text_Out_File);
       end if;
 
@@ -478,7 +478,7 @@ package body Gnatcheck.Projects is
          XML_Report ("<aggregated-project>",
                      Indent_Level => 2);
 
-         XML_Report ("<project-file>" & Arrgegated_Prj_Name &
+         XML_Report ("<project-file>" & Aggregated_Prj_Name &
                      "</project-file>",
                      Indent_Level => 3);
 

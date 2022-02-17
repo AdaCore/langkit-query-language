@@ -24,16 +24,17 @@ with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 
 with GNAT.Case_Util;
 
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.Projects;         use Gnatcheck.Projects;
-with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
-with Gnatcheck.Rules;            use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.Options;            use Gnatcheck.Options;
+with Gnatcheck.Output;             use Gnatcheck.Output;
+with Gnatcheck.Projects;           use Gnatcheck.Projects;
+with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
+with Gnatcheck.Source_Table;       use Gnatcheck.Source_Table;
+with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
+with Gnatcheck.Rules;              use Gnatcheck.Rules;
+with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 
-with Gnatcheck.Diagnoses;        use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;              use Gnatcheck.Ids;
+with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;       use Gnatcheck.Ids;
 
 package body Gnatcheck.Compiler is
 
@@ -1176,6 +1177,21 @@ package body Gnatcheck.Compiler is
       if Prj /= "" then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
+      end if;
+
+      if Aggregated_Project then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-A");
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'(Get_Aggregated_Project);
+
+         if XML_Report_ON then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("-ox=" & Get_XML_Report_File_Name);
+         else
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("-o=" & Get_Report_File_Name);
+         end if;
       end if;
 
       if Debug_Mode then
