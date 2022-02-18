@@ -619,8 +619,16 @@ package body Gnatcheck.Rules is
          end if;
 
          if Quote then
-            Put (Rule_File,
-                 '"' & To_String (To_Wide_Wide_String (Items)) & '"');
+            Put (Rule_File, '"');
+            for C of To_String (To_Wide_Wide_String (Items)) loop
+               if C = ',' then
+                  Put (Rule_File, """,""");
+               else
+                  Put (Rule_File, C);
+               end if;
+            end loop;
+            Put (Rule_File, '"');
+
          else
             Put (Rule_File, To_String (To_Wide_Wide_String (Items)));
          end if;
