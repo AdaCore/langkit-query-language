@@ -640,6 +640,30 @@ package body Gnatcheck.Rules is
       Print (Rule.Subprogram_Regexps, Quote => True);
    end Print_Rule_To_File;
 
+   overriding procedure Print_Rule_To_File
+     (Rule         : Custom_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0)
+   is
+      First_Param : Boolean := True;
+   begin
+      Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
+
+      for Param of Rule.Arguments loop
+         if First_Param then
+            Put (Rule_File, ":");
+            First_Param := False;
+         else
+            Put_Line (Rule_File, ",");
+            Put (Rule_File, Indent_Level * Indent_String);
+         end if;
+
+         Put (Rule_File,
+              To_String (To_Wide_Wide_String (Param.Name)) & "=" &
+              To_String (To_Wide_Wide_String (Param.Value)));
+      end loop;
+   end Print_Rule_To_File;
+
    ---------------------
    -- Print_Rule_Help --
    ---------------------
@@ -1509,6 +1533,70 @@ package body Gnatcheck.Rules is
       end if;
    end Process_Rule_Parameter;
 
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Custom_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String) is
+   begin
+      if Param = "" then
+         if Enable then
+            Rule.Rule_State := Enabled;
+         else
+            Rule.Rule_State := Disabled;
+         end if;
+      elsif Enable then
+         Rule.Defined_At := new String'(Defined_At);
+
+         declare
+            First_Equal : constant Natural := Index (Param, "=");
+         begin
+            if First_Equal = 0 then
+               Error ("(" & Rule.Name.all &
+                      ") missing = in parameter argument: " & Param);
+               Rule.Rule_State := Disabled;
+               return;
+            end if;
+
+            declare
+               Param_Name : constant String :=
+                 To_Lower (Param (Param'First .. First_Equal - 1));
+               Found       : Boolean := False;
+            begin
+               --  Check that the parameter name is valid
+
+               for J in 1 .. Rule.Parameters.Last_Child_Index loop
+                  if To_String (Rule.Parameters.Child (J).As_Parameter_Decl.
+                                F_Param_Identifier.Text) = Param_Name
+                  then
+                     Found := True;
+                     exit;
+                  end if;
+               end loop;
+
+               if Found then
+                  Rule.Arguments.Append (Rule_Argument'
+                    (Name  => To_Unbounded_Text
+                                (To_Text (Param_Name)),
+                     Value => To_Unbounded_Text
+                                (To_Text
+                                  (Param (First_Equal + 1 .. Param'Last)))));
+                  Rule.Rule_State := Enabled;
+
+               else
+                  Error ("(" & Rule.Name.all &
+                         ") unknown parameter: " & Param_Name);
+                  Rule.Rule_State := Disabled;
+               end if;
+            end;
+         end;
+      else
+         Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
+         Rule.Rule_State := Disabled;
+         Rule.Defined_At := new String'(Defined_At);
+      end if;
+   end Process_Rule_Parameter;
+
    --------------------
    -- Map_Parameters --
    --------------------
@@ -1674,6 +1762,15 @@ package body Gnatcheck.Rules is
    begin
       Append_Array_Param (Args, "subprograms", Rule.Subprograms);
       Append_Array_Param (Args, "subprogram_regexps", Rule.Subprogram_Regexps);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Rule : in out Custom_Rule;
+      Args : in out Rule_Argument_Vectors.Vector) is
+   begin
+      for Arg of Rule.Arguments loop
+         Args.Append (Arg);
+      end loop;
    end Map_Parameters;
 
    ---------------
@@ -2172,6 +2269,25 @@ package body Gnatcheck.Rules is
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Rule;
 
+   overriding procedure XML_Print_Rule
+     (Rule         : Custom_Rule;
+      Indent_Level : Natural := 0) is
+   begin
+      XML_Report ("<rule id=""" & Rule_Name (Rule) & """>", Indent_Level);
+
+      --  ??? Need to escape Arg.Value
+
+      for Arg of Rule.Arguments loop
+         XML_Report
+           ("<parameter>" &
+            To_String (To_Wide_Wide_String (Arg.Name)) & "=" &
+            To_String (To_Wide_Wide_String (Arg.Value)) &
+            "</parameter>", Indent_Level + 1);
+      end loop;
+
+      XML_Report ("</rule>", Indent_Level);
+   end XML_Print_Rule;
+
    -------------------
    -- XML_Rule_Help --
    -------------------
@@ -2466,6 +2582,14 @@ package body Gnatcheck.Rules is
             " label="""           &
             Rule.Help_Info.all    &
             """/>");
+   end XML_Rule_Help;
+
+   procedure XML_Rule_Help
+     (Rule  : Custom_Rule;
+      Level : Natural) is
+   begin
+      --  Should we do more here???
+      XML_Rule_Help (Rule_Template (Rule), Level);
    end XML_Rule_Help;
 
    -----------------------

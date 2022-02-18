@@ -623,4 +623,35 @@ package Gnatcheck.Rules is
      (Rule         : Silent_Exception_Handlers_Rule;
       Indent_Level : Natural := 0);
 
+   -----------------
+   -- Custom rule --
+   -----------------
+
+   type Custom_Rule is new Rule_Template with record
+      Arguments : Rule_Argument_Vectors.Vector;
+   end record;
+
+   overriding procedure Process_Rule_Parameter
+     (Rule       : in out Custom_Rule;
+      Param      : String;
+      Enable     : Boolean;
+      Defined_At : String);
+
+   overriding procedure Map_Parameters
+     (Rule : in out Custom_Rule;
+      Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure XML_Rule_Help
+     (Rule  : Custom_Rule;
+      Level : Natural);
+
+   overriding procedure Print_Rule_To_File
+     (Rule         : Custom_Rule;
+      Rule_File    : File_Type;
+      Indent_Level : Natural := 0);
+
+   overriding procedure XML_Print_Rule
+     (Rule         : Custom_Rule;
+      Indent_Level : Natural := 0);
+
 end Gnatcheck.Rules;

@@ -1238,8 +1238,8 @@ package body Gnatcheck.Rules.Rule_Table is
                      Init_Rule (Silent_Exception_Handlers_Rule (Rule.all));
 
                   else
-                     Rule := new Rule_Template;
-                     Init_Rule (Rule_Template (Rule.all));
+                     Rule := new Custom_Rule;
+                     Init_Rule (Custom_Rule (Rule.all));
                   end if;
             end case;
 
