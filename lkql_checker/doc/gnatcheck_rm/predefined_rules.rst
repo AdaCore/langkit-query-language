@@ -1827,7 +1827,6 @@ This rule has no parameters.
    end Foo;
 
 
-
 .. _Duplicate_Branches:
 
 ``Duplicate_Branches``
@@ -1855,7 +1854,7 @@ This rule has no parameters.
    :emphasize-lines: 2, 11
 
    if X > 0 then
-      declare       --  FLAG: code duplicated of line 11
+      declare       --  FLAG: code duplicated at line 11
          A : Integer := X;
          B : Integer := A + 1;
          C : Integer := B + 1;
@@ -1873,8 +1872,6 @@ This rule has no parameters.
          return D;
       end;
    end if;
-
-
 
 
 .. _Enumeration_Ranges_In_CASE_Statements:
