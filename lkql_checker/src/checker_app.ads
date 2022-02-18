@@ -72,7 +72,12 @@ package Checker_App is
      (Context : App_Context; Jobs : App_Job_Context_Array);
    procedure Job_Setup (Context : App_Job_Context);
 
-   type Message_Kinds is (Rule_Violation, Internal_Error);
+   type Message_Kinds is
+     (Rule_Violation, Internal_Error, Severe_Internal_Error);
+   --  Rule_Violation: a rule is flagged
+   --  Internal_Error: an internal error occurred
+   --  Severe_Internal_Error: a severe internal error occurred which should
+   --  not be hidden.
 
    procedure Process_Unit
      (Ctx                     : Lkql_Context;

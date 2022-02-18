@@ -83,11 +83,13 @@ package body Checker_App is
                           Sloc_Range : Source_Location_Range) := null)
    is
       procedure Handle_Error
-        (Rule : Rule_Command;
-         Node : Ada_Node'Class;
-         Exc  : Exception_Occurrence);
+        (Rule   : Rule_Command;
+         Node   : Ada_Node'Class;
+         Exc    : Exception_Occurrence;
+         Severe : Boolean);
       --  Factorize the error handling code, so that it can be shared amongst
       --  the two kinds of checkers, node checkers and unit checkers.
+      --  "Severe" flags severe errors that should not be hidden.
 
       function Strip_LF (S : String) return String is
       (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
@@ -100,7 +102,8 @@ package body Checker_App is
       procedure Handle_Error
         (Rule : Rule_Command;
          Node : Ada_Node'Class;
-         Exc  : Exception_Occurrence) is
+         Exc    : Exception_Occurrence;
+         Severe : Boolean) is
       begin
          declare
             Data      : constant Error_Data := Ctx.Eval_Ctx.Last_Error;
@@ -136,7 +139,9 @@ package body Checker_App is
                        (Strip_LF
                          (Exception_Information
                            (if E /= null then E.all else Exc)))),
-                  Node.Unit, Rule.Name, Internal_Error, Node.Sloc_Range);
+                  Node.Unit, Rule.Name,
+                  (if Severe then Severe_Internal_Error else Internal_Error),
+                  Node.Sloc_Range);
             end Internal_Error;
 
          begin
@@ -351,7 +356,7 @@ package body Checker_App is
 
             exception
                when E : LKQL.Errors.Stop_Evaluation_Error =>
-                  Handle_Error (Rule, Node, E);
+                  Handle_Error (Rule, Node, E, Severe => False);
                when E : others =>
                   if Emit_Message /= null then
                      Emit_Message
@@ -360,7 +365,8 @@ package body Checker_App is
                            To_Text (Rule.Name) & ": " &
                            To_Wide_Wide_String
                              (Strip_LF (Exception_Information (E)))),
-                        Node.Unit, Rule.Name, Internal_Error, Node.Sloc_Range);
+                        Node.Unit, Rule.Name,
+                        Severe_Internal_Error, Node.Sloc_Range);
 
                   else
                      Put_Line
@@ -482,7 +488,7 @@ package body Checker_App is
 
                exception
                   when E : LKQL.Errors.Stop_Evaluation_Error =>
-                     Handle_Error (Rule, Unit.Root, E);
+                     Handle_Error (Rule, Unit.Root, E, Severe => True);
                end;
             end if;
 
@@ -490,7 +496,7 @@ package body Checker_App is
          exception
             when E : LKQL.Errors.Stop_Evaluation_Error | Assertion_Error =>
                Release (Rule.Eval_Ctx.Pools);
-               Handle_Error (Rule, Unit.Root, E);
+               Handle_Error (Rule, Unit.Root, E, Severe => True);
          end;
       end loop;
    end Process_Unit;

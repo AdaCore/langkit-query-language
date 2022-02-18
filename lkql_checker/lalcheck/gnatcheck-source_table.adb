@@ -1415,9 +1415,9 @@ package body Gnatcheck.Source_Table is
                  Sloc_Image (Start_Sloc (Sloc_Range)) & ": " &
                  Msg & (if Id = No_Rule then ""
                         else Annotate_Rule (All_Rules.Table (Id).all)),
-               Diagnosis_Kind => (case Kind is
-                                  when Rule_Violation => Rule_Violation,
-                                  when Internal_Error => Internal_Error),
+               Diagnosis_Kind =>
+                 (if Kind = Rule_Violation then Rule_Violation
+                  else Internal_Error),
                SF             =>
 
                --  If Follow_Instantiations is True then the relevant file id
