@@ -172,8 +172,7 @@ package body Gnatcheck.Rules.Rule_Table is
    --------------
 
    function Get_Rule (Rule_Name : String) return Rule_Id is
-      Result               : Rule_Id          := No_Rule;
-      Normalised_Rule_Name : constant String  := To_Lower (Rule_Name);
+      Normalised_Rule_Name : constant String := To_Lower (Rule_Name);
    begin
       --  First, check if we have a compiler check:
 
@@ -189,13 +188,18 @@ package body Gnatcheck.Rules.Rule_Table is
       --  should think about a hash table.
 
       for J in First_Rule .. All_Rules.Last loop
-         if To_Lower (All_Rules.Table (J).Name.all) = Normalised_Rule_Name then
-            Result := J;
-            exit;
+         --  Check the rule name as well as the user specified name, if any
+
+         if To_Lower (All_Rules.Table (J).Name.all) = Normalised_Rule_Name
+           or else (All_Rules.Table (J).User_Synonym /= null
+                    and then To_Lower (All_Rules.Table (J).User_Synonym.all) =
+                             Normalised_Rule_Name)
+         then
+            return J;
          end if;
       end loop;
 
-      return Result;
+      return No_Rule;
    end Get_Rule;
 
    ------------------------
