@@ -48,7 +48,7 @@ automated-cov:
 	$(GPRBUILD) "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
 	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
 	$(GPRINSTALL) --mode=dev "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr"
-	cp -p lkql_checker/share/lkql/*.lkql "$(PREFIX)/share/lkql"
+	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
 	# Ship coverage data files for liblkqllang and lkql_checker so that the
 	# testsuite can use them.
 	cp -p "$(LKQL_DIR)/obj/instr/sids/"*.sid "$(PREFIX)/lib/liblkqllang.static"
