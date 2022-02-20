@@ -1,0 +1,17 @@
+# Flag a tagged type declaration with an alignment set to more than the
+# Alignment parameter, either directly or indirectly via one of its fields.
+
+import stdlib
+
+fun is_over_aligned(t, alignment) = {
+    val aspect=t.p_get_aspect("Alignment");
+    (aspect.exists and aspect.value is IntLiteral and
+     aspect.value.p_denoted_value() > alignment) or
+    [f for f in from t select ComponentDef or DiscriminantSpec
+     if is_over_aligned(f.f_type_expr.p_designated_type_decl(), alignment)]
+}
+
+@check(message="possible occurrence of KP UA12-036")
+fun kp_ua12_036(node, alignment: int = 16) =
+    node is TypeDecl(p_is_tagged_type() is true)
+    and is_over_aligned(node, alignment)

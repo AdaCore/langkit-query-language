@@ -1,0 +1,4 @@
+p.ads:8:9: rule violation: possible occurrence of KP UA12-036
+8 |    type Nasty is new Root_Object with record  -- FLAG
+  |         ^^^^^
+
