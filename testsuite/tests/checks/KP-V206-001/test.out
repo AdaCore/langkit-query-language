@@ -1,0 +1,4 @@
+pack.ads:8:12: rule violation: possible occurrence of KP V206-001
+8 |    package Conversions is new System.Address_To_Access_Conversions  --  FLAG
+  |            ^^^^^^^^^^^
+
