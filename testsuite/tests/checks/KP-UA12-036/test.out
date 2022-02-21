@@ -1,4 +1,8 @@
-p.ads:15:4: rule violation: possible occurrence of KP UA12-036, see type at p.ads:11
-15 |    procedure Free is  --  FLAG: Nasty is part of Root_Object'Class
+p.ads:16:4: rule violation: possible occurrence of KP UA12-036, see type at p.ads:11
+16 |    procedure Free is  --  FLAG: Nasty is part of Root_Object'Class
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.ads:19:4: rule violation: possible occurrence of KP UA12-036, see type at p.ads:11
+19 |    procedure Free is  --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
