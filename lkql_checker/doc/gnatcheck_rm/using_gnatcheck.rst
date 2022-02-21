@@ -81,6 +81,12 @@ The following switches control the general ``gnatcheck`` behavior
   symbolic links are not resolved and kept as is. In some cases, resolving
   the target of symbolic links is needed for proper loading of project files.
 
+  .. index:: --ignore-project-switches
+
+``--ignore-project-switches``
+  Ignore gnatcheck switches specified in the package ``Check`` of the main
+  project file.
+
   .. index:: --target
 
 ``--target=targetname``

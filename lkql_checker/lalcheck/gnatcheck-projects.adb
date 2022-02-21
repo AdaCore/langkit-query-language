@@ -792,28 +792,29 @@ package body Gnatcheck.Projects is
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
-             ("v q t h hx s "          &
-              "m? files= a "           &
-              "P: U X! vP! eL A: "     &   --  project-specific options
-              "-brief "                &
-              "-charset= "             &
-              "-check-semantic "       &
-              "-check-redefinition "   &
-              "-no_objects_dir "       &
-              "-subdirs= "             &
-              "-target= "              &
-              "j! "                    &
-              "d dd "                  &
-              "o= "                    &
-              "ox= "                   &
-              "-RTS= "                 &
-              "l log "                 &
-              "-include-file= "        &
-              "-rules-dir= "           &
-              "-show-rule "            &
-              "-subprocess "           &
-              "-version -help "        &
-              "-ignore= "              &
+             ("v q t h hx s "             &
+              "m? files= a "              &
+              "P: U X! vP! eL A: "        &   --  project-specific options
+              "-brief "                   &
+              "-charset= "                &
+              "-check-semantic "          &
+              "-check-redefinition "      &
+              "-no_objects_dir "          &
+              "-subdirs= "                &
+              "-target= "                 &
+              "j! "                       &
+              "d dd "                     &
+              "o= "                       &
+              "ox= "                      &
+              "-RTS= "                    &
+              "l log "                    &
+              "-include-file= "           &
+              "-rules-dir= "              &
+              "-show-rule "               &
+              "-subprocess "              &
+              "-version -help "           &
+              "-ignore= "                 &
+              "-ignore-project-switches " &
               "nt xml",
               Parser => Parser);
 
@@ -1130,6 +1131,11 @@ package body Gnatcheck.Projects is
                         Error (Parameter (Parser => Parser) & " not found");
                         raise Parameter_Error;
                      end if;
+
+                  elsif Full_Switch (Parser => Parser) =
+                        "-ignore-project-switches"
+                  then
+                     Ignore_Project_Switches := True;
 
                   elsif Full_Switch (Parser => Parser) = "-target" then
                      Free (Target);

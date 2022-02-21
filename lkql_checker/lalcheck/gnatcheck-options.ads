@@ -141,6 +141,10 @@ package Gnatcheck.Options is
    --  True if the -jN option was given. This is used to distinguish -j0 on a
    --  uniprocessor from no -j switch.
 
+   Ignore_Project_Switches : Boolean := False;
+   --  True if --ignore-project-switches was used.
+   --  Ignore gnatcheck switches from the project file if set.
+
    ----------------------------------------
    -- Flags computed from other settings --
    ----------------------------------------

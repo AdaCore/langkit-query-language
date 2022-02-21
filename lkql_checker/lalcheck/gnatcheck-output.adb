@@ -662,8 +662,9 @@ package body Gnatcheck.Output is
       Info (" --no_objects_dir - place results into current dir instead of project dir");
       Info (" -eL              - follow all symbolic links when processing project files");
       Info ("");
-      Info (" --target=targetname - specify a target for cross platforms");
-      Info (" --RTS=<runtime>     - use runtime <runtime>");
+      Info (" --ignore-project-switches - ignore switches specified in the project file");
+      Info (" --target=targetname       - specify a target for cross platforms");
+      Info (" --RTS=<runtime>           - use runtime <runtime>");
       Info ("");
       Info (" -h   - print out the list of the currently implemented rules");
       Info (" -mn  - n is the maximal number of diagnoses in Stderr");

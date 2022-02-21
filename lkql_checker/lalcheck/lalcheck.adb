@@ -286,6 +286,7 @@ begin
    if Gnatcheck_Prj.Is_Specified
      and then not Subprocess_Mode
      and then not In_Aggregate_Project
+     and then not Ignore_Project_Switches
    then
       Extract_Tool_Options (Gnatcheck_Prj);
    end if;
