@@ -1,8 +1,11 @@
-# Flag a tagged type declaration with an alignment set to more than the
-# Alignment parameter, either directly or indirectly via one of its fields.
+# Flag instantiations of Ada.Unchecked_Deallocation if the Object actual is
+# a class-wide type when one of its derived type has an alignment set to more
+# than the Alignment parameter, either directly or indirectly via one of its
+# fields.
 
 import stdlib
 
+@memoize
 fun is_over_aligned(t, alignment) = {
     val aspect=t.p_get_aspect("Alignment");
     (aspect.exists and aspect.value is IntLiteral and
@@ -11,7 +14,39 @@ fun is_over_aligned(t, alignment) = {
      if is_over_aligned(f.f_type_expr.p_designated_type_decl(), alignment)]
 }
 
-@check(message="possible occurrence of KP UA12-036")
-fun kp_ua12_036(node, alignment: int = 16) =
-    node is TypeDecl(p_is_tagged_type() is true)
-    and is_over_aligned(node, alignment)
+@memoize
+fun my_units() = units().to_list
+
+fun check_type(node, alignment) = {
+    val type = node.f_r_expr.p_referenced_decl();
+    stdlib.is_classwide_type(type) and
+    [t for t in type.p_find_all_derived_types(my_units())
+     if is_over_aligned(t, alignment)]
+}
+
+fun message(n, alignment) = {
+    val params = n.f_params;
+    val type = (if not params[1].f_designator or
+                   params[1].f_designator.p_name_is("object")
+                then params[1] else params[2]).f_r_expr.p_referenced_decl();
+    val res = [t for t in type.p_find_all_derived_types(my_units())
+               if is_over_aligned(t, alignment)][1];
+    {message: "possible occurrence of KP UA12-036, see type at " &
+              stdlib.sloc_image(res), loc: n}
+}
+
+@unit_check(help="detect possible occurrences of KP UA12-036")
+fun kp_ua12_036(unit, alignment: int = 16) = [
+    message(n, alignment)
+    for n in from unit.root select node@GenericSubpInstantiation
+    when ({
+         val name = stdlib.ultimate_subprogram_alias(node.p_designated_subp()).
+                    p_fully_qualified_name();
+         name == "Ada.Unchecked_Deallocation" or
+         name == "Unchecked_Deallocation"})
+     and node.f_params is params@AssocList
+         when params.children_count == 2
+          and if not params[1].f_designator or
+                 params[1].f_designator.p_name_is("object")
+              then check_type(params[1], alignment)
+              else check_type(params[2], alignment)]
