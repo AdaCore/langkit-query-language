@@ -1233,6 +1233,57 @@ This rule has the following (mandatory) parameters for the ``+R`` option:
    end Foo;
 
 
+.. _Deeply_Nested_Instantiations:
+
+``Deeply_Nested_Instantiations``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Deeply_Nested_Instantiations
+
+Flag a generic package instantiation if it contains another instantiation
+in its specification and this nested instantiation also contains another
+instantiation in its specification and so on, and the length of these
+nested instantiations is more than N where N is a rule parameter.
+
+This rule has the following (mandatory) parameters for the ``+R`` option:
+
+*N*
+  Non-negative integer specifying the maximum nesting level for instantiations.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 27
+
+   procedure Proc is
+
+      generic
+      procedure D;
+
+      procedure D is
+      begin
+         null;
+      end D;
+
+      generic
+      package C is
+         procedure Inst is new D;
+      end C;
+
+      generic
+      package B is
+         package Inst is new C;
+      end B;
+
+      generic
+      package A is
+          package Inst is new B;
+      end A;
+
+      package P is
+         package Inst is new A;   --  FLAG
+      end P;
+
 
 .. _Local_Packages:
 

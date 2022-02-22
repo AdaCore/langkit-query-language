@@ -32,6 +32,7 @@ GNATcheck rules.
 * :ref:`Deep_Library_Hierarchy`
 * :ref:`Deeply_Nested_Generics`
 * :ref:`Deeply_Nested_Inlining`
+* :ref:`Deeply_Nested_Instantiations`
 * :ref:`Default_Parameters`
 * :ref:`Default_Values_For_Record_Components`
 * :ref:`Deriving_From_Predefined_Type`
