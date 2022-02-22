@@ -1204,6 +1204,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-eL");
       end if;
 
+      if No_Object_Dir then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--no_objects_dir");
+      end if;
+
       if Full_Source_Locations then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-l");
