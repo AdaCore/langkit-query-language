@@ -21,8 +21,6 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
-
 with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 
 package body LKQL.Partial_AST_Nodes is
