@@ -3578,8 +3578,8 @@ each parameter should be of one of the following kinds:
 
 Note that if you specify the rule with parameters in a command shell, you may
 need to escape its parameters. The best and the safest way of using this rule
-is to place it into a rule file and to use this rule file as a parameter of
-``-rules=`` option in gnatcheck call, no escaping is needed in this case.
+is to place it into a rule file and to use this rule file as a parameter of the
+``-from=`` option, no escaping is needed in this case.
 
 
 
