@@ -22,12 +22,15 @@ with Ada.Containers.Ordered_Sets;
 with Ada.Environment_Variables;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 with System.Multiprocessors;
 
 with GNATCOLL.Projects.Aux;
 with GNATCOLL.Traces;
 
+with GNAT.Strings;
+with GNAT.Regexp;       use GNAT.Regexp;
 with GNAT.String_Split; use GNAT.String_Split;
 with GNAT.Table;
 
@@ -38,10 +41,11 @@ with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with Gnatcheck.Output;           use Gnatcheck.Output;
-
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
+
+with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
 
 package body Gnatcheck.Projects is
 
@@ -149,27 +153,70 @@ package body Gnatcheck.Projects is
    -- Get_Sources_From_Project --
    ------------------------------
 
-   procedure Get_Sources_From_Project
-     (My_Project      : Arg_Project_Type;
-      Unconditionally : Boolean := False)
-   is
+   procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type) is
+      File_Patterns_Attribute : constant Attribute_Pkg_List :=
+        Build ("codepeer", "file_patterns");
+
+      Patterns : GNAT.Strings.String_List_Access;
+      Pattern  : Unbounded_String;
       Prj      : Project_Type;
       Files    : File_Array_Access;
+
+      use Ada.Strings.Unbounded;
+
    begin
-      if Unconditionally
-        or else No_Argument_File_Specified
+      if Simple_Project then
+         --  Use project attribute CodePeer'File_Patterns if set, otherwise
+         --  use a default pattern.
+
+         if My_Project.Root_Project.Has_Attribute (File_Patterns_Attribute)
+         then
+            Patterns := My_Project.Root_Project.Attribute_Value
+              (File_Patterns_Attribute);
+
+            if Patterns'Length = 1 then
+               Set_Unbounded_String (Pattern, Patterns (1).all);
+            else
+               Set_Unbounded_String (Pattern, "{");
+
+               for J in Patterns'First .. Patterns'Last - 1 loop
+                  Append (Pattern, Patterns (J).all & ",");
+               end loop;
+
+               Append (Pattern, Patterns (Patterns'Last).all & "}");
+            end if;
+         else
+            Set_Unbounded_String (Pattern, "*.{ad[asb],spc,bdy}");
+         end if;
+
+         Files := Find_Files_Regexp
+           (Name_Pattern =>
+              Compile (To_String (Pattern),
+                       Glob           => True,
+                       Case_Sensitive => False),
+            Directories =>
+              Source_Dirs
+                (My_Project.Root_Project,
+                 Recursive => U_Option_Set,
+                 Include_Externally_Built => False));
+
+         for F of Files.all loop
+            Store_Sources_To_Process (F.Display_Full_Name);
+         end loop;
+
+         My_Project.Files := Files;
+
+      elsif No_Argument_File_Specified
         or else (U_Option_Set and then (not File_List_Specified))
       then
-         if Unconditionally
-           or else Main_Unit = null
+         if Main_Unit = null
          --  ??? Call Files_From_Closure once available in libgpr2 instead
          --  when Main_Unit is set
            or else not File_List_Specified
          then
             Prj := My_Project.Root_Project;
 
-            Files := Prj.Source_Files
-              (Recursive => U_Option_Set or else Unconditionally);
+            Files := Prj.Source_Files (Recursive => U_Option_Set);
 
             for F in Files'Range loop
                if not Is_Externally_Built (Files (F), My_Project)
@@ -179,7 +226,7 @@ package body Gnatcheck.Projects is
                end if;
             end loop;
 
-            if Unconditionally or else U_Option_Set then
+            if U_Option_Set then
                if Files'Length = 0 then
                   Unchecked_Free (Files);
                   Error (My_Project.Source_Prj.all &
@@ -269,6 +316,15 @@ package body Gnatcheck.Projects is
       return My_Project.Source_Prj /= null;
    end Is_Specified;
 
+   -----------
+   -- Files --
+   -----------
+
+   function Files (My_Project : Arg_Project_Type) return File_Array_Access is
+   begin
+      return My_Project.Files;
+   end Files;
+
    -----------------------------
    -- Load_Aggregated_Project --
    -----------------------------
@@ -348,10 +404,18 @@ package body Gnatcheck.Projects is
             Error (S);
          end if;
       end Errors;
+
+      procedure Ignore (S : String) is null;
+      --  Ignore result of function returning a String
+
    begin
       if Subdir_Name /= null then
          Set_Object_Subdir (Project_Env.all, +Subdir_Name.all);
       end if;
+
+      Ignore
+        (Register_New_Attribute
+          ("file_patterns", "codepeer", Is_List => True));
 
       My_Project.Load
         (GNATCOLL.VFS.Create (+My_Project.Source_Prj.all),
@@ -360,7 +424,6 @@ package body Gnatcheck.Projects is
          Report_Missing_Dirs => False);
 
       if Is_Aggregate_Project (My_Project.Root_Project) then
-
          if My_Project.Root_Project = No_Project then
             Error ("project not loaded");
          end if;
@@ -815,6 +878,7 @@ package body Gnatcheck.Projects is
               "-version -help "           &
               "-ignore= "                 &
               "-ignore-project-switches " &
+              "-simple-project "          &
               "nt xml",
               Parser => Parser);
 
@@ -1136,6 +1200,22 @@ package body Gnatcheck.Projects is
                         "-ignore-project-switches"
                   then
                      Ignore_Project_Switches := True;
+
+                  elsif Full_Switch (Parser => Parser) = "-simple-project" then
+                     Simple_Project := True;
+
+                     --  --simple-project is often used in the context of
+                     --  CodePeer where "gnatls" may not be available. So if
+                     --  Target hasn't been set explicitly and codepeer-gnatls
+                     --  is available, force its use by setting the "codepeer"
+                     --  target.
+
+                     if Target'Length = 0
+                       and then Locate_Exec_On_Path ("codepeer-gnatls") /= null
+                     then
+                        Free (Target);
+                        Target := new String'("codepeer");
+                     end if;
 
                   elsif Full_Switch (Parser => Parser) = "-target" then
                      Free (Target);

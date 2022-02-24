@@ -74,6 +74,44 @@ The following switches control the general ``gnatcheck`` behavior
   Put gnatcheck output files in the current directory instead of using the
   project file's object directory.
 
+  .. index:: --simple-project
+
+``--simple-project``
+  Simple project set up where only source directories and optionally the
+  ``File_Patterns`` attribute in the ``CodePeer`` package are taken into
+  account.
+
+  When using this switch, source files are found using a default set of file
+  extensions: :file:`.ada`, :file:`.ads`, :file:`.adb`, :file:`.spc`,
+  :file:`.bdy`.
+
+  If you want to override these default file extensions, you can add the
+  ``File_Patterns`` attribute in the ``CodePeer`` package, which includes a
+  list of file patterns where you can specify the following meta characters:
+
+  ================ ==========================================
+  \*               matches any string of 0 or more characters
+  ?                matches any character
+  [list of chars]  matches any character listed
+  [char-char]      matches any character in given range
+  [^list of chars] matches any character not listed
+  ================ ==========================================
+
+  These patterns are case insensitive.
+
+  For example:
+
+  .. code-block:: gpr
+
+    package CodePeer is
+       for File_Patterns use ("*.a", "*.ad[asb]", "[a-z][0-9]*.a?");
+    end CodePeer;
+
+  specifies that all sources ending with :file:`.a`, :file:`.ada`,
+  :file:`.ads`, :file:`.adb` as well as all sources starting with a
+  letter, followed by a digit and ending with :file:`.a` and one last
+  character will be analyzed.
+
   .. index:: -eL
 
 ``-eL``

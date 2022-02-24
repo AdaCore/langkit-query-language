@@ -1179,6 +1179,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-P" & Prj);
       end if;
 
+      if Simple_Project then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--simple-project");
+      end if;
+
       if Aggregated_Project then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-A");

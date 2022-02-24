@@ -44,6 +44,7 @@ with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with Langkit_Support.Text;        use Langkit_Support.Text;
 with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Helpers;          use Libadalang.Helpers;
+with Libadalang.Auto_Provider;    use Libadalang.Auto_Provider;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 
@@ -231,9 +232,10 @@ package body Gnatcheck.Source_Table is
       Units : Unit_Vectors.Vector;
       Files : File_Array_Access;
    begin
-      --  If no project specified, register all files listed explicitly
+      --  If no project specified or Simple_Project, register all files listed
+      --  explicitly.
 
-      if Project.Root_Project = No_Project then
+      if Project.Root_Project = No_Project or Simple_Project then
          for J in First_SF_Id .. Last_Argument_Source loop
             Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
          end loop;
@@ -1497,22 +1499,30 @@ package body Gnatcheck.Source_Table is
       Dummy : Primitive;
 
    begin
-      if Partition = null then
-         Partition := Create_Project_Unit_Providers (Gnatcheck_Prj'Access);
+      if Simple_Project then
+         Ctx.Analysis_Ctx := Create_Context
+           (Charset       => Charset.all,
+            Unit_Provider => Create_Auto_Provider_Reference
+                               (Gnatcheck_Prj.Files.all, Charset.all));
+
+      else
+         if Partition = null then
+            Partition := Create_Project_Unit_Providers (Gnatcheck_Prj'Access);
+         end if;
+
+         --  Reject partitions with multiple parts: we cannot analyze it with
+         --  only one provider.
+
+         if Partition'Length /= 1 then
+            Free (Partition);
+            Error ("This aggregate project contains conflicting sources");
+            raise Fatal_Error;
+         end if;
+
+         Ctx.Analysis_Ctx := Create_Context
+           (Charset       => Charset.all,
+            Unit_Provider => Partition (Partition'First).Provider);
       end if;
-
-      --  Reject partitions with multiple parts: we cannot analyze it with
-      --  only one provider.
-
-      if Partition'Length /= 1 then
-         Free (Partition);
-         Error ("This aggregate project contains conflicting sources");
-         raise Fatal_Error;
-      end if;
-
-      Ctx.Analysis_Ctx := Create_Context
-        (Charset       => Charset.all,
-         Unit_Provider => Partition (Partition'First).Provider);
 
       --  It's too early to compute units, so provide an empty value for now,
       --  until Add_Sources_To_Context is called.

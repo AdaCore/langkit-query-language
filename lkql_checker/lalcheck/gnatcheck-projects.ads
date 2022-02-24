@@ -220,6 +220,9 @@ package Gnatcheck.Projects is
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
 
+   function Files (My_Project : Arg_Project_Type) return File_Array_Access;
+   --  Return the files associated with My_Project if any, null otherwise
+
    procedure Clean_Up (My_Project : Arg_Project_Type);
    --  Removes all the temporary files created when loading a project. Does
    --  nothing of Debug_Flag_N is ON.
@@ -240,17 +243,12 @@ package Gnatcheck.Projects is
    --  Any inconsistencies coming from improper values of scenario variables
    --  etc. will be reported during project loading.
 
-   procedure Get_Sources_From_Project
-     (My_Project      : Arg_Project_Type;
-      Unconditionally : Boolean := False);
+   procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type);
    --  Extracts and stores the list of sources of the project to process as
    --  tool arguments.
    --
-   --  If Unconditionally is ON, this procedure extracts all the project
-   --  sources regardless of all the other options.
-   --
-   --  Currently, main units are ignored under libgpr2 supports computing a
-   --  closure on main units, so basically -U is implicit.
+   --  Currently, main units are ignored pending libgpr2 support for computing
+   --  a closure on main units, so basically -U is implicit.
 
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type);
    --  Sets the directory to place the global tool results into.
@@ -362,6 +360,9 @@ private
    type Arg_Project_Type is new Project_Tree with record
       Source_Prj : String_Access;
       --  Stores the name of the project file that is a tool argument
+
+      Files : File_Array_Access;
+      --  Files associated with this project, when using --simple-project
    end record;
 
 end Gnatcheck.Projects;

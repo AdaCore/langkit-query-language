@@ -145,6 +145,11 @@ package Gnatcheck.Options is
    --  True if --ignore-project-switches was used.
    --  Ignore gnatcheck switches from the project file if set.
 
+   Simple_Project : Boolean := False;
+   --  Simple project mode: only use directories from the project file and
+   --  filename patterns.
+   --  --simple-project
+
    ----------------------------------------
    -- Flags computed from other settings --
    ----------------------------------------
