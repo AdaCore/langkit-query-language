@@ -1012,24 +1012,22 @@ This rule has no parameters.
    with System;
    package Foo is
 
-      type Rec1 is  record     --  FLAG
+      type Rec1 is record     --  FLAG
          I : Integer;
       end record;
 
-      for Rec1 use
-         record
-            I at 0 range 0 .. 31;
-         end record;
+      for Rec1 use record
+         I at 0 range 0 .. 31;
+      end record;
 
-      type Rec2 is  record
+      type Rec2 is record     --  NO FLAG
          I : Integer;
       end record
         with Scalar_Storage_Order => System.Low_Order_First;
 
-      for Rec2 use
-         record
-            I at 0 range 0 .. 31;
-         end record;
+      for Rec2 use record
+         I at 0 range 0 .. 31;
+      end record;
 
    end Foo;
 
@@ -1051,7 +1049,6 @@ for example, a program that uses ``String`` indexing
 likely needs a variable of type ``Integer``.
 Another example is the flagging of predefined numeric types with explicit
 constraints:
-
 
 .. code-block:: ada
 
