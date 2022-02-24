@@ -1898,23 +1898,20 @@ Small sequences of statements are not flagged by this rule. The rule has
 two optional parameters that allow to specify the maximal size of statement
 sequences that are not flagged:
 
-*
-   min_stmt=N
+* min_stmt=N
 
-     N should be a positive integer literal. All statement sequences that
-     contain more than N declarations and statements as subcomponents
-     are flagged;
+  N is an integer literal. All statement sequences that
+  contain more than N statements (`Stmt` as defined in Libadalang) as
+  subcomponents are flagged;
 
-*
-  min_size=N
+* min_size=N
 
-    N should be a positive integer literal. All statement sequences that
-    contains more than N lexical elements that are identifiers, literals
-    and operator symbols are flagged.
+  N is an integer literal. All statement sequences that
+  contain more than N lexical elements (`SingleTokNode` in Libadalang terms)
+  are flagged.
 
 If at least one of the two thresholds specified by the rule parameters is
-exceeded, a statement sequence is flagged. If one or both of the rule
-parameters is (are) not specified, the following defaults are used:
+exceeded, a statement sequence is flagged. The following defaults are used:
 ``min_stmt=4,min_size=14``.
 
 
