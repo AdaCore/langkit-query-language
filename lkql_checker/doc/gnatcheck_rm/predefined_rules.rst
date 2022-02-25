@@ -3479,7 +3479,7 @@ contains ``pragma Ignore_Pragma (Warnings);``.
 .. index:: Same_Logic
 
 Flags expressions that contain a chain of infix calls to the same boolean
-operator (``AND``, ``OR``, ``AND THEN``, ``OR ELSE``, ``XOR) if an expression
+operator (``and``, ``or``, ``and then``, ``or else``, ``xor``) if an expression
 contains syntactically equivalent operands. The check for syntactical
 equivalence of operands is case-sensitive.
 
@@ -3503,8 +3503,8 @@ This rule has no parameters.
 .. index:: Same_Operands
 
 Flags infix calls to binary operators ``/``, ``=``, ``/=``, ``>``, ``>=``,
-``<``, ``<=``, ``-``, ``MOD``, ``REM`` (except for the
-calls to ``=`` and ``/=`` operators for float types) if operands
+``<``, ``<=``, ``-``, ``mod``, ``rem`` (except for the
+calls to ``=`` and ``/=`` operators for floating point types) if operands
 of a call are syntactically equivalent. The check for syntactical equivalence
 of operands is case-sensitive.
 
@@ -3527,7 +3527,7 @@ This rule has no parameters.
 
 .. index:: Same_Tests
 
-Flags condition expressions in ``IF`` statements or ``IF`` expressions if
+Flags condition expressions in ``if`` statements or ``if`` expressions if
 a statement or expression contains another condition expression that is
 syntactically equivalent to the first one. The check for syntactical equivalence
 is case-sensitive.
@@ -3557,8 +3557,8 @@ This rule has no parameters.
 
 .. index:: Silent_Exception_Handlers
 
-Flag any exception handler that neither raises an exception by
-``RAISE`` statement or a call to ``Ada.Exceptions.Raise_Exception`` or
+Flag any exception handler that neither raises an exception by a
+``raise`` statement or a call to ``Ada.Exceptions.Raise_Exception`` or
 to ``Ada.Exceptions.Reraise_Occurrence`` nor contains a call to some subprogram
 specified by the rule parameters. The rule can have any number of parameters,
 each parameter should be of one of the following kinds:
@@ -3580,7 +3580,6 @@ Note that if you specify the rule with parameters in a command shell, you may
 need to escape its parameters. The best and the safest way of using this rule
 is to place it into a rule file and to use this rule file as a parameter of the
 ``-from=`` option, no escaping is needed in this case.
-
 
 
 .. rubric:: Example
@@ -3614,10 +3613,6 @@ is to place it into a rule file and to use this rule file as a parameter of the
    end Exc;
 
 
-
-
-
-
 .. _Single_Value_Enumeration_Types:
 
 ``Single_Value_Enumeration_Types``
@@ -3637,9 +3632,6 @@ This rule has no parameters.
 
    type Enum3 is (A, B, C);
    type Enum1 is (D);      --  FLAG
-
-
-
 
 
 .. _Unavailable_Body_Calls:
