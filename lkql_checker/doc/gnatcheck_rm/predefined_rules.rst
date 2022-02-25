@@ -8,8 +8,7 @@ Predefined Rules
 
 The description of the rules currently implemented in ``gnatcheck`` is
 given in this chapter.
-The rule identifier is
-used as a parameter of ``gnatcheck``'s ``+R`` or ``-R``
+The rule identifier is used as a parameter of ``gnatcheck``'s ``+R`` or ``-R``
 switches.
 
 Be aware that most of these rules apply to specialized coding
@@ -684,13 +683,9 @@ This rule has no parameters.
 Flag each use of the specified attributes. The attributes to be detected are
 named in the rule's parameters.
 
-This rule has the following parameters:
+This rule has the following parameters for the ``+R`` option:
 
-* For the ``+R`` option
-
-
-
-*Attribute_Designator*
+* *Attribute_Designator*
     Adds the specified attribute to the set of attributes to be detected and sets
     the detection checks for all the specified attributes ON.
     If *Attribute_Designator*
@@ -698,19 +693,16 @@ This rule has the following parameters:
     or in the GNAT Reference Manual,
     it is treated as the name of unknown attribute.
 
-
-``GNAT``
+* ``GNAT``
     All the GNAT-specific attributes are detected; this sets
     the detection checks for all the specified attributes ON.
 
-
-``ALL``
+* ``ALL``
     All attributes are detected; this sets the rule ON.
 
-* For the ``-R`` option
+and for the ``-R`` option:
 
-
-*Attribute_Designator*
+* *Attribute_Designator*
     Removes the specified attribute from the set of attributes to be
     detected without affecting detection checks for
     other attributes. If *Attribute_Designator* does not correspond to any
@@ -718,12 +710,10 @@ This rule has the following parameters:
     or in the GNAT Reference Manual,
     this option is treated as turning OFF detection of all unknown attributes.
 
-
-GNAT
+* ``GNAT``
     Turn OFF detection of all GNAT-specific attributes
 
-
-ALL
+* ``ALL``
     Clear the list of the attributes to be detected and
     turn the rule OFF.
 
@@ -770,7 +760,6 @@ a predefined or GNAT-specific attribute.
          Arr_Var (J) := Integer'Succ (J);
 
 
-
 .. _Forbidden_Pragmas:
 
 ``Forbidden_Pragmas``
@@ -781,13 +770,9 @@ a predefined or GNAT-specific attribute.
 Flag each use of the specified pragmas.  The pragmas to be detected
 are named in the rule's  parameters.
 
-This rule has the following parameters:
+This rule has the following parameters for the ``+R`` option:
 
-* For the ``+R`` option
-
-
-
-*Pragma_Name*
+* *Pragma_Name*
     Adds the specified pragma to the set of pragmas to be
     checked and sets the checks for all the specified pragmas
     ON. *Pragma_Name* is treated as a name of a pragma. If it
@@ -796,19 +781,16 @@ This rule has the following parameters:
     in the GNAT Reference Manual,
     it is treated as the name of unknown pragma.
 
-
-``GNAT``
+* ``GNAT``
     All the GNAT-specific pragmas are detected; this sets
     the checks for all the specified pragmas ON.
 
-
-``ALL``
+* ``ALL``
     All pragmas are detected; this sets the rule ON.
 
-* For the ``-R`` option
+and for the ``-R`` option:
 
-
-*Pragma_Name*
+* *Pragma_Name*
     Removes the specified pragma from the set of pragmas to be
     checked without affecting checks for
     other pragmas. *Pragma_Name* is treated as a name
@@ -817,12 +799,10 @@ This rule has the following parameters:
     in the GNAT Reference Manual,
     this option is treated as turning OFF detection of all unknown pragmas.
 
-
-GNAT
+* GNAT
     Turn OFF detection of all GNAT-specific pragmas
 
-
-ALL
+* ALL
     Clear the list of the pragmas to be detected and
     turn the rule OFF.
 
@@ -1554,15 +1534,13 @@ This rule has no parameters.
 
 .. index:: Too_Many_Generic_Dependencies
 
-Flags a ``WITH`` clause that mentions a
-generic unit that in turn directly depends (mentions in its ``WITH``
+Flags a ``with`` clause that mentions a
+generic unit that in turn directly depends (mentions in its ``with``
 clause) on another generic unit, and so on, and the length of the
 chain of these dependencies on generics is more than N where N is
 a rule parameter.
 
 This rule has the following (mandatory) parameter for the ``+R`` option:
-
-
 
 *N*
   Non-negative integer specifying the maximal allowed length of the
@@ -1748,7 +1726,7 @@ This rule has no parameters.
 
 Flag a case statement if this statement has only two alternatives, one
 containing exactly one choice, the other containing exactly one choice
-or the ``OTHERS`` choice.
+or the ``others`` choice.
 
 This rule has no parameters.
 
@@ -1882,10 +1860,10 @@ This rule has no parameters.
 
 .. index:: Duplicate_Branches
 
-Flag a sequence of statements that is a component of an ``IF`` statement
-or of a ``CASE`` statement alternative, if the same ``IF`` or ``CASE``
+Flag a sequence of statements that is a component of an ``if`` statement
+or of a ``case`` statement alternative, if the same ``if`` or ``case``
 statement contains another sequence of statements as its component
-(or a component of its ``CASE`` statement alternative) that is
+(or a component of its ``case`` statement alternative) that is
 syntactically equivalent to the sequence of statements in question.
 The check for syntactical equivalence of operands is case-sensitive,
 it does not take into account line breaks, white spaces and
@@ -2040,7 +2018,7 @@ The rule has no parameters.
 
 Flag any exit statement if it transfers the control out of a ``for`` loop
 or a ``while`` loop. This includes cases when the ``exit`` statement
-applies to a ``FOR`` or ``while`` loop, and cases when it is enclosed
+applies to a ``for`` or ``while`` loop, and cases when it is enclosed
 in some ``for`` or ``while`` loop, but transfers the control from some
 outer (unconditional) ``loop`` statement.
 
@@ -2301,8 +2279,8 @@ This rule has the following (mandatory) parameters for the ``+R`` option:
 Flag any subprogram declaration, subprogram body declaration, expression
 function declaration, null procedure declaration, subprogram
 body stub or generic subprogram declaration if the corresponding
-subprogram has more than *N* formal parameters of mode ``IN`` or
-``IN OUT``, where *N* is a parameter of the rule.
+subprogram has more than *N* formal parameters of mode ``in`` or
+``in out``, where *N* is a parameter of the rule.
 
 A subprogram body, an expression function, a null procedure or
 a subprogram body stub is flagged only if there is
@@ -2312,11 +2290,9 @@ inside expanded generic instantiations are never flagged.
 
 This rule has the following (mandatory) parameters for the ``+R`` option:
 
-
-
 *N*
   Positive integer specifying the maximum allowed total number of
-  subprogram formal parameters of modes ``IN`` and ``IN OUT``.
+  subprogram formal parameters of modes ``in`` and ``in out``.
 
 .. rubric:: Example
 
@@ -2475,7 +2451,7 @@ This rule has no parameters.
 .. index:: No_Others_In_Exception_Handlers
 
 Flag handled sequences of statements that do not contain exception
-handler with ``OTHERS``, depending on the rule parameter(s)
+handler with ``others``, depending on the rule parameter(s)
 specified.
 
 This rule has three parameters for +R option:
@@ -2485,7 +2461,7 @@ This rule has three parameters for +R option:
 
     Flag a subprogram body if the handled sequence of statements
     of this body does not contain an exception handler with
-    ``OTHERS`` choice. This includes the case when the body does
+    ``others`` choice. This includes the case when the body does
     not contain any exception handler at all. The diagnostic
     message points to the beginning of the subprogram body.
 
@@ -2494,7 +2470,7 @@ This rule has three parameters for +R option:
 
     Flag a task body if the handled sequence of statements
     of this body does not contain an exception handler with
-    ``OTHERS`` choice. This includes the case when the body does
+    ``others`` choice. This includes the case when the body does
     not contain any exception handler at all. The diagnostic
     message points to the beginning of the task body.
 
@@ -2503,7 +2479,7 @@ This rule has three parameters for +R option:
 
    Flag a handled sequence of statements if it does contain
    at least one exception handler, but it does not contain an
-   exception handler with ``OTHERS`` choice. If a handled sequence
+   exception handler with ``others`` choice. If a handled sequence
    of statements does not have any exception handler, nothing is
    flagged for it. The diagnostic  message points to the
    ``EXCEPTION`` keyword in the handled sequence of statements.
@@ -2772,8 +2748,8 @@ This rule has no parameters.
 
 .. index:: Null_Paths
 
-Flag a statement sequence that is a component of an IF, CASE or LOOP
-statement if this sequences consists of NULL statements only.
+Flag a statement sequence that is a component of an ``if``, ``case`` or
+``loop`` statement if this sequences consists of NULL statements only.
 
 This rule has no parameters.
 
@@ -3855,7 +3831,7 @@ The rule has no parameters.
 
 .. index:: Use_Array_Slices
 
-Flag ``FOR`` loops if a loop contains a single assignment statement, and
+Flag ``for`` loops if a loop contains a single assignment statement, and
 this statement is an assignment between array components and such a loop can
 be replaced by a single assignment statement with array slices or
 array objects as the source and the target of the assignment.
@@ -3888,12 +3864,12 @@ This rule has no parameters.
 
 .. index:: Use_Case_Statements
 
-Flag an ``IF`` statement if this statement could be replaced by a
-``CASE`` statement. An ``IF`` statement is considered as being
-replaceable by a ``CASE`` statement if:
+Flag an ``if`` statement if this statement could be replaced by a
+``case`` statement. An ``if`` statement is considered as being
+replaceable by a ``case`` statement if:
 
 *
-  it contains at least one ``ELSIF`` alternative;
+  it contains at least one ``elsif`` alternative;
 
 *
   all the conditions are infix calls to some predefined relation operator,
@@ -3960,7 +3936,7 @@ This rule has the following optional parameter for the ``+R`` option:
 
 .. index:: Use_For_Loops
 
-Flag ``WHILE`` loops which could be replaced by a ``FOR`` loop. The rule detects
+Flag ``while`` loops which could be replaced by a ``for`` loop. The rule detects
 the following code patterns:
 
 .. code-block:: ada
@@ -3982,7 +3958,7 @@ relation operator, and increment_operator should be a predefined "+" or
 "-" operator.
 
 Note, that the rule only informs about a possibility to replace a
-``WHILE`` loop by a ``FOR``, but does not guarantee that this is
+``while`` loop by a ``for``, but does not guarantee that this is
 really possible, additional human analysis is required for all the
 loops marked by the rule.
 
@@ -7041,7 +7017,7 @@ upper bound.  A program unit that is an executable body exceeding this limit wil
 This rule has the following optional parameter for the ``+R`` option:
 
 *Exempt_Case_Statements*
-  Count the complexity introduced by ``CASE`` statement or ``CASE`` expression as 1.
+  Count the complexity introduced by ``case`` statement or ``case`` expression as 1.
 
 The McCabe cyclomatic complexity metric is defined
 in `http://www.mccabe.com/pdf/mccabe-nist235r.pdf <http://www.mccabe.com/pdf/mccabe-nist235r.pdf>`_
