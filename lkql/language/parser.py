@@ -1,5 +1,5 @@
 from langkit.parsers import (
-    Grammar, Or, List, Pick, Opt, NoBacktrack as c, Null
+    Grammar, Or, List, Pick, Opt, Cut as c, Null
 )
 from langkit.dsl import (
     T, ASTNode, abstract, Field, AbstractField, has_abstract_list, synthetic
