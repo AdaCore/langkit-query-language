@@ -26,7 +26,7 @@ with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is
 
-   Version_String : constant String := "Pro 23.0w (20220101)";
+   Version_String : constant String := "Pro 23.0w (20220301)";
    Current_Year   : constant String := "2022";
 
    Target : GNAT.OS_Lib.String_Access := new String'("");
