@@ -615,12 +615,12 @@ Rule Aliases No Longer Supported
 
 Because of historical reasons the old ``gnatcheck`` allowed aliases for
 some rules. These aliases are not documented, but there is some possibility that
-they could be used in some legacy rule files. ``GNATcheck`` no longer support
+they could be used in some legacy rule files. ``GNATcheck`` no longer supports
 these aliases. Here is the (alphabetically ordered) list of all the
 aliases formerly accepted and their replacement:
 
 ====================================== ========================================
-Rule                                   Replacement
+Old Rule Alias                         Replacement
 ====================================== ========================================
 Abstr_Types                            Abstract_Type_Declarations
 Bool_Relation_Ops                      Boolean_Relational_Operators
@@ -664,7 +664,7 @@ Volatile_Requires_Addr_Clause          Volatile_Objects_Without_Address_Clauses
 
 .. _New_Defaults_For_Recursive_Subprograms_Rule:
 
-New Defaults For Recursive Subprograms Rule
+New Defaults For Recursive_Subprograms Rule
 -------------------------------------------
 
 .. index:: new defaults for recursive subprograms rule
