@@ -978,11 +978,11 @@ package body Gnatcheck.Rules.Rule_Table is
 
       case R is
          when Restrictions_Id =>
-            return "Restrictions";
+            return "restrictions";
          when Style_Checks_Id =>
-            return "Style_Checks";
+            return "style_checks";
          when Warnings_Id =>
-            return "Warnings";
+            return "warnings";
          when others =>
             return All_Rules.Table (R).Name.all;
       end case;
@@ -993,14 +993,29 @@ package body Gnatcheck.Rules.Rule_Table is
    ----------------
 
    procedure Rules_Help is
+      function "<" (Left, Right : Rule_Access) return Boolean is
+        (Left.Name.all < Right.Name.all);
+
+      function Equal (Left, Right : Rule_Access) return Boolean is
+        (Left.Name.all = Right.Name.all);
+
+      package Rule_Sets is new
+        Ada.Containers.Ordered_Sets (Rule_Access, "=" => Equal);
+
+      Set : Rule_Sets.Set;
+
    begin
       Info ("gnatcheck currently implements the following rules:");
 
       if All_Rules.Last < First_Rule then
-         Info ("  There is no rule implemented");
+         Info (" There is no rule implemented");
       else
          for J in First_Rule .. All_Rules.Last loop
-            Print_Rule_Help (All_Rules.Table (J).all);
+            Set.Include (All_Rules.Table (J));
+         end loop;
+
+         for R of Set loop
+            Print_Rule_Help (R.all);
          end loop;
       end if;
 
@@ -1008,11 +1023,11 @@ package body Gnatcheck.Rules.Rule_Table is
             "provided by GNAT");
       Info ("using the same syntax to control these checks as for other " &
             "rules:");
-      Info ("  Warnings     - compiler warnings - EASY");
+      Info (" warnings     - compiler warnings - EASY");
 
-      Info ("  Style_Checks - compiler style checks - TRIVIAL");
+      Info (" style_checks - compiler style checks - TRIVIAL");
 
-      Info ("  Restrictions - checks made by pragma Restriction_Warnings" &
+      Info (" restrictions - checks made by pragma Restriction_Warnings" &
             " - EASY");
    end Rules_Help;
 
