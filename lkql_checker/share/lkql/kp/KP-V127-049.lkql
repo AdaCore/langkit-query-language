@@ -20,7 +20,7 @@ fun is_operator(params, expr) =
 @check(message="possible occurrence of KP V127-049")
 fun kp_v127_049(node) =
     # Look for parameter associations of generic instantiations
-    node is ParamAssoc(parent is l@AssocList(parent is GenericInstantiation),
+    node is ParamAssoc(parent is AssocList(parent is inst@GenericInstantiation),
                        f_r_expr is expr@Name)
     # where the parameter is a subprogram
     when expr.p_referenced_decl() is decl@(BaseSubpBody or ClassicSubpDecl or
@@ -31,4 +31,4 @@ fun kp_v127_049(node) =
      # taking two integer (sub)types
      and has_two_integer_params(decl.f_subp_spec.f_subp_params)
      # and whose formal is an operator
-     and is_operator(l.p_zip_with_params(), expr)
+     and is_operator(inst.p_inst_params(), expr)

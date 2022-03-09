@@ -25,14 +25,12 @@ fun same_exprs(e1, e2) =
     | *             => false
 
 fun params_equal(l1, l2, i: int) =
-    if i == 0 then true
-    else l1[i].param == l2[i].param and
-         same_exprs(l1[i].actual, l2[i].actual)
-         and params_equal(l1, l2, i - 1)
+    i == 0 or
+    (same_exprs(l1[i].actual, l2[i].actual) and params_equal(l1, l2, i - 1))
 
-fun same_params(p1, p2) = {
-    val params1 = p1.p_zip_with_params();
-    val params2 = p2.p_zip_with_params();
+fun same_params(i1, i2) = {
+    val params1 = i1.p_inst_params();
+    val params2 = i2.p_inst_params();
     val length = params1.length;
     length == params2.length and params_equal(params1, params2, length)
 }
@@ -45,8 +43,7 @@ fun same_instance(node) =
     [i for i in insts()
        if i != node and
           node.f_generic_pkg_name.p_referenced_decl() ==
-          i.f_generic_pkg_name.p_referenced_decl() and
-          same_params(node.f_params, i.f_params)]?[1]
+          i.f_generic_pkg_name.p_referenced_decl() and same_params(node, i)]?[1]
 
 @unit_check(help="duplicate generic package instantiations",
             category="Style", subcategory="Program Structure")
