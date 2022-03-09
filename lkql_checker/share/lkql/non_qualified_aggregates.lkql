@@ -8,5 +8,8 @@
        remediation="EASY", category="Feature")
 fun non_qualified_aggregates(node) =
     node is Aggregate
-    when not (node is *(any parent is QualExpr or Aggregate) or
-              node.p_expression_type() is AnonymousTypeDecl)
+    when not (
+        node is *(
+            any parent is QualExpr or Aggregate(
+                p_expression_type() is not AnonymousTypeDecl)) or
+        node.p_expression_type() is AnonymousTypeDecl)
