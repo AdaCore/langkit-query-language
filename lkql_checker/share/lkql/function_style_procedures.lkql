@@ -16,8 +16,6 @@ fun in_out_params(s) =
 fun params_out(s) =
     [p for p in s.p_params() if p.f_mode is ModeOut].to_list
 
-fun is_limited(t) = t.f_has_limited.p_as_bool()
-
 @check(message="procedure can be rewritten as function", category="Feature")
 fun function_style_procedures(node) =
     node is (SubpBody or SubpBodyStub or ClassicSubpDecl or GenericSubpInternal)
