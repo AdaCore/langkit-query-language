@@ -1,0 +1,16 @@
+# Flag each primitive function of a tagged type that returns a limited type
+# and is not overridden in all extensions of this type.
+
+import stdlib
+
+@check(message="possible occurrence of KP V302-021")
+fun kp_v302_021(node) =
+    node is BaseSubpSpec(p_return_type() is ret@TypeDecl,
+                         p_primitive_subp_tagged_type() is type@BaseTypeDecl,
+                         parent is decl@BasicDecl(p_previous_part_for_decl() is null))
+    when stdlib.is_limited_type(ret)
+     and {
+        val num_types = type.p_find_all_derived_types(stdlib.list_of_units()).length;
+        num_types != 0 and
+        decl.p_find_all_overrides(stdlib.list_of_units()).length != num_types
+    }

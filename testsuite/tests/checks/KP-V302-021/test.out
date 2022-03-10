@@ -1,0 +1,4 @@
+r.ads:10:3: rule violation: possible occurrence of KP V302-021
+10 |   function Get_Ref (Self : aliased in out Root) return Reference;  --  FLAG
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

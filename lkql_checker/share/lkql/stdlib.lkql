@@ -294,6 +294,18 @@ fun get_subp_body(node) =
                        => node.p_body_part_for_decl()
     | *                => null
 
+fun is_limited_type(type) =
+    |" Return `true` if type is a limited type
+    type.f_type_def is
+        (def@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
+         when def.f_has_limited.p_as_bool()) or
+    InterfaceTypeDef(f_interface_kind is InterfaceKindLimited)
+
+@memoize
+fun list_of_units() =
+    |" Return a (cached) list of all known units
+    units().to_list
+
 fun sloc_image(node) =
     |" Return a string with basename:line corresponding to node's sloc
 {

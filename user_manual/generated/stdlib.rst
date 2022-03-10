@@ -84,6 +84,10 @@ library.
     Return ``true`` if ``o`` is immediately in the scope of a package spec,
     body or generic package.
 
+.. function:: is_limited_type(type)
+
+    Return `true` if type is a limited type
+
 .. function:: is_local_object(o)
 
     Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
@@ -108,6 +112,10 @@ library.
 .. function:: is_standard_numeric(n)
 
     Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
+
+.. function:: list_of_units()
+
+    Return a (cached) list of all known units
 
 .. function:: next_non_blank_token_line(token)
 
