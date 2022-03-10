@@ -45,11 +45,8 @@ selector static_calls
     | *      => ()
 
 @memoized
-fun my_units() = units().to_list
-
-@memoized
 fun find_all_overrides(subp) =
-    subp.p_find_all_overrides(my_units())
+    subp.p_find_all_overrides(stdlib.list_of_units())
 
 @memoized
 fun root_subp_decls(subp) =
