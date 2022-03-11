@@ -33,6 +33,7 @@ with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;                use Ada.Text_IO;
 
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
@@ -134,6 +135,9 @@ package body Gnatcheck.Diagnoses is
 
    procedure Copy_User_Info;
    --  Copies into the report file the text from user-provided file.
+
+   function Escape_XML (S : String) return String;
+   --  Escape relevant characters from S by their corresponding XML symbols
 
    procedure Print_Active_Rules_File;
    --  Prints the reference to the (actual argument or artificially created)
@@ -832,6 +836,39 @@ package body Gnatcheck.Diagnoses is
    begin
       return L.Text.all = R.Text.all;
    end Diag_Is_Equal;
+
+   ----------------
+   -- Escape_XML --
+   ----------------
+
+   function Escape_XML (S : String) return String is
+      Result : Unbounded_String;
+      use Ada.Strings.Unbounded;
+   begin
+      for C of S loop
+         case C is
+            when '&' =>
+               Append (Result, "&amp;");
+            when '<' =>
+               Append (Result, "&lt;");
+            when '>' =>
+               Append (Result, "&gt;");
+            when '"' =>
+               Append (Result, "&quot;");
+            when ASCII.NUL .. ASCII.US =>
+               declare
+                  Img : constant String := Integer'Image (Character'Pos (C));
+               begin
+                  Append
+                    (Result, "&#" & Img (Img'First + 1 .. Img'Last) & ";");
+               end;
+            when others =>
+               Append (Result, C);
+         end case;
+      end loop;
+
+      return To_String (Result);
+   end Escape_XML;
 
    --------------------
    -- SLOC_Less_Than --
@@ -3249,7 +3286,7 @@ package body Gnatcheck.Diagnoses is
          Indent_Level => Indentation);
 
       XML_Report_No_EOL
-        (" file=" & """" & Message (L_Idx .. R_Idx - 1) & """ ");
+        (" file=" & """" & Escape_XML (Message (L_Idx .. R_Idx - 1)) & """ ");
 
       L_Idx := R_Idx + 1;
       R_Idx := Index (Message (L_Idx .. Last_Idx), ":");
@@ -3273,12 +3310,14 @@ package body Gnatcheck.Diagnoses is
 
       XML_Report (">");
       XML_Report
-        ("<message>" & Message (R_Idx + 2 .. Last_Idx) & "</message>",
+        ("<message>" & Escape_XML (Message (R_Idx + 2 .. Last_Idx)) &
+         "</message>",
          Indent_Level => Indentation + 1);
 
       if Exempted then
          XML_Report
-           ("<justification>" & Diag.Justification.all & "</justification>",
+           ("<justification>" & Escape_XML (Diag.Justification.all) &
+            "</justification>",
             Indent_Level => Indentation + 1);
       end if;
 
