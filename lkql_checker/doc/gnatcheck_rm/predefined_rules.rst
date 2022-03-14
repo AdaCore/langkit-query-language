@@ -4218,7 +4218,9 @@ The rule may have the following parameters for ``+R``:
 *
   Exclude=\ *dictionary_file*
 
-  Specifies casing exceptions.
+  Specifies casing exceptions. The name of a dictionary file may contain references
+  to environment variables (e.g. $REPOSITORY_ROOT/my_dict.txt), they are replaced by the
+  values of these variables.
 
 Where:
 
@@ -5006,7 +5008,9 @@ identifiers from all the dictionary files provided as the rule parameters.
 This rule has the following (mandatory) parameters for the ``+R`` option:
 
 *dictionary_file*
-  The name of a dictionary file.
+  The name of a dictionary file. The name may contain references to environment
+  variables (e.g. $REPOSITORY_ROOT/my_dict.txt), they are replaced by the
+  values of these variables.
 
 A dictionary file is a plain text file. The maximum line length for this file
 is 1024 characters.  If the line is longer than this limit, extra characters

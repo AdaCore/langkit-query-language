@@ -26,6 +26,7 @@
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.String_Split;          use GNAT.String_Split;
 
@@ -51,6 +52,17 @@ package body Gnatcheck.Rules is
       Value : Unbounded_Wide_Wide_String);
    --  Like Append_Param, for an array of strings represented by a comma
    --  separated list in Value.
+
+   function Expand_Env_Variables (Name : String) return String;
+   --  Assuming that Name is a name of a dictionary file (used as rule
+   --  parameter) and that it may contain environment variables, tries
+   --  to locate environment variables and to replace them with their values.
+   --  Any substring that starts with '$', and is either limited by
+   --  a Directory_Separator or by another '$' character (which is considered
+   --  as the beginning of another environment variable) or by the end of Name
+   --  is treated as the name of an environment variable. If the corresponding
+   --  environment variable does not exist or does not have a value, generates
+   --  the diagnostic message and does not do any replacement.
 
    function Find_File (Name : String) return String;
    --  Return the pathname corresponding to Name, relative to either the
@@ -134,6 +146,85 @@ package body Gnatcheck.Rules is
          return " [" & Rule_Name (Rule) & "]";
       end if;
    end Annotate_Rule;
+
+   --------------------------
+   -- Expand_Env_Variables --
+   --------------------------
+
+   function Expand_Env_Variables (Name : String) return String is
+      Text_Start : Natural := Name'First;
+      EV_Start   : Natural := Index (Name, "$");
+      EV_End     : Positive;
+
+      Next_Env_Start : Natural;
+      Next_Dir_Sep   : Natural;
+
+      function Expand_Env_Var (EV_Name : String) return String;
+      --  Assuming that EV_Name is the name of an environment variable, returns
+      --  its value. If there is no such variable or if the variable is not
+      --  defined, returns the argument
+
+      --------------------
+      -- Expand_Env_Var --
+      --------------------
+
+      function Expand_Env_Var (EV_Name : String) return String is
+         Val : String_Access := Getenv (EV_Name);
+      begin
+         if Val = null
+           or else
+            Val.all = ""
+         then
+            Error ("environment variable " & EV_Name & " undefined");
+            Free (Val);
+            return EV_Name;
+         else
+            return Result : constant String := Val.all do
+               Free (Val);
+            end return;
+         end if;
+
+      end Expand_Env_Var;
+
+      use Ada.Strings.Maps, Ada.Strings.Unbounded;
+
+      Result : Unbounded_String := To_Unbounded_String ("");
+   begin
+      if EV_Start = 0 then
+         return Name;
+      end if;
+
+      while EV_Start /= 0 loop
+
+         if Text_Start < EV_Start then
+            Append (Result, Name (Text_Start .. EV_Start - 1));
+         end if;
+
+         EV_End         := Name'Last;
+         Next_Env_Start := Index (Name (EV_Start + 2 .. Name'Last), "$");
+
+         if Next_Env_Start /= 0 then
+            EV_End := Next_Env_Start - 1;
+         end if;
+
+         Next_Dir_Sep :=
+           Index (Name (EV_Start + 2 .. EV_End),
+                  Set => To_Set (Character_Ranges'
+                          (('/', '/'),
+                           (Directory_Separator, Directory_Separator))));
+         if Next_Dir_Sep /= 0 then
+            EV_End := Next_Dir_Sep - 1;
+         end if;
+
+         Append (Result, Expand_Env_Var (Name (EV_Start ..  EV_End)));
+
+         EV_Start   := Next_Env_Start;
+         Text_Start := EV_End + 1;
+
+      end loop;
+
+      return To_String (Result);
+   end Expand_Env_Variables;
 
    ---------------
    -- Find_File --
@@ -950,7 +1041,7 @@ package body Gnatcheck.Rules is
 
          if Rule.Name.all = "name_clashes" then
             Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Param);
-            Load_Dictionary (Param, Rule, Rule.Param);
+            Load_Dictionary (Expand_Env_Variables (Param), Rule, Rule.Param);
             Rule.Defined_At := new String'(Defined_At);
          else
             if Rule.Name.all = "parameters_out_of_order"
@@ -1329,7 +1420,8 @@ package body Gnatcheck.Rules is
 
          elsif Has_Prefix (Norm_Param, "exclude=") then
             Load_Dictionary
-              (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last),
+              (Expand_Env_Variables
+                 (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)),
                Rule, Rule.Exclude);
 
          else
