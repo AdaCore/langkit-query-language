@@ -26,8 +26,14 @@ with Rules_Factory; use Rules_Factory;
 
 package Gnatcheck.Options is
 
-   Version_String : constant String := "Pro 23.0w (20220301)";
-   Current_Year   : constant String := "2022";
+   Gnatcheck_Version : constant String := "23.0w";
+   --  Full major.minor version for Gnatcheck
+
+   Date : constant String := "20220301";
+
+   Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
+
+   Current_Year : constant String := "2022";
 
    Target : GNAT.OS_Lib.String_Access := new String'("");
    --  Target as it is specified by the command-line '--target=...' option, or

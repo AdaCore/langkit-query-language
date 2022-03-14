@@ -42,11 +42,14 @@ author = 'AdaCore'
 
 
 def get_version():
-    return '23.0w'
+    for line in open("../../lalcheck/gnatcheck-options.ads").readlines():
+        if line.lstrip().startswith('Gnatcheck_Version'):
+            return line[line.find('"') + 1:line.rfind('"')]
+    raise Exception("Could not find the current version of GNATcheck")
 
 
 version = get_version()
-release = get_version()
+release = version
 doc_name = 'gnatcheck_rm'
 
 pygments_style = 'sphinx'
