@@ -29,7 +29,7 @@ package Gnatcheck.Options is
    Gnatcheck_Version : constant String := "23.0w";
    --  Full major.minor version for Gnatcheck
 
-   Date : constant String := "20220301";
+   Date : constant String := "unknown date";
 
    Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
 
