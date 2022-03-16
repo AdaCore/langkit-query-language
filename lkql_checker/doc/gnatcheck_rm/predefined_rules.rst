@@ -1728,7 +1728,11 @@ Flag a case statement if this statement has only two alternatives, one
 containing exactly one choice, the other containing exactly one choice
 or the ``others`` choice.
 
-This rule has no parameters.
+The rule has an optional parameter for +R option:
+
+*Except_Enums*
+  Do not flag case statements whose selecting expression is of an enumeration
+  type.
 
 .. rubric:: Example
 
@@ -2739,8 +2743,6 @@ This rule has no parameters.
    end Pack;
 
 
-
-
 .. _Null_Paths:
 
 ``Null_Paths``
@@ -2751,7 +2753,12 @@ This rule has no parameters.
 Flag a statement sequence that is a component of an ``if``, ``case`` or
 ``loop`` statement if this sequences consists of NULL statements only.
 
-This rule has no parameters.
+The rule has an optional parameter for +R option:
+
+*Except_Enums*
+  Do not flag null paths inside case statements whose selecting expression is
+  of an enumeration type.
+
 
 .. rubric:: Example
 

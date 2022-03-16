@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Null_Paths
+input_sources: ['paths.adb']
+rule_arguments:
+    null_paths.except_enums: 'true'

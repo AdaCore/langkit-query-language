@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: binary_case_statements
+input_sources: ['paths.adb']
+rule_arguments:
+    binary_case_statements.except_enums: 'true'

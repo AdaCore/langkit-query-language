@@ -1,10 +1,16 @@
 # Flag a statement sequence that is a component of an IF, CASE or LOOP
 # statement if this sequence consists of NULL statements only.
+# This rule has an optional parameter Except_Enums: exclude case statements on
+# enumerated types.
 
 @check(message="null path", remediation="EASY",
        category="Style", subcategory="Programming Practice")
-fun null_paths(node) =
+fun null_paths(node, except_enums = false) =
     node is StmtList
     when node[1]
-     and node is StmtList(any parent is IfStmt or CaseStmt or BaseLoopStmt,
+     and node is StmtList(any parent is
+                              IfStmt or BaseLoopStmt or
+                              c@CaseStmt when not
+                                  (except_enums and
+                                   c.f_expr.p_expression_type().p_is_enum_type()),
                           all children is NullStmt)
