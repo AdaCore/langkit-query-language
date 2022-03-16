@@ -171,10 +171,7 @@ package body Gnatcheck.Rules is
       function Expand_Env_Var (EV_Name : String) return String is
          Val : String_Access := Getenv (EV_Name);
       begin
-         if Val = null
-           or else
-            Val.all = ""
-         then
+         if Val = null or else Val.all = "" then
             Error ("environment variable " & EV_Name & " undefined");
             Free (Val);
             return EV_Name;
@@ -183,24 +180,23 @@ package body Gnatcheck.Rules is
                Free (Val);
             end return;
          end if;
-
       end Expand_Env_Var;
 
       use Ada.Strings.Maps, Ada.Strings.Unbounded;
 
-      Result : Unbounded_String := To_Unbounded_String ("");
+      Result : Unbounded_String;
+
    begin
       if EV_Start = 0 then
          return Name;
       end if;
 
       while EV_Start /= 0 loop
-
          if Text_Start < EV_Start then
             Append (Result, Name (Text_Start .. EV_Start - 1));
          end if;
 
-         EV_End         := Name'Last;
+         EV_End := Name'Last;
          Next_Env_Start := Index (Name (EV_Start + 2 .. Name'Last), "$");
 
          if Next_Env_Start /= 0 then
@@ -210,8 +206,9 @@ package body Gnatcheck.Rules is
          Next_Dir_Sep :=
            Index (Name (EV_Start + 2 .. EV_End),
                   Set => To_Set (Character_Ranges'
-                          (('/', '/'),
-                           (Directory_Separator, Directory_Separator))));
+                           (('/', '/'),
+                            (Directory_Separator, Directory_Separator))));
+
          if Next_Dir_Sep /= 0 then
             EV_End := Next_Dir_Sep - 1;
          end if;
@@ -220,7 +217,6 @@ package body Gnatcheck.Rules is
 
          EV_Start   := Next_Env_Start;
          Text_Start := EV_End + 1;
-
       end loop;
 
       return To_String (Result);
