@@ -6833,21 +6833,17 @@ An ``out`` parameter is flagged if the *sequence of statements* of
 the procedure body (before the procedure body's exception part, if any)
 contains no assignment to the parameter.
 
-An ``out`` parameter is flagged in an *exception handler* in the exception
-part of the procedure body, if the *exception handler* contains neither an
-assignment to the parameter nor a raise statement.
+An ``out`` parameter is flagged if an *exception handler* contains neither an
+assignment to the parameter nor a raise statement nor a call to a procedure
+marked No_Return.
 
 Bodies of generic procedures are also considered.
 
 The following are treated as assignments to an ``out`` parameter:
 
-*
-  an assignment statement, with the parameter or some component as the target
-
-*
-  passing the parameter (or one of its components) as an ``out`` or
-  ``in out`` parameter, except for the case when it is passed to the
-  call of an attribute subprogram.
+* an assignment statement, with the parameter or some component as the target
+* passing the parameter (or one of its components) as an ``out`` or
+  ``in out`` parameter.
 
 The rule has an optional parameter for +R option:
 
@@ -6855,10 +6851,10 @@ The rule has an optional parameter for +R option:
   Ignore assignments to subcomponents of an ``out`` parameter when detecting
   if the parameter is assigned.
 
-.. warning:: This rule only detects a trivial case of an unassigned variable
-   and doesn't provide a guarantee that there is no uninitialized access.
-   It is not a replacement for rigorous check for uninitialized access provided
-   by advanced static analysis tools.
+.. warning:: This rule only detects the described cases of unassigned variables
+   and doesn't provide a full guarantee that there is no uninitialized access.
+   It is only a partial replacement for the validity checks provided by
+   CodePeer.
 
 .. rubric:: Example
 
