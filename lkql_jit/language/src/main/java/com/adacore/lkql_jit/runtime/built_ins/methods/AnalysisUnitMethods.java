@@ -1,0 +1,121 @@
+/*----------------------------------------------------------------------------
+--                             L K Q L   J I T                              --
+--                                                                          --
+--                     Copyright (C) 2022, AdaCore                          --
+--                                                                          --
+-- This library is free software;  you can redistribute it and/or modify it --
+-- under terms of the  GNU General Public License  as published by the Free --
+-- Software  Foundation;  either version 3,  or (at your  option) any later --
+-- version. This library is distributed in the hope that it will be useful, --
+-- but WITHOUT ANY WARRANTY;  without even the implied warranty of MERCHAN- --
+-- TABILITY or FITNESS FOR A PARTICULAR PURPOSE.                            --
+--                                                                          --
+-- As a special exception under Section 7 of GPL version 3, you are granted --
+-- additional permissions described in the GCC Runtime Library Exception,   --
+-- version 3.1, as published by the Free Software Foundation.               --
+--                                                                          --
+-- You should have received a copy of the GNU General Public License and    --
+-- a copy of the GCC Runtime Library Exception along with this program;     --
+-- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
+-- <http://www.gnu.org/licenses/>.                                          --
+--                                                                          --
+-----------------------------------------------------------------------------*/
+
+package com.adacore.lkql_jit.runtime.built_ins.methods;
+
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.values.NullValue;
+
+
+/**
+ * This class contains all built-in methods for the analysis unit type in the LKQL language
+ *
+ * @author Hugo GUERRIER
+ */
+public final class AnalysisUnitMethods extends CommonMethods {
+
+    // ----- Attributes -----
+
+    /** The only instance of the method collection */
+    private static AnalysisUnitMethods instance;
+
+    // ----- Constructors -----
+
+    /**
+     * Private constructor
+     */
+    private AnalysisUnitMethods() {
+        super();
+    }
+
+    /**
+     * Get the only instance of the method collection
+     *
+     * @return The instance
+     */
+    public static AnalysisUnitMethods getInstance() {
+        if(instance == null) {
+            instance = new AnalysisUnitMethods();
+        }
+        return instance;
+    }
+
+    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods() */
+    @Override
+    protected void initMethods() {
+        super.initMethods();
+
+        this.methods.put("root", new BuiltInFunctionValue(
+                "root",
+                "Return the root for this unit",
+                new String[]{"unit"},
+                new Expr[]{null},
+                new RootExpr()
+        ));
+        this.methods.put("name", new BuiltInFunctionValue(
+                "name",
+                "Return the name of this unit",
+                new String[]{"unit"},
+                new Expr[]{null},
+                new NameExpr()
+        ));
+    }
+
+    // ----- Override methods -----
+
+    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    @Override
+    public String getType() {
+        return LKQLTypesHelper.ANALYSIS_UNIT;
+    }
+
+    // ----- Inner classes -----
+
+    /**
+     * Expression of the "root" method
+     */
+    public final static class RootExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            Libadalang.AdaNode res = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).root();
+            return res == null ? NullValue.getInstance() : res;
+        }
+    }
+
+    /**
+     * Expression of the "name" method
+     */
+    public final static class NameExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
+        }
+    }
+
+}

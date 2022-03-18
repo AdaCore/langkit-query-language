@@ -1,0 +1,907 @@
+
+
+
+[
+
+    
+
+
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Arg",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ExprArg",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NamedArg",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SynthNamedArg",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BasePattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$FilteredPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$UnfilteredPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BindingPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ValuePattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ChainedNodePattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodePattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ExtendedNodePattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodeKindPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NotPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NullPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OrPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ParenPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$RegexPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$UniversalPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BlockBody",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BlockBodyDecl",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BlockBodyExpr",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ChainedPatternLink",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$FieldLink",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$PropertyLink",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorLink",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$DeclAnnotation",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Declaration",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$FunDecl",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ParameterDecl",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorDecl",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ValDecl",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$DetailValue",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$DetailExpr",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$DetailPattern",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Expr",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BaseFunction",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$AnonymousFunction",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NamedFunction",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BinOp",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ArithBinOp",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$RelBinOp",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BlockExpr",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$DotAccess",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SafeAccess",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$FunCall",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Identifier",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$IfThenElse",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$InClause",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Indexing",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SafeIndexing",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$IsClause",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ListComprehension",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ListLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Literal",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BaseStringLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BlockStringLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$StringLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BoolLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BoolLiteralFalse",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BoolLiteralTrue",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$IntegerLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NullLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$UnitLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Match",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ObjectLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Query",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$TryWith",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Tuple",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$UnOp",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Unpack",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Unwrap",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Import",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ListCompAssoc",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$LkqlNodeBaseList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ArgList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$BlockBodyList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ChainedPatternLinkList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ExprList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ListCompAssocList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$LkqlNodeList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$TopLevelList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$MatchArmList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NamedArgList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodePatternDetailList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ObjectAssocList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ParameterDeclList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorArmList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorExprList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SubBlockLiteralList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$TryArmList",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$MatchArm",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodePatternDetail",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodePatternField",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodePatternProperty",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$NodePatternSelector",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$ObjectAssoc",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Op",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpAnd",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpConcat",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpDiv",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpEq",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpGeq",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpGt",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpLeq",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpLt",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpMinus",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpMul",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpNeq",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpNot",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpOr",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$OpPlus",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$QueryKind",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$QueryKindAll",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$QueryKindFirst",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$Safe",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SafeAbsent",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SafePresent",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorArm",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorCall",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorExpr",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorExprMode",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorExprModeDefault",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorExprModeRec",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SelectorExprModeSkip",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$SubBlockLiteral",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$TryArm",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+
+    {
+        "name" : "com.adacore.liblkqllang.Liblkqllang$LkqlNode",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    }
+
+]

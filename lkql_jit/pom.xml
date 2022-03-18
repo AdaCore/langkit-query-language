@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.adacore</groupId>
+    <artifactId>lkql_jit</artifactId>
+    <packaging>pom</packaging>
+    <version>0.1.0</version>
+    <modules>
+        <module>language</module>
+        <module>launcher</module>
+        <module>component</module>
+        <module>checker</module>
+        <module>native</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <graalvm.version>22.2.0</graalvm.version>
+        <config.buildChecker>false</config.buildChecker>
+    </properties>
+
+    <!-- This profile is used to build the checker driver -->
+    <profiles>
+        <profile>
+            <id>checker</id>
+            <properties>
+                <config.buildChecker>true</config.buildChecker>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

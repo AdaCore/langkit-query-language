@@ -82,8 +82,13 @@ class InterpreterDriver(BaseTestDriver):
     """
 
     def run(self):
+        # Test the JIT setting env var
+        exec = "lkql_ada"
+        if(os.environ.get("LKQL_JIT", "false") == "true"):
+            exec = "lkql_jit"
+
         # Build the process's arguments list
-        args = ['lkql_ada', '--script-path', 'script.lkql']
+        args = [exec, '--script-path', 'script.lkql']
 
         if self.test_env['project']:
             args += ['-P', self.test_env['project']]

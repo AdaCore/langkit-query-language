@@ -7,6 +7,8 @@ class Manage(ManageScript):
 
     ENABLE_BUILD_WARNINGS_DEFAULT = True
 
+    EMIT_JAVA_API = True
+
     @property
     def main_programs(self):
         return super().main_programs | {'lkql_ada'}

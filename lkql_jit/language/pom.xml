@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>lkql_jit</artifactId>
+        <groupId>com.adacore</groupId>
+        <version>0.1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>language</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <!--suppress UnresolvedMavenProperty -->
+        <java.library.path>${java.library.path}:${env.LD_LIBRARY_PATH}</java.library.path>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>lkql_jit</finalName>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.graalvm.truffle:truffle-api</exclude>
+                                    <exclude>org.graalvm.truffle:truffle-dsl-processor</exclude>
+                                    <exclude>org.graalvm.truffle:truffle-tck</exclude>
+                                    <exclude>org.graalvm:graal-sdk</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-api</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-dsl-processor</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-tck</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>liblkqllang</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
+            <artifactId>libadalang</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
+</project>
