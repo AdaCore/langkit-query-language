@@ -121,6 +121,12 @@ package body Checker_App is
             --  Call Emit_Message to store an internal error message
 
             procedure Internal_Error (Msg : Wide_Wide_String) is
+               Exception_Msg : constant String :=
+                 Strip_LF
+                   (Exception_Information (if E /= null then E.all else Exc));
+               Type_Error    : constant Boolean :=
+                 Index (Exception_Msg, "Type error:") /= 0;
+
             begin
                Emit_Message
                  (To_Unbounded_Wide_Wide_String
@@ -135,12 +141,10 @@ package body Checker_App is
                        (Stripped_Image
                          (Integer (Lkql_Node.Sloc_Range.Start_Column))) &
                      ": " &
-                     To_Wide_Wide_String
-                       (Strip_LF
-                         (Exception_Information
-                           (if E /= null then E.all else Exc)))),
+                     To_Wide_Wide_String (Exception_Msg)),
                   Node.Unit, Rule.Name,
-                  (if Severe then Severe_Internal_Error else Internal_Error),
+                  (if Severe or else Type_Error
+                   then Severe_Internal_Error else Internal_Error),
                   Node.Sloc_Range);
             end Internal_Error;
 
