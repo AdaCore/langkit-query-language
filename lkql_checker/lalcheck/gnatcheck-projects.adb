@@ -18,7 +18,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
+with Ada.Directories;            use Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
@@ -845,6 +847,13 @@ package body Gnatcheck.Projects is
          end loop;
       end Process_Sections;
 
+      Executable : String_Access := GNAT.OS_Lib.Locate_Exec_On_Path
+        (Ada.Command_Line.Command_Name);
+      Prefix     : constant String :=
+         Containing_Directory (Containing_Directory (Executable.all));
+      Lkql       : constant String :=
+        Compose (Compose (Prefix, "share"), "lkql");
+
       In_Project_File : constant Boolean := Parser /= Command_Line_Parser;
       Initial_Char    : Character;
       Success         : Boolean;
@@ -852,6 +861,17 @@ package body Gnatcheck.Projects is
    --  Start of processing for Scan_Arguments
 
    begin
+      --  Set Legacy early so that this flag can be checked elsewhere.
+      --  If legacy-rules.txt is found, it means we have a full packaging
+      --  and a full gnatcheck. If the file is not found, it means we have
+      --  a reduced packaging and a legacy gnatcheck.
+
+      if not Is_Regular_File (Compose (Lkql, "legacy-rules.txt")) then
+         Legacy := True;
+      end if;
+
+      Free (Executable);
+
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
@@ -1231,7 +1251,9 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-no_objects_dir" then
                      No_Object_Dir := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-rules-dir" then
+                  elsif Full_Switch (Parser => Parser) = "-rules-dir"
+                    and then not Legacy
+                  then
                      Additional_Rules_Dirs.Append
                        (Parameter (Parser => Parser));
                   end if;

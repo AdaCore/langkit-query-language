@@ -105,6 +105,9 @@ package Gnatcheck.Options is
    --  If True, run the compiler to check the semantic of each source file.
    --  --check-semantic
 
+   Legacy : Boolean := False;
+   --  If True, run in legacy mode, with no support for additional rule files.
+
    type Warning_Modes is
      (Quiet,  --  all warnings are suppressed
       Short,
