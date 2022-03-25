@@ -1278,6 +1278,11 @@ package body Gnatcheck.Compiler is
       Num_Args : Integer := 0;
 
    begin
+      if GPRbuild = null then
+         Error ("cannot locate gprbuild executable");
+         raise Fatal_Error;
+      end if;
+
       Args (1) := new String'("-c");
       Args (2) := new String'("-s");
       Args (3) := new String'("-k");

@@ -21,7 +21,7 @@ fun complex_declaration(decls) =
                   | ProtectedBody               => true
                   | GenericPackageInstantiation => true
                   | g@GenericSubpInstantiation  =>
-                      g.p_designated_subp()?.p_canonical_fully_qualified_name()
+                      g.p_designated_subp()?.p_canonical_fully_qualified_name?()
                       != "ada.unchecked_conversion"
                   | * => false)
     then c else null
