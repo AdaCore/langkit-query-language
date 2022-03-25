@@ -2089,7 +2089,8 @@ package body Gnatcheck.Rules is
             XML_Report
               ("<parameter>" &
                To_String (Rule.Parameters.Child (J).
-                          As_Parameter_Decl.F_Param_Identifier.Text),
+                          As_Parameter_Decl.F_Param_Identifier.Text) &
+               "</parameter>",
                Indent_Level + 1);
          end if;
       end loop;
@@ -2181,11 +2182,17 @@ package body Gnatcheck.Rules is
 
       Print ("Type_Suffix", Rule.Type_Suffix);
 
-      if Length (Rule.Access_Access_Suffix) /= 0 then
+      if Length (Rule.Access_Suffix) /= 0 then
          XML_Report_No_EOL
            ("<parameter>Access_Suffix=" & To_String (Rule.Access_Suffix),
             Indent_Level + 1);
-         XML_Report_No_EOL ("(" & To_String (Rule.Access_Access_Suffix) & ")");
+
+         if Length (Rule.Access_Access_Suffix) /= 0 then
+            XML_Report_No_EOL ("(" & To_String (Rule.Access_Access_Suffix) &
+                                 ")");
+         end if;
+
+         XML_Report ("</parameter>");
       end if;
 
       Print ("Class_Subtype_Suffix", Rule.Class_Subtype_Suffix);
@@ -2238,10 +2245,12 @@ package body Gnatcheck.Rules is
             if C /= ',' then
                XML_Report_No_EOL ([C]);
             else
-               XML_Report ("</parameter>", Indent_Level + 1);
+               XML_Report ("</parameter>");
                XML_Report_No_EOL ("<parameter>Exclude=", Indent_Level + 1);
             end if;
          end loop;
+
+         XML_Report ("</parameter>");
       end if;
 
       XML_Report ("</rule>", Indent_Level);
@@ -2281,7 +2290,7 @@ package body Gnatcheck.Rules is
             C := To_Character (Element (Items, J));
 
             if C = ',' then
-               XML_Report ("</parameter>", Indent_Level + 1);
+               XML_Report ("</parameter>");
 
                if Enable then
                   XML_Report_No_EOL ("<parameter>", Indent_Level + 1);
@@ -2303,9 +2312,18 @@ package body Gnatcheck.Rules is
          XML_Report ("<parameter>ALL</parameter>", Indent_Level + 1);
       else
          XML_Print (Rule.Forbidden, True);
+
+         if Length (Rule.Forbidden) /= 0 then
+            XML_Report ("</parameter>");
+         end if;
       end if;
 
       XML_Print (Rule.Allowed, False);
+
+      if Length (Rule.Allowed) /= 0 then
+         XML_Report ("</parameter>");
+      end if;
+
       XML_Report ("</rule>", Indent_Level);
    end XML_Print_Rule;
 
@@ -2339,12 +2357,14 @@ package body Gnatcheck.Rules is
             C := To_Character (Element (Items, J));
 
             if C = ',' then
-               XML_Report (Str & "</parameter>", Indent_Level + 1);
+               XML_Report (Str & "</parameter>");
                XML_Report_No_EOL ("<parameter>" & Str, Indent_Level + 1);
             else
                XML_Report_No_EOL ([C]);
             end if;
          end loop;
+
+         XML_Report (Str & "</parameter>");
       end XML_Print;
 
    begin
