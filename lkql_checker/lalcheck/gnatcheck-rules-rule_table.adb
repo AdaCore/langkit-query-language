@@ -351,13 +351,10 @@ package body Gnatcheck.Rules.Rule_Table is
 
       function Get_Rule_File_Name (RF : String) return String is
         (if Is_Absolute_Path (RF_Name)
-           or else
-            not Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
-         then
-            RF
-         else
-            Normalize_Pathname
-              (Dir_Name (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj) & RF));
+           or else not Gnatcheck.Options.Gnatcheck_Prj.Is_Specified
+         then RF
+         else Normalize_Pathname
+                (Dir_Name (Gnatcheck.Options.Gnatcheck_Prj.Source_Prj) & RF));
       --  If gnatcheck is called with a project file, all the (relative) names
       --  of the rule files are considered as related to the project file
       --  directory, otherwise - as related to the current directory

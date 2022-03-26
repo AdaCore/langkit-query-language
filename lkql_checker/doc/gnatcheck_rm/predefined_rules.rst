@@ -1487,13 +1487,11 @@ a set of the ``gnatcheck`` argument sources contains an instantiation
 of the same generic with the same actual parameters. This determination
 is conservative, it checks only for the following matching parameters:
 
-*
-  integer, character and string literals;
+* integer, character and string literals;
 
-*
-  Ada names that denote the same entity.
+* Ada names that denote the same entity.
 
-If some instantiation if marked by the rule, additional investigation
+If some instantiation is marked by the rule, additional investigation
 is required to decide if one of the duplicated instantiations can be
 removed to simplify the code. In particular, the rule does not check if
 these instantiations declare any global variable or perform some
