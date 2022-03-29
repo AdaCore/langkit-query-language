@@ -621,19 +621,18 @@ the following main user interface:
 
 .. code-block:: sh
 
-   gnatkp -Pproject -rules +Rkp_xxxx_xxx +Rkp_xxxx_xxx
+   gnatkp -Pproject -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
 
 where ``kp_xxxx_xxx`` is the name of a known-problem to detect. You can
-get the list of detectors available via the following command:
-
-.. code-block:: sh
-
-   gnatkp -h
+get the list of detectors available via the command ``gnatkp -h``.
 
 The first ``gnatkp`` command above will process all the files in the
 given project file and run the listed known problem detectors, generating
 a list of occurrences on standard error, as well as in a file called
 :file:`gnatkp.out`.
+
+You can also use the command ``gnatkp --help`` to list all the switches
+relevant to ``gnatkp``.
 
 You should check via the GNAT Tracker interface which known problems are
 relevant to your version of GNAT and your target before deciding which
