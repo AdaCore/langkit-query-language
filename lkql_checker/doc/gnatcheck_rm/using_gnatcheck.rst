@@ -609,6 +609,38 @@ GNATcheck Annotations Rules
   end of the compilation unit source.
 
 
+.. _Using_GNATcheck_as_a_KP_Detector:
+
+Using GNATcheck as a Known Problem Detector
+===========================================
+
+If you are a GNAT Pro Assurance customer, you have access to a special
+packaging of GNATcheck called ``gnatkp`` (GNAT Known Problem detector)
+where the ``gnatcheck`` executable is replaced by ``gnatkp`` and provides
+the following main user interface:
+
+.. code-block:: sh
+
+   gnatkp -Pproject -rules +Rkp_xxxx_xxx +Rkp_xxxx_xxx
+
+where ``kp_xxxx_xxx`` is the name of a known-problem to detect. You can
+get the list of detectors available via the following command:
+
+.. code-block:: sh
+
+   gnatkp -h
+
+The first ``gnatkp`` command above will process all the files in the
+given project file and run the listed known problem detectors, generating
+a list of occurrences on standard error, as well as in a file called
+:file:`gnatkp.out`.
+
+You should check via the GNAT Tracker interface which known problems are
+relevant to your version of GNAT and your target before deciding which
+known problems may impact you: most known problems are only relevant to a
+specific version of GNAT or a specific target. Do not hesitate to contact
+AdaCore support if needed to identify the relevant entries.
+
 .. _Transition_from_ASIS-based_GNATcheck:
 
 Transition from ASIS-based GNATcheck

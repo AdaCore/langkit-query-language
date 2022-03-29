@@ -2157,7 +2157,7 @@ package body Gnatcheck.Diagnoses is
 
          Report        (Trim (Minute_Of_Check'Img, Left));
 
-         Report ("gnatcheck version : gnatcheck " & Version_String);
+         Report (Executable & " version : " & Version_String);
 
          Report_No_EOL ("command line      : ");
          Print_Gnatcheck_Command_Line;

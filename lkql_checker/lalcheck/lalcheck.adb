@@ -281,6 +281,12 @@ begin
    Ctx := Gnatcheck.Source_Table.Create_Context;
    Process_Rules (Ctx);
 
+   --  Ignore project switches when running as gnatkp
+
+   if Executable = "gnatkp" then
+      Ignore_Project_Switches := True;
+   end if;
+
    --  Analyze relevant project properties if needed
 
    if Gnatcheck_Prj.Is_Specified
@@ -291,12 +297,21 @@ begin
       Extract_Tool_Options (Gnatcheck_Prj);
    end if;
 
-   --  And finally - analyze the command-line parameters.
+   --  Then analyze the command-line parameters
 
    Initialize_Option_Scan
      (Stop_At_First_Non_Switch => False,
       Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments;
+
+   --  Force some switches for gnatkp
+
+   if Executable = "gnatkp" then
+      Short_Report   := True;
+      Max_Diagnoses  := 0;
+      Simple_Project := False;
+      Log_Mode       := False;
+   end if;
 
    Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
@@ -405,7 +420,7 @@ begin
 exception
    when Parameter_Error =>
       --  The diagnosis is already generated
-      Info ("try ""gnatcheck --help"" for more information.");
+      Info ("try """ & Executable & " --help"" for more information.");
       OS_Exit (E_Error);
 
    when Fatal_Error =>

@@ -20,6 +20,8 @@
 --  This package defines options that are supposed to be of a common interest
 --  for all the tools.
 
+with Ada.Command_Line; use Ada.Command_Line;
+with Ada.Directories; use Ada.Directories;
 with GNAT.OS_Lib;
 with Gnatcheck.Projects;
 with Rules_Factory; use Rules_Factory;
@@ -34,6 +36,9 @@ package Gnatcheck.Options is
    Version_String : constant String := Gnatcheck_Version & " (" & Date & ")";
 
    Current_Year : constant String := "2022";
+
+   Executable : constant String := Base_Name (Command_Name);
+   --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
 
    Target : GNAT.OS_Lib.String_Access := new String'("");
    --  Target as it is specified by the command-line '--target=...' option, or

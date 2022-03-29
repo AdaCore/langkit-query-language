@@ -1,5 +1,6 @@
 # Flag all aspect associations for Small
 
-@check(message="possible occurrence of KP UB15-001: use of Small aspect")
+@check(help="possible occurrence of KP UB15-001",
+       message="possible occurrence of KP UB15-001: use of Small aspect")
 fun kp_ub15_001(node) =
     node is AspectAssoc(f_id is Identifier(p_name_is("Small") is true))

@@ -111,10 +111,10 @@ package body Gnatcheck.Output is
 
    procedure Error (Message : String) is
    begin
-      Put (Standard_Error, "gnatcheck: ");
+      Put (Standard_Error, Executable & ": ");
 
       if Log_Mode and then Is_Open (Log_File) then
-         Put (Log_File, "gnatcheck: ");
+         Put (Log_File, Executable & ": ");
       end if;
 
       Error_No_Tool_Name (Message);
@@ -337,7 +337,7 @@ package body Gnatcheck.Output is
 
    procedure Print_Version_Info (Released_At : Positive) is
    begin
-      Info ("gnatcheck " & Version_String);
+      Info (Executable & " " & Version_String);
       Info_No_EOL ("Copyright ");
       Info_No_EOL (Image (Released_At));
       Info_No_EOL ("-");
@@ -435,7 +435,7 @@ package body Gnatcheck.Output is
       if Log_Mode then
          if Log_File_Name = null then
             Log_File_Name :=
-              new String'(Global_Report_Dir.all & "gnatcheck.log");
+              new String'(Global_Report_Dir.all & Executable & ".log");
          end if;
 
          if Is_Regular_File (Log_File_Name.all) then
@@ -477,7 +477,7 @@ package body Gnatcheck.Output is
          else
             Report_File_Name := new String'(Normalize_Pathname
               (Global_Report_Dir.all &
-                 (if Report_File_Name = null then "gnatcheck.out"
+                 (if Report_File_Name = null then Executable & ".out"
                   else Report_File_Name.all)));
          end if;
 
@@ -520,7 +520,7 @@ package body Gnatcheck.Output is
          else
             XML_Report_File_Name := new String'(Normalize_Pathname
               (Global_Report_Dir.all &
-                 (if XML_Report_File_Name = null then "gnatcheck.xml"
+                 (if XML_Report_File_Name = null then Executable & ".xml"
                   else XML_Report_File_Name.all)));
          end if;
 
@@ -603,10 +603,10 @@ package body Gnatcheck.Output is
          Put (Log_File, SLOC & ": ");
       end if;
 
-      Put (Standard_Error, "gnatcheck: ");
+      Put (Standard_Error, Executable & ": ");
 
       if Log_Mode and then Is_Open (Log_File) then
-         Put (Log_File, "gnatcheck: ");
+         Put (Log_File, Executable & ": ");
       end if;
 
       Error_No_Tool_Name (Message);
@@ -647,6 +647,45 @@ package body Gnatcheck.Output is
    procedure Brief_Help is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
+
+      if Executable = "gnatkp" then
+         Info ("gnatkp: the GNAT known problem detector");
+         Info ("usage: gnatkp -Pproject [options] -rules kp_switches");
+         Info ("options:");
+         Info (" --version - Display version and exit");
+         Info (" --help    - Display usage and exit");
+         Info ("");
+         Info (" -Pproject        - Use project file project. Only one such switch can be used");
+         Info (" -U               - check all sources of the argument project");
+         Info (" -U main          - check the closure of units rooted at unit main");
+         Info (" -Xname=value     - specify an external reference for argument project file");
+         Info (" --subdirs=dir    - specify subdirectory to place the result files into");
+         Info (" -eL              - follow all symbolic links when processing project files");
+         Info ("");
+         Info (" --target=targetname       - specify a target for cross platforms");
+         Info (" --RTS=<runtime>           - use runtime <runtime>");
+         Info ("");
+         Info (" -h   - print out the list of the available kp detectors");
+         Info (" -jn  - n is the maximal number of processes");
+         Info (" -q   - quiet mode (do not report detections in Stderr)");
+         Info (" -v   - verbose mode");
+         Info (" -l   - full pathname for file locations");
+         Info ("");
+         Info (" --brief              - brief mode, only report detections in Stderr");
+         Info (" --check-semantic     - check semantic validity of the source files");
+         Info (" --charset=<charset>  - specify the charset of the source files");
+         Info ("");
+         Info (" -o filename   - specify the name of the report file");
+         Info ("");
+
+         Info ("kp_switches          - a list of the following switches");
+         Info ("   -from=filename    - read kp options from filename");
+         Info ("   +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
+         Info ("   -R<kp_id>         - turn OFF a given detector");
+         Info ("where <kp_id>        - ID of one of the currently implemented");
+         Info ("                       detectors, use '-h' for the full list");
+         return;
+      end if;
 
       Info ("gnatcheck: the GNAT rule checking tool");
       Info ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");

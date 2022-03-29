@@ -218,12 +218,12 @@ package body Gnatcheck.Projects.Aggregate is
       Exit_Code : Integer;
 
       Full_Tool_Name : constant String_Access :=
-        Locate_Exec_On_Path ("gnatcheck");
+        Locate_Exec_On_Path (Executable);
 
    begin
       if Full_Tool_Name = null then
-         Error ("Cannot locate gnatcheck on PATH, possible installation " &
-                "problem");
+         Error ("Cannot locate " & Executable &
+                " on PATH, possible installation problem");
          raise Fatal_Error;
       end if;
 

@@ -1002,7 +1002,11 @@ package body Gnatcheck.Rules.Rule_Table is
       Set : Rule_Sets.Set;
 
    begin
-      Info ("gnatcheck currently implements the following rules:");
+      if Executable = "gnatkp" then
+         Info ("gnatkp currently implements the following detectors:");
+      else
+         Info (Executable & " currently implements the following rules:");
+      end if;
 
       if All_Rules.Last < First_Rule then
          Info (" There is no rule implemented");
@@ -1016,16 +1020,18 @@ package body Gnatcheck.Rules.Rule_Table is
          end loop;
       end if;
 
-      Info ("gnatcheck allows activation of the following checks " &
-            "provided by GNAT");
-      Info ("using the same syntax to control these checks as for other " &
-            "rules:");
-      Info (" warnings     - compiler warnings - EASY");
+      if Executable /= "gnatkp" then
+         Info (Executable & " allows activation of the following checks " &
+               "provided by GNAT");
+         Info ("using the same syntax to control these checks as for other " &
+               "rules:");
+         Info (" warnings     - compiler warnings - EASY");
 
-      Info (" style_checks - compiler style checks - TRIVIAL");
+         Info (" style_checks - compiler style checks - TRIVIAL");
 
-      Info (" restrictions - checks made by pragma Restriction_Warnings" &
-            " - EASY");
+         Info (" restrictions - checks made by pragma Restriction_Warnings" &
+               " - EASY");
+      end if;
    end Rules_Help;
 
    ----------------------

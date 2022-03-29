@@ -35,7 +35,7 @@ fun message(n, alignment) = {
               stdlib.sloc_image(res), loc: n}
 }
 
-@unit_check(help="detect possible occurrences of KP UA12-036")
+@unit_check(help="possible occurrence of KP UA12-036")
 fun kp_ua12_036(unit, alignment: int = 16) = [
     message(n, alignment)
     for n in from unit.root select node@GenericSubpInstantiation
