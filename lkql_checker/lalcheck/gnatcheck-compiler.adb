@@ -106,14 +106,14 @@ package body Gnatcheck.Compiler is
    --  are not included in values of this type.
 
    type Special_Restriction_Id is
-     (Not_A_Special_Restriction_Id, No_Dependence);
+     (Not_A_Special_Restriction_Id, No_Dependence, No_Use_Of_Entity);
 
    subtype All_Special_Restrictions is Special_Restriction_Id range
-     No_Dependence .. No_Dependence;
+     No_Dependence .. No_Use_Of_Entity;
    --  All special restrictions, excluding Not_A_Special_Restriction_Id.
 
    subtype All_Special_Parameter_Restrictions is Special_Restriction_Id range
-     No_Dependence .. No_Dependence;
+     No_Dependence .. No_Use_Of_Entity;
    --  All special restrictions that have a parameter
 
    function Needs_Parameter_In_Exemption
@@ -131,6 +131,9 @@ package body Gnatcheck.Compiler is
 
    package Forbidden_Units_Dictionary is new Simple_String_Dictionary
      (Dictionary_Name => "Forbidden units dictionary");
+
+   package Forbidden_Entities_Dictionary is new Simple_String_Dictionary
+     (Dictionary_Name => "Forbidden entities dictionary");
 
    --------------------
    -- Adjust_Message --
@@ -520,6 +523,16 @@ package body Gnatcheck.Compiler is
                      Put_Line
                        (RPF, Forbidden_Units_Dictionary.Next_Entry & ");");
                   end loop;
+
+               when No_Use_Of_Entity =>
+                  Forbidden_Entities_Dictionary.Reset_Iterator;
+
+                  while not Forbidden_Entities_Dictionary.Done loop
+                     Put (RPF,
+                          "pragma Restriction_Warnings (No_Use_Of_Entity => ");
+                     Put_Line
+                       (RPF, Forbidden_Entities_Dictionary.Next_Entry & ");");
+                  end loop;
             end case;
          end if;
       end loop;
@@ -681,7 +694,6 @@ package body Gnatcheck.Compiler is
    -------------------------------
 
    procedure Print_Active_Restrictions (Ident_Level : Natural := 0) is
-      Bool_Tmp : Boolean := True;
    begin
       for R in Restriction_Setting'Range loop
          if Restriction_Setting (R).Active then
@@ -702,20 +714,23 @@ package body Gnatcheck.Compiler is
 
             case R is
                when No_Dependence =>
-                  Report_No_EOL (" => ");
-
                   Forbidden_Units_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Units_Dictionary.Done loop
-                     if Bool_Tmp then
-                        Report (Forbidden_Units_Dictionary.Next_Entry);
-                        Bool_Tmp := False;
-                     else
-                        Report
-                          ("No_Dependence => " &
-                           Forbidden_Units_Dictionary.Next_Entry,
+                     Report
+                       ("No_Dependence => " &
+                        Forbidden_Units_Dictionary.Next_Entry,
                            Ident_Level);
-                     end if;
+                  end loop;
+
+               when No_Use_Of_Entity =>
+                  Forbidden_Entities_Dictionary.Reset_Iterator;
+
+                  while not Forbidden_Entities_Dictionary.Done loop
+                     Report
+                       ("No_Use_Of_Entity => " &
+                        Forbidden_Entities_Dictionary.Next_Entry,
+                        Ident_Level);
                   end loop;
             end case;
          end if;
@@ -753,6 +768,16 @@ package body Gnatcheck.Compiler is
                      Put      (Rule_File, To_Mixed (R'Img) & " => ");
                      Put_Line (Rule_File,
                                Forbidden_Units_Dictionary.Next_Entry);
+                  end loop;
+
+               when No_Use_Of_Entity =>
+                  Forbidden_Entities_Dictionary.Reset_Iterator;
+
+                  while not Forbidden_Entities_Dictionary.Done loop
+                     Put      (Rule_File, "+RRestrictions : ");
+                     Put      (Rule_File, To_Mixed (R'Img) & " => ");
+                     Put_Line (Rule_File,
+                               Forbidden_Entities_Dictionary.Next_Entry);
                   end loop;
             end case;
          end if;
@@ -837,7 +862,6 @@ package body Gnatcheck.Compiler is
       end loop;
 
       if not Enable then
-
          if R_Id in All_Restrictions then
             Restriction_Setting (R_Id).Active := False;
          else
@@ -850,8 +874,11 @@ package body Gnatcheck.Compiler is
                      Forbidden_Units_Dictionary.Remove_From_Dictionary
                        (Trim (Param (Last_Idx .. Param'Last), Both));
 
-                  when others =>
-                     null;
+                  when No_Use_Of_Entity =>
+                     Forbidden_Entities_Dictionary.Remove_From_Dictionary
+                       (Trim (Param (Last_Idx .. Param'Last), Both));
+
+                  when Not_A_Special_Restriction_Id => null;
                end case;
             end if;
          end if;
@@ -939,10 +966,9 @@ package body Gnatcheck.Compiler is
 
          case Special_R_Id is
             when No_Dependence =>
-
                if not Arg_Present then
-                  Error ("RESTRICTIONS rule parameter: " & Param &
-                          " should contain an unit name, ignored");
+                  Error ("Restrictions rule parameter: " & Param &
+                          " should contain a unit name, ignored");
                   return;
                end if;
 
@@ -950,8 +976,18 @@ package body Gnatcheck.Compiler is
                Forbidden_Units_Dictionary.Add_To_Dictionary
                  (Trim (Param (Last_Idx .. Param'Last), Both));
 
+            when No_Use_Of_Entity =>
+               if not Arg_Present then
+                  Error ("Restrictions rule parameter: " & Param &
+                          " should contain an entity name, ignored");
+                  return;
+               end if;
+
+               Special_Restriction_Setting (Special_R_Id) := True;
+               Forbidden_Entities_Dictionary.Add_To_Dictionary
+                 (Trim (Param (Last_Idx .. Param'Last), Both));
+
             when Not_A_Special_Restriction_Id =>
-               null;
                pragma Assert (False);
          end case;
       end if;
@@ -1411,6 +1447,17 @@ package body Gnatcheck.Compiler is
                      XML_Report
                        ("<parameter>No_Dependence=>" &
                           Forbidden_Units_Dictionary.Next_Entry &
+                          "</parameter>",
+                        Indent_Level + 1);
+                  end loop;
+
+               when No_Use_Of_Entity =>
+                  Forbidden_Entities_Dictionary.Reset_Iterator;
+
+                  while not Forbidden_Entities_Dictionary.Done loop
+                     XML_Report
+                       ("<parameter>No_Use_Of_Entity=>" &
+                          Forbidden_Entities_Dictionary.Next_Entry &
                           "</parameter>",
                         Indent_Level + 1);
                   end loop;
