@@ -1,0 +1,38 @@
+<svg class="railroad-diagram" height="62" viewBox="0 0 345.5 62" width="345.5" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(.5 .5)">
+<style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(120,100%,90%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+
+/* ]]> */
+</style><g>
+<path d="M20 21v20m10 -20v20m-10 -10h120.5"></path><text style="text-anchor:start" x="20" y="16">import&#95;clause</text></g><path d="M140.5 31h10"></path><g>
+<path d="M150.5 31h0.0"></path><path d="M295.5 31h0.0"></path><g class="terminal ">
+<path d="M150.5 31h0.0"></path><path d="M238.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="88.0" x="150.5" y="20"></rect><text x="194.5" y="35">'import'</text></g><path d="M238.5 31h10"></path><path d="M248.5 31h10"></path><g class="terminal ">
+<path d="M258.5 31h0.0"></path><path d="M295.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="37.0" x="258.5" y="20"></rect><text x="277.0" y="35">id</text></g></g><path d="M295.5 31h10"></path><path d="M 305.5 31 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g></svg>

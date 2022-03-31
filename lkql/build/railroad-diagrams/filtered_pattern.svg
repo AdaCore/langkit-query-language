@@ -1,0 +1,41 @@
+<svg class="railroad-diagram" height="92" viewBox="0 0 558.5 92" width="558.5" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(.5 .5)">
+<style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(120,100%,90%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+
+/* ]]> */
+</style><g>
+<path d="M20 21v20m10 -20v20m-10 -10h146.0"></path><text style="text-anchor:start" x="20" y="16">filtered&#95;pattern</text></g><g>
+<path d="M166.0 31h0.0"></path><path d="M518.5 31h0.0"></path><path d="M166.0 31h20"></path><g>
+<path d="M186.0 31h0.0"></path><path d="M498.5 31h0.0"></path><g class="terminal ">
+<path d="M186.0 31h0.0"></path><path d="M333.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="147.5" x="186.0" y="20"></rect><text x="259.75" y="35">binding&#95;pattern</text></g><path d="M333.5 31h10"></path><path d="M343.5 31h10"></path><g class="terminal ">
+<path d="M353.5 31h0.0"></path><path d="M424.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="71.0" x="353.5" y="20"></rect><text x="389.0" y="35">'when'</text></g><path d="M424.5 31h10"></path><path d="M434.5 31h10"></path><g class="terminal ">
+<path d="M444.5 31h0.0"></path><path d="M498.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="54.0" x="444.5" y="20"></rect><text x="471.5" y="35">expr</text></g></g><path d="M498.5 31h20"></path><path d="M166.0 31a10 10 0 0 1 10 10v10a10 10 0 0 0 10 10"></path><g class="terminal ">
+<path d="M186.0 61h82.5"></path><path d="M416.0 61h82.5"></path><rect height="22" rx="10" ry="10" width="147.5" x="268.5" y="50"></rect><text x="342.25" y="65">binding&#95;pattern</text></g><path d="M498.5 61a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10"></path></g><path d="M 518.5 31 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g></svg>

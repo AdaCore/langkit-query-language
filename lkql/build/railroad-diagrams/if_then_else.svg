@@ -1,0 +1,42 @@
+<svg class="railroad-diagram" height="62" viewBox="0 0 650.0 62" width="650.0" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(.5 .5)">
+<style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(120,100%,90%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+
+/* ]]> */
+</style><g>
+<path d="M20 21v20m10 -20v20m-10 -10h112.0"></path><text style="text-anchor:start" x="20" y="16">if&#95;then&#95;else</text></g><path d="M132.0 31h10"></path><g>
+<path d="M142.0 31h0.0"></path><path d="M600.0 31h0.0"></path><g class="terminal ">
+<path d="M142.0 31h0.0"></path><path d="M196.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="54.0" x="142.0" y="20"></rect><text x="169.0" y="35">'if'</text></g><path d="M196.0 31h10"></path><path d="M206.0 31h10"></path><g class="terminal ">
+<path d="M216.0 31h0.0"></path><path d="M270.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="54.0" x="216.0" y="20"></rect><text x="243.0" y="35">expr</text></g><path d="M270.0 31h10"></path><path d="M280.0 31h10"></path><g class="terminal ">
+<path d="M290.0 31h0.0"></path><path d="M361.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="71.0" x="290.0" y="20"></rect><text x="325.5" y="35">'then'</text></g><path d="M361.0 31h10"></path><path d="M371.0 31h10"></path><g class="terminal ">
+<path d="M381.0 31h0.0"></path><path d="M435.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="54.0" x="381.0" y="20"></rect><text x="408.0" y="35">expr</text></g><path d="M435.0 31h10"></path><path d="M445.0 31h10"></path><g class="terminal ">
+<path d="M455.0 31h0.0"></path><path d="M526.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="71.0" x="455.0" y="20"></rect><text x="490.5" y="35">'else'</text></g><path d="M526.0 31h10"></path><path d="M536.0 31h10"></path><g class="terminal ">
+<path d="M546.0 31h0.0"></path><path d="M600.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="54.0" x="546.0" y="20"></rect><text x="573.0" y="35">expr</text></g></g><path d="M600.0 31h10"></path><path d="M 610.0 31 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g></svg>

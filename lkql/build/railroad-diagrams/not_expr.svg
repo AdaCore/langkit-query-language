@@ -1,0 +1,41 @@
+<svg class="railroad-diagram" height="92" viewBox="0 0 357.0 92" width="357.0" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(.5 .5)">
+<style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(120,100%,90%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+
+/* ]]> */
+</style><g>
+<path d="M20 21v20m10 -20v20m-10 -10h78.0"></path><text style="text-anchor:start" x="20" y="16">not&#95;expr</text></g><g>
+<path d="M98.0 31h0.0"></path><path d="M317.0 31h0.0"></path><path d="M98.0 31h20"></path><g>
+<path d="M118.0 31h0.0"></path><path d="M297.0 31h0.0"></path><g>
+<path d="M118.0 31h0.0"></path><path d="M180.5 31h0.0"></path><g class="terminal ">
+<path d="M118.0 31h0.0"></path><path d="M180.5 31h0.0"></path><rect height="22" rx="10" ry="10" width="62.5" x="118.0" y="20"></rect><text x="149.25" y="35">'not'</text></g></g><path d="M180.5 31h10"></path><path d="M190.5 31h10"></path><g class="terminal ">
+<path d="M200.5 31h0.0"></path><path d="M297.0 31h0.0"></path><rect height="22" rx="10" ry="10" width="96.5" x="200.5" y="20"></rect><text x="248.75" y="35">comp&#95;expr</text></g></g><path d="M297.0 31h20"></path><path d="M98.0 31a10 10 0 0 1 10 10v10a10 10 0 0 0 10 10"></path><g class="terminal ">
+<path d="M118.0 61h41.25"></path><path d="M255.75 61h41.25"></path><rect height="22" rx="10" ry="10" width="96.5" x="159.25" y="50"></rect><text x="207.5" y="65">comp&#95;expr</text></g><path d="M297.0 61a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10"></path></g><path d="M 317.0 31 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g></svg>
