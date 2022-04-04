@@ -113,6 +113,9 @@ package Gnatcheck.Options is
    Legacy : Boolean := False;
    --  If True, run in legacy mode, with no support for additional rule files.
 
+   KP_Version : GNAT.OS_Lib.String_Access;
+   --  If set, the relevant GNAT version to check when running gnatkp.
+
    type Warning_Modes is
      (Quiet,  --  all warnings are suppressed
       Short,

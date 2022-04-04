@@ -7,7 +7,7 @@ fun ultimate_prefix(n) =
     then ultimate_prefix(n.f_prefix)
     else n
 
-@check(message="possible occurrence of KP U812-034")
+@check(message="possible occurrence of KP U812-034", impact="21.*")
 fun kp_u812_034(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Access")

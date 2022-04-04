@@ -141,8 +141,8 @@ package body Rule_Commands is
       end if;
 
       declare
-         Fn                    : constant L.Fun_Decl
-           := Check_Annotation.Parent.As_Fun_Decl;
+         Fn                    : constant L.Fun_Decl :=
+           Check_Annotation.Parent.As_Fun_Decl;
          Msg_Arg               : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
          Help_Arg              : constant L.Arg :=
@@ -158,10 +158,16 @@ package body Rule_Commands is
          Remediation_Arg       : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name
              (To_Unbounded_Text ("remediation"));
+         Impact_Arg            : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("impact"));
+         Target_Arg            : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("target"));
          Msg                   : Unbounded_Text_Type;
          Help                  : Unbounded_Text_Type;
          Category              : Unbounded_Text_Type;
          Subcategory           : Unbounded_Text_Type;
+         Impact                : Regexp_Access;
+         Target                : Regexp_Access;
          Remediation_Level     : Remediation_Levels := Medium;
          Parametric_Exemption  : Boolean := False;
          Name                  : constant Text_Type := Fn.F_Name.Text;
@@ -173,7 +179,11 @@ package body Rule_Commands is
          Follow_Instantiations : Boolean := False;
          Param_Kind            : Rule_Param_Kind;
 
-         use LCO;
+         use LCO, GNAT.Regexp;
+
+         procedure Check_String (Arg : L.Arg);
+         --  Check whether the argument is a string literal, raise Rule_Error
+         --  if not.
 
          procedure Get_Text
            (Arg     : L.Arg;
@@ -181,6 +191,20 @@ package body Rule_Commands is
             Text    : out Unbounded_Text_Type);
          --  Get text value from Arg and store result in Text. Defaults to
          --  Default if Arg is null.
+
+         ------------------
+         -- Check_String --
+         ------------------
+
+         procedure Check_String (Arg : L.Arg) is
+         begin
+            if Arg.P_Expr.Kind /= LCO.Lkql_String_Literal then
+               raise Rule_Error with
+                 "argument for @" &
+                 To_String (Check_Annotation.F_Name.Text) &
+                 " must be a string literal";
+            end if;
+         end Check_String;
 
          --------------
          -- Get_Text --
@@ -196,12 +220,7 @@ package body Rule_Commands is
             else
                --  Make sure that the message is a string literal
 
-               if Arg.P_Expr.Kind /= LCO.Lkql_String_Literal then
-                  raise Rule_Error with
-                    "argument for @" &
-                    To_String (Check_Annotation.F_Name.Text) &
-                    " must be a string literal";
-               end if;
+               Check_String (Arg);
 
                --  Store the literal, getting rid of the starting & end quotes
 
@@ -236,13 +255,50 @@ package body Rule_Commands is
          Get_Text (Category_Arg, To_Unbounded_Text ("Misc"), Category);
          Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
 
+         if not Impact_Arg.Is_Null then
+            Check_String (Impact_Arg);
+
+            declare
+               Str : constant String :=
+                 To_String (Impact_Arg.P_Expr.As_String_Literal.Text);
+            begin
+               Impact :=
+                 new Regexp'(Compile ("{" &
+                                      Str (Str'First + 1 .. Str'Last - 1) &
+                                      "}",
+                                      Glob => True, Case_Sensitive => False));
+
+            exception
+               when others =>
+                  raise Rule_Error with
+                    "invalid argument for @" &
+                    To_String (Check_Annotation.F_Name.Text);
+            end;
+         end if;
+
+         if not Target_Arg.Is_Null then
+            Check_String (Target_Arg);
+
+            declare
+               Str : constant String :=
+                 To_String (Target_Arg.P_Expr.As_String_Literal.Text);
+            begin
+               Target :=
+                 new Regexp'(Compile ("{" &
+                                      Str (Str'First + 1 .. Str'Last - 1) &
+                                      "}",
+                                      Glob => True, Case_Sensitive => False));
+
+            exception
+               when others =>
+                  raise Rule_Error with
+                    "invalid argument for @" &
+                    To_String (Check_Annotation.F_Name.Text);
+            end;
+         end if;
+
          if not Remediation_Arg.Is_Null then
-            if Remediation_Arg.P_Expr.Kind /= LCO.Lkql_String_Literal then
-               raise Rule_Error with
-                 "argument for @" &
-                 To_String (Check_Annotation.F_Name.Text) &
-                 " must be a string literal";
-            end if;
+            Check_String (Remediation_Arg);
 
             declare
                Str : constant String :=
@@ -276,7 +332,9 @@ package body Rule_Commands is
             Param_Kind            => Param_Kind,
             Parameters            => Fn.F_Fun_Expr.F_Parameters,
             Remediation_Level     => Remediation_Level,
-            Parametric_Exemption  => Parametric_Exemption);
+            Parametric_Exemption  => Parametric_Exemption,
+            Impact                => Impact,
+            Target                => Target);
          return True;
       end;
    end Create_Rule_Command;

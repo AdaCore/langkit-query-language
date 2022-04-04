@@ -47,6 +47,8 @@ with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.Source_Table;     use Gnatcheck.Source_Table;
 
+with Rule_Commands; use Rule_Commands;
+
 with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
 
 package body Gnatcheck.Projects is
@@ -885,6 +887,7 @@ package body Gnatcheck.Projects is
               "-no_objects_dir "          &
               "-subdirs= "                &
               "-target= "                 &
+              "-kp-version= "             &
               "j! "                       &
               "d dd "                     &
               "o= "                       &
@@ -1171,6 +1174,10 @@ package body Gnatcheck.Projects is
                      Gnatcheck.Diagnoses.Process_User_Filename
                        (Parameter (Parser => Parser));
 
+                  elsif Full_Switch (Parser => Parser) = "-kp-version" then
+                     Free (KP_Version);
+                     KP_Version := new String'(Parameter (Parser => Parser));
+
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
 
@@ -1416,6 +1423,33 @@ package body Gnatcheck.Projects is
                Store_Compiler_Option (S);
             end loop;
          end if;
+      end if;
+
+      if Executable = "gnatkp" and then KP_Version /= null then
+         for Rule in All_Rules.First .. All_Rules.Last loop
+            if All_Rules.Table (Rule).Impact /= null
+              and then Match (KP_Version.all,
+                              All_Rules.Table (Rule).Impact.all)
+            then
+               if All_Rules.Table (Rule).Target /= null
+                 and then Target.all /= ""
+                 and then not Match (Target.all,
+                                     All_Rules.Table (Rule).Target.all)
+               then
+                  if not Quiet_Mode then
+                     Info ("info: " & All_Rules.Table (Rule).Name.all &
+                           " disabled, target does not match");
+                  end if;
+               else
+                  if not Quiet_Mode then
+                     Info ("info: " & All_Rules.Table (Rule).Name.all &
+                           " enabled");
+                  end if;
+
+                  Set_Rule_State (Rule, Enabled);
+               end if;
+            end if;
+         end loop;
       end if;
 
       for Rule in All_Rules.First .. All_Rules.Last loop

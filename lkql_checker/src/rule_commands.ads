@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers.Vectors;
+with GNAT.Regexp;
 
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -58,6 +59,8 @@ package Rule_Commands is
 
    type Remediation_Levels is (Trivial, Easy, Medium, Major, High, Complex);
    --  Difficulty to address the rule violation.
+
+   type Regexp_Access is access all GNAT.Regexp.Regexp;
 
    type Rule_Command is tagged record
       Name          : Unbounded_Text_Type;
@@ -119,6 +122,14 @@ package Rule_Commands is
 
       Parametric_Exemption : Boolean;
       --  Whether this rule allows parametric exemption.
+
+      Impact : Regexp_Access;
+      --  For a KP detector, regexp to match relevant releases impacted, if
+      --  any. Ignored if null.
+
+      Target : Regexp_Access;
+      --  For a KP detector, regexp to match relevant target triplets impacted,
+      --  if any. Ignored if null.
    end record;
 
    type Output_Style is (Default, GNATcheck, Silent);

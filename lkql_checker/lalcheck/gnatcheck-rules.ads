@@ -105,6 +105,14 @@ package Gnatcheck.Rules is
       --  'Param_Name => Param_Value', in the exemption section you can specify
       --  only "Param_Name'
 
+      Impact : Regexp_Access;
+      --  For a KP detector, regexp to match relevant releases impacted, if
+      --  any. Ignored if null.
+
+      Target : Regexp_Access;
+      --  For a KP detector, regexp to match relevant target triplets impacted,
+      --  if any. Ignored if null.
+
       Parameters : Liblkqllang.Analysis.Parameter_Decl_List;
       --  List of formal parameters for this rule
    end record;

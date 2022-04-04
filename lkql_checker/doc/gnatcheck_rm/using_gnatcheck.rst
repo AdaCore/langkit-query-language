@@ -623,21 +623,42 @@ the following main user interface:
 
    gnatkp -Pproject -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
 
-where ``kp_xxxx_xxx`` is the name of a known-problem to detect. You can
+where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You can
 get the list of detectors available via the command ``gnatkp -h``.
 
-The first ``gnatkp`` command above will process all the files in the
+The ``gnatkp`` command above will process all the files in the
 given project file and run the listed known problem detectors, generating
 a list of occurrences on standard error, as well as in a file called
 :file:`gnatkp.out`.
 
+Alternatively you can specify the version of GNAT Pro relevant to your
+query and let ``gnatkp`` run all the registered known problem detectors
+relevant to this version, via the ``--kp-version`` switch, e.g:
+
+.. code-block:: sh
+
+   gnatkp -Pproject --kp-version=21.2
+
+will run all the detectors relevant to GNAT Pro 21.2. The list of detectors
+will be displayed as info messages, and will also be listed in the file
+:file:`gnatkp-rule-list.out`.
+
+You can also combined the ``--kp-version`` switch with the ``--target`` switch
+to filter out detectors not relevant for your target, e.g:
+
+.. code-block:: sh
+
+   gnatkp -Pproject --kp-version=21.2 --target=powerpc-elf
+
+Note that you need to have the corresponding target GNAT compiler installed.
+
 You can also use the command ``gnatkp --help`` to list all the switches
 relevant to ``gnatkp``.
 
-You should check via the GNAT Tracker interface which known problems are
+You can check via the GNAT Tracker interface which known problems are
 relevant to your version of GNAT and your target before deciding which
 known problems may impact you: most known problems are only relevant to a
-specific version of GNAT or a specific target. Do not hesitate to contact
+specific version of GNAT or a specific target. Do not hesitate to contact the
 AdaCore support if needed to identify the relevant entries.
 
 .. _Transition_from_ASIS-based_GNATcheck:

@@ -307,7 +307,6 @@ begin
    --  Force some switches for gnatkp
 
    if Executable = "gnatkp" then
-      Short_Report   := True;
       Max_Diagnoses  := 0;
       Simple_Project := False;
       Log_Mode       := False;

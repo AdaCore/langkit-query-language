@@ -5,7 +5,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP U629-002")
+@check(message="possible occurrence of KP U629-002", impact="21.*")
 fun kp_u629_002(node) =
     # Look for type(xxx.all) as part of a return or expression function body
     node is ExplicitDeref(parent is ParamAssoc(parent is AssocList(

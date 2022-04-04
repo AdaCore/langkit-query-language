@@ -650,20 +650,21 @@ package body Gnatcheck.Output is
 
       if Executable = "gnatkp" then
          Info ("gnatkp: the GNAT known problem detector");
-         Info ("usage: gnatkp -Pproject [options] -rules kp_switches");
+         Info ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
          Info ("options:");
          Info (" --version - Display version and exit");
          Info (" --help    - Display usage and exit");
          Info ("");
-         Info (" -Pproject        - Use project file project. Only one such switch can be used");
-         Info (" -U               - check all sources of the argument project");
-         Info (" -U main          - check the closure of units rooted at unit main");
-         Info (" -Xname=value     - specify an external reference for argument project file");
-         Info (" --subdirs=dir    - specify subdirectory to place the result files into");
-         Info (" -eL              - follow all symbolic links when processing project files");
+         Info (" -Pproject     - Use project file project. Only one such switch can be used");
+         Info (" -U            - check all sources of the argument project");
+         Info (" -U main       - check the closure of units rooted at unit main");
+         Info (" -Xname=value  - specify an external reference for argument project file");
+         Info (" --subdirs=dir - specify subdirectory to place the result files into");
+         Info (" -eL           - follow all symbolic links when processing project files");
+         Info (" -o filename   - specify the name of the report file");
          Info ("");
-         Info (" --target=targetname       - specify a target for cross platforms");
-         Info (" --RTS=<runtime>           - use runtime <runtime>");
+         Info (" --target=targetname - specify a target for cross platforms");
+         Info (" --RTS=<runtime>     - use runtime <runtime>");
          Info ("");
          Info (" -h   - print out the list of the available kp detectors");
          Info (" -jn  - n is the maximal number of processes");
@@ -671,19 +672,19 @@ package body Gnatcheck.Output is
          Info (" -v   - verbose mode");
          Info (" -l   - full pathname for file locations");
          Info ("");
-         Info (" --brief              - brief mode, only report detections in Stderr");
-         Info (" --check-semantic     - check semantic validity of the source files");
-         Info (" --charset=<charset>  - specify the charset of the source files");
-         Info ("");
-         Info (" -o filename   - specify the name of the report file");
+         Info (" --brief                - brief mode, only report detections in Stderr");
+         Info (" --check-semantic       - check semantic validity of the source files");
+         Info (" --charset=<charset>    - specify the charset of the source files");
+         Info (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
          Info ("");
 
-         Info ("kp_switches          - a list of the following switches");
-         Info ("   -from=filename    - read kp options from filename");
-         Info ("   +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
-         Info ("   -R<kp_id>         - turn OFF a given detector");
-         Info ("where <kp_id>        - ID of one of the currently implemented");
-         Info ("                       detectors, use '-h' for the full list");
+         Info (" -from=filename    - read kp options from filename");
+         Info (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
+         Info ("   where <kp_id>   - ID of one of the currently implemented");
+         Info ("                     detectors, use '-h' for the full list");
+         Info ("");
+         Info ("KP detectors must be specified either implicitly via --kp-version ");
+         Info ("(and optionally --target), or explicitly via -rules");
          return;
       end if;
 

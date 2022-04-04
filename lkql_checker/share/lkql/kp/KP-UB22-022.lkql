@@ -1,7 +1,8 @@
 # Flag "for ... of Obj.Comp1.Comp2" loops where Comp2 is an array-valued
 # component and Comp1 is a discriminated component.
 
-@check(message="possible occurrence of KP UB22-022")
+@check(message="possible occurrence of KP UB22-022",
+       impact="19.*,20.*,21.*")
 fun kp_ub22_022(node) =
     node is ForLoopStmt(f_spec is ForLoopSpec(
         f_loop_type is IterTypeOf,

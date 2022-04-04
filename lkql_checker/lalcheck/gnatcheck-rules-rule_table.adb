@@ -1285,6 +1285,8 @@ package body Gnatcheck.Rules.Rule_Table is
             Rule.Remediation_Level             := R.Remediation_Level;
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Follow_Instantiations         := R.Follow_Instantiations;
+            Rule.Impact                        := R.Impact;
+            Rule.Target                        := R.Target;
             All_Rules.Append (Rule);
          end;
       end loop;

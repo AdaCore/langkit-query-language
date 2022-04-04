@@ -17,7 +17,7 @@ fun find_element(params, expr, n) =
 fun is_operator(params, expr) =
     find_element(params, expr, params.length).param.p_is_operator_name()
 
-@check(message="possible occurrence of KP V127-049")
+@check(message="possible occurrence of KP V127-049", impact="21.*,22.1")
 fun kp_v127_049(node) =
     # Look for parameter associations of generic instantiations
     node is ParamAssoc(parent is AssocList(parent is inst@GenericInstantiation),
