@@ -1,0 +1,17 @@
+# Flag 'Enum_Rep applied to an enumeration type declared with an enumeration
+# representation clause containing a negative value.
+
+fun has_negative(params, last) =
+    last > 0 and
+    (params[last].actual.p_eval_as_int() < 0 or has_negative(params, last - 1))
+
+@check(message="possible occurrence of KP U630-012", impact="21.*")
+fun kp_u630_012(node) =
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Enum_Rep")
+     and node.f_prefix.p_referenced_decl() is t@BaseTypeDecl
+     and t.p_get_enum_representation_clause() is c@EnumRepClause
+     and {
+        val params = c.p_params();
+        has_negative(params, params.length)
+    }
