@@ -283,7 +283,7 @@ begin
 
    --  Ignore project switches when running as gnatkp
 
-   if Executable = "gnatkp" then
+   if Gnatkp_Mode then
       Ignore_Project_Switches := True;
    end if;
 
@@ -306,7 +306,7 @@ begin
 
    --  Force some switches for gnatkp
 
-   if Executable = "gnatkp" then
+   if Gnatkp_Mode then
       Max_Diagnoses  := 0;
       Simple_Project := False;
       Log_Mode       := False;

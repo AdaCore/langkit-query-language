@@ -648,7 +648,7 @@ package body Gnatcheck.Output is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
 
-      if Executable = "gnatkp" then
+      if Gnatkp_Mode then
          Info ("gnatkp: the GNAT known problem detector");
          Info ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
          Info ("options:");

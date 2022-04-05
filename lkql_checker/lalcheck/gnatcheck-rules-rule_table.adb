@@ -1002,7 +1002,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Set : Rule_Sets.Set;
 
    begin
-      if Executable = "gnatkp" then
+      if Gnatkp_Mode then
          Info ("gnatkp currently implements the following detectors:");
       else
          Info (Executable & " currently implements the following rules:");
@@ -1020,7 +1020,7 @@ package body Gnatcheck.Rules.Rule_Table is
          end loop;
       end if;
 
-      if Executable /= "gnatkp" then
+      if not Gnatkp_Mode then
          Info (Executable & " allows activation of the following checks " &
                "provided by GNAT");
          Info ("using the same syntax to control these checks as for other " &

@@ -68,6 +68,11 @@ package Gnatcheck.Options is
    N_Of_Aggregated_Projects : Natural := 0;
    --  Number of aggregated projects found
 
+   Gnatkp_Mode : Boolean := Executable = "gnatkp";
+   --  Whether we are running in KP detection mode
+   --  Set either when the executable is called gnatkp or with the debug switch
+   --  '-dkp'
+
    Print_Version : Boolean := False;
    --  '--version'
    --  Print version info and exit

@@ -889,7 +889,7 @@ package body Gnatcheck.Projects is
               "-target= "                 &
               "-kp-version= "             &
               "j! "                       &
-              "d dd "                     &
+              "d dd dkp "                 &
               "o= "                       &
               "ox= "                      &
               "-RTS= "                    &
@@ -956,10 +956,14 @@ package body Gnatcheck.Projects is
                null;
 
             when 'd' =>
-               if not First_Pass then
+               if First_Pass then
+                  if Full_Switch (Parser => Parser) = "dkp" then
+                     Gnatkp_Mode := True;
+                  end if;
+               else
                   if Full_Switch (Parser => Parser) = "d" then
                      Debug_Mode := True;
-                  else
+                  elsif Full_Switch (Parser => Parser) = "dd" then
                      Progress_Indicator_Mode := True;
                   end if;
                end if;
@@ -1425,7 +1429,7 @@ package body Gnatcheck.Projects is
          end if;
       end if;
 
-      if Executable = "gnatkp" and then KP_Version /= null then
+      if Gnatkp_Mode and then KP_Version /= null then
          for Rule in All_Rules.First .. All_Rules.Last loop
             if All_Rules.Table (Rule).Impact /= null
               and then Match (KP_Version.all,
