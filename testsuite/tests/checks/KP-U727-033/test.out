@@ -1,0 +1,4 @@
+main.adb:1:1: rule violation: possible occurrence of KP U727-033 if float operation performed before first context switch on leon targets
+1 | procedure Main is --  FLAG
+  | ^^^^^^^^^
+
