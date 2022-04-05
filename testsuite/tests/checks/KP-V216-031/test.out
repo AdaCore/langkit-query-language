@@ -1,0 +1,4 @@
+main_support.adb:8:11: rule violation: possible occurrence of KP V216-031
+8 |       for C of V.all loop   --  FLAG
+  |           ^^^^^^^^^^
+

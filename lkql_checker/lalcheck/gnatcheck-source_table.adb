@@ -229,8 +229,40 @@ package body Gnatcheck.Source_Table is
      (Ctx     : Lkql_Context;
       Project : Arg_Project_Type'Class)
    is
+      Global_Pragmas_Attribute : constant Attribute_Pkg_String :=
+        Build ("builder", "global_configuration_pragmas");
+      Local_Pragmas_Attribute  : constant Attribute_Pkg_String :=
+        Build ("compiler", "local_configuration_pragmas");
+
       Units : Unit_Vectors.Vector;
       Files : File_Array_Access;
+
+      procedure Check_Pragmas (Attribute : Attribute_Pkg_String);
+      --  Check whether some local or global configuration pragmas project
+      --  attribute is specified and add the corresponding files in Units.
+
+      procedure Check_Pragmas (Attribute : Attribute_Pkg_String) is
+         Prj : Project_Type := Project.Root_Project;
+      begin
+         if Prj.Has_Attribute (Attribute) then
+            Units.Append
+              (Ctx.Analysis_Ctx.Get_From_File
+                (Prj.Attribute_Value (Attribute)));
+         else
+            Prj := Extended_Project (Prj);
+
+            while Prj /= No_Project loop
+               if Prj.Has_Attribute (Attribute) then
+                  Units.Append
+                    (Ctx.Analysis_Ctx.Get_From_File
+                      (Prj.Attribute_Value (Attribute)));
+               end if;
+
+               Prj := Extended_Project (Prj);
+            end loop;
+         end if;
+      end Check_Pragmas;
+
    begin
       --  If no project specified or Simple_Project, register all files listed
       --  explicitly.
@@ -251,6 +283,11 @@ package body Gnatcheck.Source_Table is
                  (Ctx.Analysis_Ctx.Get_From_File (File.Display_Full_Name));
             end if;
          end loop;
+
+         --  In addition, also register files containing configuration pragmas
+
+         Check_Pragmas (Global_Pragmas_Attribute);
+         Check_Pragmas (Local_Pragmas_Attribute);
       end if;
 
       Set_Units (Ctx.Eval_Ctx, Units);
