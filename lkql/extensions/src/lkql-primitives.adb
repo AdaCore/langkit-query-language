@@ -242,8 +242,9 @@ package body LKQL.Primitives is
    begin
       if Kind (Value) /= Expected_Kind then
          raise Unsupported_Error
-           with "Expected " & To_String (Expected_Kind) & " but got " &
-                Kind_Name (Value);
+           with "Type error: expected " &
+            To_String (Expected_Kind) & " but got " &
+            Kind_Name (Value);
       end if;
    end Check_Kind;
 
