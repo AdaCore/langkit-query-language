@@ -49,6 +49,11 @@ library.
     or body). Return false otherwise, including inside a generic
     instantiation.
 
+.. function:: int_value(expr)
+
+    Return the integer value corresponding to expr if expr is a static
+    expression, 0 otherwise.
+
 .. function:: is_assert_aspect(s)
 
     Return ``true`` if the string ``s`` is the name of an assert aspect
@@ -117,10 +122,19 @@ library.
 
     Return a (cached) list of all known units
 
+.. function:: max(x, y)
+
+    Return the max value between x and y
+
 .. function:: next_non_blank_token_line(token)
 
     Return the start line of the next non blank token, or the next line for
     a comment, or 0 if none.
+
+.. function:: number_of_values(type)
+
+    Return the number of values covered by a given BaseTypeDecl, 0 if
+    this value cannot be determined.
 
 .. function:: param_pos(n, pos: int = 0)
 
@@ -130,6 +144,11 @@ library.
 
     Return the end line of the previous non blank token, or the previous
     line for a comment, or 0 if none.
+
+.. function:: range_values(left, right)
+
+    Return the number of values covered between left and right expressions,
+    0 if it cannot be determined.
 
 .. function:: semantic_parent
 

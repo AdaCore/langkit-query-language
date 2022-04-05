@@ -1,0 +1,22 @@
+# Flag functions returning an array of two floating point components
+
+import stdlib
+
+@check(message="possible occurrence of KP U923-018",
+       impact="21.*", target="powerpc64*")
+fun kp_u923_018(node) =
+    node is (ClassicSubpDecl or
+             BaseSubpBody(p_previous_part() is null) or
+             SubpBodyStub(p_previous_part() is null))
+    when node.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
+     and spec.f_subp_returns.p_designated_type_decl() is t@BaseTypeDecl
+     and t.p_is_array_type()
+     and t.p_comp_type().p_is_float_type()
+     and t.p_index_type(1) == null
+     and (stdlib.number_of_values(t.p_index_type(0)) == 2 or
+         # Deal manually with the case of an anonymous index since p_index_type
+         # will return the base type.
+          (t is TypeDecl and
+           t.f_type_def.f_indices[1] is c@ConstraintList and
+           c[1] is op@BinOp(f_op is OpDoubleDot) and
+           stdlib.range_values(op.f_left, op.f_right) == 2))
