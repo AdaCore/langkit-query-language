@@ -1,0 +1,4 @@
+client.adb:5:19: rule violation: possible occurrence of KP U803-030 if -gnatE is used
+5 |    pragma Assert (Pkg.Prepend_Abc ("def") = "abcdef");   --  FLAG
+  |                   ^^^^^^^^^^^^^^^^^^^^^^^
+

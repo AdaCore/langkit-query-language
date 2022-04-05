@@ -1,0 +1,23 @@
+# Flag calls to expression functions declared in a separate package spec
+# with no package body.
+
+import stdlib
+
+@memoized
+fun outermost_package_decl(n) =
+{
+    val pkg = [p for p in n.parents(include_self=false) if p is BasePackageDecl];
+    val result = pkg?[pkg.length];
+    if result then result else null
+}
+
+@check(help="possible occurrence of KP U803-030",
+       message="possible occurrence of KP U803-030 if -gnatE is used",
+       impact="21.*")
+fun kp_u803_030(node) =
+    node is CallExpr(p_is_call() is true)
+    when node.p_referenced_decl() is func@ExprFunction
+     and not stdlib.has_local_scope(func)
+     and outermost_package_decl(func) is decl@BasePackageDecl
+     and decl.p_body_part() == null
+     and decl != outermost_package_decl(node)
