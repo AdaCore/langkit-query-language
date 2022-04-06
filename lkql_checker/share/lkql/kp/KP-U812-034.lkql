@@ -2,8 +2,9 @@
 # component of a renaming of a tagged type conversion.
 
 fun ultimate_prefix(n) =
-    |" Return n.f_prefix as long as n designates a ComponentDecl, n otherwise
-    if n.p_referenced_decl() is ComponentDecl
+    |" Return n.f_prefix as long as n is a DottedName and designates a
+    |" ComponentDecl, n otherwise.
+    if n is DottedName and n.p_referenced_decl() is ComponentDecl
     then ultimate_prefix(n.f_prefix)
     else n
 
