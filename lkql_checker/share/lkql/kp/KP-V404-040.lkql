@@ -1,0 +1,11 @@
+# Flag 'Valid applied to floating-point components of composite types that
+# specify aspect Scalar_Storage_Order.
+
+@check(message="possible occurrence of KP V404-040",
+       impact="19.*,20.*,21.*,22.*")
+fun kp_v404_040(node) =
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Valid")
+     and node.f_prefix.p_expression_type().p_is_float_type()
+     and node.f_prefix.p_referenced_decl() is c@ComponentDecl
+     and c.p_semantic_parent().p_has_aspect("Scalar_Storage_Order")
