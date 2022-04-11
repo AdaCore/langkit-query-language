@@ -46,7 +46,7 @@ automated-cov:
 	  --level=stmt --no-subprojects --dump-trigger=atexit \
 	  -XBUILD_MODE=$(BUILD_MODE)
 	$(GPRBUILD) "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr" \
-	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+	  --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts
 	$(GPRINSTALL) --mode=dev "-P$(BUILD_DIR)/lkql_checker/lkql_checker.gpr"
 	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
 	# Ship coverage data files for liblkqllang and lkql_checker so that the
