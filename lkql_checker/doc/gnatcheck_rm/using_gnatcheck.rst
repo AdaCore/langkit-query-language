@@ -643,14 +643,18 @@ will run all the detectors relevant to GNAT Pro 21.2. The list of detectors
 will be displayed as info messages, and will also be listed in the file
 :file:`gnatkp-rule-list.out`.
 
-You can also combined the ``--kp-version`` switch with the ``--target`` switch
+You can also combine the ``--kp-version`` switch with the ``--target`` switch
 to filter out detectors not relevant for your target, e.g:
 
 .. code-block:: sh
 
    gnatkp -Pproject --kp-version=21.2 --target=powerpc-elf
 
-Note that you need to have the corresponding target GNAT compiler installed.
+will only enable detectors relevant to GNAT Pro 21.2 and to the ``powerpc-elf``
+target.
+
+Note that you need to have the corresponding target GNAT compiler installed
+to use this option. By default, detectors for all targets are enabled.
 
 You can also use the command ``gnatkp --help`` to list all the switches
 relevant to ``gnatkp``.
