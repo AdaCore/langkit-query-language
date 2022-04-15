@@ -1,0 +1,8 @@
+p.adb:7:7: rule violation: possible occurrence of KP TA15-022
+7 |       raise System.Assertions.Assert_Failure;   --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:8:7: rule violation: possible occurrence of KP TA15-022
+8 |       pragma Assert (False);                    --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^^
+
