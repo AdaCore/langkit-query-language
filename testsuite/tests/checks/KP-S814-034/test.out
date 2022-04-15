@@ -1,0 +1,4 @@
+p.adb:13:6: rule violation: possible occurrence of KP S814-034
+13 |      (3 => (Text => "INVALID "), others => (Text => "OTHERS  "));  --  FLAG
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
