@@ -1,0 +1,8 @@
+# Flag components of tagged types with a Scalar_Storage_Order aspect
+
+@check(message="possible occurrence of KP T420-033", impact="18.*,19.*,20.1")
+fun kp_t420_033(node) =
+    node is ComponentDecl
+    when node.p_semantic_parent().p_is_tagged_type()
+     and node.f_component_def.f_type_expr is s@SubtypeIndication
+     and s.f_name.p_referenced_decl().p_has_aspect("Scalar_Storage_Order")

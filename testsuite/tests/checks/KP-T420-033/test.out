@@ -1,0 +1,4 @@
+p.ads:8:7: rule violation: possible occurrence of KP T420-033
+8 |       Field1 : T;          --  FLAG
+  |       ^^^^^^
+
