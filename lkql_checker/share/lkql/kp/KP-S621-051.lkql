@@ -1,0 +1,14 @@
+# Flag subprogram formals of anonymous access types used as actuals in calls
+# to nested subprograms.
+
+import stdlib
+
+@check(message="possible occurrence of KP S621-051", impact="19.*")
+fun kp_s621_051(node) =
+    node is ParamAssoc(parent is
+                           AssocList(parent is c@CallExpr(p_is_call() is true)))
+     and node.f_r_expr is e@Name(p_referenced_decl() is ParamSpec)
+     and e.p_expression_type() is AnonymousTypeDecl(p_is_access_type() is true)
+     and c.f_name.p_referenced_decl() is decl@BasicDecl
+     and not decl.p_has_aspect("Import")
+     and stdlib.enclosing_body(decl) == stdlib.enclosing_body(node)

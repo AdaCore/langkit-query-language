@@ -1,0 +1,4 @@
+p.adb:10:20: rule violation: possible occurrence of KP S621-051
+10 |    return A_Inner (Param) = Typ (Param);  --  FLAG
+   |                    ^^^^^
+
