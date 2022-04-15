@@ -34,6 +34,11 @@ library.
 
     Return the index of the first non blank character of s, starting at ind
 
+.. function:: get_parameter(params, actual)
+
+    Given a List[ParamActual], return the parameter corresponding to
+    actual, null if actual is not found.
+
 .. function:: get_subp_body(node)
 
     Return the SubpBody or TaskBody corresponding to node, if any, null
@@ -169,6 +174,11 @@ library.
 .. function:: ultimate_exception_alias(name)
 
     Return the ultimately designated ``ExceptionDecl``, going through renamings
+
+.. function:: ultimate_prefix(n)
+
+    Return n.f_prefix as long as n is a DottedName and designates a
+    ComponentDecl, n otherwise.
 
 .. function:: ultimate_subprogram_alias(name)
 

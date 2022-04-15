@@ -2,6 +2,8 @@
 # two standard integer types and returning a boolean, when the formal parameter
 # is an operator function.
 
+import stdlib
+
 fun has_two_integer_params(params) =
     (from params select DefiningName).length == 2 and not
     [t for t in (from params select TypeExpr)
@@ -9,13 +11,8 @@ fun has_two_integer_params(params) =
                when base.p_is_int_type()
                 and base.p_canonical_fully_qualified_name().starts_with("standard."))]
 
-fun find_element(params, expr, n) =
-    if n == 0 then null
-    else if params[n].actual == expr then params[n]
-    else find_element(params, expr, n - 1)
-
 fun is_operator(params, expr) =
-    find_element(params, expr, params.length).param.p_is_operator_name()
+    stdlib.get_parameter(params, expr).p_is_operator_name()
 
 @check(message="possible occurrence of KP V127-049", impact="21.*,22.1")
 fun kp_v127_049(node) =

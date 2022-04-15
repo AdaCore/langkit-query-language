@@ -1,0 +1,8 @@
+main_pkg.adb:17:17: rule violation: possible occurrence of KP V407-011
+17 |         (A   => This.M_Impl_A'Access,   --  FLAG
+   |                 ^^^^^^^^^^^^^^^^^^^^
+
+main_pkg.adb:18:17: rule violation: possible occurrence of KP V407-011
+18 |          B   => This.M_Impl_A'Access);  --  FLAG
+   |                 ^^^^^^^^^^^^^^^^^^^^
+

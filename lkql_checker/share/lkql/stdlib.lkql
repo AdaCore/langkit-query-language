@@ -394,3 +394,21 @@ fun number_of_values(type) =
           else number_of_values(type.f_subtype.f_name.p_referenced_decl()))
     else count_values_def(type.f_type_def)
 }
+
+fun get_parameter(params, actual) =
+    |" Given a List[ParamActual], return the parameter corresponding to
+    |" actual, null if actual is not found.
+{
+    fun find(params, actual, n) =
+        if n == 0 then null
+        else if params[n].actual == actual then params[n].param
+        else find(params, actual, n - 1);
+    find(params, actual, params.length)
+}
+
+fun ultimate_prefix(n) =
+    |" Return n.f_prefix as long as n is a DottedName and designates a
+    |" ComponentDecl, n otherwise.
+    if n is DottedName and n.p_referenced_decl() is ComponentDecl
+    then ultimate_prefix(n.f_prefix)
+    else n
