@@ -1,0 +1,8 @@
+p.ads:9:9: rule violation: possible occurrence of KP S521-014
+9 |    type Synchronous_Monitor (Size : Positive) is new Monitor_Type with --  FLAG
+  |         ^^^^^^^^^^^^^^^^^^^
+
+p.ads:14:9: rule violation: possible occurrence of KP S521-014
+14 |    type Virtual_Integer_Register_Refresher (Size : Positive) is  --  FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
