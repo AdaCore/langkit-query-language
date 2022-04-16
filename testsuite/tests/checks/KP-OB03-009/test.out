@@ -1,0 +1,4 @@
+p.ads:7:9: rule violation: possible occurrence of KP OB03-009
+7 |    type Reference_Type   --  FLAG
+  |         ^^^^^^^^^^^^^^
+

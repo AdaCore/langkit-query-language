@@ -1,0 +1,12 @@
+# Flag record types with aspect Implicit_Dereference that have an
+# access-to-class-wide discriminant.
+
+@check(message="possible occurrence of KP OB03-009", impact="19.*")
+fun kp_ob03_009(node) =
+    # Look for record types with discriminants and Implicit_Dereference aspect
+    node is TypeDecl(f_discriminants is part@KnownDiscriminantPart,
+                     p_has_aspect("Implicit_Dereference") is true)
+    # with an access-to-class-wide discriminant
+    when [s for s in (from part.f_discr_specs select DiscriminantSpec)
+          if s.f_type_expr is AnonymousType(f_type_decl is t@AnonymousTypeDecl)
+             when t.p_accessed_type() is ClasswideTypeDecl]
