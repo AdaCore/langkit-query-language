@@ -1,0 +1,4 @@
+p.ads:12:9: rule violation: possible occurrence of KP S124-035
+12 |    type Variant (Disc : User := User'First) is record  --  FLAG
+   |         ^^^^^^^
+
