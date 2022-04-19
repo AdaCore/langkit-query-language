@@ -13,10 +13,10 @@ fun kp_u923_018(node) =
      and t.p_is_array_type()
      and t.p_comp_type().p_is_float_type()
      and t.p_index_type(1) == null
-     and (stdlib.number_of_values(t.p_index_type(0)) == 2 or
          # Deal manually with the case of an anonymous index since p_index_type
          # will return the base type.
-          (t is TypeDecl and
-           t.f_type_def.f_indices[1] is c@ConstraintList and
-           c[1] is op@BinOp(f_op is OpDoubleDot) and
-           stdlib.range_values(op.f_left, op.f_right) == 2))
+     and (if t is TypeDecl and
+             t.f_type_def.f_indices[1] is c@ConstraintList and
+             c[1] is op@BinOp(f_op is OpDoubleDot)
+          then stdlib.range_values(op.f_left, op.f_right)
+          else stdlib.number_of_values(t.p_index_type(0))) == 2

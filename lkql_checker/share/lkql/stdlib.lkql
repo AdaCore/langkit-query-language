@@ -358,39 +358,37 @@ fun max(x, y) =
     |" Return the max value between x and y
     if x > y then x else y
 
-fun int_value(expr) =
-    |" Return the integer value corresponding to expr if expr is a static
-    |" expression, 0 otherwise.
-    if expr.p_is_static_expr() then expr.p_eval_as_int() else 0
-
 fun range_values(left, right) =
     |" Return the number of values covered between left and right expressions,
-    |" 0 if it cannot be determined.
-    max(int_value(right) - int_value(left) + 1, 0)
+    |" -1 if it cannot be determined.
+    if right.p_is_static_expr() and left.p_is_static_expr()
+    then max(right.p_eval_as_int() - left.p_eval_as_int() + 1, 0)
+    else -1
 
 fun number_of_values(type) =
-    |" Return the number of values covered by a given BaseTypeDecl, 0 if
+    |" Return the number of values covered by a given BaseTypeDecl, -1 if
     |" this value cannot be determined.
 {
     fun count_values_def(def) =
     match def
     | EnumTypeDef           => def.f_enum_literals.children_count
-    | ModIntTypeDef         => int_value(def.f_expr)
+    | ModIntTypeDef         => if def.f_expr.p_is_static_expr()
+                               then def.f_expr.p_eval_as_int() else -1
     | SignedIntTypeDef
       when def.f_range.f_range is op@BinOp(f_op is OpDoubleDot) =>
-        range_values(op.f_right, op.f_left)
+        range_values(op.f_left, op.f_right)
     | DerivedTypeDef        =>
         if def.f_subtype_indication.f_constraint is r@RangeConstraint
         then (if r.f_range.f_range is op@BinOp
-              then range_values(op.f_left, op.f_right) else 0)
+              then range_values(op.f_left, op.f_right) else -1)
         else number_of_values(def.f_subtype_indication.f_name.p_referenced_decl())
-    | FormalDiscreteTypeDef => 0
-    | *                     => 0;
+    | FormalDiscreteTypeDef => -1
+    | *                     => -1;
 
     if type is SubtypeDecl
     then (if type.f_subtype.f_constraint is r@RangeConstraint
           then (if r.f_range.f_range is op@BinOp
-                then range_values(op.f_left, op.f_right) else 0)
+                then range_values(op.f_left, op.f_right) else -1)
           else number_of_values(type.f_subtype.f_name.p_referenced_decl()))
     else count_values_def(type.f_type_def)
 }

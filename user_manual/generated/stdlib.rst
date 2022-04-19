@@ -58,11 +58,6 @@ library.
     or body). Return false otherwise, including inside a generic
     instantiation.
 
-.. function:: int_value(expr)
-
-    Return the integer value corresponding to expr if expr is a static
-    expression, 0 otherwise.
-
 .. function:: is_assert_aspect(s)
 
     Return ``true`` if the string ``s`` is the name of an assert aspect
@@ -142,7 +137,7 @@ library.
 
 .. function:: number_of_values(type)
 
-    Return the number of values covered by a given BaseTypeDecl, 0 if
+    Return the number of values covered by a given BaseTypeDecl, -1 if
     this value cannot be determined.
 
 .. function:: param_pos(n, pos: int = 0)
@@ -157,7 +152,7 @@ library.
 .. function:: range_values(left, right)
 
     Return the number of values covered between left and right expressions,
-    0 if it cannot be determined.
+    -1 if it cannot be determined.
 
 .. function:: semantic_parent
 
