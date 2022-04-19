@@ -1,0 +1,19 @@
+# Flag overlays and unchecked conversions involving one type subject to a
+# Scalar_Storage_Order clause.
+
+fun is_uc(str) =
+    str == "ada.unchecked_conversion" or str == "unchecked_conversion"
+
+fun has_sso(n) = n.p_referenced_decl().p_has_aspect("Scalar_Storage_Order")
+
+@check(message="possible occurrence of KP T528-043",
+       impact="18.*,19.[1-5],20.[12]")
+fun kp_t528_043(node) =
+    node is ObjectDecl
+    when node.p_has_aspect("Address")
+     and node.f_type_expr.p_designated_type_decl().
+         p_has_aspect("Scalar_Storage_Order")
+    or GenericSubpInstantiation
+    when is_uc(node.p_designated_subp().p_canonical_fully_qualified_name())
+    and (has_sso(node.f_params[1].f_r_expr) or
+         has_sso(node.f_params[2].f_r_expr))

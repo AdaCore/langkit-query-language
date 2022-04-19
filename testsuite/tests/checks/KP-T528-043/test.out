@@ -1,0 +1,8 @@
+p.adb:19:4: rule violation: possible occurrence of KP T528-043
+19 |    Foo_1 : Big_Endian_Foo_Type with   --  FLAG
+   |    ^^^^^
+
+p.adb:22:13: rule violation: possible occurrence of KP T528-043
+22 |    function Conv is new Ada.Unchecked_Conversion   --  FLAG
+   |             ^^^^
+
