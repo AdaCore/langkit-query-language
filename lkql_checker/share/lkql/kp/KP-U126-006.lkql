@@ -1,0 +1,31 @@
+# Flag discriminated record types with variant part
+# and a partial representation clause not covering all components in the
+# fixed part (including the discriminants).
+
+fun get_components(type) =
+    match type.f_type_def
+    | r@RecordTypeDef =>
+        from [type.f_discriminants, r.f_record_def.f_components.f_components]
+        select DefiningName
+    | r@DerivedTypeDef =>
+        (from type.f_discriminants select DefiningName) &
+        get_components(r.f_subtype_indication.f_name.p_referenced_decl()) &
+        (if r.f_record_extension is def@RecordDef
+         then from def.f_components.f_components select DefiningName
+         else [])
+    | * => []
+
+fun check_components(ids, comps) =
+    [id for id in ids if not [n for n in comps if id.p_name_matches(n)]]
+
+@check(message="possible occurrence of KP U126-006", impact="20.[12],21.1")
+fun kp_u126_006(node) =
+    # Look for record types with a representation clause
+    node is TypeDecl
+    when node.p_is_record_type()
+     and node.p_get_record_representation_clause() is rep@RecordRepClause
+     # and check whether some component of the fixed part is not mentioned
+     # in the representation clause.
+     and check_components(get_components(node),
+                          [c.f_id for c in
+                           (from rep.f_components select ComponentClause)])

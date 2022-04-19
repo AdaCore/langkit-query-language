@@ -1,0 +1,4 @@
+p.ads:16:9: rule violation: possible occurrence of KP U126-006
+16 |    type R2 is new R1;  --  FLAG
+   |         ^^
+
