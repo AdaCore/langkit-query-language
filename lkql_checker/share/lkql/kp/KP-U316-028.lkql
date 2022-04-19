@@ -1,0 +1,16 @@
+# Flag 'First/Last/Length/Range (N), where N is not a literal or named number
+
+fun is_array_attr(attr) =
+    attr.p_name_is("First") or
+    attr.p_name_is("Last") or
+    attr.p_name_is("Length") or
+    attr.p_name_is("Range")
+
+@check(message="possible occurrence of KP U316-028", impact="20.[12],21.1")
+fun kp_u316_028(node) =
+    node is AttributeRef
+    when is_array_attr(node.f_attribute)
+     and node.f_args is l@AssocList
+     and l.children_count == 1
+     and l[1].f_r_expr is not IntLiteral
+     and l[1].f_r_expr.p_referenced_decl() is not NumberDecl

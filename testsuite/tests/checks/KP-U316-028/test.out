@@ -1,0 +1,16 @@
+p.adb:4:30: rule violation: possible occurrence of KP U316-028
+4 |    First_Column : Integer := Matrix'First(Columns);  --  FLAG
+  |                              ^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:7:19: rule violation: possible occurrence of KP U316-028
+7 |    pragma Assert (Matrix'Last (Columns) = 30);    --  FLAG
+  |                   ^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:8:19: rule violation: possible occurrence of KP U316-028
+8 |    pragma Assert (Matrix'Length (Columns) = 11);  --  FLAG
+  |                   ^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:10:13: rule violation: possible occurrence of KP U316-028
+10 |    for J in Matrix'Range (Columns) loop   --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^^^^^
+
