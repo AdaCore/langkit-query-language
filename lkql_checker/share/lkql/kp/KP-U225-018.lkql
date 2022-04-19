@@ -1,0 +1,15 @@
+# Flag type conversions from fixed-point to floating-point given as actual
+# in-out parameters.
+
+import stdlib
+
+@check(help="possible occurrence of KP U225-018",
+       message="possible occurrence of KP U225-018 if -gnatVfm is enabled",
+       impact="20.*,21.[1-3]")
+fun kp_u225_018(node) =
+    node is CallExpr(parent is ParamAssoc(parent is l@AssocList(
+                     parent is CallExpr(p_is_call() is true))))
+    when node.f_name.p_referenced_decl() is BaseTypeDecl(p_is_float_type() is true)
+     and node.f_suffix[1].f_r_expr.p_expression_type().p_is_fixed_point()
+     and stdlib.get_parameter(l.p_zip_with_params(),node).
+         parent.parent.f_mode is ModeInOut

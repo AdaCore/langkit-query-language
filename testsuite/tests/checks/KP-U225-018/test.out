@@ -1,0 +1,4 @@
+p.adb:11:10: rule violation: possible occurrence of KP U225-018 if -gnatVfm is enabled
+11 |    Call (Long_Float (Q));  --  FLAG
+   |          ^^^^^^^^^^^^^^
+
