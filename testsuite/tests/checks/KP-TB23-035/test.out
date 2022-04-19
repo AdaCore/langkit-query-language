@@ -1,0 +1,4 @@
+p.adb:28:3: rule violation: possible occurrence of KP TB23-035
+28 |   C.Field    := Rec'(Get_Field (None));   --  FLAG
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

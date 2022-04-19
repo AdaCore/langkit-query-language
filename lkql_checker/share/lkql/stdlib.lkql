@@ -411,6 +411,17 @@ fun get_parameter(params, actual) =
     find(params, actual, params.length)
 }
 
+@memoized
+fun strip_conversions(node) =
+    |" Strip ParenExpr, QualExpr and type conversions
+    match node
+    # Strip parenthesis
+    | ParenExpr => strip_conversions(node.f_expr)
+    # Strip type qualifications and conversions
+    | QualExpr or CallExpr(f_name is Name(p_referenced_decl() is BaseTypeDecl))
+                => strip_conversions(node.f_suffix)
+    | *         => node
+
 fun ultimate_prefix(n) =
     |" Return n.f_prefix as long as n is a DottedName and designates a
     |" ComponentDecl, n otherwise.

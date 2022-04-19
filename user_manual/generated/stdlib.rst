@@ -167,6 +167,10 @@ library.
 
     Return a string with basename:line corresponding to node's sloc
 
+.. function:: strip_conversions(node)
+
+    Strip ParenExpr, QualExpr and type conversions
+
 .. function:: ultimate_alias(name, all_nodes=true, strip_component=false)
 
     Return the ultimately designated `ObjectDecl`, going through renamings
