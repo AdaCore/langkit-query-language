@@ -1,0 +1,4 @@
+p.ads:9:13: rule violation: possible occurrence of KP R316-001
+9 |    function Func_Lim_Array (Int : Integer) return Lim_Array;  --  FLAG
+  |             ^^^^^^^^^^^^^^
+

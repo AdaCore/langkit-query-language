@@ -1,0 +1,21 @@
+# Flag functions returning an unconstrained array type whose components are
+# limited.
+
+fun get_type_def(t) =
+    match t
+    | TypeDecl    => t.f_type_def
+    | SubtypeDecl => get_type_def(t.f_subtype.f_name.p_referenced_decl())
+    | *           => null
+
+@check(message="possible occurrence of KP R316-001",
+       impact="18.*,19.[1-4],20.[12]")
+fun kp_r316_001(node) =
+    node is (ClassicSubpDecl or
+             BaseSubpBody(p_previous_part() is null) or
+             SubpBodyStub(p_previous_part() is null))
+    when node.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
+     and spec.p_return_type() is ret@TypeDecl
+     and ret.f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices)
+     and get_type_def(ret.p_comp_type()) is
+         def@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
+     and def.f_has_limited is LimitedPresent
