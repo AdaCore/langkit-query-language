@@ -395,6 +395,11 @@ fun number_of_values(type) =
     else count_values_def(type.f_type_def)
 }
 
+fun has_interfaces(n) =
+    |" Return true if ``n`` is an interface or implements some interfaces
+    n.p_is_interface_type() or
+    n is TypeDecl(any super_types is TypeDecl(p_is_interface_type() is true))
+
 fun get_parameter(params, actual) =
     |" Given a List[ParamActual], return the parameter corresponding to
     |" actual, null if actual is not found.

@@ -44,6 +44,10 @@ library.
     Return the SubpBody or TaskBody corresponding to node, if any, null
     otherwise.
 
+.. function:: has_interfaces(n)
+
+    Return true if ``n`` is an interface or implements some interfaces
+
 .. function:: has_local_scope(n)
 
     Return ``true`` if ``n`` is enclosed in a local scope

@@ -1,0 +1,13 @@
+# Flag membership tests where the right operand is an interface type without
+# 'Class.
+
+import stdlib
+
+@check(message="possible occurrence of KP TC01-050",
+       impact="19.[1-4],20.[12],21.1")
+fun kp_tc01_050(node) =
+    node is MembershipExpr
+    when node.f_membership_exprs is l@ExprAlternativesList
+     and l.children_count == 1
+     and l[1] is Name(p_referenced_decl() is t@TypeDecl
+                      when stdlib.has_interfaces(t))

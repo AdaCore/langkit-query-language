@@ -1,0 +1,4 @@
+p.adb:14:11: rule violation: possible occurrence of KP TC01-050
+14 |    return Pp in Registered_Event;         --  FLAG
+   |           ^^^^^^^^^^^^^^^^^^^^^^
+
