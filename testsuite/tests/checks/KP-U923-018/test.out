@@ -1,16 +1,16 @@
-p.ads:14:13: rule violation: possible occurrence of KP U923-018
+p.ads:14:13: rule violation: possible occurrence of KP U923-018 on powerpc64 targets
 14 |    function Func return Coordinates;   --  FLAG
    |             ^^^^
 
-p.ads:15:13: rule violation: possible occurrence of KP U923-018
+p.ads:15:13: rule violation: possible occurrence of KP U923-018 on powerpc64 targets
 15 |    function Func return Coordinates2;  --  FLAG
    |             ^^^^
 
-p.ads:16:13: rule violation: possible occurrence of KP U923-018
+p.ads:16:13: rule violation: possible occurrence of KP U923-018 on powerpc64 targets
 16 |    function Func return Coordinates3;  --  FLAG
    |             ^^^^
 
-p.ads:17:13: rule violation: possible occurrence of KP U923-018
+p.ads:17:13: rule violation: possible occurrence of KP U923-018 on powerpc64 targets
 17 |    function Func return Coordinates4;  --  FLAG
    |             ^^^^
 

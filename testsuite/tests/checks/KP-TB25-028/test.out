@@ -1,4 +1,4 @@
-p.adb:12:13: rule violation: possible occurrence of KP TB25-028
+p.adb:12:13: rule violation: possible occurrence of KP TB25-028 on powerpc targets
 12 |    Valid := C_Null_Data_Id'Valid_Scalars;  --  FLAG
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

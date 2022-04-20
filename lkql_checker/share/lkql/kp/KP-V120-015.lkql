@@ -18,7 +18,8 @@ fun check_type(t) =
         not is_power_of_two(r.f_right.p_eval_as_int() -
                             r.f_left.p_eval_as_int() + 1)]
 
-@check(message="possible occurrence of KP V120-015",
+@check(help="possible occurrence of KP V120-015",
+       message="possible occurrence of KP V120-015 on powerpc targets",
        impact="7.4.*,17.*", target="powerpc*")
 fun kp_v120_015(node) =
     node is ComponentDecl

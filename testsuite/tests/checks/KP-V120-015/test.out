@@ -1,4 +1,4 @@
-p.ads:26:7: rule violation: possible occurrence of KP V120-015
+p.ads:26:7: rule violation: possible occurrence of KP V120-015 on powerpc targets
 26 |       Field1 : Union;    --  FLAG
    |       ^^^^^^
 
