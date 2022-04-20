@@ -1,0 +1,4 @@
+p.ads:23:9: rule violation: possible occurrence of KP T708-064
+23 |    type Rec (Kind : Id_Type; Code : Code_Type; Units : Natural) is record  --  FLAG
+   |         ^^^
+

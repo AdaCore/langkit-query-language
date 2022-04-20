@@ -1,0 +1,37 @@
+# Flag a record type with a component in the variant part whose subtype
+# is another record type with a component in the variant part whose subtype
+# is a record with a component with a variable size.
+
+fun has_varsize_comp(t) =
+    # Check if we have some Index or Discriminant Constraint referencing one of
+    # t's discriminants.
+    t is TypeDecl and {
+        val discs = from t.f_discriminants select DefiningName;
+        [id for id in (from (from t.f_type_def
+                             select IndexConstraint or DiscriminantConstraint)
+                       select Identifier)
+         if [d for d in discs if d.p_name_matches(id)]]
+    }
+
+fun has_variant_with_varsize(t) =
+    t is TypeDecl
+    when t.f_type_def is RecordTypeDef
+     and t.f_type_def.f_record_def is def@RecordDef
+     and [v for v in
+          from (from def.f_components select Variant)
+          select c@ComponentDef
+          when c.f_type_expr is
+               s@SubtypeIndication(f_constraint is DiscriminantConstraint) and
+               has_varsize_comp(s.f_name.p_referenced_decl())]
+
+@check(message="possible occurrence of KP T708-064", impact="20.[12]")
+fun kp_t708_064(node) =
+    node is TypeDecl
+    when node.f_type_def is RecordTypeDef
+     and node.f_type_def.f_record_def is def@RecordDef
+     and [v for v in
+          from (from def.f_components select Variant)
+          select c@ComponentDef
+          when c.f_type_expr is
+               s@SubtypeIndication(f_constraint is DiscriminantConstraint) and
+               has_variant_with_varsize(s.f_name.p_referenced_decl())]
