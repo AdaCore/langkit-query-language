@@ -1,0 +1,4 @@
+p.ads:3:8: rule violation: possible occurrence of KP TB09-038
+3 |   type Biased_T is range 1 .. 2 ** 6;      --  FLAG
+  |        ^^^^^^^^
+
