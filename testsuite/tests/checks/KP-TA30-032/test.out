@@ -1,0 +1,8 @@
+gen.ads:11:4: rule violation: possible occurrence of KP TA30-032
+11 |    Null_Element_Array : Element_Array (1 .. 0);  --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^
+
+simple.ads:13:4: rule violation: possible occurrence of KP TA30-032
+13 |    Null_Element_Array : Element_Array (1 .. 0);  --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^
+
