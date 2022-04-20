@@ -1,0 +1,19 @@
+# Flag variant record types using one of its discriminants as part of the
+# default initialization of a component whose type is of a record type with
+# discriminants.
+
+@check(message="possible occurrence of KP T805-037", impact="20.[12]")
+fun kp_t805_037(node) =
+    node is TypeDecl
+    when node.f_discriminants is part@KnownDiscriminantPart
+     and node.f_type_def is r@RecordTypeDef
+     and r.f_record_def is def@RecordDef
+     and {
+        val discs = from part select DefiningName;
+        [decl for decl in
+         from def.f_components select c@ComponentDecl
+         when c.f_component_def.f_type_expr is
+              s@SubtypeIndication(f_constraint is DiscriminantConstraint)
+          and [id for id in (from c.f_default_expr select Identifier)
+               if [d for d in discs if d.p_name_matches(id)]]]
+    }

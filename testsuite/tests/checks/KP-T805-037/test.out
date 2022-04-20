@@ -1,0 +1,4 @@
+p.ads:19:9: rule violation: possible occurrence of KP T805-037
+19 |    type Wrong  --  FLAG
+   |         ^^^^^
+
