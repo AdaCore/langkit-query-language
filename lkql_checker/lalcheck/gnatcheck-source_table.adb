@@ -35,6 +35,13 @@ with GNAT.Task_Lock;
 
 with GNATCOLL.VFS;                use GNATCOLL.VFS;
 
+with GPR2.Path_Name;
+with GPR2.Project.Tree;
+with GPR2.Project.View;
+with GPR2.Project.Source.Set;
+with GPR2.Project.Registry.Attribute;
+with GPR2.Project.Registry.Pack;
+
 with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;               use Gnatcheck.Ids;
 with Gnatcheck.Output;            use Gnatcheck.Output;
@@ -47,7 +54,7 @@ with Langkit_Support.Text;        use Langkit_Support.Text;
 with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Helpers;          use Libadalang.Helpers;
 with Libadalang.Auto_Provider;    use Libadalang.Auto_Provider;
-with Libadalang.Project_Provider; use Libadalang.Project_Provider;
+with Libadalang.GPR2_Provider;    use Libadalang.GPR2_Provider;
 with Libadalang.Iterators;
 
 with Ada_AST_Nodes;      use Ada_AST_Nodes;
@@ -231,36 +238,39 @@ package body Gnatcheck.Source_Table is
      (Ctx     : Lkql_Context;
       Project : Arg_Project_Type'Class)
    is
-      Global_Pragmas_Attribute : constant Attribute_Pkg_String :=
-        Build ("builder", "global_configuration_pragmas");
-      Local_Pragmas_Attribute  : constant Attribute_Pkg_String :=
-        Build ("compiler", "local_configuration_pragmas");
+      use GPR2.Project.View;
+      use GPR2.Project.Source.Set;
+      use GPR2.Project.Registry.Attribute;
+      use GPR2.Project.Registry.Pack;
 
       Units : Unit_Vectors.Vector;
-      Files : File_Array_Access;
 
-      procedure Check_Pragmas (Attribute : Attribute_Pkg_String);
+      procedure Check_Pragmas (Attribute : GPR2.Attribute_Id);
       --  Check whether some local or global configuration pragmas project
       --  attribute is specified and add the corresponding files in Units.
 
-      procedure Check_Pragmas (Attribute : Attribute_Pkg_String) is
-         Prj : Project_Type := Project.Root_Project;
+      procedure Check_Pragmas (Attribute : GPR2.Attribute_Id) is
+         Prj : GPR2.Project.View.Object := Project.Tree.Root_Project;
       begin
-         if Prj.Has_Attribute (Attribute) then
+         if Prj.Has_Attribute (Attribute, Builder) then
             Units.Append
               (Ctx.Analysis_Ctx.Get_From_File
-                (Prj.Attribute_Value (Attribute)));
+                 (Prj.Attribute (Attribute, Builder).Value.Text));
          else
-            Prj := Extended_Project (Prj);
 
-            while Prj /= No_Project loop
-               if Prj.Has_Attribute (Attribute) then
-                  Units.Append
-                    (Ctx.Analysis_Ctx.Get_From_File
-                      (Prj.Attribute_Value (Attribute)));
+            while Prj.Is_Extending loop
+
+               if Prj.Is_Extending_All then
+                  Prj := Prj.Extended_Root;
+               else
+                  Prj := Prj.Extended.First_Element;
                end if;
 
-               Prj := Extended_Project (Prj);
+               if Prj.Has_Attribute (Attribute, Builder) then
+                  Units.Append
+                    (Ctx.Analysis_Ctx.Get_From_File
+                       (Prj.Attribute (Attribute, Builder).Value.Text));
+               end if;
             end loop;
          end if;
       end Check_Pragmas;
@@ -269,7 +279,7 @@ package body Gnatcheck.Source_Table is
       --  If no project specified or Simple_Project, register all files listed
       --  explicitly.
 
-      if Project.Root_Project = No_Project or Simple_Project then
+      if not Project.Tree.Is_Defined or else Simple_Project then
          for J in First_SF_Id .. Last_Argument_Source loop
             Units.Append (Ctx.Analysis_Ctx.Get_From_File (Source_Name (J)));
          end loop;
@@ -277,23 +287,23 @@ package body Gnatcheck.Source_Table is
          --  We want to add all sources from the project and not just the
          --  sources from Source_Name, so that global queries are complete.
 
-         Files := Project.Root_Project.Source_Files (Recursive => True);
-
-         for File of Files.all loop
-            if Is_Ada_File (File, Project) then
-               Units.Append
-                 (Ctx.Analysis_Ctx.Get_From_File (File.Display_Full_Name));
-            end if;
+         for View of Project.Tree.all loop
+            for Src of View.Sources loop
+               if Src.Is_Ada then
+                  Units.Append
+                    (Ctx.Analysis_Ctx.Get_From_File
+                       (String (Src.Path_Name.Value)));
+               end if;
+            end loop;
          end loop;
 
          --  In addition, also register files containing configuration pragmas
 
-         Check_Pragmas (Global_Pragmas_Attribute);
-         Check_Pragmas (Local_Pragmas_Attribute);
+         Check_Pragmas (Global_Configuration_Pragmas);
+         Check_Pragmas (Local_Configuration_Pragmas);
       end if;
 
       Set_Units (Ctx.Eval_Ctx, Units);
-      Unchecked_Free (Files);
    end Add_Sources_To_Context;
 
    ---------------------------
@@ -313,8 +323,9 @@ package body Gnatcheck.Source_Table is
 
       First_Idx : Natural;
       Last_Idx  : Natural;
-      Res       : Virtual_File;
 
+      use GPR2;
+      use GPR2.Project.Tree;
    begin
       Free (Full_Source_Name_String);
       Free (Short_Source_Name_String);
@@ -322,13 +333,18 @@ package body Gnatcheck.Source_Table is
       if Is_Regular_File (Fname) then
          Short_Source_Name_String := new String'(Fname);
       elsif Is_Specified (Arg_Project) then
-         Res := Create (Arg_Project, +Fname);
-
-         if Res = No_File then
-            Free (Short_Source_Name_String);
-         else
-            Short_Source_Name_String := new String'(Res.Display_Full_Name);
-         end if;
+         declare
+            Res : constant GPR2.Path_Name.Object :=
+              Get_File
+                (Tree (Arg_Project).all,
+                 Filename_Optional (Fname));
+         begin
+            if not Res.Is_Defined then
+               Free (Short_Source_Name_String);
+            else
+               Short_Source_Name_String := new String'(Res.Value);
+            end if;
+         end;
       end if;
 
       if Short_Source_Name_String = null then
@@ -1676,9 +1692,10 @@ package body Gnatcheck.Source_Table is
 
       --  Otherwise use a project unit provider
 
-      else
+      elsif  Gnatcheck_Prj.Tree.Is_Defined then
          if Partition = null then
-            Partition := Create_Project_Unit_Providers (Gnatcheck_Prj'Access);
+            Partition :=
+              Create_Project_Unit_Providers (Gnatcheck_Prj.Tree.all);
          end if;
 
          --  We can ignore multiple partitions: this will only occur with

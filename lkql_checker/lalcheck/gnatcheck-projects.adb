@@ -28,9 +28,23 @@ with Ada.Strings.Unbounded;
 
 with System.Multiprocessors;
 
-with GNATCOLL.Projects.Aux;
 with GNATCOLL.Traces;
 
+with GPR2.Containers;
+with GPR2.Context;
+with GPR2.KB;
+with GPR2.Log;
+with GPR2.Path_Name;
+with GPR2.Path_Name.Set;
+with GPR2.Project.Attribute;
+with GPR2.Project.Attribute_Index;
+with GPR2.Project.Registry.Attribute;
+with GPR2.Project.Registry.Pack;
+with GPR2.Project.Source.Set;
+with GPR2.Project.View;
+with GPR2.Project.View.Set;
+
+with GNAT.Directory_Operations;
 with GNAT.Strings;
 with GNAT.Regexp;       use GNAT.Regexp;
 with GNAT.String_Split; use GNAT.String_Split;
@@ -53,7 +67,7 @@ with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
 
 package body Gnatcheck.Projects is
 
-   Project_Env      : Project_Environment_Access;
+   Project_Context  : GPR2.Context.Object;
    Project_File_Set : Boolean := False;
 
    ------------------------------
@@ -91,30 +105,15 @@ package body Gnatcheck.Projects is
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
    --  project aggregated by My_Project
 
-   function Is_Externally_Built
-     (File :       Virtual_File;
-      My_Project : Arg_Project_Type)
-      return Boolean;
-   --  Checks if the given source file belongs to an externally build library.
-
    --------------
    -- Clean_Up --
    --------------
 
    procedure Clean_Up (My_Project : Arg_Project_Type) is
-      Root_Prj : Project_Type;
       Success  : Boolean;
       Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
 
    begin
-      if Is_Specified (My_Project) then
-         Root_Prj := Root_Project (My_Project);
-
-         if Root_Prj /= No_Project then
-            GNATCOLL.Projects.Aux.Delete_All_Temp_Files (Root_Prj);
-         end if;
-      end if;
-
       if not (Subprocess_Mode or Debug_Mode) then
          Delete_File (Gnatcheck_Config_File.all, Success);
          Delete_File (Gprbuild, Success);
@@ -127,19 +126,37 @@ package body Gnatcheck.Projects is
    --------------------------
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type) is
-      Proj : constant Project_Type := Root_Project (My_Project);
+      Proj : constant GPR2.Project.View.Object := My_Project.Tree.Root_Project;
 
-      Attr_Def_Switches : constant Attribute_Pkg_List :=
-        Build ("Check", "Default_Switches");
-      Proj_Args_Parser  : Opt_Parser;
+      use GPR2;
+      use GPR2.Project.Registry.Attribute;
+
+      Proj_Args_Parser : Opt_Parser;
+      Ada_Idx          : constant GPR2.Project.Attribute_Index.Object :=
+        GPR2.Project.Attribute_Index.Create (Ada_Language);
+      Attr             : GPR2.Project.Attribute.Object;
+      Command_Line     : GNAT.OS_Lib.Argument_List_Access;
 
    begin
-      if Has_Attribute (Proj, Attr_Def_Switches, "ada") then
+      if Proj.Has_Attribute (+"Default_Switches", +"Check", Ada_Idx) then
+
+         Attr := Proj.Attribute (+"Default_Switches", +"Check", Ada_Idx);
+         if Attr.Kind = Single then
+            Error
+              (String (Proj.Path_Name.Simple_Name)
+               & ": Check.Default_Switches value must be a list");
+            raise Parameter_Error;
+         end if;
+
+         Command_Line := new String_List
+           (Attr.Values.First_Index .. Attr.Values.Last_Index);
+         for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
+            Command_Line (J) := new String'(Attr.Values.Element (J).Text);
+         end loop;
+
          Initialize_Option_Scan
            (Parser                   => Proj_Args_Parser,
-            Command_Line             =>
-              Attribute_Value (Root_Project (My_Project),
-                               Attr_Def_Switches, "ada"),
+            Command_Line             => Command_Line,
             Switch_Char              => '-',
             Stop_At_First_Non_Switch => False,
             Section_Delimiters       => "cargs rules");
@@ -147,7 +164,10 @@ package body Gnatcheck.Projects is
            (My_Project  => My_Project,
             Parser      => Proj_Args_Parser,
             In_Switches => False);
+
+         Free (Command_Line);
       end if;
+
    end Extract_Tool_Options;
 
    ------------------------------
@@ -155,13 +175,30 @@ package body Gnatcheck.Projects is
    ------------------------------
 
    procedure Get_Sources_From_Project (My_Project : in out Arg_Project_Type) is
-      File_Patterns_Attribute : constant Attribute_Pkg_List :=
-        Build ("codepeer", "file_patterns");
+      use GPR2;
+      use GPR2.Project.Registry.Attribute;
+      use GPR2.Project.View;
+      use GPR2.Project.Source.Set;
 
-      Patterns : GNAT.Strings.String_List_Access;
-      Pattern  : Unbounded_String;
-      Prj      : Project_Type;
-      Files    : File_Array_Access;
+      Proj : constant GPR2.Project.View.Object := My_Project.Tree.Root_Project;
+      Attr : GPR2.Project.Attribute.Object;
+
+      Patterns    : GNAT.Strings.String_List_Access;
+      Pattern     : Unbounded_String;
+      Files       : File_Array_Access;
+      Directories : File_Array_Access;
+
+      procedure Store_Source (Source : Project.Source.Object);
+      --  Callback used to store sources
+
+      ------------------
+      -- Store_Source --
+      ------------------
+
+      procedure Store_Source (Source : Project.Source.Object) is
+      begin
+         Store_Sources_To_Process (String (Source.Path_Name.Simple_Name));
+      end Store_Source;
 
       use Ada.Strings.Unbounded;
 
@@ -170,10 +207,20 @@ package body Gnatcheck.Projects is
          --  Use project attribute CodePeer'File_Patterns if set, otherwise
          --  use a default pattern.
 
-         if My_Project.Root_Project.Has_Attribute (File_Patterns_Attribute)
-         then
-            Patterns := My_Project.Root_Project.Attribute_Value
-              (File_Patterns_Attribute);
+         if Proj.Has_Attribute (+"File_Patterns", +"CodePeer") then
+            Attr := Proj.Attribute (+"File_Patterns", +"CodePeer");
+            if Attr.Kind = Single then
+               Error
+                 (String (Proj.Path_Name.Simple_Name)
+                  & ": Codepeer.File_Patterns value must be a list");
+               raise Parameter_Error;
+            end if;
+
+            Patterns := new String_List
+              (Attr.Values.First_Index .. Attr.Values.Last_Index);
+            for J in Attr.Values.First_Index .. Attr.Values.Last_Index loop
+               Patterns (J) := new String'(Attr.Values.Element (J).Text);
+            end loop;
 
             if Patterns'Length = 1 then
                Set_Unbounded_String (Pattern, Patterns (1).all);
@@ -190,16 +237,40 @@ package body Gnatcheck.Projects is
             Set_Unbounded_String (Pattern, "*.{ad[asb],spc,bdy}");
          end if;
 
+         --  ??? ATM source directories are processed akin to source files,
+         --  by default the ones belonging to root project. This is to change
+         --  as per R605-048.
+         declare
+            Source_Dirs : GPR2.Path_Name.Set.Object;
+            Idx         : Natural := 1;
+         begin
+            if U_Option_Set then
+               for S of My_Project.Tree.Source_Directories loop
+                  Source_Dirs.Append (S);
+               end loop;
+            else
+               for S of My_Project.Tree.Root_Project.Source_Directories loop
+                  Source_Dirs.Append (S);
+               end loop;
+            end if;
+
+            Directories := new File_Array (1 .. Integer (Source_Dirs.Length));
+            for S of Source_Dirs loop
+               Directories (Idx) := Create (+S.Value);
+               Idx := Idx + 1;
+            end loop;
+
+            Source_Dirs.Clear;
+         end;
+
          Files := Find_Files_Regexp
            (Name_Pattern =>
               Compile (To_String (Pattern),
                        Glob           => True,
                        Case_Sensitive => False),
-            Directories =>
-              Source_Dirs
-                (My_Project.Root_Project,
-                 Recursive => U_Option_Set,
-                 Include_Externally_Built => False));
+            Directories => Directories.all);
+
+         Unchecked_Free (Directories);
 
          for F of Files.all loop
             Store_Sources_To_Process (F.Display_Full_Name);
@@ -207,56 +278,26 @@ package body Gnatcheck.Projects is
 
          My_Project.Files := Files;
 
-      elsif No_Argument_File_Specified
-        or else (U_Option_Set and then (not File_List_Specified))
-      then
-         if Main_Unit = null
-         --  ??? Call Files_From_Closure once available in libgpr2 instead
-         --  when Main_Unit is set
-           or else not File_List_Specified
-         then
-            Prj := My_Project.Root_Project;
+         return;
 
-            Files := Prj.Source_Files (Recursive => U_Option_Set);
+      end if;
 
-            for F in Files'Range loop
-               if not Is_Externally_Built (Files (F), My_Project)
-                 and then Is_Ada_File (Files (F), My_Project)
-               then
-                  Store_Sources_To_Process (Files (F).Display_Base_Name);
-               end if;
-            end loop;
+      if not No_Argument_File_Specified or else File_List_Specified then
+         return;
+      end if;
 
-            if U_Option_Set then
-               if Files'Length = 0 then
-                  Unchecked_Free (Files);
-                  Error (My_Project.Source_Prj.all &
-                         " does not contain source files");
-                  return;
-               end if;
-            else
-               Prj := Extended_Project (Prj);
-
-               while Prj /= No_Project loop
-                  Unchecked_Free (Files);
-                  Files := Prj.Source_Files (Recursive => False);
-
-                  for F in Files'Range loop
-                     if not Is_Externally_Built (Files (F), My_Project)
-                       and then
-                        Is_Ada_File (Files (F), My_Project)
-                     then
-                        Gnatcheck.Source_Table.Store_Sources_To_Process
-                          (Files (F).Display_Base_Name);
-                     end if;
-                  end loop;
-
-                  Prj := Extended_Project (Prj);
-               end loop;
+      --  ??? Call Files_From_Closure when mains are specified
+      if U_Option_Set then
+         My_Project.Tree.For_Each_Source
+           (Action   => Store_Source'Access,
+            Language => Ada_Language);
+      else
+         for Src of My_Project.Tree.Root_Project.Sources loop
+            if not Src.View.Is_Externally_Built and then Src.Is_Ada then
+               Store_Sources_To_Process (String (Src.Path_Name.Simple_Name));
             end if;
 
-            Unchecked_Free (Files);
-         end if;
+         end loop;
       end if;
    end Get_Sources_From_Project;
 
@@ -267,46 +308,7 @@ package body Gnatcheck.Projects is
    procedure Initialize_Environment is
    begin
       GNATCOLL.Traces.Parse_Config_File;
-      Initialize (Project_Env);
-
-      Project_Env.Set_Target_And_Runtime (Target.all, RTS_Path.all);
-
-      if Follow_Symbolic_Links then
-         Project_Env.Set_Trusted_Mode (True);
-      end if;
    end Initialize_Environment;
-
-   -----------------
-   -- Is_Ada_File --
-   -----------------
-
-   function Is_Ada_File
-     (File       : Virtual_File;
-      My_Project : Arg_Project_Type) return Boolean is
-   begin
-      return To_Lower (Language (Info (My_Project, File))) = "ada";
-   end Is_Ada_File;
-
-   -------------------------
-   -- Is_Externally_Built --
-   -------------------------
-
-   function Is_Externally_Built
-     (File :       Virtual_File;
-      My_Project : Arg_Project_Type)
-      return Boolean
-   is
-      F_Info : constant File_Info    := Info (My_Project, File);
-      Proj   : constant Project_Type := Project (F_Info);
-      Attr   : constant Attribute_Pkg_String := Build ("", "externally_built");
-   begin
-      if Has_Attribute (Proj, Attr) then
-         if Attribute_Value (Proj, Attr) = "true" then
-            return True;
-         end if;
-      end if;
-      return False;
-   end Is_Externally_Built;
 
    ------------------
    -- Is_Specified --
@@ -333,52 +335,58 @@ package body Gnatcheck.Projects is
    procedure Load_Aggregated_Project
      (My_Project : in out Arg_Project_Type'Class)
    is
-      procedure Errors (S : String);
-      --  Callback used by the call to Load below to emit a project loading
-      --  error.
+      use GPR2;
+      use GPR2.Containers;
+      use GPR2.Path_Name;
 
-      procedure Errors (S : String) is
-      begin
-         if Index (S, " not a regular file") /= 0 then
-            Error ("project file " & My_Project.Source_Prj.all & " not found");
-         elsif Index (S, "is illegal for typed string") /= 0 then
-            Error (S);
-            raise Parameter_Error;
-         elsif Index (S, "warning") /= 0
-              and then Index (S, "directory") /= 0
-              and then Index (S, "not found") /= 0
-         then
-            return;
-         else
-            Error (S);
-         end if;
-      end Errors;
+      RTS : Lang_Value_Map := Lang_Value_Maps.Empty_Map;
+
+      Agg_Context : GPR2.Context.Object;
+
+      KB : constant GPR2.KB.Object :=
+        GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
    begin
-      My_Project.Load
-        (GNATCOLL.VFS.Create (+My_Project.Source_Prj.all),
-         Project_Env,
-         Errors              => Errors'Unrestricted_Access,
-         Report_Missing_Dirs => False);
+      if RTS_Path.all /= "" then
+         RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
+      end if;
+      My_Project.Tree.Load_Autoconf
+        (Filename          =>
+           Create_File
+             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+         Context           => Project_Context,
+         Subdirs           =>
+           (if Subdir_Name = null then
+                 No_Name
+            else Name_Type (Subdir_Name.all)),
+         Target            => Optional_Name_Type (Target.all),
+         Language_Runtimes => RTS,
+         Base => KB);
 
-      if My_Project.Root_Project = No_Project then
+      if not My_Project.Tree.Is_Defined then
          Error ("project not loaded");
       end if;
 
-      pragma Assert (Is_Aggregate_Project (My_Project.Root_Project));
+      pragma Assert (My_Project.Tree.Root_Project.Kind in Aggregate_Kind);
 
-      My_Project.Unload;
+      Agg_Context :=
+        GPR2.Project.View.Set.Set.Element
+          (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
-      if Subdir_Name /= null then
-         Set_Object_Subdir (Project_Env.all, +Subdir_Name.all);
-      end if;
+      My_Project.Tree.Unload;
 
-      Load
-        (Self                => My_Project,
-         Root_Project_Path   => Create (Filesystem_String
-                                          (Get_Aggregated_Project)),
-         Env                 => Project_Env,
-         Errors              => Errors'Unrestricted_Access,
-         Report_Missing_Dirs => False);
+      My_Project.Tree.Load_Autoconf
+        (Filename          => GPR2.Path_Name.Create_File
+             (Filename_Type (Get_Aggregated_Project)),
+         Context           => Agg_Context,
+         Subdirs           =>
+           (if Subdir_Name = null then
+                 No_Name
+            else Name_Type (Subdir_Name.all)),
+         Target            => Optional_Name_Type (Target.all),
+         Language_Runtimes => RTS,
+         Base => KB);
+      My_Project.Tree.Update_Sources
+        (Stop_On_Error => False,  With_Runtime => True);
    end Load_Aggregated_Project;
 
    -----------------------
@@ -386,50 +394,38 @@ package body Gnatcheck.Projects is
    -----------------------
 
    procedure Load_Tool_Project (My_Project : in out Arg_Project_Type) is
-      Aggregated_Prj_Name : Filesystem_String_Access;
+      Aggregated_Prj_Name : GPR2.Path_Name.Object;
 
-      procedure Errors (S : String);
-      procedure Errors (S : String) is
-      begin
-         if Index (S, " not a regular file") /= 0 then
-            Error ("project file " & My_Project.Source_Prj.all & " not found");
-         elsif Index (S, "is illegal for typed string") /= 0 then
-            Error (S);
-            raise Parameter_Error;
-         elsif Index (S, "warning") /= 0
-              and then Index (S, "directory") /= 0
-              and then Index (S, "not found") /= 0
-         then
-            return;
-         else
-            Error (S);
-         end if;
-      end Errors;
+      use GPR2;
+      use GPR2.Containers;
+      use GPR2.Path_Name;
 
-      procedure Ignore (S : String) is null;
-      --  Ignore result of function returning a String
+      RTS : Lang_Value_Map := Lang_Value_Maps.Empty_Map;
 
+      Agg_Context : GPR2.Context.Object;
+
+      KB : constant GPR2.KB.Object :=
+        GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
    begin
-      if Subdir_Name /= null then
-         Set_Object_Subdir (Project_Env.all, +Subdir_Name.all);
+      if RTS_Path.all /= "" then
+         RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
       end if;
 
-      Ignore
-        (Register_New_Attribute
-          ("file_patterns", "codepeer", Is_List => True));
+      My_Project.Tree.Load_Autoconf
+        (Filename          =>
+           Create_File
+             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+         Context           => Project_Context,
+         Subdirs           =>
+           (if Subdir_Name = null then
+                 No_Name
+            else Name_Type (Subdir_Name.all)),
+         Target            => Optional_Name_Type (Target.all),
+         Language_Runtimes => RTS,
+         Base => KB);
 
-      My_Project.Load
-        (GNATCOLL.VFS.Create (+My_Project.Source_Prj.all),
-         Project_Env,
-         Errors              => Errors'Unrestricted_Access,
-         Report_Missing_Dirs => False);
-
-      if Is_Aggregate_Project (My_Project.Root_Project) then
-         if My_Project.Root_Project = No_Project then
-            Error ("project not loaded");
-         end if;
-
-         Collect_Aggregated_Projects (My_Project.Root_Project);
+      if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
+         Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
          N_Of_Aggregated_Projects := Num_Of_Aggregated_Projects;
 
          case N_Of_Aggregated_Projects is
@@ -445,18 +441,26 @@ package body Gnatcheck.Projects is
                --  is aggregated, so we load it in the environment that already
                --  has all the settings from the argument aggregate project:
 
-               Aggregated_Prj_Name := new Filesystem_String'
-                 (Full_Name (Get_Aggregated_Prj_Src));
+               Aggregated_Prj_Name := Get_Aggregated_Prj_Src;
 
-               My_Project.Unload;
+               Agg_Context :=
+                 GPR2.Project.View.Set.Set.Element
+                   (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
-               Load
-                 (Self                => My_Project,
-                  Root_Project_Path   => Create (Aggregated_Prj_Name.all),
-                  Env                 => Project_Env,
-                  Errors              => Errors'Unrestricted_Access,
-                  Report_Missing_Dirs => False);
-               Free (Aggregated_Prj_Name);
+               My_Project.Tree.Unload;
+
+               My_Project.Tree.Load_Autoconf
+                 (Filename          => Aggregated_Prj_Name,
+                  Context           => Agg_Context,
+                  Subdirs           =>
+                    (if Subdir_Name = null then
+                          No_Name
+                     else Name_Type (Subdir_Name.all)),
+                  Target            => Optional_Name_Type (Target.all),
+                  Language_Runtimes => RTS,
+                  Base => KB);
+               My_Project.Tree.Update_Sources
+                 (Stop_On_Error => False,  With_Runtime => True);
 
             when others =>
                --  General case - more than one project is aggregated. We have
@@ -464,11 +468,19 @@ package body Gnatcheck.Projects is
 
                null;
          end case;
+      else
+         My_Project.Tree.Update_Sources
+           (Stop_On_Error => False,  With_Runtime => True);
       end if;
 
-   exception
-      when Invalid_Project =>
-         raise Parameter_Error;
+      exception
+         when GPR2.Project_Error | GPR2.Processing_Error =>
+            for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+              (Information => Verbose_Mode)
+            loop
+               Error (GPR2.Log.Element (Msg_Cur).Format);
+            end loop;
+            raise Parameter_Error;
    end Load_Tool_Project;
 
    --------------------------
@@ -483,7 +495,6 @@ package body Gnatcheck.Projects is
       end if;
 
       Register_Tool_Attributes (My_Project);
-      Initialize_Environment;
       Set_External_Values (My_Project);
 
       if Aggregated_Project then
@@ -544,16 +555,49 @@ package body Gnatcheck.Projects is
       end if;
    end Report_Aggregated_Project;
 
+   ------------------------------
+   -- Register_Tool_Attributes --
+   ------------------------------
+
+   procedure Register_Tool_Attributes (My_Project : Arg_Project_Type) is
+      use GPR2;
+      use GPR2.Project.Registry.Attribute;
+   begin
+      GPR2.Project.Registry.Pack.Add
+        (+"Codepeer", GPR2.Project.Registry.Pack.Everywhere);
+      Add
+        (GPR2.Project.Registry.Attribute.Create
+           (+"File_Patterns", +"Codepeer"),
+         Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
+         Value                => List,
+         Value_Case_Sensitive => True,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Pack.Check_Attributes (+"Codepeer");
+
+      GPR2.Project.Registry.Pack.Add
+        (+"Check", GPR2.Project.Registry.Pack.Everywhere);
+      Add
+        (GPR2.Project.Registry.Attribute.Create
+           (+"Default_Switches", +"Check"),
+         Index_Type           => Language_Index,
+         Value                => List,
+         Value_Case_Sensitive => True,
+         Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
+   end Register_Tool_Attributes;
+
    -------------------------
    -- Set_External_Values --
    -------------------------
 
    procedure Set_External_Values (My_Project : Arg_Project_Type) is
       GPR_TOOL_Set : Boolean := False;
+      use GPR2;
    begin
       for Var of X_Vars loop
-         Project_Env.Change_Environment
-           (Var.Var_Name.all, Var.Var_Value.all);
+         Project_Context.Include
+           (Name_Type (Var.Var_Name.all),
+            Var.Var_Value.all);
 
          if Var.Var_Name.all = "GPR_TOOL" then
             GPR_TOOL_Set := True;
@@ -565,7 +609,7 @@ package body Gnatcheck.Projects is
       if not Ada.Environment_Variables.Exists ("GPR_TOOL")
         and then not GPR_TOOL_Set
       then
-         Project_Env.Change_Environment ("GPR_TOOL", "gnatcheck");
+         Project_Context.Include ("GPR_TOOL", "gnatcheck");
       end if;
    end Set_External_Values;
 
@@ -574,20 +618,18 @@ package body Gnatcheck.Projects is
    ----------------------------
 
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type) is
-      Dir : Virtual_File;
+      Cur_Dir : constant GPR2.Path_Name.Object :=
+        GPR2.Path_Name.Create_Directory
+          (GPR2.Filename_Type
+              (GNAT.Directory_Operations.Get_Current_Dir));
+      Dir : constant String :=
+        (if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
+            My_Project.Tree.Root_Project.Object_Directory.Dir_Name
+         else
+            Cur_Dir.Dir_Name);
    begin
-      if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
-         Dir := My_Project.Root_Project.Object_Dir;
-
-         if Dir = No_File then
-            Dir := My_Project.Root_Project.Project_Path;
-         end if;
-      else
-         Dir := Get_Current_Dir;
-      end if;
-
       GNAT.OS_Lib.Free (Global_Report_Dir);
-      Global_Report_Dir := new String'(Display_Dir_Name (Dir));
+      Global_Report_Dir := new String'(Dir);
    end Set_Global_Result_Dirs;
 
    ---------------------
@@ -1480,8 +1522,10 @@ package body Gnatcheck.Projects is
       <<Processing_Aggregate_Project>>
 
       if not Subprocess_Mode then
+         Ada.Directories.Create_Path (Global_Report_Dir.all);
          Gnatcheck.Output.Set_Report_Files;
       end if;
+
    end Check_Parameters;
 
 end Gnatcheck.Projects;

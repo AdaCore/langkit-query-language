@@ -1,6 +1,8 @@
 with "libadalang";
 with "liblkqllang";
 with "lkql_checker";
+with "gpr_unit_provider";
+with "gpr2";
 
 project Lalcheck is
 

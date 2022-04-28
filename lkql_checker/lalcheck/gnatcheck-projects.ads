@@ -106,8 +106,10 @@
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
-with GNATCOLL.Projects; use GNATCOLL.Projects;
 with GNATCOLL.VFS;      use GNATCOLL.VFS;
+
+with GPR2.Project.Tree;
+with GPR2.Project.Source;
 
 package Gnatcheck.Projects is
 
@@ -201,9 +203,13 @@ package Gnatcheck.Projects is
    -- Type to represent a project passed as a tool option --
    ---------------------------------------------------------
 
-   type Arg_Project_Type is new Project_Tree with private;
+   type Arg_Project_Type is tagged limited private;
    --  This type is the base for each tool-specific project type. Most of its
    --  primitives does not need any redefinition for a specific tool.
+
+   function Tree
+     (My_Project : Arg_Project_Type) return access GPR2.Project.Tree.Object;
+   --  Returns access to project tree object
 
    procedure Store_Project_Source
      (My_Project        : in out Arg_Project_Type;
@@ -232,10 +238,7 @@ package Gnatcheck.Projects is
    --  project file, otherwise returns a null string.
 
    procedure Load_Tool_Project (My_Project : in out Arg_Project_Type);
-   --  Does the same as GNATCOLL.Projects.Load, the only difference is that
-   --  all the parameters except the project are hidden. This procedure never
-   --  generates any error or warning message, because here we do not know
-   --  values of external variables.
+   --  Loads argument project
 
    procedure Set_External_Values (My_Project : Arg_Project_Type);
    --  For each value of an external variable that has been stored as a result
@@ -253,12 +256,9 @@ package Gnatcheck.Projects is
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type);
    --  Sets the directory to place the global tool results into.
 
-   procedure Register_Tool_Attributes (My_Project : Arg_Project_Type) is null;
-   --  For the tools that for a long time are a part of the GNAT toolset and
-   --  that have got the GNAT Driver support we do not need to register any
-   --  attribute because they are already known by the project parser. But for
-   --  a new tool you may need to register attributes that are of interest for
-   --  extracting tool options or source-specific switches
+   procedure Register_Tool_Attributes (My_Project : Arg_Project_Type);
+   --  Register tool specific attributes. In particular, gnatcheck needs
+   --  to recognise Codepeer.File_Patterns.
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
    --  Extracts tool attributes from the project file. The default does the
@@ -343,11 +343,6 @@ package Gnatcheck.Projects is
    --  Combines all the actions needed to process the argument project file
    --  except storing individual compilation options for argument files.
 
-   function Is_Ada_File
-     (File :       Virtual_File;
-      My_Project : Arg_Project_Type) return Boolean;
-   --  Checks if the given source file is an Ada file
-
    -------------------------------------
    -- General command line processing --
    -------------------------------------
@@ -357,12 +352,16 @@ package Gnatcheck.Projects is
 
 private
 
-   type Arg_Project_Type is new Project_Tree with record
+   type Arg_Project_Type is tagged limited record
+      Tree       : aliased GPR2.Project.Tree.Object;
       Source_Prj : String_Access;
-      --  Stores the name of the project file that is a tool argument
 
       Files : File_Array_Access;
       --  Files associated with this project, when using --simple-project
    end record;
+
+   function Tree
+     (My_Project : Arg_Project_Type)
+      return access GPR2.Project.Tree.Object is (My_Project.Tree.Reference);
 
 end Gnatcheck.Projects;

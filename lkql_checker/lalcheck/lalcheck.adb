@@ -258,6 +258,8 @@ procedure Lalcheck is
    end Schedule_Files;
 
 begin
+   Initialize_Environment;
+
    Initialize_Option_Scan
      (Stop_At_First_Non_Switch => False,
       Section_Delimiters       => "cargs rules");

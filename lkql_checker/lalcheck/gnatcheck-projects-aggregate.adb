@@ -36,7 +36,7 @@ package body Gnatcheck.Projects.Aggregate is
    --------------------------------------------
 
    type Project_Record is record
-      Project_Path : Virtual_File := No_File;
+      Project_Path : GPR2.Path_Name.Object := GPR2.Path_Name.Undefined;
       --  Full path to a project file
    end record;
 
@@ -68,28 +68,28 @@ package body Gnatcheck.Projects.Aggregate is
    -------------
 
    function "=" (L, R : Project_Record) return Boolean is
+      use GPR2.Path_Name;
    begin
-      if R.Project_Path = No_File and then R.Project_Path = No_File then
+      if R.Project_Path = Undefined and then R.Project_Path = Undefined then
          return True;
-      elsif R.Project_Path = No_File or else R.Project_Path = No_File then
+      elsif R.Project_Path = Undefined or else R.Project_Path = Undefined then
          return False;
       else
-         return Filesystem_String'(Full_Name (L.Project_Path, True)) =
-                  Full_Name (R.Project_Path, True);
+         return L.Project_Path.Value = R.Project_Path.Value;
       end if;
    end "=";
 
    function "<" (L, R : Project_Record) return Boolean is
+      use GPR2.Path_Name;
    begin
       if L = R then
          return False;
-      elsif L.Project_Path = No_File then
+      elsif L.Project_Path = Undefined then
          return True;
-      elsif R.Project_Path = No_File then
+      elsif R.Project_Path = Undefined then
          return False;
       else
-         return Filesystem_String'(Full_Name (L.Project_Path, True)) <
-                  Full_Name (R.Project_Path, True);
+         return L.Project_Path.Value < R.Project_Path.Value;
       end if;
    end "<";
 
@@ -97,28 +97,25 @@ package body Gnatcheck.Projects.Aggregate is
    -- Collect_Aggregated_Projects --
    ---------------------------------
 
-   procedure Collect_Aggregated_Projects (P : Project_Type) is
-      Aggregated_Prjs : Project_Array_Access :=
-        P.Aggregated_Projects (Unwind_Aggregated => True);
+   procedure Collect_Aggregated_Projects (P : GPR2.Project.View.Object) is
       New_Prj_Rec     : Project_Record;
-
-      Inserted : Boolean;
-      C        : Cursor;
-
    begin
-      for Prj of Aggregated_Prjs.all loop
-         New_Prj_Rec.Project_Path := Prj.Project_Path;
-         Insert (Aggregated_Projects, New_Prj_Rec, C, Inserted);
+      for Agg of P.Aggregated loop
+         if Agg.Kind in GPR2.Aggregate_Kind then
+            --  Unwind nested aggregate projects
+            Collect_Aggregated_Projects (Agg);
+         else
+            New_Prj_Rec.Project_Path := Agg.Path_Name;
+            Include (Aggregated_Projects, New_Prj_Rec);
+         end if;
       end loop;
-
-      Unchecked_Free (Aggregated_Prjs);
    end Collect_Aggregated_Projects;
 
    ----------------------------
    -- Get_Aggregated_Prj_Src --
    ----------------------------
 
-   function Get_Aggregated_Prj_Src return Virtual_File is
+   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object is
      (Aggregated_Projects.First_Element.Project_Path);
 
    ----------------------------
@@ -131,10 +128,10 @@ package body Gnatcheck.Projects.Aggregate is
    -- Next_Prj_Name --
    -------------------
 
-   function Next_Prj_Name return Filesystem_String_Access is
+   function Next_Prj_Name return GPR2.Path_Name.Full_Name is
    begin
       if not Iterator_Done then
-         return new Filesystem_String'(Full_Name (Iterator_El.Project_Path));
+         return Iterator_El.Project_Path.Value;
       else
          Error ("attempt to get project name for non-active iterator");
          raise Fatal_Error;
@@ -273,11 +270,11 @@ package body Gnatcheck.Projects.Aggregate is
       while not Prj_Iterator_Done loop
          if Verbose_Mode then
             Info ("Processing aggregated project " &
-                  String (Next_Prj_Name.all));
+                  String (Next_Prj_Name));
          end if;
 
          Free (Prj_Args (2));
-         Prj_Args (2) := new String'(String (Next_Prj_Name.all));
+         Prj_Args (2) := new String'(String (Next_Prj_Name));
 
          Free (Out_Args (2));
 

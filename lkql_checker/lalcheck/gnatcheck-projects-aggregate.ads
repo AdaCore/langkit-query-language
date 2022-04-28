@@ -33,6 +33,9 @@
 --                   has (or, more precisely, may have) sources. Processing of
 --                   this case is described in the body of this package.
 
+with GPR2.Path_Name;
+with GPR2.Project.View;
+
 package Gnatcheck.Projects.Aggregate is
 
    procedure Store_Aggregated_Project (S : String);
@@ -40,7 +43,7 @@ package Gnatcheck.Projects.Aggregate is
    --  Stores and returns the name of the aggregated project file passed as an
    --  actual for '-A ' option.
 
-   procedure Collect_Aggregated_Projects (P : Project_Type);
+   procedure Collect_Aggregated_Projects (P : GPR2.Project.View.Object);
    --  Stores (in internal data structures) the full paths to the
    --  (non-aggregate!) projects that have been aggregated by P
 
@@ -49,7 +52,7 @@ package Gnatcheck.Projects.Aggregate is
    --  need to know this because the case when an aggregate project aggregates
    --  only one project is a useful special case.
 
-   function Get_Aggregated_Prj_Src return Virtual_File with
+   function Get_Aggregated_Prj_Src return GPR2.Path_Name.Object with
       Pre => Num_Of_Aggregated_Projects = 1;
    --  Returns the (single!) aggregate project source file
 
@@ -67,7 +70,7 @@ package Gnatcheck.Projects.Aggregate is
    --  Initializes the iterator and sets it to the first project stored in the
    --  database
 
-   function Next_Prj_Name return Filesystem_String_Access;
+   function Next_Prj_Name return GPR2.Path_Name.Full_Name;
    --  Gets the full name of the project file the iterator points onto
 
    procedure Prj_Iterator_Next;
