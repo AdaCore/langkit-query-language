@@ -960,17 +960,20 @@ package body Gnatcheck.Rules is
          end if;
       else
          if Enable then
-            if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
-               Error
-                ("redefining at " & Defined_Str (Defined_At) &
-                 " parameter " & Param & " for rule " & Rule.Name.all &
-                 " defined at " & Defined_Str (Rule.Defined_At.all));
-            end if;
-
             --  First try to extract an integer
 
+            declare
+               Integer_Param : constant Integer := Rule.Integer_Param;
             begin
                Rule.Integer_Param := Integer'Value (Param);
+
+               if Check_Param_Redefinition
+                 and then Integer_Param /= Integer'First
+               then
+                  Error
+                   ("redefining at " & Defined_Str (Defined_At) &
+                    " parameter N for rule " & Rule.Name.all);
+               end if;
 
                if Rule.Integer_Param >= 0 then
                   Rule.Rule_State := Enabled;
@@ -995,6 +998,14 @@ package body Gnatcheck.Rules is
                if To_String (Rule.Parameters.Child (J).As_Parameter_Decl.
                              F_Param_Identifier.Text) = To_Lower (Param)
                then
+                  if Check_Param_Redefinition
+                    and then Rule.Boolean_Params (J) = On
+                  then
+                     Error
+                      ("redefining at " & Defined_Str (Defined_At) &
+                       " parameter " & Param & " for rule " & Rule.Name.all);
+                  end if;
+
                   Rule.Boolean_Params (J) := On;
                   Rule.Rule_State := Enabled;
                   Rule.Defined_At := new String'(Defined_At);
