@@ -40,11 +40,12 @@ package Gnatcheck.Options is
    Executable : constant String := Base_Name (Command_Name);
    --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
 
+   RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
+   --  Runtime as specified via --RTS=
+
    Target : GNAT.OS_Lib.String_Access := new String'("");
    --  Target as it is specified by the command-line '--target=...' option, or
    --  by the 'Target attribute in the argument project file.
-
-   Custom_RTS : GNAT.OS_Lib.String_Access;
 
    Charset : GNAT.OS_Lib.String_Access := new String'("iso-8859-1");
    --  Charset to use for parsing source files

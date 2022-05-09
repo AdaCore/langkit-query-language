@@ -56,9 +56,6 @@ package body Gnatcheck.Projects is
    Project_Env      : Project_Environment_Access;
    Project_File_Set : Boolean := False;
 
-   RTS_Path : String_Access := new String'("");
-   --  Config_File_Name  : String_Access;
-
    ------------------------------
    -- External variables table --
    ------------------------------

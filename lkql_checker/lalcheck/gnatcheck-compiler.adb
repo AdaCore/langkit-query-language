@@ -1235,6 +1235,16 @@ package body Gnatcheck.Compiler is
          end if;
       end if;
 
+      if RTS_Path.all /= "" then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--RTS=" & RTS_Path.all);
+      end if;
+
+      if Target.all /= "" then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--target=" & RTS_Path.all);
+      end if;
+
       if Debug_Mode then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-d");
