@@ -6784,6 +6784,35 @@ This rule has no parameters.
      (I       : Integer;
       Process : access procedure (J : in out Integer));  --  FLAG
 
+.. _Blocks:
+
+``Suspicious_Equalities``
+------------------
+
+.. index:: Suspicious_Equalities
+
+Flag 'or' expressions whose left and right operands are unequalities
+referencing the same entity and a literal and 'and' expressions whose left and
+right operands are equalities referencing the same entity and a literal.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 4, 7
+
+   procedure tmp is
+      X : Integer := 0;
+   begin
+      if X /= 1 or x /= 2 then -- FLAG
+         null;
+      end;
+      if x = 1 and then X = 2 then -- Flag
+         null;
+      end;
+   end;
+
 
 .. _Too_Many_Dependencies:
 

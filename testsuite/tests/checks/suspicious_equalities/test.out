@@ -1,0 +1,16 @@
+suspicious_equalities.adb:4:7: rule violation: suspicious_equality
+4 |    if X = 1 and x = 2 then
+  |       ^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:7:7: rule violation: suspicious_equality
+7 |    if X = 1 and then x = 2 then
+  |       ^^^^^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:10:7: rule violation: suspicious_equality
+10 |    if X /= 1 or x /= 2 then -- FLAG
+   |       ^^^^^^^^^^^^^^^^
+
+suspicious_equalities.adb:13:7: rule violation: suspicious_equality
+13 |    if X /= 1 or else x/= 2 then
+   |       ^^^^^^^^^^^^^^^^^^^^
+

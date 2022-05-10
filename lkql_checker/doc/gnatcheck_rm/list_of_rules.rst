@@ -155,6 +155,7 @@ GNATcheck rules.
 * :ref:`Specific_Type_Invariants`
 * :ref:`Style_Checks`
 * :ref:`Subprogram_Access`
+* :ref:`Suspicious_Equalities`
 * :ref:`Too_Many_Dependencies`
 * :ref:`Too_Many_Generic_Dependencies`
 * :ref:`Too_Many_Parents`
