@@ -1,0 +1,8 @@
+p.ads:3:4: rule violation: possible occurrence of KP V329-046
+3 |    op : access function (arg1 : Integer; arg2 : Integer) return Integer  -- FLAG
+  |    ^^
+
+p.ads:8:4: rule violation: possible occurrence of KP V329-046
+8 |    op2 : access function return Integer; -- FLAG
+  |    ^^^
+
