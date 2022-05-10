@@ -1,0 +1,4 @@
+p.ads:2:14: rule violation: possible occurrence of KP V114-047 if runtime is ravenscar*zynq*
+2 |    protected Handler is   --  FLAG
+  |              ^^^^^^^
+
