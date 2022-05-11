@@ -6784,10 +6784,10 @@ This rule has no parameters.
      (I       : Integer;
       Process : access procedure (J : in out Integer));  --  FLAG
 
-.. _Blocks:
+.. _Suspicious_Equalities:
 
 ``Suspicious_Equalities``
-------------------
+-------------------------
 
 .. index:: Suspicious_Equalities
 
