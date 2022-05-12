@@ -7,7 +7,7 @@ suspicious_equalities.adb:7:7: rule violation: suspicious equality
   |       ^^^^^^^^^^^^^^^^^^^^
 
 suspicious_equalities.adb:10:7: rule violation: suspicious equality
-10 |    if X /= 1 or x /= 2 then -- FLAG
+10 |    if X /= 1 or x /= 2 then
    |       ^^^^^^^^^^^^^^^^
 
 suspicious_equalities.adb:13:7: rule violation: suspicious equality
