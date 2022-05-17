@@ -26,7 +26,9 @@ with Ada.Strings.Fixed;           use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;       use Ada.Strings.Unbounded;
 with Ada.Text_IO;                 use Ada.Text_IO;
 
+with GNAT.String_Split;           use GNAT.String_Split;
 with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
+with GNAT.Expect;                 use GNAT.Expect;
 with GNAT.OS_Lib;                 use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
@@ -1534,13 +1536,142 @@ package body Gnatcheck.Source_Table is
    function Create_Context return Lkql_Context is
       Ctx   : Lkql_Context;
       Dummy : Primitive;
+      Files : File_Array_Access;
+      Last  : Natural := 0;
+
+      procedure Add_Runtime_Files;
+      --  Add to Files all the GNAT native runtime files, if found
+
+      -----------------------
+      -- Add_Runtime_Files --
+      -----------------------
+
+      procedure Add_Runtime_Files is
+         Gnatls  : String_Access :=
+           Locate_Exec_On_Path (if Target.all /= ""
+                                then Target.all & "-gnatls"
+                                else "gnatls");
+         Verbose : aliased String := "-v";
+         Status  : aliased Integer;
+
+      begin
+         if Gnatls = null then
+            return;
+         end if;
+
+         --  Spawn gnatls -v
+
+         declare
+            use Ada.Directories;
+
+            Output : constant String :=
+              Get_Command_Output (Gnatls.all,
+                                  [Verbose'Unchecked_Access],
+                                  "", Status'Unchecked_Access, True);
+            Lines : String_List_Access;
+            Ada_Include_Path : String_Access;
+            Found : Boolean := False;
+
+            procedure Add_File (Dir : Directory_Entry_Type);
+            --  Add the given directory entry Dir to Files
+
+            --------------
+            -- Add_File --
+            --------------
+
+            procedure Add_File (Dir : Directory_Entry_Type) is
+            begin
+               Last := @ + 1;
+               Files (Last) := Create (+Full_Name (Dir));
+            end Add_File;
+
+         begin
+            if Status /= 0 then
+               Free (Gnatls);
+               return;
+            end if;
+
+            --  and look for the line containing "adainclude"
+
+            for Line of Create (Output, [ASCII.LF, ASCII.CR], Multiple)
+            loop
+               Found := Has_Suffix (Line, "adainclude");
+
+               if Found then
+                  Ada_Include_Path :=
+                    new String'(Remove_Spaces (Line));
+                  exit;
+               end if;
+            end loop;
+
+            Free (Lines);
+
+            if not Found then
+               Free (Gnatls);
+               return;
+            end if;
+
+            --  We then list all the *.ad[sb] files
+
+            Search (Ada_Include_Path.all, "*.ad[sb]",
+                    Process => Add_File'Access);
+            Free (Ada_Include_Path);
+            Free (Gnatls);
+         end;
+      end Add_Runtime_Files;
 
    begin
-      if Simple_Project then
+      --  If no project specified, create an auto provider with all the source
+      --  files listed in the command line, stored in Temporary_File_Storage,
+      --  as well as all runtime files, these are needed for proper name
+      --  resolution.
+
+      if not Gnatcheck_Prj.Is_Specified then
+         declare
+            procedure Add_File (File_Name : String);
+            --  Add File_Name to Files
+
+            --------------
+            -- Add_File --
+            --------------
+
+            procedure Add_File (File_Name : String) is
+            begin
+               Last := @ + 1;
+               Files (Last) := Create (+File_Name);
+            end Add_File;
+
+         begin
+            Files := new File_Array
+                      (1 .. Natural (Length (Temporary_File_Storage)) + 4096);
+            --  Enough to hold all files on the command line and all runtime
+            --  files.
+
+            Temp_Storage_Iterate (Add_File'Access);
+            Add_Runtime_Files;
+            Ctx.Analysis_Ctx := Create_Context
+              (Charset       => Charset.all,
+               Unit_Provider => Create_Auto_Provider_Reference
+                                  (Files (1 .. Last), Charset.all));
+            Unchecked_Free (Files);
+         end;
+
+      --  Simple_Project maps to an auto provider
+
+      elsif Simple_Project then
+         --  As for the case above, add all runtime files for name resolution
+
+         Files := new File_Array (1 .. Gnatcheck_Prj.Files'Length + 4096);
+         Files (1 .. Gnatcheck_Prj.Files'Length) := Gnatcheck_Prj.Files.all;
+         Last := Gnatcheck_Prj.Files'Length;
+         Add_Runtime_Files;
          Ctx.Analysis_Ctx := Create_Context
            (Charset       => Charset.all,
             Unit_Provider => Create_Auto_Provider_Reference
-                               (Gnatcheck_Prj.Files.all, Charset.all));
+                               (Files (1 .. Last), Charset.all));
+         Unchecked_Free (Files);
+
+      --  Otherwise use a project unit provider
 
       else
          if Partition = null then
