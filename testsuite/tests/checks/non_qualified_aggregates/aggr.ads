@@ -20,6 +20,7 @@ package Aggr is
    t6 : Two_Dim_Array_Ptr :=
       new Two_Dim_Array'((others => 'x'), ('s', 't'));         -- NO FLAG
 
+   type Month_Name is (January, February, March, August);
    type Date is tagged record
       Day   : Integer range 1 .. 31;
       Month : Month_Name;
