@@ -27,6 +27,9 @@ fun is_rep_pragma(id) =
     id.p_name_is("Volatile") or
     id.p_name_is("Volatile_Components")
 
+fun associated_decl(pragma_node) =
+    pragma_node.p_associated_entities()[1]?.p_basic_decl()
+
 # Return true if n is a misplaced representation node of decl as defined above
 fun misplaced_node(n, decl) =
     match n.previous_sibling
@@ -41,7 +44,7 @@ fun misplaced_node(n, decl) =
     | a@AtClause         => a.f_name.p_referenced_decl() != decl or
                             misplaced_node(a, decl)
     | p@Pragma           => (not is_rep_pragma(p.f_id)) or
-                            p.p_associated_decls()[1] != decl or
+                            associated_decl(p) != decl or
                             misplaced_node(p, decl)
     | *                  => true
 
@@ -60,5 +63,5 @@ fun misplaced_representation_items(node) =
         misplaced_node(node, node.f_name.p_referenced_decl())
     | Pragma          =>
         is_rep_pragma(node.f_id) and
-        misplaced_node(node, node.p_associated_decls()[1])
+        misplaced_node(node, associated_decl(node))
     | *  => false
