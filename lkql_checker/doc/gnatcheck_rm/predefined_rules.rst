@@ -3547,7 +3547,7 @@ each parameter should be of one of the following kinds:
 *
   if a parameter has a format of an Ada string constant, then the content
   of this constant (without outer string quotes) is treated as a
-  case-sensitive regular expression as defined in ``s-regpat.ads``.
+  case-insensitive regular expression as defined in ``s-regpat.ads``.
   An exception handler is not flagged if it contains a call to a subprogram
   that has a full expanded Ada name that matches this regular
   expression.

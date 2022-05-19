@@ -3,4 +3,4 @@ rule_name: silent_exception_handlers
 project: prj.gpr
 rule_arguments:
    silent_exception_handlers.subprograms: '["ada.exceptions.exception_message"]'
-   silent_exception_handlers.subprogram_regexps: '["\.Log$"]'
+   silent_exception_handlers.subprogram_regexps: '["\.log$"]'
