@@ -4,6 +4,13 @@
 # The rule has a parameter Record_Rep_Clauses_Only: Only record representation
 # clauses are flagged.
 
+selector defining_names
+    |" Return all the defining names of this basic decl. This can be used
+    |" instead of `any children is DefiningName...` to avoid selecting the
+    |" defining names of nested basic decls.
+    | BasicDecl => *(this.p_defining_names())
+    | *         => ()
+
 fun has_rep_aspect(node) =
    node.p_has_aspect("Address") or
    node.p_has_aspect("Size") or
@@ -33,5 +40,6 @@ fun representation_specifications(unit, record_rep_clauses_only=false) = [
     for n in from unit.root
     select RecordRepClause or
            (EnumRepClause when not record_rep_clauses_only) or
-           decl@BasicDecl when (not record_rep_clauses_only) and has_rep_aspect(decl)
+           (BasicDecl(any defining_names is dn@* when has_rep_aspect(dn))
+                when not record_rep_clauses_only)
 ]
