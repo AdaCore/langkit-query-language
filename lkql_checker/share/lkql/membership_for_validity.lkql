@@ -3,7 +3,7 @@
 #   X in Subtype_Of_X'First .. Subtype_Of_X'Last
 
 fun type_of(name) =
-    if name.p_referenced_decl().p_type_expression() is t@TypeExpr
+    if name.p_referenced_decl() is Name(p_type_expression() is t@TypeExpr)
     then t.p_designated_type_decl()
     else null
 
