@@ -1,4 +1,3 @@
 lines.adb:2:6: rule violation: too many lines in subprogram body: 5
 2 | begin   --  FLAG
-  | 
 

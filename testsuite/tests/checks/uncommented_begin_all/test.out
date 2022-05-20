@@ -1,8 +1,6 @@
 uncommented.adb:4:9: rule violation: mark BEGIN with -- Proc
 4 |    begin    --  FLAG
-  |    
 
 uncommented.adb:8:6: rule violation: mark BEGIN with -- Uncommented
 8 | begin       --  FLAG
-  | 
 
