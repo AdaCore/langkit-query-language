@@ -1678,14 +1678,8 @@ package body Gnatcheck.Source_Table is
             Partition := Create_Project_Unit_Providers (Gnatcheck_Prj'Access);
          end if;
 
-         --  Reject partitions with multiple parts: we cannot analyze it with
-         --  only one provider.
-
-         if Partition'Length /= 1 then
-            Free (Partition);
-            Error ("This aggregate project contains conflicting sources");
-            raise Fatal_Error;
-         end if;
+         --  We can ignore multiple partitions: this will only occur with
+         --  aggregate projects, which are handled specially in lalcheck.adb
 
          Ctx.Analysis_Ctx := Create_Context
            (Charset       => Charset.all,
