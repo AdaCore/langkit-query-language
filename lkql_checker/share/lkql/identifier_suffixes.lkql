@@ -157,11 +157,10 @@ fun identifier_suffixes(unit,
         not node.f_name.text.ends_with(renaming_suffix)
 
     # Look one level up for remaining cases
-    | p@* => match p.parent
+    | p@* => node.p_previous_part() == null and match p.parent
         # Access data objects
         | (ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
-                                     BaseTypeDecl(p_is_access_type() is true)),
-                      p_public_part_decl() is null) or
+                                     BaseTypeDecl(p_is_access_type() is true))) or
            ComponentDecl(f_component_def is
                ComponentDef(f_type_expr is
                    TypeExpr(p_designated_type_decl() is
@@ -177,13 +176,8 @@ fun identifier_suffixes(unit,
             not node.f_name.text.ends_with(access_obj_suffix)
 
         # Constants
-        | o@ObjectDecl(p_public_part_decl() is null)
+        | ObjectDecl(p_is_constant_object() is true)
           when constant_suffix != ""
-           and (o.f_has_constant.p_as_bool() or
-                # Renaming of a constant
-                (o.f_renaming_clause != null and
-                 stdlib.ultimate_alias(o.f_renaming_clause.f_renamed_object).
-                 f_has_constant.p_as_bool()))
         =>
             not node.f_name.text.ends_with(constant_suffix)
 
