@@ -44,7 +44,7 @@ Builtin Functions
 
     Yields the parents (ancestors) of the given node in the tree
 
-.. function:: pattern(string_pattern)
+.. function:: pattern(string_pattern, case_sensitive=true)
 
     Given a regex pattern string, create a pattern object
 

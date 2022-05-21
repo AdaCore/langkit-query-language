@@ -1160,7 +1160,11 @@ package body LKQL.Builtin_Functions is
       Args : Primitive_Array) return Primitive
    is
      (Make_Regex
-        (GNAT.Regpat.Compile (To_String (Str_Val (Args (1)))), Ctx.Pool));
+       (GNAT.Regpat.Compile
+         (To_String (Str_Val (Args (1))),
+          (if Bool_Val (Args (2))
+           then GNAT.Regpat.No_Flags else GNAT.Regpat.Case_Insensitive)),
+        Ctx.Pool));
 
    ----------------
    -- Eval_Find --
@@ -1385,7 +1389,8 @@ package body LKQL.Builtin_Functions is
 
       Create
         ("pattern",
-         (1 => Param ("string_pattern", Kind_Str)),
+         (1 => Param ("string_pattern", Kind_Str),
+          2 => Param ("case_sensitive", Kind_Bool, To_Primitive (True))),
         Eval_Create_Pattern'Access,
         "Given a regex pattern string, create a pattern object",
         Only_Dot_Calls => False),
