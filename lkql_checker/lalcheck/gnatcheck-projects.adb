@@ -1171,6 +1171,16 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-check-semantic" then
                      Check_Semantic := True;
 
+                  elsif Full_Switch (Parser => Parser) = "-ignore" then
+                     if Is_Regular_File (Parameter (Parser => Parser)) then
+                        Exempted_Units :=
+                          new String'(Normalize_Pathname
+                                        (Parameter (Parser => Parser)));
+                     else
+                        Error (Parameter (Parser => Parser) & " not found");
+                        raise Parameter_Error;
+                     end if;
+
                   elsif Full_Switch (Parser => Parser) = "-include-file" then
                      Gnatcheck.Diagnoses.Process_User_Filename
                        (Parameter (Parser => Parser));
@@ -1178,6 +1188,22 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-kp-version" then
                      Free (KP_Version);
                      KP_Version := new String'(Parameter (Parser => Parser));
+
+                  elsif Full_Switch (Parser => Parser) = "-simple-project" then
+                     Simple_Project := True;
+
+                     --  --simple-project is often used in the context of
+                     --  CodePeer where "gnatls" may not be available. So if
+                     --  Target hasn't been set explicitly and codepeer-gnatls
+                     --  is available, force its use by setting the "codepeer"
+                     --  target.
+
+                     if Target'Length = 0
+                       and then Locate_Exec_On_Path ("codepeer-gnatls") /= null
+                     then
+                        Free (Target);
+                        Target := new String'("codepeer");
+                     end if;
 
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
@@ -1214,36 +1240,10 @@ package body Gnatcheck.Projects is
 
                      Print_Version := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-ignore" then
-                     if Is_Regular_File (Parameter (Parser => Parser)) then
-                        Exempted_Units :=
-                          new String'(Normalize_Pathname
-                                        (Parameter (Parser => Parser)));
-                     else
-                        Error (Parameter (Parser => Parser) & " not found");
-                        raise Parameter_Error;
-                     end if;
-
                   elsif Full_Switch (Parser => Parser) =
                         "-ignore-project-switches"
                   then
                      Ignore_Project_Switches := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-simple-project" then
-                     Simple_Project := True;
-
-                     --  --simple-project is often used in the context of
-                     --  CodePeer where "gnatls" may not be available. So if
-                     --  Target hasn't been set explicitly and codepeer-gnatls
-                     --  is available, force its use by setting the "codepeer"
-                     --  target.
-
-                     if Target'Length = 0
-                       and then Locate_Exec_On_Path ("codepeer-gnatls") /= null
-                     then
-                        Free (Target);
-                        Target := new String'("codepeer");
-                     end if;
 
                   elsif Full_Switch (Parser => Parser) = "-target" then
                      Free (Target);
@@ -1465,8 +1465,8 @@ package body Gnatcheck.Projects is
          raise Parameter_Error;
       end if;
 
-      if Gnatcheck.Options.Exempted_Units /= null then
-         Process_Exemptions (Gnatcheck.Options.Exempted_Units.all);
+      if Exempted_Units /= null then
+         Process_Exemptions (Exempted_Units.all);
       end if;
 
       Total_Sources := Total_Sources_To_Process;
