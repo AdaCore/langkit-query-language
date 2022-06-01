@@ -32,6 +32,7 @@ with Ada.Wide_Wide_Text_IO;
 with Ada.Strings.Hash;
 
 with LKQL.AST_Nodes;
+with LKQL.Depth_Nodes;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Evaluation;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
@@ -135,12 +136,23 @@ package body LKQL.Primitives is
    function Selector_List_Image
      (Value : Selector_List) return Unbounded_Text_Type
    is
-      use Langkit_Support.Text.Chars;
+      use LKQL.Depth_Nodes;
       Image   : Unbounded_Text_Type;
+      Nodes   : constant Depth_Node_Vector := Value.Depth_Nodes;
+      Length  : constant Count_Type := Nodes.Length;
+      Counter : Count_Type := 1;
    begin
-      for D of Value.Depth_Nodes loop
-         Append (Image, Text_Type'(D.Node.Unchecked_Get.Text_Image) & LF);
+      Append (Image, "[");
+
+      for D of Nodes loop
+         Counter := Counter + 1;
+         Append (Image, Text_Type'(D.Node.Unchecked_Get.Text_Image));
+         if Counter <= Length then
+            Append (Image, ", ");
+         end if;
       end loop;
+
+      Append (Image, "]");
 
       return Image;
    end Selector_List_Image;
