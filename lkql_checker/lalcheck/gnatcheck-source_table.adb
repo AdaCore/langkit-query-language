@@ -1611,9 +1611,12 @@ package body Gnatcheck.Source_Table is
                return;
             end if;
 
-            --  We then list all the *.ad[sb] files
+            --  We then list all the *.ads files.
+            --  We only need to process spec files, runtime body files are not
+            --  needed to analyze user code and will slow down the startup
+            --  phase.
 
-            Search (Ada_Include_Path.all, "*.ad[sb]",
+            Search (Ada_Include_Path.all, "*.ads",
                     Process => Add_File'Access);
             Free (Ada_Include_Path);
             Free (Gnatls);

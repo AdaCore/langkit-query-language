@@ -1189,22 +1189,6 @@ package body Gnatcheck.Projects is
                      Free (KP_Version);
                      KP_Version := new String'(Parameter (Parser => Parser));
 
-                  elsif Full_Switch (Parser => Parser) = "-simple-project" then
-                     Simple_Project := True;
-
-                     --  --simple-project is often used in the context of
-                     --  CodePeer where "gnatls" may not be available. So if
-                     --  Target hasn't been set explicitly and codepeer-gnatls
-                     --  is available, force its use by setting the "codepeer"
-                     --  target.
-
-                     if Target'Length = 0
-                       and then Locate_Exec_On_Path ("codepeer-gnatls") /= null
-                     then
-                        Free (Target);
-                        Target := new String'("codepeer");
-                     end if;
-
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
 
@@ -1244,6 +1228,22 @@ package body Gnatcheck.Projects is
                         "-ignore-project-switches"
                   then
                      Ignore_Project_Switches := True;
+
+                  elsif Full_Switch (Parser => Parser) = "-simple-project" then
+                     Simple_Project := True;
+
+                     --  --simple-project is often used in the context of
+                     --  CodePeer where "gnatls" may not be available. So if
+                     --  Target hasn't been set explicitly and codepeer-gnatls
+                     --  is available, force its use by setting the "codepeer"
+                     --  target.
+
+                     if Target'Length = 0
+                       and then Locate_Exec_On_Path ("codepeer-gnatls") /= null
+                     then
+                        Free (Target);
+                        Target := new String'("codepeer");
+                     end if;
 
                   elsif Full_Switch (Parser => Parser) = "-target" then
                      Free (Target);
