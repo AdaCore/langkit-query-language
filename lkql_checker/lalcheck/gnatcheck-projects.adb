@@ -1488,7 +1488,9 @@ package body Gnatcheck.Projects is
 
       <<Processing_Aggregate_Project>>
 
-      Gnatcheck.Output.Set_Report_Files;
+      if not Subprocess_Mode then
+         Gnatcheck.Output.Set_Report_Files;
+      end if;
    end Check_Parameters;
 
 end Gnatcheck.Projects;
