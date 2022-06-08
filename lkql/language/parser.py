@@ -190,7 +190,7 @@ class SubBlockLiteral(LkqlNode):
 
 class IfThenElse(Expr):
     """
-    Expression of the form: if CONDITION then EXPR1 else EXPR2
+    Expression of the form: ``if CONDITION then EXPR1 else EXPR2``
     """
     condition = Field(type=Expr)
     then_expr = Field(type=Expr)
@@ -247,9 +247,10 @@ class ExprArg(Arg):
 
 class NamedArg(Arg):
     """
-    Named argument of the form: name=expression
+    Named argument of the form: ``name=expression``
 
     For instance::
+
        add(x=20, y=22)
     """
     arg_name = Field(type=Identifier)
@@ -333,9 +334,10 @@ class ArithBinOp(BinOp):
 
 class Unpack(Expr):
     """
-    Unpacking operator, written '*'.
+    Unpacking operator, written ``*``.
 
     For instance::
+
        \\*listValue
     """
     collection_expr = Field(type=Expr)
@@ -347,6 +349,7 @@ class ValDecl(Declaration):
     Associates a name with a value.
 
     For instance::
+
        val message = "Hello World"
     """
     doc_node = Field(type=T.BaseStringLiteral)
@@ -368,14 +371,14 @@ class DotAccess(Expr):
 
 class SafeAccess(DotAccess):
     """
-    Access to a field of a nullable node using the ?. operator
+    Access to a field of a nullable node using the ``?.`` operator
     """
     pass
 
 
 class InClause(Expr):
     """
-    Check that a list contains a given value using the 'in' keyword
+    Check that a list contains a given value using the ``in`` keyword
     """
     value_expr = Field(type=Expr)
     list_expr = Field(type=Expr)
@@ -386,6 +389,7 @@ class Indexing(Expr):
     Access to the nth element of a List or String
 
     For instance::
+
        values[0]
     """
     collection_expr = Field(type=Expr)
@@ -439,9 +443,11 @@ class UnfilteredPattern(BasePattern):
 
 class FilteredPattern(BasePattern):
     """
-    Pattern with a filtering predicate, of the form: pattern when predicate
+    Pattern with a filtering predicate, of the form:
+    ``<pattern> when <predicate>``
 
     For instance::
+
        o@ObjectDecl when o.children.length == 3
     """
     pattern = Field(type=UnfilteredPattern)
@@ -478,6 +484,7 @@ class BindingPattern(UnfilteredPattern):
     Pattern comprising a binding name and a value pattern.
 
     For instance::
+
        o : ObjectDecl
     """
 
@@ -509,6 +516,7 @@ class UniversalPattern(ValuePattern):
     Universal pattern that matches any value.
 
     For instance::
+
        let declParent = query * [children(depth==1)] BasicDecl
     """
     pass
@@ -534,6 +542,7 @@ class OrPattern(ValuePattern):
     Pattern that matches if any of its subpatterns matches.
 
     For instance::
+
         let value_decls = select ObjectDecl or ParamSpec
     """
     left = Field(type=BasePattern)
@@ -545,6 +554,7 @@ class NotPattern(ValuePattern):
     Pattern that matches if its inner pattern doesn't match.
 
     For instance::
+
        let non_objects = select not ObjectDecl
     """
     pattern = Field(type=ValuePattern)
@@ -566,6 +576,7 @@ class Query(Expr):
     pattern.
 
     For instance::
+
        let withAspects = query ObjectDecl [child] AspectAssoc
     """
 
@@ -586,8 +597,7 @@ class ListCompAssoc(LkqlNode):
 
 class ListLiteral(Expr):
     """
-    List literal of the form:
-        [ expr1, expr2, ..., exprn ]
+    List literal of the form: ``[ expr1, expr2, ..., exprn ]``
     """
 
     exprs = Field(type=Expr.list)
@@ -596,7 +606,7 @@ class ListLiteral(Expr):
 class ListComprehension(Expr):
     """
     List comprehension of the form:
-        [ expr | generator1, generator2, ...,  opt(guard)]
+    ``[ expr | generator1, generator2, ...,  opt(guard)]``
     """
 
     expr = Field(type=Expr)
@@ -607,7 +617,7 @@ class ListComprehension(Expr):
 class ObjectLiteral(Expr):
     """
     Object literal of the form:
-        {label: value, ..., labeln: valuen}
+    ``{label: value, ..., labeln: valuen}``
     """
     assocs = Field(type=T.ObjectAssoc.list)
 
@@ -615,7 +625,7 @@ class ObjectLiteral(Expr):
 class ObjectAssoc(LkqlNode):
     """
     Object assoc in an object literal:
-        label: <value>
+    ``label: <value>``
     """
     name = Field(type=Identifier)
     expr = Field(type=Expr)
@@ -623,14 +633,15 @@ class ObjectAssoc(LkqlNode):
 
 class BlockExpr(Expr):
     """
-    Expression of the form: val id = value; expr
+    Expression of the form: ``val id = value; expr``
 
     For instance::
-    {
-       val x = 40;
-       val y = 2;
-       x + y
-    }
+
+        {
+           val x = 40;
+           val y = 2;
+           x + y
+        }
     """
 
     vals = Field(type=Declaration.list)
@@ -720,6 +731,7 @@ class FunDecl(Declaration):
     Function definition
 
     For instance::
+
        fun add(x, y) = x + y
     """
 
@@ -746,6 +758,7 @@ class FunCall(Expr):
     Function call.
 
     For instance::
+
        add(2, 40)
     """
 
@@ -781,11 +794,12 @@ class FunCall(Expr):
 class SelectorExprMode(LkqlNode):
     """
     Modes for selector values:
-        - default: add the value to the result set
-        - rec: add the value to the result set and call the selector
-               recursively
-        - skip: call the selector recursively without adding the value to the
-                result set
+
+    - ``default``: add the value to the result set
+    - ``rec``: add the value to the result set and call the selector
+      recursively
+    - ``skip``: call the selector recursively without adding the value to the
+      result set
     """
     enum_node = True
 
@@ -805,6 +819,7 @@ class SelectorArm(LkqlNode):
     Represents one case of a selector
 
     For instance::
+
        | o@ObjectDecl => o.image
     """
 
@@ -987,9 +1002,10 @@ class ExtendedNodePattern(NodePattern):
     """
     Node pattern of the form:
 
-    KindName(field=val, prop() is val, any selector is Pattern)
+    ``KindName(field=val, prop() is val, any selector is Pattern)``
 
     For instance::
+
         ObjectDecl(children: AspectAssoc)
     """
     node_pattern = Field(type=ValuePattern)
@@ -1000,7 +1016,7 @@ class ExtendedNodePattern(NodePattern):
 class ChainedPatternLink(LkqlNode):
     """
     Element of a chained pattern of the form:
-        (selector|field|property) pattern
+    ``(selector|field|property) pattern``
     """
     pattern = AbstractField(type=BasePattern)
 
@@ -1008,7 +1024,7 @@ class ChainedPatternLink(LkqlNode):
 class SelectorLink(ChainedPatternLink):
     """
     Element of a chained pattern of the form:
-        quantifier selector_name pattern
+    ``quantifier selector_name pattern``
     """
     selector = Field(type=SelectorCall)
     pattern = Field(type=BasePattern)
@@ -1017,7 +1033,7 @@ class SelectorLink(ChainedPatternLink):
 class FieldLink(ChainedPatternLink):
     """
     Element of a chained pattern of the form:
-       field pattern
+    ``field pattern``
     """
     field = Field(type=Identifier)
     pattern = Field(type=BasePattern)
@@ -1026,7 +1042,7 @@ class FieldLink(ChainedPatternLink):
 class PropertyLink(ChainedPatternLink):
     """
     Element of a chained pattern of the form:
-       property(args) pattern
+    ``property(args) pattern``
     """
     property = Field(type=FunCall)
     pattern = Field(type=BasePattern)
@@ -1034,8 +1050,9 @@ class PropertyLink(ChainedPatternLink):
 
 class ChainedNodePattern(ValuePattern):
     """
-    Node pattern of the form:
-        Kind1(details...) selector1 Kind2(details...) selector2 ... KindN
+    Node pattern of the form::
+
+    ``Kind1(details...) selector1 Kind2(details...) selector2 ... KindN``
     """
     first_pattern = Field(type=BasePattern)
     chain = Field(type=ChainedPatternLink.list)
@@ -1056,6 +1073,7 @@ class Match(Expr):
     that matches the 'matched_val' field, or unit if no pattern matches.
 
     For instance::
+
        match nodes[0]
            | ObjectDecl => true
            | *          => false
