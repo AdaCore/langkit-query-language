@@ -252,8 +252,8 @@ package body Gnatcheck.Compiler is
          File_Idx := Idx;
          SF := File_Find (Msg (First_Idx .. Idx - 1), Use_Short_Name => True);
 
-         if not Is_Argument_Source (SF) then
-            --  This source is not an argument of this check
+         if not Present (SF) or else Source_Info (SF) = Ignore_Unit then
+            --  This source should be ignored
             return;
          end if;
 
