@@ -493,14 +493,6 @@ package body Gnatcheck.Projects is
       end if;
 
       if N_Of_Aggregated_Projects > 1 then
-         if not No_Argument_File_Specified then
-            Error ("no argument file should be specified if aggregate " &
-                   "project");
-            Error_No_Tool_Name
-              ("aggregates more than one non-aggregate project");
-
-            raise Parameter_Error;
-         end if;
 
          if Main_Unit /= null then
             Error ("'-U main' cannot be used if aggregate project");
@@ -744,7 +736,6 @@ package body Gnatcheck.Projects is
       if XML_Report_ON then
          XML_Report ("<aggregated-project-reports>",
                      Indent_Level => 1);
-         Report ("");
       end if;
    end Aggregate_Project_Report_Header;
 
