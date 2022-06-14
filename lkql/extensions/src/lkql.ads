@@ -24,13 +24,30 @@
 with Liblkqllang.Analysis;
 with Liblkqllang.Common;
 with Langkit_Support.Symbols; use Langkit_Support.Symbols;
+with Langkit_Support.Generic_API.Analysis;
+with Langkit_Support.Generic_API.Introspection;
+use Langkit_Support.Generic_API.Analysis;
+with Langkit_Support.Names;
+with Langkit_Support.Errors;
+
+with Ada.Containers.Vectors;
 
 package LKQL is
    package L renames Liblkqllang.Analysis;
    package LCO renames Liblkqllang.Common;
+   package LK renames Langkit_Support.Generic_API.Analysis;
+   package LKI renames Langkit_Support.Generic_API.Introspection;
+   package LKN renames Langkit_Support.Names;
+   package LKE renames Langkit_Support.Errors;
 
    function Node_Text (Self : L.Lkql_Node'Class) return String;
    --  Helper debug function. Return the text of a node as a string.
 
    function Symbol (Node : L.Identifier) return Symbol_Type;
+
+   package Lk_Node_Vectors is new Ada.Containers.Vectors
+     (Positive, Langkit_Support.Generic_API.Analysis.Lk_Node);
+
+   subtype Lk_Node_Vector is Lk_Node_Vectors.Vector;
+
 end LKQL;

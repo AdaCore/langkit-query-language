@@ -25,17 +25,16 @@ with Ada.Assertions;                  use Ada.Assertions;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 
-with LKQL.Errors;            use LKQL.Errors;
-with LKQL.Queries;           use LKQL.Queries;
-with LKQL.Patterns;          use LKQL.Patterns;
-with LKQL.Functions;         use LKQL.Functions;
-with LKQL.AST_Nodes;         use LKQL.AST_Nodes;
+with LKQL.Errors;             use LKQL.Errors;
+with LKQL.Queries;            use LKQL.Queries;
+with LKQL.Patterns;           use LKQL.Patterns;
+with LKQL.Functions;          use LKQL.Functions;
 with LKQL.Node_Data;
-with LKQL.Patterns.Match;    use LKQL.Patterns.Match;
-with LKQL.Error_Handling;    use LKQL.Error_Handling;
-with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
-with LKQL.Node_Extensions; use LKQL.Node_Extensions;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
+with LKQL.Patterns.Match;     use LKQL.Patterns.Match;
+with LKQL.Error_Handling;     use LKQL.Error_Handling;
+with LKQL.Adaptive_Integers;  use LKQL.Adaptive_Integers;
+with LKQL.Node_Extensions;    use LKQL.Node_Extensions;
+with LKQL.Lk_Nodes_Iterators; use LKQL.Lk_Nodes_Iterators;
 
 package body LKQL.Evaluation is
 
@@ -245,8 +244,7 @@ package body LKQL.Evaluation is
          when LCO.Lkql_Unwrap =>
             Result := Eval_Unwrap (Local_Context, Node.As_Unwrap);
          when LCO.Lkql_Null_Literal =>
-            Result := To_Primitive
-              (Local_Context.Null_Node, Local_Context.Pool);
+            Result := To_Primitive (LK.No_Lk_Node, Local_Context.Pool);
          when LCO.Lkql_List_Literal =>
             Result := Eval_List_Literal (Local_Context, Node.As_List_Literal);
          when LCO.Lkql_Object_Literal =>
@@ -270,6 +268,21 @@ package body LKQL.Evaluation is
       return Result;
 
    exception
+      when Stop_Evaluation_Error =>
+         pragma Assert
+           (Is_Error (Ctx.Last_Error),
+            "Stop Evaluation Error raised without adding the "
+            & "error to the evaluation context");
+
+         if Ctx.Last_Error.AST_Node.Is_Null then
+            Ctx.Attach_Node_To_Last_Error (Node.As_Lkql_Node);
+         end if;
+
+         if Local_Context /= Ctx then
+            Local_Context.Release_Current_Frame;
+         end if;
+
+         raise;
       when others =>
          if Local_Context /= Ctx then
             Local_Context.Release_Current_Frame;
@@ -638,6 +651,7 @@ package body LKQL.Evaluation is
               (Ctx, Node_Val (Receiver), Node.F_Member);
 
          when Kind_Namespace =>
+
             declare
                R : constant String_Value_Maps.Cursor :=
                  Lookup
@@ -669,10 +683,10 @@ package body LKQL.Evaluation is
    function Eval_Safe_Access
      (Ctx  : Eval_Context; Node : L.Safe_Access) return Primitive
    is
-      Receiver : constant H.AST_Node_Holder :=
+      Receiver : constant LK.Lk_Node :=
         Node_Val (Eval (Ctx, Node.F_Receiver, Expected_Kind => Kind_Node));
    begin
-      return (if Receiver.Unchecked_Get.Is_Null_Node
+      return (if Receiver.Is_Null
               then To_Primitive (Receiver, Ctx.Pool)
               else Node_Data.Access_Node_Field
                 (Ctx, Receiver, Node.F_Member));
@@ -714,8 +728,8 @@ package body LKQL.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : L.Query) return Primitive
    is
-      Current_Node : H.AST_Node_Holder;
-      Iter         : AST_Node_Iterator'Class :=
+      Current_Node : LK.Lk_Node;
+      Iter         : Lk_Node_Iterator'Class :=
         Make_Query_Iterator (Ctx, Node);
       Result       : Primitive;
 
@@ -725,7 +739,7 @@ package body LKQL.Evaluation is
          if Iter.Next (Current_Node) then
             Result := To_Primitive (Current_Node, Ctx.Pool);
          else
-            Result := To_Primitive (Ctx.Null_Node, Ctx.Pool);
+            Result := To_Primitive (LK.No_Lk_Node, Ctx.Pool);
          end if;
       else
          Result := Make_Empty_List (Ctx.Pool);
@@ -765,11 +779,8 @@ package body LKQL.Evaluation is
          case Kind (List) is
          when Kind_Node =>
             return To_Primitive
-              (Create_Node
-                 (Nth_Child
-                      (List.Node_Val.Unchecked_Get.all,
-                       Index)),
-               Ctx.Pool);
+               (List.Node_Val.Child (Index),
+                Ctx.Pool);
 
          when Kind_Iterator =>
             declare
@@ -945,7 +956,7 @@ package body LKQL.Evaluation is
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive
    is
-      Value : constant H.AST_Node_Holder :=
+      Value : constant LK.Lk_Node :=
         Node_Val (Eval (Ctx, Node.F_Node_Expr, Expected_Kind => Kind_Node));
    begin
       return To_Primitive (Value, Ctx.Pool);

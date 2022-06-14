@@ -7,7 +7,7 @@ selector eligible_children
     | SubpBody =>
         # Don't recurse on subp bodies except if it's the root node (depth == 0)
         rec *(if depth == 0 then this.children else [])
-    | n@Pragma when n.p_is_ghost_code() => ()
+    | n@PragmaNode when n.p_is_ghost_code() => ()
     | null     => ()
     | *        => rec *this.children
 

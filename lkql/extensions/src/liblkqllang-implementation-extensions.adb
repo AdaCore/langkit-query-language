@@ -37,28 +37,25 @@ with Liblkqllang.Public_Converters;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Helpers; use Libadalang.Helpers;
 with Libadalang.Analysis; use Libadalang.Analysis;
-with Libadalang.Introspection; use Libadalang.Introspection;
-with Libadalang.Common;
+with Libadalang.Generic_API;
 
-with Ada_AST_Nodes; use Ada_AST_Nodes;
 with LKQL.Evaluation;
 with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Errors;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-with LKQL.AST_Nodes; use LKQL.AST_Nodes;
 with LKQL.Unit_Utils;
 
 package body Liblkqllang.Implementation.Extensions is
 
-   package LALCO renames Libadalang.Common;
+   use LKQL;
 
    function Get_All_Completions_For_Id
-     (Id : Ada_AST_Nodes.Node_Type_Id;
+     (Id : LKI.Type_Ref;
       In_Pattern : Boolean := False) return Unbounded_Text_Array;
    --  Get all valid completions (fields & properties) for a given
    --  Node_Type_Id.
 
-   function Units return Unit_Vectors.Vector;
+   function Roots return LK.Lk_Node_Array;
    --  Return all the units for the LKQL context.
 
    function Eval
@@ -67,27 +64,59 @@ package body Liblkqllang.Implementation.Extensions is
    --  Evaluate the given node in the given context. Also ensures that
    --  the unit in which ``Node`` belongs has been pre-processed.
 
+   function Node_Kind_Names return Unbounded_Text_Array;
+
+   function Make_Sym_Array
+     (Strings : Unbounded_Text_Array) return Symbol_Type_Array_Access;
+
    --  TODO: for the moment the state is global, we need to store it in the
    --  LKQL context.
-   Ctx      : Libadalang.Analysis.Analysis_Context;
+   Ctx      : LK.Lk_Context;
    Files    : String_Vectors.Vector;
    Lkql_Ctx : Eval_Context;
    Project  : Project_Tree_Access;
    Env      : Project_Environment_Access;
    Init     : Boolean := False;
 
+   ---------------------
+   -- Node_Kind_Names --
+   ---------------------
+
+   function Node_Kind_Names return Unbounded_Text_Array is
+      use LKI;
+
+      Root_Node_Type : constant Type_Ref :=
+        LKI.Root_Node_Type (Ctx.Language);
+      First_Index : constant Type_Index := To_Index (Root_Node_Type);
+      Last_Derived_Type_Index : constant Type_Index :=
+        Last_Derived_Type (Root_Node_Type);
+   begin
+      return Ret : Unbounded_Text_Array
+        (Positive (First_Index) .. Positive (Last_Derived_Type_Index))
+      do
+         for I in First_Index .. Last_Derived_Type_Index loop
+            Ret (Positive (I)) := To_Unbounded_Text
+              (LKN.Format_Name
+                (Node_Type_Name
+                  (From_Index (Ctx.Language, I)), LKN.Camel));
+         end loop;
+      end return;
+   end Node_Kind_Names;
+
    -----------
-   -- Units --
+   -- Roots --
    -----------
 
-   function Units return Unit_Vectors.Vector is
-      Ret : Unit_Vectors.Vector;
+   function Roots return LK.Lk_Node_Array is
+      Ret : LK.Lk_Node_Array (1 .. Natural (Files.Length));
    begin
-      for F of Files loop
-         Ret.Append (Ctx.Get_From_File (To_String (F)));
+      for J in Ret'First .. Ret'Last loop
+         Ret (J) :=
+           Ctx .Get_From_File (To_String (Files (J))).Root;
       end loop;
+
       return Ret;
-   end Units;
+   end Roots;
 
    ----------
    -- Eval --
@@ -98,7 +127,7 @@ package body Liblkqllang.Implementation.Extensions is
       return Primitive
    is
    begin
-      LKQL.Unit_Utils.Run_Preprocessor (Node.Unit);
+      LKQL.Unit_Utils.Run_Preprocessor (Ctx, Node.Unit);
       return LKQL.Evaluation.Eval (Ctx, Node);
    end Eval;
 
@@ -130,11 +159,14 @@ package body Liblkqllang.Implementation.Extensions is
       Files := Source_Files (Project.all);
 
       UFP := Project_To_Provider (Project);
-      Ctx := Create_Context (Charset => "utf-8", Unit_Provider => UFP);
+      Ctx := Libadalang.Generic_API.To_Generic_Context
+        (Create_Context (Charset => "utf-8", Unit_Provider => UFP));
 
       --  Use the context from this node to create the LKQL context.
       Lkql_Ctx := Make_Eval_Context
-        (Units, Public_Converters.Wrap_Context (Node.Unit.Context));
+        (Roots,
+         Libadalang.Generic_API.Ada_Lang_Id,
+         Public_Converters.Wrap_Context (Node.Unit.Context));
 
       Init := True;
       return True;
@@ -175,49 +207,47 @@ package body Liblkqllang.Implementation.Extensions is
    --------------------------------
 
    function Get_All_Completions_For_Id
-     (Id : Ada_AST_Nodes.Node_Type_Id;
+     (Id : LKI.Type_Ref;
       In_Pattern : Boolean := False) return Unbounded_Text_Array
    is
-      Props  : constant LALCO.Property_Reference_Array := Properties (Id);
-      Fields : constant LALCO.Syntax_Field_Reference_Array
-        := Syntax_Fields (Id);
-      Ret    : Unbounded_Text_Array (1 .. Props'Length + Fields'Length);
-      Idx    : Positive := 1;
+      Members : constant LKI.Struct_Member_Ref_Array := LKI.Members (Id);
+      Ret     : Unbounded_Text_Array (Members'Range);
    begin
-      for Field of Fields loop
+      for J in Members'Range loop
          declare
             Val : Unbounded_Text_Type :=
-              To_Unbounded_Text (Member_Name (Field));
+              To_Unbounded_Text
+                (LKN.Format_Name
+                  (LKI.Member_Name (Members (J)), LKN.Lower));
          begin
             if In_Pattern then
                Append (Val, "=");
             end if;
-
-            Ret (Idx) := Val;
-            Idx := Idx + 1;
-         end;
-      end loop;
-
-      for Prop of Props loop
-         declare
-            Val : Unbounded_Text_Type :=
-              To_Unbounded_Text (Member_Name (Prop));
-         begin
-            if In_Pattern then
-               if Property_Argument_Types (Prop)'Length > 0 then
-                  Append (Val, "(");
-               else
-                  Append (Val, "() is");
-               end if;
-            end if;
-
-            Ret (Idx) := Val;
-            Idx := Idx + 1;
          end;
       end loop;
 
       return Ret;
    end Get_All_Completions_For_Id;
+
+   --------------------
+   -- Make_Sym_Array --
+   --------------------
+
+   function Make_Sym_Array
+     (Strings : Unbounded_Text_Array) return Symbol_Type_Array_Access
+   is
+      Ret : constant Symbol_Type_Array_Access :=
+        Create_Symbol_Type_Array (Strings'Length);
+
+      Idx : Positive := 1;
+   begin
+      for S of Strings loop
+         Ret.Items (Idx) := Symbol (Lkql_Ctx, To_Text (S));
+         Idx := Idx + 1;
+      end loop;
+
+      return Ret;
+   end Make_Sym_Array;
 
    ---------------------------------
    -- Lkql_Node_P_Interp_Complete --
@@ -226,30 +256,6 @@ package body Liblkqllang.Implementation.Extensions is
    function Lkql_Node_P_Interp_Complete
      (Node : Bare_Lkql_Node) return Symbol_Type_Array_Access
    is
-
-      function Make_Sym_Array
-        (Strings : Unbounded_Text_Array) return Symbol_Type_Array_Access;
-
-      --------------------
-      -- Make_Sym_Array --
-      --------------------
-
-      function Make_Sym_Array
-        (Strings : Unbounded_Text_Array) return Symbol_Type_Array_Access
-      is
-         Ret : constant Symbol_Type_Array_Access :=
-           Create_Symbol_Type_Array (Strings'Length);
-
-         Idx : Positive := 1;
-      begin
-         for S of Strings loop
-            Ret.Items (Idx)
-              := Find (Node.Unit.Context.Symbols, To_Text (S));
-            Idx := Idx + 1;
-         end loop;
-
-         return Ret;
-      end Make_Sym_Array;
 
       use Liblkqllang.Analysis;
 
@@ -271,7 +277,7 @@ package body Liblkqllang.Implementation.Extensions is
             return No_Symbol_Type_Array_Type;
          end if;
 
-         return Make_Sym_Array (Kind_Names);
+         return Make_Sym_Array (Node_Kind_Names);
 
       when Lkql_Node_Pattern_Property
          | Lkql_Node_Pattern_Field =>
@@ -283,7 +289,7 @@ package body Liblkqllang.Implementation.Extensions is
             return No_Symbol_Type_Array_Type;
          end if;
 
-         return Make_Sym_Array (Kind_Names);
+         return Make_Sym_Array (Node_Kind_Names);
 
       when Lkql_Extended_Node_Pattern =>
 
@@ -300,7 +306,9 @@ package body Liblkqllang.Implementation.Extensions is
             if VP.Kind = Lkql_Node_Kind_Pattern then
                return Make_Sym_Array
                  (Get_All_Completions_For_Id
-                    (Kind (VP.As_Node_Kind_Pattern.F_Kind_Name.Text)));
+                    (Lkql_Ctx.Get_Name_Map.Lookup_Type
+                      (Lkql_Ctx.Symbol
+                        (VP.As_Node_Kind_Pattern.F_Kind_Name.Text))));
             else
                return No_Symbol_Type_Array_Type;
             end if;
@@ -326,10 +334,7 @@ package body Liblkqllang.Implementation.Extensions is
             begin
                if Val.Kind = Kind_Node then
                   return Make_Sym_Array
-                    (Get_All_Completions_For_Id
-                       (Get_Node_Type_Id
-                            (Ada_AST_Node
-                                 (Val.Node_Val.Unchecked_Get.all))));
+                    (Get_All_Completions_For_Id (LKI.Type_Of (Val.Node_Val)));
                end if;
             end;
 

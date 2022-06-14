@@ -25,7 +25,7 @@ with Iters.Iterators;
 with LKQL.Patterns;      use LKQL.Patterns;
 with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
+with LKQL.Lk_Nodes_Iterators; use LKQL.Lk_Nodes_Iterators;
 
 with Ada.Containers.Hashed_Sets;
 with Ada.Containers.Doubly_Linked_Lists;
@@ -62,7 +62,7 @@ private package LKQL.Chained_Pattern is
 
    function Make_Chained_Pattern_Iterator
      (Ctx           : Eval_Context;
-      Root_Iterator : AST_Node_Iterator_Access;
+      Root_Iterator : Lk_Node_Iterator_Access;
       Pattern       : L.Chained_Node_Pattern) return Chained_Pattern_Iterator;
    --  Return an iterator that yields every node that matches the given
    --  chained pattern.
@@ -70,10 +70,10 @@ private package LKQL.Chained_Pattern is
 private
 
    package Node_Sets is new Ada.Containers.Hashed_Sets
-     (Element_Type        => H.AST_Node_Holder,
-      Hash                => H.Hash,
-      Equivalent_Elements => H."=",
-      "="                 => H."=");
+     (Element_Type        => Lk_Node,
+      Hash                => Hash,
+      Equivalent_Elements => "=",
+      "="                 => "=");
    --  Sets of Ada nodes
 
    subtype Node_Set is Node_Sets.Set;
@@ -82,57 +82,63 @@ private
    type Chained_Pattern_Iterator is new Chained_Pattern_Iter with record
       Ctx                 : Eval_Context;
       --  Context in which the patterns will be evaluated
+
       Next_Values         : Match_Result_List;
       --  Next values to be yielded, along with the bindings created while
       --  matching the sub patterns.
+
       Pattern             : L.Chained_Node_Pattern;
       --  THE pattern
-      Root_Nodes_Iterator : AST_Node_Iterator_Access;
+
+      Root_Nodes_Iterator : Lk_Node_Iterator_Access;
       --  Iterator that yields the nodes that match the first pattern of the
       --  chain.
+
       Yielded_Elements    : Node_Set;
       --  Cache storing the elements that have been yielded
    end record;
 
-   procedure Eval_Element (Iter : in out Chained_Pattern_Iterator;
-                           Root : H.AST_Node_Holder);
+   procedure Eval_Element
+     (Iter : in out Chained_Pattern_Iterator; Root : Lk_Node);
    --  Populate the 'Next_Values' list of 'Iter' by evaluating the pattern from
    --  'Root'.
 
-   procedure Eval_Chain_From (Iter        : in out Chained_Pattern_Iterator;
-                              Root        : H.AST_Node_Holder;
-                              Link_Nb     : Positive);
+   procedure Eval_Chain_From
+     (Iter        : in out Chained_Pattern_Iterator;
+      Root        : Lk_Node;
+      Link_Nb     : Positive);
 
    procedure Eval_Chain_From_Link
      (Iter        : in out Chained_Pattern_Iterator;
-      Root        : H.AST_Node_Holder;
+      Root        : Lk_Node;
       Link_Nb     : Positive)
      with Pre => Link_Nb <= Iter.Pattern.F_Chain.Children_Count;
 
-   function Eval_Link (Ctx             : Eval_Context;
-                       Root            : H.AST_Node_Holder;
-                       Link            : L.Chained_Pattern_Link)
-                       return AST_Node_Vector;
+   function Eval_Link
+     (Ctx             : Eval_Context;
+      Root            : Lk_Node;
+      Link            : L.Chained_Pattern_Link) return Lk_Node_Vector;
    --  Return the result of a link's evaluation.
    --  If the link introduces new bindings, they will be added to 'Bindings'.
    --  If 'Link' is a selector link, the related pattern is used to verify the
    --  quantifier.
 
-   function Eval_Selector_Link (Ctx             : Eval_Context;
-                                Root            : H.AST_Node_Holder;
-                                Selector        : L.Selector_Link)
-                                return AST_Node_Vector;
+   function Eval_Selector_Link
+     (Ctx             : Eval_Context;
+      Root            : Lk_Node;
+      Selector        : L.Selector_Link) return Lk_Node_Vector;
 
-   function Eval_Field_Link (Ctx   : Eval_Context;
-                             Root  : H.AST_Node_Holder;
-                             Field : L.Field_Link)
-                             return AST_Node_Vector;
+   function Eval_Field_Link
+     (Ctx   : Eval_Context;
+      Root  : Lk_Node;
+      Field : L.Field_Link) return Lk_Node_Vector;
 
-   function Eval_Property_Link (Ctx : Eval_Context;
-                                Root : H.AST_Node_Holder;
-                                Property : L.Property_Link)
-                                return AST_Node_Vector;
+   function Eval_Property_Link
+     (Ctx      : Eval_Context;
+      Root     : Lk_Node;
+      Property : L.Property_Link) return Lk_Node_Vector;
 
-   function To_AST_Node_Vector (Value : Primitive) return AST_Node_Vector;
+   function To_AST_Node_Vector
+     (Value : Primitive) return Lk_Node_Vector;
 
 end LKQL.Chained_Pattern;

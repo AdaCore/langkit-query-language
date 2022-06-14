@@ -18,7 +18,7 @@ library.
 
 .. function:: enclosing_body(n)
 
-    Return the first Body enclosing n if any, null otherwise
+    Return the first BodyNode enclosing n if any, null otherwise
 
 .. function:: enclosing_package(n)
 

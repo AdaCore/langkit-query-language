@@ -33,6 +33,9 @@ with Libadalang.Analysis;
 with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
+with Langkit_Support.Generic_API.Analysis;
+use Langkit_Support.Generic_API.Analysis;
+
 --  A diagnostic is composed of a collection of individual rule commands
 package Rule_Commands is
 
@@ -139,18 +142,11 @@ package Rule_Commands is
 
    type Eval_Diagnostic is record
       Diag : Diagnostic;
-      Unit : Libadalang.Analysis.Analysis_Unit;
+      Unit : Lk_Unit;
    end record;
 
    package Eval_Diagnostic_Vectors
    is new Ada.Containers.Vectors (Positive, Eval_Diagnostic);
-
-   function Evaluate
-     (Self : Rule_Command;
-      Ctx  : Eval_Context)
-      return Eval_Diagnostic_Vectors.Vector;
-   --  Execute the LKQL script of the rule and return a Rule_Result value
-   --  containing the flagged nodes.
 
    procedure Prepare (Self : in out Rule_Command);
 

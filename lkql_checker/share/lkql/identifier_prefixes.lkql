@@ -254,7 +254,7 @@ fun identifier_prefixes(unit,
         # Check all other defining names for exclusion except for completions
         # and renaming-as-body
         | p2@* =>
-            (not p2 is (Body or SubpRenamingDecl) or not p2.p_previous_part()) and
+            (not p2 is (BodyNode or SubpRenamingDecl) or not p2.p_previous_part()) and
             (not p2 is ObjectDecl or not p2.p_public_part_decl()) and
             check_exclusive(node.f_name.text, exclusive=exclusive)]
 }

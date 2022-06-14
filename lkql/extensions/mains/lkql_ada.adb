@@ -23,7 +23,6 @@
 
 with Ada.Directories; use Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada_AST_Nodes; use Ada_AST_Nodes;
 
 with GNATCOLL.Opt_Parse;
 
@@ -31,6 +30,7 @@ with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with Langkit_Support.Diagnostics.Output;
 
 with Libadalang.Helpers;  use Libadalang.Helpers;
+with Libadalang.Generic_API;
 
 with Liblkqllang.Analysis;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
@@ -46,6 +46,8 @@ with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 ----------
 
 procedure Lkql_Ada is
+
+   use LKQL;
 
    package L renames Liblkqllang.Analysis;
 
@@ -124,12 +126,24 @@ procedure Lkql_Ada is
    ----------------------
 
    procedure Job_Post_Process
-     (Context : App_Job_Context) is
+     (Context : App_Job_Context)
+   is
+      Roots : LK.Lk_Node_Array
+        (Context.Units_Processed.First_Index ..
+         Context.Units_Processed.Last_Index);
    begin
-      Interpreter_Context := Make_Eval_Context (Context.Units_Processed);
+      for J in Roots'Range loop
+         Roots (J) := Libadalang.Generic_API.To_Generic_Unit
+           (Context.Units_Processed (J)).Root;
+      end loop;
+
+      Interpreter_Context := Make_Eval_Context
+        (Roots,
+         Libadalang.Generic_API.Ada_Lang_Id);
+
       Lkql_Unit := Make_Lkql_Unit
-        (Get_Context (Interpreter_Context.Kernel.all),
-         To_String (Args.Script_Path.Get));
+        (Interpreter_Context, To_String (Args.Script_Path.Get));
+
       Evaluate (Interpreter_Context, Lkql_Unit.Root);
       Interpreter_Context.Free_Eval_Context;
    exception

@@ -25,7 +25,6 @@ with GNAT.Traceback.Symbolic;
 
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Errors; use Langkit_Support.Errors;
 
 with LKQL.Patterns;       use LKQL.Patterns;
@@ -35,7 +34,6 @@ with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
 with Ada.Exceptions; use Ada.Exceptions;
-with LKQL.AST_Nodes;
 
 package body LKQL.Queries is
 
@@ -43,18 +41,18 @@ package body LKQL.Queries is
    -- Make_Query_Iterator --
    -------------------------
 
-   function Make_Query_Iterator (Ctx  : Eval_Context;
-                                 Node : L.Query)
-                                 return AST_Node_Iterator'Class
+   function Make_Query_Iterator
+     (Ctx  : Eval_Context;
+      Node : L.Query) return Lk_Node_Iterator'Class
    is
 
-      function Roots return AST_Node_Iterator_Access;
+      function Roots return Lk_Node_Iterator_Access;
 
       -----------
       -- Roots --
       -----------
 
-      function Roots return AST_Node_Iterator_Access is
+      function Roots return Lk_Node_Iterator_Access is
       begin
          if Node.F_From_Expr.Is_Null then
 
@@ -62,8 +60,8 @@ package body LKQL.Queries is
             --  implicit roots of the query are the roots of the LKQL eval
             --  context.
 
-            return new AST_Node_Iterator'Class'
-              (AST_Node_Iterator'Class
+            return new Lk_Node_Iterator'Class'
+              (Lk_Node_Iterator'Class
                  (Make_Child_Iterator (Ctx.AST_Roots.all)));
          else
 
@@ -74,7 +72,7 @@ package body LKQL.Queries is
                Eval_From_Expr : constant Primitive :=
                  Eval (Ctx, Node.F_From_Expr);
 
-               Vec : AST_Node_Vector;
+               Vec : Lk_Node_Vector;
             begin
                case Eval_From_Expr.Kind is
 
@@ -114,8 +112,8 @@ package body LKQL.Queries is
                            "Wrong kind of element in `from clause`"));
                end case;
 
-               return new AST_Node_Iterator'Class'
-                 (AST_Node_Iterator'Class
+               return new Lk_Node_Iterator'Class'
+                 (Lk_Node_Iterator'Class
                     (Make_Child_Iterator (Vec)));
             end;
          end if;
@@ -136,11 +134,11 @@ package body LKQL.Queries is
          end;
       when others =>
          declare
-            Predicate : constant AST_Node_Predicate_Access :=
-              AST_Node_Predicate_Access
+            Predicate : constant Lk_Node_Predicate_Access :=
+              Lk_Node_Predicate_Access
                 (Make_Query_Predicate (Ctx, Node.F_Pattern));
          begin
-            return AST_Node_Iterators.Filter (Roots, Predicate);
+            return Lk_Node_Iterators.Filter (Roots, Predicate);
          end;
       end case;
    end Make_Query_Iterator;
@@ -162,7 +160,7 @@ package body LKQL.Queries is
    --------------
 
    overriding function Evaluate
-     (Self : in out Query_Predicate; Node : H.AST_Node_Holder) return Boolean
+     (Self : in out Query_Predicate; Node : Lk_Node) return Boolean
    is
    begin
       declare
@@ -181,7 +179,7 @@ package body LKQL.Queries is
                Eval_Trace.Trace ("Evaluating query predicate failed");
                Eval_Trace.Trace ("pattern => " & Self.Pattern.Image);
                Eval_Trace.Trace
-                 ("ada node => " & Image (Node.Unchecked_Get.Text_Image));
+                 ("ada node => " & Node.Image);
 
                Eval_Trace.Trace (Exception_Information (E));
                Eval_Trace.Trace
@@ -193,7 +191,7 @@ package body LKQL.Queries is
                Put_Line (Standard_Error, "pattern => " & Self.Pattern.Image);
                Put_Line
                  (Standard_Error, "ada node => "
-                  & Image (Node.Unchecked_Get.Text_Image));
+                  & Node.Image);
             when Raise_Error =>
                raise;
          end case;
@@ -225,8 +223,9 @@ package body LKQL.Queries is
    -- Next --
    ----------
 
-   overriding function Next (Iter   : in out Chained_Pattern_Query_Iter;
-                             Result : out H.AST_Node_Holder) return Boolean
+   overriding function Next
+     (Iter   : in out Chained_Pattern_Query_Iter;
+      Result : out Lk_Node) return Boolean
    is
       Match            : Match_Result;
    begin

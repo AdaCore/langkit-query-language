@@ -21,7 +21,6 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.AST_Nodes;
 with LKQL.Patterns.Nodes; use LKQL.Patterns.Nodes;
 with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Error_Handling;
@@ -171,7 +170,7 @@ package body LKQL.Patterns.Match is
               (Ctx, Pattern.As_Regex_Pattern, Value);
 
          when LCO.Lkql_Null_Pattern =>
-            if Value.Node_Val.Unchecked_Get.Is_Null_Node then
+            if Value.Node_Val.Is_Null then
                return Make_Match_Success (Value);
             else
                return Match_Failure;
@@ -214,25 +213,19 @@ package body LKQL.Patterns.Match is
    is
       pragma Unreferenced (Ctx);
 
-      use LKQL.AST_Nodes;
       use LKQL.Node_Extensions;
 
       Pat_Ext : constant Ext := Get_Ext (Pattern);
    begin
       case Kind (Value) is
          when Kind_Node =>
-            declare
-               Node : constant AST_Node'Class :=
-                 Node_Val (Value).Unchecked_Get.all;
-            begin
-               if not Node.Is_Null_Node
-                  and then GNAT.Regpat.Match
-                    (Pat_Ext.Content.Compiled_Pattern.all,
-                     To_UTF8 (Node.Text))
-               then
-                  return Make_Match_Success (Value);
-               end if;
-            end;
+            if not Value.Node_Val.Is_Null
+               and then GNAT.Regpat.Match
+                 (Pat_Ext.Content.Compiled_Pattern.all,
+                  To_UTF8 (Value.Node_Val.Text))
+            then
+               return Make_Match_Success (Value);
+            end if;
          when Kind_Str =>
             if GNAT.Regpat.Match
                  (Pat_Ext.Content.Compiled_Pattern.all,

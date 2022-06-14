@@ -9,13 +9,13 @@ import stdlib
             remediation="EASY", category="Style", subcategory="Readability")
 fun uncommented_begin(unit) = [
     {message: "mark BEGIN with -- " & n.parent.p_defining_name().text,
-     loc: n}
+     loc: n.token_start().previous(exclude_trivia=true)}
     for n in from unit.root
     select node@HandledStmts(parent is p@(PackageBody or SubpBody or
                                           EntryBody or ProtectedBody or
                                           TaskBody))
     when p.f_decls is *(f_decls is l@*)
          when l[1]
-          and not stdlib.find_comment(node.token_start().previous,
+          and not stdlib.find_comment(node.token_start().previous(exclude_trivia=true),
                                       p.p_defining_name().text)
 ]

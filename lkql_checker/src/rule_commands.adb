@@ -25,17 +25,11 @@ with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
-with Ada_AST_Nodes; use Ada_AST_Nodes;
 with LKQL.Unit_Utils; use LKQL.Unit_Utils;
-with Exec; use Exec;
 with LKQL.Evaluation; use LKQL.Evaluation;
-
-with Libadalang.Analysis; use Libadalang.Analysis;
-with Libadalang.Common; use Libadalang.Common;
 
 with Liblkqllang.Common;
 with Liblkqllang.Iterators;  use Liblkqllang.Iterators;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 with LKQL.Primitives;        use LKQL.Primitives;
 
 package body Rule_Commands is
@@ -123,7 +117,7 @@ package body Rule_Commands is
       Rc             : out Rule_Command) return Boolean
    is
       Root    : constant L.Lkql_Node :=
-        Make_Lkql_Unit (Get_Context (Ctx.Kernel.all), Lkql_File_Path).Root;
+        Make_Lkql_Unit (Ctx, Lkql_File_Path).Root;
 
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
@@ -364,7 +358,7 @@ package body Rule_Commands is
 
       Self.Code :=
         Make_Lkql_Unit_From_Code
-          (Get_Context (Self.Eval_Ctx.Kernel.all),
+          (Self.Eval_Ctx,
            Image (To_Text (Code)),
            "[" & Image (To_Text (Self.Name)) & " inline code]").Root;
 
@@ -391,7 +385,7 @@ package body Rule_Commands is
                Eval
                  (Self.Eval_Ctx,
                   Make_Lkql_Unit_From_Code
-                    (Get_Context (Self.Eval_Ctx.Kernel.all),
+                    (Self.Eval_Ctx,
                      Image (To_Text (Self.Rule_Args (I).Value)),
                      "[" & Image (To_Text (Self.Name)) & " inline code]")
                   .Root.Child (1)));
@@ -400,54 +394,6 @@ package body Rule_Commands is
       end if;
 
    end Prepare;
-
-   --------------
-   -- Evaluate --
-   --------------
-
-   function Evaluate
-     (Self : Rule_Command;
-      Ctx  : Eval_Context) return Eval_Diagnostic_Vectors.Vector
-   is
-      Result       : Eval_Diagnostic_Vectors.Vector;
-      Command_Name : constant Text_Type := To_Text (Self.Name);
-      Nodes, Dummy : Primitive;
-      Code         : Unbounded_Text_Type;
-   begin
-
-      --  Eval the rule's code (which should contain only definitions)
-      Dummy := Eval (Ctx, Self.Lkql_Root);
-
-      --  Eval the call to the check function
-      Nodes := Lkql_Eval (Ctx, Image (To_Text (Code)),
-                          Get_Context (Self.Eval_Ctx.Kernel.all));
-
-      Check_Kind (Ctx, Self.Lkql_Root, Kind_List, Nodes);
-
-      for N of List_Val (Nodes).Elements loop
-         Check_Kind (Ctx, Self.Lkql_Root, Kind_Node, N);
-
-         declare
-            Wrapped_Node : constant H.AST_Node_Holder := Node_Val (N);
-            Ada_Wrapped_Node : constant Ada_AST_Node :=
-              Ada_AST_Node (Wrapped_Node.Unchecked_Get.all);
-            Node         : Ada_Node := Ada_Wrapped_Node.Node;
-         begin
-            if Node.Kind in Ada_Basic_Decl then
-               Node := Node.As_Basic_Decl.P_Defining_Name.As_Ada_Node;
-            end if;
-
-            Result.Append
-              (Eval_Diagnostic'
-                 (Diagnostic'
-                      (Node.Sloc_Range,
-                       To_Unbounded_Text (Command_Name & " - rule violation")),
-                  Node.Unit));
-         end;
-      end loop;
-
-      return Result;
-   end Evaluate;
 
    -------------
    -- Destroy --

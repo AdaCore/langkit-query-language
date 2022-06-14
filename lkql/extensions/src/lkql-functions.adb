@@ -31,7 +31,6 @@ with LKQL.Node_Extensions;  use LKQL.Node_Extensions;
 with LKQL.Node_Data;        use LKQL.Node_Data;
 
 with Ada.Strings.Wide_Wide_Unbounded;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 
 with Ada.Containers;
 
@@ -148,8 +147,8 @@ package body LKQL.Functions is
          when Kind_Property_Reference =>
             return Eval_Node_Property
               (Ctx,
-               Func.Property_Node.Unchecked_Get.all,
-               Func.Ref.Unchecked_Get.all, Call.F_Arguments);
+               Func.Property_Node,
+               Func.Ref, Call.F_Arguments);
          when others =>
             raise Program_Error with "unreachable";
       end case;
@@ -408,7 +407,7 @@ package body LKQL.Functions is
             Call.F_Arguments.Child (1).As_Expr_Arg.F_Value_Expr,
             Kind_Node);
 
-         Root          : H.AST_Node_Holder := Root_Node_Arg.Node_Val;
+         Root          : Lk_Node := Root_Node_Arg.Node_Val;
 
          Selector_Iterator : constant Depth_Node_Iter_Access :=
            new Depth_Node_Iter'Class'

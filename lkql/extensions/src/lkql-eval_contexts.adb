@@ -28,17 +28,21 @@ with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with GNAT.OS_Lib;
 with GNATCOLL.Utils;
 
-with Ada_AST_Nodes; use Ada_AST_Nodes;
-with Liblkqllang.Prelude; use Liblkqllang.Prelude;
+with Liblkqllang.Prelude;    use Liblkqllang.Prelude;
 
-with LKQL.Evaluation; use LKQL.Evaluation;
+with LKQL.Evaluation;        use LKQL.Evaluation;
 with LKQL.Builtin_Functions; use LKQL.Builtin_Functions;
-with LKQL.String_Utils; use LKQL.String_Utils;
-with LKQL.Unit_Utils; use LKQL.Unit_Utils;
+with LKQL.String_Utils;      use LKQL.String_Utils;
+with LKQL.Unit_Utils;        use LKQL.Unit_Utils;
+with LKQL.Error_Handling;    use LKQL.Error_Handling;
 
 package body LKQL.Eval_Contexts is
 
    procedure Free_Environment (Self : in out Environment_Access);
+
+   procedure Free_Lk_Node_Array
+   is new Ada.Unchecked_Deallocation
+     (LK.Lk_Node_Array, Lk_Node_Array_Access);
 
    ----------------------
    -- Free_Environment --
@@ -85,6 +89,16 @@ package body LKQL.Eval_Contexts is
    function Last_Error (Ctx : Eval_Context) return Error_Data is
      (Ctx.Kernel.Last_Error);
 
+   -------------------------------
+   -- Attach_Node_To_Last_Error --
+   -------------------------------
+
+   procedure Attach_Node_To_Last_Error
+     (Ctx  : Eval_Context; Node : L.Lkql_Node) is
+   begin
+      Ctx.Kernel.Last_Error.AST_Node := Node;
+   end Attach_Node_To_Last_Error;
+
    -------------------------
    -- Exists_In_Local_Env --
    -------------------------
@@ -94,17 +108,10 @@ package body LKQL.Eval_Contexts is
    is (Ctx.Frames.Local_Bindings.Contains (Key));
 
    ---------------
-   -- Null_Node --
-   ---------------
-
-   function Null_Node (Ctx : Eval_Context) return H.AST_Node_Holder is
-      (Ctx.Kernel.Null_Node);
-
-   ---------------
    -- AST_Roots --
    ---------------
 
-   function AST_Roots (Ctx : Eval_Context) return AST_Node_Array_Access is
+   function AST_Roots (Ctx : Eval_Context) return Lk_Node_Array_Access is
      (Ctx.Kernel.Ast_Roots);
 
    -------------------
@@ -113,15 +120,16 @@ package body LKQL.Eval_Contexts is
 
    procedure Set_Units
      (Ctx   : Eval_Context;
-      Units : Unit_Vectors.Vector) is
+      Units : LK_Unit_Array)
+   is
    begin
-      Free_Ast_Node_Array (Ctx.Kernel.Ast_Roots);
+      Free_Lk_Node_Array (Ctx.Kernel.Ast_Roots);
+
       Ctx.Kernel.Ast_Roots :=
-        new AST_Node_Array (Units.First_Index .. Units.Last_Index);
+        new LK.Lk_Node_Array (Units'Range);
 
       for J in Ctx.Kernel.Ast_Roots'Range loop
-         Ctx.Kernel.Ast_Roots (J) := Create_Node
-           (Ada_AST_Node'(Node => Units.Element (J).Root));
+         Ctx.Kernel.Ast_Roots (J) := Units (J).Root;
       end loop;
    end Set_Units;
 
@@ -214,22 +222,25 @@ package body LKQL.Eval_Contexts is
    -----------------------
 
    function Make_Eval_Context
-     (Ast_Roots    : AST_Node_Array;
-      Null_Node    : H.AST_Node_Holder;
+     (Ast_Roots    : LK.Lk_Node_Array;
+      Lang_Id      : Langkit_Support.Generic_API.Language_Id;
       Analysis_Ctx : L.Analysis_Context := L.No_Analysis_Context)
       return Eval_Context
    is
       use L;
 
-      Roots : constant AST_Node_Array_Access := new AST_Node_Array'(Ast_Roots);
+      Roots : constant Lk_Node_Array_Access :=
+        new Lk_Node_Array'(Ast_Roots);
       Kernel : constant Global_Data_Access :=
         new Global_Data'
-          (Roots, Null_Node, Make_Empty_Error,
+          (Roots, Make_Empty_Error,
            (if Analysis_Ctx = L.No_Analysis_Context
             then L.Create_Context
             else Analysis_Ctx),
            Lkql_Path_List     => <>,
-           Builtin_Methods => <>);
+           Builtin_Methods    => <>,
+           Lang_Id            => Lang_Id,
+           Name_Map           => null);
       Env    : constant Environment_Access :=
         new Environment'(Make_Empty_Environment (Create_Pool => True));
       Ret    : Eval_Context := Eval_Context'(Kernel, Env);
@@ -238,7 +249,8 @@ package body LKQL.Eval_Contexts is
    begin
       --  Adding Ada built-in functions + prelude to the context.
       declare
-         U      : constant L.Analysis_Unit := Prelude_Unit (Kernel.Context);
+         U      : constant L.Analysis_Unit := Prelude_Unit (Ret);
+
          Dummy  : constant Primitive := Eval (Ret, U.Root);
       begin
          for Fn_Desc of Builtin_Functions.All_Builtins loop
@@ -301,7 +313,7 @@ package body LKQL.Eval_Contexts is
       pragma Assert (Ctx.Frames.Parent = null,
                      "Cannot free a non-root evaluation context");
 
-      Free_Ast_Node_Array (Ctx.Kernel.Ast_Roots);
+      Free_Lk_Node_Array (Ctx.Kernel.Ast_Roots);
       Free_Environment (Ctx.Frames);
       Free_Global_Data (Ctx.Kernel);
    end Free_Eval_Context;
@@ -383,6 +395,23 @@ package body LKQL.Eval_Contexts is
    begin
       return Self.Builtin_Methods'Unrestricted_Access;
    end Get_Builtin_Methods;
+
+   ------------------
+   -- Get_Name_Map --
+   ------------------
+
+   function Get_Name_Map (Ctx : Eval_Context) return Name_Map_Access is
+   begin
+      if Ctx.Kernel.Name_Map = null then
+         Ctx.Kernel.Name_Map := new LKI.Name_Map'
+           (LKI.Create_Name_Map
+             (Ctx.Kernel.Lang_Id,
+              Ctx.Kernel.Context.Get_Symbol_Table,
+              LKN.Camel, LKN.Lower, LKN.Camel, LKN.Lower));
+      end if;
+
+      return Ctx.Kernel.Name_Map;
+   end Get_Name_Map;
 
    -------------
    -- Dec_Ref --
@@ -476,9 +505,6 @@ package body LKQL.Eval_Contexts is
 
       package D renames Ada.Directories;
 
-      From_Path : constant String :=
-        D.Containing_Directory (From.Get_Filename);
-
       -----------------------
       -- Get_Unit_From_Dir --
       -----------------------
@@ -488,7 +514,7 @@ package body LKQL.Eval_Contexts is
            D.Compose (Dir, Package_Name, "lkql");
       begin
          if D.Exists (Tentative_File_Name) then
-            return Make_Lkql_Unit (Ctx.Kernel.Context, Tentative_File_Name);
+            return Make_Lkql_Unit (Ctx, Tentative_File_Name);
          else
             return L.No_Analysis_Unit;
          end if;
@@ -500,7 +526,14 @@ package body LKQL.Eval_Contexts is
    begin
       --  First, check into the current directory (directory containing the
       --  lkql file from which the package is requested).
-      Unit := Get_Unit_From_Dir (From_Path);
+      if From /= L.No_Analysis_Unit then
+         declare
+            From_Path : constant String :=
+              D.Containing_Directory (From.Get_Filename);
+         begin
+            Unit := Get_Unit_From_Dir (From_Path);
+         end;
+      end if;
 
       if Unit /= L.No_Analysis_Unit then
          return Unit;
@@ -525,6 +558,20 @@ package body LKQL.Eval_Contexts is
    begin
       Ctx.Kernel.Lkql_Path_List.Append (To_Unbounded_String (Path));
    end Add_Lkql_Path;
+
+   -----------------
+   -- Raise_Error --
+   -----------------
+
+   procedure Raise_Error
+     (Ctx : Eval_Context;
+      N : L.Lkql_Node'Class;
+      Err : Text_Type)
+   is
+   begin
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error (N, Err));
+   end Raise_Error;
 
    -----------------
    -- Get_Env_Map --
@@ -570,5 +617,16 @@ package body LKQL.Eval_Contexts is
    begin
       return Get_Pools (Ctx.Frames);
    end Pools;
+
+   -------------
+   -- Lang_Id --
+   -------------
+
+   function Lang_Id
+     (Ctx : Eval_Context) return Langkit_Support.Generic_API.Language_Id
+   is
+   begin
+      return Ctx.Kernel.Lang_Id;
+   end Lang_Id;
 
 end LKQL.Eval_Contexts;

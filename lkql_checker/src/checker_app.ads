@@ -28,7 +28,6 @@ with GNATCOLL.Opt_Parse;
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
-with Libadalang.Common; use Libadalang.Common;
 with Libadalang.Helpers; use Libadalang.Helpers;
 
 with LKQL.Errors;
@@ -37,19 +36,27 @@ with Rule_Commands; use Rule_Commands;
 with Rules_Factory; use Rules_Factory;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
+with Langkit_Support.Generic_API.Analysis;
+with Langkit_Support.Generic_API.Introspection;
 
 package Checker_App is
+
+   package LK renames Langkit_Support.Generic_API.Analysis;
+   package LKI renames Langkit_Support.Generic_API.Introspection;
 
    Exit_App : exception;
    --  Exception raised by the app if it wants to exit with an error status and
    --  a message.
 
-   type Rules_By_Kind is array (Ada_Node_Kind_Type) of Rule_Vector;
+   type Rules_By_Kind_Array
+   is array (LKI.Any_Type_Index range <>) of Rule_Vector;
+
+   type Rules_By_Kind is access all Rules_By_Kind_Array;
 
    type Lkql_Context is record
       Analysis_Ctx : Analysis_Context;
       Eval_Ctx     : Eval_Context;
-      Cached_Rules : Rules_By_Kind := [others => Rule_Vectors.Empty_Vector];
+      Cached_Rules : Rules_By_Kind := null;
       --  Data structure mapping node kinds to the checks that should be ran
       --  when this node type is encountered.
 
@@ -64,6 +71,9 @@ package Checker_App is
    end record;
    --  Context giving access to all the "global" data structures for an LKQL
    --  analysis.
+
+   procedure Append_Rule (Ctx : in out Lkql_Context; Rule : Rule_Command);
+   --  Append the given rule to ``Cached_Rules``.
 
    type Lkql_Context_Access is access all Lkql_Context;
    --  Access to an LKQL context
@@ -84,7 +94,7 @@ package Checker_App is
       Unit                    : Analysis_Unit;
       Emit_Message            :
         access procedure (Message    : Unbounded_Text_Type;
-                          Unit       : Analysis_Unit;
+                          Unit       : LK.Lk_Unit;
                           Rule       : Unbounded_Text_Type;
                           Kind       : Message_Kinds;
                           Sloc_Range : Source_Location_Range) := null);

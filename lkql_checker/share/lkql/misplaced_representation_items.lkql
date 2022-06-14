@@ -32,7 +32,7 @@ fun associated_decl(pragma_node) =
 
 # Return true if n is a misplaced representation node of decl as defined above
 fun misplaced_node(n, decl) =
-    match n.previous_sibling
+    match n.previous_sibling()
     | d@BasicDecl        => d != decl
     | a@AttributeDefClause(f_attribute_expr is AttributeRef) =>
         a.f_attribute_expr.f_prefix.p_referenced_decl() != decl or
@@ -43,7 +43,7 @@ fun misplaced_node(n, decl) =
                             misplaced_node(r, decl)
     | a@AtClause         => a.f_name.p_referenced_decl() != decl or
                             misplaced_node(a, decl)
-    | p@Pragma           => (not is_rep_pragma(p.f_id)) or
+    | p@PragmaNode       => (not is_rep_pragma(p.f_id)) or
                             associated_decl(p) != decl or
                             misplaced_node(p, decl)
     | *                  => true
@@ -61,7 +61,7 @@ fun misplaced_representation_items(node) =
         misplaced_node(node, node.f_name.p_referenced_decl())
     | AtClause        =>
         misplaced_node(node, node.f_name.p_referenced_decl())
-    | Pragma          =>
+    | PragmaNode      =>
         is_rep_pragma(node.f_id) and
         misplaced_node(node, associated_decl(node))
     | *  => false

@@ -22,9 +22,11 @@
 ------------------------------------------------------------------------------
 
 with Liblkqllang.Analysis; use Liblkqllang.Analysis;
+with LKQL.Eval_Contexts;
 
 package Liblkqllang.Prelude is
 
-   function Prelude_Unit (Context : Analysis_Context) return Analysis_Unit;
+   function Prelude_Unit
+     (Eval_Ctx : LKQL.Eval_Contexts.Eval_Context) return Analysis_Unit;
 
 end Liblkqllang.Prelude;

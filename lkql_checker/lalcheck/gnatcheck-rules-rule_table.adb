@@ -35,9 +35,6 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
 
-with Libadalang.Common;          use Libadalang.Common;
-with Libadalang.Introspection;
-
 with Rule_Commands;              use Rule_Commands;
 with Rules_Factory;              use Rules_Factory;
 
@@ -46,7 +43,6 @@ with LKQL.Primitives; use LKQL.Primitives;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Langkit_Support.Text;        use Langkit_Support.Text;
-with Liblkqllang.Analysis;
 
 package body Gnatcheck.Rules.Rule_Table is
 
@@ -1297,82 +1293,6 @@ package body Gnatcheck.Rules.Rule_Table is
    -----------------------------
 
    procedure Process_Requested_Rules (Ctx : in out Lkql_Context) is
-      package LI renames Libadalang.Introspection;
-      package LCO renames Libadalang.Common;
-
-      type Ada_Node_Kind_Set is array (Ada_Node_Kind_Type) of Boolean;
-      --  A set of ada nodes, represented as a boolean array
-
-      procedure Append_Rule (Rule : Rule_Command);
-      --  Append the given rule to Cached_Rules
-
-      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set;
-      --  Return the Kind_Set corresponding to a given Type_Id. For a leaf
-      --  node type (e.g. with no child types), it will return a set with only
-      --  the bit for this type set. For a non leaf node, will return an array
-      --  with the bit for the type and all descendants set.
-
-      --------------
-      -- Kind_Set --
-      --------------
-
-      function Kind_Set (Id : LCO.Node_Type_Id) return Ada_Node_Kind_Set is
-         procedure Internal (Id : LCO.Node_Type_Id);
-
-         Ret : Ada_Node_Kind_Set := [others => False];
-
-         --------------
-         -- Internal --
-         --------------
-
-         procedure Internal (Id : LCO.Node_Type_Id) is
-         begin
-            if LI.Is_Concrete (Id) then
-               Ret (LI.Kind_For (Id)) := True;
-            end if;
-
-            for T of LI.Derived_Types (Id) loop
-               Internal (T);
-            end loop;
-         end Internal;
-
-      begin
-         Internal (Id);
-         return Ret;
-      end Kind_Set;
-
-      -----------------
-      -- Append_Rule --
-      -----------------
-
-      procedure Append_Rule (Rule : Rule_Command) is
-         use Liblkqllang.Analysis;
-      begin
-         if Rule.Kind_Pattern /= No_Node_Kind_Pattern then
-            declare
-               Type_Id : constant LCO.Node_Type_Id :=
-                 LI.Lookup_DSL_Name (Rule.Kind_Pattern.F_Kind_Name.Text);
-               KS      : constant Ada_Node_Kind_Set := Kind_Set (Type_Id);
-            begin
-               for J in KS'Range loop
-                  if KS (J) then
-                     Ctx.Cached_Rules (J).Append (Rule);
-                  end if;
-               end loop;
-            end;
-         else
-            for J in Ctx.Cached_Rules'Range loop
-               Ctx.Cached_Rules (J).Append (Rule);
-            end loop;
-         end if;
-
-         --  If we have one rule that needs to follow instantiations, then set
-         --  the traversal to traverse them.
-
-         if Rule.Follow_Instantiations then
-            Ctx.Traverse_Instantiations := True;
-         end if;
-      end Append_Rule;
 
       Dummy : Primitive;
 
@@ -1427,7 +1347,7 @@ package body Gnatcheck.Rules.Rule_Table is
                   if To_Text (All_Rules.Table (Rule).Name.all)
                        = To_Text (R.Name)
                   then
-                     Append_Rule (R);
+                     Append_Rule (Ctx, R);
                      Found := True;
                      exit;
                   end if;

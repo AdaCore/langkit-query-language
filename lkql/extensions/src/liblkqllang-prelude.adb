@@ -28,13 +28,13 @@ package body Liblkqllang.Prelude is
         "selector next_siblings" & ASCII.LF &
         "   |"" Yields the siblings following the given node in the tree"
         & ASCII.LF &
-        "   | AdaNode => rec this.next_sibling" & ASCII.LF &
+        "   | AdaNode => rec this.next_sibling()" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector prev_siblings" & ASCII.LF &
         "   |"" Yields the siblings preceding the given node in the tree"
         & ASCII.LF &
-        "   | AdaNode => rec this.previous_sibling" & ASCII.LF &
+        "   | AdaNode => rec this.previous_sibling()" & ASCII.LF &
         "   | *       => ()" & ASCII.LF &
         ""                   & ASCII.LF &
         "selector parent" & ASCII.LF &
@@ -59,10 +59,12 @@ package body Liblkqllang.Prelude is
    -- Prelude_Unit --
    ------------------
 
-   function Prelude_Unit (Context : Analysis_Context) return Analysis_Unit is
+   function Prelude_Unit
+     (Eval_Ctx : LKQL.Eval_Contexts.Eval_Context) return Analysis_Unit
+   is
    begin
       return LKQL.Unit_Utils.Make_Lkql_Unit_From_Code
-        (Context, Prelude_Content, "prelude");
+        (Eval_Ctx, Prelude_Content, "prelude");
    end Prelude_Unit;
 
 end Liblkqllang.Prelude;

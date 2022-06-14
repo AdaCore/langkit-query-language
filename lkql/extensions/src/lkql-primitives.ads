@@ -33,7 +33,6 @@ with Langkit_Support.Text;   use Langkit_Support.Text;
 with Options;
 with Iters.Iterators;
 with Iters.Vec_Iterators;
-with LKQL.Partial_AST_Nodes; use LKQL.Partial_AST_Nodes;
 with LKQL.Selector_Lists;    use LKQL.Selector_Lists;
 with LKQL.Adaptive_Integers; use LKQL.Adaptive_Integers;
 
@@ -253,7 +252,7 @@ package LKQL.Primitives is
    end Callable_Caches;
 
    type Cached_Sel_Node is record
-      Node : H.AST_Node_Holder;
+      Node : LK.Lk_Node;
       Mode : L.Selector_Expr_Mode;
    end record;
 
@@ -265,10 +264,10 @@ package LKQL.Primitives is
    type Node_Vector is access all Nodes_Vectors.Vector;
 
    package Node_To_Nodes is new Ada.Containers.Hashed_Maps
-    (H.AST_Node_Holder,
+    (LK.Lk_Node,
      Node_Vector,
-     Hash            => H.Hash,
-     Equivalent_Keys => H."=");
+     Hash            => LK.Hash,
+     Equivalent_Keys => LK."=");
 
    type Sel_Cache_Type is access all Node_To_Nodes.Map;
 
@@ -292,11 +291,11 @@ package LKQL.Primitives is
          when Kind_Bool =>
             Bool_Val          : Boolean;
          when Kind_Node =>
-            Node_Val          : H.AST_Node_Holder;
+            Node_Val          : LK.Lk_Node;
          when Kind_Token =>
-            Token_Val         : H.AST_Token_Holder;
+            Token_Val         : LK.Lk_Token;
          when Kind_Analysis_Unit =>
-            Analysis_Unit_Val : H.AST_Unit_Holder;
+            Analysis_Unit_Val : LK.Lk_Unit;
          when Kind_Iterator =>
             Iter_Val          : Iterator_Primitive_Access;
             Iter_Cache        : Primitive_List_Access;
@@ -309,8 +308,8 @@ package LKQL.Primitives is
          when Kind_Builtin_Function =>
             Builtin_Fn        : Builtin_Function;
          when Kind_Property_Reference =>
-            Ref               : H.AST_Node_Member_Ref_Holder;
-            Property_Node     : H.AST_Node_Holder;
+            Ref               : LKI.Struct_Member_Ref;
+            Property_Node     : LK.Lk_Node;
          when Kind_Namespace =>
             Namespace         : Environment_Access;
             Module            : L.Lkql_Node;
@@ -467,7 +466,7 @@ package LKQL.Primitives is
    function Bool_Val (Value : Primitive) return Boolean;
    --  Return the value of a Bool primitive
 
-   function Node_Val (Value : Primitive) return H.AST_Node_Holder;
+   function Node_Val (Value : Primitive) return LK.Lk_Node;
    --  Return the value of a Node primitive
 
    function List_Val (Value : Primitive) return Primitive_List_Access;
@@ -536,15 +535,15 @@ package LKQL.Primitives is
    --  Create a Bool primitive
 
    function To_Primitive
-     (Node : H.AST_Node_Holder; Pool : Primitive_Pool) return Primitive;
+     (Node : LK.Lk_Node; Pool : Primitive_Pool) return Primitive;
    --  Create a Primitive value from the Lkql_Node value
 
    function To_Primitive
-     (Token : H.AST_Token_Holder; Pool : Primitive_Pool) return Primitive;
+     (Token : LK.Lk_Token; Pool : Primitive_Pool) return Primitive;
    --  Create a primitive value from the AST_Token value
 
    function To_Primitive
-     (Unit : H.AST_Unit_Holder; Pool : Primitive_Pool) return Primitive;
+     (Unit : LK.Lk_Unit; Pool : Primitive_Pool) return Primitive;
    --  Create a primitive value from the AST_Unit value
 
    function To_Primitive
@@ -591,8 +590,8 @@ package LKQL.Primitives is
       With_Call_Cache : Boolean := False) return Primitive;
 
    function Make_Property_Reference
-     (Node_Val     : Primitive;
-      Property_Ref : H.AST_Node_Member_Ref_Holder;
+     (Node_Val     : LK.Lk_Node;
+      Property_Ref : LKI.Struct_Member_Ref;
       Pool         : Primitive_Pool) return Primitive;
 
    function Profile (Obj : Primitive) return Text_Type;

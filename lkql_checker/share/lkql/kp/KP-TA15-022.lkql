@@ -4,7 +4,7 @@
 @check(message="possible occurrence of KP TA15-022", impact="18.*,19.*,20.*")
 fun kp_ta15_022(node) =
     node is (RaiseStmt(f_exception_name is DottedName) or
-             Pragma when node.f_id.p_name_is("Assert") and
+             PragmaNode when node.f_id.p_name_is("Assert") and
                          node.f_args[1].p_assoc_expr() is e@Expr and
                          e.p_is_static_expr() and e.p_eval_as_int() == 0)
      and node is *(any parent is s@HandledStmts when s.f_exceptions[1] != null)

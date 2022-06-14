@@ -7,6 +7,6 @@ import stdlib
 fun end_of_line_comments(unit) = [
     {message: "end of line comment", loc: tok}
     for tok in unit.tokens
-    if tok.kind == "ADA_COMMENT" and
+    if tok.kind == "comment" and
        stdlib.previous_non_blank_token_line(tok) == tok.start_line
 ]

@@ -5,11 +5,14 @@
 
 import stdlib
 
-@check(message="mark BEGIN with package name",
-       help="BEGIN in package bodies not marked with package name comment",
-       remediation="EASY", category="Style", subcategory="Readability")
-fun uncommented_begin_in_package_bodies(node) =
-    node is HandledStmts(parent is p@PackageBody(f_decls is *(f_decls is l@*)))
+@unit_check(help="BEGIN in package bodies not marked with package name comment",
+            remediation="EASY", category="Style", subcategory="Readability")
+fun uncommented_begin_in_package_bodies(unit) = [
+    {message: "mark BEGIN with package name",
+     loc: n.token_start().previous(exclude_trivia=true)}
+    for n in from unit.root
+    select node@HandledStmts(parent is p@PackageBody(f_decls is *(f_decls is l@*)))
     when l[1]
-     and not stdlib.find_comment(node.token_start().previous,
+     and not stdlib.find_comment(node.token_start().previous(),
                                  p.f_package_name.text)
+]

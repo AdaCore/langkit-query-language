@@ -54,7 +54,7 @@ fun within_assert(node) =
     |" Return ``true`` if ``node`` is part of an assertion-related pragma or
     |" aspect.
     node is *(any parent is
-        (p@Pragma when is_assert_pragma(p.f_id?.p_canonical_text()))
+        (p@PragmaNode when is_assert_pragma(p.f_id?.p_canonical_text()))
      or a@AspectAssoc
         when (match a.f_id
               | id@Identifier   =>
@@ -150,7 +150,7 @@ fun is_in_library_unit_body(o) =
 
 fun param_pos(n, pos: int = 0) =
     |" Return the position of node ``n`` in its current list of siblings
-    if not n then pos else param_pos(n?.previous_sibling, pos+1)
+    if not n then pos else param_pos(n?.previous_sibling(), pos+1)
 
 # TODO: move this in LAL
 fun is_predefined_op(op) =
@@ -222,10 +222,10 @@ fun enclosing_block(n) =
 
 @memoized
 fun enclosing_body(n) =
-    |" Return the first Body enclosing n if any, null otherwise
+    |" Return the first BodyNode enclosing n if any, null otherwise
 {
     val body = [p for p in n.parents(include_self=false)
-                  if p is Body]?[1];
+                  if p is BodyNode]?[1];
     if body then body else null
 }
 
@@ -316,13 +316,16 @@ fun sloc_image(node) =
 fun find_comment(token, name) =
     |" Return true if a comment token immediately following the previous
     |" "begin" keyword is found and containing only the package name.
-    if token.kind == "ADA_COMMENT" and
-       token.previous.previous.kind == "ADA_BEGIN"
+
+    if token.kind == "comment" and
+       token.previous().previous().kind == "begin"
+
     then token.text.ends_with(name) and
          match token.text.substring(1, token.text.length - name.length)
          | "^-- *$" => true
          | *        => false
-    else token.kind != "ADA_BEGIN" and find_comment(token.previous, name)
+
+    else token.kind != "begin" and find_comment(token.previous(), name)
 
 fun first_non_blank(s, ind=1) =
     |" Return the index of the first non blank character of s, starting at ind
@@ -334,24 +337,26 @@ fun next_non_blank_token_line(token) =
     |" Return the start line of the next non blank token, or the next line for
     |" a comment, or 0 if none.
 {
-    val n = token.next;
+    val n = token.next();
     match n.kind
-    | "ADA_WHITESPACE" => next_non_blank_token_line(n)
-    | "ADA_COMMENT"    => n.start_line + 1
-    | "NO_TOKEN"       => 0
-    | *                => n.start_line
+    | "whitespace"  => next_non_blank_token_line(n)
+    | "comment"     => n.start_line + 1
+    | "termination" => 0
+    | "no_token"    => 0
+    | *             => n.start_line
 }
 
 fun previous_non_blank_token_line(token) =
     |" Return the end line of the previous non blank token, or the previous
     |" line for a comment, or 0 if none.
 {
-    val p = token.previous;
+    val p = token.previous();
     match p.kind
-    | "ADA_WHITESPACE" => previous_non_blank_token_line(p)
-    | "ADA_COMMENT"    => p.start_line - 1
-    | "NO_TOKEN"       => 0
-    | *                => p.end_line
+    | "whitespace"  => previous_non_blank_token_line(p)
+    | "comment"     => p.start_line - 1
+    | "termination" => 0
+    | "no_token"    => 0
+    | *             => p.end_line
 }
 
 fun max(x, y) =
