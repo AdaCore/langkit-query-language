@@ -618,13 +618,19 @@ package body Gnatcheck.Projects is
    ----------------------------
 
    procedure Set_Global_Result_Dirs (My_Project : in out Arg_Project_Type) is
+      use GPR2;
+
       Cur_Dir : constant GPR2.Path_Name.Object :=
         GPR2.Path_Name.Create_Directory
           (GPR2.Filename_Type
               (GNAT.Directory_Operations.Get_Current_Dir));
+
       Dir : constant String :=
         (if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
-            My_Project.Tree.Root_Project.Object_Directory.Dir_Name
+           (if My_Project.Tree.Root_Project.Kind = K_Abstract then
+               My_Project.Tree.Root_Project.Path_Name.Dir_Name
+            else
+               My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
          else
             Cur_Dir.Dir_Name);
    begin
