@@ -13,8 +13,10 @@ fun range_length(t) =
        follow_generic_instantiations = true)
 fun kp_ta30_032(node) =
     node is ObjectDecl
-    when node.f_type_expr is SubtypeIndication(f_constraint is c@IndexConstraint)
-     and c.f_constraints[1] is op@BinOp(f_op is OpDoubleDot)
+    when node.f_type_expr is
+     SubtypeIndication(f_constraint is
+                       c@CompositeConstraint(p_is_index_constraint() is true))
+     and c.f_constraints[1].f_constraint_expr is op@BinOp(f_op is OpDoubleDot)
      and stdlib.range_values(op.f_left, op.f_right) == 0
      and node.f_type_expr.p_designated_type_decl() is t@BaseTypeDecl
      and t.p_is_array_type()

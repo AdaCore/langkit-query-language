@@ -12,8 +12,9 @@ fun is_universal_int(i) =
 fun universal_ranges(node) =
     node is (
         # index constraint or constrained array definition
-        IndexConstraint
-        when node.f_constraints[1] is r@BinOp(f_op is OpDoubleDot)
+        CompositeConstraint(p_is_index_constraint() is true)
+        when node.f_constraints[1].f_constraint_expr
+        is r@BinOp(f_op is OpDoubleDot)
             when is_universal_int(r.f_right) and is_universal_int(r.f_left)
     ) or (
         # range of a "for of" loop

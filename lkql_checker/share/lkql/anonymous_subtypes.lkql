@@ -40,10 +40,13 @@ fun is_self_referencing(expr, type_decl) =
 @check(message="anonymous subtype", category="Feature")
 fun anonymous_subtypes(node) =
     node is (SubtypeIndication(f_constraint is constraint@Constraint)
-         when (not (constraint is DiscriminantConstraint
+         when (not (constraint is
+                    CompositeConstraint(p_is_discriminant_constraint() is true)
                     and is_self_referencing(constraint, get_type_decl(node))))
           and not (node.parent is SubtypeDecl and
-                   constraint is RangeConstraint or DiscriminantConstraint))
+                   constraint is RangeConstraint
+                   or CompositeConstraint(p_is_discriminant_constraint() is
+                                          true)))
     or BinOp(f_op is OpDoubleDot,
              parent is not RangeSpec(parent is TypeDef or ComponentClause),
              all parent is not Constraint(parent is SubtypeIndication))
