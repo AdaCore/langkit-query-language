@@ -261,14 +261,10 @@ package Gnatcheck.Projects is
    --  to recognise Codepeer.File_Patterns.
 
    procedure Extract_Tool_Options (My_Project : in out Arg_Project_Type);
-   --  Extracts tool attributes from the project file. The default does the
-   --  following:
-   --  * if there is exactly one source file specified, tries to get the tool
-   --    options from the Switches attribute with the corresponding index. If
-   --    there is no such Switches attribute, tries to get tool attributes from
-   --    the Default_Switches attribute.
-   --  * otherwise tries to get the tool attributes from the Default_Switches
-   --    attribute.
+   --  Extracts gnatcheck options from the project file
+
+   procedure Process_Rule_Options;
+   --  Process all the rule options found as part of scanning arguments
 
    procedure Scan_Arguments
      (My_Project  : in out Arg_Project_Type;

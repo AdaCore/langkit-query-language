@@ -278,10 +278,9 @@ begin
 
    Gnatcheck.Projects.Process_Project_File (Gnatcheck_Prj);
 
-   --  Create the LKQL context and load the rules
+   --  Create the LKQL context
 
    Ctx := Gnatcheck.Source_Table.Create_Context;
-   Process_Rules (Ctx);
 
    --  Ignore project switches when running as gnatkp
 
@@ -305,6 +304,14 @@ begin
      (Stop_At_First_Non_Switch => False,
       Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments;
+
+   --  Load rule files after having parsed --rules-dir
+
+   Process_Rules (Ctx);
+
+   --  And process all rule options after rule files have been loaded
+
+   Process_Rule_Options;
 
    --  Force some switches for gnatkp
 

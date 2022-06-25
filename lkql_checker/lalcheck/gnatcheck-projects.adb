@@ -20,6 +20,7 @@
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
+with Ada.Containers.Vectors;
 with Ada.Directories;            use Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings;                use Ada.Strings;
@@ -139,8 +140,8 @@ package body Gnatcheck.Projects is
 
    begin
       if Proj.Has_Attribute (+"Default_Switches", +"Check", Ada_Idx) then
-
          Attr := Proj.Attribute (+"Default_Switches", +"Check", Ada_Idx);
+
          if Attr.Kind = Single then
             Error
               (String (Proj.Path_Name.Simple_Name)
@@ -167,7 +168,6 @@ package body Gnatcheck.Projects is
 
          Free (Command_Line);
       end if;
-
    end Extract_Tool_Options;
 
    ------------------------------
@@ -829,20 +829,50 @@ package body Gnatcheck.Projects is
       end if;
    end Report_Aggregated_Project_Exit_Code;
 
+   --------------------------
+   -- Process_Rule_Options --
+   --------------------------
+
+   type Option_Kind is (File, Option);
+
+   type Option_Record is record
+      Kind  : Option_Kind;
+      Value : Unbounded_String;
+   end record;
+
+   package Vector_Options is new
+     Ada.Containers.Vectors (Positive, Option_Record);
+
+   Rule_Options : Vector_Options.Vector;
+
+   procedure Process_Rule_Options is
+      use Ada.Strings.Unbounded;
+   begin
+      for O of Rule_Options loop
+         case O.Kind is
+            when File =>
+               Process_Rule_File (To_String (O.Value));
+            when Option =>
+               Process_Rule_Option (To_String (O.Value), Defined_At => "");
+         end case;
+      end loop;
+   end Process_Rule_Options;
+
    --------------------
    -- Scan_Arguments --
    --------------------
 
    procedure Scan_Arguments
      (My_Project  : in out Arg_Project_Type;
-      First_Pass  :         Boolean    := False;
-      Parser      :         Opt_Parser := Command_Line_Parser;
-      In_Switches :         Boolean    := False)
+      First_Pass  : Boolean    := False;
+      Parser      : Opt_Parser := Command_Line_Parser;
+      In_Switches : Boolean    := False)
    is
       procedure Process_Sections;
       --  Processes the 'rules' section.
 
       procedure Process_Sections is
+         use Ada.Strings.Unbounded;
       begin
          --  Processing the 'cargs' section
 
@@ -863,7 +893,9 @@ package body Gnatcheck.Projects is
                when ASCII.NUL =>
                   exit;
                when 'f' =>
-                  Process_Rule_File (Parameter (Parser => Parser));
+                  Rule_Options.Append
+                    (Option_Record'(File,
+                      To_Unbounded_String (Parameter (Parser => Parser))));
 
                   if not More_Then_One_Rule_File_Set then
                      Rule_File_Name :=
@@ -874,10 +906,12 @@ package body Gnatcheck.Projects is
                   end if;
 
                when others =>
-                  Process_Rule_Option
-                    (Ada.Strings.Fixed.Trim
-                       (Full_Switch (Parser => Parser), Ada.Strings.Both),
-                    Defined_At => "");
+                  Rule_Options.Append
+                    (Option_Record'(Option,
+                      To_Unbounded_String
+                        (Ada.Strings.Fixed.Trim
+                           (Full_Switch (Parser => Parser),
+                         Ada.Strings.Both))));
                   --  We use the call to Trim here because there can be a rule
                   --  option in quotation marks
                   Individual_Rules_Set := True;
@@ -1241,6 +1275,12 @@ package body Gnatcheck.Projects is
                      --  to resolve its parameter to the full path, and we
                      --  can do this only when target is fully detected.
                      null;
+
+                  elsif Full_Switch (Parser => Parser) = "-rules-dir"
+                    and then not Legacy
+                  then
+                     Additional_Rules_Dirs.Append
+                       (Parameter (Parser => Parser));
                   end if;
                else
                   if Full_Switch (Parser => Parser) = "-help" then
@@ -1297,12 +1337,6 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-no_objects_dir" then
                      No_Object_Dir := True;
-
-                  elsif Full_Switch (Parser => Parser) = "-rules-dir"
-                    and then not Legacy
-                  then
-                     Additional_Rules_Dirs.Append
-                       (Parameter (Parser => Parser));
                   end if;
                end if;
 
