@@ -1867,9 +1867,8 @@ or of a ``case`` statement alternative, if the same ``if`` or ``case``
 statement contains another sequence of statements as its component
 (or a component of its ``case`` statement alternative) that is
 syntactically equivalent to the sequence of statements in question.
-The check for syntactical equivalence of operands is case-sensitive,
-it does not take into account line breaks, white spaces and
-comments.
+The check for syntactical equivalence of operands ignores line breaks,
+white spaces and comments.
 
 Small sequences of statements are not flagged by this rule. The rule has
 two optional parameters that allow to specify the maximal size of statement
@@ -3461,8 +3460,7 @@ contains ``pragma Ignore_Pragma (Warnings);``.
 
 Flags expressions that contain a chain of infix calls to the same boolean
 operator (``and``, ``or``, ``and then``, ``or else``, ``xor``) if an expression
-contains syntactically equivalent operands. The check for syntactical
-equivalence of operands is case-sensitive.
+contains syntactically equivalent operands.
 
 This rule has no parameters.
 
@@ -3486,8 +3484,7 @@ This rule has no parameters.
 Flags infix calls to binary operators ``/``, ``=``, ``/=``, ``>``, ``>=``,
 ``<``, ``<=``, ``-``, ``mod``, ``rem`` (except for the
 calls to ``=`` and ``/=`` operators for floating point types) if operands
-of a call are syntactically equivalent. The check for syntactical equivalence
-of operands is case-sensitive.
+of a call are syntactically equivalent.
 
 This rule has no parameters.
 
@@ -3510,8 +3507,7 @@ This rule has no parameters.
 
 Flags condition expressions in ``if`` statements or ``if`` expressions if
 a statement or expression contains another condition expression that is
-syntactically equivalent to the first one. The check for syntactical equivalence
-is case-sensitive.
+syntactically equivalent to the first one.
 
 This rule has no parameters.
 

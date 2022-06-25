@@ -22,12 +22,12 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
+with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 with Ada.Containers.Hashed_Sets;
 with Ada.Directories;
 with Ada.Finalization;
 with Ada.Strings.Wide_Wide_Fixed;
 with Ada.Unchecked_Deallocation;
-with Ada.Wide_Wide_Characters.Handling;
 with Ada.Wide_Wide_Text_IO;
 
 with GNAT.Array_Split;
@@ -393,7 +393,6 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := Str_Val (Args (1));
    begin
@@ -413,7 +412,6 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := Str_Val (Args (1));
    begin
@@ -433,7 +431,6 @@ package body LKQL.Builtin_Functions is
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
       pragma Unreferenced (Ctx);
-      use Ada.Wide_Wide_Characters.Handling;
 
       Str : constant Text_Type := Str_Val (Args (1));
 
@@ -479,8 +476,6 @@ package body LKQL.Builtin_Functions is
    function Eval_To_Lower_Case
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      use Ada.Wide_Wide_Characters.Handling;
-
       Str : constant Text_Type := Str_Val (Args (1));
    begin
       return To_Primitive (To_Lower (Str), Ctx.Pool);
@@ -835,7 +830,11 @@ package body LKQL.Builtin_Functions is
    function Is_Eq (L, R : Lk_Token) return Boolean is
       use Langkit_Support.Generic_API;
    begin
-      return L.Kind = R.Kind and then L.Text = R.Text;
+      return L.Kind = R.Kind
+        and then
+          (if LKN.Format_Name (Token_Kind_Name (L.Kind), LKN.Lower)
+             = "identifier"
+           then To_Lower (L.Text) = To_Lower (R.Text) else L.Text = R.Text);
    end Is_Eq;
 
    ----------------------

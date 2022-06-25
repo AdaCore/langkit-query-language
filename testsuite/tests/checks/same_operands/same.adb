@@ -4,7 +4,7 @@ procedure Same is
       Y : Integer;
    begin
       Y := (X + 1) / (X - 1);        --  NO FLAG
-      return (X + 1) / (X +  1);     --  FLAG
+      return (X + 1) / (x +  1);     --  FLAG
    end Same_Op;
 
    F      : Float;
