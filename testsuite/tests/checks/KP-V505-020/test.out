@@ -1,0 +1,12 @@
+p.ads:4:13: rule violation: possible occurrence of KP V505-020
+4 |    function F (O : T) return Integer is (0);   --  FLAG
+  |             ^
+
+p.ads:19:27: rule violation: possible occurrence of KP V505-020
+19 |       overriding function Prim (X2 : T2) return Integer is (Rec'Size);  --  FLAG
+   |                           ^^^^
+
+p.ads:33:13: rule violation: possible occurrence of KP V505-020
+33 |    function F (O : T2) return Integer is (1);  --  FLAG
+   |             ^
+
