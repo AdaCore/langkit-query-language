@@ -7,8 +7,10 @@ procedure Same is
       return (X + 1) / (x +  1);     --  FLAG
    end Same_Op;
 
+   function Is_Nan (F : Float) return Boolean is (F = F);  --  NO FLAG
+
    F      : Float;
-   Is_Nan : Boolean := F = F;     --  NO FLAG
+   Is_Inf : Boolean := Is_NaN (F - F);     --  NO FLAG
 
 begin
    null;

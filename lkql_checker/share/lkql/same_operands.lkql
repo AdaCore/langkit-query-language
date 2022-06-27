@@ -1,14 +1,12 @@
-# Flag each occurrence of a binary operation if its two operands are
-# syntactically equivalent and the expression will always yield the
-# same value.
-
-fun is_float_eq(n) =
-    n.f_op is OpEq or OpNeq and
-    n.f_left.p_expression_type() is BaseTypeDecl(p_is_float_type() is true)
+# Flags infix calls to binary operators /, =, /=, >, >=, <, <=, -, mod, rem
+# (except when operating on floating point types) if operands of a call are
+# syntactically equivalent.
 
 @check(message="same operands",
        category="Style", subcategory="Programming Practice")
 fun same_operands(node) =
     node is BinOp(f_op is OpDiv or OpEq or OpGt or OpGte or OpLt or OpLte or
                           OpMinus or OpMod or OpNeq or OpRem)
-    when not is_float_eq(node) and node.f_left.same_tokens(node.f_right)
+    when node.f_left.p_expression_type() is not
+         BaseTypeDecl(p_is_float_type() is true)
+     and node.f_left.same_tokens(node.f_right)

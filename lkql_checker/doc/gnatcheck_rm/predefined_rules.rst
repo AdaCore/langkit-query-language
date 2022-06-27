@@ -3482,9 +3482,8 @@ This rule has no parameters.
 .. index:: Same_Operands
 
 Flags infix calls to binary operators ``/``, ``=``, ``/=``, ``>``, ``>=``,
-``<``, ``<=``, ``-``, ``mod``, ``rem`` (except for the
-calls to ``=`` and ``/=`` operators for floating point types) if operands
-of a call are syntactically equivalent.
+``<``, ``<=``, ``-``, ``mod``, ``rem`` (except when operating on floating
+point types) if operands of a call are syntactically equivalent.
 
 This rule has no parameters.
 
