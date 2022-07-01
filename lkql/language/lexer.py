@@ -27,6 +27,8 @@ class Token(LexerToken):
     If = WithSymbol()
     Then = WithSymbol()
     Else = WithSymbol()
+    Try = WithSymbol()
+    With = WithSymbol()
     Not = WithSymbol()
     Null = WithSymbol()
     Import = WithSymbol()
@@ -104,7 +106,7 @@ lkql_lexer.add_rules(
     (Literal("["),                                Token.LBrack),
     (Literal("]"),                                Token.RBrack),
     (Literal("@"),                                Token.At),
-    (Pattern(r"\|\"(.?)+"),                        Token.SubBlockLiteral),
+    (Pattern(r"\|\"(.?)+"),                       Token.SubBlockLiteral),
     (Literal("|"),                                Token.Pipe),
     (Literal("<-"),                               Token.LArrow),
     (Literal("=>"),                               Token.BigRArrow),
@@ -128,6 +130,8 @@ lkql_lexer.add_rules(
     (Literal("if"),                               Token.If),
     (Literal("else"),                             Token.Else),
     (Literal("then"),                             Token.Then),
+    (Literal("try"),                              Token.Try),
+    (Literal("with"),                             Token.With),
     (Literal("not"),                              Token.Not),
     (Literal("null"),                             Token.Null),
     (Pattern("[0-9]+"),                           Token.Integer),

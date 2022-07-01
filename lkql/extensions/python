@@ -21,7 +21,7 @@ try:
             'root': [
                 (words(('select', 'let', 'when', 'val', 'fun', 'selector',
                         'match', 'rec', 'skip', 'is', 'in', 'true', 'false',
-                        'if', 'else', 'then', 'not', 'null', 'from'),
+                        'if', 'else', 'then', 'not', 'null', 'from', 'try', 'with'),
                        prefix=r'\b', suffix=r'\b'),
                  token.Keyword),
                 (r"\|\".+", token.String),

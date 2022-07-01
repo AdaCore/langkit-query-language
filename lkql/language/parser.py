@@ -197,6 +197,23 @@ class IfThenElse(Expr):
     else_expr = Field(type=Expr)
 
 
+class TryArm(LkqlNode):
+    """
+    An arm for a try-with structure
+    """
+    binding = Field(type=Identifier)
+    error_type = Field(type=Identifier)
+    expr = Field(type=Expr)
+
+
+class TryWith(Expr):
+    """
+    A try-with expression to handle exception raising (from langkit property for now)
+    """
+    try_expr = Field(type=Expr)
+    arms = Field(type=TryArm.list)
+
+
 class Unwrap(Expr):
     """
     Unwrapping of a nullable node using the !! operator.
@@ -1315,6 +1332,7 @@ lkql_grammar.add_rules(
         G.anonymous_function,
         Pick("(", G.expr, ")"),
         G.if_then_else,
+        G.try_with,
         G.block_expr,
         G.tuple_expr,
     ),
@@ -1383,8 +1401,13 @@ lkql_grammar.add_rules(
 
     if_then_else=IfThenElse("if", G.expr, "then", G.expr, "else", G.expr),
 
+    try_with=TryWith("try", G.expr, "with", List(G.try_arm, empty_valid=False)),
+
+    try_arm=TryArm("|", Opt(Pick(G.id, "@")), G.error_kind, "=>", G.expr),
+
     id=Identifier(Token.Identifier),
     kind_name=Identifier(Token.KindName),
+    error_kind=Identifier(Or(Token.KindName, "*")),
     integer=IntegerLiteral(Token.Integer),
 
     bool_literal=Or(BoolLiteral.alt_true("true"),
