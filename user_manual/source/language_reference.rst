@@ -210,22 +210,26 @@ Block Expression
     :file: ../../lkql/build/railroad-diagrams/block_expr.svg
 
 .. lkql_doc_class:: BlockExpr
+.. lkql_doc_class:: BlockBodyDecl
+.. lkql_doc_class:: BlockBodyExpr
 
-The block expression is useful to declare temporary named values. This can be
-useful to share the result of a temporary calculation, or to name an
-intermediate value to make the code more readable.
+The block expression is useful to declare temporary named values and execute
+intermediate expressions. This can be useful to share the result of a
+temporary calculation, to name an intermediate value to make the code more
+readable, or to print debug values.
 
 .. code-block:: lkql
 
     {
        val x = 40;
        val y = 2;
+       print("DEBUG : " & (x + y).img);
        x + y
     }
 
-As you can see in the example above, value declarations are ended by
-semicolons. After the last value declaration, you write the block's result
-expression, without an ending semicolon.
+As you can see in the example above, value declarations and intermediate 
+expressions are ended by semicolons. After the last one, you write the 
+block's result expression, without an ending semicolon.
 
 Field Access
 ^^^^^^^^^^^^

@@ -105,6 +105,12 @@ package body LKQL.Evaluation is
    function Eval_Block_Expr
      (Ctx : Eval_Context; Node : L.Block_Expr) return Primitive;
 
+   function Eval_Body_Decl
+     (Ctx : Eval_Context; Node : L.Block_Body_Decl) return Primitive;
+
+   function Eval_Body_Expr
+     (Ctx : Eval_Context; Node : L.Block_Body_Expr) return Primitive;
+
    function Eval_List_Literal
      (Ctx : Eval_Context; Node : L.List_Literal) return Primitive;
 
@@ -230,6 +236,12 @@ package body LKQL.Evaluation is
               (Local_Context, Node.As_List_Comprehension);
          when LCO.Lkql_Block_Expr =>
             Result := Eval_Block_Expr (Local_Context, Node.As_Block_Expr);
+         when LCO.Lkql_Block_Body_Decl =>
+            Result :=
+              Eval_Body_Decl (Local_Context, Node.As_Block_Body_Decl);
+         when LCO.Lkql_Block_Body_Expr =>
+            Result :=
+              Eval_Body_Expr (Local_Context, Node.As_Block_Body_Expr);
          when LCO.Lkql_Fun_Decl =>
             Result := Eval_Fun_Decl (Local_Context, Node.As_Fun_Decl);
          when LCO.Lkql_Selector_Decl =>
@@ -848,9 +860,9 @@ package body LKQL.Evaluation is
       Local_Ctx := Ctx.Create_New_Frame;
 
       --  Add Val_Decl bindings to the newly created frame
-      for Decl of Node.F_Vals loop
+      for Body_Step of Node.F_Body loop
          declare
-            Dummy : Primitive := Eval (Local_Ctx, Decl);
+            Dummy : Primitive := Eval (Local_Ctx, Body_Step);
          begin
             null;
          end;
@@ -862,6 +874,34 @@ package body LKQL.Evaluation is
          Local_Ctx.Release_Current_Frame;
       end return;
    end Eval_Block_Expr;
+
+   ----------------------
+   -- Eval_Body_Decl --
+   ----------------------
+
+   function Eval_Body_Decl
+     (Ctx : Eval_Context; Node : L.Block_Body_Decl) return Primitive is
+   begin
+      return Eval (Ctx, Node.F_Decl);
+   end Eval_Body_Decl;
+
+   ----------------------
+   -- Eval_Body_Expr --
+   ----------------------
+
+   function Eval_Body_Expr
+     (Ctx : Eval_Context; Node : L.Block_Body_Expr) return Primitive
+   is
+      Ret : constant Primitive := Eval (Ctx, Node.F_Expr);
+   begin
+      if Is_Nullish (Ret) then
+         return Ret;
+      end if;
+
+      Raise_And_Record_Error
+        (Ctx, Make_Eval_Error
+          (Node, "Can't ignore the return value of an expr in a block expr"));
+   end Eval_Body_Expr;
 
    ----------------
    -- Eval_Match --

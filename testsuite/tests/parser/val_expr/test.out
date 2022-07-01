@@ -1,20 +1,24 @@
 BlockExpr
-|f_vals:
-|  DeclarationList
-|  |  ValDecl
-|  |  |f_annotation: <null>
-|  |  |f_doc_node: <null>
-|  |  |f_identifier:
-|  |  |  Identifier: x
-|  |  |f_value:
-|  |  |  IntegerLiteral: 40
-|  |  ValDecl
-|  |  |f_annotation: <null>
-|  |  |f_doc_node: <null>
-|  |  |f_identifier:
-|  |  |  Identifier: y
-|  |  |f_value:
-|  |  |  IntegerLiteral: 2
+|f_body:
+|  BlockBodyList
+|  |  BlockBodyDecl
+|  |  |f_decl:
+|  |  |  ValDecl
+|  |  |  |f_annotation: <null>
+|  |  |  |f_doc_node: <null>
+|  |  |  |f_identifier:
+|  |  |  |  Identifier: x
+|  |  |  |f_value:
+|  |  |  |  IntegerLiteral: 40
+|  |  BlockBodyDecl
+|  |  |f_decl:
+|  |  |  ValDecl
+|  |  |  |f_annotation: <null>
+|  |  |  |f_doc_node: <null>
+|  |  |  |f_identifier:
+|  |  |  |  Identifier: y
+|  |  |  |f_value:
+|  |  |  |  IntegerLiteral: 2
 |f_expr:
 |  ArithBinOp
 |  |f_left:

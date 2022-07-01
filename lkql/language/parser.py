@@ -633,20 +633,45 @@ class ObjectAssoc(LkqlNode):
     expr = Field(type=Expr)
 
 
+@abstract
+class BlockBody(LkqlNode):
+    """
+    Root node for block expression block before steps
+    """
+    pass
+
+
+class BlockBodyDecl(BlockBody):
+    """
+    Node for an expression in a block expression body
+    """
+
+    decl = Field(type=Declaration)
+
+
+class BlockBodyExpr(BlockBody):
+    """
+    Node for a declaration in a block expression body
+    """
+
+    expr = Field(type=Expr)
+
+
 class BlockExpr(Expr):
     """
-    Expression of the form: ``val id = value; expr``
+    Expression of the form: ``val id = value; expr; expr``
 
     For instance::
 
         {
            val x = 40;
            val y = 2;
+           print(x + y);
            x + y
         }
     """
 
-    vals = Field(type=Declaration.list)
+    body = Field(type=BlockBody.list)
     expr = Field(type=Expr)
 
 
@@ -1335,7 +1360,13 @@ lkql_grammar.add_rules(
     ),
 
     block_expr=BlockExpr(
-        "{", List(G.decl, sep=";", empty_valid=False), ";", c(), G.expr,
+        "{",
+        List(
+            Or(BlockBodyDecl(G.decl, ";"), BlockBodyExpr(G.expr, ";")),
+            empty_valid=False
+        ),
+        c(),
+        G.expr,
         "}"
     ),
 

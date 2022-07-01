@@ -1,0 +1,4 @@
+script.lkql:4:5: error: Can't ignore the return value of an expr in a block expr
+4 |     x + y;
+  |     ^^^^^^
+

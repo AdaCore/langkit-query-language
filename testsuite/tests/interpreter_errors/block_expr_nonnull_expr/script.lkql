@@ -1,0 +1,7 @@
+val answer = {
+    val x = 40;
+    val y = 2;
+    x + y;
+    x + y
+}
+print(answer)
