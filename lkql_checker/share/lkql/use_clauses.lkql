@@ -13,7 +13,7 @@ fun decls_not_only_operator(pkg) =
        | p@BasePackageDecl     => p.f_public_part.f_decls.children
        | p@PackageRenamingDecl => p.p_final_renamed_package().
                                   f_public_part.f_decls.children
-       | GenericPackageInstantiation => p.p_designated_generic_decl().
+       | p@GenericPackageInstantiation => p.p_designated_generic_decl().
                                         f_package_decl.f_public_part.
                                         f_decls.children
        | *                     => []
