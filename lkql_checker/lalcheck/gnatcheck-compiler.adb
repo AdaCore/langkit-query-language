@@ -313,7 +313,8 @@ package body Gnatcheck.Compiler is
 
                Id := Get_Rule (Msg (Last + 1 .. Msg'Last - 1));
                Store_Diagnosis
-                 (Text           => Msg (Msg'First .. Idx - 1) &
+                 (Text           => Gnatcheck.Source_Table.File_Name (SF) &
+                                    Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
                                     Annotate_Rule (All_Rules.Table (Id).all),
                   Diagnosis_Kind =>
@@ -1258,11 +1259,6 @@ package body Gnatcheck.Compiler is
       if No_Object_Dir then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--no_objects_dir");
-      end if;
-
-      if Full_Source_Locations then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-l");
       end if;
 
       for Dir of Additional_Rules_Dirs loop
