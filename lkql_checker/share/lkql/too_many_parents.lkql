@@ -1,28 +1,23 @@
 # Flag any tagged type declaration, interface type declaration, single task
-# declaration or single protected declaration that has more than maxParents
+# declaration or single protected declaration that has more than n
 # parents. A parent here is either a (sub)type denoted by the subtype mark from
 # the parent_subtype_indication (in case of a derived type declaration), or any
 # of the progenitors from the interface list (if any).
 # This rule has the following parameter: n: Positive integer
 # specifying the maximal allowed number of parents/progenitors.
 
-fun num_interfaces(n) = match n
-    | TaskTypeDecl        => n.f_definition?.f_interfaces.children_count
-    | ProtectedTypeDecl   => n.f_interfaces.children_count
-    | SingleProtectedDecl => n.f_interfaces.children_count
-    | *                   => 0
+fun num_interfaces(n) =
+    |" Return the number of interfaces for a SingleProtectedDecl, 0 otherwise
+    |" since for all type declarations, super_types takes interfaces into
+    |" account.
+    if n is SingleProtectedDecl then n.f_interfaces.children_count else 0
 
 @check(message="type has too many parents", remediation="MAJOR",
        category="Style", subcategory="Object Orientation")
 fun too_many_parents(node, n : int = 5) =
-    node is BasicDecl
-    when (match node
-          | TypeDecl            => node.p_is_tagged_type()
-          | TaskTypeDecl        => true
-          | ProtectedTypeDecl   => true
-          | SingleProtectedDecl => true
-          | *                   => false)
-    and ({
+    node is (TypeDecl(p_is_tagged_type() is true) or
+             TaskTypeDecl or ProtectedTypeDecl or SingleProtectedDecl)
+    when ({
         val l = num_interfaces(node);
         l+super_types(node, depth=n-l+1).length > n
     })
