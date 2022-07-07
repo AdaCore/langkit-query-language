@@ -877,6 +877,10 @@ alter how the sub-pattern matches:
 
 Any of the `Built-in selectors`_ can be used, or even custom selectors.
 
+.. note:: All selectors have three optional parameters that allows controlling
+   the depth of the traversal, ``depth``, ``max_depth`` and ``min_depth``. See
+   `Selector Declaration`_
+
 Field Predicate
 """""""""""""""
 
@@ -1001,6 +1005,18 @@ expression of traversal blueprints.
 For example, by default, the `Query expression`_ explores the tree via the
 default ``children`` selector.
 
+While you can't add parameters to the definition of a selector, selector calls
+can take three optional arguments that allows the control of depth:
+
+* ``min_depth`` allows you to filter nodes for which the traversal depth is
+  lower than a certain value
+
+* ``max_depth`` alows you to filter nodes for which the traversal depth is
+  higher than a certain value
+
+* ``depth`` allows you to only receive nodes that are exactly at the given
+  traversal depth
+
 You've already seen selectors used in previous sections, and, most of the time,
 you might not need to define your own, but in case you need to, here is how
 they work.
@@ -1008,9 +1024,9 @@ they work.
 Defining a Selector
 ^^^^^^^^^^^^^^^^^^^
 
-A selector is a recursive function. It has a single implicit `this` argument
-that represents the current node. A selector has an implicit top level `Match
-expression`_ matching on `this`.
+A selector is a recursive function. In the body of the selector, there is a
+binding from ``this`` to the current node. A selector has an implicit top level
+`Match expression`_ matching on ``this``.
 
 .. note:: The principle of selectors is more general than nodes, but is for the
    moment only usable with an ``this`` argument that is of type node.
