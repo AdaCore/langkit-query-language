@@ -24,11 +24,11 @@ fun is_parent_primitive(body, decl, parent_type) =
 @check(message="non-dispatching call to primitive operation",
        category="Style", subcategory="Object Orientation")
 fun direct_calls_to_primitives(node, except_constructors=false) = node is
-    BaseId(p_is_static_call() is true,
-           p_referenced_decl() is
-           decl@BasicDecl(p_subp_spec_or_null() is
-                          spec@BaseSubpSpec(p_primitive_subp_tagged_type() is
-                                            t@BaseTypeDecl))
-           when t.p_most_visible_part(node).p_is_tagged_type()
-            and (not (except_constructors and stdlib.is_constructor(spec)))
-            and not is_parent_primitive(stdlib.enclosing_body(node), decl, t))
+    BaseId(p_is_static_call() is true)
+    when stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is
+         decl@BasicDecl(p_subp_spec_or_null() is
+                        spec@BaseSubpSpec(p_primitive_subp_tagged_type() is
+                                          t@BaseTypeDecl))
+     and t.p_most_visible_part(node).p_is_tagged_type()
+     and (not (except_constructors and stdlib.is_constructor(spec)))
+     and not is_parent_primitive(stdlib.enclosing_body(node), decl, t)
