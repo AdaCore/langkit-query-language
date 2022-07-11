@@ -69,6 +69,9 @@ package body Gnatcheck.Compiler is
    --  * Remove from the diagnostic message the reference to the configuration
    --    file with restriction pragmas that is created by gnatcheck.
    --
+   --  * Remove warning and style markers for Warning, Style, Restriction
+   --    messages.
+   --
    --  * If Gnatcheck.Options.Mapping_Mode is ON, annotates the message by
    --    adding the compiler check (if for a warning message '.d' is specified,
    --    the trailing part that indicates the warning message that causes this
@@ -143,10 +146,29 @@ package body Gnatcheck.Compiler is
      (Diag         : String;
       Message_Kind : Message_Kinds) return String
     is
-      Result    : constant String (1 .. Diag'Length) := Diag;
+      Result    : constant String :=
+        (case Message_Kind is
+         when Warning | Restriction =>
+           (declare
+               Idx : constant Natural := Index (Diag, "warning: ");
+            begin
+               (if Idx = 0
+                then Diag
+                else Diag (Diag'First .. Idx - 1) &
+                     Diag (Idx + 9 .. Diag'Last))),
+         when Style =>
+           (declare
+               Idx : constant Natural := Index (Diag, "(style) ");
+            begin
+               (if Idx = 0
+                then Diag
+                else Diag (Diag'First .. Idx - 1) &
+                     Diag (Idx + 8 .. Diag'Last))),
+         when others => Diag);
+
       Last_Idx  : Natural;
       Diag_End  : Natural;
-      Par_Start : Natural := 1;
+      Par_Start : Natural := Result'First;
       Par_End   : Natural := 0;
 
    begin
@@ -160,7 +182,7 @@ package body Gnatcheck.Compiler is
 
       if Mapping_Mode then
          if Message_Kind = Warning then
-            Diag_End := Index (Source  => Result (1 .. Last_Idx),
+            Diag_End := Index (Source  => Result (Result'First .. Last_Idx),
                                Pattern => "[-gnatw",
                                Going   => Backward);
 
@@ -180,11 +202,11 @@ package body Gnatcheck.Compiler is
             Diag_End := Last_Idx;
          end if;
 
-         return Result (1 .. Diag_End) &
+         return Result (Result'First .. Diag_End) &
                 Annotation (Message_Kind, Result (Par_Start .. Par_End));
 
       else
-         return Result (1 .. Last_Idx);
+         return Result (Result'First .. Last_Idx);
       end if;
    end Adjust_Message;
 
@@ -337,7 +359,7 @@ package body Gnatcheck.Compiler is
             else
                Message_Kind := Warning;
             end if;
-         elsif Index (Msg (Idx .. Msg'Last), "(style)") /= 0 then
+         elsif Msg (Idx .. Idx + 6) = "(style)" then
             Message_Kind := Style;
          else
             Format_Error;
