@@ -572,7 +572,7 @@ package body Gnatcheck.Projects is
          Value                => List,
          Value_Case_Sensitive => True,
          Is_Allowed_In        => Everywhere);
-      GPR2.Project.Registry.Pack.Check_Attributes (+"Codepeer");
+      GPR2.Project.Registry.Pack.Check_Attributes (+"Codepeer", False);
 
       GPR2.Project.Registry.Pack.Add
         (+"Check", GPR2.Project.Registry.Pack.Everywhere);
