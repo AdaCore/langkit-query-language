@@ -1,0 +1,4 @@
+p.ads:3:8: rule violation: possible occurrence of KP V719-024
+3 |   type Rec (D : Boolean := False) is record   --  FLAG
+  |        ^^^
+
