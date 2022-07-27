@@ -2,10 +2,10 @@ import stdlib
 
 selector eligible_children
     |" Return all children nodes starting from a base subprogram body, but not
-    |" entering in nested subprogram bodies.
+    |" entering in nested bodies.
 
-    | SubpBody =>
-        # Don't recurse on subp bodies except if it's the root node (depth == 0)
+    | BodyNode =>
+        # Don't recurse on bodies except if it's the root node (depth == 0)
         rec *(if depth == 0 then this.children else [])
     | n@PragmaNode when n.p_is_ghost_code() => ()
     | null     => ()
