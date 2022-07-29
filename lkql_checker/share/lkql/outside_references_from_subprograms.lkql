@@ -12,7 +12,7 @@
 import stdlib
 
 fun outside_refs(body) =
-    [id for id in stdlib.children_no_nested_subps(body)
+    [id for id in stdlib.children_no_nested(body)
         if id is Identifier and
            match stdlib.ultimate_alias(id)
            | o@ObjectDecl => stdlib.is_local_object(o) and

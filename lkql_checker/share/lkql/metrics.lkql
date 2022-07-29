@@ -85,7 +85,7 @@ fun essential_complexity(body, treat_exit_as_goto=true) =
     |" Return the essential complexity of the given body
 {
     val jump_nodes = [
-        i for i in stdlib.children_no_nested_subps(body)
+        i for i in stdlib.children_no_nested(body)
         if i is ReturnStmt or RaiseStmt or TerminateAlternative or GotoStmt
              or (ExitStmt when treat_exit_as_goto)
     ];

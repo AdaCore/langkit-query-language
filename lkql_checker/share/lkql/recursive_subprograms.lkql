@@ -38,7 +38,7 @@ selector static_calls
     | b@(BodyNode or GenericDecl) => rec *
         # Grab the bodies for every static call
         [get_body(a)
-         for a in stdlib.children_no_nested_subps(b)
+         for a in stdlib.children_no_nested(b)
          if a is GenericInstantiation or
                  BaseId when a.p_is_static_call() or
                              a.p_referenced_decl() is TaskTypeDecl].to_list
@@ -64,7 +64,7 @@ fun bodies(name) =
     } else [get_body(name)]
 
 fun calls_helper(b) = 
-      concat([bodies(a) for a in stdlib.children_no_nested_subps(b)
+      concat([bodies(a) for a in stdlib.children_no_nested(b)
               if a is GenericInstantiation or
                       (BaseId when a.p_is_direct_call() or
                                    a.p_referenced_decl() is TaskTypeDecl)].

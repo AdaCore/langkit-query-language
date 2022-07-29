@@ -7,10 +7,10 @@ This module contains functions that are shared accross lkql_checker rules.
 These functions may be moved in the future in Libadalang or LKQL's builtin
 library.
 
-.. function:: children_no_nested_subps
+.. function:: children_no_nested
 
     Return all children nodes starting from a base subprogram body, but not
-    entering in nested subprogram bodies.
+    entering in nested bodies.
 
 .. function:: enclosing_block(n)
 

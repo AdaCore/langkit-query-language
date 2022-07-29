@@ -25,7 +25,7 @@ fun inlined_body(name) = match name.p_referenced_decl()
 fun check_inlining(node, n: int) =
     if n == 0
     then node != null
-    else [a for a in stdlib.children_no_nested_subps(node)
+    else [a for a in stdlib.children_no_nested(node)
           if a is Name when a.p_is_call()
                         and check_inlining(inlined_body(a), n - 1)]?[1] != ()
 

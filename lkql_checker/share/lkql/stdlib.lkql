@@ -9,12 +9,12 @@ selector semantic_parent
     | null     => ()
     | *        => rec this.p_semantic_parent()
 
-selector children_no_nested_subps
+selector children_no_nested
     |" Return all children nodes starting from a base subprogram body, but not
-    |" entering in nested subprogram bodies.
+    |" entering in nested bodies.
 
-    | SubpBody =>
-        # Don't recurse on subp bodies except if it's the root node (depth == 0)
+    | BodyNode =>
+        # Don't recurse on bodies except if it's the root node (depth == 0)
         rec *(if depth == 0 then this.children else [])
     | null     => ()
     | *        => rec *this.children
