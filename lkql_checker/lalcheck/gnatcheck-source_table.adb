@@ -353,7 +353,7 @@ package body Gnatcheck.Source_Table is
             Res : constant GPR2.Path_Name.Object :=
               Get_File
                 (Tree (Arg_Project).all,
-                 Filename_Optional (Fname));
+                 Filename_Optional (Base_Name (Fname)));
          begin
             if not Res.Is_Defined then
                Free (Short_Source_Name_String);
