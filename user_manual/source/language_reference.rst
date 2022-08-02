@@ -697,7 +697,7 @@ chain.
 .. code-block:: lkql
 
    selector parent
-      | AdaNode => rec *it.parent
+      | AdaNode => rec *this.parent
       | *       => ()
 
 Query Expression
@@ -977,16 +977,16 @@ they work.
 Defining a Selector
 ^^^^^^^^^^^^^^^^^^^
 
-A selector is a recursive function. It has a single implicit `it` argument that
-represents the current node. A selector has an implicit top level `Match
-expression`_ matching on `it`.
+A selector is a recursive function. It has a single implicit `this` argument
+that represents the current node. A selector has an implicit top level `Match
+expression`_ matching on `this`.
 
 .. note:: The principle of selectors is more general than nodes, but is for the
-   moment only usable with an ``it`` argument that is of type node.
+   moment only usable with an ``this`` argument that is of type node.
 
 In the branch of a selector, you have three choices:
 
-* You can **recurse** via the ``rec`` keyword, on nodes reachable from ``it``.
+* You can **recurse** via the ``rec`` keyword, on nodes reachable from ``this``.
   The node or nodes you will recurse on via this keyword will both be "yielded"
   by the selector, and explored further (ie. the selector will be called on
   them)
@@ -1004,7 +1004,7 @@ example how the ``super_types`` selector is expressed:
 .. code-block:: lkql
 
     selector super_types
-        | BaseTypeDecl      => rec *it.p_base_types()
+        | BaseTypeDecl      => rec *this.p_base_types()
         | *                 => ()
 
 Built-in Selectors
