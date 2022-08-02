@@ -1,0 +1,4 @@
+dic.adb:43:4: rule violation: possible occurrence of KP V712-039
+43 |    for U in Iterate (V) loop  --  FLAG
+   |    ^^^^^^^^^
+

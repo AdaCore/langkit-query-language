@@ -1,0 +1,30 @@
+# Flag loops using a generalized iterator where the iterator element type is
+# subject to a Default_Initial_Condition aspect.
+
+selector component_types
+    |" Return all the TypeDecl corresponding to all fields of a given type
+    | TypeDecl(f_type_def is d@RecordTypeDef) =>
+        skip *(from d select ComponentDecl)
+    | TypeDecl(f_type_def is der@DerivedTypeDef(f_record_extension is
+                                                def@BaseRecordDef)) =>
+        skip *([der, def])
+    | TypeDecl(f_type_def is DerivedTypeDef(f_subtype_indication is
+               ind@SubtypeIndication) =>
+        rec ind.f_name.p_referenced_decl()
+    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
+                    ind@SubtypeIndication)) =>
+        rec ind.f_name.p_referenced_decl()
+    | BaseRecordDef  => skip *(from this select ComponentDecl)
+    | DerivedTypeDef => rec this.f_subtype_indication.f_name.p_referenced_decl()
+    | *        => ()
+
+@check(message="possible occurrence of KP V712-039", impact="22.*")
+fun kp_v712_039(node) =
+    node is ForLoopStmt(
+        f_spec is ForLoopSpec(f_iter_expr is Expr(
+            p_expression_type() is TypeDecl(
+                p_has_aspect("Iterable") is true,
+                p_full_view() is TypeDecl(
+                    any component_types is TypeDecl(
+                        p_has_aspect("Default_Initial_Condition") is true))))))
+
