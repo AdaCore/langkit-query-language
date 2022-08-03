@@ -1726,7 +1726,7 @@ Flag a case statement if this statement has only two alternatives, one
 containing exactly one choice, the other containing exactly one choice
 or the ``others`` choice.
 
-The rule has an optional parameter for +R option:
+The rule has an optional parameter for ``+R`` option:
 
 *Except_Enums*
   Do not flag case statements whose selecting expression is of an enumeration
@@ -2052,7 +2052,7 @@ The rule has no parameters.
 Flag each ``exit`` statement that does not specify the name of the loop
 being exited.
 
-This rule has the following (optional) parameter for the +R option:
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Nested_Only*
   Flag only those exit statements with no loop name that exit from nested loops.
@@ -2233,7 +2233,7 @@ This rule has no parameters.
 .. index:: Local_USE_Clauses
 
 Use clauses that are not parts of compilation unit context clause are
-flagged. The rule has an optional parameter for +R option:
+flagged. The rule has an optional parameter for ``+R`` option:
 
 *Except_USE_TYPE_Clauses*
   Do not flag local use type clauses.
@@ -2455,7 +2455,7 @@ Flag handled sequences of statements that do not contain exception
 handler with ``others``, depending on the rule parameter(s)
 specified.
 
-This rule has three parameters for +R option:
+This rule has three parameters for ``+R`` option:
 
 *
   Subprogram
@@ -2645,7 +2645,7 @@ user-defined ``and`` and ``or`` and to operators defined by renaming
 declarations are not flagged. Calls to predefined ``and`` and ``or``
 operators for modular types or boolean array types are not flagged.
 
-The rule has an optional parameter for +R option:
+The rule has an optional parameter for ``+R`` option:
 
 *Except_Assertions*
   Do not flag the use of non-short-circuit_operators inside
@@ -2750,7 +2750,7 @@ This rule has no parameters.
 Flag a statement sequence that is a component of an ``if``, ``case`` or
 ``loop`` statement if this sequences consists of NULL statements only.
 
-The rule has an optional parameter for +R option:
+The rule has an optional parameter for ``+R`` option:
 
 *Except_Enums*
   Do not flag null paths inside case statements whose selecting expression is
@@ -4919,7 +4919,7 @@ the definition of exemption sections are:
 
 Flag any defining identifier that has length longer than specified by
 the rule parameter. Defining identifiers of enumeration literals are not
-flagged. The rule has a mandatory parameter for +R option:
+flagged. The rule has a mandatory parameter for ``+R`` option:
 
 *N*
    The maximal allowed identifier length specification.
@@ -4944,7 +4944,7 @@ Flag any defining identifier that has length shorter than specified by
 the rule parameter. Defining identifiers of objects and components of
 numeric types are not flagged.
 
-The rule has a mandatory parameter for +R option:
+The rule has a mandatory parameter for ``+R`` option:
 
 *N*
    The minimal allowed identifier length specification.
@@ -6527,7 +6527,7 @@ that defines a representation aspect. Also flag any pragma that is
 classified by the Ada Standard as a representation pragma, and the
 definition of the corresponding aspects.
 
-The rule has an optional parameter for +R option:
+The rule has an optional parameter for ``+R`` option:
 
 *Record_Rep_Clauses_Only*
   Only record representation clauses are flagged.
@@ -6867,7 +6867,7 @@ The following are treated as assignments to an ``out`` parameter:
 * passing the parameter (or one of its components) as an ``out`` or
   ``in out`` parameter.
 
-The rule has an optional parameter for +R option:
+The rule has an optional parameter for ``+R`` option:
 
 *Ignore_Component_Assignments*
   Ignore assignments to subcomponents of an ``out`` parameter when detecting
@@ -7171,7 +7171,7 @@ The rule has the following (mandatory) parameter for the ``+R`` option:
   the comment marker. S must not contain white space.
 
 The ``-R`` option erases all definitions of special comment annotations
-specified by the previous +R options.
+specified by the previous ``+R`` options.
 
 The rule is case-sensitive.
 
