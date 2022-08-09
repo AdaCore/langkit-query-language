@@ -16,7 +16,7 @@ lkql: build/bin/liblkqllang_parse
 
 automated:
 	rm -rf "$(PREFIX)"
-	mkdir -p "$(PREFIX)/share" "$(PREFIX)/lib"
+	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
 	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS)
 	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
 	$(GPRBUILD) -Plkql_checker/lalcheck.gpr -largs -s
@@ -25,6 +25,7 @@ automated:
 	$(GPRINSTALL) --mode=usage -Plkql_checker/lalcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
 	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
+	cp -pr lkql_checker/share/examples "$(PREFIX)/share/examples/gnatcheck"
 	cp -p lkql_repl.py "$(PREFIX)/bin"
 	cp -pr "$(BUILD_DIR)/lkql/python" "$(PREFIX)/lib"
 ifeq ($(OS),Windows_NT)
