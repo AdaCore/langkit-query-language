@@ -71,6 +71,11 @@ package body Gnatcheck.Projects is
    Project_Context  : GPR2.Context.Object;
    Project_File_Set : Boolean := False;
 
+   Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
+   File_Patterns_Attr    : constant GPR2.Q_Attribute_Id :=
+     (GPR2."+"("CodePeer"), GPR2."+"("File_Patterns"));
+
    ------------------------------
    -- External variables table --
    ------------------------------
@@ -139,8 +144,8 @@ package body Gnatcheck.Projects is
       Command_Line     : GNAT.OS_Lib.Argument_List_Access;
 
    begin
-      if Proj.Has_Attribute (+"Default_Switches", +"Check", Ada_Idx) then
-         Attr := Proj.Attribute (+"Default_Switches", +"Check", Ada_Idx);
+      if Proj.Has_Attribute (Default_Switches_Attr, Ada_Idx) then
+         Attr := Proj.Attribute (Default_Switches_Attr, Ada_Idx);
 
          if Attr.Kind = Single then
             Error
@@ -207,8 +212,8 @@ package body Gnatcheck.Projects is
          --  Use project attribute CodePeer'File_Patterns if set, otherwise
          --  use a default pattern.
 
-         if Proj.Has_Attribute (+"File_Patterns", +"CodePeer") then
-            Attr := Proj.Attribute (+"File_Patterns", +"CodePeer");
+         if Proj.Has_Attribute (File_Patterns_Attr) then
+            Attr := Proj.Attribute (File_Patterns_Attr);
             if Attr.Kind = Single then
                Error
                  (String (Proj.Path_Name.Simple_Name)
@@ -566,8 +571,7 @@ package body Gnatcheck.Projects is
       GPR2.Project.Registry.Pack.Add
         (+"Codepeer", GPR2.Project.Registry.Pack.Everywhere);
       Add
-        (GPR2.Project.Registry.Attribute.Create
-           (+"File_Patterns", +"Codepeer"),
+        (File_Patterns_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
          Value                => List,
          Value_Case_Sensitive => True,
@@ -577,8 +581,7 @@ package body Gnatcheck.Projects is
       GPR2.Project.Registry.Pack.Add
         (+"Check", GPR2.Project.Registry.Pack.Everywhere);
       Add
-        (GPR2.Project.Registry.Attribute.Create
-           (+"Default_Switches", +"Check"),
+        (Default_Switches_Attr,
          Index_Type           => Language_Index,
          Value                => List,
          Value_Case_Sensitive => True,

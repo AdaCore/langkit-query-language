@@ -40,7 +40,6 @@ with GPR2.Project.Tree;
 with GPR2.Project.View;
 with GPR2.Project.Source.Set;
 with GPR2.Project.Registry.Attribute;
-with GPR2.Project.Registry.Pack;
 
 with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;               use Gnatcheck.Ids;
@@ -248,21 +247,19 @@ package body Gnatcheck.Source_Table is
       use GPR2.Project.View;
       use GPR2.Project.Source.Set;
       use GPR2.Project.Registry.Attribute;
-      use GPR2.Project.Registry.Pack;
-
       Units : Unit_Vectors.Vector;
 
-      procedure Check_Pragmas (Attribute : GPR2.Attribute_Id);
+      procedure Check_Pragmas (Attribute : GPR2.Q_Attribute_Id);
       --  Check whether some local or global configuration pragmas project
       --  attribute is specified and add the corresponding files in Units.
 
-      procedure Check_Pragmas (Attribute : GPR2.Attribute_Id) is
+      procedure Check_Pragmas (Attribute : GPR2.Q_Attribute_Id) is
          Prj : GPR2.Project.View.Object := Project.Tree.Root_Project;
       begin
-         if Prj.Has_Attribute (Attribute, Builder) then
+         if Prj.Has_Attribute (Attribute) then
             Units.Append
               (Ctx.Analysis_Ctx.Get_From_File
-                 (Prj.Attribute (Attribute, Builder).Value.Text));
+                 (Prj.Attribute (Attribute).Value.Text));
          else
 
             while Prj.Is_Extending loop
@@ -273,10 +270,10 @@ package body Gnatcheck.Source_Table is
                   Prj := Prj.Extended.First_Element;
                end if;
 
-               if Prj.Has_Attribute (Attribute, Builder) then
+               if Prj.Has_Attribute (Attribute) then
                   Units.Append
                     (Ctx.Analysis_Ctx.Get_From_File
-                       (Prj.Attribute (Attribute, Builder).Value.Text));
+                       (Prj.Attribute (Attribute).Value.Text));
                end if;
             end loop;
          end if;
@@ -306,8 +303,8 @@ package body Gnatcheck.Source_Table is
 
          --  In addition, also register files containing configuration pragmas
 
-         Check_Pragmas (Global_Configuration_Pragmas);
-         Check_Pragmas (Local_Configuration_Pragmas);
+         Check_Pragmas (Builder.Global_Configuration_Pragmas);
+         Check_Pragmas (Compiler.Local_Configuration_Pragmas);
       end if;
 
       declare
