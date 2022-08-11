@@ -1,6 +1,12 @@
 BUILD_MODE=dev
 export BUILD_MODE
 
+ifeq ($(OS),Windows_NT)
+  SOEXT=.dll
+else
+  SOEXT=.so
+endif
+
 PROCS=0
 PREFIX=install
 PYTHON=python
@@ -28,11 +34,7 @@ automated:
 	cp -pr lkql_checker/share/examples "$(PREFIX)/share/examples/gnatcheck"
 	cp -p lkql_repl.py "$(PREFIX)/bin"
 	cp -pr "$(BUILD_DIR)/lkql/python" "$(PREFIX)/lib"
-ifeq ($(OS),Windows_NT)
-	cp -p lkql/encapsulated/*.dll "$(PREFIX)/bin"
-else
-	cp -p lkql/encapsulated/*.so "$(PREFIX)/lib/python/liblkqllang"
-endif
+	cp -p lkql/encapsulated/*$(SOEXT) "$(PREFIX)/lib/python/liblkqllang"
 
 automated-cov:
 	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
