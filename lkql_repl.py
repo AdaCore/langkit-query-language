@@ -14,10 +14,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.formatted_text import HTML
 
 
-style = Style.from_dict({
-    'prompt': 'ansigreen bold',
-    'logo':   'yellow bold'
-})
+style = Style.from_dict({"prompt": "ansigreen bold", "logo": "yellow bold"})
 
 
 ctx = lkql.AnalysisContext()
@@ -25,9 +22,7 @@ ctx = lkql.AnalysisContext()
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-P", "--project",
-    help="Ada project file to base the queries upon",
-    required=True
+    "-P", "--project", help="Ada project file to base the queries upon", required=True
 )
 parser.add_argument("-s", "--script", help="LKQL script to load")
 
@@ -36,11 +31,12 @@ class LKQLCompleter(Completer):
     """
     LKQL completer, based on p_interp_complete.
     """
+
     def get_completions(self, document, complete_event):
 
         doc = "\n".join(document.lines)
 
-        cmd_unit = ctx.get_from_buffer('<complete>', doc)
+        cmd_unit = ctx.get_from_buffer("<complete>", doc)
         n = cmd_unit.root.lookup(lkql.Sloc(1, len(cmd_unit.text)))
 
         if n is None:
@@ -113,17 +109,18 @@ def help():
     print(f"{HELP_MESSAGE}\n\n{commands_help}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print_formatted_text(HTML(WELCOME_PROMPT), style=style)
 
     args, _ = parser.parse_known_args()
     our_history = FileHistory(".example-history-file")
     session = PromptSession(
-        history=our_history, lexer=PygmentsLexer(lkql.LKQLPygmentsLexer),
-        completer=FuzzyCompleter(LKQLCompleter())
+        history=our_history,
+        lexer=PygmentsLexer(lkql.LKQLPygmentsLexer),
+        completer=FuzzyCompleter(LKQLCompleter()),
     )
 
-    dummy_unit = ctx.get_from_buffer('<dummy>', '12')
+    dummy_unit = ctx.get_from_buffer("<dummy>", "12")
     dummy_unit.root.p_interp_init_from_project(args.project)
 
     if args.script:
@@ -136,14 +133,14 @@ if __name__ == '__main__':
         # valid.
         # Due to the way LKQL is interpreted, references to old code can still
         # be made, so we must make sure we don't deallocate old buffers.
-        buffer_name = f'<repl_input_{i}>'
+        buffer_name = f"<repl_input_{i}>"
 
         try:
             with patch_stdout():
                 cmd = session.prompt(HTML("<prompt> > </prompt>"), style=style)
 
             if cmd.startswith("%"):
-                cmd, *args = cmd[1:].split(' ')
+                cmd, *args = cmd[1:].split(" ")
                 builtins[cmd](*args)
             else:
                 cmd_unit = ctx.get_from_buffer(buffer_name, cmd)
@@ -151,8 +148,8 @@ if __name__ == '__main__':
 
         except EOFError:
             try:
-                cmd = session.prompt('Do you really want to exit ([y]/n)? ')
-                if cmd == 'y' or cmd == '':
+                cmd = session.prompt("Do you really want to exit ([y]/n)? ")
+                if cmd == "y" or cmd == "":
                     break
                 else:
                     continue
