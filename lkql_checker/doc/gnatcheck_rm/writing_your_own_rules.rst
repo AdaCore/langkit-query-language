@@ -179,12 +179,12 @@ environment.
 The REPL is a python script called ``lkql_repl.py`` which is found in the
 :file:`bin` directory of your GNATcheck installation. In order to execute it,
 you need a Python 64bits installation (3.7 or later, available from
-https://www.python.org/downloads/), along with the ``prompt_toolkit``
-module installed:
+https://www.python.org/downloads/), along with the ``prompt_toolkit`` and
+``pygments`` modules installed:
 
 .. code-block:: sh
 
-   $ pip install prompt_toolkit
+   $ pip install prompt_toolkit pygments
 
 You then need to setup the proper environment by adding the directory
 :file:`install root/lib/python` to the ``PYTHONPATH`` environment
