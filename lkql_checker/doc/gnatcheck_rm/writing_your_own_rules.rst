@@ -213,6 +213,9 @@ an interactive shell which provides a history of commands available via e.g.
 the up and down keys, as well as automatic completion. To exit this shell, you
 can use the :kbd:`Control-D` key combination.
 
+Note that under Windows, the Command Prompt (cmd) is required by the
+``prompt_toolkit`` module.
+
 Here is an example session:
 
 .. code-block:: sh
