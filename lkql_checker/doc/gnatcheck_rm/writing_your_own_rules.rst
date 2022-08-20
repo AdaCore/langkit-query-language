@@ -180,7 +180,8 @@ The REPL is a python script called ``lkql_repl.py`` which is found in the
 :file:`bin` directory of your GNATcheck installation. In order to execute it,
 you need a Python 64bits installation (3.7 or later, available from
 https://www.python.org/downloads/), along with the ``prompt_toolkit`` and
-``pygments`` modules installed:
+``pygments`` modules installed (you need to have the ``pip`` and ``python``
+executables in your PATH):
 
 .. code-block:: sh
 
@@ -196,7 +197,7 @@ under :file:`/opt/gnatcheck`:
    $ export PYTHONPATH=/opt/gnatcheck/lib/python:$PYTHONPATH
 
 and similarly under a Windows cmd, assuming that python is in your PATH already
-and GNATcheck is installed under :file:`\opt\gnatcheck`:
+and GNATcheck is installed under :file:`\\opt\\gnatcheck`:
 
 .. code-block:: sh
 
