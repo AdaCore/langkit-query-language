@@ -19,6 +19,7 @@
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;        use Ada.Command_Line;
+with Ada.Directories;         use Ada.Directories;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 
@@ -390,12 +391,29 @@ package body Gnatcheck.Compiler is
                                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
-      Dump_Stdout : Boolean := True;
+      Out_File : constant String := File_Name & ".out";
 
    --  Start of processing for Analyze_Builder_Output
 
    begin
       Errors := False;
+
+      --  If the .out file is not empty it means we got some errors, so display
+      --  them.
+
+      if Is_Regular_File (Out_File) and then Size (Out_File) /= 0 then
+         Error ("error when calling gprbuild:");
+
+         declare
+            Str : String_Access := Read_File (Out_File);
+         begin
+            Error_No_Tool_Name (Str (Str'First .. Str'Last - 1));
+            Free (Str);
+         end;
+
+         Errors := True;
+      end if;
+
       Open (File => File, Mode => In_File, Name => File_Name);
 
       while not End_Of_File (File) loop
@@ -407,24 +425,6 @@ package body Gnatcheck.Compiler is
                     and then Line (1 .. 29) = "gnat1: invalid switch: -gnatw")
          then
             Error ("wrong parameter specified for compiler-related rule:");
-            Error_No_Tool_Name (Line (1 .. Line_Len));
-            Errors := True;
-
-         elsif Index (Line (1 .. Line_Len), ".gpr:") /= 0
-           or else Index (Line (1 .. Line_Len), "gprbuild: ") /= 0
-         then
-            Error ("error when calling gprbuild:");
-
-            if Is_Regular_File (File_Name & ".out") and then Dump_Stdout then
-               declare
-                  Str : String_Access := Read_File (File_Name & ".out");
-               begin
-                  Error_No_Tool_Name (Str (Str'First .. Str'Last - 1));
-                  Free (Str);
-                  Dump_Stdout := False;
-               end;
-            end if;
-
             Error_No_Tool_Name (Line (1 .. Line_Len));
             Errors := True;
 
