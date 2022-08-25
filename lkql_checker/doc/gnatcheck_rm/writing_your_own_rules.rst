@@ -13,6 +13,10 @@ The general description of this language can be found in the
 :ref:`LKQL_language_reference`.
 The APIs available in LKQL are described in the :ref:`LKQL_API_doc`.
 
+In addition to the examples available in this document, you will find all the
+predefined checks implemented in GNATcheck under the :file:`share/lkql`
+directory which can be used as examples and starting points for your own rules.
+
 This chapter gives some additional information on how to use this language to
 create your own rules and checkers.
 
