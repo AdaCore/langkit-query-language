@@ -21,70 +21,13 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Containers; use Ada.Containers;
-with Ada.Unchecked_Deallocation;
+procedure Main is
+   generic
+   package Gen is
+      A : Integer;
+   end Gen;
 
-package body LKQL.Depth_Nodes is
-
-   ----------
-   -- Hash --
-   ----------
-
-   function Hash (Value : Depth_Node) return Ada.Containers.Hash_Type is
-    (LK.Hash (Value.Node));
-
-   ----------
-   -- Next --
-   ----------
-
-   overriding function Next
-     (Iter   : in out Depth_Node_Lk_Node_Iterator;
-      Result : out LK.Lk_Node) return Boolean
-   is
-      D   : Depth_Node;
-      Res : Boolean;
-   begin
-      Res := Iter.Internal.Next (D);
-      if Res then
-         Result := D.Node;
-         return True;
-      end if;
-      return False;
-   end Next;
-
-   -----------
-   -- Clone --
-   -----------
-
-   overriding function Clone
-     (Iter : Depth_Node_Lk_Node_Iterator) return Depth_Node_Lk_Node_Iterator is
-   begin
-      raise Constraint_Error with "not implemented";
-      return Depth_Node_Lk_Node_Iterator'
-        (Internal => null);
-   end Clone;
-
-   -------------
-   -- Release --
-   -------------
-
-   overriding procedure Release (Iter : in out Depth_Node_Lk_Node_Iterator) is
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Depth_Node_Iter'Class, Depth_Node_Iter_Access);
-   begin
-      Iter.Internal.Release;
-      Free (Iter.Internal);
-   end Release;
-
-   -------------------------
-   -- To_Lk_Node_Iterator --
-   -------------------------
-
-   function To_Lk_Node_Iterator
-     (Self : Depth_Node_Iter'Class) return Lk_Node_Iterator'Class is
-   begin
-      return Depth_Node_Lk_Node_Iterator'
-        (Internal => new Depth_Node_Iter'Class'(Self));
-   end To_Lk_Node_Iterator;
-
-end LKQL.Depth_Nodes;
+   package Gen_Inst is new Gen;
+begin
+   null;
+end Main;

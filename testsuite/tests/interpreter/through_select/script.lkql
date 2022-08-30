@@ -1,0 +1,7 @@
+val a = select first ObjectDecl
+
+#  Print every parent of a
+print(from a through parent select *)
+
+#  Print every basic declaration following generics, from the roots
+print(through follow_generics select BasicDecl)

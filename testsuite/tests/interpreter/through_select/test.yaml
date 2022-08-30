@@ -1,0 +1,2 @@
+driver: 'interpreter'
+project: 'generic_inst/default.gpr'

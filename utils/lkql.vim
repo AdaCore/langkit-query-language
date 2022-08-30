@@ -9,7 +9,7 @@ syn keyword lkqlKeyword let select val match import nextgroup=lkqlEntity skipwhi
 syn keyword lkqlKeyword fun selector nextgroup=lkqlFunction skipwhite
 syn match   lkqlFunction	"\h\w*" display contained
 syn match   lkqlEntity	"\h\w*" display contained
-syn keyword lkqlKeyword when rec for skip is in true false if else then not null
+syn keyword lkqlKeyword when rec for skip is in true false if else then not null from through
 syn match   lkqlQualifier "\<[A-Z]\w*"
 
 syn keyword lkqlQuantifier no all any *

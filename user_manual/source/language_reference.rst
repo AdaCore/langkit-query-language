@@ -739,6 +739,33 @@ You can also run a query that will only select the first element
     # Select first basic declaration
     select first BasicDecl
 
+Specifying the selector
+^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, queries traverse the syntactic tree from the root node to leaves.
+This behavior is equivalent to going through the nodes returned via the
+``children`` built-in selector.
+
+But you can also specify which selector you're using to do the traversal, and
+even use your custom built selectors. This is done using the ``through``
+keyword.
+
+.. code-block:: lkql
+
+   # Selects the parents of the first basic declaration
+   from (select first BasicDecl) through parent select *
+
+.. attention:: There is a special case for Ada, where you can specify
+   ``follow_generics`` as a selector name, even though ``follow_generics`` is
+   not a selector. This allows traversal of the tree going through instantiated
+   generic trees, but is directly hard-coded into the engine for performance
+   reasons.
+
+    .. code-block:: lkql
+
+       # Selects all nodes following generic instantiations
+       through follow_generics select *
+
 Pattern
 -------
 

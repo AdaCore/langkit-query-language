@@ -577,10 +577,12 @@ class Query(Expr):
 
     For instance::
 
-       let withAspects = query ObjectDecl [child] AspectAssoc
+       let withAspects = [from <node>] [through <selector>]
+                         select ObjectDecl [child] AspectAssoc
     """
 
     from_expr = Field(type=Expr)
+    through_expr = Field(type=Expr)
     query_kind = Field(type=QueryKind)
     pattern = Field(type=BasePattern)
 
@@ -1128,6 +1130,10 @@ lkql_grammar.add_rules(
         Opt(
             "from",
             Or(G.expr, Unpack("*", G.expr))
+        ),
+        Opt(
+            "through",
+            Or(G.expr)
         ),
         "select", c(), Or(
             QueryKind.alt_first(L.Identifier(match_text="first")),

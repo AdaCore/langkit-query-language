@@ -11,6 +11,7 @@ class Token(LexerToken):
     Let = WithSymbol()
     SelectTok = WithSymbol()
     FromTok = WithSymbol()
+    ThroughTok = WithSymbol()
     When = WithSymbol()
     Match = WithSymbol()
     Val = WithSymbol()
@@ -112,6 +113,7 @@ lkql_lexer.add_rules(
     (Literal("let"),                              Token.Let),
     (Literal("select"),                           Token.SelectTok),
     (Literal("from"),                             Token.FromTok),
+    (Literal("through"),                          Token.ThroughTok),
     (Literal("when"),                             Token.When),
     (Literal("val"),                              Token.Val),
     (Literal("fun"),                              Token.Fun),

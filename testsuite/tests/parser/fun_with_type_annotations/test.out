@@ -22,6 +22,7 @@ FunDecl
 |  |f_body_expr:
 |  |  Query
 |  |  |f_from_expr: <null>
+|  |  |f_through_expr: <null>
 |  |  |f_query_kind:
 |  |  |  QueryKindAll
 |  |  |f_pattern:

@@ -1,6 +1,7 @@
 TopLevelList
 |  Query
 |  |f_from_expr: <null>
+|  |f_through_expr: <null>
 |  |f_query_kind:
 |  |  QueryKindAll
 |  |f_pattern:
@@ -27,6 +28,7 @@ TopLevelList
 |  |  |  |  |  |  |  Identifier: C
 |  Query
 |  |f_from_expr: <null>
+|  |f_through_expr: <null>
 |  |f_query_kind:
 |  |  QueryKindAll
 |  |f_pattern:

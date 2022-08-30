@@ -28,6 +28,7 @@ with Langkit_Support.Generic_API.Analysis;
 
 with Options;
 with Iters.Iterators;
+with LKQL.Lk_Nodes_Iterators; use LKQL.Lk_Nodes_Iterators;
 
 package LKQL.Depth_Nodes is
 
@@ -68,5 +69,27 @@ package LKQL.Depth_Nodes is
    --  Return the has of a Depth_Node value.
    --  The hash is computed by xoring the hash of the ast node and its
    --  depth value.
+
+   function To_Lk_Node_Iterator
+     (Self : Depth_Node_Iter'Class) return Lk_Node_Iterator'Class;
+   --  Transform a depth node iterator into a basic ``Lk_Node_Iterator``. Note
+   --  that this takes ownership of the original iterator, which shouldn't be
+   --  reused afterwards! If you want to retain the original iterator, pass a
+   --  clone to this function.
+
+private
+
+   type Depth_Node_Lk_Node_Iterator is new Lk_Node_Iterator with record
+      Internal : Depth_Node_Iter_Access;
+   end record;
+
+   overriding function Next
+     (Iter   : in out Depth_Node_Lk_Node_Iterator;
+      Result : out LK.Lk_Node) return Boolean;
+
+   overriding function Clone
+     (Iter : Depth_Node_Lk_Node_Iterator) return Depth_Node_Lk_Node_Iterator;
+
+   overriding procedure Release (Iter : in out Depth_Node_Lk_Node_Iterator);
 
 end LKQL.Depth_Nodes;

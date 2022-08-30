@@ -26,6 +26,7 @@ with GNAT.Traceback.Symbolic;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Langkit_Support.Errors; use Langkit_Support.Errors;
+with Langkit_Support.Text;   use Langkit_Support.Text;
 
 with LKQL.Patterns;       use LKQL.Patterns;
 with LKQL.Primitives;     use LKQL.Primitives;
@@ -33,6 +34,9 @@ with LKQL.Evaluation;     use LKQL.Evaluation;
 with LKQL.Patterns.Match; use LKQL.Patterns.Match;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 with LKQL.Errors;         use LKQL.Errors;
+with LKQL.Depth_Nodes;    use LKQL.Depth_Nodes;
+with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
+
 with Ada.Exceptions; use Ada.Exceptions;
 
 package body LKQL.Queries is
@@ -45,24 +49,66 @@ package body LKQL.Queries is
      (Ctx  : Eval_Context;
       Node : L.Query) return Lk_Node_Iterator'Class
    is
+      function Build_Iterator
+        (Nodes : Lk_Node_Vector) return Lk_Node_Iterator'Class;
 
-      function Roots return Lk_Node_Iterator_Access;
-
-      -----------
-      -- Roots --
-      -----------
-
-      function Roots return Lk_Node_Iterator_Access is
+      function Build_Iterator
+        (Nodes : Lk_Node_Vector) return Lk_Node_Iterator'Class
+      is
+         use all type Langkit_Support.Text.Unbounded_Text_Type;
       begin
+         if not Node.F_Through_Expr.Is_Null then
+            --  There is a through expression
+            if Node.F_Through_Expr.Kind in LCO.Lkql_Identifier_Range
+               and then Node.F_Through_Expr.As_Identifier.P_Sym
+                 = "follow_generics"
+            then
+               return Make_Child_Iterator
+                 (Nodes, Follow_Instantiations => True);
+               --  Special case for follow_generics (Ada)
+            else
+
+               --  General case, use a selector
+               declare
+                  --  TODO: Add support for iterating over list via the
+                  --  selector syntax
+                  Root          : constant Lk_Node := Nodes.Element (1);
+
+                  Sel           : constant Primitive :=
+                    Eval (Ctx, Node.F_Through_Expr);
+               begin
+                  return To_Lk_Node_Iterator
+                    (Depth_Node_Iter'Class
+                      (Make_Custom_Selector_Iter
+                        (Ctx, Sel, L.No_Expr, L.No_Expr, Root)));
+               end;
+            end if;
+         else
+            return Make_Child_Iterator (Nodes);
+         end if;
+      end Build_Iterator;
+
+      function Nodes return Lk_Node_Iterator_Access;
+
+      -----------
+      -- Nodes --
+      -----------
+
+      function Nodes return Lk_Node_Iterator_Access is
+         Vec : Lk_Node_Vector;
+      begin
+
          if Node.F_From_Expr.Is_Null then
+
+            for Node of Ctx.AST_Roots.all loop
+               Vec.Append (Node);
+            end loop;
 
             --  First case, there is no "from" in the query. In that case, the
             --  implicit roots of the query are the roots of the LKQL eval
             --  context.
 
-            return new Lk_Node_Iterator'Class'
-              (Lk_Node_Iterator'Class
-                 (Make_Child_Iterator (Ctx.AST_Roots.all)));
+            return new Lk_Node_Iterator'Class'(Build_Iterator (Vec));
          else
 
             --  Second case, there is a "from" clause in the query.
@@ -71,8 +117,6 @@ package body LKQL.Queries is
                --  First, eval the expression.
                Eval_From_Expr : constant Primitive :=
                  Eval (Ctx, Node.F_From_Expr);
-
-               Vec : Lk_Node_Vector;
             begin
                case Eval_From_Expr.Kind is
 
@@ -112,12 +156,11 @@ package body LKQL.Queries is
                            "Wrong kind of element in `from clause`"));
                end case;
 
-               return new Lk_Node_Iterator'Class'
-                 (Lk_Node_Iterator'Class
-                    (Make_Child_Iterator (Vec)));
+               return new Lk_Node_Iterator'Class'(Build_Iterator (Vec));
             end;
          end if;
-      end Roots;
+      end Nodes;
+
    begin
       case Node.F_Pattern.Kind is
       when LCO.Lkql_Chained_Node_Pattern_Range =>
@@ -125,7 +168,7 @@ package body LKQL.Queries is
             Chained : constant Chained_Pattern_Iterator :=
               Make_Chained_Pattern_Iterator
                 (Ctx,
-                 Roots,
+                 Nodes,
                  Node.F_Pattern.P_Value_Part.As_Chained_Node_Pattern);
          begin
             return Chained_Pattern_Query_Iter'
@@ -138,7 +181,7 @@ package body LKQL.Queries is
               Lk_Node_Predicate_Access
                 (Make_Query_Predicate (Ctx, Node.F_Pattern));
          begin
-            return Lk_Node_Iterators.Filter (Roots, Predicate);
+            return Lk_Node_Iterators.Filter (Nodes, Predicate);
          end;
       end case;
    end Make_Query_Iterator;

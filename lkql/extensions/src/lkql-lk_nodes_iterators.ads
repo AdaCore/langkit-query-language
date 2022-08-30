@@ -61,7 +61,8 @@ package LKQL.Lk_Nodes_Iterators is
 
    function Make_Child_Iterator (Nodes : Lk_Node_Array) return Child_Iterator;
    function Make_Child_Iterator
-     (Nodes : Lk_Node_Vector) return Child_Iterator;
+     (Nodes : Lk_Node_Vector;
+      Follow_Instantiations : Boolean := False) return Child_Iterator;
 
 private
 
@@ -75,8 +76,9 @@ private
    --  Doubly-linked list of refcounted AST node pointers
 
    type Child_Iterator is new Lk_Node_Iterator with record
-      Roots         : Lk_Node_Vector;
-      Next_Elements : AST_Node_List;
+      Roots                 : Lk_Node_Vector;
+      Next_Elements         : AST_Node_List;
+      Follow_Instantiations : Boolean := False;
    end record;
 
 end LKQL.Lk_Nodes_Iterators;

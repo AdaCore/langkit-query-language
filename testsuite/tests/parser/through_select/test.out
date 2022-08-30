@@ -1,0 +1,9 @@
+Query
+|f_from_expr:
+|  Identifier: a
+|f_through_expr:
+|  Identifier: parent
+|f_query_kind:
+|  QueryKindAll
+|f_pattern:
+|  UniversalPattern
