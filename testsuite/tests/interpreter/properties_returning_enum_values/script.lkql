@@ -3,4 +3,4 @@
 # returned array.
 
 val a = (select first DefiningName)
-print(a.p_find_refs(a.unit.root, null))
+print(a.p_find_refs(a.unit.root))

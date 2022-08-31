@@ -29,7 +29,7 @@ fun check_references(list, subp) = {
             category="Style", subcategory="Programming Practice")
 fun variable_scoping(unit) = [
     {message: n.text & " can be moved to inner block at line " &
-              img(get_block(n.p_find_refs(stdlib.enclosing_body(n), null))?.
+              img(get_block(n.p_find_refs(stdlib.enclosing_body(n)))?.
                   token_start().start_line + 1),
      loc: n}
 
@@ -45,5 +45,5 @@ fun variable_scoping(unit) = [
                 f_renaming_clause is null,
                 parent is AdaNodeList(
                     parent is DeclarativePart(parent is subp@SubpBody)))))
-    when check_references(node.p_find_refs(subp, null), subp)
+    when check_references(node.p_find_refs(subp), subp)
 ]
