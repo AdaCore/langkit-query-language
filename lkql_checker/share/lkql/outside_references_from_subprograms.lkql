@@ -1,33 +1,31 @@
 # Within a subprogram body or an expression function flag any identifier that
-# denotes a data object declared outside this body. In case of bodies of
-# generic subprograms or subprograms declared in generic packages, this also
-# includes references to generic formal objects. If a referenced object is
-# global, such a reference is not flagged.
-# Any reference to a formal object (it can be only in a body of a formal
-# subprogram or a subprogram declared in a generic body) is considered as
-# outside reference (and therefore is flagged) because in any instantiation it
-# will be replaced by the reference to an entity that in no case can be
-# declared in the subprogram body being checked.
+# denotes a non global data object declared outside this body.
+# This rule analyzes generic instantiations and ignores generic packages to
+# avoid flagging all references to formal objects.
 
 import stdlib
 
-fun outside_refs(body) =
+fun outside_refs(body) = {
+    val body_uninst = body.p_get_uninstantiated_node();
+
     [id for id in stdlib.children_no_nested(body)
         if id is Identifier and
            match stdlib.ultimate_alias(id)
            | o@ObjectDecl => stdlib.is_local_object(o) and
                              stdlib.enclosing_body(o) is o_body@BaseSubpBody
-                             when o_body != body
-           | o@ParamSpec  => stdlib.is_local_object(o) and
-                             (not (id.parent is ParamAssoc and
+                             when o_body.p_get_uninstantiated_node() != body_uninst
+           | o@ParamSpec  => (not (id.parent is ParamAssoc and
                                    id.parent.f_designator == id)) and
-                             o.parent?.parent?.parent !=
-                             body.p_subp_spec_or_null()
+                             o.parent.parent.parent.p_get_uninstantiated_node() !=
+                             body_uninst.p_subp_spec_or_null()
            | *            => false].to_list
+}
 
 @unit_check(message="outside references from subprogram",
             category="Style", subcategory="Program Structure")
 fun outside_references_from_subprograms(unit) = [
     {message: "outside references from subprogram", loc: n}
     for n in concat([outside_refs(body)
-                     for body in from unit.root select BaseSubpBody].to_list)]
+                     for body in from unit.root through follow_generics
+                     select subp@BaseSubpBody
+                     when not stdlib.in_generic_template(subp)].to_list)]

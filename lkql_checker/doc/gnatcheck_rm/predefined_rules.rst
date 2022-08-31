@@ -2999,29 +2999,25 @@ This rule has no parameters.
 
 .. index:: Outside_References_From_Subprograms
 
-Within a subprogram body or an expression function flag any identifier
-that denotes a data object declared outside this body. In case of bodies
-of generic subprograms or subprograms declared in generic packages, this
-also includes references to generic formal objects. If a referenced
-object is global, such a reference is not flagged.
+Within a subprogram body or an expression function flag any identifier that
+denotes a non global data object declared outside this body.
 
-Any reference to a formal object (it can be only in a body of a formal
-subprogram or a subprogram declared in a generic body) is considered as
-outside reference (and therefore is flagged) because in any
-instantiation it will be replaced by the reference to an entity that in
-no case can be declared in the subprogram body being checked.
+This rule analyzes generic instantiations and ignores generic packages to
+avoid flagging all references to formal objects.
 
 This rule has no parameters.
 
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 4
+   :emphasize-lines: 6
 
-   Var : Integer;
-   procedure Proc (I : in out Integer) is
-   begin
-      I := I + Var;      --  FLAG
+   procedure Enclosing is
+      Var : Integer;
+
+      procedure Proc (I : in out Integer) is
+      begin
+         I := I + Var;      --  FLAG
 
 .. _Overly_Nested_Control_Structures:
 
