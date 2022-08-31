@@ -34,6 +34,11 @@ library.
 
     Return the index of the first non blank character of s, starting at ind
 
+.. function:: full_root_type(t)
+
+    Return the full view of the root type of t, traversing subtypes,
+    derivations and privacy.
+
 .. function:: get_parameter(params, actual)
 
     Given a List[ParamActual], return the parameter corresponding to

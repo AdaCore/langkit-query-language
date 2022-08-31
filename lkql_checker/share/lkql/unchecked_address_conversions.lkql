@@ -11,10 +11,9 @@ import stdlib
 fun check_uc_params(source, target) =
     |" Check that source is derived from System.Address and target is an
     |" access type.
-    # TODO: replace p_full_view() by new LAL API once U915-027 is implemented
-    target.f_r_expr.p_referenced_decl().p_full_view().p_is_access_type() and
-    source.f_r_expr.p_referenced_decl().p_root_type().p_full_view().
-    p_root_type().p_fully_qualified_name() == "System.Address"
+    stdlib.full_root_type(target.f_r_expr.p_referenced_decl()).p_is_access_type() and
+    stdlib.full_root_type(source.f_r_expr.p_referenced_decl()).
+    p_fully_qualified_name() == "System.Address"
 
 @check(message="address-to-access conversion",
        follow_generic_instantiations=true,

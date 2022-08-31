@@ -188,10 +188,9 @@ fun is_predefined_type(n) =
     |" spec.
 {
     # Retrieve the root enclosing package
-    # TODO: replace p_full_view() by new LAL API once U915-027 is implemented
     val packages = [
-        p for p in n.p_referenced_decl().p_root_type().p_full_view().
-                    p_root_type().parents(include_self=false)
+        p for p in full_root_type(n.p_referenced_decl()).
+                                  parents(include_self=false)
         if p is BasePackageDecl
     ].to_list;
 
@@ -433,3 +432,14 @@ fun ultimate_prefix(n) =
     if n is DottedName and n.p_referenced_decl() is ComponentDecl
     then ultimate_prefix(n.f_prefix)
     else n
+
+fun full_root_type(t) =
+    |" Return the full view of the root type of t, traversing subtypes,
+    |" derivations and privacy.
+{
+    val res = t.p_root_type();
+    if res.p_is_private() then {
+        val full_view = res.p_full_view();
+        if full_view == res then res else full_root_type(full_view)
+    } else res
+}

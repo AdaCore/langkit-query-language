@@ -1,0 +1,4 @@
+valid.adb:49:9: rule violation: possible occurrence of KP V624-025
+49 |    X := Content'Valid_Scalars;    --  FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^
+

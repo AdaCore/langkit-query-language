@@ -1,0 +1,31 @@
+# Flag Valid_Scalars attribute references when any of the subcomponent types
+# of the type of the prefix are signed integer types that complete the
+# declaration of a private type.
+
+import stdlib
+
+# TODO: share with KP-V712-039.lkql once we can use stdlib.<selector>
+selector component_types
+    |" Return all the TypeDecl corresponding to all fields of a given type
+    | TypeDecl(f_type_def is d@RecordTypeDef) =>
+        skip *(from d select ComponentDecl)
+    | TypeDecl(f_type_def is der@DerivedTypeDef(f_record_extension is
+                                                def@BaseRecordDef)) =>
+        skip *([der, def])
+    | TypeDecl(f_type_def is DerivedTypeDef(f_subtype_indication is
+               ind@SubtypeIndication) =>
+        rec ind.f_name.p_referenced_decl()
+    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
+                    ind@SubtypeIndication)) =>
+        rec ind.f_name.p_referenced_decl()
+    | BaseRecordDef  => skip *(from this select ComponentDecl)
+    | DerivedTypeDef => rec this.f_subtype_indication.f_name.p_referenced_decl()
+    | *        => ()
+
+@check(message="possible occurrence of KP V624-025", impact="22.*")
+fun kp_v624_025(node) =
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Valid_Scalars")
+     and node.f_prefix.p_expression_type() is TypeDecl(
+             any component_types is t@TypeDecl(p_is_private() is true)
+             when stdlib.full_root_type(t) is TypeDecl(f_type_def is SignedIntTypeDef)
