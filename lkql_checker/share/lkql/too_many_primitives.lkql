@@ -5,16 +5,18 @@
 # This rule has the parameter N: Positive integer specifying the maximal number
 # of primitives when the type is not flagged.
 
-fun is_visible(type_decl) = type_decl.parent.parent is PublicPart
+@memoize
+fun num_primitives(t) = t.p_get_primitives().length
 
-# TODO: would be nice to use a unit_check here to customize the message
-# and add the number of primitives but this is currently incompatible
-# with follow_generic_instantiations
-@check(message="tagged type has too many primitives",
-       remediation="MAJOR",
-       follow_generic_instantiations=true,
-       category="Style", subcategory="Object Orientation")
-fun too_many_primitives(node, n : int = 5) =
-    node is TypeDecl
-    when node.p_is_tagged_type() and is_visible(node)
-     and node.p_get_primitives().length > n
+@unit_check(help="tagged type has too many primitives",
+            remediation="MAJOR",
+            category="Style", subcategory="Object Orientation")
+fun too_many_primitives(unit, n : int = 5) = [
+    {message: "tagged type has too many primitives (" &
+              img(num_primitives(n)) & ")",
+     loc: n.p_defining_name()}
+    for n in from unit.root through follow_generics
+    select node@TypeDecl
+    when node.p_is_tagged_type() and node.parent.parent is PublicPart
+     and num_primitives(node) > n
+]
