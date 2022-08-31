@@ -7,6 +7,7 @@
 # are not flagged. Procedure declarations completed by null procedure
 # declarations are not flagged.
 
+# TODO: use stdlib.semantic_parent once V831-024 is fixed
 selector semantic_parent
     |" Return all semantic parent nodes starting from a given node.
     | null     => ()
