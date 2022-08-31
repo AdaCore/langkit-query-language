@@ -1,4 +1,4 @@
 main.adb:13:9: rule violation: possible occurrence of KP U630-012
 13 |    X := Enum'Enum_Rep (Var);   --  FLAG
-   |         ^^^^^^^^^^^^^^^^^^^
+   |         ^^^^^^^^^^^^^
 
