@@ -30,7 +30,9 @@ lexers['gpr'] = ada_pygments.GNATProjectLexer()
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 
-extensions = ['lkql_doc_class']
+extensions = ['lkql_doc_class',
+              'sphinx.ext.viewcode',
+              ]
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'gnatcheck_rm'
@@ -54,7 +56,7 @@ doc_name = 'gnatcheck_rm'
 
 pygments_style = 'sphinx'
 
-html_theme = 'sphinxdoc'
+html_theme = 'sphinx_rtd_theme'
 if os.path.isfile('adacore_transparent.png'):
     html_logo = 'adacore_transparent.png'
 if os.path.isfile('favicon.ico'):
