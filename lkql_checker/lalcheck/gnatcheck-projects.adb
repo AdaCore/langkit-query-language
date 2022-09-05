@@ -17,6 +17,7 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
@@ -36,7 +37,6 @@ with GPR2.Context;
 with GPR2.KB;
 with GPR2.Log;
 with GPR2.Path_Name;
-with GPR2.Path_Name.Set;
 with GPR2.Project.Attribute;
 with GPR2.Project.Attribute_Index;
 with GPR2.Project.Registry.Attribute;
@@ -196,6 +196,75 @@ package body Gnatcheck.Projects is
       procedure Store_Source (Source : Project.Source.Object);
       --  Callback used to store sources
 
+      procedure Add_Src
+        (Source    : GPR2.Project.Source.Object;
+         Index     : GPR2.Unit_Index;
+         Timestamp : Ada.Calendar.Time);
+      --  Callback on sources from the list of dependencies
+
+      function Only_Ada_Mains (Prj : GPR2.Project.View.Object) return Boolean;
+      --  Checks that all mains of given project are Ada sources
+
+      function Locate_Source
+        (File : GPR2.Path_Name.Object) return GPR2.Project.Source.Object;
+      --  Locates given file by its simple name in the project tree and returns
+      --  corresponding source object.
+
+      -------------
+      -- Add_Src --
+      -------------
+
+      procedure Add_Src
+        (Source    : GPR2.Project.Source.Object;
+         Index     : GPR2.Unit_Index;
+         Timestamp : Ada.Calendar.Time)
+      is
+         pragma Unreferenced (Index, Timestamp);
+      begin
+         if not Source.Is_Runtime then
+            Store_Source (Source);
+         end if;
+      end Add_Src;
+
+      --------------------
+      -- Only_Ada_Mains --
+      --------------------
+
+      function Only_Ada_Mains (Prj : GPR2.Project.View.Object) return Boolean
+      is
+      begin
+         for Main of Prj.Mains loop
+            if not Prj.Source (Main.Source).Is_Ada then
+               return False;
+            end if;
+         end loop;
+
+         return True;
+      end Only_Ada_Mains;
+
+      -------------------
+      -- Locate_Source --
+      -------------------
+
+      function Locate_Source
+        (File : GPR2.Path_Name.Object) return GPR2.Project.Source.Object
+      is
+         File_In_Prj : constant GPR2.Path_Name.Object :=
+           My_Project.Tree.Get_File (GPR2.Simple_Name (File.Name));
+         Src_Obj     : GPR2.Project.Source.Object;
+      begin
+         if File_In_Prj.Is_Defined then
+            for V of My_Project.Tree loop
+               Src_Obj := V.Source (File_In_Prj);
+               if Src_Obj.Is_Defined then
+                  return Src_Obj;
+               end if;
+            end loop;
+         end if;
+
+         return GPR2.Project.Source.Undefined;
+      end Locate_Source;
+
       ------------------
       -- Store_Source --
       ------------------
@@ -242,14 +311,11 @@ package body Gnatcheck.Projects is
             Set_Unbounded_String (Pattern, "*.{ad[asb],spc,bdy}");
          end if;
 
-         --  ??? ATM source directories are processed akin to source files,
-         --  by default the ones belonging to root project. This is to change
-         --  as per R605-048.
          declare
             Source_Dirs : GPR2.Path_Name.Set.Object;
             Idx         : Natural := 1;
          begin
-            if U_Option_Set then
+            if Recursive_Sources then
                for S of My_Project.Tree.Source_Directories loop
                   Source_Dirs.Append (S);
                end loop;
@@ -287,22 +353,78 @@ package body Gnatcheck.Projects is
 
       end if;
 
-      if not No_Argument_File_Specified or else File_List_Specified then
+      if (not No_Argument_File_Specified and then not U_Option_Set)
+        or else File_List_Specified
+      then
          return;
       end if;
 
-      --  ??? Call Files_From_Closure when mains are specified
       if U_Option_Set then
-         My_Project.Tree.For_Each_Source
-           (Action   => Store_Source'Access,
-            Language => Ada_Language);
-      else
-         for Src of My_Project.Tree.Root_Project.Sources loop
-            if not Src.View.Is_Externally_Built and then Src.Is_Ada then
-               Store_Sources_To_Process (String (Src.Path_Name.Simple_Name));
-            end if;
 
-         end loop;
+         if Main_Unit.Is_Empty then
+            --  No argument sources, -U specified. Process recursively
+            --  all sources.
+            My_Project.Tree.For_Each_Source
+              (Action   => Store_Source'Access,
+               Language => Ada_Language);
+         else
+            --  Argument source(s) specified, -U specified. Process closure
+            --  of all specified sources.
+
+            --  ??? Closure computation is based upon the current implmentation
+            --  of GPR2.Project.Source.Dependencies with Closure => True.
+            --  It is to be changed to more closely represent the notion,
+            --  of closure, and desired behaviour will be achieved
+            --  by setting dedicated Recursive parameter.
+
+            for MU of Main_Unit loop
+               declare
+                  Src_Obj : constant GPR2.Project.Source.Object :=
+                    Locate_Source (MU);
+               begin
+                  if Src_Obj.Is_Defined then
+                     Src_Obj.Dependencies
+                       (GPR2.No_Index, Add_Src'Access, Closure => True);
+                  else
+                     Error (String (MU.Name) & " not found");
+                  end if;
+               end;
+            end loop;
+
+         end if;
+      else
+
+         if Recursive_Sources then
+
+            if My_Project.Tree.Root_Project.Has_Mains and then
+              Only_Ada_Mains (My_Project.Tree.Root_Project)
+            then
+               --  No argument sources, no -U/--no-subprojects specified,
+               --  root project has mains, all of mains are Ada.
+               --  Process closure of those mains.
+               for Main of My_Project.Tree.Root_Project.Mains loop
+                  My_Project.Tree.Root_Project.Source
+                    (Main.Source).Dependencies
+                      (GPR2.No_Index, Add_Src'Access, Closure => True);
+               end loop;
+            else
+               --  No argument sources, no -U/--no-subprojects specified,
+               --  no mains (or at least one non-Ada main) in root project.
+               --  Recursively process all sources.
+               My_Project.Tree.For_Each_Source
+                 (Action   => Store_Source'Access,
+                  Language => Ada_Language);
+            end if;
+         else
+
+            --  No argument sources, --no-subprojects specified
+            for Src of My_Project.Tree.Root_Project.Sources loop
+               if not Src.View.Is_Externally_Built and then Src.Is_Ada then
+                  Store_Sources_To_Process
+                    (String (Src.Path_Name.Simple_Name));
+               end if;
+            end loop;
+         end if;
       end if;
    end Get_Sources_From_Project;
 
@@ -510,7 +632,7 @@ package body Gnatcheck.Projects is
 
       if N_Of_Aggregated_Projects > 1 then
 
-         if Main_Unit /= null then
+         if not Main_Unit.Is_Empty then
             Error ("'-U main' cannot be used if aggregate project");
             Error_No_Tool_Name
               ("aggregates more than one non-aggregate project");
@@ -726,12 +848,8 @@ package body Gnatcheck.Projects is
       Store       : Boolean := True) is
    begin
       if Store then
-         if Gnatcheck.Projects.Main_Unit = null then
-            Gnatcheck.Projects.Main_Unit := new String'(Unit_Name);
-         else
-            Error ("cannot specify more than one main after -U");
-            raise Parameter_Error;
-         end if;
+         Gnatcheck.Projects.Main_Unit.Append
+           (GPR2.Path_Name.Create_File (GPR2.Filename_Type (Unit_Name)));
       end if;
    end Store_Main_Unit;
 
@@ -953,6 +1071,7 @@ package body Gnatcheck.Projects is
              ("v q t h hx s "             &
               "m? files= a "              &
               "P: U X! vP! eL A: "        &   --  project-specific options
+              "-no-subprojects "          &
               "-brief "                   &
               "-charset= "                &
               "-check-semantic "          &
@@ -1185,6 +1304,7 @@ package body Gnatcheck.Projects is
                      end if;
 
                      Gnatcheck.Projects.U_Option_Set := True;
+                     Gnatcheck.Projects.Recursive_Sources := True;
                   elsif In_Project_File then
                      Error ("-U option is not allowed in a project file");
                      raise Parameter_Error;
@@ -1340,6 +1460,11 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-no_objects_dir" then
                      No_Object_Dir := True;
+
+                  elsif Full_Switch (Parser => Parser) = "-no-subprojects" then
+                     if not In_Project_File or else not U_Option_Set then
+                        Recursive_Sources := False;
+                     end if;
                   end if;
                end if;
 

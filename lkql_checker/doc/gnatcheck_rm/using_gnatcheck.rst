@@ -52,6 +52,15 @@ The following switches control the general ``gnatcheck`` behavior
   the main unit of closure. Note that this option is currently ignored (it is
   equivalent to ``-U``) and will be implemented in a future version.
 
+  .. index:: --no-subprojects
+
+
+``--no-subprojects``
+  If a project file is specified and no argument source is explicitly
+  specified (either directly or by means of ``-files`` option), process
+  all the units of the root  argument project. Otherwise this option
+  has no effect.
+
   .. index:: -Xname=value
 
 
@@ -282,8 +291,13 @@ The following switches control the general ``gnatcheck`` behavior
 
 If a project file is specified and no argument source is explicitly
 specified (either directly or by means of ``-files`` option), and no
-``-U`` is specified, then the set of processed sources is
-all the immediate units of the argument project.
+``-U`` or ``--no-subprojects`` is specified, then the set of processed
+sources is determined in the following way.
+If root project file has attribute ``Main`` declared and all specified
+mains are Ada sources, then combined closure of those mains is processed.
+if root project does not have attribute ``Main`` declared, or at least
+one of the mains is not an Ada source, then all sources of non-externally
+built projects in the project hierarchy are processed.
 
 If the argument project file is an aggregate project, and it aggregates
 more than one (non-aggregate) project, gnatcheck runs separately for each

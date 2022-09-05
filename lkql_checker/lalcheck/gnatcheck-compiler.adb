@@ -1293,9 +1293,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-U");
       end if;
 
-      if Main_Unit /= null then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'(Main_Unit.all);
+      if not Main_Unit.Is_Empty then
+         for MU of Main_Unit loop
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'(String (MU.Name));
+         end loop;
       end if;
 
       Num_Args := @ + 1;
@@ -1378,9 +1380,11 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-U");
       end if;
 
-      if Main_Unit /= null then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'(Main_Unit.all);
+      if not Main_Unit.Is_Empty then
+         for MU of Main_Unit loop
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'(String (MU.Name));
+         end loop;
       end if;
 
       Append_Variables (Args, Num_Args);

@@ -108,6 +108,7 @@ with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with GNATCOLL.VFS;      use GNATCOLL.VFS;
 
+with GPR2.Path_Name.Set;
 with GPR2.Project.Tree;
 with GPR2.Project.Source;
 
@@ -140,14 +141,18 @@ package Gnatcheck.Projects is
    --  getting the list of files from the project - '-U' should be  ignored if
    --  '-files=...' is specified.
 
+   Recursive_Sources : Boolean := True;
+   --  Indicates that all sources of all projects should be processed
+   --  as opposed to sources of the root project only.
+
    U_Option_Set : Boolean := False;
    --  Indicates if -U option is specified for the project (to process all the
    --  units of the closure of the argument project or to process the closure
    --  of the main unit if the main unit is set)
 
-   Main_Unit : String_Access;
-   --  If the tool is called with "... Pproj -U main_unit", main_unit is stored
-   --  here
+   Main_Unit : GPR2.Path_Name.Set.Object;
+   --  If the tool is called with "... Pproj -U main_unit1 main_unit2 ...",
+   --  main units are stored here.
 
    procedure Store_Main_Unit
      (Unit_Name : String;
@@ -156,10 +161,8 @@ package Gnatcheck.Projects is
    --  that it is supposed to be the main unit name for '-U' project file
    --  option.
    --
-   --  If Store is ON, stores the name of the unit and generates an error
-   --  message if the name is already stored (-U allows only one name of the
-   --  main unit specified). If Store is OFF, does not do any checks and does
-   --  not store anything.
+   --  If Store is ON, stores the name of the unit. If Store is OFF,
+   --  does not store anything.
 
    -----------------------------------------------------------
    --  -Xvariable=value  : set values of external variables --
