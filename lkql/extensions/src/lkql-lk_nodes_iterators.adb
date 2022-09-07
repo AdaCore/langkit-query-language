@@ -40,11 +40,12 @@ package body LKQL.Lk_Nodes_Iterators is
    function Make_Child_Iterator
      (Nodes : Lk_Node_Array) return Child_Iterator
    is
-      Result       : Child_Iterator;
+      Result : Child_Iterator;
    begin
       for Node of Nodes loop
          Result.Roots.Append (Node);
       end loop;
+
       Initialize_Next_Elements (Result);
       return Result;
    end Make_Child_Iterator;
@@ -57,7 +58,7 @@ package body LKQL.Lk_Nodes_Iterators is
      (Nodes : Lk_Node_Vector;
       Follow_Instantiations : Boolean := False) return Child_Iterator
    is
-      Result       : Child_Iterator;
+      Result : Child_Iterator;
    begin
       Result.Roots := Nodes;
       Result.Follow_Instantiations := Follow_Instantiations;
@@ -71,8 +72,7 @@ package body LKQL.Lk_Nodes_Iterators is
 
    overriding function Next
      (Iter   : in out Child_Iterator;
-      Result : out Lk_Node) return Boolean
-   is
+      Result : out Lk_Node) return Boolean is
    begin
       if Iter.Next_Elements.Is_Empty then
          return False;
@@ -106,16 +106,7 @@ package body LKQL.Lk_Nodes_Iterators is
    -- Add_Children --
    ------------------
 
-   Designated_Generic_Decl : constant LKI.Struct_Member_Ref :=
-     Member_Refs.Generic_Instantiation_P_Designated_Generic_Decl;
-
-   Body_Part_For_Decl : constant LKI.Struct_Member_Ref :=
-     Member_Refs.Basic_Decl_P_Body_Part_For_Decl;
-
-   procedure Add_Children
-     (Iter : in out Child_Iterator;
-      Node : Lk_Node)
-   is
+   procedure Add_Children (Iter : in out Child_Iterator; Node : Lk_Node) is
    begin
       for I in reverse 1 .. Node.Children_Count loop
          if not Node.Child (I).Is_Null then
@@ -123,22 +114,23 @@ package body LKQL.Lk_Nodes_Iterators is
          end if;
       end loop;
 
-      if
-         Iter.Follow_Instantiations
-         and then LKI.Type_Matches (Node, Type_Refs.Generic_Instantiation)
+      if Iter.Follow_Instantiations
+        and then LKI.Type_Matches (Node, Type_Refs.Generic_Instantiation)
       then
          declare
             Gen_Decl : constant LK.Lk_Node := LKI.As_Node
               (LKI.Eval_Node_Member
-                (Node, Designated_Generic_Decl));
-
+                (Node,
+                 Member_Refs.Generic_Instantiation_P_Designated_Generic_Decl));
             Gen_Body : constant LK.Lk_Node := LKI.As_Node
               (LKI.Eval_Node_Member
                 (Gen_Decl,
-                 Body_Part_For_Decl,
+                 Member_Refs.Basic_Decl_P_Body_Part_For_Decl,
                  (1 => LKI.From_Bool (Ada_Lang_Id, False))));
+
          begin
             Iter.Next_Elements.Append (Gen_Decl);
+
             if not Gen_Body.Is_Null then
                Iter.Next_Elements.Append (Gen_Body);
             end if;
