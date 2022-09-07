@@ -5,7 +5,7 @@
 
 +R Boolean_Relational_Operators
 --  Flag each call to a predefined relational operator
---  (‘<’, ‘>’, ‘<=’, ‘>=’, ‘=’ and ‘/=’) for the predefined Boolean type.
+--  (<, >, <=, >=, = and /=) for the predefined Boolean type.
 
 +R Complex_Inlined_Subprograms : 3
 --  Flag a subprogram (or generic subprogram, or instantiation of a
