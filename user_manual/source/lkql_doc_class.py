@@ -10,7 +10,6 @@ from docutils import nodes
 from functools import lru_cache
 
 from sphinx.util.docutils import SphinxDirective
-from sphinx.errors import ExtensionError
 
 import liblkqllang
 import traceback
@@ -71,8 +70,8 @@ class LkqlDocClassDirective(SphinxDirective):
             lkql_class = getattr(liblkqllang, cls_name)
             self.env.documented_classes.append(lkql_class)
             lkql_class.documented = True
-        except AttributeError as e:
-            raise ExtensionError(f"LKQL class not found: {cls_name}", e)
+        except AttributeError:
+            raise self.warning(f"LKQL class not found: {cls_name}")
 
         return []
 
@@ -85,7 +84,7 @@ def process_lkql_classes_coverage(app, doctree, fromdocname):
     try:
         for cls in lkql_classes:
             if not is_class_documented(cls):
-                print(f"Class not documented: {cls}")
+                doctree.reporter.warning(f"Class not documented: {cls}")
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
 

@@ -10,7 +10,6 @@ from docutils import nodes
 from functools import lru_cache
 
 from sphinx.util.docutils import SphinxDirective
-from sphinx.errors import ExtensionError
 
 import liblkqllang
 import traceback
@@ -52,7 +51,7 @@ def is_class_documented(lkql_class):
     )
 
 
-class LKQLDocClassDirective(SphinxDirective):
+class LkqlDocClassDirective(SphinxDirective):
     """
     Directive to be used to annotate documentation of an LKQL node.
     """
@@ -71,8 +70,8 @@ class LKQLDocClassDirective(SphinxDirective):
             lkql_class = getattr(liblkqllang, cls_name)
             self.env.documented_classes.append(lkql_class)
             lkql_class.documented = True
-        except AttributeError as e:
-            raise ExtensionError(f"LKQL class not found: {cls_name}", e)
+        except AttributeError:
+            raise self.warning(f"LKQL class not found: {cls_name}")
 
         return []
 
@@ -85,7 +84,7 @@ def process_lkql_classes_coverage(app, doctree, fromdocname):
     try:
         for cls in lkql_classes:
             if not is_class_documented(cls):
-                print(f"Class not documented: {cls}")
+                doctree.reporter.warning(f"Class not documented: {cls}")
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
 
@@ -131,7 +130,7 @@ def check_lkql_code(app, doctree, fromdocname):
 
 
 def setup(app):
-    app.add_directive('lkql_doc_class', LKQLDocClassDirective)
+    app.add_directive('lkql_doc_class', LkqlDocClassDirective)
     app.connect('doctree-resolved', process_lkql_classes_coverage)
     app.connect('doctree-resolved', check_lkql_code)
 
