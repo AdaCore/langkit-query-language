@@ -57,8 +57,6 @@ doc_name = 'gnatcheck_rm'
 pygments_style = 'sphinx'
 
 html_theme = 'sphinx_rtd_theme'
-if os.path.isfile('adacore_transparent.png'):
-    html_logo = 'adacore_transparent.png'
 if os.path.isfile('favicon.ico'):
     html_favicon = 'favicon.ico'
 
