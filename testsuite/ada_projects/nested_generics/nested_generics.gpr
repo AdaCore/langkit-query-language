@@ -1,0 +1,4 @@
+project Nested_Generics is
+   for Source_Dirs use ("src");
+   for Main use ("main.adb");
+end Nested_Generics;

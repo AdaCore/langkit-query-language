@@ -12,6 +12,11 @@ library.
     Return all children nodes starting from a base subprogram body, but not
     entering in nested bodies.
 
+.. function:: closest_enclosing_generic(n)
+
+    If ``n`` is part of a generic package or subprogram, whether it is
+    instantiated or not, then return it.
+
 .. function:: enclosing_block(n)
 
     Return the first DeclBlock enclosing n if any, null otherwise
@@ -148,6 +153,14 @@ library.
 .. function:: param_pos(n, pos: int = 0)
 
     Return the position of node ``n`` in its current list of siblings
+
+.. function:: parent_decl_chain
+
+    Return all parent basic decl nodes starting from a given node, using
+    semantic parent.
+    When on a subprogram or package body, go to the declaration
+    This allows us to, if in a generic template, always find back the
+    generic formal.
 
 .. function:: previous_non_blank_token_line(token)
 

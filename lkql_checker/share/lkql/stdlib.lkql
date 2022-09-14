@@ -203,15 +203,49 @@ fun is_predefined_type(n) =
           or name.p_name_is("Interfaces")
 }
 
+selector parent_decl_chain
+    |" Return all parent basic decl nodes starting from a given node, using
+    |" semantic parent.
+    |" When on a subprogram or package body, go to the declaration
+    |" This allows us to, if in a generic template, always find back the
+    |" generic formal.
+    | null         => ()
+    | BaseSubpBody or PackageBody => rec {
+        val prev_part = this.p_previous_part();
+
+        # Some subprogram bodies don't have a previous part because they're
+        # also the decl. In that case, return the semantic parent.
+        if prev_part then prev_part else this.p_semantic_parent()
+    }
+    | *            => rec this.p_semantic_parent()
+
+fun closest_enclosing_generic(n) =
+    |" If ``n`` is part of a generic package or subprogram, whether it is
+    |" instantiated or not, then return it.
+{
+    val n = from n through parent_decl_chain select first GenericDecl;
+    if n then n.p_get_uninstantiated_node() else null
+}
+
 fun in_generic_template(n) =
     |" Return true if ``n`` is declared as part of a generic template (spec
     |" or body). Return false otherwise, including inside a generic
     |" instantiation.
-    n and
-    not n.p_generic_instantiations() and
-    ((n is *(any parent is GenericDecl)) or
-     n is *(any parent is PackageBody(p_decl_part() is GenericPackageInternal) or
-                          SubpBody(p_decl_part() is GenericSubpDecl)))
+    n and {
+        val closest_gen = closest_enclosing_generic(n);
+        val insts = n.p_generic_instantiations();
+        val last_inst = if insts then insts[insts.length] else null;
+
+        # Check that the node is in a generic and that either
+        # 1. It's part of no instantiations
+        (closest_gen and last_inst == null)
+
+        # 2. The last instantiation on the instantiation stack does not
+        # correspond to the innermost generic that we found.
+        or (last_inst != null
+            and last_inst.p_designated_generic_decl().p_get_uninstantiated_node()
+           != closest_gen)
+    }
 
 fun enclosing_block(n) =
     |" Return the first DeclBlock enclosing n if any, null otherwise

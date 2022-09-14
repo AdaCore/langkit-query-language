@@ -1,0 +1,7 @@
+import stdlib
+
+val gens = through follow_generics select BasicDecl
+val igi = [
+    { print(i); i }
+    for i in gens if stdlib.in_generic_template(i)
+].length # We use .length to evaluate the list, since we don't have for loops :)

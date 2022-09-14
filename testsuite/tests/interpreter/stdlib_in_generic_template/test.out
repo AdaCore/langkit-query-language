@@ -1,0 +1,8 @@
+<GenericPackageInternal ["P"] main.adb:26:4-34:10>
+<GenericPackageDecl ["Q"] main.adb:28:7-31:13>
+<GenericPackageInternal ["Q"] main.adb:29:7-31:13>
+<ConcreteTypeDecl ["Foo"] main.adb:30:10-30:34>
+<ConcreteTypeDecl ["Bar"] main.adb:33:7-33:31>
+<| GenericPackageDecl ["P"] main.adb:25:4-34:10 [main.adb:36:4] |>
+<| GenericPackageInternal ["Q"] main.adb:29:7-31:13 [main.adb:36:4] |>
+<| ConcreteTypeDecl ["Foo"] main.adb:30:10-30:34 [main.adb:36:4] |>

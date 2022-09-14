@@ -1,0 +1,2 @@
+driver: 'interpreter'
+project: 'nested_generics/nested_generics.gpr'

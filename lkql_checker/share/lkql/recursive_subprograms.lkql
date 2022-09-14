@@ -63,7 +63,7 @@ fun bodies(name) =
         [stdlib.get_subp_body(s) for s in find_all_overrides(subp)].to_list
     } else [get_body(name)]
 
-fun calls_helper(b) = 
+fun calls_helper(b) =
       concat([bodies(a) for a in stdlib.children_no_nested(b)
               if a is GenericInstantiation or
                       (BaseId when a.p_is_direct_call() or
@@ -83,11 +83,13 @@ selector calls
 fun recursive_subprograms(node,
                           skip_dispatching_calls=true,
                           follow_dispatching_calls=false) =
+
     node is (ClassicSubpDecl or SubpBodyStub(p_previous_part() is null) or
              BaseSubpBody(p_previous_part() is null or GenericSubpDecl))
-    when (not stdlib.in_generic_template(node))
-     and stdlib.get_subp_body(node) is b@BaseSubpBody when
-         if follow_dispatching_calls
-         then b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)
-         else b is body@BaseSubpBody(any static_calls is c@BaseSubpBody
-                                     when body == c)
+
+      when (not stdlib.in_generic_template(node))
+       and stdlib.get_subp_body(node) is b@BaseSubpBody when
+           if follow_dispatching_calls
+           then b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)
+           else b is body@BaseSubpBody(any static_calls is c@BaseSubpBody
+                                       when body == c)
