@@ -56,6 +56,11 @@ class LKQLTestsuite(Testsuite):
                 os.environ['PATH'],
             ])
 
+            os.environ['LKQL_PATH'] = os.path.pathsep.join([
+                in_repo('lkql_checker/share/lkql'),
+                os.environ.get('LKQL_PATH', '')
+            ])
+
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.
         self.env.traces_dir = os.path.join(self.working_dir, 'traces')
