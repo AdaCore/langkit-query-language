@@ -5,6 +5,7 @@
 fun kp_v329_046(node) =
     node is ObjectDecl(f_type_expr is AnonymousType(
         f_type_decl is AnonymousTypeDecl(f_type_def is acc@AccessToSubpDef)))
-    when node.p_has_aspect("Convention")
-     and (from node.p_get_aspect("Convention").node
-          select first id@Identifier when id.p_name_is("C")) != null
+    when {
+       val aspect = node.p_get_aspect("Convention");
+       aspect.exists and aspect.value.p_name_is("C")
+    }
