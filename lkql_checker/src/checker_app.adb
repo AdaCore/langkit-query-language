@@ -526,53 +526,57 @@ package body Checker_App is
                            end;
                         end if;
 
-                        if Emit_Message /= null
-                          and then Loc_Val.Kind = Kind_Node
-                        then
-                           declare
-                              Insts : constant LKI.Value_Ref_Array :=
-                                LKI.As_Array
-                                  (LKI.Eval_Node_Member
-                                    (Loc_Val.Node_Val,
-                                     Generic_Instantiations));
-                              Msg   : Unbounded_Text_Type := Message;
+                        if Emit_Message /= null then
+                           if Loc_Val.Kind = Kind_Node then
+                              declare
+                                 Insts : constant LKI.Value_Ref_Array :=
+                                   LKI.As_Array
+                                     (LKI.Eval_Node_Member
+                                       (Loc_Val.Node_Val,
+                                        Generic_Instantiations));
+                                 Msg   : Unbounded_Text_Type := Message;
 
-                           begin
-                              --  For generic instantiations, append
-                              --  [instance at file:line [file:line [...]]]
+                              begin
+                                 --  For generic instantiations, append
+                                 --  [instance at file:line [file:line [...]]]
 
-                              for J in Insts'Range loop
-                                 declare
-                                    N : constant LK.Lk_Node :=
-                                      LKI.As_Node (Insts (J));
-                                 begin
-                                    if J = Insts'First then
-                                       Append (Msg, " [instance at ");
-                                    else
-                                       Append (Msg, " [");
-                                    end if;
+                                 for J in Insts'Range loop
+                                    declare
+                                       N : constant LK.Lk_Node :=
+                                         LKI.As_Node (Insts (J));
+                                    begin
+                                       if J = Insts'First then
+                                          Append (Msg, " [instance at ");
+                                       else
+                                          Append (Msg, " [");
+                                       end if;
 
-                                    Append (Msg,
-                                            To_Wide_Wide_String (Simple_Name
-                                              (N.Unit.Filename)));
-                                    Append (Msg, ":");
-                                    Append
-                                      (Msg,
-                                       To_Wide_Wide_String
-                                         (Stripped_Image
-                                           (Integer
-                                             (N.Sloc_Range.Start_Line))));
-                                 end;
-                              end loop;
+                                       Append (Msg,
+                                               To_Wide_Wide_String (Simple_Name
+                                                 (N.Unit.Filename)));
+                                       Append (Msg, ":");
+                                       Append
+                                         (Msg,
+                                          To_Wide_Wide_String
+                                            (Stripped_Image
+                                              (Integer
+                                                (N.Sloc_Range.Start_Line))));
+                                    end;
+                                 end loop;
 
-                              for J in Insts'Range loop
-                                 Append (Msg, "]");
-                              end loop;
+                                 for J in Insts'Range loop
+                                    Append (Msg, "]");
+                                 end loop;
 
+                                 Emit_Message
+                                   (Msg, Loc_Unit, Rule.Name,
+                                    Rule_Violation, Loc);
+                              end;
+                           else
                               Emit_Message
-                                (Msg, Loc_Unit, Rule.Name,
+                                (Message, Loc_Unit, Rule.Name,
                                  Rule_Violation, Loc);
-                           end;
+                           end if;
                         else
                            Diag := (Message => Message, Sloc_Range => Loc);
 
