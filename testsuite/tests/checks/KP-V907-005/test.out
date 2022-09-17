@@ -1,0 +1,4 @@
+p.adb:22:7: rule violation: possible occurrence of KP V907-005 with -O3, consider using -fno-loop-unroll-and-jam or -O2
+22 |       for J in A'Range (2) loop     --  FLAG
+   |       ^^^^^^^^^
+

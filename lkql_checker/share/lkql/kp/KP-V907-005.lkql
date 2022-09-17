@@ -1,0 +1,15 @@
+# Flag loops nested inside another loop with an assignment to an array
+# indexing when the index is not static, nor a for loop variable.
+
+@check(help="possible occurrence of KP V907-005",
+       message="possible occurrence of KP V907-005 with -O3, consider using -fno-loop-unroll-and-jam or -O2",
+       impact="22.*")
+fun kp_v907_005(node) =
+    node is BaseLoopStmt(
+        any parent is BaseLoopStmt,
+        any children is AssignStmt(f_dest is c@CallExpr
+            when c.p_kind() == "array_index"
+             and [p for p in c.f_suffix.children
+                  if not p.f_r_expr is
+                      Expr(p_is_static_expr() is true) or
+                      Identifier(p_referenced_decl() is ForLoopVarDecl]))
