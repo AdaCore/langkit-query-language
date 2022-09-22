@@ -1,0 +1,15 @@
+# Flag functions returning an unconstrained type with either a postcondition
+# or an invariant associated with the return type.
+
+fun is_unconstrained(t) =
+    t.f_type_def is
+        ArrayTypeDef(f_indices is UnconstrainedArrayIndices) or
+    t is ConcreteTypeDecl(f_discriminants is KnownDiscriminantPart)
+
+@check(message="possible occurrence of KP U310-012", impact="22.*")
+fun kp_u310_012(node) =
+    node is SubpSpec(f_subp_kind is SubpKindFunction)
+    when node.p_return_type() is TypeDecl(p_full_view() is ret@TypeDecl)
+     and is_unconstrained(ret)
+     and (node.parent.p_has_aspect("Post") or
+          ret.p_has_aspect("Type_Invariant"))

@@ -1,0 +1,12 @@
+p.ads:11:4: rule violation: possible occurrence of KP U310-012
+11 |    function Create return Q;                          --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.ads:12:4: rule violation: possible occurrence of KP U310-012
+12 |    function Create return T_Array2;                   --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.ads:14:4: rule violation: possible occurrence of KP U310-012
+14 |    function Create return T_Array with Post => True;  --  FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
