@@ -211,7 +211,7 @@ selector parent_decl_chain
     |" generic formal.
     | null         => ()
     | BaseSubpBody or PackageBody => rec {
-        val prev_part = this.p_previous_part();
+        val prev_part = this.p_decl_part();
 
         # Some subprogram bodies don't have a previous part because they're
         # also the decl. In that case, return the semantic parent.
