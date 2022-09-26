@@ -131,7 +131,6 @@ unconstrained_arrays.lkql
 uninitialized_global_variables.lkql
 universal_ranges.lkql
 unnamed_blocks_and_loops.lkql
-unused_subprograms.lkql
 use_clauses.lkql
 use_package_clauses.lkql
 visible_components.lkql
