@@ -220,6 +220,18 @@ package Gnatcheck.Options is
    --  Gnatcheck.Compiler.Analyze_Compiler_Output to see if any of the compiler
    --  check is active.
 
+   Missing_Rule_File_Detected : Boolean := False;
+   --  Parameter of some '-from=...' rule option denotes a file that does not
+   --  exist
+
+   Bad_Rule_Detected : Boolean := False;
+   --  Rule name in +R or -R denotes an unknown rule or some problem with
+   --  rule parameter is detected
+
+   Rule_Option_Problem_Detected : Boolean := False;
+   --  Any other problem with rule files and/or rule options is detected (bad
+   --  format of a rule file, rule redefinition etc.)
+
    Compiler_Arg_List : GNAT.OS_Lib.Argument_List_Access;
    --  This variable should contain a full list of compilation options to be
    --  passed to gcc.

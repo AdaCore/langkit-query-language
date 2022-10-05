@@ -54,6 +54,11 @@ procedure Lalcheck is
    E_Error     : constant := 2; --  Tool failure detected
    No_Check    : constant := 3; --  No file has been checked
 
+   --  Exit code for problems with rule specifications
+   E_Missing_Rule_File : constant := 4; --  Missing coding standard file
+   E_Missing_Rule      : constant := 5; --  Bad rule name or bad rule parameter
+   E_Bad_Rules         : constant := 6; --  Other problem with rules options
+
    function File_Name (Id : String; Job : Natural) return String is
      (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
    --  Return the full path for a temp file with a given Id
@@ -421,9 +426,18 @@ begin
                 or else Detected_Compiler_Error > 0)
               and then not Brief_Mode
             then E_Violation
-            elsif Tool_Failures = 0 and Detected_Internal_Error = 0
+            elsif Tool_Failures = 0
+              and then
+                  Detected_Internal_Error = 0
+              and then
+                not (Missing_Rule_File_Detected or else
+                     Bad_Rule_Detected          or else
+                     Rule_Option_Problem_Detected)
             then E_Success
-            else E_Error);
+            elsif Tool_Failures /= 0         then E_Error
+            elsif Missing_Rule_File_Detected then E_Missing_Rule_File
+            elsif Bad_Rule_Detected          then E_Missing_Rule
+            else E_Bad_Rules);
 
 exception
    when Parameter_Error =>

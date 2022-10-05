@@ -432,6 +432,17 @@ GNATcheck Exit Codes
 
 * ``3``: No Ada source file was checked.
 
+* ``4``: Parameter of the rule ``-from`` option denotes a nonexistent file.
+
+* ``5``: The name of an unknown rule in a rule option or some problem with
+         rule parameters.
+
+* ``6``: Any other problem with specifying the rules to check.
+
+If the exit code corresponds to some problem with defining the rules to check then
+the result of the gnatcheck run cannot be fully trusted because the set of rules that
+has been actually used may be different from user intent.
+
 .. _Format_of_the_Report_File:
 
 Format of the Report File

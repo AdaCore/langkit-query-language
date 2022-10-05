@@ -501,6 +501,7 @@ package body Gnatcheck.Rules.Rule_Table is
                                   ":"                          &
                                   Image (Current_Line)         &
                                   " ignored");
+                              Rule_Option_Problem_Detected := True;
 
                               Success := True;
                               --  To allow further processing of this rule file
@@ -513,6 +514,7 @@ package body Gnatcheck.Rules.Rule_Table is
                               else
                                  Error ("can not locate rule file " &
                                  Rule_Buf (1 .. Rule_Len));
+                                 Missing_Rule_File_Detected := True;
                               end if;
                            end if;
 
@@ -524,6 +526,7 @@ package body Gnatcheck.Rules.Rule_Table is
                               ":"                          &
                               Image (Current_Line - 1)     &
                               " do not have format of rule option");
+                           Rule_Option_Problem_Detected := True;
                      end case;
                   end if;
 
@@ -545,6 +548,7 @@ package body Gnatcheck.Rules.Rule_Table is
                      Error_No_Tool_Name
                        ("(too long rule option, the content of the file " &
                         "ignored starting from line " & Image (Current_Line));
+                     Rule_Option_Problem_Detected := True;
                      Success := False;
                      return;
                   end if;
@@ -633,6 +637,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
       if not Is_Regular_File (Rule_File_Name) then
          Error ("can not locate rule file " & Rule_File_Name);
+         Missing_Rule_File_Detected := True;
          return;
       else
          Check_For_Looping (Rule_File_Name, Success);
@@ -676,6 +681,7 @@ package body Gnatcheck.Rules.Rule_Table is
                       Image (Current_Line)                &
                       " ignored");
 
+                  Rule_Option_Problem_Detected := True;
                   Success := True;
                   --  To allow further processing of this rule file
                else
@@ -687,6 +693,7 @@ package body Gnatcheck.Rules.Rule_Table is
                   else
                      Error ("can not locate rule file " &
                      Rule_Buf (1 .. Rule_Len));
+                     Missing_Rule_File_Detected := True;
                   end if;
 
                   Free (Include_RF_Name);
@@ -702,6 +709,7 @@ package body Gnatcheck.Rules.Rule_Table is
                             Current_Line
                          else Current_Line - 1)       &
                   " do not have format of rule option");
+               Rule_Option_Problem_Detected := True;
          end case;
 
       end if;
@@ -712,6 +720,7 @@ package body Gnatcheck.Rules.Rule_Table is
    exception
       when others =>
          Error ("cannot read rule options from " & Rule_File_Name);
+         Rule_Option_Problem_Detected := True;
 
          if Is_Open (RF) then
             Close (RF);
@@ -825,6 +834,7 @@ package body Gnatcheck.Rules.Rule_Table is
             if Word_End = 0 then
                Error ("bad structure of rule option " & Option &
                       Diag_Defined_At);
+               Rule_Option_Problem_Detected := True;
                return;
             end if;
 
@@ -852,6 +862,7 @@ package body Gnatcheck.Rules.Rule_Table is
             if Word_Start = 0 then
                Error ("restrictions rule option must have a parameter" &
                       Diag_Defined_At);
+               Bad_Rule_Detected := True;
                return;
 
             else
@@ -868,6 +879,7 @@ package body Gnatcheck.Rules.Rule_Table is
                Error ("there is no -R option for style checks, " &
                       "use style options to turn checks OFF"     &
                       Diag_Defined_At);
+               Bad_Rule_Detected := True;
                return;
             end if;
 
@@ -876,6 +888,7 @@ package body Gnatcheck.Rules.Rule_Table is
             if Word_Start = 0 then
                Error ("style_checks rule option must have a parameter" &
                       Diag_Defined_At);
+               Bad_Rule_Detected := True;
                return;
 
             else
@@ -891,6 +904,7 @@ package body Gnatcheck.Rules.Rule_Table is
                Error ("there is no -R option for warnings, "     &
                       "use warning options to turn warnings OFF" &
                        Diag_Defined_At);
+               Bad_Rule_Detected := True;
                return;
             end if;
 
@@ -899,6 +913,7 @@ package body Gnatcheck.Rules.Rule_Table is
             if Word_Start = 0 then
                Error ("warnings rule option must have a parameter" &
                       Diag_Defined_At);
+               Bad_Rule_Detected := True;
                return;
 
             else
@@ -940,11 +955,13 @@ package body Gnatcheck.Rules.Rule_Table is
             else
                Error ("unknown rule: " & Option (Word_Start .. Word_End) &
                       ", ignored" & Diag_Defined_At);
+               Bad_Rule_Detected := True;
             end if;
          end if;
       else
          Error ("unknown rule option: " & Option & ", ignored" &
                  Diag_Defined_At);
+         Bad_Rule_Detected := True;
       end if;
    end Process_Rule_Option;
 
@@ -1050,6 +1067,7 @@ package body Gnatcheck.Rules.Rule_Table is
                ", specify one feature to check"" separator=""=&gt;""/>");
          else
             Error ("restriction " & R'Img & " unknown");
+            Bad_Rule_Detected := True;
             pragma Assert (False);
          end if;
       else

@@ -323,13 +323,15 @@ package body Gnatcheck.Rules is
 
       else
          Error ("(" & Rule.Name.all & "): cannot load file " & File_Name);
-         Rule.Rule_State := Disabled;
+         Rule.Rule_State   := Disabled;
+         Bad_Rule_Detected := True;
       end if;
 
    exception
       when others =>
          Error ("(" & Rule.Name.all & "): cannot load file " & File_Name);
-         Rule.Rule_State := Disabled;
+         Rule.Rule_State   := Disabled;
+         Bad_Rule_Detected := True;
    end Load_Dictionary;
 
    ------------------------
@@ -783,6 +785,7 @@ package body Gnatcheck.Rules is
       if Param /= "" then
          Error ("no parameter can be set for rule " & Rule.Name.all & ", " &
                 Param & " ignored");
+         Bad_Rule_Detected := True;
       else
          if Enable then
             Rule.Rule_State := Enabled;
@@ -801,6 +804,7 @@ package body Gnatcheck.Rules is
       if Param = "" then
          if Enable then
             Error ("(" & Rule.Name.all & ") parameter is required for +R");
+            Bad_Rule_Detected := True;
          else
             Rule.Rule_State := Disabled;
          end if;
@@ -811,6 +815,7 @@ package body Gnatcheck.Rules is
                 ("redefining at " & Defined_Str (Defined_At) &
                  " parameter for rule " & Rule.Name.all &
                  " defined at " & Defined_Str (Rule.Defined_At.all));
+               Rule_Option_Problem_Detected := True;
             end if;
 
             begin
@@ -821,17 +826,20 @@ package body Gnatcheck.Rules is
                   Rule.Defined_At := new String'(Defined_At);
                else
                   Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-                  Rule.Rule_State := Disabled;
+                  Rule.Rule_State   := Disabled;
+                  Bad_Rule_Detected := True;
                end if;
 
             exception
                when Constraint_Error =>
                   Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-                  Rule.Rule_State := Disabled;
+                  Rule.Rule_State   := Disabled;
+                  Bad_Rule_Detected := True;
             end;
 
          else
             Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
+            Bad_Rule_Detected := True;
          end if;
       end if;
    end Process_Rule_Parameter;
@@ -854,8 +862,9 @@ package body Gnatcheck.Rules is
                        F_Param_Identifier.Text) /= To_Lower (Param)
       then
          Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-         Rule.Rule_State := Disabled;
-         Rule.Param := Unset;
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         Rule.Param        := Unset;
 
       elsif Enable then
          if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
@@ -863,6 +872,7 @@ package body Gnatcheck.Rules is
              ("redefining at " & Defined_Str (Defined_At) &
               " parameter " & Param & " for rule " & Rule.Name.all &
               " defined at " & Defined_Str (Rule.Defined_At.all));
+            Rule_Option_Problem_Detected := True;
          end if;
 
          Rule.Param := On;
@@ -885,6 +895,7 @@ package body Gnatcheck.Rules is
       if Param = "" then
          if Enable then
             Error ("(" & Rule.Name.all & ") parameter is required for +R");
+            Bad_Rule_Detected := True;
          else
             Rule.Rule_State := Disabled;
          end if;
@@ -894,6 +905,7 @@ package body Gnatcheck.Rules is
              ("redefining at " & Defined_Str (Defined_At) &
               " parameter " & Param & " for rule " & Rule.Name.all &
               " defined at " & Defined_Str (Rule.Defined_At.all));
+            Rule_Option_Problem_Detected := True;
          end if;
 
          --  Headers rule takes a file name as parameter, containing the
@@ -911,7 +923,8 @@ package body Gnatcheck.Rules is
                   Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Name);
                else
                   Error ("(" & Rule.Name.all & "): cannot load file " & Param);
-                  Rule.Rule_State := Disabled;
+                  Bad_Rule_Detected := True;
+                  Rule.Rule_State   := Disabled;
                   return;
                end if;
 
@@ -949,6 +962,7 @@ package body Gnatcheck.Rules is
          if Enable then
             if Rule.Name.all = "no_others_in_exception_handlers" then
                Error ("(" & Rule.Name.all & ") parameter is required for +R");
+               Bad_Rule_Detected := True;
             else
                Rule.Rule_State := Enabled;
                Rule.Defined_At := new String'(Defined_At);
@@ -973,6 +987,7 @@ package body Gnatcheck.Rules is
                   Error
                    ("redefining at " & Defined_Str (Defined_At) &
                     " parameter N for rule " & Rule.Name.all);
+                  Rule_Option_Problem_Detected := True;
                end if;
 
                if Rule.Integer_Param >= 0 then
@@ -981,9 +996,10 @@ package body Gnatcheck.Rules is
                else
                   Error ("(" & Rule.Name.all & ") wrong parameter: " &
                          Param);
-                  Rule.Integer_Param := Integer'First;
+                  Bad_Rule_Detected   := True;
+                  Rule.Integer_Param  := Integer'First;
                   Rule.Boolean_Params := [others => Unset];
-                  Rule.Rule_State := Disabled;
+                  Rule.Rule_State     := Disabled;
                end if;
 
                return;
@@ -1004,6 +1020,7 @@ package body Gnatcheck.Rules is
                      Error
                       ("redefining at " & Defined_Str (Defined_At) &
                        " parameter " & Param & " for rule " & Rule.Name.all);
+                     Rule_Option_Problem_Detected := True;
                   end if;
 
                   Rule.Boolean_Params (J) := On;
@@ -1016,12 +1033,14 @@ package body Gnatcheck.Rules is
             --  If we get there, it means we have no found any parameter
 
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-            Rule.Integer_Param := Integer'First;
+            Bad_Rule_Detected   := True;
+            Rule.Integer_Param  := Integer'First;
             Rule.Boolean_Params := [others => Unset];
-            Rule.Rule_State := Disabled;
+            Rule.Rule_State     := Disabled;
 
          else
             Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
+            Bad_Rule_Detected := True;
          end if;
       end if;
    end Process_Rule_Parameter;
@@ -1044,6 +1063,7 @@ package body Gnatcheck.Rules is
              ("redefining at " & Defined_Str (Defined_At) &
               " parameter " & Param & " for rule " & Rule.Name.all &
               " defined at " & Defined_Str (Rule.Defined_At.all));
+            Rule_Option_Problem_Detected := True;
          end if;
 
          if Rule.Name.all = "name_clashes" then
@@ -1056,7 +1076,8 @@ package body Gnatcheck.Rules is
                 "in" | "defaulted_in" | "in_out" | "access" | "out"
             then
                Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-               Rule.Rule_State := Disabled;
+               Bad_Rule_Detected := True;
+               Rule.Rule_State   := Disabled;
                return;
             end if;
 
@@ -1071,8 +1092,9 @@ package body Gnatcheck.Rules is
       else
          Set_Unbounded_Wide_Wide_String (Rule.Param, "");
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
-         Rule.Rule_State := Disabled;
-         Rule.Defined_At := new String'(Defined_At);
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         Rule.Defined_At   := new String'(Defined_At);
       end if;
    end Process_Rule_Parameter;
 
@@ -1175,7 +1197,8 @@ package body Gnatcheck.Rules is
                  (Norm_Param (Norm_Param'First + 17 .. Norm_Param'Last)));
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-            Rule.Rule_State := Disabled;
+            Bad_Rule_Detected := True;
+            Rule.Rule_State   := Disabled;
          end if;
       else
          Rule.Rule_State := Disabled;
@@ -1211,6 +1234,7 @@ package body Gnatcheck.Rules is
             Set_Unbounded_Wide_Wide_String (Rule.Interrupt_Suffix, "");
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
+            Bad_Rule_Detected := True;
          end if;
       end if;
    end Process_Rule_Parameter;
@@ -1291,7 +1315,8 @@ package body Gnatcheck.Rules is
 
             else
                Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-               Rule.Rule_State := Disabled;
+               Bad_Rule_Detected := True;
+               Rule.Rule_State   := Disabled;
             end if;
 
          elsif Has_Prefix (Norm_Param, "constant=") then
@@ -1314,7 +1339,8 @@ package body Gnatcheck.Rules is
 
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-            Rule.Rule_State := Disabled;
+            Bad_Rule_Detected := True;
+            Rule.Rule_State   := Disabled;
          end if;
       else
          Rule.Rule_State := Disabled;
@@ -1354,6 +1380,7 @@ package body Gnatcheck.Rules is
             Set_Unbounded_Wide_Wide_String (Rule.Enum_Prefix, "");
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
+            Bad_Rule_Detected := True;
          end if;
       end if;
    end Process_Rule_Parameter;
@@ -1378,6 +1405,7 @@ package body Gnatcheck.Rules is
             Error
              ("redefining at " & Defined_Str (Defined_At) & " " &
               Label & " casing for rule " & Rule.Name.all);
+            Rule_Option_Problem_Detected := True;
          end if;
 
          Set_Unbounded_Wide_Wide_String (S, To_Wide_Wide_String (Val));
@@ -1433,12 +1461,14 @@ package body Gnatcheck.Rules is
 
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-            Rule.Rule_State := Disabled;
+            Bad_Rule_Detected := True;
+            Rule.Rule_State   := Disabled;
          end if;
       else
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
-         Rule.Rule_State := Disabled;
-         Rule.Defined_At := new String'(Defined_At);
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         Rule.Defined_At   := new String'(Defined_At);
       end if;
    end Process_Rule_Parameter;
 
@@ -1627,8 +1657,9 @@ package body Gnatcheck.Rules is
 
       else
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
-         Rule.Rule_State := Disabled;
-         Rule.Defined_At := new String'(Defined_At);
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         Rule.Defined_At   := new String'(Defined_At);
       end if;
    end Process_Rule_Parameter;
 
@@ -1653,7 +1684,8 @@ package body Gnatcheck.Rules is
             if First_Equal = 0 then
                Error ("(" & Rule.Name.all &
                       ") missing = in parameter argument: " & Param);
-               Rule.Rule_State := Disabled;
+               Bad_Rule_Detected := True;
+               Rule.Rule_State   := Disabled;
                return;
             end if;
 
@@ -1685,14 +1717,16 @@ package body Gnatcheck.Rules is
                else
                   Error ("(" & Rule.Name.all &
                          ") unknown parameter: " & Param_Name);
-                  Rule.Rule_State := Disabled;
+                  Bad_Rule_Detected := True;
+                  Rule.Rule_State   := Disabled;
                end if;
             end;
          end;
       else
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
-         Rule.Rule_State := Disabled;
-         Rule.Defined_At := new String'(Defined_At);
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         Rule.Defined_At   := new String'(Defined_At);
       end if;
    end Process_Rule_Parameter;
 
@@ -1781,7 +1815,8 @@ package body Gnatcheck.Rules is
       then
          Error ("(" & Rule.Name.all & ") requires 5 parameters, got: " &
                 To_String (Rule.Param));
-         Rule.Rule_State := Disabled;
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
          return;
       end if;
 
