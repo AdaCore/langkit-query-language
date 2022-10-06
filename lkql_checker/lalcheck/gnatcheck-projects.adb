@@ -752,7 +752,8 @@ package body Gnatcheck.Projects is
 
       Dir : constant String :=
         (if not No_Object_Dir and then Gnatcheck_Prj.Is_Specified then
-           (if My_Project.Tree.Root_Project.Kind = K_Abstract then
+           (if My_Project.Tree.Root_Project.Kind in K_Abstract |
+                                                    K_Aggregate then
                My_Project.Tree.Root_Project.Path_Name.Dir_Name
             else
                My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
