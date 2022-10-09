@@ -1690,7 +1690,7 @@ package body Gnatcheck.Source_Table is
 
       --  Simple_Project maps to an auto provider
 
-      elsif Simple_Project then
+      elsif Simple_Project and then not In_Aggregate_Project then
          --  As for the case above, add all runtime files for name resolution
 
          Files := new File_Array (1 .. Gnatcheck_Prj.Files'Length + 4096);
