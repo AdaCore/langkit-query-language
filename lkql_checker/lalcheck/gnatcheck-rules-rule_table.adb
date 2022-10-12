@@ -28,6 +28,7 @@ with Ada.Wide_Wide_Text_IO;
 
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.OS_Lib;                use GNAT.OS_Lib;
+with GNAT.Regexp;                use GNAT.Regexp;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
@@ -1017,23 +1018,49 @@ package body Gnatcheck.Rules.Rule_Table is
    begin
       if Gnatkp_Mode then
          Info ("gnatkp currently implements the following detectors:");
+
+         if KP_Version /= null then
+            for Rule in All_Rules.First .. All_Rules.Last loop
+               if All_Rules.Table (Rule).Impact = null
+                 or else
+                   (Match (KP_Version.all, All_Rules.Table (Rule).Impact.all)
+                    and then
+                      (All_Rules.Table (Rule).Target = null
+                       or else Target.all = ""
+                       or else Match (Target.all,
+                                      All_Rules.Table (Rule).Target.all)))
+               then
+                  Set.Include (All_Rules.Table (Rule));
+               end if;
+            end loop;
+         else
+            for J in First_Rule .. All_Rules.Last loop
+               Set.Include (All_Rules.Table (J));
+            end loop;
+         end if;
+
+         if Set.Is_Empty then
+            Info (" No relevant detector found");
+         else
+            for R of Set loop
+               Print_Rule_Help (R.all);
+            end loop;
+         end if;
       else
          Info (Executable & " currently implements the following rules:");
-      end if;
 
-      if All_Rules.Last < First_Rule then
-         Info (" There is no rule implemented");
-      else
          for J in First_Rule .. All_Rules.Last loop
             Set.Include (All_Rules.Table (J));
          end loop;
 
-         for R of Set loop
-            Print_Rule_Help (R.all);
-         end loop;
-      end if;
+         if Set.Is_Empty then
+            Info (" No rule found");
+         else
+            for R of Set loop
+               Print_Rule_Help (R.all);
+            end loop;
+         end if;
 
-      if not Gnatkp_Mode then
          Info (Executable & " allows activation of the following checks " &
                "provided by GNAT");
          Info ("using the same syntax to control these checks as for other " &
