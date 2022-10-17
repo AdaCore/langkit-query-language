@@ -477,3 +477,41 @@ fun full_root_type(t) =
         if full_view == res then res else full_root_type(full_view)
     } else res
 }
+
+@memoized
+fun default_bit_order() =
+    |" Return the value of System.Default_Bit_Order if any ``with System``
+    |" clause is found, null otherwise.
+{
+    val w = (select first w@WithClause
+             when from w select first Name(p_name_is("System") is true));
+
+    if w == null then null
+    else {
+        val system = from w select first Name(p_name_is("System") is true);
+
+        (from system.p_referenced_decl()
+         select first decl@ObjectDecl(f_has_constant is ConstantPresent,
+                                      f_default_expr is not null)
+         when decl.p_canonical_fully_qualified_name()
+              == "system.default_bit_order").f_default_expr
+    }
+}
+
+fun has_non_default_sso(decl) =
+    |" Return true if ``decl`` has a Scalar_Storage_Order aspect whose value
+    |" cannot be determined to be equal to System.Default_Storage_Order.
+{
+    val aspect = decl.p_get_aspect("Scalar_Storage_Order");
+
+    aspect.exists and match default_bit_order()
+    | null   => true
+    | expr@* => match expr.text
+        | "High_Order_First" =>
+            ultimate_alias(aspect.value).p_canonical_fully_qualified_name()
+            != "system.bit_order.high_order_first"
+        | "Low_Order_First" =>
+            ultimate_alias(aspect.value).p_canonical_fully_qualified_name()
+            != "system.bit_order.low_order_first"
+        | * => true
+}

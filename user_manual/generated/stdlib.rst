@@ -17,6 +17,11 @@ library.
     If ``n`` is part of a generic package or subprogram, whether it is
     instantiated or not, then return it.
 
+.. function:: default_bit_order()
+
+    Return the value of System.Default_Bit_Order if any ``with System``
+    clause is found, null otherwise.
+
 .. function:: enclosing_block(n)
 
     Return the first DeclBlock enclosing n if any, null otherwise
@@ -61,6 +66,11 @@ library.
 .. function:: has_local_scope(n)
 
     Return ``true`` if ``n`` is enclosed in a local scope
+
+.. function:: has_non_default_sso(decl)
+
+    Return true if ``decl`` has a Scalar_Storage_Order aspect whose value
+    cannot be determined to be equal to System.Default_Storage_Order.
 
 .. function:: in_generic_template(n)
 
