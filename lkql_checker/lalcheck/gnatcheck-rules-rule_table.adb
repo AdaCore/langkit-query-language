@@ -1042,8 +1042,8 @@ package body Gnatcheck.Rules.Rule_Table is
          if Set.Is_Empty then
             Info (" No relevant detector found");
          else
-            for R of Set loop
-               Print_Rule_Help (R.all);
+            for Rule of Set loop
+               Info (" " & Rule.Name.all  & " - " & Rule.Help_Info.all);
             end loop;
          end if;
       else
