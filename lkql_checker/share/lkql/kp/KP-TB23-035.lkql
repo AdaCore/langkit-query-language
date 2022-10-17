@@ -8,7 +8,7 @@ import stdlib
 fun kp_tb23_035(node) =
     node is AssignStmt(f_dest is DottedName(p_referenced_decl() is
                                             c@ComponentDecl))
-    when c.p_semantic_parent().p_get_record_representation_clause != null
+    when c.p_semantic_parent().p_get_record_representation_clause() != null
      and stdlib.strip_conversions(node.f_expr) is CallExpr
      and node.f_expr.p_expression_type() is
          TypeDecl(p_is_record_type() is true,
