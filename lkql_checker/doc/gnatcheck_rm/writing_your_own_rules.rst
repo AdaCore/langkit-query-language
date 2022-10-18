@@ -272,20 +272,20 @@ Print Technique
 ~~~~~~~~~~~~~~~
 
 Another option to verify at various steps that your rule is doing the right
-thing is to insert calls to ``print``, ``dump`` or ``img`` functions by e.g.
-inserting variables:
+thing is to insert calls to ``print``, ``dump`` or ``img`` functions in a
+block:
 
 .. code-block:: lkql
 
    fun do_this(node) = {
-       val debug1 = print(node);
-       val debug2 = print("parent node is: " & img(node.parent));
-       val debug3 = node.parent.dump;
+       print(node);
+       print("parent node is: " & img(node.parent));
+       node.parent.dump;
        do_that()
    }
 
-Inside a boolean expression, you can also insert a call to ``print`` which
-will always evaluate to ``false``:
+Inside a boolean expression, you can also insert a call to ``print`` or
+``dump`` which will always evaluate to ``false``:
 
 .. code-block:: lkql
 
