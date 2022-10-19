@@ -4,7 +4,7 @@
 
 fun is_power_of_two(i) = i == 8 or i == 16 or i == 32 or i == 64
 
-@memoize
+@memoized
 fun check_type(t) =
     # Check whether t is a record type
     t.p_is_record_type() and

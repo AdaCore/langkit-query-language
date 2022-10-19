@@ -484,7 +484,7 @@ this rule is very slow, so let's look at how to optimize it.
 The first thing to do is to avoid repeated calls to the very costly
 global select contained in functions ``arithmetic_ops``, ``types`` and
 ``instantiations``. We achieve that easily by marking our functions with
-the ``@memoize`` decorator, so that these function calls will be cached after
+the ``@memoized`` decorator, so that these function calls will be cached after
 the first evaluation. In addition, to avoid checking multiple times
 the same type declarations, we can take advantage of the ``unique`` builtin
 in each of our helper function, e.g:

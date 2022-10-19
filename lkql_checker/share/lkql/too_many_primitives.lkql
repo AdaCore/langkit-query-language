@@ -5,7 +5,7 @@
 # This rule has the parameter N: Positive integer specifying the maximal number
 # of primitives when the type is not flagged.
 
-@memoize
+@memoized
 fun num_primitives(t) = t.p_get_primitives().length
 
 @unit_check(help="tagged type has too many primitives",

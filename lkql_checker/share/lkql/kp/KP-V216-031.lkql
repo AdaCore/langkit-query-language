@@ -2,7 +2,7 @@
 
 import stdlib
 
-@memoize
+@memoized
 fun has_detect_blocking() =
     (select first p@PragmaNode when p.f_id.p_name_is("Detect_Blocking")) != null
 

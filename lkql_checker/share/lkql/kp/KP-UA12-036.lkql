@@ -5,7 +5,7 @@
 
 import stdlib
 
-@memoize
+@memoized
 fun is_over_aligned(t, alignment) = {
     val aspect=t.p_get_aspect("Alignment");
     (aspect.exists and aspect.value is IntLiteral and

@@ -336,7 +336,7 @@ fun is_limited_type(type) =
          when def.f_has_limited.p_as_bool()) or
     InterfaceTypeDef(f_interface_kind is InterfaceKindLimited)
 
-@memoize
+@memoized
 fun list_of_units() =
     |" Return a (cached) list of all known units
     units().to_list
