@@ -1,0 +1,4 @@
+p.adb:6:10: rule violation: possible occurrence of KP V720-003 if -gnatVo and -gnateA are used
+6 |    Call (X, 1);  --  FLAG
+  |          ^^^^
+

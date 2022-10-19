@@ -1,0 +1,17 @@
+# Flag any call with at least two parameters, with at least one [in]out,
+# and pragma Initialize_Scalars is enabled.
+
+@memoized
+fun has_initialize_scalars() =
+    (select first p@PragmaNode
+     when p.f_id.p_name_is("Initialize_Scalars")) != null
+
+@check(help="possible occurrence of KP V720-003",
+       message="possible occurrence of KP V720-003 if -gnatVo and -gnateA are used",
+       impact="22.*")
+fun kp_v720_003(node) =
+    node is AssocList(parent is call@CallExpr(p_is_call() is true))
+    when has_initialize_scalars() and
+         node.children_count >= 2 and
+         [p for p in call.p_call_params()
+          if p.param.parent.parent is ParamSpec(f_mode is ModeOut or ModeInOut)]
