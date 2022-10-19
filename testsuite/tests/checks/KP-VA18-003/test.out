@@ -1,0 +1,12 @@
+p.adb:8:9: rule violation: possible occurrence of KP VA18-003 if No_Tag is passed
+8 |    T := Descendant_Tag ("foo", T);   --  FLAG
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:11:7: rule violation: possible occurrence of KP VA18-003 if No_Tag is passed
+11 |    if Is_Descendant_At_Same_Level (No_Tag, T) then   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:13:36: rule violation: possible occurrence of KP VA18-003 if No_Tag is passed
+13 |          A : constant Tag_Array := Interface_Ancestor_Tags (No_Tag); --  FLAG
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

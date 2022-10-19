@@ -1,0 +1,20 @@
+# Flag calls to Ada.Tags.Descendant_Tag/Interface_Ancestor_Tags/
+# Is_Descendant_At_Same_Level when any parameter of type Tag is not xxx'Tag.
+
+@check(help="possible occurrence of KP VA18-003",
+       message="possible occurrence of KP VA18-003 if No_Tag is passed",
+       impact="21.*,22.*")
+fun kp_va18_003(node) =
+    node is CallExpr(f_suffix is l@AssocList,
+                     p_referenced_decl() is decl@SubpDecl)
+    when (match decl.p_canonical_fully_qualified_name()
+          | "^ada\.tags\.descendant_tag$"              => true
+          | "^ada\.tags\.interface_ancestor_tags$"     => true
+          | "^ada\.tags\.is_descendant_at_same_level$" => true
+          | *                                          => false)
+     # check all parameters of type Tag
+     and [a for a in l.children
+          if a.f_r_expr is not
+              AttributeRef(f_attribute is
+                  Identifier(p_name_is("Tag") is true) and
+             a.f_r_expr.p_expression_type().p_relative_name().p_name_is("Tag")]
