@@ -649,7 +649,14 @@ the following main user interface:
    gnatkp -Pproject -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
 
 where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You can
-get the list of detectors available via the command ``gnatkp -h``.
+get the list of detectors available via the command ``gnatkp -h``. When
+combined with the ``--kp-version`` and possibly ``--target`` switches (see
+below), ``gnatkp -h`` will only list the detectors relevant to the version
+(and target) specified.
+
+Note that GNATkp comes in addition and not as a replacement of GNATcheck: it
+only comes with known problem detectors, and does not include coding standard
+rules.
 
 The ``gnatkp`` command above will process all the files in the
 given project file and run the listed known problem detectors, generating
@@ -666,7 +673,12 @@ relevant to this version, via the ``--kp-version`` switch, e.g:
 
 will run all the detectors relevant to GNAT Pro 21.2. The list of detectors
 will be displayed as info messages, and will also be listed in the file
-:file:`gnatkp-rule-list.out`.
+:file:`gnatkp-rule-list.out`. You can also list them without running the
+detectors via:
+
+.. code-block:: sh
+
+   gnatkp --kp-version=21.2 -h
 
 You can also combine the ``--kp-version`` switch with the ``--target`` switch
 to filter out detectors not relevant for your target, e.g:
