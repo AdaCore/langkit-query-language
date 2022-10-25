@@ -898,6 +898,8 @@ package body Gnatcheck.Compiler is
       then
          Error ("wrong restriction identifier : " &
                  Param (First_Idx .. Last_Idx) & ", ignored");
+         Bad_Rule_Detected := True;
+
          return;
       end if;
 
@@ -914,6 +916,8 @@ package body Gnatcheck.Compiler is
             else
                Error ("wrong structure of restriction rule parameter " &
                       Param & ", ignored");
+               Bad_Rule_Detected := True;
+
                return;
             end if;
          end if;
@@ -953,6 +957,7 @@ package body Gnatcheck.Compiler is
          if Arg_Present then
             Error ("RESTRICTIONS rule parameter: " & Param &
                    " can not contain expression, ignored");
+            Bad_Rule_Detected := True;
          else
             Restriction_Setting (R_Id).Active := Enable;
          end if;
@@ -962,6 +967,8 @@ package body Gnatcheck.Compiler is
          if not Arg_Present then
             Error ("RESTRICTIONS rule parameter: " & Param &
                     " should contain an expression, ignored");
+            Bad_Rule_Detected := True;
+
             return;
          else
             if R_Id in Integer_Parameter_Restrictions then
@@ -987,6 +994,7 @@ package body Gnatcheck.Compiler is
                      Error ("expression for RESTRICTIONS rule parameter: " &
                             Param (First_Idx .. Last_Idx) &
                             " is specified more than once");
+                     Rule_Option_Problem_Detected := True;
                   end if;
 
                   Restriction_Setting (R_Id).Param  :=
@@ -995,7 +1003,9 @@ package body Gnatcheck.Compiler is
                   when Constraint_Error =>
                      Error ("wrong restriction parameter expression in " &
                              Param & ", ignored");
-                  return;
+                     Bad_Rule_Detected := True;
+
+                     return;
                end;
             else
                --  No check is made for the moment for non-integer restriction
@@ -1031,6 +1041,8 @@ package body Gnatcheck.Compiler is
                if not Arg_Present then
                   Error ("Restrictions rule parameter: " & Param &
                           " should contain a unit name, ignored");
+                  Bad_Rule_Detected := True;
+
                   return;
                end if;
 
@@ -1042,6 +1054,8 @@ package body Gnatcheck.Compiler is
                if not Arg_Present then
                   Error ("Restrictions rule parameter: " & Param &
                           " should contain an entity name, ignored");
+                  Bad_Rule_Detected := True;
+
                   return;
                end if;
 
@@ -1053,6 +1067,8 @@ package body Gnatcheck.Compiler is
                if not Arg_Present then
                   Error ("Restrictions rule parameter: " & Param &
                           " should contain an aspect name, ignored");
+                  Bad_Rule_Detected := True;
+
                   return;
                end if;
 
@@ -1169,6 +1185,8 @@ package body Gnatcheck.Compiler is
          then
             Error ("Warnings rule cannot have " & Param (J) &
                    " parameter, parameter string " & Param & " ignored");
+            Bad_Rule_Detected := True;
+
             return;
          end if;
       end loop;
