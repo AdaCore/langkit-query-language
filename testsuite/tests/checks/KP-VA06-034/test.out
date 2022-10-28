@@ -1,0 +1,4 @@
+main.adb:20:28: rule violation: possible occurrence of KP VA06-034
+20 |    S1 : constant String := BBool'Image (BBool'(True));   --  FLAG
+   |                            ^^^^^^^^^^^
+
