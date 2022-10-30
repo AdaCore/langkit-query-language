@@ -1705,7 +1705,8 @@ package body Gnatcheck.Source_Table is
 
       --  Otherwise use a project unit provider
 
-      elsif  Gnatcheck_Prj.Tree.Is_Defined then
+      elsif  Gnatcheck_Prj.Tree.Is_Defined and then not In_Aggregate_Project
+      then
          if Partition = null then
             Partition :=
               Create_Project_Unit_Providers (Gnatcheck_Prj.Tree.all);
