@@ -210,6 +210,11 @@ package body Gnatcheck.Projects is
       --  Locates given file by its simple name in the project tree and returns
       --  corresponding source object.
 
+      function Not_Empty_Dir (Dir : GPR2.Path_Name.Object) return Boolean;
+      --  Returns true if given directory has at least one file. Used as
+      --  a workaround for crash on an empty directory in
+      --  Libadalang.Auto_Provider.Find_Files_Regexp.
+
       -------------
       -- Add_Src --
       -------------
@@ -276,6 +281,22 @@ package body Gnatcheck.Projects is
 
       use Ada.Strings.Unbounded;
 
+      -------------------
+      -- Not_Empty_Dir --
+      -------------------
+
+      function Not_Empty_Dir (Dir : GPR2.Path_Name.Object) return Boolean is
+         Files : File_Array_Access := Read_Dir_Recursive
+           (Create (+Dir.Value), Filter => Files_Only);
+      begin
+         if Files /= null then
+            Unchecked_Free (Files);
+            return True;
+         end if;
+
+         return False;
+      end Not_Empty_Dir;
+
    begin
       if Simple_Project then
          --  Use project attribute CodePeer'File_Patterns if set, otherwise
@@ -317,11 +338,15 @@ package body Gnatcheck.Projects is
          begin
             if Recursive_Sources then
                for S of My_Project.Tree.Source_Directories loop
-                  Source_Dirs.Append (S);
+                  if S.Exists and then Not_Empty_Dir (S) then
+                     Source_Dirs.Append (S);
+                  end if;
                end loop;
             else
                for S of My_Project.Tree.Root_Project.Source_Directories loop
-                  Source_Dirs.Append (S);
+                  if S.Exists and then Not_Empty_Dir (S) then
+                     Source_Dirs.Append (S);
+                  end if;
                end loop;
             end if;
 
@@ -512,8 +537,25 @@ package body Gnatcheck.Projects is
          Target            => Optional_Name_Type (Target.all),
          Language_Runtimes => RTS,
          Base => KB);
+
       My_Project.Tree.Update_Sources
         (Stop_On_Error => False,  With_Runtime => True);
+
+      for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+        (Information => False,
+         Warning     => Verbose_Mode)
+      loop
+         Error (GPR2.Log.Element (Msg_Cur).Format);
+      end loop;
+
+   exception
+      when GPR2.Project_Error | GPR2.Processing_Error =>
+         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+           (Information => Verbose_Mode)
+         loop
+            Error (GPR2.Log.Element (Msg_Cur).Format);
+         end loop;
+         raise Parameter_Error;
    end Load_Aggregated_Project;
 
    -----------------------
@@ -600,8 +642,15 @@ package body Gnatcheck.Projects is
            (Stop_On_Error => False,  With_Runtime => True);
       end if;
 
-      exception
-         when GPR2.Project_Error | GPR2.Processing_Error =>
+      for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+        (Information => Verbose_Mode,
+         Warning     => Verbose_Mode)
+      loop
+         Error (GPR2.Log.Element (Msg_Cur).Format);
+      end loop;
+
+   exception
+      when GPR2.Project_Error | GPR2.Processing_Error =>
             for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
               (Information => Verbose_Mode)
             loop
