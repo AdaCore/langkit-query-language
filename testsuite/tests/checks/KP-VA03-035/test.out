@@ -1,0 +1,4 @@
+p.adb:6:17: rule violation: possible occurrence of KP VA03-035
+6 |       procedure Get (Index : out Integer) is  --  FLAG
+  |                 ^^^
+
