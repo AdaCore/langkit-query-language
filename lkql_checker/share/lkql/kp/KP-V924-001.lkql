@@ -1,0 +1,7 @@
+# Flag protected units with aspect Lock_Free
+
+@check(help="possible occurrence of KP V924-001", impact="22.*",
+       message="possible occurrence of KP V924-001 if -gnatVo is used")
+fun kp_v924_001(node) =
+    node is (ProtectedTypeDecl or SingleProtectedDecl)
+    when node.p_has_aspect("Lock_Free")
