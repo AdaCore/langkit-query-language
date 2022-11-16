@@ -138,12 +138,13 @@ package body Gnatcheck.Rules is
    begin
       if Subprocess_Mode then
          return " [" & Rule_Name (Rule) & "]";
-      elsif not Mapping_Mode then
-         return "";
-      elsif Has_Synonym (Rule) then
-         return " [" & Rule_Synonym (Rule) & "]";
       else
-         return " [" & Rule_Name (Rule) & "]";
+         return " [" &
+         (if Mapping_Mode and then Has_Synonym (Rule) then
+             Rule_Synonym (Rule) & "|"
+          else
+             "") &
+         Rule_Name (Rule) & "]";
       end if;
    end Annotate_Rule;
 

@@ -224,7 +224,9 @@ The following switches control the general ``gnatcheck`` behavior
 
 ``--show-rule``
   Add the corresponding rule name to the diagnosis generated for its
-  violation.
+  violation.  If the rule has a user-defined synonym, both gnatcheck and
+  user-defined rule names are used as rule annotation:
+  ``[user_synonym|gnatcheck_rule_name]``.
 
   .. index:: --brief
 
