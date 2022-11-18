@@ -1,0 +1,20 @@
+# Flag types derived from packed discriminated untagged record types.
+
+fun is_untagged_packed_discr(n) =
+    match n
+    | DerivedTypeDef =>
+        is_untagged_packed_discr(n.f_subtype_indication.f_name.
+                                 p_referenced_decl())
+    | TypeDecl       => n.p_full_view() is t@BaseTypeDecl and
+                        not t.p_is_tagged_type() and
+                        ((t.f_discriminants is DiscriminantPart and
+                          t.p_has_aspect("Pack")) or
+                        (t.f_type_def is d@DerivedTypeDef and
+                         is_untagged_packed_discr(d)))
+    | SubtypeDecl   => is_untagged_packed_discr(n.f_subtype.f_name.
+                                                p_referenced_decl())
+    | *             => false
+
+@check(message="possible occurrence of KP Q309-014", impact="7.[1-4].*,17.*")
+fun kp_q309_014(node) =
+    node is DerivedTypeDef when is_untagged_packed_discr(node)
