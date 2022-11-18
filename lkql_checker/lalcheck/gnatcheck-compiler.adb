@@ -1491,7 +1491,9 @@ package body Gnatcheck.Compiler is
 
    function Warning_Rule_Parameter (Diag : String) return String is
       First_Idx, Last_Idx :          Natural;
-      String_To_Search    : constant String := "[warnings:";
+      String_To_Search    : constant String :=
+        (if Gnatcheck.Options.Mapping_Mode then "[warnings:"
+         else                                   "[-gnatw");
    begin
       --  This function returns non-empty result only if .d parameter is
       --  specified for Warnings rule or if --show-rule gnatcheck option is

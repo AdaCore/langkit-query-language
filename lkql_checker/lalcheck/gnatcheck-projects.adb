@@ -1650,16 +1650,9 @@ package body Gnatcheck.Projects is
 
          if Use_gnatw_Option then
             Store_Compiler_Option ("-gnatwnA");
+            Store_Compiler_Option ("-gnatw.d");
             Store_Compiler_Option (Get_Warning_Option);
-
-            if Mapping_Mode then
-               Store_Compiler_Option ("-gnatw.d");
-            else
-               Store_Compiler_Option ("-gnatw.D");
-            end if;
-
             Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
-
          elsif Check_Restrictions then
             Store_Compiler_Option ("-gnatwnA");
             Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);

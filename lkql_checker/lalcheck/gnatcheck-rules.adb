@@ -1935,9 +1935,22 @@ package body Gnatcheck.Rules is
       Diag : String) return String
    is
       pragma Unreferenced (Rule);
-      First_Idx : constant Natural := Index (Diag, " ", Going => Backward) + 1;
+      First_Idx :  Natural := Index (Diag, " ", Going => Backward) + 1;
+      Last_Idx  :  Natural := Diag'Last;
    begin
-      return To_Lower (Diag (First_Idx .. Diag'Last));
+
+      if Mapping_Mode then
+         --  The diagnosis has the following format:
+         --
+         --     foo.adb:nn:mm: use of pragma Bar [Rule_Name]
+
+         Last_Idx  := First_Idx - 2;
+         First_Idx := Index (Diag (Diag'First ..  Last_Idx),
+                             " ",
+                             Going => Backward) + 1;
+      end if;
+
+      return To_Lower (Diag (First_Idx .. Last_Idx));
    end Rule_Parameter;
 
    overriding function Rule_Parameter
