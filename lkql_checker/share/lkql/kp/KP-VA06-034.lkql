@@ -1,7 +1,7 @@
 # Flag Type'Image (Expr) when Type has a Put_Image aspect and Expr
 # is known at compile time.
 
-@check(message="possible occurrence of KP VA06-034", impact="22.*,23.*")
+@check(message="possible occurrence of KP VA06-034", impact="22.*")
 fun kp_va06_034(node) =
     node is AttributeRef(parent is c@CallExpr)
     when node.f_attribute.p_name_is("Image")
