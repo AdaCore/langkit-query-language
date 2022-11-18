@@ -542,7 +542,7 @@ package body Gnatcheck.Projects is
         (Stop_On_Error => False,  With_Runtime => True);
 
       for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-        (Information => False,
+        (Information => Verbosity_Level > 1,
          Warning     => Verbose_Mode)
       loop
          Error (GPR2.Log.Element (Msg_Cur).Format);
@@ -551,7 +551,7 @@ package body Gnatcheck.Projects is
    exception
       when GPR2.Project_Error | GPR2.Processing_Error =>
          for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-           (Information => Verbose_Mode)
+           (Information => Verbosity_Level > 1)
          loop
             Error (GPR2.Log.Element (Msg_Cur).Format);
          end loop;
@@ -643,7 +643,7 @@ package body Gnatcheck.Projects is
       end if;
 
       for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-        (Information => Verbose_Mode,
+        (Information => Verbosity_Level > 0,
          Warning     => Verbose_Mode)
       loop
          Error (GPR2.Log.Element (Msg_Cur).Format);
@@ -652,7 +652,7 @@ package body Gnatcheck.Projects is
    exception
       when GPR2.Project_Error | GPR2.Processing_Error =>
             for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
-              (Information => Verbose_Mode)
+              (Information => Verbosity_Level > 0)
             loop
                Error (GPR2.Log.Element (Msg_Cur).Format);
             end loop;
