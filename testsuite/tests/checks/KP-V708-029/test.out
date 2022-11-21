@@ -1,8 +1,8 @@
-p.adb:7:20: rule violation: possible occurrence of KP V708-029
+p.adb:7:20: rule violation: possible occurrence of KP V708-029 if type has array of character component
 7 |    S1  : String := X'Image;   --  FLAG
   |                    ^^^^^^^
 
-p.adb:9:10: rule violation: possible occurrence of KP V708-029
+p.adb:9:10: rule violation: possible occurrence of KP V708-029 if type has array of character component
 9 |    S1 := String'Image (X);   --  FLAG
   |          ^^^^^^^^^^^^
 
