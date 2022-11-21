@@ -210,6 +210,9 @@ package body Gnatcheck.Diagnoses is
    --  Assuming that Diag is a diagnosis, gets the line/column number from it.
    --  The result is undefined if Diag does not have a syntax of the diagnosis.
 
+   function Strip_Warning (Diag : String) return String;
+   --  Strip trailing " [-gnatwxxx]", if any
+
    ----------------------------------------------------------------------
    --  Data structures and local routines for rule exemption mechanism --
    ----------------------------------------------------------------------
@@ -1855,7 +1858,7 @@ package body Gnatcheck.Diagnoses is
             end if;
 
             if Text_Report_ON then
-               Report (Diag.Text.all);
+               Report (Strip_Warning (Diag.Text.all));
 
                if Diag.Justification /= null then
                   Report ("(" & Diag.Justification.all & ")", 1);
@@ -2059,25 +2062,35 @@ package body Gnatcheck.Diagnoses is
       Limit_Exceeded     : Boolean := False;
       GPS_Prefix         : constant String  := "check:";
 
-      function Add_GPS_Prefix (Diag : String) return String;
-      --  If Progress_Indicator_Mode is True, add GPS_Prefix to the diagnosis
-      --  that is supposed to be passed as an actual. Otherwise return the
-      --  argument unchanged.
+      function Preprocess_Diag (Diag : String) return String;
+      --  Add GPS_Prefix if Progress_Indicator_Mode is True, and remove any
+      --  training [-gnatwxxx].
 
       procedure Counted_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor);
+      --  Print Diagnosis until reaching Max_Diagnoses
 
-      function Add_GPS_Prefix (Diag : String) return String is
-         Idx : Natural;
+      ---------------------
+      -- Preprocess_Diag --
+      ---------------------
+
+      function Preprocess_Diag (Diag : String) return String is
       begin
          if Progress_Indicator_Mode then
-            Idx := Index (Diag, ": ");
-            return Diag (Diag'First .. Idx + 1) & GPS_Prefix & ' ' &
-                         Diag (Idx + 2 .. Diag'Last);
+            declare
+               Idx : constant Natural := Index (Diag, ": ");
+            begin
+               return Diag (Diag'First .. Idx + 1) & GPS_Prefix & ' ' &
+                            Strip_Warning (Diag (Idx + 2 .. Diag'Last));
+            end;
          else
-            return Diag;
+            return Strip_Warning (Diag);
          end if;
-      end Add_GPS_Prefix;
+      end Preprocess_Diag;
+
+      -----------------------------
+      -- Counted_Print_Diagnosis --
+      -----------------------------
 
       procedure Counted_Print_Diagnosis
         (Position : Error_Messages_Storage.Cursor) is
@@ -2095,7 +2108,7 @@ package body Gnatcheck.Diagnoses is
                then
                   Diagnoses_Reported := @ + 1;
                   Info
-                    (Add_GPS_Prefix
+                    (Preprocess_Diag
                       (Error_Messages_Storage.Element (Position).Text.all));
                end if;
             end if;
@@ -3170,6 +3183,16 @@ package body Gnatcheck.Diagnoses is
       end if;
    end Store_Diagnosis;
 
+   -------------------
+   -- Strip_Warning --
+   -------------------
+
+   function Strip_Warning (Diag : String) return String is
+      Idx : constant Natural := Index (Diag, " [-gnatw");
+   begin
+      return (if Idx = 0 then Diag else Diag (Diag'First .. Idx - 1));
+   end Strip_Warning;
+
    ------------------
    -- To_Pars_List --
    ------------------
@@ -3257,7 +3280,7 @@ package body Gnatcheck.Diagnoses is
       Exempted    : constant Boolean :=
         Diag.Diagnosis_Kind = Rule_Violation and then
         Diag.Justification /= null;
-      Message     : constant String  := Diag.Text.all;
+      Message     : constant String  := Strip_Warning (Diag.Text.all);
       L_Idx       :          Natural := Message'First;
       R_Idx       :          Natural := Index (Message, ":");
       Last_Idx    : constant Natural := Message'Last;
