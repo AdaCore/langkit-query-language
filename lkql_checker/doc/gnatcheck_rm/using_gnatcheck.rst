@@ -422,14 +422,14 @@ GNATcheck Exit Codes
 
 .. index:: exit code
 
-``gnatcheck`` returns the following exit codes at the end of its run:
+``gnatcheck`` returns the following exit codes at the end of its run (except if
+the ``--brief`` option is specified):
 
 * ``0``: No tool failure and no rule violation was detected.
 
-* ``1``: No fatal tool failure and at least one rule violation was detected.
+* ``1``: No tool failure and at least one rule violation was detected.
 
-* ``2``: A fatal tool failure was detected, or a non-fatal tool failure was
-  detected while no rule violation was detected (in this case the results
+* ``2``: A tool failure was detected (in this case the results
   of the gnatcheck run cannot be trusted).
 
 * ``3``: No Ada source file was checked.
@@ -437,13 +437,18 @@ GNATcheck Exit Codes
 * ``4``: Parameter of the rule ``-from`` option denotes a nonexistent file.
 
 * ``5``: The name of an unknown rule in a rule option or some problem with
-         rule parameters.
+  rule parameters.
 
 * ``6``: Any other problem with specifying the rules to check.
 
 If the exit code corresponds to some problem with defining the rules to check then
 the result of the gnatcheck run cannot be fully trusted because the set of rules that
 has been actually used may be different from user intent.
+
+If gnatcheck is called with the ``--brief`` option, it returns the exit code ``0`` if
+there is no gnatcheck failure and no problem with rule options whether rule
+violations are detected or not. Otherwise the returned exit code corresponds to the
+description above. With ``--brief`` option gnatcheck never returns the exit code ``1``.
 
 .. _Format_of_the_Report_File:
 
