@@ -1286,6 +1286,11 @@ package body Gnatcheck.Compiler is
       if Prj /= "" then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
+
+         if Ignore_Project_Switches then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("--ignore-project-switches");
+         end if;
       end if;
 
       if Simple_Project then
