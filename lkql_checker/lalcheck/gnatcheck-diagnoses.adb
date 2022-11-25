@@ -2131,13 +2131,22 @@ package body Gnatcheck.Diagnoses is
       Day_Of_Check    : constant Day_Number   := Day (Time_Of_Check);
       Sec_Of_Check    : constant Day_Duration := Seconds (Time_Of_Check);
 
-      Hour_Of_Chech   :          Integer range 0 .. 23;
+      Sec_Of_Day      :          Integer := Integer (Sec_Of_Check);
+      Hour_Of_Check   :          Integer range 0 .. 23;
       Minute_Of_Check :          Integer range 0 .. 59;
       Seconds_In_Hour : constant Integer := 60 * 60;
 
    begin
-      Hour_Of_Chech   := Integer (Sec_Of_Check) / Seconds_In_Hour;
-      Minute_Of_Check := (Integer (Sec_Of_Check) rem Seconds_In_Hour) / 60;
+      if Sec_Of_Day = 86400 then
+         --  This happens when Sec_Of_Check is very close to the end of the
+         --  day (it is in 86399.5 .. 86400.0). We treat this situation as the
+         --  last second of this day - 23:59:59, but not as the first second
+         --  of the next day - 00:00:00, so
+         Sec_Of_Day := @ - 1;
+      end if;
+
+      Hour_Of_Check   := Sec_Of_Day / Seconds_In_Hour;
+      Minute_Of_Check := (Sec_Of_Day rem Seconds_In_Hour) / 60;
 
       if Text_Report_ON then
          Report ("GNATCheck report");
@@ -2158,11 +2167,11 @@ package body Gnatcheck.Diagnoses is
 
          Report_No_EOL (Trim (Day_Of_Check'Img, Left) & ' ');
 
-         if Hour_Of_Chech < 10 then
+         if Hour_Of_Check < 10 then
             Report_No_EOL ("0");
          end if;
 
-         Report_No_EOL (Trim (Hour_Of_Chech'Img, Left) & ':');
+         Report_No_EOL (Trim (Hour_Of_Check'Img, Left) & ':');
 
          if Minute_Of_Check < 10 then
             Report_No_EOL ("0");
@@ -2187,8 +2196,8 @@ package body Gnatcheck.Diagnoses is
          XML_Report_No_EOL (Trim (Month_Of_Check'Img, Left) & '-');
          XML_Report_No_EOL (if Day_Of_Check < 10 then "0" else "");
          XML_Report_No_EOL (Trim (Day_Of_Check'Img, Left) & ' ');
-         XML_Report_No_EOL (if Hour_Of_Chech < 10 then "0" else "");
-         XML_Report_No_EOL (Trim (Hour_Of_Chech'Img, Left) & ':');
+         XML_Report_No_EOL (if Hour_Of_Check < 10 then "0" else "");
+         XML_Report_No_EOL (Trim (Hour_Of_Check'Img, Left) & ':');
          XML_Report_No_EOL (if Minute_Of_Check < 10 then "0" else "");
          XML_Report        (Trim (Minute_Of_Check'Img, Left) & "</date>");
 
