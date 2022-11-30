@@ -93,8 +93,7 @@ fun ultimate_exception_alias(name) =
     else decl
 }
 
-# TODO: cannot memoize it due to a bug: V825-017
-# @memoized
+@memoized
 fun ultimate_subprogram_alias(name) =
     |" Return the ultimately designated ``BasicSubpDecl``, going through renamings
     if name is SubpRenamingDecl
