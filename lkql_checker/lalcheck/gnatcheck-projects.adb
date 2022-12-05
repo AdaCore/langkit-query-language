@@ -501,6 +501,10 @@ package body Gnatcheck.Projects is
       if RTS_Path.all /= "" then
          RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
       end if;
+
+      My_Project.Tree.Restrict_Autoconf_To_Languages
+        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+
       My_Project.Tree.Load_Autoconf
         (Filename          =>
            Create_File
@@ -525,6 +529,9 @@ package body Gnatcheck.Projects is
           (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
       My_Project.Tree.Unload;
+
+      My_Project.Tree.Restrict_Autoconf_To_Languages
+        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
 
       My_Project.Tree.Load_Autoconf
         (Filename          => GPR2.Path_Name.Create_File
@@ -580,6 +587,9 @@ package body Gnatcheck.Projects is
          RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
       end if;
 
+      My_Project.Tree.Restrict_Autoconf_To_Languages
+        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+
       My_Project.Tree.Load_Autoconf
         (Filename          =>
            Create_File
@@ -617,6 +627,9 @@ package body Gnatcheck.Projects is
                    (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
                My_Project.Tree.Unload;
+
+               My_Project.Tree.Restrict_Autoconf_To_Languages
+                 (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
 
                My_Project.Tree.Load_Autoconf
                  (Filename          => Aggregated_Prj_Name,
