@@ -40,7 +40,7 @@ package LKQL.Patterns.Nodes is
       Node    : Lk_Node) return Match_Result;
    --  Match the given node against a node pattern
 
-   function Match_Kind_pattern
+   function Match_Kind_Pattern
      (Ctx     : Eval_Context;
       Pattern : L.Node_Kind_Pattern;
       Node    : Lk_Node) return Match_Result

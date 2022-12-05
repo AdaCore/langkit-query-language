@@ -29,6 +29,7 @@ with LKQL.Evaluation;       use LKQL.Evaluation;
 with LKQL.Node_Extensions;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
+with Langkit_Support.Generic_API.Introspection;
 
 with Ada.Assertions; use Ada.Assertions;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
@@ -72,7 +73,7 @@ package body LKQL.Patterns.Nodes is
 
       case Pattern.Kind is
          when LCO.Lkql_Node_Kind_Pattern =>
-            return Match_Kind_pattern
+            return Match_Kind_Pattern
               (Ctx, Pattern.As_Node_Kind_Pattern, Node);
          when LCO.Lkql_Extended_Node_Pattern =>
             return Match_Extended_Pattern
@@ -87,22 +88,24 @@ package body LKQL.Patterns.Nodes is
    -- Match_Kind_Pattern --
    ------------------------
 
-   function Match_Kind_pattern
+   function Match_Kind_Pattern
      (Ctx     : Eval_Context;
       Pattern : L.Node_Kind_Pattern;
       Node    : Lk_Node) return Match_Result
    is
       Ext : constant Node_Extensions.Ext := Node_Extensions.Get_Ext (Pattern);
+      Node_Val : constant Langkit_Support.Generic_API.Introspection.Value_Ref
+        := LKI.From_Node (Ctx.Lang_Id, Node);
    begin
       return
         (if LKI.Type_Matches
-           (LKI.From_Node (Ctx.Lang_Id, Node), Ext.Content.Expected_Type)
+           (Node_Val, Ext.Content.Expected_Type)
          then Make_Match_Success (To_Primitive (Node, Ctx.Pool))
          else Match_Failure);
    exception
       when E : Unsupported_Error =>
          Raise_From_Exception (Ctx, E, Pattern);
-   end Match_Kind_pattern;
+   end Match_Kind_Pattern;
 
    ----------------------------
    -- Match_Extended_Pattern --
