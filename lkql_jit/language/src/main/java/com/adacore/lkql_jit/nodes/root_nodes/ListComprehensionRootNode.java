@@ -35,6 +35,8 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
+import java.util.Arrays;
+
 
 /**
  * This root node represents a list comprehension execution (expression and predicate) in the LKQL language
