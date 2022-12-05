@@ -25,9 +25,11 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -37,7 +39,9 @@ import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -173,9 +177,9 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             }
 
             // Get the message list from the rule function
-            ListValue messageList;
+            Iterable messageList;
             try {
-                messageList = LKQLTypeSystemGen.expectListValue(this.dispatcher.executeDispatch(functionValue, arguments));
+                messageList = LKQLTypeSystemGen.expectIterable(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
@@ -190,9 +194,30 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             }
 
             // Display all the violation message
-            for(Object o : messageList.getContent()) {
-                ObjectValue message = (ObjectValue) o;
-                this.reportViolation((String) message.get("message"), (Libadalang.AdaNode) message.get("loc"));
+            Iterator messageIterator = messageList.iterator();
+            while(messageIterator.hasNext()) {
+                ObjectValue message = (ObjectValue) messageIterator.next();
+                Libadalang.AdaNode node;
+                String messageText;
+                try {
+                    node = LKQLTypeSystemGen.expectAdaNode(message.get("loc"));
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                            LKQLTypesHelper.ADA_NODE,
+                            LKQLTypesHelper.fromJava(e.getResult()),
+                            functionValue.getBody()
+                    );
+                }
+                try {
+                    messageText = LKQLTypeSystemGen.expectString(message.get("message"));
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                            LKQLTypesHelper.LKQL_STRING,
+                            LKQLTypesHelper.fromJava(e.getResult()),
+                            functionValue.getBody()
+                    );
+                }
+                this.reportViolation(messageText, node);
             }
         }
 

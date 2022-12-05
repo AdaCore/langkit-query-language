@@ -683,11 +683,33 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
      */
     @Override
     public LKQLNode visit(Liblkqllang.ListComprehension listComprehension) {
+        // Translate the list comprehension collections
+        List<Expr> collections = new ArrayList<>();
+        Liblkqllang.ListCompAssocList assocListOrigin = listComprehension.fGenerators();
+        for(int i = 0 ; i < assocListOrigin.getChildrenCount() ; i++) {
+            Liblkqllang.ListCompAssoc assocOrigin = (Liblkqllang.ListCompAssoc) assocListOrigin.getChild(i);
+            collections.add((Expr) assocOrigin.fCollExpr().accept(this));
+        }
+
         // Open a new scope
         this.scope.openSemantic();
 
+        // Create the list comprehension associations
+        List<ListCompAssoc> assocList = new ArrayList<>();
+        for(int i = 0 ; i < assocListOrigin.getChildrenCount() ; i++) {
+            Liblkqllang.ListCompAssoc assocOrigin = (Liblkqllang.ListCompAssoc) assocListOrigin.getChild(i);
+            String name = assocOrigin.fBindingName().getText();
+            int slot = this.scope.addVariable(name);
+
+            assocList.add(new ListCompAssoc(
+                    new SourceLocation(this.source, assocOrigin.getSourceLocationRange()),
+                    name,
+                    slot,
+                    collections.get(i)
+            ));
+        }
+
         // Translate the list comprehension fields
-        ListCompAssocList assocList = (ListCompAssocList) listComprehension.fGenerators().accept(this);
         Expr expr = (Expr) listComprehension.fExpr().accept(this);
         Liblkqllang.Expr guardBase = listComprehension.fGuard();
         Expr guard = guardBase == null ?
@@ -699,7 +721,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
                 new SourceLocation(this.source, listComprehension.getSourceLocationRange()),
                 this.scope.buildDescriptor(),
                 expr,
-                assocList,
+                new ListCompAssocList(
+                        new SourceLocation(this.source, assocListOrigin.getSourceLocationRange()),
+                        assocList.toArray(new ListCompAssoc[0])
+                ),
                 guard
         );
 
@@ -710,52 +735,11 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         return res;
     }
 
-    /**
-     * Visit a list comprehension association node
-     *
-     * @param listCompAssoc The base ListCompAssoc node from langkit
-     * @return The ListCompAssoc node for Truffle
-     */
     @Override
-    public LKQLNode visit(Liblkqllang.ListCompAssoc listCompAssoc) {
-        // Translate the list comprehension association fields
-        String name = listCompAssoc.fBindingName().getText();
-        Expr collection = (Expr) listCompAssoc.fCollExpr().accept(this);
+    public LKQLNode visit(Liblkqllang.ListCompAssoc listCompAssoc) { return null; }
 
-        // Add the variable in the lexical environment
-        int slot = this.scope.addVariable(name);
-
-        // Return the list comprehension association
-        return new ListCompAssoc(
-                new SourceLocation(this.source, listCompAssoc.getSourceLocationRange()),
-                name,
-                slot,
-                collection
-        );
-    }
-
-    /**
-     * Visit a list comprehension association list node
-     *
-     * @param listCompAssocList The base ListCompAssocList node from langkit
-     * @return The ListCompAssocList node for Truffle
-     */
     @Override
-    public LKQLNode visit(Liblkqllang.ListCompAssocList listCompAssocList) {
-        // Prepare the list comprehension association
-        List<ListCompAssoc> listCompAssocs = new ArrayList<>();
-
-        // Get the list comprehension associations
-        for(Liblkqllang.LkqlNode compAssoc : listCompAssocList.children()) {
-            listCompAssocs.add((ListCompAssoc) compAssoc.accept(this));
-        }
-
-        // Return the list comprehension association list
-        return new ListCompAssocList(
-                new SourceLocation(this.source, listCompAssocList.getSourceLocationRange()),
-                listCompAssocs.toArray(new ListCompAssoc[0])
-        );
-    }
+    public LKQLNode visit(Liblkqllang.ListCompAssocList listCompAssocList) { return null; }
 
     /**
      * Visit a conditional node
