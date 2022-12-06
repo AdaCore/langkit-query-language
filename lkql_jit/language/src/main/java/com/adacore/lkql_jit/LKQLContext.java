@@ -204,6 +204,7 @@ public final class LKQLContext {
      *
      * @return The rule to run
      */
+    @CompilerDirectives.TruffleBoundary
     public String getRule() {
         return this.env.getOptions().get(LKQLLanguage.rule);
     }

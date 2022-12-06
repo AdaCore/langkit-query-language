@@ -26,6 +26,7 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -160,6 +161,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
 
                 // Iterate over rules and apply them
                 for(ObjectValue rule : checkers) {
+                    if(context.getRule() != null && !ObjectUtils.equals(rule.get("name"), context.getRule())) continue;
                     if(!inGenericInstantiation || (boolean) rule.get("follow_generic_instantiations")) {
                         try {
                             this.applyNodeRule(frame, rule, currentNode, context);

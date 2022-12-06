@@ -13,17 +13,9 @@ public class Main {
             context.eval(
                     "lkql",
                             """
-                                    val stdlib = ()
-                                    val outside_refs = ()
+                                    val unit = units()[1]
                                     
-                                    @unit_check(message="outside references from subprogram",
-                                                category="Style", subcategory="Program Structure")
-                                    fun outside_references_from_subprograms(unit) = [
-                                        {message: "outside references from subprogram", loc: n}
-                                        for n in concat([outside_refs(body)
-                                                         for body in from unit.root through follow_generics
-                                                         select subp@BaseSubpBody
-                                                         when not stdlib.in_generic_template(subp)].to_list)]
+                                    print(unit.tokens)
                                     """
 
             );

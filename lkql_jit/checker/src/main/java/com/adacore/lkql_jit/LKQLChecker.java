@@ -207,7 +207,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             // Set the rule to apply
             if(this.rule != null && !this.rule.isEmpty() && !rule.isBlank()) {
-                contextBuilder.option("lkql.rule", this.rule);
+                contextBuilder.option("lkql.rule", this.rule.toLowerCase());
             }
 
             // Create the context and run it with the script
