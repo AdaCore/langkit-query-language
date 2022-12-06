@@ -84,7 +84,7 @@ class InterpreterDriver(BaseTestDriver):
     def run(self):
         # Test the JIT setting env var
         exec = "lkql_ada"
-        if(os.environ.get("LKQL_JIT", "false") == "true"):
+        if os.environ.get("LKQL_JIT", "false") == "true":
             exec = "lkql_jit"
 
         # Build the process's arguments list
@@ -119,7 +119,9 @@ class CheckerDriver(BaseTestDriver):
     """
 
     def run(self):
-        args = ['lkql_checker']
+        use_jit = os.environ.get("LKQL_JIT", "false") == "true"
+        exec = 'lkql_checker' if not use_jit else 'lkql_jit_checker'
+        args = [exec]
         # Use the test's project, if any
         if self.test_env.get('project', None):
             args += ['-P', self.test_env['project']]
@@ -130,7 +132,15 @@ class CheckerDriver(BaseTestDriver):
             args += ['--rule-arg', '{}={}'.format(k, v)]
 
         args += ['-r', self.test_env['rule_name']]
-        args += ['--add-rules-dir', self.test_env['test_dir']]
+        if not use_jit:
+            args += ['--add-rules-dir', self.test_env['test_dir']]
+        else:
+            args += [
+                '--rule-dirs',
+                ' '.join([self.test_env['test_dir'], os.environ['LKQL_RULES']])
+            ]
+
+        print(args)
 
         # Run the interpreter
         self.shell(args)

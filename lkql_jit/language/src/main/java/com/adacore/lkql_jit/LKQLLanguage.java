@@ -309,9 +309,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * @param context The LKQL context
      */
     private void addRuleImports(TopLevelList topLevelList, LKQLContext context) {
-        // Get the requested rule
-        String requestedRule = context.getRule();
-
         // Get the rule dirs
         String[] ruleDirs = context.getRuleDirs();
 
@@ -327,7 +324,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                             Arrays.stream(ruleFiles)
                                     .filter(file -> file.isFile() && file.canRead())
                                     .map(file -> file.getName().replace(".lkql", ""))
-                                    .filter(name -> requestedRule.isEmpty() || requestedRule.isBlank() || name.equals(requestedRule))
                                     .toList()
                                     .toArray(new String[0])
                     );

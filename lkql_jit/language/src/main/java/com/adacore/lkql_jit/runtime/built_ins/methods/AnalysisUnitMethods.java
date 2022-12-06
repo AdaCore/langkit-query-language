@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
+import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
@@ -31,6 +32,8 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.NullValue;
+
+import java.util.ArrayList;
 
 
 /**
@@ -85,6 +88,13 @@ public final class AnalysisUnitMethods extends CommonMethods {
                 new Expr[]{null},
                 new NameExpr()
         ));
+        this.methods.put("tokens", new BuiltInFunctionValue(
+                "tokens",
+                "Return the tokens of the unit",
+                new String[]{"unit"},
+                new Expr[]{null},
+                new TokensExpr()
+        ));
     }
 
     // ----- Override methods -----
@@ -115,6 +125,23 @@ public final class AnalysisUnitMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
+        }
+    }
+
+    /**
+     * Expression of the "tokens" method
+     */
+    public final static class TokensExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            Libadalang.AnalysisUnit unit = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
+            Libadalang.Token current = unit.getFirstToken();
+            ArrayList<Libadalang.Token> resList = new ArrayList<>();
+            while(current != null) {
+                resList.add(current);
+                current = current.next();
+            }
+            return new ListValue(resList.toArray(new Libadalang.Token[0]));
         }
     }
 
