@@ -1,6 +1,6 @@
 # Flag xxx'Image when the type of xxx is non discrete.
 
-@check(help="possible occurrence of KP V708-029", impact="22.*,23.*",
+@check(help="possible occurrence of KP V708-029", impact="22.*",
        message="possible occurrence of KP V708-029 if type has array of character component")
 fun kp_v708_029(node) =
     node is AttributeRef
