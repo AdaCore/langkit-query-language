@@ -13,6 +13,7 @@ selector defining_names
 
 fun has_rep_aspect(node) =
    node.p_has_aspect("Address") or
+   node.p_has_aspect("Alignment") or
    node.p_has_aspect("Size") or
    node.p_has_aspect("Component_Size") or
    node.p_has_aspect("External_Tag") or
