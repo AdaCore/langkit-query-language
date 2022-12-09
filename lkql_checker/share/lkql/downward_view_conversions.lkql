@@ -8,5 +8,6 @@ fun downward_view_conversions(node) =
             BaseTypeDecl(p_base_subtype() is
                          target@BaseTypeDecl(p_is_tagged_type() is true)))
     # Where the target type is derived from the type of the conversion argument
-    when
-    target.p_is_derived_type(node.f_suffix[1].f_r_expr?.p_expression_type())
+    when node.f_suffix[1].f_r_expr?.p_expression_type() is expr_type@BaseTypeDecl
+     and target != expr_type
+     and target.p_is_derived_type(expr_type)
