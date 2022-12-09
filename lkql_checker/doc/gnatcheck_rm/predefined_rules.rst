@@ -4178,6 +4178,62 @@ This rule has the following (optional) parameter for the ``+R`` option:
                A = B + A;
 
 
+.. _Use_If_Expressions:
+
+``Use_If_Expressions``
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_If_Expressions
+
+Flag ``if`` statements which could be replaced by an ``if`` expression.
+This rule detects the following code patterns:
+
+.. code-block:: ada
+
+   if ... then
+      return ...;
+   elsif ... then    --  optional chain of elsif
+      return ...;
+   else
+      return ...;
+   end if;
+
+and:
+
+.. code-block:: ada
+
+   if ... then
+      <LHS> := ...;
+   elsif ... then    --  optional chain of elsif
+      <LHS> := ...;
+   else
+      <LHS> := ...;  --  same LHS on all branches
+   end if;
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1, 9
+
+   if X = 1 then   --  FLAG
+      return 1;
+   elsif X = 2 then
+      return 2;
+   else
+      return 3;
+   end if;
+
+   if X >= 2 then   --  FLAG
+      X := X + 1;
+   elsif X <= 0 then
+      X := X - 1;
+   else
+      X := 0;
+   end if;
+
+
 .. _USE_PACKAGE_Clauses:
 
 ``USE_PACKAGE_Clauses``
@@ -4198,7 +4254,6 @@ This rule has no parameters.
    with Ada.Text_IO;
    use Ada.Text_IO;                               --  FLAG
    procedure Bar (S : in out String) is
-
 
 
 .. _Variable_Scoping:

@@ -1,0 +1,37 @@
+# Flag if statements which could be replaced by an if expression.
+# This rule recognizes if statements of the form:
+#      if ... then
+#         return ...;
+#      [elsif ... then
+#         return ...;]
+#      else
+#         return ...;
+#      end if;
+# and:
+#      if ... then
+#         <LHS> := ...;
+#      [elsif ... then
+#         <LHS> := ...;]
+#      else
+#         <LHS> := ...;
+#      end if;
+
+fun simple_return(l) = l.children_count == 1 and l[1] is ReturnStmt
+fun simple_assignment(l) =
+    l.children_count == 1 and l[1] is AssignStmt(f_dest is Name)
+
+@check(message="if statement may be replaced by an if expression",
+       category="Style", subcategory="Programming Practice")
+fun use_if_expressions(node) =
+    node is IfStmt
+    when (simple_return(node.f_then_stmts) and
+          simple_return(node.f_else_stmts) and
+          not [s for s in node.f_alternatives.children
+               if not simple_return(s.f_stmts)])
+      or (simple_assignment(node.f_then_stmts) and
+          simple_assignment(node.f_else_stmts) and
+          not [s for s in node.f_alternatives.children
+               if not simple_assignment(s.f_stmts)] and {
+          val stmts = from node select AssignStmt;
+          val lhs = stmts[1].f_dest;
+          not [s for s in stmts if not s.f_dest.p_name_matches(lhs)]})

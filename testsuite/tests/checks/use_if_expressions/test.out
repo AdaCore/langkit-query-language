@@ -1,0 +1,12 @@
+stmt.adb:4:4: rule violation: if statement may be replaced by an if expression
+4 |    if X = 1 then   --  FLAG
+  |    ^^^^^^^
+
+stmt.adb:16:4: rule violation: if statement may be replaced by an if expression
+16 |    if X = 1 then   --  FLAG
+   |    ^^^^^^^
+
+stmt.adb:40:4: rule violation: if statement may be replaced by an if expression
+40 |    if X >= 2 then   --  FLAG
+   |    ^^^^^^^
+
