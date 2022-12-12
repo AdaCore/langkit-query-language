@@ -19,5 +19,6 @@ fun deep_inheritance_hierarchies(node, n: int = 2) =
     node is TypeDecl(parent is not GenericFormalTypeDecl,
                      f_type_def is not
                      DerivedTypeDef(f_has_with_private is WithPrivatePresent),
+                     p_is_tagged_type() is true,
                      p_next_part_for_decl() is null)
     when deep_inheritance(node, n+1)
