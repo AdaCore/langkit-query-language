@@ -230,7 +230,7 @@ fun identifier_prefixes(unit,
     # Look one level up for remaining cases
     | p@* => match p.parent
         # Constants
-        | ObjectDecl(p_is_constant_object() is true, p_public_part_decl() is null)
+        | (ObjectDecl(p_is_constant_object() is true) when not node.p_previous_part())
           or NumberDecl
         =>
             (constant != "-" and not node.f_name.text.starts_with(constant)) or
@@ -255,6 +255,6 @@ fun identifier_prefixes(unit,
         # and renaming-as-body
         | p2@* =>
             (not p2 is (BodyNode or SubpRenamingDecl) or not p2.p_previous_part()) and
-            (not p2 is ObjectDecl or not p2.p_public_part_decl()) and
+            (not p2 is ObjectDecl or not node.p_previous_part()) and
             check_exclusive(node.f_name.text, exclusive=exclusive)]
 }
