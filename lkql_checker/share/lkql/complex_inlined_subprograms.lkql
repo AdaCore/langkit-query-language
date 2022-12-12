@@ -38,10 +38,11 @@ fun complex_statement(stmts) =
 
 fun is_complex_subp(node, n) =
     |" Return true is node is a complex subprogram body as defined above
-    complex_declaration(node?.f_decls) or
-    complex_statement(node?.f_stmts) or
-    # Check for number of statements
-    [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n
+    node is SubpBody and
+    (complex_declaration(node.f_decls) or
+     complex_statement(node.f_stmts) or
+     # Check for number of statements
+     [s for s in node?.f_stmts?.f_stmts?.children if s is Stmt].length > n)
 
 @unit_check(help="complex inlined subprograms", category="Feature")
 fun complex_inlined_subprograms(unit, n : int = 5) = [
