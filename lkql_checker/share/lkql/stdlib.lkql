@@ -305,8 +305,8 @@ fun is_constant_object(node) =
 
 @memoized
 fun get_subp_body(node) =
-    |" Return the SubpBody or TaskBody corresponding to node, if any, null
-    |" otherwise.
+    |" Return the SubpBody, TaskBody or ExprFunction corresponding to node,
+    |" if any, null otherwise.
     match node
     | SubpRenamingDecl =>
         get_subp_body(node.f_renames.f_renamed_object.p_referenced_decl())
