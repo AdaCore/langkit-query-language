@@ -5,7 +5,7 @@
 import stdlib
 
 fun get_block(list) =
-    stdlib.enclosing_block(list[list.length].ref)
+    if list.length == 0 then null else stdlib.enclosing_block(list[list.length].ref)
 
 fun check_references(list, subp) = {
     val block = get_block(list);
