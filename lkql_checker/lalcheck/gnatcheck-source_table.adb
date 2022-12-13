@@ -55,7 +55,7 @@ with Langkit_Support.Generic_API.Introspection;
 with Libadalang.Analysis;         use Libadalang.Analysis;
 with Libadalang.Helpers;          use Libadalang.Helpers;
 with Libadalang.Auto_Provider;    use Libadalang.Auto_Provider;
-with Libadalang.GPR2_Provider;    use Libadalang.GPR2_Provider;
+with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
@@ -1574,7 +1574,7 @@ package body Gnatcheck.Source_Table is
    -- Create_Context --
    --------------------
 
-   Partition : Provider_And_Projects_Array_Access;
+   Partition : GPR2_Provider_And_Projects_Array_Access;
 
    function Create_Context return Lkql_Context is
       Ctx   : Lkql_Context;
