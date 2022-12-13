@@ -654,7 +654,7 @@ package body Gnatcheck.Rules is
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
       if Rule.All_Flag = On then
-         Report_No_EOL (":ALL");
+         Put (Rule_File, ":ALL");
          First_Param := False;
       else
          Print (Rule.Forbidden);
