@@ -1,0 +1,8 @@
+p.adb:11:25: rule violation: possible occurrence of KP VB20-002 if using -O2 or above
+11 |    Marshalled_Result := Array_SSO (Result);                    --  FLAG
+   |                         ^^^^^^^^^^^^^^^^^^
+
+p.adb:12:27: rule violation: possible occurrence of KP VB20-002 if using -O2 or above
+12 |    Unmarshalled_Result := Test_Data_Type (Marshalled_Result);  --  FLAG
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
