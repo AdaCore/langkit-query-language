@@ -98,4 +98,11 @@ public final class Stack<T> {
         return this.content.size();
     }
 
+    // ----- Override methods -----
+
+    @Override
+    public String toString() {
+        return this.content.toString();
+    }
+
 }

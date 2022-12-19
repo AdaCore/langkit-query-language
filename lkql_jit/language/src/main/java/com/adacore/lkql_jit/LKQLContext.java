@@ -26,16 +26,14 @@ package com.adacore.lkql_jit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.adacore.libadalang.Libadalang;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -50,10 +48,6 @@ public final class LKQLContext {
     /** Environment of the language */
     @CompilerDirectives.CompilationFinal
     private TruffleLanguage.Env env;
-
-    /** The directories that contain the rules */
-    @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] ruleDirs;
 
     /** The global values of the LKQL execution */
     private final GlobalScope globalValues;
@@ -78,6 +72,47 @@ public final class LKQLContext {
     /** The root nodes of the parsed ada files */
     private Libadalang.AdaNode[] adaNodes;
 
+    // ----- Checker attributes -----
+
+    /** The rule arguments */
+    private final Map<String, Map<String, Object>> rulesArgs;
+
+    /** The filtered not checkers cache */
+    private ObjectValue[] filteredNodeCheckers = null;
+
+    /** The filtered unit checkers cache */
+    private ObjectValue[] filteredUnitCheckers = null;
+
+    // ----- Option caches -----
+
+    /** If the language is in the verbose mode */
+    @CompilerDirectives.CompilationFinal
+    private Boolean isVerbose = null;
+
+    /** If the language is in the checker mode */
+    @CompilerDirectives.CompilationFinal
+    private Boolean isChecker = null;
+
+    /** The project file to analyse */
+    @CompilerDirectives.CompilationFinal
+    private String projectFile = null;
+
+    /** The ada files passed throught command line */
+    @CompilerDirectives.CompilationFinal
+    private String[] files = null;
+
+    /** The error printing mode */
+    @CompilerDirectives.CompilationFinal
+    private String errorMode = null;
+
+    /** The rle to execute */
+    @CompilerDirectives.CompilationFinal
+    private String rule;
+
+    /** The directories where the rule files are located */
+    @CompilerDirectives.CompilationFinal
+    private String[] rulesDirs;
+
     // ----- Constructors -----
 
     /**
@@ -92,8 +127,8 @@ public final class LKQLContext {
     ) {
         this.env = env;
         this.globalValues = globalValues;
-        this.ruleDirs = this.env.getOptions().get(LKQLLanguage.ruleDirs).replace(" ", "").split(":");
         this.adaSourceFiles = new ArrayList<>();
+        this.rulesArgs = new HashMap<>();
         this.parsed = false;
     }
 
@@ -104,7 +139,7 @@ public final class LKQLContext {
      */
     public void finalizeContext() {
         this.adaContext.close();
-        this.projectManager.close();
+        if(this.projectManager != null) this.projectManager.close();
     }
 
     // ----- Getters -----
@@ -135,10 +170,6 @@ public final class LKQLContext {
         return this.adaNodes;
     }
 
-    public String[] getRuleDirs() {
-        return this.ruleDirs;
-    }
-
     public boolean isRootContext() {
         return this.globalValues.getStackSize() == 0;
     }
@@ -148,7 +179,7 @@ public final class LKQLContext {
     public void patchContext(TruffleLanguage.Env newEnv) {
         CompilerDirectives.transferToInterpreterAndInvalidate();
         this.env = newEnv;
-        this.ruleDirs = this.env.getOptions().get(LKQLLanguage.ruleDirs).replace(" ", "").split(":");
+        this.invalidateOptionCaches();
         this.initSources();
     }
 
@@ -160,7 +191,10 @@ public final class LKQLContext {
      * @return True if the verbose flag is on
      */
     public boolean isVerbose() {
-        return this.env.getOptions().get(LKQLLanguage.verbose);
+        if(this.isVerbose == null) {
+            this.isVerbose = this.env.getOptions().get(LKQLLanguage.verbose);
+        }
+        return this.isVerbose;
     }
 
     /**
@@ -169,7 +203,10 @@ public final class LKQLContext {
      * @return True if the language is in checher mode
      */
     public boolean isChecker() {
-        return this.env.getOptions().get(LKQLLanguage.checkerMode);
+        if(this.isChecker == null) {
+            this.isChecker = this.env.getOptions().get(LKQLLanguage.checkerMode);
+        }
+        return this.isChecker;
     }
 
     /**
@@ -178,7 +215,10 @@ public final class LKQLContext {
      * @return The project file in a string
      */
     public String getProjectFile() {
-        return this.env.getOptions().get(LKQLLanguage.projectFile);
+        if(this.projectFile == null) {
+            this.projectFile = this.env.getOptions().get(LKQLLanguage.projectFile);
+        }
+        return this.projectFile;
     }
 
     /**
@@ -187,7 +227,10 @@ public final class LKQLContext {
      * @return The files to analyse in an array
      */
     public String[] getFiles() {
-        return this.env.getOptions().get(LKQLLanguage.files).replace(" ", "").split(":");
+        if(this.files == null) {
+            this.files = this.env.getOptions().get(LKQLLanguage.files).replace(" ", "").split(":");
+        }
+        return this.files;
     }
 
     /**
@@ -196,7 +239,10 @@ public final class LKQLContext {
      * @return The mode in a string
      */
     public String getErrorMode() {
-        return this.env.getOptions().get(LKQLLanguage.errorMode);
+        if(this.errorMode == null) {
+            this.errorMode = this.env.getOptions().get(LKQLLanguage.errorMode);
+        }
+        return this.errorMode;
     }
 
     /**
@@ -206,7 +252,35 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public String getRule() {
-        return this.env.getOptions().get(LKQLLanguage.rule);
+        if(this.rule == null) {
+            this.rule = this.env.getOptions().get(LKQLLanguage.rule);
+        }
+        return this.rule;
+    }
+
+    /**
+     * Get the directories to get the rules from
+     *
+     * @return The directory array
+     */
+    public String[] getRulesDirs() {
+        if(this.rulesDirs == null) {
+            this.rulesDirs = this.env.getOptions().get(LKQLLanguage.rulesDirs).replace(" ", "").split(":");
+        }
+        return this.rulesDirs;
+    }
+
+    /**
+     * Invalidate the option caches
+     */
+    private void invalidateOptionCaches() {
+        this.isVerbose = null;
+        this.isChecker = null;
+        this.projectFile = null;
+        this.files = null;
+        this.errorMode = null;
+        this.rule = null;
+        this.rulesDirs = null;
     }
 
     // ----- Value related methods -----
@@ -302,10 +376,9 @@ public final class LKQLContext {
             this.projectManager = Libadalang.ProjectManager.create(
                     projectFileName,
                     "",
-                    "",
-                    Libadalang.SourceFileMode.ROOT_PROJECT
+                    ""
             );
-            String[] projectFiles = this.projectManager.getFiles();
+            String[] projectFiles = this.projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT);
             if(projectFiles.length > 0) {
                 // Add all ada sources
                 this.adaSourceFiles.addAll(Arrays.stream(projectFiles).toList());
@@ -343,11 +416,90 @@ public final class LKQLContext {
         // For each source file, add its parsing result to the roots
         for(int i = 0 ; i < this.adaSourceFiles.size() ; i++) {
             this.units[i] = this.adaContext.getUnitFromFile(this.adaSourceFiles.get(i));
-            this.adaNodes[i] = this.units[i].root();
+            this.adaNodes[i] = this.units[i].getRoot();
         }
 
         // Set the parsed flag to true
         this.parsed = true;
+    }
+
+    // ----- Checker methods -----
+
+    /**
+     * Add an argument for a rule execution
+     *
+     * @param ruleName The rule name
+     * @param argName The argument name
+     * @param value The value of the argument
+     */
+    @CompilerDirectives.TruffleBoundary
+    public void addRuleArg(String ruleName, String argName, Object value) {
+        Map<String, Object> args = this.rulesArgs.getOrDefault(ruleName, new HashMap<>());
+        args.put(argName, value);
+        this.rulesArgs.put(ruleName, args);
+    }
+
+    /**
+     * Get the argument value for the wanted rule
+     *
+     * @param ruleName The name of the rule to get the arguments for
+     * @param argName The argument name to get
+     * @return The value of the argument for the rule or null
+     */
+    @CompilerDirectives.TruffleBoundary
+    public Object getRuleArg(String ruleName, String argName) {
+        Map<String, Object> ruleArgs = this.rulesArgs.getOrDefault(ruleName, null);
+        return ruleArgs == null ?
+                null :
+                ruleArgs.getOrDefault(argName, null);
+    }
+
+    /**
+     * Get the filtered node rules in this context
+     *
+     * @return The node rule list filtered according to options
+     */
+    @CompilerDirectives.TruffleBoundary
+    public ObjectValue[] getNodeCheckersFiltered() {
+        if(this.filteredNodeCheckers == null) {
+            List<ObjectValue> res = new ArrayList<>();
+            List<ObjectValue> nodeCheckers = this.globalValues.getNodeCheckers();
+            String wantedRule = this.getRule();
+            for(ObjectValue rule : nodeCheckers) {
+                if(wantedRule == null ||
+                        wantedRule.isEmpty() ||
+                        wantedRule.isBlank() ||
+                        wantedRule.equals(rule.get("name"))) {
+                    res.add(rule);
+                }
+            }
+            this.filteredNodeCheckers = res.toArray(new ObjectValue[0]);
+        }
+        return this.filteredNodeCheckers;
+    }
+
+    /**
+     * Get the filtered unit checkers for the context
+     *
+     * @return The list for unit checkers filtered according to options
+     */
+    @CompilerDirectives.TruffleBoundary
+    public ObjectValue[] getUnitCheckersFiltered() {
+        if(this.filteredUnitCheckers == null) {
+            List<ObjectValue> res = new ArrayList<>();
+            List<ObjectValue> unitCheckers = this.globalValues.getUnitCheckers();
+            String wantedRule = this.getRule();
+            for(ObjectValue rule : unitCheckers) {
+                if(wantedRule == null ||
+                        wantedRule.isEmpty() ||
+                        wantedRule.isBlank() ||
+                        wantedRule.equals(rule.get("name"))) {
+                    res.add(rule);
+                }
+            }
+            this.filteredUnitCheckers = res.toArray(new ObjectValue[0]);
+        }
+        return this.filteredUnitCheckers;
     }
 
 }

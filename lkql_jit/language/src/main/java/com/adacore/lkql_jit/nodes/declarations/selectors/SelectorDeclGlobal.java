@@ -77,7 +77,7 @@ public final class SelectorDeclGlobal extends SelectorDecl {
         // Create the selector value
         SelectorValue selectorValue = new SelectorValue(
                 this.descriptor,
-                new Closure(frame.materialize()),
+                null, // TODO : verify the validity of the null closure
                 this.isMemoized,
                 this.name,
                 this.documentation,

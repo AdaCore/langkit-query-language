@@ -32,7 +32,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 
@@ -98,7 +98,7 @@ public abstract class Indexing extends Expr {
     @Specialization
     protected Object indexNode(Libadalang.AdaNode node, long index) {
         if(index > node.getChildrenCount()) {
-            return NullValue.getInstance();
+            return NodeNull.getInstance();
         } else if(index < 1) {
             throw LKQLRuntimeException.invalidIndex((int) index, this);
         }

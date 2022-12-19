@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
@@ -102,6 +103,10 @@ public class FunctionValue implements LKQLValue {
                 name,
                 body
         );
+        LKQLContext context = LKQLLanguage.getContext(this.rootNode.getBody());
+        if(context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
+            this.namespace = context.getGlobalValues().getNamespaceStack().peek();
+        }
     }
 
     // ----- Getters -----
@@ -131,8 +136,16 @@ public class FunctionValue implements LKQLValue {
         return this.rootNode.getBody();
     }
 
+    public Closure getClosure() {
+        return this.rootNode.getClosure();
+    }
+
     public CallTarget getCallTarget() {
         return this.rootNode.getRealCallTarget();
+    }
+
+    public FunctionRootNode getRootNode() {
+        return rootNode;
     }
 
     // ----- Setters -----

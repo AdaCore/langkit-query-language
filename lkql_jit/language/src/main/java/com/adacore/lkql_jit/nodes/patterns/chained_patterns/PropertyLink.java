@@ -87,7 +87,7 @@ public abstract class PropertyLink extends ChainedPatternLink {
      */
     @Specialization(guards = {
             "node == propertyRef.getNode()",
-            "propertyRef.getMethods() != null"
+            "propertyRef.getFieldDescription() != null"
     })
     protected Libadalang.AdaNode[] propertyCached(
             VirtualFrame frame,
@@ -123,7 +123,7 @@ public abstract class PropertyLink extends ChainedPatternLink {
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.propertyName);
 
         // Test if the property is valid
-        if(propertyRef.getMethods() == null) {
+        if(propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
                     this.propertyName,
                     node,

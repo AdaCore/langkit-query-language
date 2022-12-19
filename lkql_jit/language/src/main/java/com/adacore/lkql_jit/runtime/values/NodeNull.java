@@ -27,7 +27,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.adacore.libadalang.Libadalang;
-import org.graalvm.word.WordFactory;
 
 
 /**
@@ -36,28 +35,28 @@ import org.graalvm.word.WordFactory;
  *
  * @author Hugo GUERRIER
  */
-public final class NullValue extends Libadalang.AdaNode implements Nullish, Truthy {
+public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truthy {
 
     // ----- Attributes -----
 
     /** The unique instance of the null value in the LKQL language */
-    private static NullValue instance = null;
+    private static NodeNull instance = null;
 
     // ----- Constructors -----
 
     /**
      * Create a new null value, private for the singleton
      */
-    private NullValue() {
-        super(new Libadalang.Entity(
-                Libadalang.CustomPointer.nullPointer(),
-                new Libadalang.EntityInfo(
-                        new Libadalang.Metadata(
+    private NodeNull() {
+        super(Libadalang.Entity.create(
+                Libadalang.PointerWrapper.nullPointer(),
+                Libadalang.EntityInfo.create(
+                        Libadalang.Metadata.create(
                                 false,
-                                Libadalang.CustomPointer.nullPointer(),
-                                Libadalang.CustomPointer.nullPointer()
+                                Libadalang.PointerWrapper.nullPointer(),
+                                Libadalang.PointerWrapper.nullPointer()
                         ),
-                        Libadalang.CustomPointer.nullPointer(),
+                        Libadalang.PointerWrapper.nullPointer(),
                         false
                 )
         ));
@@ -68,9 +67,9 @@ public final class NullValue extends Libadalang.AdaNode implements Nullish, Trut
      *
      * @return The instance of null value
      */
-    public static NullValue getInstance() {
+    public static NodeNull getInstance() {
         if(instance == null) {
-            instance = new NullValue();
+            instance = new NodeNull();
         }
         return instance;
     }
@@ -90,12 +89,6 @@ public final class NullValue extends Libadalang.AdaNode implements Nullish, Trut
     }
     
     // ----- Override methods -----
-
-    /** @see com.adacore.libadalang.Libadalang.AdaNode#isNull() */
-    @Override
-    public boolean isNull() {
-        return true;
-    }
 
     @Override
     public String toString() {

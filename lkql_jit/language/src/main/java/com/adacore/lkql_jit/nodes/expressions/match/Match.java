@@ -77,20 +77,11 @@ public final class Match extends Expr {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the expression as a node
-        Libadalang.AdaNode adaNode;
-        try {
-            adaNode = this.matchedExpr.executeNode(frame);
-        } catch (UnexpectedResultException e) {
-            throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.matchedExpr
-            );
-        }
+        Object toMatch = this.matchedExpr.executeGeneric(frame);
 
         // For every match arm try to match and return the result
         for(MatchArm arm : this.arms) {
-            Object armResult = arm.executeArm(frame, adaNode);
+            Object armResult = arm.executeArm(frame, toMatch);
             if(armResult != null) {
                 return armResult;
             }

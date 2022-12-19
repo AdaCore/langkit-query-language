@@ -36,7 +36,7 @@ import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
@@ -196,7 +196,7 @@ public final class Query extends Expr {
             }
 
             // Return the null value if there is none
-            return NullValue.getInstance();
+            return NodeNull.getInstance();
         }
     }
 
@@ -233,7 +233,7 @@ public final class Query extends Expr {
 
             // Else, the pattern is a basic one
             else {
-                if(this.pattern.executePattern(frame, adaNode)) {
+                if(this.pattern.executeNode(frame, adaNode)) {
                     resList.add(adaNode);
                 }
             }
@@ -271,7 +271,7 @@ public final class Query extends Expr {
 
             // Else, the pattern is a basic one
             else {
-                if(this.pattern.executePattern(frame, adaNode)) {
+                if(this.pattern.executeNode(frame, adaNode)) {
                     return adaNode;
                 }
             }

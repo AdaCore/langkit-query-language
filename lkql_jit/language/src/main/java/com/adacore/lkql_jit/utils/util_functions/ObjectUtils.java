@@ -32,7 +32,7 @@ public final class ObjectUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static String toString(Object o) {
-        return o.toString();
+        return o == null ? "null" : o.toString();
     }
 
 }

@@ -77,7 +77,7 @@ if len(sys.argv) < 3:
 
 lkql_version = sys.argv[1]
 graal_version = sys.argv[2]
-include_checker = sys.argv[3] == "true"
+include_checker = "--checker" in sys.argv
 
 # Set the directory names
 comp_dir = "comp_temp"
@@ -91,6 +91,11 @@ shutil.rmtree(comp_dir, ignore_errors=True)
 os.makedirs(meta_dir, exist_ok=True)
 os.makedirs(lang_dir, exist_ok=True)
 os.makedirs(bin_dir, exist_ok=True)
+
+shutil.copy(
+    os.path.join("..", "language", "target", "lkql_jit.jar"),
+    os.path.join(lang_dir, "lkql_jit.jar")
+)
 
 shutil.copy(
     os.path.join("..", "native", "bin", "lkql_jit"),
@@ -109,7 +114,7 @@ f.close()
 # Write the manifest
 f = open(os.path.join(meta_dir, "MANIFEST.MF"), 'w')
 f.writelines([
-    "Bundle-Name: LKQL JIT\n",
+    "Bundle-Name: Langkit Query Language JIT\n",
     "Bundle-Symbolic-Name: com.adacore.lkql_jit\n",
     "Bundle-Version: {}\n".format(lkql_version),
     "Bundle-RequireCapability: org.graalvm; " +

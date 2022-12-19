@@ -73,11 +73,11 @@ public final class FilteredPattern extends BasePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // If the pattern match, execute the predicate
-        if (this.pattern.executePattern(frame, node)) {
+        if (this.pattern.executeNode(frame, node)) {
             // Try to execute the predicate in a boolean
             try {
                 return this.predicate.executeBoolean(frame);

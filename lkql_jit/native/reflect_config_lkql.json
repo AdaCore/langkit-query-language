@@ -476,13 +476,6 @@
         "allPublicMethods" : true
     },
     {
-        "name" : "com.adacore.liblkqllang.Liblkqllang$TryWith",
-        "allDeclaredConstructors" : true,
-        "allPublicConstructors" : true,
-        "allDeclaredMethods" : true,
-        "allPublicMethods" : true
-    },
-    {
         "name" : "com.adacore.liblkqllang.Liblkqllang$Tuple",
         "allDeclaredConstructors" : true,
         "allPublicConstructors" : true,
@@ -588,13 +581,6 @@
         "allPublicMethods" : true
     },
     {
-        "name" : "com.adacore.liblkqllang.Liblkqllang$NamedArgList",
-        "allDeclaredConstructors" : true,
-        "allPublicConstructors" : true,
-        "allDeclaredMethods" : true,
-        "allPublicMethods" : true
-    },
-    {
         "name" : "com.adacore.liblkqllang.Liblkqllang$NodePatternDetailList",
         "allDeclaredConstructors" : true,
         "allPublicConstructors" : true,
@@ -631,13 +617,6 @@
     },
     {
         "name" : "com.adacore.liblkqllang.Liblkqllang$SubBlockLiteralList",
-        "allDeclaredConstructors" : true,
-        "allPublicConstructors" : true,
-        "allDeclaredMethods" : true,
-        "allPublicMethods" : true
-    },
-    {
-        "name" : "com.adacore.liblkqllang.Liblkqllang$TryArmList",
         "allDeclaredConstructors" : true,
         "allPublicConstructors" : true,
         "allDeclaredMethods" : true,
@@ -883,13 +862,6 @@
     },
     {
         "name" : "com.adacore.liblkqllang.Liblkqllang$SubBlockLiteral",
-        "allDeclaredConstructors" : true,
-        "allPublicConstructors" : true,
-        "allDeclaredMethods" : true,
-        "allPublicMethods" : true
-    },
-    {
-        "name" : "com.adacore.liblkqllang.Liblkqllang$TryArm",
         "allDeclaredConstructors" : true,
         "allPublicConstructors" : true,
         "allDeclaredMethods" : true,

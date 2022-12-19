@@ -23,7 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
+import com.adacore.lkql_jit.nodes.patterns.RegexPattern;
+import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -37,7 +42,7 @@ import com.adacore.lkql_jit.nodes.patterns.BasePattern;
  *
  * @author Hugo GUERRIER
  */
-public final class MatchArm extends LKQLNode {
+public abstract class MatchArm extends LKQLNode {
 
     // ----- Children -----
 
@@ -60,7 +65,7 @@ public final class MatchArm extends LKQLNode {
      * @param pattern The pattern of the match arm
      * @param expr The result of the match arm
      */
-    public MatchArm(
+    protected MatchArm(
             SourceLocation location,
             BasePattern pattern,
             Expr expr
@@ -81,24 +86,62 @@ public final class MatchArm extends LKQLNode {
     }
 
     // ----- Execution methods -----
-
+    
     /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
     /**
      * Verify the pattern of the arm and if matched, execute the arm expression
      *
-     * @param frame The frame to execute in
-     * @param node The node to match
+     * @param toMatch The node to match
      * @return The result of the arm expression if the pattern is valid, null else
      */
-    public Object executeArm(VirtualFrame frame, Libadalang.AdaNode node) {
-        if(this.pattern.executePattern(frame, node)) {
+    public abstract Object executeArm(VirtualFrame frame, Object toMatch);
+
+    /**
+     * Execute the matching arm on a node value
+     *
+     * @param frame The frame to execute in
+     * @param node The node value
+     * @return The match expression if the pattern is valid
+     */
+    @Specialization
+    protected Object onNode(VirtualFrame frame, Libadalang.AdaNode node) {
+        if(this.pattern.executeNode(frame, node)) {
             return this.expr.executeGeneric(frame);
+        } else {
+            return null;
         }
+    }
+
+    /**
+     * Execute the matching arm on a string value
+     *
+     * @param frame The frame to execute in
+     * @param str The string value
+     * @return The match expression if the pattern is valid
+     */
+    @Specialization
+    protected Object onString(VirtualFrame frame, String str) {
+        if(this.pattern.executeString(frame, str)) {
+            return this.expr.executeGeneric(frame);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Fallback when the value cannot be matched
+     *
+     * @param frame The frame to execute in
+     * @param other The value
+     * @return Just null
+     */
+    @Fallback
+    protected Object onOther(VirtualFrame frame, Object other) {
         return null;
     }
 

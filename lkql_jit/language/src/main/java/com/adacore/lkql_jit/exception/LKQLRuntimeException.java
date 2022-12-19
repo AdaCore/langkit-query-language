@@ -446,7 +446,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      * @param location The location to generate the position text for
      * @return The string representing the token
      */
-    private static String positionText(Locatable location) {
+    private static String sourceText(Locatable location) {
         // Get the positional information
         int startLine = location.getLocation().getStartLine();
         int endLine = location.getLocation().getEndLine();
@@ -457,11 +457,11 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
                 startLine - 1,
                 endLine
         );
-        return StringUtils.underlinedSource(
+        return StringUtils.underlineSource(
                 lines,
                 startLine,
-                endLine,
                 startCol,
+                endLine,
                 endCol,
                 StringUtils.ANSI_RED
         );
@@ -477,7 +477,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     private static String fullErrorText(String errorMessage, Locatable location) {
         return baseErrorText(location) +
                 errorMessage + "\n" +
-                positionText(location);
+                sourceText(location) + "\n";
     }
 
 }

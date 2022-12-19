@@ -25,6 +25,7 @@ package com.adacore.lkql_jit;
 
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.*;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
@@ -43,7 +44,6 @@ import java.math.BigInteger;
  */
 @TypeSystem({
         UnitValue.class,
-        Nullish.class,
         long.class,
         BigInteger.class,
         String.class,
@@ -64,6 +64,7 @@ import java.math.BigInteger;
         boolean.class,
         ObjectValue.class,
         NamespaceValue.class,
+        Nullish.class,
         LKQLValue.class,
 })
 public abstract class LKQLTypeSystem {
@@ -102,7 +103,7 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(Nullish.class)
     public static boolean isNullish(Object value) {
-        return value == UnitValue.getInstance() || value == NullValue.getInstance();
+        return value == UnitValue.getInstance() || value == NodeNull.getInstance();
     }
 
     // ----- Boolean value methods -----
@@ -135,7 +136,7 @@ public abstract class LKQLTypeSystem {
         }
 
         else if(value instanceof Libadalang.AdaNode adaNode) {
-            return !adaNode.isNull();
+            return !NodeNull.getInstance().equals(adaNode);
         }
 
         return false;
@@ -188,7 +189,7 @@ public abstract class LKQLTypeSystem {
         }
 
         // Return the default value
-        return NullValue.getInstance();
+        return NodeNull.getInstance();
     }
 
 }

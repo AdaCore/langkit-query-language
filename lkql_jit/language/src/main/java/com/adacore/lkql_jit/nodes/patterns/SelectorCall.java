@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
@@ -36,7 +37,6 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
-import com.adacore.lkql_jit.nodes.expressions.variables.ReadVariable;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.SelectorListValue;
@@ -83,7 +83,7 @@ public final class SelectorCall extends LKQLNode {
     /** The selector to call */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private ReadVariable selectorVar;
+    private Expr selectorExpr;
 
     /** The arguments for the selector call */
     @Child
@@ -99,7 +99,7 @@ public final class SelectorCall extends LKQLNode {
      * @param quantifier The quantifier for the selector
      * @param bindingSlot The slot of the binding
      * @param bindingMode The mode of the binding
-     * @param selectorVar The selector variable to read
+     * @param selectorExpr The selector expression
      * @param args The arguments for the call
      */
     public SelectorCall(
@@ -107,14 +107,14 @@ public final class SelectorCall extends LKQLNode {
             Quantifier quantifier,
             int bindingSlot,
             Mode bindingMode,
-            ReadVariable selectorVar,
+            Expr selectorExpr,
             ArgList args
     ) {
         super(location);
         this.quantifier = quantifier;
         this.bindingSlot = bindingSlot;
         this.bindingMode = bindingMode;
-        this.selectorVar = selectorVar;
+        this.selectorExpr = selectorExpr;
         this.args = args;
     }
 
@@ -204,12 +204,12 @@ public final class SelectorCall extends LKQLNode {
      */
     private SelectorListValue getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the selector and verify its type
-        Object selectorObject = this.selectorVar.executeGeneric(frame);
+        Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if(!LKQLTypeSystemGen.isSelectorValue(selectorObject)) {
             throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_SELECTOR,
                     LKQLTypesHelper.fromJava(selectorObject),
-                    this.selectorVar
+                    this.selectorExpr
             );
         }
 
@@ -218,48 +218,50 @@ public final class SelectorCall extends LKQLNode {
         int maxDepth = -1;
         int minDepth = -1;
 
-        for(Arg rawArg : args.getArgs()) {
-            NamedArg arg = (NamedArg) rawArg;
+        if(this.args != null) {
+            for(Arg rawArg : args.getArgs()) {
+                NamedArg arg = (NamedArg) rawArg;
 
-            // If the depth is given
-            switch (arg.getArgName().getName()) {
-                case "depth":
-                    try {
-                        depth = (int) arg.getArgExpr().executeLong(frame);
-                    } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_INTEGER,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
-                        );
-                    }
-                    break;
+                // If the depth is given
+                switch (arg.getArgName().getName()) {
+                    case "depth":
+                        try {
+                            depth = (int) arg.getArgExpr().executeLong(frame);
+                        } catch (UnexpectedResultException e) {
+                            throw LKQLRuntimeException.wrongType(
+                                    LKQLTypesHelper.LKQL_INTEGER,
+                                    LKQLTypesHelper.fromJava(e.getResult()),
+                                    arg.getArgExpr()
+                            );
+                        }
+                        break;
 
-                // If the maximum depth is given
-                case "max_depth":
-                    try {
-                        maxDepth = (int) arg.getArgExpr().executeLong(frame);
-                    } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_INTEGER,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
-                        );
-                    }
-                    break;
+                    // If the maximum depth is given
+                    case "max_depth":
+                        try {
+                            maxDepth = (int) arg.getArgExpr().executeLong(frame);
+                        } catch (UnexpectedResultException e) {
+                            throw LKQLRuntimeException.wrongType(
+                                    LKQLTypesHelper.LKQL_INTEGER,
+                                    LKQLTypesHelper.fromJava(e.getResult()),
+                                    arg.getArgExpr()
+                            );
+                        }
+                        break;
 
-                // If the minimum depth is given
-                case "min_depth":
-                    try {
-                        minDepth = (int) arg.getArgExpr().executeLong(frame);
-                    } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_INTEGER,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
-                        );
-                    }
-                    break;
+                    // If the minimum depth is given
+                    case "min_depth":
+                        try {
+                            minDepth = (int) arg.getArgExpr().executeLong(frame);
+                        } catch (UnexpectedResultException e) {
+                            throw LKQLRuntimeException.wrongType(
+                                    LKQLTypesHelper.LKQL_INTEGER,
+                                    LKQLTypesHelper.fromJava(e.getResult()),
+                                    arg.getArgExpr()
+                            );
+                        }
+                        break;
+                }
             }
         }
 
@@ -281,7 +283,7 @@ public final class SelectorCall extends LKQLNode {
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
             DepthNode depthNode = (DepthNode) iterator.next();
-            if(!pattern.executePattern(frame, depthNode.getNode())) return false;
+            if(!pattern.executeNode(frame, depthNode.getNode())) return false;
         }
 
         // Return validation of all nodes
@@ -301,7 +303,7 @@ public final class SelectorCall extends LKQLNode {
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
             DepthNode depthNode = (DepthNode) iterator.next();
-            if(pattern.executePattern(frame, depthNode.getNode())) return true;
+            if(pattern.executeNode(frame, depthNode.getNode())) return true;
         }
 
         // Return false if no node verify the pattern
@@ -324,7 +326,7 @@ public final class SelectorCall extends LKQLNode {
         Iterator iterator = selectorListValue.iterator();
         while(iterator.hasNext()) {
             DepthNode depthNode = (DepthNode) iterator.next();
-            if(pattern.executePattern(frame, depthNode.getNode())) {
+            if(pattern.executeNode(frame, depthNode.getNode())) {
                 resList.add(depthNode.getNode());
             }
         }

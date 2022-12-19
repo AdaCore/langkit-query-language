@@ -90,6 +90,12 @@ public final class ListComprehensionRootNode extends RootNode {
         this.result = result;
     }
 
+    // ----- Getters -----
+
+    public Expr getResult() {
+        return result;
+    }
+
     // ----- Setters -----
 
     public void setClosure(Closure closure) {
@@ -182,12 +188,6 @@ public final class ListComprehensionRootNode extends RootNode {
     @Override
     public String toString() {
         return "ListComprehension";
-    }
-
-    /** @see com.oracle.truffle.api.nodes.RootNode#getSourceSection() */
-    @Override
-    public SourceSection getSourceSection() {
-        return this.result.getLocation().createSection();
     }
 
 }

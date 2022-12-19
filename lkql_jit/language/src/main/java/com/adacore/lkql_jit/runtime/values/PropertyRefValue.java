@@ -35,6 +35,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.adacore.libadalang.Libadalang;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 
@@ -53,8 +54,8 @@ public final class PropertyRefValue implements LKQLValue {
     /** The property name */
     private final String propertyName;
 
-    /** The methods map */
-    private final Map<Integer, Method> methods;
+    /** The field Java description */
+    public final Libadalang.LibadalangField fieldDescription;
 
     // ----- Constructors -----
 
@@ -70,7 +71,7 @@ public final class PropertyRefValue implements LKQLValue {
     ) {
         this.node = node;
         this.propertyName = propertyName;
-        this.methods = node.getMethods(this.propertyName);
+        this.fieldDescription = node.getFieldDescription(propertyName);
     }
 
     /**
@@ -97,8 +98,8 @@ public final class PropertyRefValue implements LKQLValue {
         return this.propertyName;
     }
 
-    public Map<Integer, Method> getMethods() {
-        return this.methods;
+    public Libadalang.LibadalangField getFieldDescription() {
+        return this.fieldDescription;
     }
 
     // ----- Class methods -----
@@ -121,13 +122,13 @@ public final class PropertyRefValue implements LKQLValue {
      */
     public Object execute(Locatable caller, ArgList argList, Object ... arguments) {
         try {
-            return LKQLTypesHelper.toLKQLValue(ReflectionUtils.callProperty(
+            return ReflectionUtils.callProperty(
                     this.node,
-                    this.methods,
+                    this.fieldDescription,
                     caller,
                     argList,
                     arguments
-            ));
+            );
         } catch (UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
                     e.getType(),
@@ -144,12 +145,12 @@ public final class PropertyRefValue implements LKQLValue {
      */
     public Object executeAsField(Locatable caller) {
         try {
-            return LKQLTypesHelper.toLKQLValue(ReflectionUtils.callProperty(
+            return ReflectionUtils.callProperty(
                     this.node,
-                    this.methods,
+                    this.fieldDescription,
                     caller,
                     null
-            ));
+            );
         } catch (UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
                     e.getType(),
@@ -165,7 +166,7 @@ public final class PropertyRefValue implements LKQLValue {
     public boolean internalEquals(LKQLValue o) {
         if(o == this) return true;
         if(!(o instanceof PropertyRefValue other)) return false;
-        return this.methods == other.methods;
+        return this.fieldDescription == other.fieldDescription;
     }
 
     // ----- Override methods -----

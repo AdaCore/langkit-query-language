@@ -36,6 +36,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -180,21 +181,21 @@ public abstract class FunCall extends Expr {
         // Get the node context
         LKQLContext context = LKQLLanguage.getContext(this);
 
+        // Verify if the function has a namespace then push it
+        boolean pushed = false;
+        if(functionValue.getNamespace() != null && context.getGlobalValues().getNamespaceStack().peek() != functionValue.getNamespace()) {
+            context.getGlobalValues().pushNamespace(functionValue.getNamespace());
+            pushed = true;
+        }
+
         // Prepare the result
         Object res;
-
-        // Verify the namespace in the function
-        if(functionValue.getNamespace() != null) {
-            context.getGlobalValues().pushNamespace(functionValue.getNamespace());
-            try {
-                res = this.dispatcher.executeDispatch(functionValue, realArgs);
-                context.getGlobalValues().finalizeScope();
-            } catch (LangkitException e) {
-                context.getGlobalValues().finalizeScope();
-                throw e;
-            }
-        } else {
+        try {
             res = this.dispatcher.executeDispatch(functionValue, realArgs);
+        } finally {
+            if(pushed) {
+                context.getGlobalValues().popNamespace();
+            }
         }
 
         // Return the result of the function call

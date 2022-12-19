@@ -39,6 +39,11 @@ import com.adacore.lkql_jit.runtime.values.UnitValue;
  */
 public final class SelectorDeclLocal extends SelectorDecl {
 
+    // ----- Attributes -----
+
+    /** The limit for the closure */
+    private final int closureLimit;
+
     // ----- Constructors ------
 
     /**
@@ -63,9 +68,11 @@ public final class SelectorDeclLocal extends SelectorDecl {
             int thisSlot,
             int depthSlot,
             FrameDescriptor descriptor,
+            int closureLimit,
             SelectorArm[] arms
     ) {
         super(location, annotation, name, documentation, slot, thisSlot, depthSlot, descriptor, arms);
+        this.closureLimit = closureLimit;
     }
 
     // ----- Execution methods -----
@@ -76,7 +83,7 @@ public final class SelectorDeclLocal extends SelectorDecl {
         // Create the selector value
         SelectorValue selectorValue = new SelectorValue(
                 this.descriptor,
-                new Closure(frame.materialize()),
+                new Closure(frame.materialize(), this.closureLimit),
                 this.isMemoized,
                 this.name,
                 this.documentation,

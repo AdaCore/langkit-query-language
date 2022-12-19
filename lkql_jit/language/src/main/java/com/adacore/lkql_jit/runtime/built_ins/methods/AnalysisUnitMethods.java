@@ -31,7 +31,7 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 
 import java.util.ArrayList;
 
@@ -95,6 +95,13 @@ public final class AnalysisUnitMethods extends CommonMethods {
                 new Expr[]{null},
                 new TokensExpr()
         ));
+        this.methods.put("text", new BuiltInFunctionValue(
+                "text",
+                "Return the text of the analysis unit",
+                new String[]{"unit"},
+                new Expr[]{null},
+                new TextExpr()
+        ));
     }
 
     // ----- Override methods -----
@@ -113,8 +120,8 @@ public final class AnalysisUnitMethods extends CommonMethods {
     public final static class RootExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AdaNode res = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).root();
-            return res == null ? NullValue.getInstance() : res;
+            Libadalang.AdaNode res = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getRoot();
+            return res == null ? NodeNull.getInstance() : res;
         }
     }
 
@@ -136,12 +143,23 @@ public final class AnalysisUnitMethods extends CommonMethods {
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AnalysisUnit unit = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
             Libadalang.Token current = unit.getFirstToken();
+            Libadalang.Token last = unit.getLastToken();
             ArrayList<Libadalang.Token> resList = new ArrayList<>();
-            while(current != null) {
+            while(!current.isEquivalent(last) && !current.tokenDataHandler.isNull() ) {
                 resList.add(current);
                 current = current.next();
             }
             return new ListValue(resList.toArray(new Libadalang.Token[0]));
+        }
+    }
+
+    /**
+     * Expression of the "text" methods
+     */
+    public final static class TextExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getText();
         }
     }
 

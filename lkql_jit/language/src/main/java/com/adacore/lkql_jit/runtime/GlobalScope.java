@@ -30,10 +30,7 @@ import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.util_classes.Stack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -50,6 +47,9 @@ public final class GlobalScope {
 
     /** The global names */
     private final Stack<String[]> namesStack;
+
+    /** The namespace stack */
+    private final Stack<NamespaceValue> namespaceStack;
 
     /** The number of symbol to export */
     private final Stack<Integer> exportNumberStack;
@@ -78,6 +78,7 @@ public final class GlobalScope {
     ) {
         this.valuesStack = new Stack<>();
         this.namesStack = new Stack<>();
+        this.namespaceStack = new Stack<>();
         this.exportNumberStack = new Stack<>();
         this.nodeCheckersStack = new Stack<>();
         this.unitCheckersStack = new Stack<>();
@@ -94,6 +95,10 @@ public final class GlobalScope {
      */
     public int getStackSize() {
         return this.valuesStack.size();
+    }
+
+    public Stack<NamespaceValue> getNamespaceStack() {
+        return namespaceStack;
     }
 
     // ----- Class methods -----
@@ -115,6 +120,7 @@ public final class GlobalScope {
     /**
      * This function finalize the current global scope, at the end of a script execution
      */
+    @CompilerDirectives.TruffleBoundary
     public void finalizeScope() {
         this.valuesStack.pop();
         this.namesStack.pop();
@@ -128,12 +134,27 @@ public final class GlobalScope {
      *
      * @param namespaceValue The namespace value to push on
      */
+    @CompilerDirectives.TruffleBoundary
     public void pushNamespace(NamespaceValue namespaceValue) {
         this.valuesStack.push(namespaceValue.getValues());
         this.namesStack.push(namespaceValue.getNames());
+        this.namespaceStack.push(namespaceValue);
         this.exportNumberStack.push(namespaceValue.getValues().length);
         this.nodeCheckersStack.push(namespaceValue.getNodeCheckers());
         this.unitCheckersStack.push(namespaceValue.getUnitCheckers());
+    }
+
+    /**
+     * Pop the last pushed namespace
+     */
+    @CompilerDirectives.TruffleBoundary
+    public void popNamespace() {
+        this.valuesStack.pop();
+        this.namesStack.pop();
+        this.namespaceStack.pop();
+        this.exportNumberStack.pop();
+        this.nodeCheckersStack.pop();
+        this.unitCheckersStack.pop();
     }
 
     /**
@@ -169,8 +190,8 @@ public final class GlobalScope {
      * @return The node checkers
      */
     @CompilerDirectives.TruffleBoundary
-    public ObjectValue[] getNodeChecker() {
-        return this.nodeCheckersStack.peek().toArray(new ObjectValue[0]);
+    public List<ObjectValue> getNodeCheckers() {
+        return this.nodeCheckersStack.peek();
     }
 
     /**
@@ -187,8 +208,8 @@ public final class GlobalScope {
      *
      * @return The unit checkers
      */
-    public ObjectValue[] getUnitCheckers() {
-        return this.unitCheckersStack.peek().toArray(new ObjectValue[0]);
+    public List<ObjectValue> getUnitCheckers() {
+        return this.unitCheckersStack.peek();
     }
 
     /**
@@ -264,6 +285,8 @@ public final class GlobalScope {
         for(Object value : res.getValues()) {
             if(LKQLTypeSystemGen.isFunctionValue(value)) {
                 LKQLTypeSystemGen.asFunctionValue(value).setNamespace(res);
+            } else if(LKQLTypeSystemGen.isLazyCollection(value)) {
+                LKQLTypeSystemGen.asLazyCollection(value).setNamespace(res);
             }
         }
 
@@ -274,6 +297,7 @@ public final class GlobalScope {
     // ----- Override methods -----
 
     @Override
+    @CompilerDirectives.TruffleBoundary
     public String toString() {
         return "GlobalScope{" +
                 "\n\texportNumber=" + exportNumberStack.peek() +

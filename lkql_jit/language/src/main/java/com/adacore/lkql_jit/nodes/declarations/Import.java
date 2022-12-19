@@ -170,7 +170,7 @@ public final class Import extends LKQLNode {
         // If the import is internal, search in rule dirs
         if(this.slot == -1) {
             importableDirs.addAll(
-                    Arrays.stream(LKQLLanguage.getContext(this).getRuleDirs())
+                    Arrays.stream(LKQLLanguage.getContext(this).getRulesDirs())
                             .filter(s -> !s.isEmpty() && !s.isBlank())
                             .map(File::new)
                             .toList()

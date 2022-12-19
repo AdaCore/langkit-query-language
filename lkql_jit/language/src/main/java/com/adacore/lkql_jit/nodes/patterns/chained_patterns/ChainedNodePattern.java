@@ -29,7 +29,6 @@ import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ListUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.adacore.libadalang.Libadalang;
 
 import java.util.ArrayList;
@@ -75,9 +74,9 @@ public final class ChainedNodePattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         throw LKQLRuntimeException.wrongPatternType("ChainedNodePattern", this);
     }
 
@@ -89,7 +88,7 @@ public final class ChainedNodePattern extends ValuePattern {
      * @return The result of the chained pattern
      */
     public Libadalang.AdaNode[] executeChained(VirtualFrame frame, Libadalang.AdaNode node) {
-        if(this.nodePattern.executePattern(frame, node)) {
+        if(this.nodePattern.executeNode(frame, node)) {
             return this.executeLink(frame, 0, node);
         } else {
             return new Libadalang.AdaNode[0];

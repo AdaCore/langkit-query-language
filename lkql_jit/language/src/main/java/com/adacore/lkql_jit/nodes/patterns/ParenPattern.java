@@ -60,10 +60,16 @@ public final class ParenPattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.pattern.executePattern(frame, node);
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
+        return this.pattern.executeNode(frame, node);
+    }
+
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    @Override
+    public boolean executeString(VirtualFrame frame, String str) {
+        return this.pattern.executeString(frame, str);
     }
 
     // ----- Override methods -----

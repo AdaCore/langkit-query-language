@@ -45,6 +45,9 @@ public final class FunExpr extends Expr {
     /** The frame descriptor for the callable function node creation */
     private final FrameDescriptor frameDescriptor;
 
+    /** The limit for the closure */
+    private final int closureLimit;
+
     /** The slots to put the arguments in */
     private final int[] slots;
 
@@ -68,17 +71,20 @@ public final class FunExpr extends Expr {
      *
      * @param location The location of the node in the source
      * @param frameDescriptor The frame descriptor for the function root node
+     * @param closureLimit The limit of the closure
      * @param parameters The parameters of the function
      * @param body The body of the function
      */
     public FunExpr(
             SourceLocation location,
             FrameDescriptor frameDescriptor,
+            int closureLimit,
             ParameterDecl[] parameters,
             Expr body
     ) {
         super(location);
         this.frameDescriptor = frameDescriptor;
+        this.closureLimit = closureLimit;
         this.slots = new int[parameters.length];
         this.names = new String[parameters.length];
         this.values = new Expr[parameters.length];
@@ -91,7 +97,7 @@ public final class FunExpr extends Expr {
      * Initialize the parameter fields
      */
     private void initParams(ParameterDecl[] parameters) {
-        for(int i = 0 ; i < parameters.length ; i++) {
+        for (int i = 0; i < parameters.length; i++) {
             this.slots[i] = parameters[i].getSlot();
             this.names[i] = parameters[i].getName();
             this.values[i] = parameters[i].getDefaultValue();
@@ -111,7 +117,7 @@ public final class FunExpr extends Expr {
     public FunctionValue executeFunction(VirtualFrame frame) {
         return new FunctionValue(
                 this.frameDescriptor,
-                new Closure(frame.materialize()),
+                new Closure(frame.materialize(), this.closureLimit),
                 false,
                 "lambda",
                 "",

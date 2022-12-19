@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.lkql_jit.LKQLContext;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
@@ -40,14 +42,14 @@ public final class LazyListValue extends LazyCollection {
 
     // ----- Attributes -----
 
-    /** The closure for the root node execution */
-    private final Closure closure;
-
     /** The list of arguments for the root node */
     private final Object[][] argsList;
 
     /** The pointer to the next lazy value to evaluate */
     private int lazyPointer;
+
+    /** The closure for the execution */
+    private final Closure closure;
 
     /** The root node for the list comprehension */
     private final ListComprehensionRootNode rootNode;
@@ -60,7 +62,6 @@ public final class LazyListValue extends LazyCollection {
     /**
      * Create a new lazy list value
      *
-     * @param closure The closure for this lazy list
      * @param rootNode The root node for the execution
      * @param argsList The argument list
      */
@@ -75,6 +76,10 @@ public final class LazyListValue extends LazyCollection {
         this.rootNode = rootNode;
         this.argsList = argsList;
         this.dispatcher = ListComprehensionDispatcherNodeGen.create();
+        LKQLContext context = LKQLLanguage.getContext(this.rootNode.getResult());
+        if(context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
+            this.namespace = context.getGlobalValues().getNamespaceStack().peek();
+        }
     }
 
     // ----- Class methods -----
@@ -82,11 +87,23 @@ public final class LazyListValue extends LazyCollection {
     /** @see com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection#initCache(int) */
     @Override
     protected void initCache(int index) {
-        this.rootNode.setClosure(this.closure);
-        while (this.lazyPointer < this.argsList.length && (this.cache.size() - 1 < index || index == -1)) {
-            Object value = this.dispatcher.executeDispatch(this.rootNode, this.argsList[this.lazyPointer++]);
-            if (value != null) {
-                this.cache.add(value);
+        LKQLContext context = LKQLLanguage.getContext(this.rootNode.getResult());
+        boolean pushed = false;
+        if(this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
+            context.getGlobalValues().pushNamespace(this.namespace);
+            pushed = true;
+        }
+        try {
+            this.rootNode.setClosure(this.closure);
+            while (this.lazyPointer < this.argsList.length && (this.cache.size() - 1 < index || index == -1)) {
+                Object value = this.dispatcher.executeDispatch(this.rootNode, this.argsList[this.lazyPointer++]);
+                if (value != null) {
+                    this.cache.add(value);
+                }
+            }
+        } finally {
+            if(this.namespace != null && pushed) {
+                context.getGlobalValues().popNamespace();
             }
         }
     }

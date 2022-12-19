@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
@@ -52,7 +52,7 @@ public final class NodeKindPattern extends NodePattern {
      */
     public NodeKindPattern(SourceLocation location, String kindName) {
         super(location);
-        this.nodeClazz = Libadalang.NODE_NAME_CLASS_MAP.get(kindName);
+        this.nodeClazz = Libadalang.NODE_CLASS_MAP.get(kindName);
         if(this.nodeClazz == null) {
             throw LKQLRuntimeException.invalidKindName(this);
         }
@@ -60,10 +60,10 @@ public final class NodeKindPattern extends NodePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
-        return !node.isNull() && this.nodeClazz.isInstance(node);
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
+        return node != NodeNull.getInstance() && this.nodeClazz.isInstance(node);
     }
     
     // ----- Override methods -----

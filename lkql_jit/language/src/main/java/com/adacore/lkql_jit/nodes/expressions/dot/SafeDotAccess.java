@@ -39,7 +39,7 @@ import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 
 import java.util.Map;
@@ -96,7 +96,7 @@ public abstract class SafeDotAccess extends Expr {
             "receiver != null",
             "getBuiltIn(receiver) == null",
             "receiver == propertyRef.getNode()",
-            "propertyRef.getMethods() != null"
+            "propertyRef.getFieldDescription() != null"
     }, limit = "1")
     protected Object onNodeCached(
             Libadalang.AdaNode receiver,
@@ -129,13 +129,13 @@ public abstract class SafeDotAccess extends Expr {
         }
 
         // Test if the receiver is null
-        if(receiver.isNull()) {
-            return NullValue.getInstance();
+        if(receiver == NodeNull.getInstance()) {
+            return NodeNull.getInstance();
         }
 
         // Create the property reference
         PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
-        if(propertyRef.getMethods() == null) {
+        if(propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
                     this.member.getName(),
                     receiver,
