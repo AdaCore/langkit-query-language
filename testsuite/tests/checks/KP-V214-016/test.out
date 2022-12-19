@@ -1,0 +1,8 @@
+p.ads:19:13: rule violation: possible occurrence of KP V214-016
+19 |    function Constructor is new Ada.Tags.Generic_Dispatching_Constructor  --  FLAG
+   |             ^^^^^^^^^^^
+
+p.ads:24:13: rule violation: possible occurrence of KP V214-016
+24 |    function Constructor2 is new Ada.Tags.Generic_Dispatching_Constructor  --  FLAG
+   |             ^^^^^^^^^^^^
+
