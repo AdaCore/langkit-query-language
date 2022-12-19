@@ -29,12 +29,12 @@ via the ``--rules-dir`` switch. Each :file:`.lkql` file found in these directori
 will be loaded by gnatcheck and represents a distinct rule (or a set of helper
 functions). The naming convention of the rules is ``lowercase_with_underscores``.
 
-Here is a simple rule example, that will just flag every body:
+Here is a simple rule example, that will just flag every body node:
 
 .. code-block:: lkql
 
    @check
-   fun bodies(node) = node is Body
+   fun bodies(node) = node is BodyNode
 
 Adding this source in the ``bodies.lkql`` file in a directory listed via
 ``--rules-dir`` will add a rule to GNATcheck dynamically, without the need to
