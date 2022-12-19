@@ -28,7 +28,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 
 import java.math.BigInteger;
@@ -51,9 +51,6 @@ public final class LKQLTypesHelper {
 
     /** The string representing the LKQL unit type */
     public static final String LKQL_UNIT = "Unit";
-
-    /** The string representing the LKQL null type */
-    public static final String LKQL_NULL = "Null";
 
     /** The string representing the LKQL boolean type */
     public static final String LKQL_BOOLEAN = "Bool";
@@ -157,8 +154,7 @@ public final class LKQLTypesHelper {
             return LKQL_SELECTOR_LIST;
         }
         else if(LKQLTypeSystemGen.isAdaNode(obj)) {
-            if(LKQLTypeSystemGen.asAdaNode(obj).isNull()) return LKQL_NULL;
-            else return ADA_NODE;
+            return ADA_NODE;
         }
         else if(LKQLTypeSystemGen.isToken(obj)) {
             return TOKEN;
@@ -190,7 +186,7 @@ public final class LKQLTypesHelper {
     public static Object toLKQLValue(Object javaValue) throws UnsupportedTypeException {
         // If the source is null
         if(javaValue == null) {
-            return NullValue.getInstance();
+            return NodeNull.getInstance();
         }
 
         // If the source is a boolean
@@ -225,14 +221,19 @@ public final class LKQLTypesHelper {
             return res;
         }
 
+        // If the source is a symbol
+        else if(javaValue instanceof Libadalang.Symbol symbol) {
+            return symbol.text;
+        }
+
         // If the source is an AdaNode
         else if(javaValue instanceof Libadalang.AdaNode) {
             return javaValue;
         }
 
         // If the source is a token
-        else if(javaValue instanceof Libadalang.Token) {
-            return javaValue;
+        else if(javaValue instanceof Libadalang.Token token) {
+            return token;
         }
 
         // If the source is an analysis unit
@@ -262,10 +263,10 @@ public final class LKQLTypesHelper {
             Object[] values = {
                     aspect.exists,
                     aspect.node.node.isNull() ?
-                            NullValue.getInstance() :
+                            NodeNull.getInstance() :
                             Libadalang.AdaNode.fromEntity(aspect.node),
                     aspect.value.node.isNull() ?
-                            NullValue.getInstance() :
+                            NodeNull.getInstance() :
                             Libadalang.AdaNode.fromEntity(aspect.value)
             };
             return new ObjectValue(keys, values);
@@ -277,8 +278,18 @@ public final class LKQLTypesHelper {
             Object[] values = {
                     toLKQLValue(refResultStruct.kind),
                     refResultStruct.ref.node.isNull() ?
-                            NullValue.getInstance() :
+                            NodeNull.getInstance() :
                             Libadalang.AdaNode.fromEntity(refResultStruct.ref)
+            };
+            return new ObjectValue(keys, values);
+        }
+
+        // If the source is a parameter-actual structure
+        else if(javaValue instanceof Libadalang.ParamActual paramActual) {
+            String[] keys = {"actual", "param"};
+            Object[] values = {
+                    Libadalang.AdaNode.fromEntity(paramActual.actual),
+                    Libadalang.AdaNode.fromEntity(paramActual.param)
             };
             return new ObjectValue(keys, values);
         }

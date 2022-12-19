@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions.dot;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.Identifier;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -145,7 +146,7 @@ public abstract class DotAccess extends Expr {
             "receiver != null",
             "getBuiltIn(receiver) == null",
             "receiver == propertyRef.getNode()",
-            "propertyRef.getMethods() != null"
+            "propertyRef.getFieldDescription() != null"
     }, limit = "1")
     protected Object onNodeCached(
             Libadalang.AdaNode receiver,
@@ -178,13 +179,13 @@ public abstract class DotAccess extends Expr {
         }
 
         // Test if the node is null
-        if(receiver.isNull()) {
+        if(receiver == NodeNull.getInstance()) {
             throw LKQLRuntimeException.nullReceiver(this);
         }
 
         // Create the property reference
         PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
-        if(propertyRef.getMethods() == null) {
+        if(propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
                     this.member.getName(),
                     receiver,
@@ -253,6 +254,11 @@ public abstract class DotAccess extends Expr {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
         Map<String, BuiltInFunctionValue> metaTable = context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
+
+        if(receiver == null) {
+            System.out.println("Java null receiver in a dot access!");
+            System.out.println(this.location.toString());
+        }
 
         // Return the built-in method or null
         return metaTable.getOrDefault(this.member.getName(), null);

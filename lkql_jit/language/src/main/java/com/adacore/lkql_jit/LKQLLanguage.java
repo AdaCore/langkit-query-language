@@ -54,7 +54,7 @@ import java.util.List;
         name = "Langkit Query Language",
         defaultMimeType = LKQLLanguage.MIME_TYPE,
         characterMimeTypes = LKQLLanguage.MIME_TYPE,
-        contextPolicy = TruffleLanguage.ContextPolicy.SHARED,
+        contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
         dependentLanguages = {"regex"}
 )
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
@@ -134,11 +134,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     /** The option to define the directories to look the rules from */
     @Option(
-            help = "The coma separated directories to search rules in",
+            help = "The colon separated directories to search rules in",
             category = OptionCategory.USER,
             stability = OptionStability.STABLE
     )
-    static final OptionKey<String> ruleDirs = new OptionKey<>("");
+    static final OptionKey<String> rulesDirs = new OptionKey<>("");
 
     /** The option to specify the rule to run */
     @Option(
@@ -148,7 +148,15 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     )
     static final OptionKey<String> rule = new OptionKey<>("");
 
-    /** The option to specifiy the error recovery mode */
+    /** The option to specify arguments for the rules */
+    @Option(
+            help = "The argument to pass to a rule",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE
+    )
+    static final OptionKey<String> rulesArgs = new OptionKey<>("");
+
+    /** The option to specify the error recovery mode */
     @Option(
             help = "The mode of error recovery in the checker",
             category = OptionCategory.USER,
@@ -253,8 +261,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         LKQLContext context = getContext(topLevelList);
 
         // If the checker mode is enabled, add the rule import to the top level node
+        // And parse the rule arguments
         if(context.isChecker() && context.isRootContext()) {
             this.addRuleImports(topLevelList, context);
+            this.parseRulesArgs(context);
         }
 
         // Return the call target
@@ -283,7 +293,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         }
 
         // Get the lkql program
-        Liblkqllang.TopLevelList lktRootNode = (Liblkqllang.TopLevelList) unit.root();
+        Liblkqllang.TopLevelList lktRootNode = (Liblkqllang.TopLevelList) unit.getRoot();
 
         // Translate the Langkit tree to a Truffle tree
         ASTTranslator translator = new ASTTranslator(request.getSource());
@@ -294,8 +304,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Make the verbose prints
         if(context.isVerbose()) {
-            System.out.println("=== Langkit AST <" + lkqlProgram.getLocation().getFileName() + "> :\n" +
-                    lktRootNode.dump() + '\n');
+//            System.out.println("=== Langkit AST <" + lkqlProgram.getLocation().getFileName() + "> :\n" +
+//                    lktRootNode.dump() + '\n');
+//            System.out.println("=== Truffle AST <" + lkqlProgram.getLocation().getFileName() + "> :\n" +
+//                    lkqlProgram.toString(0) + '\n');
         }
 
         // Return the result
@@ -310,7 +322,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     private void addRuleImports(TopLevelList topLevelList, LKQLContext context) {
         // Get the rule dirs
-        String[] ruleDirs = context.getRuleDirs();
+        String[] ruleDirs = context.getRulesDirs();
 
         // For each rule dirs, explore it
         for(String ruleDirName : ruleDirs) {
@@ -331,6 +343,88 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
             }
         }
+    }
+
+    /**
+     * Parse the rules arguments and add them to the context
+     *
+     * @param context The context to place the arguments in
+     */
+    private void parseRulesArgs(LKQLContext context) {
+        // Split the rules arguments
+        String[] rulesArgsSources = context.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";");
+
+        for(String ruleArgSource : rulesArgsSources) {
+            // Verify that the rule is not empty
+            if(ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
+
+            // Split the get the names and the value
+            String[] valueSplit = ruleArgSource.split("=");
+            String[] nameSplit = valueSplit[0].split("\\.");
+
+            // Verify the rule argument syntax
+            if(valueSplit.length != 2 || nameSplit.length != 2) {
+                throw LKQLRuntimeException.fromMessage("Rule argument syntax error : '" + ruleArgSource + "'");
+            }
+
+            // Get the information from the rule argument source
+            String ruleName = nameSplit[0].toLowerCase();
+            String argName = nameSplit[1].toLowerCase();
+            String valueSource = valueSplit[1];
+
+            // Execute the value source
+            Liblkqllang.AnalysisUnit unit = this.analysisContext.getUnitFromBuffer(
+                    valueSource,
+                    "rule_argument",
+                    null,
+                    Liblkqllang.GrammarRule.EXPR_RULE
+            );
+            Liblkqllang.LkqlNode root = unit.getRoot();
+            if(!validArgValue(root)) {
+                throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : '" + valueSource + "'");
+            }
+            ASTTranslator translator = new ASTTranslator(null);
+            LKQLNode node = root.accept(translator);
+            Object value = node.executeGeneric(null);
+
+            // Add the argument in the context
+            context.addRuleArg(ruleName, argName, value);
+        }
+    }
+
+    /**
+     * Verify that the argument value is a literal expression
+     *
+     * @param node The node to verify
+     * @return If the node is a literal value, false else
+     */
+    private static boolean validArgValue(Liblkqllang.LkqlNode node) {
+        // If the node is just a literal it's value
+        if(node instanceof Liblkqllang.Literal) return true;
+
+        // Else if it's a list literal we must verify the expressions of the list
+        else if(node instanceof Liblkqllang.ListLiteral listLiteral) {
+            Liblkqllang.ExprList exprList = listLiteral.fExprs();
+            int childrenCount = exprList.getChildrenCount();
+            for(int i = 0 ; i < childrenCount ; i++) {
+                if(!validArgValue(exprList.getChild(i))) return false;
+            }
+            return true;
+        }
+
+        // Else if it's an object literal we must verify all association values
+        else if(node instanceof Liblkqllang.ObjectLiteral objectLiteral) {
+            Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
+            int childrenCount = assocList.getChildrenCount();
+            for(int i = 0 ; i < childrenCount ; i++) {
+                Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
+                if(!validArgValue(assoc.fExpr())) return false;
+            }
+            return true;
+        }
+
+        // By default return false
+        return false;
     }
 
 }

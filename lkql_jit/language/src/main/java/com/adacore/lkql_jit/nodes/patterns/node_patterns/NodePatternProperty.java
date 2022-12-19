@@ -91,7 +91,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      */
     @Specialization(guards = {
             "node == propertyRef.getNode()",
-            "propertyRef.getMethods() != null"
+            "propertyRef.getFieldDescription() != null"
     })
     protected boolean propertyCached(
             VirtualFrame frame,
@@ -127,7 +127,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.propertyName);
 
         // Test if the property is null
-        if(propertyRef.getMethods() == null) {
+        if(propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
                     this.propertyName,
                     node,

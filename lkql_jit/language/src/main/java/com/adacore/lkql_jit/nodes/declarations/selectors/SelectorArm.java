@@ -43,7 +43,7 @@ import java.util.List;
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorArm extends LKQLNode {
+public final class  SelectorArm extends LKQLNode {
 
     // ----- Children -----
 
@@ -102,7 +102,7 @@ public final class SelectorArm extends LKQLNode {
      * @return The result of the arm execution or null if the arm doesn't match
      */
     public SelectorRootNode.SelectorCallResult executeArm(VirtualFrame frame, DepthNode node) {
-        if(this.pattern.executePattern(frame, node.getNode())) {
+        if(this.pattern.executeNode(frame, node.getNode())) {
             // Execute the selector expression
             Object res = this.expr.executeGeneric(frame);
 

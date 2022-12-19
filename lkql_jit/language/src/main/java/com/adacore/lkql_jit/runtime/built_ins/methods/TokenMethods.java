@@ -24,7 +24,10 @@
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.adacore.libadalang.Libadalang;
@@ -32,7 +35,6 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 
 
 /**
@@ -117,15 +119,15 @@ public final class TokenMethods extends CommonMethods {
         this.methods.put("next", new BuiltInFunctionValue(
                 "next",
                 "Return the next token",
-                new String[]{"token"},
-                new Expr[]{null},
+                new String[]{"token", "exclude_trivia"},
+                new Expr[]{null, new BooleanLiteral(null, false)},
                 new NextExpr()
         ));
         this.methods.put("previous", new BuiltInFunctionValue(
                 "previous",
                 "Return the previous token",
-                new String[]{"token"},
-                new Expr[]{null},
+                new String[]{"token", "exclude_trivia"},
+                new Expr[]{null, new BooleanLiteral(null, false)},
                 new PrevExpr()
         ));
         this.methods.put("unit", new BuiltInFunctionValue(
@@ -134,6 +136,20 @@ public final class TokenMethods extends CommonMethods {
                 new String[]{"token"},
                 new Expr[]{null},
                 new UnitExpr()
+        ));
+        this.methods.put("text", new BuiltInFunctionValue(
+                "text",
+                "Return the text of the token",
+                new String[]{"token"},
+                new Expr[]{null},
+                new TextExpr()
+        ));
+        this.methods.put("kind", new BuiltInFunctionValue(
+                "kind",
+                "Return the kind of the token",
+                new String[]{"token"},
+                new Expr[]{null},
+                new KindExpr()
         ));
     }
 
@@ -216,7 +232,7 @@ public final class TokenMethods extends CommonMethods {
     public static final class IsTriviaExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).tokenIndex != 0;
+            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).triviaIndex != 0;
         }
     }
 
@@ -226,7 +242,26 @@ public final class TokenMethods extends CommonMethods {
     public static final class NextExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
+            // Get if the trivia tokens should be ignored
+            boolean ignoreTrivia;
+            try {
+                ignoreTrivia = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
+            } catch (UnexpectedResultException e) {
+                throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[1]
+                );
+            }
+
+            Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
+            if(ignoreTrivia) {
+                while (!res.tokenDataHandler.isNull() && res.triviaIndex != 0) {
+                    res = res.next();
+                }
+            }
+
+            return res;
         }
     }
 
@@ -236,7 +271,26 @@ public final class TokenMethods extends CommonMethods {
     public static final class PrevExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
+            // Get if the trivia tokens should be ignored
+            boolean ignoreTrivia;
+            try {
+                ignoreTrivia = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
+            } catch (UnexpectedResultException e) {
+                throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[1]
+                );
+            }
+
+            Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
+            if(ignoreTrivia) {
+                while (!res.tokenDataHandler.isNull() && res.triviaIndex != 0) {
+                    res = res.previous();
+                }
+            }
+
+            return res;
         }
     }
 
@@ -246,8 +300,32 @@ public final class TokenMethods extends CommonMethods {
     public static final class UnitExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return UnitValue.getInstance();
-//            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).TODO;
+            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).unit;
+        }
+    }
+
+    /**
+     * Expression of the "text" method
+     */
+    public static final class TextExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            return LKQLTypeSystemGen.asToken(frame.getArguments()[0]).getText();
+        }
+    }
+
+    /**
+     * Expression of the "kind" method
+     */
+    public static final class KindExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            Libadalang.Token token = LKQLTypeSystemGen.asToken(frame.getArguments()[0]);
+            if(token.getKind().toC() == -1) return "no_token";
+            String rawKind = ObjectUtils.toString(token.getKind());
+            return StringUtils.toLowerCase(StringUtils.split(
+                    rawKind, "_"
+            )[1]);
         }
     }
 

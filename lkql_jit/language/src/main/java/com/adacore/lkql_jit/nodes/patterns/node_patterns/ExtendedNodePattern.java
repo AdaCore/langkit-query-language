@@ -68,11 +68,11 @@ public final class ExtendedNodePattern extends NodePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Test the base pattern
-        if(this.basePattern.executePattern(frame, node)) {
+        if(this.basePattern.executeNode(frame, node)) {
             // Verify all details
             for(NodePatternDetail detail : this.details) {
                 if(!detail.executeDetail(frame, node)) return false;

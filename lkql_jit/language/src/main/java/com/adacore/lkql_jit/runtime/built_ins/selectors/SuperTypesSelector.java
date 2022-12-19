@@ -111,7 +111,7 @@ public final class SuperTypesSelector implements BuiltInSelector {
         // Create the base type path
         DotAccess propertyAccess = DotAccessNodeGen.create(
                 null,
-                new Identifier(null, "p_base_type"),
+                new Identifier(null, "p_base_types"),
                 new ReadBuiltInThis()
         );
         FunCall propertyCall = FunCallNodeGen.create(

@@ -69,8 +69,9 @@ public final class FunDeclLocal extends FunDecl {
         functionValue.setName(this.name);
         functionValue.setMemoized(this.isMemoized);
 
-        // Put the function value in the frame
+        // Put the function value in the frame and the function closure
         frame.setObject(this.slot, functionValue);
+        functionValue.getClosure().setObject(this.slot, functionValue);
 
         // Return the unit value
         return UnitValue.getInstance();

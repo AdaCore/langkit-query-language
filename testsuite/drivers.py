@@ -136,11 +136,9 @@ class CheckerDriver(BaseTestDriver):
             args += ['--add-rules-dir', self.test_env['test_dir']]
         else:
             args += [
-                '--rule-dirs',
-                ' '.join([self.test_env['test_dir'], os.environ['LKQL_RULES']])
+                '--rules-dirs',
+                ':'.join([self.test_env['test_dir'], os.environ['LKQL_RULES']])
             ]
-
-        print(args)
 
         # Run the interpreter
         self.shell(args)

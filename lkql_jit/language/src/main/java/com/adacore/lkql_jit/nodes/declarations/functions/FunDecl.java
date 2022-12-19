@@ -59,7 +59,9 @@ public abstract class FunDecl extends Declaration {
             "subcategory",
             "remediation",
             "execution_cost",
-            "parametric_exemption"
+            "parametric_exemption",
+            "impact",
+            "target"
     };
 
     /** The default values for annotation parameters */
@@ -71,7 +73,9 @@ public abstract class FunDecl extends Declaration {
             "Misc",
             "MEDIUM",
             0L,
-            false
+            false,
+            "",
+            "amd64"
     };
 
     /** The valid value for the remediation parameters */

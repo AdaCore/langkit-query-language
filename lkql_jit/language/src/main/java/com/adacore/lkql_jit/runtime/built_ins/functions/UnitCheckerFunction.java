@@ -25,29 +25,30 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.adacore.libadalang.Libadalang;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -127,7 +128,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             // Get the arguments
             LKQLContext context = LKQLLanguage.getContext(this);
             Libadalang.AnalysisUnit unit;
-            ObjectValue[] checkers = context.getGlobalValues().getUnitCheckers();
+            ObjectValue[] checkers = context.getUnitCheckersFiltered();
 
             try {
                 unit = LKQLTypeSystemGen.expectAnalysisUnit(frame.getArguments()[0]);
@@ -145,6 +146,8 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     this.applyUnitRule(frame, rule, unit, context);
                 } catch (LangkitException e) {
                     this.reportException(rule, e);
+                } catch (LKQLRuntimeException e) {
+                    this.reportException(e);
                 }
             }
 
@@ -168,7 +171,11 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             Object[] arguments = new Object[functionValue.getParamNames().length];
             arguments[0] = unit;
             for(int i = 1 ; i < functionValue.getDefaultValues().length ; i++) {
-                arguments[i] = functionValue.getDefaultValues()[i].executeGeneric(frame);
+                String paramName = functionValue.getParamNames()[i];
+                Object userDefinedArg = context.getRuleArg((String) rule.get("name"), paramName);
+                arguments[i] = userDefinedArg == null ?
+                        functionValue.getDefaultValues()[i].executeGeneric(frame) :
+                        userDefinedArg;
             }
 
             // Put the namespace
@@ -189,7 +196,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             } finally {
                 // Remove the namespace
                 if(functionValue.getNamespace() != null) {
-                    context.getGlobalValues().finalizeScope();
+                    context.getGlobalValues().popNamespace();
                 }
             }
 
@@ -197,17 +204,9 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             Iterator messageIterator = messageList.iterator();
             while(messageIterator.hasNext()) {
                 ObjectValue message = (ObjectValue) messageIterator.next();
-                Libadalang.AdaNode node;
+
+                // Get the message text
                 String messageText;
-                try {
-                    node = LKQLTypeSystemGen.expectAdaNode(message.get("loc"));
-                } catch (UnexpectedResultException e) {
-                    throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.ADA_NODE,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            functionValue.getBody()
-                    );
-                }
                 try {
                     messageText = LKQLTypeSystemGen.expectString(message.get("message"));
                 } catch (UnexpectedResultException e) {
@@ -217,7 +216,20 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                             functionValue.getBody()
                     );
                 }
-                this.reportViolation(messageText, node);
+
+                // Get the message location
+                Object loc = message.get("loc");
+                if(LKQLTypeSystemGen.isToken(loc)) {
+                    this.reportViolation(messageText, LKQLTypeSystemGen.asToken(loc));
+                } else if(LKQLTypeSystemGen.isAdaNode(loc)) {
+                    this.reportViolation(messageText, LKQLTypeSystemGen.asAdaNode(loc));
+                } else {
+                    throw LKQLRuntimeException.wrongType(
+                            LKQLTypesHelper.ADA_NODE,
+                            LKQLTypesHelper.fromJava(loc),
+                            functionValue.getBody()
+                    );
+                }
             }
         }
 
@@ -229,11 +241,18 @@ public final class UnitCheckerFunction implements BuiltInFunction {
          */
         @CompilerDirectives.TruffleBoundary
         private void reportViolation(String message, Libadalang.AdaNode node) {
-            if(node instanceof Libadalang.BasicDecl basicDecl) {
-                CheckerUtils.printRuleViolation(message, basicDecl.pDefiningName());
-            } else {
-                CheckerUtils.printRuleViolation(message, node);
-            }
+            CheckerUtils.printRuleViolation(message, node);
+        }
+
+        /**
+         * Report a rule violation with the token that violates it
+         *
+         * @param message The message of the violation
+         * @param token The token
+         */
+        @CompilerDirectives.TruffleBoundary
+        private void reportViolation(String message, Libadalang.Token token) {
+            CheckerUtils.printRuleViolation(message, token);
         }
 
         /**
@@ -245,6 +264,17 @@ public final class UnitCheckerFunction implements BuiltInFunction {
         @CompilerDirectives.TruffleBoundary
         private void reportException(ObjectValue rule, LangkitException e) {
             System.out.println("TODO : Report exception");
+        }
+
+        /**
+         * Report the LQKL exception
+         *
+         * @param e The LKQL exception
+         */
+        @CompilerDirectives.TruffleBoundary
+        private void reportException(LKQLRuntimeException e) {
+            System.out.println("Exception in the LKQL code :");
+            System.out.println(e.getMessage());
         }
         
     }

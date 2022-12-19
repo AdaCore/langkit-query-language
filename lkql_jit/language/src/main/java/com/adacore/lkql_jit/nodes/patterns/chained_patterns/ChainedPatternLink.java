@@ -100,7 +100,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
 
         // If the result object is a node
         if(LKQLTypeSystemGen.isAdaNode(resultObject)) {
-            if(this.pattern.executePattern(frame, LKQLTypeSystemGen.asAdaNode(resultObject))) {
+            if(this.pattern.executeNode(frame, LKQLTypeSystemGen.asAdaNode(resultObject))) {
                 resList.add(LKQLTypeSystemGen.asAdaNode(resultObject));
             }
         }
@@ -111,7 +111,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
             for(int i = 0 ; i < listValue.size() ; i++) {
                 try {
                     Libadalang.AdaNode toVerify = LKQLTypeSystemGen.expectAdaNode(listValue.get(i));
-                    if(this.pattern.executePattern(frame, toVerify)) {
+                    if(this.pattern.executeNode(frame, toVerify)) {
                         resList.add(toVerify);
                     }
                 } catch (UnexpectedResultException e) {

@@ -83,7 +83,13 @@ public final class Scope {
     }
 
     public FrameDescriptor buildDescriptor() {
-        return this.frameDescriptorStack.get(this.frameDescriptorStack.size() - 1).build();
+        return this.frameDescriptorStack.getLast().build();
+    }
+
+    public int getClosureLimit() {
+        return this.frameDescriptorStack.size() >= 2 ?
+                this.frameDescriptorStack.get(this.frameDescriptorStack.size() - 2).build().getNumberOfSlots() :
+                this.frameDescriptorStack.getLast().build().getNumberOfSlots();
     }
 
     // ----- Internal methods -----
@@ -237,7 +243,7 @@ public final class Scope {
     public void openSemantic() {
         FrameDescriptor.Builder previousBuilder = this.frameDescriptorStack.size() == 0 ?
                 null :
-                this.frameDescriptorStack.get(this.frameDescriptorStack.size() - 1);
+                this.frameDescriptorStack.getLast();
         FrameDescriptor.Builder newBuilder = cloneFrameDescriptorBuilder(previousBuilder);
         this.frameDescriptorStack.add(newBuilder);
         this.frameBindings.put(newBuilder, new LinkedList<>());

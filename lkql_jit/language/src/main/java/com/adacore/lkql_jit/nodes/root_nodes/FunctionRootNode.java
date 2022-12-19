@@ -23,8 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.LKQLContext;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -182,15 +186,6 @@ public final class FunctionRootNode extends BaseRootNode {
     @Override
     public String toString() {
         return "Function<" + this.name + ">";
-    }
-
-    /** @see com.oracle.truffle.api.nodes.RootNode#getSourceSection() */
-    @Override
-    public SourceSection getSourceSection() {
-        if(this.body.getLocation() != null) {
-            return this.body.getLocation().createSection();
-        }
-        return null;
     }
 
     // ----- Inner classes -----

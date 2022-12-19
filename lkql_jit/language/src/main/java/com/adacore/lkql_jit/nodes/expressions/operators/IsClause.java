@@ -33,7 +33,6 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.adacore.libadalang.Libadalang;
 
 
@@ -87,7 +86,7 @@ public abstract class IsClause extends Expr {
      */
     @Specialization
     protected boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.pattern.executePattern(frame, node);
+        return this.pattern.executeNode(frame, node);
     }
 
     /**

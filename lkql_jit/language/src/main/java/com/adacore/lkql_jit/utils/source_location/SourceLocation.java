@@ -174,7 +174,6 @@ public final class SourceLocation {
      * @param end The end line (excluded)
      * @return The lines from the source
      */
-//    @CompilerDirectives.TruffleBoundary
     public String[] getLines(int start, int end) {
         // Verify the argument validity
         if(end <= start) {
@@ -209,11 +208,11 @@ public final class SourceLocation {
 
     @Override
     public String toString() {
-        return '<' + this.startLine +
-                ':' + this.startColumn +
+        return "<" + this.startLine +
+                ":" + this.startColumn +
                 " - " + this.endLine +
-                ':' + this.endColumn +
-                '>';
+                ":" + this.endColumn +
+                ">";
     }
 
 }

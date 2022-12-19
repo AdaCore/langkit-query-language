@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.lkql_jit.LKQLContext;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
@@ -94,6 +96,10 @@ public final class SelectorListValue extends LazyCollection {
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.depth = depth;
+        LKQLContext context = this.rootNode.getContext();
+        if(context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
+            this.namespace = context.getGlobalValues().getNamespaceStack().peek();
+        }
     }
 
     // ----- Class methods -----
@@ -102,18 +108,30 @@ public final class SelectorListValue extends LazyCollection {
     @Override
     @CompilerDirectives.TruffleBoundary
     protected void initCache(int index) {
-        while(!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
-            // Get the first recurse item and execute the selector on it
-            DepthNode nextNode = this.recursList.remove(0);
-            SelectorRootNode.SelectorCallResult result = this.dispatcher.executeDispatch(this.rootNode, nextNode);
+        LKQLContext context = this.rootNode.getContext();
+        boolean pushed = false;
+        if(this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
+            context.getGlobalValues().pushNamespace(this.namespace);
+            pushed = true;
+        }
+        try {
+            while(!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
+                // Get the first recurse item and execute the selector on it
+                DepthNode nextNode = this.recursList.remove(0);
+                SelectorRootNode.SelectorCallResult result = this.dispatcher.executeDispatch(this.rootNode, nextNode);
 
-            // If the result is a selector call result, do the needed operations
-            if(!LKQLTypeSystemGen.isNullish(result.result())) {
-                switch (result.mode()) {
-                    case REC -> this.addRecursAndResult(result.result());
-                    case DEFAULT -> this.addResult(result.result());
-                    case SKIP -> this.addRecurs(result.result());
+                // If the result is a selector call result, do the needed operations
+                if(!LKQLTypeSystemGen.isNullish(result.result())) {
+                    switch (result.mode()) {
+                        case REC -> this.addRecursAndResult(result.result());
+                        case DEFAULT -> this.addResult(result.result());
+                        case SKIP -> this.addRecurs(result.result());
+                    }
                 }
+            }
+        } finally {
+            if(this.namespace != null && pushed) {
+                context.getGlobalValues().popNamespace();
             }
         }
     }

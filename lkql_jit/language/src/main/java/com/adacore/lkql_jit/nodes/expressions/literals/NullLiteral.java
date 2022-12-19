@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 
 
 /**
@@ -55,13 +55,13 @@ public final class NullLiteral extends Expr {
     /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)  */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return NullValue.getInstance();
+        return NodeNull.getInstance();
     }
 
     /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeNode(com.oracle.truffle.api.frame.VirtualFrame) */
     @Override
     public Libadalang.AdaNode executeNode(VirtualFrame frame) {
-        return NullValue.getInstance();
+        return NodeNull.getInstance();
     }
 
     // ----- Override methods -----

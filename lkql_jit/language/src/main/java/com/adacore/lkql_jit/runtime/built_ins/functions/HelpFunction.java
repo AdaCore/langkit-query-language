@@ -107,17 +107,10 @@ public final class HelpFunction implements BuiltInFunction {
             // If the argument is an LKQL value, read the documentation from ir
             if(LKQLTypeSystemGen.isLKQLValue(arg)) {
                 LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
-                LKQLLanguage.getContext(this.callNode).print(value.getProfile());
-                LKQLLanguage.getContext(this.callNode).print(value.getDocumentation());
+                LKQLLanguage.getContext(this.callNode).println(StringUtils.concat(
+                        value.getProfile(), "\n", value.getDocumentation()
+                ));
             }
-
-            // Cast the argument
-            LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
-
-
-            LKQLLanguage.getContext(this.callNode).print(StringUtils.concat(
-                    value.getProfile(), "\n", value.getDocumentation()
-            ));
 
             // Return the default empty documentation
             return UnitValue.getInstance();

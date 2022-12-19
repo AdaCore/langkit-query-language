@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
@@ -50,7 +51,7 @@ public abstract class BasePattern extends LKQLNode {
 
     /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
@@ -61,6 +62,21 @@ public abstract class BasePattern extends LKQLNode {
      * @param node The node to verify
      * @return True of the node verify the pattern, false else
      */
-    public abstract boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node);
+    public abstract boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node);
+
+    /**
+     * Execute the pattern on a string
+     *
+     * @param frame The frame to execute in
+     * @param str The string to verify
+     * @return If the string fulfills the pattern
+     */
+    public boolean executeString(VirtualFrame frame, String str) {
+        throw LKQLRuntimeException.wrongType(
+                LKQLTypesHelper.ADA_NODE,
+                LKQLTypesHelper.LKQL_STRING,
+                this
+        );
+    }
 
 }

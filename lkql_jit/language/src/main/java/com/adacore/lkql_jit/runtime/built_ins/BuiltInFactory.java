@@ -117,7 +117,6 @@ public final class BuiltInFactory {
      * Initialize the built-in methods
      */
     private void initializeMethods() {
-        this.builtInMethods.add(NullMethods.getInstance());
         this.builtInMethods.add(UnitMethods.getInstance());
         this.builtInMethods.add(BoolMethods.getInstance());
         this.builtInMethods.add(IntMethods.getInstance());

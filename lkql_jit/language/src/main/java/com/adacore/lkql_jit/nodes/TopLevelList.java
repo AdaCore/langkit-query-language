@@ -26,7 +26,9 @@ package com.adacore.lkql_jit.nodes;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.Import;
+import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -120,14 +122,15 @@ public final class TopLevelList extends LKQLNode {
      * @param importNames The names of the rule modules to import
      */
     public void addRuleImports(String[] importNames) {
-        this.ruleImports = new Import[importNames.length];
+        Import[] newImports = new Import[importNames.length];
         for(int i = 0 ; i < importNames.length ; i++) {
-            this.ruleImports[i] = new Import(
+            newImports[i] = new Import(
                     null,
                     importNames[i],
                     -1
             );
         }
+        this.ruleImports = ArrayUtils.concat(this.ruleImports == null ? new Import[0] : this.ruleImports, newImports);
     }
 
     // ----- Override methods -----

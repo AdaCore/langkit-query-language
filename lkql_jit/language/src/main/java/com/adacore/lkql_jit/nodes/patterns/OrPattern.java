@@ -68,14 +68,24 @@ public final class OrPattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the short circuit
-        if(this.left.executePattern(frame, node)) {
+        if(this.left.executeNode(frame, node)) {
             return true;
         } else {
-            return this.right.executePattern(frame, node);
+            return this.right.executeNode(frame, node);
+        }
+    }
+
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    @Override
+    public boolean executeString(VirtualFrame frame, String str) {
+        if(this.left.executeString(frame, str)) {
+            return true;
+        } else {
+            return this.right.executeString(frame, str);
         }
     }
 

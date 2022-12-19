@@ -23,8 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.variables;
 
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 

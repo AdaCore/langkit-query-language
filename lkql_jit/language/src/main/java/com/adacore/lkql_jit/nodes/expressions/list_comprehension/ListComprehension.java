@@ -31,6 +31,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -44,8 +45,14 @@ public final class ListComprehension extends Expr {
 
     // ----- Attributes -----
 
-    /** The root node of the list comprehension */
-    private final ListComprehensionRootNode rootNode;
+    /** The slots of the lsit comprehension associations */
+    private final int[] slots;
+
+    /** The descriptor for the list comprehension root node */
+    private final FrameDescriptor descriptor;
+
+    /** The limit of the closure */
+    private final int closureLimit;
 
     // ----- Children -----
 
@@ -53,6 +60,19 @@ public final class ListComprehension extends Expr {
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ListCompAssocList generators;
+
+    /** The expression result of the list comprehension */
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private Expr expr;
+
+    /** The guard of the list comprehension */
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private Expr guard;
+
+    /** The root node containing the list comprehension logic */
+    private final ListComprehensionRootNode rootNode;
 
     // -----  Constructors -----
 
@@ -68,23 +88,22 @@ public final class ListComprehension extends Expr {
     public ListComprehension(
             SourceLocation location,
             FrameDescriptor descriptor,
-            Expr expr,
+            int closureLimit,
             ListCompAssocList generators,
+            Expr expr,
             Expr guard
     ) {
         super(location);
+        this.descriptor = descriptor;
+        this.closureLimit = closureLimit;
         this.generators = generators;
-        int[] slots = new int[generators.getCompAssocs().length];
-        for(int i = 0 ; i < slots.length ; i++) {
-            slots[i] = generators.getCompAssocs()[i].getSlot();
+        this.slots = new int[generators.getCompAssocs().length];
+        for(int i = 0 ; i < this.slots.length ; i++) {
+            this.slots[i] = generators.getCompAssocs()[i].getSlot();
         }
-        this.rootNode = new ListComprehensionRootNode(
-                LKQLLanguage.getLanguage(this),
-                descriptor,
-                slots,
-                guard,
-                expr
-        );
+        this.expr = expr;
+        this.guard = guard;
+        this.rootNode = createRootNode();
     }
 
     // ----- Execution methods -----
@@ -101,9 +120,6 @@ public final class ListComprehension extends Expr {
         // Get the iterables for the list comprehension
         Iterable[] iterables = this.generators.executeCollections(frame);
 
-        // Create the closure for the result
-        Closure closure = new Closure(frame.materialize());
-
         // Get the result size and prepare the result
         int resultSize = 1;
         for(Iterable iterable : iterables) {
@@ -113,8 +129,8 @@ public final class ListComprehension extends Expr {
         // Verify that the result size is strictly positive
         if(resultSize < 1) {
             return new LazyListValue(
-                    closure,
-                    this.rootNode,
+                    new Closure(frame.materialize(), this.closureLimit),
+                    rootNode,
                     new Object[0][]
             );
         }
@@ -138,7 +154,7 @@ public final class ListComprehension extends Expr {
 
         // Return the result of the list comprehension as a lazy list
         return new LazyListValue(
-                closure,
+                new Closure(frame.materialize(), this.closureLimit),
                 this.rootNode,
                 argsList
         );
@@ -168,6 +184,22 @@ public final class ListComprehension extends Expr {
             }
         }
         return false;
+    }
+
+    /**
+     * Create a root node for the list comprehension
+     *
+     * @return The root node for the list comprehension execution
+     */
+    @CompilerDirectives.TruffleBoundary
+    private ListComprehensionRootNode createRootNode() {
+        return new ListComprehensionRootNode(
+                LKQLLanguage.getLanguage(this),
+                this.descriptor,
+                this.slots,
+                this.guard,
+                this.expr
+        );
     }
 
     // ----- Override methods -----

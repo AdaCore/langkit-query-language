@@ -882,6 +882,13 @@
         "allPublicMethods" : true
     },
     {
+        "name" : "com.adacore.libadalang.Libadalang$AcceptStmtBody",
+        "allDeclaredConstructors" : true,
+        "allPublicConstructors" : true,
+        "allDeclaredMethods" : true,
+        "allPublicMethods" : true
+    },
+    {
         "name" : "com.adacore.libadalang.Libadalang$BaseSubpBody",
         "allDeclaredConstructors" : true,
         "allPublicConstructors" : true,

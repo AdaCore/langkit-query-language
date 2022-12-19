@@ -83,9 +83,9 @@ public final class BindingPattern extends UnfilteredPattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executePattern(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
-    public boolean executePattern(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the node binding
         if(mode == Mode.GLOBAL) {
             LKQLLanguage.getContext(this).setGlobal(this.slot, null, node);
@@ -94,7 +94,21 @@ public final class BindingPattern extends UnfilteredPattern {
         }
 
         // Execute the pattern with the binding done
-        return this.pattern.executePattern(frame, node);
+        return this.pattern.executeNode(frame, node);
+    }
+
+    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    @Override
+    public boolean executeString(VirtualFrame frame, String str) {
+        // Do the node binding
+        if(mode == Mode.GLOBAL) {
+            LKQLLanguage.getContext(this).setGlobal(this.slot, null, str);
+        } else {
+            frame.setObject(this.slot, str);
+        }
+
+        // Execute the pattern with the binding done
+        return this.pattern.executeString(frame, str);
     }
 
     // ----- Override methods -----

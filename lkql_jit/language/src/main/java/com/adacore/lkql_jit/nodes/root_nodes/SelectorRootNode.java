@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.LKQLContext;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
@@ -186,20 +188,20 @@ public final class SelectorRootNode extends BaseRootNode {
         this.memCache.put(node, res);
     }
 
+    /**
+     * Get the context of the root node
+     *
+     * @return The context
+     */
+    public LKQLContext getContext() {
+        return LKQLLanguage.getContext(this.arms[0]);
+    }
+
     // ----- Override methods -----
 
     @Override
     public String toString() {
         return "Selector<" + this.name + ">";
-    }
-
-    /** @see com.oracle.truffle.api.nodes.RootNode#getSourceSection() */
-    @Override
-    public SourceSection getSourceSection() {
-        if(this.arms[0].getLocation() != null) {
-            return this.arms[0].getLocation().createSection();
-        }
-        return null;
     }
 
     // ----- Inner classes -----

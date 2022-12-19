@@ -23,9 +23,13 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.util_functions.ReflectionUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -33,8 +37,12 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.runtime.values.NullValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -95,20 +103,6 @@ public final class NodeMethods extends CommonMethods {
                 new Expr[]{null},
                 new ParentExpr()
         ));
-        this.methods.put("next_sibling", new BuiltInFunctionValue(
-                "next_sibling",
-                "Given a node, get the next sibling of it",
-                new String[]{"node"},
-                new Expr[]{null},
-                new NextSiblingExpr()
-        ));
-        this.methods.put("previous_sibling", new BuiltInFunctionValue(
-                "previous_sibling",
-                "Given a node, get the previous sibling of it",
-                new String[]{"node"},
-                new Expr[]{null},
-                new PreviousSiblingExpr()
-        ));
         this.methods.put("dump", new BuiltInFunctionValue(
                 "dump",
                 "Given an ast node, return a structured dump of the subtree",
@@ -144,6 +138,20 @@ public final class NodeMethods extends CommonMethods {
                 new Expr[]{null},
                 new KindExpr()
         ));
+        this.methods.put("tokens", new BuiltInFunctionValue(
+                "tokens",
+                "Given a node, return an iterator on its tokens",
+                new String[]{"node"},
+                new Expr[]{null},
+                new TokensExpr()
+        ));
+        this.methods.put("same_tokens", new BuiltInFunctionValue(
+                "same_tokens",
+                "Return whether two nodes have the same tokens, ignoring trivias",
+                new String[]{"node", "other"},
+                new Expr[]{null, null},
+                new SameTokensExpr()
+        ));
     }
 
     // ----- Override methods -----
@@ -170,7 +178,7 @@ public final class NodeMethods extends CommonMethods {
             Libadalang.AdaNode[] res = new Libadalang.AdaNode[childrenCount];
             for(int i = 0 ; i < childrenCount ; i++) {
                 Libadalang.AdaNode child = node.getChild(i);
-                res[i] = (child == null ? NullValue.getInstance() : child);
+                res[i] = (child == null ? NodeNull.getInstance() : child);
             }
 
             // Return the list value
@@ -185,29 +193,7 @@ public final class NodeMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode parent = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).parent();
-            return parent == null ? NullValue.getInstance() : parent;
-        }
-    }
-
-    /**
-     * Expression of the "next_sibling" method
-     */
-    public final static class NextSiblingExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AdaNode next = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).nextSibling();
-            return next == null ? NullValue.getInstance() : next;
-        }
-    }
-
-    /**
-     * Expression of the "previous_sibling" method
-     */
-    public final static class PreviousSiblingExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AdaNode previous = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).previousSibling();
-            return previous == null ? NullValue.getInstance() : previous;
+            return parent == null ? NodeNull.getInstance() : parent;
         }
     }
 
@@ -258,7 +244,7 @@ public final class NodeMethods extends CommonMethods {
     public final static class UnitExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).unit();
+            return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getUnit();
         }
     }
 
@@ -269,6 +255,95 @@ public final class NodeMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return ReflectionUtils.getClassSimpleName(frame.getArguments()[0]);
+        }
+    }
+
+    /**
+     * Expression of the tokens method
+     */
+    public final static class TokensExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            // Get the node
+            Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]);
+
+            // Prepare the result
+            ArrayList<Libadalang.Token> resList = new ArrayList<>();
+            Libadalang.Token startToken = node.tokenStart();
+            Libadalang.Token endToken = node.tokenEnd();
+            resList.add(startToken);
+            while(!startToken.equals(endToken)) {
+                startToken = startToken.next();
+                resList.add(startToken);
+            }
+
+            // Return the result
+            return new ListValue(resList.toArray(new Libadalang.Token[0]));
+        }
+    }
+
+    /**
+     * Expression of the "same_tokens" method
+     */
+    public final static class SameTokensExpr extends BuiltInExpr {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            // Get the nodes to compare
+            Libadalang.AdaNode leftNode = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]);
+            Libadalang.AdaNode rightNode;
+            try {
+                rightNode = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[1]);
+            } catch (UnexpectedResultException e) {
+                throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[0]
+                );
+            }
+
+            // Get the tokens
+            Libadalang.Token leftToken = leftNode.tokenStart();
+            Libadalang.Token rightToken = rightNode.tokenStart();
+
+            Libadalang.Token leftEnd = leftNode.tokenEnd();
+            Libadalang.Token rightEnd = rightNode.tokenEnd();
+
+            // Compare all the node's tokens
+            while (!leftToken.tokenDataHandler.isNull() && !rightToken.tokenDataHandler.isNull()) {
+                if(leftToken.getKind() != rightToken.getKind()) return false;
+                if(leftToken.getKind() == Libadalang.TokenKind.ADA_IDENTIFIER) {
+                    if(!ObjectUtils.equals(
+                            StringUtils.toLowerCase(leftToken.getText()),
+                            StringUtils.toLowerCase(rightToken.getText())
+                    )) return false;
+                }
+
+                if(leftToken.equals(leftEnd)) {
+                    return rightToken.equals(rightEnd);
+                } else if(rightToken.equals(rightEnd)) {
+                    return false;
+                }
+
+                leftToken = next(leftToken);
+                rightToken = next(rightToken);
+            }
+
+            // The default return value
+            return true;
+        }
+
+        /**
+         * Get the next token from the given one ignoring the trivias
+         *
+         * @param t The token to get the next from
+         * @return The next token
+         */
+        private static Libadalang.Token next(Libadalang.Token t) {
+            Libadalang.Token res = t.next();
+            while(!res.tokenDataHandler.isNull() && res.triviaIndex != 0) {
+                res = res.next();
+            }
+            return res;
         }
     }
 

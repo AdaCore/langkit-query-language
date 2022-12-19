@@ -42,12 +42,13 @@ if not os.path.isfile(os.path.realpath(native_exec)):
 
 os.makedirs("bin", exist_ok=True)
 
-build_checker = sys.argv[1] == "true"
+build_checker = "--checker" in sys.argv
 
 """
 Use those option to perform debug on the compilation process
 -H:+PrintRuntimeCompileMethods  => Use this to debug compilation errors
 -H:-DeleteLocalSymbols  => Use this to disable symbol deletion to profile
+-H:+SourceLevelDebug  => Use this to preserve link from source to bin
 -H:+PreserveFramePointer  => Use this to preserve the frame pointer to profile
 -H:+IncludeNodeSourcePositions  => # Use this to debug deoptimizations
 -H:+ReportExceptionStackTraces  => ???
@@ -57,6 +58,9 @@ common_command = (
     native_exec,
     "--macro:truffle",
     "--no-fallback",
+    "-H:-DeleteLocalSymbols",
+    "-H:+SourceLevelDebug",
+    "-H:+PreserveFramePointer",
     "--language:regex",
     "--initialize-at-build-time=com.adacore.lkql_jit",
     "-H:ReflectionConfigurationFiles=reflect_config_lada.json,reflect_config_lkql.json",

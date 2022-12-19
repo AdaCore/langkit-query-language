@@ -254,10 +254,4 @@ public abstract class LKQLNode extends Node implements Locatable {
      */
     public abstract String toString(int indentLevel);
 
-    /** @see com.oracle.truffle.api.nodes.Node#getSourceSection() */
-    @Override
-    public SourceSection getSourceSection() {
-        return this.location.createSection();
-    }
-
 }

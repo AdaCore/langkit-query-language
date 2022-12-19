@@ -11,10 +11,6 @@
 
     <artifactId>native</artifactId>
 
-    <properties>
-        <build.build_checker>${config.buildChecker}</build.build_checker>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -31,7 +27,7 @@
                             <executable>python3</executable>
                             <arguments>
                                 <argument>${basedir}/make_native.py</argument>
-                                <argument>${build.build_checker}</argument>
+                                <argument>${config.buildChecker}</argument>
                             </arguments>
                         </configuration>
                     </execution>

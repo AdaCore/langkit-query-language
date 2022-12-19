@@ -24,6 +24,10 @@
 package com.adacore.lkql_jit.runtime.built_ins.selectors;
 
 import com.adacore.lkql_jit.nodes.Identifier;
+import com.adacore.lkql_jit.nodes.arguments.Arg;
+import com.adacore.lkql_jit.nodes.arguments.ArgList;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
 import com.adacore.lkql_jit.nodes.expressions.literals.UnitLiteral;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
@@ -109,10 +113,17 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
                 new Identifier(null, "previous_sibling"),
                 new ReadBuiltInThis()
         );
+        FunCall funCall = FunCallNodeGen.create(
+                null,
+                false,
+                null,
+                new ArgList(null, new Arg[0]),
+                propertyAccess
+        );
         SelectorArm prevSiblingPath = new SelectorArm(
                 null,
                 new NodeKindPattern(null, "AdaNode"),
-                new SelectorExpr(null, SelectorExpr.Mode.REC, propertyAccess)
+                new SelectorExpr(null, SelectorExpr.Mode.REC, funCall)
         );
         res[0] = prevSiblingPath;
 

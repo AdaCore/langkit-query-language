@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
+import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
@@ -67,9 +69,9 @@ public final class DetailPattern extends DetailValue {
     /** @see com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object) */
     @Override
     public boolean executeDetailValue(VirtualFrame frame, Object value) {
-        // If the pattern is a regex pattern and the value is a string
-        if(this.pattern instanceof RegexPattern regexPattern && LKQLTypeSystemGen.isString(value)) {
-            return regexPattern.executeOnString(frame, LKQLTypeSystemGen.asString(value));
+        // Check if the value is a string
+        if(LKQLTypeSystemGen.isString(value)) {
+            return this.pattern.executeString(frame, LKQLTypeSystemGen.asString(value));
         }
 
         // Verify that the value is a node
@@ -82,7 +84,7 @@ public final class DetailPattern extends DetailValue {
         }
 
         // Execute the pattern with the node
-        return this.pattern.executePattern(frame, LKQLTypeSystemGen.asAdaNode(value));
+        return this.pattern.executeNode(frame, LKQLTypeSystemGen.asAdaNode(value));
     }
 
     // ----- Override methods -----

@@ -77,16 +77,16 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     /** If the verbose mode should be activated */
     private boolean verbose = false;
 
-    /** If the checker should use the lkql driver */
-    private boolean lkqlDriver = false;
-
     // ----- Checker options -----
 
     /** A directory containing all user added rules */
-    private String ruleDirs = null;
+    private String rulesDirs = null;
 
     /** The name rule to apply, if null all */
     private String rule = null;
+
+    /** The arguments to pass to the rules */
+    private List<String> rulesArgs = new ArrayList<>();
 
     /** The mode of error recovery */
     private final String errorMode = "continue_and_warn";
@@ -102,34 +102,35 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     protected void printHelp(OptionCategory maxCategory) {
         System.out.println(
                 """
-                usage : lkql_jit_checker [options ...] files [files ...]
+                        usage : lkql_jit_checker [options ...] files [files ...]
 
-                The LKQL checker using LKQL JIT compiler
+                        The LKQL checker using LKQL JIT compiler
 
-                Positional arguments :
-                  files : Files to analyse
+                        Positional arguments :
+                          files : Files to analyse
 
-                Basic options:
-                  --charset, -C                     Charset to use for the source decoding
-                  --project, -P                     Project file to use
-                  --recursive, -U                   Process all units in the project tree, excluding
-                                                    externally built projects
-                  --jobs, -j                        Number of parallel jobs to use. If zero, use the
-                                                    maximal parallelism : one job per CPU
+                        Basic options:
+                          --charset, -C                     Charset to use for the source decoding
+                          --project, -P                     Project file to use
+                          --recursive, -U                   Process all units in the project tree, excluding
+                                                            externally built projects
+                          --jobs, -j                        Number of parallel jobs to use. If zero, use the
+                                                            maximal parallelism : one job per CPU
 
-                  --verbose, -v                     Enable the verbose mode
-                  --lkql-driver                     Execute the checker with the lkql driver
+                          --verbose, -v                     Enable the verbose mode
 
-                  --rule-dirs                       Specify colon-separated, directories where rules
-                                                    will be seek from
-                  --rule, -r                        Rule to apply (if not passed all rules are,
-                                                    applied)
-                  --property-error-recovery, -pr    Which behavior to adopt when there is a
-                                                    property error inside of a LKQL query.
-                                                    Possible alternatives: continue_and_warn,
-                                                    continue_and_log, raise_error. Default:
-                                                    continue_and_warn
-                """
+                          --rules-dirs                      Specify colon-separated, directories where rules
+                                                            will be seek from
+                          --rule, -r                        Rule to apply (if not passed all rules are,
+                                                            applied)
+                          --rule-arg, -a                    Argument to pass to a rule, with the syntax
+                                                            <rule_name>.<arg_name> = <arg_value>
+                          --property-error-recovery, -pr    Which behavior to adopt when there is a
+                                                            property error inside of a LKQL query.
+                                                            Possible alternatives: continue_and_warn,
+                                                            continue_and_log, raise_error. Default:
+                                                            continue_and_warn
+                        """
         );
     }
 
@@ -175,43 +176,45 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         // Set the builder common options
         contextBuilder.allowIO(true);
 
-        try {
-            // Set the LKQL language mode to interpreter
-            contextBuilder.option("lkql.checkerMode", "true");
+        // Set the LKQL language mode to interpreter
+        contextBuilder.option("lkql.checkerMode", "true");
 
-            // Set the context options
-            if(this.verbose) {
-                System.out.println("=== LKQL JIT is in verbose mode ===");
-                contextBuilder.option("lkql.verbose", "true");
-            }
+        // Set the context options
+        if(this.verbose) {
+            System.out.println("=== LKQL JIT is in verbose mode ===");
+            contextBuilder.option("lkql.verbose", "true");
+        }
 
-            // Set the project file
-            if(this.projectFile != null) {
-                contextBuilder.option("lkql.projectFile", this.projectFile);
-            }
+        // Set the project file
+        if(this.projectFile != null) {
+            contextBuilder.option("lkql.projectFile", this.projectFile);
+        }
 
-            // Set the files
-            if(!this.files.isEmpty()) {
-                contextBuilder.option("lkql.files", String.join(":", this.files));
-            }
+        // Set the files
+        if(!this.files.isEmpty()) {
+            contextBuilder.option("lkql.files", String.join(":", this.files));
+        }
 
-            // Set the charset
-            if(this.charset != null && !this.charset.isEmpty() && !this.charset.isBlank()) {
-                contextBuilder.option("lkql.charset", this.charset);
-            }
+        // Set the charset
+        if(this.charset != null && !this.charset.isEmpty() && !this.charset.isBlank()) {
+            contextBuilder.option("lkql.charset", this.charset);
+        }
 
-            // Set the rule directories
-            if(this.ruleDirs != null) {
-                contextBuilder.option("lkql.ruleDirs", this.ruleDirs);
-            }
+        // Set the rule directories
+        if(this.rulesDirs != null) {
+            contextBuilder.option("lkql.rulesDirs", this.rulesDirs);
+        }
 
-            // Set the rule to apply
-            if(this.rule != null && !this.rule.isEmpty() && !rule.isBlank()) {
-                contextBuilder.option("lkql.rule", this.rule.toLowerCase());
-            }
+        // Set the rule to apply
+        if(this.rule != null && !this.rule.isEmpty() && !this.rule.isBlank()) {
+            contextBuilder.option("lkql.rule", this.rule.toLowerCase());
+        }
 
+        // Set the rule argument
+        contextBuilder.option("lkql.rulesArgs", String.join(";", this.rulesArgs));
+
+        try(Context context = contextBuilder.build()) {
             // Create the context and run it with the script
-            Context context = contextBuilder.build();
             Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
                     .build();
             context.eval(source);
@@ -315,6 +318,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             case "j" -> "jobs";
             case "v" -> "verbose";
             case "r" -> "rule";
+            case "a" -> "rule-arg";
             default -> null;
         };
     }
@@ -335,11 +339,6 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             // The verbose flag
             case "verbose":
                 this.verbose = true;
-                break;
-
-            // The driver flag
-            case "lkql-driver":
-                this.lkqlDriver = true;
                 break;
 
             // Default behavior
@@ -387,11 +386,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 break;
 
             // The add rule dir
-            case "rule-dirs":
+            case "rules-dirs":
                 if(value == null) {
                     return ArgumentStatus.Malformed;
                 }
-                this.ruleDirs = value;
+                this.rulesDirs = value;
                 break;
 
             // The rule precision
@@ -400,6 +399,13 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                     return ArgumentStatus.Malformed;
                 }
                 this.rule = value;
+                break;
+
+            case "rule-arg":
+                if(value == null) {
+                    return ArgumentStatus.Malformed;
+                }
+                this.rulesArgs.add(value);
                 break;
 
             // The default unhandled flag
@@ -425,7 +431,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         }
 
         // Verify the rules dir
-        if(this.ruleDirs == null || this.ruleDirs.isEmpty() || this.ruleDirs.isBlank()) {
+        if(this.rulesDirs == null || this.rulesDirs.isEmpty() || this.rulesDirs.isBlank()) {
             throw this.abort("Please provide at least one rule directory");
         }
     }

@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.runtime.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
@@ -75,6 +76,7 @@ public final class StrMethods extends CommonMethods {
     @Override
     protected void initMethods() {
         super.initMethods();
+        this.methods.put(BaseNameFunction.NAME, BaseNameFunction.getInstance().getValue());
         this.methods.put("to_lower_case", new BuiltInFunctionValue(
                 "to_lower_case",
                 "Return the given string written with lower case characters only",
@@ -110,7 +112,6 @@ public final class StrMethods extends CommonMethods {
                 new String[]{"str"},
                 new Expr[]{null},
                 new IsMixedCaseExpr()
-
         ));
         this.methods.put("length", new BuiltInFunctionValue(
                 "length",
@@ -241,10 +242,10 @@ public final class StrMethods extends CommonMethods {
 
                 // Test the character
                 if(i == 0 || previousUnderscore) {
-                    if(Character.isLowerCase(c)) {
-                        return false;
-                    }
+                    if(Character.isLowerCase(c)) return false;
                     previousUnderscore = false;
+                } else {
+                    if(Character.isUpperCase(c)) return false;
                 }
                 if(c == '_') {
                     previousUnderscore = true;
@@ -268,7 +269,7 @@ public final class StrMethods extends CommonMethods {
             String receiver = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
 
             // Return the length
-            return receiver.length();
+            return (long) receiver.length();
         }
     }
 
