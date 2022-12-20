@@ -1,4 +1,6 @@
 pack.adb:28:15: rule violation: possible occurrence of KP S124-035
-28 |       Data := Convert   --  FLAG
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 |        Data := Convert   --  FLAG
+   | _______________^
+29 ||                 (S => Device_Packet'(Device => Device_Type'(Fnord => 1)));
+   ||_________________________________________________________________________^
 

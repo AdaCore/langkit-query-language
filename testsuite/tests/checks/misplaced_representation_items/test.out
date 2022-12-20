@@ -3,8 +3,13 @@ rep.ads:7:4: rule violation: misplaced representation item
   |    ^^^^^^^^^^^^^^^^^^^^^
 
 rep.ads:17:4: rule violation: misplaced representation item
-17 |    for Rec1 use record           --  FLAG
-   |    ^^^^^^^^^^^
+17 |     for Rec1 use record           --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+19 ||    end record;
+   ||______________^
 
 rep.ads:25:4: rule violation: misplaced representation item
 25 |    pragma Atomic (Var1);         --  FLAG

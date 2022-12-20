@@ -1,4 +1,6 @@
 other.adb:9:7: rule violation: no logging in exception handler
-9 |       when others =>   --  FLAG
-  |       ^^^^^^^^
+9  |        when others =>   --  FLAG
+   | _______^
+10 ||          null;
+   ||______________^
 

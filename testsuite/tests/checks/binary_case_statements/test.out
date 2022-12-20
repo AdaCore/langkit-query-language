@@ -1,4 +1,9 @@
 binary_case_statements.adb:4:9: rule violation: CASE statement can be replaced with IF statement
-4 |         case 1 is                   --  FLAG
-  |         ^^^^^^^^^
+4 |          case 1 is                   --  FLAG
+  | _________^
+  ||
+  || ~~~ 4 other lines ~~~
+  ||
+9 ||         end case;
+  ||_________________^
 

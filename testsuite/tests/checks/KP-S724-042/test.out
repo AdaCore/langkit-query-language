@@ -1,4 +1,9 @@
 p.adb:7:7: rule violation: possible occurrence of KP S724-042
-7 |       return Result : Vector := Left do   --  FLAG
-  |       ^^^^^^^^^^^
+7 |        return Result : Vector := Left do   --  FLAG
+  | _______^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+9 ||       end return;
+  ||_________________^
 

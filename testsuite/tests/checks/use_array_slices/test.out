@@ -1,4 +1,9 @@
 slice.adb:7:4: rule violation: for loop may be replaced by an array slice
-7 |    for I in Table_Array_Type'Range loop   --  FLAG
-  |    ^^^^^^^^^
+7 |     for I in Table_Array_Type'Range loop   --  FLAG
+  | ____^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+9 ||    end loop;
+  ||____________^
 

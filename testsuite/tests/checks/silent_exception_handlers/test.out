@@ -1,4 +1,6 @@
 exc.adb:11:7: rule violation: silent exception handler
-11 |       when others =>   --  FLAG
-   |       ^^^^^^^^
+11 |        when others =>   --  FLAG
+   | _______^
+12 ||          null;
+   ||______________^
 

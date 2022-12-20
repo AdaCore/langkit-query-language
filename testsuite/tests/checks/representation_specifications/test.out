@@ -7,8 +7,10 @@ repr.ads:6:4: rule violation: declaration with a representation aspect
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 repr.ads:9:4: rule violation: declaration with a representation aspect
-9 |    type State_Mask    is array (State) of Boolean  --  FLAG
-  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+9  |     type State_Mask    is array (State) of Boolean  --  FLAG
+   | ____^
+10 ||      with Component_Size => 1;
+   ||______________________________^
 
 repr.ads:12:4: rule violation: declaration with a representation aspect
 12 |    Var : Integer;                                  --  FLAG

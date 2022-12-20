@@ -1,4 +1,9 @@
 declarations_in_blocks.adb:5:8: rule violation: block statement with local declaration
-5 |        declare                       --  FLAG
-  |        ^^^^
+5  |         declare                       --  FLAG
+   | ________^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+11 ||        end;
+   ||___________^
 

@@ -1,8 +1,12 @@
 p.ads:16:4: rule violation: possible occurrence of KP UA12-036, see type at p.ads:11
-16 |    procedure Free is  --  FLAG: Nasty is part of Root_Object'Class
-   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 |     procedure Free is  --  FLAG: Nasty is part of Root_Object'Class
+   | ____^
+17 ||      new Ada.Unchecked_Deallocation (Root_Object'Class, Root_Object_Ptr);
+   ||_________________________________________________________________________^
 
 p.ads:19:4: rule violation: possible occurrence of KP UA12-036, see type at p.ads:11
-19 |    procedure Free is  --  FLAG
-   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |     procedure Free is  --  FLAG
+   | ____^
+20 ||      new Ada.Unchecked_Deallocation (Nasty, Nasty_Ptr);
+   ||_______________________________________________________^
 
