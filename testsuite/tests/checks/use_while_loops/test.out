@@ -1,8 +1,18 @@
 loop1.adb:5:4: rule violation: simple loop may be replaced by a while loop
-5 |    loop           --  FLAG
-  |    ^^^^^^^^^
+5  |     loop           --  FLAG
+   | ____^
+   ||
+   || ~~~ 8 other lines ~~~
+   ||
+14 ||    end loop;
+   ||____________^
 
 loop1.adb:28:4: rule violation: simple loop may be replaced by a while loop
-28 |    loop           --  FLAG
-   |    ^^^^^^^^^^^^^^^^^^^^
+28 |     loop           --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+30 ||    end loop Local_Loop;
+   ||_______________________^
 

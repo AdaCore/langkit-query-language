@@ -1,12 +1,27 @@
 slice.adb:10:4: rule violation: for loop may be replaced by an array slice
-10 |    for I in Table_Array_Type'Range loop   --  FLAG
-   |    ^^^^^^^^^
+10 |     for I in Table_Array_Type'Range loop   --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+12 ||    end loop;
+   ||____________^
 
 slice.adb:14:4: rule violation: for loop may be replaced by an array slice
-14 |    for I in Table_Array_Type'Range loop   --  FLAG
-   |    ^^^^^^^^^
+14 |     for I in Table_Array_Type'Range loop   --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+16 ||    end loop;
+   ||____________^
 
 slice.adb:18:4: rule violation: for loop may be replaced by an array slice
-18 |    for I in S'Range loop   --  FLAG
-   |    ^^^^^^^^^
+18 |     for I in S'Range loop   --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+20 ||    end loop;
+   ||____________^
 

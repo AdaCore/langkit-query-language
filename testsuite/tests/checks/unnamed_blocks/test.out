@@ -1,20 +1,45 @@
 blocks.adb:5:7: rule violation: non-named block statement
-5 |       declare                                  --  FLAG
-  |       ^^^^
+5  |        declare                                  --  FLAG
+   | _______^
+   ||
+   || ~~~ 13 other lines ~~~
+   ||
+19 ||       end;
+   ||__________^
 
 blocks.adb:10:10: rule violation: non-named nesting loop statement
-10 |          for J in S'Range loop                 --  FLAG
-   |          ^^^^^^^^^
+10 |           for J in S'Range loop                 --  FLAG
+   | __________^
+   ||
+   || ~~~ 6 other lines ~~~
+   ||
+17 ||          end loop;
+   ||__________________^
 
 blocks.adb:14:13: rule violation: non-named nested loop statement
-14 |             for K in S'Range loop              --  FLAG
-   |             ^^^^^^^^^
+14 |              for K in S'Range loop              --  FLAG
+   | _____________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+16 ||             end loop;
+   ||_____________________^
 
 blocks.adb:22:4: rule violation: non-named block statement
-22 |    begin          --  FLAG
-   |    ^^^^
+22 |     begin          --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+24 ||    end;
+   ||_______^
 
 blocks.adb:31:7: rule violation: non-named nested loop statement
-31 |       loop        --  FLAG
-   |       ^^^^^^^^^
+31 |        loop        --  FLAG
+   | _______^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+33 ||       end loop;
+   ||_______________^
 

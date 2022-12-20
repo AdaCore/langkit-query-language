@@ -1,4 +1,9 @@
 loops.adb:3:4: rule violation: simple loop statement
-3 |    loop                    --  FLAG
-  |    ^^^^^^^^^
+3 |     loop                    --  FLAG
+  | ____^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+5 ||    end loop;
+  ||____________^
 

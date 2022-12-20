@@ -1,6 +1,8 @@
 expr.adb:7:7: rule violation: quantified expression
-7 |      (for some I in Ind =>                               --  FLAG
-  |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |       (for some I in Ind =>                               --  FLAG
+  | _______^
+8 ||         (for all J in Ind => M (I, J) = 0));             --  FLAG
+  ||__________________________________________^
 
 expr.adb:8:10: rule violation: quantified expression
 8 |         (for all J in Ind => M (I, J) = 0));             --  FLAG

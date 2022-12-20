@@ -1,10 +1,17 @@
 member.adb:5:7: rule violation: expression may be replaced by a membership test
-5 |    if A = 0            --  FLAG
-  |       ^^^^^^^^^^^^^^^^^^^^^
+5 |     if A = 0            --  FLAG
+  | _______^
+  ||
+  || ~~~ 2 other lines ~~~
+  ||
+8 ||      or (A >= 3 and A <= 5)
+  ||___________________________^
 
 member.adb:13:7: rule violation: expression may be replaced by a membership test
-13 |    if A = 0            --  FLAG if short_circuit
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |     if A = 0            --  FLAG if short_circuit
+   | _______^
+14 ||      or else (A >= 3 and A <= 5)
+   ||________________________________^
 
 member.adb:39:12: rule violation: expression may be replaced by a membership test
 39 |    Bool := A = B or (A >= 1 and A <= B);  --  FLAG

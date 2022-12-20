@@ -1,6 +1,8 @@
 paths.adb:6:7: rule violation: null path
-6 |       null;                 --  FLAG
-  |       ^^^^^
+6 |        null;                 --  FLAG
+  | _______^
+7 ||       null;
+  ||___________^
 
 paths.adb:16:10: rule violation: null path
 16 |          null;              --  FLAG

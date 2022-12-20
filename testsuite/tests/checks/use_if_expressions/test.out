@@ -1,12 +1,27 @@
 stmt.adb:4:4: rule violation: if statement may be replaced by an if expression
-4 |    if X = 1 then   --  FLAG
-  |    ^^^^^^^
+4 |     if X = 1 then   --  FLAG
+  | ____^
+  ||
+  || ~~~ 3 other lines ~~~
+  ||
+8 ||    end if;
+  ||__________^
 
 stmt.adb:16:4: rule violation: if statement may be replaced by an if expression
-16 |    if X = 1 then   --  FLAG
-   |    ^^^^^^^
+16 |     if X = 1 then   --  FLAG
+   | ____^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+22 ||    end if;
+   ||__________^
 
 stmt.adb:40:4: rule violation: if statement may be replaced by an if expression
-40 |    if X >= 2 then   --  FLAG
-   |    ^^^^^^^
+40 |     if X >= 2 then   --  FLAG
+   | ____^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+46 ||    end if;
+   ||__________^
 

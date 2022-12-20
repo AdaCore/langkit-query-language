@@ -19,6 +19,11 @@ paths.adb:44:10: rule violation: nested path may be moved outside if statement
    |          ^^^^^^^^^^^^^^^
 
 paths.adb:57:7: rule violation: nested path may be moved outside if statement
-57 |       begin                        --  FLAG
-   |       ^^^^
+57 |        begin                        --  FLAG
+   | _______^
+   ||
+   || ~~~ 3 other lines ~~~
+   ||
+61 ||       end;
+   ||__________^
 

@@ -1,10 +1,20 @@
 test.adb:4:4: rule violation: redundant boolean expression
-4 |    if Cond then                --  FLAG
-  |    ^^^^^^^
+4 |     if Cond then                --  FLAG
+  | ____^
+  ||
+  || ~~~ 3 other lines ~~~
+  ||
+8 ||    end if;
+  ||__________^
 
 test.adb:10:4: rule violation: redundant boolean expression
-10 |    if Cond then                --  FLAG
-   |    ^^^^^^^
+10 |     if Cond then                --  FLAG
+   | ____^
+   ||
+   || ~~~ 3 other lines ~~~
+   ||
+14 ||    end if;
+   ||__________^
 
 test.adb:16:9: rule violation: redundant boolean expression
 16 |    X := X = Standard.true;     --  FLAG

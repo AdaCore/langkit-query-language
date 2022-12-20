@@ -1,8 +1,12 @@
 p.ads:5:12: rule violation: possible occurrence of KP U701-015
-5 |            Predicate_Failure => "Value not odd =" &   --  FLAG
-  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |             Predicate_Failure => "Value not odd =" &   --  FLAG
+  | ____________^
+6 ||                                              Natural'Image(Natural(Odd));
+  ||________________________________________________________________________^
 
 p.ads:10:11: rule violation: possible occurrence of KP U701-015
-10 |           Predicate_Failure => "Value not small =" &   --  FLAG
-   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 |            Predicate_Failure => "Value not small =" &   --  FLAG
+   | ___________^
+11 ||                                              Natural'Image(Natural(Small_Odd));
+   ||______________________________________________________________________________^
 

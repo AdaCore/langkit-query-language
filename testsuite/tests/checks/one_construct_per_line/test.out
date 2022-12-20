@@ -27,8 +27,10 @@ line.adb:12:10: rule violation: more than one construct on the same line
    |          ^^^^^^^
 
 line.adb:12:18: rule violation: more than one construct on the same line
-12 |          I := J; if I > 0 then                             --  FLAG
-   |                  ^^^^^^^^^
+12 |           I := J; if I > 0 then                             --  FLAG
+   | __________________^
+13 ||            I := 0; end if;                                 --  FLAG
+   ||__________________________^
 
 line.adb:13:12: rule violation: more than one construct on the same line
 13 |            I := 0; end if;                                 --  FLAG

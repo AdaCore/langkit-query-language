@@ -1,4 +1,9 @@
 dup.adb:4:7: rule violation: code duplicated at line 13
-4 |       declare       --  FLAG with line 13
-  |       ^^^^
+4  |        declare       --  FLAG with line 13
+   | _______^
+   ||
+   || ~~~ 6 other lines ~~~
+   ||
+11 ||       end;
+   ||__________^
 

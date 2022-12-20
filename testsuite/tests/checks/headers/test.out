@@ -1,4 +1,6 @@
 q.ads:1:1: rule violation: compilation unit does not start with header
-1 | package Q is  --  FLAG
-  | ^^^^^^
+1 |  package Q is  --  FLAG
+  | _^
+2 || end Q;
+  ||______^
 
