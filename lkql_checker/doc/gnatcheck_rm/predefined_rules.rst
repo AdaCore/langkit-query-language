@@ -3926,7 +3926,7 @@ the following code patterns:
       ... -- no write reference to Id
    begin
       ...
-      while Id <relation_operator> Limit loop
+      while Id <relation_operator> <expression> loop
          ...  -- no write reference to Id
          Id := Id <increment_operator> 1;
       end loop;
@@ -3942,7 +3942,13 @@ Note, that the rule only informs about a possibility to replace a
 really possible, additional human analysis is required for all the
 loops marked by the rule.
 
-This rule has no parameters.
+This rule has the following (optional) parameters for the ``+R`` option:
+
+*no_exit*
+  Flag only loops that do not include an exit statement that applies to them.
+
+*no_function*
+  <expression> must not contain any non-operator function call.
 
 .. rubric:: Example
 

@@ -4,11 +4,16 @@
 #      [no write reference to Id]
 #   begin
 #      [...]
-#      while Id <relation op> ... loop
+#      while Id <relation op> <expression> loop
 #         [no write reference to Id]
 #         Id := Id +/- 1;
 #      end loop;
 #      [no reference to Id]
+#
+# This rule has two parameters:
+# - no_exit: flag only loops that do not include an exit statement that applies
+#   to them.
+# - no_function: <expression> must not contain any non-operator function call.
 
 import stdlib
 
@@ -27,9 +32,22 @@ fun has_references(node, id) =
     |" Return true if any reference to `id` starting from `node` is found
     (from node select first Identifier(p_name_matches(id) is true)) != null
 
+fun exit_stmt(node) =
+    |" Return the first exit statement referencing node (assumed to be a
+    |" BaseLoopStmt)
+    from node select first s@ExitStmt
+    when (if s.f_loop_name is id@Name
+          then node.f_end_name is n@EndName and n.f_name.p_name_matches(id)
+          else (from s through parent select first BaseLoopStmt) == node)
+
+fun enclosing_scope(node) = {
+    val p = node.p_semantic_parent();
+    if p is NamedStmt then enclosing_scope(p) else p
+}
+
 @check(message="while loop may be replaced by a for loop",
        category="Style", subcategory="Programming Practice")
-fun use_for_loops(node) =
+fun use_for_loops(node, no_exit = false, no_function = false) =
     # Find while loops of the form: while Id <relation op> ... loop
     node is WhileLoopStmt(f_spec is WhileLoopSpec(f_expr is
                           rel@RelationOp(f_left is id@Identifier)
@@ -50,7 +68,7 @@ fun use_for_loops(node) =
         when not assign.next_sibling()
          # and where id is declared in the same enclosing scope as the loop
          and id.p_referenced_decl() is decl@ObjectDecl
-             when node.p_semantic_parent() == decl.p_semantic_parent()
+             when enclosing_scope(node) == decl.p_semantic_parent()
               # and no other write of Id is found in its declarative part
               # (e.g. from nested subprograms)
               and no_write_reference(decl.parent, id)
@@ -59,3 +77,6 @@ fun use_for_loops(node) =
               and not node is *(any next_siblings is n@*
                                 when has_references(n, id))
     }
+    and not (no_exit and exit_stmt(node))
+    and not (no_function and
+             from rel.f_right select first Name(p_is_call() is true))
