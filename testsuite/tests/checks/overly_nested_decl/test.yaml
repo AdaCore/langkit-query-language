@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Overly_Nested_Declarations
+input_sources: ['nested.adb']
+rule_arguments:
+   overly_nested_declarations.n: 3

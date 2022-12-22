@@ -1,0 +1,29 @@
+# Flag each declarative construct whose nesting level exceeds the value
+# provided in the rule parameter n.
+# The declaration constructs checked are the following:
+# - package decl and body
+# - subprogram decl and body
+# - task decl and body
+# - protected decl and body
+# - entry body
+# - blocks
+
+fun check_decl_parent(node, n) =
+    |" Return true if node and its parents contain more than n decl constructs
+    if node == null then false
+    else if node is (BasePackageDecl or PackageBody or BasicSubpDecl or
+                     BaseSubpBody or TaskTypeDecl or SingleTaskDecl or
+                     TaskBody or ProtectedTypeDecl or SingleProtectedDecl or
+                     ProtectedBody or EntryBody or BlockStmt)
+    then (if n == 0 then true
+         else check_decl_parent(node.parent, n - 1))
+    else check_decl_parent(node.parent, n)
+
+@check(message="nesting level of declarations too deep",
+       category="Style", subcategory="Programming Practice")
+fun overly_nested_declarations(node, n: int = 10) =
+    node is (BasePackageDecl or PackageBody or BasicSubpDecl or BaseSubpBody or
+             TaskTypeDecl or SingleTaskDecl or TaskBody or
+             ProtectedTypeDecl or SingleProtectedDecl or ProtectedBody or
+             EntryBody or BlockStmt)
+    when check_decl_parent(node.parent, n)
