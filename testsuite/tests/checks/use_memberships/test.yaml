@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: use_memberships
+project: 'prj.gpr'
+rule_arguments:
+   Use_Memberships.short_circuit: 'true'

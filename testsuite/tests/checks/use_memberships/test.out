@@ -1,0 +1,8 @@
+member.adb:3:7: rule violation: expression may be replaced by a membership test
+3 |    if A = 0            --  FLAG
+  |       ^^^^^^^^^^^^^^^^^^^^^
+
+member.adb:11:7: rule violation: expression may be replaced by a membership test
+11 |    if A = 0            --  FLAG if short_circuit
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
