@@ -1,0 +1,4 @@
+actuals.adb:9:14: rule violation: actual parameter mismatch
+9 |       Subp1 (Info => Integer'(Info2));   --  FLAG
+  |              ^^^^^^^^^^^^^^^^^^^^^^^
+

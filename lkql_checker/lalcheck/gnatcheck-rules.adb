@@ -1072,10 +1072,13 @@ package body Gnatcheck.Rules is
             Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Param);
             Load_Dictionary (Expand_Env_Variables (Param), Rule, Rule.Param);
             Rule.Defined_At := new String'(Defined_At);
+
          else
-            if Rule.Name.all = "parameters_out_of_order"
-              and then Param not in
-                "in" | "defaulted_in" | "in_out" | "access" | "out"
+            if (Rule.Name.all = "parameters_out_of_order"
+                and then Param not in
+                  "in" | "defaulted_in" | "in_out" | "access" | "out")
+              or else (Rule.Name.all = "actual_parameters"
+                       and then Slice_Count (Create (Param, ":")) /= 3)
             then
                Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
                Bad_Rule_Detected := True;
@@ -1863,7 +1866,7 @@ package body Gnatcheck.Rules is
       --  Check whether we have 5 arguments for parameters_out_of_order
 
       if Rule.Name.all = "parameters_out_of_order"
-        and then Length (Rule.Param) /= 0
+        and then Last /= 0
         and then Slice_Count (Create (To_String (Rule.Param), ",")) /= 5
       then
          Error ("(" & Rule.Name.all & ") requires 5 parameters, got: " &
@@ -1873,7 +1876,60 @@ package body Gnatcheck.Rules is
          return;
       end if;
 
-      if Last /= 0
+      if Rule.Name.all = "actual_parameters" and then Last /= 0 then
+         declare
+            Param        : Unbounded_Wide_Wide_String;
+            C            : Wide_Wide_Character;
+            Num_Elements : Positive := 1;
+            Lower        : Boolean  := True;
+
+         begin
+            Append (Param, "[(""");
+
+            for J in 1 .. Last loop
+               C := Element (Rule.Param, J);
+
+               case C is
+                  when '"'    =>
+                     if Num_Elements = 3 then
+                        if Element (Rule.Param, J - 1) = ':' then
+                           Append (Param, '|');
+                           Lower := False;
+
+                        elsif J /= Last
+                          and then Element (Rule.Param, J + 1) /= ','
+                        then
+                           Error;
+                           return;
+                        end if;
+                     else
+                        Append (Param, "\""");
+                     end if;
+
+                  when ':'    =>
+                     Append (Param, """,""");
+                     Num_Elements := @ + 1;
+                     Lower := True;
+
+                  when ','    =>
+                     Append (Param, """),(""");
+                     Num_Elements := 1;
+                     Lower := True;
+
+                  when others =>
+                     Append (Param, (if Lower then To_Lower (C) else C));
+               end case;
+            end loop;
+
+            Append (Param, """)]");
+            Args.Append
+              (Rule_Argument'
+                (Name  => To_Unbounded_Text (Rule.Parameters.Child (2).
+                                             As_Parameter_Decl.
+                                             F_Param_Identifier.Text),
+                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+         end;
+      elsif Last /= 0
         and then Rule.Name.all = "exception_propagation_from_callbacks"
       then
          declare

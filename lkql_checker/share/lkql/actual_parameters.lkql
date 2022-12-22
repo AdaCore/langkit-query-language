@@ -1,0 +1,49 @@
+# Given a list of (Entity, Formal, Actual), flag each occurrence of
+# association lists coming from a subprogram call where Actual is used as
+# Formal parameter on Entity.
+# Actual is a fully qualified name and matches either a direct name, or within
+# parens, type conversion or type qualification.
+# (internal LKQL only) If Actual starts with "|" then the rest of the string
+# is used as a regular expression as defined in s-regpat.ads with a case
+# insensitive match.
+# For GNATcheck: if Actual is within quotes ("") then the string is used as a
+# regular expression as defined in s-regpat.ads with a case insensitive match.
+# Entity, Formal and Actual are compared in a case insensitive manner.
+
+fun strip(node) =
+    match node
+    # Strip parenthesis
+    | ParenExpr => strip(node.f_expr)
+    # Strip type qualifications and conversions
+    | QualExpr or CallExpr(f_name is Name(p_referenced_decl() is BaseTypeDecl))
+                => strip(node.f_suffix)
+    | *         => node
+
+fun check_actual(name, expected) =
+    |" If expected starts with "|", perform regexp matching between the fully
+    |" qualified name of name and expected (without the quotes), otherwise
+    |" perform a case insensitive string comparison.
+    |" If name is null, return false.
+    if name == null then false
+    else if expected.starts_with("|")
+    then name.p_canonical_fully_qualified_name().
+         contains(pattern(expected.substring(2, expected.length),
+                          case_sensitive=false))
+    else name.p_canonical_fully_qualified_name() == expected
+
+@check(message="actual parameter mismatch",
+       category="Style", subcategory="Programming Practice")
+fun actual_parameters(node, forbidden=[]) =
+    node is AssocList(parent is call@CallExpr(p_is_call() is true)
+    when {
+        val n = call.f_name.p_referenced_decl()?.
+                p_canonical_fully_qualified_name?();
+        val params = call.p_call_params();
+        [item for item in forbidden if
+             item[1] == n and
+             [p for p in params
+              if p.param.text.to_lower_case == item[2] and
+                 strip(p.actual) is name@Name
+                 when check_actual(name.p_referenced_defining_name(), item[3])]
+        ]
+    }

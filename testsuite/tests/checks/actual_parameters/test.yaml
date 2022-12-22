@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: 'Actual_Parameters'
+project: 'prj.gpr'
+rule_arguments:
+   actual_parameters.forbidden: '[("actuals.subp1", "info", "|actuals\.info.*")]'
