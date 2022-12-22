@@ -1,0 +1,53 @@
+# Flag calls returning (part of) discriminated records inside a loop parameter
+# specification.
+
+import stdlib
+
+# TODO: share with KP-V712-039.lkql once we can use stdlib.<selector>
+selector component_types
+    |" Return all the TypeDecl corresponding to all fields of a given type
+    | TypeDecl(f_type_def is d@RecordTypeDef) =>
+        skip *(from d select ComponentDecl)
+    | TypeDecl(f_type_def is der@DerivedTypeDef(f_record_extension is
+                                                def@BaseRecordDef)) =>
+        skip *([der, def])
+    | TypeDecl(f_type_def is DerivedTypeDef(f_subtype_indication is
+               ind@SubtypeIndication) =>
+        rec ind.f_name.p_referenced_decl()
+    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
+                    ind@SubtypeIndication)) =>
+        rec ind.f_name.p_referenced_decl()
+    | BaseRecordDef  => skip *(from this select ComponentDecl)
+    | DerivedTypeDef => rec this.f_subtype_indication.f_name.p_referenced_decl()
+    | *        => ()
+
+fun has_rec_with_discriminants(type) =
+    if type is SubtypeDecl
+    then has_rec_with_discriminants(type.f_subtype.f_name.
+                                    p_referenced_decl().p_full_view())
+    else (type.p_is_record_type() and type.f_discriminants != null) or
+         (type.p_is_array_type() and
+          has_rec_with_discriminants(type.p_comp_type()))
+
+fun check_type(type) =
+    type is BaseTypeDecl and
+    (has_rec_with_discriminants(type) or
+     type is *(any component_types is t@BaseTypeDecl
+               when has_rec_with_discriminants(t)))
+
+fun check_subp(subp) =
+    subp.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
+    and check_type(stdlib.full_root_type(spec.f_subp_returns.
+                   p_designated_type_decl()))
+
+@check(message="possible occurrence of KP R410-028", impact="7.[123].*")
+fun kp_r410_028(node) =
+    node is BaseId(
+        p_is_call() is true,
+        any parent is ForLoopSpec,
+        p_referenced_decl() is
+            (decl@(ClassicSubpDecl or BaseSubpBody or SubpBodyStub)
+             when check_subp(decl))
+        or
+            inst@GenericSubpInstantiation
+            when check_subp(inst.p_designated_subp()))
