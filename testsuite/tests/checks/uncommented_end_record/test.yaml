@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Uncommented_End_Record
+project: 'prj.gpr'
+rule_arguments:
+   Uncommented_End_Record.n: 3

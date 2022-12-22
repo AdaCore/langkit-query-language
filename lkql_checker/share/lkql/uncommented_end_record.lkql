@@ -1,0 +1,22 @@
+# Flags each record definition that does not include a trailing comment on the
+# line containing the "[end] record" keyword(s) if the record definition is
+# longer than N lines; this trailing comment needs to specify the record name
+# and some extra information can be provided after the name, provided it is
+# separated from the name by a space or a comma.
+
+fun find_comment(token, name) =
+    |" Return true if token is a comment and contains only the given name
+    |" possibly followed by some extra text after a space or comma.
+    token.kind == "comment" and
+    token.text.contains(pattern("^-- *" & name & "([ ,].*)?$"))
+
+@unit_check(help="END RECORD not marked with type name comment",
+            remediation="EASY", category="Style", subcategory="Readability")
+fun uncommented_end_record(unit, n: int = 10) = [
+    {message: "mark END RECORD with -- " & n.p_semantic_parent().
+              p_defining_name().text, loc: n.token_end()}
+    for n in from unit.root select node@RecordDef
+    when node.token_end().end_line - node.token_start().start_line >= n
+      and not find_comment(node.token_end().next().next().next(),
+                           node.p_semantic_parent().p_defining_name().text)
+]
