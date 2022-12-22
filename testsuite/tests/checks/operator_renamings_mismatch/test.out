@@ -1,0 +1,4 @@
+renamings.ads:12:13: rule violation: renaming of an operator
+12 |    function "+" (I, J : Integer)           --  FLAG
+   |             ^^^
+

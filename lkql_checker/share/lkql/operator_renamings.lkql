@@ -1,7 +1,13 @@
 # Flag all operator renamings.
+# If name_mismatch is true then only flag when the renamed subprogram is also
+# an operator with a different name.
 
 @check(message="renaming of an operator",
        category="Style", subcategory="Programming Practice")
-fun operator_renamings(node) =
+fun operator_renamings(node, name_mismatch=false) =
    node is SubpRenamingDecl
-   when node.f_renames?.f_renamed_object?.p_is_operator_name()
+   when node.f_renames.f_renamed_object?.p_is_operator_name()
+    and (not name_mismatch or
+         (node.p_defining_name().p_is_operator_name() and not
+          node.p_defining_name().p_relative_name().p_name_matches(
+              node.f_renames.f_renamed_object.p_relative_name())))

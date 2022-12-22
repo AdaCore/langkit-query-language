@@ -2820,7 +2820,11 @@ This rule has no parameters.
 Flag subprogram renaming declarations that have an operator symbol as
 the name of renamed subprogram.
 
-This rule has no parameters.
+The rule has an optional parameter for the ``+R`` option:
+
+*Name_Mismatch*
+  Only flag when the renamed subprogram is also an operator with a different
+  name.
 
 .. rubric:: Example
 
