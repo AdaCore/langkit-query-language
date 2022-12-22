@@ -1,0 +1,12 @@
+params.adb:19:7: rule violation: potential parameter aliasing between formals P1 and P2
+19 |       Proc5 (Arr (I), Arr (J));    --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+params2.adb:23:7: rule violation: potential parameter aliasing between formals X and Y
+23 |       Proc_SC (Tab1(I).S,         Tab1(J).S(3));      -- FLAG (potential aliasing)
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+params2.adb:24:7: rule violation: potential parameter aliasing between formals X and Y
+24 |       Proc_SC (Tab1(I).S(3..5),   Tab1(J).S(J));      -- FLAG (potential aliasing)
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

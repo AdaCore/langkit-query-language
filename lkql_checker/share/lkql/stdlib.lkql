@@ -484,8 +484,9 @@ fun propagate_exceptions(body) =
                    name == "Ada.Exceptions.Reraise_Occurrence" }) == null)
 
 fun is_by_copy(param) =
-    |" Return true if param has a by-copy type
-    param.p_expression_type() is expr@BaseTypeDecl
+    |" Return true if ``param`` (a ParamActual) has a non aliased by-copy type
+    not (param.param.parent.parent is ParamSpec(f_has_aliased is AliasedPresent)) and
+    param.actual.p_expression_type() is expr@BaseTypeDecl
     when expr.p_root_type().p_full_view().p_root_type() is t@BaseTypeDecl
     when t.p_is_discrete_type() or t.p_is_access_type() or
          t.p_is_fixed_point() or t.p_is_float_type()

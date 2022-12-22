@@ -1,0 +1,23 @@
+# Complement of Parameters_Aliasing: only flag occurrences of additional
+# potential aliasing, namely when at least one array indexing and another
+# component may be potential aliases. Also take into account the
+# `in_parameters` parameter.
+# Note that this rule will also consider partial aliasing between a record
+# variable and one of its components, and follows renamings.
+
+import stdlib
+import parameters_aliasing
+
+@unit_check(help="potential parameter aliasing",
+            category="Style", subcategory="Programming Practice")
+fun potential_parameters_aliasing(unit, in_parameters = false) = [
+    {message: "potential parameter aliasing between " &
+              parameters_aliasing.param_image(
+                  n.parent.p_call_params(), in_parameters,
+                  canonical_indexes=true),
+     loc: n.parent}
+    for n in from unit.root select
+    AssocList(parent is call@CallExpr(p_is_call() is true))
+    when parameters_aliasing.params_aliasing(
+             call.p_call_params(), in_parameters, canonical_indexes=true)
+]

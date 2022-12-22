@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: 'Parameters_Aliasing'
+project: 'prj.gpr'
+rule_arguments:
+   parameters_aliasing.in_parameters: 'true'
