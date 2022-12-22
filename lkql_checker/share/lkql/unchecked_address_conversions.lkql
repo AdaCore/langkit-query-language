@@ -5,20 +5,28 @@
 # private type and its full declaration is a type derived from System.Address,
 # and cases when the actual for Target is a private type and its full
 # declaration is an access type. The rule is checked inside expanded generics.
+#
+# If the parameter ALL is set, all instantiations of Unchecked_Conversion
+# to or from System.Address are flagged.
 
 import stdlib
 
-fun check_uc_params(source, target) =
-    |" Check that source is derived from System.Address and target is an
-    |" access type.
-    stdlib.full_root_type(target.f_r_expr.p_referenced_decl()).p_is_access_type() and
-    stdlib.full_root_type(source.f_r_expr.p_referenced_decl()).
+fun is_address(param) =
+    stdlib.full_root_type(param.f_r_expr.p_referenced_decl()).
     p_fully_qualified_name() == "System.Address"
+
+fun check_uc_params(source, target, all) =
+    |" If `all` is true, check that either source or target is derived from
+    |" Address. Otherwise, check that source is derived from System.Address and
+    |" target is an access type.
+    if all then is_address(source) or is_address(target)
+    else target.f_r_expr.p_referenced_decl().p_full_view().p_is_access_type()
+     and is_address(source)
 
 @check(message="address-to-access conversion",
        follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
-fun unchecked_address_conversions(node) =
+fun unchecked_address_conversions(node, all=false) =
     node is GenericSubpInstantiation
     when ({
         val name = stdlib.ultimate_subprogram_alias(node.p_designated_subp()).
@@ -28,5 +36,5 @@ fun unchecked_address_conversions(node) =
          when params.children_count == 2
           and if not params[1].f_designator or
                  params[1].f_designator.p_name_is("source") 
-              then check_uc_params(params[1], params[2])
-              else check_uc_params(params[2], params[1])
+              then check_uc_params(params[1], params[2], all)
+              else check_uc_params(params[2], params[1], all)

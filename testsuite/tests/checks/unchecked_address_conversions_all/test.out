@@ -1,0 +1,8 @@
+conv.ads:9:13: rule violation: address-to-access conversion
+9 |    function Address_To_Access is new Ada.Unchecked_Conversion    --  FLAG
+  |             ^^^^^^^^^^^^^^^^^
+
+conv.ads:12:13: rule violation: address-to-access conversion
+12 |    function Address_To_Access2 is new Ada.Unchecked_Conversion  --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^
+

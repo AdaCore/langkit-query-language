@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Unchecked_Address_Conversions
+input_sources: ['conv.ads']
+rule_arguments:
+   Unchecked_Address_Conversions.all: 'true'

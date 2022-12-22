@@ -3643,7 +3643,11 @@ derived from ``System.Address``, and cases when the actual for ``Target`` is
 a private type and its full declaration is an access type. The rule is
 checked inside expanded generics.
 
-This rule has no parameters.
+The rule has an optional parameter for ``+R`` option:
+
+*ALL*
+   All instantiations of Unchecked_Conversion to or from System.Address are
+   flagged.
 
 .. rubric:: Example
 
