@@ -1,0 +1,20 @@
+test.adb:4:4: rule violation: redundant boolean expression
+4 |    if Cond then                --  FLAG
+  |    ^^^^^^^
+
+test.adb:10:4: rule violation: redundant boolean expression
+10 |    if Cond then                --  FLAG
+   |    ^^^^^^^
+
+test.adb:16:9: rule violation: redundant boolean expression
+16 |    X := X = Standard.true;     --  FLAG
+   |         ^^^^^^^^^^^^^^^^^
+
+test.adb:18:7: rule violation: redundant boolean expression
+18 |    if not (J > 1) then         --  FLAG
+   |       ^^^^^^^^^^^
+
+test.adb:22:11: rule violation: redundant boolean expression
+22 |    return X = Standard.False;  --  FLAG
+   |           ^^^^^^^^^^^^^^^^^^
+

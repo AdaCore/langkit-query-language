@@ -1,0 +1,44 @@
+# Flag each occurrence of the following constructs:
+# - If statements with only then/else branches, no elsif, and each branch
+#   is a single statement, either an assignment on the same destination, or a
+#   return, of Standard.True on one branch and Standard.False on the other
+#   branch.
+# - infix (in)equality against Standard.True/False.
+# - infix "not" operators whose argument is a comparison.
+
+import stdlib
+
+fun true_and_false(left, right) =
+    left is Name and right is Name and {
+        val n1 = left.p_referenced_defining_name()?.
+                 p_canonical_fully_qualified_name?();
+        val n2 = right.p_referenced_defining_name()?.
+                 p_canonical_fully_qualified_name?();
+        (n1 == "standard.boolean.true" and n2 == "standard.boolean.false") or
+        (n2 == "standard.boolean.true" and n1 == "standard.boolean.false")
+    }
+
+fun check_then_else(then_stmt, else_stmt) =
+    (then_stmt is AssignStmt and else_stmt is AssignStmt and
+     then_stmt.f_dest.p_name_matches(else_stmt.f_dest) and
+     true_and_false(then_stmt.f_expr, else_stmt.f_expr)) or
+    (then_stmt is ReturnStmt and else_stmt is ReturnStmt and
+     true_and_false(then_stmt.f_return_expr, else_stmt.f_return_expr))
+
+@check(message="redundant boolean expression",
+       category="Style", subcategory="Programming Practice")
+fun redundant_boolean_expressions(node) =
+    node is RelationOp(f_op is op@(OpEq or OpNeq))
+            when node.f_right is name@Name and {
+                val n = name.p_referenced_defining_name()?.
+                        p_canonical_fully_qualified_name?();
+                n == "standard.boolean.true" or n == "standard.boolean.false"
+            }
+         or
+            (IfStmt when node.f_alternatives[1] == null
+                     and node.f_else_stmts.children_count == 1
+                     and node.f_then_stmts.children_count == 1
+                     and check_then_else(node.f_then_stmts[1],
+                                         node.f_else_stmts[1]))
+         or (UnOp(f_op is OpNot)
+             when stdlib.strip_conversions(node.f_expr) is RelationOp)

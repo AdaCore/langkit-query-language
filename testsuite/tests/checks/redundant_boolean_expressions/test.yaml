@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: redundant_boolean_expressions
+project: 'prj.gpr'
