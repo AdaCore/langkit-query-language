@@ -1,0 +1,11 @@
+# Flag simple loops where the first statement is an exit (for the same loop)
+# and which could be replaced by a while loop.
+
+@check(message="simple loop may be replaced by a while loop",
+       category="Style", subcategory="Programming Practice")
+fun use_while_loops(node) =
+    node is LoopStmt
+    when node.f_stmts[1] is e@ExitStmt
+     and (e.f_loop_name == null or
+          (node.f_end_name is n@EndName and
+           n.f_name.p_name_matches(e.f_loop_name)))

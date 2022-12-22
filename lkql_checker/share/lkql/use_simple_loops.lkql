@@ -1,0 +1,10 @@
+# Flag while loops where the condition is statically known to be True and which
+# could be replaced by a simple loop.
+
+@check(message="while loop may be replaced by a simple loop",
+       category="Style", subcategory="Programming Practice")
+fun use_simple_loops(node) =
+    # Find while loops whose condition is statically known to be True (= 1)
+    node is WhileLoopStmt(
+        f_spec is WhileLoopSpec(f_expr is e@Expr(p_is_static_expr() is true)
+                                when e.p_eval_as_int() == 1))

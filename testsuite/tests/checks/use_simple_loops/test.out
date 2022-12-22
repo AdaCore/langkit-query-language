@@ -1,0 +1,12 @@
+loop1.adb:5:4: rule violation: while loop may be replaced by a simple loop
+5 |    while True loop   --  FLAG
+  |    ^^^^^^^^^
+
+loop1.adb:22:4: rule violation: while loop may be replaced by a simple loop
+22 |    while Standard.True loop   --  FLAG
+   |    ^^^^^^^^^
+
+loop1.adb:26:4: rule violation: while loop may be replaced by a simple loop
+26 |    while 1 = 1 loop   --  FLAG
+   |    ^^^^^^^^^
+
