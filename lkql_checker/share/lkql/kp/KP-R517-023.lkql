@@ -1,0 +1,35 @@
+# Flag calls to subprograms with an In Out or Out formal parameter of an
+# unconstrained packed array type, when the actual parameter is a component
+# of a record subject to a representation clause.
+
+fun get_type(type) =
+    match type
+    | SubtypeIndication => if type.f_constraint == null
+                           then get_type(type.f_name.p_referenced_decl().
+                                         p_full_view())
+                           else type
+    | AnonymousType     => get_type(type.f_type_decl)
+    | SubtypeDecl       => if type.f_subtype.f_constraint == null
+                           then get_type(type.f_subtype.f_name.
+                                         p_referenced_decl().p_full_view())
+                           else type
+    | TypeDecl          => if type.f_type_def is def@DerivedTypeDef and
+                              def.f_subtype_indication.f_constraint == null
+                           then get_type(def.f_subtype_indication.f_name.
+                                         p_referenced_decl().p_full_view())
+                           else type
+    | *                 => type
+
+@check(message="possible occurrence of KP R517-023",
+       impact="7.[1-4].*,17.*,18.[12]",
+       follow_generic_instantiations = true)
+fun kp_r517_023(node) =
+    node is CallExpr(p_is_call() is true)
+    when [p for p in node.p_call_params()
+          if p.param.parent.parent is spec@ParamSpec(f_mode is ModeOut or ModeInOut) and
+             p.actual is DottedName(p_referenced_decl() is comp@ComponentDecl) and
+             comp.p_semantic_parent().p_get_record_representation_clause() != null and
+             get_type(spec.f_type_expr) is type@TypeDecl(
+                 p_is_array_type() is true,
+                 p_has_aspect("Pack") is true,
+                 f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices))]
