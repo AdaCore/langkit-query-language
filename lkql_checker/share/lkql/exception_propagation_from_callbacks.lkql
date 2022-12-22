@@ -1,0 +1,36 @@
+# Flag each 'Address or 'Access reference to a subprogram whose body may
+# propagate an exception, when this reference is part of one the
+# given subprogram calls and formal parameter name as specified by the
+# parameters.
+# For LKQL: Callbacks is a list of
+# ("fully qualified subprogram name", "parameter name").
+# For gnatcheck: each parameter is of the form
+# "fully.qualified.subprogram.parameter_name".
+# A subprogram is considered as not propagating if:
+# - it has an exception handler with a "when others" choice;
+# - no exception handler contains a raise statement, nor any call to
+#   Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
+
+import stdlib
+
+@check(message="callback may propagate exceptions")
+fun exception_propagation_from_callbacks(node, callbacks=[]) =
+   # Select 'Access or 'Address on subprograms in a subprogram call
+   node is AttributeRef(
+       f_attribute is id@Identifier
+           when id.p_name_is("Address") or id.p_name_is("Access"))
+    when node.f_prefix.p_referenced_decl() is subp@(SubpBody or SubpDecl)
+     and (from node through parent
+          select first CallExpr(p_is_call() is true)) is call@CallExpr
+     and {
+        val n = call.f_name.p_referenced_decl()?.
+                p_canonical_fully_qualified_name?();
+        val name = if n == () then "" else n;
+        val param = [c[2] for c in callbacks if c[1] == name]?[1];
+
+        param != () and
+        [p for p in call.p_call_params()
+         if p.actual == node and p.param.p_name_is(param)] and
+        stdlib.propagate_exceptions(if subp is SubpBody
+                                    then subp else subp.p_body_part_for_decl())
+    }

@@ -1,0 +1,8 @@
+tasks.adb:6:14: rule violation: exceptions may propagate out of task body
+6 |    task body T1 is  --  FLAG
+  |              ^^
+
+tasks.adb:11:14: rule violation: exceptions may propagate out of task body
+11 |    task body T2 is  --  FLAG
+   |              ^^
+

@@ -1807,7 +1807,58 @@ package body Gnatcheck.Rules is
 
    overriding procedure Map_Parameters
      (Rule : in out One_Array_Parameter_Rule;
-      Args : in out Rule_Argument_Vectors.Vector) is
+      Args : in out Rule_Argument_Vectors.Vector)
+   is
+      Last : constant Natural := Length (Rule.Param);
+
+      procedure Error;
+      --  Emit an error message when an invalid parameter is detected.
+
+      function Find_Char
+        (Str      : Wide_Wide_String;
+         C        : Wide_Wide_Character;
+         Backward : Boolean := False) return Natural;
+      --  Return the first occurrence of C in Str, 0 if none
+      --  If Backward is True, search from the end of the string.
+
+      -----------
+      -- Error --
+      -----------
+
+      procedure Error is
+      begin
+         Error ("(" & Rule.Name.all & ") wrong parameter: " &
+                To_String (Rule.Param));
+         Rule.Rule_State   := Disabled;
+         Bad_Rule_Detected := True;
+      end Error;
+
+      -----------
+      -- Index --
+      -----------
+
+      function Find_Char
+        (Str      : Wide_Wide_String;
+         C        : Wide_Wide_Character;
+         Backward : Boolean := False) return Natural is
+      begin
+         if Backward then
+            for J in reverse Str'Range loop
+               if Str (J) = C then
+                  return J;
+               end if;
+            end loop;
+         else
+            for J in Str'Range loop
+               if Str (J) = C then
+                  return J;
+               end if;
+            end loop;
+         end if;
+
+         return 0;
+      end Find_Char;
+
    begin
       --  Check whether we have 5 arguments for parameters_out_of_order
 
@@ -1822,10 +1873,61 @@ package body Gnatcheck.Rules is
          return;
       end if;
 
-      Append_Array_Param
-        (Args,
-         Rule.Parameters.Child (2).As_Parameter_Decl.F_Param_Identifier.Text,
-         Rule.Param);
+      if Last /= 0
+        and then Rule.Name.all = "exception_propagation_from_callbacks"
+      then
+         declare
+            Param      : Unbounded_Wide_Wide_String;
+            Str        : constant Wide_Wide_String :=
+              To_Wide_Wide_String (Rule.Param);
+            Current    : Natural := Str'First;
+            Next_Comma : Natural;
+            Dot        : Natural;
+
+         begin
+            Append (Param, "[(""");
+
+            loop
+               Next_Comma := Find_Char (Str (Current .. Str'Last), ',');
+
+               if Next_Comma = 0 then
+                  Next_Comma := Str'Last + 1;
+               end if;
+
+               Dot :=
+                 Find_Char
+                   (Str (Current .. Next_Comma - 1), '.', Backward => True);
+
+               if Dot = 0 then
+                  Error;
+                  return;
+               end if;
+
+               Append (Param, To_Lower (Str (Current .. Dot - 1)));
+               Append (Param, """,""");
+               Append (Param, To_Lower (Str (Dot + 1 .. Next_Comma - 1)));
+               Current := Next_Comma + 1;
+
+               exit when Current > Str'Last;
+
+               Append (Param, """),(""");
+            end loop;
+
+            Append (Param, """)]");
+            Args.Append
+              (Rule_Argument'
+                (Name  => To_Unbounded_Text (Rule.Parameters.Child (2).
+                                             As_Parameter_Decl.
+                                             F_Param_Identifier.Text),
+                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+         end;
+      else
+         Append_Array_Param
+           (Args,
+            Rule.Parameters.Child (2).As_Parameter_Decl.
+              F_Param_Identifier.Text,
+            Rule.Param);
+      end if;
    end Map_Parameters;
 
    overriding procedure Map_Parameters

@@ -1,0 +1,4 @@
+p.adb:22:25: rule violation: callback may propagate exceptions
+22 |       Take_Cb (Param => P1'Access, I => 1);   --  FLAG
+   |                         ^^^^^^^^^
+

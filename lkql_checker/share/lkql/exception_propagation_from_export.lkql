@@ -1,0 +1,19 @@
+# Flag each subprogram body with an Export aspect that may propagate an
+# exception.
+# A subprogram is considered as not propagating if:
+# - it has an exception handler with a "when others" choice;
+# - and no exception handler contains a raise statement, nor any call to
+#   Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
+
+import stdlib
+
+fun has_export(body) = {
+    |" Return true if a given BaseSubpBody has an Export aspect
+    val decl = body.p_decl_part();
+    (if decl == null then body else decl).p_has_aspect("Export")
+}
+
+@check(message="exception not handled locally")
+fun exception_propagation_from_export(node) =
+   node is BaseSubpBody
+    when has_export(node) and stdlib.propagate_exceptions(node)

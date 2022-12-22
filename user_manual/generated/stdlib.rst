@@ -186,6 +186,13 @@ library.
     Return the end line of the previous non blank token, or the previous
     line for a comment, or 0 if none.
 
+.. function:: propagate_exceptions(body)
+
+    Return true if the given body may propagate an exception, namely if:
+    - it has no exception handler with a "when others" choice;
+    - or it has an exception handler containing a raise statement, or a call
+      to Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
+
 .. function:: range_values(left, right)
 
     Return the number of values covered between left and right expressions,

@@ -1,0 +1,8 @@
+p.adb:5:14: rule violation: exception not handled locally
+5 |    procedure P1 is  --  FLAG
+  |              ^^
+
+p.adb:13:14: rule violation: exception not handled locally
+13 |    procedure P2 with Export is   --  FLAG
+   |              ^^
+
