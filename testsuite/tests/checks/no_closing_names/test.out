@@ -1,0 +1,36 @@
+names.adb:1:14: rule violation: no closing name
+1 | package body Names is  --  FLAG
+  |              ^^^^^
+
+names.adb:2:14: rule violation: no closing name
+2 |    procedure Proc is   --  FLAG
+  |              ^^^^
+
+names.adb:12:14: rule violation: no closing name
+12 |    task body Task1 is   --  FLAG
+   |              ^^^^^
+
+names.adb:20:19: rule violation: no closing name
+20 |    protected body Prot1 is   --  FLAG
+   |                   ^^^^^
+
+names.adb:21:17: rule violation: no closing name
+21 |       procedure P is         --  FLAG
+   |                 ^
+
+names.ads:1:9: rule violation: no closing name
+1 | package Names is       --  FLAG
+  |         ^^^^^
+
+names.ads:4:12: rule violation: no closing name
+4 |    package Nested is   --  FLAG
+  |            ^^^^^^
+
+names.ads:16:9: rule violation: no closing name
+16 |    task Task2 is        --  FLAG
+   |         ^^^^^
+
+names.ads:21:14: rule violation: no closing name
+21 |    protected Prot1 is       --  FLAG
+   |              ^^^^^
+
