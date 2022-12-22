@@ -1,0 +1,12 @@
+null_stmts.adb:4:4: rule violation: redundant null statement
+4 |    null;      --  FLAG
+  |    ^^^^^
+
+null_stmts.adb:16:7: rule violation: redundant null statement
+16 |       null;   --  FLAG
+   |       ^^^^^
+
+null_stmts.adb:20:7: rule violation: redundant null statement
+20 |       null;   --  FLAG
+   |       ^^^^^
+

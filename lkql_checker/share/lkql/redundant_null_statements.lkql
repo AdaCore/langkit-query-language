@@ -1,0 +1,10 @@
+# Flag each occurrence of a null statement that serve no purpose and can be
+# removed. When a null statement carries a label, it is considered as serving
+# a purpose.
+
+@check(message="redundant null statement",
+       category="Style", subcategory="Programming Practice")
+fun redundant_null_statements(node) =
+    node is NullStmt
+     and ((node.previous_sibling() != null and node.previous_sibling() is not Label) or
+          (node.next_sibling() != null and node.next_sibling() is not NullStmt))
