@@ -1,0 +1,50 @@
+# Flag for ... in loops which could be replaced by a for ... of loop,
+# that is, where the loop index is used only for indexing a single variable
+# on a one dimension array.
+#
+# This rule recognizes loops of the form:
+#      for Index in <array>'Range loop
+#         [all references to Index are of the form <array> (Index)]
+#      end loop;
+#
+# This rule has one parameter N: specifies the minimal number of references
+# that will trigger the detection (defaults to 1).
+
+fun num_indices(type) =
+    match type.f_type_def
+    | def@ArrayTypeDef => (match def.f_indices
+        | a@ConstrainedArrayIndices   => a.f_list.children_count
+        | a@UnconstrainedArrayIndices => a.f_types.children_count)
+    | DerivedTypeDef => num_indices(type.p_base_type())
+
+@check(message="for loop may be replaced by a for-of loop",
+       category="Style", subcategory="Programming Practice")
+fun use_for_of_loops(node, n : int = 1, ignore = false) =
+    # Look for "for <index> in <array>'Range" loops
+    node is ForLoopStmt(
+        f_spec is spec@ForLoopSpec(
+            f_has_reverse is not ReversePresent,
+            f_loop_type is IterTypeIn,
+            f_iter_expr is attr@AttributeRef))
+    when attr.f_attribute.p_name_is("Range")
+     and attr.f_prefix.p_expression_type() is
+         iter_type@TypeDecl(p_is_array_type() is true)
+     # where <array> is a one dimension array.
+     and num_indices(iter_type) == 1
+     and {
+        val ids = (from node.f_stmts select
+                   Identifier(p_name_matches(spec.f_var_decl.f_id.f_name) is true));
+
+        # Now check that all references to <index> are of the form <array>(<index>)
+        not [f for f in ids
+             if f.parent is not ParamAssoc(
+                     parent is AssocList(parent is call@CallExpr)) or
+                call.f_name.p_referenced_decl() !=
+                    attr.f_prefix.p_referenced_decl()]
+        # Finally check that we have at least N references to <index>
+        and (n == 0 or
+             [f for f in ids
+              if f.parent is ParamAssoc(parent is
+                                        AssocList(parent is call@CallExpr)) and
+                 call.f_name.p_referenced_decl() ==
+                     attr.f_prefix.p_referenced_decl()]?[n])}
