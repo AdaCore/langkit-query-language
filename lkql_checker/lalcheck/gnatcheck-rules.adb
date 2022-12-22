@@ -2702,9 +2702,8 @@ package body Gnatcheck.Rules is
      (Rule  : Forbidden_Rule;
       Level : Natural)
    is
-      Str : constant String :=
-        (if Rule.Name.all = "forbidden_pragmas"
-         then "pragmas" else "attributes");
+      Str : constant String := Rule.Name (11 .. Rule.Name'Last);
+      --  Strip the leading "forbidden_"
 
    begin
       Info (Level * Indent_String &

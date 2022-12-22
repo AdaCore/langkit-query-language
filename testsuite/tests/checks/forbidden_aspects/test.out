@@ -1,0 +1,8 @@
+aspects.ads:4:11: rule violation: use of aspect Pack
+4 |      with Pack;                   --  FLAG
+  |           ^^^^
+
+aspects.ads:7:11: rule violation: use of aspect Atomic
+7 |      with Atomic,                 --  FLAG
+  |           ^^^^^^
+

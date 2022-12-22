@@ -1,0 +1,12 @@
+# Flag each use of the specified aspects. The aspects to be detected are named
+# in the parameter ``forbidden``. If the ``all`` parameter is true, all aspects
+# by default are flagged, except the aspects listed in the ``allowed``
+# parameter.
+
+@unit_check(help="usage of specified aspects", parametric_exemption=true,
+            category="Style", subcategory="Portability")
+fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) = [
+    {message: "use of aspect " & node.f_id.text, loc: node}
+    for node in from unit.root select AspectAssoc(f_id is id@Identifier)
+    when (all or [p for p in forbidden if id.p_name_is(p)])
+     and not [p for p in allowed if id.p_name_is(p)]]

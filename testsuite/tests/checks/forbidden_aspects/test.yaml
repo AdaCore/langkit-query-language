@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Forbidden_Aspects
+input_sources: ['aspects.ads']
+rule_arguments:
+    forbidden_aspects.forbidden: '["pack", "atomic"]'

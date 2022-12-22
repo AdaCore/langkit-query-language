@@ -1287,6 +1287,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
                   elsif Name = "forbidden_attributes"
                     or else Name = "forbidden_pragmas"
+                    or else Name = "forbidden_aspects"
                   then
                      --  all, forbidden [], allowed []
                      Rule := new Forbidden_Rule;
