@@ -367,7 +367,7 @@ package body Gnatcheck.Compiler is
          elsif Msg (Idx .. Idx + 6) = "(style)" then
             Message_Kind := Style;
          else
-            Format_Error;
+            --  Ignore anything else
             return;
          end if;
 
