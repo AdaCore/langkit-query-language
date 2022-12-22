@@ -188,7 +188,17 @@ package body LKQL.Adaptive_Integers is
    begin
       case L.Kind is
          when Small =>
-            return (Kind => Small, Small_Value => -L.Small_Value);
+            --  Check for overflow
+            declare
+               X : constant Integer := L.Small_Value;
+            begin
+               if X = Integer'First then
+                  --  overflow
+                  return Create (-To_Big_Integer (X));
+               else
+                  return (Kind => Small, Small_Value => -X);
+               end if;
+            end;
          when Big =>
             return (Kind => Big, Big_Value => -L.Big_Value);
       end case;

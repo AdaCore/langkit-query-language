@@ -2947,7 +2947,11 @@ This rule has no parameters.
 
 Flag any use of an ``others`` choice in a ``case`` statement.
 
-This rule has no parameters.
+The rule has an optional parameter for the ``+R`` option:
+
+*N*
+   If specified, only flag if the others choice can be determined to span less
+   than ``N`` values (0 means no minimum value).
 
 .. rubric:: Example
 
