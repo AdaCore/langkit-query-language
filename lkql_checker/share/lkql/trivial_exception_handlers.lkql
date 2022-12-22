@@ -1,0 +1,14 @@
+# Flag each occurrence of an exception handler which contains as first
+# statement a raise with no exception name, unless there is also a handler for
+# others with more than just a raise statement.
+
+@check(message="trivial exception handler",
+       category="Style", subcategory="Programming Practice")
+fun trivial_exception_handlers(node) =
+    node is ExceptionHandler
+    when node.f_stmts[1] is RaiseStmt(f_exception_name is null)
+     and {
+        val handlers = node.parent.children;
+        val handler = handlers[handlers.length];
+        handler.f_handled_exceptions[1] is not OthersDesignator or
+        handler.f_stmts[1] is RaiseStmt(f_exception_name is null)}

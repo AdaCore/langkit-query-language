@@ -1,0 +1,16 @@
+handlers.adb:15:7: rule violation: trivial exception handler
+15 |       when Constraint_Error =>  --  FLAG
+   |       ^^^^^^^^^
+
+handlers.adb:17:7: rule violation: trivial exception handler
+17 |       when others =>   --  FLAG
+   |       ^^^^^^^^^
+
+handlers.adb:21:4: rule violation: trivial exception handler
+21 |    when Constraint_Error =>  --  FLAG
+   |    ^^^^^^^^^
+
+handlers.adb:23:4: rule violation: trivial exception handler
+23 |    when Program_Error =>  --  FLAG
+   |    ^^^^^^^^^
+
