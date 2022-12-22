@@ -1,0 +1,22 @@
+# Flag each occurrence of list of statements that can be moved outside
+# an enclosing if statement. This happens when the if statement has only then
+# and else paths, and one of them only ends with a "breaking" statement
+# (raise, return, exit or goto); in this case, the other path needs not be
+# nested inside the if statement and is flagged.
+
+fun has_last_breaking_stmt(list) =
+    match list[list.children_count]
+    | RaiseStmt or ReturnStmt or ExitStmt or GotoStmt => true
+    | b@(BeginBlock or DeclBlock) => has_last_breaking_stmt(b.f_stmts.f_stmts)
+    | * => false
+
+@check(message="nested path may be moved outside if statement",
+       category="Style", subcategory="Programming Practice")
+fun nested_paths(node) =
+    node is StmtList(parent is if_stmt@IfStmt)
+     when if_stmt.f_alternatives[1] == null
+      and if_stmt.f_else_stmts[1] != null
+      and not has_last_breaking_stmt(node)
+      and has_last_breaking_stmt(if if_stmt.f_then_stmts == node
+                                 then if_stmt.f_else_stmts
+                                 else if_stmt.f_then_stmts)

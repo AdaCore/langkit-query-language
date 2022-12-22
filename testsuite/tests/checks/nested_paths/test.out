@@ -1,0 +1,12 @@
+paths.adb:7:7: rule violation: nested path may be moved outside if statement
+7 |       null;   --  FLAG
+  |       ^^^^^
+
+paths.adb:19:7: rule violation: nested path may be moved outside if statement
+19 |       I := 1;       --  FLAG
+   |       ^^^^^^^
+
+paths.adb:23:7: rule violation: nested path may be moved outside if statement
+23 |       I := 1;       --  FLAG
+   |       ^^^^^^^
+
