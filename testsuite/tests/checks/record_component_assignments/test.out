@@ -1,0 +1,4 @@
+assign.adb:14:4: rule violation: record component assignment
+14 |    O1.Comp1 := 1;   --  FLAG
+   |    ^^^^^^^^^^^^^^
+
