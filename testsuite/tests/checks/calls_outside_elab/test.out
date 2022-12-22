@@ -1,0 +1,12 @@
+p.adb:9:22: rule violation: call performed outside elaboration
+9 |       X : Integer := Create;    --  FLAG
+  |                      ^^^^^^
+
+p.adb:11:12: rule violation: call performed outside elaboration
+11 |       X := Create;              --  FLAG
+   |            ^^^^^^
+
+p.adb:13:12: rule violation: call performed outside elaboration
+13 |       X := Create3;             --  FLAG
+   |            ^^^^^^^
+

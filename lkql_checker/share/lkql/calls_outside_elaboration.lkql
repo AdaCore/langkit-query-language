@@ -1,0 +1,18 @@
+# Flag each occurrence of call (as given by parameter `forbidden`) performed
+# outside package elaboration. Note that function renamings are followed
+# by this rule.
+
+import stdlib
+
+@check(message="call performed outside elaboration",
+       category="Style", subcategory="Programming Practice")
+fun calls_outside_elaboration(node, forbidden=[]) =
+    node is BaseId(p_is_call() is true,
+                   any stdlib.semantic_parent is
+                       BasicSubpDecl or SubpBody or TaskBody or
+                       EntryBody or ProtectedBody)
+    when {
+        val name = stdlib.ultimate_subprogram_alias(node.p_referenced_decl()).
+                   p_canonical_fully_qualified_name();
+        [c for c in forbidden if c.to_lower_case == name]
+    }

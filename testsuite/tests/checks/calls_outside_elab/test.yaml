@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: 'Calls_Outside_Elaboration'
+project: 'prj.gpr'
+rule_arguments:
+   calls_outside_elaboration.forbidden: '["p.create"]'
