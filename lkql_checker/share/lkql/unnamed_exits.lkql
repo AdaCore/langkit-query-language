@@ -1,0 +1,7 @@
+# Flag each exit statement with no name directly within a named loop.
+
+@check(help="unnamed exit statement", remediation="EASY",
+       category="Style", subcategory="Programming Practice")
+fun unnamed_exits(node) =
+    node is ExitStmt(f_loop_name is null)
+    when (from node through parent select first BaseLoopStmt)?.f_end_name is EndName
