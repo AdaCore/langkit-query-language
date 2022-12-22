@@ -1,0 +1,12 @@
+p1.adb:7:13: rule violation: call with side effects
+7 |       Proc (Read, Read);    --  FLAG
+  |             ^^^^^^^^^^
+
+p1.adb:8:13: rule violation: call with side effects
+8 |       Proc (Read2, Read2);  --  FLAG
+  |             ^^^^^^^^^^^^
+
+p1.adb:10:13: rule violation: call with side effects
+10 |       Proc (Func1 (Read), Read);  --  FLAG
+   |             ^^^^^^^^^^^^^^^^^^
+

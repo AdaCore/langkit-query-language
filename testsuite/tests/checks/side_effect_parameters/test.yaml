@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: side_effect_parameters
+project: prj.gpr
+rule_arguments:
+   side_effect_parameters.functions: '["p1.read","p1.read2"]'
