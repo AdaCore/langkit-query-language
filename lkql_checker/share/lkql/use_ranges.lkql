@@ -1,0 +1,34 @@
+# Flag expressions of the form xxx'First .. xxx'Last and xxx'Range that could be
+# replaced by xxx'Range or xxx.
+
+@unit_check(help="simplifiable 'First .. 'Last and 'Range",
+            category="Style", subcategory="Programming Practice")
+fun use_ranges(unit) = [
+    {message: "expression may be replaced by " &
+              (if n is AttributeRef
+               then n.f_prefix.text
+               else if n.f_left.f_prefix.p_referenced_decl() is BaseTypeDecl
+               then n.f_left.f_prefix.text
+               else n.f_left.f_prefix.text & "'Range"),
+     loc: n}
+    for n in from unit.root select
+    # Find 'Range in membership tests, for loop spec or case statements/expr
+    AttributeRef(
+        f_attribute is Identifier(
+            p_name_is("Range") is true),
+        parent is ForLoopSpec or
+            ExprAlternativesList or
+            AlternativesList(
+                parent is CaseStmtAlternative or CaseExprAlternative),
+        f_prefix is Name(
+            p_referenced_decl() is BaseTypeDecl(
+                p_is_discrete_type() is true))) or
+    # Find T'First .. T'Last
+    BinOp(f_op is OpDoubleDot,
+          f_left is AttributeRef(
+              f_attribute is Identifier(p_name_is("First") is true),
+              f_prefix is name@Name),
+          f_right is AttributeRef(
+              f_attribute is Identifier(p_name_is("Last") is true),
+              f_prefix is Name(p_name_matches(name) is true)))
+]

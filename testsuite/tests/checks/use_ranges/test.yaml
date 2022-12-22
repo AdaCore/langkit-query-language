@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: use_ranges
+input_sources: ['ranges.adb']

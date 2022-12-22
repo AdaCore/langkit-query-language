@@ -1,0 +1,24 @@
+ranges.adb:8:13: rule violation: expression may be replaced by Integer
+8 |    for J in Integer'Range loop    --  FLAG
+  |             ^^^^^^^^^^^^^
+
+ranges.adb:9:15: rule violation: expression may be replaced by Natural
+9 |       if J in Natural'Range then  --  FLAG
+  |               ^^^^^^^^^^^^^
+
+ranges.adb:11:18: rule violation: expression may be replaced by Natural
+11 |       elsif J in Natural'First .. Natural'Last then  --  FLAG
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ranges.adb:13:18: rule violation: expression may be replaced by Obj'Range
+13 |       elsif J in Obj'First .. Obj'Last then  --  FLAG
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+
+ranges.adb:23:12: rule violation: expression may be replaced by Obj'Range
+23 |       when Obj'First .. Obj'Last => null;   --  FLAG
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+ranges.adb:24:12: rule violation: expression may be replaced by My_Int
+24 |       when My_Int'Range          => null;   --  FLAG
+   |            ^^^^^^^^^^^^
+
