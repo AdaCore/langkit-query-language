@@ -1,0 +1,4 @@
+p.adb:8:15: rule violation: local instantiation
+8 |       package Inst1 is new Generic1;  --  FLAG
+  |               ^^^^^
+

@@ -1,0 +1,16 @@
+# Flag each occurrence of a non library level instantiation.
+# If parameter packages is specified, only instantiations of the given
+# packages are flagged.
+
+import stdlib
+
+@check(message="local instantiation",
+       category="Style", subcategory="Programming Practice")
+fun local_instantiations(node, packages=[]) =
+    node is (GenericPackageInstantiation(f_generic_pkg_name is name@Name) or
+             GenericSubpInstantiation(f_generic_subp_name is name@Name))
+    when stdlib.has_local_scope(node)
+     and (packages == [] or {
+              val full_name = name.p_referenced_decl()?.
+                              p_canonical_fully_qualified_name?();
+              [p for p in packages if p.to_lower_case == full_name]})
