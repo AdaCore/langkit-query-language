@@ -1,0 +1,8 @@
+handler.adb:9:4: rule violation: exception handler with forbidden entities
+9 |    when Program_Error =>      --  FLAG
+  |    ^^^^^^^^^^^^
+
+handler.adb:12:4: rule violation: exception handler with forbidden entities
+12 |    when others =>             --  FLAG
+   |    ^^^^^^^^^^^^
+

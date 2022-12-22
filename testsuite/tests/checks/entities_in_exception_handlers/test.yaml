@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: entities_in_exception_handlers
+project: 'prj.gpr'
+rule_arguments:
+   entities_in_exception_handlers.entities: '["handler.unsafe_p"]'
