@@ -4,28 +4,31 @@
 
 import stdlib
 
-# TODO: share with KP-V712-039.lkql once we can use stdlib.<selector>
+# TODO: move to stdlib once V831-024 is implemented
 selector component_types
-    |" Return all the TypeDecl corresponding to all fields of a given type
+    |" Return all the BaseTypeDecl corresponding to all fields
+    |" of a given type, including their full views, base types and subtypes.
     | TypeDecl(f_type_def is d@RecordTypeDef) =>
         skip *(from d select ComponentDecl)
-    | TypeDecl(f_type_def is der@DerivedTypeDef(f_record_extension is
-                                                def@BaseRecordDef)) =>
-        skip *([der, def])
-    | TypeDecl(f_type_def is DerivedTypeDef(f_subtype_indication is
-               ind@SubtypeIndication) =>
-        rec ind.f_name.p_referenced_decl()
+    | TypeDecl(f_type_def is DerivedTypeDef(f_record_extension is
+                                            def@BaseRecordDef)) =>
+        skip *([this.p_base_type()] & (from def select ComponentDecl))
+    | TypeDecl(f_type_def is DerivedTypeDef) => rec this.p_base_type()
+    | TypeDecl(f_type_def is ArrayTypeDef)   => rec this.p_comp_type()
+    | TypeDecl(f_type_def is PrivateTypeDef) => rec this.p_full_view()
+    | SubtypeDecl                            => rec this.p_base_subtype()
     | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
-                    ind@SubtypeIndication)) =>
+                    ind@SubtypeIndication))  =>
         rec ind.f_name.p_referenced_decl()
-    | BaseRecordDef  => skip *(from this select ComponentDecl)
-    | DerivedTypeDef => rec this.f_subtype_indication.f_name.p_referenced_decl()
-    | *        => ()
+    | *                                      => ()
 
 @check(message="possible occurrence of KP V624-025", impact="22.*")
 fun kp_v624_025(node) =
     node is AttributeRef
     when node.f_attribute.p_name_is("Valid_Scalars")
-     and node.f_prefix.p_expression_type() is TypeDecl(
+     and node.f_prefix.p_expression_type() is t@TypeDecl
+     and t.p_full_view() is TypeDecl(
+             p_is_record_type() is true,
              any component_types is t@TypeDecl(p_is_private() is true)
-             when stdlib.full_root_type(t) is TypeDecl(f_type_def is SignedIntTypeDef)
+             when stdlib.full_root_type(t) is TypeDecl(
+                  f_type_def is SignedIntTypeDef))
