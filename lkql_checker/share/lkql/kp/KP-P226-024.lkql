@@ -1,0 +1,38 @@
+# Flag local objects containing a protected object component if restriction
+# No_Local_Protected_Objects is in effect.
+
+import stdlib
+
+# TODO: move to stdlib once V831-024 is implemented
+selector component_types
+    |" Return all the BaseTypeDecl corresponding to all fields
+    |" of a given type, including their full views, base types and subtypes.
+    | TypeDecl(f_type_def is d@RecordTypeDef) =>
+        skip *(from d select ComponentDecl)
+    | TypeDecl(f_type_def is DerivedTypeDef(f_record_extension is
+                                            def@BaseRecordDef)) =>
+        skip *([this.p_base_type()] & (from def select ComponentDecl))
+    | TypeDecl(f_type_def is DerivedTypeDef) => rec this.p_base_type()
+    | TypeDecl(f_type_def is ArrayTypeDef)   => rec this.p_comp_type()
+    | TypeDecl(f_type_def is PrivateTypeDef) => rec this.p_full_view()
+    | SubtypeDecl                            => rec this.p_base_subtype()
+    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
+                    ind@SubtypeIndication))  =>
+        rec ind.f_name.p_referenced_decl()
+    | *                                      => ()
+
+@memoized
+fun has_no_local_po_restriction() =
+    select first p@PragmaNode
+    when p.f_id.p_name_is("Restrictions")
+     and from p.f_args select first n@Name
+         when n.p_name_is("No_Local_Protected_Objects")
+
+@check(message="possible occurrence of KP P226-024",
+       impact="7.[123].*,7.4.[1-3].*")
+fun kp_p226_024(node) =
+    node is ObjectDecl
+    when has_no_local_po_restriction()
+     and stdlib.has_local_scope(node)
+     and node.f_type_expr.p_designated_type_decl() is
+             BaseTypeDecl(any component_types is ProtectedTypeDecl)
