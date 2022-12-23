@@ -1,18 +1,15 @@
 # Flag subtype declarations of packed arrays with an Object_Size aspect
 
-fun get_type(type) =
-    match type
-    | SubtypeDecl => get_type(type.f_subtype.f_name.
-                              p_referenced_decl().p_full_view())
-    | TypeDecl    => if type.f_type_def is def@DerivedTypeDef
-                     then get_type(def.f_subtype_indication.f_name.
-                                   p_referenced_decl().p_full_view())
-                     else type
-    | *           => type
+# TODO: move to stdlib once V831-024 is implemented
+selector parent_types
+    | SubtypeDecl  => rec this.p_base_subtype().p_full_view()
+    | BaseTypeDecl => rec *this.p_full_view().p_base_types()
+    | *            => ()
 
 @check(message="possible occurrence of KP R511-017",
        impact="7.[1-4].*,17.*,18.*")
 fun kp_r511_017(node) =
-    node is SubtypeDecl(p_has_aspect("Object_Size") is true)
-    when get_type(node) is type@BaseTypeDecl(p_has_aspect("Pack") is true,
-                                             p_is_array_type() is true)
+    node is SubtypeDecl(
+        p_has_aspect("Object_Size") is true,
+        any parent_types is BaseTypeDecl(p_has_aspect("Pack") is true,
+                                         p_is_array_type() is true))
