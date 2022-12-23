@@ -255,15 +255,32 @@ package body Gnatcheck.Source_Table is
 
       procedure Check_Pragmas (Attribute : GPR2.Q_Attribute_Id) is
          Prj : GPR2.Project.View.Object := Project.Tree.Root_Project;
+
+         procedure Append_File (File : String);
+         --  Append File to Units
+
+         -----------------
+         -- Append_File --
+         -----------------
+
+         procedure Append_File (File : String) is
+         begin
+            if Is_Absolute_Path (File) then
+               Units.Append (Ctx.Analysis_Ctx.Get_From_File (File));
+            else
+               --  Resolve File relative to Prj's directory
+
+               Units.Append
+                 (Ctx.Analysis_Ctx.Get_From_File
+                    (Prj.Path_Name.Dir_Name & File));
+            end if;
+         end Append_File;
+
       begin
          if Prj.Has_Attribute (Attribute) then
-            Units.Append
-              (Ctx.Analysis_Ctx.Get_From_File
-                 (Prj.Attribute (Attribute).Value.Text));
+            Append_File (Prj.Attribute (Attribute).Value.Text);
          else
-
             while Prj.Is_Extending loop
-
                if Prj.Is_Extending_All then
                   Prj := Prj.Extended_Root;
                else
@@ -271,9 +288,7 @@ package body Gnatcheck.Source_Table is
                end if;
 
                if Prj.Has_Attribute (Attribute) then
-                  Units.Append
-                    (Ctx.Analysis_Ctx.Get_From_File
-                       (Prj.Attribute (Attribute).Value.Text));
+                  Append_File (Prj.Attribute (Attribute).Value.Text);
                end if;
             end loop;
          end if;
@@ -316,7 +331,6 @@ package body Gnatcheck.Source_Table is
 
          Set_Units (Ctx.Eval_Ctx, Lk_Units);
       end;
-
    end Add_Sources_To_Context;
 
    ---------------------------
