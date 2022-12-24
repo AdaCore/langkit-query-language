@@ -1,0 +1,24 @@
+# Flag 'Size on array slices
+
+fun is_array_slice(expr) =
+    |" Return whether the given expression corresponds to an array slice.
+    if expr is CallExpr(p_is_array_slice() is true)
+    then true
+    else match expr.p_referenced_decl()
+    | o@ObjectDecl => o.f_renaming_clause is r@RenamingClause
+                      and is_array_slice(r.f_renamed_object)
+    | a@AnonymousExprDecl =>
+        # This node means we have a reference to a generic formal object.
+        # Exclude "in" objects since the bug cannot occur there.
+        expr.p_get_uninstantiated_node().
+        p_referenced_decl() is ObjectDecl(f_mode is ModeOut or ModeInOut) and
+        is_array_slice(a.f_expr)
+    | o@*          => false
+
+@check(message="possible occurrence of KP S722-023",
+       impact="7.[1-4].*,17.*,18.[12],19.[123]",
+       follow_generic_instantiations=true)
+fun kp_s722_023(node) =
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Size")
+     and is_array_slice(node.f_prefix)
