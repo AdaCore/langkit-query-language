@@ -228,6 +228,24 @@ package body Gnatcheck.Source_Table is
    function Next_Non_Processed_Source return SF_Id;
    --  Return the next non processed source file id.
 
+   type EHI is new Event_Handler_Interface with null record;
+
+   procedure Unit_Requested_Callback
+     (Self               : in out EHI;
+      Context            : Analysis_Context'Class;
+      Name               : Text_Type;
+      From               : Analysis_Unit'Class;
+      Found              : Boolean;
+      Is_Not_Found_Error : Boolean);
+
+   procedure Release (Self : in out EHI) is null;
+   --  No resources associated to Self to release, so just a stub
+
+   EHI_Obj : EHI;
+
+   EHR_Object : constant Event_Handler_Reference :=
+     Create_Event_Handler_Reference (EHI_Obj);
+
    ----------------------------------------------------------------------
    -- Source file access/update routines not used outside this package --
    ----------------------------------------------------------------------
@@ -1704,7 +1722,8 @@ package body Gnatcheck.Source_Table is
             Ctx.Analysis_Ctx := Create_Context
               (Charset       => Charset.all,
                Unit_Provider => Create_Auto_Provider_Reference
-                                  (Files (1 .. Last), Charset.all));
+                                  (Files (1 .. Last), Charset.all),
+               Event_Handler => EHR_Object);
             Unchecked_Free (Files);
          end;
 
@@ -1720,7 +1739,8 @@ package body Gnatcheck.Source_Table is
          Ctx.Analysis_Ctx := Create_Context
            (Charset       => Charset.all,
             Unit_Provider => Create_Auto_Provider_Reference
-                               (Files (1 .. Last), Charset.all));
+                                  (Files (1 .. Last), Charset.all),
+            Event_Handler => EHR_Object);
          Unchecked_Free (Files);
 
       --  Otherwise use a project unit provider
@@ -1737,7 +1757,8 @@ package body Gnatcheck.Source_Table is
 
          Ctx.Analysis_Ctx := Create_Context
            (Charset       => Charset.all,
-            Unit_Provider => Partition (Partition'First).Provider);
+            Unit_Provider => Partition (Partition'First).Provider,
+            Event_Handler => EHR_Object);
       end if;
 
       --  It's too early to compute units, so provide an empty value for now,
@@ -1766,5 +1787,30 @@ package body Gnatcheck.Source_Table is
       return Ctx;
 
    end Create_Context;
+
+   -----------------------------
+   -- Unit_Requested_Callback --
+   -----------------------------
+
+   procedure Unit_Requested_Callback
+     (Self               : in out EHI;
+      Context            : Analysis_Context'Class;
+      Name               : Text_Type;
+      From               : Analysis_Unit'Class;
+      Found              : Boolean;
+      Is_Not_Found_Error : Boolean)
+   is
+      function Format_Filename (F : String) return String is
+        (if Full_Source_Locations then F else Base_Name (F));
+      --  Formats filename
+   begin
+      if not Found and then Is_Not_Found_Error then
+         Warning
+           (Format_Filename (From.Get_Filename)
+            & ": cannot find "
+            & Format_Filename (To_String (Name)));
+         Detected_Internal_Error := @ + 1;
+      end if;
+   end Unit_Requested_Callback;
 
 end Gnatcheck.Source_Table;
