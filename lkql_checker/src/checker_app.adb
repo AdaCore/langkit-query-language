@@ -2,7 +2,7 @@
 --                                                                          --
 --                                   LKQL                                   --
 --                                                                          --
---                     Copyright (C) 2019-2022, AdaCore                     --
+--                     Copyright (C) 2019-2023, AdaCore                     --
 --                                                                          --
 -- LKQL is free software;  you can redistribute it and/or modify  it        --
 -- under terms of the GNU General Public License  as published by the Free  --
@@ -100,6 +100,10 @@ package body Checker_App is
         Ctx.Eval_Ctx.Get_Name_Map.Lookup_Type
          (Ctx.Eval_Ctx.Symbol ("BasicDecl"));
 
+      Body_Stub : constant LKI.Type_Ref :=
+        Ctx.Eval_Ctx.Get_Name_Map.Lookup_Type
+         (Ctx.Eval_Ctx.Symbol ("BodyStub"));
+
       Designated_Generic_Decl : constant LKI.Struct_Member_Ref :=
         Ctx.Eval_Ctx.Get_Name_Map.Lookup_Struct_Member
           (Generic_Instantiation,
@@ -109,6 +113,11 @@ package body Checker_App is
         Ctx.Eval_Ctx.Get_Name_Map.Lookup_Struct_Member
           (Basic_Decl,
            Ctx.Eval_Ctx.Symbol ("p_body_part_for_decl"));
+
+      Next_Part_For_Decl : constant LKI.Struct_Member_Ref :=
+        Ctx.Eval_Ctx.Get_Name_Map.Lookup_Struct_Member
+          (Basic_Decl,
+           Ctx.Eval_Ctx.Symbol ("p_next_part_for_decl"));
 
       Defining_Name : constant LKI.Struct_Member_Ref :=
         Ctx.Eval_Ctx.Get_Name_Map.Lookup_Struct_Member
@@ -257,36 +266,53 @@ package body Checker_App is
       function Visit (Node : LK.Lk_Node) return LK.Visit_Status is
          In_Generic_Instantiation_Old_Val : Boolean;
       begin
-         if Ctx.Traverse_Instantiations
-           and then
-             LKI.Type_Matches
-               (LKI.From_Node
-                 (LK.Language (Node), Node), Generic_Instantiation)
-         then
-            declare
-               Gen_Decl : constant LK.Lk_Node := LKI.As_Node
-                 (LKI.Eval_Node_Member
-                   (Node, Designated_Generic_Decl));
-
-               Gen_Body : constant LK.Lk_Node := LKI.As_Node
-                 (LKI.Eval_Node_Member
-                   (Gen_Decl,
-                    Body_Part_For_Decl, [LKI.From_Bool (Ada_Lang_Id, False)]));
-            begin
+         if Ctx.Traverse_Instantiations then
+            if LKI.Type_Matches
+                 (LKI.From_Node
+                   (LK.Language (Node), Node), Generic_Instantiation)
+            then
                --  Save old value, and set In_Generic_Instantiation to true
                In_Generic_Instantiation_Old_Val := In_Generic_Instantiation;
                In_Generic_Instantiation := True;
 
-               LK.Traverse (Gen_Decl, Visit'Access);
+               declare
+                  Gen_Decl : constant LK.Lk_Node := LKI.As_Node
+                    (LKI.Eval_Node_Member
+                      (Node, Designated_Generic_Decl));
 
-               --  Also traverse the body of the generic, if there is one
-               if not Gen_Body.Is_Null then
-                  LK.Traverse (Gen_Body, Visit'Access);
-               end if;
-            end;
+                  Gen_Body : constant LK.Lk_Node := LKI.As_Node
+                    (LKI.Eval_Node_Member
+                      (Gen_Decl,
+                       Body_Part_For_Decl,
+                       [LKI.From_Bool (Ada_Lang_Id, False)]));
+               begin
+                  LK.Traverse (Gen_Decl, Visit'Access);
 
-            --  Restore old value
-            In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
+                  --  Also traverse the body of the generic, if there is one
+                  if not Gen_Body.Is_Null then
+                     LK.Traverse (Gen_Body, Visit'Access);
+                  end if;
+               end;
+
+               --  Restore old value
+               In_Generic_Instantiation := In_Generic_Instantiation_Old_Val;
+
+            --  Also traverse stub bodies if already part of an instantiation
+
+            elsif In_Generic_Instantiation
+              and then LKI.Type_Matches
+                         (LKI.From_Node (LK.Language (Node), Node), Body_Stub)
+            then
+               declare
+                  Separate_Body : constant LK.Lk_Node := LKI.As_Node
+                    (LKI.Eval_Node_Member
+                      (Node,
+                       Next_Part_For_Decl,
+                       [LKI.From_Bool (Ada_Lang_Id, False)]));
+               begin
+                  LK.Traverse (Separate_Body, Visit'Access);
+               end;
+            end if;
          end if;
 
          Mark (Ctx.Eval_Ctx.Pools);

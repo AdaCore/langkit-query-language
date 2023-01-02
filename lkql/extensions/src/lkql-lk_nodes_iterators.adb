@@ -2,7 +2,7 @@
 --                                                                          --
 --                                   LKQL                                   --
 --                                                                          --
---                       Copyright (C) 2022, AdaCore                        --
+--                    Copyright (C) 2022-2023, AdaCore                      --
 --                                                                          --
 -- LKQL is free software;  you can redistribute it and/or modify  it        --
 -- under terms of the GNU General Public License  as published by the Free  --
@@ -107,6 +107,13 @@ package body LKQL.Lk_Nodes_Iterators is
    ------------------
 
    procedure Add_Children (Iter : in out Child_Iterator; Node : Lk_Node) is
+      function In_Generic_Instantiation (Node : Lk_Node) return Boolean is
+        (LKI.As_Array
+          (LKI.Eval_Node_Member
+            (Node,
+             Member_Refs.Ada_Node_P_Generic_Instantiations))'Length /= 0);
+      --  Return True if Node is part of a generic instantiation
+
    begin
       for I in reverse 1 .. Node.Children_Count loop
          if not Node.Child (I).Is_Null then
@@ -114,27 +121,43 @@ package body LKQL.Lk_Nodes_Iterators is
          end if;
       end loop;
 
-      if Iter.Follow_Instantiations
-        and then LKI.Type_Matches (Node, Type_Refs.Generic_Instantiation)
-      then
-         declare
-            Gen_Decl : constant LK.Lk_Node := LKI.As_Node
-              (LKI.Eval_Node_Member
-                (Node,
-                 Member_Refs.Generic_Instantiation_P_Designated_Generic_Decl));
-            Gen_Body : constant LK.Lk_Node := LKI.As_Node
-              (LKI.Eval_Node_Member
-                (Gen_Decl,
-                 Member_Refs.Basic_Decl_P_Body_Part_For_Decl,
-                 (1 => LKI.From_Bool (Ada_Lang_Id, False))));
+      if Iter.Follow_Instantiations then
+         if LKI.Type_Matches (Node, Type_Refs.Generic_Instantiation) then
+            declare
+               Gen_Decl : constant LK.Lk_Node := LKI.As_Node
+                 (LKI.Eval_Node_Member
+                   (Node,
+                    Member_Refs.
+                    Generic_Instantiation_P_Designated_Generic_Decl));
+               Gen_Body : constant LK.Lk_Node := LKI.As_Node
+                 (LKI.Eval_Node_Member
+                   (Gen_Decl,
+                    Member_Refs.Basic_Decl_P_Body_Part_For_Decl,
+                    (1 => LKI.From_Bool (Ada_Lang_Id, False))));
 
-         begin
-            Iter.Next_Elements.Append (Gen_Decl);
+            begin
+               Iter.Next_Elements.Append (Gen_Decl);
 
-            if not Gen_Body.Is_Null then
-               Iter.Next_Elements.Append (Gen_Body);
-            end if;
-         end;
+               if not Gen_Body.Is_Null then
+                  Iter.Next_Elements.Append (Gen_Body);
+               end if;
+            end;
+
+         --  Also traverse stub bodies if already part of an instantiation
+
+         elsif LKI.Type_Matches (Node, Type_Refs.Body_Stub)
+           and then In_Generic_Instantiation (Node)
+         then
+            declare
+               Separate_Body : constant LK.Lk_Node := LKI.As_Node
+                 (LKI.Eval_Node_Member
+                   (Node,
+                    Member_Refs.Basic_Decl_P_Next_Part_For_Decl,
+                    (1 => LKI.From_Bool (Ada_Lang_Id, False))));
+            begin
+               Iter.Next_Elements.Append (Separate_Body);
+            end;
+         end if;
       end if;
    end Add_Children;
 
