@@ -176,8 +176,6 @@ depth of the actual parameters.
 
 This rule has the following (mandatory) parameter for the ``+R`` option:
 
-
-
 *N*
   Integer not less than -1 specifying the maximal allowed depth of any
   inheritance hierarchy. If the rule parameter is set to -1, the rule
@@ -219,8 +217,7 @@ Flag any non-dispatching call to a dispatching primitive operation, except for:
   untagged.
 
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 
 *Except_Constructors*
@@ -501,8 +498,7 @@ A *parent* here is either a (sub)type denoted by the subtype mark from the
 parent_subtype_indication (in case of a derived type declaration), or
 any of the progenitors from the interface list (if any).
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
-
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 
 *N*
@@ -539,9 +535,7 @@ explicitly declared, not counting predefined operators). Only types
 declared in visible parts of packages, generic packages and package
 instantiations are flagged.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
-
-
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximal number of primitives when
@@ -594,8 +588,7 @@ or in local (generic) packages are not flagged. *Record definitions* in
 private packages, in package bodies, and in the main subprogram body are not
 flagged.
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Tagged_Only*
   Only declarations of tagged types are flagged.
@@ -1152,7 +1145,7 @@ parents and grandparents (that is, the name of such a library unit
 contains more than N dots). Child subprograms, generic subprograms
 subprogram instantiations and package bodies are not flagged.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximal number of ancestors when
@@ -1181,9 +1174,7 @@ the value specified by the *N* rule parameter.
 The nesting level is the number of generic declarations that enclose the given
 (generic) declaration. Formal packages are not flagged by this rule.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
-
-
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Non-negative integer specifying the maximum nesting level for a
@@ -1222,7 +1213,7 @@ in its specification and this nested instantiation also contains another
 instantiation in its specification and so on, and the length of these
 nested instantiations is more than N where N is a rule parameter.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Non-negative integer specifying the maximum nesting level for instantiations.
@@ -2084,7 +2075,7 @@ specification of a library package or library generic package. Variable
 declarations in nested packages and inside package instantiations are
 not flagged.
 
-This rule has the following (optional) parameters for the ``+R`` option:
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Only_Public*
   Do not flag variable declarations in private library (generic) packages and
@@ -2263,7 +2254,7 @@ flagged. The rule has an optional parameter for ``+R`` option:
 Flags the file containing the source text of a compilation unit if this
 file contains more than N lines where N is a rule parameter
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximum allowed number of lines in
@@ -2289,7 +2280,7 @@ no separate declaration for this subprogram. Subprogram renaming
 declarations and subprogram instantiations, as well as declarations
 inside expanded generic instantiations are never flagged.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximum allowed total number of
@@ -2325,9 +2316,7 @@ no separate declaration for this subprogram. Subprogram renaming
 declarations and subprogram instantiations, as well as declarations
 inside expanded generic instantiations are never flagged.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
-
-
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximum allowed total number of
@@ -2455,7 +2444,7 @@ Flag handled sequences of statements that do not contain exception
 handler with ``others``, depending on the rule parameter(s)
 specified.
 
-This rule has three parameters for ``+R`` option:
+This rule has three parameters for the ``+R`` option:
 
 *
   Subprogram
@@ -2645,7 +2634,7 @@ user-defined ``and`` and ``or`` and to operators defined by renaming
 declarations are not flagged. Calls to predefined ``and`` and ``or``
 operators for modular types or boolean array types are not flagged.
 
-The rule has an optional parameter for ``+R`` option:
+The rule has an optional parameter for the ``+R`` option:
 
 *Except_Assertions*
   Do not flag the use of non-short-circuit_operators inside
@@ -2750,7 +2739,7 @@ This rule has no parameters.
 Flag a statement sequence that is a component of an ``if``, ``case`` or
 ``loop`` statement if this sequences consists of NULL statements only.
 
-The rule has an optional parameter for ``+R`` option:
+The rule has an optional parameter for the ``+R`` option:
 
 *Except_Enums*
   Do not flag null paths inside case statements whose selecting expression is
@@ -3039,19 +3028,14 @@ The control structures checked are the following:
 * conditional entry call statement
 * asynchronous select statement
 
-The rule has the following parameter for the ``+R`` option:
-
-
+The rule has the following (optional) parameters for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximal control structure nesting
-  level that is not flagged
+  level that is not flagged. Defaults to 3 if not specified.
 
-If the parameter for the ``+R`` option is not specified or
-if it is not a positive integer, ``+R`` option is ignored.
-
-If more than one  option is specified for the gnatcheck call,
-the later option and new parameter override the previous one(s).
+*Loops_Only*
+  Only loop statements are counted.
 
 .. rubric:: Example
 
@@ -3268,9 +3252,7 @@ except for the following:
     if the called subprogram has only two parameters, the second parameter
     of the call is not flagged;
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *All*
   if this parameter is specified, all the positional parameter
@@ -3371,7 +3353,7 @@ thereof as a part of the elaboration of an object declaration.
 The rule also does not take into account subprogram calls inside
 aspect definitions.
 
-The rule has an optional parameter for ``+R`` option:
+The rule has an optional parameter for the ``+R`` option:
 
 *Follow_Dispatching_Calls*
    Treat a dispatching call as a set of calls to all the subprograms
@@ -3620,13 +3602,11 @@ This rule can be useful as a complementary rule for the
 *Recursive_Subprograms* rule - it flags potentially missing recursion
 detection and identify potential missing checks.
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Indirect_Calls*
    Flag all the indirect calls (that is, calls through access-to-subprogram
    values).
-
 
 .. rubric:: Example
 
@@ -4132,7 +4112,7 @@ This rule has no parameters.
 Check that the source text of a compilation unit starts from
 the text fragment specified as a rule parameter.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *header*
   The name of a header file.
@@ -4171,8 +4151,6 @@ can be defined:
   exception declarations and exception renaming declarations.
 
 The rule may have the following parameters for ``+R``:
-
-
 
 *
   Type=\ *casing_scheme*
@@ -4293,13 +4271,12 @@ exception overrides the previous one.
 Casing check against dictionary file(s) has a higher priority than checks
 against the casing scheme specified for a given entity/declaration kind.
 
-``+R`` option should contain at least one parameter.
+The ``+R`` option should contain at least one parameter.
 
-There is no parameter for ``-R`` option, it just turns the rule off.
+There is no parameter for the ``-R`` option, it just turns the rule off.
 
 The rule allows parametric exemption, the parameters that are allowed in
 the definition of exemption sections are:
-
 
 
 *Type*
@@ -4915,7 +4892,7 @@ the definition of exemption sections are:
 
 Flag any defining identifier that has length longer than specified by
 the rule parameter. Defining identifiers of enumeration literals are not
-flagged. The rule has a mandatory parameter for ``+R`` option:
+flagged. The rule has a mandatory parameter for the ``+R`` option:
 
 *N*
    The maximal allowed identifier length specification.
@@ -4940,7 +4917,7 @@ Flag any defining identifier that has length shorter than specified by
 the rule parameter. Defining identifiers of objects and components of
 numeric types are not flagged.
 
-The rule has a mandatory parameter for ``+R`` option:
+The rule has a mandatory parameter for the ``+R`` option:
 
 *N*
    The minimal allowed identifier length specification.
@@ -5001,7 +4978,7 @@ More than one dictionary file can be specified as the rule parameter, in this
 case the rule checks defining identifiers against the union of all the
 identifiers from all the dictionary files provided as the rule parameters.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *dictionary_file*
   The name of a dictionary file. The name may contain references to environment
@@ -5446,8 +5423,6 @@ Subprogram renamings are also considered.
 
 This rule has the following (mandatory) parameter for the ``+R`` option:
 
-
-
 *N*
   Positive integer specifying the maximum allowed total number of statements
   in the subprogram body.
@@ -5483,14 +5458,11 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
 
 Flag use of conditional expression.
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Except_Assertions*
   Do not flag a conditional expression if it is a subcomponent
   of the following constructs:
-
 
 
 *argument of the following pragmas*
@@ -6312,8 +6284,6 @@ Flag each use of a numeric literal except for the following:
 
 This rule may have the following parameters for the ``+R`` option:
 
-
-
 *N*
   *N* is an integer literal used as the maximal value that is not flagged
   (i.e., integer literals not exceeding this value are allowed)
@@ -6405,7 +6375,7 @@ Flags 'Valid attribute reference if the nominal subtype of the attribute
 prefix has (static or dynamic) subtype predicate.
 
 
-This rule has the following (optional) parameters for the ``+R`` option:
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Except_Assertions*
   Do not flag the use of non-short-circuit_operators inside
@@ -6523,7 +6493,7 @@ that defines a representation aspect. Also flag any pragma that is
 classified by the Ada Standard as a representation pragma, and the
 definition of the corresponding aspects.
 
-The rule has an optional parameter for ``+R`` option:
+The rule has an optional parameter for the ``+R`` option:
 
 *Record_Rep_Clauses_Only*
   Only record representation clauses are flagged.
@@ -6555,15 +6525,11 @@ The rule has an optional parameter for ``+R`` option:
 
 Flag use of quantified expression.
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Except_Assertions*
   Do not flag a conditional expression if it is a subcomponent
   of the following constructs:
-
-
 
 *argument of the following pragmas*
 
@@ -6817,7 +6783,7 @@ N library units (N is a rule parameter). In case of a dependency on
 child units, implicit or explicit dependencies on all their parents are
 not counted.
 
-This rule has the following (mandatory) parameters for the ``+R`` option:
+This rule has the following (mandatory) parameter for the ``+R`` option:
 
 *N*
   Positive integer specifying the maximal number of dependencies when
@@ -6863,7 +6829,7 @@ The following are treated as assignments to an ``out`` parameter:
 * passing the parameter (or one of its components) as an ``out`` or
   ``in out`` parameter.
 
-The rule has an optional parameter for ``+R`` option:
+The rule has an optional parameter for the ``+R`` option:
 
 *Ignore_Component_Assignments*
   Ignore assignments to subcomponents of an ``out`` parameter when detecting
@@ -6907,9 +6873,7 @@ packages, are not flagged.  Instead, this rule flags the results of
 generic instantiations (that is, expanded specification and expanded
 body corresponding to an instantiation).
 
-This rule has the following (optional) parameters for the ``+R`` option:
-
-
+This rule has the following (optional) parameter for the ``+R`` option:
 
 *Except_String*
   Do not flag functions that return the predefined ``String`` type or a type
@@ -7090,8 +7054,7 @@ this limit will be flagged.
 
 The metric counts the total number of declarations and the total number of statements.
 
-This rule contains optional parameters for ``+R`` option that allows to restrict the
-rule to specific constructs:
+This rule has the following optional parameter for the ``+R`` option:
 
 *Subprograms*
    Check the rule for subprogram bodies only.
