@@ -422,8 +422,7 @@ GNATcheck Exit Codes
 
 .. index:: exit code
 
-``gnatcheck`` returns the following exit codes at the end of its run (except if
-the ``--brief`` option is specified):
+``gnatcheck`` returns the following exit codes at the end of its run:
 
 * ``0``: No tool failure and no rule violation was detected.
 
@@ -445,10 +444,8 @@ If the exit code corresponds to some problem with defining the rules to check th
 the result of the gnatcheck run cannot be fully trusted because the set of rules that
 has been actually used may be different from user intent.
 
-If gnatcheck is called with the ``--brief`` option, it returns the exit code ``0`` if
-there is no gnatcheck failure and no problem with rule options whether rule
-violations are detected or not. Otherwise the returned exit code corresponds to the
-description above. With ``--brief`` option gnatcheck never returns the exit code ``1``.
+If gnatcheck is called with the ``--brief`` option, it will return the exit code
+``0`` instead of ``1`` when some violation is detected (and no tool failure).
 
 .. _Format_of_the_Report_File:
 
