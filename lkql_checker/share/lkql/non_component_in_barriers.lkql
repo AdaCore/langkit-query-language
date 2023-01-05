@@ -12,13 +12,15 @@ fun is_protected_component(id, decl, names) = {
             category="Style", subcategory="Programming Practice")
 fun non_component_in_barriers(unit) = [
     {message: "barrier references non component variable", loc: n.f_barrier}
-    for n in from unit.root select node@EntryBody(any parent is b@ProtectedBody)
-    when ({
-        val names = from b.p_decl_part()?.f_definition?.f_private_part?.f_decls
-                    select DefiningName;
-        [id for id in (from node.f_barrier select Identifier)
-         if id.p_referenced_decl() is
-            ObjectDecl or ParamSpec or
-            d@ComponentDecl when not is_protected_component(id, d, names)]
-    })
+    for n in from unit.root select node@EntryBody(
+        any parent is b@ProtectedBody
+        when {
+            val names = from b.p_decl_part()?.f_definition?.f_private_part?.f_decls
+                        select DefiningName;
+            [id for id in (from node.f_barrier select Identifier)
+             if id.p_referenced_decl() is
+                ObjectDecl or ParamSpec or
+                d@ComponentDecl when not is_protected_component(id, d, names)]
+        }
+    )
 ]

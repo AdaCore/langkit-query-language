@@ -14,27 +14,18 @@ import stdlib
 @memoized
 fun complex_declaration(decls) =
     |" Return the first complex declaration found in decls, null otherwise
-    if decls is *(any children is c@* when match c
-                  | SubpBody                    => true
-                  | PackageDecl                 => true
-                  | TaskBody                    => true
-                  | ProtectedBody               => true
-                  | GenericPackageInstantiation => true
-                  | g@GenericSubpInstantiation  =>
-                      g.p_designated_subp()?.p_canonical_fully_qualified_name?()
-                      != "ada.unchecked_conversion"
-                  | * => false)
-    then c else null
+    from decls
+    select first SubpBody or PackageDecl or TaskBody or ProtectedBody
+    or GenericPackageInstantiation or GenericSubpInstantiation(
+        p_designated_subp() is not *(
+            p_canonical_fully_qualified_name() is "ada.unchecked_conversion"
+        )
+    )
 
 @memoized
 fun complex_statement(stmts) =
     |" Return the first complex statement found in stmts, null otherwise
-    if stmts is *(any children is c@Stmt when match c
-                  | BaseLoopStmt => true
-                  | CaseStmt     => true
-                  | IfStmt       => true
-                  | *            => false)
-    then c else null
+    from stmts select first BaseLoopStmt or CaseStmt or IfStmt
 
 fun is_complex_subp(node, n) =
     |" Return true is node is a complex subprogram body as defined above

@@ -1,6 +1,6 @@
 with Interfaces, System, System.Storage_Elements;
 
-package Foo is 
+package Foo is
     Variable: Interfaces.Unsigned_8
         with Address => System.Storage_Elements.to_Address (0), Volatile;
 

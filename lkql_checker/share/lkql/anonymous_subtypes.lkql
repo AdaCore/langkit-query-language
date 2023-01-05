@@ -28,7 +28,7 @@ fun is_using_discriminant(node, type_decl) =
                         when i.p_name_matches(id)))))
 
 fun get_type_decl(node) =
-    if node is *(any parent is p@TypeDecl) then p else null
+    from node through parent select first TypeDecl
 
 # A self-reference has the form Type'Access
 fun is_self_referencing(expr, type_decl) =

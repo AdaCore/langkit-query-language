@@ -53,40 +53,7 @@ package LKQL.Selector_Lists is
      (Iter : Depth_Node_Iter_Access) return Selector_List;
    --  Return a Selector_List wrapping the given iterator
 
-   function Make_Selector_List
-     (Iter            : Depth_Node_Iter_Access;
-      Quantifier_Name : String;
-      Result          : out Selector_List)
-      return Boolean;
-   --  Given an filter iterator yielding the result of a selector call and a
-   --  quantifier name, return whether the quantifier is verified (ie: if the
-   --  quantifier is 'all', consume the iterator and check that the number of
-   --  filtered elements is 0).
-   --  If the quantifier was verified, the Selector_List containing the
-   --  selectors' result will be stored in 'Result'.
-   --  Valid quantifier names are: 'all', 'any', 'no'.
-
 private
-
-   ----------------------------------------
-   -- Quantifier verification functions --
-   ----------------------------------------
-
-   function Verify_Quantifier (List            : in out Selector_List;
-                               Quantifier_Name : String) return Boolean;
-   --  Verify the quantifier named 'Quantifier_Name' against the given list
-
-   function Verify_All (List : in out Selector_List) return Boolean;
-   --  Return whether the 'all' quantifier could be verified against this
-   --  Selector_List.
-
-   function Verify_Any (List : in out Selector_List) return Boolean;
-   --  Return whether the 'any' quantifier could be verified against this
-   --  Selector_List.
-
-   function Verify_No (List : in out Selector_List) return Boolean;
-   --  Return whether the 'no' quantifier could be verified against this
-   --  Selector_List.
 
    --------------------------
    -- Selector_Shared_Data --

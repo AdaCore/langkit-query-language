@@ -19,5 +19,6 @@ fun too_many_parents(node, n : int = 5) =
              TaskTypeDecl or ProtectedTypeDecl or SingleProtectedDecl)
     when ({
         val l = num_interfaces(node);
-        l+super_types(node, depth=n-l+1).length > n
+        val st = super_types(node, max_depth=n - l + 1);
+        l + st.length > n
     })

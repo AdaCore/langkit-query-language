@@ -34,10 +34,8 @@ Query
 |  |  |  |  |f_quantifier:
 |  |  |  |  |  Identifier: all
 |  |  |  |  |f_binding: <null>
-|  |  |  |  |f_selector_identifier:
+|  |  |  |  |f_selector_call:
 |  |  |  |  |  Identifier: sel
-|  |  |  |  |f_args:
-|  |  |  |  |  NamedArgList: <empty list>
 |  |  |  |f_pattern:
 |  |  |  |  BindingPattern
 |  |  |  |  |f_binding:

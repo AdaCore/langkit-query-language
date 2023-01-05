@@ -23,10 +23,11 @@
 
 with LKQL.Node_Data;
 with LKQL.Patterns.Match;   use LKQL.Patterns.Match;
-with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Primitives;       use LKQL.Primitives;
 with LKQL.Evaluation;       use LKQL.Evaluation;
+with LKQL.Functions;        use LKQL.Functions;
 with LKQL.Node_Extensions;
+with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Langkit_Support.Generic_API.Introspection;
@@ -221,7 +222,7 @@ package body LKQL.Patterns.Nodes is
       Node     : LK.Lk_Node;
       Selector : L.Node_Pattern_Selector) return Match_Result
    is
-      S_List       : Selector_List;
+      S_List       : Primitive;
       Binding_Name : constant Symbol_Type :=
         Symbol (Selector.F_Call.P_Binding_Name);
    begin
@@ -232,7 +233,7 @@ package body LKQL.Patterns.Nodes is
       end if;
 
       if Binding_Name /= null then
-         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List, Ctx.Pool));
+         Ctx.Add_Binding (Binding_Name, S_List);
       end if;
 
       return Make_Match_Success (To_Primitive (Node, Ctx.Pool));
@@ -247,30 +248,70 @@ package body LKQL.Patterns.Nodes is
       Node    : LK.Lk_Node;
       Call    : L.Selector_Call;
       Pattern : L.Base_Pattern;
-      Result  : out Selector_List) return Boolean
+      Result  : out Primitive) return Boolean
    is
-      Quantifier_Name   : constant String :=
-        To_UTF8 (Call.P_Quantifier_Name);
-
-      Selector      : constant Primitive :=
-        Eval (Ctx, Call.F_Selector_Identifier, Kind_Selector);
-
-      Selector_Iterator : constant Depth_Node_Iter_Access :=
-        new Depth_Node_Iter'Class'
-          (Depth_Node_Iter'Class
-             (Make_Custom_Selector_Iter
-                (Ctx, Selector,
-                 Call.P_Min_Depth_Expr, Call.P_Max_Depth_Expr,
-                 Node)));
-      Pattern_Predicate : constant Depth_Node_Iters.Predicate_Access :=
-        new Depth_Node_Iters.Predicates.Func'Class'
-          (Depth_Node_Iters.Predicates.Func'Class
-             (Make_Node_Pattern_Predicate (Ctx, Pattern)));
-      Filtered_Iter     : constant Depth_Node_Iter_Access :=
-        new Depth_Node_Iters.Filter_Iter'
-          (Depth_Node_Iters.Filter (Selector_Iterator, Pattern_Predicate));
+      Quantifier_Name : constant String := To_UTF8 (Call.P_Quantifier_Name);
+      Selector_Expr : constant L.Expr := Call.F_Selector_Call;
+      Selector_Call : L.Fun_Call := L.No_Fun_Call;
+      Selector : Primitive;
+      use L, LCO;
    begin
-      return Make_Selector_List (Filtered_Iter, Quantifier_Name, Result);
+      --  TODO: For now LKQL supports calling selectors without parentheses
+      --  when there are no arguments. We probably want to change that, see
+      --  W104-009 for more details.
+      --
+      --  For now, the selector can be either a function call, in which case it
+      --  is treated as the call to a selector, with the prefix designating the
+      --  selector, or any other expression, in which case the expression must
+      --  return the selector.
+      if L.Kind (Selector_Expr) = LCO.Lkql_Fun_Call then
+         Selector_Call := Selector_Expr.As_Fun_Call;
+         Selector := Eval (Ctx, Selector_Call.F_Name);
+      else
+         Selector := Eval (Ctx, Selector_Expr);
+      end if;
+
+      --  Check that the kind of the entity is a selector
+      if Kind (Selector) /= Kind_Selector then
+         Raise_Invalid_Type
+           (Ctx, Selector_Expr.As_Lkql_Node, "selector", Selector);
+      end if;
+
+      declare
+
+         Filtered_Iter     : constant Depth_Node_Iter_Access :=
+           new Depth_Node_Iters.Filter_Iter'
+             (Depth_Node_Iters.Filter
+               (Eval_User_Selector_Call (Ctx, Selector_Call, Selector, Node),
+                Make_Node_Pattern_Predicate (Ctx, Pattern)));
+         --  Then, we create a filtered iterator
+
+         Res_List : constant Selector_List :=
+           Make_Selector_List (Filtered_Iter);
+         --  Create a selector list from the selector call
+
+         List_Length : constant Natural := Res_List.Length;
+         --  NOTE: Calling `.Length` here is done eagerly because this will
+         --  trigger evaluation of the underlying filtered iterator and save
+         --  its content in the selector list.
+
+      begin
+
+         Result := To_Primitive (Res_List, Ctx.Pool);
+
+         if Quantifier_Name = "all" then
+            return Depth_Node_Iters.Filter_Iter
+              (Filtered_Iter.all).Filtered_Count = 0;
+         elsif Quantifier_Name = "any" then
+            return List_Length > 0;
+         elsif Quantifier_Name = "no" then
+            return List_Length = 0;
+         else
+            raise Assertion_Error with
+              "invalid quantifier name: " & Quantifier_Name;
+         end if;
+      end;
+
    end Eval_Selector;
 
    --------------

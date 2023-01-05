@@ -43,10 +43,8 @@ FunDecl
 |  |  |  |  |  |  |  |  |f_quantifier:
 |  |  |  |  |  |  |  |  |  Identifier: any
 |  |  |  |  |  |  |  |  |f_binding: <null>
-|  |  |  |  |  |  |  |  |f_selector_identifier:
+|  |  |  |  |  |  |  |  |f_selector_call:
 |  |  |  |  |  |  |  |  |  Identifier: children
-|  |  |  |  |  |  |  |  |f_args:
-|  |  |  |  |  |  |  |  |  NamedArgList: <empty list>
 |  |  |  |  |  |  |  |f_pattern:
 |  |  |  |  |  |  |  |  NodeKindPattern
 |  |  |  |  |  |  |  |  |f_kind_name:

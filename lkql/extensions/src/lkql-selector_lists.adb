@@ -21,8 +21,6 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Assertions; use Ada.Assertions;
-
 package body LKQL.Selector_Lists is
 
    -----------
@@ -97,80 +95,6 @@ package body LKQL.Selector_Lists is
    is
      (Data     => Make_Shared_Data (Iter),
       Next_Pos => Positive'First);
-
-   ------------------------
-   -- Make_Selector_List --
-   ------------------------
-
-   function Make_Selector_List
-     (Iter            : Depth_Node_Iter_Access;
-      Quantifier_Name : String;
-      Result          : out Selector_List)
-      return Boolean
-   is
-      S_List : Selector_List := Make_Selector_List (Iter);
-   begin
-      if Verify_Quantifier (S_List, Quantifier_Name) then
-         Result := S_List.Clone;
-         return True;
-      else
-         return False;
-      end if;
-   end Make_Selector_List;
-
-   -----------------------
-   -- Verify_Quantifier --
-   -----------------------
-
-   function Verify_Quantifier (List            : in out Selector_List;
-                               Quantifier_Name : String) return Boolean
-   is
-   begin
-      if Quantifier_Name = "all" then
-         return Verify_All (List);
-      elsif Quantifier_Name = "any" then
-         return Verify_Any (List);
-      elsif Quantifier_Name = "no" then
-         return Verify_No (List);
-      else
-         raise Assertion_Error with
-           "invalid quantifier name: " & Quantifier_Name;
-      end if;
-   end Verify_Quantifier;
-
-   ----------------
-   -- Verify_All --
-   ----------------
-
-   function Verify_All (List : in out Selector_List) return Boolean is
-      Element : Depth_Node;
-   begin
-      while List.Next (Element) loop
-         if List.Data.Get.Filtered_Count /= 0 then
-            return False;
-         end if;
-      end loop;
-
-      return List.Data.Get.Filtered_Count = 0;
-   end Verify_All;
-
-   ----------------
-   -- Verify_Any --
-   ----------------
-
-   function Verify_Any (List : in out Selector_List) return Boolean
-   is
-      Element : Depth_Node;
-   begin
-      return List.Next (Element);
-   end Verify_Any;
-
-   ---------------
-   -- Verify_No --
-   ---------------
-
-   function Verify_No (List : in out Selector_List) return Boolean is
-      (not Verify_Any (List));
 
    ------------
    -- Values --

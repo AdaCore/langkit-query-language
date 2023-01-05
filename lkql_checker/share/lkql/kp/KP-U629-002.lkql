@@ -11,7 +11,9 @@ fun kp_u629_002(node) =
     node is ExplicitDeref(parent is ParamAssoc(parent is AssocList(
         parent is CallExpr(
             any parent is ExprFunction or ReturnStmt,
-            any parent is BaseSubpBody(f_subp_spec is spec@SubpSpec),
+             # the return object is a controlling parameter
+            any parent is BaseSubpBody(f_subp_spec is spec@SubpSpec)
+                          when stdlib.is_controlling_param_type(spec.p_returns(), spec),
             f_name is Identifier(
                 p_referenced_decl() is BaseTypeDecl(
                     # where type is tagged and the root type is an interface
@@ -20,5 +22,3 @@ fun kp_u629_002(node) =
     # and the type of node is a class wide access
     when node.f_prefix.p_referenced_decl()?.p_type_expression?()?.
          p_designated_type_decl?()?.p_accessed_type?() is ClasswideTypeDecl
-     # and the return object is a controlling parameter
-     and stdlib.is_controlling_param_type(spec.p_returns(), spec)

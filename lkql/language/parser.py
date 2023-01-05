@@ -817,6 +817,44 @@ class FunCall(Expr):
                (Self.name.text == String("debug")) | \
                (Self.name.text == String("list"))
 
+    @langkit_property(return_type=Expr)
+    def expr_for_arg(name=T.String):
+        return Let(
+            lambda x=Self.arguments.find(lambda a: a.cast(T.NamedArg).then(
+                lambda na: na.arg_name.text == name
+            )):
+            If(x.is_null, No(Expr), x.expr)
+        )
+
+    @langkit_property(return_type=Expr, public=True, memoized=True)
+    def depth_expr():
+        """
+        Return the expression associated to the 'expr' argument, if any.
+        """
+        return Self.expr_for_arg(String('depth'))
+
+    @langkit_property(return_type=Expr, public=True, memoized=True)
+    def max_depth_expr():
+        """
+        If the 'max_depth' arg is set and 'depth' is not set, return the
+        expression for 'max_depth'. If 'depth' is set return its expression.
+        If neither 'depth' or 'max_depth' is set, return a null expression.
+        """
+        return If(Self.depth_expr.is_null,
+                  Self.expr_for_arg(String('max_depth')),
+                  Self.depth_expr)
+
+    @langkit_property(return_type=Expr, public=True, memoized=True)
+    def min_depth_expr():
+        """
+        If the 'min_depth' arg is set and 'depth' is not set, return the
+        expression for 'min_depth'. If 'depth' is set return its expression.
+        If neither 'depth' or 'min_depth' is set, return a null expression.
+        """
+        return If(Self.depth_expr.is_null,
+                  Self.expr_for_arg(String('min_depth')),
+                  Self.depth_expr)
+
 
 class SelectorExprMode(LkqlNode):
     """
@@ -890,15 +928,7 @@ class SelectorCall(LkqlNode):
 
     quantifier = Field(type=Identifier)
     binding = Field(type=Identifier)
-    selector_identifier = Field(type=Identifier)
-    args = Field(type=NamedArg.list)
-
-    @langkit_property(return_type=T.String, public=True)
-    def name():
-        """
-        Return the name of the selector.
-        """
-        return Self.selector_identifier.text
+    selector_call = Field(type=Expr)
 
     @langkit_property(return_type=T.String, public=True)
     def quantifier_name():
@@ -917,42 +947,6 @@ class SelectorCall(LkqlNode):
         Return the binding name associated with this selector call, if any.
         """
         return Self.binding
-
-    @langkit_property(return_type=Expr)
-    def expr_for_arg(name=T.String):
-        return Let(
-            lambda x=Self.args.find(lambda a: a.arg_name.text == name):
-            If(x.is_null, No(Expr), x.expr)
-        )
-
-    @langkit_property(return_type=Expr, public=True, memoized=True)
-    def depth_expr():
-        """
-        Return the expression associated to the 'expr' argument, if any.
-        """
-        return Self.expr_for_arg(String('depth'))
-
-    @langkit_property(return_type=Expr, public=True, memoized=True)
-    def max_depth_expr():
-        """
-        If the 'max_depth' arg is set and 'depth' is not set, return the
-        expression for 'max_depth'. If 'depth' is set return its expression.
-        If neither 'depth' or 'max_depth' is set, return a null expression.
-        """
-        return If(Self.depth_expr.is_null,
-                  Self.expr_for_arg(String('max_depth')),
-                  Self.depth_expr)
-
-    @langkit_property(return_type=Expr, public=True, memoized=True)
-    def min_depth_expr():
-        """
-        If the 'min_depth' arg is set and 'depth' is not set, return the
-        expression for 'min_depth'. If 'depth' is set return its expression.
-        If neither 'depth' or 'min_depth' is set, return a null expression.
-        """
-        return If(Self.depth_expr.is_null,
-                  Self.expr_for_arg(String('min_depth')),
-                  Self.depth_expr)
 
 
 @abstract
@@ -1215,15 +1209,7 @@ lkql_grammar.add_rules(
     ),
 
     pattern_arg=Or(
-        NodePatternSelector(
-            SelectorCall(
-                G.id,
-                Opt(Pick(G.id, "@")),
-                G.id,
-                Opt("(", c(),
-                    List(G.named_arg, sep=",", empty_valid=False), ")")
-            ), "is", G.pattern
-        ),
+        NodePatternSelector(G.selector_call, "is", G.pattern),
         NodePatternField(G.id, "is", c(), G.detail_value),
         NodePatternProperty(G.fun_call, "is", c(), G.detail_value)
     ),
@@ -1231,10 +1217,16 @@ lkql_grammar.add_rules(
     detail_value=Or(DetailPattern(G.pattern), DetailExpr(G.expr)),
 
     selector_call=SelectorCall(
-        G.id,
+        Identifier(Or(
+            Token.Identifier(match_text="any"),
+            Token.Identifier(match_text="all")
+        )),
         Opt(Pick(G.id, "@")),
-        G.id,
-        Opt("(", c(), List(G.named_arg, sep=",", empty_valid=False), ")")
+        # NOTE: we use value_expr here because we don't want to include
+        # comp_expr in the valid expressions for selectors, which will
+        # clash, because in ``any parent is bla`` it would parse
+        # ``parent is bla`` as a ``IsClause``.
+        G.value_expr
     ),
 
     objectlit=ObjectLiteral(
@@ -1435,8 +1427,6 @@ lkql_grammar.add_rules(
     unit_literal=UnitLiteral("(", ")"),
 
     arg=Or(NamedArg(G.id, "=", G.expr), ExprArg(G.expr)),
-
-    named_arg=NamedArg(G.id, "=", G.expr),
 
     param=ParameterDecl(
         Null(G.decl_annotation),

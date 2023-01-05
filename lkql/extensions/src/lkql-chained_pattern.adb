@@ -213,7 +213,7 @@ package body LKQL.Chained_Pattern is
       Root            : Lk_Node;
       Selector        : L.Selector_Link) return Lk_Node_Vector
    is
-      S_List       : Selector_List;
+      S_List       : Primitive;
       Call         : constant L.Selector_Call := Selector.F_Selector;
       Binding_Name : constant Symbol_Type := Symbol (Call.P_Binding_Name);
    begin
@@ -224,10 +224,10 @@ package body LKQL.Chained_Pattern is
       end if;
 
       if Binding_Name /= null then
-         Ctx.Add_Binding (Binding_Name, To_Primitive (S_List.Clone, Ctx.Pool));
+         Ctx.Add_Binding (Binding_Name, S_List);
       end if;
 
-      return S_List.Nodes;
+      return S_List.Selector_List_Val.Nodes;
    end Eval_Selector_Link;
 
    ---------------------

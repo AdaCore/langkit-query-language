@@ -56,8 +56,8 @@ library.
 
 .. function:: get_subp_body(node)
 
-    Return the SubpBody or TaskBody corresponding to node, if any, null
-    otherwise.
+    Return the SubpBody, TaskBody or ExprFunction corresponding to node,
+    if any, null otherwise.
 
 .. function:: has_interfaces(n)
 

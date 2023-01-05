@@ -21,7 +21,6 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
 with LKQL.Depth_Nodes;      use LKQL.Depth_Nodes;
 with LKQL.Custom_Selectors; use LKQL.Custom_Selectors;
 with LKQL.Errors;           use LKQL.Errors;
@@ -74,12 +73,6 @@ package body LKQL.Functions is
       Call : L.Fun_Call;
       Fun  : Primitive) return Primitive;
    --  Evaluate a call to a built-in function
-
-   function Eval_User_Selector_Call
-     (Ctx  : Eval_Context;
-      Call : L.Fun_Call;
-      Sel  : Primitive) return Primitive;
-   --  Eval a call to a selector
 
    ---------------
    -- Eval_Call --
@@ -141,7 +134,8 @@ package body LKQL.Functions is
          when Kind_Function =>
             return Eval_User_Fun_Call (Ctx, Call, Func);
          when Kind_Selector =>
-            return Eval_User_Selector_Call (Ctx, Call, Func);
+            return To_Primitive
+              (Eval_User_Selector_Call (Ctx, Call, Func), Ctx.Pool);
          when Kind_Builtin_Function =>
             return Eval_Builtin_Call (Ctx, Call, Func);
          when Kind_Property_Reference =>
@@ -382,9 +376,10 @@ package body LKQL.Functions is
    -----------------------------
 
    function Eval_User_Selector_Call
-     (Ctx  : Eval_Context;
-      Call : L.Fun_Call;
-      Sel  : Primitive) return Primitive
+     (Ctx       : Eval_Context;
+      Call      : L.Fun_Call := L.No_Fun_Call;
+      Sel       : Primitive;
+      Root_Node : Lk_Node := No_Lk_Node) return Selector_List
    is
       pragma Warnings (Off);
       Def : constant L.Selector_Decl := Sel.Sel_Node;
@@ -393,30 +388,44 @@ package body LKQL.Functions is
       S_List : Selector_List;
       Eval_Ctx      : constant Eval_Context :=
         Eval_Context'(Ctx.Kernel, Eval_Contexts.Environment_Access (Env));
+
+      use L;
    begin
-      if Call.F_Arguments.Last_Child_Index = 0 then
-         Raise_And_Record_Error
-           (Ctx,
-            Make_Eval_Error
-              (Call, "Selector call should have a node argument"));
+      if Root_Node = No_Lk_Node then
+         if Call = L.No_Fun_Call
+            or else Call.F_Arguments.Last_Child_Index = 0
+         then
+            Raise_And_Record_Error
+              (Ctx,
+               Make_Eval_Error
+                 (Call, "Selector call should have a node argument"));
+         end if;
       end if;
 
       declare
-         Root_Node_Arg : Primitive := Eval
-           (Ctx,
-            Call.F_Arguments.Child (1).As_Expr_Arg.F_Value_Expr,
-            Kind_Node);
+         Root : Lk_Node :=
+           (if Root_Node = No_Lk_Node
+            then Eval
+              (Ctx,
+               Call.F_Arguments.Child (1).As_Expr_Arg.F_Value_Expr,
+               Kind_Node).Node_Val
+            else Root_Node);
 
-         Root          : Lk_Node := Root_Node_Arg.Node_Val;
+         Selector_Iterator : Depth_Node_Iter_Access;
+         Min_Depth_Expr, Max_Depth_Expr : L.Expr := L.No_Expr;
+      begin
+         --  If there is a call expression, try to get the min_depth and
+         --  max_depth arguments to the selector call.
+         if Call /= L.No_Fun_Call then
+            Min_Depth_Expr := Call.P_Min_Depth_Expr;
+            Max_Depth_Expr := Call.P_Max_Depth_Expr;
+         end if;
 
-         Selector_Iterator : constant Depth_Node_Iter_Access :=
-           new Depth_Node_Iter'Class'
+         return Make_Selector_List
+           (new Depth_Node_Iter'Class'
              (Depth_Node_Iter'Class
                 (Make_Custom_Selector_Iter
-                   (Ctx, Sel, L.No_Expr, L.No_Expr, Root)));
-      begin
-         return To_Primitive
-           (Make_Selector_List (Selector_Iterator), Ctx.Pool);
+                   (Ctx, Sel, Min_Depth_Expr, Max_Depth_Expr, Root))));
       end;
 
    end Eval_User_Selector_Call;

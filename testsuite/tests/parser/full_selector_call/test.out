@@ -3,17 +3,21 @@ SelectorCall
 |  Identifier: all
 |f_binding:
 |  Identifier: c
-|f_selector_identifier:
-|  Identifier: children
-|f_args:
-|  NamedArgList
-|  |  NamedArg
-|  |  |f_arg_name:
-|  |  |  Identifier: min_depth
-|  |  |f_value_expr:
-|  |  |  IntegerLiteral: 1
-|  |  NamedArg
-|  |  |f_arg_name:
-|  |  |  Identifier: max_depth
-|  |  |f_value_expr:
-|  |  |  IntegerLiteral: 3
+|f_selector_call:
+|  FunCall
+|  |f_name:
+|  |  Identifier: children
+|  |f_has_safe:
+|  |  SafeAbsent
+|  |f_arguments:
+|  |  ArgList
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: min_depth
+|  |  |  |f_value_expr:
+|  |  |  |  IntegerLiteral: 1
+|  |  |  NamedArg
+|  |  |  |f_arg_name:
+|  |  |  |  Identifier: max_depth
+|  |  |  |f_value_expr:
+|  |  |  |  IntegerLiteral: 3

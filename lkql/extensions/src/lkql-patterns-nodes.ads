@@ -22,7 +22,6 @@
 ------------------------------------------------------------------------------
 
 with LKQL.Depth_Nodes;            use LKQL.Depth_Nodes;
-with LKQL.Selector_Lists;         use LKQL.Selector_Lists;
 with LKQL.Eval_Contexts;          use LKQL.Eval_Contexts;
 
 package LKQL.Patterns.Nodes is
@@ -101,7 +100,7 @@ package LKQL.Patterns.Nodes is
                            Node    : Lk_Node;
                            Call    : L.Selector_Call;
                            Pattern : L.Base_Pattern;
-                           Result  : out Selector_List) return Boolean;
+                           Result  : out Primitive) return Boolean;
    --  Return whether the evaluation of the given selector from 'Node' produces
    --  a valid result.
    --  If that is the case, the associated selector_list will be stored in

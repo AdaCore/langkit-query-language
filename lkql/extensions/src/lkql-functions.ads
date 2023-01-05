@@ -21,8 +21,9 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with LKQL.Primitives;    use LKQL.Primitives;
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with LKQL.Primitives;    use LKQL.Primitives;
+with LKQL.Selector_Lists;   use LKQL.Selector_Lists;
 
 private package LKQL.Functions is
 
@@ -30,5 +31,12 @@ private package LKQL.Functions is
      (Ctx : Eval_Context; Call : L.Fun_Call) return Primitive;
    --  Evaluate a call, which can be to either a user defined function or
    --  selector, or to a built-in function.
+
+   function Eval_User_Selector_Call
+     (Ctx       : Eval_Context;
+      Call      : L.Fun_Call := L.No_Fun_Call;
+      Sel       : Primitive;
+      Root_Node : Lk_Node := No_Lk_Node) return Selector_List;
+   --  Eval a call to a selector
 
 end LKQL.Functions;
