@@ -8,8 +8,5 @@ fun kp_v708_029(node) =
      and match node.f_prefix.p_referenced_decl()
          | t@BaseTypeDecl              => not t.p_is_discrete_type()
          | o@(ObjectDecl or ParamSpec) =>
-             match o.f_type_expr
-             | s@SubtypeIndication => not s.f_name.p_referenced_decl().
-                                      p_is_discrete_type()
-             | a@AnonymousType     => not a.f_type_decl.p_is_discrete_type()
+             not o.f_type_expr.p_designated_type_decl().p_is_discrete_type()
          | * => not node.p_expression_type().p_is_discrete_type()
