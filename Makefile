@@ -1,6 +1,9 @@
 BUILD_MODE=dev
 export BUILD_MODE
 
+LIBRARY_TYPE=relocatable
+export LIBRARY_TYPE
+
 ifeq ($(OS),Windows_NT)
   SOEXT=.dll
 else
@@ -63,13 +66,13 @@ doc:
 	cd user_manual && make clean html
 
 lkql_checker:
-	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE) -XLIBRARY_TYPE=$(LIBRARY_TYPE)
 
 lalcheck:
 	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE)
+	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --library-types=$(LIBRARY_TYPE)
 
 test:
 	testsuite/testsuite.py -Edtmp
