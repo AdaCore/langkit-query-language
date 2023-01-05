@@ -30,16 +30,24 @@ package LKQL.Selector_Lists is
 
    function Nodes (Self : Selector_List) return Lk_Node_Vector;
    --  Return an array containing the Ada_Node values returned by the selector
+   ---
+   --  NOTE that this will consume the entire selector.
 
    function Depth_Nodes (Self : Selector_List) return Depth_Node_Vector;
    --  Return an array containing the Depth_Node values returned by the
    --  selector.
+   ---
+   --  NOTE that this will consume the entire selector.
 
    function Max_Depth (Self : Selector_List) return Natural;
    --  Return the depth of the 'deepest' node return by the selector
+   ---
+   --  NOTE that this will consume the entire selector.
 
    function Length (Self : Selector_List) return Natural;
-   --  Return the number of nodes returned by the selector
+   --  Return the number of nodes returned by the selector.
+   ---
+   --  NOTE that this will consume the entire selector.
 
    overriding function Next
      (Self : in out Selector_List; Result : out Depth_Node) return Boolean;

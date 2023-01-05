@@ -288,26 +288,43 @@ package body LKQL.Patterns.Nodes is
                 Make_Node_Pattern_Predicate (Local_Ctx, Pattern)));
          --  Then, we create a filtered iterator
 
-         Res_List : constant Selector_List :=
+         Res_List : Selector_List :=
            Make_Selector_List (Filtered_Iter);
          --  Create a selector list from the selector call
 
-         List_Length : constant Natural := Res_List.Length;
-         --  NOTE: Calling `.Length` here is done eagerly because this will
-         --  trigger evaluation of the underlying filtered iterator and save
-         --  its content in the selector list.
+         function Has_Element return Boolean;
+         --  Return whether ``Res_List`` has at least one element or not,
+         --  consuming the whole list if necessary
+
+         function Has_Element return Boolean is
+            N : Depth_Node;
+         begin
+            --  NOTE: Calling `.Length` here will trigger evaluation of the
+            --  underlying filtered iterator and save its content in the
+            --  selector list. This is only necessary when the list is bound to
+            --  a name, so that the content of the list is consistent
+            --  regardless of the used quantifier.
+            return (if not Call.F_Binding.Is_Null
+                    then Res_List.Length /= 0
+                    else Res_List.Next (N));
+         end Has_Element;
 
       begin
-
          Result := To_Primitive (Res_List, Local_Ctx.Pool);
 
          if Quantifier_Name = "all" then
-            return Depth_Node_Iters.Filter_Iter
-              (Filtered_Iter.all).Filtered_Count = 0;
+            declare
+               Dummy : Natural := Res_List.Length;
+               --  Trigger evaluation of the whole list, so that
+               --  ``Filtered_Count`` is set to its right value below.
+            begin
+               return Depth_Node_Iters.Filter_Iter
+                 (Filtered_Iter.all).Filtered_Count = 0;
+            end;
          elsif Quantifier_Name = "any" then
-            return List_Length > 0;
+            return Has_Element;
          elsif Quantifier_Name = "no" then
-            return List_Length = 0;
+            return not Has_Element;
          else
             raise Assertion_Error with
               "invalid quantifier name: " & Quantifier_Name;
