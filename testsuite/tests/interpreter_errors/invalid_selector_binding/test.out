@@ -1,0 +1,4 @@
+script.lkql:2:6: error: Unknown symbol: n
+2 | when n
+  |      ^
+

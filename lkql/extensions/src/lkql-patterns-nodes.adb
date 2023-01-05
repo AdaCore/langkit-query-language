@@ -251,9 +251,10 @@ package body LKQL.Patterns.Nodes is
       Result  : out Primitive) return Boolean
    is
       Quantifier_Name : constant String := To_UTF8 (Call.P_Quantifier_Name);
-      Selector_Expr : constant L.Expr := Call.F_Selector_Call;
-      Selector_Call : L.Fun_Call := L.No_Fun_Call;
-      Selector : Primitive;
+      Selector_Expr   : constant L.Expr := Call.F_Selector_Call;
+      Selector_Call   : L.Fun_Call := L.No_Fun_Call;
+      Selector        : Primitive;
+      Local_Ctx       : constant Eval_Context := Ctx.Create_New_Frame;
       use L, LCO;
    begin
       --  TODO: For now LKQL supports calling selectors without parentheses
@@ -266,15 +267,15 @@ package body LKQL.Patterns.Nodes is
       --  return the selector.
       if L.Kind (Selector_Expr) = LCO.Lkql_Fun_Call then
          Selector_Call := Selector_Expr.As_Fun_Call;
-         Selector := Eval (Ctx, Selector_Call.F_Name);
+         Selector := Eval (Local_Ctx, Selector_Call.F_Name);
       else
-         Selector := Eval (Ctx, Selector_Expr);
+         Selector := Eval (Local_Ctx, Selector_Expr);
       end if;
 
       --  Check that the kind of the entity is a selector
       if Kind (Selector) /= Kind_Selector then
          Raise_Invalid_Type
-           (Ctx, Selector_Expr.As_Lkql_Node, "selector", Selector);
+           (Local_Ctx, Selector_Expr.As_Lkql_Node, "selector", Selector);
       end if;
 
       declare
@@ -282,8 +283,9 @@ package body LKQL.Patterns.Nodes is
          Filtered_Iter     : constant Depth_Node_Iter_Access :=
            new Depth_Node_Iters.Filter_Iter'
              (Depth_Node_Iters.Filter
-               (Eval_User_Selector_Call (Ctx, Selector_Call, Selector, Node),
-                Make_Node_Pattern_Predicate (Ctx, Pattern)));
+               (Eval_User_Selector_Call
+                 (Local_Ctx, Selector_Call, Selector, Node),
+                Make_Node_Pattern_Predicate (Local_Ctx, Pattern)));
          --  Then, we create a filtered iterator
 
          Res_List : constant Selector_List :=
@@ -297,7 +299,7 @@ package body LKQL.Patterns.Nodes is
 
       begin
 
-         Result := To_Primitive (Res_List, Ctx.Pool);
+         Result := To_Primitive (Res_List, Local_Ctx.Pool);
 
          if Quantifier_Name = "all" then
             return Depth_Node_Iters.Filter_Iter
