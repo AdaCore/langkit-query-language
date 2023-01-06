@@ -55,7 +55,7 @@ export LD_LIBRARY_PATH
 
 PYTHONPATH="$PWD/lkql/build/python:$PYTHONPATH"
 export PYTHONPATH
-``
+```
 
 Or create an env script:
 
