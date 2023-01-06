@@ -4,24 +4,6 @@
 
 import stdlib
 
-# TODO: move to stdlib once V831-024 is implemented
-selector component_types
-    |" Return all the BaseTypeDecl corresponding to all fields
-    |" of a given type, including their full views, base types and subtypes.
-    | TypeDecl(f_type_def is d@RecordTypeDef) =>
-        skip *(from d select ComponentDecl)
-    | TypeDecl(f_type_def is DerivedTypeDef(f_record_extension is
-                                            def@BaseRecordDef)) =>
-        skip *([this.p_base_type()] & (from def select ComponentDecl))
-    | TypeDecl(f_type_def is DerivedTypeDef) => rec this.p_base_type()
-    | TypeDecl(f_type_def is ArrayTypeDef)   => rec this.p_comp_type()
-    | TypeDecl(f_type_def is PrivateTypeDef) => rec this.p_full_view()
-    | SubtypeDecl                            => rec this.p_base_subtype()
-    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
-                    ind@SubtypeIndication))  =>
-        rec ind.f_name.p_referenced_decl()
-    | *                                      => ()
-
 @memoized
 fun has_no_local_timing_events_restriction() =
     select first p@PragmaNode
@@ -36,6 +18,6 @@ fun kp_q609_033(node) =
     when has_no_local_timing_events_restriction()
      and stdlib.has_local_scope(node)
      and node.f_type_expr.p_designated_type_decl() is BaseTypeDecl(
-             any component_types is type@TypeDecl
+             any stdlib.component_types is type@TypeDecl
              when type.p_fully_qualified_name() ==
                   "Ada.Real_Time.Timing_Events.Timing_Event")

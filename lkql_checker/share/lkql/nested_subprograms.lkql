@@ -7,11 +7,7 @@
 # are not flagged. Procedure declarations completed by null procedure
 # declarations are not flagged.
 
-# TODO: use stdlib.semantic_parent once V831-024 is fixed
-selector semantic_parent
-    |" Return all semantic parent nodes starting from a given node.
-    | null     => ()
-    | *        => rec this.p_semantic_parent()
+import stdlib
 
 @check(message="subprogram declared in executable body",
        category="Style", subcategory="Programming Practice")
@@ -23,4 +19,4 @@ fun nested_subprograms(node) =
      and node.p_semantic_parent()
          is not (ProtectedTypeDecl or SingleProtectedDecl)
      and node is not ClassicSubpDecl(p_body_part() is NullSubpDecl)
-     and node is *(any semantic_parent is BaseSubpBody or TaskBody or EntryBody)
+     and node is *(any stdlib.semantic_parent is BaseSubpBody or TaskBody or EntryBody)

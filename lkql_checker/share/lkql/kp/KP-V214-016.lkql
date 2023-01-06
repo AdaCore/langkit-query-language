@@ -4,32 +4,14 @@
 
 import stdlib
 
-# TODO: move to stdlib once V831-024 is implemented
-selector component_types
-    |" Return all the BaseTypeDecl corresponding to all fields
-    |" of a given type, including their full views, base types and subtypes.
-    | TypeDecl(f_type_def is d@RecordTypeDef) =>
-        skip *(from d select ComponentDecl)
-    | TypeDecl(f_type_def is DerivedTypeDef(f_record_extension is
-                                            def@BaseRecordDef)) =>
-        skip *([this.p_base_type()] & (from def select ComponentDecl))
-    | TypeDecl(f_type_def is DerivedTypeDef) => rec this.p_base_type()
-    | TypeDecl(f_type_def is ArrayTypeDef)   => rec this.p_comp_type()
-    | TypeDecl(f_type_def is PrivateTypeDef) => rec this.p_full_view()
-    | SubtypeDecl                            => rec this.p_base_subtype()
-    | ComponentDecl(f_component_def is ComponentDef(f_type_expr is
-                    ind@SubtypeIndication))  =>
-        rec ind.f_name.p_referenced_decl()
-    | *                                      => ()
-
 fun check_type(params) =
    [p for p in params if
       p.param.p_name_is("T") and
       p.actual.p_referenced_decl().p_root_type() is root@BaseTypeDecl and
       root.f_type_def.f_has_limited.p_as_bool() and
-      root is TypeDecl(all component_types is not TaskTypeDecl) and
+      root is TypeDecl(all stdlib.component_types is not TaskTypeDecl) and
       [t for t in root.p_find_all_derived_types(stdlib.list_of_units()) if
-       t is TypeDecl(any component_types is TaskTypeDecl)]
+       t is TypeDecl(any stdlib.component_types is TaskTypeDecl)]
    ]
 
 @check(message="possible occurrence of KP V214-016", impact="21.*,22.*,23.*")

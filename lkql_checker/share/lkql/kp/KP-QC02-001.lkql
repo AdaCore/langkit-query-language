@@ -1,18 +1,14 @@
 # Flag Size attributes on array objects whose type has an alignment clause
 # (directly or via one of its parent) other than 1.
 
+import stdlib
+
 fun array_with_align(type) =
     type.p_is_array_type() and
     {
         val aspect = type.p_get_aspect("Alignment");
         aspect.exists and aspect.value.p_eval_as_int() > 1
     }
-
-# TODO: move to stdlib once V831-024 is implemented
-selector parent_types
-    | SubtypeDecl  => rec this.p_base_subtype().p_full_view()
-    | BaseTypeDecl => rec *this.p_full_view().p_base_types()
-    | *            => ()
 
 @check(message="possible occurrence of KP QC02-001",
        impact="7.[1-4].*,17.*,18.[12]",
@@ -23,4 +19,4 @@ fun kp_qc02_001(node) =
      and node.f_prefix.p_expression_type() is t@BaseTypeDecl
      and t.p_full_view() is type@BaseTypeDecl
      and (array_with_align(type) or
-          type is *(any parent_types is p@BaseTypeDecl when array_with_align(p)))
+          type is *(any stdlib.full_parent_types is p@BaseTypeDecl when array_with_align(p)))
