@@ -25,8 +25,6 @@
 
 with Ada.Calendar;               use Ada.Calendar;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
-with Ada.Wide_Wide_Characters.Handling;
-use Ada.Wide_Wide_Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
 with Ada.Directories;

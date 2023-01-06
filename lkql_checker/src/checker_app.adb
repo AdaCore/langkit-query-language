@@ -22,13 +22,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Assertions; use Ada.Assertions;
-with Ada.Characters.Conversions; use Ada.Characters.Conversions;
 with Ada.Directories; use Ada.Directories;
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
-with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
 
 with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Images; use Langkit_Support.Images;
@@ -177,19 +175,19 @@ package body Checker_App is
 
             begin
                Emit_Message
-                 (To_Unbounded_Wide_Wide_String
+                 (To_Unbounded_Text
                     (Msg & " at " &
-                     To_Wide_Wide_String
+                     To_Text
                        (Simple_Name (Lkql_Node.Unit.Get_Filename)) & ":" &
-                     To_Wide_Wide_String
+                     To_Text
                        (Stripped_Image
                          (Integer (Lkql_Node.Sloc_Range.Start_Line))) &
                      ":" &
-                     To_Wide_Wide_String
+                     To_Text
                        (Stripped_Image
                          (Integer (Lkql_Node.Sloc_Range.Start_Column))) &
                      ": " &
-                     To_Wide_Wide_String (Exception_Msg)),
+                     To_Text (Exception_Msg)),
                   Node.Unit, Rule.Name,
                   (if Severe or else Type_Error
                    then Severe_Internal_Error else Internal_Error),
@@ -404,12 +402,12 @@ package body Checker_App is
                                  end if;
 
                                  Append (Msg,
-                                         To_Wide_Wide_String (Simple_Name
+                                         To_Text (Simple_Name
                                            (N.Unit.Filename)));
                                  Append (Msg, ":");
                                  Append
                                    (Msg,
-                                    To_Wide_Wide_String
+                                    To_Text
                                       (Stripped_Image
                                         (Integer (N.Sloc_Range.Start_Line))));
                               end;
@@ -452,8 +450,7 @@ package body Checker_App is
                        (To_Unbounded_Wide_Wide_String
                           ("internal error on rule " &
                            To_Text (Rule.Name) & ": " &
-                           To_Wide_Wide_String
-                             (Strip_LF (Exception_Information (E)))),
+                           To_Text (Strip_LF (Exception_Information (E)))),
                         Node.Unit, Rule.Name,
                         Severe_Internal_Error, Node.Sloc_Range);
 
@@ -578,12 +575,12 @@ package body Checker_App is
                                        end if;
 
                                        Append (Msg,
-                                               To_Wide_Wide_String (Simple_Name
+                                               To_Text (Simple_Name
                                                  (N.Unit.Filename)));
                                        Append (Msg, ":");
                                        Append
                                          (Msg,
-                                          To_Wide_Wide_String
+                                          To_Text
                                             (Stripped_Image
                                               (Integer
                                                 (N.Sloc_Range.Start_Line))));
@@ -914,7 +911,7 @@ package body Checker_App is
                exception
                   when others =>
                      Put ("internal error loading rule ");
-                     Put (To_Wide_Wide_String (Rule.Name));
+                     Put (To_Text (Rule.Name));
                      Put_Line (":");
                      raise;
                end;

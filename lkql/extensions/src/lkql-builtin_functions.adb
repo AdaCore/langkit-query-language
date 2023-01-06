@@ -22,7 +22,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
-with Ada.Wide_Wide_Characters.Handling; use Ada.Wide_Wide_Characters.Handling;
+with Ada.Wide_Wide_Characters.Handling;
 with Ada.Containers.Hashed_Sets;
 with Ada.Directories;
 with Ada.Finalization;
@@ -46,6 +46,11 @@ with LKQL.Errors; use LKQL.Errors;
 with LKQL.Error_Handling; use LKQL.Error_Handling;
 
 package body LKQL.Builtin_Functions is
+
+   function Is_Upper (C : Wide_Wide_Character) return Boolean renames
+     Ada.Wide_Wide_Characters.Handling.Is_Upper;
+   function Is_Lower (C : Wide_Wide_Character) return Boolean renames
+     Ada.Wide_Wide_Characters.Handling.Is_Lower;
 
    function Get_Doc (Ctx : Eval_Context; Obj : Primitive) return Text_Type;
 
