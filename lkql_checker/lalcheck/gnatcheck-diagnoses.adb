@@ -27,7 +27,6 @@ with Ada.Calendar;               use Ada.Calendar;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
-with Ada.Containers.Vectors;
 with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings;                use Ada.Strings;
@@ -48,19 +47,14 @@ with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
-with Libadalang.Common;
 with Libadalang.Expr_Eval;
+with Libadalang.Common;
 
 package body Gnatcheck.Diagnoses is
 
+   use all type Ada.Containers.Count_Type;
+
    package LCO renames Libadalang.Common;
-
-   package String_Vectors
-   is new Ada.Containers.Vectors (Positive, Unbounded_String);
-
-   subtype String_Vector is String_Vectors.Vector;
-
-   use String_Vectors;
 
    -----------------------
    -- Diagnoses storage --
@@ -211,6 +205,30 @@ package body Gnatcheck.Diagnoses is
    --  Returns Exemption_Kinds value represented by Image. Returns
    --  Not_An_Exemption if Image does not represent a valid exemption kind.
 
+   -------------------
+   -- Exempt_Action --
+   -------------------
+
+   type Exempt_Action is record
+      Exemption_Control : Exemption_Kinds;
+      Rule_Name         : Unbounded_String := Null_Unbounded_String;
+      Params            : Rule_Params;
+      Justification     : Unbounded_String := Null_Unbounded_String;
+      Sloc_Range        : Langkit_Support.Slocs.Source_Location_Range;
+      Unit              : LAL.Analysis.Analysis_Unit;
+   end record;
+   --  Stores information about an exemption action (either triggered by a
+   --  ``pragma Annotate``, or by a ``--#`` comment).
+   --
+   --  This type and the associated primitive are used to decouple the
+   --  validation and processing of the action, and are used both by comment
+   --  based exemptions and pragma based ones.
+
+   procedure Process_Exempt_Action (Self : in out Exempt_Action);
+   --  Process the given exempt action, doing some legality checks on the
+   --  Exempt_Action, and creating the necessary exemption information in the
+   --  sections arrays.
+
    type Exemption_Info is record
       Line_Start : Natural;
       Col_Start  : Natural;
@@ -242,24 +260,18 @@ package body Gnatcheck.Diagnoses is
    --  diagnoses.
 
    procedure Turn_Off_Exemption
-     (Rule         : Rule_Id;
-      Closing_Span : Source_Location_Range;
-      SF           : SF_Id);
+     (Rule : Rule_Id; Closing_Sloc : Source_Location; SF : SF_Id);
    --  Cleans up the stored exemption section for the argument Rule.
 
    -----------------------------
    -- Parametric exemptions --
    -----------------------------
 
-   Rule_Exemption_Parameters : Exemption_Parameters.Set;
-   --  Temporary place for collecting rule parameters in case if exemption
-   --  specifies parameters for a rule.
-
    type Parametrized_Exemption_Info is record
       Exempt_Info : Exemption_Info;
       Rule        : Rule_Id;
       SF          : SF_Id;
-      Params      : String_Vector;
+      Params      : Rule_Params;
    end record;
 
    type Param_Ex_Info_Key is record
@@ -281,30 +293,14 @@ package body Gnatcheck.Diagnoses is
                          or else (L.Line_Start = R.Line_Start
                                   and then L.Col_Start < R.Col_Start))));
 
-   function Is_Equal
-     (L    : Exemption_Parameters.Set;
-      R    : String_Vector) return Boolean;
-   --  Checks that L and R are both non-empty/non-null and have the same
-   --  content.
-
-   function Belongs
-     (L : String;
-      R : String_Vector) return Boolean;
-   --  Checks if R is non-null and L belongs to R
-
-   function To_Pars_List
-     (Pars : Exemption_Parameters.Set) return String_Vector;
-   --  Converts (non-empty! the caller is responsible for that!) set of rule
-   --  exemption parameters into string list.
-
-   function Params_Img
-     (Params : String_Vector;
-      Rule   : Rule_Id) return String;
+   function Params_Img (Params : Rule_Params; Rule : Rule_Id) return String;
    --  Returns the string image of rule exemption parameters that are supposed
    --  to be stored in Params list (and Params is supposed to be not null) in
    --  the format suitable for including in a diagnosis. Rule parameter is
    --  needed to decide if we should fold the parameter in proper case (for
    --  sure we should not do this for Warnings rule)
+
+   use all type Rule_Params;
 
    function "=" (L, R : Parametrized_Exemption_Info) return Boolean is
      (L.SF = R.SF                                         and then
@@ -338,22 +334,18 @@ package body Gnatcheck.Diagnoses is
    Rule_Param_Exempt_Sections : Rule_Param_Exempt_Sections_Access;
    --  Stores parametric exemption sections for a source being processed
 
-   procedure Set_Rule_Exempt_Pars
-     (Rule : Rule_Id;
-      Pars : String;
-      SF   : SF_Id;
-      SLOC : String);
-   --  Assuming that Rule is a rule that allows parametric expressions,
-   --  and Pars is a part of a third argument of a rule exemption pragma that
-   --  contains rule parameters, parses Pars string and checks if each of the
-   --  specified parameters indeed can be used as rule exemption parameter.
-   --  If all the parameters can be used in rule exemption, all of them are
-   --  placed into the value of Rule_Exemption_Parameters set variable. If
-   --  some parameter is wrong, and error message is generated and
-   --  Rule_Exemption_Parameters sets to empty set. Note that if immediately
-   --  after a call to this subprogram Rule_Exemption_Parameters is empty, then
-   --  the corresponding exemption pragma is incorrect.
-   --  Parameters SF and SLOC are needed to form an error message.
+   function Parse_Exempt_Parameters
+     (Rule  : Rule_Id;
+      Input : String;
+      SF    : SF_Id;
+      SLOC  : String) return Exemption_Parameters.Set;
+   --  Assuming that ``Rule`` is a rule that allows parametric expressions,
+   --  and ``Input`` contains rule parameters, parses ``Input`` string and
+   --  checks if each of the specified parameters indeed can be used as rule
+   --  exemption parameter. Returns a parsed set of parameters.
+   --
+   --  If parameters are incorrect, diagnoses will be generated with the given
+   --  ``SF`` and ``SLOC``.
 
    function Allows_Parametrized_Exemption (Rule : Rule_Id) return Boolean;
    --  Checks if Rule allows fine-tuned exemption (with specifying parameters
@@ -366,33 +358,29 @@ package body Gnatcheck.Diagnoses is
    --  Assumes that Param has already folded to lower case. Always returns
    --  False if Allows_Prametrized_Exemption (Rule) is False.
 
-   procedure Is_Exempted_With_Pars
-     (Rule        : Rule_Id;
-      Exempted_At : out Parametrized_Exemption_Sections.Cursor);
-   --  Checks if Rule is already exempted with the set of parameters that are
-   --  stored in the global Rule_Exemption_Parameters variable. If it does then
-   --  Exempted_At is set to the set cursor pointing to the corresponding
-   --  exemption section in Rule_Param_Exempt_Sections, otherwise Exempted_At
-   --  is set to No_Element. The check is made for the parametric exemption
-   --  sections that are currently opened in the source being traversed and
-   --  stored in Rule_Param_Exempt_Sections (see below). This procedure is
-   --  supposed to use only in Process_Exemption_Pragma, it depends on the
-   --  specific calling context created when analyzing a rule exemption pragma.
+   function Is_Exempted_With_Pars
+     (Rule : Rule_Id; Params : Exemption_Parameters.Set)
+   return Parametrized_Exemption_Sections.Cursor;
+   --  Checks if ``Rule`` is already exempted with the set of parameters that
+   --  are stored in ``Params``. If it is, then return a cursor pointing to the
+   --  corresponding exemption section in Rule_Param_Exempt_Sections, otherwise
+   --  return ``No_Element``.
 
    procedure Same_Parameter_Exempted
      (Rule        : Rule_Id;
+      Params : Exemption_Parameters.Set;
       Exempted_At : out Parametrized_Exemption_Sections.Cursor;
       Par         : out Unbounded_String);
    --  Is similar to the previous procedure, but it checks that there is at
-   --  least one parameter in Rule_Exemption_Parameters that has already been
-   --  used in definition of some opened parametric exception section for
-   --  this rule:
+   --  least one parameter in ``Params`` that has already been used in
+   --  definition of some opened parametric exception section for this
+   --  rule::
    --
-   --     Exempt_On, Rule:Par1, Par3
-   --     ...
-   --     Exempt_On, Rule:Par1, Par2
+   --      Exempt_On, Rule:Par1, Par3
+   --      ...
+   --      Exempt_On, Rule:Par1, Par2
    --
-   --  If the checks succeeds, Par is set to point to this parameter.
+   --  If the checks succeeds, ``Par`` is set to point to this parameter.
 
    function Get_Param_Justification
      (Rule : Rule_Id;
@@ -425,8 +413,8 @@ package body Gnatcheck.Diagnoses is
       Line          : Natural;
       Col           : Natural) return Parametrized_Exemption_Sections.Cursor;
    --  Tries to locate in Exem_Sections the section that exempts the rule this
-   --  Param is supposed to corresponds to (choosing the right set of exemption
-   --  sections should be done outside the call) with Param. Returns
+   --  Param is supposed to correspond to (choosing the right set of exemption
+   --  sections should be done outside the call) with Param.  Returns
    --  No_Element if the attempt fails.
 
    procedure Increase_Diag_Counter
@@ -438,7 +426,7 @@ package body Gnatcheck.Diagnoses is
    procedure Turn_Off_Parametrized_Exemption
      (Rule         : Rule_Id;
       Exempted_At  : in out Parametrized_Exemption_Sections.Cursor;
-      Closing_Span : Source_Location_Range;
+      Closing_Sloc : Source_Location;
       SF           : SF_Id);
    --  Cleans up the stored exemption section for the argument Rule.
 
@@ -563,23 +551,6 @@ package body Gnatcheck.Diagnoses is
       end case;
    end Allows_Parametrized_Exemption;
 
-   function Belongs (L : String; R : String_Vector) return Boolean is
-      Result : Boolean := False;
-   begin
-      if not R.Is_Empty then
-         for El of R loop
-            if L = To_String (El) then
-               Result := True;
-               exit;
-            elsif To_String (El) > L then
-               exit;
-            end if;
-         end loop;
-      end if;
-
-      return Result;
-   end Belongs;
-
    ------------------------------
    -- Auxiliary_List_File_Name --
    ------------------------------
@@ -632,7 +603,7 @@ package body Gnatcheck.Diagnoses is
      (SF   : SF_Id;
       Unit : LAL.Analysis.Analysis_Unit)
    is
-      Comp_Span : constant Source_Location_Range := Unit.Root.Sloc_Range;
+      Sloc : constant Source_Location := End_Sloc (Unit.Root.Sloc_Range);
       use Parametrized_Exemption_Sections;
 
       Next_Section : Parametrized_Exemption_Sections.Cursor;
@@ -653,7 +624,7 @@ package body Gnatcheck.Diagnoses is
 
             Turn_Off_Exemption
               (Rule         => Rule,
-               Closing_Span => Comp_Span,
+               Closing_Sloc => Sloc,
                SF           => SF);
          end if;
       end loop;
@@ -682,7 +653,7 @@ package body Gnatcheck.Diagnoses is
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
                Turn_Off_Parametrized_Exemption
-                 (Rule, Next_Section, Comp_Span, SF);
+                 (Rule, Next_Section, Sloc, SF);
                Next_Section := First (Rule_Param_Exempt_Sections (Rule));
             end loop;
          end if;
@@ -1125,7 +1096,7 @@ package body Gnatcheck.Diagnoses is
                                   Col < Next_Section_El.Exempt_Info.Col_End));
 
          if Diag_In_Section
-           and then Belongs (Param, Next_Section_El.Params)
+           and then Next_Section_El.Params.Contains (Param)
          then
             Result := Next_Section;
             exit;
@@ -1264,22 +1235,6 @@ package body Gnatcheck.Diagnoses is
       end loop;
    end Init_Exemptions;
 
-   function Is_Equal (L : Exemption_Parameters.Set; R : String_Vector)
-      return Boolean
-   is
-      use Exemption_Parameters;
-      use all type Ada.Containers.Count_Type;
-   begin
-      if not L.Is_Empty
-         and then not R.Is_Empty
-         and then L.Length = R.Length
-      then
-         return To_Pars_List (L) = R;
-      end if;
-
-      return False;
-   end Is_Equal;
-
    -----------------
    -- Is_Exempted --
    -----------------
@@ -1293,31 +1248,32 @@ package body Gnatcheck.Diagnoses is
    -- Is_Exempted_With_Pars --
    ---------------------------
 
-   procedure Is_Exempted_With_Pars
-     (Rule        : Rule_Id;
-      Exempted_At : out Parametrized_Exemption_Sections.Cursor)
+   function Is_Exempted_With_Pars
+     (Rule   : Rule_Id;
+      Params : Exemption_Parameters.Set)
+   return Parametrized_Exemption_Sections.Cursor
    is
       use Parametrized_Exemption_Sections;
       Next_Section : Parametrized_Exemption_Sections.Cursor;
+      Ret : Parametrized_Exemption_Sections.Cursor :=
+         Parametrized_Exemption_Sections.No_Element;
    begin
-      Exempted_At := Parametrized_Exemption_Sections.No_Element;
-
       if not Is_Empty (Rule_Param_Exempt_Sections (Rule)) then
          Next_Section := First (Rule_Param_Exempt_Sections (Rule));
 
          while Has_Element (Next_Section) loop
-            if Is_Equal
-                 (Rule_Exemption_Parameters,
-                  Parametrized_Exemption_Sections.Element
-                    (Next_Section).Params)
+            if Params =
+              Parametrized_Exemption_Sections.Element (Next_Section).Params
             then
-               Exempted_At := Next_Section;
+               Ret := Next_Section;
                exit;
             end if;
 
             Next_Section := Next (Next_Section);
          end loop;
       end if;
+
+      return Ret;
    end Is_Exempted_With_Pars;
 
    ---------------------------------------
@@ -1383,7 +1339,7 @@ package body Gnatcheck.Diagnoses is
             Info ("   Empty parameter list!");
          else
             for El of ES_Info.Params loop
-               Info (">>" & To_String (El) & "<<");
+               Info (">>" & El & "<<");
             end loop;
          end if;
 
@@ -1408,7 +1364,7 @@ package body Gnatcheck.Diagnoses is
    -- Params_Img --
    ----------------
 
-   function Params_Img (Params : String_Vector; Rule : Rule_Id) return String
+   function Params_Img (Params : Rule_Params; Rule : Rule_Id) return String
    is
       Res   : Unbounded_String;
       Count : Natural := 0;
@@ -1421,8 +1377,8 @@ package body Gnatcheck.Diagnoses is
          Append
            (Res,
             (if Rule in Warnings_Id | Style_Checks_Id
-             then To_String (El)
-             else GNAT.Case_Util.To_Mixed (To_String (El))));
+             then El
+             else GNAT.Case_Util.To_Mixed (El)));
 
          Count := Count + 1;
       end loop;
@@ -2102,6 +2058,259 @@ package body Gnatcheck.Diagnoses is
            (Pragma_Args.List_Child (1).P_Assoc_Expr.Text) = "gnatcheck";
    end Is_Exemption_Pragma;
 
+   ---------------------------
+   -- Process_Exempt_Action --
+   ---------------------------
+
+   procedure Process_Exempt_Action (Self : in out Exempt_Action) is
+      SF          : constant SF_Id := File_Find (Self.Unit.Get_Filename);
+      Rule        : constant Rule_Id := Get_Rule (To_String (Self.Rule_Name));
+      Has_Params  : constant Boolean := not Self.Params.Is_Empty;
+      Exempted_At : Parametrized_Exemption_Sections.Cursor;
+      Par         : Unbounded_String;
+      Sloc_Start  : constant Source_Location :=
+        Langkit_Support.Slocs.Start_Sloc (Self.Sloc_Range);
+      Sloc_End    : constant Source_Location :=
+        Langkit_Support.Slocs.End_Sloc (Self.Sloc_Range);
+   begin
+      --  First part: Legality checks
+
+      if Self.Exemption_Control = Not_An_Exemption then
+         Store_Diagnosis
+           (Full_File_Name     => Self.Unit.Get_Filename,
+            Sloc               => Sloc_Start,
+            Message            => "wrong exemption kind, ignored",
+            Diagnosis_Kind     => Exemption_Warning,
+            SF                 => SF);
+         return;
+      end if;
+
+      --  3.1 Check if we have an existing rule
+
+      if not Present (Rule) then
+         Store_Diagnosis
+           (Full_File_Name     => Self.Unit.Get_Filename,
+            Sloc               => Sloc_Start,
+            Message            => "wrong rule name in exemption, ignored",
+            Diagnosis_Kind     => Exemption_Warning,
+            SF                 => SF);
+         return;
+      end if;
+
+      --  Verify that, if the rule has params, it's allowed to have some
+      if Self.Params.Length > 0
+         and then not Allows_Parametrized_Exemption (Rule)
+      then
+         Store_Diagnosis
+           (Full_File_Name     => Self.Unit.Get_Filename,
+            Sloc               => Sloc_Start,
+            Message            => "rule " & Rule_Name (Rule) &
+                                  " cannot have parametric " &
+                                  "exemption, ignored",
+            Diagnosis_Kind     => Exemption_Warning,
+            SF                 => SF);
+         return;
+      end if;
+
+      --  Justification is not expected (and shouldn't be present) if the
+      --  action is to turn off an exemption.
+
+      if Self.Exemption_Control = Exempt_Off
+         and then Self.Justification /= Null_Unbounded_String
+      then
+         Store_Diagnosis
+           (Full_File_Name     => Self.Unit.Get_Filename,
+            Sloc               => Sloc_Start,
+            Message            =>
+              "turning exemption OFF does not need justification",
+            Diagnosis_Kind     => Exemption_Warning,
+            SF                 => SF);
+      end if;
+
+      --  6. If exemption is turned ON, justification is expected
+
+      if Self.Exemption_Control = Exempt_On
+         and then Self.Justification = Null_Unbounded_String
+      then
+         Store_Diagnosis
+           (Full_File_Name     => Self.Unit.Get_Filename,
+            Sloc               => Sloc_Start,
+            Message            =>
+              "turning exemption ON expects justification",
+            Diagnosis_Kind     => Exemption_Warning,
+            SF                 => SF);
+      end if;
+
+      --  If Rule does not denote the enabled rule - nothing to do
+
+      if not (Is_Enabled (Rule)
+              or else
+                (Rule = Warnings_Id and then Is_Enabled (Restrictions_Id)))
+      then
+       --  In case when a Restriction rule is enabled, we may want to use
+       --  exemptions section for Warnings rule to suppress default warnings.
+       --  We may get rid of this if and when we get a possibility to turn
+       --  off all the warnings except related to restrictions only.
+         return;
+      end if;
+
+      --  Now - processing of the exemption pragma. If we are here, we are
+      --  sure that Rule denotes an existing and enabled rule.
+
+      case Self.Exemption_Control is
+         when Exempt_On =>
+
+            if Self.Justification = Null_Unbounded_String then
+               Self.Justification := To_Unbounded_String ("unjustified");
+            end if;
+
+            if Is_Exempted (Rule) then
+               Store_Diagnosis
+                 (Full_File_Name     => Self.Unit.Get_Filename,
+                  Sloc               => Sloc_Start,
+                  Message            =>
+                    "rule " & Rule_Name (Rule)
+                    & " is already exempted at line" &
+                    Exemption_Sections (Rule).Line_Start'Img,
+                  Diagnosis_Kind     => Exemption_Warning,
+                  SF                 => SF);
+               return;
+            end if;
+
+            if not Has_Params and then Allows_Parametrized_Exemption (Rule)
+            then
+               --  Is Rule already exempted with parameters?
+               if not Parametrized_Exemption_Sections.Is_Empty
+                 (Rule_Param_Exempt_Sections (Rule))
+               then
+                  Store_Diagnosis
+                    (Full_File_Name     => Self.Unit.Get_Filename,
+                     Sloc               => Sloc_Start,
+                     Message            =>
+                       "rule " & Rule_Name (Rule)
+                       & " is already exempted with parameter(s) at line"
+                       & Parametrized_Exemption_Sections.Element
+                         (Parametrized_Exemption_Sections.First
+                           (Rule_Param_Exempt_Sections (Rule))).
+                             Exempt_Info.Line_Start'Img,
+                     Diagnosis_Kind     => Exemption_Warning,
+                     SF                 => SF);
+                  return;
+               end if;
+            end if;
+
+            if Has_Params then
+               Exempted_At := Is_Exempted_With_Pars (Rule, Self.Params);
+
+               if Parametrized_Exemption_Sections.Has_Element (Exempted_At)
+               then
+                  Store_Diagnosis
+                    (Full_File_Name     => Self.Unit.Get_Filename,
+                     Sloc               => Sloc_Start,
+                     Message            =>
+                       "rule " & Rule_Name (Rule) &
+                       " is already exempted with the same parameters at line"
+                       & Parametrized_Exemption_Sections.Element
+                          (Exempted_At).Exempt_Info.Line_Start'Img,
+                     Diagnosis_Kind     => Exemption_Warning,
+                     SF                 => SF);
+                  return;
+               else
+                  --  We have to check the following:
+                  --
+                  --     Exempt_On, Rule:Par1, Par3
+                  --     ...
+                  --     Exempt_On, Rule:Par1, Par2
+
+                  Same_Parameter_Exempted
+                    (Rule, Self.Params, Exempted_At, Par);
+
+                  if Parametrized_Exemption_Sections.Has_Element (Exempted_At)
+                  then
+                     Store_Diagnosis
+                       (Full_File_Name     => Self.Unit.Get_Filename,
+                        Sloc               => Sloc_Start,
+                        Message            =>
+                          "rule " & Rule_Name (Rule) &
+                          " is already exempted with parameter '" &
+                          To_String (Par) & "' at line"                   &
+                          Parametrized_Exemption_Sections.Element
+                             (Exempted_At).Exempt_Info.Line_Start'Img,
+                        Diagnosis_Kind     => Exemption_Warning,
+                        SF                 => SF);
+
+                     return;
+                  end if;
+
+                --  If we are here then we know for sure that the
+                --  parametric exemption is correct, and there is no
+                --  open exemption section for this rule and this
+                --  parameter(s). So we can just add the corresponding record
+                --  to Rule_Param_Exempt_Sections:
+
+                  Parametrized_Exemption_Sections.Insert
+                    (Rule_Param_Exempt_Sections (Rule),
+                    (Exempt_Info =>
+                       (Line_Start    => Natural (Sloc_Start.Line),
+                        Col_Start     => Natural (Sloc_Start.Column),
+                        Line_End      => Natural (Sloc_End.Line),
+                        Col_End       => Natural (Sloc_End.Column),
+                        Justification => Self.Justification,
+                        Detected      => 0),
+                     Rule        => Rule,
+                     SF          => SF,
+                   Params        => Self.Params));
+               end if;
+            else
+               Exemption_Sections (Rule) :=
+                 (Line_Start    => Natural (Sloc_Start.Line),
+                  Col_Start     => Natural (Sloc_Start.Column),
+                  Line_End      => Natural (Sloc_End.Line),
+                  Col_End       => Natural (Sloc_End.Column),
+                  Justification => Self.Justification,
+                  Detected      => 0);
+            end if;
+
+         when Exempt_Off =>
+            if Has_Params then
+               Exempted_At := Is_Exempted_With_Pars (Rule, Self.Params);
+
+               if not Parametrized_Exemption_Sections.Has_Element (Exempted_At)
+               then
+                  Store_Diagnosis
+                    (Full_File_Name     => Self.Unit.Get_Filename,
+                     Sloc               => Sloc_Start,
+                     Message            =>
+                       "rule "
+                       & Rule_Name (Rule) & " is not in exempted state",
+                     Diagnosis_Kind     => Exemption_Warning,
+                     SF                 => SF);
+                  return;
+               else
+                  Turn_Off_Parametrized_Exemption
+                    (Rule, Exempted_At, Sloc_End, SF);
+               end if;
+            else
+               if not Is_Exempted (Rule) then
+                  Store_Diagnosis
+                    (Full_File_Name     => Self.Unit.Get_Filename,
+                     Sloc               => Sloc_Start,
+                     Message            =>
+                       "rule "
+                       & Rule_Name (Rule) & " is not in exempted state",
+                     Diagnosis_Kind     => Exemption_Warning,
+                     SF                 => SF);
+                  return;
+               end if;
+
+               Turn_Off_Exemption (Rule, Sloc_End, SF);
+            end if;
+
+         when Not_An_Exemption =>
+            pragma Assert (False);
+      end case;
+   end Process_Exempt_Action;
+
    ------------------------------
    -- Process_Exemption_Pragma --
    ------------------------------
@@ -2117,25 +2326,18 @@ package body Gnatcheck.Diagnoses is
       Pars_End      : Natural;
       Last_Par_Idx  : Natural;
       Has_Param     : Boolean := False;
-      Exem_Span     : Source_Location_Range := No_Source_Location_Range;
       SF            : constant SF_Id := File_Find (El.Unit.Get_Filename);
-
-      Rule           : Rule_Id;
-      Exemption_Kind : Exemption_Kinds;
-
-      Exempted_At    : Parametrized_Exemption_Sections.Cursor;
-      --  Used to check if the same rule with the same parameters is already
-      --  exempted - set to No_Element if it is not the case or points to the
-      --  record corresponding to the exemption section that exempts the same
-      --  rule with the same parameters
-
-      Par : Unbounded_String;
 
       use Gnatcheck.Rules.Exemption_Parameters;
 
       use LCO;
 
+      Action : Exempt_Action;
+
    begin
+      Action.Unit := El.Unit;
+      Action.Sloc_Range := El.Sloc_Range;
+
       --  First, analyze the pragma format:
       --
       --  1. Check that we have at least three parameters
@@ -2153,17 +2355,7 @@ package body Gnatcheck.Diagnoses is
       --  2. Second parameter should be either "Exempt_On" or "Exempt_Off"
 
       Next_Arg := Pragma_Args.List_Child (2).P_Assoc_Expr;
-      Exemption_Kind := Get_Exemption_Kind (Next_Arg.Text);
-
-      if Exemption_Kind = Not_An_Exemption then
-         Store_Diagnosis
-           (Full_File_Name     => El.Unit.Get_Filename,
-            Sloc               => Start_Sloc (El.Sloc_Range),
-            Message            => "wrong exemption kind, ignored",
-            Diagnosis_Kind     => Exemption_Warning,
-            SF                 => SF);
-         return;
-      end if;
+      Action.Exemption_Control := Get_Exemption_Kind (Next_Arg.Text);
 
       --  3. Third parameter should be the name of some existing rule, may be,
       --     with parameter names, but the latter is allowed only if fine-tuned
@@ -2184,40 +2376,14 @@ package body Gnatcheck.Diagnoses is
             Has_Param    := True;
          end if;
 
-         Rule := Get_Rule
+         Action.Rule_Name := To_Unbounded_String
            (Trim (Slice (Tmp_Str, First_Par_Idx, Last_Par_Idx), Both));
-      else
-         Rule := No_Rule;
-      end if;
-
-      --  3.1 Check if we have an existing rule
-
-      if not Present (Rule) then
-         Store_Diagnosis
-           (Full_File_Name     => El.Unit.Get_Filename,
-            Sloc               => Start_Sloc (El.Sloc_Range),
-            Message            => "wrong rule name in exemption, ignored",
-            Diagnosis_Kind     => Exemption_Warning,
-            SF                 => SF);
-         return;
       end if;
 
       --  3.2 Check if we have parameter(s) specified then parameter(s) make(s)
       --      sense for the rule.
 
       if Has_Param then
-         if not Allows_Parametrized_Exemption (Rule) then
-            Store_Diagnosis
-              (Full_File_Name     => El.Unit.Get_Filename,
-               Sloc               => Start_Sloc (El.Sloc_Range),
-               Message            => "rule " & Rule_Name (Rule) &
-                                     " cannot have parametric " &
-                                     "exemption, ignored",
-               Diagnosis_Kind     => Exemption_Warning,
-               SF                 => SF);
-            return;
-         end if;
-
          First_Par_Idx := Last_Par_Idx + 2;
          Pars_End := Length (Tmp_Str) - 1;
 
@@ -2227,14 +2393,22 @@ package body Gnatcheck.Diagnoses is
             First_Par_Idx := First_Par_Idx + 1;
          end loop;
 
-         Set_Rule_Exempt_Pars
-           (Rule,
+         --  TODO NOTE: This is sub-optimal, we still need to parse the rule
+         --  kind here, because parameters parsing depends on the rule.
+         Action.Params := Parse_Exempt_Parameters
+           (Get_Rule (To_String (Action.Rule_Name)),
             Slice (Tmp_Str, First_Par_Idx, Pars_End),
             SF,
             Sloc_Image (Start_Sloc (El.Sloc_Range)));
 
-         if Is_Empty (Rule_Exemption_Parameters) then
-            return;
+         --  TODO: Not clear what this is for
+         if Is_Empty (Action.Params) then
+            Store_Diagnosis
+              (Full_File_Name     => El.Unit.Get_Filename,
+               Sloc               => Start_Sloc (El.Sloc_Range),
+               Message            => "Invalid parameters",
+               Diagnosis_Kind     => Exemption_Warning,
+               SF                 => SF);
          end if;
       end if;
 
@@ -2268,34 +2442,10 @@ package body Gnatcheck.Diagnoses is
                   SF                 => SF);
          end;
 
-         --  5. Fourth parameter is ignored if exemption is turned OFF
-
-         if Exemption_Kind = Exempt_Off then
-            Store_Diagnosis
-              (Full_File_Name     => El.Unit.Get_Filename,
-               Sloc               => Start_Sloc (El.Sloc_Range),
-               Message            =>
-                 "turning exemption OFF does not need justification",
-               Diagnosis_Kind     => Exemption_Warning,
-               SF                 => SF);
-         end if;
-      end if;
-
-      --  6. If exemption is turned ON, justification is expected
-
-      if Exemption_Kind = Exempt_On and then Pragma_Args.Children_Count = 3
-      then
-         Store_Diagnosis
-           (Full_File_Name     => El.Unit.Get_Filename,
-            Sloc               => Start_Sloc (El.Sloc_Range),
-            Message            =>
-              "turning exemption ON expects justification",
-            Diagnosis_Kind     => Exemption_Warning,
-            SF                 => SF);
+         Action.Justification := Tmp_Str;
       end if;
 
       if Pragma_Args.Children_Count > 4 then
-         Next_Arg := Pragma_Args.List_Child (5).P_Assoc_Expr;
          Store_Diagnosis
            (Full_File_Name => El.Unit.Get_Filename,
             Sloc           => Start_Sloc (El.Sloc_Range),
@@ -2305,176 +2455,9 @@ package body Gnatcheck.Diagnoses is
             SF             => SF);
       end if;
 
-      --  If Rule does not denote the enabled rule - nothing to do
+      --  Process the resulting exempt action
+      Process_Exempt_Action (Action);
 
-      if not (Is_Enabled (Rule)
-              or else
-                (Rule = Warnings_Id and then Is_Enabled (Restrictions_Id)))
-      then
-       --  In case when a Restriction rule is enabled, we may want to use
-       --  exemptions section for Warnings rule to suppress default warnings.
-       --  We may get rid of this if and when we get a possibility to turn
-       --  off all the warnings except related to restrictions only.
-         return;
-      end if;
-
-      --  Now - processing of the exemption pragma. If we are here, we are
-      --  sure that Rule denotes an existing and enabled rule.
-
-      Exem_Span := El.Sloc_Range;
-
-      case Exemption_Kind is
-         when Exempt_On =>
-
-            if Tmp_Str = Null_Unbounded_String then
-               Tmp_Str := To_Unbounded_String ("unjustified");
-            end if;
-
-            if Is_Exempted (Rule) then
-               Store_Diagnosis
-                 (Full_File_Name     => El.Unit.Get_Filename,
-                  Sloc               => Start_Sloc (El.Sloc_Range),
-                  Message            =>
-                    "rule " & Rule_Name (Rule)
-                    & " is already exempted at line" &
-                    Exemption_Sections (Rule).Line_Start'Img,
-                  Diagnosis_Kind     => Exemption_Warning,
-                  SF                 => SF);
-               return;
-            end if;
-
-            if not Has_Param and then Allows_Parametrized_Exemption (Rule)
-            then
-               --  Is Rule already exempted with parameters?
-               if not Parametrized_Exemption_Sections.Is_Empty
-                 (Rule_Param_Exempt_Sections (Rule))
-               then
-                  Store_Diagnosis
-                    (Full_File_Name     => El.Unit.Get_Filename,
-                     Sloc               => Start_Sloc (El.Sloc_Range),
-                     Message            =>
-                       "rule " & Rule_Name (Rule)
-                       & " is already exempted with parameter(s) at line"
-                       & Parametrized_Exemption_Sections.Element
-                         (Parametrized_Exemption_Sections.First
-                           (Rule_Param_Exempt_Sections (Rule))).
-                             Exempt_Info.Line_Start'Img,
-                     Diagnosis_Kind     => Exemption_Warning,
-                     SF                 => SF);
-                  return;
-               end if;
-            end if;
-
-            if Has_Param then
-               Is_Exempted_With_Pars (Rule, Exempted_At);
-
-               if Parametrized_Exemption_Sections.Has_Element (Exempted_At)
-               then
-                  Store_Diagnosis
-                    (Full_File_Name     => El.Unit.Get_Filename,
-                     Sloc               => Start_Sloc (El.Sloc_Range),
-                     Message            =>
-                       "rule " & Rule_Name (Rule) &
-                       " is already exempted with the same parameters at line"
-                       & Parametrized_Exemption_Sections.Element
-                          (Exempted_At).Exempt_Info.Line_Start'Img,
-                     Diagnosis_Kind     => Exemption_Warning,
-                     SF                 => SF);
-                  return;
-               else
-                  --  We have to check the following:
-                  --
-                  --     Exempt_On, Rule:Par1, Par3
-                  --     ...
-                  --     Exempt_On, Rule:Par1, Par2
-
-                  Same_Parameter_Exempted (Rule, Exempted_At, Par);
-
-                  if Parametrized_Exemption_Sections.Has_Element (Exempted_At)
-                  then
-                     Store_Diagnosis
-                       (Full_File_Name     => El.Unit.Get_Filename,
-                        Sloc               => Start_Sloc (El.Sloc_Range),
-                        Message            =>
-                          "rule " & Rule_Name (Rule) &
-                          " is already exempted with parameter '" &
-                          To_String (Par) & "' at line"                   &
-                          Parametrized_Exemption_Sections.Element
-                             (Exempted_At).Exempt_Info.Line_Start'Img,
-                        Diagnosis_Kind     => Exemption_Warning,
-                        SF                 => SF);
-
-                     return;
-                  end if;
-
-                --  If we are here then we know for sure that the
-                --  parametric exemption is correct, and there is no
-                --  open exemption section for this rule and this
-                --  parameter(s). So we can just add the corresponding record
-                --  to Rule_Param_Exempt_Sections:
-
-                  Parametrized_Exemption_Sections.Insert
-                    (Rule_Param_Exempt_Sections (Rule),
-                    (Exempt_Info =>
-                       (Line_Start    => Natural (Exem_Span.Start_Line),
-                        Col_Start     => Natural (Exem_Span.Start_Column),
-                        Line_End      => 0,
-                        Col_End       => 0,
-                        Justification => Tmp_Str,
-                        Detected      => 0),
-                     Rule        => Rule,
-                     SF          => SF,
-                   Params      => To_Pars_List (Rule_Exemption_Parameters)));
-               end if;
-            else
-               Exemption_Sections (Rule) :=
-                 (Line_Start    => Natural (Exem_Span.Start_Line),
-                  Col_Start     => Natural (Exem_Span.Start_Column),
-                  Line_End      => 0,
-                  Col_End       => 0,
-                  Justification => Tmp_Str,
-                  Detected      => 0);
-            end if;
-
-         when Exempt_Off =>
-            if Has_Param then
-               Is_Exempted_With_Pars (Rule, Exempted_At);
-
-               if not Parametrized_Exemption_Sections.Has_Element
-                        (Exempted_At)
-               then
-                  Store_Diagnosis
-                    (Full_File_Name     => El.Unit.Get_Filename,
-                     Sloc               => Start_Sloc (El.Sloc_Range),
-                     Message            =>
-                       "rule "
-                       & Rule_Name (Rule) & " is not in exempted state",
-                     Diagnosis_Kind     => Exemption_Warning,
-                     SF                 => SF);
-                  return;
-               else
-                  Turn_Off_Parametrized_Exemption
-                    (Rule, Exempted_At, Exem_Span, SF);
-               end if;
-            else
-               if not Is_Exempted (Rule) then
-                  Store_Diagnosis
-                    (Full_File_Name     => El.Unit.Get_Filename,
-                     Sloc               => Start_Sloc (El.Sloc_Range),
-                     Message            =>
-                       "rule "
-                       & Rule_Name (Rule) & " is not in exempted state",
-                     Diagnosis_Kind     => Exemption_Warning,
-                     SF                 => SF);
-                  return;
-               end if;
-
-               Turn_Off_Exemption (Rule, Exem_Span, SF);
-            end if;
-
-         when Not_An_Exemption =>
-            pragma Assert (False);
-      end case;
    end Process_Exemption_Pragma;
 
    ----------------------------------
@@ -2698,12 +2681,13 @@ package body Gnatcheck.Diagnoses is
    -----------------------------
 
    procedure Same_Parameter_Exempted
-     (Rule        :     Rule_Id;
+     (Rule        : Rule_Id;
+      Params : Exemption_Parameters.Set;
       Exempted_At : out Parametrized_Exemption_Sections.Cursor;
       Par         : out Unbounded_String)
    is
       Next_Par : Exemption_Parameters.Cursor :=
-        Exemption_Parameters.First (Rule_Exemption_Parameters);
+        Exemption_Parameters.First (Params);
 
       use Parametrized_Exemption_Sections;
       Next_Section : Parametrized_Exemption_Sections.Cursor;
@@ -2716,10 +2700,8 @@ package body Gnatcheck.Diagnoses is
             Next_Section := First (Rule_Param_Exempt_Sections (Rule));
 
             while Has_Element (Next_Section) loop
-               if Belongs
-                    (Exemption_Parameters.Element (Next_Par),
-                     Parametrized_Exemption_Sections.Element
-                       (Next_Section).Params)
+               if Element (Next_Section).Params.Contains
+                 (Exemption_Parameters.Element (Next_Par))
                then
                   Exempted_At := Next_Section;
                   Par := To_Unbounded_String
@@ -2735,33 +2717,33 @@ package body Gnatcheck.Diagnoses is
       end if;
    end Same_Parameter_Exempted;
 
-   --------------------------
-   -- Set_Rule_Exempt_Pars --
-   --------------------------
+   -----------------------------
+   -- Parse_Exempt_Parameters --
+   -----------------------------
 
-   procedure Set_Rule_Exempt_Pars
-     (Rule : Rule_Id;
-      Pars : String;
-      SF   : SF_Id;
-      SLOC : String)
+   function Parse_Exempt_Parameters
+     (Rule  : Rule_Id;
+      Input : String;
+      SF    : SF_Id;
+      SLOC  : String) return Exemption_Parameters.Set
    is
       use Gnatcheck.Rules.Exemption_Parameters;
 
-      Par_Start   :          Natural := Pars'First;
+      Par_Start   :          Natural := Input'First;
       Par_End     :          Natural;
-      Last_Idx    : constant Natural    := Pars'Last;
+      Last_Idx    : constant Natural    := Input'Last;
       Position    :          Exemption_Parameters.Cursor;
       Success     :          Boolean;
       Warning_Par : constant Boolean := Rule = Warnings_Id;
       --  In case of Warnings rule, we consider parameters one by one. That is,
-      --  for "ad.c.d.fg" as Pars string we separately store 'a', 'd', '.c',
-      --  '.d', '.f' and 'g'
+      --  for "ad.c.d.fg" as Input string we separately store 'a', 'd',
+      --  '.c', '.d', '.f' and 'g'
 
+      Rule_Exemption_Parameters : Exemption_Parameters.Set;
    begin
-      Clear (Rule_Exemption_Parameters);
-
       loop
-         while Par_Start <= Last_Idx and then Pars (Par_Start) = ' ' loop
+         while Par_Start <= Last_Idx and then Input (Par_Start) = ' '
+         loop
             Par_Start := @ + 1;
          end loop;
 
@@ -2769,9 +2751,9 @@ package body Gnatcheck.Diagnoses is
 
          if Warning_Par then
             Par_End :=
-              (if Pars (Par_Start) = '.' then Par_Start + 1 else Par_Start);
+              (if Input (Par_Start) = '.' then Par_Start + 1 else Par_Start);
          else
-            Par_End := Index (Pars (Par_Start + 1 .. Last_Idx), [',']);
+            Par_End := Index (Input (Par_Start + 1 .. Last_Idx), [',']);
          end if;
 
          if Par_End = 0 then
@@ -2780,20 +2762,26 @@ package body Gnatcheck.Diagnoses is
             Par_End := Par_End - 1;
          end if;
 
-         while Pars (Par_End) = ' ' loop
+         while Input (Par_End) = ' ' loop
             Par_End := Par_End - 1;
          end loop;
 
          if Allowed_As_Exemption_Parameter
               (Rule,
                (if Rule in Warnings_Id | Style_Checks_Id
-                then Remove_Spaces (Pars (Par_Start .. Par_End))
-                else To_Lower (Remove_Spaces (Pars (Par_Start .. Par_End)))))
+                then Remove_Spaces (Input (Par_Start .. Par_End))
+                else To_Lower (Remove_Spaces (Input (Par_Start .. Par_End)))))
          then
+
+            --  TODO: This check is not complete: here you should not only
+            --  check that the same key=>value association isn't passed, but
+            --  also that there aren't to different values for the same key.
+
+            --  TODO: Separate parsing from legality checking ...
             Rule_Exemption_Parameters.Insert
               ((if Rule in Warnings_Id | Style_Checks_Id
-                then Remove_Spaces (Pars (Par_Start .. Par_End))
-                else To_Lower (Remove_Spaces (Pars (Par_Start .. Par_End)))),
+                then Remove_Spaces (Input (Par_Start .. Par_End))
+                else To_Lower (Remove_Spaces (Input (Par_Start .. Par_End)))),
                Position  => Position,
                Inserted  => Success);
 
@@ -2801,7 +2789,7 @@ package body Gnatcheck.Diagnoses is
                Store_Diagnosis
                  (Text           => File_Name (SF) & ":" & SLOC &
                                     ": parameter " &
-                                    Pars (Par_Start .. Par_End) &
+                                    Input (Par_Start .. Par_End) &
                                     " duplicated in rule exemption",
                   Diagnosis_Kind => Exemption_Warning,
                   SF             => SF);
@@ -2811,20 +2799,19 @@ package body Gnatcheck.Diagnoses is
             Store_Diagnosis
               (Text           => File_Name (SF) & ":" & SLOC &
                                  ": parameter " &
-                                 Pars (Par_Start .. Par_End) &
+                                 Input (Par_Start .. Par_End) &
                                  " is not allowed in exemption for rule " &
                                  Rule_Name (Rule),
                Diagnosis_Kind => Exemption_Warning,
                SF             => SF);
 
-            Clear (Rule_Exemption_Parameters);
          end if;
 
          if Warning_Par then
             Par_Start := @ + 1;
             exit when Par_Start > Last_Idx;
          else
-            Par_Start := Index (Pars (Par_End + 1 .. Last_Idx), ",");
+            Par_Start := Index (Input (Par_End + 1 .. Last_Idx), ",");
 
             if Par_Start = 0 then
                exit;
@@ -2833,7 +2820,9 @@ package body Gnatcheck.Diagnoses is
             end if;
          end if;
       end loop;
-   end Set_Rule_Exempt_Pars;
+
+      return Rule_Exemption_Parameters;
+   end Parse_Exempt_Parameters;
 
    ----------------
    -- Sloc_Image --
@@ -2955,40 +2944,18 @@ package body Gnatcheck.Diagnoses is
       return (if Idx = 0 then Diag else Diag (Diag'First .. Idx - 1));
    end Strip_Tag;
 
-   ------------------
-   -- To_Pars_List --
-   ------------------
-
-   function To_Pars_List (Pars : Exemption_Parameters.Set) return String_Vector
-   is
-      use Exemption_Parameters;
-
-      Result : String_Vector;
-      Next_Par : Exemption_Parameters.Cursor := First (Pars);
-   begin
-      while Has_Element (Next_Par) loop
-         Result.Append
-           (To_Unbounded_String (Exemption_Parameters.Element (Next_Par)));
-         Next_Par := Next (Next_Par);
-      end loop;
-
-      return Result;
-   end To_Pars_List;
-
    ------------------------
    -- Turn_Off_Exemption --
    ------------------------
 
    procedure Turn_Off_Exemption
-     (Rule         : Rule_Id;
-      Closing_Span : Source_Location_Range;
-      SF           : SF_Id)
+     (Rule : Rule_Id; Closing_Sloc : Source_Location; SF : SF_Id)
    is
       Tmp : Postponed_Rule_Exemption_Info_Access;
    begin
-      Exemption_Sections (Rule).Line_End := Natural (Closing_Span.End_Line);
+      Exemption_Sections (Rule).Line_End := Natural (Closing_Sloc.Line);
       Exemption_Sections (Rule).Col_End  :=
-        Natural (Closing_Span.End_Column);
+        Natural (Closing_Sloc.Column);
 
       Tmp := new Postponed_Rule_Exemption_Info;
       Tmp.Exemption_Section := Exemption_Sections (Rule);
@@ -3011,14 +2978,14 @@ package body Gnatcheck.Diagnoses is
    procedure Turn_Off_Parametrized_Exemption
      (Rule         : Rule_Id;
       Exempted_At  : in out Parametrized_Exemption_Sections.Cursor;
-      Closing_Span : Source_Location_Range;
+      Closing_Sloc : Source_Location;
       SF           : SF_Id)
    is
       New_Section : Parametrized_Exemption_Info;
    begin
       New_Section := Parametrized_Exemption_Sections.Element (Exempted_At);
-      New_Section.Exempt_Info.Line_End := Natural (Closing_Span.End_Line);
-      New_Section.Exempt_Info.Col_End  := Natural (Closing_Span.End_Column);
+      New_Section.Exempt_Info.Line_End := Natural (Closing_Sloc.Line);
+      New_Section.Exempt_Info.Col_End  := Natural (Closing_Sloc.Column);
 
       Parametrized_Exemption_Sections.Insert
         (Container => Postponed_Param_Exempt_Sections (Rule) (SF),

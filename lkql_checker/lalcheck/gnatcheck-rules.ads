@@ -51,6 +51,8 @@ package Gnatcheck.Rules is
    --  Needed to keep/process strings that can be used as rule parameters for
    --  rule exemptions.
 
+   subtype Rule_Params is Exemption_Parameters.Set;
+
    subtype Diagnosis_Variant is Natural;
    --  Used to numerate the variants of diagnostic message for the same rule.
    --  Zero means that the rule has exactly one variant of the diagnostic
