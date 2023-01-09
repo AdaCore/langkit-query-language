@@ -11,7 +11,7 @@ fun is_not_starter(name, l) =
     if not [n for n in l if n.starts_with(name)] then 1 else 0
 
 fun comp_unit(node) =
-    if node is *(any parent is c@CompilationUnit) then c else null
+    from node through parent select first CompilationUnit
 
 fun dependencies(unit, parent) = {
     |" Return all the dependencies of unit
