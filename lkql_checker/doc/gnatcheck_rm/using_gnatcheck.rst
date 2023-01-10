@@ -213,12 +213,15 @@ The following switches control the general ``gnatcheck`` behavior
   Take the argument source files from the specified file. This file should be an
   ordinary text file containing file names separated by spaces or
   line breaks. This switch can be specified only once, but can be combined with
-  an explicit list of files.
+  an explicit list of files. If you want to specify a source file with
+  spaces, you need to surround it with double quotes (``"``). If a line in the file
+  starts with ``--`` then the whole line is ignored (considered as a comment).
 
   .. index:: --ignore
 
 ``--ignore=filename``
-  Do not process the sources listed in a specified file.
+  Do not process the sources listed in a specified file, using the same syntax as
+  for the ``-files`` switch.
 
   .. index:: --show-rule
 

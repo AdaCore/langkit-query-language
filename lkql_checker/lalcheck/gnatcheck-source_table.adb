@@ -196,6 +196,7 @@ package body Gnatcheck.Source_Table is
    --    end of file;
    --  - if a file name contains spaces, it should be surrounded by string
    --    quotes.
+   --  - lines starting with -- are ignored (comments)
 
    procedure Add_Source_To_Process
      (Fname              : String;
@@ -1330,17 +1331,33 @@ package body Gnatcheck.Source_Table is
       --  no file names in Par_File_Name any more
 
       function Get_File_Name return String is
+         procedure Compute_File_Name;
+         --  Compute file name and store it in File_Name_Buffer
+
+         procedure Compute_File_Name is
+         begin
+            while Next_Ch not in ASCII.LF | ASCII.CR | ASCII.HT | ' ' loop
+               File_Name_Len := File_Name_Len + 1;
+               File_Name_Buffer (File_Name_Len) := Next_Ch;
+
+               Look_Ahead (Arg_File, Next_Ch, End_Of_Line);
+
+               exit when End_Of_Line or else End_Of_File (Arg_File);
+
+               Get (Arg_File, Next_Ch);
+            end loop;
+         end Compute_File_Name;
+
       begin
          File_Name_Len := 0;
 
          while Ada.Text_IO.End_Of_Line (Arg_File)
-            and then
-               not End_Of_File (Arg_File)
+           and then not End_Of_File (Arg_File)
          loop
             Skip_Line (Arg_File);
          end loop;
 
-         if not End_Of_File (Arg_File) then
+         while not End_Of_File (Arg_File) loop
             Get (Arg_File, Next_Ch);
 
             while Next_Ch in ASCII.LF | ASCII.CR | ASCII.HT | ' ' loop
@@ -1349,14 +1366,16 @@ package body Gnatcheck.Source_Table is
             end loop;
 
             --  If we are here. Next_Ch is neither a white space nor
-            --  end-of-line character. Two cases are possible, they require
-            --  different processing:
+            --  end-of-line character. Three cases are possible:
             --
             --  1. Next_Ch = '"', this means that the file name is surrounded
             --     by quotation marks and it can contain spaces inside.
             --
-            --  2. Next_Ch /= '"', this means that the file name is bounded by
-            --     a white space or end-of-line character
+            --  2. Next_Ch = '-', followed by another '-', this is a comment,
+            --     and all characters until the end of line will be ignored.
+            --
+            --  3. Otherwise we have a file name ending with a white space or
+            --     end-of-line character.
 
             if Next_Ch = '"' then
 
@@ -1372,7 +1391,7 @@ package body Gnatcheck.Source_Table is
                --  Skip leading '"'
                Get (Arg_File, Next_Ch);
 
-               while not (Next_Ch in '"' | ASCII.LF | ASCII.CR) loop
+               while Next_Ch not in '"' | ASCII.LF | ASCII.CR loop
                   File_Name_Len := File_Name_Len + 1;
                   File_Name_Buffer (File_Name_Len) := Next_Ch;
 
@@ -1384,25 +1403,28 @@ package body Gnatcheck.Source_Table is
                end loop;
 
                if Next_Ch = '"'
-                 and then
-                  not Ada.Text_IO.End_Of_Line (Arg_File)
+                 and then not Ada.Text_IO.End_Of_Line (Arg_File)
                then
                   --  skip trailing '"'
                   Get (Arg_File, Next_Ch);
                end if;
+
+               exit;
+
+            elsif Next_Ch = '-' then
+               Look_Ahead (Arg_File, Next_Ch, End_Of_Line);
+
+               if Next_Ch = '-' then
+                  Skip_Line (Arg_File);
+               else
+                  Compute_File_Name;
+                  exit;
+               end if;
             else
-               while Next_Ch not in ASCII.LF | ASCII.CR | ASCII.HT | ' ' loop
-                  File_Name_Len := File_Name_Len + 1;
-                  File_Name_Buffer (File_Name_Len) := Next_Ch;
-
-                  Look_Ahead (Arg_File, Next_Ch, End_Of_Line);
-
-                  exit when End_Of_Line or else End_Of_File (Arg_File);
-
-                  Get (Arg_File, Next_Ch);
-               end loop;
+               Compute_File_Name;
+               exit;
             end if;
-         end if;
+         end loop;
 
          return File_Name_Buffer (1 .. File_Name_Len);
       end Get_File_Name;
