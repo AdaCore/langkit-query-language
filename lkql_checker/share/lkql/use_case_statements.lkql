@@ -6,6 +6,7 @@
 #   end if;
 #
 # where <relation op> is a predefined relational operator.
+# TODO: extend with use_membership.check_expr to recognize more cases.
 
 import stdlib
 
@@ -16,20 +17,22 @@ fun is_static_relation(expr) =
 fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
     |" Id <relation op> static-expr
-    |"   or
-    |" Id "in" <literal or named numbers>
     [x for x in list
-     if x.f_cond_expr is
-         r@RelationOp(f_left is id2@Identifier) when is_static_relation(r) and
-         id2.p_name_matches(id)
+     if x.f_cond_expr is r@RelationOp(f_left is id2@(Identifier or DottedName))
+        when is_static_relation(r) and id2.p_name_matches(id)
      ].length == list.length
 
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
 fun use_case_statements(node) =
-    node is IfStmt(f_alternatives is l@ElsifStmtPartList when l[1],
-                   f_cond_expr is
-                       (r@RelationOp(f_left is id@Identifier)
-                        when id.p_expression_type().p_is_discrete_type() and
-                             is_static_relation(r)))
+    node is IfStmt(
+        f_alternatives is l@ElsifStmtPartList when l[1],
+        f_cond_expr is r@RelationOp
+        when (r.f_left is id@(
+                  (Identifier when id.p_expression_type().p_is_discrete_type())
+               or (DottedName
+                   when id.f_suffix is suffix@Name
+                    and suffix.p_referenced_decl() is ComponentDecl
+                    and suffix.p_expression_type().p_is_discrete_type()))
+         and is_static_relation(r))
     when check_alternatives(from node.f_alternatives select ElsifStmtPart, id)

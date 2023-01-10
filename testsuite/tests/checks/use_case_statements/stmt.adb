@@ -13,6 +13,21 @@ procedure Stmt is
       end if;
    end Proc;
 
+   type Rec is record
+      Field : Integer;
+   end record;
+
+   function Func1 (Item : Rec) return String is
+   begin
+      if Item.Field < 0 then  --  FLAG
+         return "aa";
+      elsif Item.Field = 0 then
+         return "bb";
+      else
+         return "cc";
+      end if;
+   end Func1;
+
 begin
    if Result = OK then   --  FLAG
       null;

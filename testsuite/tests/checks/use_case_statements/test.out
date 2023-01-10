@@ -1,9 +1,8 @@
-stmt.adb:17:4: rule violation: IF statement may be replaced by a CASE statement
-17 |     if Result = OK then   --  FLAG
-   | ____^
-   ||
-   || ~~~ 5 other lines ~~~
-   ||
-23 ||    end if;
-   ||__________^
+stmt.adb:22:7: rule violation: IF statement may be replaced by a CASE statement
+22 |       if Item.Field < 0 then  --  FLAG
+   |       ^^^^^^^
+
+stmt.adb:32:4: rule violation: IF statement may be replaced by a CASE statement
+32 |    if Result = OK then   --  FLAG
+   |    ^^^^^^^
 
