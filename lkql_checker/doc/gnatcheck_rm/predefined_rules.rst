@@ -3816,7 +3816,8 @@ The rule has no parameters.
 .. index:: Use_Array_Slices
 
 Flag ``for`` loops if a loop contains a single assignment statement, and
-this statement is an assignment between array components and such a loop can
+this statement is an assignment between array components or between an
+array component and a constant value, and such a loop can
 be replaced by a single assignment statement with array slices or
 array objects as the source and the target of the assignment.
 
@@ -3837,7 +3838,7 @@ This rule has no parameters.
       end loop;
 
       for I in 2 .. 5 loop                   --  FLAG
-         Secondary_Table (I) := Primary_Table (I + 1);
+         Secondary_Table (I) := 1;
       end loop;
 
 

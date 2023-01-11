@@ -1,24 +1,24 @@
 # Flag for loop statements used instead of array slicing.
 # Specifically detect loops of the form:
 # for X in ... loop
-#    Array_Object (X) := Another_Array (...);
+#    Array_Object (X) := <constant> *or* Another_Array (X);
 # end loop;
+
+fun array_index(call, var) =
+    call is CallExpr(
+        f_suffix is l@AssocList
+        when l.children_count == 1
+         and l[1].f_r_expr is id@Identifier when id.p_name_matches(var),
+        # p_kind does not always work, in particular on e.g. Arr (X)(Y) so
+        # perform this test last
+        p_kind() is "array_index")
 
 @check(message="for loop may be replaced by an array slice",
        category="Style", subcategory="Programming Practice")
 fun use_array_slices(node) =
     node is ForLoopStmt
     when node.f_stmts.children_count == 1
-     and node.f_stmts[1] is AssignStmt(
-         f_dest is CallExpr(
-             f_name is Identifier(p_referenced_decl() is decl@BasicDecl
-                 when decl.p_type_expression()?.
-                      p_designated_type_decl()?.p_is_array_type()),
-             f_suffix is l@AssocList
-             when l.children_count == 1
-              and l[1].f_r_expr is id@Identifier
-                  when id.p_name_matches(node.f_spec.f_var_decl.f_id.f_name)),
-         f_expr is CallExpr(
-             f_name is Identifier(p_referenced_decl() is decl@BasicDecl
-                 when decl.p_type_expression() is t@TypeExpr
-                      when t.p_designated_type_decl().p_is_array_type())))
+     and node.f_stmts[1] is stmt@AssignStmt
+     and array_index(stmt.f_dest, node.f_spec.f_var_decl.f_id.f_name)
+     and (stmt.f_expr.p_is_static_expr() or
+          array_index(stmt.f_expr, node.f_spec.f_var_decl.f_id.f_name))
