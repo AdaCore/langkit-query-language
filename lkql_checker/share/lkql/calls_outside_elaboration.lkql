@@ -11,8 +11,8 @@ fun calls_outside_elaboration(node, forbidden=[]) =
                    any stdlib.semantic_parent is
                        BasicSubpDecl or SubpBody or TaskBody or
                        EntryBody or ProtectedBody)
-    when {
-        val name = stdlib.ultimate_subprogram_alias(node.p_referenced_decl()).
-                   p_canonical_fully_qualified_name();
+    when stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is subp@BasicDecl
+     and {
+        val name = subp.p_canonical_fully_qualified_name();
         [c for c in forbidden if c.to_lower_case == name]
     }
