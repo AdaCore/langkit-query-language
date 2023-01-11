@@ -14,9 +14,9 @@ fun same_exprs(e1, e2) =
     match e1
     | IntLiteral    => e2 is IntLiteral and
                        e1.p_denoted_value() == e2.p_denoted_value()
-    | CharLiteral   => e2 is CharLiteral and
-                       e1.p_denoted_value() == e2.p_denoted_value()
     | StringLiteral => e2 is StringLiteral and
+                       e1.p_denoted_value() == e2.p_denoted_value()
+    | CharLiteral   => e2 is CharLiteral and false and  # Disabled, see W111-014
                        e1.p_denoted_value() == e2.p_denoted_value()
     | RealLiteral   => false
     | Name          => e2 is Name and
