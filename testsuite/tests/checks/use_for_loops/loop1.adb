@@ -10,4 +10,17 @@ begin
 
       J := J + 1;
    end loop;
+
+   declare
+      I : Integer := 1;
+   begin
+      while I < 10 loop           --  NO FLAG
+         begin
+            I := I + 1;
+         end;
+
+         exit;
+      end loop;
+   end Non_Predefined_Relation;
+
 end Loop1;
