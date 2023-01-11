@@ -56,6 +56,20 @@ package body Gnatcheck.Diagnoses is
 
    package LCO renames Libadalang.Common;
 
+   Match_Diagnosis : constant Pattern_Matcher :=
+     Compile ("^(.*)?:(\d+)?:(\d+)?: (.*)$");
+   --  Matcher for a diagnostic
+
+   Match_Rule_Name : constant Pattern_Matcher :=
+     Compile ("^""(\w+)\s*(?::\s*(.*))?""$");
+   --  Matcher for a rule name and potential arguments
+
+   Match_Rule_Param : constant Pattern_Matcher :=
+     Compile ("([^,]+)?\s*,?\s*");
+
+   Match_Rule_Warning_Param : constant Pattern_Matcher :=
+     Compile ("(\.?\w)");
+
    -----------------------
    -- Diagnoses storage --
    -----------------------
@@ -2253,8 +2267,8 @@ package body Gnatcheck.Diagnoses is
                     (Exempt_Info =>
                        (Line_Start    => Natural (Sloc_Start.Line),
                         Col_Start     => Natural (Sloc_Start.Column),
-                        Line_End      => Natural (Sloc_End.Line),
-                        Col_End       => Natural (Sloc_End.Column),
+                        Line_End      => 0,
+                        Col_End       => 0,
                         Justification => Self.Justification,
                         Detected      => 0),
                      Rule        => Rule,
@@ -2265,8 +2279,8 @@ package body Gnatcheck.Diagnoses is
                Exemption_Sections (Rule) :=
                  (Line_Start    => Natural (Sloc_Start.Line),
                   Col_Start     => Natural (Sloc_Start.Column),
-                  Line_End      => Natural (Sloc_End.Line),
-                  Col_End       => Natural (Sloc_End.Column),
+                  Line_End      => 0,
+                  Col_End       => 0,
                   Justification => Self.Justification,
                   Detected      => 0);
             end if;
@@ -2317,23 +2331,11 @@ package body Gnatcheck.Diagnoses is
 
    procedure Process_Exemption_Pragma (El : LAL.Analysis.Pragma_Node) is
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
-
-      Next_Arg      : LAL.Analysis.Expr;
-      Tmp_Str       : Unbounded_String;
-      First_Par_Idx : Natural;
-      Pars_Start    : Natural;
-      pragma Unreferenced (Pars_Start);
-      Pars_End      : Natural;
-      Last_Par_Idx  : Natural;
-      Has_Param     : Boolean := False;
-      SF            : constant SF_Id := File_Find (El.Unit.Get_Filename);
+      SF          : constant SF_Id := File_Find (El.Unit.Get_Filename);
+      Action      : Exempt_Action;
 
       use Gnatcheck.Rules.Exemption_Parameters;
-
       use LCO;
-
-      Action : Exempt_Action;
-
    begin
       Action.Unit := El.Unit;
       Action.Sloc_Range := El.Sloc_Range;
@@ -2341,7 +2343,6 @@ package body Gnatcheck.Diagnoses is
       --  First, analyze the pragma format:
       --
       --  1. Check that we have at least three parameters
-
       if Pragma_Args.Children_Count < 3 then
          Store_Diagnosis
            (Full_File_Name     => El.Unit.Get_Filename,
@@ -2353,70 +2354,47 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       --  2. Second parameter should be either "Exempt_On" or "Exempt_Off"
-
-      Next_Arg := Pragma_Args.List_Child (2).P_Assoc_Expr;
-      Action.Exemption_Control := Get_Exemption_Kind (Next_Arg.Text);
+      Action.Exemption_Control := Get_Exemption_Kind
+        (Pragma_Args.List_Child (2).P_Assoc_Expr.Text);
 
       --  3. Third parameter should be the name of some existing rule, may be,
       --     with parameter names, but the latter is allowed only if fine-tuned
       --     exemptions is allowed for the rule, and if parameter names make
       --     sense for the given rule:
+      declare
+         Matches : Match_Array (0 .. 2);
+         Text    : constant String :=
+           Image (Pragma_Args.List_Child (3).P_Assoc_Expr.Text);
+      begin
+         Match (Match_Rule_Name, Text, Matches);
 
-      Next_Arg := Pragma_Args.List_Child (3).P_Assoc_Expr;
-
-      if Next_Arg.Kind = LCO.Ada_String_Literal then
-         Tmp_Str   := To_Unbounded_String (Image (Next_Arg.Text));
-         First_Par_Idx := 2;  --  skip '"'
-         Last_Par_Idx  := Index (Tmp_Str, ":");
-
-         if Last_Par_Idx = 0 then
-            Last_Par_Idx := Length (Tmp_Str) - 1; --  skip '"'
-         else
-            Last_Par_Idx := Last_Par_Idx - 1; --  skip ':'
-            Has_Param    := True;
-         end if;
+         pragma Assert (Matches (0) /= No_Match, "failed parsing rule name");
 
          Action.Rule_Name := To_Unbounded_String
-           (Trim (Slice (Tmp_Str, First_Par_Idx, Last_Par_Idx), Both));
-      end if;
+           (Text (Matches (1).First .. Matches (1).Last));
 
-      --  3.2 Check if we have parameter(s) specified then parameter(s) make(s)
-      --      sense for the rule.
+         if Matches (2) /= No_Match then
+            --  TODO NOTE: This is sub-optimal, we still need to parse the rule
+            --  kind here, because parameters parsing depends on the rule.
+            Action.Params := Parse_Exempt_Parameters
+              (Get_Rule (To_String (Action.Rule_Name)),
+               Text (Matches (2).First .. Matches (2).Last),
+               SF,
+               Sloc_Image (Start_Sloc (El.Sloc_Range)));
 
-      if Has_Param then
-         First_Par_Idx := Last_Par_Idx + 2;
-         Pars_End := Length (Tmp_Str) - 1;
-
-         while First_Par_Idx < Pars_End
-           and then Element (Tmp_Str, First_Par_Idx) = ' '
-         loop
-            First_Par_Idx := First_Par_Idx + 1;
-         end loop;
-
-         --  TODO NOTE: This is sub-optimal, we still need to parse the rule
-         --  kind here, because parameters parsing depends on the rule.
-         Action.Params := Parse_Exempt_Parameters
-           (Get_Rule (To_String (Action.Rule_Name)),
-            Slice (Tmp_Str, First_Par_Idx, Pars_End),
-            SF,
-            Sloc_Image (Start_Sloc (El.Sloc_Range)));
-
-         --  TODO: Not clear what this is for
-         if Is_Empty (Action.Params) then
-            Store_Diagnosis
-              (Full_File_Name     => El.Unit.Get_Filename,
-               Sloc               => Start_Sloc (El.Sloc_Range),
-               Message            => "Invalid parameters",
-               Diagnosis_Kind     => Exemption_Warning,
-               SF                 => SF);
+            if Is_Empty (Action.Params) then
+               Store_Diagnosis
+                 (Full_File_Name     => El.Unit.Get_Filename,
+                  Sloc               => Start_Sloc (El.Sloc_Range),
+                  Message            => "Invalid parameters",
+                  Diagnosis_Kind     => Exemption_Warning,
+                  SF                 => SF);
+            end if;
          end if;
-      end if;
+      end;
 
       --  4. Fourth parameter, if present, should be a string.
-
       if Pragma_Args.Children_Count >= 4 then
-         Next_Arg := Pragma_Args.List_Child (4).P_Assoc_Expr;
-
          --  Evaluate the static string expression of the fourth parameter via
          --  Libadalang.Expr_Eval.
          begin
@@ -2425,7 +2403,7 @@ package body Gnatcheck.Diagnoses is
                Eval_Res : constant Eval_Result :=
                  Expr_Eval (Pragma_Args.List_Child (4).P_Assoc_Expr);
             begin
-               Tmp_Str :=
+               Action.Justification :=
                  To_Unbounded_String (Image (To_Text (As_String (Eval_Res))));
             end;
          exception
@@ -2441,8 +2419,6 @@ package body Gnatcheck.Diagnoses is
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
          end;
-
-         Action.Justification := Tmp_Str;
       end if;
 
       if Pragma_Args.Children_Count > 4 then
@@ -2729,99 +2705,56 @@ package body Gnatcheck.Diagnoses is
    is
       use Gnatcheck.Rules.Exemption_Parameters;
 
-      Par_Start   :          Natural := Input'First;
-      Par_End     :          Natural;
-      Last_Idx    : constant Natural    := Input'Last;
-      Position    :          Exemption_Parameters.Cursor;
-      Success     :          Boolean;
-      Warning_Par : constant Boolean := Rule = Warnings_Id;
+      Is_Warning  : constant Boolean := Rule in Warnings_Id | Style_Checks_Id;
       --  In case of Warnings rule, we consider parameters one by one. That is,
       --  for "ad.c.d.fg" as Input string we separately store 'a', 'd',
       --  '.c', '.d', '.f' and 'g'
 
-      Rule_Exemption_Parameters : Exemption_Parameters.Set;
+      Params        : Exemption_Parameters.Set;
+      Current       : Natural := Input'First;
+      Matches       : Match_Array (0 .. 1);
+      Param_Matcher : constant Pattern_Matcher :=
+        (if Is_Warning then Match_Rule_Warning_Param else Match_Rule_Param);
    begin
       loop
-         while Par_Start <= Last_Idx and then Input (Par_Start) = ' '
-         loop
-            Par_Start := @ + 1;
-         end loop;
+         Match (Param_Matcher, Input, Matches, Current);
+         exit when Matches (0) = No_Match;
 
-         exit when Par_Start > Last_Idx;
+         declare
+            Success  : Boolean;
+            Position : Exemption_Parameters.Cursor;
+            Stripped : constant String :=
+              Remove_Spaces (Input (Matches (1).First .. Matches (1).Last));
+            Param : constant String :=
+              (if Is_Warning then Stripped else To_Lower (Stripped));
+         begin
+            if Allowed_As_Exemption_Parameter (Rule, Param) then
+               Params.Insert (Param, Position, Success);
 
-         if Warning_Par then
-            Par_End :=
-              (if Input (Par_Start) = '.' then Par_Start + 1 else Par_Start);
-         else
-            Par_End := Index (Input (Par_Start + 1 .. Last_Idx), [',']);
-         end if;
-
-         if Par_End = 0 then
-            Par_End := Last_Idx;
-         elsif not Warning_Par then
-            Par_End := Par_End - 1;
-         end if;
-
-         while Input (Par_End) = ' ' loop
-            Par_End := Par_End - 1;
-         end loop;
-
-         if Allowed_As_Exemption_Parameter
-              (Rule,
-               (if Rule in Warnings_Id | Style_Checks_Id
-                then Remove_Spaces (Input (Par_Start .. Par_End))
-                else To_Lower (Remove_Spaces (Input (Par_Start .. Par_End)))))
-         then
-
-            --  TODO: This check is not complete: here you should not only
-            --  check that the same key=>value association isn't passed, but
-            --  also that there aren't to different values for the same key.
-
-            --  TODO: Separate parsing from legality checking ...
-            Rule_Exemption_Parameters.Insert
-              ((if Rule in Warnings_Id | Style_Checks_Id
-                then Remove_Spaces (Input (Par_Start .. Par_End))
-                else To_Lower (Remove_Spaces (Input (Par_Start .. Par_End)))),
-               Position  => Position,
-               Inserted  => Success);
-
-            if not Success then
+               if not Success then
+                  Store_Diagnosis
+                    (Text           => File_Name (SF) & ":" & SLOC &
+                                       ": parameter " & Param &
+                                       " duplicated in rule exemption",
+                     Diagnosis_Kind => Exemption_Warning,
+                     SF             => SF);
+               end if;
+            else
                Store_Diagnosis
                  (Text           => File_Name (SF) & ":" & SLOC &
-                                    ": parameter " &
-                                    Input (Par_Start .. Par_End) &
-                                    " duplicated in rule exemption",
+                                    ": parameter " & Param &
+                                    " is not allowed in exemption for rule " &
+                                    Rule_Name (Rule),
                   Diagnosis_Kind => Exemption_Warning,
                   SF             => SF);
             end if;
+         end;
 
-         else
-            Store_Diagnosis
-              (Text           => File_Name (SF) & ":" & SLOC &
-                                 ": parameter " &
-                                 Input (Par_Start .. Par_End) &
-                                 " is not allowed in exemption for rule " &
-                                 Rule_Name (Rule),
-               Diagnosis_Kind => Exemption_Warning,
-               SF             => SF);
-
-         end if;
-
-         if Warning_Par then
-            Par_Start := @ + 1;
-            exit when Par_Start > Last_Idx;
-         else
-            Par_Start := Index (Input (Par_End + 1 .. Last_Idx), ",");
-
-            if Par_Start = 0 then
-               exit;
-            else
-               Par_Start := @ + 1;
-            end if;
-         end if;
+         Current := Matches (0).Last + 1;
+         exit when Current > Input'Last;
       end loop;
 
-      return Rule_Exemption_Parameters;
+      return Params;
    end Parse_Exempt_Parameters;
 
    ----------------
@@ -2845,9 +2778,6 @@ package body Gnatcheck.Diagnoses is
    begin
       return Sloc_Image (Natural (Sloc.Line), Natural (Sloc.Column));
    end Sloc_Image;
-
-   Match_Diagnosis : constant Pattern_Matcher :=
-     Compile ("^(.*)?:(\d+)?:(\d+)?: (.*)$");
 
    ---------------------
    -- Store_Diagnosis --
