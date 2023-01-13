@@ -1529,39 +1529,46 @@ package body Gnatcheck.Source_Table is
                Process_Unit (Ctx, Unit, Store_Message'Access);
             end if;
 
-            --  Process exemption pragmas for Unit
-
-            declare
-               It      : Traverse_Iterator'Class := Traverse (Unit.Root);
-               Current : Ada_Node;
-               Dummy   : constant Boolean := It.Next (Current);
-
-               use Libadalang.Common;
-            begin
-               while It.Next (Current) loop
-                  if Current.Kind = Ada_Pragma_Node
-                    and then Is_Exemption_Pragma (Current.As_Pragma_Node)
-                  then
-                     Process_Exemption_Pragma (Current.As_Pragma_Node);
-                  end if;
-               end loop;
-            end;
-
             if not Subprocess_Mode then
+               --  Process exemption pragmas for Unit
+
+               declare
+                  It      : Traverse_Iterator'Class := Traverse (Unit.Root);
+                  Current : Ada_Node;
+                  Dummy   : constant Boolean := It.Next (Current);
+
+                  use Libadalang.Common;
+               begin
+                  while It.Next (Current) loop
+                     if Current.Kind = Ada_Pragma_Node
+                       and then Is_Exemption_Pragma (Current.As_Pragma_Node)
+                     then
+                        Process_Exemption_Pragma (Current.As_Pragma_Node);
+                     end if;
+                  end loop;
+               end;
+
                Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
             end if;
 
          exception
             when E : others =>
                if Debug_Mode then
-                  Store_Diagnosis
-                    (Text           =>
-                       File_Name (Next_SF) &
-                       ":1:01: internal error: " &
-                       Strip_LF (Exception_Information (E)),
-                     Diagnosis_Kind => Internal_Error,
-                     SF             => Next_SF,
-                     Rule           => No_Rule);
+                  declare
+                     Msg : constant String :=
+                       File_Name (Next_SF) & ":1:01: internal error: " &
+                       Strip_LF (Exception_Information (E));
+                  begin
+                     if Subprocess_Mode then
+                        Put_Line (Msg);
+                     else
+                        Store_Diagnosis
+                          (Text           => Msg,
+                           Diagnosis_Kind => Internal_Error,
+                           SF             => Next_SF,
+                           Rule           => No_Rule);
+                     end if;
+                  end;
                end if;
          end;
       end loop;

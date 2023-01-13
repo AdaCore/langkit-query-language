@@ -2,7 +2,7 @@
 --                                                                          --
 --                                   LKQL                                   --
 --                                                                          --
---                     Copyright (C) 2019-2022, AdaCore                     --
+--                     Copyright (C) 2019-2023, AdaCore                     --
 --                                                                          --
 -- LKQL is free software;  you can redistribute it and/or modify  it        --
 -- under terms of the GNU General Public License  as published by the Free  --
@@ -323,6 +323,8 @@ begin
 
    Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
+
+   --  Exemptions are handled fully in the parent process
 
    if not Subprocess_Mode then
       Gnatcheck.Diagnoses.Init_Exemptions;
