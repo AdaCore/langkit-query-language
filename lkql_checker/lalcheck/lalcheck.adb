@@ -329,6 +329,8 @@ begin
    Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
 
+   --  Exemptions are handled fully in the parent process
+
    if not Subprocess_Mode then
       Gnatcheck.Diagnoses.Init_Exemptions;
    end if;
