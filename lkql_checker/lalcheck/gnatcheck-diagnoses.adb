@@ -224,12 +224,13 @@ package body Gnatcheck.Diagnoses is
    -------------------
 
    type Exempt_Action is record
-      Exemption_Control : Exemption_Kinds;
-      Rule_Name         : Unbounded_String := Null_Unbounded_String;
-      Params            : Rule_Params;
-      Justification     : Unbounded_String := Null_Unbounded_String;
-      Sloc_Range        : Langkit_Support.Slocs.Source_Location_Range;
-      Unit              : LAL.Analysis.Analysis_Unit;
+      Exemption_Control   : Exemption_Kinds;
+      Rule_Name           : Unbounded_String := Null_Unbounded_String;
+      Params              : Rule_Params;
+      Justification       : Unbounded_String := Null_Unbounded_String;
+      Check_Justification : Boolean := True;
+      Sloc_Range          : Langkit_Support.Slocs.Source_Location_Range;
+      Unit                : LAL.Analysis.Analysis_Unit;
    end record;
    --  Stores information about an exemption action (either triggered by a
    --  ``pragma Annotate``, or by a ``--#`` comment).
@@ -2131,6 +2132,7 @@ package body Gnatcheck.Diagnoses is
 
       if Self.Exemption_Control = Exempt_Off
          and then Self.Justification /= Null_Unbounded_String
+         and then Self.Check_Justification
       then
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2145,6 +2147,7 @@ package body Gnatcheck.Diagnoses is
 
       if Self.Exemption_Control = Exempt_On
          and then Self.Justification = Null_Unbounded_String
+         and then Self.Check_Justification
       then
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2418,6 +2421,11 @@ package body Gnatcheck.Diagnoses is
                     "exemption justification should be a string",
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
+
+               --  We already notified the user of the problem, make sure we
+               --  won't emit another warning due to the absence of
+               --  justification.
+               Action.Check_Justification := False;
          end;
       end if;
 
