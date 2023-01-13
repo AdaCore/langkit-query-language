@@ -326,7 +326,6 @@ The following options control the processing performed by ``gnatcheck``.
 
   .. index:: +R (gnatcheck)
 
-
 ``+R[:rule_synonym:]rule_id[:param{,param}]``
   Turn on the check for a specified rule with the specified parameter(s), if
   any. `rule_id` must be the identifier of one of the currently implemented
@@ -533,42 +532,39 @@ exemption control annotations is as follows:
 
 ::
 
-  pragma Annotate (gnatcheck, exemption_control, Rule_Name [, justification]);
+  <pragma_exemption>  ::= pragma Annotate (gnatcheck, <exemption_control>, <rule_name> [, <justification>]);
 
-  exemption_control ::= Exempt_On | Exempt_Off
+  <exemption_control> ::= Exempt_On | Exempt_Off
 
-  Rule_Name         ::= string_literal
+  <rule_name>         ::= <string_literal>
 
-  justification     ::= expression
+  <justification>     ::= <expression>
 
-An expression used as an exemption justification should be a static
-string expression. A string literal is enough in most cases, but you
-may want to use concatenation of string literals if you need
-a long message but you have to follow line length limitation.
+An expression used as an exemption justification should be a static string
+expression. A string literal is enough in most cases, but you may want to use
+concatenation of string literals if you need a long message but you have to
+follow line length limitation.
 
-When a ``gnatcheck`` annotation has more than four arguments,
-``gnatcheck`` issues a warning and ignores the additional arguments.
-If the arguments do not follow the syntax above,
-``gnatcheck`` emits a warning and ignores the annotation.
+When a ``gnatcheck`` annotation has more than four arguments, ``gnatcheck``
+issues a warning and ignores the additional arguments.  If the arguments do not
+follow the syntax above, ``gnatcheck`` emits a warning and ignores the
+annotation.
 
-The ``Rule_Name`` argument should be the name of some existing
-``gnatcheck`` rule.
-Otherwise a warning message is generated and the pragma is
-ignored. If ``Rule_Name`` denotes a rule that is not activated by the given
-``gnatcheck`` call, the pragma is ignored and no warning is issued. The
-exception from this rule is that exemption sections for ``Warnings`` rule are
-fully processed when ``Restrictions`` rule is activated.
+The ``rule_name`` argument should be the name of some existing ``gnatcheck``
+rule, or the name of a synonym for a rule.  Otherwise a warning message is
+generated and the pragma is ignored. If ``rule_name`` denotes a rule that is
+not activated by the given ``gnatcheck`` call, the pragma is ignored and no
+warning is issued. The exception from this rule is that exemption sections for
+``Warnings`` rule are fully processed when ``Restrictions`` rule is activated.
 
 A source code section where an exemption is active for a given rule is
 delimited by an ``exempt_on`` and ``exempt_off`` annotation pair:
-
 
 .. code-block:: ada
 
   pragma Annotate (gnatcheck, Exempt_On, "Rule_Name", "justification");
   -- source code section
   pragma Annotate (gnatcheck, Exempt_Off, "Rule_Name");
-
 
 For some rules it is possible specify rule parameter(s) when defining
 an exemption section for a rule. This means that only the checks
@@ -580,13 +576,12 @@ corresponding to the given rule parameter(s) are exempted in this section:
   -- source code section
   pragma Annotate (gnatcheck, Exempt_Off, "Rule_Name: Par1, Par2");
 
-
 A parametric exemption section can be defined for a rule if a rule has
-parameters and these parameters change the scope of the checks performed
-by a rule. For example, if you define an exemption section for 'Restriction'
-rule with the parameter 'No_Allocators', then in this section only the
-checks for ``No_Allocators`` will be exempted, and the checks for all
-the other restrictions from your coding standard will be performed as usual.
+parameters and these parameters change the scope of the checks performed by a
+rule. For example, if you define an exemption section for 'Restriction' rule
+with the parameter 'No_Allocators', then in this section only the checks for
+``No_Allocators`` will be exempted, and the checks for all the other
+restrictions from your coding standard will be performed as usual.
 
 See the description of individual rules to check if parametric exemptions
 are available for them and what is the format of the rule parameters to
@@ -609,8 +604,11 @@ GNATcheck Annotations Rules
 
 .. index:: gnatcheck annotations rules
 
-* An 'Exempt_Off' annotation can only appear after a corresponding
+* An ``Exempt_Off`` annotation can only appear after a corresponding
   'Exempt_On' annotation.
+
+* An ``Exempt_On`` annotation should have a justification. Conversely, an
+  ``Exempt_Off`` annotation should *not* have a justification.
 
 * Exempted source code sections are only based on the source location of the
   annotations. Any source construct between the two
@@ -640,6 +638,36 @@ GNATcheck Annotations Rules
   issued and the exemption section is considered to last until the
   end of the compilation unit source.
 
+
+.. _using_comments_to_control_rule_exemption:
+
+Using comments to control rule exemption
+----------------------------------------
+
+.. index:: using comments to control rule exemption
+
+As an alternative to the ``pragma Annotate`` syntax, it is also possible to use
+a syntax based on comments, with the following syntax:
+
+::
+
+  <comment_exemption> ::= --# rule (on | off) <rule_name> [## <rule_justification>]
+
+.. attention:: Please note that a comment starting with ``--##`` but not
+   respecting the above syntax will not trigger a warning, in order to not emit
+   false positives.
+
+.. attention:: In its current iteration, this syntax does not support passing
+   parameters to rule names
+
+The rules mentioned in :ref:`gnatcheck_Annotations_Rules` are relaxed, in
+particular:
+
+* Justifications are not checked and are optional
+* Rules regarding parametric exemption do not apply, as per the notice above.
+
+Appart from that, you can expect those rule exemptions to work in a similar
+fashion as the ones described above.
 
 .. _Using_GNATcheck_as_a_KP_Detector:
 

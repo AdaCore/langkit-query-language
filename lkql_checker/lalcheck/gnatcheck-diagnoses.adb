@@ -23,20 +23,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;               use Ada.Calendar;
-with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Calendar;                 use Ada.Calendar;
+with Ada.Characters.Handling;      use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
 with Ada.Directories;
 with Ada.Exceptions;
-with Ada.Strings;                use Ada.Strings;
-with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
-with Ada.Text_IO;                use Ada.Text_IO;
+with Ada.Strings;                  use Ada.Strings;
+with Ada.Strings.Fixed;            use Ada.Strings.Fixed;
+with Ada.Text_IO;                  use Ada.Text_IO;
 
-with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
+with GNAT.Directory_Operations;    use GNAT.Directory_Operations;
 with GNAT.Case_Util;
 with GNAT.OS_Lib;
-with GNAT.Regpat;                use GNAT.Regpat;
+with GNAT.Regpat;                  use GNAT.Regpat;
+
+with GNATCOLL.Strings;             use GNATCOLL.Strings;
 
 with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Output;             use Gnatcheck.Output;
@@ -48,7 +50,6 @@ with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
 with Libadalang.Expr_Eval;
-with Libadalang.Common;
 
 package body Gnatcheck.Diagnoses is
 
@@ -69,6 +70,9 @@ package body Gnatcheck.Diagnoses is
 
    Match_Rule_Warning_Param : constant Pattern_Matcher :=
      Compile ("(\.?\w)");
+
+   Match_Exempt_Comment : constant Pattern_Matcher :=
+     Compile ("--##\s*rule\s+(on|off)\s+([^#]+)(?:##(.*))?");
 
    -----------------------
    -- Diagnoses storage --
@@ -2327,6 +2331,65 @@ package body Gnatcheck.Diagnoses is
             pragma Assert (False);
       end case;
    end Process_Exempt_Action;
+
+   -------------------------------
+   -- Process_Exemption_Comment --
+   -------------------------------
+
+   procedure Process_Exemption_Comment
+     (El : LAL.Common.Token_Reference; Unit : LAL.Analysis.Analysis_Unit)
+   is
+      Text : constant String := Image (LAL.Common.Text (El));
+
+      Matches : Match_Array (0 .. 3);
+   begin
+      if Text'Last < 4 or else Text (1 .. 4) /= "--##" then
+         return;
+      end if;
+
+      Match (Match_Exempt_Comment, Text, Matches);
+
+      if Matches (0) = No_Match then
+         --  We don't issue a warning here, because, it's possible (however
+         --  unlikely) that some people are using the "--##" syntax for other
+         --  things.
+         return;
+      end if;
+
+      declare
+         State : String renames Text (Matches (1).First .. Matches (1).Last);
+         Rule : constant String :=
+           To_XString (Text (Matches (2).First .. Matches (2).Last))
+           .Trim.To_String;
+
+         Just  : constant String :=
+           (if Matches (3) = No_Match
+            then ""
+            else To_XString
+              (Text (Matches (3).First .. Matches (3).Last)).Trim.To_String);
+
+         use LAL.Common;
+      begin
+         declare
+            Action : Exempt_Action :=
+              ((if State = "on" then Exempt_Off
+                elsif State = "off" then Exempt_On
+                else raise Constraint_Error with "should not happen"),
+               To_Unbounded_String (Rule),
+               Params => <>,
+               Justification => To_Unbounded_String (Just),
+
+               --  With this syntax, we don't want to enforce the
+               --  justification rules that we have for pragmas.
+               Check_Justification => False,
+               Sloc_Range => Sloc_Range (Data (El)),
+               Unit => Unit);
+         begin
+            Process_Exempt_Action (Action);
+         end;
+      end;
+
+   end Process_Exemption_Comment;
 
    ------------------------------
    -- Process_Exemption_Pragma --

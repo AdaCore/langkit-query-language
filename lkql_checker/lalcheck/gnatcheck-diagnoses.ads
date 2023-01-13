@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
 
 with Langkit_Support.Slocs;  use Langkit_Support.Slocs;
 with Libadalang.Analysis;
+with Libadalang.Common;
 
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 with Gnatcheck.Ids;          use Gnatcheck.Ids;
@@ -136,6 +137,14 @@ package Gnatcheck.Diagnoses is
    --  post-processing is needed. This postprocessing can be done when all the
    --  rule checking and processing of exemption pragmas on all the sources is
    --  completed.
+
+   procedure Process_Exemption_Comment
+     (El : LAL.Common.Token_Reference; Unit : LAL.Analysis.Analysis_Unit);
+   --  Process any comment from a source being analyzed. If it is an exemption
+   --  comment, process it.
+   --
+   --  The logic is the same as ``Process_Exemption_Pragma``, only the syntax
+   --  differs.
 
    procedure Check_Unclosed_Rule_Exemptions
      (SF   : SF_Id;

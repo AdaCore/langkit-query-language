@@ -1588,6 +1588,20 @@ package body Gnatcheck.Source_Table is
                   end loop;
                end;
 
+               --  Process exemption comments for Unit
+
+               declare
+                  use Libadalang.Common;
+                  TR : Token_Reference := Unit.Root.Token_Start;
+               begin
+                  while TR /= No_Token loop
+                     if Kind (Data (TR)) = Ada_Comment then
+                        Process_Exemption_Comment (TR, Unit);
+                     end if;
+                     TR := Next (TR);
+                  end loop;
+               end;
+
                Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
             end if;
 

@@ -1,0 +1,19 @@
+project Comment_Annotations_Check is
+   type Build_Mode_Type is ("dev", "prod");
+   Build_Mode : Build_Mode_Type := external ("BUILD_MODE", "dev");
+
+
+   for Source_Dirs use (".");
+   for Main use ("main.adb");
+
+   package Check is
+      for Default_Switches ("Ada") use
+        ("-rules",
+         "+RForbidden_Pragmas:Import",
+         "+RIdentifier_Prefixes:Type=T_",
+         "+R:implicit_in:Implicit_IN_Mode_Parameters",
+         "+RExpression_Functions",
+         "+RSubprogram_Access");
+   end Check;
+
+end Comment_Annotations_Check;

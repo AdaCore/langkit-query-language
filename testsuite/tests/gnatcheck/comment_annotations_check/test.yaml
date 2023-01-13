@@ -1,0 +1,4 @@
+# Check that comment based rule exemptions work as expected
+
+driver: gnatcheck
+project: comment_annotations_check.gpr
