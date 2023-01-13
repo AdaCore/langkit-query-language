@@ -29,6 +29,7 @@ with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.String_Split;          use GNAT.String_Split;
+with GNAT.OS_Lib;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
@@ -170,7 +171,8 @@ package body Gnatcheck.Rules is
       --------------------
 
       function Expand_Env_Var (EV_Name : String) return String is
-         Val : String_Access := Getenv (EV_Name);
+         use GNAT.OS_Lib;
+         Val : GNAT.OS_Lib.String_Access := Getenv (EV_Name);
       begin
          if Val = null or else Val.all = "" then
             Error ("environment variable " & EV_Name & " undefined");
@@ -183,7 +185,7 @@ package body Gnatcheck.Rules is
          end if;
       end Expand_Env_Var;
 
-      use Ada.Strings.Maps, Ada.Strings.Unbounded;
+      use Ada.Strings.Maps;
 
       Result : Unbounded_String;
 
@@ -208,7 +210,8 @@ package body Gnatcheck.Rules is
            Index (Name (EV_Start + 2 .. EV_End),
                   Set => To_Set (Character_Ranges'
                            (('/', '/'),
-                            (Directory_Separator, Directory_Separator))));
+                            (GNAT.OS_Lib.Directory_Separator,
+                             GNAT.OS_Lib.Directory_Separator))));
 
          if Next_Dir_Sep /= 0 then
             EV_End := Next_Dir_Sep - 1;
@@ -233,9 +236,9 @@ package body Gnatcheck.Rules is
           (Gnatcheck.Rules.Rule_Table.Processed_Rule_File_Name);
 
    begin
-      if Is_Regular_File (Rule_File_Dir & Name) then
+      if GNAT.OS_Lib.Is_Regular_File (Rule_File_Dir & Name) then
          return Rule_File_Dir & Name;
-      elsif Is_Regular_File (Name) then
+      elsif GNAT.OS_Lib.Is_Regular_File (Name) then
          return Name;
       else
          return "";
@@ -381,9 +384,7 @@ package body Gnatcheck.Rules is
    overriding procedure Print_Rule_To_File
      (Rule         : One_String_Parameter_Rule;
       Rule_File    : File_Type;
-      Indent_Level : Natural := 0)
-   is
-      use Ada.Strings.Unbounded;
+      Indent_Level : Natural := 0) is
    begin
       Print_Rule_To_File (Rule_Template (Rule), Rule_File, Indent_Level);
 
@@ -915,7 +916,7 @@ package body Gnatcheck.Rules is
          if Rule.Name.all = "headers" then
             declare
                Name : constant String := Find_File (Param);
-               Str  : String_Access;
+               Str  : GNAT.OS_Lib.String_Access;
                Last : Natural;
 
             begin
@@ -938,7 +939,7 @@ package body Gnatcheck.Rules is
                end if;
 
                Append (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
-               Free (Str);
+               GNAT.OS_Lib.Free (Str);
             end;
          else
             Append (Rule.Param, To_Wide_Wide_String (Param));

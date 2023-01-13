@@ -29,9 +29,9 @@
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-with Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
 with Ada.Text_IO;             use Ada.Text_IO;
-with GNAT.OS_Lib;             use GNAT.OS_Lib;
 with System.Rident;
 
 with Liblkqllang.Analysis;
@@ -52,8 +52,6 @@ package Gnatcheck.Rules is
    --  Used to numerate the variants of diagnostic message for the same rule.
    --  Zero means that the rule has exactly one variant of the diagnostic
    --  message
-
-   subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
 
    -----------------
    -- Rule States --

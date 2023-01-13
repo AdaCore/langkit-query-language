@@ -17,6 +17,11 @@ library.
     If ``n`` is part of a generic package or subprogram, whether it is
     instantiated or not, then return it.
 
+.. function:: component_types
+
+    Return all the BaseTypeDecl corresponding to all fields
+    of a given type, including their full views, base types and subtypes.
+
 .. function:: default_bit_order()
 
     Return the value of System.Default_Bit_Order if any ``with System``
@@ -43,6 +48,10 @@ library.
 .. function:: first_non_blank(s, ind=1)
 
     Return the index of the first non blank character of s, starting at ind
+
+.. function:: full_parent_types
+
+    Return all base (sub)types full views
 
 .. function:: full_root_type(t)
 

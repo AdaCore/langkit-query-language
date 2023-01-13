@@ -24,13 +24,12 @@
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Ada.Containers.Hashed_Sets;
-with Ada.Containers.Indefinite_Vectors; use Ada.Containers;
+with Ada.Containers.Vectors; use Ada.Containers;
 with System;
 
 package LKQL.String_Utils is
 
-   package String_Vectors is new
-     Indefinite_Vectors (Positive, Unbounded_Text_Type);
+   package String_Vectors is new Vectors (Positive, Unbounded_Text_Type);
 
    subtype String_Vector is String_Vectors.Vector;
    --  Vector of Unbouted_Text_type values

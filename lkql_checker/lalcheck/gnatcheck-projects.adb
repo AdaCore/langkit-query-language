@@ -68,6 +68,8 @@ with Libadalang.Auto_Provider; use Libadalang.Auto_Provider;
 
 package body Gnatcheck.Projects is
 
+   subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
+
    Project_Context  : GPR2.Context.Object;
    Project_File_Set : Boolean := False;
 

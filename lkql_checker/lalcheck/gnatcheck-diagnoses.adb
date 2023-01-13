@@ -27,67 +27,60 @@ with Ada.Calendar;               use Ada.Calendar;
 with Ada.Characters.Handling;    use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
+with Ada.Containers.Vectors;
 with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;                use Ada.Text_IO;
 
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.Case_Util;
+with GNAT.OS_Lib;
+with GNAT.Regpat;                use GNAT.Regpat;
 
+with Gnatcheck.Rules;              use Gnatcheck.Rules;
 with Gnatcheck.Output;             use Gnatcheck.Output;
 with Gnatcheck.Projects.Aggregate; use Gnatcheck.Projects.Aggregate;
-
-with Gnatcheck.Compiler;         use Gnatcheck.Compiler;
-with Gnatcheck.Options;          use Gnatcheck.Options;
-with Gnatcheck.Rules;            use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
+with Gnatcheck.Compiler;           use Gnatcheck.Compiler;
+with Gnatcheck.Options;            use Gnatcheck.Options;
+with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
-with Libadalang.Common;
 with Libadalang.Expr_Eval;
 
 package body Gnatcheck.Diagnoses is
 
    package LCO renames Libadalang.Common;
 
+   package String_Vectors
+   is new Ada.Containers.Vectors (Positive, Unbounded_String);
+
+   subtype String_Vector is String_Vectors.Vector;
+
+   use String_Vectors;
+
    -----------------------
    -- Diagnoses storage --
    -----------------------
 
    type Diag_Message is record
-      Text           : String_Access;
-      Justification  : String_Access;
+      File           : Unbounded_String;
+      Sloc           : Langkit_Support.Slocs.Source_Location;
+      Text           : Unbounded_String;
+      Justification  : Unbounded_String;
       Diagnosis_Kind : Diagnosis_Kinds;
       Rule           : Rule_Id;
       SF             : SF_Id;
    end record;
 
-   function SLOC_Less_Than (L, R : String) return Boolean;
-   --  Provided that L and R have the "file:line:col" format, compares these
-   --  SLOCs alphabetically (first file names converted to lower case are
-   --  compared, if they are equal, line numbers are compared, and if they are
-   --  also equal colons are compared).
-   --  If L or R does not have the proper format, the result is unpredictable.
+   function "<" (L, R : Diag_Message) return Boolean;
 
-   function Diag_Is_Less_Than (L, R : Diag_Message) return Boolean;
-   --  If L or R is null, raises Constraint_Error. Otherwise compares SLOC
-   --  parts of L and R (file names are converted to lower case).
-   --
-   --  If comparing SLOCs based on the rules given above results in the fact
-   --  that these SLOCs are equal, the rest of the message is compared.
-
-   function Diag_Is_Equal (L, R : Diag_Message) return Boolean;
-   --  If L or R is null, raises Constraint_Error. Otherwise returns
-   --  L.Text.all = R.Text.all.
+   function Image (Self : Diag_Message) return String;
 
    package Error_Messages_Storage is new Ada.Containers.Ordered_Sets
-     (Element_Type => Diag_Message,
-      "<"          => Diag_Is_Less_Than,
-      "="          => Diag_Is_Equal);
+     (Element_Type => Diag_Message, "=" => "=", "<" => "<");
 
    All_Error_Messages : Error_Messages_Storage.Set;
 
@@ -203,11 +196,6 @@ package body Gnatcheck.Diagnoses is
    --  Prints into XML report file the information from the diagnosis. The
    --  boolean parameter is used to define the needed indentation level
 
-   function Select_Line   (Diag : String_Access) return Positive;
-   function Select_Column (Diag : String_Access) return Positive;
-   --  Assuming that Diag is a diagnosis, gets the line/column number from it.
-   --  The result is undefined if Diag does not have a syntax of the diagnosis.
-
    function Strip_Warning (Diag : String) return String;
    --  Strip trailing " [-gnatwxxx]", if any
 
@@ -231,7 +219,7 @@ package body Gnatcheck.Diagnoses is
       Col_End  : Natural;
       --  End of the exemption section
 
-      Justification : String_Access;
+      Justification : Unbounded_String;
 
       Detected : Natural;
       --  Number of the diagnoses generated for exempted rule
@@ -270,7 +258,7 @@ package body Gnatcheck.Diagnoses is
       Exempt_Info : Exemption_Info;
       Rule        : Rule_Id;
       SF          : SF_Id;
-      Params      : String_List_Access;
+      Params      : String_Vector;
    end record;
 
    type Param_Ex_Info_Key is record
@@ -292,27 +280,24 @@ package body Gnatcheck.Diagnoses is
                          or else (L.Line_Start = R.Line_Start
                                   and then L.Col_Start < R.Col_Start))));
 
-   function Is_Equal (L, R : String_List_Access) return Boolean;
-   --  Checks if L and R have the same content.
-
    function Is_Equal
      (L    : Exemption_Parameters.Set;
-      R    : String_List_Access) return Boolean;
+      R    : String_Vector) return Boolean;
    --  Checks that L and R are both non-empty/non-null and have the same
    --  content.
 
    function Belongs
      (L : String;
-      R : String_List_Access) return Boolean;
+      R : String_Vector) return Boolean;
    --  Checks if R is non-null and L belongs to R
 
    function To_Pars_List
-     (Pars : Exemption_Parameters.Set) return String_List_Access;
+     (Pars : Exemption_Parameters.Set) return String_Vector;
    --  Converts (non-empty! the caller is responsible for that!) set of rule
    --  exemption parameters into string list.
 
    function Params_Img
-     (Params : String_List_Access;
+     (Params : String_Vector;
       Rule   : Rule_Id) return String;
    --  Returns the string image of rule exemption parameters that are supposed
    --  to be stored in Params list (and Params is supposed to be not null) in
@@ -322,7 +307,7 @@ package body Gnatcheck.Diagnoses is
 
    function "=" (L, R : Parametrized_Exemption_Info) return Boolean is
      (L.SF = R.SF                                         and then
-      Is_Equal (L.Params, R.Params)                       and then
+      L.Params = R.Params                                 and then
       L.Exempt_Info.Line_Start = R.Exempt_Info.Line_Start and then
       L.Exempt_Info.Col_Start  = R.Exempt_Info.Col_Start);
 
@@ -396,7 +381,7 @@ package body Gnatcheck.Diagnoses is
    procedure Same_Parameter_Exempted
      (Rule        : Rule_Id;
       Exempted_At : out Parametrized_Exemption_Sections.Cursor;
-      Par         : out String_Access);
+      Par         : out Unbounded_String);
    --  Is similar to the previous procedure, but it checks that there is at
    --  least one parameter in Rule_Exemption_Parameters that has already been
    --  used in definition of some opened parametric exception section for
@@ -406,15 +391,14 @@ package body Gnatcheck.Diagnoses is
    --     ...
    --     Exempt_On, Rule:Par1, Par2
    --
-   --  If the checks succeeds, Par is set to point to this parameter. The
-   --  caller is responsible for freeing the memory occupied by Par.
+   --  If the checks succeeds, Par is set to point to this parameter.
 
    function Get_Param_Justification
      (Rule : Rule_Id;
       Diag : String;
       SF   : SF_Id;
       Line : Natural;
-      Col  : Natural) return String_Access;
+      Col  : Natural) return Unbounded_String;
    --  Diag is supposed to be a diagnostic message (with all the parameters
    --  and variants resolved) generated for Rule (and Rule should allow
    --  parametric exemptions). It checks if Text corresponds to some
@@ -493,7 +477,7 @@ package body Gnatcheck.Diagnoses is
       For_Check     : Rule_Id;
       For_Line      : Positive;
       Is_Exempted   : out Boolean;
-      Justification : in out String_Access);
+      Justification : in out Unbounded_String);
    --  This procedure checks if For_Line parameter gets into the corresponding
    --  exemption section and sets Is_Exempted accordingly.
    --  If Is_Exempted is set to True, Justification is set to the relevant
@@ -582,18 +566,16 @@ package body Gnatcheck.Diagnoses is
       return Result;
    end Allows_Parametrized_Exemption;
 
-   function Belongs
-     (L : String;
-      R : String_List_Access) return Boolean
+   function Belongs (L : String; R : String_Vector) return Boolean
    is
       Result : Boolean := False;
    begin
-      if R /= null then
-         for J in R'Range loop
-            if L = R (J).all then
+      if not R.Is_Empty then
+         for El of R loop
+            if L = To_String (El) then
                Result := True;
                exit;
-            elsif R (J).all > L then
+            elsif To_String (El) > L then
                exit;
             end if;
          end loop;
@@ -657,7 +639,7 @@ package body Gnatcheck.Diagnoses is
       Comp_Span : constant Source_Location_Range := Unit.Root.Sloc_Range;
       use Parametrized_Exemption_Sections;
 
-      Next_Section : Cursor;
+      Next_Section : Parametrized_Exemption_Sections.Cursor;
    begin
       --  Non-parametric exemptions:
 
@@ -740,7 +722,7 @@ package body Gnatcheck.Diagnoses is
                null;
             when Rule_Violation =>
                if Error_Messages_Storage.Element (Position).Justification =
-                  null
+                  Null_Unbounded_String
                then
                   Detected_Non_Exempted_Violations := @ + 1;
                   File_Counter (SF).Non_Exempted_Violations_Detected := True;
@@ -829,22 +811,12 @@ package body Gnatcheck.Diagnoses is
          Error_No_Tool_Name (Ada.Exceptions.Exception_Information (E));
    end Copy_User_Info;
 
-   -------------------
-   -- Diag_Is_Equal --
-   -------------------
-
-   function Diag_Is_Equal (L, R : Diag_Message) return Boolean is
-   begin
-      return L.Text.all = R.Text.all;
-   end Diag_Is_Equal;
-
    ----------------
    -- Escape_XML --
    ----------------
 
    function Escape_XML (S : String) return String is
       Result : Unbounded_String;
-      use Ada.Strings.Unbounded;
    begin
       for C of S loop
          case C is
@@ -871,139 +843,24 @@ package body Gnatcheck.Diagnoses is
       return To_String (Result);
    end Escape_XML;
 
-   --------------------
-   -- SLOC_Less_Than --
-   --------------------
+   ---------
+   -- "<" --
+   ---------
 
-   function SLOC_Less_Than (L, R : String) return Boolean is
-      L_Start      : Natural := L'First;
-      R_Start      : Natural := R'First;
-
-      L_End        : Natural := Index (L, ":");
-      R_End        : Natural := Index (R, ":");
-      L_Val        : Positive;
-      R_Val        : Positive;
-      L_Has_Column : Boolean := True;
-      R_Has_Column : Boolean := True;
-
+   function "<" (L, R : Diag_Message) return Boolean is
    begin
-      --  When comparing SLOCs we have the following problems:
-      --  1. file names may be in different casing, and X.ads < a.ads for
-      --     predefined "<"
-      --
-      --  2. ':' that separates file name, line and column is greater than
-      --     any digit, so for the predefined "<" a.ads:50:20 is less than
-      --     a.ads 5:20
-      --
-      --  3. we cannot use alphabetical comparison for the whole SLOC, because
-      --     line and column numbers should be compared as digits
-      --
-      --  4. if Full_Source_Locations is ON, in Windows we may have ':' as a
-      --     part of a full file name.
-
-      if L_End = L_Start + 1
-        and then L (L_End + 1) in '\' | '/'
-      then
-         L_End := Index (L (L_End + 2 .. L'Last), ":");
-      end if;
-
-      if R_End = R_Start + 1
-        and then R (R_End + 1) in '\' | '/'
-      then
-         R_End := Index (R (R_End + 2 .. R'Last), ":");
-      end if;
-
-      if L_End = 0 or else R_End = 0 then
-         return False;
-      elsif To_Lower (L (L_Start .. L_End)) < To_Lower (R (R_Start .. R_End))
-      then
-         return True;
-      elsif To_Lower (L (L_Start .. L_End)) > To_Lower (R (R_Start .. R_End))
-      then
-         return False;
-      else
-         --  file names are the same, we have to compare line and column
-         --  numbers
-         L_Start := L_End + 1;
-         R_Start := R_End + 1;
-
-         L_End := Index (L (L_Start .. L'Last), ":");
-
-         if L_End = 0 then
-            L_End        := L'Last;
-            L_Has_Column := False;
-         else
-            L_End   := L_End - 1;
-         end if;
-
-         R_End := Index (R (R_Start .. R'Last), ":");
-
-         if R_End = 0 then
-            R_End        := R'Last;
-            R_Has_Column := False;
-         else
-            R_End   := R_End - 1;
-         end if;
-
-         L_Val := Positive'Value (L (L_Start .. L_End));
-         R_Val := Positive'Value (R (R_Start .. R_End));
-
-         if L_Val < R_Val then
-            return True;
-         elsif L_Val > R_Val then
-            return False;
-         else
-            --  line numbers are also the same, comparing columns if both
-            --  SLOCs have them (which should always be the case).
-
-            if not (L_Has_Column or else R_Has_Column) then
-               return False;
-            elsif not L_Has_Column and then R_Has_Column then
-               return True;
-            elsif L_Has_Column and then not L_Has_Column then
-               return False;
-            end if;
-
-            L_Val := Positive'Value (L (L_End + 2 .. L'Last));
-            R_Val := Positive'Value (R (R_End + 2 .. R'Last));
-
-            return L_Val < R_Val;
-         end if;
-      end if;
-   end SLOC_Less_Than;
-
-   -----------------------
-   -- Diag_Is_Less_Than --
-   -----------------------
-
-   function Diag_Is_Less_Than (L, R : Diag_Message) return Boolean is
-      L_First : constant Natural := L.Text'First;
-      R_First : constant Natural := R.Text'First;
-
-      L_SLOC_End : constant Natural := Index (L.Text.all, ": ") - 1;
-      R_SLOC_End : constant Natural := Index (R.Text.all, ": ") - 1;
-
-   begin
-      if Diag_Is_Equal (L, R) then
-         return False;
-      end if;
-
-      if L.Text (L_First .. L_SLOC_End) /= R.Text (R_First .. R_SLOC_End) then
-         return SLOC_Less_Than (L.Text (L_First .. L_SLOC_End),
-                                R.Text (R_First .. R_SLOC_End));
-      else
-         --  If we are here, we have equal SLOCs, so compare messages
-
-         return L.Text (L_SLOC_End + 1 .. L.Text'Last)
-                  < R.Text (R_SLOC_End + 1 .. R.Text'Last);
-      end if;
-   end Diag_Is_Less_Than;
+      return L.File < R.File
+         or else (L.File = R.File and then L.Sloc < R.Sloc)
+         or else (L.File = R.File
+                  and then L.Sloc = R.Sloc
+                  and then L.Text < R.Text);
+   end "<";
 
    -----------------------------
    -- Exemption_Justification --
    -----------------------------
 
-   function Exemption_Justification (Rule : Rule_Id) return String_Access is
+   function Exemption_Justification (Rule : Rule_Id) return Unbounded_String is
    begin
       return Exemption_Sections (Rule).Justification;
    end Exemption_Justification;
@@ -1013,6 +870,7 @@ package body Gnatcheck.Diagnoses is
    -----------------------------------
 
    procedure Generate_Qualification_Report is
+      use all type GNAT.OS_Lib.String_Access;
    begin
       Number := new String'(Get_Number);
       Ignored_Sources := Exempted_Sources;
@@ -1237,8 +1095,11 @@ package body Gnatcheck.Diagnoses is
       Col           : Natural) return Parametrized_Exemption_Sections.Cursor
    is
       use Parametrized_Exemption_Sections;
-      Result               : Cursor  := No_Element;
-      Next_Section         : Cursor  := First (Exem_Sections);
+
+      Result               : Parametrized_Exemption_Sections.Cursor
+        := Parametrized_Exemption_Sections.No_Element;
+      Next_Section         : Parametrized_Exemption_Sections.Cursor
+        := First (Exem_Sections);
 
       Diag_In_Section      : Boolean := True;
       Diag_Before_Sections : Boolean := False;
@@ -1316,33 +1177,28 @@ package body Gnatcheck.Diagnoses is
       Diag : String;
       SF   : SF_Id;
       Line : Natural;
-      Col  : Natural) return String_Access
+      Col  : Natural) return Unbounded_String
    is
-      Result : String_Access;
-
       use Parametrized_Exemption_Sections;
       Exem_Sections  : access Parametrized_Exemption_Sections.Set;
       --  You should never assign containers!!!
-      Fit_In_Section : Cursor;
+      Fit_In_Section : Parametrized_Exemption_Sections.Cursor;
+
+      Param : constant String := Rule_Parameter (Diag, Rule);
+      pragma Assert (Param /= "" or else Rule = Warnings_Id);
    begin
-      declare
-         Param : constant String := Rule_Parameter (Diag, Rule);
-         pragma Assert (Param /= "" or else Rule = Warnings_Id);
-      begin
-         Exem_Sections :=
-           Postponed_Param_Exempt_Sections (Rule) (SF)'Unrestricted_Access;
-         Fit_In_Section := Get_Exem_Section
-           (Exem_Sections.all, Param, Line, Col);
+      Exem_Sections :=
+        Postponed_Param_Exempt_Sections (Rule) (SF)'Unrestricted_Access;
+      Fit_In_Section := Get_Exem_Section
+        (Exem_Sections.all, Param, Line, Col);
 
-         if Has_Element (Fit_In_Section) then
-            Result :=
-              Parametrized_Exemption_Sections.Element (Fit_In_Section).
-                Exempt_Info.Justification;
-            Increase_Diag_Counter (Exem_Sections.all, Fit_In_Section);
-         end if;
-      end;
+      if Has_Element (Fit_In_Section) then
+         Increase_Diag_Counter (Exem_Sections.all, Fit_In_Section);
+         return Parametrized_Exemption_Sections
+                .Element (Fit_In_Section).Exempt_Info.Justification;
+      end if;
 
-      return Result;
+      return Null_Unbounded_String;
    end Get_Param_Justification;
 
    ---------------------------
@@ -1380,7 +1236,7 @@ package body Gnatcheck.Diagnoses is
          Col_Start     => 0,
          Line_End      => 0,
          Col_End       => 0,
-         Justification => null,
+         Justification => Null_Unbounded_String,
          Detected      => 0)];
 
       Postponed_Exemption_Sections :=
@@ -1412,59 +1268,20 @@ package body Gnatcheck.Diagnoses is
       end loop;
    end Init_Exemptions;
 
-   --------------
-   -- Is_Equal --
-   --------------
-
-   function Is_Equal (L, R : String_List_Access) return Boolean is
-      Result : Boolean := (L = null) and (R = null);
-      R_Idx  : Natural;
-   begin
-      if L /= null and then
-         R /= null and then
-         L'Length = R'Length
-      then
-         R_Idx  := R'First;
-         Result := True;
-
-         for J in L'Range loop
-            if L (J) = null or else R (R_Idx) = null then
-               --  Even if both elements are null we return False because this
-               --  cannot be considered as the same sequence of parameters
-               Result := False;
-               exit;
-            elsif L (J).all /= R (R_Idx).all then
-               Result := False;
-               exit;
-            end if;
-
-            R_Idx := @ + 1;
-         end loop;
-      end if;
-
-      return Result;
-   end Is_Equal;
-
-   function Is_Equal
-     (L    : Exemption_Parameters.Set;
-      R    : String_List_Access)
+   function Is_Equal (L : Exemption_Parameters.Set; R : String_Vector)
       return Boolean
    is
       use Exemption_Parameters;
-      Result : Boolean := not Is_Empty (L) and then
-                          R /= null        and then
-                          Natural (Length (L)) = R'Length;
+      use all type Ada.Containers.Count_Type;
    begin
-      if Result then
-         declare
-            L_Arr : String_List_Access := To_Pars_List (L);
-         begin
-            Result := Is_Equal (L_Arr, R);
-            Free (L_Arr);
-         end;
+      if not L.Is_Empty
+         and then not R.Is_Empty
+         and then L.Length = R.Length
+      then
+         return To_Pars_List (L) = R;
       end if;
 
-      return Result;
+      return False;
    end Is_Equal;
 
    -----------------
@@ -1485,9 +1302,9 @@ package body Gnatcheck.Diagnoses is
       Exempted_At : out Parametrized_Exemption_Sections.Cursor)
    is
       use Parametrized_Exemption_Sections;
-      Next_Section : Cursor;
+      Next_Section : Parametrized_Exemption_Sections.Cursor;
    begin
-      Exempted_At := No_Element;
+      Exempted_At := Parametrized_Exemption_Sections.No_Element;
 
       if not Is_Empty (Rule_Param_Exempt_Sections (Rule)) then
          Next_Section := First (Rule_Param_Exempt_Sections (Rule));
@@ -1516,7 +1333,7 @@ package body Gnatcheck.Diagnoses is
       For_Check     : Rule_Id;
       For_Line      : Positive;
       Is_Exempted   : out Boolean;
-      Justification : in out String_Access)
+      Justification : in out Unbounded_String)
    is
       Section : Postponed_Rule_Exemption_Info_Access;
    begin
@@ -1566,13 +1383,11 @@ package body Gnatcheck.Diagnoses is
                "(" & Short_Source_Name (ES_Info.SF) & ")");
          Info ("Parameters:");
 
-         if ES_Info.Params = null then
-            Info ("   Null parameter list!!!");
-         elsif ES_Info.Params'Length = 0 then
-            Info ("   Empty parameter list!!!");
+         if ES_Info.Params.Is_Empty then
+            Info ("   Empty parameter list!");
          else
-            for J in ES_Info.Params'Range loop
-               Info (">>" & ES_Info.Params (J).all & "<<");
+            for El of ES_Info.Params loop
+               Info (">>" & To_String (El) & "<<");
             end loop;
          end if;
 
@@ -1583,10 +1398,10 @@ package body Gnatcheck.Diagnoses is
          Info ("Detected :" & ES_Info.Exempt_Info.Detected'Img);
          Info_No_EOL ("Justification: ");
 
-         if ES_Info.Exempt_Info.Justification = null then
+         if ES_Info.Exempt_Info.Justification = Null_Unbounded_String then
             Info ("IS NOT SET!!!");
          else
-            Info (">>" & ES_Info.Exempt_Info.Justification.all & "<<");
+            Info (">>" & To_String (ES_Info.Exempt_Info.Justification) & "<<");
          end if;
       else
          Info ("No parametric exemption section");
@@ -1597,40 +1412,26 @@ package body Gnatcheck.Diagnoses is
    -- Params_Img --
    ----------------
 
-   function Params_Img
-     (Params : String_List_Access;
-      Rule   : Rule_Id)
-      return   String
+   function Params_Img (Params : String_Vector; Rule : Rule_Id) return String
    is
-      Res_Len : Natural := 0;
+      Res   : Unbounded_String;
+      Count : Natural := 0;
    begin
-      pragma Assert (Params /= null);
+      for El of Params loop
+         if Count > 0 then
+            Append (Res, ", ");
+         end if;
 
-      for J in Params'Range loop
-         Res_Len := Res_Len + Params (J)'Length;
+         Append
+           (Res,
+            (if Rule = Warnings_Id
+             then To_String (El)
+             else GNAT.Case_Util.To_Mixed (To_String (El))));
+
+         Count := Count + 1;
       end loop;
 
-      Res_Len := Res_Len + (Params'Length - 1) * 2;  --  for ", "
-
-      declare
-         Result      : String (1 .. Res_Len);
-         Append_From : Natural := Result'First;
-      begin
-         for J in Params'Range loop
-            if J > Params'First then
-               Result (Append_From .. Append_From + 1) := ", ";
-               Append_From := Append_From + 2;
-            end if;
-
-            Result (Append_From .. Append_From + Params (J)'Length - 1) :=
-              (if Rule = Warnings_Id
-               then Params (J).all
-               else GNAT.Case_Util.To_Mixed (Params (J).all));
-            Append_From := Append_From + Params (J)'Length;
-         end loop;
-
-         return Result;
-      end;
+      return To_String (Res);
    end Params_Img;
 
    -----------------------------
@@ -1639,6 +1440,8 @@ package body Gnatcheck.Diagnoses is
 
    procedure Print_Active_Rules_File is
       Rule_List_File : Ada.Text_IO.File_Type;
+
+      use all type GNAT.OS_Lib.String_Access;
    begin
       if Text_Report_ON then
          Report_No_EOL ("coding standard   : ");
@@ -1650,8 +1453,7 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       if not Individual_Rules_Set
-        and then
-         Rule_File_Name /= null
+        and then Rule_File_Name /= null
       then
          if Text_Report_ON then
             Report (Rule_File_Name.all);
@@ -1673,7 +1475,7 @@ package body Gnatcheck.Diagnoses is
               Auxiliary_List_File_Name (Rule_List_File_Name_Str);
 
          begin
-            if Is_Regular_File (Full_Rule_List_File_Name) then
+            if GNAT.OS_Lib.Is_Regular_File (Full_Rule_List_File_Name) then
                Open (Rule_List_File, Out_File, Full_Rule_List_File_Name);
             else
                Create (Rule_List_File, Out_File, Full_Rule_List_File_Name);
@@ -1850,16 +1652,18 @@ package body Gnatcheck.Diagnoses is
       begin
          if Diagnoses_To_Print (Diag.Diagnosis_Kind) then
             if Diag.Diagnosis_Kind = Rule_Violation
-              and then Print_Exempted_Violations = (Diag.Justification = null)
+              and then
+                Print_Exempted_Violations =
+                  (Diag.Justification = Null_Unbounded_String)
             then
                return;
             end if;
 
             if Text_Report_ON then
-               Report (Strip_Warning (Diag.Text.all));
+               Report (Strip_Warning (Image (Diag)));
 
-               if Diag.Justification /= null then
-                  Report ("(" & Diag.Justification.all & ")", 1);
+               if Diag.Justification /= Null_Unbounded_String then
+                  Report ("(" & To_String (Diag.Justification) & ")", 1);
                end if;
             end if;
 
@@ -1907,7 +1711,7 @@ package body Gnatcheck.Diagnoses is
               (Auxiliary_List_File_Name (Source_List_File_Name_Str) & """>");
          end if;
 
-         if Is_Regular_File (Full_Source_List_File_Name) then
+         if GNAT.OS_Lib.Is_Regular_File (Full_Source_List_File_Name) then
             Open
               (Source_List_File,
                Out_File,
@@ -2008,7 +1812,8 @@ package body Gnatcheck.Diagnoses is
                """>");
          end if;
 
-         if Is_Regular_File (Full_Ignored_Source_List_File_Name) then
+         if GNAT.OS_Lib.Is_Regular_File (Full_Ignored_Source_List_File_Name)
+         then
             Open
               (Ignored_Source_List_File,
                Out_File,
@@ -2102,12 +1907,13 @@ package body Gnatcheck.Diagnoses is
                      "see the report file for full details");
             else
                if Error_Messages_Storage.Element (Position).Justification
-                    = null
+                    = Null_Unbounded_String
                then
                   Diagnoses_Reported := @ + 1;
                   Info
                     (Preprocess_Diag
-                      (Error_Messages_Storage.Element (Position).Text.all));
+                      (Image
+                         (Error_Messages_Storage.Element (Position))));
                end if;
             end if;
          end if;
@@ -2308,7 +2114,7 @@ package body Gnatcheck.Diagnoses is
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
 
       Next_Arg      : LAL.Analysis.Expr;
-      Tmp_Str       : String_Access;
+      Tmp_Str       : Unbounded_String;
       First_Par_Idx : Natural;
       Pars_Start    : Natural;
       pragma Unreferenced (Pars_Start);
@@ -2327,7 +2133,7 @@ package body Gnatcheck.Diagnoses is
       --  record corresponding to the exemption section that exempts the same
       --  rule with the same parameters
 
-      Par : String_Access;
+      Par : Unbounded_String;
 
       use Gnatcheck.Rules.Exemption_Parameters;
 
@@ -2371,19 +2177,19 @@ package body Gnatcheck.Diagnoses is
       Next_Arg := Pragma_Args.List_Child (3).P_Assoc_Expr;
 
       if Next_Arg.Kind = LCO.Ada_String_Literal then
-         Tmp_Str   := new String'(Image (Next_Arg.Text));
-         First_Par_Idx := Tmp_Str'First + 1;  --  skip '"'
-         Last_Par_Idx  := Index (Tmp_Str.all, ":");
+         Tmp_Str   := To_Unbounded_String (Image (Next_Arg.Text));
+         First_Par_Idx := 2;  --  skip '"'
+         Last_Par_Idx  := Index (Tmp_Str, ":");
 
          if Last_Par_Idx = 0 then
-            Last_Par_Idx := Tmp_Str'Last - 1; --  skip '"'
+            Last_Par_Idx := Length (Tmp_Str) - 1; --  skip '"'
          else
             Last_Par_Idx := Last_Par_Idx - 1; --  skip ':'
             Has_Param    := True;
          end if;
 
-         Rule := Get_Rule (Trim (Tmp_Str (First_Par_Idx .. Last_Par_Idx),
-                                 Both));
+         Rule := Get_Rule
+           (Trim (Slice (Tmp_Str, First_Par_Idx, Last_Par_Idx), Both));
       else
          Rule := No_Rule;
       end if;
@@ -2397,7 +2203,6 @@ package body Gnatcheck.Diagnoses is
             Message            => "wrong rule name in exemption, ignored",
             Diagnosis_Kind     => Exemption_Warning,
             SF                 => SF);
-         Free (Tmp_Str);
          return;
       end if;
 
@@ -2414,27 +2219,25 @@ package body Gnatcheck.Diagnoses is
                                      "exemption, ignored",
                Diagnosis_Kind     => Exemption_Warning,
                SF                 => SF);
-               Free (Tmp_Str);
             return;
          end if;
 
          First_Par_Idx := Last_Par_Idx + 2;
-         Pars_End := Tmp_Str'Last - 1;
+         Pars_End := Length (Tmp_Str) - 1;
 
          while First_Par_Idx < Pars_End
-           and then Tmp_Str (First_Par_Idx) = ' '
+           and then Element (Tmp_Str, First_Par_Idx) = ' '
          loop
             First_Par_Idx := First_Par_Idx + 1;
          end loop;
 
          Set_Rule_Exempt_Pars
            (Rule,
-            Tmp_Str (First_Par_Idx .. Pars_End),
+            Slice (Tmp_Str, First_Par_Idx, Pars_End),
             SF,
             Sloc_Image (Start_Sloc (El.Sloc_Range)));
 
          if Is_Empty (Rule_Exemption_Parameters) then
-            Free (Tmp_Str);
             return;
          end if;
       end if;
@@ -2453,7 +2256,7 @@ package body Gnatcheck.Diagnoses is
                  Expr_Eval (Pragma_Args.List_Child (4).P_Assoc_Expr);
             begin
                Tmp_Str :=
-                 new String'(Image (To_Text (As_String (Eval_Res))));
+                 To_Unbounded_String (Image (To_Text (As_String (Eval_Res))));
             end;
          exception
             when Property_Error =>
@@ -2520,15 +2323,15 @@ package body Gnatcheck.Diagnoses is
       end if;
 
       --  Now - processing of the exemption pragma. If we are here, we are
-      --  sure that Rule denotes and existing and enabled rule.
+      --  sure that Rule denotes an existing and enabled rule.
 
       Exem_Span := El.Sloc_Range;
 
       case Exemption_Kind is
          when Exempt_On =>
 
-            if Tmp_Str = null then
-               Tmp_Str := new String'("unjustified");
+            if Tmp_Str = Null_Unbounded_String then
+               Tmp_Str := To_Unbounded_String ("unjustified");
             end if;
 
             if Is_Exempted (Rule) then
@@ -2541,7 +2344,6 @@ package body Gnatcheck.Diagnoses is
                     Exemption_Sections (Rule).Line_Start'Img,
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
-               Free (Tmp_Str);
                return;
             end if;
 
@@ -2563,7 +2365,6 @@ package body Gnatcheck.Diagnoses is
                              Exempt_Info.Line_Start'Img,
                      Diagnosis_Kind     => Exemption_Warning,
                      SF                 => SF);
-                  Free (Tmp_Str);
                   return;
                end if;
             end if;
@@ -2583,7 +2384,6 @@ package body Gnatcheck.Diagnoses is
                           (Exempted_At).Exempt_Info.Line_Start'Img,
                      Diagnosis_Kind     => Exemption_Warning,
                      SF                 => SF);
-                  Free (Tmp_Str);
                   return;
                else
                   --  We have to check the following:
@@ -2602,14 +2402,12 @@ package body Gnatcheck.Diagnoses is
                         Message            =>
                           "rule " & Rule_Name (Rule) &
                           " is already exempted with parameter '" &
-                          Par.all & "' at line"                   &
+                          To_String (Par) & "' at line"                   &
                           Parametrized_Exemption_Sections.Element
                              (Exempted_At).Exempt_Info.Line_Start'Img,
                         Diagnosis_Kind     => Exemption_Warning,
                         SF                 => SF);
 
-                     Free (Tmp_Str);
-                     Free (Par);
                      return;
                   end if;
 
@@ -2626,9 +2424,7 @@ package body Gnatcheck.Diagnoses is
                         Col_Start     => Natural (Exem_Span.Start_Column),
                         Line_End      => 0,
                         Col_End       => 0,
-                        Justification => new
-                          String'((Tmp_Str
-                                   (Tmp_Str'First .. Tmp_Str'Last))),
+                        Justification => Tmp_Str,
                         Detected      => 0),
                      Rule        => Rule,
                      SF          => SF,
@@ -2640,13 +2436,9 @@ package body Gnatcheck.Diagnoses is
                   Col_Start     => Natural (Exem_Span.Start_Column),
                   Line_End      => 0,
                   Col_End       => 0,
-                  Justification =>
-                    new String'((Tmp_Str
-                                   (Tmp_Str'First .. Tmp_Str'Last))),
+                  Justification => Tmp_Str,
                   Detected      => 0);
             end if;
-
-            Free (Tmp_Str);
 
          when Exempt_Off =>
             if Has_Param then
@@ -2719,7 +2511,7 @@ package body Gnatcheck.Diagnoses is
             return;
          end if;
 
-         if Diag.Justification /= null then
+         if Diag.Justification /= Null_Unbounded_String then
             --  some diagnoses may be already exempted
             return;
          end if;
@@ -2736,7 +2528,7 @@ package body Gnatcheck.Diagnoses is
 
          --  First, check for non-parametric exemptions:
 
-         Diag_Line := Select_Line (Diag.Text);
+         Diag_Line := Positive (Diag.Sloc.Line);
 
          Map_On_Postponed_Check_Exemption
            (In_File       => SF,
@@ -2752,17 +2544,17 @@ package body Gnatcheck.Diagnoses is
            and then not Parametrized_Exemption_Sections.Is_Empty
                           (Postponed_Param_Exempt_Sections (Diag.Rule) (SF))
          then
-            Diag_Column := Select_Column (Diag.Text);
+            Diag_Column := Positive (Diag.Sloc.Column);
             Diag.Justification :=
               Get_Param_Justification
                 (Rule => Diag.Rule,
-                 Diag => Diag.Text.all,
+                 Diag => To_String (Diag.Text),
                  SF   => SF,
                  Line => Diag_Line,
                  Col  => Diag_Column);
          end if;
 
-         if Diag.Justification /= null then
+         if Diag.Justification /= Null_Unbounded_String then
             Error_Messages_Storage.Replace_Element
               (Container => All_Error_Messages,
                Position  => Position,
@@ -2848,15 +2640,16 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Process_User_Filename (Fname : String) is
+      use all type GNAT.OS_Lib.String_Access;
    begin
-      if Is_Regular_File (Fname) then
+      if GNAT.OS_Lib.Is_Regular_File (Fname) then
          if User_Info_File /= null then
             Error ("--include-file option can be given only once, " &
                    "all but first ignored");
          else
             User_Info_File           := new String'(Fname);
             User_Info_File_Full_Path := new String'
-              (Normalize_Pathname
+              (GNAT.OS_Lib.Normalize_Pathname
                  (Fname,
                   Resolve_Links  => False,
                   Case_Sensitive => False));
@@ -2912,18 +2705,16 @@ package body Gnatcheck.Diagnoses is
    procedure Same_Parameter_Exempted
      (Rule        :     Rule_Id;
       Exempted_At : out Parametrized_Exemption_Sections.Cursor;
-      Par         : out String_Access)
+      Par         : out Unbounded_String)
    is
       Next_Par : Exemption_Parameters.Cursor :=
         Exemption_Parameters.First (Rule_Exemption_Parameters);
 
       use Parametrized_Exemption_Sections;
-      Next_Section : Cursor;
+      Next_Section : Parametrized_Exemption_Sections.Cursor;
 
    begin
-      Free (Par);
-
-      Exempted_At := No_Element;
+      Exempted_At := Parametrized_Exemption_Sections.No_Element;
 
       if not Is_Empty (Rule_Param_Exempt_Sections (Rule)) then
          while Exemption_Parameters.Has_Element (Next_Par) loop
@@ -2936,8 +2727,8 @@ package body Gnatcheck.Diagnoses is
                        (Next_Section).Params)
                then
                   Exempted_At := Next_Section;
-                  Par         :=
-                    new String'(Exemption_Parameters.Element (Next_Par));
+                  Par := To_Unbounded_String
+                    (Exemption_Parameters.Element (Next_Par));
                   return;
                end if;
 
@@ -2948,42 +2739,6 @@ package body Gnatcheck.Diagnoses is
          end loop;
       end if;
    end Same_Parameter_Exempted;
-
-   -------------------
-   -- Select_Column --
-   -------------------
-
-   function Select_Column (Diag : String_Access) return Positive is
-      Start_Idx : Natural;
-      End_Idx   : Natural;
-   begin
-      Start_Idx := Index (Diag.all, ":") + 1;
-      Start_Idx := Index (Diag (Start_Idx .. Diag'Last), ":") + 1;
-      End_Idx   := Index (Diag (Start_Idx .. Diag'Last), ":") - 1;
-
-      return Positive'Value (Diag (Start_Idx .. End_Idx));
-   end Select_Column;
-
-   -----------------
-   -- Select_Line --
-   -----------------
-
-   function Select_Line (Diag : String_Access) return Positive is
-      Start_Idx : Natural;
-      End_Idx   : Natural;
-   begin
-      Start_Idx := Index (Diag.all, ":");
-
-      if Start_Idx = Diag'First + 1
-        and then Diag (Start_Idx + 1) = '\'
-      then
-         Start_Idx := Index (Diag (Start_Idx + 2 .. Diag'Last), ":");
-      end if;
-
-      Start_Idx := @ + 1;
-      End_Idx   := Index (Diag (Start_Idx .. Diag'Last), ":") - 1;
-      return Positive'Value (Diag (Start_Idx .. End_Idx));
-   end Select_Line;
 
    --------------------------
    -- Set_Rule_Exempt_Pars --
@@ -3000,7 +2755,7 @@ package body Gnatcheck.Diagnoses is
       Par_Start   :          Natural := Pars'First;
       Par_End     :          Natural;
       Last_Idx    : constant Natural    := Pars'Last;
-      Position    :          Cursor;
+      Position    :          Exemption_Parameters.Cursor;
       Success     :          Boolean;
       Warning_Par : constant Boolean := Rule = Warnings_Id;
       --  In case of Warnings rule, we consider parameters one by one. That is,
@@ -3040,15 +2795,12 @@ package body Gnatcheck.Diagnoses is
                 then Remove_Spaces (Pars (Par_Start .. Par_End))
                 else To_Lower (Remove_Spaces (Pars (Par_Start .. Par_End)))))
          then
-            Insert (Container => Rule_Exemption_Parameters,
-                    New_Item  =>
-                      (if Rule = Warnings_Id then
-                          Remove_Spaces (Pars (Par_Start .. Par_End))
-                       else
-                          To_Lower (Remove_Spaces
-                                      (Pars (Par_Start .. Par_End)))),
-                    Position  => Position,
-                    Inserted  => Success);
+            Rule_Exemption_Parameters.Insert
+              ((if Rule = Warnings_Id
+                then Remove_Spaces (Pars (Par_Start .. Par_End))
+                else To_Lower (Remove_Spaces (Pars (Par_Start .. Par_End)))),
+               Position  => Position,
+               Inserted  => Success);
 
             if not Success then
                Store_Diagnosis
@@ -3110,32 +2862,38 @@ package body Gnatcheck.Diagnoses is
       return Sloc_Image (Natural (Sloc.Line), Natural (Sloc.Column));
    end Sloc_Image;
 
+   Match_Diagnosis : constant Pattern_Matcher :=
+     Compile ("^(.*)?:(\d+)?:(\d+)?: (.*)$");
+
    ---------------------
    -- Store_Diagnosis --
    ---------------------
 
    procedure Store_Diagnosis
-     (Full_File_Name : String;
-      Message        : String;
-      Sloc           : Source_Location;
+     (Text           : String;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id       := No_Rule;
-      Justification  : String_Access := null)
+      Rule           : Rule_Id := No_Rule;
+      Justification  : Unbounded_String := Null_Unbounded_String)
    is
-      use Ada.Directories;
-
+      Matches : Match_Array (0 .. 4);
+      Sloc    : Source_Location;
    begin
+
+      Match (Match_Diagnosis, Text, Matches);
+
+      pragma Assert
+        (Matches (0) /= No_Match, "Invalid text for diagnostic: " & Text);
+
+      Sloc.Line :=
+        Line_Number'Value (Text (Matches (2).First .. Matches (2).Last));
+      Sloc.Column :=
+        Column_Number'Value (Text (Matches (3).First .. Matches (3).Last));
+
       Store_Diagnosis
-        (Text           =>
-           (if Full_Source_Locations
-            then Full_File_Name
-            else Simple_Name (Full_File_Name)) & ":" &
-           Sloc_Image (Sloc) & ": " &
-           Message
-           & (if Rule /= No_Rule
-              then Annotate_Rule (All_Rules.Table (Rule).all)
-              else ""),
+        (Full_File_Name => Text (Matches (1).First .. Matches (1).Last),
+         Sloc           => Sloc,
+         Message        =>  Text (Matches (4).First .. Matches (4).Last),
          Diagnosis_Kind => Diagnosis_Kind,
          SF             => SF,
          Rule           => Rule,
@@ -3143,14 +2901,26 @@ package body Gnatcheck.Diagnoses is
    end Store_Diagnosis;
 
    procedure Store_Diagnosis
-     (Text           : String;
+     (Full_File_Name : String;
+      Message        : String;
+      Sloc           : Source_Location;
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
-      Rule           : Rule_Id        := No_Rule;
-      Justification  : String_Access  := null)
+      Rule           : Rule_Id := No_Rule;
+      Justification  : Unbounded_String := Null_Unbounded_String)
    is
+      use Ada.Directories;
+
+      File_Name : constant Unbounded_String :=
+         To_Unbounded_String
+           (if Full_Source_Locations
+            then Full_File_Name
+            else Simple_Name (Full_File_Name));
+
       Tmp : Diag_Message :=
-        (Text           => new String'(Text),
+        (Text           => To_Unbounded_String (Message),
+         Sloc           => Sloc,
+         File           => File_Name,
          Justification  => Justification,
          Diagnosis_Kind => Diagnosis_Kind,
          Rule           => Rule,
@@ -3162,31 +2932,21 @@ package body Gnatcheck.Diagnoses is
       --  stored in the container (see the documentation for "<" for more
       --  details.
 
-      if not Error_Messages_Storage.Contains
-               (Container => All_Error_Messages,
-                Item      => Tmp)
-      then
+      if not All_Error_Messages.Contains (Tmp) then
          if Diagnosis_Kind = Compiler_Error then
             Set_Source_Status (SF, Not_A_Legal_Source);
          elsif Diagnosis_Kind = Internal_Error then
             Set_Source_Status (SF, Error_Detected);
          end if;
 
-         if Justification /= null then
+         if Justification /= Null_Unbounded_String then
             --  Here we count detections for non-parametric exemption
             --  sections only
 
             Exemption_Sections (Rule).Detected := @ + 1;
          end if;
 
-         Error_Messages_Storage.Insert
-           (Container => All_Error_Messages,
-            New_Item  => Tmp,
-            Position  => Unused_Position,
-            Inserted  => Unused_Inserted);
-
-      else
-         Free (Tmp.Text);
+         All_Error_Messages.Insert (Tmp, Unused_Position, Unused_Inserted);
       end if;
    end Store_Diagnosis;
 
@@ -3204,19 +2964,16 @@ package body Gnatcheck.Diagnoses is
    -- To_Pars_List --
    ------------------
 
-   function To_Pars_List
-     (Pars : Exemption_Parameters.Set)
-      return String_List_Access
+   function To_Pars_List (Pars : Exemption_Parameters.Set) return String_Vector
    is
       use Exemption_Parameters;
 
-      Result : constant String_List_Access := new
-        String_List (1 .. Natural (Length (Pars)));
-      Next_Par : Cursor := First (Pars);
+      Result : String_Vector;
+      Next_Par : Exemption_Parameters.Cursor := First (Pars);
    begin
-      for J in Result'Range loop
-         Result (J) :=
-           new String'(Exemption_Parameters.Element (Next_Par));
+      while Has_Element (Next_Par) loop
+         Result.Append
+           (To_Unbounded_String (Exemption_Parameters.Element (Next_Par)));
          Next_Par := Next (Next_Par);
       end loop;
 
@@ -3248,7 +3005,7 @@ package body Gnatcheck.Diagnoses is
          Col_Start     => 0,
          Line_End      => 0,
          Col_End       => 0,
-         Justification => null,
+         Justification => Null_Unbounded_String,
          Detected      => 0);
    end Turn_Off_Exemption;
 
@@ -3286,8 +3043,8 @@ package body Gnatcheck.Diagnoses is
       Indentation : constant Natural := (if Short_Report then 1 else 2);
       Exempted    : constant Boolean :=
         Diag.Diagnosis_Kind = Rule_Violation and then
-        Diag.Justification /= null;
-      Message     : constant String  := Strip_Warning (Diag.Text.all);
+        Diag.Justification /= Null_Unbounded_String;
+      Message     : constant String  := Strip_Warning (Image (Diag));
       L_Idx       :          Natural := Message'First;
       R_Idx       :          Natural := Index (Message, ":");
       Last_Idx    : constant Natural := Message'Last;
@@ -3346,7 +3103,7 @@ package body Gnatcheck.Diagnoses is
 
       if Exempted then
          XML_Report
-           ("<justification>" & Escape_XML (Diag.Justification.all) &
+           ("<justification>" & Escape_XML (To_String (Diag.Justification)) &
             "</justification>",
             Indent_Level => Indentation + 1);
       end if;
@@ -3363,5 +3120,32 @@ package body Gnatcheck.Diagnoses is
           else "</violation>"),
          Indent_Level => Indentation);
    end XML_Report_Diagnosis;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Self : Diag_Message) return String is
+      function Image (Sloc : Source_Location) return String;
+      --  Custom image function for Langkit source locations, that will add a
+      --  leading 0 for columns under 10.
+
+      -----------
+      -- Image --
+      -----------
+
+      function Image (Sloc : Source_Location) return String is
+         Column_Str : constant String :=
+           (if Sloc.Column >= 10 then "" else "0")
+           & Ada.Strings.Fixed.Trim (Column_Number'Image (Sloc.Column), Left);
+      begin
+         return
+           (Ada.Strings.Fixed.Trim (Line_Number'Image (Sloc.Line), Left)
+            & ':' & Column_Str);
+      end Image;
+   begin
+      return To_String (Self.File) & ":" & Image (Self.Sloc) & ": "
+        & To_String (Self.Text);
+   end Image;
 
 end Gnatcheck.Diagnoses;

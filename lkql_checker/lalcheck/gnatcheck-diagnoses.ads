@@ -28,12 +28,14 @@
 --  supports rule exemption mechanism. Note, that most of the rule exemption
 --  mechanism is hidden in the body of the package.
 
-with GNAT.OS_Lib;            use GNAT.OS_Lib;
+with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
+
+with Langkit_Support.Slocs;  use Langkit_Support.Slocs;
+with Libadalang.Analysis;
+with Libadalang.Common;
 
 with Gnatcheck.Source_Table; use Gnatcheck.Source_Table;
 with Gnatcheck.Ids;          use Gnatcheck.Ids;
-with Libadalang.Analysis;
-with Langkit_Support.Slocs;  use Langkit_Support.Slocs;
 
 package Gnatcheck.Diagnoses is
 
@@ -61,7 +63,7 @@ package Gnatcheck.Diagnoses is
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
       Rule           : Rule_Id       := No_Rule;
-      Justification  : String_Access := null);
+      Justification  : Unbounded_String := Null_Unbounded_String);
    procedure Store_Diagnosis
      (Full_File_Name : String;
       Message        : String;
@@ -69,7 +71,7 @@ package Gnatcheck.Diagnoses is
       Diagnosis_Kind : Diagnosis_Kinds;
       SF             : SF_Id;
       Rule           : Rule_Id       := No_Rule;
-      Justification  : String_Access := null);
+      Justification  : Unbounded_String := Null_Unbounded_String);
    --  Stores the diagnosis in the internal data structure. The same procedure
    --  is used for all diagnosis kinds, in case of Exemption_Warning,
    --  Compiler_Error and Internal_Error, Rule should be set to No_Rule.
@@ -145,7 +147,7 @@ package Gnatcheck.Diagnoses is
    --  parameter is used to compute the end of non-closed exemption sections
    --  for compiler checks, if any.
 
-   function Exemption_Justification (Rule : Rule_Id) return String_Access;
+   function Exemption_Justification (Rule : Rule_Id) return Unbounded_String;
    --  Returns justification for the argument Rule as it is set by processed
    --  Annotate pragmas.
 
