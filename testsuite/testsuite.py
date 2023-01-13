@@ -3,7 +3,7 @@
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite
 from drivers import (
-    CheckerDriver, ParserDriver, InterpreterDriver
+    CheckerDriver, ParserDriver, InterpreterDriver, GnatcheckDriver
 )
 import glob
 import os
@@ -15,7 +15,8 @@ class LKQLTestsuite(Testsuite):
     tests_subdir = "tests"
     test_driver_map = {'parser': ParserDriver,
                        'interpreter': InterpreterDriver,
-                       'checker': CheckerDriver}
+                       'checker': CheckerDriver,
+                       'gnatcheck': GnatcheckDriver}
 
     def add_options(self, parser):
         parser.add_argument(

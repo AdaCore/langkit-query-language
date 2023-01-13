@@ -19,6 +19,9 @@ testsuite/build
 testsuite/libadalang
 testsuite/run_testsuite.sh
 callgrind*
+gnatcheck.out
+gnatcheck-rule-list.out
+gnatcheck-source-list.out
 
 coding_standard
 

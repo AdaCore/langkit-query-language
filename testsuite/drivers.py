@@ -1,4 +1,5 @@
 import os
+from os import path as P
 
 from e3.fs import mkdir
 from e3.testsuite.driver.diff import DiffTestDriver
@@ -30,7 +31,7 @@ class BaseTestDriver(DiffTestDriver):
             )
             mkdir(self.traces_dir)
 
-    def shell(self, args):
+    def shell(self, args, **kwargs):
         env = dict(os.environ)
 
         # If code coverage is enabled, put trace files in the dedicated
@@ -43,7 +44,7 @@ class BaseTestDriver(DiffTestDriver):
                 self.traces_dir, f'prog-{self.trace_counter}.srctrace'
             )
 
-        return super().shell(args, env=env)
+        return super().shell(args, env=env, **kwargs)
 
 
 class ParserDriver(BaseTestDriver):
@@ -96,12 +97,14 @@ class CheckerDriver(BaseTestDriver):
     This driver runs the checker with the given arguments and compares the
     checkers's output to the provided output file.
 
-    The LKQL script to run must be placed in a file called `script`.
     The expected output must be written in a file called `output`.
 
     Test arguments:
         - project: GPR build file to use (if any)
-        - files: Ada files to analyze
+        - input_sources: Ada files to analyze (if explicit, optional if project
+          is passed)
+        - rule_name: The name of the rule to check
+        - rule_arguments: A dict mapping rule argument names to their values
     """
 
     def run(self):
@@ -120,6 +123,49 @@ class CheckerDriver(BaseTestDriver):
 
         # Run the interpreter
         self.shell(args)
+
+
+class GnatcheckDriver(BaseTestDriver):
+    """
+    This driver runs gnatcheck with the given arguments and compares
+    the content of the default output ``gnatcheck.out`` file to the expected
+    output of the test.
+
+    The expected output must be written in a file called ``output``.
+
+    Test arguments:
+        - project: GPR build file to use (if any)
+        - input_sources: Ada files to analyze (if explicit, optional if project
+          is passed)
+        - rules: A list of rules with their arguments, in the gnatcheck format.
+          Note that the list can be empty, and people can instead decide to
+          pass rules via the project file.
+    """
+
+    def run(self):
+        args = ['gnatcheck', '-q']
+        # Use the test's project, if any
+        if self.test_env.get('project', None):
+            args += ['-P', self.test_env['project']]
+        else:
+            args += self.test_env['input_sources']
+
+        args.append("-rules")
+        for r in self.test_env.get('rules', {}).items():
+            args.append(r)
+
+        # Run the interpreter
+        # TODO: For the moment, not trying to do anything with the error code,
+        # and instead relying solely on the diff. We might want to check that
+        # the return code is consistent at some later stage.
+
+        self.shell(args, catch_error=False)
+
+        with open(P.join(self.test_env["working_dir"], "gnatcheck.out")) as f:
+            # Strip the 10 first lines of the report, which contain
+            # run-specific information that we don't want to include in the
+            # test baseline.
+            self.output += "".join(f.readlines()[9:])
 
 
 def remove_whitespace(text):
