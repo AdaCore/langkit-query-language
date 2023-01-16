@@ -385,11 +385,11 @@ package body Gnatcheck.Diagnoses is
    --  corresponding exemption section in Rule_Param_Exempt_Sections, otherwise
    --  return ``No_Element``.
 
-   procedure Same_Parameter_Exempted
+   function Find_Same_Parameter_Exemption
      (Rule        : Rule_Id;
-      Params : Exemption_Parameters.Set;
-      Exempted_At : out Parametrized_Exemption_Sections.Cursor;
-      Par         : out Unbounded_String);
+      Params      : Exemption_Parameters.Set;
+      Par         : out Unbounded_String)
+      return Parametrized_Exemption_Sections.Cursor;
    --  Is similar to the previous procedure, but it checks that there is at
    --  least one parameter in ``Params`` that has already been used in
    --  definition of some opened parametric exception section for this
@@ -1166,20 +1166,17 @@ package body Gnatcheck.Diagnoses is
       Col  : Natural) return Unbounded_String
    is
       use Parametrized_Exemption_Sections;
-      Exem_Sections  : access Parametrized_Exemption_Sections.Set;
-      --  You should never assign containers!!!
+      Exem_Sections  : Parametrized_Exemption_Sections.Set
+        renames Postponed_Param_Exempt_Sections (Rule) (SF);
       Fit_In_Section : Parametrized_Exemption_Sections.Cursor;
 
       Param : constant String := Rule_Parameter (Diag, Rule);
       pragma Assert (Param /= "" or else Rule = Warnings_Id);
    begin
-      Exem_Sections :=
-        Postponed_Param_Exempt_Sections (Rule) (SF)'Unrestricted_Access;
-      Fit_In_Section := Get_Exem_Section
-        (Exem_Sections.all, Param, Line, Col);
+      Fit_In_Section := Get_Exem_Section (Exem_Sections, Param, Line, Col);
 
       if Has_Element (Fit_In_Section) then
-         Increase_Diag_Counter (Exem_Sections.all, Fit_In_Section);
+         Increase_Diag_Counter (Exem_Sections, Fit_In_Section);
          return Parametrized_Exemption_Sections
                 .Element (Fit_In_Section).Exempt_Info.Justification;
       end if;
@@ -2086,11 +2083,12 @@ package body Gnatcheck.Diagnoses is
       Rule        : constant Rule_Id := Get_Rule (To_String (Self.Rule_Name));
       Has_Params  : constant Boolean := not Self.Params.Is_Empty;
       Exempted_At : Parametrized_Exemption_Sections.Cursor;
-      Par         : Unbounded_String;
       Sloc_Start  : constant Source_Location :=
         Langkit_Support.Slocs.Start_Sloc (Self.Sloc_Range);
       Sloc_End    : constant Source_Location :=
         Langkit_Support.Slocs.End_Sloc (Self.Sloc_Range);
+
+      use Parametrized_Exemption_Sections;
    begin
       --  First part: Legality checks
 
@@ -2201,8 +2199,7 @@ package body Gnatcheck.Diagnoses is
             if not Has_Params and then Allows_Parametrized_Exemption (Rule)
             then
                --  Is Rule already exempted with parameters?
-               if not Parametrized_Exemption_Sections.Is_Empty
-                 (Rule_Param_Exempt_Sections (Rule))
+               if not Is_Empty (Rule_Param_Exempt_Sections (Rule))
                then
                   Store_Diagnosis
                     (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2210,10 +2207,8 @@ package body Gnatcheck.Diagnoses is
                      Message            =>
                        "rule " & Rule_Name (Rule)
                        & " is already exempted with parameter(s) at line"
-                       & Parametrized_Exemption_Sections.Element
-                         (Parametrized_Exemption_Sections.First
-                           (Rule_Param_Exempt_Sections (Rule))).
-                             Exempt_Info.Line_Start'Img,
+                       & Element (First (Rule_Param_Exempt_Sections (Rule)))
+                         .Exempt_Info.Line_Start'Img,
                      Diagnosis_Kind     => Exemption_Warning,
                      SF                 => SF);
                   return;
@@ -2223,7 +2218,7 @@ package body Gnatcheck.Diagnoses is
             if Has_Params then
                Exempted_At := Is_Exempted_With_Pars (Rule, Self.Params);
 
-               if Parametrized_Exemption_Sections.Has_Element (Exempted_At)
+               if Has_Element (Exempted_At)
                then
                   Store_Diagnosis
                     (Full_File_Name     => Self.Unit.Get_Filename,
@@ -2231,8 +2226,7 @@ package body Gnatcheck.Diagnoses is
                      Message            =>
                        "rule " & Rule_Name (Rule) &
                        " is already exempted with the same parameters at line"
-                       & Parametrized_Exemption_Sections.Element
-                          (Exempted_At).Exempt_Info.Line_Start'Img,
+                       & Element (Exempted_At).Exempt_Info.Line_Start'Img,
                      Diagnosis_Kind     => Exemption_Warning,
                      SF                 => SF);
                   return;
@@ -2243,25 +2237,28 @@ package body Gnatcheck.Diagnoses is
                   --     ...
                   --     Exempt_On, Rule:Par1, Par2
 
-                  Same_Parameter_Exempted
-                    (Rule, Self.Params, Exempted_At, Par);
+                  declare
+                     Param : Unbounded_String;
+                  begin
+                     Exempted_At := Find_Same_Parameter_Exemption
+                       (Rule, Self.Params, Param);
 
-                  if Parametrized_Exemption_Sections.Has_Element (Exempted_At)
-                  then
-                     Store_Diagnosis
-                       (Full_File_Name     => Self.Unit.Get_Filename,
-                        Sloc               => Sloc_Start,
-                        Message            =>
-                          "rule " & Rule_Name (Rule) &
-                          " is already exempted with parameter '" &
-                          To_String (Par) & "' at line"                   &
-                          Parametrized_Exemption_Sections.Element
-                             (Exempted_At).Exempt_Info.Line_Start'Img,
-                        Diagnosis_Kind     => Exemption_Warning,
-                        SF                 => SF);
+                     if Has_Element (Exempted_At) then
+                        Store_Diagnosis
+                          (Full_File_Name     => Self.Unit.Get_Filename,
+                           Sloc               => Sloc_Start,
+                           Message            =>
+                             "rule " & Rule_Name (Rule)
+                             & " is already exempted with parameter '"
+                             & To_String (Param) & "' at line"
+                             & Element (Exempted_At)
+                               .Exempt_Info.Line_Start'Img,
+                           Diagnosis_Kind     => Exemption_Warning,
+                           SF                 => SF);
 
-                     return;
-                  end if;
+                        return;
+                     end if;
+                  end;
 
                 --  If we are here then we know for sure that the
                 --  parametric exemption is correct, and there is no
@@ -2269,7 +2266,7 @@ package body Gnatcheck.Diagnoses is
                 --  parameter(s). So we can just add the corresponding record
                 --  to Rule_Param_Exempt_Sections:
 
-                  Parametrized_Exemption_Sections.Insert
+                  Insert
                     (Rule_Param_Exempt_Sections (Rule),
                     (Exempt_Info =>
                        (Line_Start    => Natural (Sloc_Start.Line),
@@ -2440,7 +2437,7 @@ package body Gnatcheck.Diagnoses is
            (Text (Matches (1).First .. Matches (1).Last));
 
          if Matches (2) /= No_Match then
-            --  TODO NOTE: This is sub-optimal, we still need to parse the rule
+            --  NOTE: This is sub-optimal, we still need to parse the rule
             --  kind here, because parameters parsing depends on the rule.
             Action.Params := Parse_Exempt_Parameters
               (Get_Rule (To_String (Action.Rule_Name)),
@@ -2723,15 +2720,15 @@ package body Gnatcheck.Diagnoses is
       end if;
    end Rule_Parametrized_Exem_Sections_Debug_Image;
 
-   -----------------------------
-   -- Same_Parameter_Exempted --
-   -----------------------------
+   -----------------------------------
+   -- Find_Same_Parameter_Exemption --
+   -----------------------------------
 
-   procedure Same_Parameter_Exempted
+   function Find_Same_Parameter_Exemption
      (Rule        : Rule_Id;
-      Params : Exemption_Parameters.Set;
-      Exempted_At : out Parametrized_Exemption_Sections.Cursor;
+      Params      : Exemption_Parameters.Set;
       Par         : out Unbounded_String)
+      return Parametrized_Exemption_Sections.Cursor
    is
       Next_Par : Exemption_Parameters.Cursor :=
         Exemption_Parameters.First (Params);
@@ -2740,8 +2737,6 @@ package body Gnatcheck.Diagnoses is
       Next_Section : Parametrized_Exemption_Sections.Cursor;
 
    begin
-      Exempted_At := Parametrized_Exemption_Sections.No_Element;
-
       if not Is_Empty (Rule_Param_Exempt_Sections (Rule)) then
          while Exemption_Parameters.Has_Element (Next_Par) loop
             Next_Section := First (Rule_Param_Exempt_Sections (Rule));
@@ -2750,10 +2745,9 @@ package body Gnatcheck.Diagnoses is
                if Element (Next_Section).Params.Contains
                  (Exemption_Parameters.Element (Next_Par))
                then
-                  Exempted_At := Next_Section;
                   Par := To_Unbounded_String
                     (Exemption_Parameters.Element (Next_Par));
-                  return;
+                  return Next_Section;
                end if;
 
                Next_Section := Next (Next_Section);
@@ -2762,7 +2756,9 @@ package body Gnatcheck.Diagnoses is
             Next_Par := Exemption_Parameters.Next (Next_Par);
          end loop;
       end if;
-   end Same_Parameter_Exempted;
+
+      return Parametrized_Exemption_Sections.No_Element;
+   end Find_Same_Parameter_Exemption;
 
    -----------------------------
    -- Parse_Exempt_Parameters --
