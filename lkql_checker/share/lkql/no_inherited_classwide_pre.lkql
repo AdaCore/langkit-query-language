@@ -2,7 +2,7 @@
 # at least one of the operations it overrides or implements does not have
 # (explicitly defined or inherited) Pre'Class aspect defined for it.
 
-@memoize
+@memoized
 fun base_decls(node) = node.p_base_subp_declarations()
 
 @unit_check(help="overridden operation has no Pre'Class",
