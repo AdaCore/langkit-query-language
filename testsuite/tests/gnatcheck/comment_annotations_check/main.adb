@@ -20,6 +20,11 @@ procedure Main is
       function Moo return Boolean is (True);  -- FLAG
    end Pkg;
 
+
+   procedure Poo (A : Integer) is null; --## rule line off implicit_in
+
+   --  Check that there is a warning for "rule line on"
+   procedure Poo (A : Integer) is null; --## rule line on implicit_in
 begin
    null;
 end Main;

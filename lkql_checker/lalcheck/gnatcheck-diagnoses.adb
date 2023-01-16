@@ -72,7 +72,7 @@ package body Gnatcheck.Diagnoses is
      Compile ("(\.?\w)");
 
    Match_Exempt_Comment : constant Pattern_Matcher :=
-     Compile ("--##\s*rule\s+(on|off)\s+([^#]+)(?:##(.*))?");
+     Compile ("--##\s*rule\s+(line)?\s+(on|off)\s+([^#]+)(?:##(.*))?");
 
    -----------------------
    -- Diagnoses storage --
@@ -243,7 +243,7 @@ package body Gnatcheck.Diagnoses is
    --  validation and processing of the action, and are used both by comment
    --  based exemptions and pragma based ones.
 
-   procedure Process_Exempt_Action (Self : in out Exempt_Action);
+   procedure Process_Exempt_Action (Self : Exempt_Action);
    --  Process the given exempt action, doing some legality checks on the
    --  Exempt_Action, and creating the necessary exemption information in the
    --  sections arrays.
@@ -2078,7 +2078,7 @@ package body Gnatcheck.Diagnoses is
    -- Process_Exempt_Action --
    ---------------------------
 
-   procedure Process_Exempt_Action (Self : in out Exempt_Action) is
+   procedure Process_Exempt_Action (Self : Exempt_Action) is
       SF          : constant SF_Id := File_Find (Self.Unit.Get_Filename);
       Rule        : constant Rule_Id := Get_Rule (To_String (Self.Rule_Name));
       Has_Params  : constant Boolean := not Self.Params.Is_Empty;
@@ -2089,6 +2089,8 @@ package body Gnatcheck.Diagnoses is
         Langkit_Support.Slocs.End_Sloc (Self.Sloc_Range);
 
       use Parametrized_Exemption_Sections;
+
+      Action : Exempt_Action := Self;
    begin
       --  First part: Legality checks
 
@@ -2132,12 +2134,12 @@ package body Gnatcheck.Diagnoses is
       --  Justification is not expected (and shouldn't be present) if the
       --  action is to turn off an exemption.
 
-      if Self.Exemption_Control = Exempt_Off
-         and then Self.Justification /= Null_Unbounded_String
-         and then Self.Check_Justification
+      if Action.Exemption_Control = Exempt_Off
+         and then Action.Justification /= Null_Unbounded_String
+         and then Action.Check_Justification
       then
          Store_Diagnosis
-           (Full_File_Name     => Self.Unit.Get_Filename,
+           (Full_File_Name     => Action.Unit.Get_Filename,
             Sloc               => Sloc_Start,
             Message            =>
               "turning exemption OFF does not need justification",
@@ -2147,12 +2149,12 @@ package body Gnatcheck.Diagnoses is
 
       --  6. If exemption is turned ON, justification is expected
 
-      if Self.Exemption_Control = Exempt_On
-         and then Self.Justification = Null_Unbounded_String
-         and then Self.Check_Justification
+      if Action.Exemption_Control = Exempt_On
+         and then Action.Justification = Null_Unbounded_String
+         and then Action.Check_Justification
       then
          Store_Diagnosis
-           (Full_File_Name     => Self.Unit.Get_Filename,
+           (Full_File_Name     => Action.Unit.Get_Filename,
             Sloc               => Sloc_Start,
             Message            =>
               "turning exemption ON expects justification",
@@ -2176,16 +2178,16 @@ package body Gnatcheck.Diagnoses is
       --  Now - processing of the exemption pragma. If we are here, we are
       --  sure that Rule denotes an existing and enabled rule.
 
-      case Self.Exemption_Control is
+      case Action.Exemption_Control is
          when Exempt_On =>
 
-            if Self.Justification = Null_Unbounded_String then
-               Self.Justification := To_Unbounded_String ("unjustified");
+            if Action.Justification = Null_Unbounded_String then
+               Action.Justification := To_Unbounded_String ("unjustified");
             end if;
 
             if Is_Exempted (Rule) then
                Store_Diagnosis
-                 (Full_File_Name     => Self.Unit.Get_Filename,
+                 (Full_File_Name     => Action.Unit.Get_Filename,
                   Sloc               => Sloc_Start,
                   Message            =>
                     "rule " & Rule_Name (Rule)
@@ -2202,7 +2204,7 @@ package body Gnatcheck.Diagnoses is
                if not Is_Empty (Rule_Param_Exempt_Sections (Rule))
                then
                   Store_Diagnosis
-                    (Full_File_Name     => Self.Unit.Get_Filename,
+                    (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
                        "rule " & Rule_Name (Rule)
@@ -2216,12 +2218,12 @@ package body Gnatcheck.Diagnoses is
             end if;
 
             if Has_Params then
-               Exempted_At := Is_Exempted_With_Pars (Rule, Self.Params);
+               Exempted_At := Is_Exempted_With_Pars (Rule, Action.Params);
 
                if Has_Element (Exempted_At)
                then
                   Store_Diagnosis
-                    (Full_File_Name     => Self.Unit.Get_Filename,
+                    (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
                        "rule " & Rule_Name (Rule) &
@@ -2241,11 +2243,11 @@ package body Gnatcheck.Diagnoses is
                      Param : Unbounded_String;
                   begin
                      Exempted_At := Find_Same_Parameter_Exemption
-                       (Rule, Self.Params, Param);
+                       (Rule, Action.Params, Param);
 
                      if Has_Element (Exempted_At) then
                         Store_Diagnosis
-                          (Full_File_Name     => Self.Unit.Get_Filename,
+                          (Full_File_Name     => Action.Unit.Get_Filename,
                            Sloc               => Sloc_Start,
                            Message            =>
                              "rule " & Rule_Name (Rule)
@@ -2273,11 +2275,11 @@ package body Gnatcheck.Diagnoses is
                         Col_Start     => Natural (Sloc_Start.Column),
                         Line_End      => 0,
                         Col_End       => 0,
-                        Justification => Self.Justification,
+                        Justification => Action.Justification,
                         Detected      => 0),
                      Rule        => Rule,
                      SF          => SF,
-                   Params        => Self.Params));
+                   Params        => Action.Params));
                end if;
             else
                Exemption_Sections (Rule) :=
@@ -2285,18 +2287,18 @@ package body Gnatcheck.Diagnoses is
                   Col_Start     => Natural (Sloc_Start.Column),
                   Line_End      => 0,
                   Col_End       => 0,
-                  Justification => Self.Justification,
+                  Justification => Action.Justification,
                   Detected      => 0);
             end if;
 
          when Exempt_Off =>
             if Has_Params then
-               Exempted_At := Is_Exempted_With_Pars (Rule, Self.Params);
+               Exempted_At := Is_Exempted_With_Pars (Rule, Action.Params);
 
                if not Parametrized_Exemption_Sections.Has_Element (Exempted_At)
                then
                   Store_Diagnosis
-                    (Full_File_Name     => Self.Unit.Get_Filename,
+                    (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
                        "rule "
@@ -2311,7 +2313,7 @@ package body Gnatcheck.Diagnoses is
             else
                if not Is_Exempted (Rule) then
                   Store_Diagnosis
-                    (Full_File_Name     => Self.Unit.Get_Filename,
+                    (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
                        "rule "
@@ -2336,10 +2338,12 @@ package body Gnatcheck.Diagnoses is
    procedure Process_Exemption_Comment
      (El : LAL.Common.Token_Reference; Unit : LAL.Analysis.Analysis_Unit)
    is
-      Text : constant String := Image (LAL.Common.Text (El));
-
-      Matches : Match_Array (0 .. 3);
+      Text    : constant String := Image (LAL.Common.Text (El));
+      SF      : constant SF_Id := File_Find (Unit.Get_Filename);
+      Matches : Match_Array (0 .. 4);
    begin
+      --  Early out to not try and match comments that don't have the expected
+      --  syntax.
       if Text'Last < 4 or else Text (1 .. 4) /= "--##" then
          return;
       end if;
@@ -2348,42 +2352,73 @@ package body Gnatcheck.Diagnoses is
 
       if Matches (0) = No_Match then
          --  We don't issue a warning here, because, it's possible (however
-         --  unlikely) that some people are using the "--##" syntax for other
-         --  things.
+         --  unlikely) that some people are using the "--##" syntax for
+         --  other things.
          return;
       end if;
 
       declare
-         State : String renames Text (Matches (1).First .. Matches (1).Last);
+         Is_Line : constant Boolean := Matches (1) /= No_Match;
+         State : String
+           renames Text (Matches (2).First .. Matches (2).Last);
          Rule : constant String :=
-           To_XString (Text (Matches (2).First .. Matches (2).Last))
+           To_XString (Text (Matches (3).First .. Matches (3).Last))
            .Trim.To_String;
 
          Just  : constant String :=
-           (if Matches (3) = No_Match
+           (if Matches (4) = No_Match
             then ""
-            else To_XString
-              (Text (Matches (3).First .. Matches (3).Last)).Trim.To_String);
+            else To_XString (Text (Matches (4).First .. Matches (4).Last))
+                 .Trim.To_String);
 
          use LAL.Common;
       begin
-         declare
-            Action : Exempt_Action :=
-              ((if State = "on" then Exempt_Off
-                elsif State = "off" then Exempt_On
-                else raise Constraint_Error with "should not happen"),
-               To_Unbounded_String (Rule),
-               Params => <>,
-               Justification => To_Unbounded_String (Just),
+         if Is_Line then
+            if State = "on" then
+               Store_Diagnosis
+                 (Full_File_Name => Unit.Get_Filename,
+                  Sloc           => Langkit_Support.Slocs.Start_Sloc
+                    (Sloc_Range (Data (El))),
+                  Message        =>
+                    "State should be ""off"" for line exemption",
+                  Diagnosis_Kind => Exemption_Warning,
+                  SF             => SF);
+            end if;
 
-               --  With this syntax, we don't want to enforce the
-               --  justification rules that we have for pragmas.
-               Check_Justification => False,
-               Sloc_Range => Sloc_Range (Data (El)),
-               Unit => Unit);
-         begin
-            Process_Exempt_Action (Action);
-         end;
+            declare
+               Sloc : constant Source_Location_Range :=
+                 (Sloc_Range (Data (El)) with delta Start_Column => 1);
+            begin
+               --  In order, emit one action to turn the exempt on, and the
+               --  other to turn the exempt off, on the same line.
+               --  ``Process_Exempt_Action`` will take the start sloc for the
+               --  exempt on, and the end sloc for the exempt off.
+               for Exempt_Kind in Exempt_On .. Exempt_Off loop
+                  Process_Exempt_Action
+                    ((Exempt_Kind,
+                      To_Unbounded_String (Rule),
+                      Params              => <>,
+                      Justification       => To_Unbounded_String (Just),
+                      Check_Justification => False,
+                      Sloc_Range          => Sloc,
+                      Unit                => Unit));
+               end loop;
+            end;
+         else
+            Process_Exempt_Action
+              (((if State = "on" then Exempt_Off
+                 elsif State = "off" then Exempt_On
+                 else raise Constraint_Error with "should not happen"),
+                To_Unbounded_String (Rule),
+                Params => <>,
+                Justification => To_Unbounded_String (Just),
+
+                --  With this syntax, we don't want to enforce the
+                --  justification rules that we have for pragmas.
+                Check_Justification => False,
+                Sloc_Range => Sloc_Range (Data (El)),
+                Unit => Unit));
+         end if;
       end;
 
    end Process_Exemption_Comment;
