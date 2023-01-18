@@ -180,9 +180,8 @@ package Gnatcheck.Options is
    --  The flags listed below are not set by some options, but they are
    --  computed from gnatcheck command line and rule options
 
-   No_Argument_File_Specified : Boolean := True;
-   --  Flag indicating if no argument file is specified for the tool call.
-   --  Usually the tool generated the brief help info in this case.
+   Argument_File_Specified : Boolean := False;
+   --  Flag indicating if some argument file is specified for the tool call.
 
    Nothing_To_Do : Boolean := False;
    --  Flag indicating if a tool does not have any real work to do - that is,

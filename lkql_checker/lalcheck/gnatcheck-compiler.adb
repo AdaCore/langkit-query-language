@@ -451,7 +451,7 @@ package body Gnatcheck.Compiler is
                   SF : constant SF_Id :=
                     File_Find
                       (Line (13 .. Index_Non_Blank
-                                     (Line, Line'Last - 1, Backward)),
+                                     (Line, Line_Len - 1, Backward)),
                        Use_Short_Name => True);
 
                begin
@@ -498,6 +498,8 @@ package body Gnatcheck.Compiler is
             pragma Assert (False);
             return "";
          when Warning =>
+            --  ??? Ideally we'd like to identify also the user synonym, if
+            --  any. See Process_Warning_Param.
             return " [warnings" &
                    (if Parameter = "" then "" else ":" & Parameter) & "]";
          when Style =>
@@ -1392,11 +1394,12 @@ package body Gnatcheck.Compiler is
    --------------------
 
    function Spawn_GPRbuild (Output_File : String) return Process_Id is
-      Pid      : Process_Id;
-      GPRbuild : String_Access := Locate_Exec_On_Path ("gprbuild");
-      Prj      : constant String := Gnatcheck_Prj.Source_Prj;
-      Args     : Argument_List (1 .. 128);
-      Num_Args : Integer := 0;
+      Pid         : Process_Id;
+      GPRbuild    : String_Access := Locate_Exec_On_Path ("gprbuild");
+      Prj         : constant String := Gnatcheck_Prj.Source_Prj;
+      Last_Source : constant SF_Id := Last_Argument_Source;
+      Args        : Argument_List (1 .. 128 + Integer (Last_Source));
+      Num_Args    : Integer := 0;
 
    begin
       if GPRbuild = null then
@@ -1430,16 +1433,30 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-eL");
       end if;
 
-      if U_Option_Set then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-U");
-      end if;
+      --  If files are specified explicitly, only compile these files
 
-      if not Main_Unit.Is_Empty then
-         for MU of Main_Unit loop
+      if (Argument_File_Specified and then not U_Option_Set)
+        or else File_List_Specified
+      then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-u");
+
+         for SF in First_SF_Id .. Last_Source loop
             Num_Args := @ + 1;
-            Args (Num_Args) := new String'(String (MU.Name));
+            Args (Num_Args) := new String'(Short_Source_Name (SF));
          end loop;
+      else
+         if U_Option_Set then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("-U");
+         end if;
+
+         if not Main_Unit.Is_Empty then
+            for MU of Main_Unit loop
+               Num_Args := @ + 1;
+               Args (Num_Args) := new String'(String (MU.Name));
+            end loop;
+         end if;
       end if;
 
       Append_Variables (Args, Num_Args);

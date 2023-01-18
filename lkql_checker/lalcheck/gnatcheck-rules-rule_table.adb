@@ -740,7 +740,7 @@ package body Gnatcheck.Rules.Rule_Table is
       Rule_Synonym_Start : Natural := 0;
       Rule_Synonym_End   : Natural := 0;
       --  Set to point to the beginning and to the end of the user-defined
-      --  rule synonyv (if any).
+      --  rule synonym (if any).
 
       procedure Set_Parameter;
       --  Provided that Word_Start points to the beginning of the rule name or
@@ -843,8 +843,8 @@ package body Gnatcheck.Rules.Rule_Table is
             end if;
          end loop;
 
-         --  Separate processing for restrictions, warnings and ordinary
-         --  rules
+         --  Separate processing for restrictions, style_checks, warnings, and
+         --  ordinary rules.
 
          if To_Lower (Option (Word_Start .. Word_End)) = "restrictions" then
             Set_Parameter;

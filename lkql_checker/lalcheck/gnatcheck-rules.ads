@@ -74,9 +74,9 @@ package Gnatcheck.Rules is
       --  is not important.
 
       User_Synonym : String_Access;
-      --  User-specified synonym for the rule name. It is used for
-      --  documentation purposes only (to map gnatcheck rules onto rules from
-      --  user's coding standard), it is not used for rule identification.
+      --  User-specified synonym for the rule name. This synonym is output
+      --  when --show-rule is specified and is also used for rule
+      --  identification (including rule exemption).
 
       Defined_At : String_Access;
       --  Location in the rule file where the rule has been enabled. Set to
