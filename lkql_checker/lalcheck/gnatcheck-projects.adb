@@ -369,7 +369,6 @@ package body Gnatcheck.Projects is
                        Glob           => True,
                        Case_Sensitive => False),
             Directories => Directories.all);
-
          Unchecked_Free (Directories);
 
          for F of Files.all loop
@@ -377,19 +376,16 @@ package body Gnatcheck.Projects is
          end loop;
 
          My_Project.Files := Files;
-
          return;
-
       end if;
 
-      if (not No_Argument_File_Specified and then not U_Option_Set)
+      if (Argument_File_Specified and then not U_Option_Set)
         or else File_List_Specified
       then
          return;
       end if;
 
       if U_Option_Set then
-
          if Main_Unit.Is_Empty then
             --  No argument sources, -U specified. Process recursively
             --  all sources.
@@ -419,18 +415,16 @@ package body Gnatcheck.Projects is
                   end if;
                end;
             end loop;
-
          end if;
       else
-
          if Recursive_Sources then
-
             if My_Project.Tree.Root_Project.Has_Mains and then
               Only_Ada_Mains (My_Project.Tree.Root_Project)
             then
                --  No argument sources, no -U/--no-subprojects specified,
                --  root project has mains, all of mains are Ada.
                --  Process closure of those mains.
+
                for Main of My_Project.Tree.Root_Project.Mains loop
                   My_Project.Tree.Root_Project.Source
                     (Main.Source).Dependencies
@@ -440,13 +434,14 @@ package body Gnatcheck.Projects is
                --  No argument sources, no -U/--no-subprojects specified,
                --  no mains (or at least one non-Ada main) in root project.
                --  Recursively process all sources.
+
                My_Project.Tree.For_Each_Source
                  (Action   => Store_Source'Access,
                   Language => Ada_Language);
             end if;
          else
-
             --  No argument sources, --no-subprojects specified
+
             for Src of My_Project.Tree.Root_Project.Sources loop
                if not Src.View.Is_Externally_Built and then Src.Is_Ada then
                   Store_Sources_To_Process
@@ -697,7 +692,6 @@ package body Gnatcheck.Projects is
       end if;
 
       if N_Of_Aggregated_Projects > 1 then
-
          if not Main_Unit.Is_Empty then
             Error ("'-U main' cannot be used if aggregate project");
             Error_No_Tool_Name
@@ -707,7 +701,8 @@ package body Gnatcheck.Projects is
          end if;
 
          --  No information is extracted from the aggregate project
-         --  itself
+         --  itself.
+
          In_Aggregate_Project := True;
          return;
       else
@@ -1190,6 +1185,10 @@ package body Gnatcheck.Projects is
                      else
                         Store_Sources_To_Process
                           (Arg, In_Project_File or First_Pass);
+
+                        if not In_Project_File then
+                           Argument_File_Specified := True;
+                        end if;
                      end if;
                   end;
                end loop;
@@ -1630,16 +1629,9 @@ package body Gnatcheck.Projects is
       --  No need to perform similar checks for custom XML file because it can
       --  be set only with turning ON XML output
 
-      --  Now check if we have anything to do:
-
-      if No_Argument_File_Specified then
-         if Generate_Rules_Help or else Generate_XML_Help then
-            Nothing_To_Do := True;
-            return;
-         else
-            Error ("No input source file set");
-            raise Parameter_Error;
-         end if;
+      if Generate_Rules_Help or else Generate_XML_Help then
+         Nothing_To_Do := True;
+         return;
       end if;
 
       Read_Args_From_Temp_Storage

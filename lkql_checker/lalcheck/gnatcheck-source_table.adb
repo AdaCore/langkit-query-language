@@ -1061,12 +1061,12 @@ package body Gnatcheck.Source_Table is
    --  Start of processing for Read_Args_From_File
 
    begin
-      if not No_Argument_File_Specified then
+      if Argument_File_Specified then
          Error ("cannot specify more than one -file");
          return;
       end if;
 
-      No_Argument_File_Specified := False;
+      Argument_File_Specified := True;
       Arg_File_Name := new String'(Par_File_Name);
 
       if not Is_Regular_File (Par_File_Name) then
@@ -1210,7 +1210,12 @@ package body Gnatcheck.Source_Table is
    begin
       if Present (SF) then
          Set_Source_Info (SF, Ignore_Unit);
-      else
+
+      --  Only warn if no sources are specified explicitly
+
+      elsif not (File_List_Specified
+                 or else (Argument_File_Specified and then not U_Option_Set))
+      then
          Gnatcheck.Output.Warning
            ("exemption: source " & Fname & " not found");
       end if;
@@ -1281,8 +1286,6 @@ package body Gnatcheck.Source_Table is
      (Fname : String;
       Store : Boolean := True) is
    begin
-      Gnatcheck.Options.No_Argument_File_Specified := False;
-
       if Store then
          Include (Temporary_File_Storage, Fname);
       end if;
@@ -1318,28 +1321,28 @@ package body Gnatcheck.Source_Table is
    ---------------------
 
    procedure Parse_File_List (File_List_Name : String) is
+      subtype Unbounded_String is Ada.Strings.Unbounded.Unbounded_String;
+
       Arg_File         : File_Type;
-      File_Name_Buffer : String (1 .. 16 * 1024);
-      File_Name_Len    : Natural := 0;
       Next_Ch          : Character;
       End_Of_Line      : Boolean;
-      Tmp_Str          : String_Access;
+      Tmp_Str          : Unbounded_String;
 
-      function Get_File_Name return String;
+      function Get_File_Name return Unbounded_String;
       --  Reads from Par_File_Name the name of the next file (the file to read
-      --  from should exist and be opened). Returns an empty string if there is
-      --  no file names in Par_File_Name any more
+      --  from should exist and be opened). Returns Null_Unbounded_String if
+      --  there is no file in Par_File_Name any more.
 
-      function Get_File_Name return String is
+      function Get_File_Name return Unbounded_String is
+         Result : Unbounded_String;
+
          procedure Compute_File_Name;
          --  Compute file name and store it in File_Name_Buffer
 
          procedure Compute_File_Name is
          begin
             while Next_Ch not in ASCII.LF | ASCII.CR | ASCII.HT | ' ' loop
-               File_Name_Len := File_Name_Len + 1;
-               File_Name_Buffer (File_Name_Len) := Next_Ch;
-
+               Append (Result, Next_Ch);
                Look_Ahead (Arg_File, Next_Ch, End_Of_Line);
 
                exit when End_Of_Line or else End_Of_File (Arg_File);
@@ -1349,8 +1352,6 @@ package body Gnatcheck.Source_Table is
          end Compute_File_Name;
 
       begin
-         File_Name_Len := 0;
-
          while Ada.Text_IO.End_Of_Line (Arg_File)
            and then not End_Of_File (Arg_File)
          loop
@@ -1392,8 +1393,7 @@ package body Gnatcheck.Source_Table is
                Get (Arg_File, Next_Ch);
 
                while Next_Ch not in '"' | ASCII.LF | ASCII.CR loop
-                  File_Name_Len := File_Name_Len + 1;
-                  File_Name_Buffer (File_Name_Len) := Next_Ch;
+                  Append (Result, Next_Ch);
 
                   Look_Ahead (Arg_File, Next_Ch, End_Of_Line);
 
@@ -1426,20 +1426,17 @@ package body Gnatcheck.Source_Table is
             end if;
          end loop;
 
-         return File_Name_Buffer (1 .. File_Name_Len);
+         return Result;
       end Get_File_Name;
 
    begin
       Open (Arg_File, In_File, File_List_Name);
-      Tmp_Str := new String'(Get_File_Name);
+      Tmp_Str := Get_File_Name;
 
-      while Tmp_Str.all /= "" loop
-         Process_File (Tmp_Str.all);
-         Free (Tmp_Str);
-         Tmp_Str := new String'(Get_File_Name);
+      while Tmp_Str /= Null_Unbounded_String loop
+         Process_File (To_String (Tmp_Str));
+         Tmp_Str := Get_File_Name;
       end loop;
-
-      Free (Tmp_Str);
    end Parse_File_List;
 
    ------------------------
@@ -1504,11 +1501,12 @@ package body Gnatcheck.Source_Table is
 
       begin
          --  Only store internal error messages in Debug_Mode for now.
-         --  Also never store "Memoized Error" messages which are
+         --  Also never store "memoized error" messages which are
          --  cascaded errors.
 
          if (Kind = Internal_Error and then not Debug_Mode)
-           or else Has_Suffix (Msg, "Memoized Error")
+           or else Has_Suffix (Msg, "(memoized)")
+           or else Has_Suffix (Msg, "Memoized Error")  -- pending W119-041
          then
             return;
          end if;

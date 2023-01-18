@@ -108,10 +108,7 @@ package Gnatcheck.Source_Table is
    --  processed by the tool. No check is made if Fname denotes an existing
    --  file.
    --
-   --  If Store is OFF then the procedure does not store anything.
-   --
-   --  If Fname is not an empty string, sets the
-   --  Gnatcheck.Options.No_Argument_File_Specified flag OFF
+   --  If Store is False then the procedure does not store anything.
 
    procedure Read_Args_From_Temp_Storage
      (Duplication_Report : Boolean;
@@ -142,8 +139,8 @@ package Gnatcheck.Source_Table is
    --  assumes that the file named by Par_File_Name contains argument file
    --  names, one per line.
    --
-   --  This procedure sets Gnatcheck.Options.No_Argument_File_Specified to
-   --  False.
+   --  This procedure sets Gnatcheck.Options.Argument_File_Specified to
+   --  True.
 
    function Files_In_Temp_Storage return Natural;
    --  Returns the number of files stored in temporary storage.
