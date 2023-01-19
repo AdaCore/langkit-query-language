@@ -85,7 +85,7 @@ package body Gnatcheck.Compiler is
       return         String;
    --  Returns annotation to be added to the compiler diagnostic message if
    --  Gnatcheck.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
-   --  parameter of '-gnatw' option that causes the diagnosis
+   --  parameter of '-gnatw/y' option that causes the diagnosis
 
    function Get_Rule_Id (Check : Message_Kinds) return Rule_Id;
    --  Returns the Id corresponding to the given compiler check
@@ -186,9 +186,10 @@ package body Gnatcheck.Compiler is
       end if;
 
       if Mapping_Mode then
-         if Message_Kind = Warning then
+         if Message_Kind in Warning | Style then
             Diag_End := Index (Source  => Result (Result'First .. Last_Idx),
-                               Pattern => "[-gnatw",
+                               Pattern => (if Message_Kind = Warning
+                                           then "[-gnatw" else "[-gnaty"),
                                Going   => Backward);
 
             if Diag_End = 0 then
@@ -197,7 +198,7 @@ package body Gnatcheck.Compiler is
                Par_Start := Diag_End + 7;
                Par_End   := Par_Start;
 
-               if Result (Par_End) = '.' then
+               if Result (Par_End) in '.' | '_' then
                   Par_End := Par_End + 1;
                end if;
 
@@ -501,7 +502,8 @@ package body Gnatcheck.Compiler is
             return " [warnings" &
                    (if Parameter = "" then "" else ":" & Parameter) & "]";
          when Style =>
-            return " [style_checks]";
+            return " [style_checks" &
+                   (if Parameter = "" then "" else ":" & Parameter) & "]";
          when Restriction =>
             return " [restrictions]";
          when Error =>
@@ -1490,6 +1492,31 @@ package body Gnatcheck.Compiler is
       return Pid;
    end Spawn_GPRbuild;
 
+   --------------------------
+   -- Style_Rule_Parameter --
+   --------------------------
+
+   function Style_Rule_Parameter (Diag : String) return String is
+      First_Idx        : Natural;
+      String_To_Search : constant String :=
+        (if Gnatcheck.Options.Mapping_Mode then "[style_checks:"
+         else                                   "[-gnaty");
+
+   begin
+      --  This function returns non-empty result only if .d parameter is
+      --  specified for Warnings rule or if --show-rule gnatcheck option is
+      --  set (that is, if Diag ends with "[style_checks:<option>]"
+
+      First_Idx := Index (Diag, String_To_Search);
+
+      if First_Idx = 0 then
+         return "";
+      else
+         First_Idx := First_Idx + String_To_Search'Length;
+         return Diag (First_Idx .. First_Idx);
+      end if;
+   end Style_Rule_Parameter;
+
    ----------------------------
    -- Warning_Rule_Parameter --
    ----------------------------
@@ -1499,6 +1526,7 @@ package body Gnatcheck.Compiler is
       String_To_Search    : constant String :=
         (if Gnatcheck.Options.Mapping_Mode then "[warnings:"
          else                                   "[-gnatw");
+
    begin
       --  This function returns non-empty result only if .d parameter is
       --  specified for Warnings rule or if --show-rule gnatcheck option is
@@ -1511,7 +1539,8 @@ package body Gnatcheck.Compiler is
       else
          First_Idx := First_Idx + String_To_Search'Length;
          Last_Idx  :=
-           (if Diag (First_Idx) = '.' then First_Idx + 1 else First_Idx);
+           (if Diag (First_Idx) in '.' | '_'
+            then First_Idx + 1 else First_Idx);
       end if;
 
       return Diag (First_Idx .. Last_Idx);

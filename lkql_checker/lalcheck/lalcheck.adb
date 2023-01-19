@@ -342,7 +342,7 @@ begin
       Gnatcheck.Diagnoses.Init_Exemptions;
    end if;
 
-   if Check_Restrictions or else Use_gnatw_Option then
+   if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;
    end if;
 

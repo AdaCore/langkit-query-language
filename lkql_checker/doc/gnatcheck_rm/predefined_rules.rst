@@ -5244,6 +5244,10 @@ This rule takes a parameter in one of the following forms:
 For instance, the ``+RStyle_Checks:O`` rule option activates
 the compiler style check that corresponds to ``-gnatyO`` style check option.
 
+This rule allows parametric rule exemptions, the parameters
+that are allowed in the definition of exemption sections are the
+same as the parameters of the rule itself.
+
 .. rubric:: Example
 
 .. code-block:: ada

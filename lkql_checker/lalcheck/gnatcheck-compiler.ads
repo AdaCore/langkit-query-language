@@ -167,6 +167,11 @@ package Gnatcheck.Compiler is
    --  definition of exemptiopn section. Assumes that Par does not contain any
    --  leading or trailing space.
 
+   function Style_Rule_Parameter (Diag : String) return String;
+   --  Assuming that Diag is a diagnosis string corresponding to a violation of
+   --  some style-based rule, returns the parameter of the rule (used
+   --  in parametrized exemption sections for style messages).
+
    function Warning_Rule_Parameter (Diag : String) return String;
    --  Assuming that Diag is a diagnosis string corresponding to a violation of
    --  some warning-based rule, returns the parameter of the rule (used

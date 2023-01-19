@@ -1663,19 +1663,12 @@ package body Gnatcheck.Projects is
         Check_Restrictions or Check_Semantic;
 
       if Analyze_Compiler_Output then
+         Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
          Store_Compiler_Option ("-gnatcU");
+         Store_Compiler_Option ("-gnatwnA.d");
 
          if Use_gnatw_Option then
-            Store_Compiler_Option ("-gnatwnA");
-            Store_Compiler_Option ("-gnatw.d");
             Store_Compiler_Option (Get_Warning_Option);
-            Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
-         elsif Check_Restrictions then
-            Store_Compiler_Option ("-gnatwnA");
-            Store_Compiler_Option ("-gnatec=" & Gnatcheck_Config_File.all);
-         else
-            --  '-gnatws' disables all the warnings except style-related
-            Store_Compiler_Option ("-gnatws");
          end if;
 
          Store_Compiler_Option ("-gnatyN");

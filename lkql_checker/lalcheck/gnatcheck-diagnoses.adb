@@ -48,6 +48,7 @@ with Gnatcheck.Rules.Rule_Table;   use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;   use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text; use Langkit_Support.Text;
+with Libadalang.Common;
 with Libadalang.Expr_Eval;
 
 package body Gnatcheck.Diagnoses is
@@ -196,8 +197,8 @@ package body Gnatcheck.Diagnoses is
    --  Prints into XML report file the information from the diagnosis. The
    --  boolean parameter is used to define the needed indentation level
 
-   function Strip_Warning (Diag : String) return String;
-   --  Strip trailing " [-gnatwxxx]", if any
+   function Strip_Tag (Diag : String) return String;
+   --  Strip trailing " [-gnatxxx]", if any
 
    ----------------------------------------------------------------------
    --  Data structures and local routines for rule exemption mechanism --
@@ -1660,7 +1661,7 @@ package body Gnatcheck.Diagnoses is
             end if;
 
             if Text_Report_ON then
-               Report (Strip_Warning (Image (Diag)));
+               Report (Strip_Tag (Image (Diag)));
 
                if Diag.Justification /= Null_Unbounded_String then
                   Report ("(" & To_String (Diag.Justification) & ")", 1);
@@ -1884,10 +1885,10 @@ package body Gnatcheck.Diagnoses is
                Idx : constant Natural := Index (Diag, ": ");
             begin
                return Diag (Diag'First .. Idx + 1) & GPS_Prefix & ' ' &
-                            Strip_Warning (Diag (Idx + 2 .. Diag'Last));
+                            Strip_Tag (Diag (Idx + 2 .. Diag'Last));
             end;
          else
-            return Strip_Warning (Diag);
+            return Strip_Tag (Diag);
          end if;
       end Preprocess_Diag;
 
@@ -2669,8 +2670,7 @@ package body Gnatcheck.Diagnoses is
          when Restrictions_Id =>
             return Restriction_Rule_Parameter (Diag);
          when Style_Checks_Id =>
-            --  ??? would need a -gnaty switch similar to -gnatw.d
-            return "";
+            return Style_Rule_Parameter (Diag);
          when Warnings_Id     =>
             return Warning_Rule_Parameter (Diag);
          when others =>
@@ -2950,15 +2950,15 @@ package body Gnatcheck.Diagnoses is
       end if;
    end Store_Diagnosis;
 
-   -------------------
-   -- Strip_Warning --
-   -------------------
+   ---------------
+   -- Strip_Tag --
+   ---------------
 
-   function Strip_Warning (Diag : String) return String is
-      Idx : constant Natural := Index (Diag, " [-gnatw");
+   function Strip_Tag (Diag : String) return String is
+      Idx : constant Natural := Index (Diag, " [-gnat");
    begin
       return (if Idx = 0 then Diag else Diag (Diag'First .. Idx - 1));
-   end Strip_Warning;
+   end Strip_Tag;
 
    ------------------
    -- To_Pars_List --
@@ -3044,7 +3044,7 @@ package body Gnatcheck.Diagnoses is
       Exempted    : constant Boolean :=
         Diag.Diagnosis_Kind = Rule_Violation and then
         Diag.Justification /= Null_Unbounded_String;
-      Message     : constant String  := Strip_Warning (Image (Diag));
+      Message     : constant String  := Strip_Tag (Image (Diag));
       L_Idx       :          Natural := Message'First;
       R_Idx       :          Natural := Index (Message, ":");
       Last_Idx    : constant Natural := Message'Last;
