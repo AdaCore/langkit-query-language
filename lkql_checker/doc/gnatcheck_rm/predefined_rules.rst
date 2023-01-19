@@ -1550,14 +1550,17 @@ This rule has no parameters.
 
 .. index:: Same_Instantiations
 
-Flag each generic package instantiation when it can be determined that
-a set of the ``gnatcheck`` argument sources contains an instantiation
-of the same generic with the same actual parameters. This determination
-is conservative, it checks only for the following matching parameters:
+Flag each generic package instantiation when it can be determined that a set of
+the ``gnatcheck`` argument sources contains another instantiation of the same
+generic with the same actual parameters.
+This determination is conservative, it checks currently for the following matching
+parameters:
 
-* integer, character and string literals;
+* integer and string literals;
 
 * Ada names that denote the same entity.
+
+Generic packages that have no parameters are ignored.
 
 If some instantiation is marked by the rule, additional investigation
 is required to decide if one of the duplicated instantiations can be
@@ -1565,7 +1568,10 @@ removed to simplify the code. In particular, the rule does not check if
 these instantiations declare any global variable or perform some
 non-trivial actions as a part of their elaboration.
 
-This rule has no parameters.
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*Library_Level_Only*
+  Only check library level instantiations.
 
 .. rubric:: Example
 

@@ -1,12 +1,17 @@
-# Flag each generic package instantiation when it can be determined that
-# it has the same actual parameters as another generic instantiation.
+# Flag each generic package instantiation when it can be determined that it has
+# the same actual parameters as another generic instantiation.
 # This determination is conservative and will check for a match on:
-# - integer, character and string literals
+# - integer and string literals
 # - identifier names other than function calls (e.g. types, variables,
 #   subprogram names).
+# Generic packages that have no parameters are ignored.
+#
+# If the parameter `library_level_only` is set, only check library level
+# instantiations.
+#
 # Note that no verification is made to check if the instantiation declares
-# global variables (if they do, removing the flagged duplicates will likely not
-# be possible).
+# global variables or have non trivial elaboration code (if they do, removing
+# the flagged duplicates will likely not be possible).
 
 import stdlib
 
@@ -28,27 +33,36 @@ fun params_equal(l1, l2, i: int) =
     i == 0 or
     (same_exprs(l1[i].actual, l2[i].actual) and params_equal(l1, l2, i - 1))
 
-fun same_params(i1, i2) = {
+fun same_non_null_params(i1, i2) = {
     val params1 = i1.p_inst_params();
     val params2 = i2.p_inst_params();
     val length = params1.length;
+
+    # Check that there is at least one parameter
+    length != 0 and
+    # Compare these parameters
     length == params2.length and params_equal(params1, params2, length)
 }
 
 @memoized
-fun insts() = select GenericPackageInstantiation
+fun insts(library_only) =
+    select i@GenericPackageInstantiation
+    when not library_only or not stdlib.has_local_scope(i)
 
 @memoized
-fun same_instance(node) =
-    [i for i in insts()
+fun same_instance(node, library_only) =
+    [i for i in insts(library_only)
        if i != node and
           node.f_generic_pkg_name.p_referenced_decl() ==
-          i.f_generic_pkg_name.p_referenced_decl() and same_params(node, i)]?[1]
+              i.f_generic_pkg_name.p_referenced_decl() and
+          same_non_null_params(node, i)]?[1]
 
 @unit_check(help="duplicate generic package instantiations",
             category="Style", subcategory="Program Structure")
-fun same_instantiations(unit) =
+fun same_instantiations(unit, library_level_only = false) =
     [{message: "same instantiation found at " &
-               stdlib.sloc_image(same_instance(n)), loc: n}
-     for n in from unit.root select GenericPackageInstantiation
-              if same_instance(n)]
+               stdlib.sloc_image(same_instance(n, library_level_only)), loc: n}
+     for n in from unit.root
+              select i@GenericPackageInstantiation
+              if (not library_level_only or not stdlib.has_local_scope(i)) and
+                 same_instance(n, library_level_only)]
