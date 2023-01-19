@@ -81,7 +81,8 @@ package body Gnatcheck.Compiler is
    --    adding the compiler check (if for a warning message '.d' is specified,
    --    the trailing part that indicates the warning message that causes this
    --    warning is removed from the diagnosis, and the corresponding warning
-   --    parameter is added to the annotation.
+   --    parameter is added to the annotation, as well as the user synonym, if
+   --    any.
 
    function Annotation
      (Message_Kind : Message_Kinds;
@@ -214,7 +215,6 @@ package body Gnatcheck.Compiler is
 
          return Result (Result'First .. Diag_End) &
                 Annotation (Message_Kind, Result (Par_Start .. Par_End));
-
       else
          return Result (Result'First .. Last_Idx);
       end if;
@@ -503,13 +503,27 @@ package body Gnatcheck.Compiler is
             pragma Assert (False);
             return "";
          when Warning =>
-            --  ??? Ideally we'd like to identify also the user synonym, if
-            --  any. See Process_Warning_Param.
-            return " [warnings" &
-                   (if Parameter = "" then "" else ":" & Parameter) & "]";
+            if Parameter = "" then
+               return " [warnings]";
+            elsif Warning_Synonyms.Contains (Parameter) then
+               return " [" &
+                      Warning_Synonyms.Element (Parameter) &
+                      "|warnings:" & Parameter & "]";
+            else
+               return " [warnings:" & Parameter & "]";
+            end if;
+
          when Style =>
-            return " [style_checks" &
-                   (if Parameter = "" then "" else ":" & Parameter) & "]";
+            if Parameter = "" then
+               return " [style_checks]";
+            elsif Style_Synonyms.Contains (Parameter) then
+               return " [" &
+                      Style_Synonyms.Element (Parameter) &
+                      "|style_checks:" & Parameter & "]";
+            else
+               return " [style_checks:" & Parameter & "]";
+            end if;
+
          when Restriction =>
             return " [restrictions]";
          when Error =>

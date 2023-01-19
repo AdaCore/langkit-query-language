@@ -169,15 +169,40 @@ package body Gnatcheck.Rules.Rule_Table is
    --------------
 
    function Get_Rule (Rule_Name : String) return Rule_Id is
-      Normalised_Rule_Name : constant String := To_Lower (Rule_Name);
+      Normalized_Rule_Name : constant String := To_Lower (Rule_Name);
+
+      function Has_Element
+        (Container : Synonym_Maps.Map; Element : String) return Boolean;
+      --  Return whether Element (assumed lower case) is present in Container
+
+      -----------------
+      -- Has_Element --
+      -----------------
+
+      function Has_Element
+        (Container : Synonym_Maps.Map; Element : String) return Boolean is
+      begin
+         for E of Container loop
+            if To_Lower (E) = Element then
+               return True;
+            end if;
+         end loop;
+
+         return False;
+      end Has_Element;
+
    begin
       --  First, check if we have a compiler check:
 
-      if Normalised_Rule_Name = "restrictions" then
+      if Normalized_Rule_Name = "restrictions" then
          return Restrictions_Id;
-      elsif Normalised_Rule_Name = "style_checks" then
+      elsif Normalized_Rule_Name = "style_checks"
+        or else Has_Element (Style_Synonyms, Normalized_Rule_Name)
+      then
          return Style_Checks_Id;
-      elsif Normalised_Rule_Name = "warnings" then
+      elsif Normalized_Rule_Name = "warnings"
+        or else Has_Element (Warning_Synonyms, Normalized_Rule_Name)
+      then
          return Warnings_Id;
       end if;
 
@@ -187,10 +212,10 @@ package body Gnatcheck.Rules.Rule_Table is
       for J in First_Rule .. All_Rules.Last loop
          --  Check the rule name as well as the user specified name, if any
 
-         if To_Lower (All_Rules.Table (J).Name.all) = Normalised_Rule_Name
+         if To_Lower (All_Rules.Table (J).Name.all) = Normalized_Rule_Name
            or else (All_Rules.Table (J).User_Synonym /= null
                     and then To_Lower (All_Rules.Table (J).User_Synonym.all) =
-                             Normalised_Rule_Name)
+                             Normalized_Rule_Name)
          then
             return J;
          end if;
@@ -865,15 +890,13 @@ package body Gnatcheck.Rules.Rule_Table is
                       Diag_Defined_At);
                Bad_Rule_Detected := True;
                return;
-
-            else
-               while Word_Start /= 0 loop
-                  Process_Restriction_Param
-                    (Option (Word_Start .. Word_End),
-                     Enable);
-                  Set_Parameter;
-               end loop;
             end if;
+
+            while Word_Start /= 0 loop
+               Process_Restriction_Param
+                 (Option (Word_Start .. Word_End), Enable);
+               Set_Parameter;
+            end loop;
 
          elsif To_Lower (Option (Word_Start .. Word_End)) = "style_checks" then
             if not Enable then
@@ -891,15 +914,58 @@ package body Gnatcheck.Rules.Rule_Table is
                       Diag_Defined_At);
                Bad_Rule_Detected := True;
                return;
-
-            else
-               while Word_Start /= 0 loop
-                  Process_Style_Check_Param
-                    (Option (Word_Start .. Word_End));
-                  Set_Parameter;
-               end loop;
             end if;
 
+            if Rule_Synonym_Start > 0 then
+               declare
+                  User_Synonym : String renames
+                    Option (Rule_Synonym_Start .. Rule_Synonym_End);
+                  J            : Natural;
+
+               begin
+                  if Option (Word_Start .. Word_End) = "all_checks" then
+                     for C of String'("0aAbcefhiklmnprst") loop
+                        Style_Synonyms.Include ([C], User_Synonym);
+                     end loop;
+                  else
+                     J := Word_Start;
+
+                     while J <= Word_End loop
+                        case Option (J) is
+                           when '1' .. '9' =>
+                              --  -gnaty[1-9] is represented by "0"
+
+                              Style_Synonyms.Include ("0", User_Synonym);
+
+                           when 'L' | 'M'  =>
+                              --  -gnatyLxx and -gnatyMxxx are represented
+                              --  respectively by "L" and "M".
+
+                              Style_Synonyms.Include
+                                (Option (J .. J), User_Synonym);
+
+                              --  Skip digits
+                              loop
+                                 exit when J = Word_End
+                                   or else Option (J + 1) not in '0' .. '9';
+                                 J := J + 1;
+                              end loop;
+
+                           when others     =>
+                              Style_Synonyms.Include
+                                (Option (J .. J), User_Synonym);
+                        end case;
+
+                        J := J + 1;
+                     end loop;
+                  end if;
+               end;
+            end if;
+
+            while Word_Start /= 0 loop
+               Process_Style_Check_Param (Option (Word_Start .. Word_End));
+               Set_Parameter;
+            end loop;
          elsif To_Lower (Option (Word_Start .. Word_End)) = "warnings" then
             if not Enable then
                Error ("there is no -R option for warnings, "     &
@@ -916,13 +982,36 @@ package body Gnatcheck.Rules.Rule_Table is
                       Diag_Defined_At);
                Bad_Rule_Detected := True;
                return;
-
-            else
-               while Word_Start /= 0 loop
-                  Process_Warning_Param (Option (Word_Start .. Word_End));
-                  Set_Parameter;
-               end loop;
             end if;
+
+            if Rule_Synonym_Start > 0 then
+               declare
+                  User_Synonym : String renames
+                    Option (Rule_Synonym_Start .. Rule_Synonym_End);
+                  J            : Integer := Word_Start;
+
+               begin
+                  loop
+                     if Option (J) in '.' | '_' then
+                        Warning_Synonyms.Include
+                          (Option (J .. J + 1), User_Synonym);
+                        J := J + 1;
+
+                     else
+                        Warning_Synonyms.Include ([Option (J)], User_Synonym);
+                     end if;
+
+                     exit when J = Word_End;
+
+                     J := J + 1;
+                  end loop;
+               end;
+            end if;
+
+            while Word_Start /= 0 loop
+               Process_Warning_Param (Option (Word_Start .. Word_End));
+               Set_Parameter;
+            end loop;
          else
             Rule := Get_Rule (Option (Word_Start .. Word_End));
 

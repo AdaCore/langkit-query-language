@@ -37,6 +37,9 @@ with System.Rident;
 with Liblkqllang.Analysis;
 with Rule_Commands;           use Rule_Commands;
 
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
+
 package Gnatcheck.Rules is
 
    pragma Warnings (Off);
@@ -659,5 +662,19 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : Custom_Rule;
       Indent_Level : Natural := 0);
+
+   --  Handling of User_Synonym and compiler related messages
+
+   --  We build a map of tag -> user synonym where tag is a one or two
+   --  character string representing the warning or style tags (after -gnatw
+   --  or -gnaty).
+
+   package Synonym_Maps is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => String,
+      Element_Type    => String,
+      Hash            => Ada.Strings.Hash,
+      Equivalent_Keys => "=");
+   Warning_Synonyms     : Synonym_Maps.Map;
+   Style_Synonyms       : Synonym_Maps.Map;
 
 end Gnatcheck.Rules;
