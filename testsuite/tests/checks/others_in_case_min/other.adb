@@ -11,6 +11,9 @@ procedure Other is
 
    Y : Integer;
 
+   function Get return String with Import;
+   S : String := Get;
+
 begin
    case X is
       when Enum1  => null;
@@ -31,6 +34,12 @@ begin
 
    --  Test on a large integer
    case Y is
+      when 0 => null;
+      when others => null;  --  NO FLAG
+   end case;
+
+   --  Test on an attribute
+   case S'Length is
       when 0 => null;
       when others => null;  --  NO FLAG
    end case;
