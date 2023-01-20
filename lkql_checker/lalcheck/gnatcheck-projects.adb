@@ -237,8 +237,8 @@ package body Gnatcheck.Projects is
       -- Only_Ada_Mains --
       --------------------
 
-      function Only_Ada_Mains (Prj : GPR2.Project.View.Object) return Boolean
-      is
+      function Only_Ada_Mains
+        (Prj : GPR2.Project.View.Object) return Boolean is
       begin
          for Main of Prj.Mains loop
             if not Prj.Source (Main.Source).Is_Ada then
@@ -278,7 +278,9 @@ package body Gnatcheck.Projects is
 
       procedure Store_Source (Source : Project.Source.Object) is
       begin
-         Store_Sources_To_Process (String (Source.Path_Name.Simple_Name));
+         if not Source.View.Is_Externally_Built then
+            Store_Sources_To_Process (String (Source.Path_Name.Simple_Name));
+         end if;
       end Store_Source;
 
       use Ada.Strings.Unbounded;
