@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: at_representation_clauses
+input_sources: ['p.ads']

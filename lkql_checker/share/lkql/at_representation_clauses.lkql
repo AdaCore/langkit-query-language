@@ -1,0 +1,5 @@
+# Flag each Ada 83 representation clauses "use at" and "at mod".
+
+@check(message="AT representation clause", category="Feature")
+fun at_representation_clauses(node) =
+    node is AtClause or RecordRepClause(f_at_expr is not null)

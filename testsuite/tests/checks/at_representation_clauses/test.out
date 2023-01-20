@@ -1,0 +1,8 @@
+p.ads:5:4: rule violation: AT representation clause
+5 |    for Id use at Var'Address;   --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.ads:11:4: rule violation: AT representation clause
+11 |    for Rec use record           --  FLAG
+   |    ^^^^^^^^^^^
+
