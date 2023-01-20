@@ -6,5 +6,6 @@
        category="Style", subcategory="Programming Practice")
 fun redundant_null_statements(node) =
     node is NullStmt
-     and ((node.previous_sibling() != null and node.previous_sibling() is not Label) or
+     and node.previous_sibling() is not Label
+     and (node.previous_sibling() != null or
           (node.next_sibling() != null and node.next_sibling() is not NullStmt))

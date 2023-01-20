@@ -16,10 +16,10 @@ begin
       null;   --  FLAG
    end loop;
 
+   <<label>> null;  --  NO FLAG (label)
+
    begin
       null;   --  FLAG
       pragma Assert (True);
    end;
-
-   <<label>> null;  --  NO FLAG (label)
 end;
