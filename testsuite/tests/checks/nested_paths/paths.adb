@@ -25,6 +25,26 @@ begin
       return;
    end if;
 
+   loop
+      if Cond then
+         exit;
+      else
+         I := 1;    --  FLAG
+      end if;
+
+      if Cond then
+         exit when Cond;
+      else
+         I := 1;    --  NO FLAG
+      end if;
+
+      if Cond then
+         return;
+      else
+         exit when Cond;   --  FLAG
+      end if;
+   end loop;
+
    if Cond then
       begin                        --  NO FLAG
          raise Constraint_Error;

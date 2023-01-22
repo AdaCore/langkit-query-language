@@ -10,3 +10,11 @@ paths.adb:23:7: rule violation: nested path may be moved outside if statement
 23 |       I := 1;       --  FLAG
    |       ^^^^^^^
 
+paths.adb:32:10: rule violation: nested path may be moved outside if statement
+32 |          I := 1;    --  FLAG
+   |          ^^^^^^^
+
+paths.adb:44:10: rule violation: nested path may be moved outside if statement
+44 |          exit when Cond;   --  FLAG
+   |          ^^^^^^^^^^^^^^^
+
