@@ -13,7 +13,8 @@ fun has_export(body) = {
     (if decl == null then body else decl).p_has_aspect("Export")
 }
 
-@check(message="exception not handled locally")
+@check(message="exception not handled locally",
+       category="Style", subcategory="Programming Practice")
 fun exception_propagation_from_export(node) =
    node is BaseSubpBody
     when has_export(node) and stdlib.propagate_exceptions(node)
