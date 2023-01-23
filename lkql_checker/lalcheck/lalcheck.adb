@@ -148,7 +148,14 @@ procedure Lalcheck is
                Wait_Process (Pid, Status);
 
                if Pid = Invalid_Pid then
-                  Info ("Error while waiting for gnatcheck process.");
+                  --  We still want to set Current to avoid going into an
+                  --  infinite loop in Schedule_Files: if we are there, it
+                  --  means there are no more processes to wait for.
+
+                  Current := Total_Jobs;
+                  Tool_Failures := @ + 1;
+                  Info ("Error while waiting for gnatcheck process, output " &
+                        "may be incomplete.");
                   return;
                end if;
 
