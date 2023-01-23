@@ -226,6 +226,11 @@ fun closest_enclosing_generic(n) =
     if n then n.p_get_uninstantiated_node() else null
 }
 
+# TODO: move to LAL
+fun in_generic_instance(n) =
+    |" Return true if ``n`` is part of a generic instantiation.
+    n.p_generic_instantiations().length != 0
+
 fun in_generic_template(n) =
     |" Return true if ``n`` is declared as part of a generic template (spec
     |" or body). Return false otherwise, including inside a generic

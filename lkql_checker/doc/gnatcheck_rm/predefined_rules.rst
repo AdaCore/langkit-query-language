@@ -3797,13 +3797,17 @@ it), and the actual for the formal type ``Target`` is an access type
 actual for ``Source`` is a private type and its full declaration is a type
 derived from ``System.Address``, and cases when the actual for ``Target`` is
 a private type and its full declaration is an access type. The rule is
-checked inside expanded generics.
+checked inside expanded generics unless the ``No_Instantiations`` parameter
+is set.
 
-The rule has an optional parameter for ``+R`` option:
+The rule has the following optional parameters for the ``+R`` option:
 
 *ALL*
    All instantiations of Unchecked_Conversion to or from System.Address are
    flagged.
+
+*No_Instantiations*
+   Do not check inside expanded generics.
 
 .. rubric:: Example
 

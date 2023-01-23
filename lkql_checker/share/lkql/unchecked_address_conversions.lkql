@@ -4,9 +4,10 @@
 # from access types). This includes cases when the actual for Source is a
 # private type and its full declaration is a type derived from System.Address,
 # and cases when the actual for Target is a private type and its full
-# declaration is an access type. The rule is checked inside expanded generics.
+# declaration is an access type. The rule is checked inside expanded generics
+# by default, unless the parameter `No_Instantiations` is set.
 #
-# If the parameter ALL is set, all instantiations of Unchecked_Conversion
+# If the parameter `ALL` is set, all instantiations of Unchecked_Conversion
 # to or from System.Address are flagged.
 
 import stdlib
@@ -26,15 +27,16 @@ fun check_uc_params(source, target, all) =
 @check(message="address-to-access conversion",
        follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
-fun unchecked_address_conversions(node, all=false) =
+fun unchecked_address_conversions(node, all=false, no_instantiations=false) =
     node is GenericSubpInstantiation
-    when ({
+    when not (no_instantiations and stdlib.in_generic_instance(node))
+     and ({
         val name = stdlib.ultimate_subprogram_alias(node.p_designated_subp()).
                    p_fully_qualified_name();
         name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"})
      and node.f_params is params@AssocList
          when params.children_count == 2
           and if not params[1].f_designator or
-                 params[1].f_designator.p_name_is("source") 
+                 params[1].f_designator.p_name_is("source")
               then check_uc_params(params[1], params[2], all)
               else check_uc_params(params[2], params[1], all)

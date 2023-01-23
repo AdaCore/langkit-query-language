@@ -81,6 +81,10 @@ library.
     Return true if ``decl`` has a Scalar_Storage_Order aspect whose value
     cannot be determined to be equal to System.Default_Storage_Order.
 
+.. function:: in_generic_instance(n)
+
+    Return true if ``n`` is part of a generic instantiation.
+
 .. function:: in_generic_template(n)
 
     Return true if ``n`` is declared as part of a generic template (spec
