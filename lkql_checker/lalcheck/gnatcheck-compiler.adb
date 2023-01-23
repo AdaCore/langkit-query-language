@@ -22,8 +22,12 @@ with Ada.Command_Line;        use Ada.Command_Line;
 with Ada.Directories;         use Ada.Directories;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 with GNAT.Case_Util;
+with GNAT.Strings;
+
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with Gnatcheck.Options;            use Gnatcheck.Options;
 with Gnatcheck.Output;             use Gnatcheck.Output;
@@ -518,28 +522,45 @@ package body Gnatcheck.Compiler is
    -------------------------------------
 
    procedure Create_Restriction_Pragmas_File is
-      RPF : File_Type;
-   begin
-      Create (File => RPF,
-              Mode => Out_File,
-              Name => Gnatcheck_Config_File.all);
+      use Ada.Strings.Unbounded;
 
-      Put_Line (RPF, "pragma Warnings (Off, ""[enabled by default]"");");
+      Contents : Unbounded_String;
+
+      procedure Add_Line (Line : String);
+      --  Add Line to Contents, and append a LF character
+
+      --------------
+      -- Add_Line --
+      --------------
+
+      procedure Add_Line (Line : String) is
+      begin
+         Append (Contents, Line);
+         Append (Contents, [ASCII.LF]);
+      end Add_Line;
+
+   begin
+      --  Create the contents of the file in memory first and then if the file
+      --  already exists, compare its contents and do nothing if the contents
+      --  are the same to avoid changing the file's timestamp and trigger
+      --  spurious recompilations.
+
+      Add_Line ("pragma Warnings (Off, ""[enabled by default]"");");
 
       for R in All_Restrictions loop
          if Restriction_Setting (R).Active then
             if R in All_Boolean_Restrictions then
-               Put_Line (RPF, "pragma Restriction_Warnings (" & R'Img & ");");
+               Add_Line ("pragma Restriction_Warnings (" & R'Img & ");");
             else
                for J in Restriction_Setting (R).Param'Range loop
-                  Put (RPF, "pragma Restriction_Warnings (");
-                  Put (RPF, R'Img);
-                  Put (RPF, " =>"  & Restriction_Setting (R).Param (J).all);
-                  Put_Line (RPF, ");");
+                  Append (Contents, "pragma Restriction_Warnings (");
+                  Append (Contents, R'Img);
+                  Append (Contents,
+                          " =>"  & Restriction_Setting (R).Param (J).all);
+                  Add_Line (");");
                end loop;
             end if;
          end if;
-
       end loop;
 
       for R in Special_Restriction_Setting'Range loop
@@ -549,37 +570,63 @@ package body Gnatcheck.Compiler is
                   Forbidden_Units_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Units_Dictionary.Done loop
-                     Put
-                       (RPF, "pragma Restriction_Warnings (No_Dependence => ");
-                     Put_Line
-                       (RPF, Forbidden_Units_Dictionary.Next_Entry & ");");
+                     Append
+                       (Contents,
+                        "pragma Restriction_Warnings (No_Dependence => ");
+                     Add_Line
+                       (Forbidden_Units_Dictionary.Next_Entry & ");");
                   end loop;
 
                when No_Use_Of_Entity =>
                   Forbidden_Entities_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Entities_Dictionary.Done loop
-                     Put (RPF,
-                          "pragma Restriction_Warnings (No_Use_Of_Entity => ");
-                     Put_Line
-                       (RPF, Forbidden_Entities_Dictionary.Next_Entry & ");");
+                     Append
+                       (Contents,
+                        "pragma Restriction_Warnings (No_Use_Of_Entity => ");
+                     Add_Line
+                       (Forbidden_Entities_Dictionary.Next_Entry & ");");
                   end loop;
 
                when No_Specification_Of_Aspect =>
                   Forbidden_Aspects_Dictionary.Reset_Iterator;
 
                   while not Forbidden_Aspects_Dictionary.Done loop
-                     Put (RPF,
-                          "pragma Restriction_Warnings " &
-                          "(No_Specification_Of_Aspect => ");
-                     Put_Line
-                       (RPF, Forbidden_Aspects_Dictionary.Next_Entry & ");");
+                     Append (Contents,
+                             "pragma Restriction_Warnings " &
+                             "(No_Specification_Of_Aspect => ");
+                     Add_Line (Forbidden_Aspects_Dictionary.Next_Entry & ");");
                   end loop;
             end case;
          end if;
       end loop;
 
-      Close (RPF);
+      declare
+         Config_File   : constant Virtual_File :=
+           Create (+Gnatcheck_Config_File.all);
+         File          : Writable_File;
+         Old_Contents  : GNAT.Strings.String_Access;
+         New_Contents  : constant String := To_String (Contents);
+         Same_Contents : Boolean;
+
+      begin
+         if Is_Regular_File (Config_File) then
+            Old_Contents := Read_File (Config_File);
+            Same_Contents := Old_Contents.all = New_Contents;
+            Free (Old_Contents);
+
+            if Same_Contents then
+               --  Nothing more to do: we don't want to change the timestamp
+               --  of the configuration file.
+
+               return;
+            end if;
+         end if;
+
+         File := Write_File (Config_File);
+         Write (File, New_Contents);
+         Close (File);
+      end;
    end Create_Restriction_Pragmas_File;
 
    -----------------

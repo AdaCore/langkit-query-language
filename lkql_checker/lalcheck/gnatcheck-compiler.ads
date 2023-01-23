@@ -63,7 +63,7 @@ package Gnatcheck.Compiler is
    --  analyze its output.
 
    Gnatcheck_Config_File : String_Access :=
-     new String'("restriction_pragmas" & ".TMP");
+     new String'("restriction_pragmas.adc");
    --  The name of the file to place configuration pragmas gnatcheck needs to
    --  add the compiler checks to its report. This file always starts with:
    --
@@ -72,10 +72,6 @@ package Gnatcheck.Compiler is
    --  pragma needed to disable warnings that do not have a switch to turn the
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
-   --
-   --  The file name must end in ".TMP", because that is the convention that
-   --  indicates to gcc that it should not create a dependency on that file in
-   --  the .ALI file.
 
    procedure Analyze_Output (File_Name : String; Errors : out Boolean);
    --  Parses the given file (typically error output of gprbuild or gnatcheck)
