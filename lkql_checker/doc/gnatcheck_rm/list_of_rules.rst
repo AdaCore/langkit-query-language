@@ -70,6 +70,7 @@ GNATcheck rules.
 * :ref:`Incomplete_Representation_Specifications`
 * :ref:`Integer_Types_As_Enum`
 * :ref:`Library_Level_Subprograms`
+* :ref:`Local_Instantiations`
 * :ref:`Local_Packages`
 * :ref:`Local_USE_Clauses`
 * :ref:`Max_Identifier_Length`
@@ -135,6 +136,7 @@ GNATcheck rules.
 * :ref:`Raising_External_Exceptions`
 * :ref:`Raising_Predefined_Exceptions`
 * :ref:`Recursive_Subprograms`
+* :ref:`Redundant_Null_Statements`
 * :ref:`Relative_Delay_Statements`
 * :ref:`Renamings`
 * :ref:`Representation_Specifications`

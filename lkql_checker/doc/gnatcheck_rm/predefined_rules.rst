@@ -2216,6 +2216,53 @@ This rule has no parameters.
    end Factorial;
 
 
+
+.. _Local_Instantiations:
+
+``Local_Instantiations``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Local_Instantiations
+
+Non library-level generic instantiations are flagged.
+
+The rule has an optional parameter(s) for the ``+R`` option:
+
+*Generic_Unit_Name*
+  A rule parameter should be a full expanded Ada name of a generic unit,
+  any number of parameters are allowed, parameters should be separated by comma.
+
+If the rule is activated without parameters, all local instantiations
+are flagged, otherwise only instantiations of the generic units which names
+are listed as rule parameters are flagged. Note that a rule parameter should
+be a generic unit name but not the name defined by generic renaming declaration.
+Note also, that if a rule parameter does not denote an existing generic unit
+or if it denotes a name defined by generic renaming declaration, the parameter
+itself is (silently) ignored and does not have any effect, but the presence of at
+least one of such a parameter already means that the rule will not flag any
+instantiation if the full expanded Ada name of the instantiated generic unit is
+listed as a rule parameter.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines:
+
+   generic
+   package Pack_G is
+      I : Integer;
+   end Pack_G;
+
+   with Pack_G;
+   package Pack_I is new Pack_G;   --  NO FLAG
+
+   with Pack_G;
+   procedure Proc is
+      package Inst is new Pack_G;  --  FLAG
+   begin
+      ...
+
+
 .. _Local_USE_Clauses:
 
 ``Local_USE_Clauses``
@@ -3376,6 +3423,28 @@ The rule has an optional parameter for the ``+R`` option:
          return N * Factorial (N - 1);
       end if;
    end Factorial;
+
+.. _Redundant_Null_Statements:
+
+``Redundant_Null_Statements``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Redundant_Null_Statements
+
+Flag null statements that serve no purpose and can be removed. If a null
+statement has a label it is not flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+    if I > 0 then
+       null;       --  FLAG
+       pragma Assert (J > 0);
+    end if;
 
 
 
