@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Direct_Equalities
+project: 'prj.gpr'
+rule_arguments:
+   direct_equalities.actuals: '["p.none"]'

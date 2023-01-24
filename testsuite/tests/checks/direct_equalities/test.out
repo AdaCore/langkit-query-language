@@ -1,0 +1,8 @@
+p.adb:5:14: rule violation: direct (in)equality
+5 |       return X = None;   --  FLAG
+  |              ^^^^^^^^
+
+p.adb:6:14: rule violation: direct (in)equality
+6 |       return None /= X;  --  FLAG
+  |              ^^^^^^^^^
+
