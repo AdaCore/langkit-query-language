@@ -6,7 +6,7 @@ null_stmts.adb:16:7: rule violation: redundant null statement
 16 |       null;   --  FLAG
    |       ^^^^^
 
-null_stmts.adb:20:7: rule violation: redundant null statement
-20 |       null;   --  FLAG
+null_stmts.adb:22:7: rule violation: redundant null statement
+22 |       null;   --  FLAG
    |       ^^^^^
 
