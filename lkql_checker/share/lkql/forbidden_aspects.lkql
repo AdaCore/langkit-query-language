@@ -7,6 +7,10 @@
             category="Style", subcategory="Portability")
 fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) = [
     {message: "use of aspect " & node.f_id.text, loc: node}
-    for node in from unit.root select AspectAssoc(f_id is id@Identifier)
-    when (all or [p for p in forbidden if id.p_name_is(p)])
-     and not [p for p in allowed if id.p_name_is(p)]]
+    for node in from unit.root select AspectAssoc(f_id is id@Name)
+    # Note that p_name_is doesn't work on e.g. AttributeRef, so compare strings
+    # directly instead.
+    when {
+        val str = id.text.to_lower_case;
+        (all or [p for p in forbidden if str == p.to_lower_case])
+        and not [p for p in allowed if str == p.to_lower_case]}]
