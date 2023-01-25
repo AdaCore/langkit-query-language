@@ -52,6 +52,7 @@ GNATcheck rules.
 * :ref:`Expression_Functions`
 * :ref:`Fixed_Equality_Checks`
 * :ref:`Float_Equality_Checks`
+* :ref:`Forbidden_Aspects`
 * :ref:`Forbidden_Attributes`
 * :ref:`Forbidden_Pragmas`
 * :ref:`Function_Style_Procedures`

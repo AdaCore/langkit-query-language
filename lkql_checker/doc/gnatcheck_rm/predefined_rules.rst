@@ -666,6 +666,83 @@ This rule has no parameters.
       pragma Pack (My_Rec);
    end Pack;
 
+
+.. _Forbidden_Aspects:
+
+``Forbidden_Aspects``
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Forbidden_Aspects
+
+Flag each use of the specified aspects. The aspects to be detected are
+named in the rule's parameters.
+
+This rule has the following parameters for the ``+R`` option:
+
+* *Aspect_Mark*
+    Adds the specified aspect to the set of aspects to be detected and sets
+    the detection checks for all the specified attributes ON. Note that if some
+    aspect exists also as class-wide aspect, the rule treats its normal
+    and class-wide versions separately. (If you specify ``Pre`` as the rule parameter,
+    the rule will not flag the ``Pre'Class`` aspect, and the other way around -
+     specifying ``Pre'Class`` as the rule parameter does not mean that the rule
+     will flag the ``Pre`` aspect).
+
+* ``ALL``
+    All aspects are detected; this sets the rule ON.
+
+and for the ``-R`` option:
+
+* *Aspect_Mark*
+    Removes the specified aspect from the set of aspects to be
+    detected without affecting detection checks for
+    other aspects.
+
+* ``ALL``
+    Clear the list of the aspects to be detected and
+    turn the rule OFF.
+
+Parameters are case insensitive. If *Aspect_Mark* does not
+have the syntax of an Ada identifier, it is (silently)
+ignored, but if such a parameter is given for the ``+R`` option, this
+turns the rule ON.
+
+When more than one parameter is given in the same rule option, the parameters
+must be separated by commas.
+
+If more than one option for this rule is specified for the gnatcheck call, for the
+same *Aspect_Mark* a new option overrides the previous one(s). Options for
+different *Aspect_Marks* are cumulative.
+
+The ``+R`` option with no parameters turns the rule ON, with the set of
+aspects to be detected defined by the previous rule options.
+(By default this set is empty, so if the only option specified for the rule is
+``+RForbidden_Aspects`` with no parameter, then the rule is enabled,
+but it does not detect anything).
+The ``-R`` option with no parameter turns the rule OFF, but it does not
+affect the set of aspects to be detected.
+
+The rule allows parametric exemption, the parameters that are allowed in the
+definition of exemption sections are *Aspect_Marks*.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3, 8
+
+   --  if the rule is activated as +RForbidden_Aspects:Pack,Pre
+   package Foo is
+      type Arr is array (1 .. 10) of Integer with Pack;   --  FLAG
+
+      type T is tagged private;
+
+      procedure Proc1 (X : in out T)
+        with Pre => Predicate1;                           --  FLAG
+
+      procedure Proc2 (X : in out T)
+        with Pre'Class => Predicate2;                     --  NO FLAG
+
+
 .. _Forbidden_Attributes:
 
 ``Forbidden_Attributes``
