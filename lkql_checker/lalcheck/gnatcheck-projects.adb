@@ -123,7 +123,6 @@ package body Gnatcheck.Projects is
 
    begin
       if not (Subprocess_Mode or Debug_Mode) then
-         Delete_File (Gnatcheck_Config_File.all, Success);
          Delete_File (Gprbuild, Success);
          Delete_File (Gprbuild & ".out", Success);
       end if;
