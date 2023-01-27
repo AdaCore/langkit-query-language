@@ -1,4 +1,6 @@
-procedure Member (A : Integer) is
+procedure Member (A, B : Integer) is
+   Bool : Boolean;
+   subtype S is Integer range 1 .. B;
 begin
    if A = 0            --  FLAG
      or A in Natural
@@ -14,7 +16,7 @@ begin
       null;
    end if;
 
-   if A = 0 or A in Natural and A = 2 then  --  NO FLAG
+   if A = 0 or (A in Natural and A = 2) then  --  NO FLAG
       null;
    end if;
 
@@ -33,4 +35,8 @@ begin
          null;
       end if;
    end;
+
+   Bool := A = B or (A >= 1 and A <= B);  --  FLAG
+   Bool := A = 100 or A in S;             --  FLAG
+   Bool := A = 100 or A in 1 .. B;        --  FLAG
 end Member;

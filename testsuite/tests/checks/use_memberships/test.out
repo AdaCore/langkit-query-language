@@ -1,8 +1,16 @@
-member.adb:3:7: rule violation: expression may be replaced by a membership test
-3 |    if A = 0            --  FLAG
+member.adb:5:7: rule violation: expression may be replaced by a membership test
+5 |    if A = 0            --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^^^
 
-member.adb:11:7: rule violation: expression may be replaced by a membership test
-11 |    if A = 0            --  FLAG if short_circuit
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+member.adb:39:12: rule violation: expression may be replaced by a membership test
+39 |    Bool := A = B or (A >= 1 and A <= B);  --  FLAG
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+member.adb:40:12: rule violation: expression may be replaced by a membership test
+40 |    Bool := A = 100 or A in S;             --  FLAG
+   |            ^^^^^^^^^^^^^^^^^
+
+member.adb:41:12: rule violation: expression may be replaced by a membership test
+41 |    Bool := A = 100 or A in 1 .. B;        --  FLAG
+   |            ^^^^^^^^^^^^^^^^^^^^^^
 
