@@ -1,0 +1,20 @@
+formal.adb:167:23: rule violation: Ada 2005 formal package declaration
+167 |          with package NP is new P (T => <>);  --  FLAG
+    |                       ^^
+
+formal.adb:188:23: rule violation: Ada 2005 formal package declaration
+188 |          with package NP is new P (Component => Item, Index => <>, List => <>);  --  FLAG
+    |                       ^^
+
+formal.adb:213:23: rule violation: Ada 2005 formal package declaration
+213 |          with package NP is new P (Component => Item, others => <>);  --  FLAG
+    |                       ^^
+
+formal.adb:239:23: rule violation: Ada 2005 formal package declaration
+239 |          with package NP is new P (others => <>);  --  FLAG
+    |                       ^^
+
+formal.adb:270:23: rule violation: Ada 2005 formal package declaration
+270 |          with package NP is new P (Component => <>, Index => <>, List => <>);  --  FLAG
+    |                       ^^
+

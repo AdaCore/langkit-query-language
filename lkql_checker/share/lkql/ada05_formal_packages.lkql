@@ -1,0 +1,15 @@
+# Flag each occurrence of a formal_package_declaration which is not allowed in
+# Ada 95.
+# In other words, each formal_package_declaration when the box symbol (<>) is
+# used except when used alone with no designator and no other parameter.
+
+@check(message="Ada 2005 formal package declaration",
+       category="Style", subcategory="Programming Practice")
+fun ada05_formal_packages(node) =
+    node is GenericPackageInstantiation(parent is GenericFormalPackage)
+    when {
+        val num_box = [p for p in node.f_params.children
+                       if p.f_r_expr is BoxExpr].length;
+        num_box > 1 or (num_box == 1 and (node.f_params.children_count > 1 or
+                                          node.f_params[1].f_designator != null))
+    }
