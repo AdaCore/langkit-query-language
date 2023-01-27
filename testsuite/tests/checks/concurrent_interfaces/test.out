@@ -1,0 +1,12 @@
+interfaces.ads:4:31: rule violation: concurrent interface
+4 |    type Synchronized_Queue is synchronized interface and Queue;       --  FLAG
+  |                               ^^^^^^^^^^^^
+
+interfaces.ads:5:30: rule violation: concurrent interface
+5 |    type Synchronized_Task is task interface;                          --  FLAG
+  |                              ^^^^
+
+interfaces.ads:6:35: rule violation: concurrent interface
+6 |    type Synchronized_Protected is protected interface;                --  FLAG
+  |                                   ^^^^^^^^^
+
