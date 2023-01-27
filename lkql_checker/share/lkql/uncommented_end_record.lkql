@@ -7,8 +7,10 @@
 fun find_comment(token, name) =
     |" Return true if token is a comment and contains only the given name
     |" possibly followed by some extra text after a space or comma.
-    token.kind == "comment" and
-    token.text.contains(pattern("^-- *" & name & "([ ,].*)?$"))
+    if token.kind == "whitespace"
+    then find_comment(token.next(), name)
+    else token.kind == "comment" and
+         token.text.contains(pattern("^-- *" & name & "([ ,].*)?$"))
 
 @unit_check(help="END RECORD not marked with type name comment",
             remediation="EASY", category="Style", subcategory="Readability")
