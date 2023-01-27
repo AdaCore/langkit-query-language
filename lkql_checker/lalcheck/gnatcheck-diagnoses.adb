@@ -538,7 +538,7 @@ package body Gnatcheck.Diagnoses is
          when Restrictions_Id =>
             Result := Is_Restriction_Exemption_Par (Param);
          when Style_Checks_Id =>
-            null;
+            Result := Is_Style_Exemption_Par (Param);
          when Warnings_Id =>
             Result := Is_Warning_Exemption_Par (Param);
          when others =>
@@ -555,20 +555,15 @@ package body Gnatcheck.Diagnoses is
    -----------------------------------
 
    function Allows_Parametrized_Exemption (Rule : Rule_Id) return Boolean is
-      Result : Boolean := False;
    begin
       case Rule is
-         when Restrictions_Id | Warnings_Id => Result := True;
-         when Style_Checks_Id               => null;
-         when others                        =>
-            Result := All_Rules.Table (Rule).Allows_Parametrized_Exemption;
+         when Restrictions_Id | Warnings_Id | Style_Checks_Id => return True;
+         when others =>
+            return All_Rules.Table (Rule).Allows_Parametrized_Exemption;
       end case;
-
-      return Result;
    end Allows_Parametrized_Exemption;
 
-   function Belongs (L : String; R : String_Vector) return Boolean
-   is
+   function Belongs (L : String; R : String_Vector) return Boolean is
       Result : Boolean := False;
    begin
       if not R.Is_Empty then

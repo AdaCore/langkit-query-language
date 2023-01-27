@@ -158,9 +158,14 @@ package Gnatcheck.Compiler is
    --  some restriction-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for restrictions)
 
+   function Is_Style_Exemption_Par (Par : String) return Boolean;
+   --  Checks if Par can be used as a Style_Checks rule parameter in the
+   --  definition of exemption section. Assumes that Par does not contain any
+   --  leading or trailing space.
+
    function Is_Warning_Exemption_Par (Par : String) return Boolean;
    --  Checks if Par can be used as a Warnings rule parameter in the
-   --  definition of exemptiopn section. Assumes that Par does not contain any
+   --  definition of exemption section. Assumes that Par does not contain any
    --  leading or trailing space.
 
    function Style_Rule_Parameter (Diag : String) return String;

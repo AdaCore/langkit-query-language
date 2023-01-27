@@ -764,6 +764,25 @@ package body Gnatcheck.Compiler is
       return Result;
    end Is_Restriction_Exemption_Par;
 
+   ----------------------------
+   -- Is_Style_Exemption_Par --
+   ----------------------------
+
+   function Is_Style_Exemption_Par (Par : String) return Boolean is
+   begin
+      --  We consider any string that can be used as a parameter of '-gnaty'
+      --  option as allowed exemption parameter, except for +/- which is not
+      --  supported.
+
+      for J in Par'Range loop
+         if Par (J) not in 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' then
+            return False;
+         end if;
+      end loop;
+
+      return True;
+   end Is_Style_Exemption_Par;
+
    ------------------------------
    -- Is_Warning_Exemption_Par --
    ------------------------------
