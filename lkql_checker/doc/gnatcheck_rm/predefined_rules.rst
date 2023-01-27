@@ -4128,6 +4128,55 @@ This rule has the following (optional) parameters for the ``+R`` option:
    end;
 
 
+.. _Use_Memberships:
+
+``Use_Memberships``
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_Memberships
+
+Flag expressions that could be rewritten as membership tests. Only expressions
+that are not subexpressions of other expressions are flagged. An expression
+is considered to be replaceable with an equivalent membership test if it is
+a logical expression consisting of a call to one or more predefined ``or``
+operation(s), each relation that is an operand of the ``or`` expression is
+a comparison of the same variable of one of following forms:
+
+*
+  a call to a predefined ``=`` operator, the variable is the left operand
+  of this call;
+
+*
+  a membership test applied to this variable;
+
+* a range test of the form ``Var >= E1 and Var <= E2`` where ``Var`` is
+  the variable in question and ``>=``, ``and`` and ``<=`` are predefined
+  operators;
+
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*short_circuit*
+  Consider the short circuit ``and then`` and ``or else`` operations along with
+  the predefined logical ``and`` and ``or`` operators.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+   begin
+      Bool1 := A = 100        -- FLAG (if short_circuit is specified)
+              or (A >=  1 and then A <= B);
+
+      Bool2 := A = 100        --  NO FLAG
+              or B in S;
+
+      Bool3 := A = 1          --  FLAG
+              or
+               A = B
+              or
+               A = B + A;
+
 
 .. _USE_PACKAGE_Clauses:
 
