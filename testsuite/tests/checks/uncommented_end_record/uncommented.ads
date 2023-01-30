@@ -13,8 +13,14 @@ package Uncommented is
       I2 : Integer;
    end record ;    -- R2  NO FLAG
 
-   type R2 is record
+   type R3 is record
       I : Integer;
       J : Integer;
-   end record;     --  R2  NO FLAG
+   end record;     --  R3  NO FLAG
+
+   type R4 is record
+      I : Integer;
+      J : Integer;
+   end record;
+   --  R4  FLAG
 end;

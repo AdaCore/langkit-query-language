@@ -4,13 +4,15 @@
 # and some extra information can be provided after the name, provided it is
 # separated from the name by a space or a comma.
 
-fun find_comment(token, name) =
-    |" Return true if token is a comment and contains only the given name
-    |" possibly followed by some extra text after a space or comma.
+fun find_comment(token, name, line) =
+    |" Return true if `token` is a comment and contains only the given `name`
+    |" possibly followed by some extra text after a space or comma, and on
+    |" line `line`.
     if token.kind == "whitespace"
-    then find_comment(token.next(), name)
+    then find_comment(token.next(), name, line)
     else token.kind == "comment" and
-         token.text.contains(pattern("^-- *" & name & "([ ,].*)?$"))
+         token.text.contains(pattern("^-- *" & name & "([ ,].*)?$")) and
+         token.start_line == line
 
 @unit_check(help="END RECORD not marked with type name comment",
             remediation="EASY", category="Style", subcategory="Readability")
@@ -20,5 +22,6 @@ fun uncommented_end_record(unit, n: int = 10) = [
     for n in from unit.root select node@RecordDef
     when node.token_end().end_line - node.token_start().start_line >= n
       and not find_comment(node.token_end().next().next().next(),
-                           node.p_semantic_parent().p_defining_name().text)
+                           node.p_semantic_parent().p_defining_name().text,
+                           node.token_end().end_line)
 ]

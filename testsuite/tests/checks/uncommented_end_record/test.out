@@ -2,3 +2,7 @@ uncommented.ads:9:8: rule violation: mark END RECORD with -- R
 9 |    end record;     --  FLAG if N >= 3
   |        ^^^^^^
 
+uncommented.ads:24:8: rule violation: mark END RECORD with -- R4
+24 |    end record;
+   |        ^^^^^^
+
