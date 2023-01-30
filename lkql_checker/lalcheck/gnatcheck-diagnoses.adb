@@ -1420,7 +1420,7 @@ package body Gnatcheck.Diagnoses is
 
          Append
            (Res,
-            (if Rule = Warnings_Id
+            (if Rule in Warnings_Id | Style_Checks_Id
              then To_String (El)
              else GNAT.Case_Util.To_Mixed (To_String (El))));
 
@@ -2786,12 +2786,12 @@ package body Gnatcheck.Diagnoses is
 
          if Allowed_As_Exemption_Parameter
               (Rule,
-               (if Rule = Warnings_Id
+               (if Rule in Warnings_Id | Style_Checks_Id
                 then Remove_Spaces (Pars (Par_Start .. Par_End))
                 else To_Lower (Remove_Spaces (Pars (Par_Start .. Par_End)))))
          then
             Rule_Exemption_Parameters.Insert
-              ((if Rule = Warnings_Id
+              ((if Rule in Warnings_Id | Style_Checks_Id
                 then Remove_Spaces (Pars (Par_Start .. Par_End))
                 else To_Lower (Remove_Spaces (Pars (Par_Start .. Par_End)))),
                Position  => Position,
