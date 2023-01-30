@@ -1,0 +1,8 @@
+assign.adb:15:4: rule violation: component assignments may be replaced by an aggregate
+15 |    O1.Comp1 := 1;   --  FLAG
+   |    ^^^^^^^^^^^^^^
+
+assign.adb:28:7: rule violation: component assignments may be replaced by an aggregate
+28 |       O3.Comp1 := 1;   --  FLAG
+   |       ^^^^^^^^^^^^^^
+

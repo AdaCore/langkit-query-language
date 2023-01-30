@@ -1,3 +1,0 @@
-driver: 'checker'
-rule_name: record_component_assignments
-project: 'prj.gpr'
