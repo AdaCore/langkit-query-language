@@ -195,7 +195,7 @@ library.
     Return true if the given body may propagate an exception, namely if:
     - it has no exception handler with a "when others" choice;
     - or it has an exception handler containing a raise statement, or a call
-      to Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
+    to Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
 
 .. function:: range_values(left, right)
 

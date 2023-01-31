@@ -179,6 +179,7 @@ GNATcheck rules.
 * :ref:`Use_Case_Statements`
 * :ref:`USE_Clauses`
 * :ref:`Use_For_Loops`
+* :ref:`Use_If_Expressions`
 * :ref:`Use_Memberships`
 * :ref:`USE_PACKAGE_Clauses`
 * :ref:`Visible_Components`

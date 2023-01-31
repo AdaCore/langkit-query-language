@@ -685,8 +685,8 @@ This rule has the following parameters for the ``+R`` option:
     aspect exists also as class-wide aspect, the rule treats its normal
     and class-wide versions separately. (If you specify ``Pre`` as the rule parameter,
     the rule will not flag the ``Pre'Class`` aspect, and the other way around -
-     specifying ``Pre'Class`` as the rule parameter does not mean that the rule
-     will flag the ``Pre`` aspect).
+    specifying ``Pre'Class`` as the rule parameter does not mean that the rule
+    will flag the ``Pre`` aspect).
 
 * ``ALL``
     All aspects are detected; this sets the rule ON.
@@ -2329,7 +2329,7 @@ listed as a rule parameter.
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines:
+   :emphasize-lines: 11
 
    generic
    package Pack_G is

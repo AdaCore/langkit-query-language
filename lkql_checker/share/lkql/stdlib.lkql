@@ -449,7 +449,7 @@ fun propagate_exceptions(body) =
     |" Return true if the given body may propagate an exception, namely if:
     |" - it has no exception handler with a "when others" choice;
     |" - or it has an exception handler containing a raise statement, or a call
-    |"   to Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
+    |" to Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
     not (# Look for a when others handler
          [e for e in body.f_stmts.f_exceptions.children
           if e is ExceptionHandler and
