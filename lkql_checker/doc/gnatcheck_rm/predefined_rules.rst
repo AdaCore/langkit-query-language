@@ -5512,6 +5512,49 @@ unit name in the package body.
    end Foo;
 
 
+.. _Uncommented_End_Record:
+
+``Uncommented_End_Record``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Uncommented_End_Record
+
+Flags ``END`` keywords that are trailing keywords in record definitions
+if a record definition is longer than N lines where N is a rule parameter,
+and the line that contains the ``END`` keyword does not contain a trailing
+comment immediately after this ``END``. This trailing comment should start
+with the name of the type that contains this record definition as (a part of)
+its type definition, and it may contain any other information separated from
+the type name by a space or a comma.
+
+This rule has the following (mandatory) parameter for the ``+R`` option:
+
+*N*
+  Non-negative integer specifying the maximum size (in source code lines)
+  of a record definition that does not require the type name as a trailing
+  comment.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 14
+
+   --  If the rule parameter is 3:
+   type R1 is record
+      I : Integer;
+   end record;       --  NO FLAG
+
+   type R2 is record
+      I : Integer;
+      B : Boolean;
+   end record; -- R2      NO FLAG
+
+   type R3 is record
+      C : Character;
+      F : Float;
+   end record;       -- FLAG
+
+
 Feature Usage Rules
 ===================
 
