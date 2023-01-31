@@ -4162,7 +4162,7 @@ This rule has the following (optional) parameter for the ``+R`` option:
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 3
+   :emphasize-lines: 2,8
 
    begin
       Bool1 := A = 100        -- FLAG (if short_circuit is specified)
