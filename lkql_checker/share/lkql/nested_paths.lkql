@@ -1,14 +1,16 @@
 # Flag each occurrence of list of statements that can be moved outside
 # an enclosing if statement. This happens when the if statement has only then
 # and else paths, and one of them only ends with a "breaking" statement
-# (raise, return, exit or goto); in this case, the other path needs not be
-# nested inside the if statement and is flagged.
+# (raise, return, exit or goto, possibly nested in a block with no exception
+# handler); in this case, the other path needs not be nested inside the if
+# statement and is flagged.
 
 fun has_last_breaking_stmt(list) =
     match list[list.children_count]
     | RaiseStmt or ReturnStmt or ExitStmt(f_cond_expr is null) or GotoStmt => true
-    | b@(BeginBlock or DeclBlock) => has_last_breaking_stmt(b.f_stmts.f_stmts)
-    | * => false
+    | b@BlockStmt => b.f_stmts.f_exceptions[1] == null and
+                     has_last_breaking_stmt(b.f_stmts.f_stmts)
+    | *           => false
 
 @check(message="nested path may be moved outside if statement",
        category="Style", subcategory="Programming Practice")

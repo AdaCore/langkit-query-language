@@ -54,6 +54,16 @@ begin
    end if;
 
    if Cond then
+      begin                        --  FLAG
+         raise Constraint_Error;
+      exception
+         when others => null;
+      end;
+   else
+      return;
+   end if;
+
+   if Cond then
       declare                      --  NO FLAG
       begin
          raise Constraint_Error;
@@ -71,5 +81,16 @@ begin
       end;
    else
       return;
+   end if;
+
+   if Cond then
+      begin
+         raise Constraint_Error;
+      exception
+         when Constraint_Error =>
+            null;
+      end;
+   else
+      I := I + 1;                  --  NO FLAG
    end if;
 end Paths;
