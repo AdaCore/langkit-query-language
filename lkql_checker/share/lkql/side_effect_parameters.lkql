@@ -1,6 +1,9 @@
 # Flag subprogram calls and generic instantiations that have in their
-# parameters at least two calls to the same function.
+# parameters at least two calls to the same function, taking into account
+# renamings.
 # `functions` is a list of fully qualified function names to check.
+
+import stdlib
 
 fun check_list(l, functions) =
     [f for f in functions if {
@@ -8,7 +11,8 @@ fun check_list(l, functions) =
         # Find at least two calls to the same function
         [n for n in (from [p.actual for p in l].to_list select Name)
          if n.p_referenced_decl() is decl@BasicDecl(p_is_subprogram() is true)
-          and decl.p_canonical_fully_qualified_name() == func]?[2] != ()
+          and stdlib.ultimate_subprogram_alias(decl).
+              p_canonical_fully_qualified_name() == func]?[2] != ()
     }]
 
 @check(message="call with side effects",
