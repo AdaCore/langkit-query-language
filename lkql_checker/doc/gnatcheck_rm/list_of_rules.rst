@@ -176,10 +176,12 @@ GNATcheck rules.
 * :ref:`Uninitialized_Global_Variables`
 * :ref:`Universal_Ranges`
 * :ref:`Unnamed_Blocks_And_Loops`
+* :ref:`Unnamed_Exits`
 * :ref:`Use_Array_Slices`
 * :ref:`Use_Case_Statements`
 * :ref:`USE_Clauses`
 * :ref:`Use_For_Loops`
+* :ref:`Use_For_Of_Loops`
 * :ref:`Use_If_Expressions`
 * :ref:`Use_Memberships`
 * :ref:`USE_PACKAGE_Clauses`

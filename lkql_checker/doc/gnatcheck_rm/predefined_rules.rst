@@ -3968,6 +3968,31 @@ The rule has no parameters.
    end Bar;
 
 
+.. _Unnamed_Exits:
+
+``Unnamed_Exits``
+^^^^^^^^^^^^^^^^^
+
+.. index:: Unnamed_Exits
+
+Flags exit statements with no loop names that exit from named loops.
+
+The rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 7
+
+   Named: for I in 1 .. 10 loop
+       while J < 0 loop
+          J := J + K;
+          exit when J = L;  --  NO FLAG
+       end loop;
+
+       exit when J > 10;    --  FLAG
+   end loop Named;
+
 .. _Use_Array_Slices:
 
 ``Use_Array_Slices``
@@ -4126,6 +4151,48 @@ This rule has the following (optional) parameters for the ``+R`` option:
          Idx := Idx + 1;
       end loop;
    end;
+
+
+.. _Use_For_Of_Loops:
+
+``Use_For_Of_Loops``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_For_Of_Loops
+
+Flag ``for ... in`` loops which could be replaced by a ``for ... of`` loop,
+that is, where the loop index is used only for indexing a single object
+on a one dimension array.
+
+The rule detects the following code patterns:
+
+.. code-block:: ada
+
+   for Index in <array>'Range loop
+      --  where <array> is an array object
+      [all references to Index are of the form <array> (Index)]
+   end loop;
+
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*N*
+  Non-negative integer, indicates the minimal number of references of the form
+  ``<array> (Index)`` in the loop to make the loop to be flagged.
+
+If no parameter is used for the rule, this corresponds to the parameter value 1.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+   for J in Arr'Range loop    --  FLAG
+      Sum := Sum + Arr (J);
+   end loop;
+
+   for K in Left'Range loop
+      Res := Left (J) + Right (J);
+   end loop;
 
 
 .. _Use_Memberships:
