@@ -2523,6 +2523,48 @@ This rule has no parameters.
    for Int1'Size use 16;         --  FLAG
 
 
+.. _Nested_Paths:
+
+``Nested_Paths``
+^^^^^^^^^^^^^^^^
+
+.. index:: Nested_Paths
+
+Flag the beginning of a sequence of statements that is immediately enclosed
+by an ``IF`` statement if this sequence of statement can be moved outside
+the enclosing ``IF`` statement. The beginning of a sequence of statements is
+flagged if:
+
+*
+  The enclosing ``IF`` statement contains ``IF`` and ``ELSE`` paths and
+  no ``ELSIF`` path;
+
+*
+  This sequence of statements does not end with a breaking statement but
+  the sequence of statement in another path does end with a breaking statement.
+
+A breaking statement is either a raise statement, or a return statement,
+or an unconditional exit statement, or a goto statement or a block
+statement without an exception handler with the enclosed sequence of
+statements that ends with some breaking statement.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+   loop
+      if I > K then
+         K := K + I;   --  FLAG
+         I := I + 1;
+      else
+         L := 10;
+         exit;
+      end if;
+   end loop;
+
 
 .. _Nested_Subprograms:
 
@@ -3662,6 +3704,60 @@ This rule has no parameters.
    else
       Put_Line("Hello, world!");
    end if;
+
+
+.. _Side_Effect_Parameters:
+
+``Side_Effect_Parameters``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Side_Effect_Parameters
+
+Flag subprogram calls and generic instantiations that have at least two actual
+parameters that are expressions containing a call to the same function as a
+subcomponent. Only calls to the functions specified as a rule parameter are
+considered.
+
+The rule has an optional parameter(s) for the ``+R`` option:
+
+*Function_Name*
+  A rule parameter should be a full expanded Ada name of a function,
+  any number of parameters are allowed, parameters should be separated by comma.
+
+``-R`` option cannot have a parameter, it turns the rule OFF, but all the
+previously specified by rule parameters function names are stored. ``+R``
+option without parameter turns the rule ON with all the previously specified
+parameters, if any.
+
+Note that a rule parameter should be a function name but not the name defined
+by a function renaming declaration. Note also, that if a rule parameter does not
+denote the name of an existing function or if it denotes a name defined by
+a function renaming declaration, the parameter itself is (silently) ignored
+and does not have any effect.
+
+Note also, that the rule does not make any overloaded resolution, so if
+a rule parameter refers to more than one overloaded functions with the same
+name, the rule will treat calls to all these function as the calls to the
+same function.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 12
+
+   --  Suppose the rule is activated as +RSide_Effect_Parameters:P.Fun
+   package P is
+     function Fun return Integer;
+     function Fun  (I : Integer) return Integer;
+     function Fun1 (I : Integer) return Integer;
+   end P;
+
+   with P; use P;
+   with Bar;
+   procedure Foo is
+   begin
+     Bar (Fun, 1, Fun1 (Fun));    --  FLAG
+
 
 
 .. _Silent_Exception_Handlers:

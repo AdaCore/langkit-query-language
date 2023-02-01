@@ -90,6 +90,7 @@ GNATcheck rules.
 * :ref:`Misplaced_Representation_Items`
 * :ref:`Multiple_Entries_In_Protected_Definitions`
 * :ref:`Name_Clashes`
+* :ref:`Nested_Paths`
 * :ref:`Nested_Subprograms`
 * :ref:`No_Explicit_Real_Range`
 * :ref:`No_Inherited_Classwide_Pre`
@@ -148,6 +149,7 @@ GNATcheck rules.
 * :ref:`Same_Tests`
 * :ref:`Separate_Numeric_Error_Handlers`
 * :ref:`Separates`
+* :ref:`Side_Effect_Parameters`
 * :ref:`Silent_Exception_Handlers`
 * :ref:`Simple_Loop_Statements`
 * :ref:`Single_Value_Enumeration_Types`
