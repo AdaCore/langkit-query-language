@@ -4195,56 +4195,6 @@ If no parameter is used for the rule, this corresponds to the parameter value 1.
    end loop;
 
 
-.. _Use_Memberships:
-
-``Use_Memberships``
-^^^^^^^^^^^^^^^^^^^
-
-.. index:: Use_Memberships
-
-Flag expressions that could be rewritten as membership tests. Only expressions
-that are not subexpressions of other expressions are flagged. An expression
-is considered to be replaceable with an equivalent membership test if it is
-a logical expression consisting of a call to one or more predefined ``or``
-operation(s), each relation that is an operand of the ``or`` expression is
-a comparison of the same variable of one of following forms:
-
-*
-  a call to a predefined ``=`` operator, the variable is the left operand
-  of this call;
-
-*
-  a membership test applied to this variable;
-
-* a range test of the form ``Var >= E1 and Var <= E2`` where ``Var`` is
-  the variable in question and ``>=``, ``and`` and ``<=`` are predefined
-  operators;
-
-This rule has the following (optional) parameter for the ``+R`` option:
-
-*short_circuit*
-  Consider the short circuit ``and then`` and ``or else`` operations along with
-  the predefined logical ``and`` and ``or`` operators.
-
-.. rubric:: Example
-
-.. code-block:: ada
-   :emphasize-lines: 2,8
-
-   begin
-      Bool1 := A = 100        -- FLAG (if short_circuit is specified)
-              or (A >=  1 and then A <= B);
-
-      Bool2 := A = 100        --  NO FLAG
-              or B in S;
-
-      Bool3 := A = 1          --  FLAG
-              or
-               A = B
-              or
-               A = B + A;
-
-
 .. _Use_If_Expressions:
 
 ``Use_If_Expressions``
@@ -4301,6 +4251,56 @@ This rule has no parameters.
    end if;
 
 
+.. _Use_Memberships:
+
+``Use_Memberships``
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_Memberships
+
+Flag expressions that could be rewritten as membership tests. Only expressions
+that are not subexpressions of other expressions are flagged. An expression
+is considered to be replaceable with an equivalent membership test if it is
+a logical expression consisting of a call to one or more predefined ``or``
+operation(s), each relation that is an operand of the ``or`` expression is
+a comparison of the same variable of one of following forms:
+
+*
+  a call to a predefined ``=`` operator, the variable is the left operand
+  of this call;
+
+*
+  a membership test applied to this variable;
+
+* a range test of the form ``Var >= E1 and Var <= E2`` where ``Var`` is
+  the variable in question and ``>=``, ``and`` and ``<=`` are predefined
+  operators;
+
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*short_circuit*
+  Consider the short circuit ``and then`` and ``or else`` operations along with
+  the predefined logical ``and`` and ``or`` operators.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2,8
+
+   begin
+      Bool1 := A = 100        -- FLAG (if short_circuit is specified)
+              or (A >=  1 and then A <= B);
+
+      Bool2 := A = 100        --  NO FLAG
+              or B in S;
+
+      Bool3 := A = 1          --  FLAG
+              or
+               A = B
+              or
+               A = B + A;
+
+
 .. _USE_PACKAGE_Clauses:
 
 ``USE_PACKAGE_Clauses``
@@ -4322,6 +4322,51 @@ This rule has no parameters.
    use Ada.Text_IO;                               --  FLAG
    procedure Bar (S : in out String) is
 
+
+.. _Use_Simple_Loops:
+
+``Use_Simple_Loops``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_Simple_Loops
+
+Flag ``while`` loop statements that have a condition statically known
+to be ``TRUE``. Such loop statements can be replaced by simple loops.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   while True loop      --  FLAG
+      I := I + 10;
+      exit when I > 0;
+   end loop;
+
+.. _Use_While_Loops:
+
+``Use_While_Loops``
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_While_Loops
+
+Flag simple loop statements that have the exit statement completing
+execution of such a loop as the first statement in their sequence of
+statements. Such loop statements can be replaced by ``WHILE`` loops.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   loop      --  FLAG
+      exit when I > 0;
+      I := I + 10;
+   end loop;
 
 .. _Variable_Scoping:
 

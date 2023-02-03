@@ -185,7 +185,9 @@ GNATcheck rules.
 * :ref:`Use_If_Expressions`
 * :ref:`Use_Memberships`
 * :ref:`USE_PACKAGE_Clauses`
-* :ref:`Visible_Components`
+* :ref:`Use_Simple_Loops`
+* :ref:`Use_While_Loops`
 * :ref:`Variable_Scoping`
+* :ref:`Visible_Components`
 * :ref:`Volatile_Objects_Without_Address_Clauses`
 * :ref:`Warnings`
