@@ -1,5 +1,5 @@
-# Flag each subprogram body with an Export aspect that may propagate an
-# exception.
+# Flag each subprogram body with an Export or Convention aspect that may
+# propagate an exception.
 # A subprogram is considered as not propagating if:
 # - it has an exception handler with a "when others" choice;
 # - and no exception handler contains a raise statement, nor any call to
@@ -7,14 +7,14 @@
 
 import stdlib
 
-fun has_export(body) = {
-    |" Return true if a given BaseSubpBody has an Export aspect
-    val decl = body.p_decl_part();
-    (if decl == null then body else decl).p_has_aspect("Export")
+fun is_exported(body) = {
+    |" Return true if a given BaseSubpBody has an Export or Convention aspect
+    val decl = if body.p_decl_part() is part@BasicDecl then part else body;
+    decl.p_has_aspect("Export") or decl.p_has_aspect("Convention")
 }
 
-@check(message="exception not handled locally",
+@check(message="exception may propagate out of exported subprogram",
        category="Style", subcategory="Programming Practice")
 fun exception_propagation_from_export(node) =
-   node is BaseSubpBody
-    when has_export(node) and stdlib.propagate_exceptions(node)
+    node is SubpBody
+    when is_exported(node) and stdlib.propagate_exceptions(node)

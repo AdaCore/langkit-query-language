@@ -1,8 +1,12 @@
-p.adb:5:14: rule violation: exception not handled locally
+p.adb:5:14: rule violation: exception may propagate out of exported subprogram
 5 |    procedure P1 is  --  FLAG
   |              ^^
 
-p.adb:13:14: rule violation: exception not handled locally
+p.adb:13:14: rule violation: exception may propagate out of exported subprogram
 13 |    procedure P2 with Export is   --  FLAG
+   |              ^^
+
+p.adb:26:14: rule violation: exception may propagate out of exported subprogram
+26 |    procedure P4 with Convention => C is   --  FLAG
    |              ^^
 

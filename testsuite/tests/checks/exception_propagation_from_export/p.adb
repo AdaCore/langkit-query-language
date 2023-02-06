@@ -23,4 +23,9 @@ package body P is
       raise Constraint_Error;
    end P2;
 
+   procedure P4 with Convention => C is   --  FLAG
+   begin
+      raise Constraint_Error;
+   end P2;
+
 end P;
