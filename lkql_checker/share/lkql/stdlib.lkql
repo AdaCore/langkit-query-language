@@ -182,6 +182,17 @@ fun is_standard_boolean(n) =
     n.p_expression_type() is t@BaseTypeDecl
     when t.p_root_type() == n.p_bool_type()
 
+fun full_root_type(t) =
+    |" Return the full view of the root type of t, traversing subtypes,
+    |" derivations and privacy.
+{
+    val res = t.p_root_type();
+    if res.p_is_private() then {
+        val full_view = res.p_full_view();
+        if full_view == res then res else full_root_type(full_view)
+    } else res
+}
+
 fun is_predefined_type(n) =
     |" Return true if n is the name of a type declared in a predefined package
     |" spec.
@@ -419,21 +430,30 @@ fun number_of_values(type) =
     | ModIntTypeDef         => if def.f_expr.p_is_static_expr()
                                then def.f_expr.p_eval_as_int() else -1
     | SignedIntTypeDef
-      when def.f_range.f_range is op@BinOp(f_op is OpDoubleDot) =>
+      when def.f_range.f_range is BinOp(f_op is OpDoubleDot) => {
+        val op = def.f_range.f_range;
         range_values(op.f_left, op.f_right)
+      }
     | DerivedTypeDef        =>
-        if def.f_subtype_indication.f_constraint is r@RangeConstraint
-        then (if r.f_range.f_range is op@BinOp
-              then range_values(op.f_left, op.f_right) else -1)
-        else number_of_values(def.f_subtype_indication.f_name.p_referenced_decl())
+        match def.f_subtype_indication.f_constraint
+        | r@RangeConstraint =>
+            match r.f_range.f_range
+            | op@BinOp => range_values(op.f_left, op.f_right)
+            | *        => -1
+        | * => number_of_values(
+            def.f_subtype_indication.f_name.p_referenced_decl()
+          )
     | FormalDiscreteTypeDef => -1
     | *                     => -1;
 
     if type is SubtypeDecl
-    then (if type.f_subtype.f_constraint is r@RangeConstraint
-          then (if r.f_range.f_range is op@BinOp
-                then range_values(op.f_left, op.f_right) else -1)
-          else number_of_values(type.f_subtype.f_name.p_referenced_decl()))
+    then (match type.f_subtype.f_constraint
+          | r@RangeConstraint => (match r.f_range.f_range
+                                  | op@BinOp => range_values(op.f_left, op.f_right)
+                                  | *        => -1)
+          | *                 => number_of_values(
+              type.f_subtype.f_name.p_referenced_decl()
+            ))
     else if type == type.p_universal_int_type()
     then -1
     else count_values_def(type.f_type_def)
@@ -492,17 +512,6 @@ fun ultimate_prefix(n) =
     if n is DottedName and n.p_referenced_decl() is ComponentDecl
     then ultimate_prefix(n.f_prefix)
     else n
-
-fun full_root_type(t) =
-    |" Return the full view of the root type of t, traversing subtypes,
-    |" derivations and privacy.
-{
-    val res = t.p_root_type();
-    if res.p_is_private() then {
-        val full_view = res.p_full_view();
-        if full_view == res then res else full_root_type(full_view)
-    } else res
-}
 
 @memoized
 fun default_bit_order() =

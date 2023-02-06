@@ -711,11 +711,13 @@ package body LKQL.Evaluation is
    function Eval_Is
      (Ctx : Eval_Context; Node : L.Is_Clause) return Primitive
    is
+      Local_Ctx     : Eval_Context := Ctx.Create_New_Frame;
       Tested_Node   : constant Primitive :=
-        Eval (Ctx, Node.F_Node_Expr, Kind_Node);
+        Eval (Local_Ctx, Node.F_Node_Expr, Kind_Node);
       Success       : constant Boolean :=
-        Match_Pattern (Ctx, Node.F_Pattern, Tested_Node).Is_Success;
+        Match_Pattern (Local_Ctx, Node.F_Pattern, Tested_Node).Is_Success;
    begin
+      Local_Ctx.Release_Current_Frame;
       return To_Primitive (Success);
    end Eval_Is;
 
@@ -740,28 +742,30 @@ package body LKQL.Evaluation is
    function Eval_Query
      (Ctx : Eval_Context; Node : L.Query) return Primitive
    is
+      Local_Ctx    : Eval_Context := Ctx.Create_New_Frame;
       Current_Node : LK.Lk_Node;
       Iter         : Lk_Node_Iterator'Class :=
-        Make_Query_Iterator (Ctx, Node);
+         Make_Query_Iterator (Local_Ctx, Node);
       Result       : Primitive;
 
       use LCO;
    begin
       if Node.F_Query_Kind.Kind = Lkql_Query_Kind_First then
          if Iter.Next (Current_Node) then
-            Result := To_Primitive (Current_Node, Ctx.Pool);
+            Result := To_Primitive (Current_Node, Local_Ctx.Pool);
          else
-            Result := To_Primitive (LK.No_Lk_Node, Ctx.Pool);
+            Result := To_Primitive (LK.No_Lk_Node, Local_Ctx.Pool);
          end if;
       else
-         Result := Make_Empty_List (Ctx.Pool);
+         Result := Make_Empty_List (Local_Ctx.Pool);
 
          while Iter.Next (Current_Node) loop
-            Append (Result, To_Primitive (Current_Node, Ctx.Pool));
+            Append (Result, To_Primitive (Current_Node, Local_Ctx.Pool));
          end loop;
       end if;
 
       Iter.Release;
+      Local_Ctx.Release_Current_Frame;
       return Result;
    end Eval_Query;
 

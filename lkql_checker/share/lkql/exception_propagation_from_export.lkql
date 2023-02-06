@@ -9,7 +9,9 @@ import stdlib
 
 fun is_exported(body) = {
     |" Return true if a given BaseSubpBody has an Export or Convention aspect
-    val decl = if body.p_decl_part() is part@BasicDecl then part else body;
+    val decl = match body.p_decl_part()
+               | part@BasicDecl => part
+               | *              => body;
     decl.p_has_aspect("Export") or decl.p_has_aspect("Convention")
 }
 

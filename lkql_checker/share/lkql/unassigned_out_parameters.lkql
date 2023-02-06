@@ -24,11 +24,14 @@ import stdlib
 fun param_matches(id, param, name, ignore_comp) = {
    val decl = id.p_referenced_decl();
 
-   (if decl is ObjectDecl(f_renaming_clause is r@RenamingClause)
-    then stdlib.ultimate_alias(r.f_renamed_object, strip_component=not ignore_comp)
-         == param
-    else decl == param and id.p_name_matches(name)) and
-   not (ignore_comp and id.parent is DottedName or CallExpr)
+   (match decl
+    | ObjectDecl(f_renaming_clause is r@RenamingClause) =>
+      stdlib.ultimate_alias(
+        r.f_renamed_object,
+        strip_component=not ignore_comp
+      ) == param
+     | * => decl == param and id.p_name_matches(name))
+   and not (ignore_comp and id.parent is DottedName or CallExpr)
 }
 
 # Return true if the list of stmts s contains any assignment to name as

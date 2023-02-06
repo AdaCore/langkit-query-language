@@ -15,9 +15,11 @@ fun outermost_package_decl(n) =
        message="possible occurrence of KP U803-030 if -gnatE is used",
        impact="21.*")
 fun kp_u803_030(node) =
-    node is CallExpr(p_is_call() is true)
-    when node.p_referenced_decl() is func@ExprFunction
-     and not stdlib.has_local_scope(func)
-     and outermost_package_decl(func) is decl@BasePackageDecl
-     and decl.p_body_part() == null
-     and decl != outermost_package_decl(node)
+    node is CallExpr(
+      p_is_call() is true,
+      p_referenced_decl() is func@ExprFunction
+    )
+    when not stdlib.has_local_scope(func)
+     and outermost_package_decl(func) is decl@BasePackageDecl(
+           p_body_part() is null
+         ) when decl != outermost_package_decl(node)

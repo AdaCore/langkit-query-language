@@ -6,7 +6,7 @@ fun is_array_slice(expr) =
     then true
     else match expr.p_referenced_decl()
     | o@ObjectDecl => o.f_renaming_clause is r@RenamingClause
-                      and is_array_slice(r.f_renamed_object)
+                      when is_array_slice(r.f_renamed_object)
     | a@AnonymousExprDecl =>
         # This node means we have a reference to a generic formal object.
         # Exclude "in" objects since the bug cannot occur there.

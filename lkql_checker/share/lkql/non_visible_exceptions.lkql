@@ -44,7 +44,7 @@ fun non_visible_exceptions(unit) = [
     # task body or block statement
     or RaiseStmt(any parent is h@ExceptionHandler
         when h.p_semantic_parent() is p@(SubpBody or TaskBody or DeclBlock)
-         and
+         when
            # raises a locally declared exception
            if node.f_exception_name
            then node.f_exception_name.p_referenced_decl()?.parent?.parent

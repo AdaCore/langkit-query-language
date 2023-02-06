@@ -6,6 +6,6 @@
 fun use_while_loops(node) =
     node is LoopStmt
     when node.f_stmts[1] is e@ExitStmt
-     and (e.f_loop_name == null or
-          (node.f_end_name is n@EndName and
+     when (e.f_loop_name == null or
+          (node.f_end_name is n@EndName when
            n.f_name.p_name_matches(e.f_loop_name)))

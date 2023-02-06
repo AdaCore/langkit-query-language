@@ -15,5 +15,5 @@ fun check_clause(params) =
 fun kp_uc22_009(node) =
     node is EnumRepClause
     when node.f_type_name.p_referenced_decl() is t@TypeDecl
-     and t.p_root_type() == t.p_bool_type()
+     when t.p_root_type() == t.p_bool_type()
      and check_clause(node.f_aggregate.f_assocs)

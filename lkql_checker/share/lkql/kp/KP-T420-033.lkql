@@ -7,4 +7,4 @@ fun kp_t420_033(node) =
     node is ComponentDecl
     when node.p_semantic_parent().p_is_tagged_type()
      and node.f_component_def.f_type_expr is s@SubtypeIndication
-     and stdlib.has_non_default_sso(s.f_name.p_referenced_decl())
+     when stdlib.has_non_default_sso(s.f_name.p_referenced_decl())

@@ -7,7 +7,7 @@ import stdlib
 fun match_name(name, actuals) =
     name is Name(
         p_referenced_defining_name() is DefiningName(
-            p_canonical_fully_qualified_name() is str@*)) and
+            p_canonical_fully_qualified_name() is str@*)) when
     [s for s in actuals if str == s.to_lower_case]
 
 @check(message="direct (in)equality",

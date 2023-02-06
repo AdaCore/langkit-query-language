@@ -21,10 +21,10 @@ fun check_expr(expr, id, short_circuit) =
                     OpAndThen when short_circuit) =>
         expr.f_left is RelationOp(
             f_op is gte@OpGte,
-            f_left is Identifier(p_name_matches(id) is true)) and
+            f_left is Identifier(p_name_matches(id) is true)) when
         expr.f_right is RelationOp(
             f_op is lte@OpLte,
-            f_left is Identifier(p_name_matches(id) is true)) and
+            f_left is Identifier(p_name_matches(id) is true)) when
         stdlib.is_predefined_op(gte) and
         stdlib.is_predefined_op(lte)
     # Allow X = C
@@ -43,7 +43,10 @@ fun use_memberships(node, short_circuit = false) =
                   f_op is (op@OpOr when stdlib.is_predefined_op(op)) or
                           OpOrElse when short_circuit)
     # Find a first variable used as LHS (id) and pass it to check_expr
-    and (from node select first
-         RelationOp(f_left is id@Identifier) or
-         MembershipExpr(f_expr is id@Identifier)) != null
-    and check_expr(node, id, short_circuit)
+    and match (from node select first
+               RelationOp(f_left is Identifier)
+               or MembershipExpr(f_expr is Identifier))
+        | r@RelationOp     => check_expr(node, r.f_left, short_circuit)
+        | m@MembershipExpr => check_expr(node, m.f_expr, short_circuit)
+        | *                => false
+

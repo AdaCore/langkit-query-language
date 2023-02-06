@@ -13,11 +13,13 @@ fun get_type(type) =
                            then get_type(type.f_subtype.f_name.
                                          p_referenced_decl().p_full_view())
                            else type
-    | TypeDecl          => if type.f_type_def is def@DerivedTypeDef and
-                              def.f_subtype_indication.f_constraint == null
-                           then get_type(def.f_subtype_indication.f_name.
-                                         p_referenced_decl().p_full_view())
-                           else type
+    | TypeDecl          =>
+        match type.f_type_def
+        | def@DerivedTypeDef
+          when def.f_subtype_indication.f_constraint == null =>
+            get_type(def.f_subtype_indication.f_name.
+                     p_referenced_decl().p_full_view())
+        | *                                                  => type
     | *                 => type
 
 @check(message="possible occurrence of KP R517-023",
@@ -26,10 +28,10 @@ fun get_type(type) =
 fun kp_r517_023(node) =
     node is CallExpr(p_is_call() is true)
     when [p for p in node.p_call_params()
-          if p.param.parent.parent is spec@ParamSpec(f_mode is ModeOut or ModeInOut) and
-             p.actual is DottedName(p_referenced_decl() is comp@ComponentDecl) and
-             comp.p_semantic_parent().p_get_record_representation_clause() != null and
-             get_type(spec.f_type_expr) is type@TypeDecl(
-                 p_is_array_type() is true,
-                 p_has_aspect("Pack") is true,
-                 f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices))]
+          if p.param.parent.parent is spec@ParamSpec(f_mode is ModeOut or ModeInOut)
+             when p.actual is DottedName(p_referenced_decl() is comp@ComponentDecl)
+              when comp.p_semantic_parent().p_get_record_representation_clause() != null
+               and get_type(spec.f_type_expr) is TypeDecl(
+                p_is_array_type() is true,
+                p_has_aspect("Pack") is true,
+                f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices))]

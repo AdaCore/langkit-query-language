@@ -4,10 +4,11 @@
 import stdlib
 
 fun range_length(t) =
-    if t.f_type_def.f_indices.f_types[1] is u@UnconstrainedArrayIndex
-    then stdlib.number_of_values(u.f_subtype_indication.f_name.
-                                 p_referenced_decl())
-    else -1
+    match t.f_type_def.f_indices.f_types[1]
+    | u@UnconstrainedArrayIndex => stdlib.number_of_values(
+        u.f_subtype_indication.f_name.p_referenced_decl()
+      )
+    | *                         => -1
 
 @check(message="possible occurrence of KP TA30-032", impact="20.[12]",
        follow_generic_instantiations = true)
@@ -16,11 +17,11 @@ fun kp_ta30_032(node) =
     when node.f_type_expr is
      SubtypeIndication(f_constraint is
                        c@CompositeConstraint(p_is_index_constraint() is true))
-     and c.f_constraints[1].f_constraint_expr is op@BinOp(f_op is OpDoubleDot)
-     and stdlib.range_values(op.f_left, op.f_right) == 0
-     and node.f_type_expr.p_designated_type_decl() is t@BaseTypeDecl
-     and t.p_is_array_type()
-     and {
-        val num = range_length(t);
-        num == 0 or num == 1
-    }
+     when c.f_constraints[1].f_constraint_expr is op@BinOp(f_op is OpDoubleDot)
+      when stdlib.range_values(op.f_left, op.f_right) == 0
+       and node.f_type_expr.p_designated_type_decl() is t@BaseTypeDecl
+       when t.p_is_array_type()
+        and {
+           val num = range_length(t);
+           num == 0 or num == 1
+        }

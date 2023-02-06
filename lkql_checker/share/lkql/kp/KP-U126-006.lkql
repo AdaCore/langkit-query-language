@@ -10,9 +10,9 @@ fun get_components(type) =
     | r@DerivedTypeDef =>
         (from type.f_discriminants select DefiningName) &
         get_components(r.f_subtype_indication.f_name.p_referenced_decl()) &
-        (if r.f_record_extension is def@RecordDef
-         then from def.f_components.f_components select DefiningName
-         else [])
+        (match r.f_record_extension
+         | def@RecordDef => from def.f_components.f_components select DefiningName
+         | *             => [])
     | * => []
 
 fun check_components(ids, comps) =
@@ -26,6 +26,6 @@ fun kp_u126_006(node) =
      and node.p_get_record_representation_clause() is rep@RecordRepClause
      # and check whether some component of the fixed part is not mentioned
      # in the representation clause.
-     and check_components(get_components(node),
-                          [c.f_id for c in
-                           (from rep.f_components select ComponentClause)])
+     when check_components(get_components(node),
+                           [c.f_id for c in
+                            (from rep.f_components select ComponentClause)])

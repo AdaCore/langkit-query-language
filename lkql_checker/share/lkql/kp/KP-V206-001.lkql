@@ -10,4 +10,4 @@ fun kp_v206_001(node) =
          p_fully_qualified_name() == "System.Address_To_Access_Conversions"
      and node.f_params[1].f_r_expr.p_referenced_decl().
          p_full_view() is t@BaseTypeDecl
-     and t.p_is_interface_type() and stdlib.is_classwide_type(t)
+     when t.p_is_interface_type() and stdlib.is_classwide_type(t)

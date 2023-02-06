@@ -6,8 +6,9 @@ fun check_list(l) =
 
 fun gather_ops(node, kind) =
     [node.f_left, node.f_right] &
-    (if node.f_left is l@BinOp when l.f_op.kind == kind
-     then gather_ops(l, kind) else [])
+    (match node.f_left
+     | l@BinOp when l.f_op.kind == kind => gather_ops(l, kind)
+     | *                                => [])
 
 fun message(node) = {
     val l = gather_ops(node, node.f_op.kind);
@@ -33,3 +34,4 @@ fun same_logic(unit) = [
         check_list(gather_ops(node, kind))
     }
 ]
+

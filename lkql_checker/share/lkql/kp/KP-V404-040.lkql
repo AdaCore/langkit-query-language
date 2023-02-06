@@ -10,4 +10,4 @@ fun kp_v404_040(node) =
     when node.f_attribute.p_name_is("Valid")
      and node.f_prefix.p_expression_type().p_is_float_type()
      and node.f_prefix.p_referenced_decl() is c@ComponentDecl
-     and stdlib.has_non_default_sso(c.p_semantic_parent())
+     when stdlib.has_non_default_sso(c.p_semantic_parent())

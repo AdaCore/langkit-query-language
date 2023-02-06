@@ -7,8 +7,9 @@ fun get_formal(decls, pos, n: int = 1) =
     |" Return the GenericFormal corresponding to the parameter number `pos`
     match decls[n]
     | f@GenericFormal => {
-        val count = if f.f_decl is d@(ObjectDecl or NumberDecl)
-                    then d.f_ids.children_count else 1;
+        val count = match f.f_decl
+                    | d@(ObjectDecl or NumberDecl) => d.f_ids.children_count
+                    | *                            => 1;
         if pos <= count then f else get_formal(decls, pos - count, n + 1) }
     | *               => get_formal(decls, pos, n + 1)
 

@@ -17,6 +17,6 @@ fun kp_qc02_001(node) =
     node is AttributeRef(parent is not AttributeDefClause)
     when node.f_attribute.p_name_is("Size")
      and node.f_prefix.p_expression_type() is t@BaseTypeDecl
-     and t.p_full_view() is type@BaseTypeDecl
-     and (array_with_align(type) or
-          type is *(any stdlib.full_parent_types is p@BaseTypeDecl when array_with_align(p)))
+     when t.p_full_view() is type@BaseTypeDecl
+      when (array_with_align(type) or
+            type is *(any stdlib.full_parent_types is p@BaseTypeDecl when array_with_align(p)))

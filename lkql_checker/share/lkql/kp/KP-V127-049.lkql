@@ -23,9 +23,10 @@ fun kp_v127_049(node) =
     when expr.p_referenced_decl() is decl@(BaseSubpBody or ClassicSubpDecl or
                                            SubpBodyStub)
      # returning a boolean (sub)type
-     and (decl.f_subp_spec.f_subp_returns is t@TypeExpr
-          when t.p_designated_type_decl().p_base_subtype() == t.p_bool_type())
-     # taking two integer (sub)types
-     and has_two_integer_params(decl.f_subp_spec.f_subp_params)
-     # and whose formal is an operator
-     and is_operator(inst.p_inst_params(), expr)
+     when (decl.f_subp_spec.f_subp_returns is t@TypeExpr
+           when t.p_designated_type_decl().p_base_subtype() == t.p_bool_type())
+      # taking two integer (sub)types
+      and has_two_integer_params(decl.f_subp_spec.f_subp_params)
+      # and whose formal is an operator
+      and is_operator(inst.p_inst_params(), expr)
+

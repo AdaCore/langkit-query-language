@@ -21,17 +21,17 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
        f_attribute is id@Identifier
            when id.p_name_is("Address") or id.p_name_is("Access"))
     when node.f_prefix.p_referenced_decl() is subp@(SubpBody or SubpDecl)
-     and (from node through parent
-          select first CallExpr(p_is_call() is true)) is call@CallExpr
-     and {
-        val n = call.f_name.p_referenced_decl()?.
-                p_canonical_fully_qualified_name?();
-        val name = if n == () then "" else n;
-        val param = [c[2] for c in callbacks if c[1] == name]?[1];
+     when (from node through parent
+           select first CallExpr(p_is_call() is true)) is call@CallExpr
+      when {
+          val n = call.f_name.p_referenced_decl()?.
+                  p_canonical_fully_qualified_name?();
+          val name = if n == () then "" else n;
+          val param = [c[2] for c in callbacks if c[1] == name]?[1];
 
-        param != () and
-        [p for p in call.p_call_params()
-         if p.actual == node and p.param.p_name_is(param)] and
-        stdlib.propagate_exceptions(if subp is SubpBody
-                                    then subp else subp.p_body_part_for_decl())
-    }
+          param != () and
+          [p for p in call.p_call_params()
+           if p.actual == node and p.param.p_name_is(param)] and
+          stdlib.propagate_exceptions(if subp is SubpBody
+                                      then subp else subp.p_body_part_for_decl())
+      }

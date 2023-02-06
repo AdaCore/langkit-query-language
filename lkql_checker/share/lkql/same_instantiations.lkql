@@ -63,6 +63,6 @@ fun same_instantiations(unit, library_level_only = false) =
     [{message: "same instantiation found at " &
                stdlib.sloc_image(same_instance(n, library_level_only)), loc: n}
      for n in from unit.root
-              select i@GenericPackageInstantiation
-              if (not library_level_only or not stdlib.has_local_scope(i)) and
-                 same_instance(n, library_level_only)]
+              select GenericPackageInstantiation
+     if (not library_level_only or not stdlib.has_local_scope(n)) and
+         same_instance(n, library_level_only)]

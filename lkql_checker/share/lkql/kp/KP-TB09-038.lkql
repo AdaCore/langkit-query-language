@@ -14,15 +14,16 @@ fun kp_tb09_038(node) =
     # with an explicit range definition
     when def.f_range.f_range is op@BinOp(f_op is OpDoubleDot)
      # and both range values of the same sign
-     and (if is_positive(op.f_left)
-          then is_positive(op.f_right)
-          else not is_positive(op.f_right))
-     # and a Size aspect specifying just the number of bits required to fit the
-     # range.
-     and {
-        val aspect = node.p_get_aspect("Size");
-        aspect.exists and
-        aspect.value.p_is_static_expr() and
-        pow2(aspect.value.p_eval_as_int()) ==
-        stdlib.range_values(op.f_left, op.f_right)
-    }
+     when (if is_positive(op.f_left)
+           then is_positive(op.f_right)
+           else not is_positive(op.f_right))
+      # and a Size aspect specifying just the number of bits required to fit the
+      # range.
+      and {
+         val aspect = node.p_get_aspect("Size");
+         aspect.exists and
+         aspect.value.p_is_static_expr() and
+         pow2(aspect.value.p_eval_as_int()) ==
+         stdlib.range_values(op.f_left, op.f_right)
+      }
+

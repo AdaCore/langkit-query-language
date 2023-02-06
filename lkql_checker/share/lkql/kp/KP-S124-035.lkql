@@ -9,6 +9,7 @@ fun is_uc(str) =
 fun kp_s124_035(node) =
     node is CallExpr(p_is_call() is true)
     when node.f_name.p_referenced_decl() is i@GenericSubpInstantiation
-     and is_uc(i.p_designated_subp()?.p_canonical_fully_qualified_name?())
-     and (from node.f_suffix select first Aggregate) != null
-     and node.f_suffix[1].f_r_expr.p_expression_type().p_has_aspect("Size")
+     when is_uc(i.p_designated_subp()?.p_canonical_fully_qualified_name?())
+      and (from node.f_suffix select first Aggregate) != null
+      and node.f_suffix[1].f_r_expr.p_expression_type().p_has_aspect("Size")
+

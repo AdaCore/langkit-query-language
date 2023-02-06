@@ -10,6 +10,6 @@ fun is_unconstrained(t) =
 fun kp_u310_012(node) =
     node is SubpSpec(f_subp_kind is SubpKindFunction)
     when node.p_return_type() is TypeDecl(p_full_view() is ret@TypeDecl)
-     and is_unconstrained(ret)
-     and (node.parent.p_has_aspect("Post") or
-          ret.p_has_aspect("Type_Invariant"))
+     when is_unconstrained(ret)
+      and (node.parent.p_has_aspect("Post") or
+           ret.p_has_aspect("Type_Invariant"))

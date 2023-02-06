@@ -36,9 +36,11 @@ fun exit_stmt(node) =
     |" Return the first exit statement referencing node (assumed to be a
     |" BaseLoopStmt)
     from node select first s@ExitStmt
-    when (if s.f_loop_name is id@Name
-          then node.f_end_name is n@EndName and n.f_name.p_name_matches(id)
-          else (from s through parent select first BaseLoopStmt) == node)
+    when (
+      match s.f_loop_name
+      | id@Name => node.f_end_name is n@EndName when n.f_name.p_name_matches(id)
+      | *       => (from s through parent select first BaseLoopStmt) == node
+    )
 
 fun enclosing_scope(node) = {
     val p = node.p_semantic_parent();

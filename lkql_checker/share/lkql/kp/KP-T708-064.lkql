@@ -17,23 +17,23 @@ fun has_variant_with_varsize(t) =
     t is TypeDecl
     when t.f_type_def is RecordTypeDef
      and t.f_type_def.f_record_def is def@RecordDef
-     and [v for v in
+     when [v for v in
           from (from def.f_components select Variant)
           select c@ComponentDef
           when c.f_type_expr is
                s@SubtypeIndication(f_constraint is CompositeConstraint(
                    p_is_discriminant_constraint() is true))
-               and has_varsize_comp(s.f_name.p_referenced_decl())]
+               when has_varsize_comp(s.f_name.p_referenced_decl())]
 
 @check(message="possible occurrence of KP T708-064", impact="20.[12]")
 fun kp_t708_064(node) =
     node is TypeDecl
     when node.f_type_def is RecordTypeDef
      and node.f_type_def.f_record_def is def@RecordDef
-     and [v for v in
+     when [v for v in
           from (from def.f_components select Variant)
           select c@ComponentDef
           when c.f_type_expr is
                s@SubtypeIndication(f_constraint is CompositeConstraint(
                    p_is_discriminant_constraint() is true))
-               and has_variant_with_varsize(s.f_name.p_referenced_decl())]
+               when has_variant_with_varsize(s.f_name.p_referenced_decl())]

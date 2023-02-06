@@ -7,11 +7,12 @@ import stdlib
 fun check_type(params) =
    [p for p in params if
       p.param.p_name_is("T") and
-      p.actual.p_referenced_decl().p_root_type() is root@BaseTypeDecl and
-      root.f_type_def.f_has_limited.p_as_bool() and
-      root is TypeDecl(all stdlib.component_types is not TaskTypeDecl) and
-      [t for t in root.p_find_all_derived_types(stdlib.list_of_units()) if
-       t is TypeDecl(any stdlib.component_types is TaskTypeDecl)]
+      p.actual.p_referenced_decl().p_root_type() is root@BaseTypeDecl when (
+        root.f_type_def.f_has_limited.p_as_bool() and
+        root is TypeDecl(all stdlib.component_types is not TaskTypeDecl) and
+        [t for t in root.p_find_all_derived_types(stdlib.list_of_units()) if
+         t is TypeDecl(any stdlib.component_types is TaskTypeDecl)]
+      )
    ]
 
 @check(message="possible occurrence of KP V214-016", impact="21.*,22.*,23.1")

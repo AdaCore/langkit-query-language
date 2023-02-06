@@ -4,9 +4,9 @@
 fun check_generic(n) =
     |" Return true if the generic decl corresponding to n contains more than 1
     |" formal parameter.
-    [(if x.f_decl is d@(ObjectDecl or NumberDecl)
-      then d.f_ids.children_count
-      else 1)
+    [(match x.f_decl
+      | d@(ObjectDecl or NumberDecl) => d.f_ids.children_count
+      | *                            => 1)
      for x in from n.p_referenced_decl().f_formal_part.f_decls
               select GenericFormal].length > 1
 

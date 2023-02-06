@@ -13,5 +13,5 @@ fun kp_vb20_002(node) =
     node is CallExpr
     when node.f_suffix.children_count == 1
      and node.f_name.p_referenced_decl() is target@BaseTypeDecl
-     and (sso_array_type(target) or
-          sso_array_type(node.f_suffix[1].f_r_expr.p_expression_type()))
+     when (sso_array_type(target) or
+           sso_array_type(node.f_suffix[1].f_r_expr.p_expression_type()))

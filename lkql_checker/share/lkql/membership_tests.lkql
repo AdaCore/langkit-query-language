@@ -16,6 +16,6 @@ fun membership_tests(node, multi_alternative_only=false, float_types_only=false,
     node is MembershipExpr
     and (not multi_alternative_only or node.f_membership_exprs[2])
     and (not float_types_only
-             or (node.f_expr.p_expression_type() is decl@BaseTypeDecl and
+             or (node.f_expr.p_expression_type() is decl@BaseTypeDecl when
                  decl.p_full_view().p_is_float_type()))
     and not (except_assertions and stdlib.within_assert(node))

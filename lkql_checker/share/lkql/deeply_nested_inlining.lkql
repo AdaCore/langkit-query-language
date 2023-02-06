@@ -12,9 +12,9 @@ fun inlined_body(name) = match name.p_referenced_decl()
     | b@BaseSubpBody when b?.p_has_aspect("Inline")
                       => b
     | EnumLiteralDecl => null
-    | g@GenericSubpInstantiation
-      when g?.f_generic_subp_name?.p_referenced_decl() is
-           b@GenericSubpDecl(p_has_aspect("Inline") is true)
+    | GenericSubpInstantiation(f_generic_subp_name is *(
+                               p_referenced_decl() is b@GenericSubpDecl(
+                               p_has_aspect("Inline") is true)))
                       => b?.p_body_part()
     | d@BasicDecl when d?.p_is_subprogram() and d?.p_has_aspect("Inline")
                       => d?.p_body_part()

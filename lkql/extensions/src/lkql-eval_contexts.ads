@@ -174,7 +174,7 @@ package LKQL.Eval_Contexts is
    --  Set the units of a given Ctx
 
    function Ref_Frame (Ctx : Eval_Context) return Eval_Context;
-   --  Make a deep copy of the current frame
+   --  Increase the reference counter of the context and return it
 
    function Create_New_Frame
      (Ctx            : Eval_Context;

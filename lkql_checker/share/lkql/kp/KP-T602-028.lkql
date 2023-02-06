@@ -17,8 +17,8 @@ fun kp_t602_028(node) =
      and node.f_prefix.p_referenced_decl() is
          decl@SubpDecl(any parent is ProtectedDef)
      # and this subprogram is overloaded
-     and decl.f_subp_spec.f_subp_name is name@DefiningName
-     and (decl is *(any prev_siblings is sib@SubpDecl
-                    when sib.f_subp_spec.f_subp_name.p_name_matches(name)) or
-          decl is *(any next_siblings is sib@SubpDecl
-                    when sib.f_subp_spec.f_subp_name.p_name_matches(name)))
+     when decl.f_subp_spec.f_subp_name is name@DefiningName
+      when (decl is *(any prev_siblings is sib@SubpDecl
+                     when sib.f_subp_spec.f_subp_name.p_name_matches(name)) or
+            decl is *(any next_siblings is sib@SubpDecl
+                     when sib.f_subp_spec.f_subp_name.p_name_matches(name)))

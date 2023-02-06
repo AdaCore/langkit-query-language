@@ -11,12 +11,13 @@ fun check_type(t) =
     # with an Unchecked_Union
     t.p_has_aspect("Unchecked_Union") and
     # a representation clause
-    t.p_get_record_representation_clause() is rep@RecordRepClause and
+    t.p_get_record_representation_clause() is rep@RecordRepClause when
     # and at least one component clause has a size that is not a power of two
-    [f for f in (from rep select ComponentClause)
-     if f.f_range is RangeSpec(f_range is r@BinOp(f_op is OpDoubleDot)) and
-        not is_power_of_two(r.f_right.p_eval_as_int() -
-                            r.f_left.p_eval_as_int() + 1)]
+    [f for f in (from rep select ComponentClause(
+                  f_range is RangeSpec(f_range is r@BinOp(f_op is OpDoubleDot))
+                  when not is_power_of_two(r.f_right.p_eval_as_int() -
+                                           r.f_left.p_eval_as_int() + 1)
+      ))]
 
 @check(help="possible occurrence of KP V120-015",
        message="possible occurrence of KP V120-015 on powerpc targets",
@@ -24,4 +25,4 @@ fun check_type(t) =
 fun kp_v120_015(node) =
     node is ComponentDecl
     when node.f_component_def.f_type_expr.p_designated_type_decl() is t@TypeDecl
-     and check_type(t)
+     when check_type(t)

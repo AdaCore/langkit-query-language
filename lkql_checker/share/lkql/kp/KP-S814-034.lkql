@@ -5,9 +5,9 @@
 fun kp_s814_034(node) =
     node is Aggregate
     when node.p_expression_type() is t@TypeDecl
-     and t.p_is_array_type()
-     and t.p_comp_type().p_is_record_type()
-     and (from node select first OthersDesignator) != null
-     and [a for a in (from node select AggregateAssoc)
-          if a.f_r_expr.p_expression_type().p_root_type().
-             p_canonical_fully_qualified_name() == "standard.string"]
+     when t.p_is_array_type()
+      and t.p_comp_type().p_is_record_type()
+      and (from node select first OthersDesignator) != null
+      and [a for a in (from node select AggregateAssoc)
+           if a.f_r_expr.p_expression_type().p_root_type().
+              p_canonical_fully_qualified_name() == "standard.string"]

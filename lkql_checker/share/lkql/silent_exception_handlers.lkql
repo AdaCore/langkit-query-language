@@ -14,8 +14,8 @@ fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
           select first RaiseStmt or
               n@BaseId(p_is_call() is true) when
                   n.p_referenced_decl() is decl@BasicDecl
-                  and match decl.p_canonical_fully_qualified_name()
-                  | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
-                  | n@* => [s for s in subprograms if n == s] or
-                           [r for r in subprogram_regexps
-                            if n.contains(pattern(r, case_sensitive=false))]) == null
+                  when match decl.p_canonical_fully_qualified_name()
+                   | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
+                   | n@* => [s for s in subprograms if n == s] or
+                            [r for r in subprogram_regexps
+                             if n.contains(pattern(r, case_sensitive=false))]) == null

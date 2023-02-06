@@ -14,7 +14,7 @@ fun check_type(type) =
 
 fun check_subp(subp) =
     subp.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
-    and check_type(stdlib.full_root_type(spec.f_subp_returns.
+    when check_type(stdlib.full_root_type(spec.f_subp_returns.
                    p_designated_type_decl()))
 
 @check(message="possible occurrence of KP R410-028", impact="7.[123].*")

@@ -11,6 +11,6 @@ fun downward_view_conversions(node) =
     # taking full views into account.
     when node.f_suffix[1].f_r_expr?.p_expression_type().p_full_view() is
          expr_type@BaseTypeDecl
-     and t.p_full_view() is target@BaseTypeDecl
-     and target != expr_type
-     and target.p_is_derived_type(expr_type)
+     when t.p_full_view() is target@BaseTypeDecl
+      when target != expr_type
+       and target.p_is_derived_type(expr_type)

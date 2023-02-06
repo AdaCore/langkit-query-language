@@ -11,8 +11,8 @@ fun check_list(l, functions) =
         # Find at least two calls to the same function
         [n for n in (from [p.actual for p in l].to_list select BaseId)
          if n.p_referenced_decl() is decl@BasicDecl(p_is_subprogram() is true)
-          and stdlib.ultimate_subprogram_alias(decl).
-              p_canonical_fully_qualified_name() == func]?[2] != ()
+             when stdlib.ultimate_subprogram_alias(decl).
+               p_canonical_fully_qualified_name() == func]?[2] != ()
     }]
 
 @check(message="call with side effects",

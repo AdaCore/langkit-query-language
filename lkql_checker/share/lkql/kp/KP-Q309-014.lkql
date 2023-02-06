@@ -5,12 +5,12 @@ fun is_untagged_packed_discr(n) =
     | DerivedTypeDef =>
         is_untagged_packed_discr(n.f_subtype_indication.f_name.
                                  p_referenced_decl())
-    | TypeDecl       => n.p_full_view() is t@BaseTypeDecl and
-                        not t.p_is_tagged_type() and
-                        ((t.f_discriminants is DiscriminantPart and
-                          t.p_has_aspect("Pack")) or
-                        (t.f_type_def is d@DerivedTypeDef and
-                         is_untagged_packed_discr(d)))
+    | TypeDecl       => n.p_full_view() is t@BaseTypeDecl
+                        when not t.p_is_tagged_type()
+                         and ((t.f_discriminants is DiscriminantPart and
+                               t.p_has_aspect("Pack")) or
+                             (t.f_type_def is d@DerivedTypeDef
+                              when is_untagged_packed_discr(d)))
     | SubtypeDecl   => is_untagged_packed_discr(n.f_subtype.f_name.
                                                 p_referenced_decl())
     | *             => false

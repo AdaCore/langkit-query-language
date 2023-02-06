@@ -143,8 +143,11 @@ fun identifier_prefixes(unit,
          when derived != [] and
               p.p_canonical_type().p_base_type() is t@BaseTypeDecl
               when get_derived(t, derived) != ""
-       =>
-           str_prefix & "derived prefix " & get_derived(t, derived).split(":")[2]
+       => {
+            val t = p.p_canonical_type().p_base_type();
+            str_prefix & "derived prefix " & get_derived(t, derived)
+              .split(":")[2]
+          }
 
        | BaseTypeDecl    => str_prefix & "subtype prefix " & type
        | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
@@ -209,9 +212,12 @@ fun identifier_prefixes(unit,
       when derived != [] and
            p.p_canonical_type().p_base_type() is t@BaseTypeDecl
            when get_derived(t, derived) != ""
-    =>
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
-        not node.f_name.text.starts_with(get_derived(t, derived).split(":")[2])
+    => {
+         val t = p.p_canonical_type().p_base_type();
+         p.p_previous_part() is (null or IncompleteTypeDecl) and
+         not node.f_name.text.starts_with(get_derived(t, derived)
+           .split(":")[2])
+       }
 
     # Exclude IncompleteTypeDecl
     | IncompleteTypeDecl => false
