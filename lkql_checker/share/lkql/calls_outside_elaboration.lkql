@@ -1,6 +1,6 @@
 # Flag each occurrence of call (as given by parameter `forbidden`) performed
-# outside package elaboration. Note that function renamings are followed
-# by this rule.
+# outside library level package elaboration. Note that function renamings are
+# followed by this rule.
 
 import stdlib
 
