@@ -3871,6 +3871,36 @@ This rule has no parameters.
    type Enum1 is (D);      --  FLAG
 
 
+.. _Trivial_Exception_Handlers:
+
+``Trivial_Exception_Handlers``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Trivial_Exception_Handlers
+
+Flag exception handlers that contain a raise statement with no exception name
+as their first statement unless the enclosing handled sequence of
+statements also contains a handler with ``OTHERS`` exception choice that
+starts with any statement but not a raise statement with no exception name.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+      exception
+         when My_Exception =>   --  FLAG
+            raise;
+      end;
+   exception
+      when Constraint_Error =>  --  NO FLAG
+         raise;
+      when others =>
+         null;
+   end;
+
 .. _Unavailable_Body_Calls:
 
 ``Unavailable_Body_Calls``
@@ -4475,6 +4505,43 @@ This rule has no parameters.
          end if;
       end loop;
    end Proc;
+
+
+.. _Use_Record_Aggregates:
+
+``Use_Record_Aggregates``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Use_Record_Aggregates
+
+Flag the first statement in the sequence of assignment statements if the targets
+of all these assignment statements are components of the same record objects,
+all the components of this objects get assigned as the result of such a
+sequence, and the type of the record object does not have discriminants.
+This rule helps to detect cases when a sequence of assignment statements
+can be replaced with a single assignment statement with a record aggregate
+as an expression being assigned, there is no guarantee that it detects all
+such sequences.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 7
+
+      type Rec is record
+         Comp1, Comp2 : Integer;
+      end record;
+
+      Var1, Var2 : Rec;
+   begin
+      Var1.Comp1 := 1;  --  FLAG
+      Var1.Comp2 := 2;
+
+      Var2.Comp1 := 1;  --  NO FLAG
+      I := 1;
+      Var2.Comp2 := 2;
 
 
 .. _Use_Simple_Loops:

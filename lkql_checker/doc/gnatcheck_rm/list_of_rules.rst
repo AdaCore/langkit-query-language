@@ -166,6 +166,7 @@ GNATcheck rules.
 * :ref:`Too_Many_Generic_Dependencies`
 * :ref:`Too_Many_Parents`
 * :ref:`Too_Many_Primitives`
+* :ref:`Trivial_Exception_Handlers`
 * :ref:`Unassigned_OUT_Parameters`
 * :ref:`Unavailable_Body_Calls`
 * :ref:`Unchecked_Address_Conversions`
@@ -190,6 +191,7 @@ GNATcheck rules.
 * :ref:`USE_PACKAGE_Clauses`
 * :ref:`Use_Ranges`
 * :ref:`Use_Simple_Loops`
+* :ref:`Use_Record_Aggregates`
 * :ref:`Use_While_Loops`
 * :ref:`Variable_Scoping`
 * :ref:`Visible_Components`
