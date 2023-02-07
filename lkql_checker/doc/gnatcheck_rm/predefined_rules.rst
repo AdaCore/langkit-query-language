@@ -2604,6 +2604,33 @@ This rule has no parameters.
    begin
 
 
+.. _No_Closing_Names:
+
+``No_Closing_Names``
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: No_Closing_Names
+
+Flag any program unit that is longer than N lines where N is a rule parameter
+and does not repeat its name after the trailing ``END`` keyword.
+
+This rule has the following (mandatory) parameter for the ``+R`` option:
+
+
+*N*
+  Positive integer specifying the maximal allowed number of lines in the
+  program unit that allows not to repeat the unit name at the end.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   procedure Proc (I : in out Integer) is -- FLAG is rule parameter is 3 or less
+   begin
+      I := I + 1;
+   end;
+
 
 .. _No_Others_In_Exception_Handlers:
 
@@ -4417,6 +4444,37 @@ This rule has no parameters.
    with Ada.Text_IO;
    use Ada.Text_IO;                               --  FLAG
    procedure Bar (S : in out String) is
+
+
+.. _Use_Ranges:
+
+``Use_Ranges``
+^^^^^^^^^^^^^^
+
+.. index:: Use_Ranges
+
+Flag expressions of the form ``Name'First .. Name'Last`` that can be replaced
+by ``Name'Range`` or simply ``Name``. Also flag expressions of the form
+``Name'Range`` that can be replaced with ``Name``.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3, 5
+
+   procedure Proc (S : String; I : in out Integer) is
+   begin
+      for J in Integer'First .. Integer'Last loop   --  FLAG
+
+         if I in Natural'Range then                 --  FLAG
+            for K in S'Range loop                   --  NO FLAG
+               I := I + K;
+            end loop;
+         end if;
+      end loop;
+   end Proc;
 
 
 .. _Use_Simple_Loops:

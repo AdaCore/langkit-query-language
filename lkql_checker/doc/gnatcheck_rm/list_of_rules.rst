@@ -92,6 +92,7 @@ GNATcheck rules.
 * :ref:`Name_Clashes`
 * :ref:`Nested_Paths`
 * :ref:`Nested_Subprograms`
+* :ref:`No_Closing_Names`
 * :ref:`No_Explicit_Real_Range`
 * :ref:`No_Inherited_Classwide_Pre`
 * :ref:`No_Others_In_Exception_Handlers`
@@ -187,6 +188,7 @@ GNATcheck rules.
 * :ref:`Use_If_Expressions`
 * :ref:`Use_Memberships`
 * :ref:`USE_PACKAGE_Clauses`
+* :ref:`Use_Ranges`
 * :ref:`Use_Simple_Loops`
 * :ref:`Use_While_Loops`
 * :ref:`Variable_Scoping`
