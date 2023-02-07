@@ -395,6 +395,7 @@ package body Gnatcheck.Source_Table is
 
       if Short_Source_Name_String = null then
          Warning (Fname & " not found");
+         Missing_File_Detected := True;
          return;
       else
          Full_Source_Name_String := new String'
@@ -1843,7 +1844,7 @@ package body Gnatcheck.Source_Table is
            (Format_Filename (From.Get_Filename)
             & ": cannot find "
             & Format_Filename (To_String (Name)));
-         Detected_Internal_Error := @ + 1;
+         Missing_File_Detected := True;
       end if;
    end Unit_Requested_Callback;
 

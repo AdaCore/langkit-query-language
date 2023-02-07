@@ -113,6 +113,12 @@ package body Gnatcheck.Projects is
    --  parameter of '-A option' (which is supposed to be a (non-aggregate)
    --  project aggregated by My_Project
 
+   function Report_Missing_File (Log : String) return Boolean is
+     (Index (Log, "source file") /= 0
+     and then
+      Index (Log, "not found") /= 0);
+   --  Checks if Log reports about a missing source file.
+
    --------------
    -- Clean_Up --
    --------------
@@ -658,6 +664,11 @@ package body Gnatcheck.Projects is
          Warning     => Verbose_Mode)
       loop
          Error (GPR2.Log.Element (Msg_Cur).Format);
+
+         if not Missing_File_Detected then
+            Missing_File_Detected :=
+              Report_Missing_File (GPR2.Log.Element (Msg_Cur).Format);
+         end if;
       end loop;
 
    exception

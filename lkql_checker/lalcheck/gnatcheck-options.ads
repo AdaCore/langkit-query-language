@@ -223,6 +223,9 @@ package Gnatcheck.Options is
    --  Parameter of some '-from=...' rule option denotes a file that does not
    --  exist
 
+   Missing_File_Detected : Boolean := False;
+   --  Some argument file is not found.
+
    Bad_Rule_Detected : Boolean := False;
    --  Rule name in +R or -R denotes an unknown rule or some problem with
    --  rule parameter is detected

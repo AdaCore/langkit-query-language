@@ -426,14 +426,17 @@ GNATcheck Exit Codes
 
 ``gnatcheck`` returns the following exit codes at the end of its run:
 
-* ``0``: No tool failure and no rule violation was detected.
+* ``0``: No tool failure, no missing argument source and no rule
+  violation was detected.
 
-* ``1``: No tool failure and at least one rule violation was detected.
+* ``1``: No tool failure, no missing argument source and at least
+  one rule violation was detected.
 
 * ``2``: A tool failure was detected (in this case the results
   of the gnatcheck run cannot be trusted).
 
-* ``3``: No Ada source file was checked.
+* ``3``: No tool failure, no problem with rule specification, but
+  there is at least one missing argument source.
 
 * ``4``: Parameter of the rule ``-from`` option denotes a nonexistent file.
 

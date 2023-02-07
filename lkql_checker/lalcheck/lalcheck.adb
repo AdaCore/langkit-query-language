@@ -52,7 +52,8 @@ procedure Lalcheck is
    E_Success   : constant := 0; --  No tool failure, no rule violation detected
    E_Violation : constant := 1; --  No tool failure, rule violation(s) detected
    E_Error     : constant := 2; --  Tool failure detected
-   No_Check    : constant := 3; --  No file has been checked
+
+   E_Missing_Source : constant := 3; --  Missing at least one argument source
 
    --  Exit code for problems with rule specifications
    E_Missing_Rule_File : constant := 4; --  Missing coding standard file
@@ -350,7 +351,7 @@ begin
 
    if Nothing_To_Do then
       Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
-      OS_Exit (No_Check);
+      OS_Exit (E_Missing_Source);
    end if;
 
    if In_Aggregate_Project then
@@ -435,13 +436,14 @@ begin
               or else
                Detected_Internal_Error /= 0
             then                                    E_Error
-            elsif Missing_Rule_File_Detected then   E_Missing_Rule_File
-            elsif Bad_Rule_Detected          then   E_Missing_Rule
+            elsif Missing_Rule_File_Detected   then E_Missing_Rule_File
+            elsif Bad_Rule_Detected            then E_Missing_Rule
             elsif Rule_Option_Problem_Detected then E_Bad_Rules
+            elsif Missing_File_Detected        then E_Missing_Source
 
             --  If we are here, no problem with gnatcheck execution or rule
-            --  option definition is detected, so we can trust gnatcheck
-            --  results
+            --  option or missing file definition is detected, so we can trust
+            --  gnatcheck results.
 
             elsif (Detected_Non_Exempted_Violations > 0
                 or else Detected_Compiler_Error > 0)
