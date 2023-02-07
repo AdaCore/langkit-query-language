@@ -1580,7 +1580,8 @@ package body LKQL.Primitives is
               ((Kind => Kind_Int, Int_Val => Self.Int_Val, Pool => Pool));
          when Kind_Str =>
             return Create_Primitive
-              ((Kind => Kind_Str, Str_Val => Self.Str_Val, Pool => Pool));
+              ((Kind => Kind_Str,
+                Str_Val => new Text_Type'(Self.Str_Val.all), Pool => Pool));
          when Kind_Node =>
             return Create_Primitive
               ((Kind => Kind_Node, Node_Val => Self.Node_Val, Pool => Pool));

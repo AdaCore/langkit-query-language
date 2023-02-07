@@ -1,0 +1,11 @@
+@memoized
+fun hello(dummy) = {
+  val dummy2 = dummy;
+  "hello"
+}
+
+@check
+fun do_bug(node) = {
+  val hell = hello("");
+  false
+}
