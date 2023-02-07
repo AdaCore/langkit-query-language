@@ -72,7 +72,7 @@ package body Gnatcheck.Diagnoses is
      Compile ("(\.?\w)");
 
    Match_Exempt_Comment : constant Pattern_Matcher :=
-     Compile ("--##\s*rule\s+(line)?\s+(on|off)\s+([^#]+)(?:##(.*))?");
+     Compile ("--##\s*rule\s+(line\s+)?(on|off)\s+([^#]+)(?:##(.*))?");
 
    -----------------------
    -- Diagnoses storage --
