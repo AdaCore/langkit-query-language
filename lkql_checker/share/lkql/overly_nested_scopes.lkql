@@ -19,9 +19,9 @@ fun check_decl_parent(node, n) =
          else check_decl_parent(node.parent, n - 1))
     else check_decl_parent(node.parent, n)
 
-@check(message="nesting level of declarations too deep",
+@check(message="nesting level of scopes too deep",
        category="Style", subcategory="Programming Practice")
-fun overly_nested_declarations(node, n: int = 10) =
+fun overly_nested_scopes(node, n: int = 10) =
     node is (BasePackageDecl or PackageBody or BasicSubpDecl or BaseSubpBody or
              TaskTypeDecl or SingleTaskDecl or TaskBody or
              ProtectedTypeDecl or SingleProtectedDecl or ProtectedBody or

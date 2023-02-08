@@ -1,12 +1,12 @@
-nested.adb:6:23: rule violation: nesting level of declarations too deep
+nested.adb:6:23: rule violation: nesting level of scopes too deep
 6 |             task type T1 is   --  level 4: FLAG
   |                       ^^
 
-nested.adb:8:23: rule violation: nesting level of declarations too deep
+nested.adb:8:23: rule violation: nesting level of scopes too deep
 8 |             task body T1 is   --  level 4: FLAG
   |                       ^^
 
-nested.adb:17:13: rule violation: nesting level of declarations too deep
+nested.adb:17:13: rule violation: nesting level of scopes too deep
 17 |             begin  --  level 4: FLAG
    |             ^^^^
 
