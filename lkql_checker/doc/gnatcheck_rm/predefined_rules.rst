@@ -1842,6 +1842,61 @@ This rule has no parameters.
    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
 
 
+.. _Calls_Outside_Elaboration:
+
+``Calls_Outside_Elaboration``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Calls_Outside_Elaboration
+
+Flag subprogram calls outside library package elaboration code. Only calls to
+the subprograms specified as a rule parameter are considered.
+
+The rule has an optional parameter for the ``+R`` option:
+
+*Subprogram_Name*
+  A rule parameter should be a full expanded Ada name of a subprogram,
+  any number of parameters are allowed, parameters should be separated by
+  a comma.
+
+``-R`` option cannot have a parameter, it turns the rule OFF, but all the
+previously specified by rule parameters function names are stored. ``+R``
+option without parameter turns the rule ON with all the previously specified
+parameters, if any.
+
+Note that a rule parameter should be a subprogram name but not the name
+defined by a subprogram renaming declaration. Note also, that if a rule
+parameter does not denote the name of an existing subprogram or if it denotes
+a name defined by a subprogram renaming declaration, the parameter itself is
+(silently) ignored and does not have any effect except for turning the rule
+ON.
+
+Note also, that the rule does not make any overloaded resolution, so if a rule
+parameter refers to more than one overloaded subprograms, the rule will treat
+calls to all these subprograms as the calls to the same subprogram.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 12
+
+   --  Suppose the rule is activated as +RCalls_Outside_Elaboration:P.Fun;
+   package P is
+      I : Integer := Fun (1);          --  NO FLAG
+      J : Integer;
+
+      procedure Proc (I : in out Integer);
+   end P;
+
+   package body P is
+      procedure Proc (I : in out Integer) is
+      begin
+         I := Another_Fun (Fun (1));   --  FLAG
+      end Proc;
+   begin
+      J := Fun (I);                    --  NO FLAG
+
+
 .. _Constant_Overlays:
 
 ``Constant_Overlays``
@@ -3263,6 +3318,63 @@ The rule has the following (optional) parameters for the ``+R`` option:
           end if;
        end loop;
    end if;
+
+
+.. _Overly_Nested_Scopes:
+
+``Overly_Nested_Scopes``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Overly_Nested_Scopes
+
+Flag a nested scope if the nesting level of this scope is more than the
+rule parameter. The following declarations are considered as scopes by this
+rule:
+
+*
+  package and generic package declarations and bodies;
+
+*
+  subprogram and generic subprogram declarations and bodies;
+
+*
+  task type and single task declarations and bodies;
+
+*
+  protected type and single protected declarations and bodies;
+
+*
+  entry bodies;
+
+*
+  block statements;
+
+This rule has the following (mandatory) parameter for the ``+R`` option:
+
+*N*
+  Non-negative integer specifying the maximal allowed depth of scope
+  constructs.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 8
+
+   with P; use P;
+   package Pack is
+      package Pack1 is
+         package Pack2 is
+            generic
+            package Pack_G is
+               procedure P;            --  FLAG if rule parameter is 3 or less
+
+               package Inner_Pack is   --  FLAG if rule parameter is 3 or less
+                  I : Integer;
+               end Inner_Pack;
+            end Pack_G;
+         end Pack2;
+      end Pack1
+   end Pack;
 
 
 .. _POS_On_Enumeration_Types:

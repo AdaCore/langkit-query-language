@@ -22,6 +22,7 @@ GNATcheck rules.
 * :ref:`Blocks`
 * :ref:`Boolean_Negations`
 * :ref:`Boolean_Relational_Operators`
+* :ref:`Calls_Outside_Elaboration`
 * :ref:`Complex_Inlined_Subprograms`
 * :ref:`Conditional_Expressions`
 * :ref:`Constant_Overlays`
@@ -124,6 +125,7 @@ GNATcheck rules.
 * :ref:`Outside_References_From_Subprograms`
 * :ref:`Overloaded_Operators`
 * :ref:`Overly_Nested_Control_Structures`
+* :ref:`Overly_Nested_Scopes`
 * :ref:`Parameters_Out_Of_Order`
 * :ref:`POS_On_Enumeration_Types`
 * :ref:`Positional_Actuals_For_Defaulted_Generic_Parameters`
@@ -190,8 +192,8 @@ GNATcheck rules.
 * :ref:`Use_Memberships`
 * :ref:`USE_PACKAGE_Clauses`
 * :ref:`Use_Ranges`
-* :ref:`Use_Simple_Loops`
 * :ref:`Use_Record_Aggregates`
+* :ref:`Use_Simple_Loops`
 * :ref:`Use_While_Loops`
 * :ref:`Variable_Scoping`
 * :ref:`Visible_Components`
