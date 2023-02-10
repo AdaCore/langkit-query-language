@@ -2,7 +2,7 @@
 --                                                                          --
 --                                 GNATCHECK                                --
 --                                                                          --
---                     Copyright (C) 2004-2022, AdaCore                     --
+--                     Copyright (C) 2004-2023, AdaCore                     --
 --                                                                          --
 -- GNATCHECK  is free software;  you can redistribute it and/or modify  it  --
 -- under terms of the GNU General Public License  as published by the Free  --
@@ -1375,8 +1375,7 @@ package body Gnatcheck.Source_Table is
                end if;
             else
                while Next_Ch not in ASCII.LF | ASCII.CR | ASCII.HT | ' ' loop
-                  File_Name_Len := File_Name_Len + 1;
-                  File_Name_Buffer (File_Name_Len) := Next_Ch;
+                  Append (Result, Next_Ch);
 
                   Look_Ahead (Arg_File, Next_Ch, End_Of_Line);
 
