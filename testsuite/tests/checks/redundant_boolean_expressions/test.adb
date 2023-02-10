@@ -19,6 +19,15 @@ begin
       null;
    end if;
 
+   declare
+      type Bool_N is new Boolean;
+      Y : Bool_N;
+   begin
+      if Y = True then    --  FLAG
+         J := 1;
+      end if;
+   end;
+
    return X = Standard.False;  --  FLAG
    return False;               --  NO FLAG
 end Test;

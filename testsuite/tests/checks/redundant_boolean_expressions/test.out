@@ -14,7 +14,11 @@ test.adb:18:7: rule violation: redundant boolean expression
 18 |    if not (J > 1) then         --  FLAG
    |       ^^^^^^^^^^^
 
-test.adb:22:11: rule violation: redundant boolean expression
-22 |    return X = Standard.False;  --  FLAG
+test.adb:26:10: rule violation: redundant boolean expression
+26 |       if Y = True then    --  FLAG
+   |          ^^^^^^^^
+
+test.adb:31:11: rule violation: redundant boolean expression
+31 |    return X = Standard.False;  --  FLAG
    |           ^^^^^^^^^^^^^^^^^^
 
