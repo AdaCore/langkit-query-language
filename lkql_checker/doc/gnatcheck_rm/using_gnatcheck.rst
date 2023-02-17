@@ -654,7 +654,7 @@ a syntax based on comments, with the following syntax:
 
 ::
 
-  <comment_exemption> ::= --# rule (on | off) <rule_name> [## <rule_justification>]
+  <comment_exemption> ::= --## rule (on | off) <rule_name> [## <rule_justification>]
 
 .. attention:: Please note that a comment starting with ``--##`` but not
    respecting the above syntax will not trigger a warning, in order to not emit
