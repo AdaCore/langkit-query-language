@@ -550,7 +550,7 @@ package body Gnatcheck.Projects is
          Base => KB);
 
       My_Project.Tree.Update_Sources
-        (Stop_On_Error => False,  With_Runtime => True);
+        (Stop_On_Error => True,  With_Runtime => True);
 
       for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
         (Information => Verbosity_Level > 1,
@@ -646,17 +646,23 @@ package body Gnatcheck.Projects is
                   Language_Runtimes => RTS,
                   Base => KB);
                My_Project.Tree.Update_Sources
-                 (Stop_On_Error => False,  With_Runtime => True);
+                 (Stop_On_Error => True,  With_Runtime => True);
 
             when others =>
                --  General case - more than one project is aggregated. We have
                --  process them one by one spawning gnatcheck for each project.
 
-               null;
+               --  We still need to check if sources can be succesfully loaded,
+               --  otherwise there might be a discrepancy when gnatcheck
+               --  silently acceptsa project that gprtools will reject.
+               --  We don't need run time sources here as no actual processing
+               --  is going to happen.
+               My_Project.Tree.Update_Sources
+                 (Stop_On_Error => True,  With_Runtime => False);
          end case;
       else
          My_Project.Tree.Update_Sources
-           (Stop_On_Error => False,  With_Runtime => True);
+           (Stop_On_Error => True,  With_Runtime => True);
       end if;
 
       for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
