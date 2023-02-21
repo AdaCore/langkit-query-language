@@ -28,6 +28,8 @@ with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Liblkqllang.Common;
+with Liblkqllang.Generic_API.Introspection;
+use Liblkqllang.Generic_API.Introspection;
 with Liblkqllang.Iterators; use Liblkqllang.Iterators;
 with LKQL.Primitives;       use LKQL.Primitives;
 
@@ -122,8 +124,9 @@ package body Rule_Commands is
         Find_First
           (Root,
            Kind_Is (LCO.Lkql_Decl_Annotation)
-           and Child_With (LCO.Decl_Annotation_F_Name,
-                           Text_Is ("check") or Text_Is ("unit_check")))
+           and Child_With
+                 (Member_Refs.Decl_Annotation_F_Name,
+                  Text_Is ("check") or Text_Is ("unit_check")))
           .As_Decl_Annotation;
 
    begin
