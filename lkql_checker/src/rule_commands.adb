@@ -21,15 +21,15 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Conversions; use Ada.Characters.Conversions;
+with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
 with LKQL.Unit_Utils; use LKQL.Unit_Utils;
 with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Liblkqllang.Common;
-with Liblkqllang.Iterators;  use Liblkqllang.Iterators;
-with LKQL.Primitives;        use LKQL.Primitives;
+with Liblkqllang.Iterators; use Liblkqllang.Iterators;
+with LKQL.Primitives;       use LKQL.Primitives;
 
 package body Rule_Commands is
 
