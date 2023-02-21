@@ -27,11 +27,12 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
           val n = call.f_name.p_referenced_decl()?.
                   p_canonical_fully_qualified_name?();
           val name = if n == () then "" else n;
-          val param = [c[2] for c in callbacks if c[1] == name]?[1];
+          val params = [c[2] for c in callbacks if c[1] == name].to_list;
 
-          param != () and
+          params.length != 0 and
           [p for p in call.p_call_params()
-           if p.actual == node and p.param.p_name_is(param)] and
+           if p.actual == node and [param for param in params
+                                    if p.param.p_name_is(param)]] and
           stdlib.propagate_exceptions(if subp is SubpBody
                                       then subp else subp.p_body_part_for_decl())
       }
