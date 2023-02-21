@@ -106,7 +106,8 @@ fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
     n.parent is GenericFormalObjDecl or
     n is *(any semantic_parent is BasicSubpDecl or SubpBody or TaskBody or
-                                  BlockStmt or EntryBody or ProtectedBody)
+                                  ExprFunction or BlockStmt or EntryBody or
+                                  ProtectedBody)
 
 fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``

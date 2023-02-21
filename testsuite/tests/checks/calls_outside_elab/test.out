@@ -1,13 +1,17 @@
-p.adb:9:22: rule violation: call performed outside elaboration
-9 |       X : Integer := Create;    --  FLAG
-  |                      ^^^^^^
+p.adb:8:48: rule violation: call performed outside elaboration
+8 |    function F (I : Integer) return Integer is (Create + I);  --  FLAG
+  |                                                ^^^^^^
 
-p.adb:11:12: rule violation: call performed outside elaboration
-11 |       X := Create;              --  FLAG
-   |            ^^^^^^
+p.adb:11:22: rule violation: call performed outside elaboration
+11 |       X : Integer := Create;    --  FLAG
+   |                      ^^^^^^
 
 p.adb:13:12: rule violation: call performed outside elaboration
-13 |       X := Create3;             --  FLAG
+13 |       X := Create;              --  FLAG
+   |            ^^^^^^
+
+p.adb:15:12: rule violation: call performed outside elaboration
+15 |       X := Create3;             --  FLAG
    |            ^^^^^^^
 
 proc.adb:3:19: rule violation: call performed outside elaboration

@@ -5,6 +5,8 @@ package body P is
 
    function Create3 return Integer renames Create;
 
+   function F (I : Integer) return Integer is (Create + I);  --  FLAG
+
    procedure Subp1 is
       X : Integer := Create;    --  FLAG
    begin
