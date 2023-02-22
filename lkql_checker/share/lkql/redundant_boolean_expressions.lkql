@@ -4,7 +4,7 @@
 #   return, of Standard.True on one branch and Standard.False on the other
 #   branch.
 # - infix predefined (in)equality against Standard.True/False.
-# - infix predefined "not" operators whose argument is a comparison.
+# - infix predefined "not" operators whose argument is a predefined comparison.
 
 import stdlib
 
@@ -43,4 +43,5 @@ fun redundant_boolean_expressions(node) =
                                          node.f_else_stmts[1]))
          or (UnOp(f_op is op@OpNot
                   when stdlib.is_predefined_op(op)
-                   and stdlib.strip_conversions(node.f_expr) is RelationOp))
+                   and stdlib.strip_conversions(node.f_expr) is rel@RelationOp
+                       when stdlib.is_predefined_op(rel.f_op)))
