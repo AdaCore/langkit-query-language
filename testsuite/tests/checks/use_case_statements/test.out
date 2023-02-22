@@ -1,8 +1,18 @@
 stmt.adb:22:7: rule violation: IF statement may be replaced by a CASE statement
-22 |       if Item.Field < 0 then  --  FLAG
-   |       ^^^^^^^
+22 |        if Item.Field < 0 then  --  FLAG
+   | _______^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+28 ||       end if;
+   ||_____________^
 
 stmt.adb:32:4: rule violation: IF statement may be replaced by a CASE statement
-32 |    if Result = OK then   --  FLAG
-   |    ^^^^^^^
+32 |     if Result = OK then   --  FLAG
+   | ____^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+38 ||    end if;
+   ||__________^
 

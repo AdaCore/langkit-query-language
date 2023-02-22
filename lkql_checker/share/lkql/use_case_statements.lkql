@@ -28,11 +28,11 @@ fun use_case_statements(node) =
     node is IfStmt(
         f_alternatives is l@ElsifStmtPartList when l[1],
         f_cond_expr is r@RelationOp
-        when (r.f_left is id@(
-                  (Identifier when id.p_expression_type().p_is_discrete_type())
-               or (DottedName
-                   when id.f_suffix is suffix@Name
-                    and suffix.p_referenced_decl() is ComponentDecl
-                    and suffix.p_expression_type().p_is_discrete_type()))
-         and is_static_relation(r))
-    when check_alternatives(from node.f_alternatives select ElsifStmtPart, id)
+        when r.f_left is id@(
+                 (Identifier when id.p_expression_type().p_is_discrete_type())
+              or (DottedName
+                  when id.f_suffix is suffix@Name
+                      when suffix.p_referenced_decl() is ComponentDecl
+                       and suffix.p_expression_type().p_is_discrete_type()))
+            when is_static_relation(r)
+             and check_alternatives(from node.f_alternatives select ElsifStmtPart, id))
