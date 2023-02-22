@@ -2,4 +2,4 @@ driver: 'checker'
 rule_name: Exception_Propagation_From_Callbacks
 project: 'prj.gpr'
 rule_arguments:
-   exception_propagation_from_callbacks.callbacks: '[("p.take_cb", "Param")]'
+   exception_propagation_from_callbacks.callbacks: '[("p.take_cb", "Param"),("p.take_cb_i", "Param")]'

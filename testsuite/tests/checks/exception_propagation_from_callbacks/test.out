@@ -2,3 +2,15 @@ p.adb:22:25: rule violation: callback may propagate exceptions
 22 |       Take_Cb (Param => P1'Access, I => 1);   --  FLAG
    |                         ^^^^^^^^^
 
+p.adb:45:19: rule violation: callback may propagate exceptions
+45 |       Take_Cb (1, P3'Access);        --  FLAG
+   |                   ^^^^^^^^^
+
+p.adb:46:21: rule violation: callback may propagate exceptions
+46 |       Take_Cb_I (1, P1'Access);      --  FLAG
+   |                     ^^^^^^^^^
+
+p.adb:55:19: rule violation: callback may propagate exceptions
+55 |       Take_Cb (1, Sep'Access);      --  FLAG
+   |                   ^^^^^^^^^^
+
