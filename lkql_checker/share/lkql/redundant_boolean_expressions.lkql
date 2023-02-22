@@ -3,8 +3,8 @@
 #   is a single statement, either an assignment on the same destination, or a
 #   return, of Standard.True on one branch and Standard.False on the other
 #   branch.
-# - infix (in)equality against Standard.True/False.
-# - infix "not" operators whose argument is a comparison.
+# - infix predefined (in)equality against Standard.True/False.
+# - infix predefined "not" operators whose argument is a comparison.
 
 import stdlib
 
@@ -29,7 +29,8 @@ fun check_then_else(then_stmt, else_stmt) =
        category="Style", subcategory="Programming Practice")
 fun redundant_boolean_expressions(node) =
     node is RelationOp(f_op is op@(OpEq or OpNeq))
-            when (node.f_right is name@Name when {
+            when stdlib.is_predefined_op(op)
+             and (node.f_right is name@Name when {
                 val n = name.p_referenced_defining_name()?.
                         p_canonical_fully_qualified_name?();
                 n == "standard.boolean.true" or n == "standard.boolean.false"
@@ -41,4 +42,5 @@ fun redundant_boolean_expressions(node) =
                      and check_then_else(node.f_then_stmts[1],
                                          node.f_else_stmts[1]))
          or (UnOp(f_op is OpNot)
-             when stdlib.strip_conversions(node.f_expr) is RelationOp)
+             when stdlib.is_predefined_op(op)
+              and stdlib.strip_conversions(node.f_expr) is RelationOp)
