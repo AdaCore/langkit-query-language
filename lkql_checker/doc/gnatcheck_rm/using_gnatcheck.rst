@@ -668,8 +668,9 @@ particular:
 * Justifications are not checked and are optional
 * Rules regarding parametric exemption do not apply, as per the notice above.
 
-Apart from that, you can expect those rule exemptions to work in a similar
-fashion as the ones described above.
+The ``rule on`` marker corresponds to ``Exempt_Off`` and ``rule off`` corresponds
+to ``Exempt_On``. Apart from that, you can expect those rule exemptions to work
+in a similar fashion as the ones described above.
 
 .. _Using_GNATcheck_as_a_KP_Detector:
 
