@@ -436,14 +436,13 @@ fun number_of_values(type) =
         range_values(op.f_left, op.f_right)
       }
     | DerivedTypeDef        =>
-        match def.f_subtype_indication.f_constraint
-        | r@RangeConstraint =>
-            match r.f_range.f_range
-            | op@BinOp => range_values(op.f_left, op.f_right)
-            | *        => -1
-        | * => number_of_values(
-            def.f_subtype_indication.f_name.p_referenced_decl()
-          )
+        (match def.f_subtype_indication.f_constraint
+         | r@RangeConstraint =>
+             (match r.f_range.f_range
+              | op@BinOp => range_values(op.f_left, op.f_right)
+              | *        => -1)
+         | * => number_of_values(
+             def.f_subtype_indication.f_name.p_referenced_decl()))
     | FormalDiscreteTypeDef => -1
     | *                     => -1;
 
@@ -453,8 +452,7 @@ fun number_of_values(type) =
                                   | op@BinOp => range_values(op.f_left, op.f_right)
                                   | *        => -1)
           | *                 => number_of_values(
-              type.f_subtype.f_name.p_referenced_decl()
-            ))
+              type.f_subtype.f_name.p_referenced_decl()))
     else if type == type.p_universal_int_type()
     then -1
     else count_values_def(type.f_type_def)
