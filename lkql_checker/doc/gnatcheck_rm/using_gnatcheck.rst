@@ -659,8 +659,7 @@ a syntax based on comments, with the following syntax:
 .. attention:: Please note that a comment starting with ``--##`` but not
    respecting the above syntax will not trigger a warning, in order to not emit
    false positives.
-
-.. attention:: In its current iteration, this syntax does not support passing
+   Also note that in its current iteration, this syntax does not support passing
    parameters to rule names
 
 The rules mentioned in :ref:`gnatcheck_Annotations_Rules` are relaxed, in
@@ -669,7 +668,7 @@ particular:
 * Justifications are not checked and are optional
 * Rules regarding parametric exemption do not apply, as per the notice above.
 
-Appart from that, you can expect those rule exemptions to work in a similar
+Apart from that, you can expect those rule exemptions to work in a similar
 fashion as the ones described above.
 
 .. _Using_GNATcheck_as_a_KP_Detector:
