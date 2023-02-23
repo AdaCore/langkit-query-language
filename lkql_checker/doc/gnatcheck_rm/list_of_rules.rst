@@ -44,6 +44,7 @@ GNATcheck rules.
 * :ref:`End_Of_Line_Comments`
 * :ref:`Enumeration_Ranges_In_CASE_Statements`
 * :ref:`Enumeration_Representation_Clauses`
+* :ref:`Exception_Propagation_From_Callbacks`
 * :ref:`Exceptions_As_Control_Flow`
 * :ref:`Exits_From_Conditional_Loops`
 * :ref:`EXIT_Statements_With_No_Loop_Name`
@@ -141,6 +142,7 @@ GNATcheck rules.
 * :ref:`Raising_External_Exceptions`
 * :ref:`Raising_Predefined_Exceptions`
 * :ref:`Recursive_Subprograms`
+* :ref:`Redundant_Boolean_Expressions`
 * :ref:`Redundant_Null_Statements`
 * :ref:`Relative_Delay_Statements`
 * :ref:`Renamings`

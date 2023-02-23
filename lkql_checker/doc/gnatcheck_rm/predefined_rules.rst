@@ -1871,7 +1871,7 @@ a name defined by a subprogram renaming declaration, the parameter itself is
 (silently) ignored and does not have any effect except for turning the rule
 ON.
 
-Note also, that the rule does not make any overloaded resolution, so if a rule
+Note also, that the rule does not make any overload resolution, so if a rule
 parameter refers to more than one overloaded subprograms, the rule will treat
 calls to all these subprograms as the calls to the same subprogram.
 
@@ -2105,6 +2105,93 @@ This rule has no parameters.
 
    type Enum1 is (A1, B1, C1);
    for Enum1 use (A1 => 1, B1 => 11, C1 => 111);     --  FLAG
+
+
+.. _Exception_Propagation_From_Callbacks:
+
+``Exception_Propagation_From_Callbacks``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Exception_Propagation_From_Callbacks
+
+Flag an ``'Address`` or ``'Access`` attribute if:
+
+*
+  this attribute is a reference to a subprogram;
+
+*
+  this subprogram may propagate an exception;
+
+*
+  this attribute is an actual parameter of a subprogram call, and both the
+  subprogram called and the corresponding formal parameter are specified by a
+  rule parameter.
+
+A subprogram is considered as not propagating an exception if:
+
+*
+  its body has an exception handler with ``others`` exception choice;
+
+*
+  no exception handler in the body contains a raise statement nor a call to
+  ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
+
+The rule has an optional parameter for the ``+R`` option:
+
+*Subprogram_And_Parameter_Name*
+  A rule parameter should have the following structure
+  ``subprogram_name.parameter``. ``subprogram_name`` should be a full expanded
+  Ada name of a subprogram. ``parameter`` should be a simple name of a
+  parameter of a subprogram defined by the ``subprogram_name`` part of the
+  rule parameter. For such a rule parameter for calls to all the subprograms
+  named as ``subprogram_name`` the rule checks  if a reference to a subprogram
+  that may propagate an exception is passed as an actual for parameter named
+  ``parameter``. Any number of parameters are allowed for the rule, parameters
+  should be separated by a comma.
+
+``-R`` option cannot have a parameter, it turns the rule OFF, but all the
+previously specified rule parameters are stored. ``+R`` option without
+parameter turns the rule ON with all the previously specified parameters, if
+any.
+
+Note that if a rule parameter does not denote the name of an existing
+subprogram or if its ``parameter`` part does not correspond to any formal
+parameter of any subprogram defined by ``subprogram_name`` part, the
+parameter itself is (silently) ignored and does not have any effect except for
+turning the rule ON.
+
+Be aware that ``subprogram_name`` is the name used in subprogram calls to look
+for callback parameters that may raise an exception, and ``parameter`` is the
+name of a formal parameter that is defined in the declaration that defines
+``subprogram_name``. This is a user responsibility to provide as the rule
+parameters all needed combinations of subprogram name and parameter name for
+the subprogram of interest in case if renamings are used for this subprogram.
+
+Note also, that the rule does not make any overload resolution, so calls to
+all the subprograms corresponding to ``subprogram_name`` are checked.
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 14
+
+   -- Suppose the rule parameter is P.Take_CB.Param1
+   package P is
+      procedure Good_CB; --  does not propagate an exception
+      procedure Bad_CB;  --  may propagate an exception
+      procedure Take_CB
+        (I : Integer;
+         Param1 : access procedure;
+         Param2 : access procedure);
+   end P;
+
+   with P; use P;
+   procedure Proc is
+   begin
+      Take_CB (1, Bad_CB'Access, Good_CB'Access);   --  FLAG
+      Take_CB (1, Good_CB'Access, Bad_CB'Access);   --  NO FLAG
+   end Proc;
 
 
 .. _Exceptions_As_Control_Flow:
@@ -3692,6 +3779,50 @@ The rule has an optional parameter for the ``+R`` option:
       end if;
    end Factorial;
 
+
+.. _Redundant_Boolean_Expressions:
+
+``Redundant_Boolean_Expressions``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Redundant_Boolean_Expressions
+
+Flag constructs including boolean operations that can be simplified. The
+following constructs are flagged:
+
+*
+  ``if`` statements that have ``if`` and ``else`` paths (and no ``elsif`` path) if
+  both paths contain a single statement that is either an assignment to the same
+  variable or return statement that in one path returns ``True`` and in another
+  path - ``False``, where ``True`` and ``False`` are literals of the type
+  ``Standard.Boolean`` or any type derived from it. Note that in case of
+  assignment statements the variable names in the left part should be
+  literally the same (case insensitive);
+
+*
+  infix call to a predefined ``=`` or ``/=`` operator when the right operand
+  is ``True`` or ``False`` where ``True`` and ``False`` are literals of the type
+  ``Standard.Boolean`` or any type derived from it.
+
+*
+  infix call to a predefined ``not`` operator whose argument is an infix
+  call to a predefined ordering operator.
+
+This rule has no parameters.
+
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 1
+
+   if I + J > K then   --  FLAG
+      return True;
+   else
+      return False;
+   end if;
+
+
 .. _Redundant_Null_Statements:
 
 ``Redundant_Null_Statements``
@@ -3874,7 +4005,7 @@ denote the name of an existing function or if it denotes a name defined by
 a function renaming declaration, the parameter itself is (silently) ignored
 and does not have any effect.
 
-Note also, that the rule does not make any overloaded resolution, so if
+Note also, that the rule does not make any overload resolution, so if
 a rule parameter refers to more than one overloaded functions with the same
 name, the rule will treat calls to all these function as the calls to the
 same function.
