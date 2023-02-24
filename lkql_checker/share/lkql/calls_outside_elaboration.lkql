@@ -1,6 +1,6 @@
 # Flag each occurrence of call (as given by parameter `forbidden`) performed
 # outside library level package elaboration. Note that function renamings are
-# followed by this rule.
+# not followed by this rule.
 
 import stdlib
 
@@ -9,7 +9,7 @@ import stdlib
 fun calls_outside_elaboration(node, forbidden=[]) =
     node is BaseId(p_is_call() is true)
     when stdlib.has_local_scope(node)
-     and stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is subp@BasicDecl
+     and node.p_referenced_decl() is subp@BasicDecl
      when {
         val name = subp.p_canonical_fully_qualified_name();
         [c for c in forbidden if c.to_lower_case == name]

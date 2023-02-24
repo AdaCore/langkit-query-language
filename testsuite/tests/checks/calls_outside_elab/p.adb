@@ -12,7 +12,7 @@ package body P is
    begin
       X := Create;              --  FLAG
       X := Create2;             --  NO FLAG
-      X := Create3;             --  FLAG
+      X := Create3;             --  NO FLAG
    end;
 
    Global : Integer := Create;  --  NO FLAG

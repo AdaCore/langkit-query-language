@@ -1850,7 +1850,8 @@ This rule has no parameters.
 .. index:: Calls_Outside_Elaboration
 
 Flag subprogram calls outside library package elaboration code. Only calls to
-the subprograms specified as a rule parameter are considered.
+the subprograms specified as a rule parameter are considered, renamings are
+not followed.
 
 The rule has an optional parameter for the ``+R`` option:
 
@@ -1864,12 +1865,9 @@ previously specified by rule parameters function names are stored. ``+R``
 option without parameter turns the rule ON with all the previously specified
 parameters, if any.
 
-Note that a rule parameter should be a subprogram name but not the name
-defined by a subprogram renaming declaration. Note also, that if a rule
-parameter does not denote the name of an existing subprogram or if it denotes
-a name defined by a subprogram renaming declaration, the parameter itself is
-(silently) ignored and does not have any effect except for turning the rule
-ON.
+Note that if a rule parameter does not denote the name of an existing
+subprogram, the parameter itself is (silently) ignored and does not have any
+effect except for turning the rule ON.
 
 Note also, that the rule does not make any overload resolution, so if a rule
 parameter refers to more than one overloaded subprograms, the rule will treat
