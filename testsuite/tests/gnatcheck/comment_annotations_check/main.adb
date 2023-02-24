@@ -18,10 +18,16 @@ procedure Main is
       --  3: We check that justification is ignored in "rule on"
       --## rule on expression_functions ## useless comment
       function Moo return Boolean is (True);  -- FLAG
+
+      --  4: Check that any extra wording is ignored and that the missing
+      --  rule on is flagged
+      --## rule off expression_functions this is not -- a justification
+      function Loo return Boolean is (True);
    end Pkg;
 
-
-   procedure Poo (A : Integer) is null; --## rule line off implicit_in
+   --  Check that a redundant rule off is detected and the alias used in the message
+   --## rule off expr_func
+   procedure Poo (A : Integer) is null; --## rule line off implicit_in ## justify line off
 
    --  Check that there is a warning for "rule line on"
    procedure Poo (A : Integer) is null; --## rule line on implicit_in

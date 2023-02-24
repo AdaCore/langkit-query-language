@@ -72,7 +72,7 @@ package body Gnatcheck.Diagnoses is
      Compile ("(\.?\w)");
 
    Match_Exempt_Comment : constant Pattern_Matcher :=
-     Compile ("--##\s*rule\s+(line\s+)?(on|off)\s+([^#]+)(?:##(.*))?");
+     Compile ("--##\s*rule\s+(line\s+)?(on|off)\s+([^\s]+)[^#]*(?:##(.*))?");
 
    -----------------------
    -- Diagnoses storage --
@@ -2079,8 +2079,9 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Process_Exempt_Action (Self : Exempt_Action) is
-      SF          : constant SF_Id := File_Find (Self.Unit.Get_Filename);
-      Rule        : constant Rule_Id := Get_Rule (To_String (Self.Rule_Name));
+      SF          : constant SF_Id   := File_Find (Self.Unit.Get_Filename);
+      Rule_Name   : constant String  := To_String (Self.Rule_Name);
+      Rule        : constant Rule_Id := Get_Rule (Rule_Name);
       Has_Params  : constant Boolean := not Self.Params.Is_Empty;
       Exempted_At : Parametrized_Exemption_Sections.Cursor;
       Sloc_Start  : constant Source_Location :=
@@ -2110,7 +2111,8 @@ package body Gnatcheck.Diagnoses is
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
             Sloc               => Sloc_Start,
-            Message            => "wrong rule name in exemption, ignored",
+            Message            => "wrong rule name in exemption (" &
+                                  Rule_Name & "), ignored",
             Diagnosis_Kind     => Exemption_Warning,
             SF                 => SF);
          return;
@@ -2123,7 +2125,7 @@ package body Gnatcheck.Diagnoses is
          Store_Diagnosis
            (Full_File_Name     => Self.Unit.Get_Filename,
             Sloc               => Sloc_Start,
-            Message            => "rule " & Rule_Name (Rule) &
+            Message            => "rule " & Rule_Name &
                                   " cannot have parametric " &
                                   "exemption, ignored",
             Diagnosis_Kind     => Exemption_Warning,
@@ -2190,8 +2192,8 @@ package body Gnatcheck.Diagnoses is
                  (Full_File_Name     => Action.Unit.Get_Filename,
                   Sloc               => Sloc_Start,
                   Message            =>
-                    "rule " & Rule_Name (Rule)
-                    & " is already exempted at line" &
+                    "rule " & Rule_Name &
+                    " is already exempted at line" &
                     Exemption_Sections (Rule).Line_Start'Img,
                   Diagnosis_Kind     => Exemption_Warning,
                   SF                 => SF);
@@ -2207,7 +2209,7 @@ package body Gnatcheck.Diagnoses is
                     (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
-                       "rule " & Rule_Name (Rule)
+                       "rule " & Rule_Name
                        & " is already exempted with parameter(s) at line"
                        & Element (First (Rule_Param_Exempt_Sections (Rule)))
                          .Exempt_Info.Line_Start'Img,
@@ -2226,7 +2228,7 @@ package body Gnatcheck.Diagnoses is
                     (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
-                       "rule " & Rule_Name (Rule) &
+                       "rule " & Rule_Name &
                        " is already exempted with the same parameters at line"
                        & Element (Exempted_At).Exempt_Info.Line_Start'Img,
                      Diagnosis_Kind     => Exemption_Warning,
@@ -2250,7 +2252,7 @@ package body Gnatcheck.Diagnoses is
                           (Full_File_Name     => Action.Unit.Get_Filename,
                            Sloc               => Sloc_Start,
                            Message            =>
-                             "rule " & Rule_Name (Rule)
+                             "rule " & Rule_Name
                              & " is already exempted with parameter '"
                              & To_String (Param) & "' at line"
                              & Element (Exempted_At)
@@ -2301,8 +2303,7 @@ package body Gnatcheck.Diagnoses is
                     (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
-                       "rule "
-                       & Rule_Name (Rule) & " is not in exempted state",
+                       "rule " & Rule_Name & " is not in exempted state",
                      Diagnosis_Kind     => Exemption_Warning,
                      SF                 => SF);
                   return;
@@ -2316,8 +2317,7 @@ package body Gnatcheck.Diagnoses is
                     (Full_File_Name     => Action.Unit.Get_Filename,
                      Sloc               => Sloc_Start,
                      Message            =>
-                       "rule "
-                       & Rule_Name (Rule) & " is not in exempted state",
+                       "rule " & Rule_Name & " is not in exempted state",
                      Diagnosis_Kind     => Exemption_Warning,
                      SF                 => SF);
                   return;

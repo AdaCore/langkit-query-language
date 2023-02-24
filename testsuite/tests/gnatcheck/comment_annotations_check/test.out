@@ -8,9 +8,9 @@
    ignored sources                       : 0
 
    non-exempted violations               : 3
-   rule exemption warnings               : 1
+   rule exemption warnings               : 3
    compilation errors                    : 0
-   exempted violations                   : 4
+   exempted violations                   : 5
    internal errors                       : 0
 
 2. Exempted Coding Standard Violations
@@ -19,9 +19,11 @@ main.adb:8:22: implicit IN mode in parameter specification
    (Exemption justification)
 main.adb:16:16: expression function
    (unjustified)
-main.adb:24:19: implicit IN mode in parameter specification
+main.adb:25:16: expression function
    (unjustified)
-main.adb:27:19: implicit IN mode in parameter specification
+main.adb:30:19: implicit IN mode in parameter specification
+   (justify line off)
+main.adb:33:19: implicit IN mode in parameter specification
    (unjustified)
 
 3. Non-exempted Coding Standard Violations
@@ -32,7 +34,9 @@ main.adb:20:16: expression function
 
 4. Rule exemption problems
 
-main.adb:27:41: State should be "off" for line exemption
+main.adb:24:07: no matching 'exempt_OFF' annotation for rule expression_functions
+main.adb:29:04: rule expr_func is already exempted at line 24
+main.adb:33:41: State should be "off" for line exemption
 
 5. Language violations
 
