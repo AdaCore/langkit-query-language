@@ -1,4 +1,4 @@
-loop1.adb:3:4: rule violation: for loop may be replaced by a for-of loop
+loop1.adb:3:4: rule violation: FOR loop may be replaced by a FOR OF loop
 3 |     for J in Str'Range loop    --  FLAG
   | ____^
   ||
@@ -7,7 +7,7 @@ loop1.adb:3:4: rule violation: for loop may be replaced by a for-of loop
 9 ||    end loop;
   ||____________^
 
-loop1.adb:11:4: rule violation: for loop may be replaced by a for-of loop
+loop1.adb:11:4: rule violation: FOR loop may be replaced by a FOR OF loop
 11 |     for J in Str'Range loop    --  FLAG
    | ____^
    ||

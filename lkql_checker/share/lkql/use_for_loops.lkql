@@ -47,7 +47,7 @@ fun enclosing_scope(node) = {
     if p is NamedStmt then enclosing_scope(p) else p
 }
 
-@check(message="while loop may be replaced by a for loop",
+@check(message="WHILE loop may be replaced by a FOR loop",
        category="Style", subcategory="Programming Practice")
 fun use_for_loops(node, no_exit = false, no_function = false) =
     # Find while loops of the form: while Id <relation op> ... loop

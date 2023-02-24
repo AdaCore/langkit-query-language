@@ -1,4 +1,4 @@
-loop1.adb:27:4: rule violation: while loop may be replaced by a for loop
+loop1.adb:27:4: rule violation: WHILE loop may be replaced by a FOR loop
 27 |     while L <= Str'Last loop   --  FLAG
    | ____^
    ||

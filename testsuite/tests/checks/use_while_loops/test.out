@@ -1,4 +1,4 @@
-loop1.adb:5:4: rule violation: simple loop may be replaced by a while loop
+loop1.adb:5:4: rule violation: simple LOOP may be replaced by a WHILE loop
 5  |     loop           --  FLAG
    | ____^
    ||
@@ -7,7 +7,7 @@ loop1.adb:5:4: rule violation: simple loop may be replaced by a while loop
 14 ||    end loop;
    ||____________^
 
-loop1.adb:28:4: rule violation: simple loop may be replaced by a while loop
+loop1.adb:28:4: rule violation: simple LOOP may be replaced by a WHILE loop
 28 |     loop           --  FLAG
    | ____^
    ||

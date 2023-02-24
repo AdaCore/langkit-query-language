@@ -20,7 +20,7 @@ fun simple_return(l) = l.children_count == 1 and l[1] is ReturnStmt
 fun simple_assignment(l) =
     l.children_count == 1 and l[1] is AssignStmt(f_dest is Name)
 
-@check(message="if statement may be replaced by an if expression",
+@check(message="IF statement may be replaced by an IF expression",
        category="Style", subcategory="Programming Practice")
 fun use_if_expressions(node) =
     node is IfStmt

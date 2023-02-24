@@ -1,7 +1,7 @@
 # Flag while loops where the condition is statically known to be True and which
 # could be replaced by a simple loop.
 
-@check(message="while loop may be replaced by a simple loop",
+@check(message="WHILE loop may be replaced by a simple LOOP",
        category="Style", subcategory="Programming Practice")
 fun use_simple_loops(node) =
     # Find while loops whose condition is statically known to be True (= 1)

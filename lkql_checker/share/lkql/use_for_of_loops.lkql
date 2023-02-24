@@ -17,7 +17,7 @@ fun num_indices(type) =
         | a@UnconstrainedArrayIndices => a.f_types.children_count)
     | DerivedTypeDef => num_indices(type.p_base_type())
 
-@check(message="for loop may be replaced by a for-of loop",
+@check(message="FOR loop may be replaced by a FOR OF loop",
        category="Style", subcategory="Programming Practice")
 fun use_for_of_loops(node, n : int = 1, ignore = false) =
     # Look for "for <index> in <array>'Range" loops

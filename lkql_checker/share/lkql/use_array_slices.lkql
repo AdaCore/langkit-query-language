@@ -13,7 +13,7 @@ fun array_index(call, var) =
         # perform this test last
         p_kind() is "array_index")
 
-@check(message="for loop may be replaced by an array slice",
+@check(message="FOR loop may be replaced by an array slice",
        category="Style", subcategory="Programming Practice")
 fun use_array_slices(node) =
     node is ForLoopStmt

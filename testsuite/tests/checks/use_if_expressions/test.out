@@ -1,4 +1,4 @@
-stmt.adb:4:4: rule violation: if statement may be replaced by an if expression
+stmt.adb:4:4: rule violation: IF statement may be replaced by an IF expression
 4 |     if X = 1 then   --  FLAG
   | ____^
   ||
@@ -7,7 +7,7 @@ stmt.adb:4:4: rule violation: if statement may be replaced by an if expression
 8 ||    end if;
   ||__________^
 
-stmt.adb:16:4: rule violation: if statement may be replaced by an if expression
+stmt.adb:16:4: rule violation: IF statement may be replaced by an IF expression
 16 |     if X = 1 then   --  FLAG
    | ____^
    ||
@@ -16,7 +16,7 @@ stmt.adb:16:4: rule violation: if statement may be replaced by an if expression
 22 ||    end if;
    ||__________^
 
-stmt.adb:40:4: rule violation: if statement may be replaced by an if expression
+stmt.adb:40:4: rule violation: IF statement may be replaced by an IF expression
 40 |     if X >= 2 then   --  FLAG
    | ____^
    ||

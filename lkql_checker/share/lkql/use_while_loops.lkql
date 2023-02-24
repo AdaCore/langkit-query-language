@@ -1,7 +1,7 @@
 # Flag simple loops where the first statement is an exit (for the same loop)
 # and which could be replaced by a while loop.
 
-@check(message="simple loop may be replaced by a while loop",
+@check(message="simple LOOP may be replaced by a WHILE loop",
        category="Style", subcategory="Programming Practice")
 fun use_while_loops(node) =
     node is LoopStmt
