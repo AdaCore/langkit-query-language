@@ -45,6 +45,8 @@ GNATcheck rules.
 * :ref:`Enumeration_Ranges_In_CASE_Statements`
 * :ref:`Enumeration_Representation_Clauses`
 * :ref:`Exception_Propagation_From_Callbacks`
+* :ref:`Exception_Propagation_From_Export`
+* :ref:`Exception_Propagation_From_Tasks`
 * :ref:`Exceptions_As_Control_Flow`
 * :ref:`Exits_From_Conditional_Loops`
 * :ref:`EXIT_Statements_With_No_Loop_Name`

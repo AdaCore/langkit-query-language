@@ -2192,6 +2192,73 @@ all the subprograms corresponding to ``subprogram_name`` are checked.
    end Proc;
 
 
+.. _Exception_Propagation_From_Export:
+
+``Exception_Propagation_From_Export``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Exception_Propagation_From_Export
+
+Flag a subprogram body if aspect or pragma ``Export`` or ``Convention`` is
+applied to this subprogram and this subprogram may propagate an exception.
+
+A subprogram is considered as not propagating an exception if:
+
+*
+  its body has an exception handler with ``others`` exception choice;
+
+*
+  no exception handler in the body contains a raise statement nor a call to
+  ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 6
+
+   package P is
+      procedure Proc (I : in out Integer) with Export;
+   end P;
+
+   package body P is
+      procedure Proc (I : in out Integer) is    --  FLAG
+      begin
+         I := I + 10;
+      end Proc;
+   end P;
+
+
+.. _Exception_Propagation_From_Tasks:
+
+``Exception_Propagation_From_Tasks``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Exception_Propagation_From_Export
+
+Flag a task body if it does not contain and exception handler with ``others``
+exception choice or if it contains an exception handler with a raise statement or
+a call to ``Ada.Exception.Raise_Exception`` or
+``Ada.Exception.Reraise_Occurrence``.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 3
+
+   task T;
+
+   task body T is   --  FLAG
+   begin
+      ...
+   exception
+      when Constraint_Error => null;
+   end T;
+
+
 .. _Exceptions_As_Control_Flow:
 
 ``Exceptions_As_Control_Flow``
