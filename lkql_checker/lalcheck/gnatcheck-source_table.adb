@@ -1593,7 +1593,7 @@ package body Gnatcheck.Source_Table is
 
                declare
                   use Libadalang.Common;
-                  TR : Token_Reference := Unit.Root.Token_Start;
+                  TR : Token_Reference := Unit.First_Token;
                begin
                   while TR /= No_Token loop
                      if Kind (Data (TR)) = Ada_Comment then

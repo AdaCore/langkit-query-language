@@ -1,14 +1,14 @@
 1. Summary
 
-   fully compliant sources               : 0
+   fully compliant sources               : 1
    sources with exempted violations only : 0
    sources with non-exempted violations  : 1
    unverified sources                    : 0
-   total sources                         : 1
+   total sources                         : 2
    ignored sources                       : 0
 
    non-exempted violations               : 3
-   rule exemption warnings               : 3
+   rule exemption warnings               : 5
    compilation errors                    : 0
    exempted violations                   : 5
    internal errors                       : 0
@@ -34,6 +34,8 @@ main.adb:20:16: expression function
 
 4. Rule exemption problems
 
+c.adb:1:01: no matching 'exempt_OFF' annotation for rule goto_statements
+c.adb:6:07: no detection for goto_statements rule in exemption section starting at line 1
 main.adb:24:07: no matching 'exempt_OFF' annotation for rule expression_functions
 main.adb:29:04: rule expr_func is already exempted at line 24
 main.adb:33:41: State should be "off" for line exemption
