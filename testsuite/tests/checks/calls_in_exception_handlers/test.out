@@ -1,4 +1,4 @@
-handler.adb:9:4: rule violation: exception handler with forbidden entities
+handler.adb:9:4: rule violation: exception handler with forbidden calls
 9  |     when Program_Error =>      --  FLAG
    | ____^
    ||
@@ -7,7 +7,7 @@ handler.adb:9:4: rule violation: exception handler with forbidden entities
 11 ||       Unsafe_P;
    ||_______________^
 
-handler.adb:12:4: rule violation: exception handler with forbidden entities
+handler.adb:12:4: rule violation: exception handler with forbidden calls
 12 |     when others =>             --  FLAG
    | ____^
 13 ||       Unsafe_P;

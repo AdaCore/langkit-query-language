@@ -1,0 +1,13 @@
+# Flag each occurrence of an exception handler with at least one call to a
+# given list of subprograms (from parameter subprograms).
+
+@check(message="exception handler with forbidden calls",
+       category="Style", subcategory="Programming Practice")
+fun calls_in_exception_handlers(node, subprograms=[]) =
+    node is ExceptionHandler
+    when (from node.f_stmts select first id@BaseId(p_is_call() is true)
+          when {
+              val name = id.p_referenced_defining_name()?.
+                         p_canonical_fully_qualified_name?();
+              [e for e in subprograms
+               if name == e.to_lower_case]}) != null
