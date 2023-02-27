@@ -85,8 +85,14 @@ class InterpreterDriver(BaseTestDriver):
         # Build the process's arguments list
         args = ['lkql_ada', '--script-path', 'script.lkql']
 
-        if self.test_env['project']:
+        input_sources = self.test_env.get('input_sources', None)
+        project = self.test_env.get('project', None)
+
+        if project:
             args += ['-P', self.test_env['project']]
+
+        if input_sources:
+            args += input_sources
 
         # Run the interpreter
         self.shell(args)

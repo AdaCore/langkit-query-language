@@ -247,6 +247,8 @@ package body LKQL.Node_Data is
             return To_Primitive (LKI.As_Int (Value), Ctx.Pool);
          when String_Category =>
             return To_Primitive (LKI.As_String (Value), Ctx.Pool);
+         when Char_Category =>
+            return To_Primitive (LKI.As_Char (Value) & "", Ctx.Pool);
          when Token_Category =>
             return To_Primitive (LKI.As_Token (Value), Ctx.Pool);
          when Symbol_Category =>
@@ -342,6 +344,15 @@ package body LKQL.Node_Data is
             elsif Target_Cat = LKI.Symbol_Category then
                return LKI.From_Symbol
                  (Id, Value.Str_Val.all);
+
+            elsif Target_Cat = LKI.Char_Category then
+               if Value.Str_Val'Length > 1 then
+                  Ctx.Raise_Error
+                    (L.No_Lkql_Node, "String too long for conversion to char");
+               end if;
+
+               return LKI.From_Char
+                 (Id, Value.Str_Val (Value.Str_Val'First));
             else
                return LKI.From_String
                  (Id, Value.Str_Val.all);

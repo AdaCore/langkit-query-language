@@ -1,0 +1,5 @@
+# Check that enum values are well transformed to string when returned from
+# langkit. In that case, it will be the `kind` key of `RefResult` values in the
+# returned array.
+
+print([a.p_denoted_value() for a in select CharLiteral])
