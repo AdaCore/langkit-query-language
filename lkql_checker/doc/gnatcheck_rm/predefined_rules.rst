@@ -1842,6 +1842,66 @@ This rule has no parameters.
    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
 
 
+.. _Calls_In_Exception_Handlers:
+
+``Calls_In_Exception_Handlers``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Calls_In_Exception_Handlers
+
+Flag an exception handler if its sequence of statements contains a call to one of
+the subprograms specified as a rule parameter.
+
+The rule has an optional parameter for the ``+R`` option:
+
+*Subprogram_Name*
+  A rule parameter should be a full expanded Ada name of a subprogram,
+  any number of parameters are allowed, parameters should be separated by
+  a comma.
+
+``-R`` option cannot have a parameter, it turns the rule OFF, but all the
+previously specified by rule parameters function names are stored. ``+R``
+option without parameter turns the rule ON with all the previously specified
+parameters, if any.
+
+Note that if a rule parameter does not denote the name of an existing
+subprogram, the parameter itself is (silently) ignored and does not have any
+effect except for turning the rule ON.
+
+Be aware that the rule does not follow renamings. So if a subprogram name specified
+as a rule parameter denotes the name declared by subprogram renaming, the
+rule will flag only exception handlers that calls this subprogram using this
+name and does not respect and will pay no attention to the calls that use
+original subprogram name, and the other way around. This is a user responsibility
+to provide as the rule parameters all needed subprogram names the subprogram
+of interest in case if renamings are used for this subprogram.
+
+Note also, that the rule does not make any overload resolution, so if a rule
+parameter refers to more than one overloaded subprograms, the rule will treat
+calls to all these subprograms as the calls to the same subprogram.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 14
+
+   -- Suppose the rule parameter is P.Unsafe
+   package P is
+      procedure Safe;
+      procedure Unsafe;
+   end P;
+
+   with P; use P;
+   procedure Proc is
+   begin
+      ...
+   exception
+      when Constraint_Error =>   --  NO FLAG
+         Safe;
+      when others =>             --  FLAG
+         Unsafe;
+   end Proc;
+
 .. _Calls_Outside_Elaboration:
 
 ``Calls_Outside_Elaboration``
@@ -6334,6 +6394,36 @@ Declaring an explicit subtype solves the problem:
    end loop;
 
 This rule has no parameters.
+
+
+.. _At_Representation_Clauses:
+
+``At_Representation_Clauses``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: At_Representation_Clauses
+
+Flag at clauses and mod clauses (treated as obsolescent features in
+the Ada Standard).
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2, 9
+
+   Id : Integer;
+   for Id use at Var'Address;   --  FLAG
+
+   type Rec is record
+      Field : Integer;
+   end record;
+
+   for Rec use
+      record at mod 2;          --  FLAG
+   end record;
+
 
 .. _Blocks:
 

@@ -17,11 +17,13 @@ GNATcheck rules.
 * :ref:`Anonymous_Access`
 * :ref:`Anonymous_Arrays`
 * :ref:`Anonymous_Subtypes`
+* :ref:`At_Representation_Clauses`
 * :ref:`Binary_Case_Statements`
 * :ref:`Bit_Records_Without_Layout_Definition`
 * :ref:`Blocks`
 * :ref:`Boolean_Negations`
 * :ref:`Boolean_Relational_Operators`
+* :ref:`Calls_In_Exception_Handlers`
 * :ref:`Calls_Outside_Elaboration`
 * :ref:`Complex_Inlined_Subprograms`
 * :ref:`Conditional_Expressions`
