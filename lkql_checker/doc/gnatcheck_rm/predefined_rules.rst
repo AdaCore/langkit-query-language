@@ -1687,6 +1687,30 @@ This rule has no parameters.
          Var1 : aliased Integer;
          Var2 :         Int_A := Var1'Access;  --  FLAG
 
+
+.. _Ada05_Formal_Packages:
+
+``Ada05_Formal_Packages``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Ada05_Formal_Packages
+
+Flag formal package declarations that are not allowed in Ada 95. Ada 95 allows
+the box symbol ``(<>)`` to be used alone as a whole formal package actual
+part only.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2
+
+   generic
+      with package NP is new P (T => <>);  --  FLAG
+   package Pack_G is
+
+
 .. _Address_Attribute_For_Non_Volatile_Objects:
 
 ``Address_Attribute_For_Non_Volatile_Objects``
@@ -1953,6 +1977,28 @@ calls to all these subprograms as the calls to the same subprogram.
       end Proc;
    begin
       J := Fun (I);                    --  NO FLAG
+
+
+.. _Concurrent_Interfaces:
+
+``Concurrent_Interfaces``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Concurrent_Interfaces
+
+Flag synchronized, task, and protected interfaces.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 2-4
+
+   type Queue is limited interface;                                   --  NO FLAG
+   type Synchronized_Queue is synchronized interface and Queue;       --  FLAG
+   type Synchronized_Task is task interface;                          --  FLAG
+   type Synchronized_Protected is protected interface;                --  FLAG
 
 
 .. _Constant_Overlays:

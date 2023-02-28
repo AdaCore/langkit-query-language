@@ -10,6 +10,7 @@ GNATcheck rules.
 * :ref:`Abort_Statements`
 * :ref:`Abstract_Type_Declarations`
 * :ref:`Access_To_Local_Objects`
+* :ref:`Ada05_Formal_Packages`
 * :ref:`Address_Attribute_For_Non_Volatile_Objects`
 * :ref:`Address_Specifications_For_Initialized_Objects`
 * :ref:`Address_Specifications_For_Local_Objects`
@@ -26,6 +27,7 @@ GNATcheck rules.
 * :ref:`Calls_In_Exception_Handlers`
 * :ref:`Calls_Outside_Elaboration`
 * :ref:`Complex_Inlined_Subprograms`
+* :ref:`Concurrent_Interfaces`
 * :ref:`Conditional_Expressions`
 * :ref:`Constant_Overlays`
 * :ref:`Constructors`
