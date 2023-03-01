@@ -1688,6 +1688,84 @@ This rule has no parameters.
          Var2 :         Int_A := Var1'Access;  --  FLAG
 
 
+
+.. _Actual_Parameters:
+
+``Actual_Parameters``
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Actual_Parameters
+
+Flag situations when a specific actual parameter is passed for a specific formal
+parameter in the call to a specific subprogram. Subprograms, formal parameters and
+actual parameters to check are specified by the rule parameters.
+
+The rule has an optional parameter for the ``+R`` option:
+
+*subprogram:formal:actual*
+  ``subprogram`` should be a full expanded Ada name of a subprogram, ``formal``
+  should be an identifier, it is treated as the name of a formal parameter of
+  the ``subprogram`` and ``actual`` should be a full expanded Ada name of a
+  function or a data object declared by object declaration, number declaration,
+  parameter specification, generic object declaration or object renaming
+  declaration. Any other parameter does not have any effect except of turning
+  the rule ON. Any number of parameters are allowed, parameters should be
+  separated by a comma.
+
+``-R`` option cannot have a parameter, it turns the rule OFF, but all the
+previously specified by rule parameters function names are stored. ``+R``
+option without parameter turns the rule ON with all the previously specified
+parameters, if any.
+
+For all the calls to ``subprogram`` the rule checks if the called subprogram
+has a formal parameter named as ``formal``, and if it does, it checks
+if the actual for this parameter is either a call to a function denoted by
+``actual`` or a reference to the data object denoted by ``actual``
+or one of the above in parenthesis, or a type conversion or a qualified
+expression applied to one of the above. References to object components or
+explicit dereferences are not checked.
+
+Be aware that the rule does not follow renamings. The rule checks only calls that
+use the ``subprogram`` part of the rule parameter as a called name, and if this
+name is declared by a subprogram renaming, the rule does not pay attention to
+the calls that use subprogram name being renamed. When looking for the parameter
+to check, the rule assumes that a formal parameter denoted by the ``formal``
+part of the rule parameter is declared as a part of the declaration of
+``subprogram``. The same for the ``actual`` part of the rule parameter - only
+those actual parameters that use ``actual`` as the name of a called function
+are considered. This is a user responsibility to provide as the rule
+parameters all needed combinations of subprogram name and formal parameter name for
+the subprogram of interest in case if renamings are used for the subprogram,
+and all possible aliases if renaming is used for a function of interest if
+its calls may be used as actuals.
+
+Note also, that the rule does not make any overload resolution, so it will consider
+all possible subprograms denoted by the ``subprogram`` part of the rule parameter,
+and all possible function denoted by the ``actual`` part.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 16
+
+   -- Suppose the rule parameter is P.Proc:Par2:Q.Var
+   package P is
+      procedure Proc (B : Boolean; I : Integer);
+      procedure Proc (Par1 : Character; Par2 : Integer);
+   end P;
+
+   package Q is
+      Var : Integer;
+   end Q;
+
+   with P; use P;
+   with Q; use Q;
+   procedure Main is
+   begin
+      Proc (True, Var);   -- NO FLAG
+      Proc (1, Var);      -- FLAG
+
+
 .. _Ada05_Formal_Packages:
 
 ``Ada05_Formal_Packages``

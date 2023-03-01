@@ -10,6 +10,7 @@ GNATcheck rules.
 * :ref:`Abort_Statements`
 * :ref:`Abstract_Type_Declarations`
 * :ref:`Access_To_Local_Objects`
+* :ref:`Actual_Parameters`
 * :ref:`Ada05_Formal_Packages`
 * :ref:`Address_Attribute_For_Non_Volatile_Objects`
 * :ref:`Address_Specifications_For_Initialized_Objects`
