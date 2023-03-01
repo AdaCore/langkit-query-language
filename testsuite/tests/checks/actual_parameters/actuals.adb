@@ -7,6 +7,7 @@ package body Actuals is
    procedure Subp2 is
    begin
       Subp1 (Info => Integer'(Info2));   --  FLAG
+      Subp1 (Info => Integer (Info2));   --  FLAG
    end Subp2;
 
 end;
