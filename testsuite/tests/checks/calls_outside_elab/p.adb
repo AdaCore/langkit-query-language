@@ -18,4 +18,8 @@ package body P is
    Global : Integer := Create;  --  NO FLAG
 begin
    Global := Create;            --  NO FLAG
+
+   begin
+      Global := Create;         --  NO FLAG
+   end;
 end;
