@@ -2062,6 +2062,56 @@ This rule has no parameters.
    end record;
 
 
+.. _Direct_Equalities:
+
+``Direct_Equalities``
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Direct_Equalities
+
+Flag infix calls to the predefined ``=`` and ``/=`` operators when one of the
+operands is a name of a data object provided as a rule parameter.
+
+The rule has an optional parameter for the ``+R`` option:
+
+*Object_Name*
+  A rule parameter should be a full expanded Ada name of a data object
+  declared by object declaration, number declaration, parameter specification,
+  generic object declaration or object renaming declaration. Any other
+  parameter does not have any effect except of turning the rule ON. Any number
+  of parameters are allowed, parameters should be separated by a comma.
+
+``-R`` option cannot have a parameter, it turns the rule OFF, but all the
+previously specified by rule parameters function names are stored. ``+R``
+option without parameter turns the rule ON with all the previously specified
+parameters, if any.
+
+Be aware that the rule does not follow renamings. It checks if an operand of
+an (un)equality operator is exactly the name provided as rule parameter
+(the short name is checked in case of expanded name given as (un)equality
+operator), and that this name is given on its own, but not as a component
+of some other expression or as a call parameter.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 9
+
+   -- suppose the rule parameter is P.Var
+   package P is
+      Var : Integer;
+   end P;
+
+   with P; use P;
+   procedure Proc (I : in out Integer) is
+   begin
+      if Var = I then    --  FLAG
+         I := 0;
+      end if;
+   end Proc;
+
+
+
 .. _Deriving_From_Predefined_Type:
 
 ``Deriving_From_Predefined_Type``

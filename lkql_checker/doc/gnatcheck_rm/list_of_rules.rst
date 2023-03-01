@@ -42,6 +42,7 @@ GNATcheck rules.
 * :ref:`Default_Values_For_Record_Components`
 * :ref:`Deriving_From_Predefined_Type`
 * :ref:`Direct_Calls_To_Primitives`
+* :ref:`Direct_Equalities`
 * :ref:`Discriminated_Records`
 * :ref:`Downward_View_Conversions`
 * :ref:`Duplicate_Branches`
