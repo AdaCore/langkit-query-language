@@ -25,8 +25,8 @@ fun same_exprs(e1, e2) =
                        e1.p_denoted_value() == e2.p_denoted_value()
     | RealLiteral   => false
     | Name          => e2 is Name and
-                       e1.p_referenced_decl() is decl@BasicDecl
-                       when decl == e2.p_referenced_decl() and not e1.p_is_call()
+                       e1.p_referenced_defining_name() is name@DefiningName
+                       when name == e2.p_referenced_defining_name() and not e1.p_is_call()
     | *             => false
 
 fun params_equal(l1, l2, i: int) =
