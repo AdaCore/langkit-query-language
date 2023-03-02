@@ -1,7 +1,7 @@
 # Flag each generic package instantiation when it can be determined that it has
 # the same actual parameters as another generic instantiation.
 # This determination is conservative and will check for a match on:
-# - integer and string literals
+# - integer, character, and string literals
 # - identifier names other than function calls (e.g. types, variables,
 #   subprogram names).
 # Generic packages that have no parameters are ignored.
@@ -21,7 +21,7 @@ fun same_exprs(e1, e2) =
                        e1.p_denoted_value() == e2.p_denoted_value()
     | StringLiteral => e2 is StringLiteral and
                        e1.p_denoted_value() == e2.p_denoted_value()
-    | CharLiteral   => e2 is CharLiteral and false and  # Disabled, see W111-014
+    | CharLiteral   => e2 is CharLiteral and
                        e1.p_denoted_value() == e2.p_denoted_value()
     | RealLiteral   => false
     | Name          => e2 is Name and

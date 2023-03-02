@@ -1556,7 +1556,7 @@ generic with the same actual parameters.
 This determination is conservative, it checks currently for the following matching
 parameters:
 
-* integer and string literals;
+* integer, character, and string literals;
 
 * Ada names that denote the same entity.
 
