@@ -1,0 +1,9 @@
+main.adb:7:6: rule violation: possible occurrence of KP VB24-008
+7 |       Post =>  --  FLAG
+  | ______^
+  ||
+  || ~~~ 1 other lines ~~~
+  ||
+9 ||        Ctx = Buffer'First'Old
+  ||_____________________________^
+
