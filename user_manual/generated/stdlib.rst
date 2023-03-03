@@ -99,6 +99,10 @@ library.
 
     Return ``true`` if the string ``s`` is the name of an assert pragma
 
+.. function:: is_by_copy(param)
+
+    Return true if param has a by-copy type
+
 .. function:: is_classwide_type(t)
 
     Return true if t is a classwide TypeDecl.
@@ -216,7 +220,7 @@ library.
 
 .. function:: ultimate_alias(name, all_nodes=true, strip_component=false)
 
-    Return the ultimately designated `ObjectDecl`, going through renamings
+    Return the ultimately designated ``ObjectDecl``, going through renamings
     This will not go through generic instantiations. If all_nodes is true,
     consider all kinds of nodes, otherwise consider only BaseId and
     DottedName. If strip_component is true, go to the prefix when

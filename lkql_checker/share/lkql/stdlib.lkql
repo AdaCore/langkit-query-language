@@ -65,7 +65,7 @@ fun within_assert(node) =
 
 @memoized
 fun ultimate_alias(name, all_nodes=true, strip_component=false) =
-    |" Return the ultimately designated `ObjectDecl`, going through renamings
+    |" Return the ultimately designated ``ObjectDecl``, going through renamings
     |" This will not go through generic instantiations. If all_nodes is true,
     |" consider all kinds of nodes, otherwise consider only BaseId and
     |" DottedName. If strip_component is true, go to the prefix when
@@ -483,6 +483,13 @@ fun propagate_exceptions(body) =
                    name == "Ada.Exceptions.Raise_Exception" or
                    name == "Ada.Exceptions.Reraise_Occurrence" }) == null)
 
+fun is_by_copy(param) =
+    |" Return true if param has a by-copy type
+    param.p_expression_type() is expr@BaseTypeDecl
+    when expr.p_root_type().p_full_view().p_root_type() is t@BaseTypeDecl
+    when t.p_is_discrete_type() or t.p_is_access_type() or
+         t.p_is_fixed_point() or t.p_is_float_type()
+
 fun get_parameter(params, actual) =
     |" Given a List[ParamActual], return the parameter corresponding to
     |" actual, null if actual is not found.
@@ -500,9 +507,11 @@ fun strip_conversions(node) =
     match node
     # Strip parenthesis
     | ParenExpr => strip_conversions(node.f_expr)
-    # Strip type qualifications and conversions
-    | QualExpr or CallExpr(f_name is Name(p_referenced_decl() is BaseTypeDecl))
-                => strip_conversions(node.f_suffix)
+    # Strip type qualifications
+    | QualExpr  => strip_conversions(node.f_suffix)
+    # Strip type conversions
+    | CallExpr(p_kind() is "type_conversion")
+                => strip_conversions(node.f_suffix[1].f_r_expr)
     | *         => node
 
 fun ultimate_prefix(n) =
