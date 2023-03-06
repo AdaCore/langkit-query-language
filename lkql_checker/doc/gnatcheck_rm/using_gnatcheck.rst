@@ -656,6 +656,14 @@ a syntax based on comments, with the following syntax:
 
   <comment_exemption> ::= --## rule (on | off) <rule_name> [## <rule_justification>]
 
+Here is an example:
+
+.. code-block:: ada
+
+    --## rule off implicit_in ## Exemption justification
+    procedure Bar (A : Integer);
+    --## rule on implicit_in
+
 .. attention:: Please note that a comment starting with ``--##`` but not
    respecting the above syntax will not trigger a warning, in order to not emit
    false positives.
@@ -671,6 +679,22 @@ particular:
 The ``rule on`` marker corresponds to ``Exempt_Off`` and ``rule off`` corresponds
 to ``Exempt_On``. Apart from that, you can expect those rule exemptions to work
 in a similar fashion as the ones described above.
+
+
+A shorthand syntax is available to exempt a rule just for one line:
+
+::
+
+    <line_comment_exemption> ::= --## rule line off <rule_name> [## <rule_justification>]
+
+Or, similarly to the previous example:
+
+.. code-block:: ada
+
+    procedure Bar (A : Integer); --## rule off implicit_in ## Exemption justification
+
+This will exempt the given rule only for the line on which this comment is
+placed, and automatically turn it back on on the next line.
 
 .. _Using_GNATcheck_as_a_KP_Detector:
 
