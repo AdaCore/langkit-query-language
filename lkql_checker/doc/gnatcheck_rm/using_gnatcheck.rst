@@ -690,7 +690,7 @@ For instance, from the previous example:
 
 .. code-block:: ada
 
-    procedure Bar (A : Integer); --## rule off implicit_in ## Exemption justification
+    procedure Bar (A : Integer); --## rule line off implicit_in ## Exemption justification
 
 This will exempt the given rule only for the line on which this comment is
 placed, and automatically turn it back on on the next line.
