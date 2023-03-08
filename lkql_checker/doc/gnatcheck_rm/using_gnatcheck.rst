@@ -673,7 +673,8 @@ Here is an example:
 The rules mentioned in :ref:`gnatcheck_Annotations_Rules` are relaxed, in
 particular:
 
-* Justifications are not checked and are optional
+* Justifications are not checked and are optional;
+* Anything between the rule name and ``##`` will be ignored;
 * Rules regarding parametric exemption do not apply, as per the notice above.
 
 The ``rule on`` marker corresponds to ``Exempt_Off`` and ``rule off`` corresponds
@@ -681,13 +682,11 @@ to ``Exempt_On``. Apart from that, you can expect those rule exemptions to work
 in a similar fashion as the ones described above.
 
 
-A shorthand syntax is available to exempt a rule just for one line:
-
-::
+In addition, a shorthand syntax is available to exempt a rule just for one line::
 
     <line_comment_exemption> ::= --## rule line off <rule_name> [## <rule_justification>]
 
-Or, similarly to the previous example:
+For instance, from the previous example:
 
 .. code-block:: ada
 
