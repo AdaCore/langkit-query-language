@@ -135,6 +135,7 @@ GNATcheck rules.
 * :ref:`Overloaded_Operators`
 * :ref:`Overly_Nested_Control_Structures`
 * :ref:`Overly_Nested_Scopes`
+* :ref:`Parameters_Aliasing`
 * :ref:`Parameters_Out_Of_Order`
 * :ref:`POS_On_Enumeration_Types`
 * :ref:`Positional_Actuals_For_Defaulted_Generic_Parameters`
@@ -142,6 +143,7 @@ GNATcheck rules.
 * :ref:`Positional_Components`
 * :ref:`Positional_Generic_Parameters`
 * :ref:`Positional_Parameters`
+* :ref:`Potential_Parameters_Aliasing`
 * :ref:`Predefined_Numeric_Types`
 * :ref:`Predicate_Testing`
 * :ref:`Printable_ASCII`

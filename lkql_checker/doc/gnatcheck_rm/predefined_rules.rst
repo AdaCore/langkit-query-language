@@ -3763,6 +3763,47 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
    end Pack;
 
 
+.. _Parameters_Aliasing:
+
+``Parameters_Aliasing``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Parameters_Aliasing
+
+Flags subprogram calls for which it can be statically detected that the same
+variable (or a variable and a subcomponent of this variable) is given as
+an actual to more than one ``OUT`` or ``IN OUT`` parameter. The rule resolves
+object renamings.
+
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*In_Parameters*
+  Aliasing between ``OUT``, ``IN OUT`` and ``IN`` parameters, except
+  for those ``IN`` parameters that are of a by-copy type, see the
+  definition of by-copy parameters in the Ada Standard.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 15
+
+   package Pack is
+      type Arr is array (1 .. 5) of Integer;
+
+      type Rec is record
+         Comp : Arr;
+      end record;
+
+      procedure Proc (P1 : in out : Rec; P2 : out Integer);
+   end Pack;
+
+   with Pack; use Pack;
+   procedure Test (I : Integer) is
+      Var : Rec;
+   begin
+      Proc (Var, Var.Comp (I));   --  FLAG
+
+
 .. _POS_On_Enumeration_Types:
 
 ``POS_On_Enumeration_Types``
@@ -3993,6 +4034,47 @@ This rule has the following (optional) parameter for the ``+R`` option:
       M := My_Max (100, Right => L);             --  FLAG
 
    end Bar;
+
+
+.. _Potential_Parameters_Aliasing:
+
+``Potential_Parameters_Aliasing``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Potential_Parameters_Aliasing
+
+This rule is a complementary rule for the *Parameters_Aliasing* rule -
+it flags subprogram calls where the same variable (or a variable and its
+subcomponent) is given as an actual to more than one ``OUT`` or ``IN OUT``
+parameter, but the fact of aliasing cannot be determined statically because
+this variable is an array component, and the index value(s) is(are) not
+known statically. The rule resolves object renamings.
+
+Note that this rule does not flag calls that are flagged by the
+*Parameters_Aliasing* rule and vice versa.
+
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*In_Parameters*
+  Aliasing between ``OUT``, ``IN OUT`` and ``IN`` parameters, except
+  for those ``IN`` parameters that are of a by-copy type, see the
+  definition of by-copy parameters in the Ada Standard.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 9
+
+package Pack is
+   procedure Proc (P1 : out Integer; P2 : in out Integer);
+   type Arr is array (1 .. 10 ) of Integer;
+end Pack;
+
+with Pack; use Pack;
+procedure Proc (X : in out Arr; I, J : Integer) is
+begin
+   Proc (X (I), X (J));   --  FLAG
+
 
 .. _Profile_Discrepancies:
 
