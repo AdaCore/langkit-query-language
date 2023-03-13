@@ -11,26 +11,31 @@ selector defining_names
     | BasicDecl => *(this.p_defining_names())
     | *         => ()
 
+fun has_aspect(node, aspect) = {
+   val a = node.p_get_aspect(aspect);
+   a.exists and not a.inherited
+}
+
 fun has_rep_aspect(node) =
-   node.p_has_aspect("Address") or
-   node.p_has_aspect("Alignment") or
-   node.p_has_aspect("Size") or
-   node.p_has_aspect("Component_Size") or
-   node.p_has_aspect("External_Tag") or
-   node.p_has_aspect("Asynchronous") or
-   node.p_has_aspect("Convention") or
-   node.p_has_aspect("Import") or
-   node.p_has_aspect("Export") or
-   node.p_has_aspect("No_Return") or
-   node.p_has_aspect("Atomic") or
-   node.p_has_aspect("Atomic_Components") or
-   node.p_has_aspect("Discard_Names") or
-   node.p_has_aspect("Independent") or
-   node.p_has_aspect("Independent_Components") or
-   node.p_has_aspect("Pack") or
-   node.p_has_aspect("Unchecked_Union") or
-   node.p_has_aspect("Volatile") or
-   node.p_has_aspect("Volatile_Components")
+   has_aspect(node, "Address") or
+   has_aspect(node, "Alignment") or
+   has_aspect(node, "Size") or
+   has_aspect(node, "Component_Size") or
+   has_aspect(node, "External_Tag") or
+   has_aspect(node, "Asynchronous") or
+   has_aspect(node, "Convention") or
+   has_aspect(node, "Import") or
+   has_aspect(node, "Export") or
+   has_aspect(node, "No_Return") or
+   has_aspect(node, "Atomic") or
+   has_aspect(node, "Atomic_Components") or
+   has_aspect(node, "Discard_Names") or
+   has_aspect(node, "Independent") or
+   has_aspect(node, "Independent_Components") or
+   has_aspect(node, "Pack") or
+   has_aspect(node, "Unchecked_Union") or
+   has_aspect(node, "Volatile") or
+   has_aspect(node, "Volatile_Components")
 
 @unit_check(help="representation specification", category="Feature")
 fun representation_specifications(unit, record_rep_clauses_only=false) = [
