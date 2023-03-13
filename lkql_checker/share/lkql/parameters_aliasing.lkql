@@ -47,34 +47,37 @@ fun fully_expanded_name(name, canonical_indexes) =
          else fully_expanded_name(name.f_prefix, canonical_indexes) & ".") &
         fully_expanded_name(name.f_suffix, canonical_indexes)
     | CallExpr      =>
-        (match name.p_kind()
-         | "array_index"     =>
-             fully_expanded_name(name.f_name, canonical_indexes) & "(" &
-             (if canonical_indexes
-              # The code below may generate false positives and false
-              # negatives, which is OK for now and avoids frequent false
-              # positives on e.g. A(2) vs A(3).
-              then img([(if can_eval_as_int(n.f_r_expr)
-                         then img(n.f_r_expr.p_eval_as_int())
-                         else 0)
-                        for n in name.f_suffix.children])
-              else img([fully_expanded_name(n.f_r_expr, canonical_indexes)
-                        for n in name.f_suffix.children])) & ")"
-         | "array_slice"     =>
-             fully_expanded_name(name.f_name, canonical_indexes) & "(" &
-             (if canonical_indexes
-              then img([0])
-              else if name.f_suffix is BinOp
-                   then (fully_expanded_name(name.f_suffix.f_left, canonical_indexes)
-                         & ".."
-                         & fully_expanded_name(name.f_suffix.f_right, canonical_indexes))
-                   else fully_expanded_name(name.f_suffix, canonical_indexes))
-             & ")"
-         # Punt on subprogram calls
-         | "call"            => "NO MATCH"
-         # Strip type conversions
-         | "type_conversion" =>
-             fully_expanded_name(name.f_suffix[1].f_r_expr, canonical_indexes))
+        # Note: we cannot use name.p_kind() pending W313-005
+
+        # Punt on subprogram calls ("call")
+        (if name.p_is_call()
+         then "NO MATCH"
+         else if name.f_name is Name(p_referenced_decl() is BaseTypeDecl)
+         # Strip type conversions ("type_conversion")
+         then fully_expanded_name(name.f_suffix[1].f_r_expr, canonical_indexes)
+         else if name.p_is_array_slice()
+         # "array_slice"
+         then fully_expanded_name(name.f_name, canonical_indexes) & "(" &
+              (if canonical_indexes
+               then img([0])
+               else if name.f_suffix is BinOp
+                    then (fully_expanded_name(name.f_suffix.f_left, canonical_indexes)
+                          & ".."
+                          & fully_expanded_name(name.f_suffix.f_right, canonical_indexes))
+                    else fully_expanded_name(name.f_suffix, canonical_indexes))
+              & ")"
+         # "array_index"
+         else fully_expanded_name(name.f_name, canonical_indexes) & "(" &
+              (if canonical_indexes
+               # The code below may generate false positives and false
+               # negatives, which is OK for now and avoids frequent false
+               # positives on e.g. A(2) vs A(3).
+               then img([(if can_eval_as_int(n.f_r_expr)
+                          then img(n.f_r_expr.p_eval_as_int())
+                          else 0)
+                         for n in name.f_suffix.children])
+               else img([fully_expanded_name(n.f_r_expr, canonical_indexes)
+                         for n in name.f_suffix.children])) & ")")
     | Name          =>
         (match name.p_referenced_decl()
          # Follow renamings
