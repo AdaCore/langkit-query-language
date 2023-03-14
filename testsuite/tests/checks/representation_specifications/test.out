@@ -12,15 +12,15 @@ repr.ads:9:4: rule violation: declaration with a representation aspect
 10 ||      with Component_Size => 1;
    ||______________________________^
 
-repr.ads:12:4: rule violation: declaration with a representation aspect
-12 |    Var : Integer;                                  --  FLAG
+repr.ads:14:4: rule violation: declaration with a representation aspect
+14 |    Var : Integer;                                  --  FLAG
    |    ^^^^^^^^^^^^^^
 
-repr.ads:15:4: rule violation: declaration with a representation aspect
-15 |    function F return Boolean with No_Return;       --  FLAG
+repr.ads:17:4: rule violation: declaration with a representation aspect
+17 |    function F return Boolean with No_Return;       --  FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-repr.ads:17:4: rule violation: declaration with a representation aspect
-17 |    function F2 return Boolean;                     --  FLAG
+repr.ads:19:4: rule violation: declaration with a representation aspect
+19 |    function F2 return Boolean;                     --  FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
