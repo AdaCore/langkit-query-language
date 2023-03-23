@@ -192,7 +192,7 @@ public final class Query extends Expr {
             for(int i = fromNodes.length - 1 ; i >= 0 ; i--) {
                 Iterable nodes = this.createNodeIterable(fromNodes[i], through);
                 Libadalang.AdaNode res = this.exploreFirst(frame, nodes.iterator());
-                if(res != null) return res;
+                if(!res.isNone()) return res;
             }
 
             // Return the null value if there is none
@@ -278,7 +278,7 @@ public final class Query extends Expr {
         }
 
         // Return the null value
-        return null;
+        return NodeNull.getInstance();
     }
 
     /**
@@ -411,7 +411,7 @@ public final class Query extends Expr {
             int childrenCount = next.getChildrenCount();
             for(int i = childrenCount - 1 ; i >= 0 ; i--) {
                 Libadalang.AdaNode child = next.getChild(i);
-                if(child != null) {
+                if(!child.isNone()) {
                     this.queue.add(0, child);
                 }
             }
@@ -421,7 +421,7 @@ public final class Query extends Expr {
                 Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
                 Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
                 this.queue.add(genDecl);
-                if(genBody != null) this.queue.add(genBody);
+                if(!genBody.isNone()) this.queue.add(genBody);
             }
 
             // return the result

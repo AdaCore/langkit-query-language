@@ -28,6 +28,8 @@ import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -46,10 +48,10 @@ public final class NamespaceValue implements LKQLValue {
     private final Object[] values;
 
     /** The node checkers that are accessible from the namespace */
-    private final ArrayList<ObjectValue> nodeCheckers;
+    private final Map<String, ObjectValue> nodeCheckers;
 
     /** The unit checker that are accessible from the namespace */
-    private final ArrayList<ObjectValue> unitCheckers;
+    private final Map<String, ObjectValue> unitCheckers;
 
     // ----- Constructors -----
 
@@ -62,8 +64,8 @@ public final class NamespaceValue implements LKQLValue {
     public NamespaceValue(
             String[] names,
             Object[] values,
-            ArrayList<ObjectValue> nodeCheckers,
-            ArrayList<ObjectValue> unitCheckers
+            Map<String, ObjectValue> nodeCheckers,
+            Map<String, ObjectValue> unitCheckers
     ) {
         this.names = names;
         this.values = values;
@@ -81,11 +83,11 @@ public final class NamespaceValue implements LKQLValue {
         return names;
     }
 
-    public ArrayList<ObjectValue> getNodeCheckers() {
+    public Map<String, ObjectValue> getNodeCheckers() {
         return nodeCheckers;
     }
 
-    public ArrayList<ObjectValue> getUnitCheckers() {
+    public Map<String, ObjectValue> getUnitCheckers() {
         return unitCheckers;
     }
 

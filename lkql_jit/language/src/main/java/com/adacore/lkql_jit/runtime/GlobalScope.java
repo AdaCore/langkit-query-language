@@ -55,10 +55,10 @@ public final class GlobalScope {
     private final Stack<Integer> exportNumberStack;
 
     /** The node checkers for the current script */
-    private final Stack<ArrayList<ObjectValue>> nodeCheckersStack;
+    private final Stack<Map<String, ObjectValue>> nodeCheckersStack;
 
     /** The unit checker for the current script */
-    private final Stack<ArrayList<ObjectValue>> unitCheckersStack;
+    private final Stack<Map<String, ObjectValue>> unitCheckersStack;
 
     /** The array containing the built-in functions and selectors */
     private final Object[] builtIns;
@@ -109,12 +109,13 @@ public final class GlobalScope {
      * @param slotNumber The number of used slots
      * @param exportNumber The number of slot to export
      */
+    @CompilerDirectives.TruffleBoundary
     public void initScope(int slotNumber, int exportNumber) {
         this.valuesStack.push(new Object[slotNumber - this.builtIns.length]);
         this.namesStack.push(new String[slotNumber - this.builtIns.length]);
         this.exportNumberStack.push(exportNumber - this.builtIns.length);
-        this.nodeCheckersStack.push(new ArrayList<>());
-        this.unitCheckersStack.push(new ArrayList<>());
+        this.nodeCheckersStack.push(new HashMap<>());
+        this.unitCheckersStack.push(new HashMap<>());
     }
 
     /**
@@ -190,17 +191,19 @@ public final class GlobalScope {
      * @return The node checkers
      */
     @CompilerDirectives.TruffleBoundary
-    public List<ObjectValue> getNodeCheckers() {
+    public Map<String, ObjectValue> getNodeCheckers() {
         return this.nodeCheckersStack.peek();
     }
 
     /**
      * Add a node checker to the global scope
      *
+     * @param name The name of the checker to add
      * @param checker The checker to add
      */
-    public void addNodeChecker(ObjectValue checker) {
-        this.nodeCheckersStack.peek().add(checker);
+    @CompilerDirectives.TruffleBoundary
+    public void addNodeChecker(String name, ObjectValue checker) {
+        this.nodeCheckersStack.peek().put(name, checker);
     }
 
     /**
@@ -208,7 +211,7 @@ public final class GlobalScope {
      *
      * @return The unit checkers
      */
-    public List<ObjectValue> getUnitCheckers() {
+    public Map<String, ObjectValue> getUnitCheckers() {
         return this.unitCheckersStack.peek();
     }
 
@@ -217,8 +220,9 @@ public final class GlobalScope {
      *
      * @param checker The checker to add
      */
-    public void addUnitChecker(ObjectValue checker) {
-        this.unitCheckersStack.peek().add(checker);
+    @CompilerDirectives.TruffleBoundary
+    public void addUnitChecker(String name, ObjectValue checker) {
+        this.unitCheckersStack.peek().put(name, checker);
     }
 
     /**
@@ -226,12 +230,13 @@ public final class GlobalScope {
      *
      * @param namespaceValue The namespace to get the checkers from
      */
+    @CompilerDirectives.TruffleBoundary
     public void addCheckers(NamespaceValue namespaceValue) {
-        for(int i = 0 ; i < namespaceValue.getNodeCheckers().size() ; i++) {
-            this.nodeCheckersStack.peek().add(namespaceValue.getNodeCheckers().get(i));
+        for(Map.Entry<String, ObjectValue> checker : namespaceValue.getNodeCheckers().entrySet()) {
+            this.nodeCheckersStack.peek().put(checker.getKey(), checker.getValue());
         }
-        for(int i = 0 ; i < namespaceValue.getUnitCheckers().size() ; i++) {
-            this.unitCheckersStack.peek().add(namespaceValue.getUnitCheckers().get(i));
+        for(Map.Entry<String, ObjectValue> checker : namespaceValue.getUnitCheckers().entrySet()) {
+            this.unitCheckersStack.peek().put(checker.getKey(), checker.getValue());
         }
     }
 

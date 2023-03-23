@@ -98,7 +98,7 @@ public final class LKQLContext {
     private String projectFile = null;
 
     /** The ada files passed throught command line */
-    @CompilerDirectives.CompilationFinal
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] files = null;
 
     /** The error printing mode */
@@ -110,7 +110,7 @@ public final class LKQLContext {
     private String rule;
 
     /** The directories where the rule files are located */
-    @CompilerDirectives.CompilationFinal
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] rulesDirs;
 
     // ----- Constructors -----
@@ -463,15 +463,13 @@ public final class LKQLContext {
     public ObjectValue[] getNodeCheckersFiltered() {
         if(this.filteredNodeCheckers == null) {
             List<ObjectValue> res = new ArrayList<>();
-            List<ObjectValue> nodeCheckers = this.globalValues.getNodeCheckers();
+            Map<String, ObjectValue> nodeCheckers = this.globalValues.getNodeCheckers();
             String wantedRule = this.getRule();
-            for(ObjectValue rule : nodeCheckers) {
-                if(wantedRule == null ||
-                        wantedRule.isEmpty() ||
-                        wantedRule.isBlank() ||
-                        wantedRule.equals(rule.get("name"))) {
-                    res.add(rule);
-                }
+            if(wantedRule == null || wantedRule.isEmpty() || wantedRule.isBlank()) {
+                res.addAll(nodeCheckers.values());
+            } else {
+                if(nodeCheckers.containsKey(wantedRule))
+                    res.add(nodeCheckers.get(wantedRule));
             }
             this.filteredNodeCheckers = res.toArray(new ObjectValue[0]);
         }
@@ -487,15 +485,13 @@ public final class LKQLContext {
     public ObjectValue[] getUnitCheckersFiltered() {
         if(this.filteredUnitCheckers == null) {
             List<ObjectValue> res = new ArrayList<>();
-            List<ObjectValue> unitCheckers = this.globalValues.getUnitCheckers();
+            Map<String, ObjectValue> unitCheckers = this.globalValues.getUnitCheckers();
             String wantedRule = this.getRule();
-            for(ObjectValue rule : unitCheckers) {
-                if(wantedRule == null ||
-                        wantedRule.isEmpty() ||
-                        wantedRule.isBlank() ||
-                        wantedRule.equals(rule.get("name"))) {
-                    res.add(rule);
-                }
+            if(wantedRule == null || wantedRule.isEmpty() || wantedRule.isBlank()) {
+                res.addAll(unitCheckers.values());
+            } else {
+                if(unitCheckers.containsKey(wantedRule))
+                    res.add(unitCheckers.get(wantedRule));
             }
             this.filteredUnitCheckers = res.toArray(new ObjectValue[0]);
         }

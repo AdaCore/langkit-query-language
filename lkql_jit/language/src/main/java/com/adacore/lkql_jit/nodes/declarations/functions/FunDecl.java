@@ -27,6 +27,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
@@ -179,9 +180,9 @@ public abstract class FunDecl extends Declaration {
 
         // Put the object in the context
         if(this.checkerMode == CheckerMode.NODE) {
-            LKQLLanguage.getContext(this).getGlobalValues().addNodeChecker(checkerObject);
+            LKQLLanguage.getContext(this).getGlobalValues().addNodeChecker(StringUtils.toLowerCase(functionValue.getName()), checkerObject);
         } else {
-            LKQLLanguage.getContext(this).getGlobalValues().addUnitChecker(checkerObject);
+            LKQLLanguage.getContext(this).getGlobalValues().addUnitChecker(StringUtils.toLowerCase(functionValue.getName()), checkerObject);
         }
     }
 

@@ -404,7 +404,7 @@ public final class StrMethods extends CommonMethods {
             // If the argument is a string
             if(LKQLTypeSystemGen.isString(toFindObject)) {
                 String toFind = LKQLTypeSystemGen.asString(toFindObject);
-                index = receiver.indexOf(toFind);
+                index = StringUtils.indexOf(receiver, toFind);
             }
 
             // If the argument is a pattern

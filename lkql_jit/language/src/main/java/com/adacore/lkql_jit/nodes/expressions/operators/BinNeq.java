@@ -262,7 +262,7 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqObjects(ObjectValue left, ObjectValue right) {
-        return left.internalEquals(right);
+        return !left.internalEquals(right);
     }
 
     /**
@@ -274,7 +274,7 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqNamespaces(NamespaceValue left, NamespaceValue right) {
-        return left.internalEquals(right);
+        return !left.internalEquals(right);
     }
 
     /**

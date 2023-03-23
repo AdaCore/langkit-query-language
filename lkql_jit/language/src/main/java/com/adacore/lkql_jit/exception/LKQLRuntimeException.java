@@ -77,6 +77,23 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     }
 
     /**
+     * Create an exception from a Java exception with the location
+     *
+     * @param e The Java exception
+     * @param location The location of the LKQL call
+     * @return The exception
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException fromJavaException(Throwable e, Locatable location) {
+        LKQLRuntimeException res = new LKQLRuntimeException(fullErrorText(
+                "Error from Java bindings: " + e.getMessage(),
+                location
+        ));
+        res.setStackTrace(e.getStackTrace());
+        return res;
+    }
+
+    /**
      * Create a new exception for the node that shouldn't execute
      *
      * @param location The node that shouldn't execute

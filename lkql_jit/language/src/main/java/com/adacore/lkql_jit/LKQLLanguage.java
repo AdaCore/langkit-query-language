@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.lkql_jit.nodes.expressions.literals.TupleLiteral;
 import com.adacore.lkql_jit.parser.ASTTranslator;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
@@ -381,7 +382,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             );
             Liblkqllang.LkqlNode root = unit.getRoot();
             if(!validArgValue(root)) {
-                throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : '" + valueSource + "'");
+                throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : " + valueSource);
             }
             ASTTranslator translator = new ASTTranslator(null);
             LKQLNode node = root.accept(translator);
@@ -401,6 +402,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     private static boolean validArgValue(Liblkqllang.LkqlNode node) {
         // If the node is just a literal it's value
         if(node instanceof Liblkqllang.Literal) return true;
+
+        // Else if it's a tuple literal we must verify the expressions inside it
+        else if(node instanceof Liblkqllang.Tuple tupleLiteral) {
+            Liblkqllang.ExprList exprList = tupleLiteral.fExprs();
+            int childrenCount = exprList.getChildrenCount();
+            for(int i = 0 ; i < childrenCount ; i++) {
+                if(!validArgValue(exprList.getChild(i))) return false;
+            }
+            return true;
+        }
 
         // Else if it's a list literal we must verify the expressions of the list
         else if(node instanceof Liblkqllang.ListLiteral listLiteral) {

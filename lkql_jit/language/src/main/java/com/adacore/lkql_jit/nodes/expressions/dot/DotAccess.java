@@ -143,7 +143,7 @@ public abstract class DotAccess extends Expr {
      * @return The result of the property reference
      */
     @Specialization(guards = {
-            "receiver != null",
+            "!receiver.isNone()",
             "getBuiltIn(receiver) == null",
             "receiver == propertyRef.getNode()",
             "propertyRef.getFieldDescription() != null"
@@ -254,11 +254,6 @@ public abstract class DotAccess extends Expr {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
         Map<String, BuiltInFunctionValue> metaTable = context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
-
-        if(receiver == null) {
-            System.out.println("Java null receiver in a dot access!");
-            System.out.println(this.location.toString());
-        }
 
         // Return the built-in method or null
         return metaTable.getOrDefault(this.member.getName(), null);

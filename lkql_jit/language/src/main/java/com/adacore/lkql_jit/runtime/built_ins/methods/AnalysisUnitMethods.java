@@ -121,7 +121,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode res = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getRoot();
-            return res == null ? NodeNull.getInstance() : res;
+            return res.isNone() ? NodeNull.getInstance() : res;
         }
     }
 
@@ -145,7 +145,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
             Libadalang.Token current = unit.getFirstToken();
             Libadalang.Token last = unit.getLastToken();
             ArrayList<Libadalang.Token> resList = new ArrayList<>();
-            while(!current.isEquivalent(last) && !current.tokenDataHandler.isNull() ) {
+            while(!current.isEquivalent(last) && !current.isNone()) {
                 resList.add(current);
                 current = current.next();
             }

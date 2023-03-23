@@ -102,7 +102,8 @@ public abstract class Indexing extends Expr {
         } else if(index < 1) {
             throw LKQLRuntimeException.invalidIndex((int) index, this);
         }
-        return node.getChild((int) index - 1);
+        Libadalang.AdaNode res = node.getChild((int) index - 1);
+        return res.isNone() ? NodeNull.getInstance() : res;
     }
 
     /**

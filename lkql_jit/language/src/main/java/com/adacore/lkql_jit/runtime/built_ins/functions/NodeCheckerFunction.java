@@ -161,7 +161,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                         visitList.addFirst(
                                 new VisitStep(currentNode, inGenericInstantiation, false)
                         );
-                        if(genBody != null) visitList.addFirst(
+                        if(!genBody.isNone()) visitList.addFirst(
                                 new VisitStep(genBody, true, true)
                         );
                         visitList.addFirst(
@@ -192,7 +192,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 // Add the children to the visit list
                 for(int i = currentNode.getChildrenCount() - 1 ; i >= 0 ; i--) {
                     Libadalang.AdaNode child = currentNode.getChild(i);
-                    if(child != null) {
+                    if(!child.isNone()) {
                         visitList.addFirst(
                                 new VisitStep(child, inGenericInstantiation, true)
                         );
@@ -268,7 +268,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         private static void reportViolation(ObjectValue rule, Libadalang.AdaNode node) {
             if(node instanceof Libadalang.BasicDecl basicDecl) {
                 Libadalang.AdaNode definingName = basicDecl.pDefiningName();
-                node = definingName != null ? definingName : node;
+                node = definingName.isNone() ? node : definingName;
             }
             CheckerUtils.printRuleViolation((String) rule.get("message"), node);
         }
