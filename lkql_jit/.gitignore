@@ -23,5 +23,5 @@ native/sources
 
 # Test and log files
 my_working_dir
-tmp.txt
+language/src/test/java/TestRun.java
 *.log

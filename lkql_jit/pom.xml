@@ -21,15 +21,27 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <graalvm.version>22.3.1</graalvm.version>
-        <config.buildChecker>None</config.buildChecker>
     </properties>
 
-    <!-- This profile is used to build the checker driver -->
     <profiles>
         <profile>
             <id>checker</id>
             <properties>
-                <config.buildChecker>--checker</config.buildChecker>
+                <config.nativeBuild>checker</config.nativeBuild>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>launcher</id>
+            <properties>
+                <config.nativeBuild>launcher</config.nativeBuild>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>all</id>
+            <properties>
+                <config.nativeBuild>launcher checker</config.nativeBuild>
             </properties>
         </profile>
     </profiles>

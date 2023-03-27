@@ -27,7 +27,7 @@
                             <executable>python3</executable>
                             <arguments>
                                 <argument>${basedir}/make_native.py</argument>
-                                <argument>${config.buildChecker}</argument>
+                                <argument>${config.nativeBuild}</argument>
                             </arguments>
                         </configuration>
                     </execution>

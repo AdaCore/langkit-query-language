@@ -28,6 +28,7 @@ import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -82,11 +83,14 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     /** A directory containing all user added rules */
     private String rulesDirs = null;
 
-    /** The name rule to apply, if null all */
-    private String rule = null;
+    /** The rules to apply */
+    private String rules = null;
 
     /** The arguments to pass to the rules */
     private List<String> rulesArgs = new ArrayList<>();
+
+    /** The source files to ignore during analysis */
+    private String ignores = null;
 
     /** The mode of error recovery */
     private final String errorMode = "continue_and_warn";
@@ -119,12 +123,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
                           --verbose, -v                     Enable the verbose mode
 
-                          --rules-dirs                      Specify colon-separated, directories where rules
-                                                            will be seek from
-                          --rule, -r                        Rule to apply (if not passed all rules are,
-                                                            applied)
+                          --rules-dirs                      Specify directories where rules will be seek from
+                          --rules, -r                       Comma separated rules to apply (if not passed
+                                                            all rules are applied)
                           --rule-arg, -a                    Argument to pass to a rule, with the syntax
-                                                            <rule_name>.<arg_name> = <arg_value>
+                                                            <rule_name>.<arg_name>=<arg_value>
                           --property-error-recovery, -pr    Which behavior to adopt when there is a
                                                             property error inside of a LKQL query.
                                                             Possible alternatives: continue_and_warn,
@@ -192,7 +195,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         // Set the files
         if(!this.files.isEmpty()) {
-            contextBuilder.option("lkql.files", String.join(":", this.files));
+            contextBuilder.option("lkql.files", String.join(File.pathSeparator, this.files));
         }
 
         // Set the charset
@@ -206,12 +209,16 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         }
 
         // Set the rule to apply
-        if(this.rule != null && !this.rule.isEmpty() && !this.rule.isBlank()) {
-            contextBuilder.option("lkql.rule", this.rule.toLowerCase());
+        if(this.rules != null && !this.rules.isEmpty() && !this.rules.isBlank()) {
+            contextBuilder.option("lkql.rules", this.rules.toLowerCase());
         }
 
         // Set the rule argument
         contextBuilder.option("lkql.rulesArgs", String.join(";", this.rulesArgs));
+
+        if(this.ignores != null && !this.ignores.isEmpty() && !this.ignores.isBlank()) {
+            contextBuilder.option("lkql.ignores", this.ignores);
+        }
 
         try(Context context = contextBuilder.build()) {
             // Create the context and run it with the script
@@ -317,7 +324,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             case "U" -> "recursive";
             case "j" -> "jobs";
             case "v" -> "verbose";
-            case "r" -> "rule";
+            case "r" -> "rules";
             case "a" -> "rule-arg";
             default -> null;
         };
@@ -394,11 +401,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 break;
 
             // The rule precision
-            case "rule":
+            case "rules":
                 if(value == null) {
                     return ArgumentStatus.Malformed;
                 }
-                this.rule = value;
+                this.rules = value;
                 break;
 
             case "rule-arg":
@@ -406,6 +413,13 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                     return ArgumentStatus.Malformed;
                 }
                 this.rulesArgs.add(value);
+                break;
+
+            case "ignores":
+                if(value == null) {
+                    return ArgumentStatus.Malformed;
+                }
+                this.ignores = value;
                 break;
 
             // The default unhandled flag

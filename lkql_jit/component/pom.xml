@@ -14,7 +14,6 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <install.include_checker>${config.buildChecker}</install.include_checker>
     </properties>
 
     <build>
@@ -35,7 +34,7 @@
                                 <argument>${basedir}/make_component.py</argument>
                                 <argument>${project.version}</argument>
                                 <argument>${graalvm.version}</argument>
-                                <argument>${install.include_checker}</argument>
+                                <argument>${config.nativeBuild}</argument>
                             </arguments>
                         </configuration>
                     </execution>
