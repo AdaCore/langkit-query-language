@@ -78,8 +78,8 @@ if len(sys.argv) < 3:
 lkql_version = sys.argv[1]
 graal_version = sys.argv[2]
 
-include_launcher = "launcher" in sys.argv[3]
-include_checker = "checker" in sys.argv[3]
+include_native_launcher = "launcher" in sys.argv[3]
+include_native_checker = "checker" in sys.argv[3]
 
 # Set the directory names
 comp_dir = "comp_temp"
@@ -98,16 +98,32 @@ shutil.copy(
     os.path.join("..", "language", "target", "lkql_jit.jar"),
     os.path.join(lang_dir, "lkql_jit.jar")
 )
+shutil.copy(
+    os.path.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
+    os.path.join(lang_dir, "lkql_jit_launcher.jar")
+)
+shutil.copy(
+    os.path.join("..", "checker", "target", "lkql_jit_checker.jar"),
+    os.path.join(lang_dir, "lkql_jit_checker.jar")
+)
+shutil.copy(
+    os.path.join("..", "scripts", "lkql_jit"),
+    os.path.join(bin_dir, "lkql_jit")
+)
+shutil.copy(
+    os.path.join("..", "scripts", "lkql_jit_checker"),
+    os.path.join(bin_dir, "lkql_jit_checker")
+)
 
-if include_launcher:
+if include_native_launcher:
     shutil.copy(
         os.path.join("..", "native", "bin", "lkql_jit"),
-        os.path.join(bin_dir, "lkql_jit")
+        os.path.join(bin_dir, "native_lkql_jit")
     )
-if include_checker:
+if include_native_checker:
     shutil.copy(
         os.path.join("..", "native", "bin", "lkql_jit_checker"),
-        os.path.join(bin_dir, "lkql_jit_checker")
+        os.path.join(bin_dir, "native_lkql_jit_checker")
     )
 
 # Create the needed file to compile in jar
@@ -127,16 +143,18 @@ f.writelines([
 f.close()
 
 # Write the symbolic links
+# TODO: create symlink to native build or interpreter version depending on a setting
+# chosen at installation time?
 f = open(os.path.join(meta_dir, "symlinks"), 'w')
 f.writelines([
     (
         "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
-        if include_launcher else
+        if include_native_launcher else
         ""
     ),
     (
         "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
-        if include_checker else
+        if include_native_checker else
         ""
     ),
 ])
@@ -145,14 +163,16 @@ f.close()
 # Write the permissions file
 f = open(os.path.join(meta_dir, "permissions"), 'w')
 f.writelines([
+    "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
+    "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
     (
-        "languages/lkql/bin/lkql_jit = rwxrwxr-x\n"
-        if include_launcher else
+        "languages/lkql/bin/native_lkql_jit = rwxrwxr-x\n"
+        if include_native_launcher else
         ""
     ),
     (
-        "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n"
-        if include_checker else
+        "languages/lkql/bin/native_lkql_jit_checker = rwxrwxr-x\n"
+        if include_native_checker else
         ""
     ),
 ])

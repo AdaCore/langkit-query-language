@@ -59,13 +59,15 @@ $[langkit-query-language/lkql/build/java]> mvn install
 4) Export the needed environment variables :
   * `GRAAL_HOME` should points to your GraalVM installation
 
-5) Compile the LKQL_JIT
+5) Compile and run LKQL_JIT
 
 ```sh
 $[langkit-query-language/lkql_jit]> mvn clean install
 ```
 
-If you want to build the checker driver you can use the `checker` profile
+You can now directly run the checker using the `lkql_jit_checker` bash script that has been installed in the `languages/lkql/bin` directory of your GraalVM installation (Linux only for now).
+
+If you want to build the checker driver as a native image, you can use the `checker` profile
 
 ```sh
 $[langkit-query-language/lkql_jit]> mvn clean install -Pchecker
