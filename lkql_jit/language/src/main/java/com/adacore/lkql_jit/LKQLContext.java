@@ -417,9 +417,13 @@ public final class LKQLContext {
             }
         }
 
+        // If the option is the empty string, the language implementation will end up setting it to the default
+        // value for its language (e.g. iso-8859-1 for Ada).
+        String charset = this.env.getOptions().get(LKQLLanguage.charset);
+
         // Create the ada context
         this.adaContext = Libadalang.AnalysisContext.create(
-                null,
+                charset,
                 null,
                 provider,
                 null,
