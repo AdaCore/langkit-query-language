@@ -511,8 +511,11 @@ public final class LKQLContext {
                 res.addAll(nodeCheckers.values());
             } else {
                 for(String rule : wantedRules) {
-                    if(nodeCheckers.containsKey(rule))
+                    if(nodeCheckers.containsKey(rule)) {
                         res.add(nodeCheckers.get(rule));
+                    } else {
+                        throw LKQLRuntimeException.fromMessage("Could not find any rule named " + rule);
+                    }
                 }
             }
             this.filteredNodeCheckers = res.toArray(new ObjectValue[0]);
