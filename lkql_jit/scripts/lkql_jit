@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export LKQL_JIT_HOME="$GRAAL_HOME/languages/lkql"
+
+"$GRAAL_HOME/bin/java" \
+    -cp "$GRAAL_HOME/lib/truffle/truffle-api.jar:$LKQL_JIT_HOME/lkql_jit.jar:$LKQL_JIT_HOME/lkql_jit_launcher.jar"\
+    -Djava.library.path="$LD_LIBRARY_PATH" \
+    -Dtruffle.class.path.append="$LKQL_JIT_HOME/lkql_jit.jar" \
+    com.adacore.lkql_jit.LKQLLauncher "$@"
