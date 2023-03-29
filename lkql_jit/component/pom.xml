@@ -34,7 +34,7 @@
                                 <argument>${basedir}/make_component.py</argument>
                                 <argument>${project.version}</argument>
                                 <argument>${graalvm.version}</argument>
-                                <argument>${config.nativeBuild}</argument>
+                                <argument>${config.nativeImageComponents}</argument>
                             </arguments>
                         </configuration>
                     </execution>

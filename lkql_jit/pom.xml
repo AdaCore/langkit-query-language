@@ -21,29 +21,62 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <graalvm.version>22.3.1</graalvm.version>
+
+        <!-- List of the components to build with native image -->
+        <config.nativeImageComponents>none</config.nativeImageComponents>
+
+        <!-- Building mode of the native image -->
+        <config.nativeImageMode>dev</config.nativeImageMode>
     </properties>
 
     <profiles>
+
+        <!-- Components profiles -->
+
         <profile>
-            <id>checker</id>
+            <id>native-checker</id>
             <properties>
-                <config.nativeBuild>checker</config.nativeBuild>
+                <config.nativeImageComponents>checker</config.nativeImageComponents>
             </properties>
         </profile>
 
         <profile>
-            <id>launcher</id>
+            <id>native-launcher</id>
             <properties>
-                <config.nativeBuild>launcher</config.nativeBuild>
+                <config.nativeImageComponents>launcher</config.nativeImageComponents>
             </properties>
         </profile>
 
         <profile>
-            <id>all</id>
+            <id>native-all</id>
             <properties>
-                <config.nativeBuild>launcher checker</config.nativeBuild>
+                <config.nativeImageComponents>launcher checker</config.nativeImageComponents>
             </properties>
         </profile>
+
+        <!-- Build mode profiles -->
+
+        <profile>
+            <id>dev</id>
+            <properties>
+                <config.nativeImageMode>dev</config.nativeImageMode>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>debug</id>
+            <properties>
+                <config.nativeImageMode>debug</config.nativeImageMode>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>prod</id>
+            <properties>
+                <config.nativeImageMode>prod</config.nativeImageMode>
+            </properties>
+        </profile>
+
     </profiles>
 
 </project>

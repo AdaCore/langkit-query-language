@@ -27,7 +27,8 @@
                             <executable>python3</executable>
                             <arguments>
                                 <argument>${basedir}/make_native.py</argument>
-                                <argument>${config.nativeBuild}</argument>
+                                <argument>${config.nativeImageComponents}</argument>
+                                <argument>${config.nativeImageMode}</argument>
                             </arguments>
                         </configuration>
                     </execution>
