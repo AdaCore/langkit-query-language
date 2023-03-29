@@ -54,11 +54,8 @@ public final class GlobalScope {
     /** The number of symbol to export */
     private final Stack<Integer> exportNumberStack;
 
-    /** The node checkers for the current script */
-    private final Stack<Map<String, ObjectValue>> nodeCheckersStack;
-
-    /** The unit checker for the current script */
-    private final Stack<Map<String, ObjectValue>> unitCheckersStack;
+    /** The imported LKQL rules */
+    private final Stack<Map<String, ObjectValue>> checkersStack;
 
     /** The array containing the built-in functions and selectors */
     private final Object[] builtIns;
@@ -80,8 +77,7 @@ public final class GlobalScope {
         this.namesStack = new Stack<>();
         this.namespaceStack = new Stack<>();
         this.exportNumberStack = new Stack<>();
-        this.nodeCheckersStack = new Stack<>();
-        this.unitCheckersStack = new Stack<>();
+        this.checkersStack = new Stack<>();
         this.builtIns = new Object[buildInNb];
         this.metaTables = new HashMap<>();
     }
@@ -114,8 +110,7 @@ public final class GlobalScope {
         this.valuesStack.push(new Object[slotNumber - this.builtIns.length]);
         this.namesStack.push(new String[slotNumber - this.builtIns.length]);
         this.exportNumberStack.push(exportNumber - this.builtIns.length);
-        this.nodeCheckersStack.push(new HashMap<>());
-        this.unitCheckersStack.push(new HashMap<>());
+        this.checkersStack.push(new HashMap<>());
     }
 
     /**
@@ -126,8 +121,7 @@ public final class GlobalScope {
         this.valuesStack.pop();
         this.namesStack.pop();
         this.exportNumberStack.pop();
-        this.nodeCheckersStack.pop();
-        this.unitCheckersStack.pop();
+        this.checkersStack.pop();
     }
 
     /**
@@ -141,8 +135,7 @@ public final class GlobalScope {
         this.namesStack.push(namespaceValue.getNames());
         this.namespaceStack.push(namespaceValue);
         this.exportNumberStack.push(namespaceValue.getValues().length);
-        this.nodeCheckersStack.push(namespaceValue.getNodeCheckers());
-        this.unitCheckersStack.push(namespaceValue.getUnitCheckers());
+        this.checkersStack.push(namespaceValue.getCheckers());
     }
 
     /**
@@ -154,8 +147,7 @@ public final class GlobalScope {
         this.namesStack.pop();
         this.namespaceStack.pop();
         this.exportNumberStack.pop();
-        this.nodeCheckersStack.pop();
-        this.unitCheckersStack.pop();
+        this.checkersStack.pop();
     }
 
     /**
@@ -186,43 +178,23 @@ public final class GlobalScope {
     }
 
     /**
-     * Get the node checker of the current global scope in an array
+     * Get the LKQL checkers of the current global scope
      *
-     * @return The node checkers
+     * @return The LKQL checkers
      */
-    @CompilerDirectives.TruffleBoundary
-    public Map<String, ObjectValue> getNodeCheckers() {
-        return this.nodeCheckersStack.peek();
+    public Map<String, ObjectValue> getCheckers() {
+        return this.checkersStack.peek();
     }
 
     /**
-     * Add a node checker to the global scope
+     * Add the given LKQL checker in the global values
      *
-     * @param name The name of the checker to add
-     * @param checker The checker to add
+     * @param name The name of the checker
+     * @param checker The object representing the checker
      */
     @CompilerDirectives.TruffleBoundary
-    public void addNodeChecker(String name, ObjectValue checker) {
-        this.nodeCheckersStack.peek().put(name, checker);
-    }
-
-    /**
-     * Get the unit checkers of the current global scope in an array
-     *
-     * @return The unit checkers
-     */
-    public Map<String, ObjectValue> getUnitCheckers() {
-        return this.unitCheckersStack.peek();
-    }
-
-    /**
-     * Add a unit checker to the global scope
-     *
-     * @param checker The checker to add
-     */
-    @CompilerDirectives.TruffleBoundary
-    public void addUnitChecker(String name, ObjectValue checker) {
-        this.unitCheckersStack.peek().put(name, checker);
+    public void addChecker(String name, ObjectValue checker) {
+        this.checkersStack.peek().put(name, checker);
     }
 
     /**
@@ -232,12 +204,7 @@ public final class GlobalScope {
      */
     @CompilerDirectives.TruffleBoundary
     public void addCheckers(NamespaceValue namespaceValue) {
-        for(Map.Entry<String, ObjectValue> checker : namespaceValue.getNodeCheckers().entrySet()) {
-            this.nodeCheckersStack.peek().put(checker.getKey(), checker.getValue());
-        }
-        for(Map.Entry<String, ObjectValue> checker : namespaceValue.getUnitCheckers().entrySet()) {
-            this.unitCheckersStack.peek().put(checker.getKey(), checker.getValue());
-        }
+        this.checkersStack.peek().putAll(namespaceValue.getCheckers());
     }
 
     /**
@@ -282,8 +249,7 @@ public final class GlobalScope {
         NamespaceValue res = new NamespaceValue(
                 Arrays.copyOfRange(this.namesStack.peek(), 0, this.exportNumberStack.peek()),
                 Arrays.copyOfRange(this.valuesStack.peek(), 0, this.exportNumberStack.peek()),
-                this.nodeCheckersStack.peek(),
-                this.unitCheckersStack.peek()
+                this.checkersStack.peek()
         );
 
         // Set the function namespace
@@ -309,6 +275,7 @@ public final class GlobalScope {
                 "\n\tvalues=" + Arrays.toString(valuesStack.peek()) +
                 "\n\tnames=" + Arrays.toString(namesStack.peek()) +
                 "\n\tbuiltIns=" + Arrays.toString(builtIns) +
+                "\n\tcheckers=" + this.checkersStack.peek() +
                 "\n}";
     }
 

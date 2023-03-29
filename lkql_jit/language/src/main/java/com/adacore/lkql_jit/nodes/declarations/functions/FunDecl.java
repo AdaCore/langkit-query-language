@@ -174,16 +174,22 @@ public abstract class FunDecl extends Declaration {
 
         // Create the object value representing the checker
         ObjectValue checkerObject = new ObjectValue(
-                ArrayUtils.concat(checkerParamNames, new String[]{"function", "name"}),
-                ArrayUtils.concat(checkerArgs, new Object[]{functionValue, functionValue.getName()})
+                ArrayUtils.concat(checkerParamNames, new String[]{"function", "name", "mode"}),
+                ArrayUtils.concat(
+                    checkerArgs,
+                    new Object[]{
+                        functionValue,
+                        functionValue.getName(),
+                        this.checkerMode
+                    }
+                )
         );
 
         // Put the object in the context
-        if(this.checkerMode == CheckerMode.NODE) {
-            LKQLLanguage.getContext(this).getGlobalValues().addNodeChecker(StringUtils.toLowerCase(functionValue.getName()), checkerObject);
-        } else {
-            LKQLLanguage.getContext(this).getGlobalValues().addUnitChecker(StringUtils.toLowerCase(functionValue.getName()), checkerObject);
-        }
+        LKQLLanguage.getContext(this).getGlobalValues().addChecker(
+            StringUtils.toLowerCase(functionValue.getName()),
+            checkerObject
+        );
     }
 
 }

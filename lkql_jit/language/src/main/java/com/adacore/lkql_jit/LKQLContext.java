@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.declarations.functions.FunDecl;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
@@ -36,8 +37,7 @@ import com.adacore.libadalang.Libadalang;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 
 /**
@@ -505,6 +505,48 @@ public final class LKQLContext {
     }
 
     /**
+     * Initialize the filtered and separated checker caches.
+     */
+    @CompilerDirectives.TruffleBoundary
+    private void initCheckerCaches() {
+        // Prepare the working variables
+        final List<ObjectValue> nodeCheckers = new ArrayList<>();
+        final List<ObjectValue> unitCheckers = new ArrayList<>();
+        final Map<String, ObjectValue> allCheckers = this.globalValues.getCheckers();
+        final String[] wantedRules = this.getRules();
+
+        // Lambda to dispatch checkers in the correct lists
+        final Consumer<ObjectValue> dispatchChecker = (checker) -> {
+            if(checker.get("mode") == FunDecl.CheckerMode.NODE)
+                nodeCheckers.add(checker);
+            else
+                unitCheckers.add(checker);
+        };
+
+        // If there is no wanted rule, just separated the checkers
+        if(wantedRules == null || wantedRules.length == 0) {
+            for(ObjectValue checker : allCheckers.values()) {
+                dispatchChecker.accept(checker);
+            }
+        }
+
+        // Else verify and add the wanted rules
+        else {
+            for(String rule : wantedRules) {
+                if(allCheckers.containsKey(rule)) {
+                    dispatchChecker.accept(allCheckers.get(rule));
+                } else {
+                    throw LKQLRuntimeException.fromMessage("Could not find any rule named " + rule);
+                }
+            }
+        }
+
+        // Set the checker caches
+        this.filteredNodeCheckers = nodeCheckers.toArray(new ObjectValue[0]);
+        this.filteredUnitCheckers = unitCheckers.toArray(new ObjectValue[0]);
+    }
+
+    /**
      * Get the filtered node rules in this context
      *
      * @return The node rule list filtered according to options
@@ -512,21 +554,7 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     public ObjectValue[] getNodeCheckersFiltered() {
         if(this.filteredNodeCheckers == null) {
-            List<ObjectValue> res = new ArrayList<>();
-            Map<String, ObjectValue> nodeCheckers = this.globalValues.getNodeCheckers();
-            String[] wantedRules = this.getRules();
-            if(wantedRules == null || wantedRules.length == 0) {
-                res.addAll(nodeCheckers.values());
-            } else {
-                for(String rule : wantedRules) {
-                    if(nodeCheckers.containsKey(rule)) {
-                        res.add(nodeCheckers.get(rule));
-                    } else {
-                        throw LKQLRuntimeException.fromMessage("Could not find any rule named " + rule);
-                    }
-                }
-            }
-            this.filteredNodeCheckers = res.toArray(new ObjectValue[0]);
+            this.initCheckerCaches();
         }
         return this.filteredNodeCheckers;
     }
@@ -539,18 +567,7 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     public ObjectValue[] getUnitCheckersFiltered() {
         if(this.filteredUnitCheckers == null) {
-            List<ObjectValue> res = new ArrayList<>();
-            Map<String, ObjectValue> unitCheckers = this.globalValues.getUnitCheckers();
-            String[] wantedRules = this.getRules();
-            if(wantedRules == null || wantedRules.length == 0) {
-                res.addAll(unitCheckers.values());
-            } else {
-                for(String rule : wantedRules) {
-                    if(unitCheckers.containsKey(rule))
-                        res.add(unitCheckers.get(rule));
-                }
-            }
-            this.filteredUnitCheckers = res.toArray(new ObjectValue[0]);
+            this.initCheckerCaches();
         }
         return this.filteredUnitCheckers;
     }
