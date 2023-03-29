@@ -42,13 +42,14 @@ if not os.path.isfile(os.path.realpath(native_exec)):
 
 os.makedirs("bin", exist_ok=True)
 
-print(sys.argv)
-
 build_launcher = 'launcher' in sys.argv[1]
 build_checker = 'checker' in sys.argv[1]
 
+build_mode = sys.argv[2]
+
 """
-Use those option to perform debug on the compilation process
+Use those options to perform debug on produced LKQL_JIT executables:
+
 -H:+PrintRuntimeCompileMethods  => Use this to debug compilation errors
 -H:-DeleteLocalSymbols  => Use this to disable symbol deletion to profile
 -H:+SourceLevelDebug  => Use this to preserve link from source to bin
@@ -65,6 +66,19 @@ common_command = (
     "--initialize-at-build-time=com.adacore.lkql_jit",
     "-H:ReflectionConfigurationFiles=reflect_config_lada.json,reflect_config_lkql.json",
 )
+
+if build_mode in ('dev', 'debug'):
+    common_command = common_command + (
+        "-H:-DeleteLocalSymbols",
+        "-H:+SourceLevelDebug",
+        "-H:+PreserveFramePointer",
+        "-H:+IncludeNodeSourcePositions",
+    )
+
+if build_mode == 'debug':
+    common_command = common_command + (
+        "-H:+PrintRuntimeCompileMethods",
+    )
 
 # Create the LKQL launcher
 if build_launcher:
