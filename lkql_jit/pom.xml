@@ -34,21 +34,21 @@
         <!-- Components profiles -->
 
         <profile>
-            <id>checker</id>
+            <id>native-checker</id>
             <properties>
                 <config.nativeImageComponents>checker</config.nativeImageComponents>
             </properties>
         </profile>
 
         <profile>
-            <id>launcher</id>
+            <id>native-launcher</id>
             <properties>
                 <config.nativeImageComponents>launcher</config.nativeImageComponents>
             </properties>
         </profile>
 
         <profile>
-            <id>all</id>
+            <id>native-all</id>
             <properties>
                 <config.nativeImageComponents>launcher checker</config.nativeImageComponents>
             </properties>
