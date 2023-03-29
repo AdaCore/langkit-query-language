@@ -121,6 +121,10 @@ class CheckerDriver(BaseTestDriver):
         else:
             args += self.test_env['input_sources']
 
+        # Use the wanted charset, if any
+        if self.test_env.get('source_charset'):
+            args += ['--charset', self.test_env['source_charset']]
+
         for k, v in self.test_env.get('rule_arguments', {}).items():
             args += ['--rule-arg', '{}={}'.format(k, v)]
 

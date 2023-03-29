@@ -6,10 +6,6 @@ ascii.ads:3:4: rule violation: non printable ASCII character
 3 |    Non_ASCII_é : Integer;   --  FLAG
   |    ^^^^^^^^^^^
 
-ascii.ads:3:15: rule violation: non printable ASCII character
-3 |    Non_ASCII_é : Integer;   --  FLAG
-  |               ^
-
 ascii.ads:4:4: rule violation: non printable ASCII character
 4 |    --  another invalidcomment
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
