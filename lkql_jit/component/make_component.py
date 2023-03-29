@@ -77,7 +77,9 @@ if len(sys.argv) < 3:
 
 lkql_version = sys.argv[1]
 graal_version = sys.argv[2]
-include_checker = "--checker" in sys.argv
+
+include_launcher = "launcher" in sys.argv[3]
+include_checker = "checker" in sys.argv[3]
 
 # Set the directory names
 comp_dir = "comp_temp"
@@ -97,10 +99,11 @@ shutil.copy(
     os.path.join(lang_dir, "lkql_jit.jar")
 )
 
-shutil.copy(
-    os.path.join("..", "native", "bin", "lkql_jit"),
-    os.path.join(bin_dir, "lkql_jit")
-)
+if include_launcher:
+    shutil.copy(
+        os.path.join("..", "native", "bin", "lkql_jit"),
+        os.path.join(bin_dir, "lkql_jit")
+    )
 if include_checker:
     shutil.copy(
         os.path.join("..", "native", "bin", "lkql_jit_checker"),
@@ -126,20 +129,32 @@ f.close()
 # Write the symbolic links
 f = open(os.path.join(meta_dir, "symlinks"), 'w')
 f.writelines([
-    "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n",
-    ("bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
-        if include_checker
-        else "")
+    (
+        "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
+        if include_launcher else
+        ""
+    ),
+    (
+        "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
+        if include_checker else
+        ""
+    ),
 ])
 f.close()
 
 # Write the permissions file
 f = open(os.path.join(meta_dir, "permissions"), 'w')
 f.writelines([
-    "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
-    ("languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n"
-        if include_checker
-        else "")
+    (
+        "languages/lkql/bin/lkql_jit = rwxrwxr-x\n"
+        if include_launcher else
+        ""
+    ),
+    (
+        "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n"
+        if include_checker else
+        ""
+    ),
 ])
 f.close()
 

@@ -57,10 +57,9 @@ public final class ReflectionUtils {
      * @param source The source argument to refine
      * @param type The type that the langkit library awaits
      * @param argument The argument node (for debug purpose)
-     * @param receiver The receiver node
      * @return The refined argument
      */
-    public static Object refineArgument(Object source, Class<?> type, Arg argument, Libadalang.AdaNode receiver) {
+    public static Object refineArgument(Object source, Class<?> type, Arg argument) {
         // Get the result from the type helper
         Object res = LKQLTypesHelper.fromLKQLValue(source);
 
@@ -84,7 +83,7 @@ public final class ReflectionUtils {
         }
 
         // If the required type is a unit array
-        if(type.equals(Libadalang.AnalysisUnitArray.class)) {
+        else if(type.equals(Libadalang.AnalysisUnitArray.class)) {
             ListValue resList;
             try {
                 resList = LKQLTypeSystemGen.expectListValue(res);
@@ -146,8 +145,7 @@ public final class ReflectionUtils {
                     refinedArgs[i] = refineArgument(
                             arguments[i],
                             currentParam.type,
-                            argList.getArgs()[i],
-                            node
+                            argList.getArgs()[i]
                     );
                 } else {
                     if(currentParam instanceof Libadalang.ParamWithDefaultValue paramWithDefaultValue) {
@@ -182,9 +180,9 @@ public final class ReflectionUtils {
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             if(targetException instanceof Libadalang.LangkitException langkitException) {
-                throw new LangkitException(langkitException.getKind().toString(), langkitException.getMessage());
+                throw new LangkitException(langkitException.kind.toString(), langkitException.getMessage());
             }
-            throw new LangkitException("PropertyError", "Unhandled property error");
+            throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller);
         } catch (IllegalAccessException e) {
             throw LKQLRuntimeException.fromMessage("Java reflection access failed", caller);
         }

@@ -96,6 +96,10 @@ public final class ListComprehensionRootNode extends RootNode {
         return result;
     }
 
+    public Closure getClosure() {
+        return closure;
+    }
+
     // ----- Setters -----
 
     public void setClosure(Closure closure) {

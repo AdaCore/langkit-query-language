@@ -184,13 +184,8 @@ public final class LKQLTypesHelper {
      */
     @CompilerDirectives.TruffleBoundary
     public static Object toLKQLValue(Object javaValue) throws UnsupportedTypeException {
-        // If the source is null
-        if(javaValue == null) {
-            return NodeNull.getInstance();
-        }
-
         // If the source is a boolean
-        else if(javaValue instanceof Boolean bool) {
+        if(javaValue instanceof Boolean bool) {
             return bool;
         }
 
@@ -204,21 +199,14 @@ public final class LKQLTypesHelper {
             return javaValue;
         }
 
-        // If the source is a langkit big integer
-        else if(javaValue instanceof Libadalang.BigInteger bigInteger) {
-            BigInteger bigIntegerResult = new BigInteger(bigInteger.getRepresentation());
-            try {
-                return bigIntegerResult.longValueExact();
-            } catch (ArithmeticException e) {
-                return bigIntegerResult;
-            }
+        // If the value is a big integer
+        else if(javaValue instanceof BigInteger) {
+            return javaValue;
         }
 
-        // If the source is a string wrapper
-        else if(javaValue instanceof Libadalang.StringWrapper stringWrapper) {
-            String res = stringWrapper.toString();
-            stringWrapper.close();
-            return res;
+        // If the value is a character
+        else if(javaValue instanceof Libadalang.Char character) {
+            return character.toString();
         }
 
         // If the source is a symbol
@@ -226,9 +214,14 @@ public final class LKQLTypesHelper {
             return symbol.text;
         }
 
-        // If the source is an AdaNode
-        else if(javaValue instanceof Libadalang.AdaNode) {
+        // If the value is a string
+        else if(javaValue instanceof String) {
             return javaValue;
+        }
+
+        // If the source is an AdaNode
+        else if(javaValue instanceof Libadalang.AdaNode adaNode) {
+            return adaNode.isNone() ? NodeNull.getInstance() : adaNode;
         }
 
         // If the source is a token
@@ -259,9 +252,10 @@ public final class LKQLTypesHelper {
 
         // If the source is an aspect structure
         else if(javaValue instanceof Libadalang.Aspect aspect) {
-            String[] keys = {"exists", "node", "value"};
+            String[] keys = {"exists", "inherited", "node", "value"};
             Object[] values = {
                     aspect.exists,
+                    aspect.inherited,
                     aspect.node.node.isNull() ?
                             NodeNull.getInstance() :
                             Libadalang.AdaNode.fromEntity(aspect.node),
@@ -296,7 +290,11 @@ public final class LKQLTypesHelper {
 
         // Else, throw an exception for the unsupported type
         else {
-            throw new UnsupportedTypeException(javaValue.getClass().getSimpleName());
+            if(javaValue == null) {
+                throw new UnsupportedTypeException("NULL");
+            } else {
+                throw new UnsupportedTypeException(javaValue.getClass().getSimpleName());
+            }
         }
     }
 

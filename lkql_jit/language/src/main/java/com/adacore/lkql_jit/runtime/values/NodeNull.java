@@ -74,7 +74,7 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
         return instance;
     }
 
-    // ----- Value methods methods -----
+    // ----- Value methods -----
 
     /** @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy() */
     @Override
@@ -89,6 +89,12 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     }
     
     // ----- Override methods -----
+
+
+    @Override
+    public boolean isNone() {
+        return true;
+    }
 
     @Override
     public String toString() {

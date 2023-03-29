@@ -34,6 +34,8 @@ import com.adacore.libadalang.Libadalang;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
 
 /**
@@ -98,7 +100,7 @@ public final class LKQLContext {
     private String projectFile = null;
 
     /** The ada files passed throught command line */
-    @CompilerDirectives.CompilationFinal
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] files = null;
 
     /** The error printing mode */
@@ -107,11 +109,15 @@ public final class LKQLContext {
 
     /** The rle to execute */
     @CompilerDirectives.CompilationFinal
-    private String rule;
+    private String[] rules;
 
     /** The directories where the rule files are located */
-    @CompilerDirectives.CompilationFinal
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] rulesDirs;
+
+    /** The files to ignore during an analysis */
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    private String[] ignores;
 
     // ----- Constructors -----
 
@@ -228,7 +234,7 @@ public final class LKQLContext {
      */
     public String[] getFiles() {
         if(this.files == null) {
-            this.files = this.env.getOptions().get(LKQLLanguage.files).replace(" ", "").split(":");
+            this.files = this.env.getOptions().get(LKQLLanguage.files).replace(" ", "").split(File.pathSeparator);
         }
         return this.files;
     }
@@ -251,11 +257,16 @@ public final class LKQLContext {
      * @return The rule to run
      */
     @CompilerDirectives.TruffleBoundary
-    public String getRule() {
-        if(this.rule == null) {
-            this.rule = this.env.getOptions().get(LKQLLanguage.rule);
+    public String[] getRules() {
+        if(this.rules == null) {
+            String[] unfilteredRules = this.env.getOptions().get(LKQLLanguage.rules).trim().replace(" ", "").split(",");
+            this.rules = Arrays.stream(unfilteredRules)
+                    .filter(s -> !s.isBlank() && !s.isEmpty())
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .toArray(String[]::new);
         }
-        return this.rule;
+        return this.rules;
     }
 
     /**
@@ -265,9 +276,24 @@ public final class LKQLContext {
      */
     public String[] getRulesDirs() {
         if(this.rulesDirs == null) {
-            this.rulesDirs = this.env.getOptions().get(LKQLLanguage.rulesDirs).replace(" ", "").split(":");
+            this.rulesDirs = this.env.getOptions().get(LKQLLanguage.rulesDirs).trim().replace(" ", "").split(File.pathSeparator);
         }
         return this.rulesDirs;
+    }
+
+    /**
+     * Get the Ada file to ignore during the analysis
+     *
+     * @return The array containing all Ada files to ignore
+     */
+    public String[] getIgnores() {
+        if(this.ignores == null) {
+            this.ignores = this.env.getOptions().get(LKQLLanguage.ignores).trim().replace(" ", "").split(File.pathSeparator);
+            this.ignores = Arrays.stream(this.ignores)
+                    .filter(s -> !s.isBlank() && !s.isEmpty())
+                    .toArray(String[]::new);
+        }
+        return this.ignores;
     }
 
     /**
@@ -279,8 +305,9 @@ public final class LKQLContext {
         this.projectFile = null;
         this.files = null;
         this.errorMode = null;
-        this.rule = null;
+        this.rules = null;
         this.rulesDirs = null;
+        this.ignores = null;
     }
 
     // ----- Value related methods -----
@@ -409,13 +436,24 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public void parseSources() {
+        // Filter the Ada source file list
+        String[] ignores = this.getIgnores();
+        String[] usedSources = this.adaSourceFiles.stream()
+                .filter(source -> {
+                    for(String ignore : ignores) {
+                        if(source.contains(ignore)) return false;
+                    }
+                    return true;
+                })
+                .toArray(String[]::new);
+
         // Create the new ada nodes list
-        this.units = new Libadalang.AnalysisUnit[this.adaSourceFiles.size()];
-        this.adaNodes = new Libadalang.AdaNode[this.adaSourceFiles.size()];
+        this.units = new Libadalang.AnalysisUnit[usedSources.length];
+        this.adaNodes = new Libadalang.AdaNode[usedSources.length];
 
         // For each source file, add its parsing result to the roots
-        for(int i = 0 ; i < this.adaSourceFiles.size() ; i++) {
-            this.units[i] = this.adaContext.getUnitFromFile(this.adaSourceFiles.get(i));
+        for(int i = 0 ; i < usedSources.length ; i++) {
+            this.units[i] = this.adaContext.getUnitFromFile(usedSources[i]);
             this.adaNodes[i] = this.units[i].getRoot();
         }
 
@@ -463,14 +501,14 @@ public final class LKQLContext {
     public ObjectValue[] getNodeCheckersFiltered() {
         if(this.filteredNodeCheckers == null) {
             List<ObjectValue> res = new ArrayList<>();
-            List<ObjectValue> nodeCheckers = this.globalValues.getNodeCheckers();
-            String wantedRule = this.getRule();
-            for(ObjectValue rule : nodeCheckers) {
-                if(wantedRule == null ||
-                        wantedRule.isEmpty() ||
-                        wantedRule.isBlank() ||
-                        wantedRule.equals(rule.get("name"))) {
-                    res.add(rule);
+            Map<String, ObjectValue> nodeCheckers = this.globalValues.getNodeCheckers();
+            String[] wantedRules = this.getRules();
+            if(wantedRules == null || wantedRules.length == 0) {
+                res.addAll(nodeCheckers.values());
+            } else {
+                for(String rule : wantedRules) {
+                    if(nodeCheckers.containsKey(rule))
+                        res.add(nodeCheckers.get(rule));
                 }
             }
             this.filteredNodeCheckers = res.toArray(new ObjectValue[0]);
@@ -487,14 +525,14 @@ public final class LKQLContext {
     public ObjectValue[] getUnitCheckersFiltered() {
         if(this.filteredUnitCheckers == null) {
             List<ObjectValue> res = new ArrayList<>();
-            List<ObjectValue> unitCheckers = this.globalValues.getUnitCheckers();
-            String wantedRule = this.getRule();
-            for(ObjectValue rule : unitCheckers) {
-                if(wantedRule == null ||
-                        wantedRule.isEmpty() ||
-                        wantedRule.isBlank() ||
-                        wantedRule.equals(rule.get("name"))) {
-                    res.add(rule);
+            Map<String, ObjectValue> unitCheckers = this.globalValues.getUnitCheckers();
+            String[] wantedRules = this.getRules();
+            if(wantedRules == null || wantedRules.length == 0) {
+                res.addAll(unitCheckers.values());
+            } else {
+                for(String rule : wantedRules) {
+                    if(unitCheckers.containsKey(rule))
+                        res.add(unitCheckers.get(rule));
                 }
             }
             this.filteredUnitCheckers = res.toArray(new ObjectValue[0]);

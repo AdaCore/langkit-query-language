@@ -178,7 +178,7 @@ public final class NodeMethods extends CommonMethods {
             Libadalang.AdaNode[] res = new Libadalang.AdaNode[childrenCount];
             for(int i = 0 ; i < childrenCount ; i++) {
                 Libadalang.AdaNode child = node.getChild(i);
-                res[i] = (child == null ? NodeNull.getInstance() : child);
+                res[i] = (child.isNone() ? NodeNull.getInstance() : child);
             }
 
             // Return the list value
@@ -193,7 +193,7 @@ public final class NodeMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode parent = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).parent();
-            return parent == null ? NodeNull.getInstance() : parent;
+            return parent.isNone() ? NodeNull.getInstance() : parent;
         }
     }
 
@@ -309,9 +309,9 @@ public final class NodeMethods extends CommonMethods {
             Libadalang.Token rightEnd = rightNode.tokenEnd();
 
             // Compare all the node's tokens
-            while (!leftToken.tokenDataHandler.isNull() && !rightToken.tokenDataHandler.isNull()) {
-                if(leftToken.getKind() != rightToken.getKind()) return false;
-                if(leftToken.getKind() == Libadalang.TokenKind.ADA_IDENTIFIER) {
+            while (!leftToken.isNone() && !rightToken.isNone()) {
+                if(leftToken.kind != rightToken.kind) return false;
+                if(leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
                     if(!ObjectUtils.equals(
                             StringUtils.toLowerCase(leftToken.getText()),
                             StringUtils.toLowerCase(rightToken.getText())
@@ -340,7 +340,7 @@ public final class NodeMethods extends CommonMethods {
          */
         private static Libadalang.Token next(Libadalang.Token t) {
             Libadalang.Token res = t.next();
-            while(!res.tokenDataHandler.isNull() && res.triviaIndex != 0) {
+            while(!res.isNone() && res.triviaIndex != 0) {
                 res = res.next();
             }
             return res;

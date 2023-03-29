@@ -104,6 +104,18 @@ public final class StringUtils {
     }
 
     /**
+     * Get the index of the target string in
+     *
+     * @param in The string to search in
+     * @param target The target string
+     * @return The index of the target string
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static int indexOf(String in, String target) {
+        return in.indexOf(target);
+    }
+
+    /**
      * Split a string according to a splitter regular expression
      *
      * @param toSplit The string to split

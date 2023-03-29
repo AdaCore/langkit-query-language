@@ -42,7 +42,10 @@ if not os.path.isfile(os.path.realpath(native_exec)):
 
 os.makedirs("bin", exist_ok=True)
 
-build_checker = "--checker" in sys.argv
+print(sys.argv)
+
+build_launcher = 'launcher' in sys.argv[1]
+build_checker = 'checker' in sys.argv[1]
 
 """
 Use those option to perform debug on the compilation process
@@ -58,21 +61,19 @@ common_command = (
     native_exec,
     "--macro:truffle",
     "--no-fallback",
-    "-H:-DeleteLocalSymbols",
-    "-H:+SourceLevelDebug",
-    "-H:+PreserveFramePointer",
     "--language:regex",
     "--initialize-at-build-time=com.adacore.lkql_jit",
     "-H:ReflectionConfigurationFiles=reflect_config_lada.json,reflect_config_lkql.json",
 )
 
 # Create the LKQL launcher
-command = common_command + (
-    "-cp", "../language/target/lkql_jit.jar:../launcher/target/lkql_jit_launcher.jar",
-    "com.adacore.lkql_jit.LKQLLauncher",
-    "bin/lkql_jit"
-)
-subprocess.run(command)
+if build_launcher:
+    command = common_command + (
+        "-cp", "../language/target/lkql_jit.jar:../launcher/target/lkql_jit_launcher.jar",
+        "com.adacore.lkql_jit.LKQLLauncher",
+        "bin/lkql_jit"
+    )
+    subprocess.run(command)
 
 # Create the LKQL checker if needed
 if build_checker:

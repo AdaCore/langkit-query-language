@@ -256,7 +256,7 @@ public final class TokenMethods extends CommonMethods {
 
             Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
             if(ignoreTrivia) {
-                while (!res.tokenDataHandler.isNull() && res.triviaIndex != 0) {
+                while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.next();
                 }
             }
@@ -285,7 +285,7 @@ public final class TokenMethods extends CommonMethods {
 
             Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
             if(ignoreTrivia) {
-                while (!res.tokenDataHandler.isNull() && res.triviaIndex != 0) {
+                while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.previous();
                 }
             }
@@ -321,8 +321,8 @@ public final class TokenMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.Token token = LKQLTypeSystemGen.asToken(frame.getArguments()[0]);
-            if(token.getKind().toC() == -1) return "no_token";
-            String rawKind = ObjectUtils.toString(token.getKind());
+            if(token.kind.toC() == -1) return "no_token";
+            String rawKind = ObjectUtils.toString(token.kind);
             return StringUtils.toLowerCase(StringUtils.split(
                     rawKind, "_"
             )[1]);

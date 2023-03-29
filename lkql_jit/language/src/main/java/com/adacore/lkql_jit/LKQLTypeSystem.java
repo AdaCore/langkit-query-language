@@ -135,11 +135,7 @@ public abstract class LKQLTypeSystem {
             return truthy.isTruthy();
         }
 
-        else if(value instanceof Libadalang.AdaNode adaNode) {
-            return !NodeNull.getInstance().equals(adaNode);
-        }
-
-        return false;
+        else return value instanceof Libadalang.AdaNode;
     }
 
     // ----- Integer value methods -----

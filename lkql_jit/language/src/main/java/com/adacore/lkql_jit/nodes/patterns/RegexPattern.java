@@ -63,7 +63,7 @@ public final class RegexPattern extends ValuePattern {
     /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return !NodeNull.getInstance().equals(node) && this.pattern.contains(node.getText());
+        return this.pattern.contains(node.getText()) && node != NodeNull.getInstance();
     }
 
     /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */

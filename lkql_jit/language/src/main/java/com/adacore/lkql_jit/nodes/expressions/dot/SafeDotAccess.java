@@ -93,7 +93,7 @@ public abstract class SafeDotAccess extends Expr {
      * @return The property reference or the field value
      */
     @Specialization(guards = {
-            "receiver != null",
+            "!receiver.isNone()",
             "getBuiltIn(receiver) == null",
             "receiver == propertyRef.getNode()",
             "propertyRef.getFieldDescription() != null"

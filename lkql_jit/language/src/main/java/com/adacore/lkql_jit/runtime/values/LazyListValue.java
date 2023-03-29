@@ -93,6 +93,7 @@ public final class LazyListValue extends LazyCollection {
             context.getGlobalValues().pushNamespace(this.namespace);
             pushed = true;
         }
+        Closure saveClosure = this.rootNode.getClosure();
         try {
             this.rootNode.setClosure(this.closure);
             while (this.lazyPointer < this.argsList.length && (this.cache.size() - 1 < index || index == -1)) {
@@ -102,9 +103,10 @@ public final class LazyListValue extends LazyCollection {
                 }
             }
         } finally {
-            if(this.namespace != null && pushed) {
+            if(pushed) {
                 context.getGlobalValues().popNamespace();
             }
+            this.rootNode.setClosure(saveClosure);
         }
     }
 
