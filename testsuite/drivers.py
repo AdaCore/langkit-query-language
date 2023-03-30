@@ -82,13 +82,8 @@ class InterpreterDriver(BaseTestDriver):
     """
 
     def run(self):
-        # Test the JIT setting env var
-        exec = "lkql_ada"
-        if os.environ.get("LKQL_JIT", "false") == "true":
-            exec = "lkql_jit"
-
         # Build the process's arguments list
-        args = [exec, '--script-path', 'script.lkql']
+        args = [os.environ["LKQL_EXE"], '--script-path', 'script.lkql']
 
         input_sources = self.test_env.get('input_sources', None)
         project = self.test_env.get('project', None)
@@ -119,9 +114,7 @@ class CheckerDriver(BaseTestDriver):
     """
 
     def run(self):
-        use_jit = os.environ.get("LKQL_JIT", "false") == "true"
-        exec = 'lkql_checker' if not use_jit else 'lkql_jit_checker'
-        args = [exec]
+        args = [os.environ["LKQL_CHECKER_EXE"]]
         # Use the test's project, if any
         if self.test_env.get('project', None):
             args += ['-P', self.test_env['project']]
