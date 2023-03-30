@@ -231,7 +231,7 @@ package body Checker_App is
                     (Self        => Diag,
                      Buffer      => Lkql_Node.Unit,
                      Path        => Lkql_Node.Unit.Get_Filename,
-                     Output_File => Standard_Error);
+                     Output_File => Ada.Text_IO.Standard_Error);
 
                   if E /= null then
                      Ada.Text_IO.Put_Line
