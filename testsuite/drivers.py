@@ -132,10 +132,7 @@ class CheckerDriver(BaseTestDriver):
             args += ['--rule-arg', '{}={}'.format(k, v)]
 
         args += ['-r', self.test_env['rule_name']]
-        if not use_jit:
-            args += ['--add-rules-dir', self.test_env['test_dir']]
-        else:
-            args += ['--rules-dirs', self.test_env['test_dir']]
+        args += ['--rules-dirs', self.test_env['test_dir']]
 
         # Run the interpreter
         self.shell(args)
