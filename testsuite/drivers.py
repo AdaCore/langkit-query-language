@@ -135,10 +135,7 @@ class CheckerDriver(BaseTestDriver):
         if not use_jit:
             args += ['--add-rules-dir', self.test_env['test_dir']]
         else:
-            args += [
-                '--rules-dirs',
-                ':'.join([self.test_env['test_dir'], os.environ['LKQL_RULES']])
-            ]
+            args += ['--rules-dirs', self.test_env['test_dir']]
 
         # Run the interpreter
         self.shell(args)

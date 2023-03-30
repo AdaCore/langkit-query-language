@@ -443,11 +443,6 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         if(this.files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
             throw this.abort("Please provide files or a project file to analyze");
         }
-
-        // Verify the rules dir
-        if(this.rulesDirs == null || this.rulesDirs.isEmpty() || this.rulesDirs.isBlank()) {
-            throw this.abort("Please provide at least one rule directory");
-        }
     }
 
     // ----- The LKQL checker -----
