@@ -38,16 +38,24 @@ public final class ParameterDecl extends Declaration {
 
     // ----- Attributes -----
 
-    /** The parameter name */
+    /**
+     * The parameter name
+     */
     private final String name;
 
-    /** The reserved slot for the parameter value */
+    /**
+     * The reserved slot for the parameter value
+     */
     private final int slot;
 
-    /** The parameter type annotation */
+    /**
+     * The parameter type annotation
+     */
     private final String typeAnnotation;
 
-    /** The parameter default value */
+    /**
+     * The parameter default value
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr defaultValue;
@@ -57,18 +65,18 @@ public final class ParameterDecl extends Declaration {
     /**
      * Create a new parameter declaration node
      *
-     * @param location The location of the node in the source
-     * @param name The name of the parameter
-     * @param slot The reserved slot for the parameter value
+     * @param location       The location of the node in the source
+     * @param name           The name of the parameter
+     * @param slot           The reserved slot for the parameter value
      * @param typeAnnotation The type annotation of the parameter (can be null)
-     * @param defaultValue The default value of the parameter (can be null)
+     * @param defaultValue   The default value of the parameter (can be null)
      */
     public ParameterDecl(
-            SourceLocation location,
-            String name,
-            int slot,
-            String typeAnnotation,
-            Expr defaultValue
+        SourceLocation location,
+        String name,
+        int slot,
+        String typeAnnotation,
+        Expr defaultValue
     ) {
         super(location);
         this.name = name;
@@ -97,7 +105,9 @@ public final class ParameterDecl extends Declaration {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Fail because this node is not executable as a generic one
@@ -106,13 +116,15 @@ public final class ParameterDecl extends Declaration {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot", "type"},
-                new Object[]{this.name, this.slot, this.typeAnnotation}
+            indentLevel,
+            new String[]{"name", "slot", "type"},
+            new Object[]{this.name, this.slot, this.typeAnnotation}
         );
     }
 

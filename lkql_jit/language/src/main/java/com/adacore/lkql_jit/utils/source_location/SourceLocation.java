@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.utils.source_location;
 
+import com.adacore.liblkqllang.Liblkqllang;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
-import com.adacore.liblkqllang.Liblkqllang;
 
 import java.io.File;
 
@@ -40,19 +40,29 @@ public final class SourceLocation {
 
     // ----- Attributes -----
 
-    /** The source */
+    /**
+     * The source
+     */
     private final Source source;
 
-    /** The starting line of the source location */
+    /**
+     * The starting line of the source location
+     */
     private final int startLine;
 
-    /** The starting column of the source location */
+    /**
+     * The starting column of the source location
+     */
     private final short startColumn;
 
-    /** The ending line of the source location */
+    /**
+     * The ending line of the source location
+     */
     private final int endLine;
 
-    /** The ending column of the source location */
+    /**
+     * The ending column of the source location
+     */
     private final short endColumn;
 
     // ----- Constructors -----
@@ -60,37 +70,37 @@ public final class SourceLocation {
     /**
      * Create a source location from a langkit source location range
      *
-     * @param source The source
+     * @param source        The source
      * @param locationRange The source location range from langkit
      */
     public SourceLocation(
-            Source source,
-            Liblkqllang.SourceLocationRange locationRange
+        Source source,
+        Liblkqllang.SourceLocationRange locationRange
     ) {
         this(
-                source,
-                locationRange.start.line,
-                locationRange.start.column,
-                locationRange.end.line,
-                locationRange.end.column
+            source,
+            locationRange.start.line,
+            locationRange.start.column,
+            locationRange.end.line,
+            locationRange.end.column
         );
     }
 
     /**
      * Create a new source location from the lines and columns
      *
-     * @param source The source
-     * @param startLine The starting line
+     * @param source      The source
+     * @param startLine   The starting line
      * @param startColumn The starting column
-     * @param endLine The ending line
-     * @param endColumn The ending column
+     * @param endLine     The ending line
+     * @param endColumn   The ending column
      */
     public SourceLocation(
-            Source source,
-            int startLine,
-            short startColumn,
-            int endLine,
-            short endColumn
+        Source source,
+        int startLine,
+        short startColumn,
+        int endLine,
+        short endColumn
     ) {
         this.source = source;
         this.startLine = startLine;
@@ -150,7 +160,7 @@ public final class SourceLocation {
      */
     @CompilerDirectives.TruffleBoundary
     public File getCurrentDir() {
-        if(this.source.getPath() != null) {
+        if (this.source.getPath() != null) {
             return new File(this.source.getPath()).getParentFile();
         } else {
             return null;
@@ -171,18 +181,18 @@ public final class SourceLocation {
      * Get the lines from the source between the start and end index
      *
      * @param start The start line (included)
-     * @param end The end line (excluded)
+     * @param end   The end line (excluded)
      * @return The lines from the source
      */
     public String[] getLines(int start, int end) {
         // Verify the argument validity
-        if(end <= start) {
+        if (end <= start) {
             return new String[0];
         }
 
         // Prepare the result
         String[] res = new String[end - start];
-        for(int i = start ; i < end ; i++) {
+        for (int i = start; i < end; i++) {
             res[i - start] = this.source.getCharacters(i + 1).toString();
         }
 
@@ -197,10 +207,10 @@ public final class SourceLocation {
      */
     public SourceSection createSection() {
         return this.source.createSection(
-                this.startLine,
-                this.startColumn,
-                this.endLine,
-                this.endColumn
+            this.startLine,
+            this.startColumn,
+            this.endLine,
+            this.endColumn
         );
     }
 
@@ -209,10 +219,10 @@ public final class SourceLocation {
     @Override
     public String toString() {
         return "<" + this.startLine +
-                ":" + this.startColumn +
-                " - " + this.endLine +
-                ":" + this.endColumn +
-                ">";
+            ":" + this.startColumn +
+            " - " + this.endLine +
+            ":" + this.endColumn +
+            ">";
     }
 
 }

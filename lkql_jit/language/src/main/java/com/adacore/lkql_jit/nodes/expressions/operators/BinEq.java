@@ -23,14 +23,13 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.adacore.libadalang.Libadalang;
 
 import java.math.BigInteger;
 
@@ -47,14 +46,14 @@ public abstract class BinEq extends BinOp {
     /**
      * Create an equality verification node
      *
-     * @param location The location of the node in the source
-     * @param leftLocation The location of the left node
+     * @param location      The location of the node in the source
+     * @param leftLocation  The location of the left node
      * @param rightLocation The location of the right node
      */
     protected BinEq(
-            SourceLocation location,
-            DummyLocation leftLocation,
-            DummyLocation rightLocation
+        SourceLocation location,
+        DummyLocation leftLocation,
+        DummyLocation rightLocation
     ) {
         super(location, leftLocation, rightLocation);
     }
@@ -64,7 +63,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on unit values, always true
      *
-     * @param left The left unit value
+     * @param left  The left unit value
      * @param right The right unit value
      * @return True, unit is always equals to unit
      */
@@ -76,7 +75,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on longs
      *
-     * @param left The left long value
+     * @param left  The left long value
      * @param right The right long value
      * @return The result of the equality verification
      */
@@ -88,7 +87,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on big integers
      *
-     * @param left The left big integer value
+     * @param left  The left big integer value
      * @param right The right big integer value
      * @return The result of the equality verification
      */
@@ -100,7 +99,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on strings
      *
-     * @param left The left string value
+     * @param left  The left string value
      * @param right The right string value
      * @return The result of the equality verification
      */
@@ -112,7 +111,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on patterns
      *
-     * @param left The left pattern value
+     * @param left  The left pattern value
      * @param right The right pattern value
      * @return The result of the equality verification
      */
@@ -124,7 +123,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on functions
      *
-     * @param left The left function value
+     * @param left  The left function value
      * @param right The right function value
      * @return The result of the equality verification
      */
@@ -136,7 +135,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on property references
      *
-     * @param left The left property reference value
+     * @param left  The left property reference value
      * @param right The right property reference value
      * @return The result of the equality verification
      */
@@ -147,7 +146,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on selectors
      *
-     * @param left The left selector value
+     * @param left  The left selector value
      * @param right The right selector value
      * @return The result of the equality verification
      */
@@ -159,7 +158,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on tuples
      *
-     * @param left The left tuple value
+     * @param left  The left tuple value
      * @param right The right tuple value
      * @return The result of the equality verification
      */
@@ -171,7 +170,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on lists
      *
-     * @param left The left list value
+     * @param left  The left list value
      * @param right The right list value
      * @return The result of the equality verification
      */
@@ -183,7 +182,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on lazy lists
      *
-     * @param left The left lazy list value
+     * @param left  The left lazy list value
      * @param right The right lazy list value
      * @return The result of the equality verification
      */
@@ -195,7 +194,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on selector lists
      *
-     * @param left The left selector list value
+     * @param left  The left selector list value
      * @param right The right selector list value
      * @return The result of the equality verification
      */
@@ -207,7 +206,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on nodes
      *
-     * @param left The left node value
+     * @param left  The left node value
      * @param right The right node value
      * @return The result of the equality verification
      */
@@ -219,7 +218,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on tokens
      *
-     * @param left The left token value
+     * @param left  The left token value
      * @param right The right token value
      * @return The result of the equality verification
      */
@@ -231,7 +230,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on booleans
      *
-     * @param left The left boolean value
+     * @param left  The left boolean value
      * @param right The right boolean value
      * @return The result of the equality verification
      */
@@ -243,7 +242,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on objects
      *
-     * @param left The left object value
+     * @param left  The left object value
      * @param right The right object value
      * @return The result of the equality verification
      */
@@ -255,7 +254,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on namespace
      *
-     * @param left The left namespace value
+     * @param left  The left namespace value
      * @param right The right namespace value
      * @return The result of the equality verification
      */
@@ -267,7 +266,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on analysis units
      *
-     * @param left The left analysis unit value
+     * @param left  The left analysis unit value
      * @param right The right analysis unit value
      * @return The result of the equality verification
      */
@@ -279,7 +278,7 @@ public abstract class BinEq extends BinOp {
     /**
      * Do the equality verification on not comparable values
      *
-     * @param left The left value
+     * @param left  The left value
      * @param right The right value
      * @return Always false because it's not comparable
      */
@@ -290,7 +289,9 @@ public abstract class BinEq extends BinOp {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

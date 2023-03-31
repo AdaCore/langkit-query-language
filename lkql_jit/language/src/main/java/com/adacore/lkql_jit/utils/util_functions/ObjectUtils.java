@@ -15,7 +15,7 @@ public final class ObjectUtils {
     /**
      * Verify the equality between two object
      *
-     * @param left The left object
+     * @param left  The left object
      * @param right The right object
      * @return The equality
      */

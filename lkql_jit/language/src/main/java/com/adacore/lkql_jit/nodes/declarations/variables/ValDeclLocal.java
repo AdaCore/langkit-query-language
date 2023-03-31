@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.declarations.variables;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -42,25 +42,27 @@ public final class ValDeclLocal extends ValDecl {
     /**
      * Create a new local variable declaration with the slot of it
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source
      * @param annotation The annotation related to the variable declaration
-     * @param name The name of the variable
-     * @param slot The slot to put the variable in
-     * @param value The value of the variable
+     * @param name       The name of the variable
+     * @param slot       The slot to put the variable in
+     * @param value      The value of the variable
      */
     public ValDeclLocal(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            int slot,
-            Expr value
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        int slot,
+        Expr value
     ) {
         super(location, annotation, name, slot, value);
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Put the value in the frame
@@ -72,13 +74,15 @@ public final class ValDeclLocal extends ValDecl {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot"},
-                new Object[]{this.name, this.slot}
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

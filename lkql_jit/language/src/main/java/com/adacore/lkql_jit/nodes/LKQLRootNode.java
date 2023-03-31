@@ -38,7 +38,9 @@ public final class LKQLRootNode extends RootNode {
 
     // ----- Attributes -----
 
-    /** The list of nodes representing the program */
+    /**
+     * The list of nodes representing the program
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private TopLevelList program;
@@ -48,7 +50,7 @@ public final class LKQLRootNode extends RootNode {
     /**
      * Create a new LKQL root node in order to execute it in Truffle
      *
-     * @param program The LKQL program to execute
+     * @param program  The LKQL program to execute
      * @param language The reference to the LKQL language instance
      */
     public LKQLRootNode(TopLevelList program, LKQLLanguage language) {
@@ -59,8 +61,8 @@ public final class LKQLRootNode extends RootNode {
     /**
      * Create a new LKQL root node in order to execute it in truffle
      *
-     * @param program The LKQL program to execute
-     * @param language The reference to the LKQL language instance
+     * @param program         The LKQL program to execute
+     * @param language        The reference to the LKQL language instance
      * @param frameDescriptor The descriptor of the execution frame
      */
     public LKQLRootNode(TopLevelList program, LKQLLanguage language, FrameDescriptor frameDescriptor) {
@@ -79,10 +81,9 @@ public final class LKQLRootNode extends RootNode {
     /**
      * Execute the LKQL program that the node contains and return the namespace of the program
      *
-     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
-     *
      * @param frame The frame to execute in
      * @return The namespace of the LKQL program
+     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object execute(VirtualFrame frame) {

@@ -40,18 +40,20 @@ public final class ExprArg extends Arg {
      * Create a new expression argument node
      *
      * @param location The location of the node in the sources
-     * @param argExpr The expression of the argument
+     * @param argExpr  The expression of the argument
      */
     public ExprArg(
-            SourceLocation location,
-            Expr argExpr
+        SourceLocation location,
+        Expr argExpr
     ) {
         super(location, null, argExpr);
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

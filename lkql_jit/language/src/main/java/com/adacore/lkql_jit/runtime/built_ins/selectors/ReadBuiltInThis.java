@@ -23,8 +23,8 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.selectors;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -53,7 +53,9 @@ public final class ReadBuiltInThis extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return "BUILT_IN NODE";

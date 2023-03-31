@@ -33,7 +33,9 @@ public final class DummyLocation implements Locatable {
 
     // ----- Attributes -----
 
-    /** The location */
+    /**
+     * The location
+     */
     private final SourceLocation location;
 
     // ----- Constructors -----
@@ -49,7 +51,9 @@ public final class DummyLocation implements Locatable {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation() */
+    /**
+     * @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation()
+     */
     @Override
     public SourceLocation getLocation() {
         return this.location;

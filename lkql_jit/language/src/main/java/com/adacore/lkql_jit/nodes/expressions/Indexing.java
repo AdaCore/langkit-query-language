@@ -23,11 +23,6 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -35,6 +30,11 @@ import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.Specialization;
 
 /**
  * This node represents the indexing operation in the LKQL language (i.e. "test"[1])
@@ -47,7 +47,9 @@ public abstract class Indexing extends Expr {
 
     // ----- Attributes -----
 
-    /** If the indexing is safe */
+    /**
+     * If the indexing is safe
+     */
     protected final boolean isSafe;
 
     // ----- Constructors -----
@@ -56,11 +58,11 @@ public abstract class Indexing extends Expr {
      * Create an indexing node with the needed parameters
      *
      * @param location The location of the node in the source
-     * @param isSafe If the indexing operation is safe
+     * @param isSafe   If the indexing operation is safe
      */
     protected Indexing(
-            SourceLocation location,
-            boolean isSafe
+        SourceLocation location,
+        boolean isSafe
     ) {
         super(location);
         this.isSafe = isSafe;
@@ -72,7 +74,7 @@ public abstract class Indexing extends Expr {
      * Get a value in the collection with a long index
      *
      * @param collection The collection
-     * @param index The index of the wanted element
+     * @param index      The index of the wanted element
      * @return The element
      */
     @Specialization
@@ -80,7 +82,7 @@ public abstract class Indexing extends Expr {
         try {
             return collection.get((int) index - 1);
         } catch (InvalidIndexException e) {
-            if(this.isSafe) {
+            if (this.isSafe) {
                 return UnitValue.getInstance();
             } else {
                 throw LKQLRuntimeException.invalidIndex((int) index, this);
@@ -91,15 +93,15 @@ public abstract class Indexing extends Expr {
     /**
      * Specialization for the indexing operation on a node
      *
-     * @param node The node to get the child from
+     * @param node  The node to get the child from
      * @param index The index of the child to get
      * @return The child or null if there is none
      */
     @Specialization
     protected Object indexNode(Libadalang.AdaNode node, long index) {
-        if(index > node.getChildrenCount()) {
+        if (index > node.getChildrenCount()) {
             return NodeNull.getInstance();
-        } else if(index < 1) {
+        } else if (index < 1) {
             throw LKQLRuntimeException.invalidIndex((int) index, this);
         }
         Libadalang.AdaNode res = node.getChild((int) index - 1);
@@ -110,21 +112,21 @@ public abstract class Indexing extends Expr {
      * Fallback methods when the indexing operation cannot be performed
      *
      * @param collection The collection
-     * @param index The index
+     * @param index      The index
      */
     @Fallback
     protected void indexError(Object collection, Object index) {
-        if(!LKQLTypeSystemGen.isIndexable(collection)) {
+        if (!LKQLTypeSystemGen.isIndexable(collection)) {
             throw LKQLRuntimeException.wrongType(
-                    "list, tuple, node or iterator",
-                    LKQLTypesHelper.fromJava(collection),
-                    this
+                "list, tuple, node or iterator",
+                LKQLTypesHelper.fromJava(collection),
+                this
             );
         } else {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER,
-                    LKQLTypesHelper.fromJava(index),
-                    this
+                LKQLTypesHelper.LKQL_INTEGER,
+                LKQLTypesHelper.fromJava(index),
+                this
             );
         }
     }
@@ -134,9 +136,9 @@ public abstract class Indexing extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"isSafe"},
-                new Object[]{this.isSafe}
+            indentLevel,
+            new String[]{"isSafe"},
+            new Object[]{this.isSafe}
         );
     }
 

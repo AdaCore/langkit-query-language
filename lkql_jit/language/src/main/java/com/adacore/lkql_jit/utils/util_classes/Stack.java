@@ -35,10 +35,14 @@ public final class Stack<T> {
 
     // ----- Attributes -----
 
-    /** The cache to handle the stack head */
+    /**
+     * The cache to handle the stack head
+     */
     private T head;
 
-    /** The content of the stack */
+    /**
+     * The content of the stack
+     */
     private final ArrayList<T> content;
 
     // ----- Constructors -----
@@ -78,9 +82,9 @@ public final class Stack<T> {
      * @return The stack head or null if the stack is empty
      */
     public T pop() {
-        if(this.content.size() > 0) {
+        if (this.content.size() > 0) {
             this.content.remove(this.content.size() - 1);
-            if(this.content.size() > 0) {
+            if (this.content.size() > 0) {
                 this.head = this.content.get(this.content.size() - 1);
             } else {
                 this.head = null;

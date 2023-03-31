@@ -23,10 +23,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.variables;
 
-import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
@@ -39,7 +37,9 @@ public final class ReadGlobal extends ReadVariable {
 
     // ----- Attributes -----
 
-    /** The global slot to read */
+    /**
+     * The global slot to read
+     */
     private final int slot;
 
     // ----- Constructors -----
@@ -48,11 +48,11 @@ public final class ReadGlobal extends ReadVariable {
      * Create a new read global node
      *
      * @param location The location of the node in the source
-     * @param slot The global slot to read
+     * @param slot     The global slot to read
      */
     public ReadGlobal(
-            SourceLocation location,
-            int slot
+        SourceLocation location,
+        int slot
     ) {
         super(location);
         this.slot = slot;
@@ -60,7 +60,9 @@ public final class ReadGlobal extends ReadVariable {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return LKQLLanguage.getContext(this).getGlobal(this.slot);
@@ -68,13 +70,15 @@ public final class ReadGlobal extends ReadVariable {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"slot"},
-                new Object[]{this.slot}
+            indentLevel,
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

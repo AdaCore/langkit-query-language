@@ -39,7 +39,9 @@ public abstract class UnOp extends Expr {
 
     // ----- Attributes -----
 
-    /** The location of the argument node */
+    /**
+     * The location of the argument node
+     */
     protected final DummyLocation argLocation;
 
     // ----- Constructors -----
@@ -47,12 +49,12 @@ public abstract class UnOp extends Expr {
     /**
      * Create a unary operation node
      *
-     * @param location The location of the node in the source
+     * @param location    The location of the node in the source
      * @param argLocation The location of the argument node
      */
     protected UnOp(
-            SourceLocation location,
-            DummyLocation argLocation
+        SourceLocation location,
+        DummyLocation argLocation
     ) {
         super(location);
         this.argLocation = argLocation;

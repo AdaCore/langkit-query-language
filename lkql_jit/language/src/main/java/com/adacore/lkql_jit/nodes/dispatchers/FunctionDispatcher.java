@@ -23,12 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.dispatchers;
 
+import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 
 
 /**
@@ -40,22 +40,24 @@ public abstract class FunctionDispatcher extends Node {
 
     // ----- Execution methods -----
 
-    /** Method to enter the dispatch of the node */
+    /**
+     * Method to enter the dispatch of the node
+     */
     public abstract Object executeDispatch(FunctionValue function, Object[] arguments);
 
     /**
      * Execute the function via a cached direct node
      *
-     * @param function The function value to execute
-     * @param arguments The calling arguments
+     * @param function       The function value to execute
+     * @param arguments      The calling arguments
      * @param directCallNode The direct call node
      * @return The result of the function execution
      */
     @Specialization(guards = "function.getCallTarget() == directCallNode.getCallTarget()")
     protected static Object dispatchDirect(
-            @SuppressWarnings("unused") FunctionValue function,
-            Object[] arguments,
-            @Cached("create(function.getCallTarget())") DirectCallNode directCallNode
+        @SuppressWarnings("unused") FunctionValue function,
+        Object[] arguments,
+        @Cached("create(function.getCallTarget())") DirectCallNode directCallNode
     ) {
         return directCallNode.call(arguments);
     }
@@ -63,16 +65,16 @@ public abstract class FunctionDispatcher extends Node {
     /**
      * Execute the function with an indirect call
      *
-     * @param function The function value to execute
-     * @param arguments The function call arguments
+     * @param function         The function value to execute
+     * @param arguments        The function call arguments
      * @param indirectCallNode The indirect call node
      * @return The result of the function execution
      */
     @Specialization(replaces = "dispatchDirect")
     protected static Object dispatchIndirect(
-            FunctionValue function,
-            Object[] arguments,
-            @Cached IndirectCallNode indirectCallNode
+        FunctionValue function,
+        Object[] arguments,
+        @Cached IndirectCallNode indirectCallNode
     ) {
         return indirectCallNode.call(function.getCallTarget(), arguments);
     }

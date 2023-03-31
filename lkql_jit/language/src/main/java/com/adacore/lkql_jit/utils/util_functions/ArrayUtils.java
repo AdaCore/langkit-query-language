@@ -25,8 +25,9 @@ package com.adacore.lkql_jit.utils.util_functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 
 /**
@@ -45,8 +46,8 @@ public final class ArrayUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> int indexOf(T[] arr, T val) {
-        for(int i = 0 ; i < arr.length ; i++) {
-            if(val.equals(arr[i])) return i;
+        for (int i = 0; i < arr.length; i++) {
+            if (val.equals(arr[i])) return i;
         }
         return -1;
     }
@@ -54,19 +55,19 @@ public final class ArrayUtils {
     /**
      * Compare the two array
      *
-     * @param left The left array
+     * @param left  The left array
      * @param right The right array
+     * @param <T>   The type of the array elements
      * @return The result of the comparison
-     * @param <T> The type of the array elements
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> boolean equals(T[] left, T[] right) {
         // Compare the length
-        if(left.length != right.length) return false;
+        if (left.length != right.length) return false;
 
         // Compare the elements
-        for(int i = 0 ; i < left.length ; i++) {
-            if(!Objects.equals(left[i], right[i])) return false;
+        for (int i = 0; i < left.length; i++) {
+            if (!Objects.equals(left[i], right[i])) return false;
         }
 
         // Return the success
@@ -76,9 +77,9 @@ public final class ArrayUtils {
     /**
      * Concatenate two array of arbitrary types
      *
-     * @param left The left array
+     * @param left  The left array
      * @param right The right array
-     * @param <T> The array type
+     * @param <T>   The array type
      * @return The concatenation of the arrays in a new array
      */
     public static <T> T[] concat(T[] left, T[] right) {
@@ -91,14 +92,14 @@ public final class ArrayUtils {
      * Create an array where duplicate entries of input are deleted
      *
      * @param array The input array
-     * @param <T> Type of the array
+     * @param <T>   Type of the array
      * @return The unique array
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> T[] unique(T[] array) {
         ArrayList<T> resList = new ArrayList<>();
-        for(T elem : array) {
-            if(!resList.contains(elem)) {
+        for (T elem : array) {
+            if (!resList.contains(elem)) {
                 resList.add(elem);
             }
         }
@@ -109,8 +110,8 @@ public final class ArrayUtils {
      * Get the string representation of a given array
      *
      * @param array The array to get the representation from
+     * @param <T>   The type of the array elements
      * @return The string representation of the array
-     * @param <T> The type of the array elements
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> String toString(T[] array) {

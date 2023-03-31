@@ -45,12 +45,12 @@ public abstract class UnPlus extends UnOp {
     /**
      * Create an arithmetic unary "plus" node
      *
-     * @param location The location of the node in the source
+     * @param location    The location of the node in the source
      * @param argLocation The location of the argument node
      */
     protected UnPlus(
-            SourceLocation location,
-            DummyLocation argLocation
+        SourceLocation location,
+        DummyLocation argLocation
     ) {
         super(location, argLocation);
     }
@@ -87,15 +87,17 @@ public abstract class UnPlus extends UnOp {
     @Fallback
     protected void notNumber(Object arg) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_INTEGER,
-                LKQLTypesHelper.fromJava(arg),
-                this.argLocation
+            LKQLTypesHelper.LKQL_INTEGER,
+            LKQLTypesHelper.fromJava(arg),
+            this.argLocation
         );
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

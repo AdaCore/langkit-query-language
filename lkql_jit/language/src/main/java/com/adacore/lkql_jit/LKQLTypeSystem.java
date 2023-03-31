@@ -23,16 +23,15 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.*;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.*;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 
 import java.math.BigInteger;
 
@@ -43,29 +42,29 @@ import java.math.BigInteger;
  * @author Hugo GUERRIER
  */
 @TypeSystem({
-        UnitValue.class,
-        long.class,
-        BigInteger.class,
-        String.class,
-        Pattern.class,
-        FunctionValue.class,
-        PropertyRefValue.class,
-        SelectorValue.class,
-        TupleValue.class,
-        ListValue.class,
-        LazyListValue.class,
-        SelectorListValue.class,
-        LazyCollection.class,
-        Indexable.class,
-        Iterable.class,
-        Libadalang.AdaNode.class,
-        Libadalang.Token.class,
-        Libadalang.AnalysisUnit.class,
-        boolean.class,
-        ObjectValue.class,
-        NamespaceValue.class,
-        Nullish.class,
-        LKQLValue.class,
+    UnitValue.class,
+    long.class,
+    BigInteger.class,
+    String.class,
+    Pattern.class,
+    FunctionValue.class,
+    PropertyRefValue.class,
+    SelectorValue.class,
+    TupleValue.class,
+    ListValue.class,
+    LazyListValue.class,
+    SelectorListValue.class,
+    LazyCollection.class,
+    Indexable.class,
+    Iterable.class,
+    Libadalang.AdaNode.class,
+    Libadalang.Token.class,
+    Libadalang.AnalysisUnit.class,
+    boolean.class,
+    ObjectValue.class,
+    NamespaceValue.class,
+    Nullish.class,
+    LKQLValue.class,
 })
 public abstract class LKQLTypeSystem {
 
@@ -127,15 +126,11 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCast(boolean.class)
     public static boolean asBoolean(Object value) {
-        if(value instanceof Boolean bool) {
+        if (value instanceof Boolean bool) {
             return bool;
-        }
-
-        else if(value instanceof Truthy truthy) {
+        } else if (value instanceof Truthy truthy) {
             return truthy.isTruthy();
-        }
-
-        else return value instanceof Libadalang.AdaNode;
+        } else return value instanceof Libadalang.AdaNode;
     }
 
     // ----- Integer value methods -----
@@ -163,7 +158,7 @@ public abstract class LKQLTypeSystem {
     @TypeCheck(Libadalang.AdaNode.class)
     public static boolean isAdaNode(Object nodeObject) {
         return nodeObject instanceof Libadalang.AdaNode ||
-                nodeObject instanceof DepthNode;
+            nodeObject instanceof DepthNode;
     }
 
     /**
@@ -175,12 +170,12 @@ public abstract class LKQLTypeSystem {
     @TypeCast(Libadalang.AdaNode.class)
     public static Libadalang.AdaNode asAdaNode(Object nodeObject) {
         // If the value is a node
-        if(nodeObject instanceof Libadalang.AdaNode adaNode) {
+        if (nodeObject instanceof Libadalang.AdaNode adaNode) {
             return adaNode;
         }
 
         // If the value is a depth node
-        else if(nodeObject instanceof DepthNode depthNode) {
+        else if (nodeObject instanceof DepthNode depthNode) {
             return depthNode.getNode();
         }
 

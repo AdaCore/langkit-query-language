@@ -23,18 +23,15 @@
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
-import com.adacore.lkql_jit.nodes.patterns.RegexPattern;
-import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.dsl.Fallback;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -46,12 +43,16 @@ public abstract class MatchArm extends LKQLNode {
 
     // ----- Children -----
 
-    /** The pattern to match during the execution */
+    /**
+     * The pattern to match during the execution
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
 
-    /** The result of the arm execution */
+    /**
+     * The result of the arm execution
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
@@ -62,13 +63,13 @@ public abstract class MatchArm extends LKQLNode {
      * Create a new match arm node
      *
      * @param location The location of the node in the source
-     * @param pattern The pattern of the match arm
-     * @param expr The result of the match arm
+     * @param pattern  The pattern of the match arm
+     * @param expr     The result of the match arm
      */
     protected MatchArm(
-            SourceLocation location,
-            BasePattern pattern,
-            Expr expr
+        SourceLocation location,
+        BasePattern pattern,
+        Expr expr
     ) {
         super(location);
         this.pattern = pattern;
@@ -86,8 +87,10 @@ public abstract class MatchArm extends LKQLNode {
     }
 
     // ----- Execution methods -----
-    
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -105,12 +108,12 @@ public abstract class MatchArm extends LKQLNode {
      * Execute the matching arm on a node value
      *
      * @param frame The frame to execute in
-     * @param node The node value
+     * @param node  The node value
      * @return The match expression if the pattern is valid
      */
     @Specialization
     protected Object onNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        if(this.pattern.executeNode(frame, node)) {
+        if (this.pattern.executeNode(frame, node)) {
             return this.expr.executeGeneric(frame);
         } else {
             return null;
@@ -121,12 +124,12 @@ public abstract class MatchArm extends LKQLNode {
      * Execute the matching arm on a string value
      *
      * @param frame The frame to execute in
-     * @param str The string value
+     * @param str   The string value
      * @return The match expression if the pattern is valid
      */
     @Specialization
     protected Object onString(VirtualFrame frame, String str) {
-        if(this.pattern.executeString(frame, str)) {
+        if (this.pattern.executeString(frame, str)) {
             return this.expr.executeGeneric(frame);
         } else {
             return null;
@@ -147,7 +150,9 @@ public abstract class MatchArm extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

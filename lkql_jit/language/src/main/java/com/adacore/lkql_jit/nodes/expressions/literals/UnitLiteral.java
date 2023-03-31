@@ -23,15 +23,15 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
  * This node represents the unit literal in the LKQL language
- * 
+ *
  * @author Hugo GUERRIER
  */
 public final class UnitLiteral extends Expr {
@@ -44,20 +44,24 @@ public final class UnitLiteral extends Expr {
      * @param location The location of the node in the source
      */
     public UnitLiteral(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)  */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return UnitValue.getInstance();
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeUnit(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeUnit(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public UnitValue executeUnit(VirtualFrame frame) {
         return UnitValue.getInstance();
@@ -65,7 +69,9 @@ public final class UnitLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

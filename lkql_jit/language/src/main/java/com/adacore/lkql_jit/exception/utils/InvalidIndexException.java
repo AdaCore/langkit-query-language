@@ -33,5 +33,6 @@ import com.oracle.truffle.api.CompilerDirectives;
  */
 public final class InvalidIndexException extends RuntimeException {
     @CompilerDirectives.TruffleBoundary
-    public InvalidIndexException() {}
+    public InvalidIndexException() {
+    }
 }

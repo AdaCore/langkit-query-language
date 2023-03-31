@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -43,14 +43,16 @@ public abstract class NodePatternDetail extends LKQLNode {
      * @param location The token location in the source
      */
     protected NodePatternDetail(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -60,7 +62,7 @@ public abstract class NodePatternDetail extends LKQLNode {
      * Execute the pattern detail on a node and return if the detail is valid
      *
      * @param frame The frame to execute the detail in
-     * @param node The node to test in the detail
+     * @param node  The node to test in the detail
      * @return True if the detail is valid, false else
      */
     public abstract boolean executeDetail(VirtualFrame frame, Libadalang.AdaNode node);

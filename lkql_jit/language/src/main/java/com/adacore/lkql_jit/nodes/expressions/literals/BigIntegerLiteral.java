@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 
 import java.math.BigInteger;
 
@@ -39,7 +39,9 @@ public final class BigIntegerLiteral extends Expr {
 
     // ----- Attributes -----
 
-    /** The big integer value */
+    /**
+     * The big integer value
+     */
     private final BigInteger value;
 
     // ----- Constructors -----
@@ -48,11 +50,11 @@ public final class BigIntegerLiteral extends Expr {
      * Create a new big integer literal with its value
      *
      * @param location The location of the node in the source
-     * @param value The value of the big integer
+     * @param value    The value of the big integer
      */
     public BigIntegerLiteral(
-            SourceLocation location,
-            BigInteger value
+        SourceLocation location,
+        BigInteger value
     ) {
         super(location);
         this.value = value;
@@ -60,13 +62,17 @@ public final class BigIntegerLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.value;
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeBigInteger(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeBigInteger(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public BigInteger executeBigInteger(VirtualFrame frame) {
         return this.value;
@@ -74,13 +80,15 @@ public final class BigIntegerLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"value"},
-                new Object[]{this.value}
+            indentLevel,
+            new String[]{"value"},
+            new Object[]{this.value}
         );
     }
 

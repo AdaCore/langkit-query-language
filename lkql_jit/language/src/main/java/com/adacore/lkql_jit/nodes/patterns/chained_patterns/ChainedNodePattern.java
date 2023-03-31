@@ -23,13 +23,13 @@
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ListUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +44,16 @@ public final class ChainedNodePattern extends ValuePattern {
 
     // ----- Children -----
 
-    /** The node pattern start of the chain */
+    /**
+     * The node pattern start of the chain
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern nodePattern;
 
-    /** The chain for the node pattern */
+    /**
+     * The chain for the node pattern
+     */
     @Children
     private final ChainedPatternLink[] chain;
 
@@ -58,14 +62,14 @@ public final class ChainedNodePattern extends ValuePattern {
     /**
      * Create a new chained node pattern with parameters
      *
-     * @param location The location of the node in the source
+     * @param location    The location of the node in the source
      * @param nodePattern The node pattern
-     * @param chain The chain for the node pattern
+     * @param chain       The chain for the node pattern
      */
     public ChainedNodePattern(
-            SourceLocation location,
-            BasePattern nodePattern,
-            ChainedPatternLink[] chain
+        SourceLocation location,
+        BasePattern nodePattern,
+        ChainedPatternLink[] chain
     ) {
         super(location);
         this.nodePattern = nodePattern;
@@ -74,7 +78,9 @@ public final class ChainedNodePattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         throw LKQLRuntimeException.wrongPatternType("ChainedNodePattern", this);
@@ -84,11 +90,11 @@ public final class ChainedNodePattern extends ValuePattern {
      * Get the result node from the chained pattern
      *
      * @param frame The frame to execute in
-     * @param node The node to verify
+     * @param node  The node to verify
      * @return The result of the chained pattern
      */
     public Libadalang.AdaNode[] executeChained(VirtualFrame frame, Libadalang.AdaNode node) {
-        if(this.nodePattern.executeNode(frame, node)) {
+        if (this.nodePattern.executeNode(frame, node)) {
             return this.executeLink(frame, 0, node);
         } else {
             return new Libadalang.AdaNode[0];
@@ -102,7 +108,7 @@ public final class ChainedNodePattern extends ValuePattern {
      *
      * @param frame The frame to execute in
      * @param index The index of the link to execute
-     * @param node The node to execute the link on
+     * @param node  The node to execute the link on
      * @return The array of the link execution result
      */
     private Libadalang.AdaNode[] executeLink(VirtualFrame frame, int index, Libadalang.AdaNode node) {
@@ -110,7 +116,7 @@ public final class ChainedNodePattern extends ValuePattern {
         Libadalang.AdaNode[] linkRes = this.chain[index].executeLink(frame, node);
 
         // If the link is the last one return the result
-        if(index >= this.chain.length - 1) {
+        if (index >= this.chain.length - 1) {
             return linkRes;
         }
 
@@ -120,9 +126,9 @@ public final class ChainedNodePattern extends ValuePattern {
             List<Libadalang.AdaNode> resList = new ArrayList<>();
 
             // Add to the result with the already containing verification
-            for(Libadalang.AdaNode linkNode : linkRes) {
-                for(Libadalang.AdaNode toAdd : this.executeLink(frame, index + 1, linkNode)) {
-                    if(!ListUtils.contains(resList, toAdd)) {
+            for (Libadalang.AdaNode linkNode : linkRes) {
+                for (Libadalang.AdaNode toAdd : this.executeLink(frame, index + 1, linkNode)) {
+                    if (!ListUtils.contains(resList, toAdd)) {
                         resList.add(toAdd);
                     }
                 }
@@ -135,7 +141,9 @@ public final class ChainedNodePattern extends ValuePattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

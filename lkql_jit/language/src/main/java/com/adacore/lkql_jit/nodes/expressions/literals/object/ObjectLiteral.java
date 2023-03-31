@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals.object;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -38,7 +38,9 @@ public final class ObjectLiteral extends Expr {
 
     // ----- Children -----
 
-    /** The list of the associations in the object literal */
+    /**
+     * The list of the associations in the object literal
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ObjectAssocList assocList;
@@ -48,12 +50,12 @@ public final class ObjectLiteral extends Expr {
     /**
      * Create a new object literal node
      *
-     * @param location The location of the node in the source
+     * @param location  The location of the node in the source
      * @param assocList The list of the association in the object
      */
     public ObjectLiteral(
-            SourceLocation location,
-            ObjectAssocList assocList
+        SourceLocation location,
+        ObjectAssocList assocList
     ) {
         super(location);
         this.assocList = assocList;
@@ -61,13 +63,17 @@ public final class ObjectLiteral extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeObject(frame);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public ObjectValue executeObject(VirtualFrame frame) {
         // Get the associations
@@ -79,7 +85,9 @@ public final class ObjectLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

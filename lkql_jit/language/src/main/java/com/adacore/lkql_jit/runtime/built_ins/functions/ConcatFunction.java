@@ -23,15 +23,15 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -43,13 +43,19 @@ public final class ConcatFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "concat" built-in */
+    /**
+     * The only instance of the "concat" built-in
+     */
     private static ConcatFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "concat";
 
-    /** The expression that represents the "concat" execution */
+    /**
+     * The expression that represents the "concat" execution
+     */
     private final ConcatExpr concatExpr;
 
     // ----- Constructors -----
@@ -67,7 +73,7 @@ public final class ConcatFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static ConcatFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ConcatFunction();
         }
         return instance;
@@ -75,21 +81,25 @@ public final class ConcatFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given a list of lists, return a concatenated list",
-                new String[]{"lists"},
-                new Expr[]{null},
-                this.concatExpr
+            NAME,
+            "Given a list of lists, return a concatenated list",
+            new String[]{"lists"},
+            new Expr[]{null},
+            this.concatExpr
         );
     }
 
@@ -105,11 +115,11 @@ public final class ConcatFunction implements BuiltInFunction {
             Object lists = frame.getArguments()[0];
 
             // Check the type of the argument
-            if(!LKQLTypeSystemGen.isListValue(lists)) {
+            if (!LKQLTypeSystemGen.isListValue(lists)) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(lists),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.LKQL_LIST,
+                    LKQLTypesHelper.fromJava(lists),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
@@ -118,12 +128,12 @@ public final class ConcatFunction implements BuiltInFunction {
 
             // Concatenate the lists inside the list
             Object[] newContent = new Object[0];
-            for(int i = 0 ; i < listValue.size() ; i++) {
-                if(!LKQLTypeSystemGen.isListValue(listValue.get(i))) {
+            for (int i = 0; i < listValue.size(); i++) {
+                if (!LKQLTypeSystemGen.isListValue(listValue.get(i))) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.LKQL_LIST,
-                            LKQLTypesHelper.fromJava(listValue.get(i)),
-                            this.callNode.getArgList().getArgs()[0]
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(listValue.get(i)),
+                        this.callNode.getArgList().getArgs()[0]
                     );
                 }
 

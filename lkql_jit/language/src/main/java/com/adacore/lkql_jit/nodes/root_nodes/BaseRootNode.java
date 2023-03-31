@@ -40,12 +40,16 @@ public abstract class BaseRootNode extends RootNode {
 
     // ----- Attributes -----
 
-    /** The closure of the root node */
+    /**
+     * The closure of the root node
+     */
     protected final Closure closure;
 
     // ----- Children -----
 
-    /** The argument writing nodes */
+    /**
+     * The argument writing nodes
+     */
     @Children
     protected WriteArg[] argumentWriting;
 
@@ -54,14 +58,14 @@ public abstract class BaseRootNode extends RootNode {
     /**
      * Create a new root node
      *
-     * @param language The language instance to link the root node with
+     * @param language        The language instance to link the root node with
      * @param frameDescriptor The frame descriptor for the root node
-     * @param closure The execution closure of the root node
+     * @param closure         The execution closure of the root node
      */
     protected BaseRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            Closure closure
+        TruffleLanguage<?> language,
+        FrameDescriptor frameDescriptor,
+        Closure closure
     ) {
         super(language, frameDescriptor);
         this.closure = closure;
@@ -86,7 +90,7 @@ public abstract class BaseRootNode extends RootNode {
         WriteArg[] res = new WriteArg[slots.length];
 
         // Create the writing nodes
-        for(int i = 0 ; i < slots.length ; i++) {
+        for (int i = 0; i < slots.length; i++) {
             res[i] = new WriteArg(slots[i]);
         }
 
@@ -100,7 +104,7 @@ public abstract class BaseRootNode extends RootNode {
      * @param frame The frame to instantiate the closure in
      */
     protected void instantiateClosure(VirtualFrame frame) {
-        if(this.closure != null) {
+        if (this.closure != null) {
             this.closure.instantiate(frame.materialize());
         }
     }
@@ -111,7 +115,7 @@ public abstract class BaseRootNode extends RootNode {
      * @param frame The frame to instantiate the args in
      */
     protected void instantiateArgs(VirtualFrame frame) {
-        for(int i = 0 ; i < this.argumentWriting.length ; i++) {
+        for (int i = 0; i < this.argumentWriting.length; i++) {
             this.argumentWriting[i].executeWrite(frame, i);
         }
     }

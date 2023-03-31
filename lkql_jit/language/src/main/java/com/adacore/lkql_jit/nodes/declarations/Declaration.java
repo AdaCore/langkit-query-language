@@ -37,7 +37,9 @@ public abstract class Declaration extends LKQLNode {
 
     // ----- Children -----
 
-    /** The annotation of the declaration */
+    /**
+     * The annotation of the declaration
+     */
     @Child
     protected DeclAnnotation annotation;
 
@@ -49,7 +51,7 @@ public abstract class Declaration extends LKQLNode {
      * @param location The location of the node in the source
      */
     protected Declaration(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }

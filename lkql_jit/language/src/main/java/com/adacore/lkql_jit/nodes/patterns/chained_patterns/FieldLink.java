@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
@@ -30,7 +31,6 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -42,7 +42,9 @@ public abstract class FieldLink extends ChainedPatternLink {
 
     // ----- Attributes -----
 
-    /** The name of the field to query */
+    /**
+     * The name of the field to query
+     */
     protected final String fieldName;
 
     // ----- Constructors -----
@@ -50,14 +52,14 @@ public abstract class FieldLink extends ChainedPatternLink {
     /**
      * Create a new field link node
      *
-     * @param location The location of the node in the source
-     * @param pattern The pattern to verify
+     * @param location  The location of the node in the source
+     * @param pattern   The pattern to verify
      * @param fieldName The name of the field to query
      */
     protected FieldLink(
-            SourceLocation location,
-            BasePattern pattern,
-            String fieldName
+        SourceLocation location,
+        BasePattern pattern,
+        String fieldName
     ) {
         super(location, pattern);
         this.fieldName = fieldName;
@@ -68,19 +70,19 @@ public abstract class FieldLink extends ChainedPatternLink {
     /**
      * Execute the field link with the cached strategy
      *
-     * @param frame The frame to execute the link in
-     * @param node The node get the field from
+     * @param frame       The frame to execute the link in
+     * @param node        The node get the field from
      * @param propertyRef The cached property reference
      * @return The result of the link
      */
     @Specialization(guards = {
-            "node == propertyRef.getNode()",
-            "propertyRef.getFieldDescription() != null"
+        "node == propertyRef.getNode()",
+        "propertyRef.getFieldDescription() != null"
     })
     protected Libadalang.AdaNode[] fieldCached(
-            VirtualFrame frame,
-            @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(node, fieldName)") PropertyRefValue propertyRef
+        VirtualFrame frame,
+        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @Cached("create(node, fieldName)") PropertyRefValue propertyRef
     ) {
         // Get the value of the field
         Object value = propertyRef.executeAsField(this);
@@ -93,23 +95,23 @@ public abstract class FieldLink extends ChainedPatternLink {
      * Execute the field link with the un-cached strategy
      *
      * @param frame The frame to execute the link in
-     * @param node The node get the field from
+     * @param node  The node get the field from
      * @return The result of the link
      */
     @Specialization(replaces = "fieldCached")
     protected Libadalang.AdaNode[] fieldUnached(
-            VirtualFrame frame,
-            Libadalang.AdaNode node
+        VirtualFrame frame,
+        Libadalang.AdaNode node
     ) {
         // Get the field method
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.fieldName);
 
         // Verify if the field method is null
-        if(propertyRef.getFieldDescription() == null) {
+        if (propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
-                    this.fieldName,
-                    node,
-                    this
+                this.fieldName,
+                node,
+                this
             );
         }
 
@@ -119,13 +121,15 @@ public abstract class FieldLink extends ChainedPatternLink {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"fieldName"},
-                new Object[]{this.fieldName}
+            indentLevel,
+            new String[]{"fieldName"},
+            new Object[]{this.fieldName}
         );
     }
 

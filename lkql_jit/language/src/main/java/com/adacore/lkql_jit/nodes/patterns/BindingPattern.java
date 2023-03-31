@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -38,7 +38,9 @@ public final class BindingPattern extends UnfilteredPattern {
 
     // ----- Macros and enums -----
 
-    /** The mode of binding */
+    /**
+     * The mode of binding
+     */
     public enum Mode {
         LOCAL,
         GLOBAL
@@ -46,15 +48,21 @@ public final class BindingPattern extends UnfilteredPattern {
 
     // ----- Attributes -----
 
-    /** The mode of the binding */
+    /**
+     * The mode of the binding
+     */
     private final Mode mode;
 
-    /** The slot to put the node in */
+    /**
+     * The slot to put the node in
+     */
     private final int slot;
 
     // ----- Children -----
 
-    /** The pattern to execute with the binding done */
+    /**
+     * The pattern to execute with the binding done
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ValuePattern pattern;
@@ -65,15 +73,15 @@ public final class BindingPattern extends UnfilteredPattern {
      * Create a new binding pattern node
      *
      * @param location The location of the node in the source
-     * @param mode The binding mode
-     * @param slot The slot to put the node in
-     * @param pattern The pattern to bind
+     * @param mode     The binding mode
+     * @param slot     The slot to put the node in
+     * @param pattern  The pattern to bind
      */
     public BindingPattern(
-            SourceLocation location,
-            Mode mode,
-            int slot,
-            ValuePattern pattern
+        SourceLocation location,
+        Mode mode,
+        int slot,
+        ValuePattern pattern
     ) {
         super(location);
         this.mode = mode;
@@ -83,11 +91,13 @@ public final class BindingPattern extends UnfilteredPattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the node binding
-        if(mode == Mode.GLOBAL) {
+        if (mode == Mode.GLOBAL) {
             LKQLLanguage.getContext(this).setGlobal(this.slot, null, node);
         } else {
             frame.setObject(this.slot, node);
@@ -97,11 +107,13 @@ public final class BindingPattern extends UnfilteredPattern {
         return this.pattern.executeNode(frame, node);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String)
+     */
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
         // Do the node binding
-        if(mode == Mode.GLOBAL) {
+        if (mode == Mode.GLOBAL) {
             LKQLLanguage.getContext(this).setGlobal(this.slot, null, str);
         } else {
             frame.setObject(this.slot, str);
@@ -113,13 +125,15 @@ public final class BindingPattern extends UnfilteredPattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"mode", "slot"},
-                new Object[]{this.mode, this.slot}
+            indentLevel,
+            new String[]{"mode", "slot"},
+            new Object[]{this.mode, this.slot}
         );
     }
 

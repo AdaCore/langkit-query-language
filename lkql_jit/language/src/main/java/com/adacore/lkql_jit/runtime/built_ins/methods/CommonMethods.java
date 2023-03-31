@@ -23,8 +23,8 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
-import com.adacore.lkql_jit.runtime.built_ins.functions.*;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.functions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,9 @@ public abstract class CommonMethods implements BuiltInMethods {
 
     // ----- Attributes -----
 
-    /** The methods map from their names to their function values */
+    /**
+     * The methods map from their names to their function values
+     */
     protected final Map<String, BuiltInFunctionValue> methods;
 
     // ----- Constructors -----
@@ -65,7 +67,9 @@ public abstract class CommonMethods implements BuiltInMethods {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getMethods() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getMethods()
+     */
     @Override
     public Map<String, BuiltInFunctionValue> getMethods() {
         return this.methods;

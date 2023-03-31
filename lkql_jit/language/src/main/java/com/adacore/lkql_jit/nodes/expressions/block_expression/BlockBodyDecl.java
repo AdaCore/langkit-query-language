@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -37,7 +37,9 @@ public final class BlockBodyDecl extends BlockBody {
 
     // ----- Children -----
 
-    /** The declaration of the body part */
+    /**
+     * The declaration of the body part
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Declaration decl;
@@ -48,11 +50,11 @@ public final class BlockBodyDecl extends BlockBody {
      * Create a new block body declaration part
      *
      * @param location The location of the node in the source
-     * @param decl The declaration of the body part
+     * @param decl     The declaration of the body part
      */
     public BlockBodyDecl(
-            SourceLocation location,
-            Declaration decl
+        SourceLocation location,
+        Declaration decl
     ) {
         super(location);
         this.decl = decl;
@@ -60,7 +62,9 @@ public final class BlockBodyDecl extends BlockBody {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeBlockBody(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeBlockBody(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeBlockBody(VirtualFrame frame) {
         return this.decl.executeGeneric(frame);
@@ -68,7 +72,9 @@ public final class BlockBodyDecl extends BlockBody {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -23,12 +23,12 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -40,13 +40,19 @@ public final class ProfileFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "profile" built-in */
+    /**
+     * The only instance of the "profile" built-in
+     */
     private static ProfileFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "profile";
 
-    /** The expression that represents the "profile" function execution */
+    /**
+     * The expression that represents the "profile" function execution
+     */
     private final ProfileExpr profileExpr;
 
     // ----- Constructors -----
@@ -64,7 +70,7 @@ public final class ProfileFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static ProfileFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ProfileFunction();
         }
         return instance;
@@ -72,21 +78,25 @@ public final class ProfileFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given any object, if it is a callable, return its profile as text",
-                new String[]{"obj"},
-                new Expr[]{null},
-                this.profileExpr
+            NAME,
+            "Given any object, if it is a callable, return its profile as text",
+            new String[]{"obj"},
+            new Expr[]{null},
+            this.profileExpr
         );
     }
 
@@ -102,7 +112,7 @@ public final class ProfileFunction implements BuiltInFunction {
             Object arg = frame.getArguments()[0];
 
             // If the argument is an LKQL value, read the documentation from ir
-            if(LKQLTypeSystemGen.isLKQLValue(arg)) {
+            if (LKQLTypeSystemGen.isLKQLValue(arg)) {
                 return ((LKQLValue) arg).getProfile();
             }
 

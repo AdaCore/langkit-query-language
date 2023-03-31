@@ -23,12 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.declarations.functions;
 
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
+import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -43,25 +43,27 @@ public final class FunDeclLocal extends FunDecl {
     /**
      * Create a new function declaration in the global scope with its name
      *
-     * @param location The location of the node in the sources
+     * @param location   The location of the node in the sources
      * @param annotation The function annotation
-     * @param name The name of the function
-     * @param slot The slot of the function
-     * @param funExpr The functions expression
+     * @param name       The name of the function
+     * @param slot       The slot of the function
+     * @param funExpr    The functions expression
      */
     public FunDeclLocal(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            int slot,
-            FunExpr funExpr
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        int slot,
+        FunExpr funExpr
     ) {
         super(location, annotation, name, slot, funExpr);
     }
 
     // ----- Execute methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Get the function value
@@ -79,13 +81,15 @@ public final class FunDeclLocal extends FunDecl {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot"},
-                new Object[]{this.name, this.slot}
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

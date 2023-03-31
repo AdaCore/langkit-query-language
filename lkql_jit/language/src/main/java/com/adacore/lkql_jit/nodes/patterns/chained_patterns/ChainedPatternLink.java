@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -32,7 +33,6 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.adacore.libadalang.Libadalang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,9 @@ public abstract class ChainedPatternLink extends LKQLNode {
 
     // ----- Children -----
 
-    /** The pattern to match in the link */
+    /**
+     * The pattern to match in the link
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected BasePattern pattern;
@@ -58,11 +60,11 @@ public abstract class ChainedPatternLink extends LKQLNode {
      * Create a new chained pattern link
      *
      * @param location The location of the node in the source
-     * @param pattern The pattern to match
+     * @param pattern  The pattern to match
      */
     protected ChainedPatternLink(
-            SourceLocation location,
-            BasePattern pattern
+        SourceLocation location,
+        BasePattern pattern
     ) {
         super(location);
         this.pattern = pattern;
@@ -70,7 +72,9 @@ public abstract class ChainedPatternLink extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -80,7 +84,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
      * Execute the link with a node and return the list of the matched node
      *
      * @param frame The frame to execute the link in
-     * @param node The input node in the chain
+     * @param node  The input node in the chain
      * @return The result of the chain link execution
      */
     public abstract Libadalang.AdaNode[] executeLink(VirtualFrame frame, Libadalang.AdaNode node);
@@ -90,7 +94,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
     /**
      * Do the pattern filtering logic on the given result object
      *
-     * @param frame The frame to execute the pattern in
+     * @param frame        The frame to execute the pattern in
      * @param resultObject The result object to filter and add in the result
      * @return The result of the filtering
      */
@@ -99,26 +103,26 @@ public abstract class ChainedPatternLink extends LKQLNode {
         List<Libadalang.AdaNode> resList = new ArrayList<>();
 
         // If the result object is a node
-        if(LKQLTypeSystemGen.isAdaNode(resultObject)) {
-            if(this.pattern.executeNode(frame, LKQLTypeSystemGen.asAdaNode(resultObject))) {
+        if (LKQLTypeSystemGen.isAdaNode(resultObject)) {
+            if (this.pattern.executeNode(frame, LKQLTypeSystemGen.asAdaNode(resultObject))) {
                 resList.add(LKQLTypeSystemGen.asAdaNode(resultObject));
             }
         }
 
         // If the result object is a list of node
-        else if(LKQLTypeSystemGen.isListValue(resultObject)) {
+        else if (LKQLTypeSystemGen.isListValue(resultObject)) {
             ListValue listValue = LKQLTypeSystemGen.asListValue(resultObject);
-            for(int i = 0 ; i < listValue.size() ; i++) {
+            for (int i = 0; i < listValue.size(); i++) {
                 try {
                     Libadalang.AdaNode toVerify = LKQLTypeSystemGen.expectAdaNode(listValue.get(i));
-                    if(this.pattern.executeNode(frame, toVerify)) {
+                    if (this.pattern.executeNode(frame, toVerify)) {
                         resList.add(toVerify);
                     }
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.ADA_NODE,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            this
+                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this
                     );
                 }
             }
@@ -127,9 +131,9 @@ public abstract class ChainedPatternLink extends LKQLNode {
         // Else, throw a type exception
         else {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_LIST,
-                    LKQLTypesHelper.fromJava(resultObject),
-                    this
+                LKQLTypesHelper.LKQL_LIST,
+                LKQLTypesHelper.fromJava(resultObject),
+                this
             );
         }
 

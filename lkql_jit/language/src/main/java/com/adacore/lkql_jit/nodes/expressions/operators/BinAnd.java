@@ -40,13 +40,13 @@ public final class BinAnd extends BinShortCircuit {
      * Create an "and" node
      *
      * @param location The location of the node in the source
-     * @param left The left expression
-     * @param right The right expression
+     * @param left     The left expression
+     * @param right    The right expression
      */
     public BinAnd(
-            SourceLocation location,
-            Expr left,
-            Expr right
+        SourceLocation location,
+        Expr left,
+        Expr right
     ) {
         super(location, left, right);
     }
@@ -54,13 +54,17 @@ public final class BinAnd extends BinShortCircuit {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#doRightEvaluation(boolean) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#doRightEvaluation(boolean)
+     */
     @Override
     protected boolean doRightEvaluation(boolean leftValue) {
         return leftValue;
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#execute(boolean, boolean) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#execute(boolean, boolean)
+     */
     @Override
     protected boolean execute(boolean leftValue, boolean rightValue) {
         return leftValue && rightValue;
@@ -68,7 +72,9 @@ public final class BinAnd extends BinShortCircuit {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

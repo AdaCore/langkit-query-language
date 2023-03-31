@@ -37,10 +37,14 @@ public final class Identifier implements Locatable {
 
     // ----- Attributes -----
 
-    /** The location of the identifier in the source */
+    /**
+     * The location of the identifier in the source
+     */
     private final SourceLocation location;
 
-    /** The name of the identifier */
+    /**
+     * The name of the identifier
+     */
     private final String name;
 
     // ----- Constructors -----
@@ -49,11 +53,11 @@ public final class Identifier implements Locatable {
      * Create a new identifier with the parameters
      *
      * @param location The location of the identifier in the source
-     * @param name The name of the identifier
+     * @param name     The name of the identifier
      */
     public Identifier(
-            SourceLocation location,
-            String name
+        SourceLocation location,
+        String name
     ) {
         this.location = location;
         this.name = name;
@@ -61,7 +65,9 @@ public final class Identifier implements Locatable {
 
     // ----- Getters -----
 
-    /** @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation() */
+    /**
+     * @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation()
+     */
     @Override
     public SourceLocation getLocation() {
         return this.location;

@@ -23,15 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 
 
 /**
@@ -43,12 +38,16 @@ public final class Match extends Expr {
 
     // ----- Children -----
 
-    /** The expression to match */
+    /**
+     * The expression to match
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr matchedExpr;
 
-    /** The matching arms */
+    /**
+     * The matching arms
+     */
     @Children
     private final MatchArm[] arms;
 
@@ -57,14 +56,14 @@ public final class Match extends Expr {
     /**
      * Create a new match node
      *
-     * @param location The location of the node in the source
+     * @param location    The location of the node in the source
      * @param matchedExpr The expression to match
-     * @param arms The matching arms
+     * @param arms        The matching arms
      */
     public Match(
-            SourceLocation location,
-            Expr matchedExpr,
-            MatchArm[] arms
+        SourceLocation location,
+        Expr matchedExpr,
+        MatchArm[] arms
     ) {
         super(location);
         this.matchedExpr = matchedExpr;
@@ -73,16 +72,18 @@ public final class Match extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the expression as a node
         Object toMatch = this.matchedExpr.executeGeneric(frame);
 
         // For every match arm try to match and return the result
-        for(MatchArm arm : this.arms) {
+        for (MatchArm arm : this.arms) {
             Object armResult = arm.executeArm(frame, toMatch);
-            if(armResult != null) {
+            if (armResult != null) {
                 return armResult;
             }
         }
@@ -94,7 +95,9 @@ public final class Match extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

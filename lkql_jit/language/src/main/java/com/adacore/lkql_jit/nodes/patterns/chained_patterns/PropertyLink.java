@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
@@ -31,8 +32,6 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -44,12 +43,16 @@ public abstract class PropertyLink extends ChainedPatternLink {
 
     // ----- Attributes -----
 
-    /** The name of the property to call */
+    /**
+     * The name of the property to call
+     */
     protected final String propertyName;
 
     // ----- Children -----
 
-    /** The list of the argument for the property call */
+    /**
+     * The list of the argument for the property call
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected ArgList argList;
@@ -59,16 +62,16 @@ public abstract class PropertyLink extends ChainedPatternLink {
     /**
      * Create a new property link node
      *
-     * @param location The token location in the source
-     * @param pattern The pattern to verify
+     * @param location     The token location in the source
+     * @param pattern      The pattern to verify
      * @param propertyName The name of the property to call
-     * @param argList The argument list
+     * @param argList      The argument list
      */
     public PropertyLink(
-            SourceLocation location,
-            BasePattern pattern,
-            String propertyName,
-            ArgList argList
+        SourceLocation location,
+        BasePattern pattern,
+        String propertyName,
+        ArgList argList
     ) {
         super(location, pattern);
         this.propertyName = propertyName;
@@ -80,23 +83,23 @@ public abstract class PropertyLink extends ChainedPatternLink {
     /**
      * Execute the property link with the cached property
      *
-     * @param frame The frame to execute the link in
-     * @param node The node get the property from
+     * @param frame       The frame to execute the link in
+     * @param node        The node get the property from
      * @param propertyRef The cached property reference
      * @return The result of the link
      */
     @Specialization(guards = {
-            "node == propertyRef.getNode()",
-            "propertyRef.getFieldDescription() != null"
+        "node == propertyRef.getNode()",
+        "propertyRef.getFieldDescription() != null"
     })
     protected Libadalang.AdaNode[] propertyCached(
-            VirtualFrame frame,
-            @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(node, propertyName)") PropertyRefValue propertyRef
+        VirtualFrame frame,
+        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @Cached("create(node, propertyName)") PropertyRefValue propertyRef
     ) {
         // Evaluate the arguments
         Object[] arguments = new Object[this.argList.getArgs().length];
-        for(int i = 0 ; i < arguments.length ; i++) {
+        for (int i = 0; i < arguments.length; i++) {
             arguments[i] = this.argList.getArgs()[i].getArgExpr().executeGeneric(frame);
         }
 
@@ -111,23 +114,23 @@ public abstract class PropertyLink extends ChainedPatternLink {
      * Execute the property link with the un-cached path
      *
      * @param frame The frame to execute the link in
-     * @param node The node get the property from
+     * @param node  The node get the property from
      * @return The result of the link
      */
     @Specialization(replaces = "propertyCached")
     protected Libadalang.AdaNode[] propertyUncached(
-            VirtualFrame frame,
-            Libadalang.AdaNode node
+        VirtualFrame frame,
+        Libadalang.AdaNode node
     ) {
         // Get the property methods
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.propertyName);
 
         // Test if the property is valid
-        if(propertyRef.getFieldDescription() == null) {
+        if (propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
-                    this.propertyName,
-                    node,
-                    this
+                this.propertyName,
+                node,
+                this
             );
         }
 
@@ -137,13 +140,15 @@ public abstract class PropertyLink extends ChainedPatternLink {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"propertyName"},
-                new Object[]{this.propertyName}
+            indentLevel,
+            new String[]{"propertyName"},
+            new Object[]{this.propertyName}
         );
     }
 

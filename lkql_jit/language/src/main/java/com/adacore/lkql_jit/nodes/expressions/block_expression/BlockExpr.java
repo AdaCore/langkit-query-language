@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 
 
 /**
@@ -37,11 +37,15 @@ public final class BlockExpr extends Expr {
 
     // ----- Children -----
 
-    /** The body parts of the expression block */
+    /**
+     * The body parts of the expression block
+     */
     @Children
     private final BlockBody[] body;
 
-    /** The expression of the block, to return after the parts execution */
+    /**
+     * The expression of the block, to return after the parts execution
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
@@ -51,14 +55,14 @@ public final class BlockExpr extends Expr {
     /**
      * Create a new expression block node
      *
-     * @param location The location of the node in the source
+     * @param location  The location of the node in the source
      * @param bodyParts The block body parts
-     * @param expr The expression to return
+     * @param expr      The expression to return
      */
     public BlockExpr(
-            SourceLocation location,
-            BlockBody[] bodyParts,
-            Expr expr
+        SourceLocation location,
+        BlockBody[] bodyParts,
+        Expr expr
     ) {
         super(location);
         this.body = bodyParts;
@@ -67,11 +71,13 @@ public final class BlockExpr extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) (VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) (VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the declarations
-        for(BlockBody bodyPart : this.body) {
+        for (BlockBody bodyPart : this.body) {
             bodyPart.executeBlockBody(frame);
         }
 
@@ -81,7 +87,9 @@ public final class BlockExpr extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

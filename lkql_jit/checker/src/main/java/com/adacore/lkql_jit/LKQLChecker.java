@@ -38,16 +38,17 @@ import java.util.Map;
 /**
  * This class represents the LKQL checker entry point with the LKQL JIT backend
  * This is a TEMPORARY driver to perform efficiency tests on LKQL JIT in real life use case
+ * TODO : Support all flags and options of the lkql_checker original implementation
  *
  * @author Hugo GUERRIER
- *
- * TODO : Support all flags and options of the lkql_checker original implementation
  */
 public class LKQLChecker extends AbstractLanguageLauncher {
 
     // ----- Macros and enums -----
 
-    /** Represents the status of an argument */
+    /**
+     * Represents the status of an argument
+     */
     protected enum ArgumentStatus {
         Consumed,
         Unhandled,
@@ -55,44 +56,68 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         ExpectInt
     }
 
-    /** The identifier of the LKQL language */
+    /**
+     * The identifier of the LKQL language
+     */
     private static final String ID = "lkql";
 
     // ----- Launcher options -----
 
-    /** The charset to decode the LKQL sources */
+    /**
+     * The charset to decode the LKQL sources
+     */
     private String charset = null;
 
-    /** The project file to analyse */
+    /**
+     * The project file to analyse
+     */
     private String projectFile = null;
 
-    /** Source files to analyse */
+    /**
+     * Source files to analyse
+     */
     private final List<String> files = new ArrayList<>();
 
-    /** If the project analysis should be recursive */
+    /**
+     * If the project analysis should be recursive
+     */
     private boolean recursive = false;
 
-    /** Number of parallel jobs */
+    /**
+     * Number of parallel jobs
+     */
     private int jobs = 0;
 
-    /** If the verbose mode should be activated */
+    /**
+     * If the verbose mode should be activated
+     */
     private boolean verbose = false;
 
     // ----- Checker options -----
 
-    /** A directory containing all user added rules */
+    /**
+     * A directory containing all user added rules
+     */
     private String rulesDirs = null;
 
-    /** The rules to apply */
+    /**
+     * The rules to apply
+     */
     private String rules = null;
 
-    /** The arguments to pass to the rules */
+    /**
+     * The arguments to pass to the rules
+     */
     private List<String> rulesArgs = new ArrayList<>();
 
-    /** The source files to ignore during analysis */
+    /**
+     * The source files to ignore during analysis
+     */
     private String ignores = null;
 
-    /** The mode of error recovery */
+    /**
+     * The mode of error recovery
+     */
     private final String errorMode = "continue_and_warn";
 
     // ----- Checker methods -----
@@ -105,35 +130,35 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     @Override
     protected void printHelp(OptionCategory maxCategory) {
         System.out.println(
+            """
+                usage : lkql_jit_checker [options ...] files [files ...]
+
+                The LKQL checker using LKQL JIT compiler
+
+                Positional arguments :
+                  files : Files to analyse
+
+                Basic options:
+                  --charset, -C                     Charset to use for the source decoding
+                  --project, -P                     Project file to use
+                  --recursive, -U                   Process all units in the project tree, excluding
+                                                    externally built projects
+                  --jobs, -j                        Number of parallel jobs to use. If zero, use the
+                                                    maximal parallelism : one job per CPU
+
+                  --verbose, -v                     Enable the verbose mode
+
+                  --rules-dirs                      Specify directories where rules will be seek from
+                  --rules, -r                       Comma separated rules to apply (if not passed
+                                                    all rules are applied)
+                  --rule-arg, -a                    Argument to pass to a rule, with the syntax
+                                                    <rule_name>.<arg_name>=<arg_value>
+                  --property-error-recovery, -pr    Which behavior to adopt when there is a
+                                                    property error inside of a LKQL query.
+                                                    Possible alternatives: continue_and_warn,
+                                                    continue_and_log, raise_error. Default:
+                                                    continue_and_warn
                 """
-                        usage : lkql_jit_checker [options ...] files [files ...]
-
-                        The LKQL checker using LKQL JIT compiler
-
-                        Positional arguments :
-                          files : Files to analyse
-
-                        Basic options:
-                          --charset, -C                     Charset to use for the source decoding
-                          --project, -P                     Project file to use
-                          --recursive, -U                   Process all units in the project tree, excluding
-                                                            externally built projects
-                          --jobs, -j                        Number of parallel jobs to use. If zero, use the
-                                                            maximal parallelism : one job per CPU
-
-                          --verbose, -v                     Enable the verbose mode
-
-                          --rules-dirs                      Specify directories where rules will be seek from
-                          --rules, -r                       Comma separated rules to apply (if not passed
-                                                            all rules are applied)
-                          --rule-arg, -a                    Argument to pass to a rule, with the syntax
-                                                            <rule_name>.<arg_name>=<arg_value>
-                          --property-error-recovery, -pr    Which behavior to adopt when there is a
-                                                            property error inside of a LKQL query.
-                                                            Possible alternatives: continue_and_warn,
-                                                            continue_and_log, raise_error. Default:
-                                                            continue_and_warn
-                        """
         );
     }
 
@@ -164,7 +189,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     @Override
     protected void launch(Context.Builder contextBuilder) {
         int exitCode = this.executeScript(contextBuilder);
-        if(exitCode != 0) {
+        if (exitCode != 0) {
             throw this.abort((String) null, exitCode);
         }
     }
@@ -183,53 +208,53 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         contextBuilder.option("lkql.checkerMode", "true");
 
         // Set the context options
-        if(this.verbose) {
+        if (this.verbose) {
             System.out.println("=== LKQL JIT is in verbose mode ===");
             contextBuilder.option("lkql.verbose", "true");
         }
 
         // Set the project file
-        if(this.projectFile != null) {
+        if (this.projectFile != null) {
             contextBuilder.option("lkql.projectFile", this.projectFile);
         }
 
         // Set the files
-        if(!this.files.isEmpty()) {
+        if (!this.files.isEmpty()) {
             contextBuilder.option("lkql.files", String.join(File.pathSeparator, this.files));
         }
 
         // Set the charset
-        if(this.charset != null && !this.charset.isEmpty() && !this.charset.isBlank()) {
+        if (this.charset != null && !this.charset.isEmpty() && !this.charset.isBlank()) {
             contextBuilder.option("lkql.charset", this.charset);
         }
 
         // Set the rule directories
-        if(this.rulesDirs != null) {
+        if (this.rulesDirs != null) {
             contextBuilder.option("lkql.rulesDirs", this.rulesDirs);
         }
 
         // Set the rule to apply
-        if(this.rules != null && !this.rules.isEmpty() && !this.rules.isBlank()) {
+        if (this.rules != null && !this.rules.isEmpty() && !this.rules.isBlank()) {
             contextBuilder.option("lkql.rules", this.rules.toLowerCase());
         }
 
         // Set the rule argument
         contextBuilder.option("lkql.rulesArgs", String.join(";", this.rulesArgs));
 
-        if(this.ignores != null && !this.ignores.isEmpty() && !this.ignores.isBlank()) {
+        if (this.ignores != null && !this.ignores.isEmpty() && !this.ignores.isBlank()) {
             contextBuilder.option("lkql.ignores", this.ignores);
         }
 
-        try(Context context = contextBuilder.build()) {
+        try (Context context = contextBuilder.build()) {
             // Create the context and run it with the script
             Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
-                    .build();
+                .build();
             context.eval(source);
 
             // Return the success
             return 0;
         } catch (Exception e) {
-            if(this.verbose) {
+            if (this.verbose) {
                 e.printStackTrace();
             } else {
                 System.err.println(e.getMessage());
@@ -243,7 +268,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     /**
      * Get the checker specific argument and return the unparsed ones to the default parser
      *
-     * @param arguments The arguments to parse
+     * @param arguments       The arguments to parse
      * @param polyglotOptions The polyglot options
      * @return The unrecognized options
      */
@@ -258,18 +283,18 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             String curArg = iterator.next();
 
             // Test if the arg is a flag
-            if(curArg.startsWith("-") && curArg.length() >= 2 && !curArg.equals("--")) {
+            if (curArg.startsWith("-") && curArg.length() >= 2 && !curArg.equals("--")) {
 
                 // Get the flag name
                 String flag;
-                if(curArg.startsWith("--")) {
+                if (curArg.startsWith("--")) {
                     flag = curArg.substring(2);
                 } else {
                     flag = this.expandShortFlag(curArg.substring(1));
                 }
 
                 // If the flag is not null
-                if(flag != null) {
+                if (flag != null) {
 
                     // Test if the flag is a solo one
                     if (processFlag(flag) == ArgumentStatus.Consumed) {
@@ -278,7 +303,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
                     // Else try to process it with the value
                     String value;
-                    if(iterator.hasNext()) {
+                    if (iterator.hasNext()) {
                         value = iterator.next();
                     } else {
                         value = null;
@@ -286,13 +311,15 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
                     // Try to consume the flag
                     switch (this.processFlag(flag, value)) {
-                        case Consumed -> {continue;}
+                        case Consumed -> {
+                            continue;
+                        }
                         case Malformed -> throw this.abort("Missing value for " + curArg);
                         case ExpectInt -> throw this.abort("Expected integer value for " + curArg);
                     }
 
                     // Reset the iterator
-                    if(value != null) {
+                    if (value != null) {
                         iterator.previous();
                     }
                 }
@@ -358,7 +385,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     /**
      * Process a flag with its argument
      *
-     * @param flag The flag to process
+     * @param flag  The flag to process
      * @param value The argument value
      * @return If the flag was consumed, unhandled or wrong
      */
@@ -366,7 +393,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         switch (flag) {
             // The charset value
             case "charset":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.charset = value;
@@ -374,7 +401,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             // The project value
             case "project":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.projectFile = value;
@@ -382,7 +409,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             // The jobs value
             case "jobs":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 try {
@@ -394,7 +421,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             // The add rule dir
             case "rules-dirs":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.rulesDirs = value;
@@ -402,21 +429,21 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             // The rule precision
             case "rules":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.rules = value;
                 break;
 
             case "rule-arg":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.rulesArgs.add(value);
                 break;
 
             case "ignores":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.ignores = value;
@@ -440,7 +467,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         super.validateArguments(polyglotOptions);
 
         // Verify the project file
-        if(this.files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
+        if (this.files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
             throw this.abort("Please provide files or a project file to analyze");
         }
     }
@@ -448,12 +475,12 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     // ----- The LKQL checker -----
 
     public static final String checkerSource =
-    """
-    val unts = units()
-    val roots = [unit.root for unit in unts]
+        """
+            val unts = units()
+            val roots = [unit.root for unit in unts]
 
-    map(roots, (root) => node_checker(root))
-    map(unts, (unit) => unit_checker(unit))
-    """;
+            map(roots, (root) => node_checker(root))
+            map(unts, (unit) => unit_checker(unit))
+            """;
 
 }

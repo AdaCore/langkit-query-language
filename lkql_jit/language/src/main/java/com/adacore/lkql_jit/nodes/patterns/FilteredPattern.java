@@ -23,13 +23,13 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
+import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 
 
 /**
@@ -41,12 +41,16 @@ public final class FilteredPattern extends BasePattern {
 
     // ----- Children -----
 
-    /** The pattern to filter */
+    /**
+     * The pattern to filter
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private UnfilteredPattern pattern;
 
-    /** The predicate to do the filtering */
+    /**
+     * The predicate to do the filtering
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr predicate;
@@ -56,14 +60,14 @@ public final class FilteredPattern extends BasePattern {
     /**
      * Create a new filtered pattern node
      *
-     * @param location The location of the node in the source
-     * @param pattern The pattern to filter
+     * @param location  The location of the node in the source
+     * @param pattern   The pattern to filter
      * @param predicate The predicate expression
      */
     public FilteredPattern(
-            SourceLocation location,
-            UnfilteredPattern pattern,
-            Expr predicate
+        SourceLocation location,
+        UnfilteredPattern pattern,
+        Expr predicate
     ) {
         super(location);
         this.pattern = pattern;
@@ -73,7 +77,9 @@ public final class FilteredPattern extends BasePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // If the pattern match, execute the predicate
@@ -83,9 +89,9 @@ public final class FilteredPattern extends BasePattern {
                 return this.predicate.executeBoolean(frame);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.predicate
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.predicate
                 );
             }
         }
@@ -96,7 +102,9 @@ public final class FilteredPattern extends BasePattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -39,7 +39,9 @@ public final class NodeKindPattern extends NodePattern {
 
     // ----- Attributes -----
 
-    /** The Java class of the node kind */
+    /**
+     * The Java class of the node kind
+     */
     private final Class<? extends Libadalang.AdaNode> nodeClazz;
 
     // ----- Constructors -----
@@ -53,28 +55,32 @@ public final class NodeKindPattern extends NodePattern {
     public NodeKindPattern(SourceLocation location, String kindName) {
         super(location);
         this.nodeClazz = Libadalang.NODE_CLASS_MAP.get(kindName);
-        if(this.nodeClazz == null) {
+        if (this.nodeClazz == null) {
             throw LKQLRuntimeException.invalidKindName(this);
         }
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         return this.nodeClazz.isInstance(node) && node != NodeNull.getInstance();
     }
-    
+
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"nodeClazz"},
-                new Object[]{this.nodeClazz.getSimpleName()}
+            indentLevel,
+            new String[]{"nodeClazz"},
+            new Object[]{this.nodeClazz.getSimpleName()}
         );
     }
 

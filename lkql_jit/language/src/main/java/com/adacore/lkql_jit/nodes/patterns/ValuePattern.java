@@ -39,7 +39,7 @@ public abstract class ValuePattern extends UnfilteredPattern {
      * @param location The token location in the source
      */
     protected ValuePattern(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }

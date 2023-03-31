@@ -24,18 +24,17 @@
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
@@ -47,13 +46,19 @@ public final class PrintFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance for the "print" built-in */
+    /**
+     * The only instance for the "print" built-in
+     */
     private static PrintFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "print";
 
-    /** The expression that represents the "print" function execution */
+    /**
+     * The expression that represents the "print" function execution
+     */
     private final PrintExpr printExpr;
 
     // ----- Constructors -----
@@ -71,7 +76,7 @@ public final class PrintFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static PrintFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new PrintFunction();
         }
         return instance;
@@ -79,21 +84,25 @@ public final class PrintFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Built-in print function. Prints whatever is passed as an argument",
-                new String[]{"val", "new_line"},
-                new Expr[]{null, new BooleanLiteral(null, true)},
-                this.printExpr
+            NAME,
+            "Built-in print function. Prints whatever is passed as an argument",
+            new String[]{"val", "new_line"},
+            new Expr[]{null, new BooleanLiteral(null, true)},
+            this.printExpr
         );
     }
 
@@ -113,14 +122,14 @@ public final class PrintFunction implements BuiltInFunction {
                 newLine = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
             // Print the value
-            if(newLine) {
+            if (newLine) {
                 LKQLLanguage.getContext(this.callNode).println(ObjectUtils.toString(toPrint));
             } else {
                 LKQLLanguage.getContext(this.callNode).print(ObjectUtils.toString(toPrint));

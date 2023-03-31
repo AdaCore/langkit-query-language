@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 
 
 /**
@@ -37,7 +37,9 @@ public final class Unpack extends Expr {
 
     // ----- Children -----
 
-    /** The collection to unpack */
+    /**
+     * The collection to unpack
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr collectionExpr;
@@ -47,12 +49,12 @@ public final class Unpack extends Expr {
     /**
      * Create a new unpack nod
      *
-     * @param location The location of the node in the source
+     * @param location       The location of the node in the source
      * @param collectionExpr The collection expression to unpack
      */
     public Unpack(
-            SourceLocation location,
-            Expr collectionExpr
+        SourceLocation location,
+        Expr collectionExpr
     ) {
         super(location);
         this.collectionExpr = collectionExpr;
@@ -60,14 +62,16 @@ public final class Unpack extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the collection expression
         Object obj = this.collectionExpr.executeGeneric(frame);
 
         // If the result is a collection, copy it
-        if(LKQLTypeSystemGen.isIndexable(obj)) {
+        if (LKQLTypeSystemGen.isIndexable(obj)) {
             return LKQLTypeSystemGen.asIndexable(obj).getContent();
         } else {
             return obj;
@@ -76,7 +80,9 @@ public final class Unpack extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

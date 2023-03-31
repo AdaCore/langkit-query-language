@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.nodes;
 
+import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ReflectionUtils;
@@ -30,8 +31,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.source.SourceSection;
-import com.adacore.lkql_jit.LKQLTypeSystem;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -48,7 +47,9 @@ public abstract class LKQLNode extends Node implements Locatable {
 
     // ----- Attributes -----
 
-    /** The location of the node in the source */
+    /**
+     * The location of the node in the source
+     */
     protected final SourceLocation location;
 
     // ----- Constructor -----
@@ -59,14 +60,16 @@ public abstract class LKQLNode extends Node implements Locatable {
      * @param location The location of the node in the source
      */
     protected LKQLNode(
-            SourceLocation location
+        SourceLocation location
     ) {
         this.location = location;
     }
 
     // ----- Getters -----
 
-    /** @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation() */
+    /**
+     * @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation()
+     */
     @Override
     public SourceLocation getLocation() {
         return location;
@@ -98,8 +101,8 @@ public abstract class LKQLNode extends Node implements Locatable {
      * Create a node string representation with its name and fields, THIS AUTOMATICALLY INCLUDE NODE'S CHILDREN
      *
      * @param indentLevel The level of indentation
-     * @param fields The field names
-     * @param values The field values
+     * @param fields      The field names
+     * @param values      The field values
      * @return The string representation of the node
      */
     @CompilerDirectives.TruffleBoundary
@@ -112,7 +115,7 @@ public abstract class LKQLNode extends Node implements Locatable {
         List<String> childrenRepresentation = this.getChildrenRepresentations(indentLevel);
 
         // If the fields and children are empty, just return an empty node
-        if(fields.length == 0 && childrenRepresentation.size() == 0) {
+        if (fields.length == 0 && childrenRepresentation.size() == 0) {
             builder.append('}');
             return builder.toString();
         } else {
@@ -120,16 +123,16 @@ public abstract class LKQLNode extends Node implements Locatable {
         }
 
         // Add the node custom fields
-        for(int i = 0 ; i < fields.length && i < values.length ; i++) {
+        for (int i = 0; i < fields.length && i < values.length; i++) {
             this.indent(indentLevel, builder);
             builder.append(fields[i])
-                    .append(" = ")
-                    .append(values[i] == null ? "null" : values[i].toString())
-                    .append('\n');
+                .append(" = ")
+                .append(values[i] == null ? "null" : values[i].toString())
+                .append('\n');
         }
 
         // Add the node children
-        for(String child : childrenRepresentation) {
+        for (String child : childrenRepresentation) {
             this.indent(indentLevel, builder);
             builder.append(child).append('\n');
         }
@@ -146,7 +149,7 @@ public abstract class LKQLNode extends Node implements Locatable {
      * Indent the builder with the correct level
      *
      * @param indentLevel The indent level
-     * @param builder The builder to indent
+     * @param builder     The builder to indent
      */
     private void indent(int indentLevel, StringBuilder builder) {
         builder.append("   ".repeat(Math.max(0, indentLevel)));
@@ -164,12 +167,12 @@ public abstract class LKQLNode extends Node implements Locatable {
 
         // Get the fields annotated with child or children
         List<Field> childFields = ReflectionUtils.getFieldsUpTo(this.getClass(), null)
-                .stream().filter(
-                        field -> field.getAnnotation(Child.class) != null || field.getAnnotation(Children.class) != null
-                ).toList();
+            .stream().filter(
+                field -> field.getAnnotation(Child.class) != null || field.getAnnotation(Children.class) != null
+            ).toList();
 
         // Add all field to the result
-        for(Field childField : childFields) {
+        for (Field childField : childFields) {
             try {
                 // Get the field value
                 childField.setAccessible(true);
@@ -180,16 +183,16 @@ public abstract class LKQLNode extends Node implements Locatable {
                 String fieldValueString;
 
                 // If the value is null
-                if(fieldValue == null) {
+                if (fieldValue == null) {
                     fieldValueString = "null";
                 }
 
                 // If the value is an array of node
-                else if(fieldValue.getClass().isArray()) {
+                else if (fieldValue.getClass().isArray()) {
                     LKQLNode[] nodeArray = (LKQLNode[]) fieldValue;
 
                     // If the node array is empty
-                    if(nodeArray.length == 0) {
+                    if (nodeArray.length == 0) {
                         fieldValueString = "[]";
                     }
 
@@ -201,10 +204,10 @@ public abstract class LKQLNode extends Node implements Locatable {
                         indentLevel++;
 
                         // Add all node in the string builder
-                        for(int i = 0 ; i < nodeArray.length ; i++) {
+                        for (int i = 0; i < nodeArray.length; i++) {
                             this.indent(indentLevel, nodeArrayStringBuilder);
                             nodeArrayStringBuilder.append(nodeArray[i].toString(indentLevel + 1));
-                            if(i < nodeArray.length - 1) {
+                            if (i < nodeArray.length - 1) {
                                 nodeArrayStringBuilder.append(",");
                             }
                             nodeArrayStringBuilder.append('\n');
@@ -218,7 +221,7 @@ public abstract class LKQLNode extends Node implements Locatable {
                 }
 
                 // If the field is a LKQL node
-                else if(fieldValue instanceof LKQLNode lkqlNode) {
+                else if (fieldValue instanceof LKQLNode lkqlNode) {
                     fieldValueString = lkqlNode.toString(indentLevel + 1);
                 }
 

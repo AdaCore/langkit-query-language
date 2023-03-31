@@ -23,18 +23,18 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
+import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 
 
 /**
@@ -46,7 +46,9 @@ public final class TokenMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static TokenMethods instance = null;
 
     // ----- Constructors -----
@@ -64,98 +66,102 @@ public final class TokenMethods extends CommonMethods {
      * @return The instance
      */
     public static TokenMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new TokenMethods();
         }
         return instance;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods()
+     */
     @Override
     protected void initMethods() {
         super.initMethods();
         this.methods.put("start_column", new BuiltInFunctionValue(
-                "start_column",
-                "Return the column start",
-                new String[]{"token"},
-                new Expr[]{null},
-                new StartColExpr()
+            "start_column",
+            "Return the column start",
+            new String[]{"token"},
+            new Expr[]{null},
+            new StartColExpr()
         ));
         this.methods.put("end_column", new BuiltInFunctionValue(
-                "end_column",
-                "Return the column end",
-                new String[]{"token"},
-                new Expr[]{null},
-                new EndColExpr()
+            "end_column",
+            "Return the column end",
+            new String[]{"token"},
+            new Expr[]{null},
+            new EndColExpr()
         ));
         this.methods.put("start_line", new BuiltInFunctionValue(
-                "start_line",
-                "Return the line start",
-                new String[]{"token"},
-                new Expr[]{null},
-                new StartLineExpr()
+            "start_line",
+            "Return the line start",
+            new String[]{"token"},
+            new Expr[]{null},
+            new StartLineExpr()
         ));
         this.methods.put("end_line", new BuiltInFunctionValue(
-                "end_line",
-                "Return the line end",
-                new String[]{"token"},
-                new Expr[]{null},
-                new EndLineExpr()
+            "end_line",
+            "Return the line end",
+            new String[]{"token"},
+            new Expr[]{null},
+            new EndLineExpr()
         ));
         this.methods.put("is_equivalent", new BuiltInFunctionValue(
-                "is_equivalent",
-                "Return whether two tokens are structurally equivalent",
-                new String[]{"this", "other"},
-                new Expr[]{null, null},
-                new IsEquivalentExpr()
+            "is_equivalent",
+            "Return whether two tokens are structurally equivalent",
+            new String[]{"this", "other"},
+            new Expr[]{null, null},
+            new IsEquivalentExpr()
         ));
         this.methods.put("is_trivia", new BuiltInFunctionValue(
-                "is_trivia",
-                "Return whether this token is a trivia",
-                new String[]{"token"},
-                new Expr[]{null},
-                new IsTriviaExpr()
+            "is_trivia",
+            "Return whether this token is a trivia",
+            new String[]{"token"},
+            new Expr[]{null},
+            new IsTriviaExpr()
         ));
         this.methods.put("next", new BuiltInFunctionValue(
-                "next",
-                "Return the next token",
-                new String[]{"token", "exclude_trivia"},
-                new Expr[]{null, new BooleanLiteral(null, false)},
-                new NextExpr()
+            "next",
+            "Return the next token",
+            new String[]{"token", "exclude_trivia"},
+            new Expr[]{null, new BooleanLiteral(null, false)},
+            new NextExpr()
         ));
         this.methods.put("previous", new BuiltInFunctionValue(
-                "previous",
-                "Return the previous token",
-                new String[]{"token", "exclude_trivia"},
-                new Expr[]{null, new BooleanLiteral(null, false)},
-                new PrevExpr()
+            "previous",
+            "Return the previous token",
+            new String[]{"token", "exclude_trivia"},
+            new Expr[]{null, new BooleanLiteral(null, false)},
+            new PrevExpr()
         ));
         this.methods.put("unit", new BuiltInFunctionValue(
-                "unit",
-                "Return the unit for this token",
-                new String[]{"token"},
-                new Expr[]{null},
-                new UnitExpr()
+            "unit",
+            "Return the unit for this token",
+            new String[]{"token"},
+            new Expr[]{null},
+            new UnitExpr()
         ));
         this.methods.put("text", new BuiltInFunctionValue(
-                "text",
-                "Return the text of the token",
-                new String[]{"token"},
-                new Expr[]{null},
-                new TextExpr()
+            "text",
+            "Return the text of the token",
+            new String[]{"token"},
+            new Expr[]{null},
+            new TextExpr()
         ));
         this.methods.put("kind", new BuiltInFunctionValue(
-                "kind",
-                "Return the kind of the token",
-                new String[]{"token"},
-                new Expr[]{null},
-                new KindExpr()
+            "kind",
+            "Return the kind of the token",
+            new String[]{"token"},
+            new Expr[]{null},
+            new KindExpr()
         ));
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.TOKEN;
@@ -215,9 +221,9 @@ public final class TokenMethods extends CommonMethods {
                 other = LKQLTypeSystemGen.expectToken(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.TOKEN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.TOKEN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
@@ -248,14 +254,14 @@ public final class TokenMethods extends CommonMethods {
                 ignoreTrivia = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
             Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).next();
-            if(ignoreTrivia) {
+            if (ignoreTrivia) {
                 while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.next();
                 }
@@ -277,14 +283,14 @@ public final class TokenMethods extends CommonMethods {
                 ignoreTrivia = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
             Libadalang.Token res = LKQLTypeSystemGen.asToken(frame.getArguments()[0]).previous();
-            if(ignoreTrivia) {
+            if (ignoreTrivia) {
                 while (!res.isNone() && res.triviaIndex != 0) {
                     res = res.previous();
                 }
@@ -321,10 +327,10 @@ public final class TokenMethods extends CommonMethods {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.Token token = LKQLTypeSystemGen.asToken(frame.getArguments()[0]);
-            if(token.kind.toC() == -1) return "no_token";
+            if (token.kind.toC() == -1) return "no_token";
             String rawKind = ObjectUtils.toString(token.kind);
             return StringUtils.toLowerCase(StringUtils.split(
-                    rawKind, "_"
+                rawKind, "_"
             )[1]);
         }
     }

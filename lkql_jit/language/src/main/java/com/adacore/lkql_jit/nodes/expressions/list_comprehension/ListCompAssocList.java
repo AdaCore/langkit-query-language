@@ -39,7 +39,9 @@ public final class ListCompAssocList extends LKQLNode {
 
     // ----- Children -----
 
-    /** The comprehension associations */
+    /**
+     * The comprehension associations
+     */
     @Children
     private final ListCompAssoc[] compAssocs;
 
@@ -48,12 +50,12 @@ public final class ListCompAssocList extends LKQLNode {
     /**
      * Create a new comprehension association list
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source
      * @param compAssocs The comprehension associations
      */
     public ListCompAssocList(
-            SourceLocation location,
-            ListCompAssoc[] compAssocs
+        SourceLocation location,
+        ListCompAssoc[] compAssocs
     ) {
         super(location);
         this.compAssocs = compAssocs;
@@ -67,7 +69,9 @@ public final class ListCompAssocList extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -83,7 +87,7 @@ public final class ListCompAssocList extends LKQLNode {
         // Prepare the result
         Iterable[] res = new Iterable[this.compAssocs.length];
 
-        for(int i = 0 ; i < res.length ; i++) {
+        for (int i = 0; i < res.length; i++) {
             res[i] = this.compAssocs[i].executeCollection(frame);
         }
 
@@ -93,7 +97,9 @@ public final class ListCompAssocList extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -36,7 +36,9 @@ public abstract class BuiltInExpr extends Expr {
 
     // ----- Attributes -----
 
-    /** The node that called the expression */
+    /**
+     * The node that called the expression
+     */
     protected FunCall callNode;
 
     // ----- Constructors -----
@@ -56,7 +58,9 @@ public abstract class BuiltInExpr extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return "BUILT_IN NODE";

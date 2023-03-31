@@ -37,7 +37,9 @@ public final class WriteArg extends LKQLNode {
 
     // ----- Attributes -----
 
-    /** The local slot to write the argument in */
+    /**
+     * The local slot to write the argument in
+     */
     private final int slot;
 
     // ----- Constructors -----
@@ -48,7 +50,7 @@ public final class WriteArg extends LKQLNode {
      * @param slot The slot of the frame to write in
      */
     public WriteArg(
-            int slot
+        int slot
     ) {
         super(null);
         this.slot = slot;
@@ -62,7 +64,9 @@ public final class WriteArg extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -71,7 +75,7 @@ public final class WriteArg extends LKQLNode {
     /**
      * Execute the argument writing with the arg index
      *
-     * @param frame The frame write the argument in
+     * @param frame    The frame write the argument in
      * @param argIndex The argument index
      */
     public void executeWrite(VirtualFrame frame, int argIndex) {
@@ -80,13 +84,15 @@ public final class WriteArg extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"slot"},
-                new Object[]{this.slot}
+            indentLevel,
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

@@ -45,33 +45,47 @@ public final class ListComprehension extends Expr {
 
     // ----- Attributes -----
 
-    /** The slots of the lsit comprehension associations */
+    /**
+     * The slots of the lsit comprehension associations
+     */
     private final int[] slots;
 
-    /** The descriptor for the list comprehension root node */
+    /**
+     * The descriptor for the list comprehension root node
+     */
     private final FrameDescriptor descriptor;
 
-    /** The limit of the closure */
+    /**
+     * The limit of the closure
+     */
     private final int closureLimit;
 
     // ----- Children -----
 
-    /** The generators of the list comprehension */
+    /**
+     * The generators of the list comprehension
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ListCompAssocList generators;
 
-    /** The expression result of the list comprehension */
+    /**
+     * The expression result of the list comprehension
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
 
-    /** The guard of the list comprehension */
+    /**
+     * The guard of the list comprehension
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr guard;
 
-    /** The root node containing the list comprehension logic */
+    /**
+     * The root node containing the list comprehension logic
+     */
     private final ListComprehensionRootNode rootNode;
 
     // -----  Constructors -----
@@ -79,26 +93,26 @@ public final class ListComprehension extends Expr {
     /**
      * Create a new list comprehension node
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source
      * @param descriptor The frame descriptor for the root node
-     * @param expr The result expression of the list comprehension
+     * @param expr       The result expression of the list comprehension
      * @param generators The generators of the list comprehension
-     * @param guard The guard of the list comprehension
+     * @param guard      The guard of the list comprehension
      */
     public ListComprehension(
-            SourceLocation location,
-            FrameDescriptor descriptor,
-            int closureLimit,
-            ListCompAssocList generators,
-            Expr expr,
-            Expr guard
+        SourceLocation location,
+        FrameDescriptor descriptor,
+        int closureLimit,
+        ListCompAssocList generators,
+        Expr expr,
+        Expr guard
     ) {
         super(location);
         this.descriptor = descriptor;
         this.closureLimit = closureLimit;
         this.generators = generators;
         this.slots = new int[generators.getCompAssocs().length];
-        for(int i = 0 ; i < this.slots.length ; i++) {
+        for (int i = 0; i < this.slots.length; i++) {
             this.slots[i] = generators.getCompAssocs()[i].getSlot();
         }
         this.expr = expr;
@@ -108,13 +122,17 @@ public final class ListComprehension extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeLazyList(frame);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeLazyList(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeLazyList(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public LazyListValue executeLazyList(VirtualFrame frame) {
         // Get the iterables for the list comprehension
@@ -122,16 +140,16 @@ public final class ListComprehension extends Expr {
 
         // Get the result size and prepare the result
         int resultSize = 1;
-        for(Iterable iterable : iterables) {
+        for (Iterable iterable : iterables) {
             resultSize *= iterable.size();
         }
 
         // Verify that the result size is strictly positive
-        if(resultSize < 1) {
+        if (resultSize < 1) {
             return new LazyListValue(
-                    new Closure(frame.materialize(), this.closureLimit),
-                    rootNode,
-                    new Object[0][]
+                new Closure(frame.materialize(), this.closureLimit),
+                rootNode,
+                new Object[0][]
             );
         }
 
@@ -141,7 +159,7 @@ public final class ListComprehension extends Expr {
         // Initialize the working variables
         Iterator[] iterators = new Iterator[iterables.length];
         Object[] valueBuffer = new Object[iterables.length];
-        for(int i = 0 ; i < iterables.length ; i++) {
+        for (int i = 0; i < iterables.length; i++) {
             iterators[i] = iterables[i].iterator();
             valueBuffer[i] = iterators[i].next();
         }
@@ -150,13 +168,13 @@ public final class ListComprehension extends Expr {
         int i = 0;
         do {
             argsList[i++] = valueBuffer.clone();
-        } while(this.increaseIndexes(iterators, valueBuffer));
+        } while (this.increaseIndexes(iterators, valueBuffer));
 
         // Return the result of the list comprehension as a lazy list
         return new LazyListValue(
-                new Closure(frame.materialize(), this.closureLimit),
-                this.rootNode,
-                argsList
+            new Closure(frame.materialize(), this.closureLimit),
+            this.rootNode,
+            argsList
         );
     }
 
@@ -165,14 +183,14 @@ public final class ListComprehension extends Expr {
     /**
      * Increase the indexes for the
      *
-     * @param iterators The iterators containing the current iteration information
+     * @param iterators   The iterators containing the current iteration information
      * @param valueBuffer The buffer to put the values in
      * @return True if the indexes have been increased
      */
     private boolean increaseIndexes(Iterator[] iterators, Object[] valueBuffer) {
-        for(int i = iterators.length - 1 ; i >= 0 ; i--) {
+        for (int i = iterators.length - 1; i >= 0; i--) {
             // If the iterator has a next value
-            if(iterators[i].hasNext()) {
+            if (iterators[i].hasNext()) {
                 valueBuffer[i] = iterators[i].next();
                 return true;
             }
@@ -194,17 +212,19 @@ public final class ListComprehension extends Expr {
     @CompilerDirectives.TruffleBoundary
     private ListComprehensionRootNode createRootNode() {
         return new ListComprehensionRootNode(
-                LKQLLanguage.getLanguage(this),
-                this.descriptor,
-                this.slots,
-                this.guard,
-                this.expr
+            LKQLLanguage.getLanguage(this),
+            this.descriptor,
+            this.slots,
+            this.guard,
+            this.expr
         );
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

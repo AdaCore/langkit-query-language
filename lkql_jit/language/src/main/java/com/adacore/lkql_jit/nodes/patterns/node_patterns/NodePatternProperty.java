@@ -23,14 +23,14 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -42,17 +42,23 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
     // ----- Attributes -----
 
-    /** The name of the property to call */
+    /**
+     * The name of the property to call
+     */
     protected final String propertyName;
 
     // ----- Children -----
 
-    /** The list of the argument for the property call */
+    /**
+     * The list of the argument for the property call
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected ArgList argList;
 
-    /** The expected value for the property call */
+    /**
+     * The expected value for the property call
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected DetailValue expected;
@@ -62,16 +68,16 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     /**
      * Create a new pattern detail on a property
      *
-     * @param location The token location in the source
+     * @param location     The token location in the source
      * @param propertyName The name of the property to call
-     * @param argList The arguments for the property call
-     * @param expected The expected value of the property call
+     * @param argList      The arguments for the property call
+     * @param expected     The expected value of the property call
      */
     public NodePatternProperty(
-            SourceLocation location,
-            String propertyName,
-            ArgList argList,
-            DetailValue expected
+        SourceLocation location,
+        String propertyName,
+        ArgList argList,
+        DetailValue expected
     ) {
         super(location);
         this.propertyName = propertyName;
@@ -84,23 +90,23 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     /**
      * Execute the property detail with the cached path
      *
-     * @param frame The frame to execute in
-     * @param node The node get the property from
+     * @param frame       The frame to execute in
+     * @param node        The node get the property from
      * @param propertyRef The cached property reference
      * @return True if the detail is valid, false else
      */
     @Specialization(guards = {
-            "node == propertyRef.getNode()",
-            "propertyRef.getFieldDescription() != null"
+        "node == propertyRef.getNode()",
+        "propertyRef.getFieldDescription() != null"
     })
     protected boolean propertyCached(
-            VirtualFrame frame,
-            @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(node, propertyName)") PropertyRefValue propertyRef
+        VirtualFrame frame,
+        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @Cached("create(node, propertyName)") PropertyRefValue propertyRef
     ) {
         // Evaluate the arguments
         Object[] arguments = new Object[this.argList.getArgs().length];
-        for(int i = 0 ; i < arguments.length ; i++) {
+        for (int i = 0; i < arguments.length; i++) {
             arguments[i] = this.argList.getArgs()[i].getArgExpr().executeGeneric(frame);
         }
 
@@ -115,43 +121,45 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * Execute the property detail with the un-cached path
      *
      * @param frame The frame to execute in
-     * @param node The node get the property from
+     * @param node  The node get the property from
      * @return True if the detail is valid, false else
      */
     @Specialization(replaces = "propertyCached")
     protected boolean propertyUncached(
-            VirtualFrame frame,
-            Libadalang.AdaNode node
+        VirtualFrame frame,
+        Libadalang.AdaNode node
     ) {
         // Get the property methods
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.propertyName);
 
         // Test if the property is null
-        if(propertyRef.getFieldDescription() == null) {
+        if (propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
-                    this.propertyName,
-                    node,
-                    this
+                this.propertyName,
+                node,
+                this
             );
         }
 
         // Return the result
         return this.propertyCached(
-                frame,
-                node,
-                propertyRef
+            frame,
+            node,
+            propertyRef
         );
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"propertyName"},
-                new Object[]{this.propertyName}
+            indentLevel,
+            new String[]{"propertyName"},
+            new Object[]{this.propertyName}
         );
     }
 

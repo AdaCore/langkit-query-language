@@ -23,12 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -40,7 +39,9 @@ public final class SelectorLink extends ChainedPatternLink {
 
     // ----- Children -----
 
-    /** The selector call to perform during link execution */
+    /**
+     * The selector call to perform during link execution
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private SelectorCall selectorCall;
@@ -50,14 +51,14 @@ public final class SelectorLink extends ChainedPatternLink {
     /**
      * Create a new selector link node
      *
-     * @param location The location of the node in the source
-     * @param pattern The pattern to verify
+     * @param location     The location of the node in the source
+     * @param pattern      The pattern to verify
      * @param selectorCall The selector call
      */
     public SelectorLink(
-            SourceLocation location,
-            BasePattern pattern,
-            SelectorCall selectorCall
+        SourceLocation location,
+        BasePattern pattern,
+        SelectorCall selectorCall
     ) {
         super(location, pattern);
         this.selectorCall = selectorCall;
@@ -65,7 +66,9 @@ public final class SelectorLink extends ChainedPatternLink {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedPatternLink#executeLink(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedPatternLink#executeLink(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public Libadalang.AdaNode[] executeLink(VirtualFrame frame, Libadalang.AdaNode node) {
         return (Libadalang.AdaNode[]) this.selectorCall.executeFiltering(frame, node, this.pattern).getContent();
@@ -73,7 +76,9 @@ public final class SelectorLink extends ChainedPatternLink {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

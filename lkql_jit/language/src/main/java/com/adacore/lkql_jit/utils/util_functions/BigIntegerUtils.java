@@ -71,7 +71,7 @@ public final class BigIntegerUtils {
     /**
      * Add two big integers
      *
-     * @param left The left operand
+     * @param left  The left operand
      * @param right The right operand
      * @return The result of the addition
      */
@@ -83,7 +83,7 @@ public final class BigIntegerUtils {
     /**
      * Subtract a big integer to another big integer
      *
-     * @param left The left big integer
+     * @param left  The left big integer
      * @param right The right big integer
      * @return The result of the subtraction
      */
@@ -95,7 +95,7 @@ public final class BigIntegerUtils {
     /**
      * Multiply two big integers
      *
-     * @param left The left operand
+     * @param left  The left operand
      * @param right The right operand
      * @return The result of the multiplication
      */
@@ -107,7 +107,7 @@ public final class BigIntegerUtils {
     /**
      * Divide two big integers
      *
-     * @param left The left operand
+     * @param left  The left operand
      * @param right The right operand
      * @return The result of the division
      */
@@ -119,7 +119,7 @@ public final class BigIntegerUtils {
     /**
      * Get if the left big integer is equals to the right one
      *
-     * @param left The left big integer
+     * @param left  The left big integer
      * @param right The right big integer
      * @return If those are equals
      */
@@ -131,7 +131,7 @@ public final class BigIntegerUtils {
     /**
      * Get the result of the comparison of the two big integers
      *
-     * @param left The left one
+     * @param left  The left one
      * @param right The right one
      * @return The result of the comparison
      */

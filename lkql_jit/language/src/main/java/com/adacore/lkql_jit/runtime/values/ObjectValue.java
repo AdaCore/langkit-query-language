@@ -42,7 +42,9 @@ public final class ObjectValue implements LKQLValue {
 
     // ----- Attributes -----
 
-    /** The content of the object */
+    /**
+     * The content of the object
+     */
     private final Map<String, Object> content;
 
     // ----- Constructors -----
@@ -50,16 +52,16 @@ public final class ObjectValue implements LKQLValue {
     /**
      * Create an object value
      *
-     * @param keys The keys of the object
+     * @param keys   The keys of the object
      * @param values The values of the object
      */
     @CompilerDirectives.TruffleBoundary
     public ObjectValue(
-            String[] keys,
-            Object[] values
+        String[] keys,
+        Object[] values
     ) {
         this.content = new HashMap<>(keys.length);
-        for(int i = 0 ; i < keys.length ; i++) {
+        for (int i = 0; i < keys.length; i++) {
             this.content.put(keys[i], values[i]);
         }
     }
@@ -77,20 +79,22 @@ public final class ObjectValue implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     @CompilerDirectives.TruffleBoundary
     public boolean internalEquals(LKQLValue o) {
         if (this == o) return true;
         if (!(o instanceof ObjectValue other)) return false;
-        if(this.content.size() != other.content.size()) return false;
-        for(String key : this.content.keySet()) {
+        if (this.content.size() != other.content.size()) return false;
+        for (String key : this.content.keySet()) {
             Object mineObject = this.content.getOrDefault(key, null);
             Object hisObject = other.content.getOrDefault(key, null);
-            if((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if(!mine.internalEquals(his)) return false;
+            if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
+                if (!mine.internalEquals(his)) return false;
             } else {
-                if(!Objects.equals(mineObject, hisObject)) return false;
+                if (!Objects.equals(mineObject, hisObject)) return false;
             }
         }
         return true;
@@ -109,9 +113,9 @@ public final class ObjectValue implements LKQLValue {
             String key = keyIterator.next();
             Object value = this.content.get(key);
             String valueString;
-            if(value == null) {
+            if (value == null) {
                 valueString = "null";
-            } else if(value instanceof String s) {
+            } else if (value instanceof String s) {
                 valueString = StringUtils.toRepr(s);
             } else {
                 valueString = value.toString();
@@ -119,7 +123,7 @@ public final class ObjectValue implements LKQLValue {
 
             res.append('"').append(key).append('"');
             res.append(": ").append(valueString);
-            if(keyIterator.hasNext()) {
+            if (keyIterator.hasNext()) {
                 res.append(", ");
             }
         }

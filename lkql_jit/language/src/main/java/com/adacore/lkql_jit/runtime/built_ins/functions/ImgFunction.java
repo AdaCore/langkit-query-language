@@ -23,12 +23,12 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -40,13 +40,19 @@ public final class ImgFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance for the "img" built-in */
+    /**
+     * The only instance for the "img" built-in
+     */
     private static ImgFunction instance = null;
 
-    /** The name of the built-in */
+    /**
+     * The name of the built-in
+     */
     public static final String NAME = "img";
 
-    /** The expression that represents the "img" function execution */
+    /**
+     * The expression that represents the "img" function execution
+     */
     private final ImgExpr imgExpr;
 
     // ----- Constructors -----
@@ -64,7 +70,7 @@ public final class ImgFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static ImgFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ImgFunction();
         }
         return instance;
@@ -72,21 +78,25 @@ public final class ImgFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Return a string representation of an object",
-                new String[]{"val"},
-                new Expr[]{null},
-                this.imgExpr
+            NAME,
+            "Return a string representation of an object",
+            new String[]{"val"},
+            new Expr[]{null},
+            this.imgExpr
         );
     }
 
@@ -99,7 +109,7 @@ public final class ImgFunction implements BuiltInFunction {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Return the string representation of the argument
-            if(frame.getArguments()[0] instanceof String s) {
+            if (frame.getArguments()[0] instanceof String s) {
                 return StringUtils.toRepr(s);
             } else {
                 return ObjectUtils.toString(frame.getArguments()[0]);

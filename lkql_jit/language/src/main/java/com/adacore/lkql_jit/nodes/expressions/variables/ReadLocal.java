@@ -36,7 +36,9 @@ public final class ReadLocal extends ReadVariable {
 
     // ----- Attributes -----
 
-    /** The frame slot to read */
+    /**
+     * The frame slot to read
+     */
     private final int slot;
 
     // ----- Constructors -----
@@ -45,11 +47,11 @@ public final class ReadLocal extends ReadVariable {
      * Create a new read local node
      *
      * @param location The location of the node in the source
-     * @param slot The slot index to read in the frame
+     * @param slot     The slot index to read in the frame
      */
     public ReadLocal(
-            SourceLocation location,
-            int slot
+        SourceLocation location,
+        int slot
     ) {
         super(location);
         this.slot = slot;
@@ -57,7 +59,9 @@ public final class ReadLocal extends ReadVariable {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return frame.getObject(this.slot);
@@ -65,13 +69,15 @@ public final class ReadLocal extends ReadVariable {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"slot"},
-                new Object[]{this.slot}
+            indentLevel,
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

@@ -35,7 +35,9 @@ public final class UnitMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static UnitMethods instance = null;
 
     // ----- Constructors -----
@@ -53,7 +55,7 @@ public final class UnitMethods extends CommonMethods {
      * @return The instance
      */
     public static UnitMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new UnitMethods();
         }
         return instance;
@@ -61,7 +63,9 @@ public final class UnitMethods extends CommonMethods {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.LKQL_UNIT;

@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -38,7 +38,9 @@ public final class ListLiteral extends Expr {
 
     // ----- Children -----
 
-    /** The list expressions */
+    /**
+     * The list expressions
+     */
     @Children
     private final Expr[] listExprs;
 
@@ -47,12 +49,12 @@ public final class ListLiteral extends Expr {
     /**
      * Create a new list literal node
      *
-     * @param location The location of the node in the source
+     * @param location  The location of the node in the source
      * @param listExprs The expressions inside the list
      */
     public ListLiteral(
-            SourceLocation location,
-            Expr[] listExprs
+        SourceLocation location,
+        Expr[] listExprs
     ) {
         super(location);
         this.listExprs = listExprs;
@@ -60,18 +62,22 @@ public final class ListLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeList(frame);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeList(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeList(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public ListValue executeList(VirtualFrame frame) {
         // Evaluate the list content
         Object[] values = new Object[this.listExprs.length];
-        for(int i = 0 ; i < this.listExprs.length ; i++) {
+        for (int i = 0; i < this.listExprs.length; i++) {
             values[i] = this.listExprs[i].executeGeneric(frame);
         }
 
@@ -81,7 +87,9 @@ public final class ListLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

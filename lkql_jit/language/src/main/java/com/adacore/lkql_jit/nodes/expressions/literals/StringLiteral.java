@@ -37,7 +37,9 @@ public final class StringLiteral extends Expr {
 
     // ----- Attributes -----
 
-    /** The value of the string literal */
+    /**
+     * The value of the string literal
+     */
     private final String value;
 
     // ----- Constructors -----
@@ -46,11 +48,11 @@ public final class StringLiteral extends Expr {
      * Create a new string literal with its value
      *
      * @param location The location of the node in the source
-     * @param value The value of the string
+     * @param value    The value of the string
      */
     public StringLiteral(
-            SourceLocation location,
-            String value
+        SourceLocation location,
+        String value
     ) {
         super(location);
         this.value = value;
@@ -58,13 +60,17 @@ public final class StringLiteral extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.value;
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeString(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeString(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String executeString(VirtualFrame frame) {
         return this.value;
@@ -72,13 +78,15 @@ public final class StringLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"value"},
-                new Object[]{this.value}
+            indentLevel,
+            new String[]{"value"},
+            new Object[]{this.value}
         );
     }
 

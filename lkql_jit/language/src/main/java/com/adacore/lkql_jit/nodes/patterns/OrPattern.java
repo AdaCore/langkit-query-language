@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -37,12 +37,16 @@ public final class OrPattern extends ValuePattern {
 
     // ----- Children -----
 
-    /** The left part of the "or" pattern */
+    /**
+     * The left part of the "or" pattern
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern left;
 
-    /** The right part of the "or" pattern */
+    /**
+     * The right part of the "or" pattern
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern right;
@@ -53,13 +57,13 @@ public final class OrPattern extends ValuePattern {
      * Create a new "or" pattern node
      *
      * @param location The location of the node in the source
-     * @param left The left part of the "or"
-     * @param right The right part of the "or"
+     * @param left     The left part of the "or"
+     * @param right    The right part of the "or"
      */
     public OrPattern(
-            SourceLocation location,
-            BasePattern left,
-            BasePattern right
+        SourceLocation location,
+        BasePattern left,
+        BasePattern right
     ) {
         super(location);
         this.left = left;
@@ -68,21 +72,25 @@ public final class OrPattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the short circuit
-        if(this.left.executeNode(frame, node)) {
+        if (this.left.executeNode(frame, node)) {
             return true;
         } else {
             return this.right.executeNode(frame, node);
         }
     }
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String)
+     */
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
-        if(this.left.executeString(frame, str)) {
+        if (this.left.executeString(frame, str)) {
             return true;
         } else {
             return this.right.executeString(frame, str);
@@ -91,7 +99,9 @@ public final class OrPattern extends ValuePattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

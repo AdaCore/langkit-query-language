@@ -23,18 +23,16 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
-
-import java.util.Arrays;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -46,13 +44,19 @@ public final class UniqueFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "unique" built-in */
+    /**
+     * The only instance of the "unique" built-in
+     */
     private static UniqueFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "unique";
 
-    /** The expression that represents the "unique" function execution */
+    /**
+     * The expression that represents the "unique" function execution
+     */
     private final UniqueExpr uniqueExpr;
 
     // ----- Constructors -----
@@ -70,7 +74,7 @@ public final class UniqueFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static UniqueFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new UniqueFunction();
         }
         return instance;
@@ -78,21 +82,25 @@ public final class UniqueFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given collection, remove all identical elements in order to have only one instance of each",
-                new String[]{"indexable"},
-                new Expr[]{null},
-                this.uniqueExpr
+            NAME,
+            "Given collection, remove all identical elements in order to have only one instance of each",
+            new String[]{"indexable"},
+            new Expr[]{null},
+            this.uniqueExpr
         );
     }
 
@@ -108,11 +116,11 @@ public final class UniqueFunction implements BuiltInFunction {
             Object indexableObject = frame.getArguments()[0];
 
             // Verify the argument type
-            if(!LKQLTypeSystemGen.isIndexable(indexableObject)) {
+            if (!LKQLTypeSystemGen.isIndexable(indexableObject)) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(indexableObject),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.LKQL_LIST,
+                    LKQLTypesHelper.fromJava(indexableObject),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 

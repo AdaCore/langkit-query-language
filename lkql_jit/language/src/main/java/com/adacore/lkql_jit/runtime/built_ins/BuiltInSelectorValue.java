@@ -39,14 +39,14 @@ public class BuiltInSelectorValue extends SelectorValue {
     /**
      * Create a new built-in selector value
      *
-     * @param name The name of the selector
+     * @param name          The name of the selector
      * @param documentation The documentation of the selector
-     * @param arms The arms for the selector execution
+     * @param arms          The arms for the selector execution
      */
     public BuiltInSelectorValue(
-            String name,
-            String documentation,
-            SelectorArm[] arms
+        String name,
+        String documentation,
+        SelectorArm[] arms
     ) {
         super(null, null, false, name, documentation, -1, -1, arms);
     }

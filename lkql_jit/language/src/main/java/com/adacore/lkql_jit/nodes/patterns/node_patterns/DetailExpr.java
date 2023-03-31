@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -39,7 +39,9 @@ public final class DetailExpr extends DetailValue {
 
     // ----- Children -----
 
-    /** The expression of the detail value */
+    /**
+     * The expression of the detail value
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
@@ -50,11 +52,11 @@ public final class DetailExpr extends DetailValue {
      * Create a new detail expression node
      *
      * @param location The location of the node in the source
-     * @param expr The expression of the detail value
+     * @param expr     The expression of the detail value
      */
     public DetailExpr(
-            SourceLocation location,
-            Expr expr
+        SourceLocation location,
+        Expr expr
     ) {
         super(location);
         this.expr = expr;
@@ -62,14 +64,16 @@ public final class DetailExpr extends DetailValue {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object)
+     */
     @Override
     public boolean executeDetailValue(VirtualFrame frame, Object value) {
         // Execute the expression
         Object expected = this.expr.executeGeneric(frame);
 
         // Verify the equality
-        if(LKQLTypeSystemGen.isLKQLValue(value) && LKQLTypeSystemGen.isLKQLValue(expected)) {
+        if (LKQLTypeSystemGen.isLKQLValue(value) && LKQLTypeSystemGen.isLKQLValue(expected)) {
             return LKQLTypeSystemGen.asLKQLValue(value).internalEquals(LKQLTypeSystemGen.asLKQLValue(expected));
         } else {
             return ObjectUtils.equals(value, expected);
@@ -78,7 +82,9 @@ public final class DetailExpr extends DetailValue {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -44,12 +44,12 @@ public abstract class UnNot extends UnOp {
     /**
      * Create a logic unary negation node
      *
-     * @param location The location of the node in the source
+     * @param location    The location of the node in the source
      * @param argLocation The location of the argument node
      */
     protected UnNot(
-            SourceLocation location,
-            DummyLocation argLocation
+        SourceLocation location,
+        DummyLocation argLocation
     ) {
         super(location, argLocation);
     }
@@ -86,15 +86,17 @@ public abstract class UnNot extends UnOp {
     @Fallback
     protected void notBoolean(Object arg) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN,
-                LKQLTypesHelper.fromJava(arg),
-                this.argLocation
+            LKQLTypesHelper.LKQL_BOOLEAN,
+            LKQLTypesHelper.fromJava(arg),
+            this.argLocation
         );
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
