@@ -47,11 +47,8 @@ public final class NamespaceValue implements LKQLValue {
     /** An array containing all values in the namespace */
     private final Object[] values;
 
-    /** The node checkers that are accessible from the namespace */
-    private final Map<String, ObjectValue> nodeCheckers;
-
-    /** The unit checker that are accessible from the namespace */
-    private final Map<String, ObjectValue> unitCheckers;
+    /** LKQL checkers defined in the namespace */
+    private final Map<String, ObjectValue> checkers;
 
     // ----- Constructors -----
 
@@ -64,13 +61,11 @@ public final class NamespaceValue implements LKQLValue {
     public NamespaceValue(
             String[] names,
             Object[] values,
-            Map<String, ObjectValue> nodeCheckers,
-            Map<String, ObjectValue> unitCheckers
+            Map<String, ObjectValue> checkers
     ) {
         this.names = names;
         this.values = values;
-        this.nodeCheckers = nodeCheckers;
-        this.unitCheckers = unitCheckers;
+        this.checkers = checkers;
     }
 
     // ----- Getters -----
@@ -83,12 +78,8 @@ public final class NamespaceValue implements LKQLValue {
         return names;
     }
 
-    public Map<String, ObjectValue> getNodeCheckers() {
-        return nodeCheckers;
-    }
-
-    public Map<String, ObjectValue> getUnitCheckers() {
-        return unitCheckers;
+    public Map<String, ObjectValue> getCheckers() {
+        return this.checkers;
     }
 
     /**
@@ -129,8 +120,7 @@ public final class NamespaceValue implements LKQLValue {
 
         // Return the string
         return "Namespace <symbols = " + symbols +
-                ", nodeCheckers = " + this.nodeCheckers +
-                ", unitCheckers = " + this.unitCheckers + ">";
+                ", checkers = " + this.checkers + ">";
     }
 
 }
