@@ -27,6 +27,8 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
+import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.adacore.libadalang.Libadalang;
@@ -234,7 +236,7 @@ public final class LKQLContext {
      */
     public String[] getFiles() {
         if(this.files == null) {
-            this.files = this.env.getOptions().get(LKQLLanguage.files).replace(" ", "").split(File.pathSeparator);
+            this.files = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.files));
         }
         return this.files;
     }
@@ -276,7 +278,11 @@ public final class LKQLContext {
      */
     public String[] getRulesDirs() {
         if(this.rulesDirs == null) {
-            this.rulesDirs = this.env.getOptions().get(LKQLLanguage.rulesDirs).trim().replace(" ", "").split(File.pathSeparator);
+            this.rulesDirs = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.rulesDirs));
+            String additionalRulesDirs = System.getenv("LKQL_RULES_PATH");
+            if (additionalRulesDirs != null) {
+                this.rulesDirs = ArrayUtils.concat(this.rulesDirs, StringUtils.splitPaths(additionalRulesDirs));
+            }
         }
         return this.rulesDirs;
     }
@@ -288,7 +294,7 @@ public final class LKQLContext {
      */
     public String[] getIgnores() {
         if(this.ignores == null) {
-            this.ignores = this.env.getOptions().get(LKQLLanguage.ignores).trim().replace(" ", "").split(File.pathSeparator);
+            this.ignores = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.ignores));
             this.ignores = Arrays.stream(this.ignores)
                     .filter(s -> !s.isBlank() && !s.isEmpty())
                     .toArray(String[]::new);

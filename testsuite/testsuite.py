@@ -33,6 +33,26 @@ class LKQLTestsuite(Testsuite):
             help='Compute code coverage. Argument is the output directory for'
                  ' the coverage report.'
         )
+        parser.add_argument(
+            '--mode', default='ada',
+            help='The LKQL implementations to test.'
+                 ' Possible values are "ada", "jit" and "native_jit".'
+        )
+
+    def lkql_executables(self):
+        """
+        Return a pair containing the name of the lkql "interpreter" and
+        "checker" executables according to the chosen testsuite mode.
+        """
+        if self.env.options.mode == "ada":
+            return ("lkql_ada", "lkql_checker")
+        elif self.env.options.mode == "jit":
+            return ("lkql_jit", "lkql_jit_checker")
+        elif self.env.options.mode == "native_jit":
+            return ("native_lkql_jit", "native_lkql_jit_checker")
+        else:
+            raise RuntimeError("invalid testsuite mode"
+                               f" '{self.env.options.mode}'")
 
     def set_up(self):
         super().set_up()
@@ -62,11 +82,15 @@ class LKQLTestsuite(Testsuite):
                 os.environ.get('LKQL_PATH', '')
             ])
 
-            if os.environ.get('LKQL_JIT', 'false') == 'true':
-                os.environ['LKQL_RULES'] = ':'.join([
-                    in_repo('lkql_checker/share/lkql'),
-                    in_repo('lkql_checker/share/lkql/kp'),
-                ])
+            os.environ['LKQL_RULES_PATH'] = os.path.pathsep.join([
+                in_repo('lkql_checker/share/lkql'),
+                in_repo('lkql_checker/share/lkql/kp'),
+            ])
+
+        (lkql_exe, lkql_checker_exe) = self.lkql_executables()
+
+        os.environ['LKQL_EXE'] = lkql_exe
+        os.environ['LKQL_CHECKER_EXE'] = lkql_checker_exe
 
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.

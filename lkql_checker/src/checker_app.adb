@@ -45,8 +45,11 @@ with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
 with LKQL.Errors; use LKQL.Errors;
 with Liblkqllang.Analysis;
 
+with GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
+
 with GNATCOLL.Terminal; use GNATCOLL.Terminal;
+with GNATCOLL.Utils;
 
 package body Checker_App is
 
@@ -734,16 +737,26 @@ package body Checker_App is
       Rules_Args_Map : Rules_Args_Maps.Map;
       --  Map from argument names to argument values.
 
-      use Rule_Vectors;
+      function Add_Rule_Dir (Path : String) return Boolean;
+      --  Add the given path to the list of directories in which to look for
+      --  LKQL rules.
 
+      function Add_Rule_Dir (Path : String) return Boolean is
+      begin
+         Additional_Rules_Dirs.Append (Path);
+         return True;
+      end Add_Rule_Dir;
+
+      use Rule_Vectors;
    begin
       if not Ctx.All_Rules.Is_Empty then
          return;
       end if;
 
-      for Dir of Args.Rules_Dirs.Get loop
-         Additional_Rules_Dirs.Append (To_String (Dir));
-      end loop;
+      GNATCOLL.Utils.Split
+        (To_String (Args.Rules_Dirs.Get),
+         GNAT.OS_Lib.Path_Separator & "",
+         Add_Rule_Dir'Access);
 
       Ctx.All_Rules := All_Rules (Ctx.Eval_Ctx, Additional_Rules_Dirs);
 

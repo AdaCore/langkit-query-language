@@ -26,6 +26,7 @@ package com.adacore.lkql_jit.utils.util_functions;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.oracle.truffle.api.CompilerDirectives;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -125,6 +126,18 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String[] split(String toSplit, String splitter) {
         return toSplit.split(splitter);
+    }
+
+    /**
+     * Assuming the given string is composed of file paths separated by the OS's path separator,
+     * return those paths as an array of String.
+     *
+     * @param toSplit The string to split
+     * @return The array of paths
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static String[] splitPaths(String toSplit) {
+        return toSplit.trim().replace(" ", "").split(File.pathSeparator);
     }
 
     /**

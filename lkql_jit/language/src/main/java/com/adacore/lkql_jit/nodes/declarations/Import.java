@@ -27,6 +27,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -161,7 +162,7 @@ public final class Import extends LKQLNode {
         // Compute the directories to import from
         String lkqlPath = System.getenv("LKQL_PATH") == null ? "" : System.getenv("LKQL_PATH");
         List<File> importableDirs = new ArrayList<>(
-                Arrays.stream(lkqlPath.split(":"))
+                Arrays.stream(StringUtils.splitPaths(lkqlPath))
                         .filter(s -> !s.isEmpty() && !s.isBlank())
                         .map(File::new)
                         .toList()
