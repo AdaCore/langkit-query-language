@@ -21,7 +21,7 @@ fun check_type(t) =
 
 @check(help="possible occurrence of KP V120-015",
        message="possible occurrence of KP V120-015 on powerpc targets",
-       impact="7.4.*,17.*", target="powerpc*")
+       impact="7.4.[1-7],17.*", target="powerpc*")
 fun kp_v120_015(node) =
     node is ComponentDecl
     when node.f_component_def.f_type_expr.p_designated_type_decl() is t@TypeDecl
