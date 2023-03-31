@@ -7,7 +7,6 @@ lkql/build/*
 debug/
 obj/
 bin/
-.idea/
 testsuite/out/
 *.pyc
 *.swp

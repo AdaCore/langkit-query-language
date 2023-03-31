@@ -23,21 +23,21 @@
 
 package com.adacore.lkql_jit;
 
-import com.adacore.lkql_jit.parser.ASTTranslator;
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.Option;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.adacore.liblkqllang.Liblkqllang;
-import org.graalvm.options.OptionCategory;
-import org.graalvm.options.OptionDescriptors;
-import org.graalvm.options.OptionKey;
-import org.graalvm.options.OptionStability;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.LKQLRootNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
+import com.adacore.lkql_jit.parser.ASTTranslator;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFactory;
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.Option;
+import com.oracle.truffle.api.TruffleLanguage;
+import org.graalvm.options.OptionCategory;
+import org.graalvm.options.OptionDescriptors;
+import org.graalvm.options.OptionKey;
+import org.graalvm.options.OptionStability;
 
 import java.io.File;
 import java.util.Arrays;
@@ -50,27 +50,35 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 @TruffleLanguage.Registration(
-        id = "lkql",
-        name = "Langkit Query Language",
-        defaultMimeType = LKQLLanguage.MIME_TYPE,
-        characterMimeTypes = LKQLLanguage.MIME_TYPE,
-        contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
-        dependentLanguages = {"regex"}
+    id = "lkql",
+    name = "Langkit Query Language",
+    defaultMimeType = LKQLLanguage.MIME_TYPE,
+    characterMimeTypes = LKQLLanguage.MIME_TYPE,
+    contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
+    dependentLanguages = {"regex"}
 )
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Macros and enum -----
 
-    /** The MIME type of the language */
+    /**
+     * The MIME type of the language
+     */
     public static final String MIME_TYPE = "application/langkit-query-language";
 
-    /** The reference to the LKQL language */
+    /**
+     * The reference to the LKQL language
+     */
     private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE = LanguageReference.create(LKQLLanguage.class);
 
-    /** The reference to the LKQL context */
+    /**
+     * The reference to the LKQL context
+     */
     private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(LKQLLanguage.class);
 
-    /** If the current language spawning support the color */
+    /**
+     * If the current language spawning support the color
+     */
     public static boolean SUPPORT_COLOR = false;
 
     // ----- Options -----
@@ -78,104 +86,128 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // --- Language options
 
-    /** The LKQL JIT is in checker mode or not */
+    /**
+     * The LKQL JIT is in checker mode or not
+     */
     @Option(
-            help = "If the JIT is in checker mode",
-            category = OptionCategory.INTERNAL,
-            stability = OptionStability.STABLE
+        help = "If the JIT is in checker mode",
+        category = OptionCategory.INTERNAL,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<Boolean> checkerMode = new OptionKey<>(false);
 
-    /** The option to define if the language is verbose */
+    /**
+     * The option to define if the language is verbose
+     */
     @Option(
-            help = "If the language should be verbose",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "If the language should be verbose",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<Boolean> verbose = new OptionKey<>(false);
 
 
     // --- LKQL options
 
-    /** The option to define the charset of the LKQL sources */
+    /**
+     * The option to define the charset of the LKQL sources
+     */
     @Option(
-            help = "The LKQL source charset",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The LKQL source charset",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> charset = new OptionKey<>("");
 
-    /** The option to define the project file to analyze */
+    /**
+     * The option to define the project file to analyze
+     */
     @Option(
-            help = "The GPR project file to load",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The GPR project file to load",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> projectFile = new OptionKey<>("");
 
-    /** The option to define the files to analyze */
+    /**
+     * The option to define the files to analyze
+     */
     @Option(
-            help = "The ada files to analyze in LKQL",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The ada files to analyze in LKQL",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> files = new OptionKey<>("");
 
-    /** The option to define the jobs */
+    /**
+     * The option to define the jobs
+     */
     @Option(
-            help = "The number of parallel jobs in the LKQL interpreter",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The number of parallel jobs in the LKQL interpreter",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<Integer> jobs = new OptionKey<>(0);
 
 
     // --- Checker options
 
-    /** The option to define the directories to look the rules from */
+    /**
+     * The option to define the directories to look the rules from
+     */
     @Option(
-            help = "The directories to search rules in",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The directories to search rules in",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> rulesDirs = new OptionKey<>("");
 
-    /** The option to specify the rule to run */
+    /**
+     * The option to specify the rule to run
+     */
     @Option(
-            help = "The comma separated rules to apply, if empty apply all the rules",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The comma separated rules to apply, if empty apply all the rules",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> rules = new OptionKey<>("");
 
-    /** The option to specify arguments for the rules */
+    /**
+     * The option to specify arguments for the rules
+     */
     @Option(
-            help = "Arguments for the LKQL rules",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "Arguments for the LKQL rules",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> rulesArgs = new OptionKey<>("");
 
-    /** The option to specify the files to ignore during the checking */
+    /**
+     * The option to specify the files to ignore during the checking
+     */
     @Option(
-            help = "Files to ignore during the analysis",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "Files to ignore during the analysis",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> ignores = new OptionKey<>("");
 
-    /** The option to specify the error recovery mode */
+    /**
+     * The option to specify the error recovery mode
+     */
     @Option(
-            help = "The mode of error recovery in the checker",
-            category = OptionCategory.USER,
-            stability = OptionStability.STABLE
+        help = "The mode of error recovery in the checker",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
     )
     static final OptionKey<String> errorMode = new OptionKey<>("");
 
 
     // ----- Attributes -----
 
-    /** The lkql analysis context from langkit */
+    /**
+     * The lkql analysis context from langkit
+     */
     private final Liblkqllang.AnalysisContext analysisContext;
 
     // ----- Constructors -----
@@ -220,7 +252,9 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Language methods -----
 
-    /** @see com.oracle.truffle.api.TruffleLanguage#createContext(com.oracle.truffle.api.TruffleLanguage.Env) */
+    /**
+     * @see com.oracle.truffle.api.TruffleLanguage#createContext(com.oracle.truffle.api.TruffleLanguage.Env)
+     */
     @Override
     protected LKQLContext createContext(Env env) {
         // Get the built-in factory
@@ -234,32 +268,42 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         return new LKQLContext(env, globalValues);
     }
 
-    /** @see com.oracle.truffle.api.TruffleLanguage#initializeContext(Object) */
+    /**
+     * @see com.oracle.truffle.api.TruffleLanguage#initializeContext(Object)
+     */
     @Override
     protected void initializeContext(LKQLContext context) {
         context.initSources();
     }
 
-    /** @see com.oracle.truffle.api.TruffleLanguage#patchContext(Object, Env) */
+    /**
+     * @see com.oracle.truffle.api.TruffleLanguage#patchContext(Object, Env)
+     */
     @Override
     protected boolean patchContext(LKQLContext context, Env newEnv) {
         context.patchContext(newEnv);
         return true;
     }
 
-    /** @see com.oracle.truffle.api.TruffleLanguage#finalizeContext(Object) */
+    /**
+     * @see com.oracle.truffle.api.TruffleLanguage#finalizeContext(Object)
+     */
     @Override
     protected void finalizeContext(LKQLContext context) {
         context.finalizeContext();
     }
 
-    /** @see com.oracle.truffle.api.TruffleLanguage#getOptionDescriptors() */
+    /**
+     * @see com.oracle.truffle.api.TruffleLanguage#getOptionDescriptors()
+     */
     @Override
     protected OptionDescriptors getOptionDescriptors() {
         return new LKQLLanguageOptionDescriptors();
     }
 
-    /** @see com.oracle.truffle.api.TruffleLanguage#parse(ParsingRequest) */
+    /**
+     * @see com.oracle.truffle.api.TruffleLanguage#parse(ParsingRequest)
+     */
     @Override
     protected CallTarget parse(ParsingRequest request) {
         // Parse the given file or buffer
@@ -270,7 +314,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // If the checker mode is enabled, add the rule import to the top level node
         // And parse the rule arguments
-        if(context.isChecker() && context.isRootContext()) {
+        if (context.isChecker() && context.isRootContext()) {
             this.addRuleImports(topLevelList, context);
             this.parseRulesArgs(context);
         }
@@ -288,7 +332,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     private TopLevelList getTopLevelList(ParsingRequest request) {
         // Parse the given file or buffer
         Liblkqllang.AnalysisUnit unit;
-        if(request.getSource().getPath() == null) {
+        if (request.getSource().getPath() == null) {
             unit = this.analysisContext.getUnitFromBuffer(request.getSource().getCharacters().toString(), "<command-line>");
         } else {
             unit = this.analysisContext.getUnitFromFile(request.getSource().getPath());
@@ -296,7 +340,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Verify the parsing result
         List<Liblkqllang.Diagnostic> diagnostics = unit.getDiagnostics();
-        if(diagnostics.size() > 0) {
+        if (diagnostics.size() > 0) {
             throw LKQLRuntimeException.parsingException(diagnostics, request.getSource());
         }
 
@@ -311,7 +355,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         LKQLContext context = getContext(lkqlProgram);
 
         // Make the verbose prints
-        if(context.isVerbose()) {
+        if (context.isVerbose()) {
 //            System.out.println("=== Langkit AST <" + lkqlProgram.getLocation().getFileName() + "> :\n" +
 //                    lktRootNode.dump() + '\n');
 //            System.out.println("=== Truffle AST <" + lkqlProgram.getLocation().getFileName() + "> :\n" +
@@ -326,26 +370,26 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * Add the rule import on the top level list
      *
      * @param topLevelList The top level list node to change
-     * @param context The LKQL context
+     * @param context      The LKQL context
      */
     private void addRuleImports(TopLevelList topLevelList, LKQLContext context) {
         // Get the rule dirs
         String[] ruleDirs = context.getRulesDirs();
 
         // For each rule dirs, explore it
-        for(String ruleDirName : ruleDirs) {
+        for (String ruleDirName : ruleDirs) {
             File ruleDir = new File(ruleDirName);
-            if(ruleDir.isDirectory() && ruleDir.canRead()) {
+            if (ruleDir.isDirectory() && ruleDir.canRead()) {
 
                 // Get all LKQL files in the rule dir
                 File[] ruleFiles = ruleDir.listFiles(file -> file.getName().endsWith(".lkql"));
-                if(ruleFiles != null) {
+                if (ruleFiles != null) {
                     topLevelList.addRuleImports(
-                            Arrays.stream(ruleFiles)
-                                    .filter(file -> file.isFile() && file.canRead())
-                                    .map(file -> file.getName().replace(".lkql", ""))
-                                    .toList()
-                                    .toArray(new String[0])
+                        Arrays.stream(ruleFiles)
+                            .filter(file -> file.isFile() && file.canRead())
+                            .map(file -> file.getName().replace(".lkql", ""))
+                            .toList()
+                            .toArray(new String[0])
                     );
                 }
 
@@ -362,16 +406,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         // Split the rules arguments
         String[] rulesArgsSources = context.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";");
 
-        for(String ruleArgSource : rulesArgsSources) {
+        for (String ruleArgSource : rulesArgsSources) {
             // Verify that the rule is not empty
-            if(ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
+            if (ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
 
             // Split the get the names and the value
             String[] valueSplit = ruleArgSource.split("=");
             String[] nameSplit = valueSplit[0].split("\\.");
 
             // Verify the rule argument syntax
-            if(valueSplit.length != 2 || nameSplit.length != 2) {
+            if (valueSplit.length != 2 || nameSplit.length != 2) {
                 throw LKQLRuntimeException.fromMessage("Rule argument syntax error : '" + ruleArgSource + "'");
             }
 
@@ -382,13 +426,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
             // Execute the value source
             Liblkqllang.AnalysisUnit unit = this.analysisContext.getUnitFromBuffer(
-                    valueSource,
-                    "rule_argument",
-                    null,
-                    Liblkqllang.GrammarRule.EXPR_RULE
+                valueSource,
+                "rule_argument",
+                null,
+                Liblkqllang.GrammarRule.EXPR_RULE
             );
             Liblkqllang.LkqlNode root = unit.getRoot();
-            if(!validateArgValue(root)) {
+            if (!validateArgValue(root)) {
                 throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : " + valueSource);
             }
             ASTTranslator translator = new ASTTranslator(null);
@@ -408,35 +452,35 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     private static boolean validateArgValue(Liblkqllang.LkqlNode node) {
         // If the node is just a literal it's value
-        if(node instanceof Liblkqllang.Literal) return true;
+        if (node instanceof Liblkqllang.Literal) return true;
 
-        // Else if it's a tuple literal we must verify the expressions inside it
-        else if(node instanceof Liblkqllang.Tuple tupleLiteral) {
+            // Else if it's a tuple literal we must verify the expressions inside it
+        else if (node instanceof Liblkqllang.Tuple tupleLiteral) {
             Liblkqllang.ExprList exprList = tupleLiteral.fExprs();
             int childrenCount = exprList.getChildrenCount();
-            for(int i = 0 ; i < childrenCount ; i++) {
-                if(!validateArgValue(exprList.getChild(i))) return false;
+            for (int i = 0; i < childrenCount; i++) {
+                if (!validateArgValue(exprList.getChild(i))) return false;
             }
             return true;
         }
 
         // Else if it's a list literal we must verify the expressions of the list
-        else if(node instanceof Liblkqllang.ListLiteral listLiteral) {
+        else if (node instanceof Liblkqllang.ListLiteral listLiteral) {
             Liblkqllang.ExprList exprList = listLiteral.fExprs();
             int childrenCount = exprList.getChildrenCount();
-            for(int i = 0 ; i < childrenCount ; i++) {
-                if(!validateArgValue(exprList.getChild(i))) return false;
+            for (int i = 0; i < childrenCount; i++) {
+                if (!validateArgValue(exprList.getChild(i))) return false;
             }
             return true;
         }
 
         // Else if it's an object literal we must verify all association values
-        else if(node instanceof Liblkqllang.ObjectLiteral objectLiteral) {
+        else if (node instanceof Liblkqllang.ObjectLiteral objectLiteral) {
             Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
             int childrenCount = assocList.getChildrenCount();
-            for(int i = 0 ; i < childrenCount ; i++) {
+            for (int i = 0; i < childrenCount; i++) {
                 Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
-                if(!validateArgValue(assoc.fExpr())) return false;
+                if (!validateArgValue(assoc.fExpr())) return false;
             }
             return true;
         }

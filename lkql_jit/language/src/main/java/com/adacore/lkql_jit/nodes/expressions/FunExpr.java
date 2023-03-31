@@ -23,12 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.lkql_jit.nodes.declarations.ParameterDecl;
+import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.nodes.declarations.ParameterDecl;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 
 import java.util.Arrays;
 
@@ -42,24 +42,36 @@ public final class FunExpr extends Expr {
 
     // ----- Attributes -----
 
-    /** The frame descriptor for the callable function node creation */
+    /**
+     * The frame descriptor for the callable function node creation
+     */
     private final FrameDescriptor frameDescriptor;
 
-    /** The limit for the closure */
+    /**
+     * The limit for the closure
+     */
     private final int closureLimit;
 
-    /** The slots to put the arguments in */
+    /**
+     * The slots to put the arguments in
+     */
     private final int[] slots;
 
-    /** The name of the arguments */
+    /**
+     * The name of the arguments
+     */
     private final String[] names;
 
-    /** The default values of the arguments */
+    /**
+     * The default values of the arguments
+     */
     private final Expr[] values;
 
     // ----- Children -----
 
-    /** The body of the function */
+    /**
+     * The body of the function
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr body;
@@ -69,18 +81,18 @@ public final class FunExpr extends Expr {
     /**
      * Create a new function expression node
      *
-     * @param location The location of the node in the source
+     * @param location        The location of the node in the source
      * @param frameDescriptor The frame descriptor for the function root node
-     * @param closureLimit The limit of the closure
-     * @param parameters The parameters of the function
-     * @param body The body of the function
+     * @param closureLimit    The limit of the closure
+     * @param parameters      The parameters of the function
+     * @param body            The body of the function
      */
     public FunExpr(
-            SourceLocation location,
-            FrameDescriptor frameDescriptor,
-            int closureLimit,
-            ParameterDecl[] parameters,
-            Expr body
+        SourceLocation location,
+        FrameDescriptor frameDescriptor,
+        int closureLimit,
+        ParameterDecl[] parameters,
+        Expr body
     ) {
         super(location);
         this.frameDescriptor = frameDescriptor;
@@ -106,37 +118,43 @@ public final class FunExpr extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeFunction(frame);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeFunction(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeFunction(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public FunctionValue executeFunction(VirtualFrame frame) {
         return new FunctionValue(
-                this.frameDescriptor,
-                new Closure(frame.materialize(), this.closureLimit),
-                false,
-                "lambda",
-                "",
-                this.slots,
-                this.names,
-                this.values,
-                this.body
+            this.frameDescriptor,
+            new Closure(frame.materialize(), this.closureLimit),
+            false,
+            "lambda",
+            "",
+            this.slots,
+            this.names,
+            this.values,
+            this.body
         );
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"names", "slots"},
-                new Object[]{Arrays.toString(this.names), Arrays.toString(this.slots)}
+            indentLevel,
+            new String[]{"names", "slots"},
+            new Object[]{Arrays.toString(this.names), Arrays.toString(this.slots)}
         );
     }
 

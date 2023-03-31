@@ -37,7 +37,9 @@ public final class UnitValue implements Nullish, Truthy {
 
     // ----- Attributes -----
 
-    /** The unique instance of the unit value in the language */
+    /**
+     * The unique instance of the unit value in the language
+     */
     private static UnitValue instance = null;
 
     // ----- Constructors -----
@@ -45,7 +47,8 @@ public final class UnitValue implements Nullish, Truthy {
     /**
      * Create a new unit value, private for the singleton
      */
-    private UnitValue() {}
+    private UnitValue() {
+    }
 
     /**
      * Get the unique instance of the unit value
@@ -53,7 +56,7 @@ public final class UnitValue implements Nullish, Truthy {
      * @return The unit value
      */
     public static UnitValue getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new UnitValue();
         }
         return instance;
@@ -61,18 +64,22 @@ public final class UnitValue implements Nullish, Truthy {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy()
+     */
     @Override
     public boolean isTruthy() {
         return false;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
         return o == this;
     }
-    
+
     // ----- Override methods -----
 
     @Override

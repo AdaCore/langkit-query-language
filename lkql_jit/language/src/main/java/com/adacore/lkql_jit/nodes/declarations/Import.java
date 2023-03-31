@@ -23,18 +23,18 @@
 
 package com.adacore.lkql_jit.nodes.declarations;
 
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.runtime.values.NamespaceValue;
+import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.Source;
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.runtime.values.NamespaceValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,16 +50,24 @@ public final class Import extends LKQLNode {
 
     // ----- Attributes -----
 
-    /** A cache to avoid importing same module multiple times */
+    /**
+     * A cache to avoid importing same module multiple times
+     */
     private static final Map<File, NamespaceValue> importCache = new HashMap<>();
 
-    /** The name of the module to import */
+    /**
+     * The name of the module to import
+     */
     private final String name;
 
-    /** The file of the module */
+    /**
+     * The file of the module
+     */
     private final File moduleFile;
 
-    /** The slot to put the namespace in (if it's -1 the import is an internal operation rule import) */
+    /**
+     * The slot to put the namespace in (if it's -1 the import is an internal operation rule import)
+     */
     private final int slot;
 
     // ----- Constructors -----
@@ -68,13 +76,13 @@ public final class Import extends LKQLNode {
      * Create a new import node
      *
      * @param location The location of the node in the source
-     * @param name The name of the module to import
-     * @param slot The slot to put the namespace in
+     * @param name     The name of the module to import
+     * @param slot     The slot to put the namespace in
      */
     public Import(
-            SourceLocation location,
-            String name,
-            int slot
+        SourceLocation location,
+        String name,
+        int slot
     ) {
         super(location);
         this.name = name;
@@ -84,14 +92,16 @@ public final class Import extends LKQLNode {
         this.moduleFile = this.getModuleFile();
 
         // Test if the module file is null
-        if(this.moduleFile == null) {
+        if (this.moduleFile == null) {
             throw LKQLRuntimeException.moduleNotFound(this.name, this);
         }
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the module file
@@ -99,7 +109,7 @@ public final class Import extends LKQLNode {
             LKQLContext context = LKQLLanguage.getContext(this);
             NamespaceValue module = this.importModule(this.moduleFile, context);
             context.getGlobalValues().addCheckers(module);
-            if(this.slot > -1) {
+            if (this.slot > -1) {
                 context.setGlobal(this.slot, this.name, module);
             }
         } catch (IOException e) {
@@ -114,14 +124,14 @@ public final class Import extends LKQLNode {
      * Get the namespace of a module from a Java file
      *
      * @param moduleFile The module file to import
-     * @param context The LKQL context to import the module in
+     * @param context    The LKQL context to import the module in
      * @return The namespace of the module
      * @throws IOException If Truffle cannot create a source from the file
      */
     @CompilerDirectives.TruffleBoundary
     private NamespaceValue importModule(File moduleFile, LKQLContext context) throws IOException {
         // If the file is already in the cache
-        if(importCache.containsKey(moduleFile)) {
+        if (importCache.containsKey(moduleFile)) {
             return importCache.get(moduleFile);
         }
 
@@ -129,8 +139,8 @@ public final class Import extends LKQLNode {
         else {
             // Prepare the source
             Source source = Source
-                    .newBuilder("lkql", context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
-                    .build();
+                .newBuilder("lkql", context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
+                .build();
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
@@ -152,9 +162,9 @@ public final class Import extends LKQLNode {
         String moduleFileName = this.name + ".lkql";
 
         // Search in the current directory if the location is not null
-        if(this.location != null) {
+        if (this.location != null) {
             File currentModuleTry = new File(this.location.getCurrentDir(), moduleFileName);
-            if(currentModuleTry.isFile() && currentModuleTry.canRead()) {
+            if (currentModuleTry.isFile() && currentModuleTry.canRead()) {
                 return currentModuleTry;
             }
         }
@@ -162,27 +172,27 @@ public final class Import extends LKQLNode {
         // Compute the directories to import from
         String lkqlPath = System.getenv("LKQL_PATH") == null ? "" : System.getenv("LKQL_PATH");
         List<File> importableDirs = new ArrayList<>(
-                Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                        .filter(s -> !s.isEmpty() && !s.isBlank())
-                        .map(File::new)
-                        .toList()
+            Arrays.stream(StringUtils.splitPaths(lkqlPath))
+                .filter(s -> !s.isEmpty() && !s.isBlank())
+                .map(File::new)
+                .toList()
         );
 
         // If the import is internal, search in rule dirs
-        if(this.slot == -1) {
+        if (this.slot == -1) {
             importableDirs.addAll(
-                    Arrays.stream(LKQLLanguage.getContext(this).getRulesDirs())
-                            .filter(s -> !s.isEmpty() && !s.isBlank())
-                            .map(File::new)
-                            .toList()
+                Arrays.stream(LKQLLanguage.getContext(this).getRulesDirs())
+                    .filter(s -> !s.isEmpty() && !s.isBlank())
+                    .map(File::new)
+                    .toList()
             );
         }
 
         // Search in the importable directories
-        for(File dir : importableDirs) {
-            if(dir != null && dir.isDirectory()) {
+        for (File dir : importableDirs) {
+            if (dir != null && dir.isDirectory()) {
                 File moduleTry = new File(dir, moduleFileName);
-                if(moduleTry.isFile() && moduleTry.canRead()) {
+                if (moduleTry.isFile() && moduleTry.canRead()) {
                     return moduleTry;
                 }
             }
@@ -194,13 +204,15 @@ public final class Import extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot"},
-                new Object[]{this.name, this.slot}
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

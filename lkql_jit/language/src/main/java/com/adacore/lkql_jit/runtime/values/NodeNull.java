@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -39,7 +39,9 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
 
     // ----- Attributes -----
 
-    /** The unique instance of the null value in the LKQL language */
+    /**
+     * The unique instance of the null value in the LKQL language
+     */
     private static NodeNull instance = null;
 
     // ----- Constructors -----
@@ -49,16 +51,16 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
      */
     private NodeNull() {
         super(Libadalang.Entity.create(
+            Libadalang.PointerWrapper.nullPointer(),
+            Libadalang.EntityInfo.create(
+                Libadalang.Metadata.create(
+                    false,
+                    Libadalang.PointerWrapper.nullPointer(),
+                    Libadalang.PointerWrapper.nullPointer()
+                ),
                 Libadalang.PointerWrapper.nullPointer(),
-                Libadalang.EntityInfo.create(
-                        Libadalang.Metadata.create(
-                                false,
-                                Libadalang.PointerWrapper.nullPointer(),
-                                Libadalang.PointerWrapper.nullPointer()
-                        ),
-                        Libadalang.PointerWrapper.nullPointer(),
-                        false
-                )
+                false
+            )
         ));
     }
 
@@ -68,7 +70,7 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
      * @return The instance of null value
      */
     public static NodeNull getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new NodeNull();
         }
         return instance;
@@ -76,18 +78,22 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy()
+     */
     @Override
     public boolean isTruthy() {
         return false;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
         return o == this;
     }
-    
+
     // ----- Override methods -----
 
 

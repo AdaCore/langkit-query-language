@@ -26,15 +26,15 @@ package com.adacore.lkql_jit.runtime.built_ins.selectors;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
+import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
+import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.UnitLiteral;
 import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
-import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInSelectorValue;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
@@ -48,13 +48,19 @@ public final class NextSiblingsSelector implements BuiltInSelector {
 
     // ----- Attributes -----
 
-    /** The only instance of the "next_siblings" built-in selector */
+    /**
+     * The only instance of the "next_siblings" built-in selector
+     */
     private static NextSiblingsSelector instance = null;
 
-    /** The name of the selector */
+    /**
+     * The name of the selector
+     */
     public static final String NAME = "next_siblings";
 
-    /** The arms representing the "next_siblings" selector execution */
+    /**
+     * The arms representing the "next_siblings" selector execution
+     */
     public final SelectorArm[] arms;
 
     // ----- Constructors -----
@@ -72,7 +78,7 @@ public final class NextSiblingsSelector implements BuiltInSelector {
      * @return The instance of the selector
      */
     public static NextSiblingsSelector getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new NextSiblingsSelector();
         }
         return instance;
@@ -80,19 +86,23 @@ public final class NextSiblingsSelector implements BuiltInSelector {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.selectors.BuiltInSelector#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.selectors.BuiltInSelector#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.selectors.BuiltInSelector#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.selectors.BuiltInSelector#getValue()
+     */
     @Override
     public SelectorValue getValue() {
         return new BuiltInSelectorValue(
-                NAME,
-                "Yields the siblings following the given node in the tree\n",
-                this.arms
+            NAME,
+            "Yields the siblings following the given node in the tree\n",
+            this.arms
         );
     }
 
@@ -109,29 +119,29 @@ public final class NextSiblingsSelector implements BuiltInSelector {
 
         // Create the next sibling path
         DotAccess propertyAccess = DotAccessNodeGen.create(
-                null,
-                new Identifier(null, "next_sibling"),
-                new ReadBuiltInThis()
+            null,
+            new Identifier(null, "next_sibling"),
+            new ReadBuiltInThis()
         );
         FunCall funCall = FunCallNodeGen.create(
-                null,
-                false,
-                null,
-                new ArgList(null, new Arg[0]),
-                propertyAccess
+            null,
+            false,
+            null,
+            new ArgList(null, new Arg[0]),
+            propertyAccess
         );
         SelectorArm nextSiblingPath = new SelectorArm(
-                null,
-                new NodeKindPattern(null, "AdaNode"),
-                new SelectorExpr(null, SelectorExpr.Mode.REC, funCall)
+            null,
+            new NodeKindPattern(null, "AdaNode"),
+            new SelectorExpr(null, SelectorExpr.Mode.REC, funCall)
         );
         res[0] = nextSiblingPath;
 
         // Create the universal pattern
         SelectorArm universalPath = new SelectorArm(
-                null,
-                new UniversalPattern(null),
-                new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null))
+            null,
+            new UniversalPattern(null),
+            new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null))
         );
         res[1] = universalPath;
 

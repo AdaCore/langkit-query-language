@@ -24,11 +24,11 @@
 package com.adacore.lkql_jit.nodes.declarations.variables;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -43,34 +43,36 @@ public final class ValDeclGlobal extends ValDecl {
     /**
      * Create a new global variable declaration node
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source
      * @param annotation The annotation of the variable declaration
-     * @param name The name of the variable
-     * @param slot The slot to put the variable in
-     * @param value The value of the variable
+     * @param name       The name of the variable
+     * @param slot       The slot to put the variable in
+     * @param value      The value of the variable
      */
     public ValDeclGlobal(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            int slot,
-            Expr value
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        int slot,
+        Expr value
     ) {
         super(location, annotation, name, slot, value);
     }
 
     // ----- Execute methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Put the value in the global value
         LKQLLanguage.getContext(this)
-                .setGlobal(
-                        this.slot,
-                        this.name,
-                        this.value.executeGeneric(frame)
-                );
+            .setGlobal(
+                this.slot,
+                this.name,
+                this.value.executeGeneric(frame)
+            );
 
         // Return the unit value
         return UnitValue.getInstance();
@@ -78,13 +80,15 @@ public final class ValDeclGlobal extends ValDecl {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot"},
-                new Object[]{this.name, this.slot}
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

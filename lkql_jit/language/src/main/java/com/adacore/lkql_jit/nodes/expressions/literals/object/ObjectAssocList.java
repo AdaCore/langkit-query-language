@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals.object;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -38,7 +38,9 @@ public final class ObjectAssocList extends LKQLNode {
 
     // ----- Children -----
 
-    /** The associations of the object */
+    /**
+     * The associations of the object
+     */
     @Children
     private final ObjectAssoc[] assocs;
 
@@ -48,11 +50,11 @@ public final class ObjectAssocList extends LKQLNode {
      * Create an object association list node
      *
      * @param location The location of the node in the source
-     * @param assocs The associations
+     * @param assocs   The associations
      */
     public ObjectAssocList(
-            SourceLocation location,
-            ObjectAssoc[] assocs
+        SourceLocation location,
+        ObjectAssoc[] assocs
     ) {
         super(location);
         this.assocs = assocs;
@@ -60,7 +62,9 @@ public final class ObjectAssocList extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)  */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -76,7 +80,7 @@ public final class ObjectAssocList extends LKQLNode {
         // Evaluate the object values
         String[] keys = new String[this.assocs.length];
         Object[] values = new Object[this.assocs.length];
-        for(int i = 0 ; i < this.assocs.length ; i++) {
+        for (int i = 0; i < this.assocs.length; i++) {
             keys[i] = this.assocs[i].getKey();
             values[i] = this.assocs[i].executeAssoc(frame);
         }
@@ -87,7 +91,9 @@ public final class ObjectAssocList extends LKQLNode {
 
     // ------ Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

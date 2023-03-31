@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
@@ -30,7 +31,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -42,13 +42,19 @@ public class SelectorValue implements LKQLValue {
 
     // ----- Attributes -----
 
-    /** The name of the selector */
+    /**
+     * The name of the selector
+     */
     private final String name;
 
-    /** The documentation of the selector value */
+    /**
+     * The documentation of the selector value
+     */
     private final String documentation;
 
-    /** The root node of the selector */
+    /**
+     * The root node of the selector
+     */
     private final SelectorRootNode rootNode;
 
     // ----- Constructors -----
@@ -56,37 +62,37 @@ public class SelectorValue implements LKQLValue {
     /**
      * Create a new selector value
      *
-     * @param descriptor The frame descriptor for the selector root node
-     * @param closure The closure
-     * @param isMemoized If the selector value is memoized
-     * @param name The name of the selector
+     * @param descriptor    The frame descriptor for the selector root node
+     * @param closure       The closure
+     * @param isMemoized    If the selector value is memoized
+     * @param name          The name of the selector
      * @param documentation The documentation of the selector
-     * @param thisSlot The slot for the "this" variable
-     * @param depthSlot The slot for the "depth" variable
-     * @param arms The arms of the selector
+     * @param thisSlot      The slot for the "this" variable
+     * @param depthSlot     The slot for the "depth" variable
+     * @param arms          The arms of the selector
      */
     @CompilerDirectives.TruffleBoundary
     public SelectorValue(
-            FrameDescriptor descriptor,
-            Closure closure,
-            boolean isMemoized,
-            String name,
-            String documentation,
-            int thisSlot,
-            int depthSlot,
-            SelectorArm[] arms
+        FrameDescriptor descriptor,
+        Closure closure,
+        boolean isMemoized,
+        String name,
+        String documentation,
+        int thisSlot,
+        int depthSlot,
+        SelectorArm[] arms
     ) {
         this.name = name;
         this.documentation = documentation;
         this.rootNode = new SelectorRootNode(
-                LKQLLanguage.getLanguage(arms[0]),
-                descriptor,
-                closure,
-                isMemoized,
-                name,
-                thisSlot,
-                depthSlot,
-                arms
+            LKQLLanguage.getLanguage(arms[0]),
+            descriptor,
+            closure,
+            isMemoized,
+            name,
+            thisSlot,
+            depthSlot,
+            arms
         );
     }
 
@@ -105,10 +111,10 @@ public class SelectorValue implements LKQLValue {
     /**
      * Execute the selector value on an ada node with additional arguments
      *
-     * @param node The node to execute the selector on
+     * @param node     The node to execute the selector on
      * @param maxDepth The maximum depth of the selector list
      * @param minDepth The minimal depth of the selector list
-     * @param depth The precise depth to get
+     * @param depth    The precise depth to get
      * @return The selector list value
      */
     public SelectorListValue execute(Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
@@ -117,17 +123,21 @@ public class SelectorValue implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#getDocumentation() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#getDocumentation()
+     */
     @Override
     public String getDocumentation() {
         return this.documentation;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof SelectorValue other)) return false;
+        if (o == this) return true;
+        if (!(o instanceof SelectorValue other)) return false;
         return this.name.equals(other.name);
     }
 

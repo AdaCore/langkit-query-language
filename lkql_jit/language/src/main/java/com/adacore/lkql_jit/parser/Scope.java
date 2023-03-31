@@ -38,19 +38,29 @@ public final class Scope {
 
     // ----- Attributes -----
 
-    /** The maps containing the bindings from the variable names to identifiers */
+    /**
+     * The maps containing the bindings from the variable names to identifiers
+     */
     private final LinkedList<Map<String, Integer>> bindingsStack;
 
-    /** The counter stack to handle lexical scopes */
+    /**
+     * The counter stack to handle lexical scopes
+     */
     private final LinkedList<Integer> counterStack;
 
-    /** The maximum counter */
+    /**
+     * The maximum counter
+     */
     private int globalSize;
 
-    /** The local frame descriptor builder stack to handle semantic scopes */
+    /**
+     * The local frame descriptor builder stack to handle semantic scopes
+     */
     private final LinkedList<FrameDescriptor.Builder> frameDescriptorStack;
 
-    /** The map that associate the frame to their lexical scopes */
+    /**
+     * The map that associate the frame to their lexical scopes
+     */
     private final Map<FrameDescriptor.Builder, List<Map<String, Integer>>> frameBindings;
 
     // ----- Constructors -----
@@ -88,8 +98,8 @@ public final class Scope {
 
     public int getClosureLimit() {
         return this.frameDescriptorStack.size() >= 2 ?
-                this.frameDescriptorStack.get(this.frameDescriptorStack.size() - 2).build().getNumberOfSlots() :
-                this.frameDescriptorStack.getLast().build().getNumberOfSlots();
+            this.frameDescriptorStack.get(this.frameDescriptorStack.size() - 2).build().getNumberOfSlots() :
+            this.frameDescriptorStack.getLast().build().getNumberOfSlots();
     }
 
     // ----- Internal methods -----
@@ -105,7 +115,7 @@ public final class Scope {
         this.counterStack.set(this.counterStack.size() - 1, res + 1);
 
         // Set the max counter
-        if(this.globalSize < res + 1) {
+        if (this.globalSize < res + 1) {
             this.globalSize = res + 1;
         }
 
@@ -121,14 +131,14 @@ public final class Scope {
      */
     private static FrameDescriptor.Builder cloneFrameDescriptorBuilder(FrameDescriptor.Builder builder) {
         // If the builder to clone is null, just return an empty builder
-        if(builder == null) return FrameDescriptor.newBuilder();
+        if (builder == null) return FrameDescriptor.newBuilder();
 
         // Prepare the result and the frame descriptor to copy
         FrameDescriptor build = builder.build();
         FrameDescriptor.Builder res = FrameDescriptor.newBuilder();
 
         // Copy the frame descriptor
-        for(int i = 0 ; i < build.getNumberOfSlots() ; i++) {
+        for (int i = 0; i < build.getNumberOfSlots(); i++) {
             res.addSlot(build.getSlotKind(i), build.getSlotName(i), build.getSlotInfo(i));
         }
 
@@ -149,7 +159,7 @@ public final class Scope {
         int slot;
 
         // If the scope is in the global state, add the variable to the global bindings
-        if(this.isGlobal()) {
+        if (this.isGlobal()) {
             slot = this.nextGlobalSlot();
         }
 
@@ -176,9 +186,9 @@ public final class Scope {
         int res = -1;
 
         // Get the result from the more local scope to the more global
-        for(int i = this.bindingsStack.size() - 1 ; i >= 0 ; i--)  {
+        for (int i = this.bindingsStack.size() - 1; i >= 0; i--) {
             res = this.bindingsStack.get(i).getOrDefault(name, -1);
-            if(res > -1) return res;
+            if (res > -1) return res;
         }
 
         // Return the result
@@ -203,9 +213,9 @@ public final class Scope {
      */
     public boolean isSemanticLocal(String name) {
         // Iterate on frame
-        for(int i = this.frameDescriptorStack.size() - 1 ; i >= 0 ; i--) {
-            for(Map<String, Integer> bindings : this.frameBindings.get(this.frameDescriptorStack.get(i))) {
-                if(bindings.containsKey(name)) return true;
+        for (int i = this.frameDescriptorStack.size() - 1; i >= 0; i--) {
+            for (Map<String, Integer> bindings : this.frameBindings.get(this.frameDescriptorStack.get(i))) {
+                if (bindings.containsKey(name)) return true;
             }
         }
 
@@ -218,7 +228,7 @@ public final class Scope {
      */
     public void openLexical() {
         Map<String, Integer> newBindings = new HashMap<>();
-        if(!this.frameDescriptorStack.isEmpty()) {
+        if (!this.frameDescriptorStack.isEmpty()) {
             this.frameBindings.get(this.frameDescriptorStack.getLast()).add(newBindings);
         }
         this.bindingsStack.add(newBindings);
@@ -229,7 +239,7 @@ public final class Scope {
      * Close the lexical scope
      */
     public void closeLexical() {
-        if(!this.frameDescriptorStack.isEmpty()) {
+        if (!this.frameDescriptorStack.isEmpty()) {
             List<Map<String, Integer>> frameBindings = this.frameBindings.get(this.frameDescriptorStack.getLast());
             frameBindings.remove(frameBindings.size() - 1);
         }
@@ -242,8 +252,8 @@ public final class Scope {
      */
     public void openSemantic() {
         FrameDescriptor.Builder previousBuilder = this.frameDescriptorStack.size() == 0 ?
-                null :
-                this.frameDescriptorStack.getLast();
+            null :
+            this.frameDescriptorStack.getLast();
         FrameDescriptor.Builder newBuilder = cloneFrameDescriptorBuilder(previousBuilder);
         this.frameDescriptorStack.add(newBuilder);
         this.frameBindings.put(newBuilder, new LinkedList<>());
@@ -264,12 +274,12 @@ public final class Scope {
     @Override
     public String toString() {
         List<String> frames = new ArrayList<>();
-        for(FrameDescriptor.Builder builder : this.frameDescriptorStack) {
+        for (FrameDescriptor.Builder builder : this.frameDescriptorStack) {
             FrameDescriptor frameDescriptor = builder.build();
             StringBuilder frameImage = new StringBuilder("{");
-            for(int i = 0 ; i < frameDescriptor.getNumberOfSlots() ; i++) {
+            for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
                 frameImage.append(i).append(": ").append(frameDescriptor.getSlotKind(i));
-                if(i < frameDescriptor.getNumberOfSlots() - 1) {
+                if (i < frameDescriptor.getNumberOfSlots() - 1) {
                     frameImage.append(", ");
                 }
             }
@@ -278,11 +288,11 @@ public final class Scope {
         }
 
         return "Scope{\n" +
-                "\tbindings = " + bindingsStack + "\n" +
-                "\tcounters = " + counterStack + "\n" +
-                "\tframes = " + frames + "\n" +
-                "\tframes_bindings = " + frameBindings + "\n" +
-                "\tglobal_size = " + globalSize + "\n" +
-                "}";
+            "\tbindings = " + bindingsStack + "\n" +
+            "\tcounters = " + counterStack + "\n" +
+            "\tframes = " + frames + "\n" +
+            "\tframes_bindings = " + frameBindings + "\n" +
+            "\tglobal_size = " + globalSize + "\n" +
+            "}";
     }
 }

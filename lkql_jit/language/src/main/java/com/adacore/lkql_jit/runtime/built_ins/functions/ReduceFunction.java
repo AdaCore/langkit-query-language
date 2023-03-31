@@ -23,12 +23,8 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -36,6 +32,10 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
@@ -47,13 +47,19 @@ public final class ReduceFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "reduce" built-in */
+    /**
+     * The only instance of the "reduce" built-in
+     */
     private static ReduceFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "reduce";
 
-    /** The expression that represents the "reduce" function execution */
+    /**
+     * The expression that represents the "reduce" function execution
+     */
     private final ReduceExpr reduceExpr;
 
     // ----- Constructors -----
@@ -71,7 +77,7 @@ public final class ReduceFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static ReduceFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ReduceFunction();
         }
         return instance;
@@ -79,21 +85,25 @@ public final class ReduceFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given a collection, a reduction function, and an initial value reduce the result",
-                new String[]{"indexable", "fn", "init"},
-                new Expr[]{null, null, null},
-                this.reduceExpr
+            NAME,
+            "Given a collection, a reduction function, and an initial value reduce the result",
+            new String[]{"indexable", "fn", "init"},
+            new Expr[]{null, null, null},
+            this.reduceExpr
         );
     }
 
@@ -104,7 +114,9 @@ public final class ReduceFunction implements BuiltInFunction {
      */
     public final static class ReduceExpr extends BuiltInExpr {
 
-        /** The dispatcher for the reduce function */
+        /**
+         * The dispatcher for the reduce function
+         */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
@@ -120,9 +132,9 @@ public final class ReduceFunction implements BuiltInFunction {
                 iterable = LKQLTypeSystemGen.expectIterable(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_ITERABLE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.LKQL_ITERABLE,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
@@ -130,26 +142,26 @@ public final class ReduceFunction implements BuiltInFunction {
                 reduceFunction = LKQLTypeSystemGen.expectFunctionValue(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_FUNCTION,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.LKQL_FUNCTION,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
             // Verify the function arity
-            if(reduceFunction.getParamNames().length != 2) {
+            if (reduceFunction.getParamNames().length != 2) {
                 throw LKQLRuntimeException.fromMessage(
-                        "Function passed to reduce should have arity of two",
-                        this.callNode.getArgList().getArgs()[1]
+                    "Function passed to reduce should have arity of two",
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
             // Execute the reducing
             Iterator iterator = iterable.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 initValue = this.dispatcher.executeDispatch(
-                        reduceFunction,
-                        new Object[]{initValue, iterator.next()}
+                    reduceFunction,
+                    new Object[]{initValue, iterator.next()}
                 );
             }
 

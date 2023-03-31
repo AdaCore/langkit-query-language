@@ -39,12 +39,16 @@ public abstract class Arg extends LKQLNode {
 
     // ----- Attributes -----
 
-    /** The argument name, can be null if the arg is an expr one */
+    /**
+     * The argument name, can be null if the arg is an expr one
+     */
     protected final Identifier argName;
 
     // ----- Children -----
 
-    /** The expression of the argument */
+    /**
+     * The expression of the argument
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr argExpr;
@@ -55,13 +59,13 @@ public abstract class Arg extends LKQLNode {
      * Create a new argument node
      *
      * @param location The location of the argument in the sources
-     * @param argName The name of the argument
-     * @param argExpr The expression of the argument
+     * @param argName  The name of the argument
+     * @param argExpr  The expression of the argument
      */
     protected Arg(
-            SourceLocation location,
-            Identifier argName,
-            Expr argExpr
+        SourceLocation location,
+        Identifier argName,
+        Expr argExpr
     ) {
         super(location);
         this.argName = argName;
@@ -80,7 +84,9 @@ public abstract class Arg extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.argExpr.executeGeneric(frame);

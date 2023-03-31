@@ -23,18 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.source.SourceSection;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,20 +43,28 @@ public final class FunctionRootNode extends BaseRootNode {
 
     // ----- Attributes -----
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     @CompilerDirectives.CompilationFinal
     private String name;
 
-    /** If the function is memoized */
+    /**
+     * If the function is memoized
+     */
     @CompilerDirectives.CompilationFinal
     private boolean isMemoized;
 
-    /** The memoization cache */
+    /**
+     * The memoization cache
+     */
     private final HashMap<Arguments, Object> memCache;
 
     // ----- Children -----
 
-    /** The body of the function */
+    /**
+     * The body of the function
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr body;
@@ -72,22 +74,22 @@ public final class FunctionRootNode extends BaseRootNode {
     /**
      * Create a new function root node
      *
-     * @param language The language instance to link the root node with
+     * @param language        The language instance to link the root node with
      * @param frameDescriptor The frame descriptor for the root node
-     * @param closure The execution closure of the root node
-     * @param isMemoized If the function is memoized
-     * @param slots The slots of the arguments
-     * @param name The name of the function
-     * @param body The expression of the function
+     * @param closure         The execution closure of the root node
+     * @param isMemoized      If the function is memoized
+     * @param slots           The slots of the arguments
+     * @param name            The name of the function
+     * @param body            The expression of the function
      */
     public FunctionRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            Closure closure,
-            boolean isMemoized,
-            int[] slots,
-            String name,
-            Expr body
+        TruffleLanguage<?> language,
+        FrameDescriptor frameDescriptor,
+        Closure closure,
+        boolean isMemoized,
+        int[] slots,
+        String name,
+        Expr body
     ) {
         super(language, frameDescriptor, closure);
         this.argumentWriting = this.createArgWritings(slots);
@@ -115,13 +117,15 @@ public final class FunctionRootNode extends BaseRootNode {
 
     // ----- Execution methods -----
 
-    /** @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object execute(VirtualFrame frame) {
         // Try the memoization
-        if(this.isMemoized) {
+        if (this.isMemoized) {
             Arguments args = new Arguments(frame.getArguments());
-            if(this.inMemCache(args)) {
+            if (this.inMemCache(args)) {
                 return this.getMemCache(args);
             }
         }
@@ -133,7 +137,7 @@ public final class FunctionRootNode extends BaseRootNode {
         this.instantiateArgs(frame);
 
         // If the function is memoized, store the result
-        if(this.isMemoized) {
+        if (this.isMemoized) {
             Object res = this.body.executeGeneric(frame);
             Arguments args = new Arguments(frame.getArguments());
             this.addMemCache(args, res);
@@ -174,7 +178,7 @@ public final class FunctionRootNode extends BaseRootNode {
      * Put a result of the function associated with the arguments in the memoization cache
      *
      * @param args The arguments of the function call
-     * @param res The result of the function call
+     * @param res  The result of the function call
      */
     @CompilerDirectives.TruffleBoundary
     private void addMemCache(Arguments args, Object res) {
@@ -195,13 +199,13 @@ public final class FunctionRootNode extends BaseRootNode {
      *
      * @param args The arguments
      */
-    private record Arguments (
-            Object[] args
+    private record Arguments(
+        Object[] args
     ) {
         @Override
         public boolean equals(Object o) {
-            if(o == this) return true;
-            if(!(o instanceof Arguments other)) return false;
+            if (o == this) return true;
+            if (!(o instanceof Arguments other)) return false;
             return Arrays.equals(this.args, other.args);
         }
 

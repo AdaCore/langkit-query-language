@@ -24,15 +24,15 @@
 package com.adacore.lkql_jit.nodes.declarations.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
+import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
+import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.declarations.Declaration;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 
 
 /**
@@ -44,65 +44,83 @@ public abstract class FunDecl extends Declaration {
 
     // ----- Macros and enums -----
 
-    /** Enum representing the checker mode of a function */
+    /**
+     * Enum representing the checker mode of a function
+     */
     public enum CheckerMode {
         OFF,
         NODE,
         UNIT
     }
 
-    /** The names of the parameters for a checker annotation */
+    /**
+     * The names of the parameters for a checker annotation
+     */
     private static final String[] checkerParamNames = new String[]{
-            "message",
-            "help",
-            "follow_generic_instantiations",
-            "category",
-            "subcategory",
-            "remediation",
-            "execution_cost",
-            "parametric_exemption",
-            "impact",
-            "target"
+        "message",
+        "help",
+        "follow_generic_instantiations",
+        "category",
+        "subcategory",
+        "remediation",
+        "execution_cost",
+        "parametric_exemption",
+        "impact",
+        "target"
     };
 
-    /** The default values for annotation parameters */
+    /**
+     * The default values for annotation parameters
+     */
     private static final Object[] defaultCheckerParams = new Object[]{
-            null,
-            null,
-            false,
-            "Misc",
-            "Misc",
-            "MEDIUM",
-            0L,
-            false,
-            "",
-            "amd64"
+        null,
+        null,
+        false,
+        "Misc",
+        "Misc",
+        "MEDIUM",
+        0L,
+        false,
+        "",
+        "amd64"
     };
 
-    /** The valid value for the remediation parameters */
+    /**
+     * The valid value for the remediation parameters
+     */
     private static final String[] validRemediation = new String[]{
-            "EASY",
-            "MEDIUM",
-            "MAJOR"
+        "EASY",
+        "MEDIUM",
+        "MAJOR"
     };
 
     // ----- Attributes -----
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     protected final String name;
 
-    /** The slot to place the function in */
+    /**
+     * The slot to place the function in
+     */
     protected final int slot;
 
-    /** If the function is declared as memoized */
+    /**
+     * If the function is declared as memoized
+     */
     protected final boolean isMemoized;
 
-    /** The checker mode of the function (off, node, unit) */
+    /**
+     * The checker mode of the function (off, node, unit)
+     */
     protected final CheckerMode checkerMode;
 
     // ----- Children -----
 
-    /** The expression of the function */
+    /**
+     * The expression of the function
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected FunExpr funExpr;
@@ -112,18 +130,18 @@ public abstract class FunDecl extends Declaration {
     /**
      * Create a new function declaration node
      *
-     * @param location The location of the node in the sources
+     * @param location   The location of the node in the sources
      * @param annotation The annotation associated with the declaration
-     * @param name The name of the function
-     * @param slot The slot to place the function in
-     * @param funExpr The expression of the function
+     * @param name       The name of the function
+     * @param slot       The slot to place the function in
+     * @param funExpr    The expression of the function
      */
     protected FunDecl(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            int slot,
-            FunExpr funExpr
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        int slot,
+        FunExpr funExpr
     ) {
         super(location);
         this.name = name;
@@ -132,13 +150,13 @@ public abstract class FunDecl extends Declaration {
         this.funExpr = funExpr;
 
         // Initialize the annotation flags
-        if(this.annotation != null) {
+        if (this.annotation != null) {
             this.isMemoized = this.annotation.getName().equals(DeclAnnotation.MEMOIZED);
             this.checkerMode = this.annotation.getName().equals(DeclAnnotation.NODE_CHECK) ?
-                    CheckerMode.NODE :
-                    this.annotation.getName().equals(DeclAnnotation.UNIT_CHECK) ?
-                            CheckerMode.UNIT :
-                            CheckerMode.OFF;
+                CheckerMode.NODE :
+                this.annotation.getName().equals(DeclAnnotation.UNIT_CHECK) ?
+                    CheckerMode.UNIT :
+                    CheckerMode.OFF;
         } else {
             this.isMemoized = false;
             this.checkerMode = CheckerMode.OFF;
@@ -150,39 +168,39 @@ public abstract class FunDecl extends Declaration {
     /**
      * Export the checker with the correct form in the global scope
      *
-     * @param frame The frame for the annotation execution
+     * @param frame         The frame for the annotation execution
      * @param functionValue The function to export as a checker
      */
     protected void exportChecker(VirtualFrame frame, FunctionValue functionValue) {
         // Execute the arguments of the checker annotation
         Object[] checkerArgs = this.annotation.getArguments().executeArgList(
-                frame,
-                checkerParamNames
+            frame,
+            checkerParamNames
         );
 
         // Set the default values of the checker arguments
-        for(int i = 0 ; i < checkerArgs.length ; i++) {
-            if(checkerArgs[i] == null) checkerArgs[i] = defaultCheckerParams[i];
+        for (int i = 0; i < checkerArgs.length; i++) {
+            if (checkerArgs[i] == null) checkerArgs[i] = defaultCheckerParams[i];
         }
 
         // Verify the message and help
-        if(checkerArgs[0] == null) checkerArgs[0] = functionValue.getName();
-        if(checkerArgs[1] == null) checkerArgs[1] = functionValue.getName();
+        if (checkerArgs[0] == null) checkerArgs[0] = functionValue.getName();
+        if (checkerArgs[1] == null) checkerArgs[1] = functionValue.getName();
 
         // Verify the remediation mode
-        if(ArrayUtils.indexOf(validRemediation, checkerArgs[5]) == -1) checkerArgs[5] = defaultCheckerParams[5];
+        if (ArrayUtils.indexOf(validRemediation, checkerArgs[5]) == -1) checkerArgs[5] = defaultCheckerParams[5];
 
         // Create the object value representing the checker
         ObjectValue checkerObject = new ObjectValue(
-                ArrayUtils.concat(checkerParamNames, new String[]{"function", "name", "mode"}),
-                ArrayUtils.concat(
-                    checkerArgs,
-                    new Object[]{
-                        functionValue,
-                        functionValue.getName(),
-                        this.checkerMode
-                    }
-                )
+            ArrayUtils.concat(checkerParamNames, new String[]{"function", "name", "mode"}),
+            ArrayUtils.concat(
+                checkerArgs,
+                new Object[]{
+                    functionValue,
+                    functionValue.getName(),
+                    this.checkerMode
+                }
+            )
         );
 
         // Put the object in the context

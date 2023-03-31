@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.declarations.selectors;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -38,7 +38,9 @@ public final class SelectorExpr extends LKQLNode {
 
     // ----- Macros and enums -----
 
-    /** The possible modes for the selector expressions */
+    /**
+     * The possible modes for the selector expressions
+     */
     public enum Mode {
         DEFAULT,
         REC,
@@ -47,12 +49,16 @@ public final class SelectorExpr extends LKQLNode {
 
     // ----- Attributes -----
 
-    /** The mode of the expression */
+    /**
+     * The mode of the expression
+     */
     private final Mode mode;
 
     // ----- Children -----
 
-    /** The expression of the selector expression */
+    /**
+     * The expression of the selector expression
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
@@ -63,13 +69,13 @@ public final class SelectorExpr extends LKQLNode {
      * Create a new selector expression node
      *
      * @param location The location of the node in the source
-     * @param mode The mode of the expression
-     * @param expr The expression
+     * @param mode     The mode of the expression
+     * @param expr     The expression
      */
     public SelectorExpr(
-            SourceLocation location,
-            Mode mode,
-            Expr expr
+        SourceLocation location,
+        Mode mode,
+        Expr expr
     ) {
         super(location);
         this.mode = mode;
@@ -84,7 +90,9 @@ public final class SelectorExpr extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.expr.executeGeneric(frame);
@@ -92,13 +100,15 @@ public final class SelectorExpr extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"mode"},
-                new Object[]{this.mode}
+            indentLevel,
+            new String[]{"mode"},
+            new Object[]{this.mode}
         );
     }
 

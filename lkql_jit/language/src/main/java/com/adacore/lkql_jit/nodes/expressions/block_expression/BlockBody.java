@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -44,14 +44,16 @@ public abstract class BlockBody extends LKQLNode {
      * @param location The location of the node in the source
      */
     protected BlockBody(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);

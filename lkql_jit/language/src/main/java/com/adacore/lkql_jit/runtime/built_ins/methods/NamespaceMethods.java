@@ -35,7 +35,9 @@ public final class NamespaceMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static NamespaceMethods instance = null;
 
     // ----- Constructors -----
@@ -53,7 +55,7 @@ public final class NamespaceMethods extends CommonMethods {
      * @return The instance
      */
     public static NamespaceMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new NamespaceMethods();
         }
         return instance;
@@ -61,7 +63,9 @@ public final class NamespaceMethods extends CommonMethods {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.LKQL_NAMESPACE;

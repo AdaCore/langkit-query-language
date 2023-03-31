@@ -34,7 +34,9 @@ public final class IntMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static IntMethods instance = null;
 
     // ----- Constructors -----
@@ -52,7 +54,7 @@ public final class IntMethods extends CommonMethods {
      * @return The instance
      */
     public static IntMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new IntMethods();
         }
         return instance;
@@ -60,7 +62,9 @@ public final class IntMethods extends CommonMethods {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.LKQL_INTEGER;

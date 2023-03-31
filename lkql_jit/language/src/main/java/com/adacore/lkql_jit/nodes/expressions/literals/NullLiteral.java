@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -45,20 +45,24 @@ public final class NullLiteral extends Expr {
      * @param location The location of the node in the source
      */
     public NullLiteral(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)  */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return NodeNull.getInstance();
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeNode(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeNode(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Libadalang.AdaNode executeNode(VirtualFrame frame) {
         return NodeNull.getInstance();
@@ -66,7 +70,9 @@ public final class NullLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

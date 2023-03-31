@@ -23,13 +23,13 @@
 
 package com.adacore.lkql_jit.utils;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
+import com.oracle.truffle.api.CompilerDirectives;
 
 import java.math.BigInteger;
 
@@ -43,61 +43,99 @@ public final class LKQLTypesHelper {
 
     // ----- Macros and enum -----
 
-    /** The string representing the LKQL indexable interface */
+    /**
+     * The string representing the LKQL indexable interface
+     */
     public static final String LKQL_INDEXABLE = "Indexable";
 
-    /** The string representing the LKQL iterable interface */
+    /**
+     * The string representing the LKQL iterable interface
+     */
     public static final String LKQL_ITERABLE = "Iterable";
 
-    /** The string representing the LKQL unit type */
+    /**
+     * The string representing the LKQL unit type
+     */
     public static final String LKQL_UNIT = "Unit";
 
-    /** The string representing the LKQL boolean type */
+    /**
+     * The string representing the LKQL boolean type
+     */
     public static final String LKQL_BOOLEAN = "Bool";
 
-    /** The string representing the LKQL integer type */
+    /**
+     * The string representing the LKQL integer type
+     */
     public static final String LKQL_INTEGER = "Int";
 
-    /** The string representing the LKQL string type */
+    /**
+     * The string representing the LKQL string type
+     */
     public static final String LKQL_STRING = "Str";
 
-    /** The string representing the LKQL pattern type */
+    /**
+     * The string representing the LKQL pattern type
+     */
     public static final String LKQL_PATTERN = "Pattern";
 
-    /** The string representing the LKQL functional type */
+    /**
+     * The string representing the LKQL functional type
+     */
     public static final String LKQL_FUNCTION = "Function";
 
-    /** The string representing the LKQL property reference type */
+    /**
+     * The string representing the LKQL property reference type
+     */
     public static final String LKQL_PROPERTY_REF = "Property_Reference";
 
-    /** The string representing the LKQL selector type */
+    /**
+     * The string representing the LKQL selector type
+     */
     public static final String LKQL_SELECTOR = "Selector";
 
-    /** The string representing the LKQL tuple type */
+    /**
+     * The string representing the LKQL tuple type
+     */
     public static final String LKQL_TUPLE = "Tuple";
 
-    /** The string representing the LKQL list type */
+    /**
+     * The string representing the LKQL list type
+     */
     public static final String LKQL_LIST = "List";
 
-    /** The string representing the LKQL lazy list type */
+    /**
+     * The string representing the LKQL lazy list type
+     */
     public static final String LKQL_LAZY_LIST = "Lazy_List";
 
-    /** The string representing the LKQL selector list type */
+    /**
+     * The string representing the LKQL selector list type
+     */
     public static final String LKQL_SELECTOR_LIST = "Selector_List";
 
-    /** The string representing the LKQL object type */
+    /**
+     * The string representing the LKQL object type
+     */
     public static final String LKQL_OBJECT = "Object";
 
-    /** The string representing the LKQL namespace type */
+    /**
+     * The string representing the LKQL namespace type
+     */
     public static final String LKQL_NAMESPACE = "Namespace";
 
-    /** The string representing the ada node type */
+    /**
+     * The string representing the ada node type
+     */
     public static final String ADA_NODE = "Node";
 
-    /** The string representing the token type */
+    /**
+     * The string representing the token type
+     */
     public static final String TOKEN = "Token";
 
-    /** The string representing the analysis unit type */
+    /**
+     * The string representing the analysis unit type
+     */
     public static final String ANALYSIS_UNIT = "Analysis_Unit";
 
     // ----- Class methods -----
@@ -115,63 +153,46 @@ public final class LKQLTypesHelper {
     /**
      * Get the string representation of the Java type for the LKQL language
      *
-     * @param obj The object to get the type for
+     * @param obj          The object to get the type for
      * @param defaultValue The default value to return
      * @return The string representing the type in the LKQL language
      */
     public static String fromJava(Object obj, String defaultValue) {
-        if(LKQLTypeSystemGen.isUnit(obj)) {
+        if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
-        }
-        else if(LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj)) {
+        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj)) {
             return LKQL_INTEGER;
-        }
-        else if(LKQLTypeSystemGen.isString(obj)) {
+        } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
-        }
-        else if(LKQLTypeSystemGen.isPattern(obj)) {
+        } else if (LKQLTypeSystemGen.isPattern(obj)) {
             return LKQL_PATTERN;
-        }
-        else if(LKQLTypeSystemGen.isFunctionValue(obj)) {
+        } else if (LKQLTypeSystemGen.isFunctionValue(obj)) {
             return LKQL_FUNCTION;
-        }
-        else if(LKQLTypeSystemGen.isPropertyRefValue(obj)) {
+        } else if (LKQLTypeSystemGen.isPropertyRefValue(obj)) {
             return LKQL_PROPERTY_REF;
-        }
-        else if(LKQLTypeSystemGen.isSelectorValue(obj)) {
+        } else if (LKQLTypeSystemGen.isSelectorValue(obj)) {
             return LKQL_SELECTOR;
-        }
-        else if(LKQLTypeSystemGen.isTupleValue(obj)) {
+        } else if (LKQLTypeSystemGen.isTupleValue(obj)) {
             return LKQL_TUPLE;
-        }
-        else if(LKQLTypeSystemGen.isListValue(obj)) {
+        } else if (LKQLTypeSystemGen.isListValue(obj)) {
             return LKQL_LIST;
-        }
-        else if(LKQLTypeSystemGen.isLazyListValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLazyListValue(obj)) {
             return LKQL_LAZY_LIST;
-        }
-        else if(LKQLTypeSystemGen.isSelectorListValue(obj)) {
+        } else if (LKQLTypeSystemGen.isSelectorListValue(obj)) {
             return LKQL_SELECTOR_LIST;
-        }
-        else if(LKQLTypeSystemGen.isAdaNode(obj)) {
+        } else if (LKQLTypeSystemGen.isAdaNode(obj)) {
             return ADA_NODE;
-        }
-        else if(LKQLTypeSystemGen.isToken(obj)) {
+        } else if (LKQLTypeSystemGen.isToken(obj)) {
             return TOKEN;
-        }
-        else if(LKQLTypeSystemGen.isAnalysisUnit(obj)) {
+        } else if (LKQLTypeSystemGen.isAnalysisUnit(obj)) {
             return ANALYSIS_UNIT;
-        }
-        else if(LKQLTypeSystemGen.isBoolean(obj)) {
+        } else if (LKQLTypeSystemGen.isBoolean(obj)) {
             return LKQL_BOOLEAN;
-        }
-        else if(LKQLTypeSystemGen.isObjectValue(obj)) {
+        } else if (LKQLTypeSystemGen.isObjectValue(obj)) {
             return LKQL_OBJECT;
-        }
-        else if(LKQLTypeSystemGen.isNamespaceValue(obj)) {
+        } else if (LKQLTypeSystemGen.isNamespaceValue(obj)) {
             return LKQL_NAMESPACE;
-        }
-        else {
+        } else {
             return defaultValue;
         }
     }
@@ -185,60 +206,60 @@ public final class LKQLTypesHelper {
     @CompilerDirectives.TruffleBoundary
     public static Object toLKQLValue(Object javaValue) throws UnsupportedTypeException {
         // If the source is a boolean
-        if(javaValue instanceof Boolean bool) {
+        if (javaValue instanceof Boolean bool) {
             return bool;
         }
 
         // If the source is an integer
-        else if(javaValue instanceof Integer integer) {
+        else if (javaValue instanceof Integer integer) {
             return integer.longValue();
         }
 
         // If the source is a long
-        else if(javaValue instanceof Long) {
+        else if (javaValue instanceof Long) {
             return javaValue;
         }
 
         // If the value is a big integer
-        else if(javaValue instanceof BigInteger) {
+        else if (javaValue instanceof BigInteger) {
             return javaValue;
         }
 
         // If the value is a character
-        else if(javaValue instanceof Libadalang.Char character) {
+        else if (javaValue instanceof Libadalang.Char character) {
             return character.toString();
         }
 
         // If the source is a symbol
-        else if(javaValue instanceof Libadalang.Symbol symbol) {
+        else if (javaValue instanceof Libadalang.Symbol symbol) {
             return symbol.text;
         }
 
         // If the value is a string
-        else if(javaValue instanceof String) {
+        else if (javaValue instanceof String) {
             return javaValue;
         }
 
         // If the source is an AdaNode
-        else if(javaValue instanceof Libadalang.AdaNode adaNode) {
+        else if (javaValue instanceof Libadalang.AdaNode adaNode) {
             return adaNode.isNone() ? NodeNull.getInstance() : adaNode;
         }
 
         // If the source is a token
-        else if(javaValue instanceof Libadalang.Token token) {
+        else if (javaValue instanceof Libadalang.Token token) {
             return token;
         }
 
         // If the source is an analysis unit
-        else if(javaValue instanceof Libadalang.AnalysisUnit) {
+        else if (javaValue instanceof Libadalang.AnalysisUnit) {
             return javaValue;
         }
 
         // If the source is an array from libadalang
-        else if(javaValue instanceof Libadalang.ArrayBase<?> array) {
+        else if (javaValue instanceof Libadalang.ArrayBase<?> array) {
             Object[] res = new Object[array.size()];
             int i = 0;
-            for(Object obj : array) {
+            for (Object obj : array) {
                 res[i] = toLKQLValue(obj);
                 i++;
             }
@@ -246,51 +267,51 @@ public final class LKQLTypesHelper {
         }
 
         // If the source is an enum
-        else if(javaValue instanceof Enum<?>) {
+        else if (javaValue instanceof Enum<?>) {
             return javaValue.toString().toLowerCase();
         }
 
         // If the source is an aspect structure
-        else if(javaValue instanceof Libadalang.Aspect aspect) {
+        else if (javaValue instanceof Libadalang.Aspect aspect) {
             String[] keys = {"exists", "inherited", "node", "value"};
             Object[] values = {
-                    aspect.exists,
-                    aspect.inherited,
-                    aspect.node.node.isNull() ?
-                            NodeNull.getInstance() :
-                            Libadalang.AdaNode.fromEntity(aspect.node),
-                    aspect.value.node.isNull() ?
-                            NodeNull.getInstance() :
-                            Libadalang.AdaNode.fromEntity(aspect.value)
+                aspect.exists,
+                aspect.inherited,
+                aspect.node.node.isNull() ?
+                    NodeNull.getInstance() :
+                    Libadalang.AdaNode.fromEntity(aspect.node),
+                aspect.value.node.isNull() ?
+                    NodeNull.getInstance() :
+                    Libadalang.AdaNode.fromEntity(aspect.value)
             };
             return new ObjectValue(keys, values);
         }
 
         // If the source is a reference result structure
-        else if(javaValue instanceof Libadalang.RefResult refResultStruct) {
+        else if (javaValue instanceof Libadalang.RefResult refResultStruct) {
             String[] keys = {"kind", "ref"};
             Object[] values = {
-                    toLKQLValue(refResultStruct.kind),
-                    refResultStruct.ref.node.isNull() ?
-                            NodeNull.getInstance() :
-                            Libadalang.AdaNode.fromEntity(refResultStruct.ref)
+                toLKQLValue(refResultStruct.kind),
+                refResultStruct.ref.node.isNull() ?
+                    NodeNull.getInstance() :
+                    Libadalang.AdaNode.fromEntity(refResultStruct.ref)
             };
             return new ObjectValue(keys, values);
         }
 
         // If the source is a parameter-actual structure
-        else if(javaValue instanceof Libadalang.ParamActual paramActual) {
+        else if (javaValue instanceof Libadalang.ParamActual paramActual) {
             String[] keys = {"actual", "param"};
             Object[] values = {
-                    Libadalang.AdaNode.fromEntity(paramActual.actual),
-                    Libadalang.AdaNode.fromEntity(paramActual.param)
+                Libadalang.AdaNode.fromEntity(paramActual.actual),
+                Libadalang.AdaNode.fromEntity(paramActual.param)
             };
             return new ObjectValue(keys, values);
         }
 
         // Else, throw an exception for the unsupported type
         else {
-            if(javaValue == null) {
+            if (javaValue == null) {
                 throw new UnsupportedTypeException("NULL");
             } else {
                 throw new UnsupportedTypeException(javaValue.getClass().getSimpleName());
@@ -306,17 +327,17 @@ public final class LKQLTypesHelper {
      */
     public static Object fromLKQLValue(Object lkqlValue) {
         // If the source is nullish
-        if(LKQLTypeSystemGen.isNullish(lkqlValue)) {
+        if (LKQLTypeSystemGen.isNullish(lkqlValue)) {
             return null;
         }
 
         // If the source is a long
-        else if(LKQLTypeSystemGen.isLong(lkqlValue)) {
+        else if (LKQLTypeSystemGen.isLong(lkqlValue)) {
             return (int) LKQLTypeSystemGen.asLong(lkqlValue);
         }
 
         // If the source is a big integer
-        else if(LKQLTypeSystemGen.isBigInteger(lkqlValue)) {
+        else if (LKQLTypeSystemGen.isBigInteger(lkqlValue)) {
             return LKQLTypeSystemGen.asBigInteger(lkqlValue).intValue();
         }
 

@@ -41,26 +41,28 @@ public final class NamedArg extends Arg {
      * Create a new named argument node
      *
      * @param location The location of the node in the sources
-     * @param name The name of the argument
-     * @param argExpr The expression of the argument
+     * @param name     The name of the argument
+     * @param argExpr  The expression of the argument
      */
     public NamedArg(
-            SourceLocation location,
-            Identifier name,
-            Expr argExpr
+        SourceLocation location,
+        Identifier name,
+        Expr argExpr
     ) {
         super(location, name, argExpr);
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return nodeRepresentation(
-                indentLevel,
-                new String[]{"name"},
-                new Object[]{this.argName}
+            indentLevel,
+            new String[]{"name"},
+            new Object[]{this.argName}
         );
     }
 

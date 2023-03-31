@@ -33,9 +33,6 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.oracle.truffle.api.source.SourceSection;
-
-import java.util.Arrays;
 
 
 /**
@@ -47,21 +44,29 @@ public final class ListComprehensionRootNode extends RootNode {
 
     // ----- Attributes -----
 
-    /** The closure for the root node execution */
+    /**
+     * The closure for the root node execution
+     */
     private Closure closure;
 
     // ----- Children -----
 
-    /** The binding writing nodes */
+    /**
+     * The binding writing nodes
+     */
     @Children
     private final WriteArg[] bindingWriting;
 
-    /** The predicate of the list comprehension */
+    /**
+     * The predicate of the list comprehension
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr predicate;
 
-    /** The result expression of the list comprehension */
+    /**
+     * The result expression of the list comprehension
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr result;
@@ -71,18 +76,18 @@ public final class ListComprehensionRootNode extends RootNode {
     /**
      * Create a new list comprehension root node
      *
-     * @param language The language instance to link the root node with
+     * @param language        The language instance to link the root node with
      * @param frameDescriptor The frame descriptor for the root node
-     * @param slots The slots to put the list comprehension bindings in
-     * @param predicate The predicate of the list comprehension
-     * @param result The result expression of the list comprehension
+     * @param slots           The slots to put the list comprehension bindings in
+     * @param predicate       The predicate of the list comprehension
+     * @param result          The result expression of the list comprehension
      */
     public ListComprehensionRootNode(
-            TruffleLanguage<?> language,
-            FrameDescriptor frameDescriptor,
-            int[] slots,
-            Expr predicate,
-            Expr result
+        TruffleLanguage<?> language,
+        FrameDescriptor frameDescriptor,
+        int[] slots,
+        Expr predicate,
+        Expr result
     ) {
         super(language, frameDescriptor);
         this.bindingWriting = this.createBindingWritings(slots);
@@ -108,7 +113,9 @@ public final class ListComprehensionRootNode extends RootNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.root_nodes.BaseRootNode#execute(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.root_nodes.BaseRootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object execute(VirtualFrame frame) {
         // Instantiate the closure
@@ -119,16 +126,16 @@ public final class ListComprehensionRootNode extends RootNode {
 
         // Evaluate the predicate and return the result if true, else just return null
         try {
-            if(this.predicate == null || this.predicate.executeBoolean(frame)) {
+            if (this.predicate == null || this.predicate.executeBoolean(frame)) {
                 return this.result.executeGeneric(frame);
             } else {
                 return null;
             }
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.predicate
+                LKQLTypesHelper.LKQL_BOOLEAN,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                this.predicate
             );
         }
     }
@@ -146,7 +153,7 @@ public final class ListComprehensionRootNode extends RootNode {
         WriteArg[] res = new WriteArg[slots.length];
 
         // Create the writing nodes
-        for(int i = 0 ; i < slots.length ; i++) {
+        for (int i = 0; i < slots.length; i++) {
             res[i] = new WriteArg(slots[i]);
         }
 
@@ -160,7 +167,7 @@ public final class ListComprehensionRootNode extends RootNode {
      * @param frame The frame to instantiate the closure in
      */
     private void instantiateClosure(VirtualFrame frame) {
-        if(this.closure != null) {
+        if (this.closure != null) {
             this.closure.instantiate(frame.materialize());
         }
     }
@@ -171,7 +178,7 @@ public final class ListComprehensionRootNode extends RootNode {
      * @param frame The frame to instantiate the arguments in
      */
     private void instantiateArgs(VirtualFrame frame) {
-        for(int i = 0; i < this.bindingWriting.length ; i++) {
+        for (int i = 0; i < this.bindingWriting.length; i++) {
             this.bindingWriting[i].executeWrite(frame, i);
         }
     }

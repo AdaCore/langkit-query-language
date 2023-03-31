@@ -47,14 +47,14 @@ public abstract class BinConcat extends BinOp {
     /**
      * Create a concatenation node
      *
-     * @param location The location of the node in the source
-     * @param leftLocation The location of the left node
+     * @param location      The location of the node in the source
+     * @param leftLocation  The location of the left node
      * @param rightLocation The location of the right node
      */
     protected BinConcat(
-            SourceLocation location,
-            DummyLocation leftLocation,
-            DummyLocation rightLocation
+        SourceLocation location,
+        DummyLocation leftLocation,
+        DummyLocation rightLocation
     ) {
         super(location, leftLocation, rightLocation);
     }
@@ -64,7 +64,7 @@ public abstract class BinConcat extends BinOp {
     /**
      * Concatenate two strings
      *
-     * @param left The left string value
+     * @param left  The left string value
      * @param right The right string value
      * @return The result of the string concatenation
      */
@@ -76,7 +76,7 @@ public abstract class BinConcat extends BinOp {
     /**
      * Concatenate two lists
      *
-     * @param left The left list value
+     * @param left  The left list value
      * @param right The right list value
      * @return The result of the list concatenation
      */
@@ -88,30 +88,32 @@ public abstract class BinConcat extends BinOp {
     /**
      * The fallback method if the concatenation is not applied to correct types
      *
-     * @param left The left value
+     * @param left  The left value
      * @param right The right value
      */
     @Fallback
     protected void nonConcatenable(Object left, Object right) {
-        if(LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isListValue(left)) {
+        if (LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isListValue(left)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.fromJava(left),
-                    LKQLTypesHelper.fromJava(right),
-                    this
+                LKQLTypesHelper.fromJava(left),
+                LKQLTypesHelper.fromJava(right),
+                this
             );
         } else {
             throw LKQLRuntimeException.unsupportedOperation(
-                    LKQLTypesHelper.fromJava(left),
-                    "&",
-                    LKQLTypesHelper.fromJava(right),
-                    this
+                LKQLTypesHelper.fromJava(left),
+                "&",
+                LKQLTypesHelper.fromJava(right),
+                this
             );
         }
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

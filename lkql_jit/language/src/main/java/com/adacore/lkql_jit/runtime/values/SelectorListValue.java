@@ -23,15 +23,14 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.adacore.libadalang.Libadalang;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -47,25 +46,39 @@ public final class SelectorListValue extends LazyCollection {
 
     // ----- Attributes -----
 
-    /** The cache in a set to perform recursion guard */
+    /**
+     * The cache in a set to perform recursion guard
+     */
     private final HashSet<DepthNode> hashCache;
 
-    /** The root node of the selector */
+    /**
+     * The root node of the selector
+     */
     private final SelectorRootNode rootNode;
 
-    /** The dispatcher for the selector root node */
+    /**
+     * The dispatcher for the selector root node
+     */
     private final SelectorDispatcher dispatcher;
 
-    /** The list of the node to recurs on */
+    /**
+     * The list of the node to recurs on
+     */
     private final List<DepthNode> recursList;
 
-    /** The maximal depth for the return */
+    /**
+     * The maximal depth for the return
+     */
     private final int maxDepth;
 
-    /** The minimal depth for the return */
+    /**
+     * The minimal depth for the return
+     */
     private final int minDepth;
 
-    /** The precise depth to get from the selector */
+    /**
+     * The precise depth to get from the selector
+     */
     private final int depth;
 
     // ----- Constructors -----
@@ -74,18 +87,18 @@ public final class SelectorListValue extends LazyCollection {
      * Create a new selector list
      *
      * @param rootNode The selector root node
-     * @param adaNode The ada node
+     * @param adaNode  The ada node
      * @param maxDepth The maximum depth of the returned nodes
      * @param minDepth The minimum depth of the returned nodes
-     * @param depth The precise required depth of the returned nodes
+     * @param depth    The precise required depth of the returned nodes
      */
     @CompilerDirectives.TruffleBoundary
     public SelectorListValue(
-            SelectorRootNode rootNode,
-            Libadalang.AdaNode adaNode,
-            int maxDepth,
-            int minDepth,
-            int depth
+        SelectorRootNode rootNode,
+        Libadalang.AdaNode adaNode,
+        int maxDepth,
+        int minDepth,
+        int depth
     ) {
         super(0);
         this.hashCache = new HashSet<>();
@@ -97,31 +110,33 @@ public final class SelectorListValue extends LazyCollection {
         this.minDepth = minDepth;
         this.depth = depth;
         LKQLContext context = this.rootNode.getContext();
-        if(context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
+        if (context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
             this.namespace = context.getGlobalValues().getNamespaceStack().peek();
         }
     }
 
     // ----- Class methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection#initCache(int) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection#initCache(int)
+     */
     @Override
     @CompilerDirectives.TruffleBoundary
     protected void initCache(int index) {
         LKQLContext context = this.rootNode.getContext();
         boolean pushed = false;
-        if(this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
+        if (this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
             context.getGlobalValues().pushNamespace(this.namespace);
             pushed = true;
         }
         try {
-            while(!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
+            while (!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
                 // Get the first recurse item and execute the selector on it
                 DepthNode nextNode = this.recursList.remove(0);
                 SelectorRootNode.SelectorCallResult result = this.dispatcher.executeDispatch(this.rootNode, nextNode);
 
                 // If the result is a selector call result, do the needed operations
-                if(!LKQLTypeSystemGen.isNullish(result.result())) {
+                if (!LKQLTypeSystemGen.isNullish(result.result())) {
                     switch (result.mode()) {
                         case REC -> this.addRecursAndResult(result.result());
                         case DEFAULT -> this.addResult(result.result());
@@ -130,7 +145,7 @@ public final class SelectorListValue extends LazyCollection {
                 }
             }
         } finally {
-            if(this.namespace != null && pushed) {
+            if (this.namespace != null && pushed) {
                 context.getGlobalValues().popNamespace();
             }
         }
@@ -143,16 +158,16 @@ public final class SelectorListValue extends LazyCollection {
      */
     private void addResult(Object toAdd) {
         // If the object is just a node
-        if(toAdd instanceof DepthNode node) {
-            if(this.isRecursionGuarded(node)) {
+        if (toAdd instanceof DepthNode node) {
+            if (this.isRecursionGuarded(node)) {
                 this.addNodeResult(node);
             }
         }
 
         // If the object is an array of node
-        else if(toAdd instanceof DepthNode[] nodes) {
+        else if (toAdd instanceof DepthNode[] nodes) {
             for (DepthNode node : nodes) {
-                if(this.isRecursionGuarded(node)) {
+                if (this.isRecursionGuarded(node)) {
                     this.addNodeResult(node);
                 }
             }
@@ -166,16 +181,16 @@ public final class SelectorListValue extends LazyCollection {
      */
     private void addRecurs(Object toAdd) {
         // If the object is just a node
-        if(toAdd instanceof DepthNode node) {
-            if(this.isRecursionGuarded(node)) {
+        if (toAdd instanceof DepthNode node) {
+            if (this.isRecursionGuarded(node)) {
                 this.recursList.add(node);
             }
         }
 
         // If the object is an array of node
-        else if(toAdd instanceof DepthNode[] nodes) {
-            for(DepthNode node : nodes) {
-                if(this.isRecursionGuarded(node)) {
+        else if (toAdd instanceof DepthNode[] nodes) {
+            for (DepthNode node : nodes) {
+                if (this.isRecursionGuarded(node)) {
                     this.recursList.add(node);
                 }
             }
@@ -189,17 +204,17 @@ public final class SelectorListValue extends LazyCollection {
      */
     private void addRecursAndResult(Object toAdd) {
         // If the object is just a node
-        if(toAdd instanceof DepthNode node) {
-            if(this.isRecursionGuarded(node)) {
+        if (toAdd instanceof DepthNode node) {
+            if (this.isRecursionGuarded(node)) {
                 this.addNodeResult(node);
                 this.recursList.add(node);
             }
         }
 
         // If the object is an array of node
-        else if(toAdd instanceof DepthNode[] nodes) {
-            for(DepthNode node : nodes) {
-                if(this.isRecursionGuarded(node)) {
+        else if (toAdd instanceof DepthNode[] nodes) {
+            for (DepthNode node : nodes) {
+                if (this.isRecursionGuarded(node)) {
                     this.addNodeResult(node);
                     this.recursList.add(node);
                 }
@@ -214,9 +229,9 @@ public final class SelectorListValue extends LazyCollection {
      */
     private void addNodeResult(DepthNode node) {
         // If there is no defined depth
-        if(this.depth < 0) {
-            if(
-                    (this.maxDepth < 0 || node.getDepth() <= this.maxDepth) &&
+        if (this.depth < 0) {
+            if (
+                (this.maxDepth < 0 || node.getDepth() <= this.maxDepth) &&
                     (this.minDepth < 0 || node.getDepth() >= this.minDepth)
             ) {
                 this.cache.add(node);
@@ -226,7 +241,7 @@ public final class SelectorListValue extends LazyCollection {
 
         // Else, only get the wanted nodes
         else {
-            if(node.getDepth() == this.depth) {
+            if (node.getDepth() == this.depth) {
                 this.cache.add(node);
                 this.hashCache.add(node);
             }

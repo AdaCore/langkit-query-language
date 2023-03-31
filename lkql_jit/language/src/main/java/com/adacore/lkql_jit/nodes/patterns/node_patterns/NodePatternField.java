@@ -23,13 +23,13 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -41,12 +41,16 @@ public abstract class NodePatternField extends NodePatternDetail {
 
     // ----- Attributes -----
 
-    /** The name of the field to get */
+    /**
+     * The name of the field to get
+     */
     protected final String fieldName;
 
     // ----- Children -----
 
-    /** The expected value for the field */
+    /**
+     * The expected value for the field
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected DetailValue expected;
@@ -56,14 +60,14 @@ public abstract class NodePatternField extends NodePatternDetail {
     /**
      * Create a new node pattern field detail node
      *
-     * @param location The location of the node in the source
+     * @param location  The location of the node in the source
      * @param fieldName The name of the field to get
-     * @param expected The expected value for the field
+     * @param expected  The expected value for the field
      */
     protected NodePatternField(
-            SourceLocation location,
-            String fieldName,
-            DetailValue expected
+        SourceLocation location,
+        String fieldName,
+        DetailValue expected
     ) {
         super(location);
         this.fieldName = fieldName;
@@ -75,19 +79,19 @@ public abstract class NodePatternField extends NodePatternDetail {
     /**
      * Execute the field detail with the cached path
      *
-     * @param frame The frame to execute in
-     * @param node The node get the field from
+     * @param frame       The frame to execute in
+     * @param node        The node get the field from
      * @param propertyRef The cached property reference
      * @return True if the detail is valid, false else
      */
     @Specialization(guards = {
-            "node == propertyRef.getNode()",
-            "propertyRef.getFieldDescription() != null"
+        "node == propertyRef.getNode()",
+        "propertyRef.getFieldDescription() != null"
     })
     protected boolean fieldCached(
-            VirtualFrame frame,
-            @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(node, fieldName)") PropertyRefValue propertyRef
+        VirtualFrame frame,
+        @SuppressWarnings("unused") Libadalang.AdaNode node,
+        @Cached("create(node, fieldName)") PropertyRefValue propertyRef
     ) {
         // Get the value of the field
         Object value = propertyRef.executeAsField(this);
@@ -100,23 +104,23 @@ public abstract class NodePatternField extends NodePatternDetail {
      * Execute the field detail with the un-cached path
      *
      * @param frame The frame to execute in
-     * @param node The node get the field from
+     * @param node  The node get the field from
      * @return True if the detail is valid, false else
      */
     @Specialization(replaces = "fieldCached")
     protected boolean fieldUncached(
-            VirtualFrame frame,
-            Libadalang.AdaNode node
+        VirtualFrame frame,
+        Libadalang.AdaNode node
     ) {
         // Get the field property reference
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.fieldName);
 
         // Verify if the field method is null
-        if(propertyRef.getFieldDescription() == null) {
+        if (propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
-                    this.fieldName,
-                    node,
-                    this
+                this.fieldName,
+                node,
+                this
             );
         }
 
@@ -126,13 +130,15 @@ public abstract class NodePatternField extends NodePatternDetail {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"fieldName"},
-                new Object[]{this.fieldName}
+            indentLevel,
+            new String[]{"fieldName"},
+            new Object[]{this.fieldName}
         );
     }
 

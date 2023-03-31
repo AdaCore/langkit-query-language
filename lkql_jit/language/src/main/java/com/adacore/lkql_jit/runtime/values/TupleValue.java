@@ -41,7 +41,9 @@ public final class TupleValue implements Indexable {
 
     // ----- Attributes -----
 
-    /** The values contained in the tuple */
+    /**
+     * The values contained in the tuple
+     */
     private final Object[] content;
 
     // ----- Constructors -----
@@ -52,42 +54,48 @@ public final class TupleValue implements Indexable {
      * @param content The content of the tuple
      */
     public TupleValue(
-            Object[] content
+        Object[] content
     ) {
         this.content = content;
     }
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int)
+     */
     @Override
     public Object get(int index) throws InvalidIndexException {
-        if(index < 0 || index >= this.content.length) {
+        if (index < 0 || index >= this.content.length) {
             throw new InvalidIndexException();
         }
         return this.content[index];
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#getContent() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#getContent()
+     */
     @Override
     public Object[] getContent() {
         return this.content;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     @CompilerDirectives.TruffleBoundary
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof TupleValue other)) return false;
-        if(other.content.length != this.content.length) return false;
-        for(int i = 0 ; i < this.content.length ; i++) {
+        if (o == this) return true;
+        if (!(o instanceof TupleValue other)) return false;
+        if (other.content.length != this.content.length) return false;
+        for (int i = 0; i < this.content.length; i++) {
             Object mineObject = this.content[i];
             Object hisObject = other.content[i];
-            if((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if(!mine.internalEquals(his)) return false;
+            if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
+                if (!mine.internalEquals(his)) return false;
             } else {
-                if(!Objects.equals(mineObject, hisObject)) return false;
+                if (!Objects.equals(mineObject, hisObject)) return false;
             }
         }
         return true;
@@ -101,15 +109,15 @@ public final class TupleValue implements Indexable {
         // Create the tuple string in a builder
         StringBuilder builder = new StringBuilder();
         builder.append('(');
-        for (int i = 0; i < this.content.length ; i++) {
-            if(this.content[i] == null) {
+        for (int i = 0; i < this.content.length; i++) {
+            if (this.content[i] == null) {
                 builder.append("null");
-            } else if(this.content[i] instanceof String s) {
+            } else if (this.content[i] instanceof String s) {
                 builder.append(StringUtils.toRepr(s));
             } else {
                 builder.append(this.content[i].toString());
             }
-            if(i < this.content.length - 1) builder.append(", ");
+            if (i < this.content.length - 1) builder.append(", ");
         }
         builder.append(')');
 

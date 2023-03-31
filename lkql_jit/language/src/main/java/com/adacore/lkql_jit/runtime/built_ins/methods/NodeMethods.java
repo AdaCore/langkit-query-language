@@ -23,26 +23,24 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.util_functions.ReflectionUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.util_functions.ReflectionUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -54,7 +52,9 @@ public final class NodeMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static NodeMethods instance = null;
 
     // ----- Constructors -----
@@ -72,91 +72,95 @@ public final class NodeMethods extends CommonMethods {
      * @return The instance
      */
     public static NodeMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new NodeMethods();
         }
         return instance;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods()*/
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods()
+     */
     @Override
     protected void initMethods() {
         super.initMethods();
         this.methods.put("children_count", new BuiltInFunctionValue(
-                "children_count",
-                "Given a node, return the count of its children",
-                new String[]{"node"},
-                new Expr[]{null},
-                new ChildrenCountExpr()
+            "children_count",
+            "Given a node, return the count of its children",
+            new String[]{"node"},
+            new Expr[]{null},
+            new ChildrenCountExpr()
         ));
         this.methods.put("children", new BuiltInFunctionValue(
-                "children",
-                "Given a node, get the list of all its children",
-                new String[]{"node"},
-                new Expr[]{null},
-                new ChildrenExpr()
+            "children",
+            "Given a node, get the list of all its children",
+            new String[]{"node"},
+            new Expr[]{null},
+            new ChildrenExpr()
         ));
         this.methods.put("parent", new BuiltInFunctionValue(
-                "parent",
-                "Given a node, get the parent of it",
-                new String[]{"node"},
-                new Expr[]{null},
-                new ParentExpr()
+            "parent",
+            "Given a node, get the parent of it",
+            new String[]{"node"},
+            new Expr[]{null},
+            new ParentExpr()
         ));
         this.methods.put("dump", new BuiltInFunctionValue(
-                "dump",
-                "Given an ast node, return a structured dump of the subtree",
-                new String[]{"node"},
-                new Expr[]{null},
-                new DumpExpr()
+            "dump",
+            "Given an ast node, return a structured dump of the subtree",
+            new String[]{"node"},
+            new Expr[]{null},
+            new DumpExpr()
         ));
         this.methods.put("text", new BuiltInFunctionValue(
-                "text",
-                "Given an ast node, return its text",
-                new String[]{"node"},
-                new Expr[]{null},
-                new TextExpr()
+            "text",
+            "Given an ast node, return its text",
+            new String[]{"node"},
+            new Expr[]{null},
+            new TextExpr()
         ));
         this.methods.put("image", new BuiltInFunctionValue(
-                "image",
-                "Given an ast node, return its image",
-                new String[]{"node"},
-                new Expr[]{null},
-                new ImageExpr()
+            "image",
+            "Given an ast node, return its image",
+            new String[]{"node"},
+            new Expr[]{null},
+            new ImageExpr()
         ));
         this.methods.put("unit", new BuiltInFunctionValue(
-                "unit",
-                "Given an ast node, return its analysis unit",
-                new String[]{"node"},
-                new Expr[]{null},
-                new UnitExpr()
+            "unit",
+            "Given an ast node, return its analysis unit",
+            new String[]{"node"},
+            new Expr[]{null},
+            new UnitExpr()
         ));
         this.methods.put("kind", new BuiltInFunctionValue(
-                "kind",
-                "Return the kind of this node, as a string",
-                new String[]{"node"},
-                new Expr[]{null},
-                new KindExpr()
+            "kind",
+            "Return the kind of this node, as a string",
+            new String[]{"node"},
+            new Expr[]{null},
+            new KindExpr()
         ));
         this.methods.put("tokens", new BuiltInFunctionValue(
-                "tokens",
-                "Given a node, return an iterator on its tokens",
-                new String[]{"node"},
-                new Expr[]{null},
-                new TokensExpr()
+            "tokens",
+            "Given a node, return an iterator on its tokens",
+            new String[]{"node"},
+            new Expr[]{null},
+            new TokensExpr()
         ));
         this.methods.put("same_tokens", new BuiltInFunctionValue(
-                "same_tokens",
-                "Return whether two nodes have the same tokens, ignoring trivias",
-                new String[]{"node", "other"},
-                new Expr[]{null, null},
-                new SameTokensExpr()
+            "same_tokens",
+            "Return whether two nodes have the same tokens, ignoring trivias",
+            new String[]{"node", "other"},
+            new Expr[]{null, null},
+            new SameTokensExpr()
         ));
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.ADA_NODE;
@@ -176,7 +180,7 @@ public final class NodeMethods extends CommonMethods {
             // Prepare the result
             int childrenCount = node.getChildrenCount();
             Libadalang.AdaNode[] res = new Libadalang.AdaNode[childrenCount];
-            for(int i = 0 ; i < childrenCount ; i++) {
+            for (int i = 0; i < childrenCount; i++) {
                 Libadalang.AdaNode child = node.getChild(i);
                 res[i] = (child.isNone() ? NodeNull.getInstance() : child);
             }
@@ -272,7 +276,7 @@ public final class NodeMethods extends CommonMethods {
             Libadalang.Token startToken = node.tokenStart();
             Libadalang.Token endToken = node.tokenEnd();
             resList.add(startToken);
-            while(!startToken.equals(endToken)) {
+            while (!startToken.equals(endToken)) {
                 startToken = startToken.next();
                 resList.add(startToken);
             }
@@ -295,9 +299,9 @@ public final class NodeMethods extends CommonMethods {
                 rightNode = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.ADA_NODE,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
@@ -310,17 +314,17 @@ public final class NodeMethods extends CommonMethods {
 
             // Compare all the node's tokens
             while (!leftToken.isNone() && !rightToken.isNone()) {
-                if(leftToken.kind != rightToken.kind) return false;
-                if(leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
-                    if(!ObjectUtils.equals(
-                            StringUtils.toLowerCase(leftToken.getText()),
-                            StringUtils.toLowerCase(rightToken.getText())
+                if (leftToken.kind != rightToken.kind) return false;
+                if (leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
+                    if (!ObjectUtils.equals(
+                        StringUtils.toLowerCase(leftToken.getText()),
+                        StringUtils.toLowerCase(rightToken.getText())
                     )) return false;
                 }
 
-                if(leftToken.equals(leftEnd)) {
+                if (leftToken.equals(leftEnd)) {
                     return rightToken.equals(rightEnd);
-                } else if(rightToken.equals(rightEnd)) {
+                } else if (rightToken.equals(rightEnd)) {
                     return false;
                 }
 
@@ -340,7 +344,7 @@ public final class NodeMethods extends CommonMethods {
          */
         private static Libadalang.Token next(Libadalang.Token t) {
             Libadalang.Token res = t.next();
-            while(!res.isNone() && res.triviaIndex != 0) {
+            while (!res.isNone() && res.triviaIndex != 0) {
                 res = res.next();
             }
             return res;

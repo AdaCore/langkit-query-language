@@ -23,8 +23,17 @@
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
+import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
+import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
+import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.values.NodeNull;
+import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -32,15 +41,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 
 import java.util.Map;
 
@@ -55,12 +55,16 @@ public abstract class SafeDotAccess extends Expr {
 
     // ----- Attributes -----
 
-    /** The member to access */
+    /**
+     * The member to access
+     */
     protected final Identifier member;
 
     // ----- Children -----
 
-    /** The dispatcher for the built-in calls */
+    /**
+     * The dispatcher for the built-in calls
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected FunctionDispatcher dispatcher;
@@ -71,11 +75,11 @@ public abstract class SafeDotAccess extends Expr {
      * Create a new base dot access with the needed parameters
      *
      * @param location The location of the dot access
-     * @param member The member to access
+     * @param member   The member to access
      */
     protected SafeDotAccess(
-            SourceLocation location,
-            Identifier member
+        SourceLocation location,
+        Identifier member
     ) {
         super(location);
         this.member = member;
@@ -87,24 +91,24 @@ public abstract class SafeDotAccess extends Expr {
     /**
      * Execute the safe dot access on a node with the cached strategy
      *
-     * @param receiver The node receiver
+     * @param receiver    The node receiver
      * @param propertyRef The cached property reference
-     * @param isField The cached value if the property is a field
+     * @param isField     The cached value if the property is a field
      * @return The property reference or the field value
      */
     @Specialization(guards = {
-            "!receiver.isNone()",
-            "getBuiltIn(receiver) == null",
-            "receiver == propertyRef.getNode()",
-            "propertyRef.getFieldDescription() != null"
+        "!receiver.isNone()",
+        "getBuiltIn(receiver) == null",
+        "receiver == propertyRef.getNode()",
+        "propertyRef.getFieldDescription() != null"
     }, limit = "1")
     protected Object onNodeCached(
-            Libadalang.AdaNode receiver,
-            @Cached("create(receiver, member.getName())") PropertyRefValue propertyRef,
-            @Cached("propertyRef.isField()") boolean isField
+        Libadalang.AdaNode receiver,
+        @Cached("create(receiver, member.getName())") PropertyRefValue propertyRef,
+        @Cached("propertyRef.isField()") boolean isField
     ) {
         // If the method is a field
-        if(isField) {
+        if (isField) {
             return propertyRef.executeAsField(this);
         }
 
@@ -124,22 +128,22 @@ public abstract class SafeDotAccess extends Expr {
     protected Object onNodeUncached(Libadalang.AdaNode receiver) {
         // Try the built_in
         Object builtIn = this.tryBuildIn(receiver);
-        if(builtIn != null) {
+        if (builtIn != null) {
             return builtIn;
         }
 
         // Test if the receiver is null
-        if(receiver == NodeNull.getInstance()) {
+        if (receiver == NodeNull.getInstance()) {
             return NodeNull.getInstance();
         }
 
         // Create the property reference
         PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
-        if(propertyRef.getFieldDescription() == null) {
+        if (propertyRef.getFieldDescription() == null) {
             throw LKQLRuntimeException.noSuchField(
-                    this.member.getName(),
-                    receiver,
-                    this.member
+                this.member.getName(),
+                receiver,
+                this.member
             );
         }
 
@@ -155,9 +159,9 @@ public abstract class SafeDotAccess extends Expr {
     @Fallback
     protected void onGeneric(Object receiver) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE,
-                LKQLTypesHelper.fromJava(receiver),
-                this
+            LKQLTypesHelper.ADA_NODE,
+            LKQLTypesHelper.fromJava(receiver),
+            this
         );
     }
 
@@ -172,8 +176,8 @@ public abstract class SafeDotAccess extends Expr {
     protected Object tryBuildIn(Object receiver) {
         // Get the built in
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
-        if(builtIn != null) {
-            if(builtIn.getParamNames().length <= 1) {
+        if (builtIn != null) {
+            if (builtIn.getParamNames().length <= 1) {
                 return this.dispatcher.executeDispatch(builtIn, new Object[]{receiver});
             } else {
                 builtIn.setThisValue(receiver);
@@ -203,13 +207,15 @@ public abstract class SafeDotAccess extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"member"},
-                new Object[]{this.member}
+            indentLevel,
+            new String[]{"member"},
+            new Object[]{this.member}
         );
     }
 

@@ -23,15 +23,15 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
-import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.util.ArrayList;
 
@@ -45,7 +45,9 @@ public final class AnalysisUnitMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static AnalysisUnitMethods instance;
 
     // ----- Constructors -----
@@ -63,50 +65,54 @@ public final class AnalysisUnitMethods extends CommonMethods {
      * @return The instance
      */
     public static AnalysisUnitMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new AnalysisUnitMethods();
         }
         return instance;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods()
+     */
     @Override
     protected void initMethods() {
         super.initMethods();
 
         this.methods.put("root", new BuiltInFunctionValue(
-                "root",
-                "Return the root for this unit",
-                new String[]{"unit"},
-                new Expr[]{null},
-                new RootExpr()
+            "root",
+            "Return the root for this unit",
+            new String[]{"unit"},
+            new Expr[]{null},
+            new RootExpr()
         ));
         this.methods.put("name", new BuiltInFunctionValue(
-                "name",
-                "Return the name of this unit",
-                new String[]{"unit"},
-                new Expr[]{null},
-                new NameExpr()
+            "name",
+            "Return the name of this unit",
+            new String[]{"unit"},
+            new Expr[]{null},
+            new NameExpr()
         ));
         this.methods.put("tokens", new BuiltInFunctionValue(
-                "tokens",
-                "Return the tokens of the unit",
-                new String[]{"unit"},
-                new Expr[]{null},
-                new TokensExpr()
+            "tokens",
+            "Return the tokens of the unit",
+            new String[]{"unit"},
+            new Expr[]{null},
+            new TokensExpr()
         ));
         this.methods.put("text", new BuiltInFunctionValue(
-                "text",
-                "Return the text of the analysis unit",
-                new String[]{"unit"},
-                new Expr[]{null},
-                new TextExpr()
+            "text",
+            "Return the text of the analysis unit",
+            new String[]{"unit"},
+            new Expr[]{null},
+            new TextExpr()
         ));
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.ANALYSIS_UNIT;
@@ -145,7 +151,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
             Libadalang.Token current = unit.getFirstToken();
             Libadalang.Token last = unit.getLastToken();
             ArrayList<Libadalang.Token> resList = new ArrayList<>();
-            while(!current.isEquivalent(last) && !current.isNone()) {
+            while (!current.isEquivalent(last) && !current.isNone()) {
                 resList.add(current);
                 current = current.next();
             }

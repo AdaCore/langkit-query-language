@@ -40,8 +40,8 @@ public final class ListUtils {
      *
      * @param list The list to verify
      * @param elem The element to find
+     * @param <T>  The type of the element
      * @return True if the list contains the element
-     * @param <T> The type of the element
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> boolean contains(List<T> list, T elem) {

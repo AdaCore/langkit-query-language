@@ -23,16 +23,16 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.Pattern;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
@@ -44,13 +44,19 @@ public final class PatternFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "pattern" built-in */
+    /**
+     * The only instance of the "pattern" built-in
+     */
     private static PatternFunction instance = null;
 
-    /** The name of the built-in */
+    /**
+     * The name of the built-in
+     */
     public static final String NAME = "pattern";
 
-    /** The expression that represents the "pattern" function execution */
+    /**
+     * The expression that represents the "pattern" function execution
+     */
     private final PatternExpr patternExpr;
 
     // ----- Constructors -----
@@ -68,7 +74,7 @@ public final class PatternFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static PatternFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new PatternFunction();
         }
         return instance;
@@ -76,21 +82,25 @@ public final class PatternFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given a regex pattern string, create a pattern object",
-                new String[]{"regex", "case_sensitive"},
-                new Expr[]{null, new BooleanLiteral(null, true)},
-                this.patternExpr
+            NAME,
+            "Given a regex pattern string, create a pattern object",
+            new String[]{"regex", "case_sensitive"},
+            new Expr[]{null, new BooleanLiteral(null, true)},
+            this.patternExpr
         );
     }
 
@@ -108,9 +118,9 @@ public final class PatternFunction implements BuiltInFunction {
                 regexString = LKQLTypeSystemGen.expectString(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.LKQL_STRING,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
@@ -120,9 +130,9 @@ public final class PatternFunction implements BuiltInFunction {
                 caseSensitive = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 

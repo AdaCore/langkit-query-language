@@ -42,16 +42,24 @@ public final class BuiltInFactory {
 
     // ----- Attributes -----
 
-    /** The only instance of the built-in factory */
+    /**
+     * The only instance of the built-in factory
+     */
     private static BuiltInFactory instance = null;
 
-    /** The built-in function list */
+    /**
+     * The built-in function list
+     */
     private final List<BuiltInFunction> builtInFunctions;
 
-    /** The built-in selector list */
+    /**
+     * The built-in selector list
+     */
     private final List<BuiltInSelector> builtInSelectors;
 
-    /** The built-in method list */
+    /**
+     * The built-in method list
+     */
     private final List<BuiltInMethods> builtInMethods;
 
     // ----- Static initializer -----
@@ -75,7 +83,7 @@ public final class BuiltInFactory {
      * @return The factory instance
      */
     public static BuiltInFactory getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new BuiltInFactory();
         }
         return instance;
@@ -155,19 +163,19 @@ public final class BuiltInFactory {
      */
     public void addBuiltIns(GlobalScope globalValues) {
         // Add the built-in functions
-        for(int i = 0 ; i < this.builtInFunctions.size() ; i++) {
+        for (int i = 0; i < this.builtInFunctions.size(); i++) {
             BuiltInFunction function = this.builtInFunctions.get(i);
             globalValues.setBuiltIn(i, function.getValue());
         }
 
         // Add the built-in selectors
-        for(int i = 0 ; i < this.builtInSelectors.size() ; i++) {
+        for (int i = 0; i < this.builtInSelectors.size(); i++) {
             BuiltInSelector selector = this.builtInSelectors.get(i);
             globalValues.setBuiltIn(i + this.builtInFunctions.size(), selector.getValue());
         }
 
         // Add the built-in methods
-        for(BuiltInMethods builtInMethods : this.builtInMethods) {
+        for (BuiltInMethods builtInMethods : this.builtInMethods) {
             globalValues.putMetaTable(builtInMethods.getType(), builtInMethods.getMethods());
         }
     }
@@ -179,11 +187,11 @@ public final class BuiltInFactory {
      */
     public void addBuiltIns(Scope scope) {
         // Add the built-in functions and selectors
-        for(BuiltInFunction function : this.builtInFunctions) {
+        for (BuiltInFunction function : this.builtInFunctions) {
             scope.addVariable(function.getName());
         }
 
-        for(BuiltInSelector selector : this.builtInSelectors) {
+        for (BuiltInSelector selector : this.builtInSelectors) {
             scope.addVariable(selector.getName());
         }
     }

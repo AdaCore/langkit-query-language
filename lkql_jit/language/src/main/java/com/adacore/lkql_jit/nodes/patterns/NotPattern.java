@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -37,7 +37,9 @@ public final class NotPattern extends ValuePattern {
 
     // ----- Children -----
 
-    /** The pattern to negate */
+    /**
+     * The pattern to negate
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ValuePattern pattern;
@@ -48,11 +50,11 @@ public final class NotPattern extends ValuePattern {
      * Create a new not pattern node
      *
      * @param location The location of the node in the source
-     * @param pattern The pattern to negate
+     * @param pattern  The pattern to negate
      */
     public NotPattern(
-            SourceLocation location,
-            ValuePattern pattern
+        SourceLocation location,
+        ValuePattern pattern
     ) {
         super(location);
         this.pattern = pattern;
@@ -60,13 +62,17 @@ public final class NotPattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         return !this.pattern.executeNode(frame, node);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String)
+     */
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
         return !this.pattern.executeString(frame, str);
@@ -74,7 +80,9 @@ public final class NotPattern extends ValuePattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

@@ -43,10 +43,14 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
 
     // ----- Attributes -----
 
-    /** The namespace for the lazy collection execution */
+    /**
+     * The namespace for the lazy collection execution
+     */
     protected NamespaceValue namespace;
 
-    /** The cache of the lazy collection */
+    /**
+     * The cache of the lazy collection
+     */
     protected final List<Object> cache;
 
     // ----- Constructors -----
@@ -57,7 +61,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
      * @param initialCacheSize The initial cache size
      */
     protected LazyCollection(
-            int initialCacheSize
+        int initialCacheSize
     ) {
         this.namespace = null;
         this.cache = new ArrayList<>(initialCacheSize);
@@ -81,83 +85,97 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int)
+     */
     @Override
     public Object get(int index) throws InvalidIndexException {
-        if(index >= 0) {
+        if (index >= 0) {
             // Initialize the cache to the given index
             this.initCache(index);
 
             // Try to get the cache element
-            if(index < this.cache.size()) return this.cache.get(index);
+            if (index < this.cache.size()) return this.cache.get(index);
         }
 
         // If the index is not a valid one, throw an exception
         throw new InvalidIndexException();
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#getContent() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#getContent()
+     */
     @Override
     public Object[] getContent() {
         this.initCache(-1);
         return this.cache.toArray(new Object[0]);
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#size() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#size()
+     */
     @Override
     public long size() {
         this.initCache(-1);
         return this.cache.size();
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#contains(Object) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#contains(Object)
+     */
     @Override
     @CompilerDirectives.TruffleBoundary
     public boolean contains(Object elem) {
         // Cast the element as an LKQL value
         LKQLValue lkqlElem = null;
-        if(elem instanceof LKQLValue) lkqlElem = (LKQLValue) elem;
+        if (elem instanceof LKQLValue) lkqlElem = (LKQLValue) elem;
 
         // Iterate over all list elements to compare them
         Iterator iterator = this.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Object next = iterator.next();
-            if((next instanceof LKQLValue lkqlNext) && lkqlElem != null) {
-                if(lkqlElem.internalEquals(lkqlNext)) return true;
+            if ((next instanceof LKQLValue lkqlNext) && lkqlElem != null) {
+                if (lkqlElem.internalEquals(lkqlNext)) return true;
             } else {
-                if(Objects.equals(elem, next)) return true;
+                if (Objects.equals(elem, next)) return true;
             }
         }
         return false;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#iterator() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#iterator()
+     */
     @Override
     public Iterator iterator() {
         return new LazyCollectionIterator(this);
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy()
+     */
     @Override
     public boolean isTruthy() {
         this.initCache(0);
         return this.cache.size() > 0;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(LKQLValue)
+     */
     @Override
     @CompilerDirectives.TruffleBoundary
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof LazyCollection other)) return false;
-        if(this.size() != other.size()) return false;
-        for(int i = 0 ; i < this.size() ; i++) {
+        if (o == this) return true;
+        if (!(o instanceof LazyCollection other)) return false;
+        if (this.size() != other.size()) return false;
+        for (int i = 0; i < this.size(); i++) {
             Object mineObject = this.get(i);
             Object hisObject = other.get(i);
-            if((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if(!mine.internalEquals(his)) return false;
+            if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
+                if (!mine.internalEquals(his)) return false;
             } else {
-                if(!Objects.equals(mineObject, hisObject)) return false;
+                if (!Objects.equals(mineObject, hisObject)) return false;
             }
         }
         return true;
@@ -172,16 +190,16 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
         StringBuilder builder = new StringBuilder();
         builder.append('[');
         Iterator iterator = this.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Object value = iterator.next();
-            if(value == null) {
+            if (value == null) {
                 builder.append("null");
-            } else if(value instanceof String s) {
+            } else if (value instanceof String s) {
                 builder.append(StringUtils.toRepr(s));
             } else {
                 builder.append(value);
             }
-            if(iterator.hasNext()) {
+            if (iterator.hasNext()) {
                 builder.append(", ");
             }
         }
@@ -200,10 +218,14 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
 
         // ----- Attributes -----
 
-        /** The lazy collection to iterate on */
+        /**
+         * The lazy collection to iterate on
+         */
         private final LazyCollection lazyCollection;
 
-        /** The pointer for the iterator */
+        /**
+         * The pointer for the iterator
+         */
         private int pointer;
 
         // ----- Constructors -----
@@ -214,7 +236,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
          * @param lazyCollection The lazy collection
          */
         public LazyCollectionIterator(
-                LazyCollection lazyCollection
+            LazyCollection lazyCollection
         ) {
             this.lazyCollection = lazyCollection;
             this.pointer = 0;
@@ -222,7 +244,9 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
 
         // ----- Iteration methods -----
 
-        /** @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext() */
+        /**
+         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext()
+         */
         @Override
         public boolean hasNext() {
             try {
@@ -233,13 +257,17 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
             }
         }
 
-        /** @see com.adacore.lkql_jit.utils.util_classes.Iterator#next() */
+        /**
+         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#next()
+         */
         @Override
         public Object next() {
             return this.lazyCollection.get(this.pointer++);
         }
 
-        /** @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset() */
+        /**
+         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset()
+         */
         @Override
         public void reset() {
             this.pointer = 0;

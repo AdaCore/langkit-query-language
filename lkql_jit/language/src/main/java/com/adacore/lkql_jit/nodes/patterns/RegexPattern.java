@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
+import com.adacore.lkql_jit.runtime.values.Pattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.Pattern;
 
 
 /**
@@ -39,7 +39,9 @@ public final class RegexPattern extends ValuePattern {
 
     // ----- Attributes -----
 
-    /** The regex pattern to match the node text with */
+    /**
+     * The regex pattern to match the node text with
+     */
     private final Pattern pattern;
 
     // ----- Constructors -----
@@ -48,11 +50,11 @@ public final class RegexPattern extends ValuePattern {
      * Create a new regex pattern node
      *
      * @param location The location of the node in the source
-     * @param regex The regular expression string
+     * @param regex    The regular expression string
      */
     public RegexPattern(
-            SourceLocation location,
-            String regex
+        SourceLocation location,
+        String regex
     ) {
         super(location);
         this.pattern = new Pattern(this, regex, true);
@@ -60,13 +62,17 @@ public final class RegexPattern extends ValuePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         return this.pattern.contains(node.getText()) && node != NodeNull.getInstance();
     }
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame, String)
+     */
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
         return pattern.contains(str);
@@ -74,13 +80,15 @@ public final class RegexPattern extends ValuePattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"pattern"},
-                new Object[]{this.pattern}
+            indentLevel,
+            new String[]{"pattern"},
+            new Object[]{this.pattern}
         );
     }
 

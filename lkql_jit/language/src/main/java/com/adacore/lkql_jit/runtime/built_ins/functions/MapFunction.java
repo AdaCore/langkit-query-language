@@ -36,7 +36,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
@@ -50,13 +49,19 @@ public final class MapFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "map" built-in */
+    /**
+     * The only instance of the "map" built-in
+     */
     private static MapFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "map";
 
-    /** The expression that represents the "map" function execution */
+    /**
+     * The expression that represents the "map" function execution
+     */
     private final MapFunction.MapExpr mapExpr;
 
     // ----- Constructors -----
@@ -74,7 +79,7 @@ public final class MapFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static MapFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new MapFunction();
         }
         return instance;
@@ -82,21 +87,25 @@ public final class MapFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given a collection, a mapping function",
-                new String[]{"indexable", "fn"},
-                new Expr[]{null, null},
-                this.mapExpr
+            NAME,
+            "Given a collection, a mapping function",
+            new String[]{"indexable", "fn"},
+            new Expr[]{null, null},
+            this.mapExpr
         );
     }
 
@@ -107,7 +116,9 @@ public final class MapFunction implements BuiltInFunction {
      */
     public static final class MapExpr extends BuiltInExpr {
 
-        /** The dispatcher for the mapping function */
+        /**
+         * The dispatcher for the mapping function
+         */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
@@ -122,9 +133,9 @@ public final class MapFunction implements BuiltInFunction {
                 iterable = LKQLTypeSystemGen.expectIterable(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_ITERABLE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.LKQL_ITERABLE,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
@@ -132,17 +143,17 @@ public final class MapFunction implements BuiltInFunction {
                 mapFunction = LKQLTypeSystemGen.expectFunctionValue(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_FUNCTION,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[1]
+                    LKQLTypesHelper.LKQL_FUNCTION,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 
             // Verify the function arrity
-            if(mapFunction.getParamNames().length != 1) {
+            if (mapFunction.getParamNames().length != 1) {
                 throw LKQLRuntimeException.fromMessage(
-                        "Function passed to map should have arity of one",
-                        this.callNode.getArgList().getArgs()[1]
+                    "Function passed to map should have arity of one",
+                    this.callNode.getArgList().getArgs()[1]
                 );
             }
 

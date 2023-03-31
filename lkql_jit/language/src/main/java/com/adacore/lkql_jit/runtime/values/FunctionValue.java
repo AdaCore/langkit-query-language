@@ -43,23 +43,35 @@ public class FunctionValue implements LKQLValue {
 
     // ----- Attributes -----
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     @CompilerDirectives.CompilationFinal
     private String name;
 
-    /** The string representing the function documentation */
+    /**
+     * The string representing the function documentation
+     */
     private final String documentation;
 
-    /** The name of the parameters */
+    /**
+     * The name of the parameters
+     */
     private final String[] paramNames;
 
-    /** The default values of the parameters */
+    /**
+     * The default values of the parameters
+     */
     private final Expr[] defaultValues;
 
-    /** The namespace of the function */
+    /**
+     * The namespace of the function
+     */
     private NamespaceValue namespace;
 
-    /** The function root node */
+    /**
+     * The function root node
+     */
     private final FunctionRootNode rootNode;
 
     // ----- Constructors -----
@@ -67,27 +79,27 @@ public class FunctionValue implements LKQLValue {
     /**
      * Create a new function value in the LKQL context
      *
-     * @param descriptor The descriptor of the function frame
-     * @param closure The closure of the function
-     * @param isMemoized If the function is memoized
-     * @param name The name of the function (this can be null)
+     * @param descriptor    The descriptor of the function frame
+     * @param closure       The closure of the function
+     * @param isMemoized    If the function is memoized
+     * @param name          The name of the function (this can be null)
      * @param documentation The documentation of the function
-     * @param slots The slots for the function arguments
-     * @param paramNames The names of the parameters
-     * @param values The default values of the parameters
-     * @param body The body of the function
+     * @param slots         The slots for the function arguments
+     * @param paramNames    The names of the parameters
+     * @param values        The default values of the parameters
+     * @param body          The body of the function
      */
     @CompilerDirectives.TruffleBoundary
     public FunctionValue(
-            FrameDescriptor descriptor,
-            Closure closure,
-            boolean isMemoized,
-            String name,
-            String documentation,
-            int[] slots,
-            String[] paramNames,
-            Expr[] values,
-            Expr body
+        FrameDescriptor descriptor,
+        Closure closure,
+        boolean isMemoized,
+        String name,
+        String documentation,
+        int[] slots,
+        String[] paramNames,
+        Expr[] values,
+        Expr body
     ) {
         this.name = name;
         this.documentation = documentation;
@@ -95,16 +107,16 @@ public class FunctionValue implements LKQLValue {
         this.defaultValues = values;
         this.namespace = null;
         this.rootNode = new FunctionRootNode(
-                LKQLLanguage.getLanguage(body),
-                descriptor,
-                closure,
-                isMemoized,
-                slots,
-                name,
-                body
+            LKQLLanguage.getLanguage(body),
+            descriptor,
+            closure,
+            isMemoized,
+            slots,
+            name,
+            body
         );
         LKQLContext context = LKQLLanguage.getContext(this.rootNode.getBody());
-        if(context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
+        if (context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
             this.namespace = context.getGlobalValues().getNamespaceStack().peek();
         }
     }
@@ -165,7 +177,9 @@ public class FunctionValue implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
         // TODO : Compare functions

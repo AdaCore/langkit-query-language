@@ -23,14 +23,16 @@
 
 package com.adacore.lkql_jit.runtime;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.util_classes.Stack;
+import com.oracle.truffle.api.CompilerDirectives;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -42,25 +44,39 @@ public final class GlobalScope {
 
     // ----- Attributes -----
 
-    /** The global values */
+    /**
+     * The global values
+     */
     private final Stack<Object[]> valuesStack;
 
-    /** The global names */
+    /**
+     * The global names
+     */
     private final Stack<String[]> namesStack;
 
-    /** The namespace stack */
+    /**
+     * The namespace stack
+     */
     private final Stack<NamespaceValue> namespaceStack;
 
-    /** The number of symbol to export */
+    /**
+     * The number of symbol to export
+     */
     private final Stack<Integer> exportNumberStack;
 
-    /** The imported LKQL rules */
+    /**
+     * The imported LKQL rules
+     */
     private final Stack<Map<String, ObjectValue>> checkersStack;
 
-    /** The array containing the built-in functions and selectors */
+    /**
+     * The array containing the built-in functions and selectors
+     */
     private final Object[] builtIns;
 
-    /** The meta tables that contains built-in methods */
+    /**
+     * The meta tables that contains built-in methods
+     */
     private final Map<String, Map<String, BuiltInFunctionValue>> metaTables;
 
     // ----- Constructors -----
@@ -71,7 +87,7 @@ public final class GlobalScope {
      * @param buildInNb The number of built-in functions
      */
     public GlobalScope(
-            int buildInNb
+        int buildInNb
     ) {
         this.valuesStack = new Stack<>();
         this.namesStack = new Stack<>();
@@ -102,7 +118,7 @@ public final class GlobalScope {
     /**
      * This function add a global scope for a script execution
      *
-     * @param slotNumber The number of used slots
+     * @param slotNumber   The number of used slots
      * @param exportNumber The number of slot to export
      */
     @CompilerDirectives.TruffleBoundary
@@ -157,10 +173,10 @@ public final class GlobalScope {
      * @return The variable value or null if it doesn't exists
      */
     public Object get(int slot) {
-        if(slot >= 0) {
-            if(slot < this.builtIns.length) return this.builtIns[slot];
+        if (slot >= 0) {
+            if (slot < this.builtIns.length) return this.builtIns[slot];
             slot -= this.builtIns.length;
-            if(slot < this.valuesStack.peek().length) return this.valuesStack.peek()[slot];
+            if (slot < this.valuesStack.peek().length) return this.valuesStack.peek()[slot];
         }
         return null;
     }
@@ -168,8 +184,8 @@ public final class GlobalScope {
     /**
      * Set a global variable with its slot
      *
-     * @param slot The slot of the variable
-     * @param name The name of the variable
+     * @param slot  The slot of the variable
+     * @param name  The name of the variable
      * @param value The value of the variable
      */
     public void set(int slot, String name, Object value) {
@@ -189,7 +205,7 @@ public final class GlobalScope {
     /**
      * Add the given LKQL checker in the global values
      *
-     * @param name The name of the checker
+     * @param name    The name of the checker
      * @param checker The object representing the checker
      */
     @CompilerDirectives.TruffleBoundary
@@ -210,7 +226,7 @@ public final class GlobalScope {
     /**
      * Set a built-in value, this function is only used in built-in factory
      *
-     * @param slot The slot of the built-in
+     * @param slot  The slot of the built-in
      * @param value The value
      */
     public void setBuiltIn(int slot, Object value) {
@@ -231,7 +247,7 @@ public final class GlobalScope {
     /**
      * Put a new meta table
      *
-     * @param type The type of the meta table
+     * @param type    The type of the meta table
      * @param methods The methods for the type
      */
     @CompilerDirectives.TruffleBoundary
@@ -247,16 +263,16 @@ public final class GlobalScope {
     public NamespaceValue export() {
         // Create the result
         NamespaceValue res = new NamespaceValue(
-                Arrays.copyOfRange(this.namesStack.peek(), 0, this.exportNumberStack.peek()),
-                Arrays.copyOfRange(this.valuesStack.peek(), 0, this.exportNumberStack.peek()),
-                this.checkersStack.peek()
+            Arrays.copyOfRange(this.namesStack.peek(), 0, this.exportNumberStack.peek()),
+            Arrays.copyOfRange(this.valuesStack.peek(), 0, this.exportNumberStack.peek()),
+            this.checkersStack.peek()
         );
 
         // Set the function namespace
-        for(Object value : res.getValues()) {
-            if(LKQLTypeSystemGen.isFunctionValue(value)) {
+        for (Object value : res.getValues()) {
+            if (LKQLTypeSystemGen.isFunctionValue(value)) {
                 LKQLTypeSystemGen.asFunctionValue(value).setNamespace(res);
-            } else if(LKQLTypeSystemGen.isLazyCollection(value)) {
+            } else if (LKQLTypeSystemGen.isLazyCollection(value)) {
                 LKQLTypeSystemGen.asLazyCollection(value).setNamespace(res);
             }
         }
@@ -271,12 +287,12 @@ public final class GlobalScope {
     @CompilerDirectives.TruffleBoundary
     public String toString() {
         return "GlobalScope{" +
-                "\n\texportNumber=" + exportNumberStack.peek() +
-                "\n\tvalues=" + Arrays.toString(valuesStack.peek()) +
-                "\n\tnames=" + Arrays.toString(namesStack.peek()) +
-                "\n\tbuiltIns=" + Arrays.toString(builtIns) +
-                "\n\tcheckers=" + this.checkersStack.peek() +
-                "\n}";
+            "\n\texportNumber=" + exportNumberStack.peek() +
+            "\n\tvalues=" + Arrays.toString(valuesStack.peek()) +
+            "\n\tnames=" + Arrays.toString(namesStack.peek()) +
+            "\n\tbuiltIns=" + Arrays.toString(builtIns) +
+            "\n\tcheckers=" + this.checkersStack.peek() +
+            "\n}";
     }
 
 }

@@ -23,9 +23,9 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.adacore.libadalang.Libadalang;
 
 
 /**
@@ -37,10 +37,14 @@ public final class DepthNode implements LKQLValue {
 
     // ----- Attributes -----
 
-    /** The depth of the node */
+    /**
+     * The depth of the node
+     */
     private final int depth;
 
-    /** The decorated node */
+    /**
+     * The decorated node
+     */
     private final Libadalang.AdaNode node;
 
     // ----- Constructors -----
@@ -49,11 +53,11 @@ public final class DepthNode implements LKQLValue {
      * Create a new depth node
      *
      * @param depth The depth of the node
-     * @param node The node
+     * @param node  The node
      */
     public DepthNode(
-            int depth,
-            Libadalang.AdaNode node
+        int depth,
+        Libadalang.AdaNode node
     ) {
         this.depth = depth;
         this.node = node;
@@ -71,11 +75,13 @@ public final class DepthNode implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof DepthNode other)) return false;
+        if (o == this) return true;
+        if (!(o instanceof DepthNode other)) return false;
         return other.node.equals(this.node);
     }
 
@@ -94,8 +100,8 @@ public final class DepthNode implements LKQLValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) return true;
-        if(!(o instanceof DepthNode other)) return false;
+        if (o == this) return true;
+        if (!(o instanceof DepthNode other)) return false;
         return this.node.equals(other.node);
     }
 

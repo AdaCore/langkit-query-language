@@ -42,19 +42,29 @@ public final class LazyListValue extends LazyCollection {
 
     // ----- Attributes -----
 
-    /** The list of arguments for the root node */
+    /**
+     * The list of arguments for the root node
+     */
     private final Object[][] argsList;
 
-    /** The pointer to the next lazy value to evaluate */
+    /**
+     * The pointer to the next lazy value to evaluate
+     */
     private int lazyPointer;
 
-    /** The closure for the execution */
+    /**
+     * The closure for the execution
+     */
     private final Closure closure;
 
-    /** The root node for the list comprehension */
+    /**
+     * The root node for the list comprehension
+     */
     private final ListComprehensionRootNode rootNode;
 
-    /** The dispatcher for the list comprehension root node */
+    /**
+     * The dispatcher for the list comprehension root node
+     */
     private final ListComprehensionDispatcher dispatcher;
 
     // ----- Constructors -----
@@ -67,9 +77,9 @@ public final class LazyListValue extends LazyCollection {
      */
     @CompilerDirectives.TruffleBoundary
     public LazyListValue(
-            Closure closure,
-            ListComprehensionRootNode rootNode,
-            Object[][] argsList
+        Closure closure,
+        ListComprehensionRootNode rootNode,
+        Object[][] argsList
     ) {
         super(argsList.length);
         this.closure = closure;
@@ -77,19 +87,21 @@ public final class LazyListValue extends LazyCollection {
         this.argsList = argsList;
         this.dispatcher = ListComprehensionDispatcherNodeGen.create();
         LKQLContext context = LKQLLanguage.getContext(this.rootNode.getResult());
-        if(context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
+        if (context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
             this.namespace = context.getGlobalValues().getNamespaceStack().peek();
         }
     }
 
     // ----- Class methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection#initCache(int) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection#initCache(int)
+     */
     @Override
     protected void initCache(int index) {
         LKQLContext context = LKQLLanguage.getContext(this.rootNode.getResult());
         boolean pushed = false;
-        if(this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
+        if (this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
             context.getGlobalValues().pushNamespace(this.namespace);
             pushed = true;
         }
@@ -103,7 +115,7 @@ public final class LazyListValue extends LazyCollection {
                 }
             }
         } finally {
-            if(pushed) {
+            if (pushed) {
                 context.getGlobalValues().popNamespace();
             }
             this.rootNode.setClosure(saveClosure);

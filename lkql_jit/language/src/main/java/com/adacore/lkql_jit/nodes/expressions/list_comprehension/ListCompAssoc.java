@@ -42,15 +42,21 @@ public final class ListCompAssoc extends LKQLNode {
 
     // ----- Attributes -----
 
-    /** The name of the binding value */
+    /**
+     * The name of the binding value
+     */
     private final String name;
 
-    /** The slot to put the value in */
+    /**
+     * The slot to put the value in
+     */
     private final int slot;
 
     // ----- Children -----
 
-    /** The expression that contains the collection to iterate on */
+    /**
+     * The expression that contains the collection to iterate on
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr collection;
@@ -60,16 +66,16 @@ public final class ListCompAssoc extends LKQLNode {
     /**
      * Create a new comprehension association
      *
-     * @param location The location of the node in the source
-     * @param name The name of the binding value
-     * @param slot The slot to put the value in
+     * @param location   The location of the node in the source
+     * @param name       The name of the binding value
+     * @param slot       The slot to put the value in
      * @param collection The collection expression
      */
     public ListCompAssoc(
-            SourceLocation location,
-            String name,
-            int slot,
-            Expr collection
+        SourceLocation location,
+        String name,
+        int slot,
+        Expr collection
     ) {
         super(location);
         this.name = name;
@@ -93,7 +99,9 @@ public final class ListCompAssoc extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -110,22 +118,24 @@ public final class ListCompAssoc extends LKQLNode {
             return this.collection.executeIterable(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_ITERABLE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.collection
+                LKQLTypesHelper.LKQL_ITERABLE,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                this.collection
             );
         }
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot"},
-                new Object[]{this.name, this.slot}
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

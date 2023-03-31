@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -59,9 +58,9 @@ public final class StringUtils {
      * @return The concatenated strings
      */
     @CompilerDirectives.TruffleBoundary
-    public static String concat(String ...strings) {
+    public static String concat(String... strings) {
         StringBuilder builder = new StringBuilder();
-        for(String s : strings) {
+        for (String s : strings) {
             builder.append(s);
         }
         return builder.toString();
@@ -70,7 +69,7 @@ public final class StringUtils {
     /**
      * Compare the given strings ignoring the casing of them
      *
-     * @param left The left string
+     * @param left  The left string
      * @param right The right string
      * @return True if the strings are equals, false else
      */
@@ -83,7 +82,7 @@ public final class StringUtils {
      * Fill the given string with space character to get to the given size
      *
      * @param toFill The string to fill with space
-     * @param size The size to get to
+     * @param size   The size to get to
      * @return The filled string
      */
     @CompilerDirectives.TruffleBoundary
@@ -95,7 +94,7 @@ public final class StringUtils {
     /**
      * Get if a string contains a given target
      *
-     * @param place The place to search in
+     * @param place  The place to search in
      * @param target The target to look for
      * @return True if the place contains the target
      */
@@ -107,7 +106,7 @@ public final class StringUtils {
     /**
      * Get the index of the target string in
      *
-     * @param in The string to search in
+     * @param in     The string to search in
      * @param target The target string
      * @return The index of the target string
      */
@@ -119,7 +118,7 @@ public final class StringUtils {
     /**
      * Split a string according to a splitter regular expression
      *
-     * @param toSplit The string to split
+     * @param toSplit  The string to split
      * @param splitter The splitter expression
      * @return The split string in an array
      */
@@ -171,9 +170,9 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String toSnakeCase(String source) {
         StringBuilder res = new StringBuilder();
-        for(int i = 0 ; i < source.length() ; i++) {
+        for (int i = 0; i < source.length(); i++) {
             char curChar = source.charAt(i);
-            if(Character.isUpperCase(curChar)) {
+            if (Character.isUpperCase(curChar)) {
                 res.append('_');
                 curChar = Character.toLowerCase(curChar);
             }
@@ -192,9 +191,9 @@ public final class StringUtils {
     public static String toCamelCase(String source) {
         StringBuilder res = new StringBuilder();
         int i = 0;
-        while(i < source.length()) {
+        while (i < source.length()) {
             char curChar = source.charAt(i);
-            if(curChar == '_') {
+            if (curChar == '_') {
                 i++;
                 curChar = Character.toUpperCase(source.charAt(i));
             }
@@ -213,10 +212,10 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String toRepr(String source) {
         return "\"" +
-                source
-                        .replace("\"", "\\\"")
-                        .replace("\n", "\\x0a") +
-                "\"";
+            source
+                .replace("\"", "\\\"")
+                .replace("\n", "\\x0a") +
+            "\"";
     }
 
     /**
@@ -228,14 +227,14 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String translateEscapes(String toTranslate) {
         return toTranslate
-                .replace("\\n", "\n")
-                .replace("\\r", "\r")
-                .replace("\\t", "\t")
-                .replace("\\b", "\b")
-                .replace("\\f", "\f")
-                .replace("\\\"", "\"")
-                .replace("\\'", "'")
-                .replace("\\\\", "\\");
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+            .replace("\\b", "\b")
+            .replace("\\f", "\f")
+            .replace("\\\"", "\"")
+            .replace("\\'", "'")
+            .replace("\\\\", "\\");
     }
 
     /**
@@ -251,9 +250,9 @@ public final class StringUtils {
         StringBuilder buffer = new StringBuilder();
 
         // Iterate over the character to separate the lines
-        for (int i = 0 ; i < source.length() ; i++) {
+        for (int i = 0; i < source.length(); i++) {
             char c = source.charAt(i);
-            if(c == '\n') {
+            if (c == '\n') {
                 lines.add(buffer.toString());
                 buffer.delete(0, buffer.length());
             } else {
@@ -269,22 +268,22 @@ public final class StringUtils {
     /**
      * Get the underlined source representation
      *
-     * @param lines The lines to display
-     * @param startLine The starting line
-     * @param startCol The starting column
-     * @param endLine The ending line
-     * @param endCol The ending colum
+     * @param lines          The lines to display
+     * @param startLine      The starting line
+     * @param startCol       The starting column
+     * @param endLine        The ending line
+     * @param endCol         The ending colum
      * @param underLineColor The color of the underline
      * @return The underlined lines in a string
      */
     @CompilerDirectives.TruffleBoundary
     public static String underlineSource(
-            String[] lines,
-            int startLine,
-            int startCol,
-            int endLine,
-            int endCol,
-            String underLineColor
+        String[] lines,
+        int startLine,
+        int startCol,
+        int endLine,
+        int endCol,
+        String underLineColor
     ) {
         // Prepare the result
         StringBuilder res = new StringBuilder();
@@ -293,26 +292,26 @@ public final class StringUtils {
         // Create the function to start a line
         Function<Integer, Void> lineStarting = (lineNum) -> {
             res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
-            if(lineNum < 1) {
+            if (lineNum < 1) {
                 res.append(" ".repeat(colSize));
             } else {
                 res.append(fill(String.valueOf(lineNum), colSize));
             }
             res.append(" |")
-                    .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
+                .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
             return null;
         };
 
         // If the source is single line
-        if(lines.length == 1) {
+        if (lines.length == 1) {
             lineStarting.apply(startLine);
             res.append(' ')
-                    .append(lines[0])
-                    .append('\n');
+                .append(lines[0])
+                .append('\n');
             lineStarting.apply(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append(" ".repeat(startCol))
-                    .append("^".repeat(Math.max(0, endCol - startCol)));
+                .append(" ".repeat(startCol))
+                .append("^".repeat(Math.max(0, endCol - startCol)));
         }
 
         // Else do the multiline display
@@ -320,40 +319,40 @@ public final class StringUtils {
             int difference = endLine - startLine - 1;
             lineStarting.apply(startLine);
             res.append("  ")
-                    .append(lines[0])
-                    .append("\n");
+                .append(lines[0])
+                .append("\n");
             lineStarting.apply(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append(" ")
-                    .append("_".repeat(startCol))
-                    .append("^\n");
+                .append(" ")
+                .append("_".repeat(startCol))
+                .append("^\n");
 
-            if(difference > 0) {
+            if (difference > 0) {
                 lineStarting.apply(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                        .append("|\n");
+                    .append("|\n");
                 lineStarting.apply(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                        .append('|')
-                        .append(" ~~~ ")
-                        .append(difference)
-                        .append(" other lines ~~~\n");
+                    .append('|')
+                    .append(" ~~~ ")
+                    .append(difference)
+                    .append(" other lines ~~~\n");
                 lineStarting.apply(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                        .append("|\n");
+                    .append("|\n");
             }
 
             lineStarting.apply(endLine);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append("| ")
-                    .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
-                    .append(lines[lines.length - 1])
-                    .append('\n');
+                .append("| ")
+                .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
+                .append(lines[lines.length - 1])
+                .append('\n');
             lineStarting.apply(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append("|")
-                    .append("_".repeat(Math.max(1, endCol - 1)))
-                    .append("^");
+                .append("|")
+                .append("_".repeat(Math.max(1, endCol - 1)))
+                .append("^");
         }
 
         // Return the underlined sources

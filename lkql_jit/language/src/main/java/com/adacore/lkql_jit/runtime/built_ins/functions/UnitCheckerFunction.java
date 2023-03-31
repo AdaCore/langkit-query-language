@@ -23,11 +23,12 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -40,15 +41,9 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.adacore.libadalang.Libadalang;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -60,13 +55,19 @@ public final class UnitCheckerFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "unit_checker" built-in */
+    /**
+     * The only instance of the "unit_checker" built-in
+     */
     private static UnitCheckerFunction instance = null;
 
-    /** The name of the built-in */
+    /**
+     * The name of the built-in
+     */
     public static final String NAME = "unit_checker";
 
-    /** The expression that represents the "unit_checker" function execution */
+    /**
+     * The expression that represents the "unit_checker" function execution
+     */
     private final UnitCheckerFunction.UnitCheckerExpr unitCheckerExpr;
 
     // ----- Constructors -----
@@ -84,7 +85,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
      * @return The built-in instance
      */
     public static UnitCheckerFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new UnitCheckerFunction();
         }
         return instance;
@@ -92,21 +93,25 @@ public final class UnitCheckerFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given a unit, apply all the unit checker on it",
-                new String[]{"unit"},
-                new Expr[]{null},
-                this.unitCheckerExpr
+            NAME,
+            "Given a unit, apply all the unit checker on it",
+            new String[]{"unit"},
+            new Expr[]{null},
+            this.unitCheckerExpr
         );
     }
 
@@ -117,12 +122,16 @@ public final class UnitCheckerFunction implements BuiltInFunction {
      */
     private static final class UnitCheckerExpr extends BuiltInExpr {
 
-        /** The dispatcher for the rule functions */
+        /**
+         * The dispatcher for the rule functions
+         */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
-        
-        /** @see com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+
+        /**
+         * @see com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+         */
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -134,14 +143,14 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 unit = LKQLTypeSystemGen.expectAnalysisUnit(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ANALYSIS_UNIT,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.ANALYSIS_UNIT,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
             // Iterate over all checker
-            for(ObjectValue rule : checkers) {
+            for (ObjectValue rule : checkers) {
                 try {
                     this.applyUnitRule(frame, rule, unit, context);
                 } catch (LangkitException e) {
@@ -158,9 +167,9 @@ public final class UnitCheckerFunction implements BuiltInFunction {
         /**
          * Apply the rule on the given unit
          *
-         * @param frame The frame for the rule execution
-         * @param rule The rule to execute
-         * @param unit The unit to execute the rule on
+         * @param frame   The frame for the rule execution
+         * @param rule    The rule to execute
+         * @param unit    The unit to execute the rule on
          * @param context The context for the execution
          */
         private void applyUnitRule(VirtualFrame frame, ObjectValue rule, Libadalang.AnalysisUnit unit, LKQLContext context) {
@@ -170,16 +179,16 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.getParamNames().length];
             arguments[0] = unit;
-            for(int i = 1 ; i < functionValue.getDefaultValues().length ; i++) {
+            for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
                 Object userDefinedArg = context.getRuleArg((String) rule.get("name"), paramName);
                 arguments[i] = userDefinedArg == null ?
-                        functionValue.getDefaultValues()[i].executeGeneric(frame) :
-                        userDefinedArg;
+                    functionValue.getDefaultValues()[i].executeGeneric(frame) :
+                    userDefinedArg;
             }
 
             // Put the namespace
-            if(functionValue.getNamespace() != null) {
+            if (functionValue.getNamespace() != null) {
                 context.getGlobalValues().pushNamespace(functionValue.getNamespace());
             }
 
@@ -189,20 +198,20 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 messageList = LKQLTypeSystemGen.expectIterable(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody()
+                    LKQLTypesHelper.LKQL_LIST,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    functionValue.getBody()
                 );
             } finally {
                 // Remove the namespace
-                if(functionValue.getNamespace() != null) {
+                if (functionValue.getNamespace() != null) {
                     context.getGlobalValues().popNamespace();
                 }
             }
 
             // Display all the violation message
             Iterator messageIterator = messageList.iterator();
-            while(messageIterator.hasNext()) {
+            while (messageIterator.hasNext()) {
                 ObjectValue message = (ObjectValue) messageIterator.next();
 
                 // Get the message text
@@ -211,23 +220,23 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     messageText = LKQLTypeSystemGen.expectString(message.get("message"));
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.LKQL_STRING,
-                            LKQLTypesHelper.fromJava(e.getResult()),
-                            functionValue.getBody()
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        functionValue.getBody()
                     );
                 }
 
                 // Get the message location
                 Object loc = message.get("loc");
-                if(LKQLTypeSystemGen.isToken(loc)) {
+                if (LKQLTypeSystemGen.isToken(loc)) {
                     this.reportViolation(messageText, LKQLTypeSystemGen.asToken(loc));
-                } else if(LKQLTypeSystemGen.isAdaNode(loc)) {
+                } else if (LKQLTypeSystemGen.isAdaNode(loc)) {
                     this.reportViolation(messageText, LKQLTypeSystemGen.asAdaNode(loc));
                 } else {
                     throw LKQLRuntimeException.wrongType(
-                            LKQLTypesHelper.ADA_NODE,
-                            LKQLTypesHelper.fromJava(loc),
-                            functionValue.getBody()
+                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.fromJava(loc),
+                        functionValue.getBody()
                     );
                 }
             }
@@ -237,7 +246,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
          * Report a rule violation with the node that violate it
          *
          * @param message The message of the violation
-         * @param node The node that violated the rule
+         * @param node    The node that violated the rule
          */
         @CompilerDirectives.TruffleBoundary
         private void reportViolation(String message, Libadalang.AdaNode node) {
@@ -248,7 +257,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
          * Report a rule violation with the token that violates it
          *
          * @param message The message of the violation
-         * @param token The token
+         * @param token   The token
          */
         @CompilerDirectives.TruffleBoundary
         private void reportViolation(String message, Libadalang.Token token) {
@@ -259,7 +268,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
          * Report the langkit exception raised by a rule
          *
          * @param rule The rule which caused the exception
-         * @param e The exception to report
+         * @param e    The exception to report
          */
         @CompilerDirectives.TruffleBoundary
         private void reportException(ObjectValue rule, LangkitException e) {
@@ -276,7 +285,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             System.out.println("Exception in the LKQL code :");
             System.out.println(e.getMessage());
         }
-        
+
     }
 
 }

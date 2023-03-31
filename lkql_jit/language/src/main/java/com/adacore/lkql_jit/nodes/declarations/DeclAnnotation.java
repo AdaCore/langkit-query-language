@@ -25,9 +25,9 @@ package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.nodes.arguments.ArgList;
 
 
 /**
@@ -39,23 +39,33 @@ public final class DeclAnnotation extends LKQLNode {
 
     // ----- Macros and enums ----
 
-    /** The memoization annotation string value */
+    /**
+     * The memoization annotation string value
+     */
     public static final String MEMOIZED = "memoized";
 
-    /** The node checker annotation string value */
+    /**
+     * The node checker annotation string value
+     */
     public static final String NODE_CHECK = "check";
 
-    /** The unit checker annotation string value */
+    /**
+     * The unit checker annotation string value
+     */
     public static final String UNIT_CHECK = "unit_check";
 
     // ----- Attributes -----
 
-    /** The name of the annotation */
+    /**
+     * The name of the annotation
+     */
     private final String name;
 
     // ----- Children -----
 
-    /** The annotation arguments */
+    /**
+     * The annotation arguments
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ArgList arguments;
@@ -65,14 +75,14 @@ public final class DeclAnnotation extends LKQLNode {
     /**
      * Create a new declaration annotation node
      *
-     * @param location The location of the node in the source
-     * @param name The name of the annotation
+     * @param location  The location of the node in the source
+     * @param name      The name of the annotation
      * @param arguments The arguments of the annotation (can be empty or null)
      */
     public DeclAnnotation(
-            SourceLocation location,
-            String name,
-            ArgList arguments
+        SourceLocation location,
+        String name,
+        ArgList arguments
     ) {
         super(location);
         this.name = name;
@@ -91,7 +101,9 @@ public final class DeclAnnotation extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -99,13 +111,15 @@ public final class DeclAnnotation extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name"},
-                new Object[]{this.name}
+            indentLevel,
+            new String[]{"name"},
+            new Object[]{this.name}
         );
     }
 

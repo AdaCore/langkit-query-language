@@ -23,22 +23,7 @@
 
 package com.adacore.lkql_jit.parser;
 
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.nodes.expressions.*;
-import com.adacore.lkql_jit.nodes.expressions.literals.*;
-import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectAssoc;
-import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectAssocList;
-import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectLiteral;
-import com.adacore.lkql_jit.nodes.expressions.match.MatchArmNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.operators.*;
-import com.adacore.lkql_jit.nodes.patterns.*;
-import com.adacore.lkql_jit.nodes.patterns.chained_patterns.*;
-import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.source.Source;
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -59,6 +44,7 @@ import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorDeclLocal;
 import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
 import com.adacore.lkql_jit.nodes.declarations.variables.ValDeclGlobal;
 import com.adacore.lkql_jit.nodes.declarations.variables.ValDeclLocal;
+import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyExpr;
@@ -68,14 +54,25 @@ import com.adacore.lkql_jit.nodes.expressions.dot.SafeDotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListCompAssoc;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListCompAssocList;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehension;
+import com.adacore.lkql_jit.nodes.expressions.literals.*;
+import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectAssoc;
+import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectAssocList;
+import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectLiteral;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
+import com.adacore.lkql_jit.nodes.expressions.match.MatchArmNodeGen;
+import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.variables.ReadGlobal;
 import com.adacore.lkql_jit.nodes.expressions.variables.ReadLocal;
-import com.adacore.lkql_jit.nodes.expressions.variables.ReadVariable;
+import com.adacore.lkql_jit.nodes.patterns.*;
+import com.adacore.lkql_jit.nodes.patterns.chained_patterns.*;
+import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFactory;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.source.Source;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -94,10 +91,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
     // ----- Attributes -----
 
-    /** The current scope for the lexical analysis */
+    /**
+     * The current scope for the lexical analysis
+     */
     private final Scope scope;
 
-    /** The source of the AST to translate */
+    /**
+     * The source of the AST to translate
+     */
     private final Source source;
 
     // ----- Constructors -----
@@ -108,7 +109,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
      * @param source The source of the AST to translate
      */
     public ASTTranslator(
-            Source source
+        Source source
     ) {
         this.scope = new Scope();
         this.source = source;
@@ -134,16 +135,16 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         String res = "";
 
         // If the string literal is a simple on
-        if(literal instanceof Liblkqllang.StringLiteral) {
+        if (literal instanceof Liblkqllang.StringLiteral) {
             String raw = literal.getText();
             res = StringUtils.translateEscapes(raw.substring(1, raw.length() - 1));
         }
 
         // If the string literal is a block
-        else if(literal instanceof Liblkqllang.BlockStringLiteral blockStringLiteral) {
+        else if (literal instanceof Liblkqllang.BlockStringLiteral blockStringLiteral) {
             StringBuilder builder = new StringBuilder();
             Liblkqllang.LkqlNodeArray nodeArray = blockStringLiteral.fDocs().children();
-            for(Liblkqllang.LkqlNode node : nodeArray) {
+            for (Liblkqllang.LkqlNode node : nodeArray) {
                 builder.append(StringUtils.translateEscapes(node.getText().substring(2))).append("\n");
             }
             res = builder.toString().replaceAll("^\\s+", "");
@@ -181,17 +182,17 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Get the LKQL node list from the top level children
         Liblkqllang.LkqlNodeArray array = topLevelList.children();
-        for(Liblkqllang.LkqlNode node : array) {
+        for (Liblkqllang.LkqlNode node : array) {
             nodeList.add(node.accept(this));
         }
 
         // Return the top level list
         return new TopLevelList(
-                new SourceLocation(this.source, topLevelList.getSourceLocationRange()),
-                this.scope.getGlobalSize(),
-                this.scope.getExportNumber(),
-                nodeList.toArray(new LKQLNode[0])
-                );
+            new SourceLocation(this.source, topLevelList.getSourceLocationRange()),
+            this.scope.getGlobalSize(),
+            this.scope.getExportNumber(),
+            nodeList.toArray(new LKQLNode[0])
+        );
     }
 
 
@@ -211,9 +212,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new declaration annotation node
         return new DeclAnnotation(
-                new SourceLocation(this.source, declAnnotation.getSourceLocationRange()),
-                name,
-                arguments
+            new SourceLocation(this.source, declAnnotation.getSourceLocationRange()),
+            name,
+            arguments
         );
     }
 
@@ -228,18 +229,18 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Translate the declaration fields
         Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
         DeclAnnotation annotation = annotationBase.isNone() ?
-                null :
-                (DeclAnnotation) annotationBase.accept(this);
+            null :
+            (DeclAnnotation) annotationBase.accept(this);
         String name = funDecl.fName().getText();
 
         // Get the current slot of the name
         int slot = this.scope.getVariableInScope(name);
 
         // Verify that the slot is empty
-        if(slot > -1) {
+        if (slot > -1) {
             throw LKQLRuntimeException.existingSymbol(
-                    name,
-                    new DummyLocation(new SourceLocation(this.source, funDecl.getSourceLocationRange()))
+                name,
+                new DummyLocation(new SourceLocation(this.source, funDecl.getSourceLocationRange()))
             );
         }
 
@@ -250,14 +251,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
         // If the function declaration is global
-        if(this.scope.isGlobal()) {
+        if (this.scope.isGlobal()) {
             // Return a new function global declaration
             return new FunDeclGlobal(
-                    new SourceLocation(this.source, funDecl.getSourceLocationRange()),
-                    annotation,
-                    name,
-                    slot,
-                    funExpr
+                new SourceLocation(this.source, funDecl.getSourceLocationRange()),
+                annotation,
+                name,
+                slot,
+                funExpr
             );
         }
 
@@ -265,11 +266,11 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         else {
             // Return the function local declaration
             return new FunDeclLocal(
-                    new SourceLocation(this.source, funDecl.getSourceLocationRange()),
-                    annotation,
-                    name,
-                    slot,
-                    funExpr
+                new SourceLocation(this.source, funDecl.getSourceLocationRange()),
+                annotation,
+                name,
+                slot,
+                funExpr
             );
         }
     }
@@ -285,8 +286,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Translate the declaration fields
         Liblkqllang.DeclAnnotation annotationBase = valDecl.fAnnotation();
         DeclAnnotation annotation = annotationBase.isNone() ?
-                null :
-                (DeclAnnotation) annotationBase.accept(this);
+            null :
+            (DeclAnnotation) annotationBase.accept(this);
         String name = valDecl.fIdentifier().getText();
         Expr value = (Expr) valDecl.fValue().accept(this);
 
@@ -294,10 +295,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         int slot = this.scope.getVariableInScope(name);
 
         // Verify that the slot is empty
-        if(slot > -1) {
+        if (slot > -1) {
             throw LKQLRuntimeException.existingSymbol(
-                    name,
-                    new DummyLocation(new SourceLocation(this.source, valDecl.getSourceLocationRange()))
+                name,
+                new DummyLocation(new SourceLocation(this.source, valDecl.getSourceLocationRange()))
             );
         }
 
@@ -305,14 +306,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         slot = this.scope.addVariable(name);
 
         // If the variable declaration is global
-        if(this.scope.isGlobal()) {
+        if (this.scope.isGlobal()) {
             // Return a global variable declaration
             return new ValDeclGlobal(
-                    new SourceLocation(this.source, valDecl.getSourceLocationRange()),
-                    annotation,
-                    name,
-                    slot,
-                    value
+                new SourceLocation(this.source, valDecl.getSourceLocationRange()),
+                annotation,
+                name,
+                slot,
+                value
             );
         }
 
@@ -320,11 +321,11 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         else {
             // Return the local variable declaration
             return new ValDeclLocal(
-                    new SourceLocation(this.source, valDecl.getSourceLocationRange()),
-                    annotation,
-                    name,
-                    slot,
-                    value
+                new SourceLocation(this.source, valDecl.getSourceLocationRange()),
+                annotation,
+                name,
+                slot,
+                value
             );
         }
     }
@@ -344,10 +345,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         int slot = this.scope.getVariable(name);
 
         // Verify the slot emptiness
-        if(slot > -1) {
+        if (slot > -1) {
             throw LKQLRuntimeException.existingSymbol(
-                    name,
-                    new DummyLocation(new SourceLocation(this.source, anImport.getSourceLocationRange()))
+                name,
+                new DummyLocation(new SourceLocation(this.source, anImport.getSourceLocationRange()))
             );
         }
 
@@ -356,9 +357,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the import node
         return new Import(
-                new SourceLocation(this.source, anImport.getSourceLocationRange()),
-                name,
-                slot
+            new SourceLocation(this.source, anImport.getSourceLocationRange()),
+            name,
+            slot
         );
     }
 
@@ -391,7 +392,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
      * This function factorize the function expression visit
      *
      * @param parameterList The function parameter list node from langkit
-     * @param bodyExpr The function body from langkit
+     * @param bodyExpr      The function body from langkit
      * @return The FunctionExpr node for Truffle
      */
     private FunExpr functionExprHelper(Liblkqllang.ParameterDeclList parameterList, Liblkqllang.Expr bodyExpr) {
@@ -401,7 +402,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Translate the named function fields
         List<ParameterDecl> parameters = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = parameterList.children();
-        for(Liblkqllang.LkqlNode param : array) {
+        for (Liblkqllang.LkqlNode param : array) {
             parameters.add((ParameterDecl) param.accept(this));
         }
 
@@ -409,11 +410,11 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the new function expression
         FunExpr res = new FunExpr(
-                new SourceLocation(this.source, bodyExpr.getSourceLocationRange()),
-                this.scope.buildDescriptor(),
-                this.scope.getClosureLimit(),
-                parameters.toArray(new ParameterDecl[0]),
-                body
+            new SourceLocation(this.source, bodyExpr.getSourceLocationRange()),
+            this.scope.buildDescriptor(),
+            this.scope.getClosureLimit(),
+            parameters.toArray(new ParameterDecl[0]),
+            body
         );
 
         // Close the local scope
@@ -438,11 +439,11 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the function call
         return FunCallNodeGen.create(
-                new SourceLocation(this.source, funCall.getSourceLocationRange()),
-                isSafe,
-                new DummyLocation(callee.getLocation()),
-                arguments,
-                callee
+            new SourceLocation(this.source, funCall.getSourceLocationRange()),
+            isSafe,
+            new DummyLocation(callee.getLocation()),
+            arguments,
+            callee
         );
     }
 
@@ -461,23 +462,23 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         String name = parameterDecl.fParamIdentifier().getText();
         Liblkqllang.Identifier typeAnnotationBase = parameterDecl.fTypeAnnotation();
         String typeAnnotation = typeAnnotationBase.isNone() ?
-                null :
-                typeAnnotationBase.getText();
+            null :
+            typeAnnotationBase.getText();
         Liblkqllang.Expr parameterDeclBase = parameterDecl.fDefaultExpr();
         Expr defaultValue = parameterDeclBase.isNone() ?
-                null :
-                (Expr) parameterDeclBase.accept(this);
+            null :
+            (Expr) parameterDeclBase.accept(this);
 
         // Get the frame slot of the parameter
         int slot = this.scope.addVariable(name);
 
         // Return the new parameter declaration
         return new ParameterDecl(
-                new SourceLocation(this.source, parameterDecl.getSourceLocationRange()),
-                name,
-                slot,
-                typeAnnotation,
-                defaultValue
+            new SourceLocation(this.source, parameterDecl.getSourceLocationRange()),
+            name,
+            slot,
+            typeAnnotation,
+            defaultValue
         );
     }
 
@@ -497,8 +498,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new expression argument node
         return new ExprArg(
-                new SourceLocation(this.source, exprArg.getSourceLocationRange()),
-                argExpr
+            new SourceLocation(this.source, exprArg.getSourceLocationRange()),
+            argExpr
         );
     }
 
@@ -516,12 +517,12 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new named argument
         return new NamedArg(
-                new SourceLocation(this.source, namedArg.getSourceLocationRange()),
-                new Identifier(
-                        new SourceLocation(this.source, namedArg.fArgName().getSourceLocationRange()),
-                        name
-                ),
-                argExpr
+            new SourceLocation(this.source, namedArg.getSourceLocationRange()),
+            new Identifier(
+                new SourceLocation(this.source, namedArg.fArgName().getSourceLocationRange()),
+                name
+            ),
+            argExpr
         );
     }
 
@@ -554,12 +555,12 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Get the arguments from the langkit node
         Liblkqllang.LkqlNodeArray array = argList.children();
-        for(Liblkqllang.LkqlNode arg : array) {
+        for (Liblkqllang.LkqlNode arg : array) {
             Arg curArg = (Arg) arg.accept(this);
 
             // Verify the argument phase
-            if(curArg instanceof ExprArg) {
-                if(namedPhase) {
+            if (curArg instanceof ExprArg) {
+                if (namedPhase) {
                     throw LKQLRuntimeException.positionAfterNamedArgument(curArg);
                 }
             }
@@ -567,7 +568,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
             // Verify the same name arguments
             else if (curArg instanceof NamedArg namedArg) {
                 namedPhase = true;
-                if(namedSeen.contains(namedArg.getArgName().getName())) {
+                if (namedSeen.contains(namedArg.getArgName().getName())) {
                     throw LKQLRuntimeException.multipleSameNameArgument(curArg);
                 }
                 namedSeen.add(namedArg.getArgName().getName());
@@ -579,8 +580,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new argument list node
         return new ArgList(
-                new SourceLocation(this.source, argList.getSourceLocationRange()),
-                arguments.toArray(new Arg[0])
+            new SourceLocation(this.source, argList.getSourceLocationRange()),
+            arguments.toArray(new Arg[0])
         );
     }
 
@@ -600,7 +601,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Create the declaration list
         List<BlockBody> blockBody = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = blockExpr.fBody().children();
-        for(Liblkqllang.LkqlNode bodyPart : array) {
+        for (Liblkqllang.LkqlNode bodyPart : array) {
             blockBody.add((BlockBody) bodyPart.accept(this));
         }
 
@@ -609,9 +610,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the result
         BlockExpr res = new BlockExpr(
-                new SourceLocation(this.source, blockExpr.getSourceLocationRange()),
-                blockBody.toArray(new BlockBody[0]),
-                expr
+            new SourceLocation(this.source, blockExpr.getSourceLocationRange()),
+            blockBody.toArray(new BlockBody[0]),
+            expr
         );
 
         // Close the local scope
@@ -630,8 +631,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     @Override
     public LKQLNode visit(Liblkqllang.BlockBodyDecl blockBodyDecl) {
         return new BlockBodyDecl(
-                new SourceLocation(this.source, blockBodyDecl.getSourceLocationRange()),
-                (Declaration) blockBodyDecl.fDecl().accept(this)
+            new SourceLocation(this.source, blockBodyDecl.getSourceLocationRange()),
+            (Declaration) blockBodyDecl.fDecl().accept(this)
         );
     }
 
@@ -644,8 +645,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     @Override
     public LKQLNode visit(Liblkqllang.BlockBodyExpr blockBodyExpr) {
         return new BlockBodyExpr(
-                new SourceLocation(this.source, blockBodyExpr.getSourceLocationRange()),
-                (Expr) blockBodyExpr.fExpr().accept(this)
+            new SourceLocation(this.source, blockBodyExpr.getSourceLocationRange()),
+            (Expr) blockBodyExpr.fExpr().accept(this)
         );
     }
 
@@ -660,7 +661,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Translate the list comprehension collections
         List<Expr> collections = new ArrayList<>();
         Liblkqllang.ListCompAssocList assocListOrigin = listComprehension.fGenerators();
-        for(int i = 0 ; i < assocListOrigin.getChildrenCount() ; i++) {
+        for (int i = 0; i < assocListOrigin.getChildrenCount(); i++) {
             Liblkqllang.ListCompAssoc assocOrigin = (Liblkqllang.ListCompAssoc) assocListOrigin.getChild(i);
             collections.add((Expr) assocOrigin.fCollExpr().accept(this));
         }
@@ -670,16 +671,16 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the list comprehension associations
         List<ListCompAssoc> assocList = new ArrayList<>();
-        for(int i = 0 ; i < assocListOrigin.getChildrenCount() ; i++) {
+        for (int i = 0; i < assocListOrigin.getChildrenCount(); i++) {
             Liblkqllang.ListCompAssoc assocOrigin = (Liblkqllang.ListCompAssoc) assocListOrigin.getChild(i);
             String name = assocOrigin.fBindingName().getText();
             int slot = this.scope.addVariable(name);
 
             assocList.add(new ListCompAssoc(
-                    new SourceLocation(this.source, assocOrigin.getSourceLocationRange()),
-                    name,
-                    slot,
-                    collections.get(i)
+                new SourceLocation(this.source, assocOrigin.getSourceLocationRange()),
+                name,
+                slot,
+                collections.get(i)
             ));
         }
 
@@ -687,20 +688,20 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         Expr expr = (Expr) listComprehension.fExpr().accept(this);
         Liblkqllang.Expr guardBase = listComprehension.fGuard();
         Expr guard = guardBase.isNone() ?
-                null :
-                (Expr) guardBase.accept(this);
+            null :
+            (Expr) guardBase.accept(this);
 
         // Create the result
         ListComprehension res = new ListComprehension(
-                new SourceLocation(this.source, listComprehension.getSourceLocationRange()),
-                this.scope.buildDescriptor(),
-                this.scope.getClosureLimit(),
-                new ListCompAssocList(
-                        new SourceLocation(this.source, assocListOrigin.getSourceLocationRange()),
-                        assocList.toArray(new ListCompAssoc[0])
-                ),
-                expr,
-                guard
+            new SourceLocation(this.source, listComprehension.getSourceLocationRange()),
+            this.scope.buildDescriptor(),
+            this.scope.getClosureLimit(),
+            new ListCompAssocList(
+                new SourceLocation(this.source, assocListOrigin.getSourceLocationRange()),
+                assocList.toArray(new ListCompAssoc[0])
+            ),
+            expr,
+            guard
         );
 
         // Close the local scope
@@ -711,10 +712,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     }
 
     @Override
-    public LKQLNode visit(Liblkqllang.ListCompAssoc listCompAssoc) { return null; }
+    public LKQLNode visit(Liblkqllang.ListCompAssoc listCompAssoc) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.ListCompAssocList listCompAssocList) { return null; }
+    public LKQLNode visit(Liblkqllang.ListCompAssocList listCompAssocList) {
+        return null;
+    }
 
     /**
      * Visit a conditional node
@@ -731,10 +736,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the if then else node
         return new IfThenElse(
-                new SourceLocation(this.source, ifThenElse.getSourceLocationRange()),
-                condition,
-                consequence,
-                alternative
+            new SourceLocation(this.source, ifThenElse.getSourceLocationRange()),
+            condition,
+            consequence,
+            alternative
         );
     }
 
@@ -752,10 +757,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the indexing node
         return IndexingNodeGen.create(
-                new SourceLocation(this.source, indexing.getSourceLocationRange()),
-                false,
-                collection,
-                index
+            new SourceLocation(this.source, indexing.getSourceLocationRange()),
+            false,
+            collection,
+            index
         );
     }
 
@@ -773,10 +778,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the indexing node with safe flag
         return IndexingNodeGen.create(
-                new SourceLocation(this.source, safeIndexing.getSourceLocationRange()),
-                true,
-                collection,
-                index
+            new SourceLocation(this.source, safeIndexing.getSourceLocationRange()),
+            true,
+            collection,
+            index
         );
     }
 
@@ -791,16 +796,16 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Translate the dot access fields
         Liblkqllang.Identifier memberIdentifier = dotAccess.fMember();
         Identifier member = new Identifier(
-                new SourceLocation(this.source, memberIdentifier.getSourceLocationRange()),
-                memberIdentifier.getText()
+            new SourceLocation(this.source, memberIdentifier.getSourceLocationRange()),
+            memberIdentifier.getText()
         );
         Expr receiver = (Expr) dotAccess.fReceiver().accept(this);
 
         // Return the new DotAccess node
         return DotAccessNodeGen.create(
-                new SourceLocation(this.source, dotAccess.getSourceLocationRange()),
-                member,
-                receiver
+            new SourceLocation(this.source, dotAccess.getSourceLocationRange()),
+            member,
+            receiver
         );
     }
 
@@ -815,16 +820,16 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Translate the dot access fields
         Liblkqllang.Identifier memberIdentifier = safeAccess.fMember();
         Identifier member = new Identifier(
-                new SourceLocation(this.source, memberIdentifier.getSourceLocationRange()),
-                memberIdentifier.getText()
+            new SourceLocation(this.source, memberIdentifier.getSourceLocationRange()),
+            memberIdentifier.getText()
         );
         Expr receiver = (Expr) safeAccess.fReceiver().accept(this);
 
         // Return the new DotAccess node
         return SafeDotAccessNodeGen.create(
-                new SourceLocation(this.source, safeAccess.getSourceLocationRange()),
-                member,
-                receiver
+            new SourceLocation(this.source, safeAccess.getSourceLocationRange()),
+            member,
+            receiver
         );
     }
 
@@ -841,8 +846,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new unpack node
         return new Unpack(
-                new SourceLocation(this.source, unpack.getSourceLocationRange()),
-                collectionExpr
+            new SourceLocation(this.source, unpack.getSourceLocationRange()),
+            collectionExpr
         );
     }
 
@@ -859,8 +864,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new unwrap node
         return new Unwrap(
-                new SourceLocation(this.source, unwrap.getSourceLocationRange()),
-                nodeExpr
+            new SourceLocation(this.source, unwrap.getSourceLocationRange()),
+            nodeExpr
         );
     }
 
@@ -878,7 +883,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the match arms
         List<MatchArm> arms = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = match.fArms().children();
-        for(Liblkqllang.LkqlNode node : array) {
+        for (Liblkqllang.LkqlNode node : array) {
             // Open a lexical scope for the arm
             this.scope.openLexical();
 
@@ -891,9 +896,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return a new match node
         return new Match(
-                new SourceLocation(this.source, match.getSourceLocationRange()),
-                matchVal,
-                arms.toArray(new MatchArm[0])
+            new SourceLocation(this.source, match.getSourceLocationRange()),
+            matchVal,
+            arms.toArray(new MatchArm[0])
         );
     }
 
@@ -911,9 +916,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new match arm
         return MatchArmNodeGen.create(
-                new SourceLocation(this.source, matchArm.getSourceLocationRange()),
-                pattern,
-                expr
+            new SourceLocation(this.source, matchArm.getSourceLocationRange()),
+            pattern,
+            expr
         );
     }
 
@@ -964,15 +969,18 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the binary operator by switching on the operator type
         return switch (binOp.fOp().getKindName()) {
-            case Liblkqllang.OpPlus.kindName -> BinPlusNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpMinus.kindName -> BinMinusNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpPlus.kindName ->
+                BinPlusNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpMinus.kindName ->
+                BinMinusNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpMul.kindName -> BinMulNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpDiv.kindName -> BinDivNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpAnd.kindName -> new BinAnd(location, left, right);
             case Liblkqllang.OpOr.kindName -> new BinOr(location, left, right);
             case Liblkqllang.OpEq.kindName -> BinEqNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpNeq.kindName -> BinNeqNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpConcat.kindName -> BinConcatNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpConcat.kindName ->
+                BinConcatNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpLt.kindName -> BinLtNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpLeq.kindName -> BinLeqNodeGen.create(location, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpGt.kindName -> BinGtNodeGen.create(location, leftLocation, rightLocation, left, right);
@@ -1019,11 +1027,11 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new in node
         return InClauseNodeGen.create(
-                new SourceLocation(this.source, inClause.getSourceLocationRange()),
-                new DummyLocation(elem.getLocation()),
-                new DummyLocation(indexable.getLocation()),
-                elem,
-                indexable
+            new SourceLocation(this.source, inClause.getSourceLocationRange()),
+            new DummyLocation(elem.getLocation()),
+            new DummyLocation(indexable.getLocation()),
+            elem,
+            indexable
         );
     }
 
@@ -1044,10 +1052,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the result
         IsClause res = IsClauseNodeGen.create(
-                new SourceLocation(this.source, isClause.getSourceLocationRange()),
-                new DummyLocation(nodeExpr.getLocation()),
-                pattern,
-                nodeExpr
+            new SourceLocation(this.source, isClause.getSourceLocationRange()),
+            new DummyLocation(nodeExpr.getLocation()),
+            pattern,
+            nodeExpr
         );
 
         // Close the lexical scope
@@ -1091,8 +1099,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     @Override
     public LKQLNode visit(Liblkqllang.BoolLiteralFalse boolLiteralFalse) {
         return new BooleanLiteral(
-                new SourceLocation(this.source, boolLiteralFalse.getSourceLocationRange()),
-                false
+            new SourceLocation(this.source, boolLiteralFalse.getSourceLocationRange()),
+            false
         );
     }
 
@@ -1105,8 +1113,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     @Override
     public LKQLNode visit(Liblkqllang.BoolLiteralTrue boolLiteralTrue) {
         return new BooleanLiteral(
-                new SourceLocation(this.source, boolLiteralTrue.getSourceLocationRange()),
-                true
+            new SourceLocation(this.source, boolLiteralTrue.getSourceLocationRange()),
+            true
         );
     }
 
@@ -1121,13 +1129,13 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         try {
             long longValue = Long.parseLong(integerLiteral.getText());
             return new LongLiteral(
-                    new SourceLocation(this.source, integerLiteral.getSourceLocationRange()),
-                    longValue
+                new SourceLocation(this.source, integerLiteral.getSourceLocationRange()),
+                longValue
             );
         } catch (NumberFormatException e) {
             return new BigIntegerLiteral(
-                    new SourceLocation(this.source, integerLiteral.getSourceLocationRange()),
-                    new BigInteger(integerLiteral.getText())
+                new SourceLocation(this.source, integerLiteral.getSourceLocationRange()),
+                new BigInteger(integerLiteral.getText())
             );
         }
     }
@@ -1142,8 +1150,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     public LKQLNode visit(Liblkqllang.StringLiteral stringLiteral) {
         // Return the string literal token
         return new StringLiteral(
-                new SourceLocation(this.source, stringLiteral.getSourceLocationRange()),
-                parseStringLiteral(stringLiteral)
+            new SourceLocation(this.source, stringLiteral.getSourceLocationRange()),
+            parseStringLiteral(stringLiteral)
         );
     }
 
@@ -1157,8 +1165,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     public LKQLNode visit(Liblkqllang.BlockStringLiteral blockStringLiteral) {
         // Return the new string literal
         return new StringLiteral(
-                new SourceLocation(this.source, blockStringLiteral.getSourceLocationRange()),
-                parseStringLiteral(blockStringLiteral)
+            new SourceLocation(this.source, blockStringLiteral.getSourceLocationRange()),
+            parseStringLiteral(blockStringLiteral)
         );
     }
 
@@ -1177,26 +1185,26 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         int slot = this.scope.getVariable(name);
 
         // Verify that the variable exists
-        if(slot < 0) {
+        if (slot < 0) {
             throw LKQLRuntimeException.unknownSymbol(
-                    name,
-                    new DummyLocation(new SourceLocation(this.source, identifier.getSourceLocationRange()))
+                name,
+                new DummyLocation(new SourceLocation(this.source, identifier.getSourceLocationRange()))
             );
         }
 
         // If the variable is local
-        if(this.scope.isSemanticLocal(name)) {
+        if (this.scope.isSemanticLocal(name)) {
             return new ReadLocal(
-                    new SourceLocation(this.source, identifier.getSourceLocationRange()),
-                    slot
+                new SourceLocation(this.source, identifier.getSourceLocationRange()),
+                slot
             );
         }
 
         // Else, the variable is global
         else {
             return new ReadGlobal(
-                    new SourceLocation(this.source, identifier.getSourceLocationRange()),
-                    slot
+                new SourceLocation(this.source, identifier.getSourceLocationRange()),
+                slot
             );
         }
     }
@@ -1212,14 +1220,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Create the expression array
         List<Expr> tupleExprs = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = tuple.fExprs().children();
-        for(Liblkqllang.LkqlNode expr : array) {
+        for (Liblkqllang.LkqlNode expr : array) {
             tupleExprs.add((Expr) expr.accept(this));
         }
 
         // Return the tuple literal node
         return new TupleLiteral(
-                new SourceLocation(this.source, tuple.getSourceLocationRange()),
-                tupleExprs.toArray(new Expr[0])
+            new SourceLocation(this.source, tuple.getSourceLocationRange()),
+            tupleExprs.toArray(new Expr[0])
         );
     }
 
@@ -1234,14 +1242,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Create the expression array
         List<Expr> listExprs = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = listLiteral.fExprs().children();
-        for(Liblkqllang.LkqlNode expr : array) {
+        for (Liblkqllang.LkqlNode expr : array) {
             listExprs.add((Expr) expr.accept(this));
         }
 
         // Return the list literal node
         return new ListLiteral(
-                new SourceLocation(this.source, listLiteral.getSourceLocationRange()),
-                listExprs.toArray(new Expr[0])
+            new SourceLocation(this.source, listLiteral.getSourceLocationRange()),
+            listExprs.toArray(new Expr[0])
         );
     }
 
@@ -1258,8 +1266,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new object literal
         return new ObjectLiteral(
-                new SourceLocation(this.source, objectLiteral.getSourceLocationRange()),
-                assocList
+            new SourceLocation(this.source, objectLiteral.getSourceLocationRange()),
+            assocList
         );
     }
 
@@ -1277,9 +1285,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the object association
         return new ObjectAssoc(
-                new SourceLocation(this.source, objectAssoc.getSourceLocationRange()),
-                name,
-                expr
+            new SourceLocation(this.source, objectAssoc.getSourceLocationRange()),
+            name,
+            expr
         );
     }
 
@@ -1295,14 +1303,14 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         List<ObjectAssoc> assocList = new ArrayList<>();
 
         Liblkqllang.LkqlNodeArray array = objectAssocList.children();
-        for(Liblkqllang.LkqlNode assoc : array) {
+        for (Liblkqllang.LkqlNode assoc : array) {
             assocList.add((ObjectAssoc) assoc.accept(this));
         }
 
         // Return the object association list
         return new ObjectAssocList(
-                new SourceLocation(this.source, objectAssocList.getSourceLocationRange()),
-                assocList.toArray(new ObjectAssoc[0])
+            new SourceLocation(this.source, objectAssocList.getSourceLocationRange()),
+            assocList.toArray(new ObjectAssoc[0])
         );
     }
 
@@ -1324,22 +1332,22 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         boolean followGenerics = false;
         Liblkqllang.Expr throughExprBase = query.fThroughExpr();
         Expr throughExpr = null;
-        if(!throughExprBase.isNone()) {
-            if(throughExprBase.getText().equals("follow_generics")) followGenerics = true;
+        if (!throughExprBase.isNone()) {
+            if (throughExprBase.getText().equals("follow_generics")) followGenerics = true;
             else throughExpr = (Expr) throughExprBase.accept(this);
         }
 
         Liblkqllang.Expr fromExprBase = query.fFromExpr();
         Expr fromExpr = fromExprBase.isNone() ?
-                null :
-                (Expr) fromExprBase.accept(this);
+            null :
+            (Expr) fromExprBase.accept(this);
 
         BasePattern pattern = (BasePattern) query.fPattern().accept(this);
 
         // Get the query kind
         Query.QueryKind queryKind = Query.QueryKind.ALL;
         Liblkqllang.QueryKind queryKindBase = query.fQueryKind();
-        if(queryKindBase instanceof Liblkqllang.QueryKindFirst) {
+        if (queryKindBase instanceof Liblkqllang.QueryKindFirst) {
             queryKind = Query.QueryKind.FIRST;
         }
 
@@ -1348,12 +1356,12 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the result
         return new Query(
-                new SourceLocation(this.source, query.getSourceLocationRange()),
-                queryKind,
-                followGenerics,
-                throughExpr,
-                fromExpr,
-                pattern
+            new SourceLocation(this.source, query.getSourceLocationRange()),
+            queryKind,
+            followGenerics,
+            throughExpr,
+            fromExpr,
+            pattern
         );
     }
 
@@ -1370,7 +1378,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     public LKQLNode visit(Liblkqllang.SelectorCall selectorCall) {
         // Translate the selector call fields
         SelectorCall.Quantifier quantifier;
-        if(selectorCall.fQuantifier().getText().equals("any")) {
+        if (selectorCall.fQuantifier().getText().equals("any")) {
             quantifier = SelectorCall.Quantifier.ANY;
         } else {
             quantifier = SelectorCall.Quantifier.ALL;
@@ -1378,13 +1386,13 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         Liblkqllang.Identifier bindingBase = selectorCall.fBinding();
         String binding = bindingBase.isNone() ?
-                null :
-                bindingBase.getText();
+            null :
+            bindingBase.getText();
 
         Liblkqllang.Expr selectorExprBase = selectorCall.fSelectorCall();
         Expr selectorExpr;
         ArgList args = null;
-        if(selectorExprBase instanceof Liblkqllang.FunCall funCallBase) {
+        if (selectorExprBase instanceof Liblkqllang.FunCall funCallBase) {
             selectorExpr = (Expr) funCallBase.fName().accept(this);
             args = (ArgList) funCallBase.fArguments().accept(this);
         } else {
@@ -1393,10 +1401,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Get the slot for the binding
         int bindingSlot = -1;
-        if(binding != null) {
+        if (binding != null) {
             bindingSlot = this.scope.getVariableInScope(binding);
 
-            if(bindingSlot > -1) {
+            if (bindingSlot > -1) {
                 // TODO : Verify that the slot is empty
 //                throw LKQLRuntimeException.existingSymbol(
 //                        binding,
@@ -1411,12 +1419,12 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new node
         return new SelectorCall(
-                new SourceLocation(this.source, selectorCall.getSourceLocationRange()),
-                quantifier,
-                bindingSlot,
-                this.scope.isGlobal() ? SelectorCall.Mode.GLOBAL : SelectorCall.Mode.LOCAL,
-                selectorExpr,
-                args
+            new SourceLocation(this.source, selectorCall.getSourceLocationRange()),
+            quantifier,
+            bindingSlot,
+            this.scope.isGlobal() ? SelectorCall.Mode.GLOBAL : SelectorCall.Mode.LOCAL,
+            selectorExpr,
+            args
         );
     }
 
@@ -1432,21 +1440,21 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         String name = selectorDecl.fName().getText();
         Liblkqllang.BaseStringLiteral documentationBase = selectorDecl.fDocNode();
         String documentation = documentationBase.isNone() ?
-                "" :
-                parseStringLiteral(documentationBase);
+            "" :
+            parseStringLiteral(documentationBase);
         Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
         DeclAnnotation annotation = annotationBase.isNone() ?
-                null :
-                (DeclAnnotation) annotationBase.accept(this);
+            null :
+            (DeclAnnotation) annotationBase.accept(this);
 
         // Get the current slot of the name
         int slot = this.scope.getVariableInScope(name);
 
         // Verify that the slot is empty
-        if(slot > -1) {
+        if (slot > -1) {
             throw LKQLRuntimeException.existingSymbol(
-                    name,
-                    new DummyLocation(new SourceLocation(this.source, selectorDecl.getSourceLocationRange()))
+                name,
+                new DummyLocation(new SourceLocation(this.source, selectorDecl.getSourceLocationRange()))
             );
         }
 
@@ -1462,7 +1470,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the selector arms
         List<SelectorArm> arms = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = selectorDecl.fArms().children();
-        for(Liblkqllang.LkqlNode node : array) {
+        for (Liblkqllang.LkqlNode node : array) {
             // Open a lexical scope for the arm
             this.scope.openLexical();
 
@@ -1484,33 +1492,33 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         slot = this.scope.addVariable(name);
 
         // If the current scope is global, create a global declaration
-        if(this.scope.isGlobal()) {
+        if (this.scope.isGlobal()) {
             return new SelectorDeclGlobal(
-                    new SourceLocation(this.source, selectorDecl.getSourceLocationRange()),
-                    annotation,
-                    name,
-                    documentation,
-                    slot,
-                    thisSlot,
-                    depthSlot,
-                    selectorDescriptor,
-                    arms.toArray(new SelectorArm[0])
+                new SourceLocation(this.source, selectorDecl.getSourceLocationRange()),
+                annotation,
+                name,
+                documentation,
+                slot,
+                thisSlot,
+                depthSlot,
+                selectorDescriptor,
+                arms.toArray(new SelectorArm[0])
             );
         }
 
         // If the scope is local, create a local selector
         else {
             return new SelectorDeclLocal(
-                    new SourceLocation(this.source, selectorDecl.getSourceLocationRange()),
-                    annotation,
-                    name,
-                    documentation,
-                    slot,
-                    thisSlot,
-                    depthSlot,
-                    selectorDescriptor,
-                    closureLimit,
-                    arms.toArray(new SelectorArm[0])
+                new SourceLocation(this.source, selectorDecl.getSourceLocationRange()),
+                annotation,
+                name,
+                documentation,
+                slot,
+                thisSlot,
+                depthSlot,
+                selectorDescriptor,
+                closureLimit,
+                arms.toArray(new SelectorArm[0])
             );
         }
     }
@@ -1530,16 +1538,16 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the first element of the expressions
         List<SelectorExpr> exprList = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = selectorArm.fExprsList().children();
-        for(Liblkqllang.LkqlNode node : array) {
+        for (Liblkqllang.LkqlNode node : array) {
             exprList.add((SelectorExpr) node.accept(this));
         }
         expr = exprList.get(0);
 
         // Return the selector arm node
         return new SelectorArm(
-                new SourceLocation(this.source, selectorArm.getSourceLocationRange()),
-                pattern,
-                expr
+            new SourceLocation(this.source, selectorArm.getSourceLocationRange()),
+            pattern,
+            expr
         );
     }
 
@@ -1557,17 +1565,17 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the expression mode
         SelectorExpr.Mode mode = SelectorExpr.Mode.DEFAULT;
         Liblkqllang.SelectorExprMode modeBase = selectorExpr.fMode();
-        if(modeBase instanceof Liblkqllang.SelectorExprModeRec) {
+        if (modeBase instanceof Liblkqllang.SelectorExprModeRec) {
             mode = SelectorExpr.Mode.REC;
-        } else if(modeBase instanceof Liblkqllang.SelectorExprModeSkip) {
+        } else if (modeBase instanceof Liblkqllang.SelectorExprModeSkip) {
             mode = SelectorExpr.Mode.SKIP;
         }
 
         // Create the new selector expression
         return new SelectorExpr(
-                new SourceLocation(this.source, selectorExpr.getSourceLocationRange()),
-                mode,
-                expr
+            new SourceLocation(this.source, selectorExpr.getSourceLocationRange()),
+            mode,
+            expr
         );
     }
 
@@ -1583,8 +1591,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     @Override
     public LKQLNode visit(Liblkqllang.ParenPattern parenPattern) {
         return new ParenPattern(
-                new SourceLocation(this.source, parenPattern.getSourceLocationRange()),
-                (BasePattern) parenPattern.fPattern().accept(this)
+            new SourceLocation(this.source, parenPattern.getSourceLocationRange()),
+            (BasePattern) parenPattern.fPattern().accept(this)
         );
     }
 
@@ -1602,9 +1610,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the new filtered pattern node
         return new FilteredPattern(
-                new SourceLocation(this.source, filteredPattern.getSourceLocationRange()),
-                pattern,
-                predicate
+            new SourceLocation(this.source, filteredPattern.getSourceLocationRange()),
+            pattern,
+            predicate
         );
     }
 
@@ -1622,7 +1630,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the slot of the binding
         int slot = this.scope.getVariableInScope(name);
 
-        if(slot > -1) {
+        if (slot > -1) {
             // TODO : Verify that the slot is empty
 //            throw LKQLRuntimeException.existingSymbol(
 //                    name,
@@ -1642,10 +1650,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the result
         return new BindingPattern(
-                new SourceLocation(this.source, bindingPattern.getSourceLocationRange()),
-                mode,
-                slot,
-                pattern
+            new SourceLocation(this.source, bindingPattern.getSourceLocationRange()),
+            mode,
+            slot,
+            pattern
         );
     }
 
@@ -1659,7 +1667,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     public LKQLNode visit(Liblkqllang.NullPattern nullPattern) {
         // Just return the null pattern node
         return new NullPattern(
-                new SourceLocation(this.source, nullPattern.getSourceLocationRange())
+            new SourceLocation(this.source, nullPattern.getSourceLocationRange())
         );
     }
 
@@ -1673,7 +1681,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     public LKQLNode visit(Liblkqllang.UniversalPattern universalPattern) {
         // Just return the universal pattern node
         return new UniversalPattern(
-                new SourceLocation(this.source, universalPattern.getSourceLocationRange())
+            new SourceLocation(this.source, universalPattern.getSourceLocationRange())
         );
     }
 
@@ -1691,8 +1699,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Just return the regex pattern node
         return new RegexPattern(
-                new SourceLocation(this.source, regexPattern.getSourceLocationRange()),
-                regex
+            new SourceLocation(this.source, regexPattern.getSourceLocationRange()),
+            regex
         );
     }
 
@@ -1710,9 +1718,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the new or pattern node
         return new OrPattern(
-                new SourceLocation(this.source, orPattern.getSourceLocationRange()),
-                left,
-                right
+            new SourceLocation(this.source, orPattern.getSourceLocationRange()),
+            left,
+            right
         );
     }
 
@@ -1729,8 +1737,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Create the new not pattern
         return new NotPattern(
-                new SourceLocation(this.source, notPattern.getSourceLocationRange()),
-                pattern
+            new SourceLocation(this.source, notPattern.getSourceLocationRange()),
+            pattern
         );
     }
 
@@ -1747,8 +1755,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     public LKQLNode visit(Liblkqllang.NodeKindPattern nodeKindPattern) {
         // Just return the new node kind pattern
         return new NodeKindPattern(
-                new SourceLocation(this.source, nodeKindPattern.getSourceLocationRange()),
-                nodeKindPattern.fKindName().getText()
+            new SourceLocation(this.source, nodeKindPattern.getSourceLocationRange()),
+            nodeKindPattern.fKindName().getText()
         );
     }
 
@@ -1766,15 +1774,15 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the pattern details
         List<NodePatternDetail> details = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = extendedNodePattern.fDetails().children();
-        for(Liblkqllang.LkqlNode node : array) {
+        for (Liblkqllang.LkqlNode node : array) {
             details.add((NodePatternDetail) node.accept(this));
         }
 
         // Return the new
         return new ExtendedNodePattern(
-                new SourceLocation(this.source, extendedNodePattern.getSourceLocationRange()),
-                nodePattern,
-                details.toArray(new NodePatternDetail[0])
+            new SourceLocation(this.source, extendedNodePattern.getSourceLocationRange()),
+            nodePattern,
+            details.toArray(new NodePatternDetail[0])
         );
     }
 
@@ -1791,8 +1799,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new detail expression node
         return new DetailExpr(
-                new SourceLocation(this.source, detailExpr.getSourceLocationRange()),
-                expr
+            new SourceLocation(this.source, detailExpr.getSourceLocationRange()),
+            expr
         );
     }
 
@@ -1809,8 +1817,8 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new detail pattern node
         return new DetailPattern(
-                new SourceLocation(this.source, detailPattern.getSourceLocationRange()),
-                pattern
+            new SourceLocation(this.source, detailPattern.getSourceLocationRange()),
+            pattern
         );
     }
 
@@ -1828,9 +1836,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new node pattern field detail
         return NodePatternFieldNodeGen.create(
-                new SourceLocation(this.source, nodePatternField.getSourceLocationRange()),
-                name,
-                expected
+            new SourceLocation(this.source, nodePatternField.getSourceLocationRange()),
+            name,
+            expected
         );
     }
 
@@ -1849,10 +1857,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new node pattern property detail
         return NodePatternPropertyNodeGen.create(
-                new SourceLocation(this.source, nodePatternProperty.getSourceLocationRange()),
-                propertyName,
-                argList,
-                expected
+            new SourceLocation(this.source, nodePatternProperty.getSourceLocationRange()),
+            propertyName,
+            argList,
+            expected
         );
     }
 
@@ -1878,9 +1886,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new selector node pattern detail
         return new NodePatternSelector(
-                new SourceLocation(this.source, nodePatternSelector.getSourceLocationRange()),
-                selectorCall,
-                pattern
+            new SourceLocation(this.source, nodePatternSelector.getSourceLocationRange()),
+            selectorCall,
+            pattern
         );
     }
 
@@ -1901,15 +1909,15 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         // Get the chained pattern link list
         List<ChainedPatternLink> chain = new ArrayList<>();
         Liblkqllang.LkqlNodeArray array = chainedNodePattern.fChain().children();
-        for(Liblkqllang.LkqlNode node : array) {
+        for (Liblkqllang.LkqlNode node : array) {
             chain.add((ChainedPatternLink) node.accept(this));
         }
 
         // Return the new chained node pattern node
         return new ChainedNodePattern(
-                new SourceLocation(this.source, chainedNodePattern.getSourceLocationRange()),
-                nodePattern,
-                chain.toArray(new ChainedPatternLink[0])
+            new SourceLocation(this.source, chainedNodePattern.getSourceLocationRange()),
+            nodePattern,
+            chain.toArray(new ChainedPatternLink[0])
         );
     }
 
@@ -1927,9 +1935,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new field link node
         return FieldLinkNodeGen.create(
-                new SourceLocation(this.source, fieldLink.getSourceLocationRange()),
-                pattern,
-                fieldName
+            new SourceLocation(this.source, fieldLink.getSourceLocationRange()),
+            pattern,
+            fieldName
         );
     }
 
@@ -1948,10 +1956,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new field link node
         return PropertyLinkNodeGen.create(
-                new SourceLocation(this.source, propertyLink.getSourceLocationRange()),
-                pattern,
-                propertyName,
-                argList
+            new SourceLocation(this.source, propertyLink.getSourceLocationRange()),
+            pattern,
+            propertyName,
+            argList
         );
     }
 
@@ -1977,9 +1985,9 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
         // Return the new selector link node
         return new SelectorLink(
-                new SourceLocation(this.source, selectorLink.getSourceLocationRange()),
-                pattern,
-                selectorCall
+            new SourceLocation(this.source, selectorLink.getSourceLocationRange()),
+            pattern,
+            selectorCall
         );
     }
 
@@ -1989,98 +1997,160 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     // Operators
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpPlus opPlus) { return null; }
+    public LKQLNode visit(Liblkqllang.OpPlus opPlus) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpMinus opMinus) { return null; }
+    public LKQLNode visit(Liblkqllang.OpMinus opMinus) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpMul opMul) { return null; }
+    public LKQLNode visit(Liblkqllang.OpMul opMul) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpDiv opDiv) { return null; }
+    public LKQLNode visit(Liblkqllang.OpDiv opDiv) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpAnd opAnd) { return null; }
+    public LKQLNode visit(Liblkqllang.OpAnd opAnd) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpOr opOr) { return null; }
+    public LKQLNode visit(Liblkqllang.OpOr opOr) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpEq opEq) { return null; }
+    public LKQLNode visit(Liblkqllang.OpEq opEq) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpNeq opNeq) { return null; }
+    public LKQLNode visit(Liblkqllang.OpNeq opNeq) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpConcat opConcat) { return null; }
+    public LKQLNode visit(Liblkqllang.OpConcat opConcat) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpLt opLt) { return null; }
+    public LKQLNode visit(Liblkqllang.OpLt opLt) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpLeq opLeq) { return null; }
+    public LKQLNode visit(Liblkqllang.OpLeq opLeq) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpGt opGt) { return null; }
+    public LKQLNode visit(Liblkqllang.OpGt opGt) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpGeq opGeq) { return null; }
+    public LKQLNode visit(Liblkqllang.OpGeq opGeq) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.OpNot opNot) { return null; }
+    public LKQLNode visit(Liblkqllang.OpNot opNot) {
+        return null;
+    }
 
     // Helper nodes
 
     @Override
-    public LKQLNode visit(Liblkqllang.ExprList exprList) { return null; }
+    public LKQLNode visit(Liblkqllang.ExprList exprList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.ParameterDeclList parameterDeclList) { return null; }
+    public LKQLNode visit(Liblkqllang.ParameterDeclList parameterDeclList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.BlockBodyList blockBodyList) { return null; }
+    public LKQLNode visit(Liblkqllang.BlockBodyList blockBodyList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SubBlockLiteral subBlockLiteral) { return null; }
+    public LKQLNode visit(Liblkqllang.SubBlockLiteral subBlockLiteral) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SubBlockLiteralList subBlockLiteralList) { return null; }
+    public LKQLNode visit(Liblkqllang.SubBlockLiteralList subBlockLiteralList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.MatchArmList matchArmList) { return null; }
+    public LKQLNode visit(Liblkqllang.MatchArmList matchArmList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SelectorArmList selectorArmList) { return null; }
+    public LKQLNode visit(Liblkqllang.SelectorArmList selectorArmList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprList selectorExprList) { return null; }
+    public LKQLNode visit(Liblkqllang.SelectorExprList selectorExprList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.NodePatternDetailList nodePatternDetailList) { return null; }
+    public LKQLNode visit(Liblkqllang.NodePatternDetailList nodePatternDetailList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.ChainedPatternLinkList chainedPatternLinkList) { return null; }
+    public LKQLNode visit(Liblkqllang.ChainedPatternLinkList chainedPatternLinkList) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SafeAbsent safeAbsent) { return null; }
+    public LKQLNode visit(Liblkqllang.SafeAbsent safeAbsent) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SafePresent safePresent) { return null; }
+    public LKQLNode visit(Liblkqllang.SafePresent safePresent) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.QueryKindAll queryKindAll) { return null; }
+    public LKQLNode visit(Liblkqllang.QueryKindAll queryKindAll) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.QueryKindFirst queryKindFirst) { return null; }
+    public LKQLNode visit(Liblkqllang.QueryKindFirst queryKindFirst) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprModeDefault selectorExprModeDefault) { return null; }
+    public LKQLNode visit(Liblkqllang.SelectorExprModeDefault selectorExprModeDefault) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprModeRec selectorExprModeRec) { return null; }
+    public LKQLNode visit(Liblkqllang.SelectorExprModeRec selectorExprModeRec) {
+        return null;
+    }
 
     @Override
-    public LKQLNode visit(Liblkqllang.SelectorExprModeSkip selectorExprModeSkip) { return null; }
+    public LKQLNode visit(Liblkqllang.SelectorExprModeSkip selectorExprModeSkip) {
+        return null;
+    }
 
 }

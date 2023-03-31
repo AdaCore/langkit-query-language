@@ -35,7 +35,9 @@ public final class SelectorListMethods extends IterableMethods {
 
     // ----- Attributes -----
 
-    /** The only instance of the method collection */
+    /**
+     * The only instance of the method collection
+     */
     private static SelectorListMethods instance = null;
 
     // ----- Constructors -----
@@ -53,7 +55,7 @@ public final class SelectorListMethods extends IterableMethods {
      * @return The instance
      */
     public static SelectorListMethods getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new SelectorListMethods();
         }
         return instance;
@@ -61,7 +63,9 @@ public final class SelectorListMethods extends IterableMethods {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.BuiltInMethods#getType()
+     */
     @Override
     public String getType() {
         return LKQLTypesHelper.LKQL_SELECTOR_LIST;

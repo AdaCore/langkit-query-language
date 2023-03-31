@@ -39,17 +39,23 @@ public final class IfThenElse extends Expr {
 
     // ----- Children -----
 
-    /** The condition of the branching */
+    /**
+     * The condition of the branching
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr condition;
 
-    /** The consequence of the branching */
+    /**
+     * The consequence of the branching
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr consequence;
 
-    /** The alternative of the branching */
+    /**
+     * The alternative of the branching
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr alternative;
@@ -59,16 +65,16 @@ public final class IfThenElse extends Expr {
     /**
      * Create a new if then else node
      *
-     * @param location The location of the node in the source
-     * @param condition The condition expression
+     * @param location    The location of the node in the source
+     * @param condition   The condition expression
      * @param consequence The consequence expression
      * @param alternative The alternative expression
      */
     public IfThenElse(
-            SourceLocation location,
-            Expr condition,
-            Expr consequence,
-            Expr alternative
+        SourceLocation location,
+        Expr condition,
+        Expr consequence,
+        Expr alternative
     ) {
         super(location);
         this.condition = condition;
@@ -78,7 +84,9 @@ public final class IfThenElse extends Expr {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the condition as a boolean
@@ -87,14 +95,14 @@ public final class IfThenElse extends Expr {
             conditionValue = this.condition.executeBoolean(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.condition
+                LKQLTypesHelper.LKQL_BOOLEAN,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                this.condition
             );
         }
 
         // Execute the correct branching
-        if(conditionValue) {
+        if (conditionValue) {
             return this.consequence.executeGeneric(frame);
         } else {
             return this.alternative.executeGeneric(frame);
@@ -103,7 +111,9 @@ public final class IfThenElse extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

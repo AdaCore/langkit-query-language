@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -38,12 +38,16 @@ public final class ExtendedNodePattern extends NodePattern {
 
     // ----- Children -----
 
-    /** The pattern to extend */
+    /**
+     * The pattern to extend
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ValuePattern basePattern;
 
-    /** The details representing the extension */
+    /**
+     * The details representing the extension
+     */
     @Children
     private final NodePatternDetail[] details;
 
@@ -52,14 +56,14 @@ public final class ExtendedNodePattern extends NodePattern {
     /**
      * Create a new extended node pattern node
      *
-     * @param location The location of the node in the source
+     * @param location    The location of the node in the source
      * @param basePattern The base pattern to extend
-     * @param details The extensions for the base pattern
+     * @param details     The extensions for the base pattern
      */
     public ExtendedNodePattern(
-            SourceLocation location,
-            ValuePattern basePattern,
-            NodePatternDetail[] details
+        SourceLocation location,
+        ValuePattern basePattern,
+        NodePatternDetail[] details
     ) {
         super(location);
         this.basePattern = basePattern;
@@ -68,14 +72,16 @@ public final class ExtendedNodePattern extends NodePattern {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Test the base pattern
-        if(this.basePattern.executeNode(frame, node)) {
+        if (this.basePattern.executeNode(frame, node)) {
             // Verify all details
-            for(NodePatternDetail detail : this.details) {
-                if(!detail.executeDetail(frame, node)) return false;
+            for (NodePatternDetail detail : this.details) {
+                if (!detail.executeDetail(frame, node)) return false;
             }
 
             // Return the success
@@ -88,7 +94,9 @@ public final class ExtendedNodePattern extends NodePattern {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

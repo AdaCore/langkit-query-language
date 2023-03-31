@@ -23,18 +23,12 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -43,10 +37,14 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 
 /**
@@ -58,13 +56,19 @@ public final class NodeCheckerFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "node_checker" built-in */
+    /**
+     * The only instance of the "node_checker" built-in
+     */
     private static NodeCheckerFunction instance = null;
 
-    /** The name of the built-in */
+    /**
+     * The name of the built-in
+     */
     public static final String NAME = "node_checker";
 
-    /** The expression that represents the "node_checker" function execution */
+    /**
+     * The expression that represents the "node_checker" function execution
+     */
     private final NodeCheckerExpr nodeCheckerExpr;
 
     // ----- Constructors -----
@@ -82,7 +86,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static NodeCheckerFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new NodeCheckerFunction();
         }
         return instance;
@@ -90,21 +94,25 @@ public final class NodeCheckerFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given a root, execute all node checker while traverse the tree",
-                new String[]{"root"},
-                new Expr[]{null},
-                this.nodeCheckerExpr
+            NAME,
+            "Given a root, execute all node checker while traverse the tree",
+            new String[]{"root"},
+            new Expr[]{null},
+            this.nodeCheckerExpr
         );
     }
 
@@ -116,12 +124,16 @@ public final class NodeCheckerFunction implements BuiltInFunction {
      */
     private static final class NodeCheckerExpr extends BuiltInExpr {
 
-        /** The dispatcher for the rule functions */
+        /**
+         * The dispatcher for the rule functions
+         */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
 
-        /** @see com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+        /**
+         * @see com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+         */
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -133,9 +145,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 root = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this.callNode.getArgList().getArgs()[0]
+                    LKQLTypesHelper.ADA_NODE,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.callNode.getArgList().getArgs()[0]
                 );
             }
 
@@ -145,7 +157,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             visitList.add(new VisitStep(root, false, true));
 
             // Iterate over all nodes of the tree
-            while(!visitList.isEmpty()) {
+            while (!visitList.isEmpty()) {
                 // Get the current values
                 VisitStep currentStep = visitList.remove(0);
                 Libadalang.AdaNode currentNode = currentStep.node();
@@ -153,32 +165,32 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 boolean visitInstantiations = currentStep.visitInstantiations();
 
                 // Verify if the node is a generic instantiation
-                if(currentNode instanceof Libadalang.GenericInstantiation genInst && visitInstantiations) {
+                if (currentNode instanceof Libadalang.GenericInstantiation genInst && visitInstantiations) {
                     try {
                         Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
                         Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
 
                         visitList.addFirst(
-                                new VisitStep(currentNode, inGenericInstantiation, false)
+                            new VisitStep(currentNode, inGenericInstantiation, false)
                         );
-                        if(!genBody.isNone()) visitList.addFirst(
-                                new VisitStep(genBody, true, true)
+                        if (!genBody.isNone()) visitList.addFirst(
+                            new VisitStep(genBody, true, true)
                         );
                         visitList.addFirst(
-                                new VisitStep(genDecl, true, true)
+                            new VisitStep(genDecl, true, true)
                         );
                     } catch (Libadalang.LangkitException e) {
                         context.println(StringUtils.concat(
-                                "Error during generic instantiation walking : ",
-                                e.getMessage()
+                            "Error during generic instantiation walking : ",
+                            e.getMessage()
                         ));
                     }
                     continue;
                 }
 
                 // Iterate over rules and apply them
-                for(ObjectValue rule : checkers) {
-                    if(!inGenericInstantiation || (boolean) rule.get("follow_generic_instantiations")) {
+                for (ObjectValue rule : checkers) {
+                    if (!inGenericInstantiation || (boolean) rule.get("follow_generic_instantiations")) {
                         try {
                             this.applyNodeRule(frame, rule, currentNode, context);
                         } catch (LangkitException e) {
@@ -190,11 +202,11 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 }
 
                 // Add the children to the visit list
-                for(int i = currentNode.getChildrenCount() - 1 ; i >= 0 ; i--) {
+                for (int i = currentNode.getChildrenCount() - 1; i >= 0; i--) {
                     Libadalang.AdaNode child = currentNode.getChild(i);
-                    if(!child.isNone()) {
+                    if (!child.isNone()) {
                         visitList.addFirst(
-                                new VisitStep(child, inGenericInstantiation, true)
+                            new VisitStep(child, inGenericInstantiation, true)
                         );
                     }
                 }
@@ -207,9 +219,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         /**
          * Apply the rule on the given node
          *
-         * @param frame The frame to execute the default arg value
-         * @param rule The rule to apply
-         * @param node The node to apply the rule on
+         * @param frame   The frame to execute the default arg value
+         * @param rule    The rule to apply
+         * @param node    The node to apply the rule on
          * @param context The LKQL context
          */
         private void applyNodeRule(VirtualFrame frame, ObjectValue rule, Libadalang.AdaNode node, LKQLContext context) {
@@ -220,19 +232,19 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.getParamNames().length];
             arguments[0] = node;
-            for(int i = 1 ; i < functionValue.getDefaultValues().length ; i++) {
+            for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
                 Object userDefinedArg = context.getRuleArg(
-                        lowerRuleName,
-                        StringUtils.toLowerCase(paramName)
+                    lowerRuleName,
+                    StringUtils.toLowerCase(paramName)
                 );
                 arguments[i] = userDefinedArg == null ?
-                        functionValue.getDefaultValues()[i].executeGeneric(frame) :
-                        userDefinedArg;
+                    functionValue.getDefaultValues()[i].executeGeneric(frame) :
+                    userDefinedArg;
             }
 
             // Put the namespace
-            if(functionValue.getNamespace() != null) {
+            if (functionValue.getNamespace() != null) {
                 context.getGlobalValues().pushNamespace(functionValue.getNamespace());
             }
 
@@ -242,18 +254,18 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 ruleResult = LKQLTypeSystemGen.expectBoolean(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_BOOLEAN,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody()
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    functionValue.getBody()
                 );
             } finally {
                 // Remove the namespace
-                if(functionValue.getNamespace() != null) {
+                if (functionValue.getNamespace() != null) {
                     context.getGlobalValues().popNamespace();
                 }
             }
 
-            if(ruleResult) {
+            if (ruleResult) {
                 reportViolation(rule, node);
             }
         }
@@ -266,7 +278,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportViolation(ObjectValue rule, Libadalang.AdaNode node) {
-            if(node instanceof Libadalang.BasicDecl basicDecl) {
+            if (node instanceof Libadalang.BasicDecl basicDecl) {
                 Libadalang.AdaNode definingName = basicDecl.pDefiningName();
                 node = definingName.isNone() ? node : definingName;
             }
@@ -277,7 +289,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
          * Report the langkit exception raised by a rule
          *
          * @param rule The rule which caused the exception
-         * @param e The exception to report
+         * @param e    The exception to report
          */
         @CompilerDirectives.TruffleBoundary
         private void reportException(ObjectValue rule, LangkitException e) {
@@ -300,15 +312,16 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         /**
          * This record contains the information for a visiting step
          *
-         * @param node The node to visit
+         * @param node                   The node to visit
          * @param inGenericInstantiation If the visit is currently in a generic instantiation
-         * @param visitInstantiations If the visiting should visit the generic instantiations of the node
+         * @param visitInstantiations    If the visiting should visit the generic instantiations of the node
          */
         private record VisitStep(
-                Libadalang.AdaNode node,
-                boolean inGenericInstantiation,
-                boolean visitInstantiations
-        ) {}
+            Libadalang.AdaNode node,
+            boolean inGenericInstantiation,
+            boolean visitInstantiations
+        ) {
+        }
 
     }
 

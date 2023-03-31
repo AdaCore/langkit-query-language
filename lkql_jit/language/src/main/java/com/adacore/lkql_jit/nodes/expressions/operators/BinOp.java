@@ -40,10 +40,14 @@ public abstract class BinOp extends Expr {
 
     // ----- Attributes -----
 
-    /** The location of the left node */
+    /**
+     * The location of the left node
+     */
     protected final DummyLocation leftLocation;
 
-    /** The location of the right node */
+    /**
+     * The location of the right node
+     */
     protected final DummyLocation rightLocation;
 
     // ----- Constructors -----
@@ -51,14 +55,14 @@ public abstract class BinOp extends Expr {
     /**
      * Create a binary operation node
      *
-     * @param location The location of the node in the source
-     * @param leftLocation The location of the left node
+     * @param location      The location of the node in the source
+     * @param leftLocation  The location of the left node
      * @param rightLocation The location of the right node
      */
     protected BinOp(
-            SourceLocation location,
-            DummyLocation leftLocation,
-            DummyLocation rightLocation
+        SourceLocation location,
+        DummyLocation leftLocation,
+        DummyLocation rightLocation
     ) {
         super(location);
         this.leftLocation = leftLocation;

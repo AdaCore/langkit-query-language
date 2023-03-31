@@ -45,7 +45,9 @@ public final class ListValue implements Iterable, Indexable, Truthy {
 
     // ----- Attributes -----
 
-    /** The content of the list */
+    /**
+     * The content of the list
+     */
     private final Object[] content;
 
     // ----- Constructors -----
@@ -56,67 +58,81 @@ public final class ListValue implements Iterable, Indexable, Truthy {
      * @param content The list content
      */
     public ListValue(
-            Object[] content
+        Object[] content
     ) {
         this.content = content;
     }
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int)
+     */
     @Override
     public Object get(int index) throws InvalidIndexException {
-        if(index < 0 || index >= this.content.length) {
+        if (index < 0 || index >= this.content.length) {
             throw new InvalidIndexException();
         }
         return this.content[index];
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#getContent() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#getContent()
+     */
     @Override
     public Object[] getContent() {
         return content;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#size() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#size()
+     */
     @Override
     public long size() {
         return this.content.length;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#contains(Object) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#contains(Object)
+     */
     @Override
     public boolean contains(Object elem) {
         return ArrayUtils.indexOf(this.content, elem) > -1;
     }
 
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy()
+     */
     @Override
     public boolean isTruthy() {
         return this.content.length > 0;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#iterator() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#iterator()
+     */
     @Override
     public Iterator iterator() {
         return new ListValueIterator(this);
     }
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     @CompilerDirectives.TruffleBoundary
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof ListValue other)) return false;
-        if(other.content.length != this.content.length) return false;
-        for(int i = 0 ; i < this.content.length ; i++) {
+        if (o == this) return true;
+        if (!(o instanceof ListValue other)) return false;
+        if (other.content.length != this.content.length) return false;
+        for (int i = 0; i < this.content.length; i++) {
             Object mineObject = this.content[i];
             Object hisObject = other.content[i];
-            if((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if(!mine.internalEquals(his)) return false;
+            if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
+                if (!mine.internalEquals(his)) return false;
             } else {
-                if(!Objects.equals(mineObject, hisObject)) return false;
+                if (!Objects.equals(mineObject, hisObject)) return false;
             }
         }
         return true;
@@ -130,15 +146,15 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         // Create the list string in a builder
         StringBuilder builder = new StringBuilder();
         builder.append('[');
-        for (int i = 0; i < this.content.length ; i++) {
-            if(this.content[i] == null) {
+        for (int i = 0; i < this.content.length; i++) {
+            if (this.content[i] == null) {
                 builder.append("null");
-            } else if(this.content[i] instanceof String s) {
+            } else if (this.content[i] instanceof String s) {
                 builder.append(StringUtils.toRepr(s));
             } else {
                 builder.append(this.content[i].toString());
             }
-            if(i < this.content.length - 1) builder.append(", ");
+            if (i < this.content.length - 1) builder.append(", ");
         }
         builder.append(']');
 
@@ -155,10 +171,14 @@ public final class ListValue implements Iterable, Indexable, Truthy {
 
         // ----- Attributes -----
 
-        /** The list to iterate on */
+        /**
+         * The list to iterate on
+         */
         private final ListValue list;
 
-        /** The pointer to the next value to return */
+        /**
+         * The pointer to the next value to return
+         */
         private int pointer;
 
         // ----- Constructors -----
@@ -169,7 +189,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
          * @param list The list to iterate on
          */
         public ListValueIterator(
-                ListValue list
+            ListValue list
         ) {
             this.list = list;
             this.pointer = 0;
@@ -177,19 +197,25 @@ public final class ListValue implements Iterable, Indexable, Truthy {
 
         // ----- Iteration methods -----
 
-        /** @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext() */
+        /**
+         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext()
+         */
         @Override
         public boolean hasNext() {
             return this.pointer < this.list.size();
         }
 
-        /** @see com.adacore.lkql_jit.utils.util_classes.Iterator#next() */
+        /**
+         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#next()
+         */
         @Override
         public Object next() {
             return this.list.get(this.pointer++);
         }
 
-        /** @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset() */
+        /**
+         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset()
+         */
         @Override
         public void reset() {
             this.pointer = 0;

@@ -43,13 +43,19 @@ public final class Pattern implements LKQLValue {
 
     // ----- Attributes -----
 
-    /** The string of the regex */
+    /**
+     * The string of the regex
+     */
     private final String regexString;
 
-    /** If the regex is case-sensitive */
+    /**
+     * If the regex is case-sensitive
+     */
     private final boolean caseSensitive;
 
-    /** The regex object */
+    /**
+     * The regex object
+     */
     private final Object regexObject;
 
     // ----- Constructors -----
@@ -57,30 +63,30 @@ public final class Pattern implements LKQLValue {
     /**
      * Create a new pattern value with the regex string
      *
-     * @param creator The creator of the pattern
-     * @param regexString The regex string
+     * @param creator       The creator of the pattern
+     * @param regexString   The regex string
      * @param caseSensitive If the regex is case-sensitive
      */
     @CompilerDirectives.TruffleBoundary
     public Pattern(
-            LKQLNode creator,
-            String regexString,
-            boolean caseSensitive
+        LKQLNode creator,
+        String regexString,
+        boolean caseSensitive
     ) {
         this.regexString = regexString;
         this.caseSensitive = caseSensitive;
 
         // Prepare the regex string
         String regexSource = "Flavor=PythonStr/" +
-                regexString +
-                (caseSensitive ? "/" : "/i");
+            regexString +
+            (caseSensitive ? "/" : "/i");
 
         // Call the TRegex language
         try {
             this.regexObject = LKQLLanguage.getContext(creator).getEnv().parseInternal(
-                    Source.newBuilder("regex", regexSource, "lkql_jit")
-                            .internal(true)
-                            .build()
+                Source.newBuilder("regex", regexSource, "lkql_jit")
+                    .internal(true)
+                    .build()
             ).call();
         } catch (AbstractTruffleException e) {
             throw LKQLRuntimeException.regexSyntaxError(regexString, creator);
@@ -127,11 +133,13 @@ public final class Pattern implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof Pattern other)) return false;
+        if (o == this) return true;
+        if (!(o instanceof Pattern other)) return false;
         return other.regexString.equals(this.regexString) && (this.caseSensitive && other.caseSensitive);
     }
 

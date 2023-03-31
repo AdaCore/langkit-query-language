@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.declarations.selectors;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.FrameDescriptor;
 
 
 /**
@@ -38,30 +38,46 @@ public abstract class SelectorDecl extends Declaration {
 
     // ----- Attributes -----
 
-    /** The name of the selector */
+    /**
+     * The name of the selector
+     */
     protected final String name;
 
-    /** The documentation of the selector */
+    /**
+     * The documentation of the selector
+     */
     protected final String documentation;
 
-    /** If the selector is memoized */
+    /**
+     * If the selector is memoized
+     */
     protected final boolean isMemoized;
 
-    /** The slot to put the selector in */
+    /**
+     * The slot to put the selector in
+     */
     protected final int slot;
 
-    /** The slot for the "this" symbol */
+    /**
+     * The slot for the "this" symbol
+     */
     protected final int thisSlot;
 
-    /** The slot for the "depth" symbol */
+    /**
+     * The slot for the "depth" symbol
+     */
     protected final int depthSlot;
 
-    /** The frame descriptor for the selector root node */
+    /**
+     * The frame descriptor for the selector root node
+     */
     protected final FrameDescriptor descriptor;
 
     // ----- Children -----
 
-    /** The arms of the selector */
+    /**
+     * The arms of the selector
+     */
     @Children
     protected final SelectorArm[] arms;
 
@@ -70,26 +86,26 @@ public abstract class SelectorDecl extends Declaration {
     /**
      * Create a new selector declaration
      *
-     * @param location The token location in the source
-     * @param annotation The annotation of the selector declaration
-     * @param name The name of the selector
+     * @param location      The token location in the source
+     * @param annotation    The annotation of the selector declaration
+     * @param name          The name of the selector
      * @param documentation The documentation of the selector
-     * @param slot The slot to put the selector in
-     * @param thisSlot The slot for the "this" symbol
-     * @param depthSlot The slot for the "depth" symbol
-     * @param descriptor The frame descriptor for the selector
-     * @param arms The arms of the selector
+     * @param slot          The slot to put the selector in
+     * @param thisSlot      The slot for the "this" symbol
+     * @param depthSlot     The slot for the "depth" symbol
+     * @param descriptor    The frame descriptor for the selector
+     * @param arms          The arms of the selector
      */
     protected SelectorDecl(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            String documentation,
-            int slot,
-            int thisSlot,
-            int depthSlot,
-            FrameDescriptor descriptor,
-            SelectorArm[] arms
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        String documentation,
+        int slot,
+        int thisSlot,
+        int depthSlot,
+        FrameDescriptor descriptor,
+        SelectorArm[] arms
     ) {
         super(location);
         this.name = name;
@@ -101,5 +117,5 @@ public abstract class SelectorDecl extends Declaration {
         this.descriptor = descriptor;
         this.arms = arms;
     }
-    
+
 }

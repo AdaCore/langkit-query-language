@@ -24,13 +24,12 @@
 package com.adacore.lkql_jit.nodes.declarations.selectors;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -45,45 +44,47 @@ public final class SelectorDeclGlobal extends SelectorDecl {
     /**
      * Create a new selector declaration in the global scope
      *
-     * @param location The location of the node in the source
-     * @param annotation The annotation of the declaration
-     * @param name The name of the selector
+     * @param location      The location of the node in the source
+     * @param annotation    The annotation of the declaration
+     * @param name          The name of the selector
      * @param documentation The documentation of the selector
-     * @param slot The slot to put the selector in
-     * @param thisSlot The slot for the "this" symbol
-     * @param depthSlot The slot for the "depth" symbol
-     * @param descriptor The descriptor for the selector
-     * @param arms The arms of the selector
+     * @param slot          The slot to put the selector in
+     * @param thisSlot      The slot for the "this" symbol
+     * @param depthSlot     The slot for the "depth" symbol
+     * @param descriptor    The descriptor for the selector
+     * @param arms          The arms of the selector
      */
     public SelectorDeclGlobal(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            String documentation,
-            int slot,
-            int thisSlot,
-            int depthSlot,
-            FrameDescriptor descriptor,
-            SelectorArm[] arms
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        String documentation,
+        int slot,
+        int thisSlot,
+        int depthSlot,
+        FrameDescriptor descriptor,
+        SelectorArm[] arms
     ) {
         super(location, annotation, name, documentation, slot, thisSlot, depthSlot, descriptor, arms);
     }
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Create the selector value
         SelectorValue selectorValue = new SelectorValue(
-                this.descriptor,
-                null, // TODO : verify the validity of the null closure
-                this.isMemoized,
-                this.name,
-                this.documentation,
-                this.thisSlot,
-                this.depthSlot,
-                this.arms
+            this.descriptor,
+            null, // TODO : verify the validity of the null closure
+            this.isMemoized,
+            this.name,
+            this.documentation,
+            this.thisSlot,
+            this.depthSlot,
+            this.arms
         );
 
         // Put the value in the local context
@@ -95,13 +96,15 @@ public final class SelectorDeclGlobal extends SelectorDecl {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"name", "slot"},
-                new Object[]{this.name, this.slot}
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

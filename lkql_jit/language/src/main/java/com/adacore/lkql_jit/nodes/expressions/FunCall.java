@@ -23,10 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
@@ -36,15 +37,11 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.nodes.arguments.Arg;
 
 
 /**
@@ -57,20 +54,28 @@ public abstract class FunCall extends Expr {
 
     // ----- Attributes -----
 
-    /** If the function call is safe access */
+    /**
+     * If the function call is safe access
+     */
     protected final boolean isSafe;
 
-    /** The location of the callee token */
+    /**
+     * The location of the callee token
+     */
     protected final DummyLocation calleeLocation;
 
     // ----- Children -----
 
-    /** The function call arguments */
+    /**
+     * The function call arguments
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ArgList argList;
 
-    /** The function dispatch node to optimize execution */
+    /**
+     * The function dispatch node to optimize execution
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private FunctionDispatcher dispatcher;
@@ -80,16 +85,16 @@ public abstract class FunCall extends Expr {
     /**
      * Create a new function call node
      *
-     * @param location The location of the node in the source
-     * @param isSafe If the function call is protected with a safe operator
+     * @param location       The location of the node in the source
+     * @param isSafe         If the function call is protected with a safe operator
      * @param calleeLocation The location of the callee expression
-     * @param argList The arguments of the function call
+     * @param argList        The arguments of the function call
      */
     protected FunCall(
-            SourceLocation location,
-            boolean isSafe,
-            DummyLocation calleeLocation,
-            ArgList argList
+        SourceLocation location,
+        boolean isSafe,
+        DummyLocation calleeLocation,
+        ArgList argList
     ) {
         super(location);
         this.isSafe = isSafe;
@@ -109,14 +114,14 @@ public abstract class FunCall extends Expr {
     /**
      * Execute the function call on a built-in function
      *
-     * @param frame The frame to execute the built-in in
+     * @param frame                The frame to execute the built-in in
      * @param builtInFunctionValue The built-in function
      * @return The result of the built-in call
      */
     @Specialization
     protected Object onBuiltIn(
-            VirtualFrame frame,
-            BuiltInFunctionValue builtInFunctionValue
+        VirtualFrame frame,
+        BuiltInFunctionValue builtInFunctionValue
     ) {
         // Set the call node in the built-in function
         builtInFunctionValue.setCallNode(this);
@@ -129,14 +134,14 @@ public abstract class FunCall extends Expr {
         Object[] realArgs = this.argList.executeArgList(frame, actualParam, builtInFunctionValue.getThisValue() == null ? 0 : 1);
 
         // Add the "this" value to the arguments
-        if(builtInFunctionValue.getThisValue() != null) {
+        if (builtInFunctionValue.getThisValue() != null) {
             realArgs[0] = builtInFunctionValue.getThisValue();
         }
 
         // Verify that there is all arguments
-        for(int i = 0 ; i < realArgs.length ; i++) {
-            if(realArgs[i] == null) {
-                if(defaultValues[i] != null) {
+        for (int i = 0; i < realArgs.length; i++) {
+            if (realArgs[i] == null) {
+                if (defaultValues[i] != null) {
                     realArgs[i] = defaultValues[i].executeGeneric(frame);
                 } else {
                     throw LKQLRuntimeException.missingArgument(i + 1, this);
@@ -151,14 +156,14 @@ public abstract class FunCall extends Expr {
     /**
      * Execute the function call on a function value
      *
-     * @param frame The frame to execution the function in
+     * @param frame         The frame to execution the function in
      * @param functionValue The function value to execute
      * @return The result of the function call
      */
     @Specialization
     protected Object onFunction(
-            VirtualFrame frame,
-            FunctionValue functionValue
+        VirtualFrame frame,
+        FunctionValue functionValue
     ) {
         // Get the real argument names and default values
         String[] actualParam = functionValue.getParamNames();
@@ -168,9 +173,9 @@ public abstract class FunCall extends Expr {
         Object[] realArgs = this.argList.executeArgList(frame, actualParam);
 
         // Verify if there is no missing argument and evaluate the default values
-        for(int i = 0 ; i < realArgs.length ; i++) {
-            if(realArgs[i] == null) {
-                if(defaultValues[i] != null) {
+        for (int i = 0; i < realArgs.length; i++) {
+            if (realArgs[i] == null) {
+                if (defaultValues[i] != null) {
                     realArgs[i] = defaultValues[i].executeGeneric(frame);
                 } else {
                     throw LKQLRuntimeException.missingArgument(i + 1, this);
@@ -183,7 +188,7 @@ public abstract class FunCall extends Expr {
 
         // Verify if the function has a namespace then push it
         boolean pushed = false;
-        if(functionValue.getNamespace() != null && context.getGlobalValues().getNamespaceStack().peek() != functionValue.getNamespace()) {
+        if (functionValue.getNamespace() != null && context.getGlobalValues().getNamespaceStack().peek() != functionValue.getNamespace()) {
             context.getGlobalValues().pushNamespace(functionValue.getNamespace());
             pushed = true;
         }
@@ -193,7 +198,7 @@ public abstract class FunCall extends Expr {
         try {
             res = this.dispatcher.executeDispatch(functionValue, realArgs);
         } finally {
-            if(pushed) {
+            if (pushed) {
                 context.getGlobalValues().popNamespace();
             }
         }
@@ -205,14 +210,14 @@ public abstract class FunCall extends Expr {
     /**
      * Execute the function call on a property reference value
      *
-     * @param frame The frame to execute the property reference in
+     * @param frame            The frame to execute the property reference in
      * @param propertyRefValue The property reference value to execute
      * @return The result of the property call
      */
     @Specialization
     protected Object onProperty(
-            VirtualFrame frame,
-            PropertyRefValue propertyRefValue
+        VirtualFrame frame,
+        PropertyRefValue propertyRefValue
     ) {
         // Execute the arguments as a simple array
         Object[] arguments = this.argList.executeArgList(frame);
@@ -224,22 +229,22 @@ public abstract class FunCall extends Expr {
     /**
      * Execute function call on a selector value
      *
-     * @param frame The frame to execute the selector value in
+     * @param frame         The frame to execute the selector value in
      * @param selectorValue The selector value to execute
      * @return The result of the selector value execution
      */
     @Specialization
     protected SelectorListValue onSelector(
-            VirtualFrame frame,
-            SelectorValue selectorValue
+        VirtualFrame frame,
+        SelectorValue selectorValue
     ) {
         // Get the argument list and get the node from it
         Arg[] argList = this.argList.getArgs();
 
         // Verify the argument number
-        if(argList.length < 1) {
+        if (argList.length < 1) {
             throw LKQLRuntimeException.selectorWithoutNode(
-                    this
+                this
             );
         }
 
@@ -249,9 +254,9 @@ public abstract class FunCall extends Expr {
             node = argList[0].getArgExpr().executeNode(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    argList[0]
+                LKQLTypesHelper.ADA_NODE,
+                LKQLTypesHelper.fromJava(e.getResult()),
+                argList[0]
             );
         }
 
@@ -278,21 +283,23 @@ public abstract class FunCall extends Expr {
     @Fallback
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_FUNCTION,
-                LKQLTypesHelper.fromJava(nonExec),
-                this.calleeLocation
+            LKQLTypesHelper.LKQL_FUNCTION,
+            LKQLTypesHelper.fromJava(nonExec),
+            this.calleeLocation
         );
     }
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-                indentLevel,
-                new String[]{"isSafe"},
-                new Object[]{this.isSafe}
+            indentLevel,
+            new String[]{"isSafe"},
+            new Object[]{this.isSafe}
         );
     }
 

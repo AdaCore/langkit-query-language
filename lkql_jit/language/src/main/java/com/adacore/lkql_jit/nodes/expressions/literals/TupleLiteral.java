@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.TupleValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -38,7 +38,9 @@ public final class TupleLiteral extends Expr {
 
     // ----- Children -----
 
-    /** The expressions contained in the tuple */
+    /**
+     * The expressions contained in the tuple
+     */
     @Children
     private final Expr[] tupleExprs;
 
@@ -47,12 +49,12 @@ public final class TupleLiteral extends Expr {
     /**
      * Create a new tuple literal node
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source
      * @param tupleExprs The expressions that are inside the tuple
      */
     public TupleLiteral(
-            SourceLocation location,
-            Expr[] tupleExprs
+        SourceLocation location,
+        Expr[] tupleExprs
     ) {
         super(location);
         this.tupleExprs = tupleExprs;
@@ -60,18 +62,22 @@ public final class TupleLiteral extends Expr {
 
     // ----- Execute methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.executeTuple(frame);
     }
 
-    /** @see com.adacore.lkql_jit.nodes.expressions.Expr#executeTuple(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeTuple(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public TupleValue executeTuple(VirtualFrame frame) {
         // Evaluate the tuple values
         Object[] values = new Object[this.tupleExprs.length];
-        for (int i = 0 ; i < this.tupleExprs.length ; i++) {
+        for (int i = 0; i < this.tupleExprs.length; i++) {
             values[i] = this.tupleExprs[i].executeGeneric(frame);
         }
 
@@ -81,7 +87,9 @@ public final class TupleLiteral extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

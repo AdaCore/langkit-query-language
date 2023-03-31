@@ -23,15 +23,15 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
-import com.adacore.lkql_jit.runtime.built_ins.functions.ReduceFunction;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,25 +44,27 @@ import java.util.List;
  */
 public abstract class IterableMethods extends CommonMethods {
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.methods.CommonMethods#initMethods()
+     */
     @Override
     protected void initMethods() {
         super.initMethods();
 
         this.methods.put(ReduceFunction.NAME, ReduceFunction.getInstance().getValue());
         this.methods.put("to_list", new BuiltInFunctionValue(
-                "to_list",
-                "Transform an iterator into a list",
-                new String[]{"iterable"},
-                new Expr[]{null},
-                new ToListExpr()
+            "to_list",
+            "Transform an iterator into a list",
+            new String[]{"iterable"},
+            new Expr[]{null},
+            new ToListExpr()
         ));
         this.methods.put("length", new BuiltInFunctionValue(
-                "length",
-                "Get the length of the iterable element",
-                new String[]{"iterable"},
-                new Expr[]{null},
-                new LengthExpr()
+            "length",
+            "Get the length of the iterable element",
+            new String[]{"iterable"},
+            new Expr[]{null},
+            new LengthExpr()
         ));
     }
 
@@ -80,7 +82,7 @@ public abstract class IterableMethods extends CommonMethods {
             // Create a new list from the iterable
             List<Object> resList = new LinkedList<>();
             Iterator iterator = receiver.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 resList.add(iterator.next());
             }
 

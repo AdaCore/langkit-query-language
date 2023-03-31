@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
 
 
 /**
@@ -39,7 +39,9 @@ public final class Unwrap extends Expr {
 
     // ----- Children -----
 
-    /** The expression of the node to unwrap */
+    /**
+     * The expression of the node to unwrap
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr nodeExpr;
@@ -58,17 +60,19 @@ public final class Unwrap extends Expr {
     }
 
     // ----- Execution methods -----
-    
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the node value and test it
         Object nodeValue = this.nodeExpr.executeGeneric(frame);
-        if(!LKQLTypeSystemGen.isAdaNode(nodeValue)) {
+        if (!LKQLTypeSystemGen.isAdaNode(nodeValue)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(nodeValue),
-                    this.nodeExpr
+                LKQLTypesHelper.ADA_NODE,
+                LKQLTypesHelper.fromJava(nodeValue),
+                this.nodeExpr
             );
         }
 
@@ -78,7 +82,9 @@ public final class Unwrap extends Expr {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

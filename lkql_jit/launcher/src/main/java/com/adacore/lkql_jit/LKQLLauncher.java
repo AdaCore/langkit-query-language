@@ -40,14 +40,16 @@ import java.util.Map;
  * This class is the LKQL launcher, this will handle all execution request coming from the command line
  *
  * @author Hugo GUERRIER
- *
+ * <p>
  * TODO : Support all features of the original LKQL Ada implementation
  */
 public class LKQLLauncher extends AbstractLanguageLauncher {
 
     // ----- Macros and enums -----
 
-    /** Represents the status of an argument */
+    /**
+     * Represents the status of an argument
+     */
     protected enum ArgumentStatus {
         Consumed,
         Unhandled,
@@ -55,32 +57,48 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         ExpectInt
     }
 
-    /** The identifier of the LKQL language */
+    /**
+     * The identifier of the LKQL language
+     */
     private static final String ID = "lkql";
 
     // ----- Launcher options -----
 
-    /** The charset to decode the LKQL sources */
+    /**
+     * The charset to decode the LKQL sources
+     */
     private String charset = null;
 
-    /** The project file to analyse */
+    /**
+     * The project file to analyse
+     */
     private String projectFile = null;
 
-    /** Source files to analyse */
+    /**
+     * Source files to analyse
+     */
     private final List<String> files = new ArrayList<>();
 
-    /** If the project analysis should be recursive */
+    /**
+     * If the project analysis should be recursive
+     */
     private boolean recursive = false;
 
-    /** Number of parallel jobs */
+    /**
+     * Number of parallel jobs
+     */
     private int jobs = 0;
 
-    /** The LKQL script to evaluate */
+    /**
+     * The LKQL script to evaluate
+     */
     private String script = null;
 
     // ----- JIT options -----
 
-    /** If the verbose mode should be activated */
+    /**
+     * If the verbose mode should be activated
+     */
     private boolean verbose = false;
 
     // ----- Launcher methods -----
@@ -93,7 +111,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     @Override
     protected void printHelp(OptionCategory maxCategory) {
         System.out.println(
-                """
+            """
                 usage : lkql_jit [options ...] files [files ...] [--script|-S SCRIPT_PATH]
 
                 The LKQL JIT compiler
@@ -142,7 +160,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     @Override
     protected void launch(Context.Builder contextBuilder) {
         int exitCode = this.executeScript(contextBuilder);
-        if(exitCode != 0) {
+        if (exitCode != 0) {
             throw this.abort((String) null, exitCode);
         }
     }
@@ -161,37 +179,37 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         contextBuilder.option("lkql.checkerMode", "false");
 
         // Set the context options
-        if(this.verbose) {
+        if (this.verbose) {
             System.out.println("=== LKQL JIT is in verbose mode ===");
             contextBuilder.option("lkql.verbose", "true");
         }
 
         // Set the project file
-        if(this.projectFile != null) {
+        if (this.projectFile != null) {
             contextBuilder.option("lkql.projectFile", this.projectFile);
         }
 
         // Set the files
-        if(!this.files.isEmpty()) {
+        if (!this.files.isEmpty()) {
             contextBuilder.option("lkql.files", String.join(",", this.files));
         }
 
         // Set the charset
-        if(this.charset != null && !this.charset.isEmpty() && !this.charset.isBlank()) {
+        if (this.charset != null && !this.charset.isEmpty() && !this.charset.isBlank()) {
             contextBuilder.option("lkql.charset", this.charset);
         }
 
         // Create the context and run it with the script
-        try(Context context = contextBuilder.build()) {
+        try (Context context = contextBuilder.build()) {
             Source source = Source.newBuilder("lkql", new File(this.script))
-                    .build();
+                .build();
             context.eval(source);
             return 0;
         } catch (IOException e) {
             System.err.println("File not found : " + this.script);
             return 2;
         } catch (Exception e) {
-            if(this.verbose) {
+            if (this.verbose) {
                 e.printStackTrace();
             } else {
                 System.err.println(e.getMessage());
@@ -205,7 +223,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     /**
      * Parse the command line arguments and return the unrecognized options to parse it with the default parser
      *
-     * @param arguments The arguments to parse
+     * @param arguments       The arguments to parse
      * @param polyglotOptions The polyglot options
      * @return The unrecognized options
      */
@@ -220,18 +238,18 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             String curArg = iterator.next();
 
             // Test if the arg is a flag
-            if(curArg.startsWith("-") && curArg.length() >= 2 && !curArg.equals("--")) {
+            if (curArg.startsWith("-") && curArg.length() >= 2 && !curArg.equals("--")) {
 
                 // Get the flag name
                 String flag;
-                if(curArg.startsWith("--")) {
+                if (curArg.startsWith("--")) {
                     flag = curArg.substring(2);
                 } else {
                     flag = this.expandShortFlag(curArg.substring(1));
                 }
 
                 // If the flag is not null
-                if(flag != null) {
+                if (flag != null) {
 
                     // Test if the flag is a solo one
                     if (processFlag(flag) == ArgumentStatus.Consumed) {
@@ -240,7 +258,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
                     // Else try to process it with the value
                     String value;
-                    if(iterator.hasNext()) {
+                    if (iterator.hasNext()) {
                         value = iterator.next();
                     } else {
                         value = null;
@@ -248,13 +266,15 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
                     // Try to consume the flag
                     switch (this.processFlag(flag, value)) {
-                        case Consumed -> {continue;}
+                        case Consumed -> {
+                            continue;
+                        }
                         case Malformed -> throw this.abort("Missing value for " + curArg);
                         case ExpectInt -> throw this.abort("Expected integer value for " + curArg);
                     }
 
                     // Reset the iterator
-                    if(value != null) {
+                    if (value != null) {
                         iterator.previous();
                     }
                 }
@@ -319,7 +339,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     /**
      * Process a flag with its argument
      *
-     * @param flag The flag to process
+     * @param flag  The flag to process
      * @param value The argument value
      * @return If the flag was consumed, unhandled or wrong
      */
@@ -327,7 +347,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         switch (flag) {
             // The charset value
             case "charset":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.charset = value;
@@ -335,7 +355,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
             // The project value
             case "project":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.projectFile = value;
@@ -343,7 +363,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
             // The jobs value
             case "jobs":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 try {
@@ -355,7 +375,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
             // The script flag
             case "script-path":
-                if(value == null) {
+                if (value == null) {
                     return ArgumentStatus.Malformed;
                 }
                 this.script = value;
@@ -379,12 +399,12 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         super.validateArguments(polyglotOptions);
 
         // Verify the project file
-        if(files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
+        if (files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
             throw this.abort("Please provide files or a project file to analyze");
         }
 
         // Verify the script file
-        if(this.script == null || this.script.isEmpty()) {
+        if (this.script == null || this.script.isEmpty()) {
             throw this.abort("Please provide a script file to evaluate");
         }
     }

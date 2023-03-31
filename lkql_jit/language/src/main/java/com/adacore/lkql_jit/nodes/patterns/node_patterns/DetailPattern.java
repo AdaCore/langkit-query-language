@@ -23,12 +23,9 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.nodes.patterns.RegexPattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -43,7 +40,9 @@ public final class DetailPattern extends DetailValue {
 
     // ----- Children -----
 
-    /** The pattern to verify for the detail value */
+    /**
+     * The pattern to verify for the detail value
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
@@ -54,11 +53,11 @@ public final class DetailPattern extends DetailValue {
      * Create a new pattern detail
      *
      * @param location The location of the node in the source
-     * @param pattern The pattern to verify
+     * @param pattern  The pattern to verify
      */
     public DetailPattern(
-            SourceLocation location,
-            BasePattern pattern
+        SourceLocation location,
+        BasePattern pattern
     ) {
         super(location);
         this.pattern = pattern;
@@ -66,20 +65,22 @@ public final class DetailPattern extends DetailValue {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object)
+     */
     @Override
     public boolean executeDetailValue(VirtualFrame frame, Object value) {
         // Check if the value is a string
-        if(LKQLTypeSystemGen.isString(value)) {
+        if (LKQLTypeSystemGen.isString(value)) {
             return this.pattern.executeString(frame, LKQLTypeSystemGen.asString(value));
         }
 
         // Verify that the value is a node
-        if(!LKQLTypeSystemGen.isAdaNode(value)) {
+        if (!LKQLTypeSystemGen.isAdaNode(value)) {
             throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(value),
-                    this
+                LKQLTypesHelper.ADA_NODE,
+                LKQLTypesHelper.fromJava(value),
+                this
             );
         }
 
@@ -89,7 +90,9 @@ public final class DetailPattern extends DetailValue {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);

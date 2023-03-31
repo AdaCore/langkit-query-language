@@ -23,10 +23,10 @@
 
 package com.adacore.lkql_jit.nodes.declarations.variables;
 
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
@@ -38,13 +38,19 @@ public abstract class ValDecl extends Declaration {
 
     // ----- Attributes -----
 
-    /** The name of the variable */
+    /**
+     * The name of the variable
+     */
     protected final String name;
 
-    /** The slot to put the variable in */
+    /**
+     * The slot to put the variable in
+     */
     protected final int slot;
 
-    /** The value of the variable */
+    /**
+     * The value of the variable
+     */
     protected final Expr value;
 
     // ----- Constructors -----
@@ -52,18 +58,18 @@ public abstract class ValDecl extends Declaration {
     /**
      * Create a new variable declaration with the wanted parameters
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source
      * @param annotation The annotation of the variable declaration
-     * @param name The name of the variable
-     * @param slot The slot to put the variable in
-     * @param value The value of the variable
+     * @param name       The name of the variable
+     * @param slot       The slot to put the variable in
+     * @param value      The value of the variable
      */
     protected ValDecl(
-            SourceLocation location,
-            DeclAnnotation annotation,
-            String name,
-            int slot,
-            Expr value
+        SourceLocation location,
+        DeclAnnotation annotation,
+        String name,
+        int slot,
+        Expr value
     ) {
         super(location);
         this.annotation = annotation;

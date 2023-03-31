@@ -37,7 +37,9 @@ public final class BuiltInFunctionValue extends FunctionValue {
 
     // ----- Attributes -----
 
-    /** The value of the "this" variable */
+    /**
+     * The value of the "this" variable
+     */
     private Object thisValue;
 
     // ----- Constructor -----
@@ -45,18 +47,18 @@ public final class BuiltInFunctionValue extends FunctionValue {
     /**
      * Create a built-in function value
      *
-     * @param name The name of the built-in
+     * @param name          The name of the built-in
      * @param documentation The documentation of the built-in
-     * @param names The names of the built-in parameters
+     * @param names         The names of the built-in parameters
      * @param defaultValues The default values of the parameters
-     * @param body The expression representing the built-in body
+     * @param body          The expression representing the built-in body
      */
     public BuiltInFunctionValue(
-            String name,
-            String documentation,
-            String[] names,
-            Expr[] defaultValues,
-            BuiltInExpr body
+        String name,
+        String documentation,
+        String[] names,
+        Expr[] defaultValues,
+        BuiltInExpr body
     ) {
         super(null, null, false, name, documentation, new int[0], names, defaultValues, body);
     }

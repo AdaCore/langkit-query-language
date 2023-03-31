@@ -40,7 +40,7 @@ public abstract class NodePattern extends ValuePattern {
      * @param location The location of the node in the source
      */
     protected NodePattern(
-            SourceLocation location
+        SourceLocation location
     ) {
         super(location);
     }

@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals.object;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -39,12 +39,16 @@ public final class ObjectAssoc extends LKQLNode {
 
     // ----- Attributes -----
 
-    /** The key of the association */
+    /**
+     * The key of the association
+     */
     private final String key;
 
     // ----- Children -----
 
-    /** The value of the association */
+    /**
+     * The value of the association
+     */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr value;
@@ -55,13 +59,13 @@ public final class ObjectAssoc extends LKQLNode {
      * Create a new object association node
      *
      * @param location The location of the node in the source
-     * @param key The key of the association
-     * @param value The value of the association
+     * @param key      The key of the association
+     * @param value    The value of the association
      */
     public ObjectAssoc(
-            SourceLocation location,
-            String key,
-            Expr value
+        SourceLocation location,
+        String key,
+        Expr value
     ) {
         super(location);
         this.key = key;
@@ -76,7 +80,9 @@ public final class ObjectAssoc extends LKQLNode {
 
     // ----- Execution methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
@@ -94,7 +100,9 @@ public final class ObjectAssoc extends LKQLNode {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int) */
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return null;

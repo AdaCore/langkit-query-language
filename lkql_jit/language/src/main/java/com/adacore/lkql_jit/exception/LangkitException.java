@@ -35,10 +35,14 @@ public final class LangkitException extends AbstractTruffleException {
 
     // ----- Attributes -----
 
-    /** The type of the exception */
+    /**
+     * The type of the exception
+     */
     private final String type;
 
-    /** The message of the exception */
+    /**
+     * The message of the exception
+     */
     private final String msg;
 
     // ----- Constructors -----
@@ -47,11 +51,11 @@ public final class LangkitException extends AbstractTruffleException {
      * Create a new LKQL exception with its type and message
      *
      * @param type The type of the exception
-     * @param msg The message of the exception
+     * @param msg  The message of the exception
      */
     public LangkitException(
-            String type,
-            String msg
+        String type,
+        String msg
     ) {
         this.type = type;
         this.msg = msg;

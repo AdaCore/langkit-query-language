@@ -27,8 +27,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -41,13 +39,19 @@ public final class NamespaceValue implements LKQLValue {
 
     // ----- Attributes -----
 
-    /** An array containing the name of the values in the namespace */
+    /**
+     * An array containing the name of the values in the namespace
+     */
     private final String[] names;
 
-    /** An array containing all values in the namespace */
+    /**
+     * An array containing all values in the namespace
+     */
     private final Object[] values;
 
-    /** LKQL checkers defined in the namespace */
+    /**
+     * LKQL checkers defined in the namespace
+     */
     private final Map<String, ObjectValue> checkers;
 
     // ----- Constructors -----
@@ -55,13 +59,13 @@ public final class NamespaceValue implements LKQLValue {
     /**
      * Create a new namespace with its name and bindings
      *
-     * @param names The names of the variables to put in the namespace
+     * @param names  The names of the variables to put in the namespace
      * @param values The values of the variables to put in the namespace
      */
     public NamespaceValue(
-            String[] names,
-            Object[] values,
-            Map<String, ObjectValue> checkers
+        String[] names,
+        Object[] values,
+        Map<String, ObjectValue> checkers
     ) {
         this.names = names;
         this.values = values;
@@ -89,23 +93,25 @@ public final class NamespaceValue implements LKQLValue {
      * @return The value if it exists, null else
      */
     public Object get(String symbol) {
-        for(int i = 0 ; i < this.names.length ; i++) {
-            if(this.names[i].equals(symbol)) return this.values[i];
+        for (int i = 0; i < this.names.length; i++) {
+            if (this.names[i].equals(symbol)) return this.values[i];
         }
         return null;
     }
 
     // ----- Value methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue) */
+    /**
+     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     */
     @Override
     public boolean internalEquals(LKQLValue o) {
-        if(o == this) return true;
-        if(!(o instanceof NamespaceValue other)) return false;
+        if (o == this) return true;
+        if (!(o instanceof NamespaceValue other)) return false;
         return ArrayUtils.equals(this.values, other.values) &&
-                ArrayUtils.equals(this.names, other.names);
+            ArrayUtils.equals(this.names, other.names);
     }
-    
+
     // ----- Override methods -----
 
     @Override
@@ -113,14 +119,14 @@ public final class NamespaceValue implements LKQLValue {
     public String toString() {
         // Create the string for the mapping
         StringBuilder symbols = new StringBuilder();
-        for(int i = 0 ; i < this.names.length ; i++) {
+        for (int i = 0; i < this.names.length; i++) {
             symbols.append(this.names[i]).append(": ").append(this.values[i].toString());
-            if(i < this.names.length - 1) symbols.append(", ");
+            if (i < this.names.length - 1) symbols.append(", ");
         }
 
         // Return the string
         return "Namespace <symbols = " + symbols +
-                ", checkers = " + this.checkers + ">";
+            ", checkers = " + this.checkers + ">";
     }
 
 }

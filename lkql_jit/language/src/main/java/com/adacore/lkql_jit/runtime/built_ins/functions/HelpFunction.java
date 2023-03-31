@@ -24,14 +24,14 @@
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -43,13 +43,19 @@ public final class HelpFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
-    /** The only instance of the "help" built-in */
+    /**
+     * The only instance of the "help" built-in
+     */
     private static HelpFunction instance = null;
 
-    /** The name of the function */
+    /**
+     * The name of the function
+     */
     public static final String NAME = "help";
 
-    /** The expression that represents the "help" function execution */
+    /**
+     * The expression that represents the "help" function execution
+     */
     private final HelpExpr helpExpr;
 
     // ----- Constructors -----
@@ -67,7 +73,7 @@ public final class HelpFunction implements BuiltInFunction {
      * @return The only instance
      */
     public static HelpFunction getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new HelpFunction();
         }
         return instance;
@@ -75,21 +81,25 @@ public final class HelpFunction implements BuiltInFunction {
 
     // ----- Override methods -----
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
-    /** @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue() */
+    /**
+     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-                NAME,
-                "Given any object, return formatted help for it",
-                new String[]{"obj"},
-                new Expr[]{null},
-                this.helpExpr
+            NAME,
+            "Given any object, return formatted help for it",
+            new String[]{"obj"},
+            new Expr[]{null},
+            this.helpExpr
         );
     }
 
@@ -105,10 +115,10 @@ public final class HelpFunction implements BuiltInFunction {
             Object arg = frame.getArguments()[0];
 
             // If the argument is an LKQL value, read the documentation from ir
-            if(LKQLTypeSystemGen.isLKQLValue(arg)) {
+            if (LKQLTypeSystemGen.isLKQLValue(arg)) {
                 LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
                 LKQLLanguage.getContext(this.callNode).println(StringUtils.concat(
-                        value.getProfile(), "\n", value.getDocumentation()
+                    value.getProfile(), "\n", value.getDocumentation()
                 ));
             }
 
