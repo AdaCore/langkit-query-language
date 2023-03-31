@@ -320,6 +320,8 @@ public final class NodeMethods extends CommonMethods {
                         StringUtils.toLowerCase(leftToken.getText()),
                         StringUtils.toLowerCase(rightToken.getText())
                     )) return false;
+                } else if (!ObjectUtils.equals(leftToken.getText(), rightToken.getText())) {
+                    return false;
                 }
 
                 if (leftToken.equals(leftEnd)) {

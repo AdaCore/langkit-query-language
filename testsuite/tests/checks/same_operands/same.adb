@@ -12,6 +12,8 @@ procedure Same is
    F      : Float;
    Is_Inf : Boolean := Is_NaN (F - F);     --  NO FLAG
 
+   G  : constant := 2 ** (31 - 15);        --  NO FLAG
+
 begin
    null;
 end Same;
