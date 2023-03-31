@@ -407,8 +407,10 @@ public final class LKQLContext {
             );
             String[] projectFiles = this.projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT);
             if(projectFiles.length > 0) {
-                // Add all ada sources
-                this.adaSourceFiles.addAll(Arrays.stream(projectFiles).toList());
+                // Add all ada sources of the project if no files were passed explicitly
+                if (this.adaSourceFiles.isEmpty()) {
+                    this.adaSourceFiles.addAll(Arrays.stream(projectFiles).toList());
+                }
 
                 // Get the unit provider for the project
                 provider = this.projectManager.getProvider();
