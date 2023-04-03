@@ -30,7 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 /**
  * Util functions to manipulate the java string type in the JIT implementation
@@ -290,7 +290,7 @@ public final class StringUtils {
         int colSize = String.valueOf(endLine).length();
 
         // Create the function to start a line
-        Function<Integer, Void> lineStarting = (lineNum) -> {
+        Consumer<Integer> lineStarting = (lineNum) -> {
             res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
             if (lineNum < 1) {
                 res.append(" ".repeat(colSize));
@@ -299,56 +299,57 @@ public final class StringUtils {
             }
             res.append(" |")
                 .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
-            return null;
         };
 
         // If the source is single line
         if (lines.length == 1) {
-            lineStarting.apply(startLine);
+            lineStarting.accept(startLine);
             res.append(' ')
-                .append(lines[0])
-                .append('\n');
-            lineStarting.apply(0);
-            res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append(" ".repeat(startCol))
-                .append("^".repeat(Math.max(0, endCol - startCol)));
+                .append(lines[0]);
+            if (startCol != endCol) {
+                res.append('\n');
+                lineStarting.accept(0);
+                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
+                    .append(" ".repeat(startCol))
+                    .append("^".repeat(Math.max(0, endCol - startCol)));
+            }
         }
 
         // Else do the multiline display
         else {
             int difference = endLine - startLine - 1;
-            lineStarting.apply(startLine);
+            lineStarting.accept(startLine);
             res.append("  ")
                 .append(lines[0])
                 .append("\n");
-            lineStarting.apply(0);
+            lineStarting.accept(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                 .append(" ")
                 .append("_".repeat(startCol))
                 .append("^\n");
 
             if (difference > 0) {
-                lineStarting.apply(0);
+                lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                     .append("|\n");
-                lineStarting.apply(0);
+                lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                     .append('|')
                     .append(" ~~~ ")
                     .append(difference)
                     .append(" other lines ~~~\n");
-                lineStarting.apply(0);
+                lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                     .append("|\n");
             }
 
-            lineStarting.apply(endLine);
+            lineStarting.accept(endLine);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                 .append("| ")
                 .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
                 .append(lines[lines.length - 1])
                 .append('\n');
-            lineStarting.apply(0);
+            lineStarting.accept(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
                 .append("|")
                 .append("_".repeat(Math.max(1, endCol - 1)))
