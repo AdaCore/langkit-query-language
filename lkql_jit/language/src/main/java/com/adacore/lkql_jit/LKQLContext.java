@@ -149,7 +149,7 @@ public final class LKQLContext {
     /**
      * The rle to execute
      */
-    @CompilerDirectives.CompilationFinal
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] rules;
 
     /**

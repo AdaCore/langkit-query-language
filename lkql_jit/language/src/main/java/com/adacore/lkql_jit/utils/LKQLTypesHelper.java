@@ -160,7 +160,7 @@ public final class LKQLTypesHelper {
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
-        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj)) {
+        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj) || obj instanceof Integer) {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
@@ -194,6 +194,20 @@ public final class LKQLTypesHelper {
             return LKQL_NAMESPACE;
         } else {
             return defaultValue;
+        }
+    }
+
+    /**
+     * Get the debug name for the given Java type
+     *
+     * @param type The type to get the debug name for
+     * @return The type debug name
+     */
+    public static String debugName(Class<?> type) {
+        if (type == Boolean.class || type == boolean.class) {
+            return "Bool";
+        } else {
+            return type.getSimpleName();
         }
     }
 

@@ -220,6 +220,18 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     }
 
     /**
+     * Create an exception when the conversion is not possible between LKQL and Java bindings
+     *
+     * @param source   The source LKQL type
+     * @param target   The target Java type
+     * @param location The node which tries to do the conversion
+     * @return The exception
+     */
+    public static LKQLRuntimeException conversionError(String source, String target, Locatable location) {
+        return new LKQLRuntimeException(fullErrorText("Cannot convert a " + source + " to a " + target, location));
+    }
+
+    /**
      * Create an exception for a wrong from clause
      *
      * @param location The location of the from clause

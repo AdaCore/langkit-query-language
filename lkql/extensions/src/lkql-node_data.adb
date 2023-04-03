@@ -389,7 +389,7 @@ package body LKQL.Node_Data is
       Ctx.Raise_Error
         (L.No_Lkql_Node,
          To_Text
-           ("Cannot convert a " & Valid_Primitive_Kind'Image (Value.Kind)
+           ("Cannot convert a " & To_String (Value.Kind)
             & " to a " & Debug_Name (Target_Type)));
    end Make_Value_Type;
 
