@@ -218,7 +218,8 @@ package body LKQL.Unit_Utils is
                   when Expression_Error =>
                      Output_Error
                        (Node.As_Lkql_Node,
-                        "Failed to compile regular expression.");
+                        "Failed to compile regular expression: " &
+                        To_Text (Pattern_Str));
                end;
 
             when LCO.Lkql_Node_Kind_Pattern =>
