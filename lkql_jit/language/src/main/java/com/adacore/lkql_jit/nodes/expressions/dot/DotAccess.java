@@ -190,11 +190,7 @@ public abstract class DotAccess extends Expr {
         // Create the property reference
         PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(
-                this.member.getName(),
-                receiver,
-                this.member
-            );
+            throw LKQLRuntimeException.noSuchField(this.member);
         }
 
         // Return the result
