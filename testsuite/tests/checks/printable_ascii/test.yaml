@@ -1,3 +1,4 @@
 driver: 'checker'
+source_charset: 'utf-8'
 rule_name: Printable_ASCII
 input_sources: ['ascii.ads']
