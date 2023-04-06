@@ -151,6 +151,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 );
             }
 
+            // Initialize the cache that will contain decoded source lines of all needed units
+            CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
+
             // Traverse the tree
             // Create the list of node to explore with the generic instantiation info
             LinkedList<VisitStep> visitList = new LinkedList<>();
@@ -170,15 +173,11 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                         Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
                         Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
 
-                        visitList.addFirst(
-                            new VisitStep(currentNode, inGenericInstantiation, false)
-                        );
-                        if (!genBody.isNone()) visitList.addFirst(
-                            new VisitStep(genBody, true, true)
-                        );
-                        visitList.addFirst(
-                            new VisitStep(genDecl, true, true)
-                        );
+                        visitList.addFirst(new VisitStep(currentNode, inGenericInstantiation, false));
+                        if (!genBody.isNone()) {
+                            visitList.addFirst(new VisitStep(genBody, true, true));
+                        }
+                        visitList.addFirst(new VisitStep(genDecl, true, true));
                     } catch (Libadalang.LangkitException e) {
                         context.println(StringUtils.concat(
                             "Error during generic instantiation walking : ",
@@ -192,7 +191,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 for (ObjectValue rule : checkers) {
                     if (!inGenericInstantiation || (boolean) rule.get("follow_generic_instantiations")) {
                         try {
-                            this.applyNodeRule(frame, rule, currentNode, context);
+                            this.applyNodeRule(frame, rule, currentNode, context, linesCache);
                         } catch (LangkitException e) {
                             this.reportException(rule, e);
                         } catch (LKQLRuntimeException e) {
@@ -219,12 +218,19 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         /**
          * Apply the rule on the given node
          *
-         * @param frame   The frame to execute the default arg value
-         * @param rule    The rule to apply
-         * @param node    The node to apply the rule on
-         * @param context The LKQL context
+         * @param frame      The frame to execute the default arg value
+         * @param rule       The rule to apply
+         * @param node       The node to apply the rule on
+         * @param context    The LKQL context
+         * @param linesCache The cache of all units' source text lines
          */
-        private void applyNodeRule(VirtualFrame frame, ObjectValue rule, Libadalang.AdaNode node, LKQLContext context) {
+        private void applyNodeRule(
+            VirtualFrame frame,
+            ObjectValue rule,
+            Libadalang.AdaNode node,
+            LKQLContext context,
+            CheckerUtils.SourceLinesCache linesCache
+        ) {
             // Get the function for the checker
             FunctionValue functionValue = (FunctionValue) rule.get("function");
             String lowerRuleName = StringUtils.toLowerCase((String) rule.get("name"));
@@ -266,23 +272,33 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             }
 
             if (ruleResult) {
-                reportViolation(rule, node);
+                reportViolation(rule, node, linesCache);
             }
         }
 
         /**
          * Report a rule violation with the node that violate it
          *
-         * @param rule The violated rule
-         * @param node The node that violated the rule
+         * @param rule       The violated rule
+         * @param node       The node that violated the rule
+         * @param linesCache The cache of all units' source text lines
          */
         @CompilerDirectives.TruffleBoundary
-        private static void reportViolation(ObjectValue rule, Libadalang.AdaNode node) {
+        private static void reportViolation(
+            ObjectValue rule,
+            Libadalang.AdaNode node,
+            CheckerUtils.SourceLinesCache linesCache
+        ) {
             if (node instanceof Libadalang.BasicDecl basicDecl) {
                 Libadalang.AdaNode definingName = basicDecl.pDefiningName();
                 node = definingName.isNone() ? node : definingName;
             }
-            CheckerUtils.printRuleViolation((String) rule.get("message"), node);
+            CheckerUtils.printRuleViolation(
+                (String) rule.get("message"),
+                node.getSourceLocationRange(),
+                node.getUnit(),
+                linesCache
+            );
         }
 
         /**

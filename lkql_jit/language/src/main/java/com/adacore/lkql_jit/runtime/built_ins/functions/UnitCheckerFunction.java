@@ -149,10 +149,13 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 );
             }
 
+            // Initialize the cache that will contain decoded source lines of all needed units
+            CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
+
             // Iterate over all checker
             for (ObjectValue rule : checkers) {
                 try {
-                    this.applyUnitRule(frame, rule, unit, context);
+                    this.applyUnitRule(frame, rule, unit, context, linesCache);
                 } catch (LangkitException e) {
                     this.reportException(rule, e);
                 } catch (LKQLRuntimeException e) {
@@ -167,12 +170,19 @@ public final class UnitCheckerFunction implements BuiltInFunction {
         /**
          * Apply the rule on the given unit
          *
-         * @param frame   The frame for the rule execution
-         * @param rule    The rule to execute
-         * @param unit    The unit to execute the rule on
-         * @param context The context for the execution
+         * @param frame      The frame for the rule execution
+         * @param rule       The rule to execute
+         * @param unit       The unit to execute the rule on
+         * @param context    The context for the execution
+         * @param linesCache The cache of all units' source text lines
          */
-        private void applyUnitRule(VirtualFrame frame, ObjectValue rule, Libadalang.AnalysisUnit unit, LKQLContext context) {
+        private void applyUnitRule(
+            VirtualFrame frame,
+            ObjectValue rule,
+            Libadalang.AnalysisUnit unit,
+            LKQLContext context,
+            CheckerUtils.SourceLinesCache linesCache
+        ) {
             // Get the function for the checker
             FunctionValue functionValue = (FunctionValue) rule.get("function");
 
@@ -228,10 +238,17 @@ public final class UnitCheckerFunction implements BuiltInFunction {
 
                 // Get the message location
                 Object loc = message.get("loc");
+                final Libadalang.AnalysisUnit locUnit;
+                final Libadalang.SourceLocationRange slocRange;
+
                 if (LKQLTypeSystemGen.isToken(loc)) {
-                    this.reportViolation(messageText, LKQLTypeSystemGen.asToken(loc));
+                    final Libadalang.Token token = LKQLTypeSystemGen.asToken(loc);
+                    locUnit = token.unit;
+                    slocRange = token.sourceLocationRange;
                 } else if (LKQLTypeSystemGen.isAdaNode(loc)) {
-                    this.reportViolation(messageText, LKQLTypeSystemGen.asAdaNode(loc));
+                    final Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(loc);
+                    locUnit = node.getUnit();
+                    slocRange = node.getSourceLocationRange();
                 } else {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.ADA_NODE,
@@ -239,29 +256,9 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                         functionValue.getBody()
                     );
                 }
+
+                CheckerUtils.printRuleViolation(messageText, slocRange, locUnit, linesCache);
             }
-        }
-
-        /**
-         * Report a rule violation with the node that violate it
-         *
-         * @param message The message of the violation
-         * @param node    The node that violated the rule
-         */
-        @CompilerDirectives.TruffleBoundary
-        private void reportViolation(String message, Libadalang.AdaNode node) {
-            CheckerUtils.printRuleViolation(message, node);
-        }
-
-        /**
-         * Report a rule violation with the token that violates it
-         *
-         * @param message The message of the violation
-         * @param token   The token
-         */
-        @CompilerDirectives.TruffleBoundary
-        private void reportViolation(String message, Libadalang.Token token) {
-            CheckerUtils.printRuleViolation(message, token);
         }
 
         /**
