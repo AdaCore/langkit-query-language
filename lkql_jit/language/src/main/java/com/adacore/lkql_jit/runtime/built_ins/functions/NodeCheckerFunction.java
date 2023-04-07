@@ -137,9 +137,10 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
-            LKQLContext context = LKQLLanguage.getContext(this);
-            Libadalang.AdaNode root;
-            ObjectValue[] checkers = context.getNodeCheckersFiltered();
+            final LKQLContext context = LKQLLanguage.getContext(this);
+            final Libadalang.AdaNode root;
+            final ObjectValue[] checkers = context.getNodeCheckersFiltered();
+            final boolean mustFollowInstantiations = context.mustFollowInstantiations();
 
             try {
                 root = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[0]);
@@ -157,7 +158,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             // Traverse the tree
             // Create the list of node to explore with the generic instantiation info
             LinkedList<VisitStep> visitList = new LinkedList<>();
-            visitList.add(new VisitStep(root, false, true));
+            visitList.add(new VisitStep(root, false, mustFollowInstantiations));
 
             // Iterate over all nodes of the tree
             while (!visitList.isEmpty()) {
@@ -205,7 +206,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                     Libadalang.AdaNode child = currentNode.getChild(i);
                     if (!child.isNone()) {
                         visitList.addFirst(
-                            new VisitStep(child, inGenericInstantiation, true)
+                            new VisitStep(child, inGenericInstantiation, mustFollowInstantiations)
                         );
                     }
                 }
