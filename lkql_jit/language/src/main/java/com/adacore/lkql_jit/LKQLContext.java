@@ -109,6 +109,11 @@ public final class LKQLContext {
      */
     private ObjectValue[] filteredUnitCheckers = null;
 
+    /**
+     * Whether there is at least one rule that needs to follow generic instantiations
+     */
+    private boolean needsToFollowInstantiations = false;
+
     // ----- Option caches -----
 
     /**
@@ -297,7 +302,7 @@ public final class LKQLContext {
      * @return The rule to run
      */
     @CompilerDirectives.TruffleBoundary
-    public String[] getRules() {
+    private String[] getRules() {
         if (this.rules == null) {
             String[] unfilteredRules = this.env.getOptions().get(LKQLLanguage.rules).trim().replace(" ", "").split(",");
             this.rules = Arrays.stream(unfilteredRules)
@@ -555,10 +560,14 @@ public final class LKQLContext {
 
         // Lambda to dispatch checkers in the correct lists
         final Consumer<ObjectValue> dispatchChecker = (checker) -> {
-            if (checker.get("mode") == FunDecl.CheckerMode.NODE)
+            if (checker.get("mode") == FunDecl.CheckerMode.NODE) {
                 nodeCheckers.add(checker);
-            else
+                if ((boolean) checker.get("follow_generic_instantiations")) {
+                    needsToFollowInstantiations = true;
+                }
+            } else {
                 unitCheckers.add(checker);
+            }
         };
 
         // If there is no wanted rule, just separated the checkers
@@ -582,6 +591,13 @@ public final class LKQLContext {
         // Set the checker caches
         this.filteredNodeCheckers = nodeCheckers.toArray(new ObjectValue[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new ObjectValue[0]);
+    }
+
+    /**
+     * @return whether there is at least one rule that needs to follow generic instantiations
+     */
+    public boolean mustFollowInstantiations() {
+        return needsToFollowInstantiations;
     }
 
     /**
