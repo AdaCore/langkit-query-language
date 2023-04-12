@@ -101,7 +101,7 @@ library.
 
 .. function:: is_by_copy(param)
 
-    Return true if param has a by-copy type
+    Return true if ``param`` (a ParamActual) has a non aliased by-copy type
 
 .. function:: is_classwide_type(t)
 
