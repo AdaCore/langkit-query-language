@@ -3,14 +3,21 @@
 @check(message="downward view conversion",
        category="Style", subcategory="Object Orientation")
 fun downward_view_conversions(node) =
-    node is CallExpr(p_referenced_decl() is
-            # Select type conversions
-            BaseTypeDecl(p_base_subtype() is
-                         t@BaseTypeDecl(p_is_tagged_type() is true)))
+
+    node is CallExpr(
+        # Select type conversions
+        p_referenced_decl() is BaseTypeDecl(
+            p_base_subtype() is t@BaseTypeDecl(p_is_tagged_type() is true)
+        )
+    )
+
     # Where the target type is derived from the type of the conversion argument,
     # taking full views into account.
-    when node.f_suffix[1].f_r_expr?.p_expression_type().p_full_view() is
-         expr_type@BaseTypeDecl
-     and t.p_full_view() is target@BaseTypeDecl
-     and target != expr_type
-     and target.p_is_derived_type(expr_type)
+    when node.f_suffix[1].f_r_expr?.p_expression_type().p_full_view()
+        is expr_type@BaseTypeDecl
+
+     when t.p_full_view() is target@BaseTypeDecl
+      # Compare specific types in case one or the other is the classwide
+      # version
+      when target.p_specific_type() != expr_type.p_specific_type()
+       and target.p_is_derived_type(expr_type)
