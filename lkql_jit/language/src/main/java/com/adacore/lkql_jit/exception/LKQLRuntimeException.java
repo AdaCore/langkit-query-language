@@ -220,6 +220,18 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     }
 
     /**
+     * Create an exception when the conversion is not possible between LKQL and Java bindings
+     *
+     * @param source   The source LKQL type
+     * @param target   The target Java type
+     * @param location The node which tries to do the conversion
+     * @return The exception
+     */
+    public static LKQLRuntimeException conversionError(String source, String target, Locatable location) {
+        return new LKQLRuntimeException(fullErrorText("Cannot convert a " + source + " to a " + target, location));
+    }
+
+    /**
      * Create an exception for a wrong from clause
      *
      * @param location The location of the from clause
@@ -330,17 +342,12 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     /**
      * Create an exception for a no such field exception
      *
-     * @param member   The field you tried to get
-     * @param receiver The receiver node
      * @param location The location of the exception
      * @return The exception
      */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLRuntimeException noSuchField(String member, Libadalang.AdaNode receiver, Locatable location) {
-        return new LKQLRuntimeException(fullErrorText(
-            "No field named " + member + " on nodes of kind: " + receiver.getKindName(),
-            location
-        ));
+    public static LKQLRuntimeException noSuchField(Locatable location) {
+        return new LKQLRuntimeException(fullErrorText("No such field", location));
     }
 
     /**

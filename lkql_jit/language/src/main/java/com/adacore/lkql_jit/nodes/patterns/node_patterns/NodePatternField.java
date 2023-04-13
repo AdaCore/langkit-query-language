@@ -117,11 +117,7 @@ public abstract class NodePatternField extends NodePatternDetail {
 
         // Verify if the field method is null
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(
-                this.fieldName,
-                node,
-                this
-            );
+            throw LKQLRuntimeException.noSuchField(this);
         }
 
         // Execute the field detail

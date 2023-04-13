@@ -162,10 +162,10 @@ public final class ReflectionUtils {
             // Explore the argument types
             for (int i = 0; i < refinedArgs.length; i++) {
                 if (!fieldDescription.params.get(i).type.isInstance(refinedArgs[i])) {
-                    throw LKQLRuntimeException.wrongType(
-                        fieldDescription.params.get(i).type.getSimpleName().toUpperCase(),
-                        refinedArgs[i].getClass().getSimpleName().toUpperCase(),
-                        argList.getArgs()[i]
+                    throw LKQLRuntimeException.conversionError(
+                        LKQLTypesHelper.fromJava(refinedArgs[i]),
+                        LKQLTypesHelper.debugName(fieldDescription.params.get(i).type),
+                        caller
                     );
                 }
             }

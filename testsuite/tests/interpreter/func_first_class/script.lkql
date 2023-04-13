@@ -1,6 +1,6 @@
-fun map(fn, coll) = [fn(el) for el in coll]
+fun map_fc(fn, coll) = [fn(el) for el in coll]
 
-print(map((x) => x.text, select BasicDecl))
+print(map_fc((x) => x.text, select BasicDecl))
 
 fun make_adder(to_add) = (x) => x + to_add
 

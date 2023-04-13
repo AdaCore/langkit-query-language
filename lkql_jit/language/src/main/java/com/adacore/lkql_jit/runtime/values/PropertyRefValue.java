@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.adacore.lkql_jit.utils.util_functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
@@ -132,7 +133,7 @@ public final class PropertyRefValue implements LKQLValue {
             );
         } catch (UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
-                e.getType(),
+                LKQLTypesHelper.category(e.getType()),
                 caller
             );
         }
@@ -154,7 +155,7 @@ public final class PropertyRefValue implements LKQLValue {
             );
         } catch (UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
-                e.getType(),
+                LKQLTypesHelper.category(e.getType()),
                 caller
             );
         }

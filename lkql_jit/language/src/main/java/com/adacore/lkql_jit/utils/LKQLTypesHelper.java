@@ -160,7 +160,7 @@ public final class LKQLTypesHelper {
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
-        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj)) {
+        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj) || obj instanceof Integer) {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
@@ -194,6 +194,36 @@ public final class LKQLTypesHelper {
             return LKQL_NAMESPACE;
         } else {
             return defaultValue;
+        }
+    }
+
+    /**
+     * Get the debug name for the given Java type
+     *
+     * @param type The type to get the debug name for
+     * @return The type debug name
+     */
+    public static String debugName(Class<?> type) {
+        if (type == Boolean.class || type == boolean.class) {
+            return "Bool";
+        } else {
+            return type.getSimpleName();
+        }
+    }
+
+    /**
+     * Get the category of value for the given Java type
+     * This category represents a kind of value from Libadalang which cannot be imported in the LKQL context
+     *
+     * @param type The type to get the category for
+     * @return The type category
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static String category(Class<?> type) {
+        if (type == Libadalang.CompletionItemIterator.class) {
+            return "ITERATOR_CATEGORY";
+        } else {
+            return type.getSimpleName();
         }
     }
 
@@ -312,9 +342,9 @@ public final class LKQLTypesHelper {
         // Else, throw an exception for the unsupported type
         else {
             if (javaValue == null) {
-                throw new UnsupportedTypeException("NULL");
+                throw new UnsupportedTypeException(Void.class);
             } else {
-                throw new UnsupportedTypeException(javaValue.getClass().getSimpleName());
+                throw new UnsupportedTypeException(javaValue.getClass());
             }
         }
     }

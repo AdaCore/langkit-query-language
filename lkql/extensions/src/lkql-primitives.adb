@@ -987,7 +987,9 @@ package body LKQL.Primitives is
       then
          if Raise_If_OOB then
             raise Unsupported_Error
-              with "Invalid index: " & Integer'Image (Index);
+                with "Invalid index:" &
+                     (if Index < 0 then " " else "") &
+                     Integer'Image (Index);
          else
             return Make_Unit_Primitive;
          end if;

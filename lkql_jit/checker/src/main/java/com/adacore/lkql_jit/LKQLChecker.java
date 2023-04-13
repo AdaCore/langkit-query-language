@@ -468,7 +468,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         // Verify the project file
         if (this.files.isEmpty() && (this.projectFile == null || this.projectFile.isEmpty())) {
-            throw this.abort("Please provide files or a project file to analyze");
+            System.err.println("No source file to process");
         }
     }
 

@@ -30,13 +30,13 @@ package com.adacore.lkql_jit.exception.utils;
  * @author Hugo GUERRIER
  */
 public final class UnsupportedTypeException extends Exception {
-    private final String type;
+    private final Class<?> type;
 
-    public UnsupportedTypeException(String type) {
+    public UnsupportedTypeException(Class<?> type) {
         this.type = type;
     }
 
-    public String getType() {
+    public Class<?> getType() {
         return type;
     }
 }

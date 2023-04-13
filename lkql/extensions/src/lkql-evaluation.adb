@@ -531,26 +531,26 @@ package body LKQL.Evaluation is
       case Node.F_Op.Kind is
 
       when LCO.Lkql_Op_Plus   =>
-         Check_Kind (Kind_Int, Left);
-         Check_Kind (Kind_Int, Right);
+         Check_Kind (Ctx, Node.F_Left.As_Lkql_Node, Kind_Int, Left);
+         Check_Kind (Ctx, Node.F_Right.As_Lkql_Node, Kind_Int, Right);
          return To_Primitive
            (Int_Val (Left) + Int_Val (Right), Ctx.Pool);
 
       when LCO.Lkql_Op_Minus  =>
-         Check_Kind (Kind_Int, Left);
-         Check_Kind (Kind_Int, Right);
+         Check_Kind (Ctx, Node.F_Left.As_Lkql_Node, Kind_Int, Left);
+         Check_Kind (Ctx, Node.F_Right.As_Lkql_Node, Kind_Int, Right);
          return To_Primitive
            (Int_Val (Left) - Int_Val (Right), Ctx.Pool);
 
       when LCO.Lkql_Op_Mul    =>
-         Check_Kind (Kind_Int, Left);
-         Check_Kind (Kind_Int, Right);
+         Check_Kind (Ctx, Node.F_Left.As_Lkql_Node, Kind_Int, Left);
+         Check_Kind (Ctx, Node.F_Right.As_Lkql_Node, Kind_Int, Right);
          return To_Primitive
            (Int_Val (Left) * Int_Val (Right), Ctx.Pool);
 
       when LCO.Lkql_Op_Div    =>
-         Check_Kind (Kind_Int, Left);
-         Check_Kind (Kind_Int, Right);
+         Check_Kind (Ctx, Node.F_Left.As_Lkql_Node, Kind_Int, Left);
+         Check_Kind (Ctx, Node.F_Right.As_Lkql_Node, Kind_Int, Right);
          if Int_Val (Right) = Zero then
             raise Unsupported_Error with "Zero division";
          end if;

@@ -134,11 +134,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
         // Test if the property is null
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(
-                this.propertyName,
-                node,
-                this
-            );
+            throw LKQLRuntimeException.noSuchField(this);
         }
 
         // Return the result

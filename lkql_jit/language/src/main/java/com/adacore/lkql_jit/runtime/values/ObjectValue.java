@@ -27,10 +27,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -108,7 +105,9 @@ public final class ObjectValue implements LKQLValue {
         // Create the object string builder
         StringBuilder res = new StringBuilder();
         res.append("{");
-        Iterator<String> keyIterator = this.content.keySet().iterator();
+        Iterator<String> keyIterator = this.content.keySet().stream()
+            .sorted()
+            .iterator();
         while (keyIterator.hasNext()) {
             String key = keyIterator.next();
             Object value = this.content.get(key);
