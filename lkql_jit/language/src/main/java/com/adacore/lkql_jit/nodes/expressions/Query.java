@@ -453,15 +453,34 @@ public final class Query extends Expr {
             }
 
             // Test if the iterator should follow the generic instantiations
-            if (this.followGenerics && next instanceof Libadalang.GenericInstantiation genInst) {
-                Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
-                Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
-                this.queue.add(genDecl);
-                if (!genBody.isNone()) this.queue.add(genBody);
+            if (this.followGenerics) {
+                if (next instanceof Libadalang.GenericInstantiation genInst) {
+                    // If the node is a generic instantiation, traverse the instantiated generic
+                    Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
+                    Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
+                    this.queue.add(genDecl);
+                    if (!genBody.isNone()) {
+                        this.queue.add(genBody);
+                    }
+                } else if (next instanceof Libadalang.BodyStub stub && inGenericInstantiation(next)) {
+                    // If this node is a body stub and we are currently traversing a generic instantiation,
+                    // we should also traverse the stub's completion.
+                    // TODO: can we keep track of whether we are in an instantiation like we do in NodeCheckerFunction
+                    // instead of relying on the `pGenericInstantiations()` function ?
+                    this.queue.add(stub.pNextPartForDecl(false));
+                }
             }
 
             // return the result
             return next;
+        }
+
+        /**
+         * Return whether the given node is inside an instantiated generic.
+         * @param node The node to check
+         */
+        private static boolean inGenericInstantiation(Libadalang.AdaNode node) {
+            return node.pGenericInstantiations().size() > 0;
         }
 
         // ----- Un-needed methods -----

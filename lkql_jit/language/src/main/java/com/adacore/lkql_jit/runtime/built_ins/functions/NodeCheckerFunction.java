@@ -167,9 +167,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 final Libadalang.AdaNode currentNode = currentStep.node();
                 final boolean inGenericInstantiation = currentStep.inGenericInstantiation();
 
-                // Verify if the node is a generic instantiation
-                if (mustFollowInstantiations && currentNode instanceof Libadalang.GenericInstantiation genInst) {
-                    try {
+                try {
+                    if (mustFollowInstantiations && currentNode instanceof Libadalang.GenericInstantiation genInst) {
+                        // If the node is a generic instantiation, traverse the instantiated generic
                         final Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
                         final Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
 
@@ -177,13 +177,18 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                             visitList.addFirst(new VisitStep(genBody, true));
                         }
                         visitList.addFirst(new VisitStep(genDecl, true));
-                    } catch (Libadalang.LangkitException e) {
-                        context.println(StringUtils.concat(
-                            "Error during generic instantiation walking : ",
-                            e.getMessage()
-                        ));
-                        continue;
+                    } else if (inGenericInstantiation && currentNode instanceof Libadalang.BodyStub stub) {
+                        // If this node is a body stub and we are currently traversing a generic instantiation,
+                        // we should also traverse the stub's completion.
+                        final Libadalang.BasicDecl stubBody = stub.pNextPartForDecl(false);
+                        visitList.addFirst(new VisitStep(stubBody, true));
                     }
+                } catch (Libadalang.LangkitException e) {
+                    context.println(StringUtils.concat(
+                        "Error during generic instantiation walking: ",
+                        e.getMessage()
+                    ));
+                    continue;
                 }
 
                 // Iterate over rules and apply them

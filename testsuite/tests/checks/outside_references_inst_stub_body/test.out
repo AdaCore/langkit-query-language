@@ -1,0 +1,4 @@
+pkg_g-foo.adb:7:7: rule violation: outside references from subprogram
+7 |       X := 1;
+  |       ^
+
