@@ -6,7 +6,7 @@ fun has_initialize_scalars() =
     (select first p@PragmaNode
      when p.f_id.p_name_is("Initialize_Scalars")) != null
 
-@check(help="possible occurrence of KP V720-003",
+@check(help="possible occurrence of KP V720-003 - global analysis required",
        message="possible occurrence of KP V720-003 if -gnatVo and -gnateA are used",
        impact="22.*")
 fun kp_v720_003(node) =
