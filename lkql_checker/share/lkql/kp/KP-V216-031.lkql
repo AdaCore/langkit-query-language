@@ -6,7 +6,8 @@ import stdlib
 fun has_detect_blocking() =
     (select first p@PragmaNode when p.f_id.p_name_is("Detect_Blocking")) != null
 
-@check(message="possible occurrence of KP V216-031", impact="21.*")
+@check(help="possible occurrence of KP V216-031 - global analysis required",
+       message="possible occurrence of KP V216-031", impact="21.*")
 fun kp_v216_031(node) =
     node is ForLoopSpec(f_loop_type is IterTypeOf)
     when has_detect_blocking()
