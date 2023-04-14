@@ -262,7 +262,7 @@ package body Gnatcheck.Projects is
         (File : GPR2.Path_Name.Object) return GPR2.Project.Source.Object
       is
          File_In_Prj : constant GPR2.Path_Name.Object :=
-           My_Project.Tree.Get_File (GPR2.Simple_Name (File.Name));
+           My_Project.Tree.Get_File (File.Simple_Name);
          Src_Obj     : GPR2.Project.Source.Object;
       begin
          if File_In_Prj.Is_Defined then
