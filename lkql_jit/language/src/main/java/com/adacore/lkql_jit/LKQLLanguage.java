@@ -64,6 +64,20 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // ----- Macros and enum -----
 
     /**
+     * The kind of rendering to use when emitting diagnostic.
+     */
+    public enum DiagnosticOutputMode {
+        /**
+         * Emit a pretty diagnostic with source listing where the diagnostic location is highlighted
+         */
+        PRETTY,
+        /**
+         * Use a GNATCheck-compliant format: "{file}:{line}:{col} check: {message} [{check}]"
+         */
+        GNATCHECK
+    }
+
+    /**
      * The MIME type of the language
      */
     public static final String MIME_TYPE = "application/langkit-query-language";
@@ -203,6 +217,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         stability = OptionStability.STABLE
     )
     static final OptionKey<String> errorMode = new OptionKey<>("");
+
+    @Option(
+        help = "The message emitter",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode = new OptionKey<>(DiagnosticOutputMode.PRETTY);
 
 
     // ----- Attributes -----

@@ -26,6 +26,9 @@ launcher/target
 # Ignore from the checker module
 checker/target
 
+# Ignore from the gnatcheck_worker module
+gnatcheck_worker/target
+
 # Ignore from the native module
 native/target
 native/bin

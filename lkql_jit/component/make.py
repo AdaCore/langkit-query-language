@@ -76,6 +76,7 @@ if __name__ == '__main__':
     # Get the native components to include
     include_native_launcher = "launcher" in args.native_components
     include_native_checker = "checker" in args.native_components
+    include_native_worker = "gnatcheck_worker" in args.native_components
 
     # Copy the produced JAR to the component
     shutil.copy(
@@ -90,6 +91,10 @@ if __name__ == '__main__':
         P.join("..", "checker", "target", "lkql_jit_checker.jar"),
         P.join(lang_dir, "lkql_jit_checker.jar")
     )
+    shutil.copy(
+        P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
+        P.join(lang_dir, "gnatcheck_worker.jar")
+    )
 
     # Copy the GraalVM launching scripts
     shutil.copy(
@@ -99,6 +104,10 @@ if __name__ == '__main__':
     shutil.copy(
         P.join("scripts", "lkql_jit_checker"),
         P.join(bin_dir, "lkql_jit_checker")
+    )
+    shutil.copy(
+        P.join("scripts", "gnatcheck_worker"),
+        P.join(bin_dir, "gnatcheck_worker")
     )
 
     # Copy the needed native images
@@ -111,6 +120,11 @@ if __name__ == '__main__':
         shutil.copy(
             P.join("..", "native", "bin", "native_lkql_jit_checker"),
             P.join(bin_dir, "native_lkql_jit_checker")
+        )
+    if include_native_worker:
+        shutil.copy(
+            P.join("..", "native", "bin", "gnatcheck_worker"),
+            P.join(bin_dir, "native_gnatcheck_worker")
         )
 
     # Create the needed file to compile in jar
@@ -142,6 +156,11 @@ if __name__ == '__main__':
                 if include_native_checker else
                 ""
             ),
+            (
+                "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
+                if include_native_worker else
+                ""
+            ),
         ])
 
     # Write the permissions file
@@ -149,6 +168,7 @@ if __name__ == '__main__':
         f.writelines([
             "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
             "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
+            "languages/lkql/bin/gnatcheck_worker = rwxrwxr-x\n",
             (
                 "languages/lkql/bin/native_lkql_jit = rwxrwxr-x\n"
                 if include_native_launcher else
@@ -157,6 +177,11 @@ if __name__ == '__main__':
             (
                 "languages/lkql/bin/native_lkql_jit_checker = rwxrwxr-x\n"
                 if include_native_checker else
+                ""
+            ),
+            (
+                "languages/lkql/bin/native_gnatcheck_worker = rwxrwxr-x\n"
+                if include_native_worker else
                 ""
             ),
         ])

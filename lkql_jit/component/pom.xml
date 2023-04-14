@@ -88,6 +88,12 @@
 
         <dependency>
             <groupId>com.adacore</groupId>
+            <artifactId>gnatcheck_worker</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adacore</groupId>
             <artifactId>language</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

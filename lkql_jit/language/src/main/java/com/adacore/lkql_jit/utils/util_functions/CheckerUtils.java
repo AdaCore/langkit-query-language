@@ -41,19 +41,41 @@ public class CheckerUtils {
     }
 
     /**
+     * Common interface for diagnostic emitters. All given parameters need not be used in the output.
+     */
+    public interface DiagnosticEmitter {
+        /**
+         * @param ruleName   The name of the rule
+         * @param message    The message of the violated rule
+         * @param slocRange  The location where the error occurs in the code
+         * @param unit       The analysis unit in which the error occurs
+         * @param genericInstantiations The current stack of generic instantiations
+         * @param linesCache The cache of all units' source text lines
+         * @param context    The context to output the message
+         */
+        void emit(
+            String ruleName,
+            String message,
+            Libadalang.SourceLocationRange slocRange,
+            Libadalang.AnalysisUnit unit,
+            Libadalang.AdaNodeArray genericInstantiations,
+            SourceLinesCache linesCache,
+            LKQLContext context
+        );
+    }
+
+    /**
      * Display a rule violation on the standard output
      *
-     * @param message    The message of the violated rule
-     * @param slocRange  The location where the error occurs in the code
-     * @param unit       The analysis unit in which the error occurs
-     * @param linesCache The cache of all units' source text lines
-     * @param context    The context to output the message
+     * @see DiagnosticEmitter#emit
      */
     @CompilerDirectives.TruffleBoundary
     public static void printRuleViolation(
+        String ruleName,
         String message,
         Libadalang.SourceLocationRange slocRange,
         Libadalang.AnalysisUnit unit,
+        Libadalang.AdaNodeArray genericInstantiations,
         SourceLinesCache linesCache,
         LKQLContext context
     ) {
@@ -120,6 +142,53 @@ public class CheckerUtils {
                 " rule violation: " +
                 (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_RESET : "") +
                 message + "\n" + sourceString + "\n"
+        );
+    }
+
+    /**
+     * Display a rule violation on the standard output in the format expected by GNATCheck
+     *
+     * @see DiagnosticEmitter#emit
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static void printGNATcheckRuleViolation(
+        String ruleName,
+        String message,
+        Libadalang.SourceLocationRange slocRange,
+        Libadalang.AnalysisUnit unit,
+        Libadalang.AdaNodeArray genericInstantiations,
+        SourceLinesCache linesCache,
+        LKQLContext context
+    ) {
+        // Get the file name
+        final String fileName = FileUtils.baseName(unit.getFileName());
+        final String colPrefix = slocRange.start.column < 10 ? "0" : "";
+
+        // Append generic instantiation information to the message
+        if (genericInstantiations.size() > 0) {
+            StringBuilder messageBuilder = new StringBuilder(message);
+            messageBuilder.append(" [instance at ");
+            for (int i = 0; i < genericInstantiations.size(); ++i) {
+                if (i > 0) {
+                    messageBuilder.append(", ");
+                }
+                final Libadalang.AdaNode inst = genericInstantiations.get(i);
+                messageBuilder.append(FileUtils.baseName(inst.getUnit().getFileName()));
+                messageBuilder.append(":");
+                messageBuilder.append(inst.getSourceLocationRange().start.line);
+            }
+            messageBuilder.append("]");
+            message = messageBuilder.toString();
+        }
+
+        // Print the things
+        context.println(
+            fileName + ":" +
+                slocRange.start.line + ":" +
+                colPrefix + slocRange.start.column + ": " +
+                "check: " +
+                message +
+                " [" + StringUtils.toLowerCase(ruleName) + "]"
         );
     }
 

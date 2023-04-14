@@ -30,6 +30,7 @@ import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -175,6 +176,9 @@ public final class LKQLContext {
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] ignores;
+
+    @CompilerDirectives.CompilationFinal
+    private CheckerUtils.DiagnosticEmitter emitter;
 
     // ----- Constructors -----
 
@@ -373,6 +377,7 @@ public final class LKQLContext {
         this.rules = null;
         this.rulesDirs = null;
         this.ignores = null;
+        this.emitter = null;
     }
 
     // ----- Value related methods -----
@@ -430,6 +435,19 @@ public final class LKQLContext {
         System.out.println(toPrint);
     }
 
+    /**
+     * @return the diagnostic emitter to use according to which diagnostic style was chosen.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public CheckerUtils.DiagnosticEmitter getDiagnosticEmitter() {
+        if (this.emitter == null) {
+            this.emitter = switch (this.env.getOptions().get(LKQLLanguage.diagnosticOutputMode)) {
+                case PRETTY -> CheckerUtils::printRuleViolation;
+                case GNATCHECK -> CheckerUtils::printGNATcheckRuleViolation;
+            };
+        }
+        return this.emitter;
+    }
 
     // ----- Project analysis methods -----
 

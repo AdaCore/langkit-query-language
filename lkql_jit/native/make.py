@@ -53,6 +53,7 @@ if __name__ == '__main__':
     # Get the components to build
     build_launcher = 'launcher' in args.native_components
     build_checker = 'checker' in args.native_components
+    build_worker = 'gnatcheck_worker' in args.native_components
 
     # Create the common command
     cmd = [
@@ -93,3 +94,13 @@ if __name__ == '__main__':
         ]
         print(f"Execute: {checker_cmd}", flush=True)
         subprocess.run(checker_cmd)
+
+    if build_worker:
+        worker_cmd = cmd + [
+            "-cp", "../language/target/lkql_jit.jar:../gnatcheck_worker/target/gnatcheck_worker.jar",
+            "com.adacore.lkql_jit.GNATCheckWorker",
+            "bin/gnatcheck_worker"
+        ]
+        print(f"Execute: {worker_cmd}", flush=True)
+        subprocess.run(worker_cmd)
+
