@@ -22,6 +22,7 @@
 
 with Ada.Command_Line; use Ada.Command_Line;
 with Ada.Directories; use Ada.Directories;
+with Ada.Environment_Variables;
 with GNAT.OS_Lib;
 with Gnatcheck.Projects;
 with Rules_Factory; use Rules_Factory;
@@ -39,6 +40,20 @@ package Gnatcheck.Options is
 
    Executable : constant String := Base_Name (Command_Name);
    --  Name of the current executable (e.g. "gnatcheck" or "gnatkp")
+
+   Custom_Worker_Var : constant String := "GNATCHECK_WORKER";
+   --  The name of the environment variable used to define a custom worker
+   --  executable.
+
+   Use_Custom_Worker : constant Boolean :=
+     Ada.Environment_Variables.Exists (Custom_Worker_Var);
+   --  Whether a custom GNATcheck worker executable should be used
+
+   Worker_Command : constant String :=
+     (if Use_Custom_Worker
+      then Ada.Environment_Variables.Value (Custom_Worker_Var)
+      else Command_Name);
+   --  The executable to use as GNATcheck worker
 
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
    --  Runtime as specified via --RTS=

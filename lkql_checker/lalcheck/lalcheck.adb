@@ -374,9 +374,10 @@ begin
       Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
 
       --  Implement -j via multiple processes
-      --  In the default -j1 mode, process all sources in the main process.
+      --  In the default (-j1, no custom worker) mode, process all sources in
+      --  the main process.
 
-      if Process_Num <= 1 then
+      if Process_Num <= 1 and then not Use_Custom_Worker then
 
          --  Spawn gprbuild in background to process the files in parallel
 

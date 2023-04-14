@@ -18,7 +18,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Command_Line;        use Ada.Command_Line;
 with Ada.Directories;         use Ada.Directories;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
@@ -1376,7 +1375,7 @@ package body Gnatcheck.Compiler is
       Source_File : String) return Process_Id
    is
       Pid       : Process_Id;
-      Gnatcheck : String_Access := Locate_Exec_On_Path (Command_Name);
+      Worker    : String_Access := Locate_Exec_On_Path (Worker_Command);
       Prj       : constant String := Gnatcheck_Prj.Source_Prj;
       Args      : Argument_List (1 .. 128);
       Num_Args  : Integer := 0;
@@ -1468,7 +1467,7 @@ package body Gnatcheck.Compiler is
       Args (Num_Args) := new String'("-from=" & Rule_File);
 
       if Debug_Mode then
-         Put (Command_Name);
+         Put (Worker_Command);
 
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
@@ -1479,8 +1478,8 @@ package body Gnatcheck.Compiler is
 
       Pid :=
         Non_Blocking_Spawn
-          (Gnatcheck.all, Args (1 .. Num_Args), Msg_File, Msg_File);
-      Free (Gnatcheck);
+          (Worker.all, Args (1 .. Num_Args), Msg_File, Msg_File);
+      Free (Worker);
 
       for J in Args'Range loop
          Free (Args (J));
