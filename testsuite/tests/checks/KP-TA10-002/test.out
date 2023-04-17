@@ -1,0 +1,8 @@
+p.ads:17:8: rule violation: possible occurrence of KP TA10-002
+17 |    is (case B is when others => Self.Source_Files.Iterate);  --  FLAG
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.ads:21:8: rule violation: possible occurrence of KP TA10-002
+21 |    is (if B then raise Program_Error else Self.Source_Files.Iterate);  --  FLAG
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
