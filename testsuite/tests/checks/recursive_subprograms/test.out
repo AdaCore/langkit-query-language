@@ -54,6 +54,10 @@ recursive_subprograms-generics.ads:55:16: rule violation: recursive subprogram
 55 |       function F3 (I : Integer) return Integer;           --  FLAG
    |                ^^
 
+pkg_g-foo.adb:3:14: rule violation: recursive subprogram
+3 |    procedure Rec is
+  |              ^^^
+
 expr_p.adb:3:13: rule violation: recursive subprogram
 3 |    function Expr return Boolean is  --  FLAG
   |             ^^^^

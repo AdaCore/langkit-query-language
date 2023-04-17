@@ -157,34 +157,37 @@ public final class NodeCheckerFunction implements BuiltInFunction {
 
             // Traverse the tree
             // Create the list of node to explore with the generic instantiation info
-            LinkedList<VisitStep> visitList = new LinkedList<>();
-            visitList.add(new VisitStep(root, false, mustFollowInstantiations));
+            final LinkedList<VisitStep> visitList = new LinkedList<>();
+            visitList.add(new VisitStep(root, false));
 
             // Iterate over all nodes of the tree
             while (!visitList.isEmpty()) {
                 // Get the current values
-                VisitStep currentStep = visitList.remove(0);
-                Libadalang.AdaNode currentNode = currentStep.node();
-                boolean inGenericInstantiation = currentStep.inGenericInstantiation();
-                boolean visitInstantiations = currentStep.visitInstantiations();
+                final VisitStep currentStep = visitList.remove(0);
+                final Libadalang.AdaNode currentNode = currentStep.node();
+                final boolean inGenericInstantiation = currentStep.inGenericInstantiation();
 
-                // Verify if the node is a generic instantiation
-                if (currentNode instanceof Libadalang.GenericInstantiation genInst && visitInstantiations) {
-                    try {
-                        Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
-                        Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
+                try {
+                    if (mustFollowInstantiations && currentNode instanceof Libadalang.GenericInstantiation genInst) {
+                        // If the node is a generic instantiation, traverse the instantiated generic
+                        final Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
+                        final Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
 
-                        visitList.addFirst(new VisitStep(currentNode, inGenericInstantiation, false));
                         if (!genBody.isNone()) {
-                            visitList.addFirst(new VisitStep(genBody, true, true));
+                            visitList.addFirst(new VisitStep(genBody, true));
                         }
-                        visitList.addFirst(new VisitStep(genDecl, true, true));
-                    } catch (Libadalang.LangkitException e) {
-                        context.println(StringUtils.concat(
-                            "Error during generic instantiation walking : ",
-                            e.getMessage()
-                        ));
+                        visitList.addFirst(new VisitStep(genDecl, true));
+                    } else if (inGenericInstantiation && currentNode instanceof Libadalang.BodyStub stub) {
+                        // If this node is a body stub and we are currently traversing a generic instantiation,
+                        // we should also traverse the stub's completion.
+                        final Libadalang.BasicDecl stubBody = stub.pNextPartForDecl(false);
+                        visitList.addFirst(new VisitStep(stubBody, true));
                     }
+                } catch (Libadalang.LangkitException e) {
+                    context.println(StringUtils.concat(
+                        "Error during generic instantiation walking: ",
+                        e.getMessage()
+                    ));
                     continue;
                 }
 
@@ -203,10 +206,10 @@ public final class NodeCheckerFunction implements BuiltInFunction {
 
                 // Add the children to the visit list
                 for (int i = currentNode.getChildrenCount() - 1; i >= 0; i--) {
-                    Libadalang.AdaNode child = currentNode.getChild(i);
+                    final Libadalang.AdaNode child = currentNode.getChild(i);
                     if (!child.isNone()) {
                         visitList.addFirst(
-                            new VisitStep(child, inGenericInstantiation, mustFollowInstantiations)
+                            new VisitStep(child, inGenericInstantiation)
                         );
                     }
                 }
@@ -331,12 +334,10 @@ public final class NodeCheckerFunction implements BuiltInFunction {
          *
          * @param node                   The node to visit
          * @param inGenericInstantiation If the visit is currently in a generic instantiation
-         * @param visitInstantiations    If the visiting should visit the generic instantiations of the node
          */
         private record VisitStep(
             Libadalang.AdaNode node,
-            boolean inGenericInstantiation,
-            boolean visitInstantiations
+            boolean inGenericInstantiation
         ) {
         }
 
