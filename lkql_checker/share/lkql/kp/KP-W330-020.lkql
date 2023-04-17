@@ -1,0 +1,9 @@
+# Flag 'Address reference on an object with a size aspect
+
+@check(message="possible occurrence of KP W330-020", impact="2[0-3].*")
+fun kp_w330_020(node) =
+    node is AttributeRef(
+        f_attribute is Identifier(p_name_is("Address") is true),
+        f_prefix is Name(p_referenced_defining_name() is DefiningName(
+                             p_basic_decl() is ObjectDecl,
+                             p_has_aspect("Size") is true)))
