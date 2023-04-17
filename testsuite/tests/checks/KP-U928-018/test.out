@@ -1,0 +1,9 @@
+reproducer.adb:10:4: rule violation: possible occurrence of KP U928-018
+10 |     for Excl_Patt of Excluded_Patterns (Current_Section) (Lang) loop  --  FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+12 ||    end loop;
+   ||____________^
+

@@ -1,0 +1,11 @@
+# Flag for..of loops when the iteration expression is an indexing on a type
+# with a Constant_Indexing aspect.
+
+@check(message="possible occurrence of KP U928-018", impact="22.*,23.*")
+fun kp_u928_018(node) =
+    node is ForLoopStmt(f_spec is spec@ForLoopSpec(
+        f_loop_type is IterTypeOf)
+        # Find a CallExpr whose f_name's type has a Constant_Indexing aspect
+        when (from spec select first c@CallExpr
+              when c.f_name.p_expression_type() is ConcreteTypeDecl(
+                  p_has_aspect("Constant_Indexing") is true))
