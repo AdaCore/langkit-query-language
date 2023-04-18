@@ -338,6 +338,34 @@ package body Gnatcheck.Rules is
          Bad_Rule_Detected := True;
    end Load_Dictionary;
 
+   ----------------------------------
+   -- Print_Rule_To_Universal_File --
+   ----------------------------------
+
+   procedure Print_Rule_To_Universal_File
+     (Rule         : in out Rule_Template'Class;
+      Rule_File    : File_Type)
+   is
+      First_Param : Boolean := True;
+      Args        : Rule_Argument_Vectors.Vector;
+   begin
+      Map_Parameters (Rule, Args);
+      Put (Rule_File, Rule_Name (Rule));
+
+      for Param of Args loop
+         if First_Param then
+            Put (Rule_File, ":");
+            First_Param := False;
+         else
+            Put (Rule_File, ",");
+         end if;
+
+         Put (Rule_File,
+              To_String (To_Wide_Wide_String (Param.Name)) & "=" &
+              To_String (To_Wide_Wide_String (Param.Value)));
+      end loop;
+   end Print_Rule_To_Universal_File;
+
    ------------------------
    -- Print_Rule_To_File --
    ------------------------
