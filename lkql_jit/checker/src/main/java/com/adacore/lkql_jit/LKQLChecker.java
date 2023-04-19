@@ -477,11 +477,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
     public static final String checkerSource =
         """
-            val unts = units()
-            val roots = [unit.root for unit in unts]
+            val analysis_units = specified_units()
+            val roots = [unit.root for unit in analysis_units]
 
             map(roots, (root) => node_checker(root))
-            map(unts, (unit) => unit_checker(unit))
+            map(analysis_units, (unit) => unit_checker(unit))
             """;
 
 }

@@ -73,9 +73,15 @@ public final class LKQLContext {
     private Libadalang.ProjectManager projectManager;
 
     /**
-     * The ada source files
+     * The user-specified source files to analyze. If not explicitly specified, those will be the source files
+     * of the root project.
      */
-    private final List<String> adaSourceFiles;
+    private List<String> specifiedSourceFiles;
+
+    /**
+     * All the source files of the project, including those of its non-externally-built dependencies
+     */
+    private List<String> allSourceFiles;
 
     /**
      * If the source files were parsed
@@ -83,14 +89,20 @@ public final class LKQLContext {
     private boolean parsed;
 
     /**
-     * The analysis units of the parsed ada files
+     * The user-specified units to analyze. If not explicitly specified, those will be the units
+     * of the root project.
      */
-    private Libadalang.AnalysisUnit[] units;
+    private Libadalang.AnalysisUnit[] specifiedUnits;
 
     /**
-     * The root nodes of the parsed ada files
+     * All the units of the project, including those of its non-externally-built dependencies
      */
-    private Libadalang.AdaNode[] adaNodes;
+    private Libadalang.AnalysisUnit[] allUnits;
+
+    /**
+     * The root nodes of all the analysis units of the project.
+     */
+    private Libadalang.AdaNode[] allUnitsRoots;
 
     // ----- Checker attributes -----
 
@@ -178,7 +190,8 @@ public final class LKQLContext {
     ) {
         this.env = env;
         this.globalValues = globalValues;
-        this.adaSourceFiles = new ArrayList<>();
+        this.specifiedSourceFiles = new ArrayList<>();
+        this.allSourceFiles = new ArrayList<>();
         this.rulesArgs = new HashMap<>();
         this.parsed = false;
     }
@@ -203,22 +216,25 @@ public final class LKQLContext {
         return this.globalValues;
     }
 
-    public List<String> getAdaSourceFiles() {
-        return this.adaSourceFiles;
-    }
-
-    public Libadalang.AnalysisUnit[] getUnits() {
+    public Libadalang.AnalysisUnit[] getSpecifiedUnits() {
         if (!this.parsed) {
             this.parseSources();
         }
-        return this.units;
+        return this.specifiedUnits;
     }
 
-    public Libadalang.AdaNode[] getAdaNodes() {
+    public Libadalang.AnalysisUnit[] getAllUnits() {
         if (!this.parsed) {
             this.parseSources();
         }
-        return this.adaNodes;
+        return this.allUnits;
+    }
+
+    public Libadalang.AdaNode[] getAllUnitsRoots() {
+        if (!this.parsed) {
+            this.parseSources();
+        }
+        return this.allUnitsRoots;
     }
 
     public boolean isRootContext() {
@@ -422,14 +438,15 @@ public final class LKQLContext {
      */
     public void initSources() {
         // Prepare the list of ada files to analyse
-        this.adaSourceFiles.clear();
+        this.specifiedSourceFiles.clear();
+        this.allSourceFiles.clear();
 
-        // Add all files to process after verifying them
+        // Add all the user-specified files to process after verifying they exist
         for (String file : this.getFiles()) {
             if (!file.isEmpty() && !file.isBlank()) {
                 File sourceFile = new File(file);
                 if (sourceFile.isFile()) {
-                    this.adaSourceFiles.add(sourceFile.getAbsolutePath());
+                    this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
                     System.err.println("Source file '" + file + "' not found");
                 }
@@ -446,18 +463,22 @@ public final class LKQLContext {
                 "",
                 ""
             );
-            String[] projectFiles = this.projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT);
-            if (projectFiles.length > 0) {
-                // Add all ada sources of the project if no files were passed explicitly
-                if (this.adaSourceFiles.isEmpty()) {
-                    this.adaSourceFiles.addAll(Arrays.stream(projectFiles).toList());
-                }
 
-                // Get the unit provider for the project
-                provider = this.projectManager.getProvider();
-            } else {
-                System.err.println("Project file '" + projectFileName + "' not found");
+            // If no files were specified by the user, the files to analyze are those of the root project
+            // (i.e. without recusing into project dependencies)
+            if (this.specifiedSourceFiles.isEmpty()) {
+                this.specifiedSourceFiles = Arrays.stream(
+                    this.projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT)
+                ).toList();
             }
+
+            // The `units()` built-in function must return all units of the project including units from its non-
+            // externally-built dependencies. So let's retrieve all those files as well.
+            this.allSourceFiles = Arrays.stream(
+                this.projectManager.getFiles(Libadalang.SourceFileMode.DEFAULT)
+            ).toList();
+
+            provider = this.projectManager.getProvider();
         }
 
         // If the option is the empty string, the language implementation will end up setting it to the default
@@ -474,7 +495,7 @@ public final class LKQLContext {
             8
         );
 
-        // Set the parsed flag to false
+        // The retrieved source files are not yet parsed
         this.parsed = false;
     }
 
@@ -485,7 +506,7 @@ public final class LKQLContext {
     public void parseSources() {
         // Filter the Ada source file list
         String[] ignores = this.getIgnores();
-        String[] usedSources = this.adaSourceFiles.stream()
+        String[] usedSources = this.specifiedSourceFiles.stream()
             .filter(source -> {
                 for (String ignore : ignores) {
                     if (source.contains(ignore)) return false;
@@ -494,17 +515,23 @@ public final class LKQLContext {
             })
             .toArray(String[]::new);
 
-        // Create the new ada nodes list
-        this.units = new Libadalang.AnalysisUnit[usedSources.length];
-        this.adaNodes = new Libadalang.AdaNode[usedSources.length];
-
-        // For each source file, add its parsing result to the roots
+        // For each specified source file, store its corresponding analysis unit in the list of specified units
+        this.specifiedUnits = new Libadalang.AnalysisUnit[usedSources.length];
         for (int i = 0; i < usedSources.length; i++) {
-            this.units[i] = this.adaContext.getUnitFromFile(usedSources[i]);
-            this.adaNodes[i] = this.units[i].getRoot();
+            this.specifiedUnits[i] = this.adaContext.getUnitFromFile(usedSources[i]);
         }
 
-        // Set the parsed flag to true
+        // For each source file of the project, store its corresponding analysis unit in the list of all the units
+        // of the project, as well as their root nodes.
+        this.allUnits = new Libadalang.AnalysisUnit[this.allSourceFiles.size()];
+        this.allUnitsRoots = new Libadalang.AdaNode[this.allSourceFiles.size()];
+
+        for (int i = 0; i < this.allUnits.length; i++) {
+            this.allUnits[i] = this.adaContext.getUnitFromFile(this.allSourceFiles.get(i));
+            this.allUnitsRoots[i] = this.allUnits[i].getRoot();
+        }
+
+        // All source files are now parsed
         this.parsed = true;
     }
 
