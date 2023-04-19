@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2023, AdaCore                          --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -19,29 +19,25 @@
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
 --                                                                          --
-----------------------------------------------------------------------------"""
+---------------------------------------------------------------------------"""
 
-import os
+# Script to install the LKQL GraalVM component in the local GraalVM installation
+
+import sys
 import subprocess
 
-# Get the graal home and the installer
-graal_home = None
-try:
-    graal_home = os.environ["GRAAL_HOME"]
-except KeyError:
-    print(
-        "[\033[91mNATIVE-BUILD\033[0m] Please define the GRAAL_HOME environment " +
-        "variable to the GraalVM root directory"
-    )
-    exit(1)
+sys.path.append('..')
+from utils import GraalManager
 
-gu_exec = os.path.join(graal_home, "bin", "gu")
+if __name__ == '__main__':
+    # Prepare the utils
+    graal = GraalManager()
 
-# Run the component installation
-subprocess.run((
-    gu_exec,
-    "-L",
-    "install",
-    "-f",
-    "lkql_jit_component.jar"
-))
+    # Run the component installation
+    subprocess.run([
+        graal.gu,
+        "-L",
+        "install",
+        "-f",
+        "lkql_jit_component.jar",
+    ])

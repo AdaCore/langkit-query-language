@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2023, AdaCore                          --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -21,31 +21,7 @@
 --                                                                          --
 ---------------------------------------------------------------------------"""
 
-import os
-import sys
-import subprocess
-
-graal_home = None
-try:
-    graal_home = os.environ["GRAAL_HOME"]
-except KeyError:
-    print("[\033[91mNATIVE-BUILD\033[0m] Please define the GRAAL_HOME environment" +
-          " variable to the GraalVM root directory")
-    exit(1)
-
-native_exec = os.path.join(graal_home, "bin", "native-image")
-
-if not os.path.isfile(os.path.realpath(native_exec)):
-    print("[\033[91mNATIVE-BUILD\033[0m] Install the native-image module on your" +
-          " GraalVM installation")
-    exit(1)
-
-os.makedirs("bin", exist_ok=True)
-
-build_launcher = 'launcher' in sys.argv[1]
-build_checker = 'checker' in sys.argv[1]
-
-build_mode = sys.argv[2]
+# Script to build the LKQL JIT drivers with native-image
 
 """
 Use those options to perform debug on produced LKQL_JIT executables:
@@ -58,42 +34,62 @@ Use those options to perform debug on produced LKQL_JIT executables:
 -H:+ReportExceptionStackTraces  => ???
 """
 
-common_command = (
-    native_exec,
-    "--macro:truffle",
-    "--no-fallback",
-    "--language:regex",
-    "--initialize-at-build-time=com.adacore.lkql_jit",
-    "-H:ReflectionConfigurationFiles=reflect_config_lal.json,reflect_config_lkql.json",
-)
+import sys
+import os
+import os.path as P
+import subprocess
 
-if build_mode in ('dev', 'debug'):
-    common_command = common_command + (
-        "-H:-DeleteLocalSymbols",
-        "-H:+SourceLevelDebug",
-        "-H:+PreserveFramePointer",
-        "-H:+IncludeNodeSourcePositions",
-    )
+sys.path.append('..')
+from utils import GraalManager, parse_args
 
-if build_mode == 'debug':
-    common_command = common_command + (
-        "-H:+PrintRuntimeCompileMethods",
-    )
+if __name__ == '__main__':
+    # Create the dir hierarchy
+    os.makedirs(P.join(P.dirname(__file__), "bin"), exist_ok=True)
 
-# Create the LKQL launcher
-if build_launcher:
-    command = common_command + (
-        "-cp", "../language/target/lkql_jit.jar:../launcher/target/lkql_jit_launcher.jar",
-        "com.adacore.lkql_jit.LKQLLauncher",
-        "bin/lkql_jit"
-    )
-    subprocess.run(command)
+    # Create utils
+    graal = GraalManager()
+    args = parse_args()
 
-# Create the LKQL checker if needed
-if build_checker:
-    command = common_command + (
-        "-cp", "../language/target/lkql_jit.jar:../checker/target/lkql_jit_checker.jar",
-        "com.adacore.lkql_jit.LKQLChecker",
-        "bin/lkql_jit_checker"
-    )
-    subprocess.run(command)
+    # Get the components to build
+    build_launcher = 'launcher' in args.native_components
+    build_checker = 'checker' in args.native_components
+
+    # Create the common command
+    cmd = [
+        graal.native_image,
+        "--macro:truffle",
+        "--no-fallback",
+        "--language:regex",
+        "--initialize-at-build-time=com.adacore.lkql_jit",
+        "-H:ReflectionConfigurationFiles=reflect_config_lal.json,reflect_config_lkql.json",
+    ]
+
+    # Handle the dev and debug build mode
+    if args.build_mode in ('dev', 'debug'):
+        cmd.extend([
+            "-H:-DeleteLocalSymbols",
+            "-H:+SourceLevelDebug",
+            "-H:+PreserveFramePointer",
+            "-H:+IncludeNodeSourcePositions",
+        ])
+        if args.build_mode == 'debug':
+            cmd.append("-H:+PrintRuntimeCompileMethods")
+
+    # Call the building for each native component to build
+    if build_launcher:
+        launcher_cmd = cmd + [
+            "-cp", "../language/target/lkql_jit.jar:../launcher/target/lkql_jit_launcher.jar",
+            "com.adacore.lkql_jit.LKQLLauncher",
+            "bin/lkql_jit"
+        ]
+        print(f"Execute: {launcher_cmd}", flush=True)
+        subprocess.run(launcher_cmd)
+
+    if build_checker:
+        checker_cmd = cmd + [
+            "-cp", "../language/target/lkql_jit.jar:../checker/target/lkql_jit_checker.jar",
+            "com.adacore.lkql_jit.LKQLChecker",
+            "bin/lkql_jit_checker"
+        ]
+        print(f"Execute: {checker_cmd}", flush=True)
+        subprocess.run(checker_cmd)

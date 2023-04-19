@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2023, AdaCore                          --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -19,14 +19,18 @@
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
 --                                                                          --
-----------------------------------------------------------------------------"""
+---------------------------------------------------------------------------"""
+
+# Script to clean the GraalVM component
 
 import os
+import os.path as P
 import shutil
 
-# Remove the temporary folder
-shutil.rmtree("comp_temp", ignore_errors=True)
+if __name__ == '__main__':
+    # Remove the temporary folder
+    shutil.rmtree(P.realpath(P.join(P.dirname(__file__), 'lkql_jit_component')), ignore_errors=True)
 
-# Remove the jar component file
-if os.path.exists("lkql_jit_component.jar"):
-    os.remove("lkql_jit_component.jar")
+    # Remove the jar component file
+    if os.path.exists('lkql_jit_component.jar'):
+        os.remove('lkql_jit_component.jar')

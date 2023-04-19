@@ -36,9 +36,9 @@
                             <executable>python3</executable>
                             <arguments>
                                 <argument>${basedir}/make.py</argument>
-                                <argument>${project.version}</argument>
-                                <argument>${graalvm.version}</argument>
-                                <argument>${config.nativeImageComponents}</argument>
+                                <argument>--lkql-version</argument><argument>${project.version}</argument>
+                                <argument>--graal-version</argument><argument>${graalvm.version}</argument>
+                                <argument>--native-components</argument><argument>${config.nativeComponents}</argument>
                             </arguments>
                         </configuration>
                     </execution>

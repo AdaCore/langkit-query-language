@@ -31,8 +31,8 @@
                             <executable>python3</executable>
                             <arguments>
                                 <argument>${basedir}/make.py</argument>
-                                <argument>${config.nativeImageComponents}</argument>
-                                <argument>${config.nativeImageMode}</argument>
+                                <argument>--native-components</argument><argument>${config.nativeComponents}</argument>
+                                <argument>--build-mode</argument><argument>${config.buildMode}</argument>
                             </arguments>
                         </configuration>
                     </execution>

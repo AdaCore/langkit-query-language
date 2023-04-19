@@ -1,7 +1,7 @@
 """----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2023, AdaCore                          --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -19,12 +19,9 @@
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
 --                                                                          --
-----------------------------------------------------------------------------"""
+---------------------------------------------------------------------------"""
 
-import os
-import sys
-import shutil
-import subprocess
+# Script to make a GraalVM component for the LKQL implementation
 
 """
 To create a GraalVM component, we must create a directory as following :
@@ -57,150 +54,133 @@ After that we bundle it using the "jar" command and install it with Graal Update
 binary
 """
 
-# Get the environment variable
-graal_home = None
-try:
-    graal_home = os.environ["GRAAL_HOME"]
-except KeyError:
-    print(
-        "[\033[91mNATIVE-BUILD\033[0m] Please define the GRAAL_HOME environment " +
-        "variable to the GraalVM root directory"
-    )
-    exit(1)
+import os
+import os.path as P
+import sys
+import shutil
+import subprocess
 
-jar_exec = os.path.join(graal_home, "bin", "jar")
+sys.path.append('..')
+from utils import GraalManager, parse_args
 
-# Get the arguments
-if len(sys.argv) < 3:
-    print("Please provide arguments : LKQL_VERSION GRAAL_VERSION")
-    exit(1)
+if __name__ == '__main__':
+    # Create the utils
+    graal = GraalManager()
+    args = parse_args()
 
-lkql_version = sys.argv[1]
-graal_version = sys.argv[2]
+    # Create the hierarchy
+    comp_dir = P.realpath(P.join(P.dirname(__file__), 'lkql_jit_component'))
+    shutil.rmtree(comp_dir, ignore_errors=True)
+    meta_dir, lang_dir, bin_dir = graal.component_template(comp_dir)
 
-include_native_launcher = "launcher" in sys.argv[3]
-include_native_checker = "checker" in sys.argv[3]
+    # Get the native components to include
+    include_native_launcher = "launcher" in args.native_components
+    include_native_checker = "checker" in args.native_components
 
-# Set the directory names
-comp_dir = "comp_temp"
-meta_dir = os.path.join(comp_dir, "META-INF")
-lang_dir = os.path.join(comp_dir, "languages", "lkql")
-bin_dir = os.path.join(lang_dir, "bin")
-
-# Create the directory and organize the jar to build
-shutil.rmtree(comp_dir, ignore_errors=True)
-
-os.makedirs(meta_dir, exist_ok=True)
-os.makedirs(lang_dir, exist_ok=True)
-os.makedirs(bin_dir, exist_ok=True)
-
-shutil.copy(
-    os.path.join("..", "language", "target", "lkql_jit.jar"),
-    os.path.join(lang_dir, "lkql_jit.jar")
-)
-shutil.copy(
-    os.path.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
-    os.path.join(lang_dir, "lkql_jit_launcher.jar")
-)
-shutil.copy(
-    os.path.join("..", "checker", "target", "lkql_jit_checker.jar"),
-    os.path.join(lang_dir, "lkql_jit_checker.jar")
-)
-shutil.copy(
-    os.path.join("scripts", "lkql_jit"),
-    os.path.join(bin_dir, "lkql_jit")
-)
-shutil.copy(
-    os.path.join("scripts", "lkql_jit_checker"),
-    os.path.join(bin_dir, "lkql_jit_checker")
-)
-
-if include_native_launcher:
+    # Copy the produced JAR to the component
     shutil.copy(
-        os.path.join("..", "native", "bin", "lkql_jit"),
-        os.path.join(bin_dir, "native_lkql_jit")
+        P.join("..", "language", "target", "lkql_jit.jar"),
+        P.join(lang_dir, "lkql_jit.jar")
     )
-if include_native_checker:
     shutil.copy(
-        os.path.join("..", "native", "bin", "lkql_jit_checker"),
-        os.path.join(bin_dir, "native_lkql_jit_checker")
+        P.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
+        P.join(lang_dir, "lkql_jit_launcher.jar")
+    )
+    shutil.copy(
+        P.join("..", "checker", "target", "lkql_jit_checker.jar"),
+        P.join(lang_dir, "lkql_jit_checker.jar")
     )
 
-# Create the needed file to compile in jar
-f = open(os.path.join(lang_dir, "native-image.properties"), 'w')
-f.close()
+    # Copy the GraalVM launching scripts
+    shutil.copy(
+        P.join("scripts", "lkql_jit"),
+        P.join(bin_dir, "lkql_jit")
+    )
+    shutil.copy(
+        P.join("scripts", "lkql_jit_checker"),
+        P.join(bin_dir, "lkql_jit_checker")
+    )
 
-# Write the manifest
-f = open(os.path.join(meta_dir, "MANIFEST.MF"), 'w')
-f.writelines([
-    "Bundle-Name: Langkit Query Language JIT\n",
-    "Bundle-Symbolic-Name: com.adacore.lkql_jit\n",
-    "Bundle-Version: {}\n".format(lkql_version),
-    "Bundle-RequireCapability: org.graalvm; " +
-    "filter:=\"(&(graalvm_version={})(os_arch=amd64))\"\n".format(graal_version),
-    "x-GraalVM-Polyglot-Part: True\n"
-])
-f.close()
+    # Copy the needed native images
+    if include_native_launcher:
+        shutil.copy(
+            P.join("..", "native", "bin", "lkql_jit"),
+            P.join(bin_dir, "native_lkql_jit")
+        )
+    if include_native_checker:
+        shutil.copy(
+            P.join("..", "native", "bin", "lkql_jit_checker"),
+            P.join(bin_dir, "native_lkql_jit_checker")
+        )
 
-# Write the symbolic links
-# TODO: create symlink to native build or interpreter version depending on a setting
-# chosen at installation time?
-f = open(os.path.join(meta_dir, "symlinks"), 'w')
-f.writelines([
-    (
-        "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
-        if include_native_launcher else
-        ""
-    ),
-    (
-        "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
-        if include_native_checker else
-        ""
-    ),
-])
-f.close()
+    # Create the needed file to compile in jar
+    open(P.join(lang_dir, "native-image.properties"), 'w').close()
 
-# Write the permissions file
-f = open(os.path.join(meta_dir, "permissions"), 'w')
-f.writelines([
-    "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
-    "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
-    (
-        "languages/lkql/bin/native_lkql_jit = rwxrwxr-x\n"
-        if include_native_launcher else
-        ""
-    ),
-    (
-        "languages/lkql/bin/native_lkql_jit_checker = rwxrwxr-x\n"
-        if include_native_checker else
-        ""
-    ),
-])
-f.close()
+    # Write the manifest
+    with open(P.join(meta_dir, "MANIFEST.MF"), 'w') as f:
+        f.writelines([
+            "Bundle-Name: Langkit Query Language JIT\n",
+            "Bundle-Symbolic-Name: com.adacore.lkql_jit\n",
+            f"Bundle-Version: {args.lkql_version}\n",
+            "Bundle-RequireCapability: org.graalvm; " +
+            f"filter:=\"(&(graalvm_version={args.graal_version})(os_arch=amd64))\"\n",
+            "x-GraalVM-Polyglot-Part: True\n"
+        ])
 
-# Create the component jar
-os.chdir(comp_dir)
-command = (
-    jar_exec,
-    "cfm",
-    os.path.join("..", "lkql_jit_component.jar"),
-    os.path.join("META-INF", "MANIFEST.MF"),
-    "."
-)
-subprocess.run(command)
+    # Write the symbolic links
+    # TODO: create symlink to native build or interpreter version depending on a setting
+    # chosen at installation time?
+    with open(P.join(meta_dir, "symlinks"), 'w') as f:
+        f.writelines([
+            (
+                "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
+                if include_native_launcher else
+                ""
+            ),
+            (
+                "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
+                if include_native_checker else
+                ""
+            ),
+        ])
 
-command = (
-    jar_exec,
-    "uf",
-    os.path.join("..", "lkql_jit_component.jar"),
-    os.path.join("META-INF", "symlinks")
-)
-subprocess.run(command)
+    # Write the permissions file
+    with open(P.join(meta_dir, "permissions"), 'w') as f:
+        f.writelines([
+            "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
+            "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
+            (
+                "languages/lkql/bin/native_lkql_jit = rwxrwxr-x\n"
+                if include_native_launcher else
+                ""
+            ),
+            (
+                "languages/lkql/bin/native_lkql_jit_checker = rwxrwxr-x\n"
+                if include_native_checker else
+                ""
+            ),
+        ])
 
-command = (
-    jar_exec,
-    "uf",
-    os.path.join("..", "lkql_jit_component.jar"),
-    os.path.join("META-INF", "permissions")
-)
-subprocess.run(command)
+    # Create the component jar
+    os.chdir(comp_dir)
+    subprocess.run([
+        graal.jar,
+        "cfm",
+        P.join("..", "lkql_jit_component.jar"),
+        P.join("META-INF", "MANIFEST.MF"),
+        ".",
+    ])
+
+    subprocess.run([
+        graal.jar,
+        "uf",
+        P.join("..", "lkql_jit_component.jar"),
+        P.join("META-INF", "symlinks"),
+    ])
+
+    subprocess.run([
+        graal.jar,
+        "uf",
+        P.join("..", "lkql_jit_component.jar"),
+        P.join("META-INF", "permissions"),
+    ])
