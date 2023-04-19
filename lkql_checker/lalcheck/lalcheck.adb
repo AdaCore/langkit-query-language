@@ -229,7 +229,7 @@ procedure Lalcheck is
 
             for SF in Next_SF .. Last_Argument_Source loop
                if Source_Info (SF) /= Ignore_Unit then
-                  Put_Line (File, Short_Source_Name (SF));
+                  Put_Line (File, Source_Name (SF));
                   Files := @ + 1;
                   Set_Source_Status (SF, Processed);
 
