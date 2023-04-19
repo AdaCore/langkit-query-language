@@ -30,14 +30,14 @@ try:
     graal_home = os.environ["GRAAL_HOME"]
 except KeyError:
     print("[\033[91mNATIVE-BUILD\033[0m] Please define the GRAAL_HOME environment" +
-          " variable to the GraalVM root directory :)")
+          " variable to the GraalVM root directory")
     exit(1)
 
 native_exec = os.path.join(graal_home, "bin", "native-image")
 
 if not os.path.isfile(os.path.realpath(native_exec)):
     print("[\033[91mNATIVE-BUILD\033[0m] Install the native-image module on your" +
-          " GraalVM installation :)")
+          " GraalVM installation")
     exit(1)
 
 os.makedirs("bin", exist_ok=True)
@@ -64,7 +64,7 @@ common_command = (
     "--no-fallback",
     "--language:regex",
     "--initialize-at-build-time=com.adacore.lkql_jit",
-    "-H:ReflectionConfigurationFiles=reflect_config_lada.json,reflect_config_lkql.json",
+    "-H:ReflectionConfigurationFiles=reflect_config_lal.json,reflect_config_lkql.json",
 )
 
 if build_mode in ('dev', 'debug'):
@@ -97,5 +97,3 @@ if build_checker:
         "bin/lkql_jit_checker"
     )
     subprocess.run(command)
-
-# TODO : Create a shared lib with native image

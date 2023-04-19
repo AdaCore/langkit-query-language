@@ -64,7 +64,7 @@ try:
 except KeyError:
     print(
         "[\033[91mNATIVE-BUILD\033[0m] Please define the GRAAL_HOME environment " +
-        "variable to the GraalVM root directory :)"
+        "variable to the GraalVM root directory"
     )
     exit(1)
 
@@ -107,11 +107,11 @@ shutil.copy(
     os.path.join(lang_dir, "lkql_jit_checker.jar")
 )
 shutil.copy(
-    os.path.join("..", "scripts", "lkql_jit"),
+    os.path.join("scripts", "lkql_jit"),
     os.path.join(bin_dir, "lkql_jit")
 )
 shutil.copy(
-    os.path.join("..", "scripts", "lkql_jit_checker"),
+    os.path.join("scripts", "lkql_jit_checker"),
     os.path.join(bin_dir, "lkql_jit_checker")
 )
 

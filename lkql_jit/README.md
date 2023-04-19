@@ -16,6 +16,8 @@ How to build and run
 
 First, you need to ensure that the `mvn` command is accessible and fairly recent (at least 3.8.5).
 
+Then, make sure you have an accessible Python3 installation. Python 3.9 or later.
+
 You also need to install GraalVM's `native-image` utility, which can be done running `gu install native-image` (where `gu` is in the `bin` directory of the GraalVM installation).
 
 Also make sure that your GraalVM installation is for Java 17, as Java 19 is not supported for now. for information, the tested version of GraalVM is graalvm-ce-java17-22.3.1.
@@ -50,7 +52,7 @@ $[langkit-query-language/lkql]> ./manage.py make --enable-java
 $[langkit-query-language/lkql]> eval `./manage.py setenv`
 ```
 
-Like Libadalang, make sure Java bindings are installed
+As for Libadalang, make sure Java bindings are installed
 
 ```sh
 $[langkit-query-language/lkql/build/java]> mvn install
@@ -58,7 +60,8 @@ $[langkit-query-language/lkql/build/java]> mvn install
 
 4) Export the needed environment variables :
 
-  * `GRAAL_HOME` should points to your GraalVM installation
+  * `JAVA_HOME` should points to your local GraalVM installation
+  * `GRAAL_HOME` should also points to your GraalVM installation
 
 5) Compile and run LKQL_JIT
 
@@ -74,7 +77,7 @@ If you want to build the checker driver as a native image, you can use the `nati
 $[langkit-query-language/lkql_jit]> mvn clean install -P native-checker
 ```
 
-*Other supported profiles are `native-launcher` and `native-all` (to build `native-checker` as well as `native-launcher`).*
+Other supported profiles are `native-launcher` and `native-all` (to build `native-checker` and `native-launcher`).*
 
 Native executables are in the `langkit-query-language/lkql_jit/native/bin` directory and installed in your GraalVM guest languages folder
 (`$GRAAL_HOME/languages/lkql/bin`).

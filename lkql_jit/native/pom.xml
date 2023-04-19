@@ -2,21 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>lkql_jit</artifactId>
         <groupId>com.adacore</groupId>
         <version>0.1.0</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>native</artifactId>
 
     <build>
         <plugins>
+            <!-- Configure the Pyhton scripts execution -->
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
+                <version>3.0.0</version>
                 <executions>
+                    <!-- make.py execution -->
                     <execution>
                         <id>make_native</id>
                         <phase>package</phase>
@@ -26,13 +30,14 @@
                         <configuration>
                             <executable>python3</executable>
                             <arguments>
-                                <argument>${basedir}/make_native.py</argument>
+                                <argument>${basedir}/make.py</argument>
                                 <argument>${config.nativeImageComponents}</argument>
                                 <argument>${config.nativeImageMode}</argument>
                             </arguments>
                         </configuration>
                     </execution>
 
+                    <!-- clean.py execution -->
                     <execution>
                         <id>clean_native</id>
                         <phase>clean</phase>
@@ -41,7 +46,7 @@
                         </goals>
                         <configuration>
                             <executable>python3</executable>
-                            <arguments>${basedir}/clean_native.py</arguments>
+                            <arguments>${basedir}/clean.py</arguments>
                         </configuration>
                     </execution>
                 </executions>

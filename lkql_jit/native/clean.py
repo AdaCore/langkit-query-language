@@ -24,4 +24,3 @@
 import shutil
 
 shutil.rmtree("bin", ignore_errors=True)
-shutil.rmtree("reports", ignore_errors=True)

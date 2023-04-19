@@ -31,7 +31,7 @@
 
     <profiles>
 
-        <!-- Components profiles -->
+        <!-- Native components profiles -->
 
         <profile>
             <id>native-checker</id>

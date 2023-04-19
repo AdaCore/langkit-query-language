@@ -31,7 +31,7 @@ try:
 except KeyError:
     print(
         "[\033[91mNATIVE-BUILD\033[0m] Please define the GRAAL_HOME environment " +
-        "variable to the GraalVM root directory :)"
+        "variable to the GraalVM root directory"
     )
     exit(1)
 
