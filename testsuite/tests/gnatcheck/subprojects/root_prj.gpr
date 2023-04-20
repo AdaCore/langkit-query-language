@@ -1,0 +1,5 @@
+with "dep_prj";
+
+project Root_Prj is
+   for Source_Dirs use ("root_src");
+end Root_Prj;
