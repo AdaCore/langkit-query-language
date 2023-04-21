@@ -1359,6 +1359,62 @@ This rule has no parameters.
 ``Non_Visible_Exceptions``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. index:: Non_Visible_Exceptions
+
+Flag constructs leading to the possibility of propagating an exception
+out of the scope in which the exception is declared.
+Two cases are detected:
+
+*
+  An exception declaration located immediately within a subprogram body, task
+  body or block statement is flagged if the body or statement does not contain
+  a handler for that exception or a handler with an ``others`` choice.
+
+*
+  A ``raise`` statement in an exception handler of a subprogram body,
+  task body or block statement is flagged if it (re)raises a locally
+  declared exception.  This may occur under the following circumstances:
+
+  *
+    it explicitly raises a locally declared exception, or
+  *
+    it does not specify an exception name (i.e., it is simply ``raise;``)
+    and the enclosing handler contains a locally declared exception in its
+    exception choices.
+
+Renamings of local exceptions are not flagged.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+   :emphasize-lines: 5, 18
+
+   procedure Bar is
+      Var : Integer :=- 13;
+
+      procedure Inner (I : in out Integer) is
+         Inner_Exception_1 : exception;          --  FLAG
+         Inner_Exception_2 : exception;
+      begin
+         if I = 0 then
+            raise Inner_Exception_1;
+         elsif I = 1 then
+            raise Inner_Exception_2;
+         else
+            I := I - 1;
+         end if;
+      exception
+         when Inner_Exception_2 =>
+            I := 0;
+            raise;                               --  FLAG
+      end Inner;
+
+   begin
+      Inner (Var);
+   end Bar;
+
 
 .. _Maximum_Expression_Complexity:
 
@@ -1422,64 +1478,19 @@ This rule has the following (mandatory) parameter for the ``+R`` option:
   Positive integer specifying the maximum allowed number of lines in the
   subprogram statement sequence.
 
-
-
-.. index:: Non_Visible_Exceptions
-
-Flag constructs leading to the possibility of propagating an exception
-out of the scope in which the exception is declared.
-Two cases are detected:
-
-*
-  An exception declaration in a subprogram body, task body or block
-  statement is flagged if the body or statement does not contain a handler for
-  that exception or a handler with an ``others`` choice.
-
-*
-  A ``raise`` statement in an exception handler of a subprogram body,
-  task body or block statement is flagged if it (re)raises a locally
-  declared exception.  This may occur under the following circumstances:
-
-  *
-    it explicitly raises a locally declared exception, or
-  *
-    it does not specify an exception name (i.e., it is simply ``raise;``)
-    and the enclosing handler contains a locally declared exception in its
-    exception choices.
-
-Renamings of local exceptions are not flagged.
-
-This rule has no parameters.
-
 .. rubric:: Example
 
 .. code-block:: ada
-   :emphasize-lines: 5, 18
+   :emphasize-lines: 4
 
-   procedure Bar is
-      Var : Integer :=- 13;
-
-      procedure Inner (I : in out Integer) is
-         Inner_Exception_1 : exception;          --  FLAG
-         Inner_Exception_2 : exception;
-      begin
-         if I = 0 then
-            raise Inner_Exception_1;
-         elsif I = 1 then
-            raise Inner_Exception_2;
-         else
-            I := I - 1;
-         end if;
-      exception
-         when Inner_Exception_2 =>
-            I := 0;
-            raise;                               --  FLAG
-      end Inner;
-
+   --  If the rule parameter is 3
+   procedure P (I : in out Integer) is
    begin
-      Inner (Var);
-   end Bar;
-
+      I := I + 1;   --  FLAG
+      I := I + 2;
+      I := I + 3;
+      I := I + 4;
+   end P;
 
 .. _One_Tagged_Type_Per_Package:
 
