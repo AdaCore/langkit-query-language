@@ -80,7 +80,7 @@ if __name__ == '__main__':
         launcher_cmd = cmd + [
             "-cp", "../language/target/lkql_jit.jar:../launcher/target/lkql_jit_launcher.jar",
             "com.adacore.lkql_jit.LKQLLauncher",
-            "bin/lkql_jit"
+            "bin/native_lkql_jit"
         ]
         print(f"Execute: {launcher_cmd}", flush=True)
         subprocess.run(launcher_cmd)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         checker_cmd = cmd + [
             "-cp", "../language/target/lkql_jit.jar:../checker/target/lkql_jit_checker.jar",
             "com.adacore.lkql_jit.LKQLChecker",
-            "bin/lkql_jit_checker"
+            "bin/native_lkql_jit_checker"
         ]
         print(f"Execute: {checker_cmd}", flush=True)
         subprocess.run(checker_cmd)
