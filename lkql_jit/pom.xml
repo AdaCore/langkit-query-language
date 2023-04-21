@@ -20,7 +20,15 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Used GraalVM version -->
         <graalvm.version>22.3.1</graalvm.version>
+
+        <!-- Libadalang version -->
+        <config.libadalangVersion>0.1</config.libadalangVersion>
+
+        <!-- Liblkqllang version -->
+        <config.liblkqllangVersion>0.1</config.liblkqllangVersion>
 
         <!-- List of the components to build with native image -->
         <config.nativeComponents>none</config.nativeComponents>
