@@ -157,9 +157,9 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 try {
                     this.applyUnitRule(frame, rule, unit, context, linesCache);
                 } catch (LangkitException e) {
-                    this.reportException(rule, e);
+                    reportException(context, rule, e);
                 } catch (LKQLRuntimeException e) {
-                    this.reportException(e);
+                    reportException(context, e);
                 }
             }
 
@@ -257,7 +257,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     );
                 }
 
-                CheckerUtils.printRuleViolation(messageText, slocRange, locUnit, linesCache);
+                CheckerUtils.printRuleViolation(messageText, slocRange, locUnit, linesCache, context);
             }
         }
 
@@ -268,8 +268,8 @@ public final class UnitCheckerFunction implements BuiltInFunction {
          * @param e    The exception to report
          */
         @CompilerDirectives.TruffleBoundary
-        private void reportException(ObjectValue rule, LangkitException e) {
-            System.out.println("TODO : Report exception");
+        private static void reportException(LKQLContext context, ObjectValue rule, LangkitException e) {
+            context.println("TODO : Report exception");
         }
 
         /**
@@ -278,9 +278,9 @@ public final class UnitCheckerFunction implements BuiltInFunction {
          * @param e The LKQL exception
          */
         @CompilerDirectives.TruffleBoundary
-        private void reportException(LKQLRuntimeException e) {
-            System.out.println("Exception in the LKQL code :");
-            System.out.println(e.getMessage());
+        private static void reportException(LKQLContext context, LKQLRuntimeException e) {
+            context.println("Exception in the LKQL code :");
+            context.println(e.getMessage());
         }
 
     }
