@@ -40,6 +40,8 @@ import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionStability;
 
 import java.io.File;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -273,6 +275,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     @Override
     protected void initializeContext(LKQLContext context) {
+        // Set output and error encoding to UTF_8, in the future, user should be able to choose
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+        System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
+
+        // Initialize the source to analyse in the further execution
         context.initSources();
     }
 
