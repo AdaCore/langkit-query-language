@@ -11,7 +11,7 @@
 !/.idea/inspectionProfiles/Project_Default.xml
 
 # Ignore from the component module
-component/comp_temp
+component/lkql_jit_component
 component/target
 component/lkql_jit_component.jar
 

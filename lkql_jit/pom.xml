@@ -23,34 +23,34 @@
         <graalvm.version>22.3.1</graalvm.version>
 
         <!-- List of the components to build with native image -->
-        <config.nativeImageComponents>none</config.nativeImageComponents>
+        <config.nativeComponents>none</config.nativeComponents>
 
         <!-- Building mode of the native image -->
-        <config.nativeImageMode>dev</config.nativeImageMode>
+        <config.buildMode>dev</config.buildMode>
     </properties>
 
     <profiles>
 
-        <!-- Components profiles -->
+        <!-- Native components profiles -->
 
         <profile>
             <id>native-checker</id>
             <properties>
-                <config.nativeImageComponents>checker</config.nativeImageComponents>
+                <config.nativeComponents>checker</config.nativeComponents>
             </properties>
         </profile>
 
         <profile>
             <id>native-launcher</id>
             <properties>
-                <config.nativeImageComponents>launcher</config.nativeImageComponents>
+                <config.nativeComponents>launcher</config.nativeComponents>
             </properties>
         </profile>
 
         <profile>
             <id>native-all</id>
             <properties>
-                <config.nativeImageComponents>launcher checker</config.nativeImageComponents>
+                <config.nativeComponents>launcher checker</config.nativeComponents>
             </properties>
         </profile>
 
@@ -59,21 +59,21 @@
         <profile>
             <id>dev</id>
             <properties>
-                <config.nativeImageMode>dev</config.nativeImageMode>
+                <config.buildMode>dev</config.buildMode>
             </properties>
         </profile>
 
         <profile>
             <id>debug</id>
             <properties>
-                <config.nativeImageMode>debug</config.nativeImageMode>
+                <config.buildMode>debug</config.buildMode>
             </properties>
         </profile>
 
         <profile>
             <id>prod</id>
             <properties>
-                <config.nativeImageMode>prod</config.nativeImageMode>
+                <config.buildMode>prod</config.buildMode>
             </properties>
         </profile>
 

@@ -2,12 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>lkql_jit</artifactId>
         <groupId>com.adacore</groupId>
         <version>0.1.0</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>component</artifactId>
 
@@ -18,10 +19,13 @@
 
     <build>
         <plugins>
+            <!-- Configure the Python script executions -->
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
+                <version>3.0.0</version>
                 <executions>
+                    <!-- make.py execution -->
                     <execution>
                         <id>make_component</id>
                         <phase>package</phase>
@@ -31,14 +35,15 @@
                         <configuration>
                             <executable>python3</executable>
                             <arguments>
-                                <argument>${basedir}/make_component.py</argument>
-                                <argument>${project.version}</argument>
-                                <argument>${graalvm.version}</argument>
-                                <argument>${config.nativeImageComponents}</argument>
+                                <argument>${basedir}/make.py</argument>
+                                <argument>--lkql-version</argument><argument>${project.version}</argument>
+                                <argument>--graal-version</argument><argument>${graalvm.version}</argument>
+                                <argument>--native-components</argument><argument>${config.nativeComponents}</argument>
                             </arguments>
                         </configuration>
                     </execution>
 
+                    <!-- install.py execution -->
                     <execution>
                         <id>install_component</id>
                         <phase>install</phase>
@@ -47,10 +52,11 @@
                         </goals>
                         <configuration>
                             <executable>python3</executable>
-                            <arguments>${basedir}/install_component.py</arguments>
+                            <arguments>${basedir}/install.py</arguments>
                         </configuration>
                     </execution>
 
+                    <!-- clean.py execution -->
                     <execution>
                         <id>clean_component</id>
                         <phase>clean</phase>
@@ -59,7 +65,7 @@
                         </goals>
                         <configuration>
                             <executable>python3</executable>
-                            <arguments>${basedir}/clean_component.py</arguments>
+                            <arguments>${basedir}/clean.py</arguments>
                         </configuration>
                     </execution>
                 </executions>
