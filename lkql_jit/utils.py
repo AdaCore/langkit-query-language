@@ -51,7 +51,11 @@ class GraalManager():
     @property
     def native_image(self):
         if not self._native_image:
-            self._native_image = P.join(self.home, 'bin', 'native-image')
+            self._native_image = (
+                P.join(self.home, 'bin', 'native-image.cmd')
+                if os.name == 'nt' else
+                P.join(self.home, 'bin', 'native-image')
+            )
             if not P.isfile(self._native_image):
                 raise RuntimeError("Native-image tool is not available in your GraalVM"
                                    "installation, install it with 'gu'")
@@ -59,11 +63,19 @@ class GraalManager():
 
     @property
     def jar(self):
-        return P.join(self.home, 'bin', 'jar')
+        return (
+            P.join(self.home, 'bin', 'jar.exe')
+            if os.name == 'nt' else
+            P.join(self.home, 'bin', 'jar')
+        )
 
     @property
     def gu(self):
-        return P.join(self.home, 'bin', 'gu')
+        return (
+            P.join(self.home, 'bin', 'gu.cmd')
+            if os.name == 'nt' else
+            P.join(self.home, 'bin', 'gu')
+        )
 
     # --- Utils ---
 
