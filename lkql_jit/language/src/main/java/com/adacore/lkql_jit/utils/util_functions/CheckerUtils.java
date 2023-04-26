@@ -1,9 +1,12 @@
 package com.adacore.lkql_jit.utils.util_functions;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
+
+import java.util.Arrays;
 
 
 /**
@@ -44,13 +47,15 @@ public class CheckerUtils {
      * @param slocRange  The location where the error occurs in the code
      * @param unit       The analysis unit in which the error occurs
      * @param linesCache The cache of all units' source text lines
+     * @param context    The context to output the message
      */
     @CompilerDirectives.TruffleBoundary
     public static void printRuleViolation(
         String message,
         Libadalang.SourceLocationRange slocRange,
         Libadalang.AnalysisUnit unit,
-        SourceLinesCache linesCache
+        SourceLinesCache linesCache,
+        LKQLContext context
     ) {
         printRuleViolation(
             message,
@@ -59,7 +64,8 @@ public class CheckerUtils {
             slocRange.end.line,
             slocRange.end.column,
             unit,
-            linesCache
+            linesCache,
+            context
         );
     }
 
@@ -73,6 +79,7 @@ public class CheckerUtils {
      * @param endCol     The position end column
      * @param unit       The analysis unit where the violation happened
      * @param linesCache The cache of all units' source text lines
+     * @param context    The LKQL context to use for the output
      */
     @CompilerDirectives.TruffleBoundary
     public static void printRuleViolation(
@@ -82,7 +89,8 @@ public class CheckerUtils {
         int endLine,
         int endCol,
         Libadalang.AnalysisUnit unit,
-        SourceLinesCache linesCache
+        SourceLinesCache linesCache,
+        LKQLContext context
     ) {
         // Get the file name
         String fileName = FileUtils.baseName(unit.getFileName());
@@ -103,7 +111,7 @@ public class CheckerUtils {
         );
 
         // Print the things
-        System.out.println(
+        context.println(
             (LKQLLanguage.SUPPORT_COLOR ? StringUtils.ANSI_BOLD : "") +
                 fileName + ":" +
                 startLine + ":" +

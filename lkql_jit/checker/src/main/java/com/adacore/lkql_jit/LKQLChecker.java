@@ -28,7 +28,7 @@ import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -241,6 +241,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         // Set the rule argument
         contextBuilder.option("lkql.rulesArgs", String.join(";", this.rulesArgs));
 
+        // Set the Ada files to ignore during the analysis
         if (this.ignores != null && !this.ignores.isEmpty() && !this.ignores.isBlank()) {
             contextBuilder.option("lkql.ignores", this.ignores);
         }

@@ -401,11 +401,7 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public void print(String toPrint) {
-        try {
-            this.env.out().write(toPrint.getBytes());
-        } catch (IOException e) {
-            throw LKQLRuntimeException.fromMessage("Cannot print on the standard output");
-        }
+        System.out.print(toPrint);
     }
 
     /**
@@ -415,13 +411,9 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public void println(String toPrint) {
-        try {
-            toPrint += "\n";
-            this.env.out().write(toPrint.getBytes());
-        } catch (IOException e) {
-            throw LKQLRuntimeException.fromMessage("Cannot print on the standard output");
-        }
+        System.out.println(toPrint);
     }
+
 
     // ----- Project analysis methods -----
 

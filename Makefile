@@ -14,8 +14,15 @@ BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
 GPRINSTALL=gprinstall --prefix=$(PREFIX) -p -XBUILD_MODE=$(BUILD_MODE)
-MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
-  --library-types=static
+BUILD_FOR_JIT=false
+
+ifeq ($(BUILD_FOR_JIT),true)
+  MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
+    --library-types=relocatable
+else
+  MANAGE_ARGS=--build-dir=$(LKQL_DIR) --build-mode=$(BUILD_MODE) \
+    --library-types=static
+endif
 
 all: lkql lkql_checker lalcheck doc
 lkql: build/bin/liblkqllang_parse

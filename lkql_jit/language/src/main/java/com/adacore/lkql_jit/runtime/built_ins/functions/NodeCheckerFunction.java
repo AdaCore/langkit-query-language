@@ -197,9 +197,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                         try {
                             this.applyNodeRule(frame, rule, currentNode, context, linesCache);
                         } catch (LangkitException e) {
-                            this.reportException(rule, e);
+                            reportException(context, rule, e);
                         } catch (LKQLRuntimeException e) {
-                            this.reportException(e);
+                            reportException(context, e);
                         }
                     }
                 }
@@ -276,19 +276,21 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             }
 
             if (ruleResult) {
-                reportViolation(rule, node, linesCache);
+                reportViolation(context, rule, node, linesCache);
             }
         }
 
         /**
          * Report a rule violation with the node that violate it
          *
+         * @param context    The context to output the message
          * @param rule       The violated rule
          * @param node       The node that violated the rule
          * @param linesCache The cache of all units' source text lines
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportViolation(
+            LKQLContext context,
             ObjectValue rule,
             Libadalang.AdaNode node,
             CheckerUtils.SourceLinesCache linesCache
@@ -301,7 +303,8 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 (String) rule.get("message"),
                 node.getSourceLocationRange(),
                 node.getUnit(),
-                linesCache
+                linesCache,
+                context
             );
         }
 
@@ -312,8 +315,8 @@ public final class NodeCheckerFunction implements BuiltInFunction {
          * @param e    The exception to report
          */
         @CompilerDirectives.TruffleBoundary
-        private void reportException(ObjectValue rule, LangkitException e) {
-            System.out.println("TODO : Report exception : " + e.getMsg());
+        private static void reportException(LKQLContext context, ObjectValue rule, LangkitException e) {
+            context.println("TODO : Report exception : " + e.getMsg());
         }
 
         /**
@@ -322,9 +325,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
          * @param e The LKQL exception
          */
         @CompilerDirectives.TruffleBoundary
-        private void reportException(LKQLRuntimeException e) {
-            System.out.println("Exception in the LKQL code :");
-            System.out.println(e.getMessage());
+        private static void reportException(LKQLContext context, LKQLRuntimeException e) {
+            context.println("Exception in the LKQL code :");
+            context.println(e.getMessage());
         }
 
         // ----- Inner classes -----

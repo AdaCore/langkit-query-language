@@ -104,12 +104,12 @@ if __name__ == '__main__':
     # Copy the needed native images
     if include_native_launcher:
         shutil.copy(
-            P.join("..", "native", "bin", "lkql_jit"),
+            P.join("..", "native", "bin", "native_lkql_jit"),
             P.join(bin_dir, "native_lkql_jit")
         )
     if include_native_checker:
         shutil.copy(
-            P.join("..", "native", "bin", "lkql_jit_checker"),
+            P.join("..", "native", "bin", "native_lkql_jit_checker"),
             P.join(bin_dir, "native_lkql_jit_checker")
         )
 

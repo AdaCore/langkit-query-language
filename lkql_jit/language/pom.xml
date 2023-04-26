@@ -73,13 +73,13 @@
         <dependency>
             <groupId>com.adacore</groupId>
             <artifactId>liblkqllang</artifactId>
-            <version>0.1</version>
+            <version>${config.liblkqllangVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>com.adacore</groupId>
             <artifactId>libadalang</artifactId>
-            <version>0.1</version>
+            <version>${config.libadalangVersion}</version>
         </dependency>
     </dependencies>
 
