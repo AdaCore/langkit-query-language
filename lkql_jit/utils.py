@@ -27,7 +27,8 @@ import os
 import os.path as P
 import argparse
 
-class GraalManager():
+
+class GraalManager:
     """
     Class which helps other building script to access the local GraalVM
     installation and binaries.
@@ -53,7 +54,7 @@ class GraalManager():
         if not self._native_image:
             self._native_image = (
                 P.join(self.home, 'bin', 'native-image.cmd')
-                if os.name == 'nt' else
+                if is_windows() else
                 P.join(self.home, 'bin', 'native-image')
             )
             if not P.isfile(self._native_image):
@@ -65,7 +66,7 @@ class GraalManager():
     def jar(self):
         return (
             P.join(self.home, 'bin', 'jar.exe')
-            if os.name == 'nt' else
+            if is_windows() else
             P.join(self.home, 'bin', 'jar')
         )
 
@@ -73,29 +74,36 @@ class GraalManager():
     def gu(self):
         return (
             P.join(self.home, 'bin', 'gu.cmd')
-            if os.name == 'nt' else
+            if is_windows() else
             P.join(self.home, 'bin', 'gu')
         )
 
-    # --- Utils ---
 
-    def component_template(self, dir):
-        """
-        Create a graal component directory hierarchy in the given directory.
+def component_template(dir):
+    """
+    Create a graal component directory hierarchy in the given directory.
 
-        :param dir: The directory to create the hierarchy.
-        :return The directories from the created hierarchy.
-        """
-        meta_dir = P.join(dir, 'META-INF')
-        lang_dir = P.join(dir, 'languages', 'lkql')
-        bin_dir = P.join(lang_dir, 'bin')
+    :param dir: The directory to create the hierarchy.
+    :return The directories from the created hierarchy.
+    """
+    meta_dir = P.join(dir, 'META-INF')
+    lang_dir = P.join(dir, 'languages', 'lkql')
+    bin_dir = P.join(lang_dir, 'bin')
 
-        os.makedirs(dir)
-        os.makedirs(meta_dir)
-        os.makedirs(lang_dir)
-        os.makedirs(bin_dir)
+    os.makedirs(dir)
+    os.makedirs(meta_dir)
+    os.makedirs(lang_dir)
+    os.makedirs(bin_dir)
 
-        return meta_dir, lang_dir, bin_dir
+    return meta_dir, lang_dir, bin_dir
+
+
+def is_windows():
+    """
+    Return if the current platform is Windows.
+    """
+    return os.name == 'nt'
+
 
 def parse_args():
     """
