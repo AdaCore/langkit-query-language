@@ -83,7 +83,8 @@ class InterpreterDriver(BaseTestDriver):
 
     def run(self):
         # Build the process's arguments list
-        args = [os.environ["LKQL_EXE"], '--script-path', 'script.lkql']
+        lkql_exe = os.environ["LKQL_EXE"].split("&")
+        args = [*lkql_exe, '--script-path', 'script.lkql']
 
         input_sources = self.test_env.get('input_sources', None)
         project = self.test_env.get('project', None)
@@ -114,7 +115,7 @@ class CheckerDriver(BaseTestDriver):
     """
 
     def run(self):
-        args = [os.environ["LKQL_CHECKER_EXE"]]
+        args = os.environ["LKQL_CHECKER_EXE"].split("&")
         # Use the test's project, if any
         if self.test_env.get('project', None):
             args += ['-P', self.test_env['project']]

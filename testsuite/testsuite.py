@@ -7,6 +7,7 @@ from drivers import (
 )
 import glob
 import os
+import os.path as P
 import subprocess
 import sys
 
@@ -44,12 +45,68 @@ class LKQLTestsuite(Testsuite):
         Return a pair containing the name of the lkql "interpreter" and
         "checker" executables according to the chosen testsuite mode.
         """
+        # If the mode is Ada
         if self.env.options.mode == "ada":
-            return ("lkql_ada", "lkql_checker")
+            return (["lkql_ada"], ["lkql_checker"])
+
+        # If the mode is JIT
         elif self.env.options.mode == "jit":
-            return ("lkql_jit", "lkql_jit_checker")
+            # Prepare the command for calling Java with the LKQL JIT implementation
+            graal_home = os.environ['GRAAL_HOME']
+            lkql_jit_home = os.environ.get(
+                'LKQL_JIT_HOME',
+                P.join(graal_home, 'languages', 'lkql')
+            )
+
+            # Get the Java executable
+            java = (
+                P.join(graal_home, 'bin', 'java.exe')
+                if os.name == 'nt' else
+                P.join(graal_home, 'bin', 'java')
+            )
+
+            # Create the class path
+            base_class_path = [
+                P.join(graal_home, 'lib', 'truffle', 'truffle-api.jar'),
+                P.join(lkql_jit_home, 'lkql_jit.jar'),
+            ]
+            launcher_class_path = os.pathsep.join(base_class_path + [
+                P.join(lkql_jit_home, 'lkql_jit_launcher.jar')
+            ])
+            checker_class_path = os.pathsep.join(base_class_path + [
+                P.join(lkql_jit_home, 'lkql_jit_checker.jar')
+            ])
+
+            # Get the java.library.path
+            java_library_path = (
+                os.environ.get('PATH', "")
+                if os.name == 'nt' else
+                os.environ.get('LD_LIBRARY_PATH', "")
+            )
+
+            # Prepare the Java commands
+            launcher_cmd = [
+                java,
+                "-cp", launcher_class_path,
+                f'-Djava.library.path={java_library_path}',
+                f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
+                "com.adacore.lkql_jit.LKQLLauncher"
+            ]
+            checker_cmd = [
+                java,
+                "-cp", checker_class_path,
+                f'-Djava.library.path={java_library_path}',
+                f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
+                "com.adacore.lkql_jit.LKQLChecker"
+            ]
+
+            return (launcher_cmd, checker_cmd)
+
+        # If the mode is native JIT
         elif self.env.options.mode == "native_jit":
-            return ("native_lkql_jit", "native_lkql_jit_checker")
+            return (["native_lkql_jit"], ["native_lkql_jit_checker"])
+
+        # Else, there is an error
         else:
             raise RuntimeError("invalid testsuite mode"
                                f" '{self.env.options.mode}'")
@@ -89,8 +146,8 @@ class LKQLTestsuite(Testsuite):
 
         (lkql_exe, lkql_checker_exe) = self.lkql_executables()
 
-        os.environ['LKQL_EXE'] = lkql_exe
-        os.environ['LKQL_CHECKER_EXE'] = lkql_checker_exe
+        os.environ['LKQL_EXE'] = "&".join(lkql_exe)
+        os.environ['LKQL_CHECKER_EXE'] = "&".join(lkql_checker_exe)
 
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.
