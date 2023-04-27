@@ -241,9 +241,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     public LKQLLanguage() {
         super();
 
-        // Load the signal handler deactivation library
-        System.loadLibrary("langkit_sigsegv_handler");
-
         // Create the langkit analysis context
         this.analysisContext = Liblkqllang.AnalysisContext.create();
 
