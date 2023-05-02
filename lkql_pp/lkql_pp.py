@@ -1,258 +1,36 @@
-from dataclasses import dataclass
-from functools import cache, reduce
-from io import StringIO
-from typing import Any, Callable, List, Set, Tuple, Type, cast
+from __future__ import annotations
 
-from langkit.dsl_unparse import pp, sf
+from typing import Callable, List, Tuple, cast
+
 from langkit.utils.colors import printcol, Colors
+
 import liblkqllang as L
 
+from pretty_printer import PrettyPrinter, ad, ai, hl, sl, fi, fd, ob, cb
 
-class PPFragment:
-    pass
-
-
-class HardLineBreak(PPFragment):
-    pass
-
-
-class SoftLineBreak(PPFragment):
-    needs_split: bool = False
-
-
-class OpenBox(PPFragment):
-    split: bool = False
-
-
-class CloseBox(PPFragment):
-    pass
-
-
-class IndentAction(PPFragment):
-    pass
-
-
-class FixedIndent(IndentAction):
-    pass
-
-
-class FixedDedent(IndentAction):
-    pass
-
-
-class AlignedIndent(IndentAction):
-    pass
-
-
-class AlignedDedent(IndentAction):
-    pass
-
-
-@dataclass
-class Text(PPFragment):
-    data: str
-
-
-hl = HardLineBreak()
-sl = SoftLineBreak()
-ob = OpenBox()
-cb = CloseBox()
-fi = FixedIndent()
-fd = FixedDedent()
-ai = AlignedIndent()
-ad = AlignedDedent()
-txt = Text
-
-
-def check_freeze(method: Any) -> Any:
-
-    def internal(pretty_printer: 'PrettyPrinter',
-                 *args: Any,
-                 **kwargs: Any) -> None:
-        if pretty_printer.frozen:
-            raise Exception("Cannot append fragments to a frozen "
-                            "pretty-printer")
-        method(pretty_printer, *args, **kwargs)
-
-    return internal
-
-
-@dataclass
-class Line:
-    indent: int
-    fragments: List[PPFragment]
-
-    def remove_pred(self, pred: Callable[[PPFragment], bool]) -> None:
-        self.fragments = [f for f in self.fragments if pred(f)]
-
-    def remove(self, kls: Type[PPFragment]) -> None:
-        self.remove_pred(lambda f: not isinstance(f, kls))
-
-    @cache
-    def text_fragments(self):
-        return [
-            cast(Text, f).data for f in self.fragments if isinstance(f, Text)
-        ]
-
-    def length(self):
-        """
-        Returns the length of this line
-        """
-        return reduce(lambda l, i: l + len(i), self.text_fragments())
-
-    def render(self) -> str:
-        return " " * self.indent + "".join(self.text_fragments())
-
-    def split_on(self, frag):
-        for i, f in enumerate(self.fragments):
-            if frag == f:
-                return (
-                    Line(self.indent, self.fragments[0:i]),
-                    Line(self.indent, self.fragments[i + 1:])
-                )
-        return (None, None)
-
-
-@dataclass
-class Box:
-    breaks: List[SoftLineBreak]
-    needs_split: bool = False
-
-
-class PrettyPrinter:
-
-    def __init__(self, indent_step: int = 4, line_size: int = 80):
-        self.indent_step = indent_step
-        self.line_size = line_size
-        self.fragments: List[PPFragment] = []
-        self.frozen = False
-        self.lines: List[Line] = []
-
-    def pre(self) -> None:
-        pass
-
-
-    def transform_line_breaks(self):
-        pass
-
-    def prepare(self) -> None:
-        self.frozen = True
-
-        cur: List[PPFragment] = []
-
-        # Fill up the data table, split in lines according to hard line breaks
-        for frag in self.fragments:
-            # Split on hard line break
-            if isinstance(frag, HardLineBreak):
-                self.lines.append(Line(0, cur))
-                cur = []
-            # Instantiate soft line breaks (needed by the box line breaking
-            # algorithm)
-            elif isinstance(frag, SoftLineBreak):
-                cur.append(SoftLineBreak())
-            else:
-                cur.append(frag)
-
-        # Append the last line
-        # TODO: Do we really want to do that? Or should the user insert a
-        #  hard line break ?
-        self.lines.append(Line(0, cur))
-
-    def compute_indent(self) -> None:
-        current_indent = 0
-        for line in self.lines:
-            line.indent = current_indent
-            for i, fragment in enumerate(line.fragments):
-                if isinstance(fragment, FixedIndent):
-                    current_indent += self.indent_step
-                elif isinstance(fragment, FixedDedent):
-                    current_indent -= self.indent_step
-                elif isinstance(fragment, (AlignedIndent, AlignedDedent)):
-                    raise NotImplementedError(
-                        "Aligned indentation not yet implemented"
-                    )
-
-    def compute_boxes(self) -> None:
-        top_level_boxes: List[Box]
-        needs_splitting: bool = False
-        level: int = 0
-        current_box = None
-
-        for line in self.lines:
-            for i, fragment in enumerate(line.fragments):
-                if isinstance(fragment, OpenBox) and not fragment.split:
-                    if level == 0:
-                        current_box = Box([])
-                        top_level_boxes.append(current_box)
-                    level += 1
-
-                elif isinstance(fragment, SoftLineBreak) and level == 1 and \
-                        current_box:
-                    current_box.breaks.append(fragment)
-
-                elif isinstance(fragment, CloseBox):
-                    level -= 1
-                    if level == 0:
-                        current_box = None
-
-            if line.length() > self.line_size:
-                # Split
-                needs_splitting = True
-
-        while needs_splitting:
-            box = boxes_stack[0]
-            del boxes_stack[0]
-
-            for brk in box.breaks:
-                brk.needs_split = True
-
-            self.split_soft_line_breaks()
-
-            needs_splitting = False
-
-
-
-
-
-    def pretty_print(self) -> str:
-        """
-        Pretty printing DSL
-
-        TODO: Document and share with langkit
-        """
-
-        self.pre()
-        self.prepare()
-        self.compute_indent()
-
-        file_str = StringIO()
-        for line in self.lines:
-            file_str.write(line.render() + "\n")
-        return file_str.getvalue()
-
-    def add(self, *actions: PPFragment):
-        self.fragments.extend(actions)
+def print_header(s: str) -> None:
+    printcol(f"{s}\n{'=' * len(s)}\n", Colors.BLUE)
 
 
 def get_comments_before(n: L.LkqlNode) -> Tuple[List[str], bool]:
     t_start = cast(L.Token, n.token_start)
     f = t_start.previous
-    ret = []
-    has_newlines_before = False
+    ret: List[str] = []
+    number_of_newlines = 0
     while f and f.is_trivia:
         if f.kind == "Whitespace" and "\n" in f.text and not ret:
-            has_newlines_before = True
+            number_of_newlines += 1
 
         if f.kind == "Comment":
             ret.append(f.text)
 
         f = f.previous
 
-    return list(reversed(ret)), has_newlines_before
+    return list(reversed(ret)), number_of_newlines > 1
 
 
 def get_trivia_after(n: L.LkqlNode) -> List[L.Token]:
-    t_end = cast(n.token_end, L.Token)
+    t_end = cast(L.Token, n.token_end)
     f = t_end.next
     ret = []
     while f and f.is_trivia:
@@ -262,127 +40,301 @@ def get_trivia_after(n: L.LkqlNode) -> List[L.Token]:
     return ret
 
 
-def pretty_print_decl(n: L.LkqlNode) -> str:
-    r = pretty_print
+def pretty_print_decl(n: L.LkqlNode, pp: PrettyPrinter) -> None:
+    r = lambda nn: pretty_print(nn, pp)
+
     if isinstance(n, L.FunDecl):
-        return f"fun {n.f_name.text}{r(n.f_fun_expr)}"
+        pp.add(f"fun {n.f_name.text}")
+        r(n.f_fun_expr)
+
     elif isinstance(n, L.ParameterDecl):
+        pp.add(n.f_param_identifier.text)
         d = n.f_default_expr
         if d:
-            return f"{n.f_param_identifier.text} = {r(d)}"
-        else:
-            return f"{n.f_param_identifier.text}"
+            pp.add("=")
+            r(d)
+
     elif isinstance(n, L.ValDecl):
-        return f"val {n.f_identifier.text} = {r(n.f_value)}"
+        pp.add(f"val {n.f_identifier.text} = ")
+        r(n.f_value)
 
     else:
-        return f"<{type(n).__name__}>"
+        pp.add(f"<{type(n).__name__}>")
 
 
 already_processed_comments = set()
 
-def print_comments(
-    fn: Callable[[L.LkqlNode], str]
-) -> Callable[[L.LkqlNode], str]:
 
-    def print_comments(n: L.LkqlNode) -> str:
-        ret = fn(n)
+def print_comments(
+    fn: Callable[[L.LkqlNode, PrettyPrinter], None]
+) -> Callable[[L.LkqlNode, PrettyPrinter], None]:
+
+    def print_comments(n: L.LkqlNode, pp: PrettyPrinter) -> None:
         comments, has_nl = get_comments_before(n)
 
         if comments and comments[0] not in already_processed_comments:
             for comment in comments:
                 already_processed_comments.add(comment)
+                pp.add(comment, hl)
+            if has_nl:
+                pp.add(hl)
 
-            return f"{'$hl'.join(comments)}{'$hl' if has_nl else ''}$hl{ret}"
-        else:
-            return ret
+        fn(n, pp)
 
     return print_comments
 
 
 @print_comments
-def pretty_print(n: L.LkqlNode) -> str:
-    r = pretty_print
+def pretty_print(n: L.LkqlNode, pp: PrettyPrinter) -> None:
+    r = lambda nn: pretty_print(nn, pp)
 
     if isinstance(n, L.TopLevelList):
-        return sf("""
-        % for el in n:
-        ${r(el)}$hl$hl
-        % endfor
-        """)
+        for i, el in enumerate(n):
+            r(el)
+            if i < len(n) - 1:
+                pp.add(hl, hl)
 
     elif isinstance(n, L.Declaration):
         if n.f_annotation:
-            return sf("""
-            ${r(n.f_annotation)}$hl
-            ${pretty_print_decl(n)}
-            """)
-        else:
-            return pretty_print_decl(n)
+            r(n.f_annotation)
+            pp.add(hl)
+        pretty_print_decl(n, pp)
 
     elif isinstance(n, L.DeclAnnotation):
 
-        if n.f_arguments:
-            return f"@{n.f_name.text}({r(n.f_arguments)})"
-        else:
-            return f"@{n.f_name.text}"
+        pp.add(f"@{n.f_name.text}")
+        if len(n.f_arguments):
+            pp.add("(")
+            with pp.aligned_box(-1):
+                r(n.f_arguments)
+            pp.add(")")
+
+    elif isinstance(n, L.BlockStringLiteral):
+        for el in n.f_docs:
+            pp.add(el.text, hl)
 
     elif isinstance(n, L.BaseFunction):
-        return (
-            f"({r(n.f_parameters)}) = {r(n.f_body_expr)}"
-        )
+        pp.add("(")
+        with pp.aligned_box():
+            with pp.aligned_box():
+                r(n.f_parameters)
+        pp.add(") = ")
+
+        if n.f_doc_node:
+            pp.add(ob, fi, hl)
+            r(n.f_doc_node)
+            pp.add(fd, cb)
+
+        # TODAY: Transform into predicate
+        is_block_expr = n.f_body_expr.is_a(L.BlockExpr, L.ListLiteral)
+
+        if not is_block_expr:
+            pp.add(ob, fi, sl)
+
+        r(n.f_body_expr)
+
+        if not is_block_expr:
+            pp.add(fd, cb)
+
+    elif isinstance(n, L.DetailPattern):
+        r(n.f_pattern_value)
 
     elif isinstance(n, (L.ParameterDeclList, L.ArgList)):
-        return ", ".join([r(p) for p in n])
+        for i, par in enumerate(n):
+            r(par)
+            if i < len(n) - 1:
+                pp.add(", ", sl)
+
+    elif isinstance(n, L.ListComprehension):
+        pp.add("[]")
 
     elif isinstance(n, L.BlockExpr):
-        return sf("""{$i$hl
-        % for el in n.f_body:
-        ${r(el)}$hl
-        % endfor
-        ${r(n.f_expr)}$hl
-        $d}
-        """)
+        pp.add("{", fi, hl)
+
+        for el in n.f_body:
+            r(el)
+            pp.add(";", hl)
+
+            if isinstance(cast(L.BlockBodyDecl, el).f_decl, L.FunDecl):
+                pp.add(hl)
+
+        r(n.f_expr)
+        pp.add(fd, hl, "}")
 
     elif isinstance(n, L.BlockBodyDecl):
-        return r(n.f_decl)
+        r(n.f_decl)
 
-    elif isinstance(n, (L.Identifier, L.StringLiteral, L.BoolLiteral)):
-        return n.text
+    elif isinstance(n, (L.Identifier, L.StringLiteral, L.BoolLiteral,
+                        L.IntegerLiteral, L.NullLiteral)):
+        pp.add(n.text)
 
     elif isinstance(n, L.FunCall):
+        r(n.f_name)
 
-        return f"{r(n.f_name)}({r(n.f_arguments)})"
+        if len(n.f_arguments):
+            pp.add("(", fi, ob, sl)
+            r(n.f_arguments)
+            pp.add(fd, sl, cb, ")")
+        else:
+            pp.add("()")
 
     elif isinstance (n, L.ExprArg):
-        return r(n.f_value_expr)
+        r(n.f_value_expr)
 
     elif isinstance (n, L.NamedArg):
-        return f"{r(n.f_arg_name)}={r(n.f_value_expr)}"
+        r(n.f_arg_name)
+        pp.add("=")
+        r(n.f_value_expr)
 
     elif isinstance(n, L.IsClause):
-        return f"{r(n.f_node_expr)} $slis {r(n.f_pattern)}"
+        r(n.f_node_expr)
+        pp.add(" is ")
+        r(n.f_pattern)
 
     elif isinstance(n, L.NodeKindPattern):
-        return n.f_kind_name.text
+        pp.add(n.f_kind_name.text)
 
+    elif isinstance(n, L.ExtendedNodePattern):
+        r(n.f_node_pattern)
+        pp.add("(", fi, ob, sl)
+        for detail in n.f_details:
+            r(detail)
+        pp.add(fd, sl, cb, ")")
+
+    elif isinstance(n, L.NodePatternField):
+        r(n.f_identifier)
+        pp.add(" is ")
+        r(n.f_expected_value)
+
+    elif isinstance(n, L.ListLiteral):
+        pp.add("[", fi, ob, sl)
+        for i, el in enumerate(n.f_exprs):
+            r(el)
+            if i < len(n.f_exprs) - 1:
+                pp.add(", ")
+                pp.add(sl)
+        pp.add(fd, sl, cb, "]")
+
+    elif isinstance(n, L.FilteredPattern):
+        r(n.f_pattern)
+        pp.add(" ", sl, "when", " ")
+        r(n.f_predicate)
+
+    elif isinstance(n, L.NodePatternProperty):
+        r(n.f_call)
+        pp.add(" is ")
+        r(n.f_expected_value)
+
+    elif isinstance(n, L.ParenPattern):
+        pp.add("(")
+        r(n.f_pattern)
+        pp.add(")")
+
+    elif isinstance(n, L.SafeAccess):
+        r(n.f_receiver)
+        pp.add("?.")
+        r(n.f_member)
+
+    elif isinstance(n, L.DotAccess):
+        # TODO: Maybe break nested dot accesses
+        r(n.f_receiver)
+        if not n.parent.is_a(L.DotAccess):
+            pp.start_aligned_box(1)
+        pp.add(sl)
+        pp.add(".")
+        r(n.f_member)
+        if not n.parent.is_a(L.DotAccess):
+            pp.close_aligned_box()
+
+    elif isinstance(n, L.OrPattern):
+
+        r(n.f_left)
+        pp.add(" or ")
+        r(n.f_right)
+
+    elif isinstance(n, L.Import):
+        pp.add("import ")
+        r(n.f_name)
+
+    elif isinstance(n, L.Match):
+        with pp.aligned_box():
+            pp.add("match ")
+            r(n.f_matched_val)
+            pp.add(hl)
+            for i, arm in enumerate(n.f_arms):
+                pp.add("| ", ob, fi)
+                r(arm.f_pattern)
+                pp.add (" => ", sl)
+                r(arm.f_expr)
+
+                pp.add(fd, cb)
+                if i < len(n.f_arms) - 1:
+                    pp.add(hl)
+
+    elif isinstance(n, L.BindingPattern):
+        r(n.f_binding)
+        pp.add("@")
+        r(n.f_value_pattern)
+
+    elif isinstance(n, L.IfThenElse):
+
+        # We create an align box, except in the case where this if is
+        # directly nested in an other if expression, in which case we want
+        # to align every sub-if-expr on the top level one
+        if not n.parent.is_a(L.IfThenElse):
+            pp.start_aligned_box()
+
+        pp.add("if ", ob)
+        r(n.f_condition)
+        pp.add(" ", sl, "then ")
+        r(n.f_then_expr)
+        pp.add(cb, " ", sl, "else ")
+        r(n.f_else_expr)
+
+        if not n.parent.is_a(L.IfThenElse):
+            pp.close_aligned_box()
+
+    elif isinstance(n, L.UniversalPattern):
+        pp.add("*")
+
+    elif isinstance(n, L.BinOp):
+        with pp.aligned_box():
+            with pp.plain_box():
+                r(n.f_left)
+            pp.add(sl, " " + n.f_op.text + " ")
+            with pp.plain_box():
+                r(n.f_right)
+
+    elif isinstance(n, L.UnOp):
+        pp.add(n.f_op.text + " ")
+        r(n.f_operand)
+
+    elif isinstance(n, L.Indexing):
+        r(n.f_collection_expr)
+        pp.add("[")
+        r(n.f_index_expr)
+        pp.add("]")
     else:
-        return f"<{type(n).__name__}>"
+        pp.add(f"<{type(n).__name__}>")
 
 
 class App(L.App):
-
-    def process_unit(self, unit):
-
-        def print_header(s: str) -> None:
-            printcol(f"{s}\n{'=' * len(s)}\n", Colors.BLUE)
+    def process_unit(self, unit: L.AnalysisUnit) -> None:
+        if self.args.debug:
+            unit.root.dump()
 
         print_header("Original")
         print(unit.text)
 
         print_header("Pretty printed")
-        print(pp(pretty_print(unit.root)))
+        pp = PrettyPrinter(debug=self.args.debug)
+        pretty_print(unit.root, pp)
+        print(pp.pretty_print())
 
+    def add_arguments(self):
+        self.parser.add_argument("-D", "--debug", action="store_true")
+
+        self.parser.add_argument("-o", "--output", type=str)
 
 if __name__ == "__main__":
     App.run()
