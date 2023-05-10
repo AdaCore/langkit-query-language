@@ -2671,7 +2671,7 @@ as being potentially replaceable by an enumeration type if all the
 following conditions are true:
 
 *
-  there is no infix calls to any arithmetic operator for objects
+  there is no infix calls to any arithmetic or bitwise operator for objects
   of this type;
 
 *
