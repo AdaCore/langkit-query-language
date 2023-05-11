@@ -4,7 +4,7 @@
 
 import stdlib
 
-@check(message="possible occurrence of KP TA10-002", impact="21.*,22.*,23.*")
+@check(message="possible occurrence of KP TA10-002", impact="21.*,22.*,23.1")
 fun kp_ta10_002(node) =
     node is CondExpr(any parent is ReturnStmt or ExprFunction)
     when (from node select first c@BaseId(p_is_call() is true)
