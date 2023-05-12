@@ -150,24 +150,25 @@ if __name__ == '__main__':
     # Write the symbolic links
     # TODO: create symlink to native build or interpreter version depending on a setting
     # chosen at installation time?
-    with open(P.join(meta_dir, "symlinks"), 'w') as f:
-        f.writelines([
-            (
-                "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
-                if include_native_launcher else
-                ""
-            ),
-            (
-                "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
-                if include_native_checker else
-                ""
-            ),
-            (
-                "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
-                if include_native_worker else
-                ""
-            ),
-        ])
+    if not is_windows():
+        with open(P.join(meta_dir, "symlinks"), 'w') as f:
+            f.writelines([
+                (
+                    "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
+                    if include_native_launcher else
+                    ""
+                ),
+                (
+                    "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
+                    if include_native_checker else
+                    ""
+                ),
+                (
+                    "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
+                    if include_native_worker else
+                    ""
+                ),
+            ])
 
     # Write the permissions file
     with open(P.join(meta_dir, "permissions"), 'w') as f:
@@ -202,12 +203,13 @@ if __name__ == '__main__':
         ".",
     ])
 
-    subprocess.run([
-        graal.jar,
-        "uf",
-        P.join("..", "lkql_jit_component.jar"),
-        P.join("META-INF", "symlinks"),
-    ])
+    if not is_windows():
+        subprocess.run([
+            graal.jar,
+            "uf",
+            P.join("..", "lkql_jit_component.jar"),
+            P.join("META-INF", "symlinks"),
+        ])
 
     subprocess.run([
         graal.jar,
