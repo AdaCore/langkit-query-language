@@ -320,7 +320,7 @@ by using the libadalang ``p_is_int_type`` property:
    fun integer_types_as_enum(node) = node is TypeDecl(p_is_int_type() is true)
 
 Now, we'll add a first criteria to consider: there should be no use
-of any arithmetic operator on this type anywhere in the sources. To
+of any arithmetic or bitwise operator on this type anywhere in the sources. To
 achieve that, we need to perform a global query on the whole project,
 which is done via a ``select`` query, to find all the references to arithmetic
 operators:
@@ -328,8 +328,9 @@ operators:
 .. code-block:: lkql
 
    select BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                        OpPlus or OpPow or OpRem or OpXor)
-       or UnOp(f_op is OpAbs or OpMinus or OpPlus)
+                        OpPlus or OpPow or OpRem or OpXor or
+                        OpAnd or OpOr)
+       or UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)
 
 we then create a function that will compute all the types associated with
 these expressions in a list:
@@ -341,8 +342,9 @@ these expressions in a list:
        [op.p_expression_type()
         for op in select
             BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                          OpPlus or OpPow or OpRem or OpXor) or
-            UnOp(f_op is OpAbs or OpMinus or OpPlus)].to_list
+                          OpPlus or OpPow or OpRem or OpXor or
+                          OpAnd or OpOr) or
+            UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)].to_list
 
 and we update our rule accordingly to find all integer types for which no
 arithmetic operator is found. To achieve that, we use a list comprehension
@@ -518,8 +520,9 @@ which gives us this complete rule:
        unique([op.p_expression_type()
                for op in select
                    BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                                 OpPlus or OpPow or OpRem or OpXor) or
-                   UnOp(f_op is OpAbs or OpMinus or OpPlus)].to_list)
+                                 OpPlus or OpPow or OpRem or OpXor or
+                                 OpAnd or OpOr) or
+                   UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)].to_list)
 
    @memoized
    fun instantiations() =
