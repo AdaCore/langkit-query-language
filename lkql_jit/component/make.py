@@ -78,6 +78,11 @@ if __name__ == '__main__':
     include_native_checker = "checker" in args.native_components
     include_native_worker = "gnatcheck_worker" in args.native_components
 
+    # Define the native executables
+    native_launcher_exe = "native_lkql_jit.exe" if is_windows() else "native_lkql_jit"
+    native_checker_exe = "native_lkql_jit_checker.exe" if is_windows() else "native_lkql_jit_checker"
+    native_gnatcheck_worker_exe = "native_gnatcheck_worker.exe" if is_windows() else "native_gnatcheck_worker"
+
     # Copy the produced JAR to the component
     shutil.copy(
         P.join("..", "language", "target", "lkql_jit.jar"),
@@ -114,17 +119,17 @@ if __name__ == '__main__':
     # Copy the needed native images
     if include_native_launcher:
         shutil.copy(
-            P.join("..", "native", "bin", "native_lkql_jit"),
+            P.join("..", "native", "bin", native_launcher_exe),
             P.join(bin_dir, "native_lkql_jit")
         )
     if include_native_checker:
         shutil.copy(
-            P.join("..", "native", "bin", "native_lkql_jit_checker"),
+            P.join("..", "native", "bin", native_checker_exe),
             P.join(bin_dir, "native_lkql_jit_checker")
         )
     if include_native_worker:
         shutil.copy(
-            P.join("..", "native", "bin", "gnatcheck_worker"),
+            P.join("..", "native", "bin", native_gnatcheck_worker_exe),
             P.join(bin_dir, "native_gnatcheck_worker")
         )
 
@@ -171,17 +176,17 @@ if __name__ == '__main__':
             "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
             "languages/lkql/bin/gnatcheck_worker = rwxrwxr-x\n",
             (
-                "languages/lkql/bin/native_lkql_jit = rwxrwxr-x\n"
+                f"languages/lkql/bin/{native_launcher_exe} = rwxrwxr-x\n"
                 if include_native_launcher else
                 ""
             ),
             (
-                "languages/lkql/bin/native_lkql_jit_checker = rwxrwxr-x\n"
+                f"languages/lkql/bin/{native_checker_exe} = rwxrwxr-x\n"
                 if include_native_checker else
                 ""
             ),
             (
-                "languages/lkql/bin/native_gnatcheck_worker = rwxrwxr-x\n"
+                f"languages/lkql/bin/{native_gnatcheck_worker_exe} = rwxrwxr-x\n"
                 if include_native_worker else
                 ""
             ),
