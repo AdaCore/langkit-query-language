@@ -13,6 +13,7 @@
         <module>launcher</module>
         <module>component</module>
         <module>checker</module>
+        <module>gnatcheck_worker</module>
         <module>native</module>
     </modules>
 
@@ -56,9 +57,16 @@
         </profile>
 
         <profile>
+            <id>native-gnatcheck_worker</id>
+            <properties>
+                <config.nativeComponents>gnatcheck_worker</config.nativeComponents>
+            </properties>
+        </profile>
+
+        <profile>
             <id>native-all</id>
             <properties>
-                <config.nativeComponents>launcher checker</config.nativeComponents>
+                <config.nativeComponents>launcher checker gnatcheck_worker</config.nativeComponents>
             </properties>
         </profile>
 

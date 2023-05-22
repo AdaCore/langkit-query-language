@@ -99,7 +99,7 @@ public final class TopLevelList extends LKQLNode {
         context.getGlobalValues().initScope(this.globalScopeSize, this.symbolNumber);
 
         // If there is rule imports, run them
-        if (this.ruleImports != null && this.ruleImports.length > 0) {
+        if (this.ruleImports != null) {
             for (Import ruleImport : this.ruleImports) {
                 ruleImport.executeGeneric(frame);
             }

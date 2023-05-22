@@ -235,6 +235,16 @@ package Gnatcheck.Rules is
    function Is_Enabled (Rule : Rule_Template) return Boolean;
    --  Checks if the rule should be checked
 
+   procedure Print_Rule_To_Universal_File
+     (Rule         : in out Rule_Template'Class;
+      Rule_File    : File_Type);
+   --  Prints information about the (active) rule into the specified file with
+   --  the following universal format:
+   --  "{rule_name}[:{param1}={value1}[,{param2}={value2},...]]".
+   --  Unlike the `Print_Rule_To_File` subprogram, this always prints the rule
+   --  in the above format without special cases for specific rules names or
+   --  rules with specific parameter types.
+
    procedure Print_Rule_To_File
      (Rule         : Rule_Template;
       Rule_File    : File_Type;

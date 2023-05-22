@@ -299,10 +299,12 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                 Libadalang.AdaNode definingName = basicDecl.pDefiningName();
                 node = definingName.isNone() ? node : definingName;
             }
-            CheckerUtils.printRuleViolation(
+            context.getDiagnosticEmitter().emit(
+                (String) rule.get("name"),
                 (String) rule.get("message"),
                 node.getSourceLocationRange(),
                 node.getUnit(),
+                node.pGenericInstantiations(),
                 linesCache,
                 context
             );

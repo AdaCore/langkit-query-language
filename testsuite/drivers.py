@@ -161,7 +161,7 @@ class GnatcheckDriver(BaseTestDriver):
             args += self.test_env['input_sources']
 
         args.append("-rules")
-        for r in self.test_env.get('rules', {}).items():
+        for r in self.test_env.get('rules', []):
             args.append(r)
 
         # Run the interpreter

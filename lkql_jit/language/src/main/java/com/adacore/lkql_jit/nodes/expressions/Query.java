@@ -182,7 +182,7 @@ public final class Query extends Expr {
 
         // Else, there is no "from" expression, we get the default roots
         else {
-            fromNodes = LKQLLanguage.getContext(this.pattern).getAdaNodes();
+            fromNodes = LKQLLanguage.getContext(this.pattern).getAllUnitsRoots();
         }
 
         // If the query mode is all

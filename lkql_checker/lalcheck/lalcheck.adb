@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Command_Line;
 with Ada.Text_IO;       use Ada.Text_IO;
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
@@ -111,7 +112,17 @@ procedure Lalcheck is
 
       for Rule in All_Rules.First .. All_Rules.Last loop
          if Is_Enabled (All_Rules.Table (Rule).all) then
-            Print_Rule_To_File (All_Rules.Table (Rule).all, File);
+            --  When the worker process to use is the GNATcheck executable
+            --  itself, the set of rules and their options are transfered in
+            --  the standard legacy GNATcheck rule format (the same format used
+            --  by users to specify rules). Otherwise, they are transfered in a
+            --  more universal format that can be easily parsed by custom
+            --  worker implementations.
+            if Worker_Command = Ada.Command_Line.Command_Name then
+               All_Rules.Table (Rule).Print_Rule_To_File (File);
+            else
+               All_Rules.Table (Rule).Print_Rule_To_Universal_File (File);
+            end if;
             New_Line (File);
          end if;
       end loop;
@@ -218,7 +229,7 @@ procedure Lalcheck is
 
             for SF in Next_SF .. Last_Argument_Source loop
                if Source_Info (SF) /= Ignore_Unit then
-                  Put_Line (File, Short_Source_Name (SF));
+                  Put_Line (File, Source_Name (SF));
                   Files := @ + 1;
                   Set_Source_Status (SF, Processed);
 
@@ -374,9 +385,10 @@ begin
       Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
 
       --  Implement -j via multiple processes
-      --  In the default -j1 mode, process all sources in the main process.
+      --  In the default (-j1, no custom worker) mode, process all sources in
+      --  the main process.
 
-      if Process_Num <= 1 then
+      if Process_Num <= 1 and then not Use_Custom_Worker then
 
          --  Spawn gprbuild in background to process the files in parallel
 

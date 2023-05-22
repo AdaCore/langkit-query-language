@@ -1,0 +1,3 @@
+project Dep_Prj is
+   for Source_Dirs use ("dep_src");
+end Dep_Prj;

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2023, AdaCore                          --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -36,32 +36,32 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class UnitsFunction implements BuiltInFunction {
+public final class SpecifiedUnitsFunction implements BuiltInFunction {
 
     // ----- Attributes -----
 
     /**
      * The only function of the "units" built-in
      */
-    private static UnitsFunction instance = null;
+    private static SpecifiedUnitsFunction instance = null;
 
     /**
      * The name of the built-in
      */
-    public static final String NAME = "units";
+    public static final String NAME = "specified_units";
 
     /**
      * The expression that represents the "units" function execution
      */
-    private final UnitsExpr unitsExpr;
+    private final SpecifiedUnitsExpr specifiedUnitsExpr;
 
     // ----- Constructors -----
 
     /**
      * Private constructor
      */
-    private UnitsFunction() {
-        this.unitsExpr = new UnitsExpr();
+    private SpecifiedUnitsFunction() {
+        this.specifiedUnitsExpr = new SpecifiedUnitsExpr();
     }
 
     /**
@@ -69,9 +69,9 @@ public final class UnitsFunction implements BuiltInFunction {
      *
      * @return The only instance
      */
-    public static UnitsFunction getInstance() {
+    public static SpecifiedUnitsFunction getInstance() {
         if (instance == null) {
-            instance = new UnitsFunction();
+            instance = new SpecifiedUnitsFunction();
         }
         return instance;
     }
@@ -79,7 +79,7 @@ public final class UnitsFunction implements BuiltInFunction {
     // ----- Override methods -----
 
     /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
+     * @see BuiltInFunction#getName()
      */
     @Override
     public String getName() {
@@ -87,28 +87,28 @@ public final class UnitsFunction implements BuiltInFunction {
     }
 
     /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
+     * @see BuiltInFunction#getValue()
      */
     @Override
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
-            "Return an iterator on all units",
+            "Return an iterator on units specified by the user",
             new String[]{},
             new Expr[]{},
-            this.unitsExpr
+            this.specifiedUnitsExpr
         );
     }
 
     // ----- Inner classes -----
 
     /**
-     * Expression of the "units" function
+     * Expression of the "specified_units" function
      */
-    public static final class UnitsExpr extends BuiltInExpr {
+    public static final class SpecifiedUnitsExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return new ListValue(LKQLLanguage.getContext(this).getAllUnits());
+            return new ListValue(LKQLLanguage.getContext(this.callNode).getSpecifiedUnits());
         }
     }
 

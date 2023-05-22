@@ -1,0 +1,36 @@
+1. Summary
+
+   fully compliant sources               : 3
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 2
+   unverified sources                    : 0
+   total sources                         : 5
+   ignored sources                       : 0
+
+   non-exempted violations               : 2
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+bar.ads:4:04: same instantiation found at foo.ads:4
+foo.ads:4:04: same instantiation found at bar.ads:4
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+

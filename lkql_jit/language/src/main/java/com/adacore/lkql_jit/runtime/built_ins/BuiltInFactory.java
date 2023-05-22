@@ -104,6 +104,7 @@ public final class BuiltInFactory {
         this.builtInFunctions.add(ProfileFunction.getInstance());
         this.builtInFunctions.add(HelpFunction.getInstance());
         this.builtInFunctions.add(UnitsFunction.getInstance());
+        this.builtInFunctions.add(SpecifiedUnitsFunction.getInstance());
         this.builtInFunctions.add(PatternFunction.getInstance());
 
         this.builtInFunctions.add(NodeCheckerFunction.getInstance());

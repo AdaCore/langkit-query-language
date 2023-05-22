@@ -41,6 +41,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -184,7 +185,10 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             CheckerUtils.SourceLinesCache linesCache
         ) {
             // Get the function for the checker
-            FunctionValue functionValue = (FunctionValue) rule.get("function");
+            final FunctionValue functionValue = (FunctionValue) rule.get("function");
+
+            // Retrieve the rule name
+            final String ruleName = (String) rule.get("name");
 
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.getParamNames().length];
@@ -240,15 +244,18 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 Object loc = message.get("loc");
                 final Libadalang.AnalysisUnit locUnit;
                 final Libadalang.SourceLocationRange slocRange;
+                final Libadalang.AdaNodeArray genericInstantiations;
 
                 if (LKQLTypeSystemGen.isToken(loc)) {
                     final Libadalang.Token token = LKQLTypeSystemGen.asToken(loc);
                     locUnit = token.unit;
                     slocRange = token.sourceLocationRange;
+                    genericInstantiations = Libadalang.AdaNodeArray.NONE;
                 } else if (LKQLTypeSystemGen.isAdaNode(loc)) {
                     final Libadalang.AdaNode node = LKQLTypeSystemGen.asAdaNode(loc);
                     locUnit = node.getUnit();
                     slocRange = node.getSourceLocationRange();
+                    genericInstantiations = node.pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.ADA_NODE,
@@ -257,7 +264,15 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     );
                 }
 
-                CheckerUtils.printRuleViolation(messageText, slocRange, locUnit, linesCache, context);
+                context.getDiagnosticEmitter().emit(
+                    ruleName,
+                    messageText,
+                    slocRange,
+                    locUnit,
+                    genericInstantiations,
+                    linesCache,
+                    context
+                );
             }
         }
 
