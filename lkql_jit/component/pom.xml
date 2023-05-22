@@ -33,7 +33,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>python3</executable>
+                            <executable>${config.python}</executable>
                             <arguments>
                                 <argument>${basedir}/make.py</argument>
                                 <argument>--lkql-version</argument><argument>${project.version}</argument>
@@ -51,7 +51,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>python3</executable>
+                            <executable>${config.python}</executable>
                             <arguments>${basedir}/install.py</arguments>
                         </configuration>
                     </execution>
@@ -64,7 +64,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>python3</executable>
+                            <executable>${config.python}</executable>
                             <arguments>${basedir}/clean.py</arguments>
                         </configuration>
                     </execution>

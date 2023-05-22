@@ -28,7 +28,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>python3</executable>
+                            <executable>${config.python}</executable>
                             <arguments>
                                 <argument>${basedir}/make.py</argument>
                                 <argument>--native-components</argument><argument>${config.nativeComponents}</argument>
@@ -45,7 +45,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>python3</executable>
+                            <executable>${config.python}</executable>
                             <arguments>${basedir}/clean.py</arguments>
                         </configuration>
                     </execution>

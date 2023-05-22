@@ -61,7 +61,7 @@ import shutil
 import subprocess
 
 sys.path.append('..')
-from utils import GraalManager, parse_args
+from utils import GraalManager, parse_args, is_windows, component_template
 
 if __name__ == '__main__':
     # Create the utils
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # Create the hierarchy
     comp_dir = P.realpath(P.join(P.dirname(__file__), 'lkql_jit_component'))
     shutil.rmtree(comp_dir, ignore_errors=True)
-    meta_dir, lang_dir, bin_dir = graal.component_template(comp_dir)
+    meta_dir, lang_dir, bin_dir = component_template(comp_dir)
 
     # Get the native components to include
     include_native_launcher = "launcher" in args.native_components
@@ -97,18 +97,19 @@ if __name__ == '__main__':
     )
 
     # Copy the GraalVM launching scripts
-    shutil.copy(
-        P.join("scripts", "lkql_jit"),
-        P.join(bin_dir, "lkql_jit")
-    )
-    shutil.copy(
-        P.join("scripts", "lkql_jit_checker"),
-        P.join(bin_dir, "lkql_jit_checker")
-    )
-    shutil.copy(
-        P.join("scripts", "gnatcheck_worker"),
-        P.join(bin_dir, "gnatcheck_worker")
-    )
+    if not is_windows():
+        shutil.copy(
+            P.join("scripts", "lkql_jit.sh"),
+            P.join(bin_dir, "lkql_jit")
+        )
+        shutil.copy(
+            P.join("scripts", "lkql_jit_checker.sh"),
+            P.join(bin_dir, "lkql_jit_checker")
+        )
+        shutil.copy(
+            P.join("scripts", "gnatcheck_worker.sh"),
+            P.join(bin_dir, "gnatcheck_worker")
+        )
 
     # Copy the needed native images
     if include_native_launcher:
