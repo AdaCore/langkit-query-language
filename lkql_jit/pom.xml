@@ -11,10 +11,10 @@
     <modules>
         <module>language</module>
         <module>launcher</module>
-        <module>component</module>
         <module>checker</module>
         <module>gnatcheck_worker</module>
         <module>native</module>
+        <module>component</module>
     </modules>
 
     <properties>
