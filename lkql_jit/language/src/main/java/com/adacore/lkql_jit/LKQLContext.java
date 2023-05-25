@@ -497,6 +497,8 @@ public final class LKQLContext {
             ).toList();
 
             provider = this.projectManager.getProvider();
+        } else {
+            this.allSourceFiles = this.specifiedSourceFiles;
         }
 
         // If the option is the empty string, the language implementation will end up setting it to the default
