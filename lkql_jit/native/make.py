@@ -32,6 +32,13 @@ Use those options to perform debug on produced LKQL_JIT executables:
 -H:+PreserveFramePointer  => Use this to preserve the frame pointer to profile
 -H:+IncludeNodeSourcePositions  => # Use this to debug deoptimizations
 -H:+ReportExceptionStackTraces  => ???
+
+We don't use reflection configuration file because all Java classes and
+methods are statically required by Libadalang's Java bindings.
+According to native-image documentation
+(https://www.graalvm.org/latest/reference-manual/native-image/dynamic-features/Reflection/)
+Java reflection objects that are statically fetched don't need to be
+specified at any other place.
 """
 
 import sys
@@ -62,7 +69,6 @@ if __name__ == '__main__':
         "--no-fallback",
         "--language:regex",
         "--initialize-at-build-time=com.adacore.lkql_jit",
-        "-H:ReflectionConfigurationFiles=reflect_config_lal.json,reflect_config_lkql.json",
     ]
 
     # Handle the dev and debug build mode
