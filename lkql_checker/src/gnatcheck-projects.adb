@@ -687,6 +687,42 @@ package body Gnatcheck.Projects is
             Base => KB);
       end if;
 
+      --  Check for explicit target and runtime specification for gnatkp
+      if Gnatkp_Mode and then (RTS_Path.all = "" or else Target.all = "") then
+         declare
+            Tmp_Tree : Project.Tree.Object;
+         begin
+            Tmp_Tree.Load
+              (Filename      =>
+                 Create_File
+                   (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+               Context       => Project_Context,
+               Pre_Conf_Mode => True);
+
+            if RTS_Path.all = ""
+              and then not Tmp_Tree.Root_Project.Has_Attribute
+                (Project.Registry.Attribute.Runtime,
+                 Project.Attribute_Index.Create (Ada_Language))
+            then
+               Error
+                 ("Ada runtime has to be explicitly specified");
+               raise Parameter_Error;
+            end if;
+
+            if Target.all = "" and then
+              (not Tmp_Tree.Root_Project.Has_Attribute
+                 (Project.Registry.Attribute.Target)
+               or else Tmp_Tree.Root_Project.Attribute
+                 (Project.Registry.Attribute.Target).Value.Text = "all")
+            then
+               Error
+                 ("Target has to be explicitly specified");
+               raise Parameter_Error;
+            end if;
+            Tmp_Tree.Unload;
+         end;
+      end if;
+
       if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
          Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
          N_Of_Aggregated_Projects := Num_Of_Aggregated_Projects;
@@ -790,6 +826,10 @@ package body Gnatcheck.Projects is
    begin
       if not My_Project.Is_Specified then
          return;
+      end if;
+
+      if not Gnatkp_Mode then
+         GPR2.KB.Set_Default_Target ("codepeer");
       end if;
 
       Set_External_Values (My_Project);
