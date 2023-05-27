@@ -377,6 +377,8 @@ begin
       OS_Exit (E_Success);
    end if;
 
+   Gnatcheck.Projects.Set_Default_Target;
+
    --  If we have the project file specified as a tool parameter, analyze it.
 
    Gnatcheck.Projects.Process_Project_File (Gnatcheck_Prj);

@@ -40,6 +40,7 @@ with GPR2.Project.Tree;
 with GPR2.Project.View;
 with GPR2.Project.Source.Set;
 
+with Gnatcheck.Compiler;          use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;               use Gnatcheck.Ids;
 with Gnatcheck.Output;            use Gnatcheck.Output;
@@ -1500,10 +1501,7 @@ package body Gnatcheck.Source_Table is
       -----------------------
 
       procedure Add_Runtime_Files is
-         Gnatls  : String_Access :=
-           Locate_Exec_On_Path (if Target.all /= ""
-                                then Target.all & "-gnatls"
-                                else "gnatls");
+         Gnatls  : String_Access := Locate_Exec_On_Path (Gnatls_Exec);
          Verbose : aliased String := "-v";
          Status  : aliased Integer;
 
