@@ -326,9 +326,10 @@ package body Gnatcheck.Projects.Aggregate is
          end if;
 
          Exit_Code := Spawn (Program_Name => Full_Tool_Name.all,
-                             Args         => Prj_Args                       &
-                                             Out_Args (1 .. Out_Args_Count) &
-                                             Args (1 .. Arg_Count));
+                             Args         =>
+                               Prj_Args
+                               & Out_Args (1 .. Out_Args_Count)
+                               & Args (1 .. Arg_Count));
 
          Report_Aggregated_Project_Exit_Code
            (Aggregate_Prj       => My_Project,

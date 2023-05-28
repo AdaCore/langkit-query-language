@@ -124,6 +124,10 @@ package body Gnatcheck.Projects is
       Index (Log, "not found") /= 0);
    --  Checks if Log reports about a missing source file.
 
+   function Has_Explicit_Runtime_Attribute
+     (My_Project : Arg_Project_Type'Class) return Boolean;
+   --  Checks if root project has Runtime ("Ada") explicitly declared
+
    --------------
    -- Clean_Up --
    --------------
@@ -462,6 +466,30 @@ package body Gnatcheck.Projects is
       end if;
    end Get_Sources_From_Project;
 
+   ------------------------------------
+   -- Has_Explicit_Runtime_Attribute --
+   ------------------------------------
+
+   function Has_Explicit_Runtime_Attribute
+     (My_Project : Arg_Project_Type'Class) return Boolean
+   is
+      use GPR2;
+      use GPR2.Path_Name;
+      Tmp_Tree : Project.Tree.Object;
+   begin
+      Tmp_Tree.Load
+        (Filename      =>
+           Create_File
+             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+         Context       => Project_Context,
+         Pre_Conf_Mode => True);
+
+      return Tmp_Tree.Root_Project.Has_Attribute
+        (Project.Registry.Attribute.Runtime,
+         Project.Attribute_Index.Create (Ada_Language));
+
+   end Has_Explicit_Runtime_Attribute;
+
    ----------------------------
    -- Initialize_Environment --
    ----------------------------
@@ -567,34 +595,41 @@ package body Gnatcheck.Projects is
         GPR2.Project.View.Set.Set.Element
           (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
+      if RTS_Path.all = "" and then Has_Explicit_Runtime_Attribute (My_Project)
+      then
+         --  Capturing the explicitly specified in the root aggregate project
+         --  runtime value so that it appears in reports for aggregated ones.
+         Free (RTS_Path);
+         RTS_Path :=
+           new String'(String (My_Project.Tree.Runtime (Ada_Language)));
+      end if;
+
+      Conf_Obj := My_Project.Tree.Configuration;
       My_Project.Tree.Unload;
 
-      if CGPR_File_Set then
-         My_Project.Tree.Load
-           (Filename         => GPR2.Path_Name.Create_File
-              (Filename_Type (Get_Aggregated_Project)),
-            Context          => Agg_Context,
-            Config           => Conf_Obj,
-            Subdirs          =>
-              (if Subdir_Name = null then
-                    No_Name
-               else Name_Type (Subdir_Name.all)),
-            Check_Shared_Lib => False);
-      else
-         My_Project.Tree.Restrict_Autoconf_To_Languages
-           (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+      My_Project.Tree.Load
+        (Filename          => GPR2.Path_Name.Create_File
+           (Filename_Type (Get_Aggregated_Project)),
+         Context           => Agg_Context,
+         Config            => Conf_Obj,
+         Subdirs           =>
+           (if Subdir_Name = null then
+                 No_Name
+            else Name_Type (Subdir_Name.all)));
 
-         My_Project.Tree.Load_Autoconf
-           (Filename          => GPR2.Path_Name.Create_File
-             (Filename_Type (Get_Aggregated_Project)),
-            Context           => Agg_Context,
-            Subdirs           =>
-              (if Subdir_Name = null then
-                    No_Name
-               else Name_Type (Subdir_Name.all)),
-            Target            => Optional_Name_Type (Target.all),
-            Language_Runtimes => RTS,
-            Base => KB);
+      if not My_Project.Tree.Has_Runtime_Project then
+         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+           (Information => Verbosity_Level > 0)
+         loop
+            Error (GPR2.Log.Element (Msg_Cur).Format);
+         end loop;
+         Error ("no runtime information found");
+         Error
+           (""""
+            & Get_Aggregated_Project
+            & """ processing failed");
+
+         raise Parameter_Error;
       end if;
 
       My_Project.Tree.Update_Sources
@@ -636,6 +671,9 @@ package body Gnatcheck.Projects is
 
       KB : constant GPR2.KB.Object :=
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
+
+      Prj_File : constant Path_Name.Object :=
+        Create_File (Filename_Type (My_Project.Source_Prj.all), No_Resolution);
    begin
 
       if CGPR_File_Set then
@@ -648,9 +686,7 @@ package body Gnatcheck.Projects is
            (Path_Name.Create_File
               (Filename_Type (My_Project.Source_CGPR.all)));
          My_Project.Tree.Load
-           (Filename         =>
-              Create_File
-                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+           (Filename         => Prj_File,
             Context          => Project_Context,
             Config           => Conf_Obj,
             Subdirs          =>
@@ -673,9 +709,7 @@ package body Gnatcheck.Projects is
            (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
 
          My_Project.Tree.Load_Autoconf
-           (Filename          =>
-              Create_File
-                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+           (Filename          => Prj_File,
             Context           => Project_Context,
             Subdirs           =>
               (if Subdir_Name = null then
@@ -687,9 +721,33 @@ package body Gnatcheck.Projects is
             Base => KB);
       end if;
 
+      if not My_Project.Tree.Has_Runtime_Project then
+         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+           (Information => Verbosity_Level > 0)
+         loop
+            Error (GPR2.Log.Element (Msg_Cur).Format);
+         end loop;
+         Error
+           (""""
+            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+            & """ processing failed");
+
+         raise Parameter_Error;
+      end if;
+
+      if RTS_Path.all = "" and then Has_Explicit_Runtime_Attribute (My_Project)
+      then
+         Free (RTS_Path);
+         RTS_Path :=
+           new String'(String (My_Project.Tree.Runtime (Ada_Language)));
+      end if;
+
       if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
          Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
          N_Of_Aggregated_Projects := Num_Of_Aggregated_Projects;
+
+         Free (Target);
+         Target := new String'(String (My_Project.Tree.Target));
 
          case N_Of_Aggregated_Projects is
             when 0 =>
@@ -710,33 +768,31 @@ package body Gnatcheck.Projects is
                  GPR2.Project.View.Set.Set.Element
                    (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
-               My_Project.Tree.Unload;
+               Conf_Obj := My_Project.Tree.Configuration;
+                  My_Project.Tree.Unload;
 
-               if CGPR_File_Set then
                   My_Project.Tree.Load
-                    (Filename         => Aggregated_Prj_Name,
-                     Context          => Agg_Context,
-                     Config           => Conf_Obj,
-                     Subdirs          =>
-                       (if Subdir_Name = null then
-                             No_Name
-                        else Name_Type (Subdir_Name.all)),
-                     Check_Shared_Lib => False);
-               else
-                  My_Project.Tree.Restrict_Autoconf_To_Languages
-                    (GPR2.Containers.Language_Id_Set.To_Set
-                       (GPR2.Ada_Language));
-
-                  My_Project.Tree.Load_Autoconf
                     (Filename          => Aggregated_Prj_Name,
                      Context           => Agg_Context,
+                     Config            => Conf_Obj,
                      Subdirs           =>
                        (if Subdir_Name = null then
                              No_Name
-                        else Name_Type (Subdir_Name.all)),
-                     Target            => Optional_Name_Type (Target.all),
-                     Language_Runtimes => RTS,
-                     Base => KB);
+                        else Name_Type (Subdir_Name.all)));
+
+               if not My_Project.Tree.Has_Runtime_Project then
+                  for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+                    (Information => Verbosity_Level > 0)
+                  loop
+                     Error (GPR2.Log.Element (Msg_Cur).Format);
+                  end loop;
+                  Error
+                    (""""
+                     & String (Aggregated_Prj_Name.Simple_Name)
+                     & """ processing failed");
+
+                  raise Parameter_Error;
+
                end if;
 
                My_Project.Tree.Update_Sources

@@ -62,7 +62,7 @@ package Gnatcheck.Options is
    --  The executable to use as GNATcheck worker
 
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
-   --  Runtime as specified via --RTS=
+   --  Runtime as specified via --RTS= or Runtime attribute
 
    Target : GNAT.OS_Lib.String_Access := new String'("");
    --  Target as it is specified by the command-line '--target=...' option, or
