@@ -39,6 +39,7 @@ with GPR2.Log;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
 with GPR2.Project.Attribute_Index;
+with GPR2.Project.Configuration;
 with GPR2.Project.Registry.Attribute;
 with GPR2.Project.Registry.Pack;
 with GPR2.Project.Source.Set;
@@ -532,22 +533,36 @@ package body Gnatcheck.Projects is
         GPR2.Project.View.Set.Set.Element
           (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
-      My_Project.Tree.Unload;
+      declare
+         Config : constant Project.Configuration.Object :=
+           My_Project.Tree.Configuration;
+      begin
+         My_Project.Tree.Unload;
 
-      My_Project.Tree.Restrict_Autoconf_To_Languages
-        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+         My_Project.Tree.Load
+           (Filename          => GPR2.Path_Name.Create_File
+              (Filename_Type (Get_Aggregated_Project)),
+            Context           => Agg_Context,
+            Config            => Config,
+            Subdirs           =>
+              (if Subdir_Name = null then
+                    No_Name
+               else Name_Type (Subdir_Name.all)));
+      end;
 
-      My_Project.Tree.Load_Autoconf
-        (Filename          => GPR2.Path_Name.Create_File
-             (Filename_Type (Get_Aggregated_Project)),
-         Context           => Agg_Context,
-         Subdirs           =>
-           (if Subdir_Name = null then
-                 No_Name
-            else Name_Type (Subdir_Name.all)),
-         Target            => Optional_Name_Type (Target.all),
-         Language_Runtimes => RTS,
-         Base => KB);
+      if not My_Project.Tree.Has_Runtime_Project then
+         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+           (Information => Verbosity_Level > 0)
+         loop
+            Error (GPR2.Log.Element (Msg_Cur).Format);
+         end loop;
+         Error
+           (""""
+            & Get_Aggregated_Project
+            & """ processing failed");
+
+         raise Parameter_Error;
+      end if;
 
       My_Project.Tree.Update_Sources
         (Stop_On_Error => True,  With_Runtime => True);
@@ -586,6 +601,9 @@ package body Gnatcheck.Projects is
 
       KB : constant GPR2.KB.Object :=
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
+
+      Prj_File : constant Path_Name.Object :=
+        Create_File (Filename_Type (My_Project.Source_Prj.all), No_Resolution);
    begin
       if RTS_Path.all /= "" then
          RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
@@ -595,9 +613,7 @@ package body Gnatcheck.Projects is
         (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
 
       My_Project.Tree.Load_Autoconf
-        (Filename          =>
-           Create_File
-             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+        (Filename          => Prj_File,
          Context           => Project_Context,
          Subdirs           =>
            (if Subdir_Name = null then
@@ -607,9 +623,30 @@ package body Gnatcheck.Projects is
          Language_Runtimes => RTS,
          Base => KB);
 
+      if not My_Project.Tree.Has_Runtime_Project then
+         for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+           (Information => Verbosity_Level > 0)
+         loop
+            Error (GPR2.Log.Element (Msg_Cur).Format);
+         end loop;
+         Error
+           (""""
+            & String (My_Project.Tree.Root_Project.Path_Name.Simple_Name)
+            & """ processing failed");
+
+         raise Parameter_Error;
+      end if;
+
       if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
          Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
          N_Of_Aggregated_Projects := Num_Of_Aggregated_Projects;
+
+         Free (RTS_Full_Path);
+         RTS_Full_Path := new String'
+           (My_Project.Tree.Runtime_Project.Path_Name.Dir_Name);
+
+         Free (Target);
+         Target := new String'(String (My_Project.Tree.Target));
 
          case N_Of_Aggregated_Projects is
             when 0 =>
@@ -630,21 +667,36 @@ package body Gnatcheck.Projects is
                  GPR2.Project.View.Set.Set.Element
                    (My_Project.Tree.Root_Project.Aggregated.First).Context;
 
-               My_Project.Tree.Unload;
+               declare
+                  Config : constant Project.Configuration.Object :=
+                    My_Project.Tree.Configuration;
+               begin
+                  My_Project.Tree.Unload;
 
-               My_Project.Tree.Restrict_Autoconf_To_Languages
-                 (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+                  My_Project.Tree.Load
+                    (Filename          => Aggregated_Prj_Name,
+                     Context           => Agg_Context,
+                     Config            => Config,
+                     Subdirs           =>
+                       (if Subdir_Name = null then
+                             No_Name
+                        else Name_Type (Subdir_Name.all)));
+               end;
 
-               My_Project.Tree.Load_Autoconf
-                 (Filename          => Aggregated_Prj_Name,
-                  Context           => Agg_Context,
-                  Subdirs           =>
-                    (if Subdir_Name = null then
-                          No_Name
-                     else Name_Type (Subdir_Name.all)),
-                  Target            => Optional_Name_Type (Target.all),
-                  Language_Runtimes => RTS,
-                  Base => KB);
+               if not My_Project.Tree.Has_Runtime_Project then
+                  for Msg_Cur in My_Project.Tree.Log_Messages.Iterate
+                    (Information => Verbosity_Level > 0)
+                  loop
+                     Error (GPR2.Log.Element (Msg_Cur).Format);
+                  end loop;
+                  Error
+                    (""""
+                     & String (Aggregated_Prj_Name.Simple_Name)
+                     & """ processing failed");
+
+                  raise Parameter_Error;
+               end if;
+
                My_Project.Tree.Update_Sources
                  (Stop_On_Error => True,  With_Runtime => True);
 

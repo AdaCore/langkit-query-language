@@ -203,10 +203,12 @@ package body Gnatcheck.Projects.Aggregate is
         (if Prj_XML_Dot = 0 then ""
          else Prj_XML_File (Prj_XML_Dot .. Prj_XML_Last));
 
-      Prj_Args       : Argument_List (1 .. 2);
-      Out_Args       : Argument_List (1 .. 4);
-      Out_Args_Count : constant Integer :=
+      Prj_Args        : Argument_List (1 .. 2);
+      Out_Args        : Argument_List (1 .. 4);
+      Out_Args_Count  : constant Integer :=
         (if Text_Report_ON and then XML_Report_ON then 4 else 2);
+      Conf_Args       : Argument_List (1 .. 2);
+      Conf_Args_Count : Integer;
 
       Args      : Argument_List (1 .. Argument_Count);
       Arg_Count : Natural := 0;
@@ -217,6 +219,8 @@ package body Gnatcheck.Projects.Aggregate is
       Full_Tool_Name : constant String_Access :=
         Locate_Exec_On_Path (Executable);
 
+      Explicit_Target  : Boolean := False;
+      Explicit_Runtime : Boolean := False;
    begin
       if Full_Tool_Name = null then
          Error ("Cannot locate " & Executable &
@@ -261,8 +265,30 @@ package body Gnatcheck.Projects.Aggregate is
                   Args (Arg_Count) := new String'(Arg);
                end if;
             end if;
+
+            if Head (Arg, 6) = "--RTS=" then
+               Explicit_Runtime := True;
+            elsif Head (Arg, 9) = "--target=" then
+               Explicit_Target := True;
+            end if;
          end;
       end loop;
+
+      if not Explicit_Target then
+         if not Explicit_Runtime then
+            Conf_Args (1) := new String'("--target=" & Target.all);
+            Conf_Args (2) := new String'("--RTS=" & RTS_Full_Path.all);
+            Conf_Args_Count := 2;
+         else
+            Conf_Args (1) := new String'("--target=" & Target.all);
+            Conf_Args_Count := 1;
+         end if;
+      elsif not Explicit_Runtime then
+         Conf_Args (1) := new String'("--RTS=" & RTS_Full_Path.all);
+         Conf_Args_Count := 1;
+      else
+         Conf_Args_Count := 0;
+      end if;
 
       Aggregate_Project_Report_Header (My_Project);
       Start_Prj_Iterator;
@@ -318,6 +344,10 @@ package body Gnatcheck.Projects.Aggregate is
                Put (" " & Arg.all);
             end loop;
 
+            for Arg of Conf_Args (1 .. Conf_Args_Count) loop
+               Put (" " & Arg.all);
+            end loop;
+
             for Arg of Args (1 .. Arg_Count) loop
                Put (" " & Arg.all);
             end loop;
@@ -325,10 +355,13 @@ package body Gnatcheck.Projects.Aggregate is
             New_Line;
          end if;
 
-         Exit_Code := Spawn (Program_Name => Full_Tool_Name.all,
-                             Args         => Prj_Args                       &
-                                             Out_Args (1 .. Out_Args_Count) &
-                                             Args (1 .. Arg_Count));
+         Exit_Code := Spawn
+           (Program_Name => Full_Tool_Name.all,
+            Args         =>
+              Prj_Args
+              & Out_Args (1 .. Out_Args_Count)
+              & Conf_Args (1 .. Conf_Args_Count)
+              & Args (1 .. Arg_Count));
 
          Report_Aggregated_Project_Exit_Code
            (Aggregate_Prj       => My_Project,

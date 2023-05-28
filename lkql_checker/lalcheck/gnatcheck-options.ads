@@ -58,6 +58,9 @@ package Gnatcheck.Options is
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
    --  Runtime as specified via --RTS=
 
+   RTS_Full_Path : GNAT.OS_Lib.String_Access := new String'("");
+   --  Full path to runtime
+
    Target : GNAT.OS_Lib.String_Access := new String'("");
    --  Target as it is specified by the command-line '--target=...' option, or
    --  by the 'Target attribute in the argument project file.
