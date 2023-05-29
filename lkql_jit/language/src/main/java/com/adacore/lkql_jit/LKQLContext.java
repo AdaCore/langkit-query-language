@@ -476,11 +476,7 @@ public final class LKQLContext {
         Libadalang.UnitProvider provider = null;
         if (projectFileName != null && !projectFileName.isEmpty() && !projectFileName.isBlank()) {
             // Create the project manager
-            this.projectManager = Libadalang.ProjectManager.create(
-                projectFileName,
-                "",
-                ""
-            );
+            this.projectManager = Libadalang.ProjectManager.create(projectFileName);
 
             // If no files were specified by the user, the files to analyze are those of the root project
             // (i.e. without recusing into project dependencies)
