@@ -61,7 +61,7 @@ import shutil
 import subprocess
 
 sys.path.append('..')
-from utils import GraalManager, parse_args, is_windows, component_template
+from utils import GraalManager, parse_args, is_windows, component_template, missing_module
 
 if __name__ == '__main__':
     # Create the utils
@@ -83,23 +83,18 @@ if __name__ == '__main__':
     native_checker_exe = "native_lkql_jit_checker.exe" if is_windows() else "native_lkql_jit_checker"
     native_gnatcheck_worker_exe = "native_gnatcheck_worker.exe" if is_windows() else "native_gnatcheck_worker"
 
-    # Copy the produced JAR to the component
-    shutil.copy(
-        P.join("..", "language", "target", "lkql_jit.jar"),
-        P.join(lang_dir, "lkql_jit.jar")
-    )
-    shutil.copy(
-        P.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
-        P.join(lang_dir, "lkql_jit_launcher.jar")
-    )
-    shutil.copy(
-        P.join("..", "checker", "target", "lkql_jit_checker.jar"),
-        P.join(lang_dir, "lkql_jit_checker.jar")
-    )
-    shutil.copy(
-        P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
-        P.join(lang_dir, "gnatcheck_worker.jar")
-    )
+    # Copy the produced JARs to the component
+    for name, source_filename in [
+        ("language", P.join("..", "language", "target", "lkql_jit.jar")),
+        ("launcher", P.join("..", "launcher", "target", "lkql_jit_launcher.jar")),
+        ("checker", P.join("..", "checker", "target", "lkql_jit_checker.jar")),
+        ("gnatcheck_worker", P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"))
+    ]:
+        # Ensure the JAR has been produced
+        if not P.isfile(source_filename):
+            raise missing_module(name, source_filename)
+
+        shutil.copy(source_filename, P.join(lang_dir))
 
     # Copy the GraalVM launching scripts
     if not is_windows():
@@ -195,7 +190,7 @@ if __name__ == '__main__':
 
     # Create the component jar
     os.chdir(comp_dir)
-    subprocess.run([
+    subprocess.check_call([
         graal.jar,
         "cfm",
         P.join("..", "lkql_jit_component.jar"),
@@ -204,14 +199,14 @@ if __name__ == '__main__':
     ])
 
     if not is_windows():
-        subprocess.run([
+        subprocess.check_call([
             graal.jar,
             "uf",
             P.join("..", "lkql_jit_component.jar"),
             P.join("META-INF", "symlinks"),
         ])
 
-    subprocess.run([
+    subprocess.check_call([
         graal.jar,
         "uf",
         P.join("..", "lkql_jit_component.jar"),

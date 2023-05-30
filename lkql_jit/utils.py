@@ -128,3 +128,8 @@ def parse_args():
 
     # Parse the command line and return the result
     return parser.parse_args()
+
+
+def missing_module(name, file):
+    return RuntimeError(f"File '{P.realpath(file)}' not found. Make sure you ran `mvn package`"
+                        f" for the '{name}' module.")

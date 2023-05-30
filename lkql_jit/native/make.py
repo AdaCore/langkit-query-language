@@ -40,7 +40,7 @@ import os.path as P
 import subprocess
 
 sys.path.append('..')
-from utils import GraalManager, parse_args
+from utils import GraalManager, parse_args, missing_module
 
 if __name__ == '__main__':
     # Create the dir hierarchy
@@ -76,43 +76,43 @@ if __name__ == '__main__':
         if args.build_mode == 'debug':
             cmd.append("-H:+PrintRuntimeCompileMethods")
 
-    # Call the building for each native component to build
-    if build_launcher:
-        class_path = os.pathsep.join([
-            P.join("..", "language", "target", "lkql_jit.jar"),
-            P.join("..", "launcher", "target", "lkql_jit_launcher.jar")
-        ])
-        launcher_cmd = cmd + [
-            "-cp", class_path,
-            "com.adacore.lkql_jit.LKQLLauncher",
-            P.join("bin", "native_lkql_jit")
-        ]
-        print(f"Execute: {launcher_cmd}", flush=True)
-        subprocess.run(launcher_cmd)
+    # Get the language JAR and verify its existence
+    language_jar = P.join("..", "language", "target", "lkql_jit.jar")
+    if not P.isfile(language_jar):
+        raise missing_module("language", language_jar)
 
-    if build_checker:
-        class_path = os.pathsep.join([
-            P.join("..", "language", "target", "lkql_jit.jar"),
-            P.join("..", "checker", "target", "lkql_jit_checker.jar")
-        ])
-        checker_cmd = cmd + [
-            "-cp", class_path,
-            "com.adacore.lkql_jit.LKQLChecker",
-            P.join("bin", "native_lkql_jit_checker")
-        ]
-        print(f"Execute: {checker_cmd}", flush=True)
-        subprocess.run(checker_cmd)
+    for name, do_native_build, jar_filename, exe_name, class_name in [
+        (
+                "launcher",
+                build_launcher,
+                P.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
+                "native_lkql_jit",
+                "LKQLLauncher"
+        ),
+        (
+                "checker",
+                build_checker,
+                P.join("..", "checker", "target", "lkql_jit_checker.jar"),
+                "native_lkql_jit_checker",
+                "LKQLChecker"
+        ),
+        (
+                "gnatcheck_worker",
+                build_worker,
+                P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
+                "native_gnatcheck_worker",
+                "GNATCheckWorker"
+        ),
+    ]:
+        if do_native_build:
+            if not P.isfile(jar_filename):
+                raise missing_module(name, jar_filename)
 
-    if build_worker:
-        class_path = os.pathsep.join([
-            P.join("..", "language", "target", "lkql_jit.jar"),
-            P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar")
-        ])
-        worker_cmd = cmd + [
-            "-cp", class_path,
-            "com.adacore.lkql_jit.GNATCheckWorker",
-            P.join("bin", "native_gnatcheck_worker")
-        ]
-        print(f"Execute: {worker_cmd}", flush=True)
-        subprocess.run(worker_cmd)
-
+            class_path = os.pathsep.join([language_jar, jar_filename])
+            final_cmd = cmd + [
+                "-cp", class_path,
+                f"com.adacore.lkql_jit.{class_name}",
+                P.join("bin", exe_name)
+            ]
+            print(f"Execute: {final_cmd}", flush=True)
+            subprocess.check_call(final_cmd)
