@@ -490,14 +490,15 @@ public final class LKQLContext {
                 ).toList();
             }
 
-            // The `units()` built-in function must return all units of the project including units from its non-
-            // externally-built dependencies. So let's retrieve all those files as well.
+            // The `units()` built-in function must return all units of the project including units from its
+            // dependencies. So let's retrieve all those files as well.
             this.allSourceFiles = Arrays.stream(
-                this.projectManager.getFiles(Libadalang.SourceFileMode.DEFAULT)
+                this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT)
             ).toList();
 
             provider = this.projectManager.getProvider();
         } else {
+            // When no project is specified, `units()` should return the same set of units as `specified_units()`.
             this.allSourceFiles = this.specifiedSourceFiles;
         }
 
