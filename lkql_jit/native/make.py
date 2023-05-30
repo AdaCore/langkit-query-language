@@ -78,28 +78,40 @@ if __name__ == '__main__':
 
     # Call the building for each native component to build
     if build_launcher:
+        class_path = os.pathsep.join([
+            P.join("..", "language", "target", "lkql_jit.jar"),
+            P.join("..", "launcher", "target", "lkql_jit_launcher.jar")
+        ])
         launcher_cmd = cmd + [
-            "-cp", "../language/target/lkql_jit.jar:../launcher/target/lkql_jit_launcher.jar",
+            "-cp", class_path,
             "com.adacore.lkql_jit.LKQLLauncher",
-            "bin/native_lkql_jit"
+            P.join("bin", "native_lkql_jit")
         ]
         print(f"Execute: {launcher_cmd}", flush=True)
         subprocess.run(launcher_cmd)
 
     if build_checker:
+        class_path = os.pathsep.join([
+            P.join("..", "language", "target", "lkql_jit.jar"),
+            P.join("..", "checker", "target", "lkql_jit_checker.jar")
+        ])
         checker_cmd = cmd + [
-            "-cp", "../language/target/lkql_jit.jar:../checker/target/lkql_jit_checker.jar",
+            "-cp", class_path,
             "com.adacore.lkql_jit.LKQLChecker",
-            "bin/native_lkql_jit_checker"
+            P.join("bin", "native_lkql_jit_checker")
         ]
         print(f"Execute: {checker_cmd}", flush=True)
         subprocess.run(checker_cmd)
 
     if build_worker:
+        class_path = os.pathsep.join([
+            P.join("..", "language", "target", "lkql_jit.jar"),
+            P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar")
+        ])
         worker_cmd = cmd + [
-            "-cp", "../language/target/lkql_jit.jar:../gnatcheck_worker/target/gnatcheck_worker.jar",
+            "-cp", class_path,
             "com.adacore.lkql_jit.GNATCheckWorker",
-            "bin/gnatcheck_worker"
+            P.join("bin", "native_gnatcheck_worker")
         ]
         print(f"Execute: {worker_cmd}", flush=True)
         subprocess.run(worker_cmd)

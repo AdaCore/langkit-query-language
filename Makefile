@@ -24,13 +24,15 @@ else
     --library-types=static
 endif
 
+ADDITIONAL_MANAGE_ARGS=
+
 all: lkql lkql_checker lalcheck doc
 lkql: build/bin/liblkqllang_parse
 
 automated:
 	rm -rf "$(PREFIX)"
 	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
-	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS)
+	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
 	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
 	$(GPRBUILD) -Plkql_checker/lalcheck.gpr -largs -s
 	$(GPRBUILD) -Plkql/liblkqllang_encapsulated -XLIBRARY_TYPE=static-pic -largs -s
@@ -46,7 +48,7 @@ automated:
 automated-cov:
 	rm -rf "$(PREFIX)" "$(BUILD_DIR)"
 	mkdir -p "$(PREFIX)/share/lkql" "$(LKQL_DIR)"
-	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) --coverage
+	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS) --coverage
 	$(PYTHON) lkql/manage.py install $(MANAGE_ARGS) $(PREFIX)
 	# Build and install the lkql_checker program. Instrument it first.
 	# Note that we just copy the sources to the build directory since
