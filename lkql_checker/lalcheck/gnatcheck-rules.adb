@@ -346,20 +346,14 @@ package body Gnatcheck.Rules is
      (Rule         : in out Rule_Template'Class;
       Rule_File    : File_Type)
    is
-      First_Param : Boolean := True;
       Args        : Rule_Argument_Vectors.Vector;
    begin
       Map_Parameters (Rule, Args);
+
       Put (Rule_File, Rule_Name (Rule));
-
       for Param of Args loop
-         if First_Param then
-            Put (Rule_File, ":");
-            First_Param := False;
-         else
-            Put (Rule_File, ",");
-         end if;
-
+         New_Line (Rule_File);
+         Put (Rule_File, "-");
          Put (Rule_File,
               To_String (To_Wide_Wide_String (Param.Name)) & "=" &
               To_String (To_Wide_Wide_String (Param.Value)));

@@ -350,17 +350,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         List<String> allRules,
         List<String> allArgs
     ) {
-        int colonIndex = ruleSpec.indexOf(':');
-        if (colonIndex == -1) {
-            allRules.add(ruleSpec);
+        if (ruleSpec.startsWith("-")) {
+            String ruleName = allRules.get(allRules.size() - 1);
+            String arg = ruleSpec.substring(1);
+            allArgs.add(ruleName + "." + arg);
         } else {
-            String ruleName = ruleSpec.substring(0, colonIndex);
-            allRules.add(ruleName);
-            String args = ruleSpec.substring(colonIndex + 1);
-            List<String> argList = Arrays.stream(args.split(","))
-                .map(arg -> ruleName + "." + arg)
-                .toList();
-            allArgs.addAll(argList);
+            allRules.add(ruleSpec);
         }
     }
 
