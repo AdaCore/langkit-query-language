@@ -1,7 +1,7 @@
 # Flag for..of loops when the iteration expression is an indexing on a type
 # with a Constant_Indexing aspect.
 
-@check(message="possible occurrence of KP U928-018", impact="22.*,23.*")
+@check(message="possible occurrence of KP U928-018", impact="22.*,23.1")
 fun kp_u928_018(node) =
     node is ForLoopStmt(f_spec is spec@ForLoopSpec(
         f_loop_type is IterTypeOf)
