@@ -2,9 +2,10 @@
 
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite
-from drivers import (
-    CheckerDriver, ParserDriver, InterpreterDriver, GnatcheckDriver
+from support.drivers import (
+    CheckerDriver, ParserDriver, InterpreterDriver
 )
+from support.gnatcheck_driver import GnatcheckDriver
 import glob
 import os
 import os.path as P

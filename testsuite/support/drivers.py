@@ -1,5 +1,4 @@
 import os
-from os import path as P
 
 from e3.fs import mkdir
 from e3.testsuite.driver.diff import DiffTestDriver
@@ -19,7 +18,7 @@ class BaseTestDriver(DiffTestDriver):
     def set_up(self):
         super().set_up()
 
-        if self.env.options.coverage:
+        if getattr(self.env.options, "coverage", None):
             # Unique number to generate separate trace files in the "shell"
             # method.
             self.trace_counter = 0
@@ -36,7 +35,7 @@ class BaseTestDriver(DiffTestDriver):
 
         # If code coverage is enabled, put trace files in the dedicated
         # directory.
-        if self.env.options.coverage:
+        if getattr(self.env.options, "coverage", None):
             env['LIBLKQLLANG_TRACE_FILE'] = os.path.join(
                 self.traces_dir, f'lkql-{self.trace_counter}.srctrace'
             )
@@ -134,49 +133,6 @@ class CheckerDriver(BaseTestDriver):
 
         # Run the interpreter
         self.shell(args)
-
-
-class GnatcheckDriver(BaseTestDriver):
-    """
-    This driver runs gnatcheck with the given arguments and compares
-    the content of the default output ``gnatcheck.out`` file to the expected
-    output of the test.
-
-    The expected output must be written in a file called ``output``.
-
-    Test arguments:
-        - project: GPR build file to use (if any)
-        - input_sources: Ada files to analyze (if explicit, optional if project
-          is passed)
-        - rules: A list of rules with their arguments, in the gnatcheck format.
-          Note that the list can be empty, and people can instead decide to
-          pass rules via the project file.
-    """
-
-    def run(self):
-        args = ['gnatcheck', '-q']
-        # Use the test's project, if any
-        if self.test_env.get('project', None):
-            args += ['-P', self.test_env['project']]
-        else:
-            args += self.test_env['input_sources']
-
-        args.append("-rules")
-        for r in self.test_env.get('rules', []):
-            args.append(r)
-
-        # Run the interpreter
-        # TODO: For the moment, not trying to do anything with the error code,
-        # and instead relying solely on the diff. We might want to check that
-        # the return code is consistent at some later stage.
-
-        self.shell(args, catch_error=False)
-
-        with open(P.join(self.test_env["working_dir"], "gnatcheck.out")) as f:
-            # Strip the 10 first lines of the report, which contain
-            # run-specific information that we don't want to include in the
-            # test baseline.
-            self.output += "".join(f.readlines()[9:])
 
 
 def remove_whitespace(text):
