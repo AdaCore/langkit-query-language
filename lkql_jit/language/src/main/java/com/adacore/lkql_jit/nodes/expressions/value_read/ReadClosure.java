@@ -21,62 +21,43 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.functions;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
+
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This node represents a local function declaration in the LKQL language
+ * This class represents a closure value reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class FunDeclLocal extends FunDecl {
+public final class ReadClosure extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create a new function declaration in the global scope with its name
+     * Create a new closure reading node.
      *
-     * @param location   The location of the node in the sources
-     * @param annotation The function annotation
-     * @param name       The name of the function
-     * @param slot       The slot of the function
-     * @param funExpr    The functions expression
+     * @param location The location of the node in the source.
+     * @param slot     The slot index to read in the closure.
      */
-    public FunDeclLocal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        FunExpr funExpr
+    public ReadClosure(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location, annotation, name, slot, funExpr);
+        super(location, slot);
     }
 
-    // ----- Execute methods -----
+    // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Get the function value
-        FunctionValue functionValue = this.funExpr.executeFunction(frame);
-        functionValue.setName(this.name);
-        functionValue.setMemoized(this.isMemoized);
-
-        // Put the function value in the frame and the function closure
-        frame.setObject(this.slot, functionValue);
-        functionValue.getClosure().setObject(this.slot, functionValue);
-
-        // Return the unit value
-        return UnitValue.getInstance();
+        return FrameUtils.readClosure(frame, this.slot);
     }
 
     // ----- Override methods -----
@@ -88,8 +69,8 @@ public final class FunDeclLocal extends FunDecl {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

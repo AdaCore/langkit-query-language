@@ -24,8 +24,8 @@
 package com.adacore.lkql_jit.runtime.built_ins.selectors;
 
 import com.adacore.lkql_jit.nodes.Identifier;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.Unpack;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;

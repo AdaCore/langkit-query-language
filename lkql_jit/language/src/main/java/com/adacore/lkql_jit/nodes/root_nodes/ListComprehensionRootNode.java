@@ -26,12 +26,9 @@ package com.adacore.lkql_jit.nodes.root_nodes;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
@@ -40,22 +37,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class ListComprehensionRootNode extends RootNode {
-
-    // ----- Attributes -----
-
-    /**
-     * The closure for the root node execution
-     */
-    private Closure closure;
-
-    // ----- Children -----
-
-    /**
-     * The binding writing nodes
-     */
-    @Children
-    private final WriteArg[] bindingWriting;
+public final class ListComprehensionRootNode extends BaseRootNode {
 
     /**
      * The predicate of the list comprehension
@@ -78,19 +60,16 @@ public final class ListComprehensionRootNode extends RootNode {
      *
      * @param language        The language instance to link the root node with
      * @param frameDescriptor The frame descriptor for the root node
-     * @param slots           The slots to put the list comprehension bindings in
      * @param predicate       The predicate of the list comprehension
      * @param result          The result expression of the list comprehension
      */
     public ListComprehensionRootNode(
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
-        int[] slots,
         Expr predicate,
         Expr result
     ) {
         super(language, frameDescriptor);
-        this.bindingWriting = this.createBindingWritings(slots);
         this.predicate = predicate;
         this.result = result;
     }
@@ -101,16 +80,6 @@ public final class ListComprehensionRootNode extends RootNode {
         return result;
     }
 
-    public Closure getClosure() {
-        return closure;
-    }
-
-    // ----- Setters -----
-
-    public void setClosure(Closure closure) {
-        this.closure = closure;
-    }
-
     // ----- Execution methods -----
 
     /**
@@ -118,11 +87,8 @@ public final class ListComprehensionRootNode extends RootNode {
      */
     @Override
     public Object execute(VirtualFrame frame) {
-        // Instantiate the closure
-        this.instantiateClosure(frame);
-
-        // Instantiate the arguments
-        this.instantiateArgs(frame);
+        // Initialize the frame
+        this.initFrame(frame);
 
         // Evaluate the predicate and return the result if true, else just return null
         try {
@@ -138,67 +104,6 @@ public final class ListComprehensionRootNode extends RootNode {
                 this.predicate
             );
         }
-    }
-
-    // ----- Internal methods -----
-
-    /**
-     * Create the binding writing from the list comprehension node
-     *
-     * @param slots The list comprehension binding writing nodes
-     * @return The binding writing nodes
-     */
-    private WriteArg[] createBindingWritings(int[] slots) {
-        // Create the result
-        WriteArg[] res = new WriteArg[slots.length];
-
-        // Create the writing nodes
-        for (int i = 0; i < slots.length; i++) {
-            res[i] = new WriteArg(slots[i]);
-        }
-
-        // Return the result
-        return res;
-    }
-
-    /**
-     * Instantiate the closure if it's not null
-     *
-     * @param frame The frame to instantiate the closure in
-     */
-    private void instantiateClosure(VirtualFrame frame) {
-        if (this.closure != null) {
-            this.closure.instantiate(frame.materialize());
-        }
-    }
-
-    /**
-     * Instantiate the arguments in the local frame
-     *
-     * @param frame The frame to instantiate the arguments in
-     */
-    private void instantiateArgs(VirtualFrame frame) {
-        for (int i = 0; i < this.bindingWriting.length; i++) {
-            this.bindingWriting[i].executeWrite(frame, i);
-        }
-    }
-
-    // ----- Class methods -----
-
-    /**
-     * Get the call target as a generic Truffle calling interface
-     *
-     * @return The call target
-     */
-    public CallTarget getRealCallTarget() {
-        return this.getCallTarget();
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return "ListComprehension";
     }
 
 }

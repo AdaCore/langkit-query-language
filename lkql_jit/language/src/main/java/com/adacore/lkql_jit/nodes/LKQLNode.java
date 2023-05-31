@@ -85,7 +85,7 @@ public abstract class LKQLNode extends Node implements Locatable {
      */
     public abstract Object executeGeneric(VirtualFrame frame);
 
-    // ----- Class methods -----
+    // ----- Instance methods -----
 
     /**
      * Create the string representation of the node with its children

@@ -21,76 +21,60 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.literals.object;
+package com.adacore.lkql_jit.utils.util_functions;
 
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+
+import com.adacore.lkql_jit.runtime.Cell;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This node represents the literal node for an LKQL object
+ * This class contains all util functions about the frame managing.
  *
  * @author Hugo GUERRIER
  */
-public final class ObjectLiteral extends Expr {
-
-    // ----- Children -----
+public final class FrameUtils {
 
     /**
-     * The list of the associations in the object literal
-     */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private ObjectAssocList assocList;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new object literal node
+     * Get the local value stored in the frame at the given slot.
      *
-     * @param location  The location of the node in the source
-     * @param assocList The list of the association in the object
+     * @param frame The frame to read the local in.
+     * @param slot  The slot to read the local at.
+     * @return The local value at the slot.
      */
-    public ObjectLiteral(
-        SourceLocation location,
-        ObjectAssocList assocList
+    public static Object readLocal(
+        final VirtualFrame frame,
+        final int slot
     ) {
-        super(location);
-        this.assocList = assocList;
-    }
-
-    // ----- Execution methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return this.executeObject(frame);
+        return ((Cell) frame.getObject(slot)).getRef();
     }
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
+     * Write the local value at the given slot in the given frame.
+     *
+     * @param frame The frame to write the value in.
+     * @param slot  The slot to write the value at.
+     * @param value The value to write.
      */
-    @Override
-    public ObjectValue executeObject(VirtualFrame frame) {
-        // Get the associations
-        Object[][] assocs = this.assocList.executeAssocList(frame);
-
-        // Return the object value
-        return new ObjectValue((String[]) assocs[0], assocs[1]);
+    public static void writeLocal(
+        final VirtualFrame frame,
+        final int slot,
+        final Object value
+    ) {
+        ((Cell) frame.getObject(slot)).setRef(value);
     }
 
-    // ----- Override methods -----
-
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     * Read the closure value stored in the frame at the given slot.
+     *
+     * @param frame The frame to read the closure value in.
+     * @param slot  The slot to read the closure at.
+     * @return The closure value at the slot.
      */
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel);
+    public static Object readClosure(
+        final VirtualFrame frame,
+        final int slot
+    ) {
+        return (((Cell[]) frame.getArguments()[0])[slot]).getRef();
     }
 
 }

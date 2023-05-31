@@ -21,61 +21,85 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.variables;
+package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represent a global variable declaration in the LKQL language
+ * This node represents the declaration of a parameter in a function signature in LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ValDeclGlobal extends ValDecl {
+public final class ParameterDeclaration extends Declaration {
+
+    // ----- Attributes -----
+
+    /**
+     * The parameter name.
+     */
+    private final String name;
+
+    /**
+     * Corresponding parameter slot.
+     */
+    private final int slot;
+
+    /**
+     * The parameter default value.
+     */
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private Expr defaultValue;
 
     // ----- Constructors -----
 
     /**
-     * Create a new global variable declaration node
+     * Create a new parameter declaration node.
      *
-     * @param location   The location of the node in the source
-     * @param annotation The annotation of the variable declaration
-     * @param name       The name of the variable
-     * @param slot       The slot to put the variable in
-     * @param value      The value of the variable
+     * @param location     The location of the node in the source.
+     * @param name         The name of the parameter.
+     * @param slot         Corresponding parameter slot.
+     * @param defaultValue The default value of the parameter (can be null).
      */
-    public ValDeclGlobal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        Expr value
+    public ParameterDeclaration(
+        final SourceLocation location,
+        final String name,
+        final int slot,
+        final Expr defaultValue
     ) {
-        super(location, annotation, name, slot, value);
+        super(location, null);
+        this.name = name;
+        this.slot = slot;
+        this.defaultValue = defaultValue;
     }
 
-    // ----- Execute methods -----
+    // ----- Getters -----
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getSlot() {
+        return this.slot;
+    }
+
+    public Expr getDefaultValue() {
+        return this.defaultValue;
+    }
+
+    // ----- Execution methods -----
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Put the value in the global value
-        LKQLLanguage.getContext(this)
-            .setGlobal(
-                this.slot,
-                this.name,
-                this.value.executeGeneric(frame)
-            );
-
-        // Return the unit value
-        return UnitValue.getInstance();
+        // Fail because this node is not executable as a generic one
+        throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
     // ----- Override methods -----
@@ -87,8 +111,8 @@ public final class ValDeclGlobal extends ValDecl {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"name"},
+            new Object[]{this.name}
         );
     }
 

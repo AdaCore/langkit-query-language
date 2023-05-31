@@ -21,126 +21,114 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions;
+package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
-import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
+import com.adacore.lkql_jit.nodes.declarations.Declaration;
+import com.adacore.lkql_jit.nodes.declarations.DeclarationAnnotation;
+import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.runtime.values.SelectorValue;
+import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.ClosureDescriptor;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import java.util.Arrays;
-
 
 /**
- * This node represents a function expression in the LKQL language
+ * This node represents the base declaration of a selector in the LKQL language
  *
  * @author Hugo GUERRIER
  */
-public final class FunExpr extends Expr {
+public final class SelectorDeclaration extends Declaration {
 
     // ----- Attributes -----
 
     /**
-     * Closure descriptor of the function.
+     * The name of the selector.
+     */
+    private final String name;
+
+    /**
+     * The documentation of the selector.
+     */
+    private final String documentation;
+
+    /**
+     * The slot to put the selector in.
+     */
+    private final int slot;
+
+    /**
+     * The closure descriptor of the selector.
      */
     private final ClosureDescriptor closureDescriptor;
 
     /**
-     * The root node representing the function execution.
+     * The root node of the selector.
      */
-    private final FunctionRootNode functionRootNode;
-
-    /**
-     * The names of the parameters.
-     */
-    private final String[] parameterNames;
-
-    /**
-     * The default values of the parameters.
-     */
-    private final Expr[] parameterValues;
-
-    // ----- Children -----
-
-    /**
-     * The body of the function.
-     */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr body;
+    private final SelectorRootNode selectorRootNode;
 
     // ----- Constructors -----
 
     /**
-     * Create a new function expression node.
+     * Create a new selector declaration node.
      *
      * @param location          The location of the node in the source.
-     * @param frameDescriptor   The frame descriptor for the function root node.
-     * @param closureDescriptor The closure descriptor for the function.
-     * @param parameters        The parameters of the function.
-     * @param body              The body of the function.
+     * @param annotation        The annotation of the selector declaration.
+     * @param frameDescriptor   The frame descriptor for the selector.
+     * @param closureDescriptor The closure descriptor for the selector root node.
+     * @param name              The name of the selector.
+     * @param documentation     The documentation of the selector.
+     * @param slot              The slot to put the selector in.
+     * @param thisSlot          The slot for the "this" symbol.
+     * @param depthSlot         The slot for the "depth" symbol.
+     * @param arms              The arms of the selector.
      */
-    public FunExpr(
-        final SourceLocation location,
-        final FrameDescriptor frameDescriptor,
-        final ClosureDescriptor closureDescriptor,
-        final ParameterDeclaration[] parameters,
-        final Expr body
+    public SelectorDeclaration(
+        SourceLocation location,
+        DeclarationAnnotation annotation,
+        FrameDescriptor frameDescriptor,
+        ClosureDescriptor closureDescriptor,
+        String name,
+        String documentation,
+        int slot,
+        int thisSlot,
+        int depthSlot,
+        SelectorArm[] arms
     ) {
-        super(location);
+        super(location, annotation);
         this.closureDescriptor = closureDescriptor;
-        this.functionRootNode = new FunctionRootNode(
+        this.name = name;
+        this.documentation = documentation;
+        this.slot = slot;
+
+        this.selectorRootNode = new SelectorRootNode(
             LKQLLanguage.getLanguage(this),
             frameDescriptor,
-            false,
-            body
+            annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
+            thisSlot,
+            depthSlot,
+            arms
         );
-        this.parameterNames = new String[parameters.length];
-        this.parameterValues = new Expr[parameters.length];
-        this.body = body;
-
-        this.initParams(parameters);
-    }
-
-    /**
-     * Initialize the parameter fields
-     */
-    private void initParams(ParameterDeclaration[] parameters) {
-        for (int i = 0; i < parameters.length; i++) {
-            this.parameterNames[i] = parameters[i].getName();
-            this.parameterValues[i] = parameters[i].getDefaultValue();
-        }
     }
 
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return this.executeFunction(frame);
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeFunction(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public FunctionValue executeFunction(VirtualFrame frame) {
-        return new FunctionValue(
-            this.functionRootNode,
-            Closure.create(frame.materialize(), this.closureDescriptor),
-            Constants.FUNCTION_DEFAULT_NAME,
-            Constants.FUNCTION_DEFAULT_DOC,
-            this.parameterNames,
-            this.parameterValues
+        FrameUtils.writeLocal(
+            frame,
+            this.slot,
+            new SelectorValue(this.selectorRootNode, Closure.create(frame.materialize(), this.closureDescriptor), this.name, this.documentation)
         );
+        return UnitValue.getInstance();
     }
 
     // ----- Override methods -----
@@ -152,8 +140,8 @@ public final class FunExpr extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"names"},
-            new Object[]{Arrays.toString(this.parameterNames)}
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
         );
     }
 

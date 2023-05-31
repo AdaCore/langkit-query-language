@@ -21,95 +21,66 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.selectors;
-
-import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
+package com.adacore.lkql_jit.runtime;
 
 
 /**
- * This node represents an expression in the right part of a selector arm
+ * This class represents a storing cell in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorExpr extends LKQLNode {
-
-    // ----- Macros and enums -----
-
-    /**
-     * The possible modes for the selector expressions
-     */
-    public enum Mode {
-        DEFAULT,
-        REC,
-        SKIP
-    }
+public final class Cell {
 
     // ----- Attributes -----
 
     /**
-     * The mode of the expression
+     * The reference stored in the cell
      */
-    private final Mode mode;
-
-    // ----- Children -----
-
-    /**
-     * The expression of the selector expression
-     */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr expr;
+    private Object ref;
 
     // ----- Constructors -----
 
     /**
-     * Create a new selector expression node
-     *
-     * @param location The location of the node in the source
-     * @param mode     The mode of the expression
-     * @param expr     The expression
+     * Create a new empty cell
      */
-    public SelectorExpr(
-        SourceLocation location,
-        Mode mode,
-        Expr expr
-    ) {
-        super(location);
-        this.mode = mode;
-        this.expr = expr;
+    public Cell() {
+        this.ref = null;
+    }
+
+    /**
+     * Create a new cell with its reference
+     *
+     * @param obj The object to store in the cell
+     */
+    public Cell(Object obj) {
+        this.ref = obj;
     }
 
     // ----- Getters -----
 
-    public Mode getMode() {
-        return this.mode;
+    public boolean isNull() {
+        return this.ref == null;
     }
 
-    // ----- Execution methods -----
+    public Object getRef() {
+        return this.ref;
+    }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return this.expr.executeGeneric(frame);
+    // ----- Setters -----
+
+    public void clear() {
+        this.ref = null;
+    }
+
+    public void setRef(Object ref) {
+        this.ref = ref;
     }
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"mode"},
-            new Object[]{this.mode}
-        );
+    public String toString() {
+        return this.isNull() ? "null" : this.ref.toString();
     }
 
 }

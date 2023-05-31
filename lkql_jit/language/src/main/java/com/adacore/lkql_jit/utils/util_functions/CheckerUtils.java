@@ -6,8 +6,6 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 
-import java.util.Arrays;
-
 
 /**
  * Util functions for the LKQL checker implementation
@@ -45,13 +43,13 @@ public class CheckerUtils {
      */
     public interface DiagnosticEmitter {
         /**
-         * @param ruleName   The name of the rule
-         * @param message    The message of the violated rule
-         * @param slocRange  The location where the error occurs in the code
-         * @param unit       The analysis unit in which the error occurs
+         * @param ruleName              The name of the rule
+         * @param message               The message of the violated rule
+         * @param slocRange             The location where the error occurs in the code
+         * @param unit                  The analysis unit in which the error occurs
          * @param genericInstantiations The current stack of generic instantiations
-         * @param linesCache The cache of all units' source text lines
-         * @param context    The context to output the message
+         * @param linesCache            The cache of all units' source text lines
+         * @param context               The context to output the message
          */
         void emit(
             String ruleName,

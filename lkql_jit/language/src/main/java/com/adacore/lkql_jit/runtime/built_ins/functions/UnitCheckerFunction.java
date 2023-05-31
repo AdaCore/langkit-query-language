@@ -41,7 +41,6 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -191,23 +190,21 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             final String ruleName = (String) rule.get("name");
 
             // Prepare the arguments
-            Object[] arguments = new Object[functionValue.getParamNames().length];
-            arguments[0] = unit;
+            Object[] arguments = new Object[functionValue.getParamNames().length + 1];
+            arguments[1] = unit;
             for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
                 Object userDefinedArg = context.getRuleArg((String) rule.get("name"), paramName);
-                arguments[i] = userDefinedArg == null ?
+                arguments[i + 1] = userDefinedArg == null ?
                     functionValue.getDefaultValues()[i].executeGeneric(frame) :
                     userDefinedArg;
             }
 
-            // Put the namespace
-            if (functionValue.getNamespace() != null) {
-                context.getGlobalValues().pushNamespace(functionValue.getNamespace());
-            }
+            // Put the closure in the arguments
+            arguments[0] = functionValue.getClosure().getContent();
 
             // Get the message list from the rule function
-            Iterable messageList;
+            final Iterable messageList;
             try {
                 messageList = LKQLTypeSystemGen.expectIterable(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
@@ -216,11 +213,6 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     LKQLTypesHelper.fromJava(e.getResult()),
                     functionValue.getBody()
                 );
-            } finally {
-                // Remove the namespace
-                if (functionValue.getNamespace() != null) {
-                    context.getGlobalValues().popNamespace();
-                }
             }
 
             // Display all the violation message

@@ -44,7 +44,7 @@ public final class ArgList extends LKQLNode {
      */
     @Children
     @SuppressWarnings("FieldMayBeFinal")
-    private Arg[] args;
+    private final Arg[] args;
 
     // ----- Constructors -----
 

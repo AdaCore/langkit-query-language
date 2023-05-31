@@ -21,30 +21,78 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.variables;
+package com.adacore.lkql_jit.utils.util_classes;
 
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
+import java.util.Map;
 
 /**
- * This node is the base for all variable reading in the LKQL language
+ * This class represents the description of a closure.
  *
  * @author Hugo GUERRIER
  */
-public abstract class ReadVariable extends Expr {
+public final class ClosureDescriptor {
+
+    // ----- Attributes -----
+
+    /**
+     * Size of the closure.
+     */
+    private final int closureSize;
+
+    /**
+     * Map that goes from closure slots to local slots to close.
+     */
+    private final Map<Integer, Integer> closingLocals;
+
+    /**
+     * Map that goes from closure slots to parameters slots to close.
+     */
+    private final Map<Integer, Integer> closingParameters;
+
+    /**
+     * Map that goes from closure slots to upper closure slots to close.
+     */
+    private final Map<Integer, Integer> closingClosures;
 
     // ----- Constructors -----
 
     /**
-     * Create a new variable reading node
+     * Create a new closure descriptor with its values.
      *
-     * @param location The location of the node in the source
+     * @param closureSize       Size of the closure.
+     * @param closingLocals     Local values to enclose.
+     * @param closingParameters Parameters to enclose.
+     * @param closingClosures   Closure values to enclose.
      */
-    protected ReadVariable(
-        SourceLocation location
+    public ClosureDescriptor(
+        final int closureSize,
+        final Map<Integer, Integer> closingLocals,
+        final Map<Integer, Integer> closingParameters,
+        final Map<Integer, Integer> closingClosures
     ) {
-        super(location);
+        this.closureSize = closureSize;
+        this.closingLocals = closingLocals;
+        this.closingParameters = closingParameters;
+        this.closingClosures = closingClosures;
+    }
+
+    // ----- Getters -----
+
+    public int getClosureSize() {
+        return this.closureSize;
+    }
+
+    public Map<Integer, Integer> getClosingLocals() {
+        return this.closingLocals;
+    }
+
+    public Map<Integer, Integer> getClosingParameters() {
+        return this.closingParameters;
+    }
+
+    public Map<Integer, Integer> getClosingClosures() {
+        return this.closingClosures;
     }
 
 }

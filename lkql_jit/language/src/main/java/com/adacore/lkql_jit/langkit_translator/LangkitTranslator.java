@@ -21,61 +21,42 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.variables;
+package com.adacore.lkql_jit.langkit_translator;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.declarations.Declaration;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
+import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
+import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
+import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.oracle.truffle.api.source.Source;
 
 /**
- * This class represents the base of a variable declaration in the LKQL language
+ * This class is the top level class to translate a LKQL Langkit AST into a Truffle AST.
  *
  * @author Hugo GUERRIER
  */
-public abstract class ValDecl extends Declaration {
-
-    // ----- Attributes -----
+public final class LangkitTranslator {
 
     /**
-     * The name of the variable
-     */
-    protected final String name;
-
-    /**
-     * The slot to put the variable in
-     */
-    protected final int slot;
-
-    /**
-     * The value of the variable
-     */
-    protected final Expr value;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new variable declaration with the wanted parameters
+     * Translate the given source Langkit AST.
      *
-     * @param location   The location of the node in the source
-     * @param annotation The annotation of the variable declaration
-     * @param name       The name of the variable
-     * @param slot       The slot to put the variable in
-     * @param value      The value of the variable
+     * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
+     * @param source          The Truffle source of the AST.
+     * @return The translated LKQL Truffle AST.
      */
-    protected ValDecl(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        Expr value
+    public static LKQLNode translate(
+        final Liblkqllang.LkqlNode lkqlLangkitRoot,
+        final Source source
     ) {
-        super(location);
-        this.annotation = annotation;
-        this.name = name;
-        this.slot = slot;
-        this.value = value;
+        // Do the framing pass to create the script frame descriptions
+        final FramingPass framingPass = new FramingPass(source);
+        lkqlLangkitRoot.accept(framingPass);
+        final ScriptFrames scriptFrames = framingPass.getScriptFramesBuilder().build();
+
+        // Do the translation pass and return the result
+        final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
+        return lkqlLangkitRoot.accept(translationPass);
     }
 
 }

@@ -27,6 +27,7 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -204,9 +205,6 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         // Set the builder common options
         contextBuilder.allowIO(true);
 
-        // Set the LKQL language mode to interpreter
-        contextBuilder.option("lkql.checkerMode", "true");
-
         // Set the context options
         if (this.verbose) {
             System.out.println("=== LKQL JIT is in verbose mode ===");
@@ -246,13 +244,12 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.ignores", this.ignores);
         }
 
+        // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            // Create the context and run it with the script
-            Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
+            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
                 .build();
-            context.eval(source);
-
-            // Return the success
+            final Value executable = context.parse(source);
+            executable.executeVoid(true);
             return 0;
         } catch (Exception e) {
             if (this.verbose) {

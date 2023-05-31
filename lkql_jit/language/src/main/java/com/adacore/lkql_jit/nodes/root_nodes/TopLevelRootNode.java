@@ -21,25 +21,24 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes;
+package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.RootNode;
 
 
 /**
- * This root node represents the root execution of an LKQL program
+ * This root node represents the root execution of an LKQL program.
  *
  * @author Hugo GUERRIER
  */
-public final class LKQLRootNode extends RootNode {
+public final class TopLevelRootNode extends BaseRootNode {
 
     // ----- Attributes -----
 
     /**
-     * The list of nodes representing the program
+     * The list of nodes representing the program.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -48,45 +47,45 @@ public final class LKQLRootNode extends RootNode {
     // ----- Constructors -----
 
     /**
-     * Create a new LKQL root node in order to execute it in Truffle
+     * Create a new LKQL top level root node.
      *
-     * @param program  The LKQL program to execute
-     * @param language The reference to the LKQL language instance
+     * @param program  The LKQL program to execute.
+     * @param language The reference to the LKQL language instance.
      */
-    public LKQLRootNode(TopLevelList program, LKQLLanguage language) {
-        super(language);
+    public TopLevelRootNode(
+        final TopLevelList program,
+        final LKQLLanguage language
+    ) {
+        super(language, program.getFrameDescriptor());
         this.program = program;
-    }
-
-    /**
-     * Create a new LKQL root node in order to execute it in truffle
-     *
-     * @param program         The LKQL program to execute
-     * @param language        The reference to the LKQL language instance
-     * @param frameDescriptor The descriptor of the execution frame
-     */
-    public LKQLRootNode(TopLevelList program, LKQLLanguage language, FrameDescriptor frameDescriptor) {
-        super(language, frameDescriptor);
-        this.program = program;
-    }
-
-    // ----- Getters -----
-
-    public TopLevelList getProgram() {
-        return program;
     }
 
     // ----- Execution methods -----
 
     /**
-     * Execute the LKQL program that the node contains and return the namespace of the program
+     * Execute the LKQL program and return the namespace, result of this program execution.
+     * This root node expects 1 argument:
+     * - boolean checkerMode: If the top level list node is in checker mode. Default is false.
      *
-     * @param frame The frame to execute in
-     * @return The namespace of the LKQL program
+     * @param frame The frame to execute in.
+     * @return The namespace of the LKQL program.
      * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object execute(VirtualFrame frame) {
+        // Get the execution arguments and perform pre-computing actions
+        Object[] arguments = frame.getArguments();
+        final boolean checkerMode = arguments.length > 0 && (boolean) arguments[0];
+
+        // If the checker mode is activated add all rule imports
+        if (checkerMode) {
+            this.program.addRuleImports();
+        }
+
+        // Initialize the frame
+        this.initFrame(frame);
+
+        // Execute the program
         return this.program.executeGeneric(frame);
     }
 

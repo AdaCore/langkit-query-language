@@ -48,7 +48,7 @@ public final class ReadBuiltInThis extends Expr {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return frame.getArguments()[0];
+        return frame.getArguments()[1];
     }
 
     // ----- Override methods -----

@@ -21,68 +21,69 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.variables;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
+
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This node represents a local variable declaration in the LKQL language
+ * This node represents a value reading in the closure when we don't know if the value is defined.
  *
  * @author Hugo GUERRIER
  */
-public final class ValDeclLocal extends ValDecl {
+public final class ReadClosureUnsafe extends BaseRead {
+
+    // ----- Attributes -----
+
+    /**
+     * Symbol to read in the closure.
+     */
+    private final String name;
 
     // ----- Constructors -----
 
     /**
-     * Create a new local variable declaration with the slot of it
+     * Create a new closure read unsafe node.
      *
-     * @param location   The location of the node in the source
-     * @param annotation The annotation related to the variable declaration
-     * @param name       The name of the variable
-     * @param slot       The slot to put the variable in
-     * @param value      The value of the variable
+     * @param location The location of the node in the source.
+     * @param slot     The closure slot to read.
+     * @param name     The name of the closure symbol.
      */
-    public ValDeclLocal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        Expr value
+    public ReadClosureUnsafe(
+        final SourceLocation location,
+        final int slot,
+        final String name
     ) {
-        super(location, annotation, name, slot, value);
+        super(location, slot);
+        this.name = name;
     }
 
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Put the value in the frame
-        frame.setObject(this.slot, this.value.executeGeneric(frame));
-
-        // Return the unit value
-        return UnitValue.getInstance();
+        final Object res = FrameUtils.readClosure(frame, this.slot);
+        if (res == null) {
+            throw LKQLRuntimeException.unknownSymbol(name, this);
+        } else {
+            return res;
+        }
     }
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

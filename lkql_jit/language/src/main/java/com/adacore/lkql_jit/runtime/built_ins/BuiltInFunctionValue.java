@@ -25,6 +25,8 @@ package com.adacore.lkql_jit.runtime.built_ins;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 
 
@@ -60,7 +62,14 @@ public final class BuiltInFunctionValue extends FunctionValue {
         Expr[] defaultValues,
         BuiltInExpr body
     ) {
-        super(null, null, false, name, documentation, new int[0], names, defaultValues, body);
+        super(
+            new FunctionRootNode(null, null, false, body),
+            Closure.EMPTY,
+            name,
+            documentation,
+            names,
+            defaultValues
+        );
     }
 
     // ----- Getters -----

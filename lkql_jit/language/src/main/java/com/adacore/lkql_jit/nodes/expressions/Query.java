@@ -477,6 +477,7 @@ public final class Query extends Expr {
 
         /**
          * Return whether the given node is inside an instantiated generic.
+         *
          * @param node The node to check
          */
         private static boolean inGenericInstantiation(Libadalang.AdaNode node) {

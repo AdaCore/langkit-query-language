@@ -21,79 +21,27 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.root_nodes;
+package com.adacore.lkql_jit.exception;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.oracle.truffle.api.frame.VirtualFrame;
-
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 
 /**
- * This node is a helper to write a frame argument to a local frame slot
+ * This exception represents an exception in the LKQL static analysis.
+ * This doesn't represent a static error in the LKQL code!
  *
  * @author Hugo GUERRIER
  */
-public final class WriteArg extends LKQLNode {
-
-    // ----- Attributes -----
+public final class TranslatorException extends AbstractTruffleException {
 
     /**
-     * The local slot to write the argument in
-     */
-    private final int slot;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new write argument node
+     * Create a new exception from its message.
      *
-     * @param slot The slot of the frame to write in
+     * @param message The message of the exception.
      */
-    public WriteArg(
-        int slot
+    public TranslatorException(
+        final String message
     ) {
-        super(null);
-        this.slot = slot;
-    }
-
-    // ----- Getters -----
-
-    public int getSlot() {
-        return this.slot;
-    }
-
-    // ----- Execution methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
-    }
-
-    /**
-     * Execute the argument writing with the arg index
-     *
-     * @param frame    The frame write the argument in
-     * @param argIndex The argument index
-     */
-    public void executeWrite(VirtualFrame frame, int argIndex) {
-        frame.setObject(this.slot, frame.getArguments()[argIndex]);
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"slot"},
-            new Object[]{this.slot}
-        );
+        super(message);
     }
 
 }

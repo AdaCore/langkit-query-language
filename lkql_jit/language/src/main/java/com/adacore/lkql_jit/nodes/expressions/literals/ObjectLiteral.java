@@ -21,67 +21,82 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.functions;
+package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 
 /**
- * This node represents a global function declaration in the LKQL language
+ * This node represents the literal node for an LKQL object
  *
  * @author Hugo GUERRIER
  */
-public final class FunDeclGlobal extends FunDecl {
+public final class ObjectLiteral extends Expr {
+
+    // ----- Attributes -----
+
+    /**
+     * Object ordered keys.
+     */
+    private final String[] keys;
+
+    // ----- Children -----
+
+    /**
+     * Object ordered values.
+     */
+    @Children
+    private Expr[] values;
 
     // ----- Constructors -----
 
     /**
-     * Create a new global function declaration node
+     * Create a new object literal node.
+     * !!! IMPORTANT !!!
+     * Keys and values MUST be in the same order such as: obj.keys[n] = values[n].
      *
-     * @param location   The location of the node in the sources
-     * @param annotation The function annotation
-     * @param name       The name of the function
-     * @param slot       The slot to put the function in
-     * @param funExpr    The function expression
+     * @param location The location of the node in the source.
+     * @param keys     Ordered keys of the object.
+     * @param values   Ordered values of the object.
      */
-    public FunDeclGlobal(
+    public ObjectLiteral(
         SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        FunExpr funExpr
+        String[] keys,
+        Expr[] values
     ) {
-        super(location, annotation, name, slot, funExpr);
+        super(location);
+        this.keys = keys;
+        this.values = values;
     }
 
-    // ----- Execute methods -----
+    // ----- Execution methods -----
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Get the function value
-        FunctionValue functionValue = this.funExpr.executeFunction(frame);
-        functionValue.setName(this.name);
-        functionValue.setMemoized(this.isMemoized);
+        return this.executeObject(frame);
+    }
 
-        // Export the checker if needed
-        if (this.checkerMode != CheckerMode.OFF) {
-            this.exportChecker(frame, functionValue);
+    /**
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
+     */
+    @Override
+    @ExplodeLoop
+    public ObjectValue executeObject(VirtualFrame frame) {
+        // Execute the values of the object
+        final Object[] values = new Object[this.keys.length];
+        for (int i = 0; i < this.keys.length; i++) {
+            values[i] = this.values[i].executeGeneric(frame);
         }
 
-        // Put the function value in the global context
-        LKQLLanguage.getContext(this).setGlobal(this.slot, this.name, functionValue);
-
-        // Return the unit value
-        return UnitValue.getInstance();
+        // Return the object value
+        return new ObjectValue(this.keys, values);
     }
 
     // ----- Override methods -----
@@ -91,11 +106,7 @@ public final class FunDeclGlobal extends FunDecl {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
-        );
+        return this.nodeRepresentation(indentLevel);
     }
 
 }

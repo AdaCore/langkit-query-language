@@ -21,91 +21,40 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.literals.object;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an association in an object literal
+ * This node is the base for all variable reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ObjectAssoc extends LKQLNode {
+public abstract class BaseRead extends Expr {
 
     // ----- Attributes -----
 
     /**
-     * The key of the association
+     * The slot to read.
      */
-    private final String key;
-
-    // ----- Children -----
-
-    /**
-     * The value of the association
-     */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr value;
+    protected final int slot;
 
     // ----- Constructors -----
 
     /**
-     * Create a new object association node
+     * Create a new variable reading node.
      *
-     * @param location The location of the node in the source
-     * @param key      The key of the association
-     * @param value    The value of the association
+     * @param location The location of the node in the source.
+     * @param slot     The slot to read.
      */
-    public ObjectAssoc(
-        SourceLocation location,
-        String key,
-        Expr value
+    protected BaseRead(
+        final SourceLocation location,
+        final int slot
     ) {
         super(location);
-        this.key = key;
-        this.value = value;
-    }
-
-    // ----- Getters -----
-
-    public String getKey() {
-        return key;
-    }
-
-    // ----- Execution methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
-    }
-
-    /**
-     * Execute the value expression of the association
-     *
-     * @param frame The frame to execute in
-     * @return The result of the value execution
-     */
-    public Object executeAssoc(VirtualFrame frame) {
-        return this.value.executeGeneric(frame);
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
-    @Override
-    public String toString(int indentLevel) {
-        return null;
+        this.slot = slot;
     }
 
 }

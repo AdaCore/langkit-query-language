@@ -21,97 +21,42 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
+
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This node represents the declaration of a parameter for a function in LKQL language
+ * This class represents an argument reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ParameterDecl extends Declaration {
-
-    // ----- Attributes -----
-
-    /**
-     * The parameter name
-     */
-    private final String name;
-
-    /**
-     * The reserved slot for the parameter value
-     */
-    private final int slot;
-
-    /**
-     * The parameter type annotation
-     */
-    private final String typeAnnotation;
-
-    /**
-     * The parameter default value
-     */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private Expr defaultValue;
+public final class ReadArgument extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create a new parameter declaration node
+     * Create a new argument reading node.
      *
-     * @param location       The location of the node in the source
-     * @param name           The name of the parameter
-     * @param slot           The reserved slot for the parameter value
-     * @param typeAnnotation The type annotation of the parameter (can be null)
-     * @param defaultValue   The default value of the parameter (can be null)
+     * @param location The location of the node in the source.
+     * @param slot     The slot of the argument to read.
      */
-    public ParameterDecl(
-        SourceLocation location,
-        String name,
-        int slot,
-        String typeAnnotation,
-        Expr defaultValue
+    public ReadArgument(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location);
-        this.name = name;
-        this.slot = slot;
-        this.typeAnnotation = typeAnnotation;
-        this.defaultValue = defaultValue;
-    }
-
-    // ----- Getters -----
-
-    public String getName() {
-        return name;
-    }
-
-    public int getSlot() {
-        return slot;
-    }
-
-    public String getTypeAnnotation() {
-        return typeAnnotation;
-    }
-
-    public Expr getDefaultValue() {
-        return defaultValue;
+        super(location, slot);
     }
 
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Fail because this node is not executable as a generic one
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        return frame.getArguments()[this.slot];
     }
 
     // ----- Override methods -----
@@ -123,8 +68,8 @@ public final class ParameterDecl extends Declaration {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot", "type"},
-            new Object[]{this.name, this.slot, this.typeAnnotation}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

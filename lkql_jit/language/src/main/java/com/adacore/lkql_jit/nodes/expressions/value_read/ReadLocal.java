@@ -21,43 +21,33 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.literals.object;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an object association list in LKQL
+ * This node represents a local variable reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ObjectAssocList extends LKQLNode {
-
-    // ----- Children -----
-
-    /**
-     * The associations of the object
-     */
-    @Children
-    private final ObjectAssoc[] assocs;
+public final class ReadLocal extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create an object association list node
+     * Create a new local value reading node.
      *
-     * @param location The location of the node in the source
-     * @param assocs   The associations
+     * @param location The location of the node in the source.
+     * @param slot     The slot index to read in the frame.
      */
-    public ObjectAssocList(
-        SourceLocation location,
-        ObjectAssoc[] assocs
+    public ReadLocal(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location);
-        this.assocs = assocs;
+        super(location, slot);
     }
 
     // ----- Execution methods -----
@@ -67,36 +57,21 @@ public final class ObjectAssocList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        return FrameUtils.readLocal(frame, this.slot);
     }
 
-    /**
-     * Execute the association list and return an array containing the keys and values
-     *
-     * @param frame The frame to execute in
-     * @return An array containing the keys as first element and the values as second element
-     */
-    public Object[][] executeAssocList(VirtualFrame frame) {
-        // Evaluate the object values
-        String[] keys = new String[this.assocs.length];
-        Object[] values = new Object[this.assocs.length];
-        for (int i = 0; i < this.assocs.length; i++) {
-            keys[i] = this.assocs[i].getKey();
-            values[i] = this.assocs[i].executeAssoc(frame);
-        }
-
-        // Return the result
-        return new Object[][]{keys, values};
-    }
-
-    // ------ Override methods -----
+    // ----- Override methods -----
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel);
+        return this.nodeRepresentation(
+            indentLevel,
+            new String[]{"slot"},
+            new Object[]{this.slot}
+        );
     }
 
 }

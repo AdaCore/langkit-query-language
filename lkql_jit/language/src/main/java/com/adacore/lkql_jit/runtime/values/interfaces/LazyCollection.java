@@ -24,7 +24,6 @@
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -44,11 +43,6 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
     // ----- Attributes -----
 
     /**
-     * The namespace for the lazy collection execution
-     */
-    protected NamespaceValue namespace;
-
-    /**
      * The cache of the lazy collection
      */
     protected final List<Object> cache;
@@ -63,14 +57,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
     protected LazyCollection(
         int initialCacheSize
     ) {
-        this.namespace = null;
         this.cache = new ArrayList<>(initialCacheSize);
-    }
-
-    // ----- Setters -----
-
-    public void setNamespace(NamespaceValue namespace) {
-        this.namespace = namespace;
     }
 
     // ----- Class methods -----

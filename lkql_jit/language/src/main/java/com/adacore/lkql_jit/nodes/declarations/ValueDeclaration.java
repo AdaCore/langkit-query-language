@@ -21,85 +21,65 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.selectors;
+package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
+
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This class represents the local declaration of a selector in the LKQL language
+ * This class represents a value declaration in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorDeclLocal extends SelectorDecl {
+public final class ValueDeclaration extends Declaration {
 
     // ----- Attributes -----
 
     /**
-     * The limit for the closure
+     * Frame slot to place the value in.
      */
-    private final int closureLimit;
+    private final int slot;
 
-    // ----- Constructors ------
+    // ----- Children -----
 
     /**
-     * Create a new selector declaration in the local scope
-     *
-     * @param location      The location of the node in the source
-     * @param annotation    The annotation of the declaration
-     * @param name          The name of the selector
-     * @param documentation The documentation of the selector
-     * @param slot          The slot of the selector
-     * @param thisSlot      The slot for the "this" symbol
-     * @param depthSlot     The slot for the "depth" symbol
-     * @param descriptor    The descriptor for the selector
-     * @param arms          The arms of the selector
+     * The expression representing the value of the variable.
      */
-    public SelectorDeclLocal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        String documentation,
-        int slot,
-        int thisSlot,
-        int depthSlot,
-        FrameDescriptor descriptor,
-        int closureLimit,
-        SelectorArm[] arms
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private Expr value;
+
+    // ----- Constructors -----
+
+    /**
+     * Create a new value declaration node.
+     *
+     * @param location The location of the node in the source.
+     * @param slot     The frame slot to place the value in.
+     * @param value    The expression representing the value.
+     */
+    public ValueDeclaration(
+        final SourceLocation location,
+        final int slot,
+        final Expr value
     ) {
-        super(location, annotation, name, documentation, slot, thisSlot, depthSlot, descriptor, arms);
-        this.closureLimit = closureLimit;
+        super(location, null);
+        this.slot = slot;
+        this.value = value;
     }
 
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Create the selector value
-        SelectorValue selectorValue = new SelectorValue(
-            this.descriptor,
-            new Closure(frame.materialize(), this.closureLimit),
-            this.isMemoized,
-            this.name,
-            this.documentation,
-            this.thisSlot,
-            this.depthSlot,
-            this.arms
-        );
-
-        // Put the value in the local context
-        frame.setObject(this.slot, selectorValue);
-
-        // Return the unit
+        FrameUtils.writeLocal(frame, this.slot, this.value.executeGeneric(frame));
         return UnitValue.getInstance();
     }
 
@@ -112,8 +92,8 @@ public final class SelectorDeclLocal extends SelectorDecl {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

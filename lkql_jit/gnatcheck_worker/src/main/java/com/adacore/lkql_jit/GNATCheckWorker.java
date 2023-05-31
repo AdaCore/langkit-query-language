@@ -27,6 +27,7 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,8 @@ import java.util.*;
 
 /**
  * Implement a worker process for the GNATcheck driver.
+ *
+ * @author Romain BEGUET
  */
 public class GNATCheckWorker extends AbstractLanguageLauncher {
 
@@ -145,9 +148,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         contextBuilder.allowIO(true);
         contextBuilder.option("lkql.diagnosticOutputMode", "GNATCHECK");
 
-        // Set the LKQL language mode to interpreter
-        contextBuilder.option("lkql.checkerMode", "true");
-
         // Set the context options
         if (this.verbose) {
             contextBuilder.option("lkql.verbose", "true");
@@ -196,13 +196,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.ignores", this.ignore);
         }
 
+        // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            // Create the context and run it with the script
-            Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
+            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
                 .build();
-            context.eval(source);
-
-            // Return the success
+            final Value executable = context.parse(source);
+            executable.executeVoid(true);
             return 0;
         } catch (Exception e) {
             if (this.verbose) {
