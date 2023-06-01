@@ -23,6 +23,8 @@
 
 with Ada.Calendar;
 with Ada.Command_Line;
+with Ada.Directories;
+with Ada.Environment_Variables;
 with Ada.Text_IO;       use Ada.Text_IO;
 with GNAT.Command_Line; use GNAT.Command_Line;
 with GNAT.OS_Lib;       use GNAT.OS_Lib;
@@ -64,6 +66,49 @@ procedure Lalcheck is
    function File_Name (Id : String; Job : Natural) return String is
      (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
    --  Return the full path for a temp file with a given Id
+
+   procedure Setup_Builtin_Rules_Path;
+   --  Initialize LKQL_RULES_PATH to include path to built-in rules. Assuming
+   --  this executable is in $PREFIX/bin, this includes the $PREFIX/share/lkql
+   --  and $PREFIX/share/lkql/kp paths. That way, only the driver needs to be
+   --  aware of built-in rules, and worker can be located anywhere.
+
+   ------------------------------
+   -- Setup_Builtin_Rules_Path --
+   ------------------------------
+
+   procedure Setup_Builtin_Rules_Path is
+      use Ada;
+      use Ada.Directories;
+
+      Lkql_Rules_Path_Content : constant String :=
+        (if Environment_Variables.Exists ("LKQL_RULES_PATH")
+         then Environment_Variables.Value ("LKQL_RULES_PATH")
+         else "");
+
+      Executable : String_Access := Locate_Exec_On_Path
+        (Ada.Command_Line.Command_Name);
+   begin
+      if Executable = null then
+         raise Program_Error with
+            "cannot locate " & Ada.Command_Line.Command_Name;
+      end if;
+
+      declare
+         Prefix : constant String :=
+            Containing_Directory (Containing_Directory (Executable.all));
+
+         Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
+         Kp   : constant String := Compose (Lkql, "kp");
+      begin
+         Environment_Variables.Set
+           ("LKQL_RULES_PATH",
+            Lkql & Path_Separator &
+            Kp & Path_Separator &
+            Lkql_Rules_Path_Content);
+      end;
+      Free (Executable);
+   end Setup_Builtin_Rules_Path;
 
    procedure Schedule_Files;
    --  Schedule jobs per set of files
@@ -328,6 +373,12 @@ begin
      (Stop_At_First_Non_Switch => False,
       Section_Delimiters       => "cargs rules");
    Gnatcheck_Prj.Scan_Arguments;
+
+   --  Setup LKQL_RULES_PATH to point on built-in rules
+
+   if not Subprocess_Mode then
+      Setup_Builtin_Rules_Path;
+   end if;
 
    --  Load rule files after having parsed --rules-dir
 

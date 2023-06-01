@@ -21,10 +21,11 @@
 -- <http://www.gnu.org/licenses/>.                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Command_Line;
-with Ada.Directories; use Ada.Directories;
+with Ada.Environment_Variables;
 
 with GNAT.OS_Lib;
+
+with GNATCOLL.Utils;
 
 package body Rules_Factory is
 
@@ -85,42 +86,40 @@ package body Rules_Factory is
    function Get_Rules_Directories
      (Dirs : Path_Vector) return Virtual_File_Array
    is
-      use Ada;
-      use GNAT.OS_Lib;
+      function Add_Rules_Path (Path : String) return Boolean;
 
-      --  Assuming this program is installed in $PREFIX/bin, this computes
-      --  $PREFIX/share/lkql.
+      Lkql_Rules_Paths : Path_Vector;
 
-      Executable : String_Access := GNAT.OS_Lib.Locate_Exec_On_Path
-        (Ada.Command_Line.Command_Name);
+      function Add_Rules_Path (Path : String) return Boolean is
+      begin
+         Lkql_Rules_Paths.Append (Path);
+         return True;
+      end Add_Rules_Path;
    begin
-      if Executable = null then
-         raise Program_Error with
-            "cannot locate " & Ada.Command_Line.Command_Name;
+      if Ada.Environment_Variables.Exists ("LKQL_RULES_PATH") then
+         GNATCOLL.Utils.Split
+           (Ada.Environment_Variables.Value ("LKQL_RULES_PATH"),
+            GNAT.OS_Lib.Path_Separator & "",
+            Add_Rules_Path'Access);
       end if;
 
       declare
-         Prefix : constant String :=
-            Containing_Directory (Containing_Directory (Executable.all));
-
-         Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
-         Kp   : constant String := Compose (Lkql, "kp");
-
-         Builtin_Checkers_Dir : constant Virtual_File_Array :=
-           [Create (+Lkql), Create (+Kp)];
-
          Custom_Checkers_Dirs : Virtual_File_Array
-                                  (1 .. Integer (Dirs.Length));
-         Index                : Positive := 1;
+           (1 .. Integer (Dirs.Length) + Integer (Lkql_Rules_Paths.Length));
 
+         Index                : Positive := 1;
       begin
          for Dir of Dirs loop
             Custom_Checkers_Dirs (Index) := Create (+Dir);
             Index := @ + 1;
          end loop;
 
-         Free (Executable);
-         return Builtin_Checkers_Dir & Custom_Checkers_Dirs;
+         for Dir of Lkql_Rules_Paths loop
+            Custom_Checkers_Dirs (Index) := Create (+Dir);
+            Index := @ + 1;
+         end loop;
+
+         return Custom_Checkers_Dirs;
       end;
    end Get_Rules_Directories;
 
