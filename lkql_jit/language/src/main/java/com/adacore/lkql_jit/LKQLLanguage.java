@@ -146,6 +146,17 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> projectFile = new OptionKey<>("");
 
     /**
+     * The scenario variables to load the project file with, where "key=value" variable specifications
+     * are encoded as Base64 and separated by semicolons.
+     */
+    @Option(
+        help = "The scenario variables to load the project file with",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<String> scenarioVars = new OptionKey<>("");
+
+    /**
      * The option to define the files to analyze
      */
     @Option(

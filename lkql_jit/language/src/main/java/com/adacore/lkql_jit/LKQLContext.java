@@ -36,7 +36,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -148,7 +147,13 @@ public final class LKQLContext {
     private String projectFile = null;
 
     /**
-     * The ada files passed throught command line
+     * The project's scenario variables
+     */
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    private Libadalang.ScenarioVariable[] scenarioVars = null;
+
+    /**
+     * The ada files passed through the command line
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] files = null;
@@ -290,6 +295,36 @@ public final class LKQLContext {
             this.projectFile = this.env.getOptions().get(LKQLLanguage.projectFile);
         }
         return this.projectFile;
+    }
+
+    /**
+     * Return the list of scenario variables to specify when loading the GPR project file.
+     */
+    public Libadalang.ScenarioVariable[] getScenarioVars() {
+        if (this.scenarioVars == null) {
+            // Scenario variables are passed as semicolon-separated substrings encoded in Base64.
+            String[] bindings = this.env.getOptions().get(LKQLLanguage.scenarioVars).split(";");
+            if (bindings.length == 1 && bindings[0].length() == 0) {
+                // No scenario variables were specified
+                this.scenarioVars = new Libadalang.ScenarioVariable[0];
+            } else {
+                // Some scenario variables were specified. Decode them from Base64 and parse the `key=value`
+                // specification.
+                Base64.Decoder decoder = Base64.getDecoder();
+                this.scenarioVars = new Libadalang.ScenarioVariable[bindings.length];
+                for (int i = 0; i < bindings.length; ++i) {
+                    String binding = new String(decoder.decode(bindings[i]));
+                    int eqIndex = binding.indexOf('=');
+                    if (eqIndex == -1) {
+                        throw LKQLRuntimeException.fromMessage("Invalid scenario variable specification: " + binding);
+                    }
+                    String name = binding.substring(0, eqIndex - 1);
+                    String value = binding.substring(eqIndex + 1);
+                    this.scenarioVars[i] = Libadalang.ScenarioVariable.create(name, value);
+                }
+            }
+        }
+        return this.scenarioVars;
     }
 
     /**
@@ -476,7 +511,7 @@ public final class LKQLContext {
         Libadalang.UnitProvider provider = null;
         if (projectFileName != null && !projectFileName.isEmpty() && !projectFileName.isBlank()) {
             // Create the project manager
-            this.projectManager = Libadalang.ProjectManager.create(projectFileName);
+            this.projectManager = Libadalang.ProjectManager.create(projectFileName, this.getScenarioVars(), "", "");
 
             // If no files were specified by the user, the files to analyze are those of the root project
             // (i.e. without recusing into project dependencies)
@@ -496,6 +531,11 @@ public final class LKQLContext {
         } else {
             // When no project is specified, `units()` should return the same set of units as `specified_units()`.
             this.allSourceFiles = this.specifiedSourceFiles;
+
+            // We should not get any scenario variable if we are being run without a project file.
+            if (this.getScenarioVars().length != 0) {
+                System.err.println("Scenario variable specifications require a project file");
+            }
         }
 
         // If the option is the empty string, the language implementation will end up setting it to the default

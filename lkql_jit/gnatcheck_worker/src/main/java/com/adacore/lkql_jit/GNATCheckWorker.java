@@ -70,6 +70,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     private String projectFile = null;
 
     /**
+     * The project's scenario variables
+     */
+    private String scenarioVars = null;
+
+    /**
      * A directory containing all user added rules
      */
     private String rulesDirs = null;
@@ -151,6 +156,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Set the project file
         if (this.projectFile != null) {
             contextBuilder.option("lkql.projectFile", this.projectFile);
+        }
+
+        if (this.scenarioVars != null) {
+            contextBuilder.option("lkql.scenarioVars", this.scenarioVars);
         }
 
         // Set the files
@@ -295,7 +304,18 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         this.filesFrom = currentArg.substring(7);
         currentArg = iterator.next();
 
-        // TODO: handle "-Xvar=val"
+        // Encode scenario variables specifications (key=value) in Base64 in order to escape `value` which can
+        // contain arbitrary characters. Join them with the semicolon character (which cannot appear in a Base64-encoded
+        // string).
+        StringBuilder scenarioVars = new StringBuilder();
+        Base64.Encoder encoder = Base64.getEncoder();
+        while (currentArg.startsWith("-X")) {
+            String binding = currentArg.substring(2);
+            scenarioVars.append(new String(encoder.encode(binding.getBytes())));
+            scenarioVars.append(";");
+            currentArg = iterator.next();
+        }
+        this.scenarioVars = scenarioVars.toString();
 
         assert currentArg.equals("-rules");
         currentArg = iterator.next();

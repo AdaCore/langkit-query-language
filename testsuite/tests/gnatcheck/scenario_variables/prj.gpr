@@ -1,0 +1,7 @@
+project Prj is
+   type Src_Dir_Type is ("src_1", "src_2");
+
+   Src_Dir : Src_Dir_Type := External ("SRC_DIR", "src_1");
+
+   for Source_Dirs use (Src_Dir);
+end Prj;

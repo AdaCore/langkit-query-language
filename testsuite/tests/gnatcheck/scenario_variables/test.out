@@ -1,0 +1,113 @@
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 2
+   unverified sources                    : 0
+   total sources                         : 2
+   ignored sources                       : 0
+
+   non-exempted violations               : 2
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+foo.adb:2:17: implicit IN mode in parameter specification
+foo.ads:2:17: implicit IN mode in parameter specification
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+
+
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 2
+   unverified sources                    : 0
+   total sources                         : 2
+   ignored sources                       : 0
+
+   non-exempted violations               : 2
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+bar.adb:2:17: implicit IN mode in parameter specification
+bar.ads:2:17: implicit IN mode in parameter specification
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+
+
+gnatcheck: prj.gpr:4:04: error: value "invalid" is illegal for typed string "Src_Dir"
+try "gnatcheck --help" for more information.
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 2
+   unverified sources                    : 0
+   total sources                         : 2
+   ignored sources                       : 0
+
+   non-exempted violations               : 2
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+bar.adb:2:17: implicit IN mode in parameter specification
+bar.ads:2:17: implicit IN mode in parameter specification
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+
+>>>program returned status code 2
