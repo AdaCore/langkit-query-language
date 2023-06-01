@@ -1,0 +1,7 @@
+driver: gnatcheck
+project: prj.gpr
+rules_dirs:
+  - rules_1
+  - rules_2
+rules:
+  - +Rbar
