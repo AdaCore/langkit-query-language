@@ -38,6 +38,7 @@ package body Rules_Factory is
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
+      Seen       : Rule_Set := Rule_Sets.Empty_Set;
 
    begin
       --  We search (non recursively) for all .lkql files in the Rules_Dir.
@@ -52,7 +53,9 @@ package body Rules_Factory is
                Dir : File_Array_Access := Read_Dir (Rules_Dir);
             begin
                for File of Dir.all loop
-                  if File.File_Extension = +".lkql" then
+                  if File.File_Extension = +".lkql"
+                     and then not Seen.Contains (+File.Full_Name)
+                  then
                      declare
                         Rc : Rule_Command;
 
@@ -61,6 +64,7 @@ package body Rules_Factory is
                      begin
                         if Has_Rule then
                            Rules.Append (Rc);
+                           Seen.Include (+File.Full_Name);
                         end if;
                      end;
                   end if;
