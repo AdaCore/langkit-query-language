@@ -25,8 +25,10 @@ with Rule_Commands; use Rule_Commands;
 
 with Liblkqllang.Analysis;
 
+with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
+with Ada.Strings.Hash;
 
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 
@@ -39,6 +41,10 @@ package Rules_Factory is
    package Rule_Vectors is new Ada.Containers.Vectors (Positive, Rule_Command);
    subtype Rule_Vector is Rule_Vectors.Vector;
    --  Vector of Rule_Command values
+
+   package Rule_Sets is new Ada.Containers.Indefinite_Hashed_Sets
+     (String, Ada.Strings.Hash, "=", "=");
+   subtype Rule_Set is Rule_Sets.Set;
 
    package Path_Vectors is new
      Ada.Containers.Indefinite_Vectors (Positive, String);
