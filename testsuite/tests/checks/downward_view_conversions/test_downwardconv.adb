@@ -20,6 +20,10 @@ procedure Main is
          Var : T2 := T2 (X);                   --  FLAG
       begin
          Proc2 (T2'Class (X));                 --  FLAG
+
+         --  NOFLAG (W324-006, neither converting from or to classwide should
+         --  trigger this check)
+         Var := T2 (T2'Class (Var));
       end Proc1;
 
       procedure Proc2 (X : in out T2'Class) is
