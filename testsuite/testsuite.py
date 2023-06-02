@@ -1,15 +1,69 @@
 #! /usr/bin/env python
 
-from e3.fs import mkdir, rm
-from e3.testsuite import Testsuite
-from support import (
-    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver
-)
 import glob
 import os
 import os.path as P
+import statistics
 import subprocess
 import sys
+
+from e3.fs import mkdir, rm
+from e3.testsuite import Testsuite, logger
+from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder
+
+from support import (
+    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver
+)
+
+class PerfTestFinder(YAMLTestFinder):
+    """
+    Testcase finder to use in perf mode.
+
+    This finder automatically discard tests that do not have performance
+    measuring instructions. This is preferable to creating these tests but
+    skipping them (SKIP status) as most tests do not support performance
+    measurements: less noise in the testsuite report.
+    """
+
+    def probe(self, testsuite, dirpath, dirnames, filenames):
+        # Probe testcases as usual
+        result = super().probe(testsuite, dirpath, dirnames, filenames)
+
+        # Reject testcases which do not contain performance measuring
+        # instructions.
+        if result is None or "perf" not in result.test_env:
+            return None
+
+        # Make sure that the driver supports performance measuring
+        if not result.driver_cls.perf_supported:
+            raise ProbingError(
+                f"The '{result.driver_cls.__name__}' driver does not support"
+                 " performance measuring"
+            )
+
+        return result
+
+
+class StandardTestFinder(YAMLTestFinder):
+    """
+    Testcase finder to use in stadard mode.
+
+    This finder exclude test cases from the 'tests/perf/' directory to avoid
+    running them in standard mode. This allow performance exclusive test
+    cases.
+    This finder doesn't exclude all performance compatible tests because
+    we want to be able to write baseline/performance hybrid tests.
+    """
+
+    def probe(self, testsuite, dirpath, dirnames, filenames):
+        # Probe testcases as usual
+        result = super().probe(testsuite, dirpath, dirnames, filenames)
+
+        # Reject all tests which have 'tests/perf' in their directory name
+        if result is None or P.join("tests", "perf") in result.test_dir:
+            return None
+
+        return result
 
 
 class LKQLTestsuite(Testsuite):
@@ -20,6 +74,11 @@ class LKQLTestsuite(Testsuite):
                        'gnatcheck': gnatcheck_driver.GnatcheckDriver}
 
     def add_options(self, parser):
+        parser.add_argument(
+            '--mode', default='ada',
+            help='The LKQL implementations to test.'
+                 ' Possible values are "ada", "jit" and "native_jit".'
+        )
         parser.add_argument(
             '--no-auto-path', action='store_true',
             help='Do not add test programs to the PATH. Useful to test'
@@ -34,21 +93,65 @@ class LKQLTestsuite(Testsuite):
             help='Compute code coverage. Argument is the output directory for'
                  ' the coverage report.'
         )
+
         parser.add_argument(
-            '--mode', default='ada',
-            help='The LKQL implementations to test.'
-                 ' Possible values are "ada", "jit" and "native_jit".'
+            '--perf-mode',
+            help='Run the testsuite in performance mode: only run tests with'
+                 ' instructions to measure performance. The argument is the'
+                 ' directory in which to put profile data files.'
         )
+        parser.add_argument(
+            '--perf-no-profile',
+            action='store_true',
+            help='When running the testsuite in performance mode, only run'
+                 ' the default perf measurements (no profile). This is useful'
+                 ' to get feedback quickly during development.'
+        )
+
+    @property
+    def test_finders(self):
+        return [
+            PerfTestFinder()
+            if self.env.perf_mode else
+            StandardTestFinder()
+        ]
 
     def set_up(self):
         super().set_up()
         self.env.rewrite_baselines = self.env.options.rewrite
+
+        # Perf mode is incompatible with some other modes
+        if self.env.options.perf_mode:
+            if self.env.options.coverage:
+                logger.error(f"--perf-mode incompatible with --coverage")
+                raise RuntimeError
 
         # Directory that contains GPR files, shared by testcases
         os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
             P.join(self.root_dir, 'ada_projects'),
             os.environ.get('GPR_PROJECT_PATH', ''),
         ])
+
+        # If the performance mode is enabled, verify that the user has checked
+        # out the libadalang-internal-testsuite in the "ada_projects" directory.
+        # Additionally add the internal sources to the GPR project path.
+        if self.env.options.perf_mode:
+            lalinttest_dir = P.join(
+                self.root_dir,
+                "ada_projects",
+                "libadalang-internal-testsuite"
+            )
+            if not P.isdir(lalinttest_dir):
+                raise RuntimeError("You need to check out"
+                                   " 'libadalang-internal-testsuite' to enable"
+                                   " performance testing")
+            else:
+                lalinttest_sources = glob.glob(P.join(lalinttest_dir, "sources", "*"))
+                for source_dir in [s for s in lalinttest_sources if P.isdir(s)]:
+                    os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
+                        source_dir,
+                        os.environ.get("GPR_PROJECT_PATH", ""),
+                    ])
 
         # Unless specifically told not to, add test programs to the environment
         if not self.env.options.no_auto_path:
@@ -73,7 +176,7 @@ class LKQLTestsuite(Testsuite):
                 in_repo('lkql_checker/share/lkql/kp'),
             ])
 
-        # Configure the LKQL executables
+        # Get the LKQL executables and pass it to drivers
         (
             self.env.lkql_exe,
             self.env.lkql_checker_exe
@@ -85,6 +188,19 @@ class LKQLTestsuite(Testsuite):
         if self.env.options.coverage:
             rm(self.env.traces_dir)
             mkdir(self.env.traces_dir)
+
+        # If requested, enable the performance mode and ensure that the output
+        # profile data exists.
+        if self.env.options.perf_mode:
+            perf_dir = P.abspath(self.env.options.perf_mode)
+            if not P.isdir(perf_dir):
+                os.makedirs(perf_dir)
+
+            self.env.perf_mode = True
+            self.env.perf_dir = perf_dir
+            self.env.perf_no_profile = self.env.options.perf_no_profile
+        else:
+            self.env.perf_mode = False
 
     def tear_down(self):
         # Generate code coverage report if requested
@@ -110,6 +226,10 @@ class LKQLTestsuite(Testsuite):
                 f'--output-dir={self.env.options.coverage}',
                 f'@{traces_list}',
             ])
+
+        # If the performance mode is enabled, print a small report
+        if self.env.perf_mode:
+            self.perf_report()
 
         super().tear_down()
 
@@ -183,6 +303,47 @@ class LKQLTestsuite(Testsuite):
         else:
             raise RuntimeError("invalid testsuite mode"
                                f" '{self.env.options.mode}'")
+
+    def perf_report(self, output_file=sys.stdout):
+        """
+        Print a small report of the performance testing.
+        """
+        print("===== Performance metrics =====", file=output_file)
+
+        # Define functions to format metrics into strings
+        def format_time(seconds):
+            return "{:.2f}s".format(seconds)
+
+        def format_memory(bytes_count):
+            units = ["B", "KB", "MB", "GB"]
+            unit = units.pop(0)
+            while units and bytes_count > 1000:
+                unit = units.pop(0)
+                bytes_count /= 1000
+            return "{:.2f}{}".format(bytes_count, unit)
+
+        # Define the function to display the given statistics
+        def compute_stats(numbers_str, get_value, format_value):
+            numbers = [get_value(n) for n in numbers_str.split()]
+            return (
+                f"{format_value(min(numbers))} .. {format_value(max(numbers))}"
+                f" (median: {format_value(statistics.median(numbers))} |"
+                f" mean: {format_value(statistics.mean(numbers))})"
+            )
+
+        # For each test compute the statistics and display them
+        for test_name, entry in sorted(self.report_index.entries.items()):
+            print(f"--- {test_name}", file=output_file)
+            print(
+                f"    time:"
+                f" {compute_stats(entry.info['time'], float, format_time)}",
+                file=output_file
+            )
+            print(
+                f"    memory:"
+                f" {compute_stats(entry.info['memory'], int, format_memory)}",
+                file=output_file
+            )
 
 
 if __name__ == "__main__":

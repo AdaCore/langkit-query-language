@@ -13,6 +13,8 @@ class InterpreterDriver(BaseDriver):
         - project: GPR build file to use (if any)
     """
 
+    perf_supported = True
+
     def run(self):
         # Build the process's arguments list
         args = [*self.lkql_exe, '--script-path', 'script.lkql']
@@ -27,4 +29,4 @@ class InterpreterDriver(BaseDriver):
             args += input_sources
 
         # Run the interpreter
-        self.shell(args)
+        self.check_run(args)

@@ -35,5 +35,5 @@ class CheckerDriver(BaseDriver):
         args += ['-r', self.test_env['rule_name']]
         args += ['--rules-dirs', self.test_env['test_dir']]
 
-        # Run the interpreter
-        self.shell(args)
+        # Run the checker
+        self.check_run(args)
