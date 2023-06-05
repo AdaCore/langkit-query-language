@@ -1485,7 +1485,9 @@ package body Gnatcheck.Compiler is
       Args (Num_Args) := new String'("-from=" & Rule_File);
 
       if Debug_Mode then
-         Put (Worker_Command);
+         --  For debug purposes, we don't want to put the full path to the
+         --  worker command, if it is a full path. We just want the base name
+         Put (Base_Name (Worker_Command));
 
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
