@@ -10,6 +10,20 @@ class BaseDriver(DiffTestDriver):
     Common code for all test drivers.
     """
 
+    @property
+    def lkql_exe(self):
+        """
+        Return the LKQL interpreter executable.
+        """
+        return self.env.lkql_exe
+
+    @property
+    def lkql_checker_exe(self):
+        """
+        Return the LKQL checker executable.
+        """
+        return self.env.lkql_checker_exe
+
     def set_up(self):
         super().set_up()
 

@@ -1,5 +1,3 @@
-import os
-
 from support.base_driver import BaseDriver
 
 
@@ -19,7 +17,7 @@ class CheckerDriver(BaseDriver):
     """
 
     def run(self):
-        args = os.environ["LKQL_CHECKER_EXE"].split("&")
+        args = [*self.lkql_checker_exe]
 
         # Use the test's project, if any
         if self.test_env.get('project', None):

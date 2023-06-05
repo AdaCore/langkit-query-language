@@ -73,10 +73,11 @@ class LKQLTestsuite(Testsuite):
                 in_repo('lkql_checker/share/lkql/kp'),
             ])
 
-        (lkql_exe, lkql_checker_exe) = self.lkql_executables()
-
-        os.environ['LKQL_EXE'] = "&".join(lkql_exe)
-        os.environ['LKQL_CHECKER_EXE'] = "&".join(lkql_checker_exe)
+        # Configure the LKQL executables
+        (
+            self.env.lkql_exe,
+            self.env.lkql_checker_exe
+        ) = self.lkql_executables()
 
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.

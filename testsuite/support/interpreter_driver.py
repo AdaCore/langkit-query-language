@@ -1,5 +1,3 @@
-import os
-
 from support.base_driver import BaseDriver
 
 
@@ -17,8 +15,7 @@ class InterpreterDriver(BaseDriver):
 
     def run(self):
         # Build the process's arguments list
-        lkql_exe = os.environ["LKQL_EXE"].split("&")
-        args = [*lkql_exe, '--script-path', 'script.lkql']
+        args = [*self.lkql_exe, '--script-path', 'script.lkql']
 
         input_sources = self.test_env.get('input_sources', None)
         project = self.test_env.get('project', None)
