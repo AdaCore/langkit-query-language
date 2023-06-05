@@ -1,15 +1,14 @@
-from os import path as P
+import os.path as P
 
 from e3.testsuite.driver.diff import (
     ReplacePath,
     Substitute,
 )
 
+from support.base_driver import BaseDriver
 
-from .drivers import BaseTestDriver
 
-
-class GnatcheckDriver(BaseTestDriver):
+class GnatcheckDriver(BaseDriver):
     """
     This driver runs gnatcheck with the given arguments and compares the output
     of the run to the expected output.  The expected output must be written in

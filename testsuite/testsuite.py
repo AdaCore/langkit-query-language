@@ -2,10 +2,9 @@
 
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite
-from support.drivers import (
-    CheckerDriver, ParserDriver, InterpreterDriver
+from support import (
+    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver
 )
-from support.gnatcheck_driver import GnatcheckDriver
 import glob
 import os
 import os.path as P
@@ -15,10 +14,10 @@ import sys
 
 class LKQLTestsuite(Testsuite):
     tests_subdir = "tests"
-    test_driver_map = {'parser': ParserDriver,
-                       'interpreter': InterpreterDriver,
-                       'checker': CheckerDriver,
-                       'gnatcheck': GnatcheckDriver}
+    test_driver_map = {'parser': parser_driver.ParserDriver,
+                       'interpreter': interpreter_driver.InterpreterDriver,
+                       'checker': checker_driver.CheckerDriver,
+                       'gnatcheck': gnatcheck_driver.GnatcheckDriver}
 
     def add_options(self, parser):
         parser.add_argument(
@@ -117,30 +116,30 @@ class LKQLTestsuite(Testsuite):
         self.env.rewrite_baselines = self.env.options.rewrite
 
         # Directory that contains GPR files, shared by testcases
-        os.environ['GPR_PROJECT_PATH'] = os.path.pathsep.join([
-            os.path.join(self.root_dir, 'ada_projects'),
+        os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
+            P.join(self.root_dir, 'ada_projects'),
             os.environ.get('GPR_PROJECT_PATH', ''),
         ])
 
         # Unless specifically told not to, add test programs to the environment
         if not self.env.options.no_auto_path:
-            repo_root = os.path.dirname(self.root_dir)
+            repo_root = P.dirname(self.root_dir)
 
             def in_repo(*args):
-                return os.path.join(repo_root, *args)
+                return P.join(repo_root, *args)
 
-            os.environ['PATH'] = os.path.pathsep.join([
+            os.environ['PATH'] = P.pathsep.join([
                 in_repo('lkql', 'build', 'obj-mains'),
                 in_repo('lkql_checker', 'bin'),
                 os.environ['PATH'],
             ])
 
-            os.environ['LKQL_PATH'] = os.path.pathsep.join([
+            os.environ['LKQL_PATH'] = P.pathsep.join([
                 in_repo('lkql_checker/share/lkql'),
                 os.environ.get('LKQL_PATH', '')
             ])
 
-            os.environ['LKQL_RULES_PATH'] = os.path.pathsep.join([
+            os.environ['LKQL_RULES_PATH'] = P.pathsep.join([
                 in_repo('lkql_checker/share/lkql'),
                 in_repo('lkql_checker/share/lkql/kp'),
             ])
@@ -152,7 +151,7 @@ class LKQLTestsuite(Testsuite):
 
         # Ensure the testsuite starts with an empty directory to store source
         # trace files.
-        self.env.traces_dir = os.path.join(self.working_dir, 'traces')
+        self.env.traces_dir = P.join(self.working_dir, 'traces')
         if self.env.options.coverage:
             rm(self.env.traces_dir)
             mkdir(self.env.traces_dir)
@@ -161,10 +160,10 @@ class LKQLTestsuite(Testsuite):
         # Generate code coverage report if requested
         if self.env.options.coverage:
             # Create a response file to contain the list of traces
-            traces_list = os.path.join(self.working_dir, "traces.txt")
+            traces_list = P.join(self.working_dir, "traces.txt")
             with open(traces_list, "w") as f:
                 for filename in glob.glob(
-                    os.path.join(self.env.traces_dir, "*", "*.srctrace")
+                    P.join(self.env.traces_dir, "*", "*.srctrace")
                 ):
                     f.write(f"{filename}\n")
 
