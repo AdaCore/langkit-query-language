@@ -25,6 +25,7 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Case_Util;
 with GNAT.Strings;
+with GNAT.String_Split;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
@@ -1374,15 +1375,32 @@ package body Gnatcheck.Compiler is
       Msg_File    : String;
       Source_File : String) return Process_Id
    is
-      Pid       : Process_Id;
-      Worker    : String_Access := Locate_Exec_On_Path (Worker_Command);
-      Prj       : constant String := Gnatcheck_Prj.Source_Prj;
-      Args      : Argument_List (1 .. 128);
-      Num_Args  : Integer := 0;
+      use GNAT.String_Split;
+
+      Pid           : Process_Id;
+      Split_Command : constant Slice_Set := Create (Worker_Command, " ");
+      Worker        : String_Access := null;
+      Prj           : constant String := Gnatcheck_Prj.Source_Prj;
+      Args          : Argument_List (1 .. 128);
+      Num_Args      : Integer := 0;
 
    begin
-      Args (1) := new String'("--subprocess");
-      Num_Args := 1;
+      -- Split the worker command into the name of the executable plus its
+      -- arguments. We do that because the call to Non_Blocking_Spawn expects
+      -- the full path to the executable and the list of arguments as separate
+      -- arguments.
+
+      for Arg of Split_Command loop
+         if Worker = null then
+            Worker := Locate_Exec_On_Path (Arg);
+         else
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'(Arg);
+         end if;
+      end loop;
+
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'("--subprocess");
 
       if Prj /= "" then
          Num_Args := @ + 1;
