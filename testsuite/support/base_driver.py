@@ -28,6 +28,13 @@ class BaseDriver(DiffTestDriver):
         return self.env.lkql_checker_exe
 
     @property
+    def gnatcheck_worker_exe(self):
+        """
+        Return the GNATCheck worker executable.
+        """
+        return self.env.gnatcheck_worker_exe
+
+    @property
     def perf_mode(self):
         return self.env.perf_mode
 
