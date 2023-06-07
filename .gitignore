@@ -16,6 +16,7 @@ testsuite/out/
 lkql/build.sh
 testsuite/build
 testsuite/libadalang
+testsuite/ada_projects/libadalang-internal-testsuite
 testsuite/run_testsuite.sh
 callgrind*
 gnatcheck.out

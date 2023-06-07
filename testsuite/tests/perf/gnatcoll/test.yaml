@@ -1,0 +1,10 @@
+driver: 'gnatcheck'
+project: 'libadalang-internal-testsuite/sources/gnatcoll/gnatcoll.gpr'
+rules:
+  - +Rrecursive_subprograms
+  - +Routside_references_from_subprograms
+  - +Rinteger_types_as_enum
+
+perf:
+  default: 1
+  profile-time: true

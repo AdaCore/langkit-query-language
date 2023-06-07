@@ -1,15 +1,14 @@
-from os import path as P
+import os.path as P
 
 from e3.testsuite.driver.diff import (
     ReplacePath,
     Substitute,
 )
 
+from support.base_driver import BaseDriver
 
-from .drivers import BaseTestDriver
 
-
-class GnatcheckDriver(BaseTestDriver):
+class GnatcheckDriver(BaseDriver):
     """
     This driver runs gnatcheck with the given arguments and compares the output
     of the run to the expected output.  The expected output must be written in
@@ -38,6 +37,8 @@ class GnatcheckDriver(BaseTestDriver):
     In this case, the test keys specified at the top level are taken as
     default, and can be overriden in specific subtests.
 
+    This driver also supports performance testing.
+
     Test arguments:
         - ``project``: GPR build file to use (if any)
         - ``input_sources``: Ada files to analyze (if explicit, optional if
@@ -50,11 +51,16 @@ class GnatcheckDriver(BaseTestDriver):
           decide to pass rules via the project file.
         - ``scenario_variables``: Dict containing key to value associations to
           pass as scenario variables to GNATcheck
+        - ``perf``: Enable and configure the performance testing. Perf arguments:
+            - ``default``: Time measuring repetition number as an integer
+            - ``profile-time``: Enable the time profiling or not as a boolean
 
     .. NOTE:: In practice, the above allows several different ways to express
         the same test, which is not ideal. It was necessary to transition
         painlessly existing bash tests.
     """
+
+    perf_supported = True
 
     modes = {
         "gnatcheck": "gnatcheck",
@@ -72,6 +78,7 @@ class GnatcheckDriver(BaseTestDriver):
 
             exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
             args = [exe, '-q']
+
             # Use the test's project, if any
             if test_data.get('project', None):
                 args += ['-P', test_data['project']]
@@ -105,31 +112,34 @@ class GnatcheckDriver(BaseTestDriver):
             # and instead relying solely on the diff. We might want to check that
             # the return code is consistent at some later stage.
 
-            label = test_data.get('label', None)
-            if label:
-                self.output += label + "\n" + ("=" * len(label)) + "\n\n"
+            if self.perf_mode:
+                self.perf_run(args)
+            else:
+                label = test_data.get('label', None)
+                if label:
+                    self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
-            p = self.shell(args, catch_error=False)
+                p = self.shell(args, catch_error=False)
 
-            if output_format in ['full', 'short']:
-                with open(
-                    P.join(self.test_env["working_dir"], "gnatcheck.out")
-                ) as f:
-                    if output_format == 'short':
+                if output_format in ['full', 'short']:
+                    with open(
+                        P.join(self.test_env["working_dir"], "gnatcheck.out")
+                    ) as f:
+                        if output_format == 'short':
+                            self.output += f.read()
+                        else:
+                            # Strip the 10 first lines of the report, which contain
+                            # run-specific information that we don't want to
+                            # include in the test baseline.
+                            self.output += "".join(f.readlines()[9:])
+                elif output_format == 'xml':
+                    with open(
+                        P.join(self.test_env["working_dir"], "gnatcheck.xml")
+                    ) as f:
                         self.output += f.read()
-                    else:
-                        # Strip the 10 first lines of the report, which contain
-                        # run-specific information that we don't want to
-                        # include in the test baseline.
-                        self.output += "".join(f.readlines()[9:])
-            elif output_format == 'xml':
-                with open(
-                    P.join(self.test_env["working_dir"], "gnatcheck.xml")
-                ) as f:
-                    self.output += f.read()
 
-            if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
-                self.output += ">>>program returned status code {}\n".format(p.status)
+                if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
+                    self.output += ">>>program returned status code {}\n".format(p.status)
 
         tests = self.test_env.get("tests")
         if tests:
