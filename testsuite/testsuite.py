@@ -179,7 +179,8 @@ class LKQLTestsuite(Testsuite):
         # Get the LKQL executables and pass it to drivers
         (
             self.env.lkql_exe,
-            self.env.lkql_checker_exe
+            self.env.lkql_checker_exe,
+            self.env.gnatcheck_worker_exe
         ) = self.lkql_executables()
 
         # Ensure the testsuite starts with an empty directory to store source
@@ -235,12 +236,13 @@ class LKQLTestsuite(Testsuite):
 
     def lkql_executables(self):
         """
-        Return a pair containing the name of the lkql "interpreter" and
-        "checker" executables according to the chosen testsuite mode.
+        Return a pair containing the name of the lkql "interpreter",
+        "checker" and "gnatcheck worker" executables according to the chosen
+        testsuite mode.
         """
         # If the mode is Ada
         if self.env.options.mode == "ada":
-            return (["lkql_ada"], ["lkql_checker"])
+            return (["lkql_ada"], ["lkql_checker"], [])
 
         # If the mode is JIT
         elif self.env.options.mode == "jit":
@@ -269,6 +271,9 @@ class LKQLTestsuite(Testsuite):
             checker_class_path = os.pathsep.join(base_class_path + [
                 P.join(lkql_jit_home, 'lkql_jit_checker.jar')
             ])
+            gnatcheck_worker_class_path = os.pathsep.join(base_class_path + [
+                P.join(lkql_jit_home, 'gnatcheck_worker.jar')
+            ])
 
             # Get the java.library.path
             java_library_path = (
@@ -277,27 +282,33 @@ class LKQLTestsuite(Testsuite):
                 os.environ.get('LD_LIBRARY_PATH', "")
             )
 
-            # Prepare the Java commands
-            launcher_cmd = [
-                java,
-                "-cp", launcher_class_path,
+            java_defs = [
                 f'-Djava.library.path={java_library_path}',
                 f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
-                "com.adacore.lkql_jit.LKQLLauncher"
-            ]
-            checker_cmd = [
-                java,
-                "-cp", checker_class_path,
-                f'-Djava.library.path={java_library_path}',
-                f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
-                "com.adacore.lkql_jit.LKQLChecker"
             ]
 
-            return (launcher_cmd, checker_cmd)
+            # Prepare the Java commands
+            launcher_cmd = [
+                java, "-cp", launcher_class_path
+            ] + java_defs + ["com.adacore.lkql_jit.LKQLLauncher"]
+
+            checker_cmd = [
+                java, "-cp", checker_class_path
+            ] + java_defs + ["com.adacore.lkql_jit.LKQLChecker"]
+
+            worker_cmd = [
+                java, "-cp", gnatcheck_worker_class_path
+            ] + java_defs + ["com.adacore.lkql_jit.GNATCheckWorker"]
+
+            return (launcher_cmd, checker_cmd, worker_cmd)
 
         # If the mode is native JIT
         elif self.env.options.mode == "native_jit":
-            return (["native_lkql_jit"], ["native_lkql_jit_checker"])
+            return (
+                ["native_lkql_jit"],
+                ["native_lkql_jit_checker"],
+                ["native_gnatcheck_worker"]
+            )
 
         # Else, there is an error
         else:

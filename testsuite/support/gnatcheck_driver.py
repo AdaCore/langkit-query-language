@@ -1,3 +1,4 @@
+import os
 import os.path as P
 
 from e3.testsuite.driver.diff import (
@@ -69,6 +70,12 @@ class GnatcheckDriver(BaseDriver):
     output_formats = set(['brief', 'full', 'short', 'xml'])
 
     def run(self):
+        gnatcheck_env = dict(os.environ)
+
+        if self.env.gnatcheck_worker_exe:
+            gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
+                self.gnatcheck_worker_exe
+            )
 
         def run_one_test(test_data):
             output_format = test_data.get('format', 'full')
@@ -122,7 +129,7 @@ class GnatcheckDriver(BaseDriver):
                 if label:
                     self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
-                p = self.shell(args, catch_error=False)
+                p = self.shell(args, catch_error=False, env=gnatcheck_env)
 
                 if output_format in ['full', 'short']:
                     with open(
