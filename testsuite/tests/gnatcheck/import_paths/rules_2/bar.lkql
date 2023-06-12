@@ -1,0 +1,6 @@
+import foo
+
+@check(message="bar",
+       remediation="TRIVIAL", category="Feature")
+fun bar(node) = foo.foo(node)
+

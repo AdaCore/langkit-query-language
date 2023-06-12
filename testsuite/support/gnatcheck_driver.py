@@ -96,6 +96,9 @@ class GnatcheckDriver(BaseDriver):
             for k, v in test_data.get('scenario_variables', {}).items():
                 args.append(f'-X{k}={v}')
 
+            for rule_dir in test_data.get('rules_dirs', []):
+                args.append(f'--rules-dir={rule_dir}')
+
             for extra_arg in test_data.get('extra_args', []):
                 args.append(extra_arg)
 

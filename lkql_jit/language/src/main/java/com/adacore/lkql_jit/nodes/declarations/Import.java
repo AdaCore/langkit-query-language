@@ -178,15 +178,12 @@ public final class Import extends LKQLNode {
                 .toList()
         );
 
-        // If the import is internal, search in rule dirs
-        if (this.slot == -1) {
-            importableDirs.addAll(
-                Arrays.stream(LKQLLanguage.getContext(this).getRulesDirs())
-                    .filter(s -> !s.isEmpty() && !s.isBlank())
-                    .map(File::new)
-                    .toList()
-            );
-        }
+        importableDirs.addAll(
+            Arrays.stream(LKQLLanguage.getContext(this).getRulesDirs())
+                .filter(s -> !s.isEmpty() && !s.isBlank())
+                .map(File::new)
+                .toList()
+        );
 
         // Search in the importable directories
         for (File dir : importableDirs) {
