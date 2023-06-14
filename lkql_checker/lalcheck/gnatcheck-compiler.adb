@@ -1385,10 +1385,10 @@ package body Gnatcheck.Compiler is
       Num_Args      : Integer := 0;
 
    begin
-      -- Split the worker command into the name of the executable plus its
-      -- arguments. We do that because the call to Non_Blocking_Spawn expects
-      -- the full path to the executable and the list of arguments as separate
-      -- arguments.
+      --  Split the worker command into the name of the executable plus its
+      --  arguments. We do that because the call to Non_Blocking_Spawn expects
+      --  the full path to the executable and the list of arguments as separate
+      --  arguments.
 
       for Arg of Split_Command loop
          if Worker = null then
