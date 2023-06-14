@@ -79,7 +79,7 @@ class GnatcheckDriver(BaseDriver):
     def run(self):
         gnatcheck_env = dict(os.environ)
 
-        if self.env.gnatcheck_worker_exe:
+        if self.gnatcheck_worker_exe:
             gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
                 self.gnatcheck_worker_exe
             )

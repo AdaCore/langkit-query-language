@@ -14,29 +14,8 @@ class BaseDriver(DiffTestDriver):
     perf_supported = False
 
     @property
-    def lkql_exe(self):
-        """
-        Return the LKQL interpreter executable.
-        """
-        return self.env.lkql_exe
-
-    @property
-    def lkql_checker_exe(self):
-        """
-        Return the LKQL checker executable.
-        """
-        return self.env.lkql_checker_exe
-
-    @property
-    def gnatcheck_worker_exe(self):
-        """
-        Return the GNATCheck worker executable.
-        """
-        return self.env.gnatcheck_worker_exe
-
-    @property
     def perf_mode(self):
-        return self.env.perf_mode
+        return hasattr(self.env, 'perf_mode') and self.env.perf_mode
 
     @property
     def baseline(self):
@@ -47,7 +26,9 @@ class BaseDriver(DiffTestDriver):
     def set_up(self):
         super().set_up()
 
-        if self.env.options.coverage:
+        self.define_lkql_executables()
+
+        if hasattr(self.env.options, 'coverage') and self.env.options.coverage:
             # Unique number to generate separate trace files in the "shell"
             # method.
             self.trace_counter = 0
@@ -146,3 +127,81 @@ class BaseDriver(DiffTestDriver):
             # Else the test mode is invalid
             else:
                 raise TestAbortWithError(f"invalid perf mode: {mode}")
+
+    def define_lkql_executables(self):
+        # If the mode is Ada
+        if self.env.options.mode == "ada":
+            self.lkql_exe = ["lkql_ada"]
+            self.lkql_checker_exe = ["lkql_checker"]
+            self.gnatcheck_worker_exe = []
+
+        # If the mode is JIT
+        elif self.env.options.mode == "jit":
+            # Prepare the command for calling Java with the LKQL JIT implementation
+            graal_home = os.environ['GRAAL_HOME']
+            lkql_jit_home = os.environ.get(
+                'LKQL_JIT_HOME',
+                P.join(graal_home, 'languages', 'lkql')
+            )
+
+            # Get the Java executable
+            java = (
+                P.join(graal_home, 'bin', 'java.exe')
+                if os.name == 'nt' else
+                P.join(graal_home, 'bin', 'java')
+            )
+
+            # Create the class path
+            base_class_path = [
+                P.join(graal_home, 'lib', 'truffle', 'truffle-api.jar'),
+                P.join(lkql_jit_home, 'lkql_jit.jar'),
+            ]
+            launcher_class_path = os.pathsep.join(base_class_path + [
+                P.join(lkql_jit_home, 'lkql_jit_launcher.jar')
+            ])
+            checker_class_path = os.pathsep.join(base_class_path + [
+                P.join(lkql_jit_home, 'lkql_jit_checker.jar')
+            ])
+            gnatcheck_worker_class_path = os.pathsep.join(base_class_path + [
+                P.join(lkql_jit_home, 'gnatcheck_worker.jar')
+            ])
+
+            # Get the java.library.path
+            java_library_path = (
+                os.environ.get('PATH', "")
+                if os.name == 'nt' else
+                os.environ.get('LD_LIBRARY_PATH', "")
+            )
+
+            java_defs = [
+                f'-Djava.library.path={java_library_path}',
+                f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
+            ]
+
+            # Prepare the Java commands
+            launcher_cmd = [
+                java, "-cp", launcher_class_path
+            ] + java_defs + ["com.adacore.lkql_jit.LKQLLauncher"]
+
+            checker_cmd = [
+                java, "-cp", checker_class_path
+            ] + java_defs + ["com.adacore.lkql_jit.LKQLChecker"]
+
+            worker_cmd = [
+                java, "-cp", gnatcheck_worker_class_path
+            ] + java_defs + ["com.adacore.lkql_jit.GNATCheckWorker"]
+
+            self.lkql_exe = launcher_cmd
+            self.lkql_checker_exe = checker_cmd
+            self.gnatcheck_worker_exe = worker_cmd
+
+        # If the mode is native JIT
+        elif self.env.options.mode == "native_jit":
+            self.lkql_exe = ["native_lkql_jit"]
+            self.lkql_checker_exe = ["native_lkql_jit_checker"]
+            self.gnatcheck_worker_exe = ["native_gnatcheck_worker"]
+
+        # Else, there is an error
+        else:
+            raise RuntimeError("invalid testsuite mode"
+                               f" '{self.env.options.mode}'")
