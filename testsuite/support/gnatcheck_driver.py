@@ -38,6 +38,11 @@ class GnatcheckDriver(BaseDriver):
     In this case, the test keys specified at the top level are taken as
     default, and can be overriden in specific subtests.
 
+    Test env keys are provided for the user to execute arbitrary Python code as
+    part of the test/subtests. The ``global_python`` key can be used to alter
+    the python execution environment to store data/functions that need to be
+    called by test-specific python hooks described below.
+
     This driver also supports performance testing.
 
     Test arguments:
@@ -55,6 +60,8 @@ class GnatcheckDriver(BaseDriver):
         - ``perf``: Enable and configure the performance testing. Perf arguments:
             - ``default``: Time measuring repetition number as an integer
             - ``profile-time``: Enable the time profiling or not as a boolean
+        - ``pre_python``/``post_python``: Python code to be executed
+          before/after the test
 
     .. NOTE:: In practice, the above allows several different ways to express
         the same test, which is not ideal. It was necessary to transition
@@ -77,14 +84,40 @@ class GnatcheckDriver(BaseDriver):
                 self.gnatcheck_worker_exe
             )
 
+        globs, locs = {}, {}
+        global_python = self.test_env.get("global_python", None)
+        if global_python:
+            exec(global_python, globs, locs)
+
+        def capture_exec_python(code: str) -> None:
+            """
+            Execute the python code, and capture it's output. Add it to the
+            test's output.
+            """
+            from io import StringIO
+            from contextlib import redirect_stdout
+            f = StringIO()
+            cwd = os.getcwd()
+            os.chdir(self.test_env["working_dir"])
+            with redirect_stdout(f):
+                exec(code, globs, locs)
+            self.output += f.getvalue()
+            os.chdir(cwd)
+
         def run_one_test(test_data):
             output_format = test_data.get('format', 'full')
             assert output_format in GnatcheckDriver.output_formats
-
             brief = output_format == 'brief'
-
             exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
             args = [exe, '-q']
+
+            pre_python = test_data.get('pre_python', None)
+            post_python = test_data.get('post_python', None)
+
+            # If python code to be executed pre running gnatcheck was passed
+            # for this test, run it and capture its output
+            if pre_python:
+                capture_exec_python(pre_python)
 
             # Use the test's project, if any
             if test_data.get('project', None):
@@ -150,6 +183,11 @@ class GnatcheckDriver(BaseDriver):
 
                 if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
                     self.output += ">>>program returned status code {}\n".format(p.status)
+
+            # If python code to be executed post running gnatcheck was passed
+            # for this test, run it and capture its output
+            if post_python:
+                capture_exec_python(post_python)
 
         tests = self.test_env.get("tests")
         if tests:
