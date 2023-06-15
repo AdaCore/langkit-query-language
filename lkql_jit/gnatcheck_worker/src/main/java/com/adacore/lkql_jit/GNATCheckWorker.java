@@ -262,7 +262,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             this.projectFile = currentArg.substring(2);
             currentArg = iterator.next();
 
-            // TODO: handle "--ignore-project-switches"
+            if (currentArg.equals("--ignore-project-switches")) {
+                currentArg = iterator.next();
+            }
         }
 
         // TODO: handle "--simple-project"
