@@ -226,7 +226,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * <li> `[-P{project} [--ignore-project-switches]]` The project file to use, and whether to ignore GNATcheck-
      *      related options that are specified in it.
      * <li> `[--simple-project]`
-     * <li> `[-A]`
+     * <li> `[-A]` The aggregated project to consider, used when the main project file is an aggregate project.
      * <li> `[--RTS {runtime}]` The runtime to use
      * <li> `[--target {target}]` The target to use
      * <li> `[-d]` Whether to output debug information
@@ -273,7 +273,15 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             currentArg = iterator.next();
         }
 
-        // TODO: handle "-A"
+        if (currentArg.equals("-A")) {
+            // Use the specified aggregated project file instead of the aggregate project itself
+            this.projectFile = iterator.next();
+
+            // TODO: handle "-o=..." and "-ox=..."
+            iterator.next();
+
+            currentArg = iterator.next();
+        }
 
         // TODO: handle "--RTS"
 
