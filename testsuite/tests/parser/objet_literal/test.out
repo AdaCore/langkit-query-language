@@ -1,0 +1,24 @@
+ObjectLiteral
+|f_assocs:
+|  ObjectAssocList
+|  |  ObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key1
+|  |  |f_expr:
+|  |  |  StringLiteral: "a_value"
+|  |  ObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key2
+|  |  |f_expr:
+|  |  |  StringLiteral: "another_value"
+|  |  ObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key3
+|  |  |f_expr:
+|  |  |  ListLiteral
+|  |  |  |f_exprs:
+|  |  |  |  ExprList
+|  |  |  |  |  StringLiteral: "This"
+|  |  |  |  |  StringLiteral: "is"
+|  |  |  |  |  StringLiteral: "a"
+|  |  |  |  |  StringLiteral: "list"

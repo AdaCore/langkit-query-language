@@ -1,0 +1,33 @@
+AtObjectLiteral
+|f_assocs:
+|  AtObjectAssocList
+|  |  AtObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key1
+|  |  |f_expr: <null>
+|  |  AtObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key2
+|  |  |f_expr:
+|  |  |  StringLiteral: "value"
+|  |  AtObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key3
+|  |  |f_expr: <null>
+|  |  AtObjectAssoc
+|  |  |f_name:
+|  |  |  Identifier: key4
+|  |  |f_expr:
+|  |  |  ObjectLiteral
+|  |  |  |f_assocs:
+|  |  |  |  ObjectAssocList
+|  |  |  |  |  ObjectAssoc
+|  |  |  |  |  |f_name:
+|  |  |  |  |  |  Identifier: inner_key1
+|  |  |  |  |  |f_expr:
+|  |  |  |  |  |  IntegerLiteral: 1
+|  |  |  |  |  ObjectAssoc
+|  |  |  |  |  |f_name:
+|  |  |  |  |  |  Identifier: inner_key2
+|  |  |  |  |  |f_expr:
+|  |  |  |  |  |  IntegerLiteral: 2

@@ -415,6 +415,9 @@ Object Literals
 
 .. lkql_doc_class:: ObjectLiteral
 .. lkql_doc_class:: ObjectAssoc
+.. lkql_doc_class:: AtObjectLiteral
+.. lkql_doc_class:: AtObjectAssoc
+
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/objectlit.svg
@@ -426,6 +429,20 @@ An object literal is a literal representation of an object value (see
 
     # Object literal
     {a: 1, b: "foo", c: null, d: [1, 2, 3, 4]}
+
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/at_object_lit.svg
+
+"@" preceded object literals are similar to standard object literal with an
+empty list as default value for any key.
+
+.. code-block:: lkql
+
+   # At object literal
+   @{a: 1, b, c: null, d}
+
+   # Is similar to
+   {a: 1, b: [], c: null, d: []}
 
 Objects are immutable, and objects literals are the primary way to create new
 lists from nothing, with list comprehensions being the way to create new lists
