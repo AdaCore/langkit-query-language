@@ -1,0 +1,5 @@
+{
+    key1: "a_value",
+    key2: "another_value",
+    key3: ["This", "is", "a", "list"]
+}

@@ -1,0 +1,44 @@
+<svg class="railroad-diagram" height="101" viewBox="0 0 584.5 101" width="584.5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g transform="translate(.5 .5)">
+<style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(120,100%,90%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+
+/* ]]> */
+</style><g>
+<path d="M20 30v20m10 -20v20m-10 -10h120.5"></path><text style="text-anchor:start" x="20" y="25">at&#95;object&#95;lit</text></g><path d="M140.5 40h10"></path><g>
+<path d="M150.5 40h0.0"></path><path d="M534.5 40h0.0"></path><g class="terminal ">
+<path d="M150.5 40h0.0"></path><path d="M196.0 40h0.0"></path><rect height="22" rx="10" ry="10" width="45.5" x="150.5" y="29"></rect><text x="173.25" y="44">'@'</text></g><path d="M196.0 40h10"></path><path d="M206.0 40h10"></path><g class="terminal ">
+<path d="M216.0 40h0.0"></path><path d="M261.5 40h0.0"></path><rect height="22" rx="10" ry="10" width="45.5" x="216.0" y="29"></rect><text x="238.75" y="44">'{'</text></g><path d="M261.5 40h10"></path><g>
+<path d="M271.5 40h0.0"></path><path d="M479.0 40h0.0"></path><path d="M271.5 40a10 10 0 0 0 10 -10v0a10 10 0 0 1 10 -10"></path><g>
+<path d="M291.5 20h167.5"></path></g><path d="M459.0 20a10 10 0 0 1 10 10v0a10 10 0 0 0 10 10"></path><path d="M271.5 40h20"></path><g>
+<path d="M291.5 40h0.0"></path><path d="M459.0 40h0.0"></path><path d="M291.5 40h10"></path><g class="terminal ">
+<path d="M301.5 40h0.0"></path><path d="M449.0 40h0.0"></path><rect height="22" rx="10" ry="10" width="147.5" x="301.5" y="29"></rect><text x="375.25" y="44">at&#95;object&#95;assoc</text></g><path d="M449.0 40h10"></path><path d="M301.5 40a10 10 0 0 0 -10 10v10a10 10 0 0 0 10 10"></path><g class="terminal ">
+<path d="M301.5 70h51.0"></path><path d="M398.0 70h51.0"></path><rect height="22" rx="10" ry="10" width="45.5" x="352.5" y="59"></rect><text x="375.25" y="74">','</text></g><path d="M449.0 70a10 10 0 0 0 10 -10v-10a10 10 0 0 0 -10 -10"></path></g><path d="M459.0 40h20"></path></g><path d="M479.0 40h10"></path><g class="terminal ">
+<path d="M489.0 40h0.0"></path><path d="M534.5 40h0.0"></path><rect height="22" rx="10" ry="10" width="45.5" x="489.0" y="29"></rect><text x="511.75" y="44">'}'</text></g></g><path d="M534.5 40h10"></path><path d="M 544.5 40 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g></svg>
