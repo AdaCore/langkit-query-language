@@ -21,43 +21,56 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.literals.object;
+package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 
 /**
- * This node represents an object association list in LKQL
+ * This node represents the literal node for an LKQL object
  *
  * @author Hugo GUERRIER
  */
-public final class ObjectAssocList extends LKQLNode {
+public final class ObjectLiteral extends Expr {
+
+    // ----- Attributes -----
+
+    /**
+     * Object ordered keys.
+     */
+    private final String[] keys;
 
     // ----- Children -----
 
     /**
-     * The associations of the object
+     * Object ordered values.
      */
     @Children
-    private final ObjectAssoc[] assocs;
+    private Expr[] values;
 
     // ----- Constructors -----
 
     /**
-     * Create an object association list node
+     * Create a new object literal node.
+     * !!! IMPORTANT !!!
+     * Keys and values MUST be in the same order such as: obj.keys[n] = values[n].
      *
-     * @param location The location of the node in the source
-     * @param assocs   The associations
+     * @param location The location of the node in the source.
+     * @param keys     Ordered keys of the object.
+     * @param values   Ordered values of the object.
      */
-    public ObjectAssocList(
+    public ObjectLiteral(
         SourceLocation location,
-        ObjectAssoc[] assocs
+        String[] keys,
+        Expr[] values
     ) {
         super(location);
-        this.assocs = assocs;
+        this.keys = keys;
+        this.values = values;
     }
 
     // ----- Execution methods -----
@@ -67,29 +80,26 @@ public final class ObjectAssocList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        return this.executeObject(frame);
     }
 
     /**
-     * Execute the association list and return an array containing the keys and values
-     *
-     * @param frame The frame to execute in
-     * @return An array containing the keys as first element and the values as second element
+     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
      */
-    public Object[][] executeAssocList(VirtualFrame frame) {
-        // Evaluate the object values
-        String[] keys = new String[this.assocs.length];
-        Object[] values = new Object[this.assocs.length];
-        for (int i = 0; i < this.assocs.length; i++) {
-            keys[i] = this.assocs[i].getKey();
-            values[i] = this.assocs[i].executeAssoc(frame);
+    @Override
+    @ExplodeLoop
+    public ObjectValue executeObject(VirtualFrame frame) {
+        // Execute the values of the object
+        final Object[] values = new Object[this.keys.length];
+        for (int i = 0; i < this.keys.length; i++) {
+            values[i] = this.values[i].executeGeneric(frame);
         }
 
-        // Return the result
-        return new Object[][]{keys, values};
+        // Return the object value
+        return new ObjectValue(this.keys, values);
     }
 
-    // ------ Override methods -----
+    // ----- Override methods -----
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)

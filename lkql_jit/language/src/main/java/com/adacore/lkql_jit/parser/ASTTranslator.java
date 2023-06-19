@@ -55,9 +55,6 @@ import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListCompAssoc;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListCompAssocList;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehension;
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
-import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectAssoc;
-import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectAssocList;
-import com.adacore.lkql_jit.nodes.expressions.literals.object.ObjectLiteral;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArmNodeGen;
@@ -1262,55 +1259,21 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
     @Override
     public LKQLNode visit(Liblkqllang.ObjectLiteral objectLiteral) {
         // Get the object associations
-        ObjectAssocList assocList = (ObjectAssocList) objectLiteral.fAssocs().accept(this);
+        Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
+        int assocCount = assocList.getChildrenCount();
+        String[] keys = new String[assocCount];
+        Expr[] values = new Expr[assocCount];
+        for (int i = 0; i < assocCount; i++) {
+            Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
+            keys[i] = assoc.fName().getText();
+            values[i] = (Expr) assoc.fExpr().accept(this);
+        }
 
         // Return the new object literal
         return new ObjectLiteral(
             new SourceLocation(this.source, objectLiteral.getSourceLocationRange()),
-            assocList
-        );
-    }
-
-    /**
-     * Visit an object association node
-     *
-     * @param objectAssoc The base ObjectAssoc node from langkit
-     * @return The ObjectAssoc node for Truffle
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.ObjectAssoc objectAssoc) {
-        // Translate the object association fields
-        String name = objectAssoc.fName().getText();
-        Expr expr = (Expr) objectAssoc.fExpr().accept(this);
-
-        // Return the object association
-        return new ObjectAssoc(
-            new SourceLocation(this.source, objectAssoc.getSourceLocationRange()),
-            name,
-            expr
-        );
-    }
-
-    /**
-     * Visit an object association list node
-     *
-     * @param objectAssocList The base ObjectAssocList node from langkit
-     * @return The ObjectAssocList node for Truffle
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.ObjectAssocList objectAssocList) {
-        // Prepare the association list
-        List<ObjectAssoc> assocList = new ArrayList<>();
-
-        Liblkqllang.LkqlNodeArray array = objectAssocList.children();
-        for (Liblkqllang.LkqlNode assoc : array) {
-            assocList.add((ObjectAssoc) assoc.accept(this));
-        }
-
-        // Return the object association list
-        return new ObjectAssocList(
-            new SourceLocation(this.source, objectAssocList.getSourceLocationRange()),
-            assocList.toArray(new ObjectAssoc[0])
+            keys,
+            values
         );
     }
 
@@ -2066,6 +2029,16 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
 
     @Override
     public LKQLNode visit(Liblkqllang.ExprList exprList) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ObjectAssoc objectAssoc) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.ObjectAssocList objectAssocList) {
         return null;
     }
 
