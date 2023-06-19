@@ -105,7 +105,7 @@ lkql_lexer.add_rules(
     (Literal("["),                                Token.LBrack),
     (Literal("]"),                                Token.RBrack),
     (Literal("@"),                                Token.At),
-    (Pattern(r"\|\"(.?)+"),                        Token.SubBlockLiteral),
+    (Pattern(r"\|\"(.?)+"),                       Token.SubBlockLiteral),
     (Literal("|"),                                Token.Pipe),
     (Literal("<-"),                               Token.LArrow),
     (Literal("=>"),                               Token.BigRArrow),
