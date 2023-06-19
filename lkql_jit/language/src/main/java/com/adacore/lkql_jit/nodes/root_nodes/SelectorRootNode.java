@@ -222,7 +222,10 @@ public final class SelectorRootNode extends BaseRootNode {
      * @param mode   The mode of the result
      * @param result The result value
      */
-    public record SelectorCallResult(SelectorExpr.Mode mode, Object result) {
+    public record SelectorCallResult(
+        SelectorExpr.Mode mode,
+        Object result
+    ) {
     }
 
 }

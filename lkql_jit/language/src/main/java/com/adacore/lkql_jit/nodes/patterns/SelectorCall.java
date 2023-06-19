@@ -36,6 +36,7 @@ import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.SelectorListValue;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
@@ -53,24 +54,6 @@ import java.util.List;
  */
 public final class SelectorCall extends LKQLNode {
 
-    // ----- Enums and macros -----
-
-    /**
-     * Quantifiers for the selector call
-     */
-    public enum Quantifier {
-        ANY,
-        ALL
-    }
-
-    /**
-     * The modes of binding
-     */
-    public enum Mode {
-        LOCAL,
-        GLOBAL
-    }
-
     // ----- Attributes -----
 
     /**
@@ -86,7 +69,7 @@ public final class SelectorCall extends LKQLNode {
     /**
      * The mode of the binding
      */
-    private final Mode bindingMode;
+    private final boolean isBindingLocal;
 
     // ----- Children -----
 
@@ -109,25 +92,25 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Create a new selector call node
      *
-     * @param location     The location of the node in the source
-     * @param quantifier   The quantifier for the selector
-     * @param bindingSlot  The slot of the binding
-     * @param bindingMode  The mode of the binding
-     * @param selectorExpr The selector expression
-     * @param args         The arguments for the call
+     * @param location       The location of the node in the source
+     * @param quantifier     The quantifier for the selector
+     * @param bindingSlot    The slot of the binding
+     * @param isBindingLocal The mode of the binding
+     * @param selectorExpr   The selector expression
+     * @param args           The arguments for the call
      */
     public SelectorCall(
         SourceLocation location,
         Quantifier quantifier,
         int bindingSlot,
-        Mode bindingMode,
+        boolean isBindingLocal,
         Expr selectorExpr,
         ArgList args
     ) {
         super(location);
         this.quantifier = quantifier;
         this.bindingSlot = bindingSlot;
-        this.bindingMode = bindingMode;
+        this.isBindingLocal = isBindingLocal;
         this.selectorExpr = selectorExpr;
         this.args = args;
     }
@@ -240,7 +223,7 @@ public final class SelectorCall extends LKQLNode {
 
                 // If the depth is given
                 switch (arg.getArgName().getName()) {
-                    case "depth":
+                    case Constants.DEPTH_SYMBOL:
                         try {
                             depth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
@@ -253,7 +236,7 @@ public final class SelectorCall extends LKQLNode {
                         break;
 
                     // If the maximum depth is given
-                    case "max_depth":
+                    case Constants.MAX_DEPTH_SYMBOL:
                         try {
                             maxDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
@@ -266,7 +249,7 @@ public final class SelectorCall extends LKQLNode {
                         break;
 
                     // If the minimum depth is given
-                    case "min_depth":
+                    case Constants.MIN_DEPTH_SYMBOL:
                         try {
                             minDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
@@ -360,7 +343,7 @@ public final class SelectorCall extends LKQLNode {
      */
     private void doBinding(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         ListValue listValue = this.getFilteredList(frame, selectorListValue, pattern);
-        if (this.bindingMode == Mode.LOCAL) {
+        if (this.isBindingLocal) {
             frame.setObject(this.bindingSlot, listValue);
         } else {
             LKQLLanguage.getContext(this).setGlobal(this.bindingSlot, null, listValue);
@@ -374,7 +357,7 @@ public final class SelectorCall extends LKQLNode {
      * @param listValue The list bind
      */
     private void doBinding(VirtualFrame frame, ListValue listValue) {
-        if (this.bindingMode == Mode.LOCAL) {
+        if (this.isBindingLocal) {
             frame.setObject(this.bindingSlot, listValue);
         } else {
             LKQLLanguage.getContext(this).setGlobal(this.bindingSlot, null, listValue);
@@ -390,9 +373,26 @@ public final class SelectorCall extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"quantifier", "mode", "slot"},
-            new Object[]{this.quantifier, this.bindingMode, this.bindingSlot}
+            new String[]{"quantifier", "slot"},
+            new Object[]{this.quantifier, this.bindingSlot}
         );
+    }
+
+    // ----- Inner classes -----
+
+    /**
+     * This enum represents the quantifier for a selector call.
+     */
+    public enum Quantifier {
+        /**
+         * The selector will match if any visited node validate. the associated pattern.
+         */
+        ANY,
+
+        /**
+         * The selector will match if every visited nodes validate the associated pattern.
+         */
+        ALL
     }
 
 }

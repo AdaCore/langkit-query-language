@@ -31,6 +31,8 @@ import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.parser.ASTTranslator;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFactory;
+import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.enums.DiagnosticOutputMode;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -52,35 +54,16 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 @TruffleLanguage.Registration(
-    id = "lkql",
+    id = Constants.LKQL_ID,
     name = "Langkit Query Language",
-    defaultMimeType = LKQLLanguage.MIME_TYPE,
-    characterMimeTypes = LKQLLanguage.MIME_TYPE,
+    defaultMimeType = Constants.LKQL_MIME,
+    characterMimeTypes = Constants.LKQL_MIME,
     contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
     dependentLanguages = {"regex"}
 )
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
-    // ----- Macros and enum -----
-
-    /**
-     * The kind of rendering to use when emitting diagnostic.
-     */
-    public enum DiagnosticOutputMode {
-        /**
-         * Emit a pretty diagnostic with source listing where the diagnostic location is highlighted
-         */
-        PRETTY,
-        /**
-         * Use a GNATCheck-compliant format: "{file}:{line}:{col} check: {message} [{check}]"
-         */
-        GNATCHECK
-    }
-
-    /**
-     * The MIME type of the language
-     */
-    public static final String MIME_TYPE = "application/langkit-query-language";
+    // ----- Static variables -----
 
     /**
      * The reference to the LKQL language

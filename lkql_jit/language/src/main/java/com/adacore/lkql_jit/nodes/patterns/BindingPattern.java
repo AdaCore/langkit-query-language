@@ -36,22 +36,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class BindingPattern extends UnfilteredPattern {
 
-    // ----- Macros and enums -----
-
-    /**
-     * The mode of binding
-     */
-    public enum Mode {
-        LOCAL,
-        GLOBAL
-    }
-
     // ----- Attributes -----
 
     /**
      * The mode of the binding
      */
-    private final Mode mode;
+    private final boolean isBindingLocal;
 
     /**
      * The slot to put the node in
@@ -72,19 +62,19 @@ public final class BindingPattern extends UnfilteredPattern {
     /**
      * Create a new binding pattern node
      *
-     * @param location The location of the node in the source
-     * @param mode     The binding mode
-     * @param slot     The slot to put the node in
-     * @param pattern  The pattern to bind
+     * @param location       The location of the node in the source
+     * @param isBindingLocal Whether the binding is local
+     * @param slot           The slot to put the node in
+     * @param pattern        The pattern to bind
      */
     public BindingPattern(
         SourceLocation location,
-        Mode mode,
+        boolean isBindingLocal,
         int slot,
         ValuePattern pattern
     ) {
         super(location);
-        this.mode = mode;
+        this.isBindingLocal = isBindingLocal;
         this.slot = slot;
         this.pattern = pattern;
     }
@@ -97,10 +87,10 @@ public final class BindingPattern extends UnfilteredPattern {
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the node binding
-        if (mode == Mode.GLOBAL) {
-            LKQLLanguage.getContext(this).setGlobal(this.slot, null, node);
-        } else {
+        if (this.isBindingLocal) {
             frame.setObject(this.slot, node);
+        } else {
+            LKQLLanguage.getContext(this).setGlobal(this.slot, null, node);
         }
 
         // Execute the pattern with the binding done
@@ -113,10 +103,10 @@ public final class BindingPattern extends UnfilteredPattern {
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
         // Do the node binding
-        if (mode == Mode.GLOBAL) {
-            LKQLLanguage.getContext(this).setGlobal(this.slot, null, str);
-        } else {
+        if (this.isBindingLocal) {
             frame.setObject(this.slot, str);
+        } else {
+            LKQLLanguage.getContext(this).setGlobal(this.slot, null, str);
         }
 
         // Execute the pattern with the binding done
@@ -132,8 +122,8 @@ public final class BindingPattern extends UnfilteredPattern {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"mode", "slot"},
-            new Object[]{this.mode, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

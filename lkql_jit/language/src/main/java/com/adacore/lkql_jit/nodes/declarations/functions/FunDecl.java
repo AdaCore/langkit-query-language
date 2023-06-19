@@ -29,6 +29,7 @@ import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
@@ -41,58 +42,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  * @author Hugo GUERRIER
  */
 public abstract class FunDecl extends Declaration {
-
-    // ----- Macros and enums -----
-
-    /**
-     * Enum representing the checker mode of a function
-     */
-    public enum CheckerMode {
-        OFF,
-        NODE,
-        UNIT
-    }
-
-    /**
-     * The names of the parameters for a checker annotation
-     */
-    private static final String[] checkerParamNames = new String[]{
-        "message",
-        "help",
-        "follow_generic_instantiations",
-        "category",
-        "subcategory",
-        "remediation",
-        "execution_cost",
-        "parametric_exemption",
-        "impact",
-        "target"
-    };
-
-    /**
-     * The default values for annotation parameters
-     */
-    private static final Object[] defaultCheckerParams = new Object[]{
-        null,
-        null,
-        false,
-        "Misc",
-        "Misc",
-        "MEDIUM",
-        0L,
-        false,
-        "",
-        "amd64"
-    };
-
-    /**
-     * The valid value for the remediation parameters
-     */
-    private static final String[] validRemediation = new String[]{
-        "EASY",
-        "MEDIUM",
-        "MAJOR"
-    };
 
     // ----- Attributes -----
 
@@ -151,10 +100,10 @@ public abstract class FunDecl extends Declaration {
 
         // Initialize the annotation flags
         if (this.annotation != null) {
-            this.isMemoized = this.annotation.getName().equals(DeclAnnotation.MEMOIZED);
-            this.checkerMode = this.annotation.getName().equals(DeclAnnotation.NODE_CHECK) ?
+            this.isMemoized = this.annotation.getName().equals(Constants.ANNOTATION_MEMOIZED);
+            this.checkerMode = this.annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK) ?
                 CheckerMode.NODE :
-                this.annotation.getName().equals(DeclAnnotation.UNIT_CHECK) ?
+                this.annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK) ?
                     CheckerMode.UNIT :
                     CheckerMode.OFF;
         } else {
@@ -175,12 +124,12 @@ public abstract class FunDecl extends Declaration {
         // Execute the arguments of the checker annotation
         Object[] checkerArgs = this.annotation.getArguments().executeArgList(
             frame,
-            checkerParamNames
+            Constants.CHECKER_PARAMETER_NAMES
         );
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArgs.length; i++) {
-            if (checkerArgs[i] == null) checkerArgs[i] = defaultCheckerParams[i];
+            if (checkerArgs[i] == null) checkerArgs[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
         }
 
         // Verify the message and help
@@ -188,11 +137,16 @@ public abstract class FunDecl extends Declaration {
         if (checkerArgs[1] == null) checkerArgs[1] = functionValue.getName();
 
         // Verify the remediation mode
-        if (ArrayUtils.indexOf(validRemediation, checkerArgs[5]) == -1) checkerArgs[5] = defaultCheckerParams[5];
+        if (ArrayUtils.indexOf(
+            Constants.CHECKER_VALID_REMEDIATION,
+            checkerArgs[5]) == -1
+        ) {
+            checkerArgs[5] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[5];
+        }
 
         // Create the object value representing the checker
         ObjectValue checkerObject = new ObjectValue(
-            ArrayUtils.concat(checkerParamNames, new String[]{"function", "name", "mode"}),
+            ArrayUtils.concat(Constants.CHECKER_PARAMETER_NAMES, new String[]{"function", "name", "mode"}),
             ArrayUtils.concat(
                 checkerArgs,
                 new Object[]{
@@ -208,6 +162,28 @@ public abstract class FunDecl extends Declaration {
             StringUtils.toLowerCase(functionValue.getName()),
             checkerObject
         );
+    }
+
+    // ----- Inner classes -----
+
+    /**
+     * Enum representing the checker mode of a function
+     */
+    public enum CheckerMode {
+        /**
+         * The function is not a checker.
+         */
+        OFF,
+
+        /**
+         * The function is a node checker.
+         */
+        NODE,
+
+        /**
+         * The function is a unit checker.
+         */
+        UNIT
     }
 
 }

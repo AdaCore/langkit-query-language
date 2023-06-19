@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.declarations.selectors;
 
 import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
@@ -110,7 +111,7 @@ public abstract class SelectorDecl extends Declaration {
         super(location);
         this.name = name;
         this.documentation = documentation;
-        this.isMemoized = annotation != null && annotation.getName().equals(DeclAnnotation.MEMOIZED);
+        this.isMemoized = annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED);
         this.slot = slot;
         this.thisSlot = thisSlot;
         this.depthSlot = depthSlot;

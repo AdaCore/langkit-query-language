@@ -29,7 +29,6 @@ import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.math.BigInteger;

@@ -37,23 +37,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class DeclAnnotation extends LKQLNode {
 
-    // ----- Macros and enums ----
-
-    /**
-     * The memoization annotation string value
-     */
-    public static final String MEMOIZED = "memoized";
-
-    /**
-     * The node checker annotation string value
-     */
-    public static final String NODE_CHECK = "check";
-
-    /**
-     * The unit checker annotation string value
-     */
-    public static final String UNIT_CHECK = "unit_check";
-
     // ----- Attributes -----
 
     /**

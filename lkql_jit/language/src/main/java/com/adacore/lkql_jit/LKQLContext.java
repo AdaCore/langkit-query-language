@@ -29,6 +29,7 @@ import com.adacore.lkql_jit.nodes.declarations.functions.FunDecl;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
@@ -413,7 +414,7 @@ public final class LKQLContext {
     public String[] getRulesDirs() {
         if (this.rulesDirs == null) {
             this.rulesDirs = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.rulesDirs));
-            String additionalRulesDirs = System.getenv("LKQL_RULES_PATH");
+            String additionalRulesDirs = System.getenv(Constants.LKQL_RULES_PATH);
             if (additionalRulesDirs != null) {
                 this.rulesDirs = ArrayUtils.concat(this.rulesDirs, StringUtils.splitPaths(additionalRulesDirs));
             }

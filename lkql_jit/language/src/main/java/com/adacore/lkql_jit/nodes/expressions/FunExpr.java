@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.nodes.declarations.ParameterDecl;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.Closure;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -135,8 +136,8 @@ public final class FunExpr extends Expr {
             this.frameDescriptor,
             new Closure(frame.materialize(), this.closureLimit),
             false,
-            "lambda",
-            "",
+            Constants.FUNCTION_DEFAULT_NAME,
+            Constants.FUNCTION_DEFAULT_DOC,
             this.slots,
             this.names,
             this.values,

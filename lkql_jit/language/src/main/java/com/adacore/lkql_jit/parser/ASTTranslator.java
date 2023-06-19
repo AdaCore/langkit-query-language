@@ -1345,10 +1345,10 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
         BasePattern pattern = (BasePattern) query.fPattern().accept(this);
 
         // Get the query kind
-        Query.QueryKind queryKind = Query.QueryKind.ALL;
+        Query.Kind queryKind = Query.Kind.ALL;
         Liblkqllang.QueryKind queryKindBase = query.fQueryKind();
         if (queryKindBase instanceof Liblkqllang.QueryKindFirst) {
-            queryKind = Query.QueryKind.FIRST;
+            queryKind = Query.Kind.FIRST;
         }
 
         // Close the local scope
@@ -1422,7 +1422,7 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
             new SourceLocation(this.source, selectorCall.getSourceLocationRange()),
             quantifier,
             bindingSlot,
-            this.scope.isGlobal() ? SelectorCall.Mode.GLOBAL : SelectorCall.Mode.LOCAL,
+            !this.scope.isGlobal(),
             selectorExpr,
             args
         );
@@ -1641,17 +1641,13 @@ public final class ASTTranslator implements Liblkqllang.BasicVisitor<LKQLNode> {
             slot = this.scope.addVariable(name);
         }
 
-
-        // Get the slot for the binding and prepare the mode
-        BindingPattern.Mode mode = this.scope.isGlobal() ? BindingPattern.Mode.GLOBAL : BindingPattern.Mode.LOCAL;
-
         // Visit the value patter
         ValuePattern pattern = (ValuePattern) bindingPattern.fValuePattern().accept(this);
 
         // Return the result
         return new BindingPattern(
             new SourceLocation(this.source, bindingPattern.getSourceLocationRange()),
-            mode,
+            !this.scope.isGlobal(),
             slot,
             pattern
         );

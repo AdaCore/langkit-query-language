@@ -36,17 +36,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public final class SelectorExpr extends LKQLNode {
 
-    // ----- Macros and enums -----
-
-    /**
-     * The possible modes for the selector expressions
-     */
-    public enum Mode {
-        DEFAULT,
-        REC,
-        SKIP
-    }
-
     // ----- Attributes -----
 
     /**
@@ -110,6 +99,28 @@ public final class SelectorExpr extends LKQLNode {
             new String[]{"mode"},
             new Object[]{this.mode}
         );
+    }
+
+    // ----- Inner classes -----
+
+    /**
+     * This enum represents the mode of the selector expression.
+     */
+    public enum Mode {
+        /**
+         * Default mode, return the expression.
+         */
+        DEFAULT,
+
+        /**
+         * Recursive mode, return and recurse on the result.
+         */
+        REC,
+
+        /**
+         * Skip mode, recurse on the result but don't return it.
+         */
+        SKIP
     }
 
 }

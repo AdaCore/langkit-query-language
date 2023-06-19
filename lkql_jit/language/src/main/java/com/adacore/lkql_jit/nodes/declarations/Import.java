@@ -29,6 +29,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CallTarget;
@@ -139,7 +140,7 @@ public final class Import extends LKQLNode {
         else {
             // Prepare the source
             Source source = Source
-                .newBuilder("lkql", context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
+                .newBuilder(Constants.LKQL_ID, context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
                 .build();
 
             // Get the current context and parse the file with the internal strategy
@@ -159,7 +160,7 @@ public final class Import extends LKQLNode {
      */
     private File getModuleFile() {
         // Create the module file name
-        String moduleFileName = this.name + ".lkql";
+        final String moduleFileName = this.name + Constants.LKQL_EXTENSION;
 
         // Search in the current directory if the location is not null
         if (this.location != null) {
@@ -170,7 +171,7 @@ public final class Import extends LKQLNode {
         }
 
         // Compute the directories to import from
-        String lkqlPath = System.getenv("LKQL_PATH") == null ? "" : System.getenv("LKQL_PATH");
+        String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
         List<File> importableDirs = new ArrayList<>(
             Arrays.stream(StringUtils.splitPaths(lkqlPath))
                 .filter(s -> !s.isEmpty() && !s.isBlank())

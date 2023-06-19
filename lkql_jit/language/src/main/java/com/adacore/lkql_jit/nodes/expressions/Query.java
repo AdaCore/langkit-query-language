@@ -53,22 +53,12 @@ import java.util.List;
  */
 public final class Query extends Expr {
 
-    // ----- Macros and enums -----
-
-    /**
-     * This enum represents the query kinds
-     */
-    public enum QueryKind {
-        ALL,
-        FIRST
-    }
-
     // ----- Attributes -----
 
     /**
      * The kind of the query
      */
-    private final QueryKind queryKind;
+    private final Kind kind;
 
     /**
      * If the traversal should follow the generic instantiations
@@ -104,7 +94,7 @@ public final class Query extends Expr {
      * Create a new query node
      *
      * @param location       The location of the node in the source
-     * @param queryKind      The kind of the query
+     * @param kind      The kind of the query
      * @param followGenerics If the tree traversal should follow the generic instantiations
      * @param throughExpr    The expression of the "through" element
      * @param fromExpr       The "from" expression (might be null)
@@ -112,14 +102,14 @@ public final class Query extends Expr {
      */
     public Query(
         SourceLocation location,
-        QueryKind queryKind,
+        Kind kind,
         boolean followGenerics,
         Expr throughExpr,
         Expr fromExpr,
         BasePattern pattern
     ) {
         super(location);
-        this.queryKind = queryKind;
+        this.kind = kind;
         this.followGenerics = followGenerics;
         this.throughExpr = throughExpr;
         this.fromExpr = fromExpr;
@@ -186,7 +176,7 @@ public final class Query extends Expr {
         }
 
         // If the query mode is all
-        if (this.queryKind == QueryKind.ALL) {
+        if (this.kind == Kind.ALL) {
             // Prepare the result
             List<Libadalang.AdaNode> resNodes = new LinkedList<>();
 
@@ -323,11 +313,26 @@ public final class Query extends Expr {
         return this.nodeRepresentation(
             indentLevel,
             new String[]{"queryKind"},
-            new Object[]{this.queryKind}
+            new Object[]{this.kind}
         );
     }
 
     // ----- Inner classes -----
+
+    /**
+     * This enum represents a query kind.
+     */
+    public enum Kind {
+        /**
+         * Select all nodes matching the query pattern.
+         */
+        ALL,
+
+        /**
+         * Select only the first node matching the query pattern.
+         */
+        FIRST
+    }
 
     /**
      * This class is a tool to represent the tree exploration for a default query
