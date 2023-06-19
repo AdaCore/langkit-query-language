@@ -188,7 +188,7 @@ package body Liblkqllang.Implementation.Extensions is
                Public_Unit,
                Simple_Name (Public_Unit.Get_Filename));
          end loop;
-         return null;
+         return No_Symbol;
       end if;
 
       return Find

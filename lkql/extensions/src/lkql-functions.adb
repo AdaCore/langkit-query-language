@@ -181,7 +181,7 @@ package body LKQL.Functions is
             Arg : constant L.Arg := Call.F_Arguments.Child (I).As_Arg;
             Arg_Name : constant Symbol_Type := Symbol (Arg.P_Name);
          begin
-            if Arg_Name /= null then
+            if Arg_Name /= No_Symbol then
 
                --  Named arg: check if the name exists in the definition's
                --  profile.
@@ -470,7 +470,7 @@ package body LKQL.Functions is
          use type Ada.Strings.Wide_Wide_Unbounded.Unbounded_Wide_Wide_String;
       begin
          for I in 1 .. Builtin_Descr.N loop
-            if Builtin_Descr.Params (I).Name = Name.all then
+            if Builtin_Descr.Params (I).Name = +Name then
                return I;
             end if;
          end loop;

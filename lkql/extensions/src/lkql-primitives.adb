@@ -202,7 +202,7 @@ package body LKQL.Primitives is
 
          function "<" (L, R : Primitive_Maps.Cursor) return Boolean
          is
-            (Key (L).all < Key (R).all);
+            (+Key (L) < +Key (R));
 
          procedure Cursor_Sort
          is new Ada.Containers.Generic_Array_Sort
@@ -220,7 +220,7 @@ package body LKQL.Primitives is
          I := 1;
 
          for Cur of Cursors loop
-            Append (Image, """" & Key (Cur).all & """");
+            Append (Image, """" & (+Key (Cur)) & """");
             Append (Image, ": ");
             Append (Image, To_Unbounded_Text (Primitive_Maps.Element (Cur)));
             if I < Positive (Value.Elements.Length) then

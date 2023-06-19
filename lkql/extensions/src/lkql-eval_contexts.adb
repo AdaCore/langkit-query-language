@@ -473,7 +473,7 @@ package body LKQL.Eval_Contexts is
             Is_First := False;
          end if;
 
-         Append (Ret, """" & String_Value_Maps.Key (Cur).all & """: ");
+         Append (Ret, """" & (+String_Value_Maps.Key (Cur)) & """: ");
          Append (Ret, To_Unbounded_Text (String_Value_Maps.Element (Cur)));
          String_Value_Maps.Next (Cur);
       end loop;

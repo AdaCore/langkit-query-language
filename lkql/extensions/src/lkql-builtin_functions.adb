@@ -727,7 +727,7 @@ package body LKQL.Builtin_Functions is
       end if;
 
       for El of S loop
-         Ret.List_Val.Elements.Append (To_Primitive (El.all, Ctx.Pool));
+         Ret.List_Val.Elements.Append (To_Primitive (+El, Ctx.Pool));
       end loop;
       return Ret;
 

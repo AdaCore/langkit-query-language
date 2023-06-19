@@ -88,7 +88,7 @@ package body LKQL.Node_Data is
             declare
                S : constant Symbol_Type := Symbol (Field_Name);
             begin
-               if S.all in "children" | "unit" | "parent" then
+               if +S in "children" | "unit" | "parent" then
                   return Make_Primitive
                     (Ctx, LKI.Eval_Node_Member (Receiver, Ref));
                end if;

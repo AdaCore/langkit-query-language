@@ -232,7 +232,7 @@ package body LKQL.Patterns.Nodes is
          return Match_Failure;
       end if;
 
-      if Binding_Name /= null then
+      if Binding_Name /= No_Symbol then
          Ctx.Add_Binding (Binding_Name, S_List);
       end if;
 

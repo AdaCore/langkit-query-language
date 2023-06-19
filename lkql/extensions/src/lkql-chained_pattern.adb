@@ -166,7 +166,7 @@ package body LKQL.Chained_Pattern is
       end if;
 
       for E of Nodes loop
-         if Pattern_Binding /= null then
+         if Pattern_Binding /= No_Symbol then
             Iter.Ctx.Add_Binding (Pattern_Binding,
                                   To_Primitive (E, Iter.Ctx.Pool));
          end if;
@@ -223,7 +223,7 @@ package body LKQL.Chained_Pattern is
          return Lk_Node_Vectors.Empty_Vector;
       end if;
 
-      if Binding_Name /= null then
+      if Binding_Name /= No_Symbol then
          Ctx.Add_Binding (Binding_Name, S_List);
       end if;
 

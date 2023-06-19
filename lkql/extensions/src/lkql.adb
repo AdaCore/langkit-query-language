@@ -40,7 +40,7 @@ package body LKQL is
    function Symbol (Node : L.Identifier) return Symbol_Type is
    begin
       return (if Node.Is_Null
-              then null
+              then No_Symbol
               else LCO.Get_Symbol (Node.Token_Start));
    end Symbol;
 

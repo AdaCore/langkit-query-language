@@ -158,7 +158,7 @@ package body LKQL.Error_Handling is
                                             Node       : L.Lkql_Node)
    is
       Message : constant Text_Type :=
-        "Already existing symbol: " & Identifier.all;
+        "Already existing symbol: " & (+Identifier);
    begin
       Raise_And_Record_Error (Ctx, Make_Eval_Error (Node, Message));
    end Raise_Already_Existing_Symbol;
