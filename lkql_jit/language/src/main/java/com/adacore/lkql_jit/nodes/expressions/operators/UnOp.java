@@ -30,7 +30,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 
 
 /**
- * This node represents the base of unary operations in the LKQL language
+ * This node represents the base of unary operations in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,17 +40,17 @@ public abstract class UnOp extends Expr {
     // ----- Attributes -----
 
     /**
-     * The location of the argument node
+     * The location of the argument node.
      */
     protected final DummyLocation argLocation;
 
     // ----- Constructors -----
 
     /**
-     * Create a unary operation node
+     * Create a unary operation node.
      *
-     * @param location    The location of the node in the source
-     * @param argLocation The location of the argument node
+     * @param location    The location of the node in the source.
+     * @param argLocation The location of the argument node.
      */
     protected UnOp(
         SourceLocation location,

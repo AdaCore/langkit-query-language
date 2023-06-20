@@ -29,7 +29,7 @@ import com.oracle.truffle.api.exception.AbstractTruffleException;
 
 
 /**
- * This class represents an exception in the langkit system
+ * This class represents an exception from a Langkit call.
  *
  * @author Hugo GUERRIER
  */
@@ -38,12 +38,12 @@ public final class LangkitException extends AbstractTruffleException {
     // ----- Attributes -----
 
     /**
-     * The type of the exception
+     * Kind of the Langkit exception.
      */
-    private final String type;
+    private final String kind;
 
     /**
-     * The message of the exception
+     * Message of the exception.
      */
     private final String msg;
 
@@ -55,29 +55,30 @@ public final class LangkitException extends AbstractTruffleException {
     // ----- Constructors -----
 
     /**
-     * Create a new LKQL exception with its type and message
+     * Create a new Langkit exception.
      *
-     * @param type The type of the exception
-     * @param msg  The message of the exception
+     * @param kind     The kind of the exception.
+     * @param msg      The message of the exception.
+     * @param location The location of the exception.
      */
     public LangkitException(
-        String type,
+        String kind,
         String msg,
         SourceLocation location
     ) {
-        this.type = type;
+        this.kind = kind;
         this.msg = msg;
         this.location = location;
     }
 
     // ----- Getters -----
 
-    public String getType() {
-        return type;
+    public String getKind() {
+        return this.kind;
     }
 
     public String getMsg() {
-        return msg;
+        return this.msg;
     }
 
     public SourceLocation getLoc() {

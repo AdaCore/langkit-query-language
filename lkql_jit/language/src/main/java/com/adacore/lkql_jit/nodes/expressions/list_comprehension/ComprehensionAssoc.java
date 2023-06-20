@@ -34,28 +34,28 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This node represents an association in a list comprehension in the LKQL language
+ * This node represents an association in a list comprehension in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ListCompAssoc extends LKQLNode {
+public final class ComprehensionAssoc extends LKQLNode {
 
     // ----- Attributes -----
 
     /**
-     * The name of the binding value
+     * The name of the binding value.
      */
     private final String name;
 
     /**
-     * The slot to put the value in
+     * The slot to put the value in.
      */
     private final int slot;
 
     // ----- Children -----
 
     /**
-     * The expression that contains the collection to iterate on
+     * The expression that contains the collection to iterate on.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -64,14 +64,14 @@ public final class ListCompAssoc extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new comprehension association
+     * Create a new comprehension association.
      *
-     * @param location   The location of the node in the source
-     * @param name       The name of the binding value
-     * @param slot       The slot to put the value in
-     * @param collection The collection expression
+     * @param location   The location of the node in the source.
+     * @param name       The name of the binding value.
+     * @param slot       The slot to put the value in.
+     * @param collection The collection expression.
      */
-    public ListCompAssoc(
+    public ComprehensionAssoc(
         SourceLocation location,
         String name,
         int slot,
@@ -108,10 +108,10 @@ public final class ListCompAssoc extends LKQLNode {
     }
 
     /**
-     * Execute the collection expression and return its result
+     * Execute the collection expression and return its result.
      *
-     * @param frame The frame to execute in
-     * @return The collection result of the expression result
+     * @param frame The frame to execute in.
+     * @return The collection result of the expression result.
      */
     public Iterable executeCollection(VirtualFrame frame) {
         try {

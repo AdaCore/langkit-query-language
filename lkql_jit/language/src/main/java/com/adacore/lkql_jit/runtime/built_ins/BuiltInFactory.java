@@ -34,7 +34,7 @@ import java.util.List;
 
 
 /**
- * This class is a helper to add all built-ins of LKQL in the context and scope
+ * This class is a helper to add all built-ins of LKQL in the context and scope.
  *
  * @author Hugo GUERRIER
  */
@@ -43,29 +43,29 @@ public final class BuiltInFactory {
     // ----- Attributes -----
 
     /**
-     * The only instance of the built-in factory
+     * The only instance of the built-in factory.
      */
     private static BuiltInFactory instance = null;
 
     /**
-     * The built-in function list
+     * The built-in function list.
      */
     private final List<BuiltInFunction> builtInFunctions;
 
     /**
-     * The built-in selector list
+     * The built-in selector list.
      */
     private final List<BuiltInSelector> builtInSelectors;
 
     /**
-     * The built-in method list
+     * The built-in method list.
      */
     private final List<BuiltInMethods> builtInMethods;
 
     // ----- Static initializer -----
 
     /**
-     * Create a build in factory as a singleton
+     * Create a build in factory as a singleton.
      */
     private BuiltInFactory() {
         this.builtInFunctions = new ArrayList<>();
@@ -78,9 +78,9 @@ public final class BuiltInFactory {
     }
 
     /**
-     * Get the only built-in factory instance
+     * Get the only built-in factory instance.
      *
-     * @return The factory instance
+     * @return The factory instance.
      */
     public static BuiltInFactory getInstance() {
         if (instance == null) {
@@ -90,7 +90,7 @@ public final class BuiltInFactory {
     }
 
     /**
-     * Initialize the built-in functions
+     * Initialize the built-in functions.
      */
     private void initializeFunctions() {
         this.builtInFunctions.add(PrintFunction.getInstance());
@@ -112,7 +112,7 @@ public final class BuiltInFactory {
     }
 
     /**
-     * Initialize the built-in selectors
+     * Initialize the built-in selectors.
      */
     private void initializeSelectors() {
         this.builtInSelectors.add(ChildrenSelector.getInstance());
@@ -123,7 +123,7 @@ public final class BuiltInFactory {
     }
 
     /**
-     * Initialize the built-in methods
+     * Initialize the built-in methods.
      */
     private void initializeMethods() {
         this.builtInMethods.add(UnitMethods.getInstance());
@@ -147,20 +147,20 @@ public final class BuiltInFactory {
     // ----- Getters -----
 
     /**
-     * Get the number of built-in occupied slots (functions + selectors)
+     * Get the number of built-in occupied slots (functions + selectors).
      *
-     * @return The number of reserved slots
+     * @return The number of reserved slots.
      */
     public int getNbBuiltInFunctions() {
         return this.builtInFunctions.size() + this.builtInSelectors.size();
     }
 
-    // ----- Class methods -----
+    // ----- Instance methods -----
 
     /**
-     * Add all LKQL built-ins to the given context global values
+     * Add all LKQL built-ins to the given context global values.
      *
-     * @param globalValues The global value object to put the built-ins in
+     * @param globalValues The global value object to put the built-ins in.
      */
     public void addBuiltIns(GlobalScope globalValues) {
         // Add the built-in functions

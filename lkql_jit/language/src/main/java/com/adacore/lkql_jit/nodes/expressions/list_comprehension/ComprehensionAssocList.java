@@ -21,65 +21,50 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations;
+package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.nodes.arguments.ArgList;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an annotation associated with a declaration in the LKQL language
+ * This node represents a list of list comprehension association in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class DeclAnnotation extends LKQLNode {
-
-    // ----- Attributes -----
-
-    /**
-     * The name of the annotation
-     */
-    private final String name;
+public final class ComprehensionAssocList extends LKQLNode {
 
     // ----- Children -----
 
     /**
-     * The annotation arguments
+     * The comprehension associations.
      */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private ArgList arguments;
+    @Children
+    private final ComprehensionAssoc[] compAssocs;
 
     // ----- Constructors -----
 
     /**
-     * Create a new declaration annotation node
+     * Create a new comprehension association list.
      *
-     * @param location  The location of the node in the source
-     * @param name      The name of the annotation
-     * @param arguments The arguments of the annotation (can be empty or null)
+     * @param location   The location of the node in the source.
+     * @param compAssocs The comprehension associations.
      */
-    public DeclAnnotation(
+    public ComprehensionAssocList(
         SourceLocation location,
-        String name,
-        ArgList arguments
+        ComprehensionAssoc[] compAssocs
     ) {
         super(location);
-        this.name = name;
-        this.arguments = arguments;
+        this.compAssocs = compAssocs;
     }
 
     // ----- Getters -----
 
-    public String getName() {
-        return name;
-    }
-
-    public ArgList getArguments() {
-        return arguments;
+    public ComprehensionAssoc[] getCompAssocs() {
+        return compAssocs;
     }
 
     // ----- Execution methods -----
@@ -92,18 +77,32 @@ public final class DeclAnnotation extends LKQLNode {
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
+    /**
+     * Get the collections to iterate on in the list comprehension.
+     *
+     * @param frame The frame to execute the in.
+     * @return The collection array.
+     */
+    public Iterable[] executeCollections(VirtualFrame frame) {
+        // Prepare the result
+        Iterable[] res = new Iterable[this.compAssocs.length];
+
+        for (int i = 0; i < res.length; i++) {
+            res[i] = this.compAssocs[i].executeCollection(frame);
+        }
+
+        // Return the iterable list
+        return res;
+    }
+
     // ----- Override methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"name"},
-            new Object[]{this.name}
-        );
+        return this.nodeRepresentation(indentLevel);
     }
 
 }

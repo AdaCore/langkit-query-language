@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a selector in a chained pattern
+ * This node represents a selector in a chained pattern.
  *
  * @author Hugo GUERRIER
  */
@@ -40,7 +40,7 @@ public final class SelectorLink extends ChainedPatternLink {
     // ----- Children -----
 
     /**
-     * The selector call to perform during link execution
+     * The selector call to perform during link execution.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -49,11 +49,11 @@ public final class SelectorLink extends ChainedPatternLink {
     // ----- Constructors -----
 
     /**
-     * Create a new selector link node
+     * Create a new selector link node.
      *
-     * @param location     The location of the node in the source
-     * @param pattern      The pattern to verify
-     * @param selectorCall The selector call
+     * @param location     The location of the node in the source.
+     * @param pattern      The pattern to verify.
+     * @param selectorCall The selector call.
      */
     public SelectorLink(
         SourceLocation location,

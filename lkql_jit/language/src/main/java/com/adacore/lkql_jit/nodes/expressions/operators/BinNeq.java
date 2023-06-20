@@ -35,7 +35,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the non-equality operation in the LKQL language
+ * This node represents the non-equality operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,11 +44,11 @@ public abstract class BinNeq extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a non-equality node
+     * Create a non-equality node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinNeq(
         SourceLocation location,
@@ -61,11 +61,11 @@ public abstract class BinNeq extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Do the non-equality verification on unit values, always false
+     * Do the non-equality verification on unit values, always false.
      *
-     * @param left  The left unit value
-     * @param right The right unit value
-     * @return False, two unit values are always equals
+     * @param left  The left unit value.
+     * @param right The right unit value.
+     * @return False, two unit values are always equals.
      */
     @Specialization
     protected boolean neqUnit(@SuppressWarnings("unused") UnitValue left, @SuppressWarnings("unused") UnitValue right) {
@@ -73,11 +73,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on longs
+     * Do the non-equality verification on longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The result of the non-equality verification
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqLongs(long left, long right) {
@@ -85,11 +85,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on big integers
+     * Do the non-equality verification on big integers.
      *
-     * @param left  The left big integer value
-     * @param right The right big integer value
-     * @return The result of the non-equality verification
+     * @param left  The left big integer value.
+     * @param right The right big integer value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqBigIntegers(BigInteger left, BigInteger right) {
@@ -97,11 +97,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on strings
+     * Do the non-equality verification on strings.
      *
-     * @param left  The left string value
-     * @param right The right string value
-     * @return The result of the non-equality verification
+     * @param left  The left string value.
+     * @param right The right string value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqString(String left, String right) {
@@ -109,11 +109,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on patterns
+     * Do the non-equality verification on patterns.
      *
-     * @param left  The left pattern value
-     * @param right The right pattern value
-     * @return The result of the non-equality verification
+     * @param left  The left pattern value.
+     * @param right The right pattern value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqPatterns(Pattern left, Pattern right) {
@@ -121,11 +121,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on functions
+     * Do the non-equality verification on functions.
      *
-     * @param left  The left function value
-     * @param right The right function value
-     * @return The result of the non-equality verification
+     * @param left  The left function value.
+     * @param right The right function value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqFunctions(FunctionValue left, FunctionValue right) {
@@ -133,11 +133,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on property references
+     * Do the non-equality verification on property references.
      *
-     * @param left  The left property reference value
-     * @param right The right property reference value
-     * @return The result of the non-equality verification
+     * @param left  The left property reference value.
+     * @param right The right property reference value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqPropertyRefs(PropertyRefValue left, PropertyRefValue right) {
@@ -145,11 +145,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on selectors
+     * Do the non-equality verification on selectors.
      *
-     * @param left  The left selector value
-     * @param right The right selector value
-     * @return The result of the non-equality verification
+     * @param left  The left selector value.
+     * @param right The right selector value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqSelectors(SelectorValue left, SelectorValue right) {
@@ -157,11 +157,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on tuples
+     * Do the non-equality verification on tuples.
      *
-     * @param left  The left tuple value
-     * @param right The right tuple value
-     * @return The result of the non-equality verification
+     * @param left  The left tuple value.
+     * @param right The right tuple value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqTuples(TupleValue left, TupleValue right) {
@@ -169,11 +169,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on lists
+     * Do the non-equality verification on lists.
      *
-     * @param left  The left list value
-     * @param right The right list value
-     * @return The result of the non-equality verification
+     * @param left  The left list value.
+     * @param right The right list value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqLists(ListValue left, ListValue right) {
@@ -181,11 +181,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on lazy lists
+     * Do the non-equality verification on lazy lists.
      *
-     * @param left  The left lazy list value
-     * @param right The right lazy list value
-     * @return The result of the non-equality verification
+     * @param left  The left lazy list value.
+     * @param right The right lazy list value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqLazyLists(LazyListValue left, LazyListValue right) {
@@ -193,11 +193,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on selector lists
+     * Do the non-equality verification on selector lists.
      *
-     * @param left  The left selector list value
-     * @param right The right selector list value
-     * @return The result of the non-equality verification
+     * @param left  The left selector list value.
+     * @param right The right selector list value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqSelectorLists(SelectorListValue left, SelectorListValue right) {
@@ -205,11 +205,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on nodes
+     * Do the non-equality verification on nodes.
      *
-     * @param left  The left node value
-     * @param right The right node value
-     * @return The result of the non-equality verification
+     * @param left  The left node value.
+     * @param right The right node value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqNodes(Libadalang.AdaNode left, Libadalang.AdaNode right) {
@@ -217,11 +217,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on tokens
+     * Do the non-equality verification on tokens.
      *
-     * @param left  The left token value
-     * @param right The right token value
-     * @return The result of the non-equality verification
+     * @param left  The left token value.
+     * @param right The right token value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqTokens(Libadalang.Token left, Libadalang.Token right) {
@@ -229,11 +229,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on analysis units
+     * Do the non-equality verification on analysis units.
      *
-     * @param left  The left analysis unit value
-     * @param right The right analysis unit value
-     * @return The result of the non-equality verification
+     * @param left  The left analysis unit value.
+     * @param right The right analysis unit value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqAnalysisUnits(Libadalang.AnalysisUnit left, Libadalang.AnalysisUnit right) {
@@ -241,11 +241,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on booleans
+     * Do the non-equality verification on booleans.
      *
-     * @param left  The left boolean value
-     * @param right The right boolean value
-     * @return The result of the non-equality verification
+     * @param left  The left boolean value.
+     * @param right The right boolean value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqBooleans(boolean left, boolean right) {
@@ -253,11 +253,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on objects
+     * Do the non-equality verification on objects.
      *
-     * @param left  The left object value
-     * @param right The right object value
-     * @return The result of the non-equality verification
+     * @param left  The left object value.
+     * @param right The right object value.
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqObjects(ObjectValue left, ObjectValue right) {
@@ -265,11 +265,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on namespaces
+     * Do the non-equality verification on namespaces.
      *
-     * @param left  The left namespace value
+     * @param left  The left namespace value.
      * @param right The right namespace value
-     * @return The result of the non-equality verification
+     * @return The result of the non-equality verification.
      */
     @Specialization
     protected boolean neqNamespaces(NamespaceValue left, NamespaceValue right) {
@@ -277,11 +277,11 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on not comparable values
+     * Do the non-equality verification on not comparable values.
      *
-     * @param left  The left value
-     * @param right The right value
-     * @return Always true because not comparable cannot be equals
+     * @param left  The left value.
+     * @param right The right value.
+     * @return Always true because not comparable cannot be equals.
      */
     @Fallback
     protected boolean neqNotComparable(@SuppressWarnings("unused") Object left, @SuppressWarnings("unused") Object right) {

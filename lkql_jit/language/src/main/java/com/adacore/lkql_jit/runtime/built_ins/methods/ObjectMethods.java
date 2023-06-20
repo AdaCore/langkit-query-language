@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 
 
 /**
- * This class contains all built-in methods for the object type in the LKQL language
+ * This class contains all built-in methods for the object type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -36,23 +36,23 @@ public final class ObjectMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static ObjectMethods instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private ObjectMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the object methods.
      */
     public static ObjectMethods getInstance() {
         if (instance == null) {

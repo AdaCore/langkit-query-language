@@ -35,9 +35,9 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.ExprArg;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.declarations.*;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorDecl;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorDeclaration;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.*;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyDecl;
@@ -45,8 +45,8 @@ import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBodyExpr;
 import com.adacore.lkql_jit.nodes.expressions.block_expression.BlockExpr;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.SafeDotAccessNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListCompAssoc;
-import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListCompAssocList;
+import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ComprehensionAssoc;
+import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ComprehensionAssocList;
 import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehension;
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
@@ -179,7 +179,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final ArgList arguments = (ArgList) declAnnotation.fArguments().accept(this);
 
         // Return the new declaration annotation node
-        return new DeclAnnotation(loc(declAnnotation), name, arguments);
+        return new Annotation(loc(declAnnotation), name, arguments);
     }
 
     @Override
@@ -513,7 +513,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             (Expr) defaultExpr.accept(this);
 
         // Return the new parameter declaration
-        return new ParameterDecl(
+        return new ParameterDeclaration(
             new SourceLocation(this.source, parameterDecl.getSourceLocationRange()),
             name,
             defaultValue
@@ -1103,13 +1103,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.enterFrame(listComprehension);
 
         // Create the list comprehension associations
-        final List<ListCompAssoc> assocList = new ArrayList<>();
+        final List<ComprehensionAssoc> assocList = new ArrayList<>();
         for (int i = 0; i < assocListBase.getChildrenCount(); i++) {
             final Liblkqllang.ListCompAssoc assocBase = (Liblkqllang.ListCompAssoc) assocListBase.getChild(i);
             final String name = assocBase.fBindingName().getText();
             int slot = this.scriptFrames.getParameter(name);
 
-            assocList.add(new ListCompAssoc(loc(assocBase), name, slot, collections.get(i)));
+            assocList.add(new ComprehensionAssoc(loc(assocBase), name, slot, collections.get(i)));
         }
 
         // Translate the list comprehension fields
@@ -1124,9 +1124,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             loc(listComprehension),
             this.scriptFrames.getFrameDescriptor(),
             this.scriptFrames.getClosureDescriptor(),
-            new ListCompAssocList(
+            new ComprehensionAssocList(
                 new SourceLocation(this.source, assocListBase.getSourceLocationRange()),
-                assocList.toArray(new ListCompAssoc[0])
+                assocList.toArray(new ComprehensionAssoc[0])
             ),
             expr,
             guard
@@ -1280,9 +1280,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.enterFrame(baseFunction);
 
         // Translate the function fields
-        final List<ParameterDecl> parameters = new ArrayList<>();
+        final List<ParameterDeclaration> parameters = new ArrayList<>();
         for (Liblkqllang.LkqlNode param : baseFunction.fParameters().children()) {
-            parameters.add((ParameterDecl) param.accept(this));
+            parameters.add((ParameterDeclaration) param.accept(this));
         }
         final Expr body = (Expr) baseFunction.fBodyExpr().accept(this);
 
@@ -1291,7 +1291,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             loc(baseFunction),
             this.scriptFrames.getFrameDescriptor(),
             this.scriptFrames.getClosureDescriptor(),
-            parameters.toArray(new ParameterDecl[0]),
+            parameters.toArray(new ParameterDeclaration[0]),
             body
         );
 
@@ -1312,9 +1312,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.FunDecl funDecl) {
         // Translate the declaration fields
         final Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
-        final DeclAnnotation annotation = annotationBase.isNone() ?
+        final Annotation annotation = annotationBase.isNone() ?
             null :
-            (DeclAnnotation) annotationBase.accept(this);
+            (Annotation) annotationBase.accept(this);
         final String name = funDecl.fName().getText();
 
         // Get the current slot of the name
@@ -1458,9 +1458,9 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             "" :
             parseStringLiteral(documentationBase);
         final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
-        final DeclAnnotation annotation = annotationBase.isNone() ?
+        final Annotation annotation = annotationBase.isNone() ?
             null :
-            (DeclAnnotation) annotationBase.accept(this);
+            (Annotation) annotationBase.accept(this);
 
         // Get the current slot to place the new selector in
         this.scriptFrames.declareBinding(name);
@@ -1489,7 +1489,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.exitFrame();
 
         // Return the new selector declaration node
-        return new SelectorDecl(
+        return new SelectorDeclaration(
             loc(selectorDecl),
             annotation,
             frameDescriptor,

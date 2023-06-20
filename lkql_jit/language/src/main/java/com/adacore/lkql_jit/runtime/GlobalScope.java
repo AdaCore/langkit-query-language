@@ -32,7 +32,8 @@ import java.util.Map;
 
 
 /**
- * This class represents the global values scope for an LKQL script execution
+ * This class represents a global LKQL scope which is common to all LKQL scripts.
+ * This is shared between all scripts during an execution.
  *
  * @author Hugo GUERRIER
  */
@@ -51,16 +52,16 @@ public final class GlobalScope {
     private final Object[] builtIns;
 
     /**
-     * The meta tables that contains built-in methods
+     * The meta tables that contains built-in methods.
      */
     private final Map<String, Map<String, BuiltInFunctionValue>> metaTables;
 
     // ----- Constructors -----
 
     /**
-     * Create a new global scope
+     * Create a new global scope.
      *
-     * @param buildInNb The number of built-in functions
+     * @param buildInNb The number of built-in functions.
      */
     public GlobalScope(
         int buildInNb
@@ -75,17 +76,17 @@ public final class GlobalScope {
     /**
      * Get the LKQL checkers.
      *
-     * @return The LKQL checkers
+     * @return The LKQL checkers.
      */
     public Map<String, ObjectValue> getCheckers() {
         return this.checkers;
     }
 
     /**
-     * Add the given LKQL checker in the global values
+     * Add the given LKQL checker in the global values.
      *
-     * @param name    The name of the checker
-     * @param checker The object representing the checker
+     * @param name    The name of the checker.
+     * @param checker The object representing the checker.
      */
     @CompilerDirectives.TruffleBoundary
     public void addChecker(String name, ObjectValue checker) {
@@ -103,20 +104,20 @@ public final class GlobalScope {
     }
 
     /**
-     * Set a built-in value, this function is only used in built-in factory
+     * Set a built-in value, this function is only used in built-in factory.
      *
-     * @param slot  The slot of the built-in
-     * @param value The value
+     * @param slot  The slot to set the built-in in.
+     * @param value The value of the built-in to set.
      */
     public void setBuiltIn(int slot, Object value) {
         this.builtIns[slot] = value;
     }
 
     /**
-     * Get a meta table for the given type
+     * Get a meta table for the given type.
      *
-     * @param type The type to get the meta table for
-     * @return The meta table
+     * @param type The type to get the meta table for.
+     * @return The meta table.
      */
     @CompilerDirectives.TruffleBoundary
     public Map<String, BuiltInFunctionValue> getMetaTable(String type) {
@@ -124,10 +125,10 @@ public final class GlobalScope {
     }
 
     /**
-     * Put a new meta table
+     * Put a new meta table for a given type.
      *
-     * @param type    The type of the meta table
-     * @param methods The methods for the type
+     * @param type    The type of the meta table.
+     * @param methods The methods for the type.
      */
     @CompilerDirectives.TruffleBoundary
     public void putMetaTable(String type, Map<String, BuiltInFunctionValue> methods) {

@@ -25,16 +25,16 @@ package com.adacore.lkql_jit.runtime.values.interfaces;
 
 
 /**
- * This class represents all LKQL values that can be interpreted as a boolean
+ * This class represents all LKQL values that can be interpreted as a boolean.
  *
  * @author Hugo GUERRIER
  */
 public interface Truthy extends LKQLValue {
 
     /**
-     * Get the boolean representation of the object
+     * Get the boolean representation of the object.
      *
-     * @return True if the object is evaluated as true, false else
+     * @return True if the object is evaluated as true, false else.
      */
     boolean isTruthy();
 

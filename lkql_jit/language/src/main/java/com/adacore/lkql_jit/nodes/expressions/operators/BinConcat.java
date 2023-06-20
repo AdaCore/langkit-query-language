@@ -36,7 +36,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 
 /**
- * This node represents the concatenation operation in the LKQL language
+ * This node represents the concatenation operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,11 +45,11 @@ public abstract class BinConcat extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a concatenation node
+     * Create a concatenation node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinConcat(
         SourceLocation location,
@@ -62,11 +62,11 @@ public abstract class BinConcat extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Concatenate two strings
+     * Concatenate two strings.
      *
-     * @param left  The left string value
-     * @param right The right string value
-     * @return The result of the string concatenation
+     * @param left  The left string value.
+     * @param right The right string value.
+     * @return The result of the string concatenation.
      */
     @Specialization
     protected String concatStrings(String left, String right) {
@@ -74,11 +74,11 @@ public abstract class BinConcat extends BinOp {
     }
 
     /**
-     * Concatenate two lists
+     * Concatenate two lists.
      *
-     * @param left  The left list value
-     * @param right The right list value
-     * @return The result of the list concatenation
+     * @param left  The left list value.
+     * @param right The right list value.
+     * @return The result of the list concatenation.
      */
     @Specialization
     protected ListValue concatLists(ListValue left, ListValue right) {
@@ -86,10 +86,10 @@ public abstract class BinConcat extends BinOp {
     }
 
     /**
-     * The fallback method if the concatenation is not applied to correct types
+     * The fallback method if the concatenation is not applied to correct types.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void nonConcatenable(Object left, Object right) {

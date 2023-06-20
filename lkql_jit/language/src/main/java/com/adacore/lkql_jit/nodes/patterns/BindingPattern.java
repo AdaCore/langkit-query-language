@@ -30,7 +30,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a binding pattern in the LKQL language
+ * This node represents a binding pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -39,14 +39,14 @@ public final class BindingPattern extends UnfilteredPattern {
     // ----- Attributes -----
 
     /**
-     * Frame slot to put the node in
+     * Frame slot to put the node in.
      */
     private final int slot;
 
     // ----- Children -----
 
     /**
-     * The pattern to execute with the binding done
+     * Pattern to execute once the binding done.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -55,7 +55,7 @@ public final class BindingPattern extends UnfilteredPattern {
     // ----- Constructors -----
 
     /**
-     * Create a new binding pattern node
+     * Create a new binding pattern node.
      *
      * @param location The location of the node in the source.
      * @param slot     The frame slot to put the node in.

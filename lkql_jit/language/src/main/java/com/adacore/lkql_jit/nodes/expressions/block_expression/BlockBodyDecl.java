@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a declaration part of a block expression
+ * This node represents a declaration part of a block expression.
  *
  * @author Hugo GUERRIER
  */
@@ -38,7 +38,7 @@ public final class BlockBodyDecl extends BlockBody {
     // ----- Children -----
 
     /**
-     * The declaration of the body part
+     * The declaration of the body part.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -47,10 +47,10 @@ public final class BlockBodyDecl extends BlockBody {
     // ----- Constructors -----
 
     /**
-     * Create a new block body declaration part
+     * Create a new block body declaration part.
      *
-     * @param location The location of the node in the source
-     * @param decl     The declaration of the body part
+     * @param location The location of the node in the source.
+     * @param decl     The declaration of the body part.
      */
     public BlockBodyDecl(
         SourceLocation location,
@@ -63,10 +63,10 @@ public final class BlockBodyDecl extends BlockBody {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeBlockBody(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public Object executeBlockBody(VirtualFrame frame) {
+    public Object executeGeneric(VirtualFrame frame) {
         return this.decl.executeGeneric(frame);
     }
 

@@ -21,60 +21,62 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.selectors;
+package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an expression in the right part of a selector arm
+ * This node represents the declaration of a parameter in a function signature in LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorExpr extends LKQLNode {
+public final class ParameterDeclaration extends Declaration {
 
     // ----- Attributes -----
 
     /**
-     * The mode of the expression
+     * Parameter's name.
      */
-    private final Mode mode;
-
-    // ----- Children -----
+    private final String name;
 
     /**
-     * The expression of the selector expression
+     * Parameter's default value.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr expr;
+    private Expr defaultValue;
 
     // ----- Constructors -----
 
     /**
-     * Create a new selector expression node
+     * Create a new parameter declaration node.
      *
-     * @param location The location of the node in the source
-     * @param mode     The mode of the expression
-     * @param expr     The expression
+     * @param location     The location of the node in the source.
+     * @param name         The name of the parameter.
+     * @param defaultValue The default value of the parameter (can be null).
      */
-    public SelectorExpr(
-        SourceLocation location,
-        Mode mode,
-        Expr expr
+    public ParameterDeclaration(
+        final SourceLocation location,
+        final String name,
+        final Expr defaultValue
     ) {
-        super(location);
-        this.mode = mode;
-        this.expr = expr;
+        super(location, null);
+        this.name = name;
+        this.defaultValue = defaultValue;
     }
 
     // ----- Getters -----
 
-    public Mode getMode() {
-        return this.mode;
+    public String getName() {
+        return this.name;
+    }
+
+    public Expr getDefaultValue() {
+        return this.defaultValue;
     }
 
     // ----- Execution methods -----
@@ -84,43 +86,22 @@ public final class SelectorExpr extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return this.expr.executeGeneric(frame);
+        // Fail because this node is not executable as a generic one
+        throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
     // ----- Override methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
      */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"mode"},
-            new Object[]{this.mode}
+            new String[]{"name"},
+            new Object[]{this.name}
         );
-    }
-
-    // ----- Inner classes -----
-
-    /**
-     * This enum represents the mode of the selector expression.
-     */
-    public enum Mode {
-        /**
-         * Default mode, return the expression.
-         */
-        DEFAULT,
-
-        /**
-         * Recursive mode, return and recurse on the result.
-         */
-        REC,
-
-        /**
-         * Skip mode, recurse on the result but don't return it.
-         */
-        SKIP
     }
 
 }

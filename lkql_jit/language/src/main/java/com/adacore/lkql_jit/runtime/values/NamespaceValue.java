@@ -34,7 +34,7 @@ import java.util.Map;
 
 
 /**
- * This class represents the namespace values in the LKQL language
+ * This class represents the namespace values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -50,7 +50,7 @@ public final class NamespaceValue implements LKQLValue {
     // ----- Constructors -----
 
     /**
-     * Create a new namespace with its name and bindings
+     * Create a new namespace with its name and bindings.
      *
      * @param symbols The symbols in the namespace.
      */
@@ -89,10 +89,10 @@ public final class NamespaceValue implements LKQLValue {
     // ----- Getters -----
 
     /**
-     * Get a value from the namespace with its name
+     * Get a value from the namespace with its name.
      *
-     * @param symbol The name of the value to get
-     * @return The value if it exists, null else
+     * @param symbol The name of the value to get.
+     * @return The value if it exists, null else.
      */
     @CompilerDirectives.TruffleBoundary
     public Object get(

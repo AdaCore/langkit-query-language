@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the unpack operation in the LKQL language
+ * This node represents the unpack operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,26 +38,26 @@ public final class Unpack extends Expr {
     // ----- Children -----
 
     /**
-     * The collection to unpack
+     * The collection to unpack.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr collectionExpr;
+    private Expr expr;
 
     // ----- Constructors -----
 
     /**
-     * Create a new unpack nod
+     * Create a new unpack nod.
      *
-     * @param location       The location of the node in the source
-     * @param collectionExpr The collection expression to unpack
+     * @param location The location of the node in the source
+     * @param expr     The collection expression to unpack
      */
     public Unpack(
         SourceLocation location,
-        Expr collectionExpr
+        Expr expr
     ) {
         super(location);
-        this.collectionExpr = collectionExpr;
+        this.expr = expr;
     }
 
     // ----- Execution methods -----
@@ -68,7 +68,7 @@ public final class Unpack extends Expr {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the collection expression
-        Object obj = this.collectionExpr.executeGeneric(frame);
+        Object obj = this.expr.executeGeneric(frame);
 
         // If the result is a collection, copy it
         if (LKQLTypeSystemGen.isIndexable(obj)) {

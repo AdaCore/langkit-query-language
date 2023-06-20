@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a null literal in the LKQL language
+ * This node represents a null literal in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,9 +40,9 @@ public final class NullLiteral extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a null literal node
+     * Create a null literal node.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     public NullLiteral(
         SourceLocation location

@@ -23,14 +23,14 @@
 
 package com.adacore.lkql_jit.runtime.built_ins;
 
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 
 /**
- * This class represents the base of the built-in selector values
+ * This class represents the base of the built-in selector values.
  *
  * @author Hugo GUERRIER
  */
@@ -39,11 +39,11 @@ public class BuiltInSelectorValue extends SelectorValue {
     // ----- Constructors -----
 
     /**
-     * Create a new built-in selector value
+     * Create a new built-in selector value.
      *
-     * @param name          The name of the selector
-     * @param documentation The documentation of the selector
-     * @param arms          The arms for the selector execution
+     * @param name          The name of the selector.
+     * @param documentation The documentation of the selector.
+     * @param arms          The arms for the selector execution.
      */
     public BuiltInSelectorValue(
         String name,

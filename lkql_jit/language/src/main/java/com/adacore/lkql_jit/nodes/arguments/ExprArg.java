@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This node represents an unnamed argument in the LKQL language
+ * This node represents an unnamed argument in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -37,16 +37,16 @@ public final class ExprArg extends Arg {
     // ----- Constructor -----
 
     /**
-     * Create a new expression argument node
+     * Create a new expression argument node.
      *
-     * @param location The location of the node in the sources
-     * @param argExpr  The expression of the argument
+     * @param location The location of the node in the sources.
+     * @param expr     The expression of the argument.
      */
     public ExprArg(
         SourceLocation location,
-        Expr argExpr
+        Expr expr
     ) {
-        super(location, null, argExpr);
+        super(location, null, expr);
     }
 
     // ----- Override methods -----

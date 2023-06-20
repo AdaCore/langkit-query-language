@@ -44,7 +44,7 @@ import java.util.*;
 
 
 /**
- * This node represents the import statement in the LKQL language
+ * This node represents the import statement in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -53,33 +53,33 @@ public final class Import extends LKQLNode {
     // ----- Attributes -----
 
     /**
-     * A cache to avoid importing same module multiple times
+     * A cache to avoid importing same module multiple times.
      */
     private static final Map<File, NamespaceValue> importCache = new HashMap<>();
 
     /**
-     * The name of the module to import
+     * Name of the module to import.
      */
     private final String name;
 
     /**
-     * The file of the module
+     * LKQL file of the module.
      */
     private final File moduleFile;
 
     /**
-     * The slot to put the namespace in (if it's -1 the import is an internal operation rule import)
+     * Slot to put the namespace in (if it's -1 the import is an internal operation rule import)
      */
     private final int slot;
 
     // ----- Constructors -----
 
     /**
-     * Create a new import node
+     * Create a new import node.
      *
-     * @param location The location of the node in the source
-     * @param name     The name of the module to import
-     * @param slot     The slot to put the namespace in
+     * @param location The location of the node in the source.
+     * @param name     The name of the module to import.
+     * @param slot     The slot to put the namespace in.
      */
     public Import(
         SourceLocation location,
@@ -117,11 +117,11 @@ public final class Import extends LKQLNode {
     }
 
     /**
-     * Get the namespace of a module from a Java file
+     * Get the namespace of a module from a Java file.
      *
-     * @param moduleFile The module file to import
-     * @return The namespace of the module
-     * @throws IOException If Truffle cannot create a source from the file
+     * @param moduleFile The module file to import.
+     * @return The namespace of the module.
+     * @throws IOException If Truffle cannot create a source from the file.
      */
     @CompilerDirectives.TruffleBoundary
     private NamespaceValue importModule(File moduleFile) throws IOException {
@@ -151,9 +151,9 @@ public final class Import extends LKQLNode {
     // ----- Internal methods -----
 
     /**
-     * Get a module file from the module name
+     * Get a module file from the module name.
      *
-     * @return The file representing the module or null
+     * @return The file representing the module or null.
      */
     private File getModuleFile() {
         // Create the module file name

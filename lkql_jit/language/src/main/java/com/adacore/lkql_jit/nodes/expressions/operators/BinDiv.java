@@ -36,7 +36,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the "division" operation in the LKQL language
+ * This node represents the "division" operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,11 +45,11 @@ public abstract class BinDiv extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a division node
+     * Create a division node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinDiv(
         SourceLocation location,
@@ -62,11 +62,11 @@ public abstract class BinDiv extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Divide two longs
+     * Divide two longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The division of two longs (round to inferior)
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The division of two longs (round to inferior).
      */
     @Specialization
     protected long divLongs(long left, long right) {
@@ -77,11 +77,11 @@ public abstract class BinDiv extends BinOp {
     }
 
     /**
-     * Divide two big integers
+     * Divide two big integers.
      *
-     * @param left  The left big integer value
-     * @param right The right big integer value
-     * @return The division of two big integers (round to inferior)
+     * @param left  The left big integer value.
+     * @param right The right big integer value.
+     * @return The division of two big integers (round to inferior).
      */
     @Specialization
     protected BigInteger divBigIntegers(BigInteger left, BigInteger right) {
@@ -92,10 +92,10 @@ public abstract class BinDiv extends BinOp {
     }
 
     /**
-     * Raise a type exception if there is a non-integer operand
+     * Raise a type exception if there is a non-integer operand.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void notNumbers(Object left, Object right) {

@@ -34,7 +34,7 @@ import java.util.Objects;
 
 
 /**
- * This class represents the object values in the LKQL language
+ * This class represents the object values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -43,17 +43,17 @@ public final class ObjectValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The content of the object
+     * The content of the object.
      */
     private final Map<String, Object> content;
 
     // ----- Constructors -----
 
     /**
-     * Create an object value
+     * Create an object value.
      *
-     * @param keys   The keys of the object
-     * @param values The values of the object
+     * @param keys   The keys of the object.
+     * @param values The values of the object.
      */
     @CompilerDirectives.TruffleBoundary
     public ObjectValue(

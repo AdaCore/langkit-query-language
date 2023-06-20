@@ -6,18 +6,18 @@ import java.util.Objects;
 
 
 /**
- * Util functions for the java object type
+ * Util functions for the java object type.
  *
  * @author Hugo GUERRIER
  */
 public final class ObjectUtils {
 
     /**
-     * Verify the equality between two object
+     * Verify the equality between two object.
      *
-     * @param left  The left object
-     * @param right The right object
-     * @return The equality
+     * @param left  The left object.
+     * @param right The right object.
+     * @return The equality.
      */
     @CompilerDirectives.TruffleBoundary
     public static boolean equals(Object left, Object right) {
@@ -25,10 +25,10 @@ public final class ObjectUtils {
     }
 
     /**
-     * Get the string representation of the object
+     * Get the string representation of the object.
      *
-     * @param o The object to get the representation from
-     * @return The string representation of the object
+     * @param o The object to get the representation from.
+     * @return The string representation of the object.
      */
     @CompilerDirectives.TruffleBoundary
     public static String toString(Object o) {

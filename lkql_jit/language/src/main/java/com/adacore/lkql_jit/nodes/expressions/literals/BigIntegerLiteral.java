@@ -31,7 +31,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents a literal integer that cannot be contained in a java long
+ * This node represents a literal integer that cannot be contained in a java long.
  *
  * @author Hugo GUERRIER
  */
@@ -40,17 +40,17 @@ public final class BigIntegerLiteral extends Expr {
     // ----- Attributes -----
 
     /**
-     * The big integer value
+     * The big integer value.
      */
     private final BigInteger value;
 
     // ----- Constructors -----
 
     /**
-     * Create a new big integer literal with its value
+     * Create a new big integer literal with its value.
      *
-     * @param location The location of the node in the source
-     * @param value    The value of the big integer
+     * @param location The location of the node in the source.
+     * @param value    The value of the big integer.
      */
     public BigIntegerLiteral(
         SourceLocation location,

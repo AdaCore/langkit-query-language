@@ -38,7 +38,7 @@ import java.util.List;
 
 
 /**
- * This class represents a list returned by a selector call, this is a lazy list
+ * This class represents a list returned by a selector call, this is a lazy list.
  *
  * @author Hugo GUERRIER
  */
@@ -57,8 +57,9 @@ public final class SelectorListValue extends LazyCollection {
     private final Closure closure;
 
     /**
-     * The dispatcher for the selector root node
+     * The dispatcher for the selector root node.
      */
+
     private final SelectorDispatcher dispatcher;
     /**
      * The cache in a set to perform recursion guard.
@@ -66,29 +67,29 @@ public final class SelectorListValue extends LazyCollection {
     private final HashSet<DepthNode> hashCache;
 
     /**
-     * The list of the node to recurs on
+     * The list of the node to recurs on.
      */
     private final List<DepthNode> recursList;
 
     /**
-     * The maximal depth for the return
+     * The maximal depth for the return.
      */
     private final int maxDepth;
 
     /**
-     * The minimal depth for the return
+     * The minimal depth for the return.
      */
     private final int minDepth;
 
     /**
-     * The precise depth to get from the selector
+     * The precise depth to get from the selector.
      */
     private final int depth;
 
     // ----- Constructors -----
 
     /**
-     * Create a new selector list
+     * Create a new selector list.
      *
      * @param rootNode The selector root node.
      * @param closure  The closure for the root node execution.
@@ -143,9 +144,9 @@ public final class SelectorListValue extends LazyCollection {
     }
 
     /**
-     * Add the object to the result cache of the selector list
+     * Add the object to the result cache of the selector list.
      *
-     * @param toAdd The object to add
+     * @param toAdd The object to add.
      */
     private void addResult(Object toAdd) {
         // If the object is just a node
@@ -166,9 +167,9 @@ public final class SelectorListValue extends LazyCollection {
     }
 
     /**
-     * Add the object to the recursing list of the selector list
+     * Add the object to the recursing list of the selector list.
      *
-     * @param toAdd The object to add
+     * @param toAdd The object to add.
      */
     private void addRecurs(Object toAdd) {
         // If the object is just a node
@@ -189,9 +190,9 @@ public final class SelectorListValue extends LazyCollection {
     }
 
     /**
-     * Add the object to the result and the recursing list
+     * Add the object to the result and the recursing list.
      *
-     * @param toAdd The object to add
+     * @param toAdd The object to add.
      */
     private void addRecursAndResult(Object toAdd) {
         // If the object is just a node
@@ -214,9 +215,9 @@ public final class SelectorListValue extends LazyCollection {
     }
 
     /**
-     * Add a node in the result and hashed cache with all verifications
+     * Add a node in the result and hashed cache with all verifications.
      *
-     * @param node The node to add in the cache
+     * @param node The node to add in the cache.
      */
     private void addNodeResult(DepthNode node) {
         // If there is no defined depth
@@ -240,10 +241,10 @@ public final class SelectorListValue extends LazyCollection {
     }
 
     /**
-     * Get if a node is recursion guarded
+     * Get if a node is recursion guarded.
      *
-     * @param node The node to verify
-     * @return True if this node is recursion guarded, false else
+     * @param node The node to verify.
+     * @return True if this node is recursion guarded, false else.
      */
     private boolean isRecursionGuarded(DepthNode node) {
         return !this.hashCache.contains(node);

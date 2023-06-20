@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the universal pattern in the LKQL language
+ * This node represents the universal pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,13 +38,11 @@ public final class UniversalPattern extends ValuePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new universal pattern
+     * Create a new universal pattern.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
-    public UniversalPattern(
-        SourceLocation location
-    ) {
+    public UniversalPattern(SourceLocation location) {
         super(location);
     }
 

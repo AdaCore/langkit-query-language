@@ -61,7 +61,7 @@ public final class Query extends Expr {
     private final Kind kind;
 
     /**
-     * If the traversal should follow the generic instantiations
+     * Whether the traversal should follow the generic instantiations
      */
     private final boolean followGenerics;
 
@@ -94,8 +94,8 @@ public final class Query extends Expr {
      * Create a new query node
      *
      * @param location       The location of the node in the source
-     * @param kind      The kind of the query
-     * @param followGenerics If the tree traversal should follow the generic instantiations
+     * @param kind           The kind of the query
+     * @param followGenerics Whether the tree traversal should follow the generic instantiations
      * @param throughExpr    The expression of the "through" element
      * @param fromExpr       The "from" expression (might be null)
      * @param pattern        The pattern of the query node
@@ -347,7 +347,7 @@ public final class Query extends Expr {
         private final Libadalang.AdaNode root;
 
         /**
-         * If the traversal should follow the generic instantiations
+         * Whether the traversal should follow the generic instantiations
          */
         private final boolean followGenerics;
 
@@ -357,7 +357,7 @@ public final class Query extends Expr {
          * Create a new child iterable
          *
          * @param root           The root node
-         * @param followGenerics If the traversal should follow the ada generic instantiations
+         * @param followGenerics Whether the traversal should follow the ada generic instantiations
          */
         public ChildIterable(
             Libadalang.AdaNode root,
@@ -409,7 +409,7 @@ public final class Query extends Expr {
         private final LinkedList<Libadalang.AdaNode> queue;
 
         /**
-         * If the iterator should follow the generic instantiations
+         * Whether the iterator should follow the generic instantiations
          */
         private final boolean followGenerics;
 
@@ -482,6 +482,7 @@ public final class Query extends Expr {
 
         /**
          * Return whether the given node is inside an instantiated generic.
+         *
          * @param node The node to check
          */
         private static boolean inGenericInstantiation(Libadalang.AdaNode node) {

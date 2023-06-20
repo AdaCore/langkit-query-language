@@ -40,8 +40,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represents the "map" built-in function in the LKQL language
- * This built-in is not in the Ada implementation, you should add it somehow
+ * This class represents the "map" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -50,33 +49,33 @@ public final class MapFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "map" built-in
+     * The only instance of the "map" built-in.
      */
     private static MapFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "map";
 
     /**
-     * The expression that represents the "map" function execution
+     * The expression that represents the "map" function execution.
      */
     private final MapFunction.MapExpr mapExpr;
 
     // ----- Constructors -----
 
     /**
-     * This private constructor
+     * This private constructor.
      */
     public MapFunction() {
         this.mapExpr = new MapExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static MapFunction getInstance() {
         if (instance == null) {
@@ -112,12 +111,12 @@ public final class MapFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "map" function
+     * Expression of the "map" function.
      */
     public static final class MapExpr extends BuiltInExpr {
 
         /**
-         * The dispatcher for the mapping function
+         * The dispatcher for the mapping function.
          */
         @Child
         @SuppressWarnings("FieldMayBeFinal")

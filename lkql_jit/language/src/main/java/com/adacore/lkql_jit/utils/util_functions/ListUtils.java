@@ -29,19 +29,19 @@ import java.util.List;
 
 
 /**
- * Util functions for the java generic list type
+ * Util functions for the java generic list type.
  *
  * @author Hugo GUERRIER
  */
 public final class ListUtils {
 
     /**
-     * Get if a list contains an element
+     * Get if a list contains an element.
      *
-     * @param list The list to verify
-     * @param elem The element to find
-     * @param <T>  The type of the element
-     * @return True if the list contains the element
+     * @param list The list to verify.
+     * @param elem The element to find.
+     * @param <T>  The type of the element.
+     * @return True if the list contains the element.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> boolean contains(List<T> list, T elem) {

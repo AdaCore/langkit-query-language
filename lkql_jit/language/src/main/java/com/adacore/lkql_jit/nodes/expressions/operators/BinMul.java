@@ -36,7 +36,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the multiplication operation in the LKQL language
+ * This node represents the multiplication operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,11 +45,11 @@ public abstract class BinMul extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a binary multiplication node
+     * Create a binary multiplication node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinMul(
         SourceLocation location,
@@ -62,11 +62,11 @@ public abstract class BinMul extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Multiply two longs
+     * Multiply two longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The multiplication of two longs
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The multiplication of two longs.
      */
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long mulLongs(long left, long right) {
@@ -74,11 +74,11 @@ public abstract class BinMul extends BinOp {
     }
 
     /**
-     * Multiply two big integers
+     * Multiply two big integers.
      *
-     * @param left  The left big integer value
-     * @param right The right big integer value
-     * @return The multiplication of two big integers
+     * @param left  The left big integer value.
+     * @param right The right big integer value.
+     * @return The multiplication of two big integers.
      */
     @Specialization(replaces = "mulLongs")
     protected BigInteger mulBigIntegers(BigInteger left, BigInteger right) {
@@ -86,10 +86,10 @@ public abstract class BinMul extends BinOp {
     }
 
     /**
-     * Raise a type exception if there is a non-integer operand
+     * Raise a type exception if there is a non-integer operand.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void notNumbers(Object left, Object right) {

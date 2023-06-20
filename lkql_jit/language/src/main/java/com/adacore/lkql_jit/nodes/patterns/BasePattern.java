@@ -32,16 +32,16 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the base for all patterns in the LKQL language
+ * This node represents the base for all patterns in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
 public abstract class BasePattern extends LKQLNode {
 
     /**
-     * Create a new base pattern node
+     * Create a new base pattern node.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     protected BasePattern(
         SourceLocation location
@@ -58,20 +58,20 @@ public abstract class BasePattern extends LKQLNode {
     }
 
     /**
-     * Execute the pattern and get if the node fulfills it
+     * Execute the pattern and get if the node fulfills it.
      *
-     * @param frame The frame to execute the pattern in
-     * @param node  The node to verify
-     * @return True of the node verify the pattern, false else
+     * @param frame The frame to execute the pattern in.
+     * @param node  The node to verify.
+     * @return True of the node verify the pattern, false else.
      */
     public abstract boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node);
 
     /**
-     * Execute the pattern on a string
+     * Execute the pattern on a string.
      *
-     * @param frame The frame to execute in
-     * @param str   The string to verify
-     * @return If the string fulfills the pattern
+     * @param frame The frame to execute in.
+     * @param str   The string to verify.
+     * @return True the string fulfills the pattern, false else.
      */
     public boolean executeString(VirtualFrame frame, String str) {
         throw LKQLRuntimeException.wrongType(

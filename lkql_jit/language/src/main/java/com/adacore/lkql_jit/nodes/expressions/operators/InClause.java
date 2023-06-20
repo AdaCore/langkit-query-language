@@ -33,7 +33,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 
 /**
- * This node represents the "in" clause in the LKQL language
+ * This node represents the "in" clause in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -42,11 +42,11 @@ public abstract class InClause extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create an "in" clause node
+     * Create an "in" clause node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected InClause(
         SourceLocation location,
@@ -59,11 +59,11 @@ public abstract class InClause extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Execute the "in" clause, return true if the element is in the collection
+     * Execute the "in" clause, return true if the element is in the collection.
      *
-     * @param elem     The element to search in the list
-     * @param iterable The list to search in
-     * @return If the iterable value contains the element
+     * @param elem     The element to search in the list.
+     * @param iterable The list to search in.
+     * @return True the iterable value contains the element, false else.
      */
     @Specialization
     protected boolean inIterable(Object elem, Iterable iterable) {
@@ -71,10 +71,10 @@ public abstract class InClause extends BinOp {
     }
 
     /**
-     * Fallback method when user try to do an "in" clause on a non-iterable value
+     * Fallback method when user try to do an "in" clause on a non-iterable value.
      *
-     * @param elem        The element to search in the list
-     * @param notIterable The non-iterable value
+     * @param elem        The element to search in the list.
+     * @param notIterable The non-iterable value.
      */
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {

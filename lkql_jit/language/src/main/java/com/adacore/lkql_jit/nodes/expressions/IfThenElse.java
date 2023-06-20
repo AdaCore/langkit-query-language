@@ -31,7 +31,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This node represents the conditional branching expression in the LKQL language
+ * This node represents the conditional branching expression in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,21 +40,21 @@ public final class IfThenElse extends Expr {
     // ----- Children -----
 
     /**
-     * The condition of the branching
+     * The condition of the branching.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr condition;
 
     /**
-     * The consequence of the branching
+     * The consequence of the branching.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr consequence;
 
     /**
-     * The alternative of the branching
+     * The alternative of the branching.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -63,12 +63,12 @@ public final class IfThenElse extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new if then else node
+     * Create a new if then else node.
      *
-     * @param location    The location of the node in the source
-     * @param condition   The condition expression
-     * @param consequence The consequence expression
-     * @param alternative The alternative expression
+     * @param location    The location of the node in the source.
+     * @param condition   The condition expression.
+     * @param consequence The consequence expression.
+     * @param alternative The alternative expression.
      */
     public IfThenElse(
         SourceLocation location,

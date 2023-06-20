@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 
 
 /**
- * This class contains all built-in methods for the property reference type in the LKQL language
+ * This class contains all built-in methods for the property reference type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -36,23 +36,23 @@ public final class PropertyRefMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static PropertyRefMethods instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private PropertyRefMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the property reference methods.
      */
     public static PropertyRefMethods getInstance() {
         if (instance == null) {

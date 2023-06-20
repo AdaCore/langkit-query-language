@@ -39,7 +39,7 @@ import java.util.List;
 
 
 /**
- * This node is the base of all chained pattern links in LKQL language
+ * This node is the base of all chained pattern links in LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -48,7 +48,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
     // ----- Children -----
 
     /**
-     * The pattern to match in the link
+     * The pattern to match in the link.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -57,10 +57,10 @@ public abstract class ChainedPatternLink extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new chained pattern link
+     * Create a new chained pattern link.
      *
-     * @param location The location of the node in the source
-     * @param pattern  The pattern to match
+     * @param location The location of the node in the source.
+     * @param pattern  The pattern to match.
      */
     protected ChainedPatternLink(
         SourceLocation location,
@@ -81,22 +81,22 @@ public abstract class ChainedPatternLink extends LKQLNode {
     }
 
     /**
-     * Execute the link with a node and return the list of the matched node
+     * Execute the link with a node and return the list of the matched node.
      *
-     * @param frame The frame to execute the link in
-     * @param node  The input node in the chain
-     * @return The result of the chain link execution
+     * @param frame The frame to execute the link in.
+     * @param node  The input node in the chain.
+     * @return The result of the chain link execution.
      */
     public abstract Libadalang.AdaNode[] executeLink(VirtualFrame frame, Libadalang.AdaNode node);
 
     // ----- Class methods -----
 
     /**
-     * Do the pattern filtering logic on the given result object
+     * Do the pattern filtering logic on the given result object.
      *
-     * @param frame        The frame to execute the pattern in
-     * @param resultObject The result object to filter and add in the result
-     * @return The result of the filtering
+     * @param frame        The frame to execute the pattern in.
+     * @param resultObject The result object to filter and add in the result.
+     * @return The result of the filtering.
      */
     protected Libadalang.AdaNode[] doPatternFiltering(VirtualFrame frame, Object resultObject) {
         // Prepare the result list

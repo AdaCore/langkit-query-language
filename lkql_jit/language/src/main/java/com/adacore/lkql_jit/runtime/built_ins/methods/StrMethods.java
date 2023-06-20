@@ -40,7 +40,7 @@ import java.math.BigInteger;
 
 
 /**
- * This class contains all built-in methods for the string type in the LKQL language
+ * This class contains all built-in methods for the string type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -49,23 +49,23 @@ public final class StrMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static StrMethods instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Create the methods for the string type
+     * Create the methods for the string type.
      */
     private StrMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the string methods.
      */
     public static StrMethods getInstance() {
         if (instance == null) {
@@ -184,7 +184,7 @@ public final class StrMethods extends CommonMethods {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "to_lower_case" method
+     * Expression of the "to_lower_case" method.
      */
     public final static class ToLowerCaseExpr extends BuiltInExpr {
         @Override
@@ -196,7 +196,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "is_lower_case" method
+     * Expression of the "is_lower_case" method.
      */
     public final static class IsLowerCaseExpr extends BuiltInExpr {
         @Override
@@ -207,7 +207,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "to_upper_case" method
+     * Expression of the "to_upper_case" method.
      */
     public final static class ToUpperCaseExpr extends BuiltInExpr {
         @Override
@@ -219,7 +219,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "is_upper_case" method
+     * Expression of the "is_upper_case" method.
      */
     public final static class IsUpperCaseExpr extends BuiltInExpr {
         @Override
@@ -230,7 +230,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "is_mixed_case" method
+     * Expression of the "is_mixed_case" method.
      */
     public final static class IsMixedCaseExpr extends BuiltInExpr {
         @Override
@@ -266,7 +266,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "length" method
+     * Expression of the "length" method.
      */
     public final static class LengthExpr extends BuiltInExpr {
         @Override
@@ -280,7 +280,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "substring" method
+     * Expression of the "substring" method.
      */
     public final static class SubstringExpr extends BuiltInExpr {
         @Override
@@ -330,7 +330,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "split" method
+     * Expression of the "split" method.
      */
     public final static class SplitExpr extends BuiltInExpr {
         @Override
@@ -360,7 +360,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "contains" method
+     * Expression of the "contains" method.
      */
     public final static class ContainsExpr extends BuiltInExpr {
         @Override
@@ -397,7 +397,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "find" method
+     * Expression of the "find" method.
      */
     public final static class FindExpr extends BuiltInExpr {
         @Override
@@ -434,7 +434,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "starts_with" method
+     * Expression of the "starts_with" method.
      */
     public final static class StartsWithExpr extends BuiltInExpr {
         @Override
@@ -461,7 +461,7 @@ public final class StrMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "ends_with" method
+     * Expression of the "ends_with" method.
      */
     public final static class EndsWithExpr extends BuiltInExpr {
         @Override

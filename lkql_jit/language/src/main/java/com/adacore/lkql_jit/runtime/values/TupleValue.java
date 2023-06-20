@@ -33,7 +33,7 @@ import java.util.Objects;
 
 
 /**
- * This class represents the tuple values in the LKQL language
+ * This class represents the tuple values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -42,16 +42,16 @@ public final class TupleValue implements Indexable {
     // ----- Attributes -----
 
     /**
-     * The values contained in the tuple
+     * The values contained in the tuple.
      */
     private final Object[] content;
 
     // ----- Constructors -----
 
     /**
-     * Create a new tuple value
+     * Create a new tuple value.
      *
-     * @param content The content of the tuple
+     * @param content The content of the tuple.
      */
     public TupleValue(
         Object[] content

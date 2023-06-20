@@ -34,7 +34,7 @@ import java.util.Objects;
 
 
 /**
- * This abstract class represents the base of all lazy collection in the LKQL JIT
+ * This abstract class represents the base of all lazy collection in the LKQL JIT.
  *
  * @author Hugo GUERRIER
  */
@@ -43,16 +43,16 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
     // ----- Attributes -----
 
     /**
-     * The cache of the lazy collection
+     * The cache of the lazy collection.
      */
     protected final List<Object> cache;
 
     // ----- Constructors -----
 
     /**
-     * Create a new lazy collection base
+     * Create a new lazy collection base.
      *
-     * @param initialCacheSize The initial cache size
+     * @param initialCacheSize The initial cache size.
      */
     protected LazyCollection(
         int initialCacheSize
@@ -63,10 +63,10 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
     // ----- Class methods -----
 
     /**
-     * Initialize the cache to the given index
-     * If the index is -1 this method should compute all the cache elements
+     * Initialize the cache to the given index.
+     * If the index is -1 this method should compute all the cache elements.
      *
-     * @param index The index to index the cache to
+     * @param index The index to index the cache to.
      */
     protected abstract void initCache(int index);
 
@@ -199,28 +199,28 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
     // ----- Inner classes -----
 
     /**
-     * This class represents an iterator for a lazy collection
+     * This class represents an iterator for a lazy collection.
      */
     public static class LazyCollectionIterator implements Iterator {
 
         // ----- Attributes -----
 
         /**
-         * The lazy collection to iterate on
+         * The lazy collection to iterate on.
          */
         private final LazyCollection lazyCollection;
 
         /**
-         * The pointer for the iterator
+         * The pointer for the iterator.
          */
         private int pointer;
 
         // ----- Constructors -----
 
         /**
-         * Create the lazy collection iterator with the collection to iterate on
+         * Create the lazy collection iterator with the collection to iterate on.
          *
-         * @param lazyCollection The lazy collection
+         * @param lazyCollection The lazy collection.
          */
         public LazyCollectionIterator(
             LazyCollection lazyCollection

@@ -27,7 +27,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This exception represents an invalid index access in LKQL
+ * This exception represents an invalid index access in LKQL.
  *
  * @author Hugo GUERRIER
  */

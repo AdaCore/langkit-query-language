@@ -9,7 +9,8 @@ Dependencies
 * [GraalVM](https://www.graalvm.org/) : The high performance JVM
 * [Maven](https://maven.apache.org/) : Java project manager
 * [Langkit](https://github.com/AdaCore/langkit) : The language front-end creation framework
-* [Libadalang](https://github.com/AdaCore/libadalang) and [Liblkqllang](https://github.com/AdaCore/langkit-query-language) and their Java bindings
+* [Libadalang](https://github.com/AdaCore/libadalang)
+  and [Liblkqllang](https://github.com/AdaCore/langkit-query-language) and their Java bindings
 
 How to build and run
 --------------------
@@ -18,9 +19,11 @@ First, you need to ensure that the `mvn` command is accessible and fairly recent
 
 Then, make sure you have an accessible Python3 installation. Python 3.9 or later.
 
-You also need to install GraalVM's `native-image` utility, which can be done running `gu install native-image` (where `gu` is in the `bin` directory of the GraalVM installation).
+You also need to install GraalVM's `native-image` utility, which can be done running `gu install native-image` (
+where `gu` is in the `bin` directory of the GraalVM installation).
 
-Also make sure that your GraalVM installation is for Java 17, as Java 19 is not supported for now. for information, the tested version of GraalVM is graalvm-ce-java17-22.3.1.
+Also make sure that your GraalVM installation is for Java 17, as Java 19 is not supported for now. for information, the
+tested version of GraalVM is graalvm-ce-java17-22.3.1.
 
 1) Install Langkit and make sure it is usable
 
@@ -28,9 +31,12 @@ Also make sure that your GraalVM installation is for Java 17, as Java 19 is not 
 $[langkit]> ./manage.py make
 $[langkit]> eval `./manage.py setenv`
 ```
-If you get a Python error about the langkit library, add the langkit directory to your `PYTHONPATH` environment variable.
 
-*Note: If for some reason you are not running `./manage.py setenv`, make sure that the `sigsegv_handler` library is reachable from your `LD_LIBRARY_PATH`.*
+If you get a Python error about the langkit library, add the langkit directory to your `PYTHONPATH` environment
+variable.
+
+*Note: If for some reason you are not running `./manage.py setenv`, make sure that the `sigsegv_handler` library is
+reachable from your `LD_LIBRARY_PATH`.*
 
 2) Build and install Libadalang
 
@@ -60,8 +66,8 @@ $[langkit-query-language/lkql/build/java]> mvn install
 
 4) Export the needed environment variables :
 
-  * `JAVA_HOME` should points to your local GraalVM installation
-  * `GRAAL_HOME` should also points to your GraalVM installation
+* `JAVA_HOME` should points to your local GraalVM installation
+* `GRAAL_HOME` should also points to your GraalVM installation
 
 5) Compile and run LKQL_JIT
 
@@ -69,7 +75,8 @@ $[langkit-query-language/lkql/build/java]> mvn install
 $[langkit-query-language/lkql_jit]> mvn clean install
 ```
 
-You can now directly run the checker using the `lkql_jit_checker` bash script that has been installed in the `languages/lkql/bin` directory of your GraalVM installation (Linux only for now).
+You can now directly run the checker using the `lkql_jit_checker` bash script that has been installed in
+the `languages/lkql/bin` directory of your GraalVM installation (Linux only for now).
 
 If you want to build the checker driver as a native image, you can use the `native-checker` profile
 
@@ -79,7 +86,8 @@ $[langkit-query-language/lkql_jit]> mvn clean install -P native-checker
 
 Other supported profiles are `native-launcher` and `native-all` (to build `native-checker` and `native-launcher`).*
 
-Native executables are in the `langkit-query-language/lkql_jit/native/bin` directory and installed in your GraalVM guest languages folder
+Native executables are in the `langkit-query-language/lkql_jit/native/bin` directory and installed in your GraalVM guest
+languages folder
 (`$GRAAL_HOME/languages/lkql/bin`).
 
 Debugging LKQL JIT
@@ -91,7 +99,8 @@ To debug LKQL_JIT native-image build you can use the `debug` maven profile.
 $[langkit-query-language/lkql_jit]> mvn clean install -P native-checker,debug
 ```
 
-If you need to debug or profile LKQL_JIT native-image binaries there is the `dev` profile which enable support for tools like
+If you need to debug or profile LKQL_JIT native-image binaries there is the `dev` profile which enable support for tools
+like
 `valgrind`, `gdb` or `perf` on the produced binaries.
 
 ```sh

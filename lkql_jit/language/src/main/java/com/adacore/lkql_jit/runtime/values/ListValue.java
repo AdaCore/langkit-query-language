@@ -46,16 +46,16 @@ public final class ListValue implements Iterable, Indexable, Truthy {
     // ----- Attributes -----
 
     /**
-     * The content of the list
+     * The content of the list.
      */
     private final Object[] content;
 
     // ----- Constructors -----
 
     /**
-     * Create a new list value
+     * Create a new list value.
      *
-     * @param content The list content
+     * @param content The list content.
      */
     public ListValue(
         Object[] content
@@ -165,28 +165,28 @@ public final class ListValue implements Iterable, Indexable, Truthy {
     // ----- Inner classes -----
 
     /**
-     * This class represents an iterator for a list value
+     * This class represents an iterator for a list value.
      */
     public static final class ListValueIterator implements Iterator {
 
         // ----- Attributes -----
 
         /**
-         * The list to iterate on
+         * The list to iterate on.
          */
         private final ListValue list;
 
         /**
-         * The pointer to the next value to return
+         * The pointer to the next value to return.
          */
         private int pointer;
 
         // ----- Constructors -----
 
         /**
-         * Create a new iterator on the list value
+         * Create a new iterator on the list value.
          *
-         * @param list The list to iterate on
+         * @param list The list to iterate on.
          */
         public ListValueIterator(
             ListValue list

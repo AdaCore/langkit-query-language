@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a list of arguments in a function call
+ * This node represents a list of arguments in a function call.
  *
  * @author Hugo GUERRIER
  */
@@ -40,19 +40,18 @@ public final class ArgList extends LKQLNode {
     // ----- Children -----
 
     /**
-     * The arguments in the list
+     * The arguments in the list.
      */
     @Children
-    @SuppressWarnings("FieldMayBeFinal")
-    private Arg[] args;
+    private final Arg[] args;
 
     // ----- Constructors -----
 
     /**
-     * Create a new argument list with its arguments
+     * Create a new argument list with its arguments.
      *
-     * @param location The location of the argument list in the source
-     * @param args     The arguments in the list
+     * @param location The location of the argument list in the source.
+     * @param args     The arguments in the list.
      */
     public ArgList(
         SourceLocation location,
@@ -79,10 +78,10 @@ public final class ArgList extends LKQLNode {
     }
 
     /**
-     * Execute the argument list according to its order
+     * Execute the argument list according to its order.
      *
-     * @param frame The frame to execute the arguments in
-     * @return The value of the arguments
+     * @param frame The frame to execute the arguments in.
+     * @return The value of the arguments.
      */
     public Object[] executeArgList(VirtualFrame frame) {
         Object[] res = new Object[this.args.length];
@@ -93,23 +92,23 @@ public final class ArgList extends LKQLNode {
     }
 
     /**
-     * Execute the argument list and order the results according to the parameter names
+     * Execute the argument list and order the results according to the parameter names.
      *
-     * @param frame      The frame to execute the arguments in
-     * @param paramNames The ordered names of the parameters
-     * @return The array with the argument values
+     * @param frame      The frame to execute the arguments in.
+     * @param paramNames The ordered names of the parameters.
+     * @return The array with the argument values.
      */
     public Object[] executeArgList(VirtualFrame frame, String[] paramNames) {
         return this.executeArgList(frame, paramNames, 0);
     }
 
     /**
-     * Execute the argument list and get the array of evaluated argument
+     * Execute the argument list and get the array of evaluated argument.
      *
-     * @param frame      The frame to execute the arguments in
-     * @param paramNames The names of the parameters
-     * @param offset     The offset of the first argument
-     * @return The array with the ordered and offset argument values
+     * @param frame      The frame to execute the arguments in.
+     * @param paramNames The names of the parameters.
+     * @param offset     The offset of the first argument.
+     * @return The array with the ordered and offset argument values.
      */
     public Object[] executeArgList(VirtualFrame frame, String[] paramNames, int offset) {
         // Verify the arity

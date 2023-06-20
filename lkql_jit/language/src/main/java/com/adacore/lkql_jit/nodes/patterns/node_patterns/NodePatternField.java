@@ -33,7 +33,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a pattern detail on a field in the LKQL language
+ * This node represents a pattern detail on a field in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -42,14 +42,14 @@ public abstract class NodePatternField extends NodePatternDetail {
     // ----- Attributes -----
 
     /**
-     * The name of the field to get
+     * The name of the field to get.
      */
     protected final String fieldName;
 
     // ----- Children -----
 
     /**
-     * The expected value for the field
+     * The expected value for the field.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -58,11 +58,11 @@ public abstract class NodePatternField extends NodePatternDetail {
     // ----- Constructors -----
 
     /**
-     * Create a new node pattern field detail node
+     * Create a new node pattern field detail node.
      *
-     * @param location  The location of the node in the source
-     * @param fieldName The name of the field to get
-     * @param expected  The expected value for the field
+     * @param location  The location of the node in the source.
+     * @param fieldName The name of the field to get.
+     * @param expected  The expected value for the field.
      */
     protected NodePatternField(
         SourceLocation location,
@@ -77,12 +77,12 @@ public abstract class NodePatternField extends NodePatternDetail {
     // ----- Execution methods -----
 
     /**
-     * Execute the field detail with the cached path
+     * Execute the field detail with the cached path.
      *
-     * @param frame       The frame to execute in
-     * @param node        The node get the field from
-     * @param propertyRef The cached property reference
-     * @return True if the detail is valid, false else
+     * @param frame       The frame to execute in.
+     * @param node        The node get the field from.
+     * @param propertyRef The cached property reference.
+     * @return True if the detail is valid, false else.
      */
     @Specialization(guards = {
         "node == propertyRef.getNode()",
@@ -101,11 +101,11 @@ public abstract class NodePatternField extends NodePatternDetail {
     }
 
     /**
-     * Execute the field detail with the un-cached path
+     * Execute the field detail with the un-cached path.
      *
-     * @param frame The frame to execute in
-     * @param node  The node get the field from
-     * @return True if the detail is valid, false else
+     * @param frame The frame to execute in.
+     * @param node  The node get the field from.
+     * @return True if the detail is valid, false else.
      */
     @Specialization(replaces = "fieldCached")
     protected boolean fieldUncached(

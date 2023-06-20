@@ -34,7 +34,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "base_name" built-in function in the LKQL language
+ * This class represents the "base_name" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -43,33 +43,33 @@ public final class BaseNameFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "base_name" function
+     * The only instance of the "base_name" function.
      */
     private static BaseNameFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "base_name";
 
     /**
-     * The expression that represents the "base_name" execution
+     * The expression that represents the "base_name" execution.
      */
     private final BaseNameExpr baseNameExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private BaseNameFunction() {
         this.baseNameExpr = new BaseNameExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static BaseNameFunction getInstance() {
         if (instance == null) {
@@ -105,7 +105,7 @@ public final class BaseNameFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "base_name" function
+     * Expression of the "base_name" function.
      */
     public final static class BaseNameExpr extends BuiltInExpr {
         @Override

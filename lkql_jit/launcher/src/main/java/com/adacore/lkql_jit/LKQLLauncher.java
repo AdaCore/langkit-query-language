@@ -38,7 +38,7 @@ import java.util.Map;
 
 
 /**
- * This class is the LKQL launcher, this will handle all execution request coming from the command line
+ * This class is the LKQL launcher, this will handle all execution request coming from the command line.
  *
  * @author Hugo GUERRIER
  * <p>
@@ -49,7 +49,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     // ----- Macros and enums -----
 
     /**
-     * Represents the status of an argument
+     * Represents the status of an argument.
      */
     protected enum ArgumentStatus {
         Consumed,
@@ -59,55 +59,55 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * The identifier of the LKQL language
+     * The identifier of the LKQL language.
      */
     private static final String ID = "lkql";
 
     // ----- Launcher options -----
 
     /**
-     * The charset to decode the LKQL sources
+     * The charset to decode the LKQL sources.
      */
     private String charset = null;
 
     /**
-     * The project file to analyse
+     * The project file to analyse.
      */
     private String projectFile = null;
 
     /**
-     * Source files to analyse
+     * Source files to analyse.
      */
     private final List<String> files = new ArrayList<>();
 
     /**
-     * If the project analysis should be recursive
+     * If the project analysis should be recursive.
      */
     private boolean recursive = false;
 
     /**
-     * Number of parallel jobs
+     * Number of parallel jobs.
      */
     private int jobs = 0;
 
     /**
-     * The LKQL script to evaluate
+     * The LKQL script to evaluate.
      */
     private String script = null;
 
     // ----- JIT options -----
 
     /**
-     * If the verbose mode should be activated
+     * If the verbose mode should be activated.
      */
     private boolean verbose = false;
 
     // ----- Launcher methods -----
 
     /**
-     * Display the help message for the LKQL language
+     * Display the help message for the LKQL language.
      *
-     * @param maxCategory The option category
+     * @param maxCategory The option category.
      */
     @Override
     protected void printHelp(OptionCategory maxCategory) {
@@ -135,9 +135,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Simply return the language id
+     * Simply return the language id.
      *
-     * @return The language id
+     * @return The language id.
      */
     @Override
     protected String getLanguageId() {
@@ -145,18 +145,18 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Start the LKQL launcher
+     * Start the LKQL launcher.
      *
-     * @param args The program args
+     * @param args The program args.
      */
     public static void main(String[] args) {
         new LKQLLauncher().launch(args);
     }
 
     /**
-     * The entry point of the launcher with the context builder
+     * The entry point of the launcher with the context builder.
      *
-     * @param contextBuilder The context builder
+     * @param contextBuilder The context builder.
      */
     @Override
     protected void launch(Context.Builder contextBuilder) {
@@ -167,10 +167,10 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Execute the LKQL script and return the exit code
+     * Execute the LKQL script and return the exit code.
      *
-     * @param contextBuilder The context builder
-     * @return The exit code of the script
+     * @param contextBuilder The context builder.
+     * @return The exit code of the script.
      */
     protected int executeScript(Context.Builder contextBuilder) {
         // Set the builder common options
@@ -197,9 +197,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.charset", this.charset);
         }
 
-        // Create the context and run it with the script
+        // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            Source source = Source.newBuilder("lkql", new File(this.script))
+            final Source source = Source.newBuilder("lkql", new File(this.script))
                 .build();
             final Value executable = context.parse(source);
             executable.executeVoid(false);
@@ -220,11 +220,11 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     // ----- Argument parsing methods -----
 
     /**
-     * Parse the command line arguments and return the unrecognized options to parse it with the default parser
+     * Parse the command line arguments and return the unrecognized options to parse it with the default parser.
      *
-     * @param arguments       The arguments to parse
-     * @param polyglotOptions The polyglot options
-     * @return The unrecognized options
+     * @param arguments       The arguments to parse.
+     * @param polyglotOptions The polyglot options.
+     * @return The unrecognized options.
      */
     @Override
     protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
@@ -293,10 +293,10 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Expand a short flag into a long flag
+     * Expand a short flag into a long flag.
      *
-     * @param shortFlag The short flag
-     * @return The long flag value
+     * @param shortFlag The short flag.
+     * @return The long flag value.
      */
     protected String expandShortFlag(String shortFlag) {
         return switch (shortFlag) {
@@ -311,10 +311,10 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Process the flag without argument
+     * Process the flag without argument.
      *
-     * @param flag The flag to process
-     * @return The status of the argument parsing
+     * @param flag The flag to process.
+     * @return The status of the argument parsing.
      */
     protected ArgumentStatus processFlag(String flag) {
         switch (flag) {
@@ -336,11 +336,11 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Process a flag with its argument
+     * Process a flag with its argument.
      *
-     * @param flag  The flag to process
-     * @param value The argument value
-     * @return If the flag was consumed, unhandled or wrong
+     * @param flag  The flag to process.
+     * @param value The argument value.
+     * @return If the flag was consumed, unhandled or wrong.
      */
     protected ArgumentStatus processFlag(String flag, String value) {
         switch (flag) {
@@ -388,9 +388,9 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     }
 
     /**
-     * Validate the state of the launcher after argument parsing
+     * Validate the state of the launcher after argument parsing.
      *
-     * @param polyglotOptions The polyglot options
+     * @param polyglotOptions The polyglot options.
      */
     @Override
     protected void validateArguments(Map<String, String> polyglotOptions) {

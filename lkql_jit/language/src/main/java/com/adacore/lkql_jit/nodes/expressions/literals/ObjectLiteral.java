@@ -31,7 +31,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 
 /**
- * This node represents the literal node for an LKQL object
+ * This node represents the literal node for an LKQL object.
  *
  * @author Hugo GUERRIER
  */

@@ -28,8 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This class represents an identifier in the LKQL language
- * An identifier is a text with a location
+ * This class represents an identifier in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,22 +37,22 @@ public final class Identifier implements Locatable {
     // ----- Attributes -----
 
     /**
-     * The location of the identifier in the source
+     * The location of the identifier in the source.
      */
     private final SourceLocation location;
 
     /**
-     * The name of the identifier
+     * The name of the identifier.
      */
     private final String name;
 
     // ----- Constructors -----
 
     /**
-     * Create a new identifier with the parameters
+     * Create a new identifier with the parameters.
      *
-     * @param location The location of the identifier in the source
-     * @param name     The name of the identifier
+     * @param location The location of the identifier in the source.
+     * @param name     The name of the identifier.
      */
     public Identifier(
         SourceLocation location,

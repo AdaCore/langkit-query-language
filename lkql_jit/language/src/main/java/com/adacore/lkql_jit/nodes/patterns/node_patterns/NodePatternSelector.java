@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a pattern detail on a selector in the LKQL language
+ * This node represents a pattern detail on a selector in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,14 +40,14 @@ public final class NodePatternSelector extends NodePatternDetail {
     // ----- Children ------
 
     /**
-     * The selector call for the detail
+     * The selector call for the detail.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private SelectorCall call;
 
     /**
-     * The pattern to check from the selector
+     * The pattern to check from the selector.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -56,11 +56,11 @@ public final class NodePatternSelector extends NodePatternDetail {
     // ----- Constructors -----
 
     /**
-     * Create a new node pattern selector detail node
+     * Create a new node pattern selector detail node.
      *
-     * @param location The location of the node in the source
-     * @param call     The selector call
-     * @param pattern  The pattern to check the selector
+     * @param location The location of the node in the source.
+     * @param call     The selector call.
+     * @param pattern  The pattern to check the selector.
      */
     public NodePatternSelector(
         SourceLocation location,

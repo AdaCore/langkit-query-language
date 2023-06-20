@@ -33,7 +33,7 @@ import java.util.Arrays;
 
 
 /**
- * This root node represents a function in the LKQL function
+ * This root node represents a function in the LKQL function.
  *
  * @author Hugo GUERRIER
  */
@@ -42,7 +42,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     // ----- Attributes -----
 
     /**
-     * If the function is memoized
+     * Whether the function is memoized.
      */
     @CompilerDirectives.CompilationFinal
     private boolean isMemoized;
@@ -50,7 +50,7 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     // ----- Children -----
 
     /**
-     * The body of the function
+     * The body of the function.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -59,12 +59,12 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     // ----- Constructors -----
 
     /**
-     * Create a new function root node
+     * Create a new function root node.
      *
-     * @param language        The language instance to link the root node with
-     * @param frameDescriptor The frame descriptor for the root node
-     * @param isMemoized      If the function is memoized
-     * @param body            The expression of the function
+     * @param language        The language instance to link the root node with.
+     * @param frameDescriptor The frame descriptor for the root node.
+     * @param isMemoized      Whether the function is memoized.
+     * @param body            The expression of the function.
      */
     public FunctionRootNode(
         TruffleLanguage<?> language,
@@ -121,9 +121,9 @@ public final class FunctionRootNode extends MemoizedRootNode<FunctionRootNode.Ar
     // ----- Inner classes -----
 
     /**
-     * Wraps the arguments of a function in a class for the memoization
+     * Wraps the arguments of a function in a class for the memoization.
      *
-     * @param args The arguments
+     * @param args The arguments.
      */
     protected record Arguments(
         Object[] args

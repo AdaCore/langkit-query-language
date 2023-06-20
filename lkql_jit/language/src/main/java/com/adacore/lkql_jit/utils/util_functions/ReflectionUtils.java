@@ -43,19 +43,19 @@ import java.util.List;
 
 
 /**
- * Util functions to perform reflection operations and facilitate the libadalang usage
+ * Util functions to perform reflection operations and facilitate the libadalang usage.
  *
  * @author Hugo GUERRIER
  */
 public final class ReflectionUtils {
 
     /**
-     * Refine the LKQL argument in a langkit argument
+     * Refine the LKQL argument in a langkit argument.
      *
-     * @param source   The source argument to refine
-     * @param type     The type that the langkit library awaits
-     * @param argument The argument node (for debug purpose)
-     * @return The refined argument
+     * @param source   The source argument to refine.
+     * @param type     The type that the langkit library awaits.
+     * @param argument The argument node (for debug purpose).
+     * @return The refined argument.
      */
     public static Object refineArgument(Object source, Class<?> type, Arg argument) {
         // Get the result from the type helper
@@ -112,14 +112,14 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Call a property on a node and get the result
+     * Call a property on a node and get the result.
      *
-     * @param node             The node to call on
+     * @param node             The node to call on.
      * @param fieldDescription The description of the field to execute.
-     * @param caller           The caller position
-     * @param argList          The argument list
-     * @param arguments        The arguments for the call
-     * @return The result of the property call
+     * @param caller           The caller position.
+     * @param argList          The argument list.
+     * @param arguments        The arguments for the call.
+     * @return The result of the property call.
      */
     @CompilerDirectives.TruffleBoundary
     public static Object callProperty(
@@ -196,10 +196,10 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Get the class simple name of an object
+     * Get the class simple name of an object.
      *
-     * @param obj The object to get the simple name from
-     * @return The simple name of the object class
+     * @param obj The object to get the simple name from.
+     * @return The simple name of the object class.
      */
     @CompilerDirectives.TruffleBoundary
     public static String getClassSimpleName(Object obj) {
@@ -207,11 +207,11 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Get all declared fields for a given class including the inherited ones
+     * Get all declared fields for a given class including the inherited ones.
      *
-     * @param startClass      The class to get the field from
-     * @param exclusiveParent The class to gu up maximum
-     * @return An iterable on the class fields
+     * @param startClass      The class to get the field from.
+     * @param exclusiveParent The class to gu up maximum.
+     * @return An iterable on the class fields.
      */
     @CompilerDirectives.TruffleBoundary
     public static List<Field> getFieldsUpTo(Class<?> startClass, Class<?> exclusiveParent) {

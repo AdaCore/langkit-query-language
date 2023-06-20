@@ -86,7 +86,7 @@ public final class FunctionDeclaration extends Declaration {
      */
     public FunctionDeclaration(
         final SourceLocation location,
-        final DeclAnnotation annotation,
+        final Annotation annotation,
         final String name,
         final int slot,
         final FunExpr functionExpression

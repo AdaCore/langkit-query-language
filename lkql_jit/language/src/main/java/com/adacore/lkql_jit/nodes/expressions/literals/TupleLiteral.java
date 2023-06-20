@@ -30,7 +30,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a tuple literal declaration in the LKQL language
+ * This node represents a tuple literal declaration in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -39,25 +39,25 @@ public final class TupleLiteral extends Expr {
     // ----- Children -----
 
     /**
-     * The expressions contained in the tuple
+     * The expressions contained in the tuple.
      */
     @Children
-    private final Expr[] tupleExprs;
+    private final Expr[] exprs;
 
     // ----- Constructors -----
 
     /**
-     * Create a new tuple literal node
+     * Create a new tuple literal node.
      *
-     * @param location   The location of the node in the source
-     * @param tupleExprs The expressions that are inside the tuple
+     * @param location The location of the node in the source.
+     * @param exprs    The expressions that are inside the tuple.
      */
     public TupleLiteral(
         SourceLocation location,
-        Expr[] tupleExprs
+        Expr[] exprs
     ) {
         super(location);
-        this.tupleExprs = tupleExprs;
+        this.exprs = exprs;
     }
 
     // ----- Execute methods -----
@@ -76,9 +76,9 @@ public final class TupleLiteral extends Expr {
     @Override
     public TupleValue executeTuple(VirtualFrame frame) {
         // Evaluate the tuple values
-        Object[] values = new Object[this.tupleExprs.length];
-        for (int i = 0; i < this.tupleExprs.length; i++) {
-            values[i] = this.tupleExprs[i].executeGeneric(frame);
+        Object[] values = new Object[this.exprs.length];
+        for (int i = 0; i < this.exprs.length; i++) {
+            values[i] = this.exprs[i].executeGeneric(frame);
         }
 
         // Return the tuple value

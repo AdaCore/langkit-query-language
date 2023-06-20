@@ -21,50 +21,60 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
+package com.adacore.lkql_jit.nodes.declarations.selector;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a list of list comprehension association in the LKQL language
+ * This node represents an expression in the right part of a selector arm.
  *
  * @author Hugo GUERRIER
  */
-public final class ListCompAssocList extends LKQLNode {
+public final class SelectorExpr extends LKQLNode {
+
+    // ----- Attributes -----
+
+    /**
+     * The mode of the selector expression.
+     */
+    private final Mode mode;
 
     // ----- Children -----
 
     /**
-     * The comprehension associations
+     * The expression of the selector expression.
      */
-    @Children
-    private final ListCompAssoc[] compAssocs;
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private Expr expr;
 
     // ----- Constructors -----
 
     /**
-     * Create a new comprehension association list
+     * Create a new selector expression node.
      *
-     * @param location   The location of the node in the source
-     * @param compAssocs The comprehension associations
+     * @param location The location of the node in the source.
+     * @param mode     The mode of the expression.
+     * @param expr     The expression.
      */
-    public ListCompAssocList(
+    public SelectorExpr(
         SourceLocation location,
-        ListCompAssoc[] compAssocs
+        Mode mode,
+        Expr expr
     ) {
         super(location);
-        this.compAssocs = compAssocs;
+        this.mode = mode;
+        this.expr = expr;
     }
 
     // ----- Getters -----
 
-    public ListCompAssoc[] getCompAssocs() {
-        return compAssocs;
+    public Mode getMode() {
+        return this.mode;
     }
 
     // ----- Execution methods -----
@@ -74,35 +84,43 @@ public final class ListCompAssocList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
-    }
-
-    /**
-     * Get the collections to iterate on in the list comprehension
-     *
-     * @param frame The frame to execute the in
-     * @return The collection array
-     */
-    public Iterable[] executeCollections(VirtualFrame frame) {
-        // Prepare the result
-        Iterable[] res = new Iterable[this.compAssocs.length];
-
-        for (int i = 0; i < res.length; i++) {
-            res[i] = this.compAssocs[i].executeCollection(frame);
-        }
-
-        // Return the iterable list
-        return res;
+        return this.expr.executeGeneric(frame);
     }
 
     // ----- Override methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(indentLevel);
+        return this.nodeRepresentation(
+            indentLevel,
+            new String[]{"mode"},
+            new Object[]{this.mode}
+        );
+    }
+
+    // ----- Inner classes -----
+
+    /**
+     * This enum represents the mode of the selector expression.
+     */
+    public enum Mode {
+        /**
+         * Default mode, return the expression.
+         */
+        DEFAULT,
+
+        /**
+         * Recursive mode, return and recurse on the result.
+         */
+        REC,
+
+        /**
+         * Skip mode, recurse on the result but don't return it.
+         */
+        SKIP
     }
 
 }

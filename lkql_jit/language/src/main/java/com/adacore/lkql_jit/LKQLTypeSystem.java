@@ -37,7 +37,7 @@ import java.math.BigInteger;
 
 
 /**
- * This class represents the type system of LKQL that contains type casts and checks
+ * This class represents the type system of LKQL that contains type casts and checks.
  *
  * @author Hugo GUERRIER
  */
@@ -71,10 +71,10 @@ public abstract class LKQLTypeSystem {
     // ----- Unit value methods -----
 
     /**
-     * Check if a value is unit
+     * Check if a value is unit.
      *
-     * @param value The value to test
-     * @return True if the value is unit, false else
+     * @param value The value to test.
+     * @return True if the value is unit, false else.
      */
     @TypeCheck(UnitValue.class)
     public static boolean isUnit(Object value) {
@@ -82,10 +82,10 @@ public abstract class LKQLTypeSystem {
     }
 
     /**
-     * Cast a value to unit
+     * Cast a value to unit.
      *
-     * @param value The value to cast
-     * @return The unit value
+     * @param value The value to cast.
+     * @return The unit value.
      */
     @TypeCast(UnitValue.class)
     public static UnitValue asUnit(Object value) {
@@ -95,10 +95,10 @@ public abstract class LKQLTypeSystem {
     // ----- Nullish values -----
 
     /**
-     * Check if a value is nullish
+     * Check if a value is nullish.
      *
-     * @param value The value to check
-     * @return True if the value si nullish, false else
+     * @param value The value to check.
+     * @return True if the value si nullish, false else.
      */
     @TypeCheck(Nullish.class)
     public static boolean isNullish(Object value) {
@@ -108,10 +108,10 @@ public abstract class LKQLTypeSystem {
     // ----- Boolean value methods -----
 
     /**
-     * Check if a value can be interpreted as a boolean
+     * Check if a value can be interpreted as a boolean.
      *
-     * @param value The value to check
-     * @return True if the value can be a boolean, false else
+     * @param value The value to check.
+     * @return True if the value can be a boolean, false else.
      */
     @TypeCheck(boolean.class)
     public static boolean isBoolean(Object value) {
@@ -119,10 +119,10 @@ public abstract class LKQLTypeSystem {
     }
 
     /**
-     * Cast a generic value to a boolean
+     * Cast a generic value to a boolean.
      *
-     * @param value The value to case
-     * @return The boolean representation of the value
+     * @param value The value to case.
+     * @return The boolean representation of the value.
      */
     @TypeCast(boolean.class)
     public static boolean asBoolean(Object value) {
@@ -136,10 +136,10 @@ public abstract class LKQLTypeSystem {
     // ----- Integer value methods -----
 
     /**
-     * Cast a long value to a big integer value
+     * Cast a long value to a big integer value.
      *
-     * @param value The long value to cast
-     * @return The value in big integer
+     * @param value The long value to cast.
+     * @return The value in big integer.
      */
     @ImplicitCast
     @CompilerDirectives.TruffleBoundary
@@ -150,10 +150,10 @@ public abstract class LKQLTypeSystem {
     // ----- Node value methods -----
 
     /**
-     * Check is a value is an ada node
+     * Check is a value is an ada node.
      *
-     * @param nodeObject The object to check
-     * @return If the object is an ada node
+     * @param nodeObject The object to check.
+     * @return True if the object is an ada node, false else.
      */
     @TypeCheck(Libadalang.AdaNode.class)
     public static boolean isAdaNode(Object nodeObject) {
@@ -162,10 +162,10 @@ public abstract class LKQLTypeSystem {
     }
 
     /**
-     * Cast a generic value to an ada node
+     * Cast a generic value to an ada node.
      *
-     * @param nodeObject The node object
-     * @return The object cast to an ada node
+     * @param nodeObject The node object.
+     * @return The object cast to an ada node.
      */
     @TypeCast(Libadalang.AdaNode.class)
     public static Libadalang.AdaNode asAdaNode(Object nodeObject) {

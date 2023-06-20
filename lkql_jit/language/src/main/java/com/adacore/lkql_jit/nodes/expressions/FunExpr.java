@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.ParameterDecl;
+import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
@@ -38,7 +38,7 @@ import java.util.Arrays;
 
 
 /**
- * This node represents a function expression in the LKQL language
+ * This node represents a function expression in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -69,7 +69,7 @@ public final class FunExpr extends Expr {
     // ----- Children -----
 
     /**
-     * The body of the function
+     * The body of the function.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -78,7 +78,7 @@ public final class FunExpr extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new function expression node
+     * Create a new function expression node.
      *
      * @param location          The location of the node in the source.
      * @param frameDescriptor   The frame descriptor for the function root node.
@@ -90,7 +90,7 @@ public final class FunExpr extends Expr {
         final SourceLocation location,
         final FrameDescriptor frameDescriptor,
         final ClosureDescriptor closureDescriptor,
-        final ParameterDecl[] parameters,
+        final ParameterDeclaration[] parameters,
         final Expr body
     ) {
         super(location);
@@ -111,7 +111,7 @@ public final class FunExpr extends Expr {
     /**
      * Initialize the parameter fields
      */
-    private void initParams(ParameterDecl[] parameters) {
+    private void initParams(ParameterDeclaration[] parameters) {
         for (int i = 0; i < parameters.length; i++) {
             this.parameterNames[i] = parameters[i].getName();
             this.parameterValues[i] = parameters[i].getDefaultValue();

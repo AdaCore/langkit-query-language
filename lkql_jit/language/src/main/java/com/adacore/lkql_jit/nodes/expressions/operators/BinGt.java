@@ -35,7 +35,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the "grater than" operation in the LKQL language
+ * This node represents the "grater than" operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,11 +44,11 @@ public abstract class BinGt extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a "greater than" node
+     * Create a "greater than" node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinGt(
         SourceLocation location,
@@ -61,11 +61,11 @@ public abstract class BinGt extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Do the "greater than" comparison on longs
+     * Do the "greater than" comparison on longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The result of the comparison
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The result of the comparison.
      */
     @Specialization
     protected boolean gtLongs(long left, long right) {
@@ -73,11 +73,11 @@ public abstract class BinGt extends BinOp {
     }
 
     /**
-     * Do the "greater than" comparison on big integers
+     * Do the "greater than" comparison on big integers.
      *
-     * @param left  The left big integer value
-     * @param right The right big integer value
-     * @return The result of the comparison
+     * @param left  The left big integer value.
+     * @param right The right big integer value.
+     * @return The result of the comparison.
      */
     @Specialization
     protected boolean gtBigInteger(BigInteger left, BigInteger right) {
@@ -85,11 +85,11 @@ public abstract class BinGt extends BinOp {
     }
 
     /**
-     * Do the "greater than" comparison on strings
+     * Do the "greater than" comparison on strings.
      *
-     * @param left  The left string value
-     * @param right The right string value
-     * @return The result of the comparison
+     * @param left  The left string value.
+     * @param right The right string value.
+     * @return The result of the comparison.
      */
     @Specialization
     protected boolean gtString(String left, String right) {
@@ -97,10 +97,10 @@ public abstract class BinGt extends BinOp {
     }
 
     /**
-     * Do the "greater than" comparison on not comparable values
+     * Do the "greater than" comparison on not comparable values.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void notComparable(Object left, Object right) {

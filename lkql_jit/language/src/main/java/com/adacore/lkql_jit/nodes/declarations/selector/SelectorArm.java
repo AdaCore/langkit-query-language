@@ -21,7 +21,7 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.selectors;
+package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -39,7 +39,7 @@ import java.util.List;
 
 
 /**
- * This node represents an arm for a selector declaration in the LKQL language
+ * This node represents an arm for a selector declaration in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -48,14 +48,14 @@ public final class SelectorArm extends LKQLNode {
     // ----- Children -----
 
     /**
-     * The pattern to match
+     * The pattern to match.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
 
     /**
-     * The expression to return if the arm is executed
+     * The expression to return if the arm is executed.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -64,11 +64,11 @@ public final class SelectorArm extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new selector arm
+     * Create a new selector arm.
      *
-     * @param location The token location in the source
-     * @param pattern  The pattern for the arm
-     * @param expr     The expression to return
+     * @param location The token location in the source.
+     * @param pattern  The pattern for the arm.
+     * @param expr     The expression to return.
      */
     public SelectorArm(
         SourceLocation location,
@@ -101,11 +101,11 @@ public final class SelectorArm extends LKQLNode {
     }
 
     /**
-     * Execute the selector arm and return if the node match
+     * Execute the selector arm and return if the node match.
      *
-     * @param frame The frame to execute the arm in
-     * @param node  The node to match
-     * @return The result of the arm execution or null if the arm doesn't match
+     * @param frame The frame to execute the arm in.
+     * @param node  The node to match.
+     * @return The result of the arm execution or null if the arm doesn't match.
      */
     public SelectorRootNode.SelectorCallResult executeArm(VirtualFrame frame, DepthNode node) {
         if (this.pattern.executeNode(frame, node.getNode())) {

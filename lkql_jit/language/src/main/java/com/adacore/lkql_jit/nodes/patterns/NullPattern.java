@@ -30,7 +30,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the null pattern in the LKQL language
+ * This node represents the null pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -39,9 +39,9 @@ public final class NullPattern extends ValuePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new null pattern node
+     * Create a new null pattern node.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     public NullPattern(
         SourceLocation location

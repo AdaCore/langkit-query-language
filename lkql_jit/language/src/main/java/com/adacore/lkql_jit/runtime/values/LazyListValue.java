@@ -33,7 +33,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This class represents a lazy list in the LKQL language, this is the result of a list comprehension
+ * This class represents a lazy list in the LKQL language, this is the result of a list comprehension.
  *
  * @author Hugo GUERRIER
  */
@@ -69,7 +69,7 @@ public final class LazyListValue extends LazyCollection {
     // ----- Constructors -----
 
     /**
-     * Create a new lazy list value
+     * Create a new lazy list value.
      *
      * @param rootNode The root node for the execution.
      * @param closure  The closure for the root node execution.

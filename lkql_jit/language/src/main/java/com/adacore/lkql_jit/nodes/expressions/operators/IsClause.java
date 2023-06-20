@@ -37,7 +37,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the is clause in the LKQL language (i.e. node is AdaNode)
+ * This node represents the is clause in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -47,14 +47,14 @@ public abstract class IsClause extends Expr {
     // ----- Attributes -----
 
     /**
-     * The location of the node expression
+     * The location of the node expression.
      */
     private final DummyLocation nodeLocation;
 
     // ----- Children -----
 
     /**
-     * The pattern node to evaluate the "is" clause
+     * The pattern node to evaluate the "is" clause.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -63,11 +63,11 @@ public abstract class IsClause extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new "is" clause with the parameters
+     * Create a new "is" clause with the parameters.
      *
-     * @param location     The token location in the source
-     * @param nodeLocation The location of the node expression node
-     * @param pattern      The pattern to execute the is clause
+     * @param location     The token location in the source.
+     * @param nodeLocation The location of the node expression node.
+     * @param pattern      The pattern to execute the is clause.
      */
     protected IsClause(
         SourceLocation location,
@@ -82,11 +82,11 @@ public abstract class IsClause extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Execute the is clause when the expression is a node
+     * Execute the is clause when the expression is a node.
      *
-     * @param frame The frame to execute the pattern in
-     * @param node  The node to verify
-     * @return The result of the pattern execution
+     * @param frame The frame to execute the pattern in.
+     * @param node  The node to verify.
+     * @return The result of the pattern execution.
      */
     @Specialization
     protected boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -94,9 +94,9 @@ public abstract class IsClause extends Expr {
     }
 
     /**
-     * Fallback method if the left operand is not a node
+     * Fallback method if the left operand is not a node.
      *
-     * @param notNode The object that is not a node
+     * @param notNode The object that is not a node.
      */
     @Fallback
     protected void notNode(Object notNode) {

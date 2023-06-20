@@ -23,8 +23,8 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
@@ -34,7 +34,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This root node represents a selector execution on a given node in the LKQL language
+ * This root node represents a selector execution on a given node in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -43,24 +43,24 @@ public final class SelectorRootNode extends MemoizedRootNode<DepthNode, Selector
     // ----- Attributes -----
 
     /**
-     * The slot of the "this" variable
+     * The slot of the "this" variable.
      */
     private final int thisSlot;
 
     /**
-     * The slot of the "depth" variable
+     * The slot of the "depth" variable.
      */
     private final int depthSlot;
 
     /**
-     * If the selector is memoized
+     * Whether the selector is memoized.
      */
     private final boolean isMemoized;
 
     // ----- Children -----
 
     /**
-     * The selector arms
+     * The selector arms.
      */
     @Children
     private final SelectorArm[] arms;
@@ -68,11 +68,11 @@ public final class SelectorRootNode extends MemoizedRootNode<DepthNode, Selector
     // ----- Constructors -----
 
     /**
-     * Create a new selector root node with the parameters
+     * Create a new selector root node.
      *
      * @param language        The language instance to link the root node with.
      * @param frameDescriptor The frame descriptor for the root node.
-     * @param isMemoized      If the selector is memoized.
+     * @param isMemoized      Whether the selector is memoized.
      * @param thisSlot        The slot to put the "this" variable.
      * @param depthSlot       The slot to put the "depth" variable.
      * @param arms            The arms of the selector.
@@ -95,11 +95,11 @@ public final class SelectorRootNode extends MemoizedRootNode<DepthNode, Selector
     // ----- Execution methods -----
 
     /**
-     * Execute the selector on the given node, the first argument in the array
+     * Execute the selector on the given node, the first argument in the array.
      * Return either :
-     * - A Node if the result is only a node
-     * - A Node[] if the result is an unpack of node
-     * The return is wrapped in a selector call result record to have the mode information
+     * - A Node if the result is only a node.
+     * - A Node[] if the result is an unpack of node.
+     * The return value is wrapped in a selector call result record to have the mode information.
      *
      * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
@@ -145,10 +145,10 @@ public final class SelectorRootNode extends MemoizedRootNode<DepthNode, Selector
     // ----- Inner classes -----
 
     /**
-     * This record represents a result of a call to the selector on a node
+     * This record represents a result of a call to the selector on a node.
      *
-     * @param mode   The mode of the result
-     * @param result The result value
+     * @param mode   The mode of the result.
+     * @param result The result value.
      */
     public record SelectorCallResult(
         SelectorExpr.Mode mode,

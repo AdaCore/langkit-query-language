@@ -48,7 +48,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represents the "unit_checker" built-in function in the LKQL language
+ * This class represents the "unit_checker" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -57,33 +57,33 @@ public final class UnitCheckerFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "unit_checker" built-in
+     * The only instance of the "unit_checker" built-in.
      */
     private static UnitCheckerFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "unit_checker";
 
     /**
-     * The expression that represents the "unit_checker" function execution
+     * The expression that represents the "unit_checker" function execution.
      */
     private final UnitCheckerFunction.UnitCheckerExpr unitCheckerExpr;
 
     // ----- Constructors -----
 
     /**
-     * This private constructor
+     * This private constructor.
      */
     private UnitCheckerFunction() {
         this.unitCheckerExpr = new UnitCheckerExpr();
     }
 
     /**
-     * Get the only instance of the built-in
+     * Get the only instance of the built-in.
      *
-     * @return The built-in instance
+     * @return The built-in instance.
      */
     public static UnitCheckerFunction getInstance() {
         if (instance == null) {
@@ -119,12 +119,12 @@ public final class UnitCheckerFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * This class is the expression of the "unit_checker" function
+     * This class is the expression of the "unit_checker" function.
      */
     private static final class UnitCheckerExpr extends BuiltInExpr {
 
         /**
-         * The dispatcher for the rule functions
+         * The dispatcher for the rule functions.
          */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
@@ -166,7 +166,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                             unit,
                             Libadalang.SourceLocation.create(1, (short) 1),
                             e.getLoc().toString(),
-                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getType()),
+                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                             e.getMsg(),
                             context
                         );
@@ -190,13 +190,13 @@ public final class UnitCheckerFunction implements BuiltInFunction {
         }
 
         /**
-         * Apply the rule on the given unit
+         * Apply the rule on the given unit.
          *
-         * @param frame      The frame for the rule execution
-         * @param rule       The rule to execute
-         * @param unit       The unit to execute the rule on
-         * @param context    The context for the execution
-         * @param linesCache The cache of all units' source text lines
+         * @param frame      The frame for the rule execution.
+         * @param rule       The rule to execute.
+         * @param unit       The unit to execute the rule on.
+         * @param context    The context for the execution.
+         * @param linesCache The cache of all units' source text lines.
          */
         private void applyUnitRule(
             VirtualFrame frame,
@@ -226,7 +226,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             arguments[0] = functionValue.getClosure().getContent();
 
             // Get the message list from the rule function
-            Iterable messageList;
+            final Iterable messageList;
             try {
                 messageList = LKQLTypeSystemGen.expectIterable(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {

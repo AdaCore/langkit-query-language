@@ -24,59 +24,62 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the declaration of a parameter for a function in LKQL language
+ * This node represents an annotation associated with a declaration in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ParameterDecl extends Declaration {
+public final class Annotation extends LKQLNode {
 
     // ----- Attributes -----
 
     /**
-     * The parameter name
+     * The name of the annotation.
      */
     private final String name;
 
+    // ----- Children -----
+
     /**
-     * The parameter default value
+     * The annotation arguments.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr defaultValue;
+    private ArgList arguments;
 
     // ----- Constructors -----
 
     /**
-     * Create a new parameter declaration node
+     * Create a new declaration annotation node.
      *
-     * @param location     The location of the node in the source.
-     * @param name         The name of the parameter.
-     * @param defaultValue The default value of the parameter (can be null).
+     * @param location  The location of the node in the source.
+     * @param name      The name of the annotation.
+     * @param arguments The arguments of the annotation (can be empty or null).
      */
-    public ParameterDecl(
-        final SourceLocation location,
-        final String name,
-        final Expr defaultValue
+    public Annotation(
+        SourceLocation location,
+        String name,
+        ArgList arguments
     ) {
-        super(location, null);
+        super(location);
         this.name = name;
-        this.defaultValue = defaultValue;
+        this.arguments = arguments;
     }
 
     // ----- Getters -----
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
-    public Expr getDefaultValue() {
-        return this.defaultValue;
+    public ArgList getArguments() {
+        return arguments;
     }
 
     // ----- Execution methods -----
@@ -86,14 +89,13 @@ public final class ParameterDecl extends Declaration {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Fail because this node is not executable as a generic one
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 
     // ----- Override methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public String toString(int indentLevel) {

@@ -37,7 +37,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a list comprehension in the LKQL language
+ * This node represents a list comprehension in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -46,12 +46,12 @@ public final class ListComprehension extends Expr {
     // ----- Attributes -----
 
     /**
-     * The slots of the lsit comprehension associations
+     * Slots for the list comprehension parameters.
      */
     private final int[] slots;
 
     /**
-     * The descriptor for the list comprehension root node
+     * Descriptor of the frame to create.
      */
     private final FrameDescriptor frameDescriptor;
 
@@ -63,35 +63,35 @@ public final class ListComprehension extends Expr {
     // ----- Children -----
 
     /**
-     * The generators of the list comprehension
+     * Generators of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private ListCompAssocList generators;
+    private ComprehensionAssocList generators;
 
     /**
-     * The expression result of the list comprehension
+     * Result expression of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
 
     /**
-     * The guard of the list comprehension
+     * Guard expression of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr guard;
 
     /**
-     * The root node containing the list comprehension logic
+     * Root node of the list comprehension.
      */
     private final ListComprehensionRootNode rootNode;
 
     // -----  Constructors -----
 
     /**
-     * Create a new list comprehension node
+     * Create a new list comprehension node.
      *
      * @param location          The location of the node in the source.
      * @param frameDescriptor   The frame descriptor for the root node.
@@ -104,7 +104,7 @@ public final class ListComprehension extends Expr {
         final SourceLocation location,
         final FrameDescriptor frameDescriptor,
         final ClosureDescriptor closureDescriptor,
-        final ListCompAssocList generators,
+        final ComprehensionAssocList generators,
         final Expr expr,
         final Expr guard
     ) {
@@ -182,11 +182,11 @@ public final class ListComprehension extends Expr {
     // ----- Class methods -----
 
     /**
-     * Increase the indexes for the
+     * Increase the iteration indexes.
      *
-     * @param iterators   The iterators containing the current iteration information
-     * @param valueBuffer The buffer to put the values in
-     * @return True if the indexes have been increased
+     * @param iterators   The iterators containing the current iteration information.
+     * @param valueBuffer The buffer to put the values in.
+     * @return True if the indexes have been increased.
      */
     private boolean increaseIndexes(Iterator[] iterators, Object[] valueBuffer) {
         for (int i = iterators.length - 1; i >= 0; i--) {
@@ -206,9 +206,9 @@ public final class ListComprehension extends Expr {
     }
 
     /**
-     * Create a root node for the list comprehension
+     * Create a root node for the list comprehension.
      *
-     * @return The root node for the list comprehension execution
+     * @return The root node for the list comprehension execution.
      */
     private ListComprehensionRootNode createRootNode() {
         return new ListComprehensionRootNode(

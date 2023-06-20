@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.runtime.values.interfaces;
 
 
 /**
- * This interface represents all nullish values in the LKQL language
+ * This interface represents all nullish values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */

@@ -28,21 +28,21 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This expression represents the "this" variable reading for the built-in selectors
+ * This expression represents the "this" variable reading for the built-in selectors.
  *
  * @author Hugo GUERRIER
  */
 public final class ReadBuiltInThis extends Expr {
 
     /**
-     * Create a new read "this" node
+     * Create a new read "this" node.
      */
     public ReadBuiltInThis() {
         super(null);
     }
 
     /**
-     * Get the "this" variable that is the first argument of the frame
+     * Get the "this" variable that is the first argument of the frame.
      *
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */

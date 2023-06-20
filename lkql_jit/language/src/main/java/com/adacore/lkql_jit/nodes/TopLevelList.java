@@ -40,8 +40,8 @@ import java.util.List;
 
 
 /**
- * This node represents the list of all top level instructions of a LKQL program
- * It's the "highest" node in a LKQL AST and is the starting point of the program
+ * This node represents the list of all top level instructions of a LKQL program.
+ * It's the "highest" node in a LKQL AST and is the starting point of the program.
  *
  * @author Hugo GUERRIER
  */
@@ -57,13 +57,13 @@ public final class TopLevelList extends LKQLNode {
     // ----- Children -----
 
     /**
-     * The rule importation nodes
+     * The rule importation nodes.
      */
     @Children
     private Import[] ruleImports;
 
     /**
-     * The list of nodes representing the program
+     * The list of nodes representing the LKQL program.
      */
     @Children
     private final LKQLNode[] program;
@@ -71,7 +71,7 @@ public final class TopLevelList extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new top level list node
+     * Create a new top level list node.
      *
      * @param location        The location of the node in the source.
      * @param frameDescriptor The frame descriptor for the top level.

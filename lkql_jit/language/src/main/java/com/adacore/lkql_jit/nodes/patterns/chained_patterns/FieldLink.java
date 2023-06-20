@@ -34,7 +34,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a field link in a chained pattern in the LKQL language
+ * This node represents a field link in a chained pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -43,18 +43,18 @@ public abstract class FieldLink extends ChainedPatternLink {
     // ----- Attributes -----
 
     /**
-     * The name of the field to query
+     * The name of the field to query.
      */
     protected final String fieldName;
 
     // ----- Constructors -----
 
     /**
-     * Create a new field link node
+     * Create a new field link node.
      *
-     * @param location  The location of the node in the source
-     * @param pattern   The pattern to verify
-     * @param fieldName The name of the field to query
+     * @param location  The location of the node in the source.
+     * @param pattern   The pattern to verify.
+     * @param fieldName The name of the field to query.
      */
     protected FieldLink(
         SourceLocation location,
@@ -68,12 +68,12 @@ public abstract class FieldLink extends ChainedPatternLink {
     // ----- Execution methods -----
 
     /**
-     * Execute the field link with the cached strategy
+     * Execute the field link with the cached strategy.
      *
-     * @param frame       The frame to execute the link in
-     * @param node        The node get the field from
-     * @param propertyRef The cached property reference
-     * @return The result of the link
+     * @param frame       The frame to execute the link in.
+     * @param node        The node get the field from.
+     * @param propertyRef The cached property reference.
+     * @return The result of the link.
      */
     @Specialization(guards = {
         "node == propertyRef.getNode()",
@@ -92,11 +92,11 @@ public abstract class FieldLink extends ChainedPatternLink {
     }
 
     /**
-     * Execute the field link with the un-cached strategy
+     * Execute the field link with the un-cached strategy.
      *
-     * @param frame The frame to execute the link in
-     * @param node  The node get the field from
-     * @return The result of the link
+     * @param frame The frame to execute the link in.
+     * @param node  The node get the field from.
+     * @return The result of the link.
      */
     @Specialization(replaces = "fieldCached")
     protected Libadalang.AdaNode[] fieldUnached(

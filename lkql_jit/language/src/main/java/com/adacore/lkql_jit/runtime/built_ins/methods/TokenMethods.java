@@ -38,7 +38,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class contains all built-in methods for the token type in the LKQL language
+ * This class contains all built-in methods for the token type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -47,23 +47,23 @@ public final class TokenMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static TokenMethods instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private TokenMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the token method library
+     * Get the only instance of the token method library.
      *
-     * @return The instance
+     * @return The instance of the token methods.
      */
     public static TokenMethods getInstance() {
         if (instance == null) {
@@ -170,7 +170,7 @@ public final class TokenMethods extends CommonMethods {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "start_column" method
+     * Expression of the "start_column" method.
      */
     public static final class StartColExpr extends BuiltInExpr {
         @Override
@@ -180,7 +180,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "end_column" method
+     * Expression of the "end_column" method.
      */
     public static final class EndColExpr extends BuiltInExpr {
         @Override
@@ -190,7 +190,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "start_line" method
+     * Expression of the "start_line" method.
      */
     public static final class StartLineExpr extends BuiltInExpr {
         @Override
@@ -200,7 +200,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "end_line" method
+     * Expression of the "end_line" method.
      */
     public static final class EndLineExpr extends BuiltInExpr {
         @Override
@@ -210,7 +210,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "is_equivalent" method
+     * Expression of the "is_equivalent" method.
      */
     public static final class IsEquivalentExpr extends BuiltInExpr {
         @Override
@@ -233,7 +233,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "is_trivia" method
+     * Expression of the "is_trivia" method.
      */
     public static final class IsTriviaExpr extends BuiltInExpr {
         @Override
@@ -243,7 +243,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "next" method
+     * Expression of the "next" method.
      */
     public static final class NextExpr extends BuiltInExpr {
         @Override
@@ -272,7 +272,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "previous" method
+     * Expression of the "previous" method.
      */
     public static final class PrevExpr extends BuiltInExpr {
         @Override
@@ -301,7 +301,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "unit" method
+     * Expression of the "unit" method.
      */
     public static final class UnitExpr extends BuiltInExpr {
         @Override
@@ -311,7 +311,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "text" method
+     * Expression of the "text" method.
      */
     public static final class TextExpr extends BuiltInExpr {
         @Override
@@ -321,7 +321,7 @@ public final class TokenMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "kind" method
+     * Expression of the "kind" method.
      */
     public static final class KindExpr extends BuiltInExpr {
         @Override

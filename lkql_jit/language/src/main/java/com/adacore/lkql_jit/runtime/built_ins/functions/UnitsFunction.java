@@ -32,7 +32,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "units" built-in function in the LKQL language
+ * This class represents the "units" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -41,33 +41,33 @@ public final class UnitsFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only function of the "units" built-in
+     * The only function of the "units" built-in.
      */
     private static UnitsFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "units";
 
     /**
-     * The expression that represents the "units" function execution
+     * The expression that represents the "units" function execution.
      */
     private final UnitsExpr unitsExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private UnitsFunction() {
         this.unitsExpr = new UnitsExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static UnitsFunction getInstance() {
         if (instance == null) {
@@ -103,7 +103,7 @@ public final class UnitsFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "units" function
+     * Expression of the "units" function.
      */
     public static final class UnitsExpr extends BuiltInExpr {
         @Override

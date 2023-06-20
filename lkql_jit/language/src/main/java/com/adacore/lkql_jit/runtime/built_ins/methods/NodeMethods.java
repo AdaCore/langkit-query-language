@@ -44,7 +44,7 @@ import java.util.ArrayList;
 
 
 /**
- * This class contains all built-in methods for the node type in the LKQL language
+ * This class contains all built-in methods for the node type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -53,23 +53,23 @@ public final class NodeMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static NodeMethods instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Private constructors
+     * Private constructors.
      */
     private NodeMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the node methods.
      */
     public static NodeMethods getInstance() {
         if (instance == null) {
@@ -169,7 +169,7 @@ public final class NodeMethods extends CommonMethods {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "children" method
+     * Expression of the "children" method.
      */
     public final static class ChildrenExpr extends BuiltInExpr {
         @Override
@@ -191,7 +191,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "parent" method
+     * Expression of the "parent" method.
      */
     public final static class ParentExpr extends BuiltInExpr {
         @Override
@@ -202,7 +202,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "children_count" method
+     * Expression of the "children_count" method.
      */
     public final static class ChildrenCountExpr extends BuiltInExpr {
         @Override
@@ -212,7 +212,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "dump" method
+     * Expression of the "dump" method.
      */
     public final static class DumpExpr extends BuiltInExpr {
         @Override
@@ -223,7 +223,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "text" method
+     * Expression of the "text" method.
      */
     public final static class TextExpr extends BuiltInExpr {
         @Override
@@ -233,7 +233,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "image" method
+     * Expression of the "image" method.
      */
     public final static class ImageExpr extends BuiltInExpr {
         @Override
@@ -243,7 +243,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "unit" method
+     * Expression of the "unit" method.
      */
     public final static class UnitExpr extends BuiltInExpr {
         @Override
@@ -253,7 +253,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "kind" method
+     * Expression of the "kind" method.
      */
     public final static class KindExpr extends BuiltInExpr {
         @Override
@@ -263,7 +263,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the tokens method
+     * Expression of the "tokens" method.
      */
     public final static class TokensExpr extends BuiltInExpr {
         @Override
@@ -287,7 +287,7 @@ public final class NodeMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "same_tokens" method
+     * Expression of the "same_tokens" method.
      */
     public final static class SameTokensExpr extends BuiltInExpr {
         @Override

@@ -41,10 +41,10 @@ Java reflection objects that are statically fetched don't need to be
 specified at any other place.
 """
 
-import sys
 import os
 import os.path as P
 import subprocess
+import sys
 
 sys.path.append('..')
 from utils import GraalManager, parse_args, missing_module

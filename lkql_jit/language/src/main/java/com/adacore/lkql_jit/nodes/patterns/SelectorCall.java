@@ -48,7 +48,7 @@ import java.util.List;
 
 
 /**
- * This node represents the call of a selector in the LKQL language
+ * This node represents the call of a selector in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -57,26 +57,26 @@ public final class SelectorCall extends LKQLNode {
     // ----- Attributes -----
 
     /**
-     * The quantifier for the selector call
+     * The quantifier for the selector call.
      */
     private final Quantifier quantifier;
 
     /**
-     * The slot to put the binding value in, might be -1 if there is no binding
+     * The slot to put the binding value in, might be -1 if there is no binding.
      */
     private final int bindingSlot;
 
     // ----- Children -----
 
     /**
-     * The selector to call
+     * The selector to call.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr selectorExpr;
 
     /**
-     * The arguments for the selector call
+     * The arguments for the selector call.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -85,13 +85,13 @@ public final class SelectorCall extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new selector call node
+     * Create a new selector call node.
      *
-     * @param location     The location of the node in the source
-     * @param quantifier   The quantifier for the selector
-     * @param bindingSlot  The slot of the binding
-     * @param selectorExpr The selector expression
-     * @param args         The arguments for the call
+     * @param location     The location of the node in the source.
+     * @param quantifier   The quantifier for the selector.
+     * @param bindingSlot  The slot of the binding.
+     * @param selectorExpr The selector expression.
+     * @param args         The arguments for the call.
      */
     public SelectorCall(
         SourceLocation location,
@@ -118,13 +118,13 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Execute the selector on the given node and return if the tree traversal valid the given pattern
-     * TODO: Move this method and logic in the NodePatternSelector node
+     * Execute the selector on the given node and return if the tree traversal valid the given pattern.
+     * TODO: Move this method and logic in the NodePatternSelector node.
      *
-     * @param frame   The frame to execute in
-     * @param node    The node to execute the selector on
-     * @param pattern The pattern to verify
-     * @return True if the traversal verify the pattern, false else
+     * @param frame   The frame to execute in.
+     * @param node    The node to execute the selector on.
+     * @param pattern The pattern to verify.
+     * @return True if the traversal verify the pattern, false else.
      */
     public boolean executeVerification(VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
@@ -148,13 +148,13 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Execute the filtering logic on the selector call with the given pattern and return the result list value
-     * TODO: Move this method and logic in the SelectorLink node
+     * Execute the filtering logic on the selector call with the given pattern and return the result list value.
+     * TODO: Move this method and logic in the SelectorLink node.
      *
-     * @param frame   The frame to execute in
-     * @param node    The node to execute the selector on
-     * @param pattern The pattern to perform the filtering logic
-     * @return The list of the validating nodes
+     * @param frame   The frame to execute in.
+     * @param node    The node to execute the selector on.
+     * @param pattern The pattern to perform the filtering logic.
+     * @return The list of the validating nodes.
      */
     public ListValue executeFiltering(VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
@@ -189,11 +189,11 @@ public final class SelectorCall extends LKQLNode {
     // ----- Class methods -----
 
     /**
-     * Get the selector list for the selector call
+     * Get the selector list for the selector call.
      *
-     * @param frame The frame to execute in
-     * @param node  The root node of the selector list
-     * @return The selector list for the selector call
+     * @param frame The frame to execute in.
+     * @param node  The root node of the selector list.
+     * @return The selector list for the selector call.
      */
     private SelectorListValue getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the selector and verify its type
@@ -264,12 +264,12 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Verify if all node verify the pattern
+     * Verify if all node verify the pattern.
      *
-     * @param frame             The frame to execute in
-     * @param selectorListValue The list representing traversal of the selector
-     * @param pattern           The pattern to verify
-     * @return True of all nodes of the traversal verify the pattern, false else
+     * @param frame             The frame to execute in.
+     * @param selectorListValue The list representing traversal of the selector.
+     * @param pattern           The pattern to verify.
+     * @return True of all nodes of the traversal verify the pattern, false else.
      */
     private boolean isAll(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         // Iterate on nodes
@@ -284,12 +284,12 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Verify if any of the node verify the pattern
+     * Verify if any of the node verify the pattern.
      *
-     * @param frame             The frame to execute in
-     * @param selectorListValue The list representing traversal of the selector
-     * @param pattern           The pattern to verify
-     * @return True if there is any node that verify the pattern, false else
+     * @param frame             The frame to execute in.
+     * @param selectorListValue The list representing traversal of the selector.
+     * @param pattern           The pattern to verify.
+     * @return True if there is any node that verify the pattern, false else.
      */
     private boolean isAny(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         // Iterate on nodes
@@ -304,11 +304,11 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Get the list value filtered with the given patter
+     * Get the list value filtered with the given pattern.
      *
-     * @param frame             The frame to execute in
-     * @param selectorListValue The selector list value to filter
-     * @param pattern           The pattern for the filtering
+     * @param frame             The frame to execute in.
+     * @param selectorListValue The selector list value to filter.
+     * @param pattern           The pattern for the filtering.
      * @return The list value
      */
     private ListValue getFilteredList(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
@@ -329,11 +329,11 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Do the binding process
+     * Do the binding process.
      *
-     * @param frame             The frame to execute in
-     * @param selectorListValue The selector list to bind
-     * @param pattern           The pattern to filter the list
+     * @param frame             The frame to execute in.
+     * @param selectorListValue The selector list to bind.
+     * @param pattern           The pattern to filter the list.
      */
     private void doBinding(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         ListValue listValue = this.getFilteredList(frame, selectorListValue, pattern);
@@ -341,10 +341,10 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Do the binding with the already computed list
+     * Do the binding with the already computed list.
      *
-     * @param frame     The frame to execute in
-     * @param listValue The list bind
+     * @param frame     The frame to execute in.
+     * @param listValue The list bind.
      */
     private void doBinding(VirtualFrame frame, ListValue listValue) {
         FrameUtils.writeLocal(frame, this.bindingSlot, listValue);

@@ -35,106 +35,106 @@ import java.math.BigInteger;
 
 
 /**
- * This class contains all helper values to manipulate LKQL types
+ * This class contains all helper values to manipulate LKQL types.
  *
  * @author Hugo GUERRIER
  */
 public final class LKQLTypesHelper {
 
-    // ----- Macros and enum -----
+    // ----- Static values -----
 
     /**
-     * The string representing the LKQL indexable interface
+     * The string representing the LKQL indexable interface.
      */
     public static final String LKQL_INDEXABLE = "Indexable";
 
     /**
-     * The string representing the LKQL iterable interface
+     * The string representing the LKQL iterable interface.
      */
     public static final String LKQL_ITERABLE = "Iterable";
 
     /**
-     * The string representing the LKQL unit type
+     * The string representing the LKQL unit type.
      */
     public static final String LKQL_UNIT = "Unit";
 
     /**
-     * The string representing the LKQL boolean type
+     * The string representing the LKQL boolean type.
      */
     public static final String LKQL_BOOLEAN = "Bool";
 
     /**
-     * The string representing the LKQL integer type
+     * The string representing the LKQL integer type.
      */
     public static final String LKQL_INTEGER = "Int";
 
     /**
-     * The string representing the LKQL string type
+     * The string representing the LKQL string type.
      */
     public static final String LKQL_STRING = "Str";
 
     /**
-     * The string representing the LKQL pattern type
+     * The string representing the LKQL pattern type.
      */
     public static final String LKQL_PATTERN = "Pattern";
 
     /**
-     * The string representing the LKQL functional type
+     * The string representing the LKQL functional type.
      */
     public static final String LKQL_FUNCTION = "Function";
 
     /**
-     * The string representing the LKQL property reference type
+     * The string representing the LKQL property reference type.
      */
     public static final String LKQL_PROPERTY_REF = "Property_Reference";
 
     /**
-     * The string representing the LKQL selector type
+     * The string representing the LKQL selector type.
      */
     public static final String LKQL_SELECTOR = "Selector";
 
     /**
-     * The string representing the LKQL tuple type
+     * The string representing the LKQL tuple type.
      */
     public static final String LKQL_TUPLE = "Tuple";
 
     /**
-     * The string representing the LKQL list type
+     * The string representing the LKQL list type.
      */
     public static final String LKQL_LIST = "List";
 
     /**
-     * The string representing the LKQL lazy list type
+     * The string representing the LKQL lazy list type.
      */
     public static final String LKQL_LAZY_LIST = "Lazy_List";
 
     /**
-     * The string representing the LKQL selector list type
+     * The string representing the LKQL selector list type.
      */
     public static final String LKQL_SELECTOR_LIST = "Selector_List";
 
     /**
-     * The string representing the LKQL object type
+     * The string representing the LKQL object type.
      */
     public static final String LKQL_OBJECT = "Object";
 
     /**
-     * The string representing the LKQL namespace type
+     * The string representing the LKQL namespace type.
      */
     public static final String LKQL_NAMESPACE = "Namespace";
 
     /**
-     * The string representing the ada node type
+     * The string representing the ada node type.
      */
     public static final String ADA_NODE = "Node";
 
     /**
-     * The string representing the token type
+     * The string representing the token type.
      */
     public static final String TOKEN = "Token";
 
     /**
-     * The string representing the analysis unit type
+     * The string representing the analysis unit type.
      */
     public static final String ANALYSIS_UNIT = "Analysis_Unit";
 
@@ -152,21 +152,21 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Get the LKQL type in a string from the Java type
+     * Get the LKQL type in a string from the Java type.
      *
-     * @param obj The java object to get the LKQL type from
-     * @return The LKQL type in a string
+     * @param obj The java object to get the LKQL type from.
+     * @return The LKQL type in a string.
      */
     public static String fromJava(Object obj) {
         return fromJava(obj, "unbound_java_type");
     }
 
     /**
-     * Get the string representation of the Java type for the LKQL language
+     * Get the string representation of the Java type for the LKQL language.
      *
-     * @param obj          The object to get the type for
-     * @param defaultValue The default value to return
-     * @return The string representing the type in the LKQL language
+     * @param obj          The object to get the type for.
+     * @param defaultValue The default value to return.
+     * @return The string representing the type in the LKQL language.
      */
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
@@ -209,10 +209,10 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Get the debug name for the given Java type
+     * Get the debug name for the given Java type.
      *
-     * @param type The type to get the debug name for
-     * @return The type debug name
+     * @param type The type to get the debug name for.
+     * @return The type debug name.
      */
     public static String debugName(Class<?> type) {
         if (type == Boolean.class || type == boolean.class) {
@@ -223,11 +223,11 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Get the category of value for the given Java type
-     * This category represents a kind of value from Libadalang which cannot be imported in the LKQL context
+     * Get the category of value for the given Java type.
+     * This category represents a kind of value from Libadalang which cannot be imported in the LKQL context.
      *
-     * @param type The type to get the category for
-     * @return The type category
+     * @param type The type to get the category for.
+     * @return The type category.
      */
     @CompilerDirectives.TruffleBoundary
     public static String category(Class<?> type) {
@@ -239,10 +239,10 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Convert a Java value into a LKQL value
+     * Convert a Java value into a LKQL value.
      *
-     * @param javaValue The Java object
-     * @return The LKQL value
+     * @param javaValue The Java object.
+     * @return The LKQL value.
      */
     @CompilerDirectives.TruffleBoundary
     public static Object toLKQLValue(Object javaValue) throws UnsupportedTypeException {
@@ -361,10 +361,10 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Get a java value from an LKQL value
+     * Get a java value from an LKQL value.
      *
-     * @param lkqlValue The lkql source value
-     * @return The java value
+     * @param lkqlValue The lkql source value.
+     * @return The java value.
      */
     public static Object fromLKQLValue(Object lkqlValue) {
         // If the source is nullish

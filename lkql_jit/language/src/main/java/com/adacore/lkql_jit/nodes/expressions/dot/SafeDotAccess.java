@@ -46,7 +46,7 @@ import java.util.Map;
 
 
 /**
- * This node represents the safe dot access in the LKQL language
+ * This node represents the safe dot access in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -56,14 +56,14 @@ public abstract class SafeDotAccess extends Expr {
     // ----- Attributes -----
 
     /**
-     * The member to access
+     * The member to access.
      */
     protected final Identifier member;
 
     // ----- Children -----
 
     /**
-     * The dispatcher for the built-in calls
+     * The dispatcher for the built-in calls.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -72,10 +72,10 @@ public abstract class SafeDotAccess extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new base dot access with the needed parameters
+     * Create a new base dot access with the needed parameters.
      *
-     * @param location The location of the dot access
-     * @param member   The member to access
+     * @param location The location of the dot access.
+     * @param member   The member to access.
      */
     protected SafeDotAccess(
         SourceLocation location,
@@ -89,12 +89,12 @@ public abstract class SafeDotAccess extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Execute the safe dot access on a node with the cached strategy
+     * Execute the safe dot access on a node with the cached strategy.
      *
-     * @param receiver    The node receiver
-     * @param propertyRef The cached property reference
-     * @param isField     The cached value if the property is a field
-     * @return The property reference or the field value
+     * @param receiver    The node receiver.
+     * @param propertyRef The cached property reference.
+     * @param isField     The cached value if the property is a field.
+     * @return The property reference or the field value.
      */
     @Specialization(guards = {
         "!receiver.isNone()",
@@ -119,10 +119,10 @@ public abstract class SafeDotAccess extends Expr {
     }
 
     /**
-     * Execute the safe dot access on a node with the un-cached strategy
+     * Execute the safe dot access on a node with the un-cached strategy.
      *
-     * @param receiver The node receiver
-     * @return The property reference or the field value
+     * @param receiver The node receiver.
+     * @return The property reference or the field value.
      */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(Libadalang.AdaNode receiver) {
@@ -148,9 +148,9 @@ public abstract class SafeDotAccess extends Expr {
     }
 
     /**
-     * Fallback when the receiver is a generic object
+     * Fallback when the receiver is a generic object.
      *
-     * @param receiver The receiver generic value
+     * @param receiver The receiver generic value.
      */
     @Fallback
     protected void onGeneric(Object receiver) {
@@ -164,10 +164,10 @@ public abstract class SafeDotAccess extends Expr {
     // ----- Class methods -----
 
     /**
-     * Try to get a built-in method and execute it if there is no parameters
+     * Try to get a built-in method and execute it if there is no parameters.
      *
-     * @param receiver The receiver object
-     * @return The built-in result, null if the built-in method doesn't exist
+     * @param receiver The receiver object.
+     * @return The built-in result, null if the built-in method doesn't exist.
      */
     protected Object tryBuildIn(Object receiver) {
         // Get the built in
@@ -186,10 +186,10 @@ public abstract class SafeDotAccess extends Expr {
     }
 
     /**
-     * Get the built-in method for the receiver
+     * Get the built-in method for the receiver.
      *
-     * @param receiver The receiver object
-     * @return The member if it exists, null else
+     * @param receiver The receiver object.
+     * @return The member if it exists, null else.
      */
     @CompilerDirectives.TruffleBoundary
     protected BuiltInFunctionValue getBuiltIn(Object receiver) {

@@ -27,23 +27,23 @@ import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 
 /**
- * This interface defines the LKQL built-in selector factories
+ * This interface defines the LKQL built-in selector factories.
  *
  * @author Hugo GUERRIER
  */
 public interface BuiltInSelector {
 
     /**
-     * Get the name of the build in selector
+     * Get the name of the build in selector.
      *
-     * @return The name
+     * @return The name of the selector.
      */
     String getName();
 
     /**
-     * Get the value of the built-in selector
+     * Get the value of the built-in selector.
      *
-     * @return The selector value
+     * @return The selector value.
      */
     SelectorValue getValue();
 

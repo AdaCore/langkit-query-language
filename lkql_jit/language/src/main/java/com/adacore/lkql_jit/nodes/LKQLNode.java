@@ -38,7 +38,7 @@ import java.util.List;
 
 
 /**
- * The base node of the LKQL implementation in Truffle, all other nodes come from it
+ * The base node of the LKQL implementation in Truffle, all other nodes come from it.
  *
  * @author Hugo GUERRIER
  */
@@ -48,16 +48,16 @@ public abstract class LKQLNode extends Node implements Locatable {
     // ----- Attributes -----
 
     /**
-     * The location of the node in the source
+     * The location of the node in the source.
      */
     protected final SourceLocation location;
 
     // ----- Constructor -----
 
     /**
-     * Base constructor for all LKQL nodes
+     * Base constructor for all LKQL nodes.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     protected LKQLNode(
         SourceLocation location
@@ -78,32 +78,32 @@ public abstract class LKQLNode extends Node implements Locatable {
     // ----- Execution methods -----
 
     /**
-     * Execute the node as a generic value, it returns an untyped java object
+     * Execute the node as a generic value, it returns an untyped java object.
      *
-     * @param frame The frame to execute the node in
-     * @return The result of the node execution wrapped in an object
+     * @param frame The frame to execute the node in.
+     * @return The result of the node execution wrapped in an object.
      */
     public abstract Object executeGeneric(VirtualFrame frame);
 
-    // ----- Class methods -----
+    // ----- Instance methods -----
 
     /**
-     * Create the string representation of the node with its children
+     * Create the string representation of the node with its children.
      *
-     * @param indentLevel The level of indentation
-     * @return The string representation of the node
+     * @param indentLevel The level of indentation.
+     * @return The string representation of the node.
      */
     protected String nodeRepresentation(int indentLevel) {
         return this.nodeRepresentation(indentLevel, new String[0], new Object[0]);
     }
 
     /**
-     * Create a node string representation with its name and fields, THIS AUTOMATICALLY INCLUDE NODE'S CHILDREN
+     * Create a node string representation with its name and fields, THIS AUTOMATICALLY INCLUDE NODE'S CHILDREN.
      *
-     * @param indentLevel The level of indentation
-     * @param fields      The field names
-     * @param values      The field values
-     * @return The string representation of the node
+     * @param indentLevel The level of indentation.
+     * @param fields      The field names.
+     * @param values      The field values.
+     * @return The string representation of the node.
      */
     @CompilerDirectives.TruffleBoundary
     protected String nodeRepresentation(int indentLevel, String[] fields, Object[] values) {
@@ -146,20 +146,20 @@ public abstract class LKQLNode extends Node implements Locatable {
     }
 
     /**
-     * Indent the builder with the correct level
+     * Indent the builder with the correct level.
      *
-     * @param indentLevel The indent level
-     * @param builder     The builder to indent
+     * @param indentLevel The indent level.
+     * @param builder     The builder to indent.
      */
     private void indent(int indentLevel, StringBuilder builder) {
         builder.append("   ".repeat(Math.max(0, indentLevel)));
     }
 
     /**
-     * Get a list containing the node children representation associated with their name
+     * Get a list containing the node children representation associated with their name.
      *
-     * @param indentLevel The level of indentation of children nodes
-     * @return The list of children representation
+     * @param indentLevel The level of indentation of children nodes.
+     * @return The list of children representation.
      */
     private List<String> getChildrenRepresentations(int indentLevel) {
         // Prepare the result
@@ -250,10 +250,10 @@ public abstract class LKQLNode extends Node implements Locatable {
     }
 
     /**
-     * Get the tree representation of the node in a string
+     * Get the tree representation of the node in a string.
      *
-     * @param indentLevel The indent level of this node
-     * @return The tree representation of the node in a string
+     * @param indentLevel The indent level of this node.
+     * @return The tree representation of the node in a string.
      */
     public abstract String toString(int indentLevel);
 

@@ -30,7 +30,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the unit literal in the LKQL language
+ * This node represents the unit literal in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -39,9 +39,9 @@ public final class UnitLiteral extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a unit literal node
+     * Create a unit literal node.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     public UnitLiteral(
         SourceLocation location

@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a regular expression pattern in the LKQL language
+ * This node represents a regular expression pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,17 +40,17 @@ public final class RegexPattern extends ValuePattern {
     // ----- Attributes -----
 
     /**
-     * The regex pattern to match the node text with
+     * The regex pattern to match the node text with.
      */
     private final Pattern pattern;
 
     // ----- Constructors -----
 
     /**
-     * Create a new regex pattern node
+     * Create a new regex pattern node.
      *
-     * @param location The location of the node in the source
-     * @param regex    The regular expression string
+     * @param location The location of the node in the source.
+     * @param regex    The regular expression string.
      */
     public RegexPattern(
         SourceLocation location,

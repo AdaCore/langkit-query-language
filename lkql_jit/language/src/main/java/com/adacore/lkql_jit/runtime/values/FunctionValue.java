@@ -32,7 +32,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This class represents a functional value in the LKQL language
+ * This class represents a functional value in the LKQL language.
  *
  * @author Hugo GUERRIER
  */

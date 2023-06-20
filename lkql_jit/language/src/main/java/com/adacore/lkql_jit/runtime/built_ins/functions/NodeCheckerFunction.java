@@ -48,7 +48,7 @@ import java.util.LinkedList;
 
 
 /**
- * This class represents the "node_checker" built-in function in the LKQL language
+ * This class represents the "node_checker" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -57,33 +57,33 @@ public final class NodeCheckerFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "node_checker" built-in
+     * The only instance of the "node_checker" built-in.
      */
     private static NodeCheckerFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "node_checker";
 
     /**
-     * The expression that represents the "node_checker" function execution
+     * The expression that represents the "node_checker" function execution.
      */
     private final NodeCheckerExpr nodeCheckerExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private NodeCheckerFunction() {
         this.nodeCheckerExpr = new NodeCheckerExpr();
     }
 
     /**
-     * Get the only instance of the built-in function
+     * Get the only instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static NodeCheckerFunction getInstance() {
         if (instance == null) {
@@ -119,13 +119,13 @@ public final class NodeCheckerFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * This class is the expression of the "node_checker" built-in
-     * This expression contains the traversing logic to checker the nodes
+     * This class is the expression of the "node_checker" built-in.
+     * This expression contains the traversing logic to checker the nodes.
      */
     private static final class NodeCheckerExpr extends BuiltInExpr {
 
         /**
-         * The dispatcher for the rule functions
+         * The dispatcher for the rule functions.
          */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
@@ -205,7 +205,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                                     currentNode.getUnit(),
                                     currentNode.getSourceLocationRange().start,
                                     e.getLoc().toString(),
-                                    StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getType()),
+                                    StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                                     e.getMsg(),
                                     context
                                 );
@@ -241,13 +241,13 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         }
 
         /**
-         * Apply the rule on the given node
+         * Apply the rule on the given node.
          *
-         * @param frame      The frame to execute the default arg value
-         * @param rule       The rule to apply
-         * @param node       The node to apply the rule on
-         * @param context    The LKQL context
-         * @param linesCache The cache of all units' source text lines
+         * @param frame      The frame to execute the default arg value.
+         * @param rule       The rule to apply.
+         * @param node       The node to apply the rule on.
+         * @param context    The LKQL context.
+         * @param linesCache The cache of all units' source text lines.
          */
         private void applyNodeRule(
             VirtualFrame frame,
@@ -278,7 +278,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             arguments[0] = functionValue.getClosure().getContent();
 
             // Call the rule
-            boolean ruleResult;
+            final boolean ruleResult;
             try {
                 ruleResult = LKQLTypeSystemGen.expectBoolean(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
@@ -295,12 +295,12 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         }
 
         /**
-         * Report a rule violation with the node that violate it
+         * Report a rule violation with the node that violate it.
          *
-         * @param context    The context to output the message
-         * @param rule       The violated rule
-         * @param node       The node that violated the rule
-         * @param linesCache The cache of all units' source text lines
+         * @param context    The context to output the message.
+         * @param rule       The violated rule.
+         * @param node       The node that violated the rule.
+         * @param linesCache The cache of all units' source text lines.
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportViolation(
@@ -325,10 +325,10 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         }
 
         /**
-         * Report the langkit exception raised by a rule
+         * Report the langkit exception raised by a rule.
          *
-         * @param rule The rule which caused the exception
-         * @param e    The exception to report
+         * @param rule The rule which caused the exception.
+         * @param e    The exception to report.
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportException(LKQLContext context, ObjectValue rule, LangkitException e) {
@@ -336,9 +336,9 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         }
 
         /**
-         * Report the LQKL exception
+         * Report the LQKL exception.
          *
-         * @param e The LKQL exception
+         * @param e The LKQL exception.
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportException(LKQLContext context, LKQLRuntimeException e) {
@@ -349,10 +349,10 @@ public final class NodeCheckerFunction implements BuiltInFunction {
         // ----- Inner classes -----
 
         /**
-         * This record contains the information for a visiting step
+         * This record contains the information for a visiting step.
          *
-         * @param node                   The node to visit
-         * @param inGenericInstantiation If the visit is currently in a generic instantiation
+         * @param node                   The node to visit.
+         * @param inGenericInstantiation Whether the visit is currently in a generic instantiation.
          */
         private record VisitStep(
             Libadalang.AdaNode node,

@@ -36,7 +36,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the subtraction operation in the LKQL language
+ * This node represents the subtraction operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,11 +45,11 @@ public abstract class BinMinus extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a binary subtraction node
+     * Create a binary subtraction node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinMinus(
         SourceLocation location,
@@ -62,11 +62,11 @@ public abstract class BinMinus extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Subtract two longs
+     * Subtract two longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The subtraction of two longs
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The subtraction of two longs.
      */
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long subLongs(long left, long right) {
@@ -74,11 +74,11 @@ public abstract class BinMinus extends BinOp {
     }
 
     /**
-     * Subtract two big integers
+     * Subtract two big integers.
      *
-     * @param left  The left big integer value
-     * @param right The right big integer value
-     * @return The subtraction of two big integers
+     * @param left  The left big integer value.
+     * @param right The right big integer value.
+     * @return The subtraction of two big integers.
      */
     @Specialization(replaces = "subLongs")
     protected BigInteger subBigIntegers(BigInteger left, BigInteger right) {
@@ -86,10 +86,10 @@ public abstract class BinMinus extends BinOp {
     }
 
     /**
-     * Raise a type exception if there is a non-integer operand
+     * Raise a type exception if there is a non-integer operand.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void notNumbers(Object left, Object right) {

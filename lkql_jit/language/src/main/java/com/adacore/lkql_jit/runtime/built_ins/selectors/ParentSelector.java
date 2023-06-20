@@ -24,8 +24,8 @@
 package com.adacore.lkql_jit.runtime.built_ins.selectors;
 
 import com.adacore.lkql_jit.nodes.Identifier;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.UnitLiteral;
@@ -36,7 +36,7 @@ import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 
 /**
- * This class represents the "parent" built-in selector
+ * This class represents the "parent" built-in selector.
  *
  * @author Hugo GUERRIER
  */
@@ -45,33 +45,33 @@ public final class ParentSelector implements BuiltInSelector {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "parent" built-in selector
+     * The only instance of the "parent" built-in selector.
      */
     private static ParentSelector instance = null;
 
     /**
-     * The name of the selector
+     * The name of the selector.
      */
     public static final String NAME = "parent";
 
     /**
-     * The arms representing the "parent" selector execution
+     * The arms representing the "parent" selector execution.
      */
     public final SelectorArm[] arms;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private ParentSelector() {
         this.arms = this.createArms();
     }
 
     /**
-     * Get the only instance of the built-in selector
+     * Get the only instance of the built-in selector.
      *
-     * @return The instance of the selector
+     * @return The instance of the selector.
      */
     public static ParentSelector getInstance() {
         if (instance == null) {
@@ -105,9 +105,9 @@ public final class ParentSelector implements BuiltInSelector {
     // ----- Class methods -----
 
     /**
-     * Create the selector arms and return them
+     * Create the selector arms and return them.
      *
-     * @return The selector arms
+     * @return The selector arms.
      */
     private SelectorArm[] createArms() {
         // Prepare the result

@@ -47,7 +47,7 @@ import java.util.List;
 
 
 /**
- * This class represents the registration and the entry point of the LKQL language Truffle implementation
+ * This class represents the registration and the entry point of the LKQL language Truffle implementation.
  *
  * @author Hugo GUERRIER
  */
@@ -64,17 +64,17 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // ----- Static variables -----
 
     /**
-     * The reference to the LKQL language
+     * The reference to the LKQL language.
      */
     private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE = LanguageReference.create(LKQLLanguage.class);
 
     /**
-     * The reference to the LKQL context
+     * The reference to the LKQL context.
      */
     private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(LKQLLanguage.class);
 
     /**
-     * If the current language spawning support the color
+     * Whether the current language spawning support the color.
      */
     public static boolean SUPPORT_COLOR = false;
 
@@ -83,7 +83,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // --- Language options
 
     /**
-     * The option to define if the language is verbose
+     * The option to define if the language is verbose.
      */
     @Option(
         help = "If the language should be verbose",
@@ -96,7 +96,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // --- LKQL options
 
     /**
-     * The option to define the charset of the LKQL sources
+     * The option to define the charset of the LKQL sources.
      */
     @Option(
         help = "The LKQL source charset",
@@ -106,7 +106,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> charset = new OptionKey<>("");
 
     /**
-     * The option to define the project file to analyze
+     * The option to define the project file to analyze.
      */
     @Option(
         help = "The GPR project file to load",
@@ -148,7 +148,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<Boolean> useAutoProvider = new OptionKey<>(false);
 
     /**
-     * The option to define the files to analyze
+     * The option to define the files to analyze.
      */
     @Option(
         help = "The ada files to analyze in LKQL",
@@ -158,7 +158,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> files = new OptionKey<>("");
 
     /**
-     * The option to define the jobs
+     * The option to define the jobs.
      */
     @Option(
         help = "The number of parallel jobs in the LKQL interpreter",
@@ -171,7 +171,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // --- Checker options
 
     /**
-     * The option to define the checker debug mode
+     * The option to define the checker debug mode.
      */
     @Option(
         help = "If the checker is in debug mode",
@@ -181,7 +181,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<Boolean> checkerDebug = new OptionKey<>(false);
 
     /**
-     * The option to define the directories to look the rules from
+     * The option to define the directories to look the rules from.
      */
     @Option(
         help = "The directories to search rules in",
@@ -191,7 +191,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> rulesDirs = new OptionKey<>("");
 
     /**
-     * The option to specify the rule to run
+     * The option to specify the rule to run.
      */
     @Option(
         help = "The comma separated rules to apply",
@@ -211,7 +211,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<Boolean> fallbackToAllRules = new OptionKey<>(true);
 
     /**
-     * The option to control what should be done when a source file cannot be found
+     * The option to control what should be done when a source file cannot be found.
      */
     @Option(
         help = "If true, do not stop the engine when a source file cannot be found",
@@ -221,7 +221,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
 
     /**
-     * The option to specify arguments for the rules
+     * The option to specify arguments for the rules.
      */
     @Option(
         help = "Arguments for the LKQL rules",
@@ -231,7 +231,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> rulesArgs = new OptionKey<>("");
 
     /**
-     * The option to specify the files to ignore during the checking
+     * The option to specify the files to ignore during the checking.
      */
     @Option(
         help = "Files to ignore during the analysis",
@@ -241,7 +241,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> ignores = new OptionKey<>("");
 
     /**
-     * The option to specify the error recovery mode
+     * The option to specify the error recovery mode.
      */
     @Option(
         help = "The mode of error recovery in the checker",
@@ -260,7 +260,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // ----- Constructors -----
 
     /**
-     * A simple constructor for the library loading
+     * A simple constructor for the library loading.
      */
     public LKQLLanguage() {
         super();
@@ -272,20 +272,20 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // ----- Class methods -----
 
     /**
-     * Get the context for a given node
+     * Get the context for a given node.
      *
-     * @param node The node to get the context from
-     * @return The LKQLContext for the node
+     * @param node The node to get the context from.
+     * @return The LKQLContext for the node.
      */
     public static LKQLContext getContext(LKQLNode node) {
         return CONTEXT_REFERENCE.get(node);
     }
 
     /**
-     * Get the language instance for the given node
+     * Get the language instance for the given node.
      *
-     * @param node The node to get the language instance from
-     * @return The LKQLLanguage instance for the node
+     * @param node The node to get the language instance from.
+     * @return The LKQLLanguage instance for the node.
      */
     public static LKQLLanguage getLanguage(LKQLNode node) {
         return LANGUAGE_REFERENCE.get(node);
@@ -368,10 +368,10 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     }
 
     /**
-     * Get a LKQL top level list from a parsing request
+     * Get a LKQL top level list from a parsing request.
      *
-     * @param request The parsing request
-     * @return The LKQL top level list
+     * @param request The parsing request.
+     * @return The LKQL top level list.
      */
     private TopLevelList getTopLevelList(ParsingRequest request) {
         // Parse the given file or buffer

@@ -34,8 +34,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.source.Source;
 
 /**
- * This class represents the pattern values in the LKQL language
- * Pattern values are compiled regular expression
+ * This class represents the pattern values in the LKQL language.
+ * Pattern values are compiled regular expression.
  *
  * @author Hugo GUERRIER
  */
@@ -44,28 +44,28 @@ public final class Pattern implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The string of the regex
+     * The string of the regex.
      */
     private final String regexString;
 
     /**
-     * If the regex is case-sensitive
+     * If the regex is case-sensitive.
      */
     private final boolean caseSensitive;
 
     /**
-     * The regex object
+     * The regex object.
      */
     private final Object regexObject;
 
     // ----- Constructors -----
 
     /**
-     * Create a new pattern value with the regex string
+     * Create a new pattern value with the regex string.
      *
-     * @param creator       The creator of the pattern
-     * @param regexString   The regex string
-     * @param caseSensitive If the regex is case-sensitive
+     * @param creator       The creator of the pattern.
+     * @param regexString   The regex string.
+     * @param caseSensitive Whether the regex is case-sensitive.
      */
     @CompilerDirectives.TruffleBoundary
     public Pattern(
@@ -102,10 +102,10 @@ public final class Pattern implements LKQLValue {
     // ----- Class methods -----
 
     /**
-     * Get if the given string contains a substring that validate the regex
+     * Get if the given string contains a substring that validate the regex.
      *
-     * @param string The string to search in
-     * @return True if the string validate the pattern, false else
+     * @param string The string to search in.
+     * @return True if the string validate the pattern, false else.
      */
     public boolean contains(String string) {
         try {
@@ -117,10 +117,10 @@ public final class Pattern implements LKQLValue {
     }
 
     /**
-     * Get the index of the first matched group in the given string
+     * Get the index of the first matched group in the given string.
      *
-     * @param string The string to match
-     * @return The index of the first matcher group or -1
+     * @param string The string to match.
+     * @return The index of the first matcher group or -1.
      */
     public int find(String string) {
         try {

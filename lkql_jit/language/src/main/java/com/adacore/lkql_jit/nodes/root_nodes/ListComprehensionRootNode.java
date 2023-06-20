@@ -33,21 +33,21 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This root node represents a list comprehension execution (expression and predicate) in the LKQL language
+ * This root node represents a list comprehension execution (expression and predicate) in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
 public final class ListComprehensionRootNode extends BaseRootNode {
 
     /**
-     * The predicate of the list comprehension
+     * The predicate of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr predicate;
 
     /**
-     * The result expression of the list comprehension
+     * The result expression of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -56,12 +56,12 @@ public final class ListComprehensionRootNode extends BaseRootNode {
     // ----- Constructors -----
 
     /**
-     * Create a new list comprehension root node
+     * Create a new list comprehension root node.
      *
-     * @param language        The language instance to link the root node with
-     * @param frameDescriptor The frame descriptor for the root node
-     * @param predicate       The predicate of the list comprehension
-     * @param result          The result expression of the list comprehension
+     * @param language        The language instance to link the root node with.
+     * @param frameDescriptor The frame descriptor for the root node.
+     * @param predicate       The predicate of the list comprehension.
+     * @param result          The result expression of the list comprehension.
      */
     public ListComprehensionRootNode(
         TruffleLanguage<?> language,

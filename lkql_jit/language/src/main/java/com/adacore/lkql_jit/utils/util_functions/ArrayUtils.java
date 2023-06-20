@@ -31,18 +31,18 @@ import java.util.Objects;
 
 
 /**
- * Util functions to manipulate the arrays in the JIT implementation
+ * Util functions to manipulate the arrays in the JIT implementation.
  *
  * @author Hugo GUERRIER
  */
 public final class ArrayUtils {
 
     /**
-     * Get the first index of the first matching element in the array
+     * Get the first index of the first matching element in the array.
      *
-     * @param arr The array to search in
-     * @param val The value to look for
-     * @return The index of the first occurence of the value
+     * @param arr The array to search in.
+     * @param val The value to look for.
+     * @return The index of the first occurrence of the value.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> int indexOf(T[] arr, T val) {
@@ -53,12 +53,12 @@ public final class ArrayUtils {
     }
 
     /**
-     * Compare the two array
+     * Compare the two array.
      *
-     * @param left  The left array
-     * @param right The right array
-     * @param <T>   The type of the array elements
-     * @return The result of the comparison
+     * @param left  The left array.
+     * @param right The right array.
+     * @param <T>   The type of the array elements.
+     * @return The result of the comparison.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> boolean equals(T[] left, T[] right) {
@@ -75,12 +75,12 @@ public final class ArrayUtils {
     }
 
     /**
-     * Concatenate two array of arbitrary types
+     * Concatenate two array of arbitrary types.
      *
-     * @param left  The left array
-     * @param right The right array
-     * @param <T>   The array type
-     * @return The concatenation of the arrays in a new array
+     * @param left  The left array.
+     * @param right The right array.
+     * @param <T>   The array type.
+     * @return The concatenation of the arrays in a new array.
      */
     public static <T> T[] concat(T[] left, T[] right) {
         T[] res = Arrays.copyOf(left, left.length + right.length);
@@ -89,11 +89,11 @@ public final class ArrayUtils {
     }
 
     /**
-     * Create an array where duplicate entries of input are deleted
+     * Create an array where duplicate entries of input are deleted.
      *
-     * @param array The input array
-     * @param <T>   Type of the array
-     * @return The unique array
+     * @param array The input array.
+     * @param <T>   Type of the array.
+     * @return The unique array.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> T[] unique(T[] array) {
@@ -107,11 +107,11 @@ public final class ArrayUtils {
     }
 
     /**
-     * Get the string representation of a given array
+     * Get the string representation of a given array.
      *
-     * @param array The array to get the representation from
-     * @param <T>   The type of the array elements
-     * @return The string representation of the array
+     * @param array The array to get the representation from.
+     * @param <T>   The type of the array elements.
+     * @return The string representation of the array.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> String toString(T[] array) {

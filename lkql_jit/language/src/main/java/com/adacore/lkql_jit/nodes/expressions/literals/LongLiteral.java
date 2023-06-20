@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a literal integer that fit in a long java value
+ * This node represents a literal integer that fit in a long java value.
  *
  * @author Hugo GUERRIER
  */
@@ -38,17 +38,17 @@ public final class LongLiteral extends Expr {
     // ----- Attributes -----
 
     /**
-     * The value of the integer
+     * The value of the integer.
      */
     private final long value;
 
     // ----- Constructors -----
 
     /**
-     * Create a new long literal with its value
+     * Create a new long literal with its value.
      *
-     * @param location The location of the node in the source
-     * @param value    The integer value
+     * @param location The location of the node in the source.
+     * @param value    The integer value.
      */
     public LongLiteral(
         SourceLocation location,

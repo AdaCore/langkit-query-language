@@ -30,16 +30,16 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the detail value in an extended node pattern in the LKQL language
+ * This node represents the detail value in an extended node pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
 public abstract class DetailValue extends LKQLNode {
 
     /**
-     * Create a new detail value
+     * Create a new detail value.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     protected DetailValue(
         SourceLocation location
@@ -58,11 +58,11 @@ public abstract class DetailValue extends LKQLNode {
     }
 
     /**
-     * Execute the detail value to verify if it's valid
+     * Execute the detail value to verify if it's valid.
      *
-     * @param frame The frame to execute in
-     * @param value The value to verify
-     * @return True of the value is valid, false else
+     * @param frame The frame to execute in.
+     * @param value The value to verify.
+     * @return True of the value is valid, false else.
      */
     public abstract boolean executeDetailValue(VirtualFrame frame, Object value);
 

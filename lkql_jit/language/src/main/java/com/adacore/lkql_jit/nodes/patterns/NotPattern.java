@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the negation of a given pattern in the LKQL language
+ * This node represents the negation of a given pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,7 +38,7 @@ public final class NotPattern extends ValuePattern {
     // ----- Children -----
 
     /**
-     * The pattern to negate
+     * The pattern to negate.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -47,10 +47,10 @@ public final class NotPattern extends ValuePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new not pattern node
+     * Create a new not pattern node.
      *
-     * @param location The location of the node in the source
-     * @param pattern  The pattern to negate
+     * @param location The location of the node in the source.
+     * @param pattern  The pattern to negate.
      */
     public NotPattern(
         SourceLocation location,

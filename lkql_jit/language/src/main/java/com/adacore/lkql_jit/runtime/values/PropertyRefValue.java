@@ -36,7 +36,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This class represents a reference to an ada node property stored in a value
+ * This class represents a reference to an ada node property stored in a value.
  *
  * @author Hugo GUERRIER
  */
@@ -45,27 +45,27 @@ public final class PropertyRefValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The node to execute the property on
+     * The node to execute the property on.
      */
     private final Libadalang.AdaNode node;
 
     /**
-     * The property name
+     * The property name.
      */
     private final String propertyName;
 
     /**
-     * The field Java description
+     * The field Java description.
      */
     public final Libadalang.LibadalangField fieldDescription;
 
     // ----- Constructors -----
 
     /**
-     * Create a new property reference value
+     * Create a new property reference value.
      *
-     * @param node         The node to create the property from
-     * @param propertyName The name of the property to get
+     * @param node         The node to create the property from.
+     * @param propertyName The name of the property to get.
      */
     public PropertyRefValue(
         Libadalang.AdaNode node,
@@ -77,11 +77,11 @@ public final class PropertyRefValue implements LKQLValue {
     }
 
     /**
-     * Creator for the property reference value for the Truffle DSL
+     * Creator for the property reference value for the Truffle DSL.
      *
-     * @param node         The node to create the property on
-     * @param propertyName The name of the property to get
-     * @return The property reference
+     * @param node         The node to create the property on.
+     * @param propertyName The name of the property to get.
+     * @return The property reference.
      */
     public static PropertyRefValue create(
         Libadalang.AdaNode node,
@@ -107,20 +107,20 @@ public final class PropertyRefValue implements LKQLValue {
     // ----- Class methods -----
 
     /**
-     * Get if the property reference point to a node field
+     * Get if the property reference point to a node field.
      *
-     * @return True of the property is a field, false else
+     * @return True of the property is a field, false else.
      */
     public boolean isField() {
         return this.propertyName.startsWith("f");
     }
 
     /**
-     * Execute the property with the given arguments
+     * Execute the property with the given arguments.
      *
-     * @param caller    The locatable which called the execution
-     * @param arguments The argument for the property call
-     * @return The result of the property execution
+     * @param caller    The locatable which called the execution.
+     * @param arguments The argument for the property call.
+     * @return The result of the property execution.
      */
     public Object execute(Locatable caller, ArgList argList, Object... arguments) {
         try {
@@ -140,10 +140,10 @@ public final class PropertyRefValue implements LKQLValue {
     }
 
     /**
-     * Execute the property as a field access without arguments
+     * Execute the property as a field access without arguments.
      *
-     * @param caller The locatable which called the execution
-     * @return The result of the field call
+     * @param caller The locatable which called the execution.
+     * @return The result of the field call.
      */
     public Object executeAsField(Locatable caller) {
         try {

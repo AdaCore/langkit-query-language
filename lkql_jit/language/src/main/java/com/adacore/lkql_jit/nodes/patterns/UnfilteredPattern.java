@@ -27,20 +27,18 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This node represents all unfiltered patterns in the LKQL language
+ * This node represents all unfiltered patterns in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
 public abstract class UnfilteredPattern extends BasePattern {
 
     /**
-     * Create a new unfiltered pattern
+     * Create a new unfiltered pattern.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
-    protected UnfilteredPattern(
-        SourceLocation location
-    ) {
+    protected UnfilteredPattern(SourceLocation location) {
         super(location);
     }
 

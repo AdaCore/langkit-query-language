@@ -34,14 +34,14 @@ import com.oracle.truffle.api.nodes.Node;
 
 
 /**
- * This node the dispatcher for the selector root nodes execution
+ * This node the dispatcher for the selector root nodes execution.
  *
  * @author Hugo GUERRIER
  */
 public abstract class SelectorDispatcher extends Node {
 
     /**
-     * Function to execute the selector root node and get the result
+     * Function to execute the selector root node and get the result.
      */
     public abstract SelectorRootNode.SelectorCallResult executeDispatch(
         SelectorRootNode rootNode,
@@ -50,12 +50,12 @@ public abstract class SelectorDispatcher extends Node {
     );
 
     /**
-     * Execute the selector root node with the direct path
+     * Execute the selector root node with the direct path.
      *
-     * @param rootNode       The selector root node to execute
-     * @param node           The node to execute the selector on
-     * @param directCallNode The direct call node
-     * @return The result of the selector call
+     * @param rootNode       The selector root node to execute.
+     * @param node           The node to execute the selector on.
+     * @param directCallNode The direct call node.
+     * @return The result of the selector call.
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
     protected static SelectorRootNode.SelectorCallResult executeCached(
@@ -68,12 +68,12 @@ public abstract class SelectorDispatcher extends Node {
     }
 
     /**
-     * Execute the selector root node in an indirect way
+     * Execute the selector root node in an indirect way.
      *
-     * @param rootNode         The selector root node to execute
-     * @param node             The node to execute the selector on
-     * @param indirectCallNode The indirect call node
-     * @return The result of the selector call
+     * @param rootNode         The selector root node to execute.
+     * @param node             The node to execute the selector on.
+     * @param indirectCallNode The indirect call node.
+     * @return The result of the selector call.
      */
     @Specialization(replaces = "executeCached")
     protected static SelectorRootNode.SelectorCallResult executeUncached(

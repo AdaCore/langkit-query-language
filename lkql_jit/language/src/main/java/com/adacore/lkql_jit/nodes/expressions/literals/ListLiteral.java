@@ -30,7 +30,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a list literal node in the LKQL language
+ * This node represents a list literal node in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -39,25 +39,25 @@ public final class ListLiteral extends Expr {
     // ----- Children -----
 
     /**
-     * The list expressions
+     * The list expressions.
      */
     @Children
-    private final Expr[] listExprs;
+    private final Expr[] exprs;
 
     // ----- Constructors -----
 
     /**
-     * Create a new list literal node
+     * Create a new list literal node.
      *
-     * @param location  The location of the node in the source
-     * @param listExprs The expressions inside the list
+     * @param location The location of the node in the source.
+     * @param exprs    The expressions inside the list.
      */
     public ListLiteral(
         SourceLocation location,
-        Expr[] listExprs
+        Expr[] exprs
     ) {
         super(location);
-        this.listExprs = listExprs;
+        this.exprs = exprs;
     }
 
     // ----- Execute methods -----
@@ -76,9 +76,9 @@ public final class ListLiteral extends Expr {
     @Override
     public ListValue executeList(VirtualFrame frame) {
         // Evaluate the list content
-        Object[] values = new Object[this.listExprs.length];
-        for (int i = 0; i < this.listExprs.length; i++) {
-            values[i] = this.listExprs[i].executeGeneric(frame);
+        Object[] values = new Object[this.exprs.length];
+        for (int i = 0; i < this.exprs.length; i++) {
+            values[i] = this.exprs[i].executeGeneric(frame);
         }
 
         // Return the list value

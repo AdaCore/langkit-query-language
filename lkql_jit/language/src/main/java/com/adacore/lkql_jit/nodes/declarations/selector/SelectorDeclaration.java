@@ -21,11 +21,11 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.selectors;
+package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.declarations.Annotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
@@ -39,11 +39,11 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the base declaration of a selector in the LKQL language
+ * This node represents the base declaration of a selector in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorDecl extends Declaration {
+public final class SelectorDeclaration extends Declaration {
 
     // ----- Attributes -----
 
@@ -75,7 +75,7 @@ public final class SelectorDecl extends Declaration {
     // ----- Constructors -----
 
     /**
-     * Create a new selector declaration
+     * Create a new selector declaration node.
      *
      * @param location          The location of the node in the source.
      * @param annotation        The annotation of the selector declaration.
@@ -88,9 +88,9 @@ public final class SelectorDecl extends Declaration {
      * @param depthSlot         The slot for the "depth" symbol.
      * @param arms              The arms of the selector.
      */
-    public SelectorDecl(
+    public SelectorDeclaration(
         SourceLocation location,
-        DeclAnnotation annotation,
+        Annotation annotation,
         FrameDescriptor frameDescriptor,
         ClosureDescriptor closureDescriptor,
         String name,
@@ -119,7 +119,7 @@ public final class SelectorDecl extends Declaration {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {

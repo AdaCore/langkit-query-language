@@ -32,7 +32,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 
 
 /**
- * This node is the base of all LKQL root nodes
+ * This node is the base of all LKQL root nodes.
  *
  * @author Hugo GUERRIER
  */
@@ -41,7 +41,7 @@ public abstract class BaseRootNode extends RootNode {
     // ----- Constructors -----
 
     /**
-     * Create a new root node
+     * Create a new base root node.
      *
      * @param language        The language instance to link the root node with.
      * @param frameDescriptor The frame descriptor for the root node.

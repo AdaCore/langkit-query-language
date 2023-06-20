@@ -10,7 +10,7 @@ import org.graalvm.collections.EconomicMap;
 
 
 /**
- * Util functions for the LKQL checker implementation
+ * Util functions for the LKQL checker implementation.
  *
  * @author Hugo GUERRIER
  */
@@ -45,13 +45,13 @@ public class CheckerUtils {
      */
     public interface DiagnosticEmitter {
         /**
-         * @param ruleName              The name of the rule
-         * @param message               The message of the violated rule
-         * @param slocRange             The location where the error occurs in the code
-         * @param unit                  The analysis unit in which the error occurs
-         * @param genericInstantiations The current stack of generic instantiations
-         * @param linesCache            The cache of all units' source text lines
-         * @param context               The context to output the message
+         * @param ruleName              The name of the rule.
+         * @param message               The message of the violated rule.
+         * @param slocRange             The location where the error occurs in the code.
+         * @param unit                  The analysis unit in which the error occurs.
+         * @param genericInstantiations The current stack of generic instantiations.
+         * @param linesCache            The cache of all units' source text lines.
+         * @param context               The context to output the message.
          */
         void emitRuleViolation(
             String ruleName,
@@ -152,16 +152,16 @@ public class CheckerUtils {
     }
 
     /**
-     * Display a rule violation on the standard output
+     * Display a rule violation on the standard output.
      *
-     * @param message    The message of the violated rule
-     * @param startLine  The position start line
-     * @param startCol   The position start column
-     * @param endLine    The position end line
-     * @param endCol     The position end column
-     * @param unit       The analysis unit where the violation happened
-     * @param linesCache The cache of all units' source text lines
-     * @param context    The LKQL context to use for the output
+     * @param message    The message of the violated rule.
+     * @param startLine  The position start line.
+     * @param startCol   The position start column.
+     * @param endLine    The position end line.
+     * @param endCol     The position end column.
+     * @param unit       The analysis unit where the violation happened.
+     * @param linesCache The cache of all units' source text lines.
+     * @param context    The LKQL context to use for the output.
      */
     @CompilerDirectives.TruffleBoundary
     public static void printRuleViolation(

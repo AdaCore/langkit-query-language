@@ -26,8 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.selectors;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Unpack;
@@ -41,7 +41,7 @@ import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 
 /**
- * This class represents the "super_types" built-in selector
+ * This class represents the "super_types" built-in selector.
  *
  * @author Hugo GUERRIER
  */
@@ -50,33 +50,33 @@ public final class SuperTypesSelector implements BuiltInSelector {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "super_types" built-in selector
+     * The only instance of the "super_types" built-in selector.
      */
     private static SuperTypesSelector instance = null;
 
     /**
-     * The name of the selector
+     * The name of the selector.
      */
     public static final String NAME = "super_types";
 
     /**
-     * The arms representing the "super_types" selector execution
+     * The arms representing the "super_types" selector execution.
      */
     public final SelectorArm[] arms;
 
     // ----- Constructors -----
 
     /**
-     * Private constructors
+     * Private constructors.
      */
     private SuperTypesSelector() {
         this.arms = createArms();
     }
 
     /**
-     * Get the only instance of the built-in selector
+     * Get the only instance of the built-in selector.
      *
-     * @return The instance of the selector
+     * @return The instance of the selector.
      */
     public static SuperTypesSelector getInstance() {
         if (instance == null) {
@@ -110,9 +110,9 @@ public final class SuperTypesSelector implements BuiltInSelector {
     // ----- Class methods -----
 
     /**
-     * Create the selector arms and return them
+     * Create the selector arms and return them.
      *
-     * @return The selector arms
+     * @return The selector arms.
      */
     private static SelectorArm[] createArms() {
         // Create the arms

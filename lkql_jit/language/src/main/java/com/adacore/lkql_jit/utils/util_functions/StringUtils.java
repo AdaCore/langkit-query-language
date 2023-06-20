@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * Util functions to manipulate the java string type in the JIT implementation
+ * Util functions to manipulate the java string type in the JIT implementation.
  *
  * @author Hugo GUERRIER
  */
@@ -52,10 +52,10 @@ public final class StringUtils {
     // ----- Class methods -----
 
     /**
-     * Concatenate given strings
+     * Concatenate given strings.
      *
-     * @param strings The strings to concatenate
-     * @return The concatenated strings
+     * @param strings The strings to concatenate.
+     * @return The concatenated strings.
      */
     @CompilerDirectives.TruffleBoundary
     public static String concat(String... strings) {
@@ -67,11 +67,11 @@ public final class StringUtils {
     }
 
     /**
-     * Compare the given strings ignoring the casing of them
+     * Compare the given strings ignoring the casing of them.
      *
-     * @param left  The left string
-     * @param right The right string
-     * @return True if the strings are equals, false else
+     * @param left  The left string.
+     * @param right The right string.
+     * @return True if the strings are equals, false else.
      */
     @CompilerDirectives.TruffleBoundary
     public static boolean equalsIgnoreCase(String left, String right) {
@@ -79,11 +79,11 @@ public final class StringUtils {
     }
 
     /**
-     * Fill the given string with space character to get to the given size
+     * Fill the given string with space character to get to the given size.
      *
-     * @param toFill The string to fill with space
-     * @param size   The size to get to
-     * @return The filled string
+     * @param toFill The string to fill with space.
+     * @param size   The size to get to.
+     * @return The filled string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String fill(String toFill, int size) {
@@ -92,11 +92,11 @@ public final class StringUtils {
     }
 
     /**
-     * Get if a string contains a given target
+     * Get if a string contains a given target.
      *
-     * @param place  The place to search in
-     * @param target The target to look for
-     * @return True if the place contains the target
+     * @param place  The place to search in.
+     * @param target The target to look for.
+     * @return True if the place contains the target.
      */
     @CompilerDirectives.TruffleBoundary
     public static boolean contains(String place, String target) {
@@ -104,11 +104,11 @@ public final class StringUtils {
     }
 
     /**
-     * Get the index of the target string in
+     * Get the index of the target string in.
      *
-     * @param in     The string to search in
-     * @param target The target string
-     * @return The index of the target string
+     * @param in     The string to search in.
+     * @param target The target string.
+     * @return The index of the target string.
      */
     @CompilerDirectives.TruffleBoundary
     public static int indexOf(String in, String target) {
@@ -116,11 +116,11 @@ public final class StringUtils {
     }
 
     /**
-     * Split a string according to a splitter regular expression
+     * Split a string according to a splitter regular expression.
      *
-     * @param toSplit  The string to split
-     * @param splitter The splitter expression
-     * @return The split string in an array
+     * @param toSplit  The string to split.
+     * @param splitter The splitter expression.
+     * @return The split string in an array.
      */
     @CompilerDirectives.TruffleBoundary
     public static String[] split(String toSplit, String splitter) {
@@ -131,8 +131,8 @@ public final class StringUtils {
      * Assuming the given string is composed of file paths separated by the OS's path separator,
      * return those paths as an array of String.
      *
-     * @param toSplit The string to split
-     * @return The array of paths
+     * @param toSplit The string to split.
+     * @return The array of paths.
      */
     @CompilerDirectives.TruffleBoundary
     public static String[] splitPaths(String toSplit) {
@@ -140,10 +140,10 @@ public final class StringUtils {
     }
 
     /**
-     * Get the lower case representation of the given string
+     * Get the lower case representation of the given string.
      *
-     * @param toLower The string to lower
-     * @return The lowered string
+     * @param toLower The string to lower.
+     * @return The lowered string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String toLowerCase(String toLower) {
@@ -151,10 +151,10 @@ public final class StringUtils {
     }
 
     /**
-     * Get the upper case representation of the given string
+     * Get the upper case representation of the given string.
      *
-     * @param toUpper The string to upper
-     * @return The uppered string
+     * @param toUpper The string to upper.
+     * @return The uppered string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String toUpperCase(String toUpper) {
@@ -162,10 +162,10 @@ public final class StringUtils {
     }
 
     /**
-     * Translate a string to a snake_case one
+     * Translate a string to a snake_case one.
      *
-     * @param source The source string
-     * @return The transformed string
+     * @param source The source string.
+     * @return The transformed string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String toSnakeCase(String source) {
@@ -182,10 +182,10 @@ public final class StringUtils {
     }
 
     /**
-     * Get a camel case formatted string from a snake case source
+     * Get a camel case formatted string from a snake case source.
      *
-     * @param source The source string
-     * @return The camel case
+     * @param source The source string.
+     * @return The camel case.
      */
     @CompilerDirectives.TruffleBoundary
     public static String toCamelCase(String source) {
@@ -204,10 +204,10 @@ public final class StringUtils {
     }
 
     /**
-     * Create a string representation with escaped character
+     * Create a string representation with escaped character.
      *
-     * @param source The string to represent
-     * @return The representation of the string
+     * @param source The string to represent.
+     * @return The representation of the string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String toRepr(String source) {
@@ -219,10 +219,10 @@ public final class StringUtils {
     }
 
     /**
-     * Translate the escaping sequence of the given string
+     * Translate the escaping sequence of the given string.
      *
-     * @param toTranslate The string to translate the escape sequences in
-     * @return The string with the translated escape sequence
+     * @param toTranslate The string to translate the escape sequences in.
+     * @return The string with the translated escape sequence.
      */
     @CompilerDirectives.TruffleBoundary
     public static String translateEscapes(String toTranslate) {
@@ -238,10 +238,10 @@ public final class StringUtils {
     }
 
     /**
-     * Split the source by lines
+     * Split the source by lines.
      *
-     * @param source The source to split
-     * @return The lines in an array
+     * @param source The source to split.
+     * @return The lines in an array.
      */
     @CompilerDirectives.TruffleBoundary
     public static String[] separateLines(String source) {
@@ -266,15 +266,15 @@ public final class StringUtils {
     }
 
     /**
-     * Get the underlined source representation
+     * Get the underlined source representation.
      *
-     * @param lines          The lines to display
-     * @param startLine      The starting line
-     * @param startCol       The starting column
-     * @param endLine        The ending line
-     * @param endCol         The ending colum
-     * @param underLineColor The color of the underline
-     * @return The underlined lines in a string
+     * @param lines          The lines to display.
+     * @param startLine      The starting line.
+     * @param startCol       The starting column.
+     * @param endLine        The ending line.
+     * @param endCol         The ending colum.
+     * @param underLineColor The color of the underline.
+     * @return The underlined lines in a string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String underlineSource(

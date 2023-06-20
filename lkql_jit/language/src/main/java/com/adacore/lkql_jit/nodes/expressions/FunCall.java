@@ -44,7 +44,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This node represents a function call node in the LKQL language
+ * This node represents a function call node in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -54,26 +54,26 @@ public abstract class FunCall extends Expr {
     // ----- Attributes -----
 
     /**
-     * If the function call is safe access
+     * Whether the function call is safe access.
      */
     protected final boolean isSafe;
 
     /**
-     * The location of the callee token
+     * The location of the callee token.
      */
     protected final DummyLocation calleeLocation;
 
     // ----- Children -----
 
     /**
-     * The function call arguments
+     * The function call arguments.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ArgList argList;
 
     /**
-     * The function dispatch node to optimize execution
+     * The function dispatch node to optimize execution.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -82,12 +82,12 @@ public abstract class FunCall extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new function call node
+     * Create a new function call node.
      *
-     * @param location       The location of the node in the source
-     * @param isSafe         If the function call is protected with a safe operator
-     * @param calleeLocation The location of the callee expression
-     * @param argList        The arguments of the function call
+     * @param location       The location of the node in the source.
+     * @param isSafe         Whether the function call is protected with a safe operator.
+     * @param calleeLocation The location of the callee expression.
+     * @param argList        The arguments of the function call.
      */
     protected FunCall(
         SourceLocation location,
@@ -111,11 +111,11 @@ public abstract class FunCall extends Expr {
     // ----- Execute methods -----
 
     /**
-     * Execute the function call on a built-in function
+     * Execute the function call on a built-in function.
      *
-     * @param frame                The frame to execute the built-in in
-     * @param builtInFunctionValue The built-in function
-     * @return The result of the built-in call
+     * @param frame                The frame to execute the built-in in.
+     * @param builtInFunctionValue The built-in function.
+     * @return The result of the built-in call.
      */
     @Specialization
     protected Object onBuiltIn(
@@ -155,11 +155,11 @@ public abstract class FunCall extends Expr {
     }
 
     /**
-     * Execute the function call on a function value
+     * Execute the function call on a function value.
      *
-     * @param frame         The frame to execution the function in
-     * @param functionValue The function value to execute
-     * @return The result of the function call
+     * @param frame         The frame to execution the function in.
+     * @param functionValue The function value to execute.
+     * @return The result of the function call.
      */
     @Specialization
     protected Object onFunction(
@@ -193,11 +193,11 @@ public abstract class FunCall extends Expr {
     }
 
     /**
-     * Execute the function call on a property reference value
+     * Execute the function call on a property reference value.
      *
-     * @param frame            The frame to execute the property reference in
-     * @param propertyRefValue The property reference value to execute
-     * @return The result of the property call
+     * @param frame            The frame to execute the property reference in.
+     * @param propertyRefValue The property reference value to execute.
+     * @return The result of the property call.
      */
     @Specialization
     protected Object onProperty(
@@ -212,11 +212,11 @@ public abstract class FunCall extends Expr {
     }
 
     /**
-     * Execute function call on a selector value
+     * Execute function call on a selector value.
      *
-     * @param frame         The frame to execute the selector value in
-     * @param selectorValue The selector value to execute
-     * @return The result of the selector value execution
+     * @param frame         The frame to execute the selector value in.
+     * @param selectorValue The selector value to execute.
+     * @return The result of the selector value execution.
      */
     @Specialization
     protected SelectorListValue onSelector(
@@ -250,10 +250,10 @@ public abstract class FunCall extends Expr {
     }
 
     /**
-     * If the function call is executed on a nullish value and is safe
+     * If the function call is executed on a nullish value and is safe.
      *
-     * @param value The value that is not used
-     * @return The unit value
+     * @param value The value that is not used.
+     * @return The unit value.
      */
     @Specialization(guards = "isSafe")
     protected Object onNullish(@SuppressWarnings("unused") Nullish value) {
@@ -261,9 +261,9 @@ public abstract class FunCall extends Expr {
     }
 
     /**
-     * If the function call is done on a non-executable value
+     * If the function call is done on a non-executable value.
      *
-     * @param nonExec The non-executable value
+     * @param nonExec The non-executable value.
      */
     @Fallback
     protected void nonExecutable(Object nonExec) {

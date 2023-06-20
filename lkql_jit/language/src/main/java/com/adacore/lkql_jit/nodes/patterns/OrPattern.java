@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the "or" pattern that combines two other patterns in the LKQL language
+ * This node represents the "or" pattern that combines two other patterns in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,14 +38,14 @@ public final class OrPattern extends ValuePattern {
     // ----- Children -----
 
     /**
-     * The left part of the "or" pattern
+     * The left part of the "or" pattern.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern left;
 
     /**
-     * The right part of the "or" pattern
+     * The right part of the "or" pattern.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -54,11 +54,11 @@ public final class OrPattern extends ValuePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new "or" pattern node
+     * Create a new "or" pattern node.
      *
-     * @param location The location of the node in the source
-     * @param left     The left part of the "or"
-     * @param right    The right part of the "or"
+     * @param location The location of the node in the source.
+     * @param left     The left part of the "or".
+     * @param right    The right part of the "or".
      */
     public OrPattern(
         SourceLocation location,

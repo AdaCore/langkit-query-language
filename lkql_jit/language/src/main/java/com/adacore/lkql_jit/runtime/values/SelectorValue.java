@@ -31,7 +31,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This class represents the selector values in the LQKL language
+ * This class represents the selector values in the LQKL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,7 +40,7 @@ public class SelectorValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The root node of the selector
+     * The root node of the selector.
      */
     private final SelectorRootNode rootNode;
 
@@ -50,19 +50,19 @@ public class SelectorValue implements LKQLValue {
     private final Closure closure;
 
     /**
-     * The name of the selector
+     * The name of the selector.
      */
     private final String name;
 
     /**
-     * The documentation of the selector value
+     * The documentation of the selector value.
      */
     private final String documentation;
 
     // ----- Constructors -----
 
     /**
-     * Create a new selector value
+     * Create a new selector value.
      *
      * @param selectorRootNode The root node of the selector.
      * @param closure          The closure of the selector.
@@ -82,26 +82,26 @@ public class SelectorValue implements LKQLValue {
         this.documentation = documentation;
     }
 
-    // ----- Class methods -----
+    // ----- Instance methods -----
 
     /**
-     * Execute the selector value on an ada node
+     * Execute the selector value on an ada node.
      *
-     * @param node The node to execute the selector on
-     * @return The selector list value
+     * @param node The node to execute the selector on.
+     * @return The selector list value.
      */
     public SelectorListValue execute(Libadalang.AdaNode node) {
         return this.execute(node, -1, -1, -1);
     }
 
     /**
-     * Execute the selector value on an ada node with additional arguments
+     * Execute the selector value on an ada node with additional arguments.
      *
-     * @param node     The node to execute the selector on
-     * @param maxDepth The maximum depth of the selector list
-     * @param minDepth The minimal depth of the selector list
-     * @param depth    The precise depth to get
-     * @return The selector list value
+     * @param node     The node to execute the selector on.
+     * @param maxDepth The maximum depth of the selector list.
+     * @param minDepth The minimal depth of the selector list.
+     * @param depth    The precise depth to get.
+     * @return The selector list value.
      */
     public SelectorListValue execute(Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
         return new SelectorListValue(this.rootNode, this.closure, node, maxDepth, minDepth, depth);

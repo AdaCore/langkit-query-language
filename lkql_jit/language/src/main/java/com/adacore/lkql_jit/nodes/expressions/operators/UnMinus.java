@@ -35,7 +35,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the arithmetic unary negation operation in the LKQL language
+ * This node represents the arithmetic unary negation operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,10 +44,10 @@ public abstract class UnMinus extends UnOp {
     // ----- Constructors -----
 
     /**
-     * Create an arithmetic unary negation node
+     * Create an arithmetic unary negation node.
      *
-     * @param location    The location of the node in the source
-     * @param argLocation The location of the argument node
+     * @param location    The location of the node in the source.
+     * @param argLocation The location of the argument node.
      */
     protected UnMinus(
         SourceLocation location,
@@ -59,10 +59,10 @@ public abstract class UnMinus extends UnOp {
     // ----- Execution methods -----
 
     /**
-     * Arithmetically negate the long value
+     * Arithmetically negate the long value.
      *
-     * @param arg The long value to negate
-     * @return The negated value
+     * @param arg The long value to negate.
+     * @return The negated value.
      */
     @Specialization
     protected long negateLong(long arg) {
@@ -70,10 +70,10 @@ public abstract class UnMinus extends UnOp {
     }
 
     /**
-     * Arithmetically negate the big integer value
+     * Arithmetically negate the big integer value.
      *
-     * @param arg The big integer value to negate
-     * @return The negated value
+     * @param arg The big integer value to negate.
+     * @return The negated value.
      */
     @Specialization
     protected BigInteger negateBigInteger(BigInteger arg) {
@@ -81,9 +81,9 @@ public abstract class UnMinus extends UnOp {
     }
 
     /**
-     * Fallback error method when the argument is a non-integer value
+     * Fallback error method when the argument is a non-integer value.
      *
-     * @param arg The non-integer argument
+     * @param arg The non-integer argument.
      */
     @Fallback
     protected void notNumber(Object arg) {

@@ -31,7 +31,7 @@ import com.adacore.lkql_jit.runtime.values.FunctionValue;
 
 
 /**
- * This class represents the base of a built-in function value
+ * This class represents the base of a built-in function value.
  *
  * @author Hugo GUERRIER
  */
@@ -40,20 +40,20 @@ public final class BuiltInFunctionValue extends FunctionValue {
     // ----- Attributes -----
 
     /**
-     * The value of the "this" variable
+     * The value of the "this" variable.
      */
     private Object thisValue;
 
     // ----- Constructor -----
 
     /**
-     * Create a built-in function value
+     * Create a built-in function value.
      *
-     * @param name          The name of the built-in
-     * @param documentation The documentation of the built-in
-     * @param names         The names of the built-in parameters
-     * @param defaultValues The default values of the parameters
-     * @param body          The expression representing the built-in body
+     * @param name          The name of the built-in.
+     * @param documentation The documentation of the built-in.
+     * @param names         The names of the built-in parameters.
+     * @param defaultValues The default values of the parameters.
+     * @param body          The expression representing the built-in body.
      */
     public BuiltInFunctionValue(
         String name,
@@ -87,9 +87,9 @@ public final class BuiltInFunctionValue extends FunctionValue {
     // ----- Class methods -----
 
     /**
-     * Set the calling node to the function body to allow its access in the built-in expression
+     * Set the calling node to the function body to allow its access in the built-in expression.
      *
-     * @param callNode The node which called the built-in
+     * @param callNode The node which called the built-in.
      */
     public void setCallNode(FunCall callNode) {
         ((BuiltInExpr) this.getBody()).setCallNode(callNode);
