@@ -21,73 +21,66 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes;
-
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.RootNode;
+package com.adacore.lkql_jit.runtime;
 
 
 /**
- * This root node represents the root execution of an LKQL program
+ * This class represents a storing cell in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class LKQLRootNode extends RootNode {
+public final class Cell {
 
     // ----- Attributes -----
 
     /**
-     * The list of nodes representing the program
+     * The reference stored in the cell.
      */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private TopLevelList program;
+    private Object ref;
 
     // ----- Constructors -----
 
     /**
-     * Create a new LKQL root node in order to execute it in Truffle
-     *
-     * @param program  The LKQL program to execute
-     * @param language The reference to the LKQL language instance
+     * Create a new empty cell.
      */
-    public LKQLRootNode(TopLevelList program, LKQLLanguage language) {
-        super(language);
-        this.program = program;
+    public Cell() {
+        this.ref = null;
     }
 
     /**
-     * Create a new LKQL root node in order to execute it in truffle
+     * Create a new cell with its reference.
      *
-     * @param program         The LKQL program to execute
-     * @param language        The reference to the LKQL language instance
-     * @param frameDescriptor The descriptor of the execution frame
+     * @param obj The object to store in the cell.
      */
-    public LKQLRootNode(TopLevelList program, LKQLLanguage language, FrameDescriptor frameDescriptor) {
-        super(language, frameDescriptor);
-        this.program = program;
+    public Cell(Object obj) {
+        this.ref = obj;
     }
 
     // ----- Getters -----
 
-    public TopLevelList getProgram() {
-        return program;
+    public boolean isNull() {
+        return this.ref == null;
     }
 
-    // ----- Execution methods -----
+    public Object getRef() {
+        return this.ref;
+    }
 
-    /**
-     * Execute the LKQL program that the node contains and return the namespace of the program
-     *
-     * @param frame The frame to execute in
-     * @return The namespace of the LKQL program
-     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
-     */
+    // ----- Setters -----
+
+    public void clear() {
+        this.ref = null;
+    }
+
+    public void setRef(Object ref) {
+        this.ref = ref;
+    }
+
+    // ----- Override methods -----
+
     @Override
-    public Object execute(VirtualFrame frame) {
-        return this.program.executeGeneric(frame);
+    public String toString() {
+        return this.isNull() ? "null" : this.ref.toString();
     }
 
 }

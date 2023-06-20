@@ -261,23 +261,21 @@ public final class NodeCheckerFunction implements BuiltInFunction {
             String lowerRuleName = StringUtils.toLowerCase((String) rule.get("name"));
 
             // Prepare the arguments
-            Object[] arguments = new Object[functionValue.getParamNames().length];
-            arguments[0] = node;
+            Object[] arguments = new Object[functionValue.getParamNames().length + 1];
+            arguments[1] = node;
             for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
                 Object userDefinedArg = context.getRuleArg(
                     lowerRuleName,
                     StringUtils.toLowerCase(paramName)
                 );
-                arguments[i] = userDefinedArg == null ?
+                arguments[i + 1] = userDefinedArg == null ?
                     functionValue.getDefaultValues()[i].executeGeneric(frame) :
                     userDefinedArg;
             }
 
-            // Put the namespace
-            if (functionValue.getNamespace() != null) {
-                context.getGlobalValues().pushNamespace(functionValue.getNamespace());
-            }
+            // Place the closure in the arguments
+            arguments[0] = functionValue.getClosure().getContent();
 
             // Call the rule
             boolean ruleResult;
@@ -289,11 +287,6 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                     LKQLTypesHelper.fromJava(e.getResult()),
                     functionValue.getBody()
                 );
-            } finally {
-                // Remove the namespace
-                if (functionValue.getNamespace() != null) {
-                    context.getGlobalValues().popNamespace();
-                }
             }
 
             if (ruleResult) {

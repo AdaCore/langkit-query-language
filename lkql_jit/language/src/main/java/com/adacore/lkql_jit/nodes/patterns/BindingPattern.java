@@ -24,8 +24,8 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
@@ -39,12 +39,7 @@ public final class BindingPattern extends UnfilteredPattern {
     // ----- Attributes -----
 
     /**
-     * The mode of the binding
-     */
-    private final boolean isBindingLocal;
-
-    /**
-     * The slot to put the node in
+     * Frame slot to put the node in
      */
     private final int slot;
 
@@ -62,19 +57,16 @@ public final class BindingPattern extends UnfilteredPattern {
     /**
      * Create a new binding pattern node
      *
-     * @param location       The location of the node in the source
-     * @param isBindingLocal Whether the binding is local
-     * @param slot           The slot to put the node in
-     * @param pattern        The pattern to bind
+     * @param location The location of the node in the source.
+     * @param slot     The frame slot to put the node in.
+     * @param pattern  The pattern to bind in.
      */
     public BindingPattern(
         SourceLocation location,
-        boolean isBindingLocal,
         int slot,
         ValuePattern pattern
     ) {
         super(location);
-        this.isBindingLocal = isBindingLocal;
         this.slot = slot;
         this.pattern = pattern;
     }
@@ -87,11 +79,7 @@ public final class BindingPattern extends UnfilteredPattern {
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the node binding
-        if (this.isBindingLocal) {
-            frame.setObject(this.slot, node);
-        } else {
-            LKQLLanguage.getContext(this).setGlobal(this.slot, null, node);
-        }
+        FrameUtils.writeLocal(frame, this.slot, node);
 
         // Execute the pattern with the binding done
         return this.pattern.executeNode(frame, node);
@@ -103,11 +91,7 @@ public final class BindingPattern extends UnfilteredPattern {
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
         // Do the node binding
-        if (this.isBindingLocal) {
-            frame.setObject(this.slot, str);
-        } else {
-            LKQLLanguage.getContext(this).setGlobal(this.slot, null, str);
-        }
+        FrameUtils.writeLocal(frame, this.slot, str);
 
         // Execute the pattern with the binding done
         return this.pattern.executeString(frame, str);

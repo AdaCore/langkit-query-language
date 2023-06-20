@@ -23,11 +23,19 @@
 
 package com.adacore.lkql_jit.nodes.declarations.selectors;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
+import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
+import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.runtime.values.SelectorValue;
+import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_classes.ClosureDescriptor;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
@@ -35,88 +43,106 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
  *
  * @author Hugo GUERRIER
  */
-public abstract class SelectorDecl extends Declaration {
+public final class SelectorDecl extends Declaration {
 
     // ----- Attributes -----
 
     /**
-     * The name of the selector
+     * The name of the selector.
      */
-    protected final String name;
+    private final String name;
 
     /**
-     * The documentation of the selector
+     * The documentation of the selector.
      */
-    protected final String documentation;
+    private final String documentation;
 
     /**
-     * If the selector is memoized
+     * The slot to put the selector in.
      */
-    protected final boolean isMemoized;
+    private final int slot;
 
     /**
-     * The slot to put the selector in
+     * The closure descriptor of the selector.
      */
-    protected final int slot;
+    private final ClosureDescriptor closureDescriptor;
 
     /**
-     * The slot for the "this" symbol
+     * The root node of the selector.
      */
-    protected final int thisSlot;
-
-    /**
-     * The slot for the "depth" symbol
-     */
-    protected final int depthSlot;
-
-    /**
-     * The frame descriptor for the selector root node
-     */
-    protected final FrameDescriptor descriptor;
-
-    // ----- Children -----
-
-    /**
-     * The arms of the selector
-     */
-    @Children
-    protected final SelectorArm[] arms;
+    private final SelectorRootNode selectorRootNode;
 
     // ----- Constructors -----
 
     /**
      * Create a new selector declaration
      *
-     * @param location      The token location in the source
-     * @param annotation    The annotation of the selector declaration
-     * @param name          The name of the selector
-     * @param documentation The documentation of the selector
-     * @param slot          The slot to put the selector in
-     * @param thisSlot      The slot for the "this" symbol
-     * @param depthSlot     The slot for the "depth" symbol
-     * @param descriptor    The frame descriptor for the selector
-     * @param arms          The arms of the selector
+     * @param location          The location of the node in the source.
+     * @param annotation        The annotation of the selector declaration.
+     * @param frameDescriptor   The frame descriptor for the selector.
+     * @param closureDescriptor The closure descriptor for the selector root node.
+     * @param name              The name of the selector.
+     * @param documentation     The documentation of the selector.
+     * @param slot              The slot to put the selector in.
+     * @param thisSlot          The slot for the "this" symbol.
+     * @param depthSlot         The slot for the "depth" symbol.
+     * @param arms              The arms of the selector.
      */
-    protected SelectorDecl(
+    public SelectorDecl(
         SourceLocation location,
         DeclAnnotation annotation,
+        FrameDescriptor frameDescriptor,
+        ClosureDescriptor closureDescriptor,
         String name,
         String documentation,
         int slot,
         int thisSlot,
         int depthSlot,
-        FrameDescriptor descriptor,
         SelectorArm[] arms
     ) {
-        super(location);
+        super(location, annotation);
+        this.closureDescriptor = closureDescriptor;
         this.name = name;
         this.documentation = documentation;
-        this.isMemoized = annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED);
         this.slot = slot;
-        this.thisSlot = thisSlot;
-        this.depthSlot = depthSlot;
-        this.descriptor = descriptor;
-        this.arms = arms;
+
+        this.selectorRootNode = new SelectorRootNode(
+            LKQLLanguage.getLanguage(this),
+            frameDescriptor,
+            annotation != null && annotation.getName().equals(Constants.ANNOTATION_MEMOIZED),
+            thisSlot,
+            depthSlot,
+            arms
+        );
+    }
+
+    // ----- Execution methods -----
+
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(VirtualFrame)
+     */
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        FrameUtils.writeLocal(
+            frame,
+            this.slot,
+            new SelectorValue(this.selectorRootNode, Closure.create(frame.materialize(), this.closureDescriptor), this.name, this.documentation)
+        );
+        return UnitValue.getInstance();
+    }
+
+    // ----- Override methods -----
+
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
+    @Override
+    public String toString(int indentLevel) {
+        return this.nodeRepresentation(
+            indentLevel,
+            new String[]{"name", "slot"},
+            new Object[]{this.name, this.slot}
+        );
     }
 
 }

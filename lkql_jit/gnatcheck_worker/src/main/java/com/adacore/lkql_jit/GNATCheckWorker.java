@@ -27,6 +27,7 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -161,9 +162,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         contextBuilder.allowIO(true);
         contextBuilder.option("lkql.diagnosticOutputMode", "GNATCHECK");
 
-        // Set the LKQL language mode to interpreter
-        contextBuilder.option("lkql.checkerMode", "true");
-
         // If no rules are provided, don't do anything
         contextBuilder.option("lkql.fallbackToAllRules", "false");
 
@@ -230,13 +228,13 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.ignores", this.ignore);
         }
 
+        // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
             // Create the context and run it with the script
             Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
                 .build();
-            context.eval(source);
-
-            // Return the success
+            final Value executable = context.parse(source);
+            executable.executeVoid(true);
             return 0;
         } catch (Exception e) {
             if (this.verbose) {

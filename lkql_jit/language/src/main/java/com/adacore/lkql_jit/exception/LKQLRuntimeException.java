@@ -23,7 +23,6 @@
 
 package com.adacore.lkql_jit.exception;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
@@ -180,6 +179,18 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException existingSymbol(String symbol, Locatable location) {
         return new LKQLRuntimeException(fullErrorText("Already existing symbol: " + symbol, location));
+    }
+
+    /**
+     * Create a new exception for an already existing parameter.
+     *
+     * @param symbol   The symbol that already exists in the parameters.
+     * @param location The node that try to create an already existing parameter.
+     * @return The exception.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException existingParameter(String symbol, Locatable location) {
+        return new LKQLRuntimeException(fullErrorText("Already existing parameter: " + symbol, location));
     }
 
     /**

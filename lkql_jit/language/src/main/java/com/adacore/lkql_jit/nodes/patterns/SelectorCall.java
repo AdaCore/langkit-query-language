@@ -24,7 +24,6 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -40,6 +39,7 @@ import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
@@ -66,11 +66,6 @@ public final class SelectorCall extends LKQLNode {
      */
     private final int bindingSlot;
 
-    /**
-     * The mode of the binding
-     */
-    private final boolean isBindingLocal;
-
     // ----- Children -----
 
     /**
@@ -92,25 +87,22 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Create a new selector call node
      *
-     * @param location       The location of the node in the source
-     * @param quantifier     The quantifier for the selector
-     * @param bindingSlot    The slot of the binding
-     * @param isBindingLocal The mode of the binding
-     * @param selectorExpr   The selector expression
-     * @param args           The arguments for the call
+     * @param location     The location of the node in the source
+     * @param quantifier   The quantifier for the selector
+     * @param bindingSlot  The slot of the binding
+     * @param selectorExpr The selector expression
+     * @param args         The arguments for the call
      */
     public SelectorCall(
         SourceLocation location,
         Quantifier quantifier,
         int bindingSlot,
-        boolean isBindingLocal,
         Expr selectorExpr,
         ArgList args
     ) {
         super(location);
         this.quantifier = quantifier;
         this.bindingSlot = bindingSlot;
-        this.isBindingLocal = isBindingLocal;
         this.selectorExpr = selectorExpr;
         this.args = args;
     }
@@ -127,6 +119,7 @@ public final class SelectorCall extends LKQLNode {
 
     /**
      * Execute the selector on the given node and return if the tree traversal valid the given pattern
+     * TODO: Move this method and logic in the NodePatternSelector node
      *
      * @param frame   The frame to execute in
      * @param node    The node to execute the selector on
@@ -156,6 +149,7 @@ public final class SelectorCall extends LKQLNode {
 
     /**
      * Execute the filtering logic on the selector call with the given pattern and return the result list value
+     * TODO: Move this method and logic in the SelectorLink node
      *
      * @param frame   The frame to execute in
      * @param node    The node to execute the selector on
@@ -343,11 +337,7 @@ public final class SelectorCall extends LKQLNode {
      */
     private void doBinding(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         ListValue listValue = this.getFilteredList(frame, selectorListValue, pattern);
-        if (this.isBindingLocal) {
-            frame.setObject(this.bindingSlot, listValue);
-        } else {
-            LKQLLanguage.getContext(this).setGlobal(this.bindingSlot, null, listValue);
-        }
+        this.doBinding(frame, listValue);
     }
 
     /**
@@ -357,11 +347,7 @@ public final class SelectorCall extends LKQLNode {
      * @param listValue The list bind
      */
     private void doBinding(VirtualFrame frame, ListValue listValue) {
-        if (this.isBindingLocal) {
-            frame.setObject(this.bindingSlot, listValue);
-        } else {
-            LKQLLanguage.getContext(this).setGlobal(this.bindingSlot, null, listValue);
-        }
+        FrameUtils.writeLocal(frame, this.bindingSlot, listValue);
     }
 
     // ----- Override methods -----

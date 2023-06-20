@@ -44,16 +44,6 @@ public final class ParameterDecl extends Declaration {
     private final String name;
 
     /**
-     * The reserved slot for the parameter value
-     */
-    private final int slot;
-
-    /**
-     * The parameter type annotation
-     */
-    private final String typeAnnotation;
-
-    /**
      * The parameter default value
      */
     @Child
@@ -65,42 +55,28 @@ public final class ParameterDecl extends Declaration {
     /**
      * Create a new parameter declaration node
      *
-     * @param location       The location of the node in the source
-     * @param name           The name of the parameter
-     * @param slot           The reserved slot for the parameter value
-     * @param typeAnnotation The type annotation of the parameter (can be null)
-     * @param defaultValue   The default value of the parameter (can be null)
+     * @param location     The location of the node in the source.
+     * @param name         The name of the parameter.
+     * @param defaultValue The default value of the parameter (can be null).
      */
     public ParameterDecl(
-        SourceLocation location,
-        String name,
-        int slot,
-        String typeAnnotation,
-        Expr defaultValue
+        final SourceLocation location,
+        final String name,
+        final Expr defaultValue
     ) {
-        super(location);
+        super(location, null);
         this.name = name;
-        this.slot = slot;
-        this.typeAnnotation = typeAnnotation;
         this.defaultValue = defaultValue;
     }
 
     // ----- Getters -----
 
     public String getName() {
-        return name;
-    }
-
-    public int getSlot() {
-        return slot;
-    }
-
-    public String getTypeAnnotation() {
-        return typeAnnotation;
+        return this.name;
     }
 
     public Expr getDefaultValue() {
-        return defaultValue;
+        return this.defaultValue;
     }
 
     // ----- Execution methods -----
@@ -123,8 +99,8 @@ public final class ParameterDecl extends Declaration {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot", "type"},
-            new Object[]{this.name, this.slot, this.typeAnnotation}
+            new String[]{"name"},
+            new Object[]{this.name}
         );
     }
 

@@ -24,8 +24,6 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -37,6 +35,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -131,7 +130,8 @@ public abstract class FunCall extends Expr {
         Expr[] defaultValues = builtInFunctionValue.getDefaultValues();
 
         // Execute the argument list
-        Object[] realArgs = this.argList.executeArgList(frame, actualParam, builtInFunctionValue.getThisValue() == null ? 0 : 1);
+        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle compilation error
+        Object[] realArgs = this.argList.executeArgList(frame.materialize(), actualParam, builtInFunctionValue.getThisValue() == null ? 0 : 1);
 
         // Add the "this" value to the arguments
         if (builtInFunctionValue.getThisValue() != null) {
@@ -149,7 +149,8 @@ public abstract class FunCall extends Expr {
             }
         }
 
-        // Execute the function
+        // We don't place the closure in the arguments because built-ins don't have any.
+        // Just execute the function.
         return this.dispatcher.executeDispatch(builtInFunctionValue, realArgs);
     }
 
@@ -170,7 +171,8 @@ public abstract class FunCall extends Expr {
         Expr[] defaultValues = functionValue.getDefaultValues();
 
         // Prepare the argument array and the working var
-        Object[] realArgs = this.argList.executeArgList(frame, actualParam);
+        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle compilation error
+        Object[] realArgs = this.argList.executeArgList(frame.materialize(), actualParam);
 
         // Verify if there is no missing argument and evaluate the default values
         for (int i = 0; i < realArgs.length; i++) {
@@ -183,28 +185,11 @@ public abstract class FunCall extends Expr {
             }
         }
 
-        // Get the node context
-        LKQLContext context = LKQLLanguage.getContext(this);
-
-        // Verify if the function has a namespace then push it
-        boolean pushed = false;
-        if (functionValue.getNamespace() != null && context.getGlobalValues().getNamespaceStack().peek() != functionValue.getNamespace()) {
-            context.getGlobalValues().pushNamespace(functionValue.getNamespace());
-            pushed = true;
-        }
-
-        // Prepare the result
-        Object res;
-        try {
-            res = this.dispatcher.executeDispatch(functionValue, realArgs);
-        } finally {
-            if (pushed) {
-                context.getGlobalValues().popNamespace();
-            }
-        }
+        // Place the closure in the arguments
+        realArgs = ArrayUtils.concat(new Object[]{functionValue.getClosure().getContent()}, realArgs);
 
         // Return the result of the function call
-        return res;
+        return this.dispatcher.executeDispatch(functionValue, realArgs);
     }
 
     /**

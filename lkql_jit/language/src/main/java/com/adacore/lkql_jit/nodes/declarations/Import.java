@@ -31,6 +31,7 @@ import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -91,11 +92,6 @@ public final class Import extends LKQLNode {
 
         // Get the module file
         this.moduleFile = this.getModuleFile();
-
-        // Test if the module file is null
-        if (this.moduleFile == null) {
-            throw LKQLRuntimeException.moduleNotFound(this.name, this);
-        }
     }
 
     // ----- Execution methods -----
@@ -107,11 +103,10 @@ public final class Import extends LKQLNode {
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the module file
         try {
-            LKQLContext context = LKQLLanguage.getContext(this);
-            NamespaceValue module = this.importModule(this.moduleFile, context);
-            context.getGlobalValues().addCheckers(module);
-            if (this.slot > -1) {
-                context.setGlobal(this.slot, this.name, module);
+            NamespaceValue module = this.importModule(this.moduleFile);
+            // TODO: Create a new ImportInternal node to avoid this runtime check
+            if (this.slot != -1) {
+                FrameUtils.writeLocal(frame, this.slot, module);
             }
         } catch (IOException e) {
             throw LKQLRuntimeException.moduleNotFound(this.name, this);
@@ -125,12 +120,11 @@ public final class Import extends LKQLNode {
      * Get the namespace of a module from a Java file
      *
      * @param moduleFile The module file to import
-     * @param context    The LKQL context to import the module in
      * @return The namespace of the module
      * @throws IOException If Truffle cannot create a source from the file
      */
     @CompilerDirectives.TruffleBoundary
-    private NamespaceValue importModule(File moduleFile, LKQLContext context) throws IOException {
+    private NamespaceValue importModule(File moduleFile) throws IOException {
         // If the file is already in the cache
         if (importCache.containsKey(moduleFile)) {
             return importCache.get(moduleFile);
@@ -138,6 +132,9 @@ public final class Import extends LKQLNode {
 
         // Else, parse the source and execute the result to get the namespace
         else {
+            // Get the LKQL context
+            LKQLContext context = LKQLLanguage.getContext(this);
+
             // Prepare the source
             Source source = Source
                 .newBuilder(Constants.LKQL_ID, context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
@@ -180,7 +177,7 @@ public final class Import extends LKQLNode {
         );
 
         importableDirs.addAll(
-            Arrays.stream(LKQLLanguage.getContext(this).getRulesDirs())
+            Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
                 .filter(s -> !s.isEmpty() && !s.isBlank())
                 .map(File::new)
                 .toList()
@@ -196,8 +193,8 @@ public final class Import extends LKQLNode {
             }
         }
 
-        // Return null if the module file was not found
-        return null;
+        // Raise an exception if the module file is not found
+        throw LKQLRuntimeException.moduleNotFound(this.name, this);
     }
 
     // ----- Override methods -----

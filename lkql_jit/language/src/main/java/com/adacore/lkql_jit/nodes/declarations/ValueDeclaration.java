@@ -21,61 +21,65 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.functions;
+package com.adacore.lkql_jit.nodes.declarations;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
+
+import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This node represents a local function declaration in the LKQL language
+ * This class represents a value declaration in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class FunDeclLocal extends FunDecl {
+public final class ValueDeclaration extends Declaration {
+
+    // ----- Attributes -----
+
+    /**
+     * Frame slot to place the value in.
+     */
+    private final int slot;
+
+    // ----- Children -----
+
+    /**
+     * The expression representing the value of the variable.
+     */
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private Expr value;
 
     // ----- Constructors -----
 
     /**
-     * Create a new function declaration in the global scope with its name
+     * Create a new value declaration node.
      *
-     * @param location   The location of the node in the sources
-     * @param annotation The function annotation
-     * @param name       The name of the function
-     * @param slot       The slot of the function
-     * @param funExpr    The functions expression
+     * @param location The location of the node in the source.
+     * @param slot     The frame slot to place the value in.
+     * @param value    The expression representing the value.
      */
-    public FunDeclLocal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        FunExpr funExpr
+    public ValueDeclaration(
+        final SourceLocation location,
+        final int slot,
+        final Expr value
     ) {
-        super(location, annotation, name, slot, funExpr);
+        super(location, null);
+        this.slot = slot;
+        this.value = value;
     }
 
-    // ----- Execute methods -----
+    // ----- Execution methods -----
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Get the function value
-        FunctionValue functionValue = this.funExpr.executeFunction(frame);
-        functionValue.setName(this.name);
-        functionValue.setMemoized(this.isMemoized);
-
-        // Put the function value in the frame and the function closure
-        frame.setObject(this.slot, functionValue);
-        functionValue.getClosure().setObject(this.slot, functionValue);
-
-        // Return the unit value
+        FrameUtils.writeLocal(frame, this.slot, this.value.executeGeneric(frame));
         return UnitValue.getInstance();
     }
 
@@ -88,8 +92,8 @@ public final class FunDeclLocal extends FunDecl {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

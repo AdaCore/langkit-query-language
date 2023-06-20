@@ -164,7 +164,10 @@ public final class MapFunction implements BuiltInFunction {
             int i = 0;
             Iterator iterator = iterable.iterator();
             while (iterator.hasNext()) {
-                res[i] = this.dispatcher.executeDispatch(mapFunction, new Object[]{iterator.next()});
+                res[i] = this.dispatcher.executeDispatch(
+                    mapFunction,
+                    new Object[]{mapFunction.getClosure().getContent(), iterator.next()}
+                );
                 i++;
             }
 

@@ -21,60 +21,44 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.selectors;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
+
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This class represents the local declaration of a selector in the LKQL language
+ * This node represents a value reading in the closure when we don't know if the value is defined.
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorDeclLocal extends SelectorDecl {
+public final class ReadClosureUnsafe extends BaseRead {
 
     // ----- Attributes -----
 
     /**
-     * The limit for the closure
+     * Symbol to read in the closure.
      */
-    private final int closureLimit;
+    private final String name;
 
-    // ----- Constructors ------
+    // ----- Constructors -----
 
     /**
-     * Create a new selector declaration in the local scope
+     * Create a new closure read unsafe node.
      *
-     * @param location      The location of the node in the source
-     * @param annotation    The annotation of the declaration
-     * @param name          The name of the selector
-     * @param documentation The documentation of the selector
-     * @param slot          The slot of the selector
-     * @param thisSlot      The slot for the "this" symbol
-     * @param depthSlot     The slot for the "depth" symbol
-     * @param descriptor    The descriptor for the selector
-     * @param arms          The arms of the selector
+     * @param location The location of the node in the source.
+     * @param slot     The closure slot to read.
+     * @param name     The name of the closure symbol.
      */
-    public SelectorDeclLocal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        String documentation,
-        int slot,
-        int thisSlot,
-        int depthSlot,
-        FrameDescriptor descriptor,
-        int closureLimit,
-        SelectorArm[] arms
+    public ReadClosureUnsafe(
+        final SourceLocation location,
+        final int slot,
+        final String name
     ) {
-        super(location, annotation, name, documentation, slot, thisSlot, depthSlot, descriptor, arms);
-        this.closureLimit = closureLimit;
+        super(location, slot);
+        this.name = name;
     }
 
     // ----- Execution methods -----
@@ -84,36 +68,22 @@ public final class SelectorDeclLocal extends SelectorDecl {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Create the selector value
-        SelectorValue selectorValue = new SelectorValue(
-            this.descriptor,
-            new Closure(frame.materialize(), this.closureLimit),
-            this.isMemoized,
-            this.name,
-            this.documentation,
-            this.thisSlot,
-            this.depthSlot,
-            this.arms
-        );
-
-        // Put the value in the local context
-        frame.setObject(this.slot, selectorValue);
-
-        // Return the unit
-        return UnitValue.getInstance();
+        final Object res = FrameUtils.readClosure(frame, this.slot);
+        if (res == null) {
+            throw LKQLRuntimeException.unknownSymbol(name, this);
+        } else {
+            return res;
+        }
     }
 
     // ----- Override methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

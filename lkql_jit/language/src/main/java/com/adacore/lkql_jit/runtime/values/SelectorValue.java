@@ -24,13 +24,10 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 
 
 /**
@@ -43,6 +40,16 @@ public class SelectorValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
+     * The root node of the selector
+     */
+    private final SelectorRootNode rootNode;
+
+    /**
+     * The closure of the selector.
+     */
+    private final Closure closure;
+
+    /**
      * The name of the selector
      */
     private final String name;
@@ -52,48 +59,27 @@ public class SelectorValue implements LKQLValue {
      */
     private final String documentation;
 
-    /**
-     * The root node of the selector
-     */
-    private final SelectorRootNode rootNode;
-
     // ----- Constructors -----
 
     /**
      * Create a new selector value
      *
-     * @param descriptor    The frame descriptor for the selector root node
-     * @param closure       The closure
-     * @param isMemoized    If the selector value is memoized
-     * @param name          The name of the selector
-     * @param documentation The documentation of the selector
-     * @param thisSlot      The slot for the "this" variable
-     * @param depthSlot     The slot for the "depth" variable
-     * @param arms          The arms of the selector
+     * @param selectorRootNode The root node of the selector.
+     * @param closure          The closure of the selector.
+     * @param name             The name of the selector.
+     * @param documentation    The documentation of the selector.
      */
     @CompilerDirectives.TruffleBoundary
     public SelectorValue(
-        FrameDescriptor descriptor,
+        SelectorRootNode selectorRootNode,
         Closure closure,
-        boolean isMemoized,
         String name,
-        String documentation,
-        int thisSlot,
-        int depthSlot,
-        SelectorArm[] arms
+        String documentation
     ) {
+        this.rootNode = selectorRootNode;
+        this.closure = closure;
         this.name = name;
         this.documentation = documentation;
-        this.rootNode = new SelectorRootNode(
-            LKQLLanguage.getLanguage(arms[0]),
-            descriptor,
-            closure,
-            isMemoized,
-            name,
-            thisSlot,
-            depthSlot,
-            arms
-        );
     }
 
     // ----- Class methods -----
@@ -118,7 +104,7 @@ public class SelectorValue implements LKQLValue {
      * @return The selector list value
      */
     public SelectorListValue execute(Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
-        return new SelectorListValue(this.rootNode, node, maxDepth, minDepth, depth);
+        return new SelectorListValue(this.rootNode, this.closure, node, maxDepth, minDepth, depth);
     }
 
     // ----- Value methods -----

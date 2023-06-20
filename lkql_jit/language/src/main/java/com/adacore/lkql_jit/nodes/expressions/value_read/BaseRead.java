@@ -21,69 +21,40 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.variables;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a local variable declaration in the LKQL language
+ * This node is the base for all variable reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ValDeclLocal extends ValDecl {
+public abstract class BaseRead extends Expr {
+
+    // ----- Attributes -----
+
+    /**
+     * The slot to read.
+     */
+    protected final int slot;
 
     // ----- Constructors -----
 
     /**
-     * Create a new local variable declaration with the slot of it
+     * Create a new variable reading node.
      *
-     * @param location   The location of the node in the source
-     * @param annotation The annotation related to the variable declaration
-     * @param name       The name of the variable
-     * @param slot       The slot to put the variable in
-     * @param value      The value of the variable
+     * @param location The location of the node in the source.
+     * @param slot     The slot to read.
      */
-    public ValDeclLocal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        Expr value
+    protected BaseRead(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location, annotation, name, slot, value);
-    }
-
-    // ----- Execution methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        // Put the value in the frame
-        frame.setObject(this.slot, this.value.executeGeneric(frame));
-
-        // Return the unit value
-        return UnitValue.getInstance();
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
-        );
+        super(location);
+        this.slot = slot;
     }
 
 }

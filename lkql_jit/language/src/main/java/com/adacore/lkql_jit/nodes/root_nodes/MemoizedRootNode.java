@@ -23,57 +23,82 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.runtime.Cell;
-import com.oracle.truffle.api.CallTarget;
+
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.RootNode;
-
+import org.graalvm.collections.EconomicMap;
 
 /**
- * This node is the base of all LKQL root nodes
+ * This root node is the base of all root node which can be memoized in LKQL.
  *
  * @author Hugo GUERRIER
  */
-public abstract class BaseRootNode extends RootNode {
+public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
+
+    // ----- Attributes -----
+
+    /**
+     * Cache to store the root node execution results.
+     */
+    protected final EconomicMap<K, V> memoizationCache;
 
     // ----- Constructors -----
 
     /**
-     * Create a new root node
+     * Create a new memoized root node.
      *
-     * @param language        The language instance to link the root node with.
-     * @param frameDescriptor The frame descriptor for the root node.
+     * @param language        The language instance which owns the root node.
+     * @param frameDescriptor The descriptor of the frame for the root node execution.
      */
-    protected BaseRootNode(
+    protected MemoizedRootNode(
         final TruffleLanguage<?> language,
         final FrameDescriptor frameDescriptor
     ) {
         super(language, frameDescriptor);
+        this.memoizationCache = EconomicMap.create();
     }
 
     // ----- Instance methods -----
 
     /**
-     * Get the call target as a generic Truffle calling interface.
+     * Get if the given key is a memoized call.
      *
-     * @return The call target.
+     * @param key The key of the call.
+     * @return True if the call has been done and the result is in the cache, false else.
      */
-    public CallTarget getRealCallTarget() {
-        return this.getCallTarget();
+    @CompilerDirectives.TruffleBoundary
+    protected boolean isMemoized(
+        final K key
+    ) {
+        return this.memoizationCache.containsKey(key);
     }
 
     /**
-     * Initialize the frame slots at empty cells.
+     * Get the result of the root node call for the given key.
      *
-     * @param frame The frame to initialize.
+     * @param key The key of the call.
+     * @return The result of the call with the key, null if it doesn't exist.
      */
-    protected void initFrame(VirtualFrame frame) {
-        final int slotNumber = frame.getFrameDescriptor().getNumberOfSlots();
-        for (int i = 0; i < slotNumber; i++) {
-            frame.setObject(i, new Cell());
-        }
+    @CompilerDirectives.TruffleBoundary
+    protected V getMemoized(
+        final K key
+    ) {
+        return this.memoizationCache.get(key, null);
+    }
+
+    /**
+     * Associate the given call key with the given call value in the memoization cache.
+     *
+     * @param key   The key to store in the cache.
+     * @param value The value of the call with the key.
+     */
+    @CompilerDirectives.TruffleBoundary
+    protected void putMemoized(
+        final K key,
+        final V value
+    ) {
+        this.memoizationCache.put(key, value);
     }
 
 }

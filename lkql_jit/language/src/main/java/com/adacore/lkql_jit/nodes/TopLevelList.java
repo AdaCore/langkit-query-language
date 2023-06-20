@@ -26,9 +26,17 @@ package com.adacore.lkql_jit.nodes;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.declarations.Import;
+import com.adacore.lkql_jit.runtime.values.NamespaceValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -42,14 +50,9 @@ public final class TopLevelList extends LKQLNode {
     // ----- Attributes -----
 
     /**
-     * The size of the global scope
+     * Descriptor of the top level frame.
      */
-    private final int globalScopeSize;
-
-    /**
-     * The number of slot to export
-     */
-    private final int symbolNumber;
+    private final FrameDescriptor frameDescriptor;
 
     // ----- Children -----
 
@@ -70,21 +73,24 @@ public final class TopLevelList extends LKQLNode {
     /**
      * Create a new top level list node
      *
-     * @param location        The location of the node in the source
-     * @param globalScopeSize The size of the global scope stack
-     * @param symbolNumber    The number of symbol to export in the namespace
-     * @param nodes           The nodes to execute in the top level
+     * @param location        The location of the node in the source.
+     * @param frameDescriptor The frame descriptor for the top level.
+     * @param nodes           The nodes to execute in the top level.
      */
     public TopLevelList(
         SourceLocation location,
-        int globalScopeSize,
-        int symbolNumber,
+        FrameDescriptor frameDescriptor,
         LKQLNode[] nodes
     ) {
         super(location);
+        this.frameDescriptor = frameDescriptor;
         this.program = nodes;
-        this.globalScopeSize = globalScopeSize;
-        this.symbolNumber = symbolNumber;
+    }
+
+    // ----- Getters -----
+
+    public FrameDescriptor getFrameDescriptor() {
+        return this.frameDescriptor;
     }
 
     // ----- Execution methods -----
@@ -94,10 +100,6 @@ public final class TopLevelList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Get the language context and initialize it
-        LKQLContext context = LKQLLanguage.getContext(this);
-        context.getGlobalValues().initScope(this.globalScopeSize, this.symbolNumber);
-
         // If there is rule imports, run them
         if (this.ruleImports != null) {
             for (Import ruleImport : this.ruleImports) {
@@ -110,35 +112,47 @@ public final class TopLevelList extends LKQLNode {
             node.executeGeneric(frame);
         }
 
-        // Prepare the result of the script, the namespace of the program
-        Object res = context.getEnv().asGuestValue(
-            context.getGlobalValues().export()
+        // Get the language context and initialize it
+        final LKQLContext context = LKQLLanguage.getContext(this);
+
+        // Return the namespace corresponding to the program execution
+        return context.getEnv().asGuestValue(
+            NamespaceValue.create(frame.materialize())
         );
-
-        // Close the global scope
-        context.getGlobalValues().finalizeScope();
-
-        // Return the result
-        return res;
     }
 
     // ----- Class methods -----
 
     /**
-     * Add rule modules to import
-     *
-     * @param importNames The names of the rule modules to import
+     * Add all required rule importing nodes.
      */
-    public void addRuleImports(String[] importNames) {
-        Import[] newImports = new Import[importNames.length];
-        for (int i = 0; i < importNames.length; i++) {
-            newImports[i] = new Import(
-                null,
-                importNames[i],
-                -1
-            );
+    @CompilerDirectives.TruffleBoundary
+    public void addRuleImports() {
+        // Get the current context
+        LKQLContext context = LKQLLanguage.getContext(this);
+
+        // Get the directories to fetch the rules from
+        final String[] ruleDirectories = context.getRuleDirectories();
+        final List<Import> ruleImports = new ArrayList<>();
+
+        // Get all rule modules import nodes
+        for (String dirName : ruleDirectories) {
+            File ruleDirectory = new File(dirName);
+            if (ruleDirectory.isDirectory() && ruleDirectory.canRead()) {
+                final File[] ruleDirectoryFiles = ruleDirectory.listFiles(f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION));
+                if (ruleDirectoryFiles != null) {
+                    ruleImports.addAll(
+                        Arrays.stream(ruleDirectoryFiles)
+                            .filter(File::canRead)
+                            .map(f -> new Import(null, f.getName().replace(Constants.LKQL_EXTENSION, ""), -1))
+                            .toList()
+                    );
+                }
+            }
         }
-        this.ruleImports = ArrayUtils.concat(this.ruleImports == null ? new Import[0] : this.ruleImports, newImports);
+
+        // Set the rule imports children
+        this.ruleImports = ruleImports.toArray(new Import[0]);
     }
 
     // ----- Override methods -----
@@ -148,11 +162,7 @@ public final class TopLevelList extends LKQLNode {
      */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"globalScopeSize", "symbolNumber"},
-            new Object[]{this.globalScopeSize, this.symbolNumber}
-        );
+        return this.nodeRepresentation(indentLevel);
     }
 
 }

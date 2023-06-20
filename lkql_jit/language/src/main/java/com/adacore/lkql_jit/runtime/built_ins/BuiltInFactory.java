@@ -23,7 +23,7 @@
 
 package com.adacore.lkql_jit.runtime.built_ins;
 
-import com.adacore.lkql_jit.parser.Scope;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.functions.*;
 import com.adacore.lkql_jit.runtime.built_ins.methods.*;
@@ -182,18 +182,21 @@ public final class BuiltInFactory {
     }
 
     /**
-     * Add the built-in functions and selectors to the given analysis scope
+     * Add the built ins to the script frames builder.
      *
-     * @param scope The scope to add the built-ins in
+     * @param scriptFramesBuilder The script frames builder to add the built-ins in.
      */
-    public void addBuiltIns(Scope scope) {
-        // Add the built-in functions and selectors
+    public void addBuiltIns(
+        final ScriptFramesBuilder scriptFramesBuilder
+    ) {
+        // Add the built-in functions
         for (BuiltInFunction function : this.builtInFunctions) {
-            scope.addVariable(function.getName());
+            scriptFramesBuilder.addBuiltIn(function.getName());
         }
 
+        // Add the built-in selectors
         for (BuiltInSelector selector : this.builtInSelectors) {
-            scope.addVariable(selector.getName());
+            scriptFramesBuilder.addBuiltIn(selector.getName());
         }
     }
 

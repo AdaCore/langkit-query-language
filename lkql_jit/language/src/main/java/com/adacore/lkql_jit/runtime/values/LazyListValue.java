@@ -23,13 +23,12 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
+import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 
@@ -43,53 +42,50 @@ public final class LazyListValue extends LazyCollection {
     // ----- Attributes -----
 
     /**
-     * The list of arguments for the root node
-     */
-    private final Object[][] argsList;
-
-    /**
-     * The pointer to the next lazy value to evaluate
-     */
-    private int lazyPointer;
-
-    /**
-     * The closure for the execution
-     */
-    private final Closure closure;
-
-    /**
-     * The root node for the list comprehension
+     * The root node for the list comprehension.
      */
     private final ListComprehensionRootNode rootNode;
 
     /**
-     * The dispatcher for the list comprehension root node
+     * The closure for the execution.
+     */
+    private final Closure closure;
+
+    /**
+     * The dispatcher for the list comprehension root node.
      */
     private final ListComprehensionDispatcher dispatcher;
+
+    /**
+     * The list of arguments for the root node.
+     */
+    private final Object[][] argsList;
+
+    /**
+     * The pointer to the next lazy value to evaluate.
+     */
+    private int lazyPointer;
 
     // ----- Constructors -----
 
     /**
      * Create a new lazy list value
      *
-     * @param rootNode The root node for the execution
-     * @param argsList The argument list
+     * @param rootNode The root node for the execution.
+     * @param closure  The closure for the root node execution.
+     * @param argsList The argument list.
      */
     @CompilerDirectives.TruffleBoundary
     public LazyListValue(
-        Closure closure,
         ListComprehensionRootNode rootNode,
+        Closure closure,
         Object[][] argsList
     ) {
         super(argsList.length);
-        this.closure = closure;
         this.rootNode = rootNode;
-        this.argsList = argsList;
+        this.closure = closure;
         this.dispatcher = ListComprehensionDispatcherNodeGen.create();
-        LKQLContext context = LKQLLanguage.getContext(this.rootNode.getResult());
-        if (context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
-            this.namespace = context.getGlobalValues().getNamespaceStack().peek();
-        }
+        this.argsList = argsList;
     }
 
     // ----- Class methods -----
@@ -99,26 +95,14 @@ public final class LazyListValue extends LazyCollection {
      */
     @Override
     protected void initCache(int index) {
-        LKQLContext context = LKQLLanguage.getContext(this.rootNode.getResult());
-        boolean pushed = false;
-        if (this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
-            context.getGlobalValues().pushNamespace(this.namespace);
-            pushed = true;
-        }
-        Closure saveClosure = this.rootNode.getClosure();
-        try {
-            this.rootNode.setClosure(this.closure);
-            while (this.lazyPointer < this.argsList.length && (this.cache.size() - 1 < index || index == -1)) {
-                Object value = this.dispatcher.executeDispatch(this.rootNode, this.argsList[this.lazyPointer++]);
-                if (value != null) {
-                    this.cache.add(value);
-                }
+        while (this.lazyPointer < this.argsList.length && (this.cache.size() - 1 < index || index == -1)) {
+            Object value = this.dispatcher.executeDispatch(
+                this.rootNode,
+                ArrayUtils.concat(new Object[]{this.closure.getContent()}, this.argsList[this.lazyPointer++])
+            );
+            if (value != null) {
+                this.cache.add(value);
             }
-        } finally {
-            if (pushed) {
-                context.getGlobalValues().popNamespace();
-            }
-            this.rootNode.setClosure(saveClosure);
         }
     }
 

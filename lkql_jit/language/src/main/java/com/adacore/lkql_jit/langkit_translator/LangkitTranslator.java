@@ -21,79 +21,42 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.root_nodes;
+package com.adacore.lkql_jit.langkit_translator;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
+import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
+import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.Source;
 
 
 /**
- * This node is a helper to write a frame argument to a local frame slot
+ * This class is the top level class to translate a LKQL Langkit AST into a Truffle AST.
  *
  * @author Hugo GUERRIER
  */
-public final class WriteArg extends LKQLNode {
-
-    // ----- Attributes -----
+public final class LangkitTranslator {
 
     /**
-     * The local slot to write the argument in
-     */
-    private final int slot;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new write argument node
+     * Translate the given source Langkit AST.
      *
-     * @param slot The slot of the frame to write in
+     * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
+     * @param source          The Truffle source of the AST.
+     * @return The translated LKQL Truffle AST.
      */
-    public WriteArg(
-        int slot
+    public static LKQLNode translate(
+        final Liblkqllang.LkqlNode lkqlLangkitRoot,
+        final Source source
     ) {
-        super(null);
-        this.slot = slot;
-    }
+        // Do the framing pass to create the script frame descriptions
+        final FramingPass framingPass = new FramingPass(source);
+        lkqlLangkitRoot.accept(framingPass);
+        final ScriptFrames scriptFrames = framingPass.getScriptFramesBuilder().build();
 
-    // ----- Getters -----
-
-    public int getSlot() {
-        return this.slot;
-    }
-
-    // ----- Execution methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
-    }
-
-    /**
-     * Execute the argument writing with the arg index
-     *
-     * @param frame    The frame write the argument in
-     * @param argIndex The argument index
-     */
-    public void executeWrite(VirtualFrame frame, int argIndex) {
-        frame.setObject(this.slot, frame.getArguments()[argIndex]);
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"slot"},
-            new Object[]{this.slot}
-        );
+        // Do the translation pass and return the result
+        final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
+        return lkqlLangkitRoot.accept(translationPass);
     }
 
 }

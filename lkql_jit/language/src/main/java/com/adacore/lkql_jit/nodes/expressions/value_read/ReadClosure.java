@@ -21,92 +21,57 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.util_classes;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import java.util.ArrayList;
 
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
- * This class is a stack based on an array list
+ * This class represents a closure value reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class Stack<T> {
-
-    // ----- Attributes -----
-
-    /**
-     * The cache to handle the stack head
-     */
-    private T head;
-
-    /**
-     * The content of the stack
-     */
-    private final ArrayList<T> content;
+public final class ReadClosure extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create a new empty stack
+     * Create a new closure reading node.
+     *
+     * @param location The location of the node in the source.
+     * @param slot     The slot index to read in the closure.
      */
-    public Stack() {
-        this.head = null;
-        this.content = new ArrayList<>();
+    public ReadClosure(
+        final SourceLocation location,
+        final int slot
+    ) {
+        super(location, slot);
     }
 
-    // ----- Class methods -----
+    // ----- Execution methods -----
 
     /**
-     * Add an element on the top of the stack
-     *
-     * @param elem The element to add
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
-    public void push(T elem) {
-        this.content.add(elem);
-        this.head = elem;
-    }
-
-    /**
-     * Get the stack head without removing it
-     *
-     * @return The stack head
-     */
-    public T peek() {
-        return this.head;
-    }
-
-    /**
-     * Get the stack head and remove it from the stack
-     *
-     * @return The stack head or null if the stack is empty
-     */
-    public T pop() {
-        if (this.content.size() > 0) {
-            this.content.remove(this.content.size() - 1);
-            if (this.content.size() > 0) {
-                this.head = this.content.get(this.content.size() - 1);
-            } else {
-                this.head = null;
-            }
-        }
-        return this.head;
-    }
-
-    /**
-     * Get the size of the stack
-     *
-     * @return The size in an int
-     */
-    public int size() {
-        return this.content.size();
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        return FrameUtils.readClosure(frame, this.slot);
     }
 
     // ----- Override methods -----
 
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
-    public String toString() {
-        return this.content.toString();
+    public String toString(int indentLevel) {
+        return this.nodeRepresentation(
+            indentLevel,
+            new String[]{"slot"},
+            new Object[]{this.slot}
+        );
     }
 
 }

@@ -27,6 +27,7 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -175,9 +176,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         // Set the builder common options
         contextBuilder.allowIO(true);
 
-        // Set the LKQL language mode to interpreter
-        contextBuilder.option("lkql.checkerMode", "false");
-
         // Set the context options
         if (this.verbose) {
             System.out.println("=== LKQL JIT is in verbose mode ===");
@@ -203,7 +201,8 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         try (Context context = contextBuilder.build()) {
             Source source = Source.newBuilder("lkql", new File(this.script))
                 .build();
-            context.eval(source);
+            final Value executable = context.parse(source);
+            executable.executeVoid(false);
             return 0;
         } catch (IOException e) {
             System.err.println("File not found : " + this.script);

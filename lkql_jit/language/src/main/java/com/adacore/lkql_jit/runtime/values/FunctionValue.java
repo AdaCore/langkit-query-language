@@ -23,15 +23,12 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 
 
 /**
@@ -44,84 +41,68 @@ public class FunctionValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The name of the function
+     * The function root node.
      */
-    @CompilerDirectives.CompilationFinal
+    private final FunctionRootNode rootNode;
+
+    /**
+     * The closure of the function.
+     */
+    private final Closure closure;
+
+    /**
+     * The name of the function.
+     */
     private String name;
 
     /**
-     * The string representing the function documentation
+     * The string representing the function documentation.
      */
     private final String documentation;
 
     /**
-     * The name of the parameters
+     * The name of the parameters.
      */
     private final String[] paramNames;
 
     /**
-     * The default values of the parameters
+     * The default values of the parameters.
      */
     private final Expr[] defaultValues;
-
-    /**
-     * The namespace of the function
-     */
-    private NamespaceValue namespace;
-
-    /**
-     * The function root node
-     */
-    private final FunctionRootNode rootNode;
 
     // ----- Constructors -----
 
     /**
-     * Create a new function value in the LKQL context
+     * Create a new function value.
      *
-     * @param descriptor    The descriptor of the function frame
-     * @param closure       The closure of the function
-     * @param isMemoized    If the function is memoized
-     * @param name          The name of the function (this can be null)
-     * @param documentation The documentation of the function
-     * @param slots         The slots for the function arguments
-     * @param paramNames    The names of the parameters
-     * @param values        The default values of the parameters
-     * @param body          The body of the function
+     * @param rootNode      The function root node.
+     * @param closure       The closure of the function.
+     * @param name          The name of the function.
+     * @param documentation The documentation of the function.
+     * @param paramNames    The names of the parameters.
+     * @param values        The default values of the parameters.
      */
-    @CompilerDirectives.TruffleBoundary
     public FunctionValue(
-        FrameDescriptor descriptor,
+        FunctionRootNode rootNode,
         Closure closure,
-        boolean isMemoized,
         String name,
         String documentation,
-        int[] slots,
         String[] paramNames,
-        Expr[] values,
-        Expr body
+        Expr[] values
     ) {
+        this.rootNode = rootNode;
+        this.closure = closure;
         this.name = name;
         this.documentation = documentation;
         this.paramNames = paramNames;
         this.defaultValues = values;
-        this.namespace = null;
-        this.rootNode = new FunctionRootNode(
-            LKQLLanguage.getLanguage(body),
-            descriptor,
-            closure,
-            isMemoized,
-            slots,
-            name,
-            body
-        );
-        LKQLContext context = LKQLLanguage.getContext(this.rootNode.getBody());
-        if (context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
-            this.namespace = context.getGlobalValues().getNamespaceStack().peek();
-        }
     }
 
     // ----- Getters -----
+
+    public Closure getClosure() {
+        return this.closure;
+    }
 
     public String getName() {
         return this.name;
@@ -130,10 +111,6 @@ public class FunctionValue implements LKQLValue {
     @Override
     public String getDocumentation() {
         return this.documentation;
-    }
-
-    public NamespaceValue getNamespace() {
-        return this.namespace;
     }
 
     public String[] getParamNames() {
@@ -148,27 +125,14 @@ public class FunctionValue implements LKQLValue {
         return this.rootNode.getBody();
     }
 
-    public Closure getClosure() {
-        return this.rootNode.getClosure();
-    }
-
     public CallTarget getCallTarget() {
         return this.rootNode.getRealCallTarget();
-    }
-
-    public FunctionRootNode getRootNode() {
-        return rootNode;
     }
 
     // ----- Setters -----
 
     public void setName(String name) {
         this.name = name;
-        this.rootNode.setName(name);
-    }
-
-    public void setNamespace(NamespaceValue namespace) {
-        this.namespace = namespace;
     }
 
     public void setMemoized(boolean isMemoized) {
@@ -181,9 +145,11 @@ public class FunctionValue implements LKQLValue {
      * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
+    @CompilerDirectives.TruffleBoundary
     public boolean internalEquals(LKQLValue o) {
-        // TODO : Compare functions
-        return o == this;
+        if (o == this) return true;
+        if (!(o instanceof FunctionValue other)) return false;
+        return this.rootNode.equals(other.rootNode);
     }
 
     // ----- Override methods -----

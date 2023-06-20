@@ -24,6 +24,8 @@
 package com.adacore.lkql_jit.runtime.built_ins;
 
 import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
+import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 
@@ -48,7 +50,12 @@ public class BuiltInSelectorValue extends SelectorValue {
         String documentation,
         SelectorArm[] arms
     ) {
-        super(null, null, false, name, documentation, -1, -1, arms);
+        super(
+            new SelectorRootNode(null, null, false, -1, -1, arms),
+            Closure.EMPTY,
+            name,
+            documentation
+        );
     }
 
 }

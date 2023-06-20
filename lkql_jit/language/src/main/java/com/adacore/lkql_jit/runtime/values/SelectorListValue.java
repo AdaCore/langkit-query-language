@@ -24,11 +24,11 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection;
 import com.oracle.truffle.api.CompilerDirectives;
 
@@ -47,19 +47,23 @@ public final class SelectorListValue extends LazyCollection {
     // ----- Attributes -----
 
     /**
-     * The cache in a set to perform recursion guard
-     */
-    private final HashSet<DepthNode> hashCache;
-
-    /**
-     * The root node of the selector
+     * The root node of the selector.
      */
     private final SelectorRootNode rootNode;
+
+    /**
+     * The closure for the root node execution.
+     */
+    private final Closure closure;
 
     /**
      * The dispatcher for the selector root node
      */
     private final SelectorDispatcher dispatcher;
+    /**
+     * The cache in a set to perform recursion guard.
+     */
+    private final HashSet<DepthNode> hashCache;
 
     /**
      * The list of the node to recurs on
@@ -86,33 +90,32 @@ public final class SelectorListValue extends LazyCollection {
     /**
      * Create a new selector list
      *
-     * @param rootNode The selector root node
-     * @param adaNode  The ada node
-     * @param maxDepth The maximum depth of the returned nodes
-     * @param minDepth The minimum depth of the returned nodes
-     * @param depth    The precise required depth of the returned nodes
+     * @param rootNode The selector root node.
+     * @param closure  The closure for the root node execution.
+     * @param adaNode  The ada node.
+     * @param maxDepth The maximum depth of the returned nodes.
+     * @param minDepth The minimum depth of the returned nodes.
+     * @param depth    The precise required depth of the returned nodes.
      */
     @CompilerDirectives.TruffleBoundary
     public SelectorListValue(
-        SelectorRootNode rootNode,
-        Libadalang.AdaNode adaNode,
-        int maxDepth,
-        int minDepth,
-        int depth
+        final SelectorRootNode rootNode,
+        final Closure closure,
+        final Libadalang.AdaNode adaNode,
+        final int maxDepth,
+        final int minDepth,
+        final int depth
     ) {
         super(0);
-        this.hashCache = new HashSet<>();
         this.rootNode = rootNode;
+        this.closure = closure;
         this.dispatcher = SelectorDispatcherNodeGen.create();
+        this.hashCache = new HashSet<>();
         this.recursList = new LinkedList<>();
         this.recursList.add(new DepthNode(0, adaNode));
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.depth = depth;
-        LKQLContext context = this.rootNode.getContext();
-        if (context != null && context.getGlobalValues().getNamespaceStack().size() > 0) {
-            this.namespace = context.getGlobalValues().getNamespaceStack().peek();
-        }
     }
 
     // ----- Class methods -----
@@ -123,30 +126,18 @@ public final class SelectorListValue extends LazyCollection {
     @Override
     @CompilerDirectives.TruffleBoundary
     protected void initCache(int index) {
-        LKQLContext context = this.rootNode.getContext();
-        boolean pushed = false;
-        if (this.namespace != null && context.getGlobalValues().getNamespaceStack().peek() != this.namespace) {
-            context.getGlobalValues().pushNamespace(this.namespace);
-            pushed = true;
-        }
-        try {
-            while (!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
-                // Get the first recurse item and execute the selector on it
-                DepthNode nextNode = this.recursList.remove(0);
-                SelectorRootNode.SelectorCallResult result = this.dispatcher.executeDispatch(this.rootNode, nextNode);
+        while (!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
+            // Get the first recurse item and execute the selector on it
+            DepthNode nextNode = this.recursList.remove(0);
+            SelectorRootNode.SelectorCallResult result = this.dispatcher.executeDispatch(this.rootNode, this.closure.getContent(), nextNode);
 
-                // If the result is a selector call result, do the needed operations
-                if (!LKQLTypeSystemGen.isNullish(result.result())) {
-                    switch (result.mode()) {
-                        case REC -> this.addRecursAndResult(result.result());
-                        case DEFAULT -> this.addResult(result.result());
-                        case SKIP -> this.addRecurs(result.result());
-                    }
+            // If the result is a selector call result, do the needed operations
+            if (!LKQLTypeSystemGen.isNullish(result.result())) {
+                switch (result.mode()) {
+                    case REC -> this.addRecursAndResult(result.result());
+                    case DEFAULT -> this.addResult(result.result());
+                    case SKIP -> this.addRecurs(result.result());
                 }
-            }
-        } finally {
-            if (this.namespace != null && pushed) {
-                context.getGlobalValues().popNamespace();
             }
         }
     }

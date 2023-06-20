@@ -21,67 +21,42 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.functions;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.expressions.FunExpr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
+
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
- * This node represents a global function declaration in the LKQL language
+ * This class represents an argument reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class FunDeclGlobal extends FunDecl {
+public final class ReadArgument extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create a new global function declaration node
+     * Create a new argument reading node.
      *
-     * @param location   The location of the node in the sources
-     * @param annotation The function annotation
-     * @param name       The name of the function
-     * @param slot       The slot to put the function in
-     * @param funExpr    The function expression
+     * @param location The location of the node in the source.
+     * @param slot     The slot of the argument to read.
      */
-    public FunDeclGlobal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        FunExpr funExpr
+    public ReadArgument(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location, annotation, name, slot, funExpr);
+        super(location, slot);
     }
 
-    // ----- Execute methods -----
+    // ----- Execution methods -----
 
     /**
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        // Get the function value
-        FunctionValue functionValue = this.funExpr.executeFunction(frame);
-        functionValue.setName(this.name);
-        functionValue.setMemoized(this.isMemoized);
-
-        // Export the checker if needed
-        if (this.checkerMode != CheckerMode.OFF) {
-            this.exportChecker(frame, functionValue);
-        }
-
-        // Put the function value in the global context
-        LKQLLanguage.getContext(this).setGlobal(this.slot, this.name, functionValue);
-
-        // Return the unit value
-        return UnitValue.getInstance();
+        return frame.getArguments()[this.slot];
     }
 
     // ----- Override methods -----
@@ -93,8 +68,8 @@ public final class FunDeclGlobal extends FunDecl {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

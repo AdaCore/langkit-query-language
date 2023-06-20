@@ -21,40 +21,33 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.variables;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a local variable reading in the LKQL language
+ * This node represents a built-in reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class ReadLocal extends ReadVariable {
-
-    // ----- Attributes -----
-
-    /**
-     * The frame slot to read
-     */
-    private final int slot;
+public final class ReadBuiltIn extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create a new read local node
+     * Create a new built-in reading node.
      *
-     * @param location The location of the node in the source
-     * @param slot     The slot index to read in the frame
+     * @param location The location of the node in the source.
+     * @param slot     The slot to read the built-in at.
      */
-    public ReadLocal(
-        SourceLocation location,
-        int slot
+    public ReadBuiltIn(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location);
-        this.slot = slot;
+        super(location, slot);
     }
 
     // ----- Execution methods -----
@@ -64,7 +57,7 @@ public final class ReadLocal extends ReadVariable {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return frame.getObject(this.slot);
+        return LKQLLanguage.getContext(this).getGlobal().getBuiltIn(this.slot);
     }
 
     // ----- Override methods -----

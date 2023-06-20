@@ -21,61 +21,57 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.variables;
+package com.adacore.lkql_jit.nodes.expressions.value_read;
 
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.declarations.Declaration;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
+import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the base of a variable declaration in the LKQL language
+ * This node represents a local variable reading in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public abstract class ValDecl extends Declaration {
-
-    // ----- Attributes -----
-
-    /**
-     * The name of the variable
-     */
-    protected final String name;
-
-    /**
-     * The slot to put the variable in
-     */
-    protected final int slot;
-
-    /**
-     * The value of the variable
-     */
-    protected final Expr value;
+public final class ReadLocal extends BaseRead {
 
     // ----- Constructors -----
 
     /**
-     * Create a new variable declaration with the wanted parameters
+     * Create a new local value reading node.
      *
-     * @param location   The location of the node in the source
-     * @param annotation The annotation of the variable declaration
-     * @param name       The name of the variable
-     * @param slot       The slot to put the variable in
-     * @param value      The value of the variable
+     * @param location The location of the node in the source.
+     * @param slot     The slot index to read in the frame.
      */
-    protected ValDecl(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        Expr value
+    public ReadLocal(
+        final SourceLocation location,
+        final int slot
     ) {
-        super(location);
-        this.annotation = annotation;
-        this.name = name;
-        this.slot = slot;
-        this.value = value;
+        super(location, slot);
+    }
+
+    // ----- Execution methods -----
+
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     */
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        return FrameUtils.readLocal(frame, this.slot);
+    }
+
+    // ----- Override methods -----
+
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
+    @Override
+    public String toString(int indentLevel) {
+        return this.nodeRepresentation(
+            indentLevel,
+            new String[]{"slot"},
+            new Object[]{this.slot}
+        );
     }
 
 }

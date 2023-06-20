@@ -21,42 +21,28 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations;
+package com.adacore.lkql_jit.exception;
 
-import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 
 
 /**
- * This node represents all declarations done in the LKQL language
- * imports, values or functions
+ * This exception represents an exception in the LKQL static analysis.
+ * This doesn't represent a static error in the LKQL code.
  *
  * @author Hugo GUERRIER
  */
-public abstract class Declaration extends LKQLNode {
-
-    // ----- Children -----
+public final class TranslatorException extends AbstractTruffleException {
 
     /**
-     * The annotation of the declaration
-     */
-    @Child
-    protected DeclAnnotation annotation;
-
-    // ----- Constructors -----
-
-    /**
-     * Create the declaration node
+     * Create a new exception from its message.
      *
-     * @param location   The location of the node in the source.
-     * @param annotation The annotation associated with the declaration.
+     * @param message The message of the exception.
      */
-    protected Declaration(
-        SourceLocation location,
-        DeclAnnotation annotation
+    public TranslatorException(
+        final String message
     ) {
-        super(location);
-        this.annotation = annotation;
+        super(message);
     }
 
 }

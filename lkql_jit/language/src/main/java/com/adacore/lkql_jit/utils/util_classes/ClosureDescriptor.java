@@ -21,65 +21,78 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.expressions.variables;
+package com.adacore.lkql_jit.utils.util_classes;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 
+import java.util.Map;
 
 /**
- * This node represents a global variable reading in the LKQL language
+ * This class represents the description of a closure.
  *
  * @author Hugo GUERRIER
  */
-public final class ReadGlobal extends ReadVariable {
+public final class ClosureDescriptor {
 
     // ----- Attributes -----
 
     /**
-     * The global slot to read
+     * Size of the closure.
      */
-    private final int slot;
+    private final int closureSize;
+
+    /**
+     * Map that goes from closure slots to local slots to close.
+     */
+    private final Map<Integer, Integer> closingLocals;
+
+    /**
+     * Map that goes from closure slots to parameters slots to close.
+     */
+    private final Map<Integer, Integer> closingParameters;
+
+    /**
+     * Map that goes from closure slots to upper closure slots to close.
+     */
+    private final Map<Integer, Integer> closingClosures;
 
     // ----- Constructors -----
 
     /**
-     * Create a new read global node
+     * Create a new closure descriptor with its values.
      *
-     * @param location The location of the node in the source
-     * @param slot     The global slot to read
+     * @param closureSize       Size of the closure.
+     * @param closingLocals     Local values to enclose.
+     * @param closingParameters Parameters to enclose.
+     * @param closingClosures   Closure values to enclose.
      */
-    public ReadGlobal(
-        SourceLocation location,
-        int slot
+    public ClosureDescriptor(
+        final int closureSize,
+        final Map<Integer, Integer> closingLocals,
+        final Map<Integer, Integer> closingParameters,
+        final Map<Integer, Integer> closingClosures
     ) {
-        super(location);
-        this.slot = slot;
+        this.closureSize = closureSize;
+        this.closingLocals = closingLocals;
+        this.closingParameters = closingParameters;
+        this.closingClosures = closingClosures;
     }
 
-    // ----- Execution methods -----
+    // ----- Getters -----
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return LKQLLanguage.getContext(this).getGlobal(this.slot);
+    public int getClosureSize() {
+        return this.closureSize;
     }
 
-    // ----- Override methods -----
+    public Map<Integer, Integer> getClosingLocals() {
+        return this.closingLocals;
+    }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"slot"},
-            new Object[]{this.slot}
-        );
+    public Map<Integer, Integer> getClosingParameters() {
+        return this.closingParameters;
+    }
+
+    public Map<Integer, Integer> getClosingClosures() {
+        return this.closingClosures;
     }
 
 }

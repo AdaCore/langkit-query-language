@@ -161,7 +161,7 @@ public final class ReduceFunction implements BuiltInFunction {
             while (iterator.hasNext()) {
                 initValue = this.dispatcher.executeDispatch(
                     reduceFunction,
-                    new Object[]{initValue, iterator.next()}
+                    new Object[]{reduceFunction.getClosure().getContent(), initValue, iterator.next()}
                 );
             }
 

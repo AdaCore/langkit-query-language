@@ -21,75 +21,72 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.nodes.declarations.variables;
+package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.DeclAnnotation;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represent a global variable declaration in the LKQL language
+ * This root node represents the root execution of an LKQL program.
  *
  * @author Hugo GUERRIER
  */
-public final class ValDeclGlobal extends ValDecl {
+public final class TopLevelRootNode extends BaseRootNode {
+
+    // ----- Attributes -----
+
+    /**
+     * The list of nodes representing the program.
+     */
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private TopLevelList program;
 
     // ----- Constructors -----
 
     /**
-     * Create a new global variable declaration node
+     * Create a new LKQL top level root node.
      *
-     * @param location   The location of the node in the source
-     * @param annotation The annotation of the variable declaration
-     * @param name       The name of the variable
-     * @param slot       The slot to put the variable in
-     * @param value      The value of the variable
+     * @param program  The LKQL program to execute.
+     * @param language The reference to the LKQL language instance.
      */
-    public ValDeclGlobal(
-        SourceLocation location,
-        DeclAnnotation annotation,
-        String name,
-        int slot,
-        Expr value
+    public TopLevelRootNode(
+        final TopLevelList program,
+        final LKQLLanguage language
     ) {
-        super(location, annotation, name, slot, value);
+        super(language, program.getFrameDescriptor());
+        this.program = program;
     }
 
-    // ----- Execute methods -----
+    // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * Execute the LKQL program and return the namespace, result of this program execution.
+     * This root node expects 1 argument:
+     * - boolean checkerMode: If the top level list node is in checker mode. Default is false.
+     *
+     * @param frame The frame to execute in.
+     * @return The namespace of the LKQL program.
+     * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        // Put the value in the global value
-        LKQLLanguage.getContext(this)
-            .setGlobal(
-                this.slot,
-                this.name,
-                this.value.executeGeneric(frame)
-            );
+    public Object execute(VirtualFrame frame) {
+        // Get the execution arguments and perform pre-computing actions
+        Object[] arguments = frame.getArguments();
+        final boolean checkerMode = arguments.length > 0 && (boolean) arguments[0];
 
-        // Return the unit value
-        return UnitValue.getInstance();
-    }
+        // If the checker mode is activated add all rule imports
+        if (checkerMode) {
+            this.program.addRuleImports();
+        }
 
-    // ----- Override methods -----
+        // Initialize the frame
+        this.initFrame(frame);
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
-    @Override
-    public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
-        );
+        // Execute the program
+        return this.program.executeGeneric(frame);
     }
 
 }
