@@ -26,8 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 

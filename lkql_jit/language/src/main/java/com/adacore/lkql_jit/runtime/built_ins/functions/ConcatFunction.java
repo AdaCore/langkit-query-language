@@ -31,8 +31,8 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 

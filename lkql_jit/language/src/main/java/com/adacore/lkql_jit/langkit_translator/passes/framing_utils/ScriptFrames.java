@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exception.TranslatorException;
-import com.adacore.lkql_jit.utils.util_classes.ClosureDescriptor;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 

@@ -30,8 +30,8 @@ import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LazyListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.ClosureDescriptor;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 

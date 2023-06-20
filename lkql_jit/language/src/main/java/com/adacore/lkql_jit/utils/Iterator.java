@@ -21,31 +21,33 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.util_functions;
-
-import com.oracle.truffle.api.CompilerDirectives;
-
-import java.util.List;
+package com.adacore.lkql_jit.utils;
 
 
 /**
- * Util functions for the java generic list type.
+ * This interface defines custom and generic iterators because the native one is not suitable for JIT compilation.
  *
  * @author Hugo GUERRIER
  */
-public final class ListUtils {
+public interface Iterator {
 
     /**
-     * Get if a list contains an element.
+     * Get if the iterator has a next element.
      *
-     * @param list The list to verify.
-     * @param elem The element to find.
-     * @param <T>  The type of the element.
-     * @return True if the list contains the element.
+     * @return True if there is a next element, false else.
      */
-    @CompilerDirectives.TruffleBoundary
-    public static <T> boolean contains(List<T> list, T elem) {
-        return list.contains(elem);
-    }
+    boolean hasNext();
+
+    /**
+     * Get the next element by consuming the iterable.
+     *
+     * @return The next element.
+     */
+    Object next();
+
+    /**
+     * Reset the iterator to the start.
+     */
+    void reset();
 
 }

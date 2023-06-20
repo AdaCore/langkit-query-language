@@ -30,7 +30,7 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.util.LinkedList;

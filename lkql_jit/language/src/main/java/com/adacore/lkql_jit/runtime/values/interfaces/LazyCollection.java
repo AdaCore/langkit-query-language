@@ -24,8 +24,8 @@
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.Iterator;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.ArrayList;
@@ -232,7 +232,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
         // ----- Iteration methods -----
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext()
+         * @see com.adacore.lkql_jit.utils.Iterator#hasNext()
          */
         @Override
         public boolean hasNext() {
@@ -245,7 +245,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#next()
+         * @see com.adacore.lkql_jit.utils.Iterator#next()
          */
         @Override
         public Object next() {
@@ -253,7 +253,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset()
+         * @see com.adacore.lkql_jit.utils.Iterator#reset()
          */
         @Override
         public void reset() {

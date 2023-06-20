@@ -1,4 +1,4 @@
-package com.adacore.lkql_jit.utils.util_functions;
+package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;

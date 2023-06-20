@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
-import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
+import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;

@@ -34,7 +34,7 @@ import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 

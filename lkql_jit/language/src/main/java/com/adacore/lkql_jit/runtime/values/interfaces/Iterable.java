@@ -23,7 +23,7 @@
 
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 
 
 /**

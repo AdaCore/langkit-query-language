@@ -26,7 +26,7 @@ package com.adacore.lkql_jit.nodes.arguments;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 

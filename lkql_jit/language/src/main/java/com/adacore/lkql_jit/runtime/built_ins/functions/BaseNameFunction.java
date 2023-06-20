@@ -29,7 +29,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.FileUtils;
+import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 

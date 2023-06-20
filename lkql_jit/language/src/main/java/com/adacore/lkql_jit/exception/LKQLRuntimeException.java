@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.source.Source;

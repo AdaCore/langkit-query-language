@@ -32,8 +32,8 @@ import com.adacore.lkql_jit.runtime.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.math.BigInteger;

@@ -21,7 +21,7 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.util_classes;
+package com.adacore.lkql_jit.utils;
 
 
 import java.util.Map;

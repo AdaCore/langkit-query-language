@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcherNodeGen
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 

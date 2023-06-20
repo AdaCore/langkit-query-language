@@ -23,7 +23,7 @@
 
 package com.adacore.lkql_jit.runtime;
 
-import com.adacore.lkql_jit.utils.util_classes.ClosureDescriptor;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 

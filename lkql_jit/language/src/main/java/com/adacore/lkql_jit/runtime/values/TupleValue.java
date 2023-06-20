@@ -26,7 +26,7 @@ package com.adacore.lkql_jit.runtime.values;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.Objects;

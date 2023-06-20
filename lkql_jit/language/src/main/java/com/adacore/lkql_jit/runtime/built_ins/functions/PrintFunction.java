@@ -32,7 +32,7 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 

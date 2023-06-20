@@ -27,7 +27,7 @@ package com.adacore.lkql_jit.nodes.declarations;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.FrameUtils;
+import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**

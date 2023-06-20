@@ -28,9 +28,9 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.Iterator;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.Objects;
@@ -198,7 +198,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         // ----- Iteration methods -----
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext()
+         * @see com.adacore.lkql_jit.utils.Iterator#hasNext()
          */
         @Override
         public boolean hasNext() {
@@ -206,7 +206,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#next()
+         * @see com.adacore.lkql_jit.utils.Iterator#next()
          */
         @Override
         public Object next() {
@@ -214,7 +214,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset()
+         * @see com.adacore.lkql_jit.utils.Iterator#reset()
          */
         @Override
         public void reset() {

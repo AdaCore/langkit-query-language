@@ -21,7 +21,7 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.util_functions;
+package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.oracle.truffle.api.CompilerDirectives;
