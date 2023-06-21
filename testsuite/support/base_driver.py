@@ -200,8 +200,3 @@ class BaseDriver(DiffTestDriver):
             self.lkql_exe = ["native_lkql_jit"]
             self.lkql_checker_exe = ["native_lkql_jit_checker"]
             self.gnatcheck_worker_exe = ["native_gnatcheck_worker"]
-
-        # Else, there is an error
-        else:
-            raise RuntimeError("invalid testsuite mode"
-                               f" '{self.env.options.mode}'")
