@@ -193,11 +193,21 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      * The option to specify the rule to run
      */
     @Option(
-        help = "The comma separated rules to apply, if empty apply all the rules",
+        help = "The comma separated rules to apply",
         category = OptionCategory.USER,
         stability = OptionStability.STABLE
     )
     static final OptionKey<String> rules = new OptionKey<>("");
+
+    /**
+     * The option to control what should be done when no rules are provided
+     */
+    @Option(
+        help = "If true, consider that an empty value for 'rules' means to run all the rules",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<Boolean> fallbackToAllRules = new OptionKey<>(true);
 
     /**
      * The option to specify arguments for the rules

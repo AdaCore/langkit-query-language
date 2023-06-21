@@ -148,6 +148,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Set the LKQL language mode to interpreter
         contextBuilder.option("lkql.checkerMode", "true");
 
+        // If no rules are provided, don't do anything
+        contextBuilder.option("lkql.fallbackToAllRules", "false");
+
         // Set the context options
         if (this.verbose) {
             contextBuilder.option("lkql.verbose", "true");

@@ -646,8 +646,8 @@ public final class LKQLContext {
             }
         };
 
-        // If there is no wanted rule, just separated the checkers
-        if (wantedRules == null || wantedRules.length == 0) {
+        // If there is no wanted rule, run them all (if the appropriate option is set)
+        if (wantedRules.length == 0 && this.env.getOptions().get(LKQLLanguage.fallbackToAllRules)) {
             for (ObjectValue checker : allCheckers.values()) {
                 dispatchChecker.accept(checker);
             }
