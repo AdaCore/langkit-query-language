@@ -75,6 +75,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     private String scenarioVars = null;
 
     /**
+     * Whether the '--simple-project' flag was used.
+     */
+    private boolean isSimpleProject = false;
+
+    /**
      * A directory containing all user added rules
      */
     private String rulesDirs = null;
@@ -163,6 +168,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         if (this.scenarioVars != null) {
             contextBuilder.option("lkql.scenarioVars", this.scenarioVars);
+        }
+
+        if (this.isSimpleProject) {
+            contextBuilder.option("lkql.useAutoProvider", "true");
         }
 
         // Set the files
@@ -275,6 +284,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         if (currentArg.equals("--simple-project")) {
             currentArg = iterator.next();
+            this.projectFile = null;
+            this.isSimpleProject = true;
         }
 
         if (currentArg.equals("-A")) {

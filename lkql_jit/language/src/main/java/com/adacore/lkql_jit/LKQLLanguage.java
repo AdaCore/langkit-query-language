@@ -157,6 +157,17 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> scenarioVars = new OptionKey<>("");
 
     /**
+     * Whether to create an auto provider with the specified files if no project is provided.
+     */
+    @Option(
+        help = "Whether to create an auto provider with the specified files if no project" +
+            "is provided.",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<Boolean> useAutoProvider = new OptionKey<>(false);
+
+    /**
      * The option to define the files to analyze
      */
     @Option(

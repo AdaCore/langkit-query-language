@@ -506,9 +506,13 @@ public final class LKQLContext {
             }
         }
 
+        // If the option is the empty string, the language implementation will end up setting it to the default
+        // value for its language (e.g. iso-8859-1 for Ada).
+        String charset = this.env.getOptions().get(LKQLLanguage.charset);
+
         // Get the project file and parse it if there is one
         String projectFileName = this.getProjectFile();
-        Libadalang.UnitProvider provider = null;
+        final Libadalang.UnitProvider provider;
         if (projectFileName != null && !projectFileName.isEmpty() && !projectFileName.isBlank()) {
             // Create the project manager
             this.projectManager = Libadalang.ProjectManager.create(projectFileName, this.getScenarioVars(), "", "");
@@ -532,15 +536,21 @@ public final class LKQLContext {
             // When no project is specified, `units()` should return the same set of units as `specified_units()`.
             this.allSourceFiles = this.specifiedSourceFiles;
 
+            // If required, create an auto provider with the specified files.
+            if (this.env.getOptions().get(LKQLLanguage.useAutoProvider)) {
+                provider = Libadalang.createAutoProvider(
+                    this.allSourceFiles.toArray(new String[0]),
+                    charset
+                );
+            } else {
+                provider = null;
+            }
+
             // We should not get any scenario variable if we are being run without a project file.
             if (this.getScenarioVars().length != 0) {
                 System.err.println("Scenario variable specifications require a project file");
             }
         }
-
-        // If the option is the empty string, the language implementation will end up setting it to the default
-        // value for its language (e.g. iso-8859-1 for Ada).
-        String charset = this.env.getOptions().get(LKQLLanguage.charset);
 
         // Create the ada context
         this.adaContext = Libadalang.AnalysisContext.create(
