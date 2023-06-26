@@ -8,8 +8,11 @@
 
 driver: gnatcheck
 project: prj.gpr
+rules_dirs:
+  - rules
 rules:
   - +Rimplicit_in_mode_parameters
+  - +Rdisplay_units
 tests:
   - scenario_variables:
       SRC_DIR: src_1

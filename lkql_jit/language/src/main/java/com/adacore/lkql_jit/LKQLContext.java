@@ -318,7 +318,7 @@ public final class LKQLContext {
                     if (eqIndex == -1) {
                         throw LKQLRuntimeException.fromMessage("Invalid scenario variable specification: " + binding);
                     }
-                    String name = binding.substring(0, eqIndex - 1);
+                    String name = binding.substring(0, eqIndex);
                     String value = binding.substring(eqIndex + 1);
                     this.scenarioVars[i] = Libadalang.ScenarioVariable.create(name, value);
                 }

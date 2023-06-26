@@ -1,0 +1,3 @@
+@unit_check
+fun display_units(unit) = [{message: "UNITS: " & units().img,
+                            loc: unit.root}]

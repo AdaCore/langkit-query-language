@@ -7,7 +7,7 @@
    total sources                         : 2
    ignored sources                       : 0
 
-   non-exempted violations               : 2
+   non-exempted violations               : 4
    rule exemption warnings               : 0
    compilation errors                    : 0
    exempted violations                   : 0
@@ -19,7 +19,9 @@
 
 3. Non-exempted Coding Standard Violations
 
+foo.adb:1:01: UNITS: [<AnalysisUnit "foo.adb">, <AnalysisUnit "foo.ads">]
 foo.adb:2:17: implicit IN mode in parameter specification
+foo.ads:1:01: UNITS: [<AnalysisUnit "foo.adb">, <AnalysisUnit "foo.ads">]
 foo.ads:2:17: implicit IN mode in parameter specification
 
 4. Rule exemption problems
@@ -44,7 +46,7 @@ foo.ads:2:17: implicit IN mode in parameter specification
    total sources                         : 2
    ignored sources                       : 0
 
-   non-exempted violations               : 2
+   non-exempted violations               : 4
    rule exemption warnings               : 0
    compilation errors                    : 0
    exempted violations                   : 0
@@ -56,7 +58,9 @@ foo.ads:2:17: implicit IN mode in parameter specification
 
 3. Non-exempted Coding Standard Violations
 
+bar.adb:1:01: UNITS: [<AnalysisUnit "bar.adb">, <AnalysisUnit "bar.ads">]
 bar.adb:2:17: implicit IN mode in parameter specification
+bar.ads:1:01: UNITS: [<AnalysisUnit "bar.adb">, <AnalysisUnit "bar.ads">]
 bar.ads:2:17: implicit IN mode in parameter specification
 
 4. Rule exemption problems
@@ -83,7 +87,7 @@ try "gnatcheck --help" for more information.
    total sources                         : 2
    ignored sources                       : 0
 
-   non-exempted violations               : 2
+   non-exempted violations               : 4
    rule exemption warnings               : 0
    compilation errors                    : 0
    exempted violations                   : 0
@@ -95,7 +99,9 @@ try "gnatcheck --help" for more information.
 
 3. Non-exempted Coding Standard Violations
 
+bar.adb:1:01: UNITS: [<AnalysisUnit "bar.adb">, <AnalysisUnit "bar.ads">]
 bar.adb:2:17: implicit IN mode in parameter specification
+bar.ads:1:01: UNITS: [<AnalysisUnit "bar.adb">, <AnalysisUnit "bar.ads">]
 bar.ads:2:17: implicit IN mode in parameter specification
 
 4. Rule exemption problems
