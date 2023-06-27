@@ -167,17 +167,18 @@ public class CheckerUtils {
         // Append generic instantiation information to the message
         if (genericInstantiations.size() > 0) {
             StringBuilder messageBuilder = new StringBuilder(message);
-            messageBuilder.append(" [instance at ");
             for (int i = 0; i < genericInstantiations.size(); ++i) {
                 if (i > 0) {
-                    messageBuilder.append(", ");
+                    messageBuilder.append(" [");
+                } else {
+                    messageBuilder.append(" [instance at ");
                 }
                 final Libadalang.AdaNode inst = genericInstantiations.get(i);
                 messageBuilder.append(FileUtils.baseName(inst.getUnit().getFileName()));
                 messageBuilder.append(":");
                 messageBuilder.append(inst.getSourceLocationRange().start.line);
             }
-            messageBuilder.append("]");
+            messageBuilder.append("]".repeat(genericInstantiations.size()));
             message = messageBuilder.toString();
         }
 

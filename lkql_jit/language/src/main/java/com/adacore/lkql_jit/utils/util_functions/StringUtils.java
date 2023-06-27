@@ -136,7 +136,7 @@ public final class StringUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static String[] splitPaths(String toSplit) {
-        return toSplit.trim().replace(" ", "").split(File.pathSeparator);
+        return toSplit.trim().split(File.pathSeparator);
     }
 
     /**

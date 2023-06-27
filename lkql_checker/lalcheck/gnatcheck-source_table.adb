@@ -1500,6 +1500,8 @@ package body Gnatcheck.Source_Table is
 
          Msg : constant String := To_String (To_Text (Message));
 
+         Actual_SF : SF_Id;
+
       begin
          --  Only store internal error messages in Debug_Mode for now.
          --  Also never store "memoized error" messages which are
@@ -1522,6 +1524,15 @@ package body Gnatcheck.Source_Table is
             Cached_Rule    := Rule;
          end if;
 
+         --  If Follow_Instantiations is True then the relevant file id
+         --  may not be Next_SF, so perform a lookup.
+         Actual_SF := File_Find
+           (Simple_Name (Unit.Filename), Use_Short_Name => True);
+
+         if not Present (Actual_SF) then
+            return;
+         end if;
+
          if Subprocess_Mode then
             Put_Line
               (File_Name (Unit) & ":" &
@@ -1539,15 +1550,7 @@ package body Gnatcheck.Source_Table is
                Diagnosis_Kind =>
                  (if Kind = Rule_Violation then Rule_Violation
                   else Internal_Error),
-               SF             =>
-
-               --  If Follow_Instantiations is True then the relevant file id
-               --  may not be Next_SF, so perform a lookup.
-
-                 (if All_Rules.Table (Id).Follow_Instantiations
-                  then File_Find (Simple_Name (Unit.Filename),
-                                  Use_Short_Name => True)
-                  else Next_SF),
+               SF             => Actual_SF,
                Rule           => Id,
                Justification  => Exemption_Justification (Id));
          end if;
