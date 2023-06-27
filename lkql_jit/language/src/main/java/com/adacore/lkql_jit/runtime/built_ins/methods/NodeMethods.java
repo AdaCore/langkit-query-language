@@ -217,7 +217,7 @@ public final class NodeMethods extends CommonMethods {
     public final static class DumpExpr extends BuiltInExpr {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            LKQLLanguage.getContext(this).print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dump());
+            LKQLLanguage.getContext(this).print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpAST());
             return UnitValue.getInstance();
         }
     }
