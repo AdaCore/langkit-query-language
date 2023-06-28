@@ -48,6 +48,9 @@ package Gnatcheck.Output is
    procedure Report_Unhandled_Exception (Ex : Exception_Occurrence);
    --  Reports an unhandled exception into Standard_Error
 
+   procedure Report_Missing_File (From_File, Missing_File : String);
+   --  Reports that a required file could not be found
+
    procedure Error (Message : String);
    --  Sends into Stderr the error message in the form 'Tool_Name: Message'
 

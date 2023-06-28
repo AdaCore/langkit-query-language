@@ -23,7 +23,8 @@ with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.OS_Lib;             use GNAT.OS_Lib;
+with GNAT.Directory_Operations;   use GNAT.Directory_Operations;
+with GNAT.OS_Lib;                 use GNAT.OS_Lib;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
@@ -425,6 +426,23 @@ package body Gnatcheck.Output is
    begin
       Error (Exception_Information (Ex));
    end Report_Unhandled_Exception;
+
+   -------------------------
+   -- Report_Missing_File --
+   -------------------------
+
+   procedure Report_Missing_File (From_File, Missing_File : String) is
+      function Format_Filename (F : String) return String is
+        (if Full_Source_Locations then F else Base_Name (F));
+      --  Formats filename
+   begin
+      Warning
+        (Format_Filename (From_File)
+         & ": cannot find "
+         & Format_Filename (Missing_File));
+
+      Missing_File_Detected := True;
+   end Report_Missing_File;
 
    ------------------
    -- Set_Log_File --

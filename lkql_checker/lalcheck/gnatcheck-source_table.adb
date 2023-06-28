@@ -1838,16 +1838,15 @@ package body Gnatcheck.Source_Table is
       Found              : Boolean;
       Is_Not_Found_Error : Boolean)
    is
-      function Format_Filename (F : String) return String is
-        (if Full_Source_Locations then F else Base_Name (F));
-      --  Formats filename
    begin
       if not Found and then Is_Not_Found_Error then
-         Warning
-           (Format_Filename (From.Get_Filename)
-            & ": cannot find "
-            & Format_Filename (To_String (Name)));
-         Missing_File_Detected := True;
+         if Subprocess_Mode then
+            Put_Line
+              (From.Get_Filename & ":1:1: warning: cannot find "
+               & To_String (Name));
+         else
+            Report_Missing_File (From.Get_Filename, To_String (Name));
+         end if;
       end if;
    end Unit_Requested_Callback;
 
