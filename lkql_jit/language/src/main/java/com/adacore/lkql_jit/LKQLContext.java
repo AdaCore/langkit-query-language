@@ -140,6 +140,9 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal
     private Boolean isChecker = null;
 
+    @CompilerDirectives.CompilationFinal
+    private Boolean keepGoingOnMissingFile = null;
+
     /**
      * The project file to analyse
      */
@@ -283,6 +286,16 @@ public final class LKQLContext {
             this.isChecker = this.env.getOptions().get(LKQLLanguage.checkerMode);
         }
         return this.isChecker;
+    }
+
+    /**
+     * Return true if the engine should keep running when a required file is not found.
+     */
+    public boolean keepGoingOnMissingFile() {
+        if (this.keepGoingOnMissingFile == null) {
+            this.keepGoingOnMissingFile = this.env.getOptions().get(LKQLLanguage.keepGoingOnMissingFile);
+        }
+        return this.keepGoingOnMissingFile;
     }
 
     /**
@@ -477,8 +490,8 @@ public final class LKQLContext {
     public CheckerUtils.DiagnosticEmitter getDiagnosticEmitter() {
         if (this.emitter == null) {
             this.emitter = switch (this.env.getOptions().get(LKQLLanguage.diagnosticOutputMode)) {
-                case PRETTY -> CheckerUtils::printRuleViolation;
-                case GNATCHECK -> CheckerUtils::printGNATcheckRuleViolation;
+                case PRETTY -> new CheckerUtils.DefaultEmitter();
+                case GNATCHECK -> new CheckerUtils.GNATcheckEmitter();
             };
         }
         return this.emitter;
@@ -552,15 +565,30 @@ public final class LKQLContext {
             }
         }
 
-        // Create the ada context
-        this.adaContext = Libadalang.AnalysisContext.create(
-            charset,
-            null,
-            provider,
-            null,
-            true,
-            8
-        );
+        // Setup the event handler
+        final Libadalang.EventHandler.UnitRequestedCallback unitRequested =
+            (ctx, name, from, found, not_found_is_error) -> {
+                if (!found && not_found_is_error) {
+                    boolean isFatal = !this.keepGoingOnMissingFile();
+                    this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
+                    if (isFatal) {
+                        this.env.getContext().closeExited(null, 1);
+                    }
+                }
+            };
+
+        try (Libadalang.EventHandler eventHandler =
+                 Libadalang.EventHandler.create(unitRequested, null)) {
+            // Create the ada context
+            this.adaContext = Libadalang.AnalysisContext.create(
+                charset,
+                null,
+                provider,
+                eventHandler,
+                true,
+                8
+            );
+        }
 
         // The retrieved source files are not yet parsed
         this.parsed = false;
