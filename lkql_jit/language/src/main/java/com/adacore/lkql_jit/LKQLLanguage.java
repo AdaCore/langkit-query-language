@@ -221,6 +221,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<Boolean> fallbackToAllRules = new OptionKey<>(true);
 
     /**
+     * The option to control what should be done when a source file cannot be found
+     */
+    @Option(
+        help = "If true, do not stop the engine when a source file cannot be found",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
+
+    /**
      * The option to specify arguments for the rules
      */
     @Option(

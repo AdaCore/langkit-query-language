@@ -26,6 +26,7 @@ package com.adacore.lkql_jit;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 
 import java.io.*;
@@ -92,6 +93,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
      * If the verbose mode should be activated
      */
     private boolean verbose = false;
+
+    /**
+     * Whether to keep the engine running when a required file was not found
+     */
+    private boolean keepGoingOnMissingFile = false;
 
     // ----- Checker options -----
 
@@ -213,6 +219,10 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.verbose", "true");
         }
 
+        if (this.keepGoingOnMissingFile) {
+            contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
+        }
+
         // Set the project file
         if (this.projectFile != null) {
             contextBuilder.option("lkql.projectFile", this.projectFile);
@@ -255,7 +265,9 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             // Return the success
             return 0;
         } catch (Exception e) {
-            if (this.verbose) {
+            if (e instanceof PolyglotException pe && pe.isExit()) {
+                return pe.getExitStatus();
+            } else if (this.verbose) {
                 e.printStackTrace();
             } else {
                 System.err.println(e.getMessage());
@@ -354,6 +366,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             case "v" -> "verbose";
             case "r" -> "rules";
             case "a" -> "rule-arg";
+            case "k" -> "keep-going-on-missing-file";
             default -> null;
         };
     }
@@ -374,6 +387,10 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             // The verbose flag
             case "verbose":
                 this.verbose = true;
+                break;
+
+            case "keep-going-on-missing-file":
+                this.keepGoingOnMissingFile = true;
                 break;
 
             // Default behavior

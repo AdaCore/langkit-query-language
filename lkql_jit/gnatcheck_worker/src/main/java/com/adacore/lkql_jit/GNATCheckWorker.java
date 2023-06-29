@@ -156,6 +156,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // If no rules are provided, don't do anything
         contextBuilder.option("lkql.fallbackToAllRules", "false");
 
+        // Do not stop the worker's execution when a source file is missing
+        contextBuilder.option("lkql.keepGoingOnMissingFile", "true");
+
         // Set the context options
         if (this.verbose) {
             contextBuilder.option("lkql.verbose", "true");

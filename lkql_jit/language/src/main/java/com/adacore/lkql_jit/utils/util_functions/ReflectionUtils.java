@@ -179,6 +179,11 @@ public final class ReflectionUtils {
             Throwable targetException = e.getTargetException();
             if (targetException instanceof Libadalang.LangkitException langkitException) {
                 throw new LangkitException(langkitException.kind.toString(), langkitException.getMessage());
+            } else if (targetException instanceof Error error) {
+                // Forward fatal errors without wrapping them in LKQLRuntimeExceptions: those shouldn't
+                // be caught as they imply that resuming execution is not appropriate. This could for example
+                // be an ExitException.
+                throw error;
             }
             throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller);
         } catch (IllegalAccessException e) {
