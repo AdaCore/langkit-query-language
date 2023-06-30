@@ -1,0 +1,18 @@
+def install():
+    # We are not interested in rebuilding gpr in this CI. The Langkit/LAL
+    # CIs are doing that already.
+    anod_install("libgpr2", qualifier="bare")
+    anod_install("gprbuild")
+
+def lkql():
+    install()
+    anod_test("lkql")
+    anod_test("gnatcheck")
+
+def lkql_jit():
+    install()
+    anod_test("lkql", qualifier="implementation=jit")
+
+def lkql_native_jit():
+    install()
+    anod_test("lkql", qualifier="implementation=native_jit")
