@@ -28,9 +28,9 @@ import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 

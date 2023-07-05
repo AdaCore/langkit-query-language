@@ -255,7 +255,7 @@ public class ParsingUtils {
                 rules.add(ruleName);
             } else {
                 for (Object ruleArg : ruleArgsContent) {
-                    if(!LKQLTypeSystemGen.isObjectValue(ruleArg)) {
+                    if (!LKQLTypeSystemGen.isObjectValue(ruleArg)) {
                         throw LKQLRuntimeException.fromMessage("Rule argument must be an object value");
                     }
                     processArgObject(

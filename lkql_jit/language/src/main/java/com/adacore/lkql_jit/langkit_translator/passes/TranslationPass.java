@@ -57,11 +57,11 @@ import com.adacore.lkql_jit.nodes.expressions.value_read.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.ClosureDescriptor;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.Source;
 

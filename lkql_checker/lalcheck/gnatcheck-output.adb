@@ -741,7 +741,7 @@ package body Gnatcheck.Output is
       Info (" -nt  - do not generate text report (enforces '-xml')");
       Info ("");
 
-      Info (" --show-rule - apend rule names to diagnoses generated");
+      Info (" --show-rule - append rule names to diagnoses generated");
       Info ("");
 
       Info (" --brief              - brief mode, only report detections in Stderr");
