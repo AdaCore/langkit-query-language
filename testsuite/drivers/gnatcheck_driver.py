@@ -212,6 +212,10 @@ class GnatcheckDriver(BaseDriver):
             if pre_python:
                 capture_exec_python(pre_python)
 
+            # Set the "--show-rule" flag according to the test
+            if test_data.get('show_rule', False):
+                args.append('--show-rule')
+
             # Use the test's project, if any
             if test_data.get('project', None):
                 args += ['-P', test_data['project']]
@@ -235,11 +239,14 @@ class GnatcheckDriver(BaseDriver):
             for extra_arg in test_data.get('extra_args', []):
                 args.append(extra_arg)
 
+            args.append("-rules")
             rule_file = test_data.get('rule_file', None)
+            lkql_rule_file = test_data.get('lkql_rule_file', None)
             if rule_file:
-                args += ['-rules', '-from', rule_file]
+                args += ['-from', rule_file]
+            if lkql_rule_file:
+                args += ['-from-lkql', lkql_rule_file]
             elif test_data.get('rules', None):
-                args.append("-rules")
                 for r in test_data.get('rules', []):
                     args.append(r)
 

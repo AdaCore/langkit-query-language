@@ -209,14 +209,18 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             final FunctionValue functionValue = (FunctionValue) rule.get("function");
 
             // Retrieve the rule name
-            final String ruleName = (String) rule.get("name");
+            final String aliasName = (String) rule.get("alias");
+            final String lowerRuleName = StringUtils.toLowerCase((String) rule.get("name"));
 
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.getParamNames().length + 1];
             arguments[1] = unit;
             for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
-                Object userDefinedArg = context.getRuleArg((String) rule.get("name"), paramName);
+                Object userDefinedArg = context.getRuleArg(
+                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
+                    paramName
+                );
                 arguments[i + 1] = userDefinedArg == null ?
                     functionValue.getDefaultValues()[i].executeGeneric(frame) :
                     userDefinedArg;
@@ -279,7 +283,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 }
 
                 context.getDiagnosticEmitter().emitRuleViolation(
-                    ruleName,
+                    lowerRuleName,
                     messageText,
                     slocRange,
                     locUnit,

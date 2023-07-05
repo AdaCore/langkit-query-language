@@ -771,6 +771,7 @@ package body Gnatcheck.Output is
 
       Info ("rule_switches          - a list of the following switches");
       Info ("   -from=filename      - read rule options from filename");
+      Info ("   -from-lkql=filename - read rule options from the given LKQL file");
       Info ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
       Info ("   -R<rule_id>         - turn OFF a given rule");
       Info ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");
