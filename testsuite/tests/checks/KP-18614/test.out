@@ -1,0 +1,4 @@
+main.adb:19:34: rule violation: possible occurrence of KP 18614 if compiled with optimization
+19 |       return my_record.my_list = (1 => is_on, 2..6 => is_off);  --  FLAG
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
