@@ -1,3 +1,4 @@
 print("Hello " & "world !")
 print("Hello " & img(42))
 print("Hello " & img(true))
+print(concat(["Hello ", img(42), " world"]))

@@ -14,7 +14,7 @@ Builtin Functions
 
 .. function:: concat(lists)
 
-    Given a list of lists, return a concatenated list
+    Given a list of lists or strings, return a concatenated list or string
 
 .. function:: doc(obj)
 
@@ -89,7 +89,7 @@ Builtin Methods
 
 .. method:: List.concat ({params})
 
-    Given a list of lists, return a concatenated list
+    Given a list of lists or strings, return a concatenated list or string
 
 .. method:: Str.contains ({params})
 

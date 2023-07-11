@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
+import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -31,6 +32,7 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
@@ -96,7 +98,7 @@ public final class ConcatFunction implements BuiltInFunction {
     public BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
-            "Given a list of lists, return a concatenated list",
+            "Given a list of lists or strings, return a concatenated list or string",
             new String[]{"lists"},
             new Expr[]{null},
             this.concatExpr
@@ -126,23 +128,63 @@ public final class ConcatFunction implements BuiltInFunction {
             // Cast the argument to list
             ListValue listValue = (ListValue) lists;
 
-            // Concatenate the lists inside the list
-            Object[] newContent = new Object[0];
-            for (int i = 0; i < listValue.size(); i++) {
-                if (!LKQLTypeSystemGen.isListValue(listValue.get(i))) {
-                    throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_LIST,
-                        LKQLTypesHelper.fromJava(listValue.get(i)),
-                        this.callNode.getArgList().getArgs()[0]
-                    );
+            // If the list is not empty
+            if (listValue.size() > 0) {
+                final Object firstItem = listValue.get(0);
+
+                // If the first value is a string look for strings in the list
+                if (LKQLTypeSystemGen.isString(firstItem)) {
+                    // Create a string builder and add all strings in the list
+                    String result = LKQLTypeSystemGen.asString(firstItem);
+                    for (int i = 1; i < listValue.size(); i++) {
+                        final Object item = listValue.get(i);
+                        if (!LKQLTypeSystemGen.isString(item)) {
+                            throw LKQLRuntimeException.wrongType(
+                                LKQLTypesHelper.LKQL_STRING,
+                                LKQLTypesHelper.fromJava(item),
+                                this.callNode.getArgList().getArgs()[0]
+                            );
+                        }
+                        result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
+                    }
+
+                    // Return the result
+                    return result;
                 }
 
-                ListValue currentList = (ListValue) listValue.get(i);
-                newContent = ArrayUtils.concat(newContent, currentList.getContent());
+                // If the first item is a list look for lists in the list
+                if (LKQLTypeSystemGen.isListValue(firstItem)) {
+                    // Create a result array and add all list of the argument
+                    Object[] result = LKQLTypeSystemGen.asListValue(firstItem).getContent();
+                    for (int i = 1; i < listValue.size(); i++) {
+                        final Object item = listValue.get(i);
+                        if (!LKQLTypeSystemGen.isListValue(item)) {
+                            throw LKQLRuntimeException.wrongType(
+                                LKQLTypesHelper.LKQL_LIST,
+                                LKQLTypesHelper.fromJava(item),
+                                this.callNode.getArgList().getArgs()[0]
+                            );
+                        }
+                        result = ArrayUtils.concat(
+                            result,
+                            LKQLTypeSystemGen.asListValue(item).getContent()
+                        );
+                    }
+                    return new ListValue(result);
+                }
+
+                // Else there is an error
+                throw LKQLRuntimeException.wrongType(
+                    LKQLTypesHelper.typeUnion(LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
+                    LKQLTypesHelper.fromJava(firstItem),
+                    this.callNode.getArgList().getArgs()[0]
+                );
             }
 
-            // Return the new list value
-            return new ListValue(newContent);
+            // If the list is empty just return an empty list
+            else {
+                return new ListValue(new Object[0]);
+            }
         }
     }
 

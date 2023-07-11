@@ -464,14 +464,50 @@ package body LKQL.Builtin_Functions is
    function Eval_Concat
      (Ctx : Eval_Context; Args : Primitive_Array) return Primitive
    is
-      Res : constant Primitive := Make_Empty_List (Ctx.Pool);
+      Arg        : constant Primitive_List_Access := List_Val (Args (1));
    begin
-      for List of List_Val (Args (1)).Elements loop
-         for El of List.List_Val.Elements loop
-            Res.List_Val.Elements.Append (El);
-         end loop;
-      end loop;
-      return Res;
+      if not Arg.Elements.Is_Empty then
+         declare
+            First_Item : constant Primitive := Get (Arg, 1);
+         begin
+            case Kind (First_Item) is
+               --  When the first item is a string
+               when Kind_Str =>
+                  declare
+                     Res : Primitive := To_Primitive (To_Text (""), Ctx.Pool);
+                  begin
+                     for Item of Arg.Elements loop
+                        Check_Kind (Kind_Str, Item);
+                        Res := To_Primitive
+                        (Str_Val (Res) & Str_Val (Item),
+                           Ctx.Pool);
+                     end loop;
+                     return Res;
+                  end;
+
+               --  When the first item is a list
+               when Kind_List =>
+                  declare
+                     Res : constant Primitive := Make_Empty_List (Ctx.Pool);
+                  begin
+                     for Item of Arg.Elements loop
+                        Check_Kind (Kind_List, Item);
+                        for El of Item.List_Val.Elements loop
+                           Res.List_Val.Elements.Append (El);
+                        end loop;
+                     end loop;
+                     return Res;
+                  end;
+
+               --  Other raise en error
+               when others =>
+                  raise Unsupported_Error with
+                     "Wrong kind " & Kind_Name (First_Item);
+            end case;
+         end;
+      else
+         return Make_Empty_List (Ctx.Pool);
+      end if;
    end Eval_Concat;
 
    -------------------
@@ -1460,7 +1496,8 @@ package body LKQL.Builtin_Functions is
         ("concat",
          (1 => Param ("lists", Kind_List)),
          Eval_Concat'Access,
-         "Given a list of lists, return a concatenated list"),
+         "Given a list of lists or strings, return a concatenated list or "
+         & "string"),
 
       Create
         ("contains",
