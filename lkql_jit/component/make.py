@@ -115,17 +115,17 @@ if __name__ == '__main__':
     if include_native_launcher:
         shutil.copy(
             P.join("..", "native", "bin", native_launcher_exe),
-            P.join(bin_dir, "native_lkql_jit")
+            P.join(bin_dir, native_launcher_exe)
         )
     if include_native_checker:
         shutil.copy(
             P.join("..", "native", "bin", native_checker_exe),
-            P.join(bin_dir, "native_lkql_jit_checker")
+            P.join(bin_dir, native_checker_exe)
         )
     if include_native_worker:
         shutil.copy(
             P.join("..", "native", "bin", native_gnatcheck_worker_exe),
-            P.join(bin_dir, "native_gnatcheck_worker")
+            P.join(bin_dir, native_gnatcheck_worker_exe)
         )
 
     # Create the needed file to compile in jar
@@ -143,25 +143,23 @@ if __name__ == '__main__':
         ])
 
     # Write the symbolic links
-    # TODO: create symlink to native build or interpreter version depending on a setting
-    # chosen at installation time?
     if not is_windows():
         with open(P.join(meta_dir, "symlinks"), 'w') as f:
             f.writelines([
                 (
-                    "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
+                    f"bin/lkql_jit = ../languages/lkql/bin/{native_launcher_exe}\n"
                     if include_native_launcher else
-                    ""
+                    "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
                 ),
                 (
-                    "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
+                    f"bin/lkql_jit_checker = ../languages/lkql/bin/{native_checker_exe}\n"
                     if include_native_checker else
-                    ""
+                    "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
                 ),
                 (
-                    "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
+                    f"bin/gnatcheck_worker = ../languages/lkql/bin/{native_gnatcheck_worker_exe}\n"
                     if include_native_worker else
-                    ""
+                    "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
                 ),
             ])
 
