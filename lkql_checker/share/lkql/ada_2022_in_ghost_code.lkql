@@ -1,0 +1,50 @@
+import stdlib
+
+fun is_ada_2022(node) =
+    |" Return true iff ``node`` corresponds to an Ada 2022 subtree. Note that
+    |" we want to return true only once for a given Ada 2022 subtree.
+    match node
+
+    # 'Image for all types
+    | a@AttributeRef(
+        f_prefix is Name(p_expression_type() is b@BaseTypeDecl)
+    ) when a.f_attribute.p_name_is("Image") and not b.p_is_scalar_type()
+    => true
+
+    # 'Reduce attribute, declare expression, @, delta aggregates
+    | ReduceAttributeRef or DeclExpr or TargetName or DeltaAggregate => true
+
+    # Iterators
+    | Aggregate(any children is IteratedAssoc) => true
+
+    # Expr fns and null procs in protected bodies
+    | (ExprFunction or NullSubpDecl)(any parent is ProtectedBody) => true
+
+    # User defined literals
+    | a@AspectAssoc(f_id is n@Name)
+      when n.p_name_is("String_Literal")
+           or n.p_name_is("Integer_Literal")
+           or n.p_name_is("Real_Literal") => true
+
+    # Aspects on formal params
+    | AspectSpec(any parent is ParamSpec) => true
+
+    # Pre/Post aspects on formal subprogram declarations
+    | a@AspectAssoc(f_id is n@Name, any parent is FormalSubpDecl)
+      when n.p_name_is("Pre") or n.p_name_is("Post") => true
+
+    # In the general case, return false
+    | * => false
+
+fun is_in_ghost_code(node) =
+    |" Return true iff node is in ghost code.
+    node is *(any parent is (
+        BasicDecl or PragmaNode or AspectAssoc
+    )(p_is_ghost_code() is true))
+    
+@check(message="Ada 2022 construct forbidden outside of ghost code",
+       category="Style", subcategory="Programming Practice",
+       follow_generic_instantiations=true)
+fun ada_2022_in_ghost_code(node) =
+    |" Check that no Ada 2022 construct is used outside of ghost code
+    not stdlib.in_generic_template(node) and is_ada_2022(node) and not is_in_ghost_code(node)

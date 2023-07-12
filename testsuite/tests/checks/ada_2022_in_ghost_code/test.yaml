@@ -1,0 +1,3 @@
+driver: 'checker'
+rule_name: Ada_2022_In_Ghost_Code
+input_sources: ['test_flag_ada_2022.adb', 'test_ghost_code.adb']
