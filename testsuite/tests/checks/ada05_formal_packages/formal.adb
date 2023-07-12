@@ -2,7 +2,7 @@
 --  capability sets for Ada 2012 is the following:
 --
 --     * The only permitted syntax for a formal_package_actual_part in a
---       formal_package_declaration (Ada 2012 LRM ง12.7) is:
+--       formal_package_declaration (Ada 2012 LRM ยง12.7) is:
 --
 --       formal_package_actual_part ::= (<>) | [generic_actual_part]
 --
