@@ -6,7 +6,7 @@ from e3.testsuite.driver.diff import (
     Substitute,
 )
 
-from support.base_driver import BaseDriver
+from drivers.base_driver import BaseDriver
 
 
 class GnatcheckDriver(BaseDriver):
