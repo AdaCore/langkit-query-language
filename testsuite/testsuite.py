@@ -11,7 +11,7 @@ from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite, logger
 from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder
 
-from support import (
+from drivers import (
     checker_driver, gnatcheck_driver, interpreter_driver, parser_driver
 )
 
@@ -126,6 +126,9 @@ class LKQLTestsuite(Testsuite):
             if self.env.options.coverage:
                 logger.error(f"--perf-mode incompatible with --coverage")
                 raise RuntimeError
+
+        # Give access to python support directory to drivers
+        self.env.support_dir = P.join(self.root_dir, "python_support")
 
         # Directory that contains GPR files, shared by testcases
         os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
