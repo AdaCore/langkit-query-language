@@ -1,6 +1,6 @@
-file.ads:10:3: rule violation: too many lines: 11
-10 |  --
-   | ___^
+file.ads:10:9: rule violation: too many lines: 11
+10 |  --  FLAG
+   | _________^
 11 || 
    ||_^
 

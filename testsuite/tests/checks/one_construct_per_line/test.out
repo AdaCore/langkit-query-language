@@ -3,11 +3,11 @@ line.ads:1:17: rule violation: more than one construct on the same line
   |                 ^
 
 line.ads:4:4: rule violation: more than one construct on the same line
-4 |    F2 : Float; C :                                --  FLAG
+4 |    F2 : Float; C :                                --  FLAG (2)
   |    ^^
 
 line.ads:4:16: rule violation: more than one construct on the same line
-4 |    F2 : Float; C :                                --  FLAG
+4 |    F2 : Float; C :                                --  FLAG (2)
   |                ^
 
 line.ads:9:14: rule violation: more than one construct on the same line
@@ -15,19 +15,19 @@ line.ads:9:14: rule violation: more than one construct on the same line
   |              ^^^^
 
 line.adb:8:7: rule violation: more than one construct on the same line
-8 |       B3 : Boolean; B4 : Boolean;                          --  FLAG
+8 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
   |       ^^
 
 line.adb:8:21: rule violation: more than one construct on the same line
-8 |       B3 : Boolean; B4 : Boolean;                          --  FLAG
+8 |       B3 : Boolean; B4 : Boolean;                          --  FLAG (2)
   |                     ^^
 
 line.adb:12:10: rule violation: more than one construct on the same line
-12 |          I := J; if I > 0 then                             --  FLAG
+12 |          I := J; if I > 0 then                             --  FLAG (2)
    |          ^^^^^^^
 
 line.adb:12:18: rule violation: more than one construct on the same line
-12 |           I := J; if I > 0 then                             --  FLAG
+12 |           I := J; if I > 0 then                             --  FLAG (2)
    | __________________^
 13 ||            I := 0; end if;                                 --  FLAG
    ||__________________________^
@@ -37,11 +37,11 @@ line.adb:13:12: rule violation: more than one construct on the same line
    |            ^^^^^^^
 
 line.adb:21:7: rule violation: more than one construct on the same line
-21 |       Tmp := I; I := I + 1;                                --  FLAG
+21 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |       ^^^^^^^^^
 
 line.adb:21:17: rule violation: more than one construct on the same line
-21 |       Tmp := I; I := I + 1;                                --  FLAG
+21 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |                 ^^^^^^^^^^^
 
 line.adb:23:7: rule violation: more than one construct on the same line

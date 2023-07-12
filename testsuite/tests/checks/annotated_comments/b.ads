@@ -1,4 +1,4 @@
 package B is
-   --   # NO FLAG
-   --#FLAG
+   --   # NOFLAG
+   --# --  FLAG
 end B;

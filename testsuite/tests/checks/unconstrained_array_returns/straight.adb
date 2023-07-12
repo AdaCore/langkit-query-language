@@ -19,7 +19,7 @@ package body Straight is
    --  this package.  Only the declaration is expected to be flagged, when the
    --  spec is processed.
 
-   function Image (X : Integer) return String is -- NO FLAG
+   function Image (X : Integer) return String is -- NOFLAG
    begin
       return Blank;
    end Image;
@@ -41,7 +41,7 @@ package body Straight is
          return " ";
       end My_Blank;
 
-      function My_Image (X : Integer) return String is -- NO FLAG
+      function My_Image (X : Integer) return String is -- NOFLAG
       begin
          return My_Blank;
       end My_Image;

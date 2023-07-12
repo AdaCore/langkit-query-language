@@ -1,7 +1,7 @@
 package Uncommented is
    type R is record
       I : Integer;
-   end record;       --  NO FLAG
+   end record;       --  NOFLAG
 
    type R is record
       I : Integer;
@@ -11,16 +11,16 @@ package Uncommented is
    type R2 is record
       I1 : Integer;
       I2 : Integer;
-   end record ;    -- R2  NO FLAG
+   end record ;    -- R2  NOFLAG
 
    type R3 is record
       I : Integer;
       J : Integer;
-   end record;     --  R3  NO FLAG
+   end record;     --  R3  NOFLAG
 
    type R4 is record
       I : Integer;
       J : Integer;
-   end record;
-   --  R4  FLAG
+   end record;     --  FLAG
+   --  R4
 end;

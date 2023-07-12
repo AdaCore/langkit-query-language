@@ -5,7 +5,7 @@ procedure Raise_Builtin is
    Ren2 : exception renames Ren;
 begin
    raise Program_Error with "Message";  --  FLAG
-   raise Funky_Error;                   --  NO FLAG
+   raise Funky_Error;                   -- NOFLAG
    raise Ren;                           --  FLAG
 
 exception

@@ -1,8 +1,8 @@
 room.ads:21:3: rule violation: declaration of global variable
-21 |   Sticks : array (Table_Type) of Chop.Stick;
+21 |   Sticks : array (Table_Type) of Chop.Stick;  --  FLAG
    |   ^^^^^^
 
 society.ads:13:3: rule violation: declaration of global variable
-13 |   Name_Register : array(Unique_DNA_Codes) of String(1..18) :=
+13 |   Name_Register : array(Unique_DNA_Codes) of String(1..18) :=  --  FLAG
    |   ^^^^^^^^^^^^^
 

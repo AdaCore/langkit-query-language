@@ -11,7 +11,7 @@ package P is
   A, B : Integer;
 
   X : System.Address := Data'Address;   -- FLAG
-  Y : System.Address := A'Address;      -- NO FLAG
+  Y : System.Address := A'Address;      -- NOFLAG
   Z : System.Address := Data2'Address;  -- FLAG
 
 end P;

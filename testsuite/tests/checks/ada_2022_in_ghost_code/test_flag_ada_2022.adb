@@ -9,8 +9,8 @@ procedure Test is
    Sum : Integer := Vals'Reduce ("+", 0);  -- FLAG
 
    Decl : Integer :=
-     (declare A : constant Integer := 12;
-              B : constant Integer := 15; begin A + B); -- FLAG
+     (declare A : constant Integer := 12;  -- FLAG
+              B : constant Integer := 15; begin A + B);
 
    P : Point := (12, 15);
    P2 : Point := (P with delta Y => 18);  -- FLAG
@@ -39,17 +39,17 @@ procedure Test is
 
    function To_Big_Real (X : String) return Big_Real is (null record);
 
-   function Foo (Bar: Integer with Test_Aspect) return Integer is (21);
+   function Foo (Bar: Integer with Test_Aspect) return Integer is (21);  -- FLAG
 
    generic
       type T is private;
       with function Foo (Self : T) return Integer
-        with Post => Foo'Result > 15; -- FLAG
+        with Post => Foo'Result > 15;
    package Bar is
    end Bar;
 begin
    Put_Line (Vals'Image);  --  FLAG
-   Put_Line (Sum'Image);  --  FLAG
+   Put_Line (Sum'Image);
 
    Decl := @ + 12;  --  FLAG
 end Test;

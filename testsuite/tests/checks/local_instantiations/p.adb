@@ -6,7 +6,7 @@ package body P is
 
    procedure Proc2 is
       package Inst1 is new Generic1;  --  FLAG
-      package Inst2 is new Generic2;  --  NO FLAG
+      package Inst2 is new Generic2;  -- NOFLAG
    begin
       null;
    end;

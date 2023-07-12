@@ -1,13 +1,13 @@
 nested.adb:6:23: rule violation: nesting level of scopes too deep
-6 |             task type T1 is   --  level 4: FLAG
+6 |             task type T1 is   --  FLAG level 4
   |                       ^^
 
 nested.adb:8:23: rule violation: nesting level of scopes too deep
-8 |             task body T1 is   --  level 4: FLAG
+8 |             task body T1 is   --  FLAG level 4
   |                       ^^
 
 nested.adb:17:13: rule violation: nesting level of scopes too deep
-17 |              begin  --  level 4: FLAG
+17 |              begin  --  FLAG level 4
    | _____________^
    ||
    || ~~~ 1 other lines ~~~

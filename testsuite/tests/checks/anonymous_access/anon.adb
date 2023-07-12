@@ -1,6 +1,6 @@
-procedure Anon (X : access Some_Type) is   --  NO FLAG
+procedure Anon (X : access Some_Type) is   -- NOFLAG
    type Square 
-     (Location : access Coordinate)        --  NO FLAG
+     (Location : access Coordinate)        -- NOFLAG
    is record
       null;
    end record;

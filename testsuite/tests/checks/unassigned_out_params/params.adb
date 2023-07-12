@@ -15,7 +15,7 @@ procedure Params is
       C2 : Integer;
    end record;
 
-   procedure Proc2                         --  NO FLAG
+   procedure Proc2                         -- NOFLAG
      (P1 : out Arr;
       P2 : out Rec;
       P3 : out Boolean)

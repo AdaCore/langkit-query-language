@@ -1,24 +1,24 @@
 num.ads:3:8: rule violation: explicit reference to predefined numeric subtype
-3 |    I : Integer;                               --  FLAG
+3 |    I : Integer;                               -- FLAG
   |        ^^^^^^^
 
 num.ads:4:8: rule violation: explicit reference to predefined numeric subtype
-4 |    F : Float;                                 --  FLAG
+4 |    F : Float;                                 -- FLAG
   |        ^^^^^
 
 num.ads:7:34: rule violation: explicit reference to predefined numeric subtype
-7 |    type Arr is array (1 .. 5) of Short_Float; --  FLAG
+7 |    type Arr is array (1 .. 5) of Short_Float; -- FLAG
   |                                  ^^^^^^^^^^^
 
 num.ads:10:12: rule violation: explicit reference to predefined numeric subtype
-10 |       C1 : Long_Integer;                      --  FLAG
+10 |       C1 : Long_Integer;                      -- FLAG
    |            ^^^^^^^^^^^^
 
 num.ads:14:29: rule violation: explicit reference to predefined numeric subtype
-14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (2)
    |                             ^^^^^^^
 
 num.ads:14:40: rule violation: explicit reference to predefined numeric subtype
-14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (2)
    |                                        ^^^^^^^^
 

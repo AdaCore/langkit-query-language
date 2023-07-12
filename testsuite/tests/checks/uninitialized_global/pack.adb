@@ -1,13 +1,13 @@
 package body Pack is
    Z1 : Integer;          --  FLAG
-   Z2 : Integer := 12;    --  NO FLAG
+   Z2 : Integer := 12;    -- NOFLAG
 
    procedure Proc (X : in out Integer) is
-      Tmp : Integer;      --  NO FLAG
+      Tmp : Integer;      -- NOFLAG
 
       package Inner is
-         J1 : Integer;          --  NO FLAG
-         J2 : Integer := 13;    --  NO FLAG
+         J1 : Integer;          -- NOFLAG
+         J2 : Integer := 13;    -- NOFLAG
       end Inner;
 
    begin

@@ -47,5 +47,5 @@ procedure Valid is
 
 begin
    X := Content'Valid_Scalars;    --  FLAG
-   X := Content.C'Valid_Scalars;  --  NO FLAG
+   X := Content.C'Valid_Scalars;  -- NOFLAG
 end Valid;

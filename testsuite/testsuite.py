@@ -86,8 +86,16 @@ class LKQLTestsuite(Testsuite):
                  ' packages.'
         )
         parser.add_argument(
+            '--no-flag-checking', action='store_true',
+            help='Disable the checking phase for the FLAG/NOFLAG annotations.'
+        )
+        parser.add_argument(
             '--rewrite', '-r', action='store_true',
             help='Rewrite test baselines according to current output.'
+        )
+        parser.add_argument(
+            '--add-missing-flags', action='store_true',
+            help='Add the missing "FLAG" annotations in the tests Ada sources.'
         )
         parser.add_argument(
             '--coverage',

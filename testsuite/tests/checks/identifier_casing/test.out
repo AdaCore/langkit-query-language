@@ -7,39 +7,39 @@ casing.ads:6:4: rule violation: VAR2 does not have casing specified (mixed)
   |    ^^^^
 
 pack.ads:3:9: rule violation: Parent_1 does not have casing specified for subtype names (upper)
-3 |    type Parent_1 is (a, B, C);        --  FLAG 2 times
+3 |    type Parent_1 is (a, B, C);        	     -- FLAG (2)
   |         ^^^^^^^^
 
 pack.ads:3:22: rule violation: a does not have casing specified for enumeration literals (upper)
-3 |    type Parent_1 is (a, B, C);        --  FLAG 2 times
+3 |    type Parent_1 is (a, B, C);        	     -- FLAG (2)
   |                      ^
 
 pack.ads:6:12: rule violation: Parent_2 does not have casing specified for subtype names (upper)
-6 |       type Parent_2 is tagged null record;   --  FLAG
+6 |       type Parent_2 is tagged null record;   -- FLAG
   |            ^^^^^^^^
 
 pack.ads:8:7: rule violation: BbBb does not have casing specified for exception names (mixed)
-8 |       BbBb    : exception;                   --  FLAG
+8 |       BbBb    : exception;                   -- FLAG
   |       ^^^^
 
 pack.ads:13:9: rule violation: Parent_3 does not have casing specified for subtype names (upper)
-13 |    type Parent_3 is tagged private;           --  FLAG
+13 |    type Parent_3 is tagged private;          -- FLAG
    |         ^^^^^^^^
 
 pack.ads:18:12: rule violation: PARENT_3_s does not have casing specified for subtype names (upper)
-18 |    subtype PARENT_3_s is Parent_3;            --  FLAG
+18 |    subtype PARENT_3_s is Parent_3;           -- FLAG
    |            ^^^^^^^^^^
 
 pack.ads:20:4: rule violation: C1 does not have casing specified for constant names (lower)
-20 |    C1 : constant Integer := 1;                --  FLAG
+20 |    C1 : constant Integer := 1;               -- FLAG
    |    ^^
 
 pack.ads:24:9: rule violation: AAAA does not have casing specified in the dictionary
-24 |    type AAAA is range 1 .. 10;               --  FLAG
+24 |    type AAAA is range 1 .. 10;               -- FLAG
    |         ^^^^
 
 pack.ads:27:9: rule violation: Parent_3 does not have casing specified for subtype names (upper)
-27 |    type Parent_3 is tagged null record;      --  FLAG
+27 |    type Parent_3 is tagged null record;      -- FLAG
    |         ^^^^^^^^
 
 test_it.adb:3:4: rule violation: Chaclo does not have casing specified in the dictionary

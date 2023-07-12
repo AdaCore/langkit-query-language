@@ -1,4 +1,6 @@
-from drivers.base_driver import BaseDriver
+import re
+
+from drivers.base_driver import BaseDriver, Flags
 
 
 class CheckerDriver(BaseDriver):
@@ -6,7 +8,10 @@ class CheckerDriver(BaseDriver):
     This driver runs the checker with the given arguments and compares the
     checkers's output to the provided output file.
 
-    The expected output must be written in a file called `output`.
+    This driver supports the flag checking procedure.
+    Ada lines flagged by the checker must be annotated with `-- FLAG`. The
+    number of `FLAG` on the line must be equals to the number of times
+    the line is flagged by the driver.
 
     Test arguments:
         - project: GPR build file to use (if any)
@@ -15,6 +20,8 @@ class CheckerDriver(BaseDriver):
         - rule_name: The name of the rule to check
         - rule_arguments: A dict mapping rule argument names to their values
     """
+
+    flag_checking_supported = True
 
     def run(self):
         args = [*self.lkql_checker_exe]
@@ -38,3 +45,22 @@ class CheckerDriver(BaseDriver):
 
         # Run the checker
         self.check_run(args)
+
+    def parse_flagged_lines(self, output: str):
+        # Compile the pattern to match a checker output
+        pattern = re.compile(
+            r"^([a-zA-Z][a-zA-Z0-9_\-]*\.(adb|ads)):(\d+):\d+: .*$"
+        )
+
+        # Prepare the result
+        res = Flags()
+
+        # For each line of the output search the groups in the line
+        for line in output.splitlines():
+            search_result = pattern.search(line)
+            if search_result is not None:
+                (file, _, line_num) = search_result.groups()
+                res.add_flag(file, int(line_num))
+
+        # Return the result
+        return res

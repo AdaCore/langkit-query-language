@@ -6,7 +6,7 @@ begin
       when Constraint_Error => null;
    end;
 
-exception                    --  NO FLAG
+exception                    -- NOFLAG
    when Constraint_Error =>
       I := Integer'Last;
    when others =>

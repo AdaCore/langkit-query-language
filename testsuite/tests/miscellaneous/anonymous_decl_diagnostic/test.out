@@ -1,4 +1,4 @@
 test.ads:2:8: rule violation: Anonymous type decl
-2 |    X : array (1 .. 10) of Integer := (others => 0);
+2 |    X : array (1 .. 10) of Integer := (others => 0);  --  FLAG
   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
 

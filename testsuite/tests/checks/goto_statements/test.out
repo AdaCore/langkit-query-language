@@ -1,4 +1,4 @@
 goto_statements.adb:6:7: rule violation: goto statement
-6 |       goto A;
+6 |       goto A;  --  FLAG
   |       ^^^^^^^
 

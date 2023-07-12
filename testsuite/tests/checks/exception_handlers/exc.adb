@@ -7,14 +7,14 @@ procedure Exc is   --  FLAG
       null;
    end T;
 
-   task body T2 is  --  NO FLAG
+   task body T2 is  -- NOFLAG
    begin
       null;
    exception
       when others => null;
    end T2;
 
-   procedure Proc is  --  NO FLAG
+   procedure Proc is  -- NOFLAG
    begin
       null;
    exception

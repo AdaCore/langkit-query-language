@@ -35,12 +35,12 @@ begin
    --  Test on a large integer
    case Y is
       when 0 => null;
-      when others => null;  --  NO FLAG
+      when others => null;  -- NOFLAG
    end case;
 
    --  Test on an attribute
    case S'Length is
       when 0 => null;
-      when others => null;  --  NO FLAG
+      when others => null;  -- NOFLAG
    end case;
 end Other;

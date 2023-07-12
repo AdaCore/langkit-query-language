@@ -1,8 +1,8 @@
 pos.adb:10:7: rule violation: positional generic association
-10 |      (My_Int, Integer);                                --  FLAG (twice)
+10 |      (My_Int, Integer);                                --  FLAG (2)
    |       ^^^^^^
 
 pos.adb:10:15: rule violation: positional generic association
-10 |      (My_Int, Integer);                                --  FLAG (twice)
+10 |      (My_Int, Integer);                                --  FLAG (2)
    |               ^^^^^^^
 

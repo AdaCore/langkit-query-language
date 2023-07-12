@@ -4,11 +4,11 @@ begin
       exit when True;
    end loop;
 
-   for J in 1 .. 10 loop   --  NO FLAG
+   for J in 1 .. 10 loop   -- NOFLAG
       null;
    end loop;
 
-   while True loop         --  NO FLAG
+   while True loop         -- NOFLAG
       null;
    end loop;
 end Loops;

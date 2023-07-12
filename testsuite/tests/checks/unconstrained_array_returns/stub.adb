@@ -3,7 +3,7 @@ procedure Stub is
    --  separate specification (as Subp1).
 
    function Subp1 (I : Integer) return String; -- FLAG
-   function Subp1 (I : Integer) return String is separate; -- NO FLAG
+   function Subp1 (I : Integer) return String is separate; -- NOFLAG
 
    function Subp2 (I : Integer) return String is separate; -- FLAG
 

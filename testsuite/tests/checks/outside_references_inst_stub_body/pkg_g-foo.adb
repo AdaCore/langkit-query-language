@@ -4,7 +4,7 @@ procedure Foo is
 
    procedure Bar is
    begin
-      X := 1;
+      X := 1;  --  FLAG
    end Bar;
 begin
    Bar;

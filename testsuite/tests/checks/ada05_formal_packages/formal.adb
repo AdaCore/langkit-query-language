@@ -78,7 +78,7 @@ begin
       end P;
 
       generic
-         with package NP is new P (<>);  --  NO FLAG
+         with package NP is new P (<>);  -- NOFLAG
       package R is
       end R;
 
@@ -95,7 +95,7 @@ begin
       end P;
 
       generic
-         with package NP is new P (T => Integer);  --  NO FLAG
+         with package NP is new P (T => Integer);  -- NOFLAG
       package R is
       end R;
 
@@ -113,7 +113,7 @@ begin
 
       generic
          type Item is private;
-         with package NP is new P (T => Item);  --  NO FLAG
+         with package NP is new P (T => Item);  -- NOFLAG
       package R is
       end R;
 
@@ -136,7 +136,7 @@ begin
          type Item is private;
          type Items is array (Positive range <>) of Item;
          with package NP is new P
-                 (Component => Item, Index => Positive, List => Items);  --  NO FLAG
+                 (Component => Item, Index => Positive, List => Items);  -- NOFLAG
          --  FACE 3.1 allows the above in Safety Extended and Safety Base
          --  (and Security) because the generic formal package parameter
          --  associations are all specified explicitly, none are the box.

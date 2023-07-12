@@ -1,4 +1,4 @@
-package body Foo is
-   procedure F (X : Integer) is null;
+package body Foo is  --  FLAG
+   procedure F (X : Integer) is null;  --  FLAG
 end Foo;
 

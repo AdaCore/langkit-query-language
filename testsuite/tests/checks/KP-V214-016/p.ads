@@ -29,7 +29,7 @@ package P is
    type Non_Limited is abstract tagged null record;
    function Create (Params : not null access Natural) return Non_Abstract;
 
-   function Constructor3 is new Ada.Tags.Generic_Dispatching_Constructor  --  NO FLAG
+   function Constructor3 is new Ada.Tags.Generic_Dispatching_Constructor  -- NOFLAG
      (T           => Non_Limited,
       Parameters  => Natural,
       Constructor => Create);
@@ -41,7 +41,7 @@ package P is
       A : Natural;
    end record;
 
-   function Constructor4 is new Ada.Tags.Generic_Dispatching_Constructor  --  NO FLAG
+   function Constructor4 is new Ada.Tags.Generic_Dispatching_Constructor  -- NOFLAG
      (T           => No_Task,
       Parameters  => Natural,
       Constructor => Create);

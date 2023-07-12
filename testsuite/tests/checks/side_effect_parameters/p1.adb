@@ -5,10 +5,10 @@ package body P1 is
    procedure P is
    begin
       Proc (Read (1), Read (2)); --  FLAG
-      Proc (Read (1), 1);        --  NO FLAG
+      Proc (Read (1), 1);        -- NOFLAG
       Proc (Read, Read);         --  FLAG
       Proc (Read2, Read2);       --  FLAG
-      Proc (Read, Read2);        --  NO FLAG
+      Proc (Read, Read2);        -- NOFLAG
       Proc (Func1 (Read), Read); --  FLAG
       Proc (Read, Read_R);       --  FLAG
    end P;

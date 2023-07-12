@@ -3,9 +3,9 @@ test_flag_ada_2022.adb:9:21: rule violation: Ada 2022 construct forbidden outsid
   |                     ^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:12:7: rule violation: Ada 2022 construct forbidden outside of ghost code
-12 |       (declare A : constant Integer := 12;
+12 |       (declare A : constant Integer := 12;  -- FLAG
    | _______^
-13 ||               B : constant Integer := 15; begin A + B); -- FLAG
+13 ||               B : constant Integer := 15; begin A + B);
    ||_____________________________________________________^
 
 test_flag_ada_2022.adb:16:18: rule violation: Ada 2022 construct forbidden outside of ghost code
@@ -37,7 +37,7 @@ test_flag_ada_2022.adb:38:38: rule violation: Ada 2022 construct forbidden outsi
    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:42:31: rule violation: Ada 2022 construct forbidden outside of ghost code
-42 |    function Foo (Bar: Integer with Test_Aspect) return Integer is (21);
+42 |    function Foo (Bar: Integer with Test_Aspect) return Integer is (21);  -- FLAG
    |                               ^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:51:14: rule violation: Ada 2022 construct forbidden outside of ghost code

@@ -3,6 +3,6 @@ uncommented.ads:9:8: rule violation: mark END RECORD with -- R
   |        ^^^^^^
 
 uncommented.ads:24:8: rule violation: mark END RECORD with -- R4
-24 |    end record;
+24 |    end record;     --  FLAG
    |        ^^^^^^
 

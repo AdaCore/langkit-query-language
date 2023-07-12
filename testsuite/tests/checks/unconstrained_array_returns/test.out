@@ -1,5 +1,5 @@
 generics.ads:6:13: rule violation: function returns unconstrained array
-6 |    function Image (X : Integer) return String;   --  will FLAG in instances
+6 |    function Image (X : Integer) return String;   --  FLAG 
   |             ^^^^^
 
 generics.ads:12:15: rule violation: function returns unconstrained array
@@ -7,11 +7,11 @@ generics.ads:12:15: rule violation: function returns unconstrained array
    |               ^^^
 
 generics.adb:32:16: rule violation: function returns unconstrained array
-32 |       function Local_Blank return String;  -- will FLAG in instances
+32 |       function Local_Blank return String;  -- FLAG
    |                ^^^^^^^^^^^
 
 generics.adb:40:16: rule violation: function returns unconstrained array
-40 |       function Local_Image (X : Integer) return String is  -- will FLAG in instances
+40 |       function Local_Image (X : Integer) return String is  -- FLAG
    |                ^^^^^^^^^^^
 
 straight.adb:9:13: rule violation: function returns unconstrained array

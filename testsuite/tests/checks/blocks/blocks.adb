@@ -3,7 +3,7 @@ package body Blocks is
    procedure A is
    begin
       
-      declare
+      declare  --  FLAG
       begin
          null;
       end;

@@ -11,7 +11,7 @@ package body Explicit_Full_Discrete_Ranges is
          null;
       end if;
 
-      for J in Idx loop                     --  NO FLAG
+      for J in Idx loop                     -- NOFLAG
          L := L + J;
       end loop;
    end P;

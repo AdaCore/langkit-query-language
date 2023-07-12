@@ -1,6 +1,6 @@
 procedure Params is
 
-   procedure Proc1 (I : out Integer;       --  NO FLAG
+   procedure Proc1 (I : out Integer;       -- NOFLAG
                     B : out Boolean) is
    begin
      B := True;

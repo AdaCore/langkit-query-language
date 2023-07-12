@@ -18,7 +18,7 @@ package Cons is
    function CW1 (I : ST_CW) return T;                      -- FLAG
    function CW2 (I : A_ST_CW) return T;                    -- FLAG
 
-   function Fun1 (X : access T) return T;                  -- NO FLAG
+   function Fun1 (X : access T) return T;                  -- NOFLAG
    function Fun2 (I : Integer) return access T;            -- FLAG
    function Fun3 (I : S_A_T) return access T;              -- FLAG
 

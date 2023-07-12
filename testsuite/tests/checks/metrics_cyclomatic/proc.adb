@@ -1,11 +1,11 @@
-procedure Proc (I : in out Integer; S : String) is   --  FLAG (7)
+procedure Proc (I : in out Integer; S : String) is   --  FLAG Complexity 7
    task type T;
    protected type Prot is
       procedure P1;
       entry E1;
    end Prot;
 
-   task body T is   --  FLAG (6)
+   task body T is   --  FLAG Complexity 6
    begin
       case I is
          when 1 => null;
@@ -18,7 +18,7 @@ procedure Proc (I : in out Integer; S : String) is   --  FLAG (7)
    end T;
 
    protected body Prot is
-      procedure P1 is  --  FLAG (6)
+      procedure P1 is  --  FLAG Complexity 6
       begin
          case I is
             when 1 => null;
@@ -29,7 +29,7 @@ procedure Proc (I : in out Integer; S : String) is   --  FLAG (7)
          end case;
       end P1;
 
-      entry E1 when True is   --  FLAG (7)
+      entry E1 when True is   --  FLAG Complexity 7
       begin
          case I is
             when 1 => null;

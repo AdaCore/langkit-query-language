@@ -4,6 +4,6 @@ package Small is
 
 private
 
-  type T is delta 0.1 range -1.0 .. 1.0 with Small => 0.1;
+  type T is delta 0.1 range -1.0 .. 1.0 with Small => 0.1;  --  FLAG
 
 end Small;

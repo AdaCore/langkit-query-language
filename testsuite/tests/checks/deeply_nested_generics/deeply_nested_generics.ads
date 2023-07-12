@@ -4,11 +4,11 @@ package Deeply_Nested_Generics is
    end;
 
    generic
-   package P_G_0 is -- FLAG (depth=0)
+   package P_G_0 is -- NOFLAG (depth=0)
       generic procedure P;   --  FLAG (depth=1)
 
       generic
-        with package Formal is new P_G; -- NO_FLAG
+        with package Formal is new P_G; -- NOFLAG
       package P_G_1 is --  FLAG (depth=1)
          generic
          package P_G_2 is -- FLAG (depth=2)

@@ -11,7 +11,7 @@ package Class is
 
    type NT1 is new T and Int with private;
    function Test (X : NT1) return Boolean;        --  FLAG
-   procedure Proc (X : in out NT1);               --  NO FLAG
+   procedure Proc (X : in out NT1);               -- NOFLAG
 
    type NT2 is new T and Int1 with private;
    procedure Proc (X : in out NT2);               --  FLAG

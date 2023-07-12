@@ -9,11 +9,11 @@ begin
       null;
    elsif X in My_Int'First .. My_Int'Last then   --  FLAG
       null;
-   elsif X in Integer'First .. Integer'Last then --  NO FLAG
+   elsif X in Integer'First .. Integer'Last then -- NOFLAG
       null;
    elsif Y in Integer then                       --  FLAG
       null;
-   elsif X in Integer then                       --  NO FLAG
+   elsif X in Integer then                       -- NOFLAG
       null;
    end if;
 end Valid;

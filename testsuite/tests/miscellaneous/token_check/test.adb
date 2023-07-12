@@ -1,4 +1,4 @@
-with Ada.Text_IO;
+with Ada.Text_IO;  --  FLAG
 
 procedure Main is
 begin

@@ -6,6 +6,6 @@ with Dep4;
 with Dep5;
 with Dep6;
 
-package Pack1.Flag is
+package Pack1.Flag is  --  FLAG
 
 end Pack1.Flag;

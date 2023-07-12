@@ -11,6 +11,6 @@ procedure Main is
    X   : Integer;
 begin
    X := Enum'Enum_Rep (Var);   --  FLAG
-   X := Enum2'Enum_Rep (E);    --  NO FLAG
-   X := Enum3'Enum_Rep (H);    --  NO FLAG
+   X := Enum2'Enum_Rep (E);    -- NOFLAG
+   X := Enum3'Enum_Rep (H);    -- NOFLAG
 end Main;

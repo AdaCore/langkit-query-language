@@ -5,17 +5,17 @@ with Pack_G;
 
 package Test_Deriving_From_Predefined_Type is
 
-   type My_Controlled_1 is new Controlled with record              --  NO FLAG
+   type My_Controlled_1 is new Controlled with record              -- NOFLAG
       I : Integer;
    end record;
 
-   type My_Controlled_2 is new Controlled with private;            --  NO FLAG
+   type My_Controlled_2 is new Controlled with private;            -- NOFLAG
 
-   type My_Stream_1 is abstract new Root_Stream_Type with record   --  NO FLAG
+   type My_Stream_1 is abstract new Root_Stream_Type with record   -- NOFLAG
       I : Integer;
    end record;
 
-   type My_Stream_2 is abstract new Root_Stream_Type with private; --  NO FLAG
+   type My_Stream_2 is abstract new Root_Stream_Type with private; -- NOFLAG
 
    type My_Float is new Float;                                     --  FLAG
 
@@ -51,11 +51,11 @@ package Test_Deriving_From_Predefined_Type is
 
 private
 
-   type My_Controlled_2 is new Controlled with record              --  NO FLAG
+   type My_Controlled_2 is new Controlled with record              -- NOFLAG
       I : Integer;
    end record;
 
-   type My_Stream_2 is abstract new Root_Stream_Type with record   --  NO FLAG
+   type My_Stream_2 is abstract new Root_Stream_Type with record   -- NOFLAG
       I : Integer;
    end record;
 

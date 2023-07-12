@@ -16,11 +16,11 @@ begin
       null;
    end if;
 
-   if A = 0 or (A in Natural and A = 2) then  --  NO FLAG
+   if A = 0 or (A in Natural and A = 2) then  -- NOFLAG
       null;
    end if;
 
-   if A = 0            --  NO FLAG
+   if A = 0            -- NOFLAG
      or (A >= 3 and A < 5)
    then
       null;
@@ -29,7 +29,7 @@ begin
    declare
       function "or" (A, B : Boolean) return Boolean is (True);
    begin
-      if A = 0            --  NO FLAG
+      if A = 0            -- NOFLAG
         or A = 2
       then
          null;

@@ -17,10 +17,10 @@ package body Params is
       Proc3 (Test.A, A);           --  FLAG
       Proc2 (Test.A.Field1, A);    --  FLAG
       Proc3 (A, A);                --  FLAG
-      Proc3 (A, B);                --  NO FLAG
-      Proc4 (A.Field1, B.Field1);  --  NO FLAG  (by-copy)
-      Proc5 (Arr (I), Arr (J));    --  NO FLAG
-      Proc5 (Arr (1), Arr (2));    --  NO FLAG
+      Proc3 (A, B);                -- NOFLAG
+      Proc4 (A.Field1, B.Field1);  -- NOFLAG  (by-copy)
+      Proc5 (Arr (I), Arr (J));    -- NOFLAG
+      Proc5 (Arr (1), Arr (2));    -- NOFLAG
       Proc6 (C, C.F.Field1);       --  FLAG
    end Test;
 

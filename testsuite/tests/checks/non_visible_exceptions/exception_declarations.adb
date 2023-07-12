@@ -2,15 +2,15 @@ package body Exception_Declarations is
 
    procedure Proc_1 is
       Ex_1 : exception;                         --  FLAG
-      Ex_2 : exception;                         --  NO FLAG
-      Ex_3 : exception;                         --  NO FLAG
+      Ex_2 : exception;                         -- NOFLAG
+      Ex_3 : exception;                         -- NOFLAG
 
       Ex_3_R : exception renames Ex_3;
 
    begin
 
       declare
-         Ex_4 : exception;                      --  NO FLAG
+         Ex_4 : exception;                      -- NOFLAG
       begin
          null;
       exception
@@ -38,7 +38,7 @@ package body Exception_Declarations is
    end Proc_2;
 
    procedure Proc_3 is
-      Ex : exception;                           --  NO FLAG
+      Ex : exception;                           -- NOFLAG
    begin
       null;
    exception
@@ -48,7 +48,7 @@ package body Exception_Declarations is
 
    function Fun (I : Integer) return Integer is
       Ex_1 : exception;                         --  FLAG
-      Ex_2 : exception;                         --  NO FLAG
+      Ex_2 : exception;                         -- NOFLAG
    begin
       return 1;
    exception

@@ -1,5 +1,5 @@
 package Foo is
-   type T is tagged null record;
+   type T is tagged null record;  --  FLAG
 
    procedure Foo (Self : T);
    procedure Bar (Self : T);

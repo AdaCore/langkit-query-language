@@ -8,8 +8,8 @@ package R is
   end record;
 
   function Get_Ref (Self : aliased in out Root) return Reference;  --  FLAG
-  function Get_Ref2 (Self : aliased in out Root) return Reference;  --  NO FLAG: overridden
-  function Prim2 (Self : aliased in out Root) return Integer;  --  NO FLAG: Inteer is not limited
-  procedure Prim3 (Self : aliased in out Root);  --  NO FLAG: not a function
+  function Get_Ref2 (Self : aliased in out Root) return Reference;  -- NOFLAG: overridden
+  function Prim2 (Self : aliased in out Root) return Integer;  -- NOFLAG: Inteer is not limited
+  procedure Prim3 (Self : aliased in out Root);  -- NOFLAG: not a function
 
 end R;

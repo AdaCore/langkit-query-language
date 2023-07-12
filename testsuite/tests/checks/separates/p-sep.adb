@@ -1,4 +1,4 @@
-separate(P)
+separate(P)  --  FLAG
 procedure Sep is
 begin
    null;

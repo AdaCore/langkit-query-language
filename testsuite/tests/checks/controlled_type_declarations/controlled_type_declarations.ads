@@ -4,8 +4,8 @@ package Foo is
 private
    type Resource is new Ada.Finalization.Controlled with null record; -- FLAG
    type Ressource_Array is new Array (Positive range <>)
-        of Ada.Finalization.Controlled; -- NO FLAG
+        of Ada.Finalization.Controlled; -- NOFLAG
    type Ressource_Record is record
-        F : Ada.Finalization.Controlled; -- NO FLAG
+        F : Ada.Finalization.Controlled; -- NOFLAG
     end record;
 end Foo;

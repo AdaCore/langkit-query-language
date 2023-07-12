@@ -25,8 +25,8 @@ package Recursive_Subprograms.Generics is
    generic
    package Recursion_And_Default_Component_Initialization is
       -- Defaulted record component --
-      function F1 (I : Integer) return Integer;         --  FLAG
-      function F2 (I : Integer) return Integer;         --  FLAG (default init)
+      function F1 (I : Integer) return Integer;
+      function F2 (I : Integer) return Integer;
 
       X : Integer := 1;
 
@@ -35,8 +35,8 @@ package Recursive_Subprograms.Generics is
       end record;
 
       -- Defaulted discriminant --
-      procedure P1 (I : in out Integer);                --  FLAG
-      function F3 (I : Integer) return Integer;         --  FLAG (default init)
+      procedure P1 (I : in out Integer);
+      function F3 (I : Integer) return Integer;
 
       type My_Discr_Record (D : Integer := F3 (X)) is record
          I : Integer;

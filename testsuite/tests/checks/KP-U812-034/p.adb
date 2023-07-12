@@ -25,9 +25,9 @@ procedure P is
 
 begin
    Thelw.Field1 := 0;
-   Register (Thelw.Field1'Access);    --  NO FLAG
+   Register (Thelw.Field1'Access);    -- NOFLAG
    Register (Thelwx.Field1'Access);   --  FLAG
    Mylwx := Thelwx'Access;            --  FLAG
 
-   Register (B.Field1'Access);        --  NO FLAG
+   Register (B.Field1'Access);        -- NOFLAG
 end P;

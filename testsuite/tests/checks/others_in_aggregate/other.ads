@@ -19,13 +19,13 @@ package Other is
       C4 : Integer;
    end record;
 
-   Arr_Var1 : Arr := (others => 1);                 --  NO FLAG
+   Arr_Var1 : Arr := (others => 1);                 -- NOFLAG
    Arr_Var2 : Arr := (1 => 1, 2 => 2, others => 0); --  FLAG
    Arr_Var3 : Arr := (1 | 2 => 1, others => 0);     --  FLAG
    Arr_Var4 : Arr := (1 .. 2 => 1, others => 0);    --  FLAG
    Arr_Var5 : Arr := (Most => 1, others => 0);      --  FLAG
 
-   Rec_Var1 : Rec := (C1 => 1, others => 0);        --  NO FLAG
+   Rec_Var1 : Rec := (C1 => 1, others => 0);        -- NOFLAG
    Rec_Var2 : Rec := (1, 2, others => 3);           --  FLAG
 
    Tagged_Rec_Var : Tagged_Rec := (C1 => 1);

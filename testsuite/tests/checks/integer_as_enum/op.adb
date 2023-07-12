@@ -1,8 +1,8 @@
 procedure Op is
    type Enum is range 1 .. 3;    --  FLAG
-   type Int is range 1 .. 3;     --  NO FLAG
+   type Int is range 1 .. 3;     -- NOFLAG
 
-   type Enum2 is range 1 .. 10;  --  NO FLAG
+   type Enum2 is range 1 .. 10;  -- NOFLAG
    type Enum_D is new Enum2;
 
    X : Enum := 1;

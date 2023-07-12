@@ -1,4 +1,4 @@
 small.ads:7:46: rule violation: possible occurrence of KP UB15-001: use of Small aspect
-7 |   type T is delta 0.1 range -1.0 .. 1.0 with Small => 0.1;
+7 |   type T is delta 0.1 range -1.0 .. 1.0 with Small => 0.1;  --  FLAG
   |                                              ^^^^^^^^^^^^
 

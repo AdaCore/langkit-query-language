@@ -5,6 +5,6 @@ package Pragmas is
 
    I : Integer;
    pragma Atomic (I);             --  FLAG
-   pragma Volatile (I);           --  NO FLAG
+   pragma Volatile (I);           -- NOFLAG
 
 end Pragmas;

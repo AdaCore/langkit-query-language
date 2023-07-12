@@ -1,9 +1,9 @@
 package Line is I : Integer;                      --  FLAG
-   B : Boolean;                                   --  NO FLAG
-   F1 : Float;                                    --  NO FLAG
-   F2 : Float; C :                                --  FLAG
+   B : Boolean;                                   --  NOFLAG
+   F1 : Float;                                    --  NOFLAG
+   F2 : Float; C :                                --  FLAG (2)
    Character;
 
-   type T (A : Integer; B : Integer) is null record;  --  NO FLAG
+   type T (A : Integer; B : Integer) is null record;  --  NOFLAG
 
    procedure Proc (I : in out Integer); end Line; --  FLAG

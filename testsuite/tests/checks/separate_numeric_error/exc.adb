@@ -10,7 +10,7 @@ begin
    begin
       null;
    exception
-      when Constraint_Error | Numeric_Error =>   --  NO FLAG
+      when Constraint_Error | Numeric_Error =>   -- NOFLAG
          null;
    end;
 
