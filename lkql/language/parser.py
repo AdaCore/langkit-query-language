@@ -1196,7 +1196,8 @@ lkql_grammar.add_rules(
         ExtendedNodePattern(
 
             Or(UniversalPattern("*"),
-               NodeKindPattern(G.kind_name)),
+               NodeKindPattern(G.kind_name),
+               ParenPattern("(", G.pattern, ")")),
 
             Pick("(", c(), List(G.pattern_arg, sep=","), ")")
         ),
