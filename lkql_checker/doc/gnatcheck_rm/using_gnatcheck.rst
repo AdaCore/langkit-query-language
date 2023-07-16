@@ -49,8 +49,7 @@ The following switches control the general ``gnatcheck`` behavior
   specified (either directly or by means of ``-files`` option), process
   the closure of units rooted at `main_unit`. Otherwise this option
   has no effect. ``main_unit`` should be the name of a source file that contains
-  the main unit of closure. Note that this option is currently ignored (it is
-  equivalent to ``-U``) and will be implemented in a future version.
+  the main unit of closure.
 
   .. index:: --no-subprojects
 
