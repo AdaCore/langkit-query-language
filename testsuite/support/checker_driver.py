@@ -34,6 +34,7 @@ class CheckerDriver(BaseDriver):
 
         args += ['-r', self.test_env['rule_name']]
         args += ['--rules-dirs', self.test_env['test_dir']]
+        args += ['--keep-going-on-missing-file']
 
         # Run the checker
         self.check_run(args)

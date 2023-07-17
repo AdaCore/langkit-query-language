@@ -35,7 +35,11 @@ import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -139,6 +143,9 @@ public final class LKQLContext {
      */
     @CompilerDirectives.CompilationFinal
     private Boolean isChecker = null;
+
+    @CompilerDirectives.CompilationFinal
+    private Boolean keepGoingOnMissingFile = null;
 
     /**
      * The project file to analyse
@@ -283,6 +290,16 @@ public final class LKQLContext {
             this.isChecker = this.env.getOptions().get(LKQLLanguage.checkerMode);
         }
         return this.isChecker;
+    }
+
+    /**
+     * Return true if the engine should keep running when a required file is not found.
+     */
+    public boolean keepGoingOnMissingFile() {
+        if (this.keepGoingOnMissingFile == null) {
+            this.keepGoingOnMissingFile = this.env.getOptions().get(LKQLLanguage.keepGoingOnMissingFile);
+        }
+        return this.keepGoingOnMissingFile;
     }
 
     /**
@@ -477,8 +494,8 @@ public final class LKQLContext {
     public CheckerUtils.DiagnosticEmitter getDiagnosticEmitter() {
         if (this.emitter == null) {
             this.emitter = switch (this.env.getOptions().get(LKQLLanguage.diagnosticOutputMode)) {
-                case PRETTY -> CheckerUtils::printRuleViolation;
-                case GNATCHECK -> CheckerUtils::printGNATcheckRuleViolation;
+                case PRETTY -> new CheckerUtils.DefaultEmitter();
+                case GNATCHECK -> new CheckerUtils.GNATcheckEmitter();
             };
         }
         return this.emitter;
@@ -538,10 +555,9 @@ public final class LKQLContext {
 
             // If required, create an auto provider with the specified files.
             if (this.env.getOptions().get(LKQLLanguage.useAutoProvider)) {
-                provider = Libadalang.createAutoProvider(
-                    this.allSourceFiles.toArray(new String[0]),
-                    charset
-                );
+                final List<String> allFiles = this.fetchAdaRuntimeFiles();
+                allFiles.addAll(this.allSourceFiles);
+                provider = Libadalang.createAutoProvider(allFiles.toArray(new String[0]), charset);
             } else {
                 provider = null;
             }
@@ -552,18 +568,60 @@ public final class LKQLContext {
             }
         }
 
-        // Create the ada context
-        this.adaContext = Libadalang.AnalysisContext.create(
-            charset,
-            null,
-            provider,
-            null,
-            true,
-            8
-        );
+        // Setup the event handler
+        final Libadalang.EventHandler.UnitRequestedCallback unitRequested =
+            (ctx, name, from, found, not_found_is_error) -> {
+                if (!found && not_found_is_error) {
+                    boolean isFatal = !this.keepGoingOnMissingFile();
+                    this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
+                    if (isFatal) {
+                        this.env.getContext().closeExited(null, 1);
+                    }
+                }
+            };
+
+        try (Libadalang.EventHandler eventHandler =
+                 Libadalang.EventHandler.create(unitRequested, null)) {
+            // Create the ada context
+            this.adaContext = Libadalang.AnalysisContext.create(
+                charset,
+                null,
+                provider,
+                eventHandler,
+                true,
+                8
+            );
+        }
 
         // The retrieved source files are not yet parsed
         this.parsed = false;
+    }
+
+    /**
+     * Return the list of files that belong to the available runtime. We only return specification files,
+     * as implementation are not useful for resolving names and types in the actual user sources.
+     * If a GNAT installation is not available in the PATH, this returns an empty list without error.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public List<String> fetchAdaRuntimeFiles() {
+        final List<String> runtimeFiles = new ArrayList<>();
+        try {
+            final Process gnatls = new ProcessBuilder("gnatls", "-v").start();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(gnatls.getInputStream()));
+            final Optional<String> adaIncludePath =
+                reader.lines().filter(line -> line.contains("adainclude")).findFirst();
+            adaIncludePath.ifPresent(path -> {
+                final Path adaIncludeDir = Paths.get(path.trim());
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(adaIncludeDir, "*.ads")) {
+                    stream.forEach(file -> runtimeFiles.add(file.toString()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (IOException ignored) {
+            // No runtime available, not a problem
+        }
+        return runtimeFiles;
     }
 
     /**

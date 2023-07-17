@@ -366,6 +366,12 @@ package body Gnatcheck.Compiler is
             if Index (Msg (Idx .. Msg'Last), ": violation of restriction") /= 0
             then
                Message_Kind := Restriction;
+            elsif Msg (Idx + 9 .. Idx + 19) = "cannot find" then
+               Message_Kind := Warning;
+               Report_Missing_File
+                 (Gnatcheck.Source_Table.File_Name (SF),
+                  Msg (Idx + 21 .. Msg'Last));
+               return;
             else
                Message_Kind := Warning;
             end if;
