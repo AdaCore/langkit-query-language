@@ -1,0 +1,2 @@
+val decls = select b@(ObjectDecl or BaseTypeDecl)(f_aspects is not null)
+print(decls)
