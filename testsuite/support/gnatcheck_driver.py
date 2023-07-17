@@ -79,6 +79,15 @@ class GnatcheckDriver(BaseDriver):
     def run(self):
         gnatcheck_env = dict(os.environ)
 
+        # Here we don't want to pollute the LKQL_RULES_PATH with this
+        # repository's LKQL rules: GNATcheck will find those itself by looking
+        # next to its executable. If we let this variable, we might end up
+        # with duplicate definitions of rules, for example if this repository
+        # is a copy of the original LKQL repository (which is actually what
+        # happens in production: the checkout used for testing is separate
+        # from that used for building).
+        gnatcheck_env["LKQL_RULES_PATH"] = ""
+
         if self.gnatcheck_worker_exe:
             gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
                 self.gnatcheck_worker_exe
