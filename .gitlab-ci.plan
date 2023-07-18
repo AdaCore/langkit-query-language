@@ -12,7 +12,10 @@ def lkql():
 def lkql_jit():
     install()
     anod_test("lkql", qualifier="implementation=jit")
+    # Abstain from testing GNATcheck in the JVM-based mode to help save the
+    # planet: the nightly runs suffice to show that the implementation works.
 
 def lkql_native_jit():
     install()
     anod_test("lkql", qualifier="implementation=native_jit")
+    anod_test("gnatcheck", qualifier="implementation=native_jit")
