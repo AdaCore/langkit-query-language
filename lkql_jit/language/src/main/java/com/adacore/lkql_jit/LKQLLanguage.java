@@ -499,61 +499,17 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                 Liblkqllang.GrammarRule.EXPR_RULE
             );
             Liblkqllang.LkqlNode root = unit.getRoot();
-            if (!validateArgValue(root)) {
-                throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : " + valueSource);
-            }
             ASTTranslator translator = new ASTTranslator(null);
             LKQLNode node = root.accept(translator);
-            Object value = node.executeGeneric(null);
-
-            // Add the argument in the context
-            context.addRuleArg(ruleName, argName, value);
+            try {
+                Object value = node.executeGeneric(null);
+                // Add the argument in the context
+                context.addRuleArg(ruleName, argName, value);
+            } catch (Exception e) {
+                throw LKQLRuntimeException.fromMessage(
+                    "The rule argument value generated an interpreter error: " + valueSource
+                );
+            }
         }
     }
-
-    /**
-     * Verify that the argument value is a literal expression
-     *
-     * @param node The node to verify
-     * @return If the node is a literal value, false else
-     */
-    private static boolean validateArgValue(Liblkqllang.LkqlNode node) {
-        // If the node is just a literal it's value
-        if (node instanceof Liblkqllang.Literal) return true;
-
-            // Else if it's a tuple literal we must verify the expressions inside it
-        else if (node instanceof Liblkqllang.Tuple tupleLiteral) {
-            Liblkqllang.ExprList exprList = tupleLiteral.fExprs();
-            int childrenCount = exprList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                if (!validateArgValue(exprList.getChild(i))) return false;
-            }
-            return true;
-        }
-
-        // Else if it's a list literal we must verify the expressions of the list
-        else if (node instanceof Liblkqllang.ListLiteral listLiteral) {
-            Liblkqllang.ExprList exprList = listLiteral.fExprs();
-            int childrenCount = exprList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                if (!validateArgValue(exprList.getChild(i))) return false;
-            }
-            return true;
-        }
-
-        // Else if it's an object literal we must verify all association values
-        else if (node instanceof Liblkqllang.ObjectLiteral objectLiteral) {
-            Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
-            int childrenCount = assocList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
-                if (!validateArgValue(assoc.fExpr())) return false;
-            }
-            return true;
-        }
-
-        // By default return false
-        return false;
-    }
-
 }
