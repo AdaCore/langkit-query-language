@@ -26,8 +26,42 @@ endif
 
 ADDITIONAL_MANAGE_ARGS=
 
-all: lkql lkql_checker lalcheck doc
+all: lkql lkql_checker lalcheck doc lkql_jit lkql_native_jit
 lkql: build/bin/liblkqllang_parse
+
+doc: lkql
+	cd user_manual && make clean html
+
+lkql_checker: lkql
+	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+
+lalcheck: lkql
+	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+
+build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
+	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java
+
+test:
+	testsuite/testsuite.py -Edtmp
+
+clean: clean_lkql_checker clean_lkql clean_lkql_jit
+
+clean_lkql:
+	rm lkql/build -rf
+
+clean_lkql_checker:
+	gprclean -P lkql_checker/lkql_checker.gpr
+
+clean_lkql_jit:
+	cd lkql_jit && mvn clean
+
+lkql_jit: lkql
+	cd lkql_jit && mvn package install
+
+lkql_native_jit: lkql
+	cd lkql_jit && mvn install -P native-all
+
+.PHONY: lkql_checker
 
 automated:
 	rm -rf "$(PREFIX)"
@@ -68,27 +102,3 @@ automated-cov:
 	cp -p "$(BUILD_DIR)/lkql_checker/obj/$(BUILD_MODE)/"*.sid \
 	  "$(PREFIX)/lib/lkql_checker"
 
-doc:
-	cd user_manual && make clean html
-
-lkql_checker:
-	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
-
-lalcheck:
-	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
-
-build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE)
-
-test:
-	testsuite/testsuite.py -Edtmp
-
-clean: clean_lkql_checker clean_lkql
-
-clean_lkql:
-	rm lkql/build -rf
-
-clean_lkql_checker:
-	gprclean -P lkql_checker/lkql_checker.gpr
-
-.PHONY: lkql_checker
