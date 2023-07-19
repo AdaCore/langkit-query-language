@@ -45,14 +45,20 @@ package Gnatcheck.Options is
    --  The name of the environment variable used to define a custom worker
    --  executable.
 
-   Use_Custom_Worker : constant Boolean :=
-     Ada.Environment_Variables.Exists (Custom_Worker_Var);
+   Default_Worker : constant String := "native_gnatcheck_worker";
+   --  The name of the worker executable to use.
+
+   Worker_Name : constant String :=
+     (if Ada.Environment_Variables.Exists (Custom_Worker_Var)
+      then Ada.Environment_Variables.Value (Custom_Worker_Var)
+      else Default_Worker);
+   --  The name of the worker to use.
+
+   Use_External_Worker : constant Boolean := Worker_Name /= "gnatcheck";
    --  Whether a custom GNATcheck worker executable should be used
 
    Worker_Command : constant String :=
-     (if Use_Custom_Worker
-      then Ada.Environment_Variables.Value (Custom_Worker_Var)
-      else Command_Name);
+     (if Use_External_Worker then Worker_Name else Command_Name);
    --  The executable to use as GNATcheck worker
 
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");

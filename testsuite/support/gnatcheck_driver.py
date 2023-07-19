@@ -87,11 +87,9 @@ class GnatcheckDriver(BaseDriver):
         # happens in production: the checkout used for testing is separate
         # from that used for building).
         gnatcheck_env["LKQL_RULES_PATH"] = ""
-
-        if self.gnatcheck_worker_exe:
-            gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
-                self.gnatcheck_worker_exe
-            )
+        gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
+            self.gnatcheck_worker_exe
+        )
 
         globs, locs = {}, {}
         global_python = self.test_env.get("global_python", None)
