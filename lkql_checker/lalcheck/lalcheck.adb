@@ -163,10 +163,10 @@ procedure Lalcheck is
             --  by users to specify rules). Otherwise, they are transfered in a
             --  more universal format that can be easily parsed by custom
             --  worker implementations.
-            if Worker_Command = Ada.Command_Line.Command_Name then
-               All_Rules.Table (Rule).Print_Rule_To_File (File);
-            else
+            if Use_External_Worker then
                All_Rules.Table (Rule).Print_Rule_To_Universal_File (File);
+            else
+               All_Rules.Table (Rule).Print_Rule_To_File (File);
             end if;
             New_Line (File);
          end if;
@@ -439,7 +439,7 @@ begin
       --  In the default (-j1, no custom worker) mode, process all sources in
       --  the main process.
 
-      if Process_Num <= 1 and then not Use_Custom_Worker then
+      if Process_Num <= 1 and then not Use_External_Worker then
 
          --  Spawn gprbuild in background to process the files in parallel
 

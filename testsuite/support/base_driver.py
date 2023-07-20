@@ -133,7 +133,7 @@ class BaseDriver(DiffTestDriver):
         if self.env.options.mode == "ada":
             self.lkql_exe = ["lkql_ada"]
             self.lkql_checker_exe = ["lkql_checker"]
-            self.gnatcheck_worker_exe = []
+            self.gnatcheck_worker_exe = ["gnatcheck"]
 
         # If the mode is JIT
         elif self.env.options.mode == "jit":
