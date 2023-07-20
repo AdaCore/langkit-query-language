@@ -1,0 +1,10 @@
+# Flag 'Image applied to objects of a class-wide interface type
+
+@check(message="possible occurrence of KP 18636", impact="22.*,23.*")
+fun kp_18636(node) =
+    node is AttributeRef
+    when node.f_attribute.p_name_is("Image")
+     and node.f_prefix is Name(
+             p_referenced_decl() is ObjectDecl or ParamSpec or GenericFormalObjDecl,
+             p_expression_type() is ClasswideTypeDecl(
+                 p_is_interface_type() is true))

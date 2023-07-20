@@ -1,0 +1,4 @@
+p.adb:4:30: rule violation: possible occurrence of KP 18636
+4 |       S : constant String := Object'Image;  --  FLAG
+  |                              ^^^^^^^^^^^^
+
