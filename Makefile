@@ -58,9 +58,11 @@ clean_lkql_jit:
 	cd lkql_jit && mvn clean
 
 lkql_jit: lkql
+	cd lkql/build/java && mvn package install
 	cd lkql_jit && mvn package install
 
 lkql_native_jit: lkql
+	cd lkql/build/java && mvn package install
 	cd lkql_jit && mvn package install -P native-all
 
 .PHONY: lkql_checker
