@@ -86,6 +86,21 @@ procedure Lalcheck is
       use Ada;
       use Ada.Directories;
 
+      procedure Add_Path (Env_Var : String; Path : String);
+      --  Add the given Path to the given environment variable, using the OS
+      --  path separator. If the variable does not exist yet, this defines it.
+
+      procedure Add_Path (Env_Var : String; Path : String) is
+      begin
+         if Environment_Variables.Exists (Env_Var) then
+            Environment_Variables.Set
+              (Env_Var,
+               Path & Path_Separator & Environment_Variables.Value (Env_Var));
+         else
+            Environment_Variables.Set (Env_Var, Path);
+         end if;
+      end Add_Path;
+
       Executable : String_Access := Locate_Exec_On_Path
         (Ada.Command_Line.Command_Name);
    begin
@@ -98,47 +113,20 @@ procedure Lalcheck is
          Prefix : constant String :=
             Containing_Directory (Containing_Directory (Executable.all));
 
-         Lkql_Rules_Path_Content : constant String :=
-           (if Environment_Variables.Exists ("LKQL_RULES_PATH")
-            then Environment_Variables.Value ("LKQL_RULES_PATH")
-            else "");
-
-         Path_Content : constant String :=
-           (if Environment_Variables.Exists ("PATH")
-            then Environment_Variables.Value ("PATH")
-            else "");
-
-         Ld_Lib_Path_Content : constant String :=
-           (if Environment_Variables.Exists ("LD_LIBRARY_PATH")
-            then Environment_Variables.Value ("LD_LIBRARY_PATH")
-            else "");
-
          Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
          Kp   : constant String := Compose (Lkql, "kp");
 
          Lib     : constant String := Compose (Prefix, "lib");
          Lib_LAL : constant String := Compose (Lib, "libadalang");
       begin
-         --  Setup LKQL_RULES_PATH
-         Environment_Variables.Set
-           ("LKQL_RULES_PATH",
-            Lkql & Path_Separator &
-            Kp & Path_Separator &
-            Lkql_Rules_Path_Content);
+         Add_Path ("LKQL_RULES_PATH", Lkql);
+         Add_Path ("LKQL_RULES_PATH", Kp);
 
-         --  Setup PATH
-         Environment_Variables.Set
-           ("PATH",
-            Lib & Path_Separator &
-            Lib_LAL & Path_Separator &
-            Path_Content);
+         Add_Path ("PATH", Lib);
+         Add_Path ("PATH", Lib_LAL);
 
-         --  Setup LD_LIBRARY_PATH
-         Environment_Variables.Set
-           ("LD_LIBRARY_PATH",
-            Lib & Path_Separator &
-            Lib_LAL & Path_Separator &
-            Ld_Lib_Path_Content);
+         Add_Path ("LD_LIBRARY_PATH", Lib);
+         Add_Path ("LD_LIBRARY_PATH", Lib_LAL);
       end;
 
       Free (Executable);
