@@ -1,0 +1,4 @@
+p.adb:4:27: rule violation: possible occurrence of KP 18637
+4 |       P : Parent'Class := Parent'Class (Object);  --  FLAG
+  |                           ^^^^^^^^^^^^^^^^^^^^^
+
