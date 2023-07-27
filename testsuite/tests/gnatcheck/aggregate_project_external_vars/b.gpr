@@ -1,0 +1,5 @@
+project B is
+   Dir := External ("SRC_DIR", "src_1");
+
+   for Source_Dirs use (Dir);
+end B;

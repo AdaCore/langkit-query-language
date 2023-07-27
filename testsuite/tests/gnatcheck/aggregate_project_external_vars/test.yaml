@@ -1,0 +1,10 @@
+# This test checks that aggregate project containing multiple aggregated
+# projects are handled correctly:
+#  1. Each aggregated project is analyzed independently.
+#  2. External attributes clauses in the aggregate project are correctly taken
+#     into account in aggregated projects.
+
+driver: gnatcheck
+project: agg.gpr
+rules:
+  - +Rlocal_packages

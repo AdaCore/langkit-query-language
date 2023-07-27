@@ -1,0 +1,8 @@
+
+Processing aggregated project /a.gpr
+Expected report file: /gnatcheck_1.out
+Exit code is 1 (rule violation(s) detected)
+
+Processing aggregated project /b.gpr
+Expected report file: /gnatcheck_2.out
+Exit code is 1 (rule violation(s) detected)
