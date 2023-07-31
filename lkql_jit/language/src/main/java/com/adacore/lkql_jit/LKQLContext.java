@@ -534,21 +534,24 @@ public final class LKQLContext {
             // Create the project manager
             this.projectManager = Libadalang.ProjectManager.create(projectFileName, this.getScenarioVars(), "", "");
 
+            final String subprojectName = this.env.getOptions().get(LKQLLanguage.subprojectFile);
+            final String[] subprojects = subprojectName.isEmpty() ? null : new String[] {subprojectName};
+
             // If no files were specified by the user, the files to analyze are those of the root project
             // (i.e. without recusing into project dependencies)
             if (this.specifiedSourceFiles.isEmpty()) {
                 this.specifiedSourceFiles = Arrays.stream(
-                    this.projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT)
+                    this.projectManager.getFiles(Libadalang.SourceFileMode.ROOT_PROJECT, subprojects)
                 ).toList();
             }
 
             // The `units()` built-in function must return all units of the project including units from its
             // dependencies. So let's retrieve all those files as well.
             this.allSourceFiles = Arrays.stream(
-                this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT)
+                this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT, subprojects)
             ).toList();
 
-            provider = this.projectManager.getProvider();
+            provider = this.projectManager.getProvider(subprojectName.isEmpty() ? null : subprojectName);
         } else {
             // When no project is specified, `units()` should return the same set of units as `specified_units()`.
             this.allSourceFiles = this.specifiedSourceFiles;

@@ -146,6 +146,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> projectFile = new OptionKey<>("");
 
     /**
+     * The name of the subproject to analyze. If empty, use the root project instead
+     */
+    @Option(
+        help = "The name of the subproject to analyze.",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<String> subprojectFile = new OptionKey<>("");
+
+    /**
      * The scenario variables to load the project file with, where "key=value" variable specifications
      * are encoded as Base64 and separated by semicolons.
      */

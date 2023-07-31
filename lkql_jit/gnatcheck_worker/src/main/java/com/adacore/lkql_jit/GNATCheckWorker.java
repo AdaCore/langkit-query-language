@@ -70,6 +70,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     private String projectFile = null;
 
     /**
+     * The name of the subproject to analyse, if any.
+     * This implies that `projectFile` designates an aggregate project.
+     */
+    private String subprojectFile = null;
+
+    /**
      * The project's scenario variables
      */
     private String scenarioVars = null;
@@ -167,6 +173,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // Set the project file
         if (this.projectFile != null) {
             contextBuilder.option("lkql.projectFile", this.projectFile);
+        }
+
+        if (this.subprojectFile != null) {
+            contextBuilder.option("lkql.subprojectFile", this.subprojectFile);
         }
 
         if (this.scenarioVars != null) {
@@ -292,8 +302,8 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
 
         if (currentArg.equals("-A")) {
-            // Use the specified aggregated project file instead of the aggregate project itself
-            this.projectFile = iterator.next();
+            // Use the specified aggregated project (`projectFile` holds the aggregate project)
+            this.subprojectFile = iterator.next();
 
             // TODO: handle "-o=..." and "-ox=..."
             iterator.next();
@@ -370,7 +380,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      *
      * @param filename The filename containing the rule specifications for this run
      * @param allRules The list in which to add all parsed rules
-     * @param allArgs The list in which to add all parsed rule arguments
+     * @param allArgs  The list in which to add all parsed rule arguments
      */
     private static void processRuleSpecificationFile(
         String filename,
@@ -391,10 +401,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * <p>
      * A GNATcheck rule specification can also specify arguments for that rule, so these are parsed as well
      * and added to the list of rule arguments.
-
+     *
      * @param ruleSpec The rule specification to parse
      * @param allRules The list of all currently parsed rules, in which we'll add this one
-     * @param allArgs The list of all currently specified rule arguments, which might be expanded here
+     * @param allArgs  The list of all currently specified rule arguments, which might be expanded here
      */
     private static void processRuleSpecification(
         String ruleSpec,
