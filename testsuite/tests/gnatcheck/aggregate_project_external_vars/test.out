@@ -1,8 +1,2 @@
-
-Processing aggregated project /a.gpr
-Expected report file: /gnatcheck_1.out
-Exit code is 1 (rule violation(s) detected)
-
-Processing aggregated project /b.gpr
-Expected report file: /gnatcheck_2.out
-Exit code is 1 (rule violation(s) detected)
+test.ads:2:12: declaration of local package
+test.ads:2:12: declaration of local package

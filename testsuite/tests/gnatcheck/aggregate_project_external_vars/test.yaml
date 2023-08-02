@@ -3,8 +3,10 @@
 #  1. Each aggregated project is analyzed independently.
 #  2. External attributes clauses in the aggregate project are correctly taken
 #     into account in aggregated projects.
+# Hence we must detect two times the violation in src_2/test.ads.
 
 driver: gnatcheck
+format: brief
 project: agg.gpr
 rules:
   - +Rlocal_packages
