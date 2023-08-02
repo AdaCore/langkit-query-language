@@ -59,6 +59,7 @@ with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
+with Libadalang.Config_Pragmas;
 
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Errors;        use LKQL.Errors;
@@ -1797,6 +1798,11 @@ package body Gnatcheck.Source_Table is
            (Charset       => Charset.all,
             Unit_Provider => Partition (Partition'First).Provider,
             Event_Handler => EHR_Object);
+
+         --  Setup the configuration pragma mapping by reading the
+         --  configuration file given by the project.
+         Libadalang.Config_Pragmas.Import_From_Project
+           (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree.all);
       end if;
 
       --  It's too early to compute units, so provide an empty value for now,

@@ -4,18 +4,18 @@
 import stdlib
 
 @memoized
-fun has_no_local_po_restriction() =
+fun has_no_local_po_restriction(unit) =
+    from unit.p_config_pragmas("Restrictions")
     select first p@PragmaNode
-    when p.f_id.p_name_is("Restrictions")
-     and from p.f_args select first n@Name
-         when n.p_name_is("No_Local_Protected_Objects")
+    when (from p.f_args select first n@Name
+          when n.p_name_is("No_Local_Protected_Objects"))
 
 @check(help="possible occurrence of KP P226-024 - global analysis required",
        message="possible occurrence of KP P226-024",
        impact="7.[123].*,7.4.[1-3].*")
 fun kp_p226_024(node) =
     node is ObjectDecl
-    when has_no_local_po_restriction()
+    when has_no_local_po_restriction(node.p_enclosing_compilation_unit())
      and stdlib.has_local_scope(node)
      and node.f_type_expr.p_designated_type_decl() is
              BaseTypeDecl(any stdlib.component_types is ProtectedTypeDecl)
