@@ -13,7 +13,8 @@
 
 import stdlib
 
-@check(message="callback may propagate exceptions",
+@check(help="callback may propagate exceptions (global analysis required)",
+       message="callback may propagate exceptions",
        category="Style", subcategory="Programming Practice")
 fun exception_propagation_from_callbacks(node, callbacks=[]) =
    # Select 'Access or 'Address on subprograms in a subprogram call

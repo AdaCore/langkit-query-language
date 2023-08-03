@@ -57,7 +57,7 @@ fun same_instance(node, library_only) =
               i.f_generic_pkg_name.p_referenced_decl() and
           same_non_null_params(node, i)]?[1]
 
-@unit_check(help="duplicate generic package instantiations",
+@unit_check(help="duplicate generic package instantiations (global analysis required)",
             category="Style", subcategory="Program Structure")
 fun same_instantiations(unit, library_level_only = false) =
     [{message: "same instantiation found at " &

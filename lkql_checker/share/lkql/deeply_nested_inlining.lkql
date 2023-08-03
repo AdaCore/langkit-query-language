@@ -29,7 +29,8 @@ fun check_inlining(node, n: int) =
           if a is Name when a.p_is_call()
                         and check_inlining(inlined_body(a), n - 1)]?[1] != ()
 
-@check(message="deeply nested inlining", category="Feature")
+@check(help="deeply nested inlining (global analysis required)",
+       message="deeply nested inlining", category="Feature")
 fun deeply_nested_inlining(node, n: int = 3) =
     match node
     | ClassicSubpDecl          => node.p_has_aspect("Inline") and

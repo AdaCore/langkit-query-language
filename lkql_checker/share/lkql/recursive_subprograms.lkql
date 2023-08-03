@@ -78,7 +78,8 @@ selector calls
 
 # Note: we keep skip_dispatching_calls for compatibility only
 
-@check(message="recursive subprogram", follow_generic_instantiations=true,
+@check(help="recursive subprogram (global analysis required)",
+       message="recursive subprogram", follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
 fun recursive_subprograms(node,
                           skip_dispatching_calls=true,

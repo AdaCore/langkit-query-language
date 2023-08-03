@@ -4,7 +4,8 @@
 # potentially missing recursion detection and identify potential missing
 # checks.
 
-@check(message="call to unavailable body",
+@check(help="call to unavailable body (global analysis required)",
+       message="call to unavailable body",
        category="Style", subcategory="Programming Practice")
 fun unavailable_body_calls(node, indirect_calls = false) =
     node is Name
