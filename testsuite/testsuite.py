@@ -1,15 +1,17 @@
 #! /usr/bin/env python
 
+from argparse import ArgumentParser
 import glob
 import os
 import os.path as P
 import statistics
 import subprocess
 import sys
+from typing import TextIO, Callable
 
 from e3.fs import mkdir, rm
-from e3.testsuite import Testsuite, logger
-from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder
+from e3.testsuite import Testsuite, logger, TestsuiteCore
+from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder, TestFinderResult
 
 from drivers import (
     checker_driver, gnatcheck_driver, interpreter_driver, parser_driver
@@ -25,7 +27,11 @@ class PerfTestFinder(YAMLTestFinder):
     measurements: less noise in the testsuite report.
     """
 
-    def probe(self, testsuite, dirpath, dirnames, filenames):
+    def probe(self,
+              testsuite: TestsuiteCore,
+              dirpath: str,
+              dirnames: list[str],
+              filenames: list[str]) -> TestFinderResult:
         # Probe testcases as usual
         result = super().probe(testsuite, dirpath, dirnames, filenames)
 
@@ -55,7 +61,11 @@ class StandardTestFinder(YAMLTestFinder):
     we want to be able to write baseline/performance hybrid tests.
     """
 
-    def probe(self, testsuite, dirpath, dirnames, filenames):
+    def probe(self,
+              testsuite: TestsuiteCore,
+              dirpath: str,
+              dirnames: list[str],
+              filenames: list[str]) -> TestFinderResult:
         # Probe testcases as usual
         result = super().probe(testsuite, dirpath, dirnames, filenames)
 
@@ -73,7 +83,7 @@ class LKQLTestsuite(Testsuite):
                        'checker': checker_driver.CheckerDriver,
                        'gnatcheck': gnatcheck_driver.GnatcheckDriver}
 
-    def add_options(self, parser):
+    def add_options(self, parser: ArgumentParser) -> None:
         parser.add_argument(
             '--mode', default='ada',
             choices=['ada', 'jit', 'native_jit'],
@@ -118,14 +128,14 @@ class LKQLTestsuite(Testsuite):
         )
 
     @property
-    def test_finders(self):
+    def test_finders(self) -> list[YAMLTestFinder]:
         return [
             PerfTestFinder()
             if self.env.perf_mode else
             StandardTestFinder()
         ]
 
-    def set_up(self):
+    def set_up(self) -> None:
         super().set_up()
         self.env.rewrite_baselines = self.env.options.rewrite
 
@@ -208,7 +218,7 @@ class LKQLTestsuite(Testsuite):
         else:
             self.env.perf_mode = False
 
-    def tear_down(self):
+    def tear_down(self) -> None:
         # Generate code coverage report if requested
         if self.env.options.coverage:
             # Create a response file to contain the list of traces
@@ -240,17 +250,17 @@ class LKQLTestsuite(Testsuite):
         super().tear_down()
 
 
-    def perf_report(self, output_file=sys.stdout):
+    def perf_report(self, output_file: TextIO = sys.stdout) -> None:
         """
         Print a small report of the performance testing.
         """
         print("===== Performance metrics =====", file=output_file)
 
         # Define functions to format metrics into strings
-        def format_time(seconds):
+        def format_time(seconds: float) -> str:
             return "{:.2f}s".format(seconds)
 
-        def format_memory(bytes_count):
+        def format_memory(bytes_count: int) -> str:
             units = ["B", "KB", "MB", "GB"]
             unit = units.pop(0)
             while units and bytes_count > 1000:
@@ -259,7 +269,9 @@ class LKQLTestsuite(Testsuite):
             return "{:.2f}{}".format(bytes_count, unit)
 
         # Define the function to display the given statistics
-        def compute_stats(numbers_str, get_value, format_value):
+        def compute_stats(numbers_str: str,
+                          get_value: Callable[[str], any],
+                          format_value: Callable[[any], str]) -> str:
             numbers = [get_value(n) for n in numbers_str.split()]
             return (
                 f"{format_value(min(numbers))} .. {format_value(max(numbers))}"

@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from e3.testsuite.driver.diff import (
     ReplacePath,
     Substitute,
+    OutputRefiner,
 )
 
 from drivers.base_driver import BaseDriver, Flags
@@ -17,7 +18,7 @@ _flag_line_pattern = re.compile(
     r"^([a-zA-Z][a-zA-Z0-9_\.\-]*\.(adb|ads|ada|ada_spec)):(\d+):\d+: .*$"
 )
 
-def _parse_full(output):
+def _parse_full(output: str) -> Flags:
     """
     Parse the full formatted gnatcheck output.
     """
@@ -39,7 +40,7 @@ def _parse_full(output):
     # Return the result
     return res
 
-def _parse_short_and_brief(output):
+def _parse_short_and_brief(output: str) -> Flags:
     """
     Parse the short formatted gnatcheck output.
     """
@@ -56,7 +57,7 @@ def _parse_short_and_brief(output):
     # Return the result
     return res
 
-def _parse_xml(output):
+def _parse_xml(output: str) -> Flags:
     """
     Parse the xml formatted gnatcheck output.
     """
@@ -158,7 +159,7 @@ class GnatcheckDriver(BaseDriver):
         'xml': _parse_xml
     }
 
-    def run(self):
+    def run(self) -> None:
         gnatcheck_env = dict(os.environ)
 
         # Here we don't want to pollute the LKQL_RULES_PATH with this
@@ -196,7 +197,7 @@ class GnatcheckDriver(BaseDriver):
             self.output += f.getvalue()
             os.chdir(cwd)
 
-        def run_one_test(test_data):
+        def run_one_test(test_data: dict[str, any]) -> None:
             output_format = test_data.get('format', 'full')
             assert output_format in GnatcheckDriver.output_formats
             brief = output_format == 'brief'
@@ -309,12 +310,12 @@ class GnatcheckDriver(BaseDriver):
             self.check_flags(flagged_lines)
 
     @property
-    def output_refiners(self):
+    def output_refiners(self) -> list[OutputRefiner]:
         result = super().output_refiners + [ReplacePath(self.working_dir())]
         if self.test_env.get("canonicalize_backslashes", False):
             result.append(Substitute("\\", "/"))
         return result
 
-    def parse_flagged_lines(self, output, format):
+    def parse_flagged_lines(self, output: str, format: str) -> Flags:
         assert format in self.output_formats
         return self.parsers[format](output)

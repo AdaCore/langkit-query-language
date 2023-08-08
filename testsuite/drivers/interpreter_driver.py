@@ -15,7 +15,7 @@ class InterpreterDriver(BaseDriver):
 
     perf_supported = True
 
-    def run(self):
+    def run(self) -> None:
         # Build the process's arguments list
         args = [*self.lkql_exe, '--script-path', 'script.lkql']
 

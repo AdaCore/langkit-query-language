@@ -7,7 +7,7 @@ from typing import TextIO
 
 from e3.fs import mkdir
 from e3.testsuite.driver.diff import DiffTestDriver
-from e3.testsuite.driver.classic import TestAbortWithError
+from e3.testsuite.driver.classic import TestAbortWithError, ProcessResult
 
 
 _flag_pattern = re.compile(r"--\s*FLAG\s*(\((\d+)\))?\s*(.*)")
@@ -119,21 +119,21 @@ class BaseDriver(DiffTestDriver):
     flag_checking_supported = False
 
     @property
-    def perf_mode(self):
+    def perf_mode(self) -> bool:
         return hasattr(self.env, 'perf_mode') and self.env.perf_mode
 
     @property
-    def flag_checking(self):
+    def flag_checking(self) -> bool:
         return ((not self.env.options.no_flag_checking) and
                 self.test_env.get("check_flags", True))
 
     @property
-    def baseline(self):
+    def baseline(self) -> tuple[str, str, bool]:
         # In perf mode, our purpose is to measure performance, not to check
         # results.
         return (None, "", False) if self.perf_mode else super().baseline
 
-    def set_up(self):
+    def set_up(self) -> None:
         super().set_up()
 
         self._define_lkql_executables()
@@ -150,7 +150,7 @@ class BaseDriver(DiffTestDriver):
             )
             mkdir(self.traces_dir)
 
-    def check_run(self, args, **kwargs):
+    def check_run(self, args: list[str], **kwargs) -> ProcessResult:
         """
         Run a process and check that its output is the expected one.
         """
@@ -173,7 +173,7 @@ class BaseDriver(DiffTestDriver):
         else:
             return self.shell(args, env=env, **kwargs)
 
-    def perf_run(self, args):
+    def perf_run(self, args: list[str]) -> None:
         """
         Run a process and collect performance data from it.
 
@@ -243,7 +243,7 @@ class BaseDriver(DiffTestDriver):
             else:
                 raise TestAbortWithError(f"invalid perf mode: {mode}")
 
-    def parse_flagged_lines(self, output):
+    def parse_flagged_lines(self, output: str) -> Flags:
         """
         Parse the output of a call and return an object containing files
         and their flagged lines.
@@ -252,11 +252,13 @@ class BaseDriver(DiffTestDriver):
         """
         raise TestAbortWithError("Unimplemented output parsing method")
 
-    def check_flags(self, execution_flags):
+    def check_flags(self, execution_flags: Flags) -> None:
         """
         Check that the source flagged lines are correctly flagged by the test
         driver, otherwise display the differences and add missing FLAG if
         asked for.
+
+        :param execution_flags: The source lines flagged by the output parsing.
         """
         flag_annotations, noflag_annotations = self.count_source_flags()
         missing_flags, noflag_violations, extra_flags = self.compare_flagged_lines(execution_flags, flag_annotations, noflag_annotations)
@@ -264,7 +266,7 @@ class BaseDriver(DiffTestDriver):
         if self.env.options.add_missing_flags:
             self.add_missing_flags(missing_flags)
 
-    def count_source_flags(self):
+    def count_source_flags(self) -> tuple[Flags, Flags]:
         """
         Count the FLAG/NOFLAG annotations in the test Ada sources and return a tuple
         containing (flag_annotations, noflag_annotation)
@@ -291,7 +293,10 @@ class BaseDriver(DiffTestDriver):
         # Return the tuple result
         return (flag_annotations, noflag_annotations)
 
-    def compare_flagged_lines(self, execution_flags, flag_annotations, noflag_annotations):
+    def compare_flagged_lines(self,
+                              execution_flags: Flags,
+                              flag_annotations: Flags,
+                              noflag_annotations: Flags) -> tuple[Flags, Flags, Flags]:
         """
         Check that the flagged lines are correcty annotated. Return a tuple
         containing missing flags, noflag violations and extra flag annotations.
@@ -321,10 +326,17 @@ class BaseDriver(DiffTestDriver):
         # Return the results
         return (missing_flags, noflag_violations, extra_flags)
 
-    def display_flag_errors(self, missing_flags, noflag_violations, extra_flags):
+    def display_flag_errors(self,
+                            missing_flags: Flags,
+                            noflag_violations: Flags,
+                            extra_flags: Flags) -> None:
         """
         Display the flag annotations violations on the test output to force
         a failure and show the user flag violations.
+
+        :param missing_flags: The missing flag annotations.
+        :param noflag_violation: The 'NOFLAG' annotation violations
+        :param extra_flags: The extra 'FLAG' annotations.
         """
         # If there is extra of missing flag create a message with the
         # information and add it to the test output.
@@ -362,7 +374,7 @@ class BaseDriver(DiffTestDriver):
 
             self.output += failure_message
 
-    def add_missing_flags(self, missing_flags):
+    def add_missing_flags(self, missing_flags: Flags) -> None:
         """
         Add the missing "-- FLAG" annotations in the test ada sources.
 
@@ -407,7 +419,7 @@ class BaseDriver(DiffTestDriver):
                     for line in file_lines:
                         print(line, file=ada_file)
 
-    def _define_lkql_executables(self):
+    def _define_lkql_executables(self) -> None:
         # If the mode is Ada
         if self.env.options.mode == "ada":
             self.lkql_exe = ["lkql_ada"]

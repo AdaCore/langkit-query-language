@@ -21,18 +21,7 @@ main_classes = {
     "gnatcheck_worker": "GNATCheckWorker"
 }
 
-<<<<<<< Updated upstream
-def show_usage():
-    """
-    Show the usage of the script.
-    """
-    print("lkql_jit.py usage: lkql_jit.py [mode] [args...]")
-    print("Available modes are; launcher, checker, gnatcheck_worker")
-
-def get_java_command(mode):
-=======
 def get_java_command(entry_point: str) -> list[str]:
->>>>>>> Stashed changes
     """
     Get the Java command as a list of string to run the given LKQL JIT entry point.
     """

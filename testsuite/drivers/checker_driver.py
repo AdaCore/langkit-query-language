@@ -23,7 +23,7 @@ class CheckerDriver(BaseDriver):
 
     flag_checking_supported = True
 
-    def run(self):
+    def run(self) -> None:
         args = [*self.lkql_checker_exe]
 
         # Use the test's project, if any
@@ -46,7 +46,7 @@ class CheckerDriver(BaseDriver):
         # Run the checker
         self.check_run(args)
 
-    def parse_flagged_lines(self, output: str):
+    def parse_flagged_lines(self, output: str) -> Flags:
         # Compile the pattern to match a checker output
         pattern = re.compile(
             r"^([a-zA-Z][a-zA-Z0-9_\-]*\.(adb|ads)):(\d+):\d+: .*$"
