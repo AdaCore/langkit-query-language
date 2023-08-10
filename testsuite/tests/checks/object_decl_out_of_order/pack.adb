@@ -10,7 +10,7 @@ package body Pack is
          null;
       end;
 
-      X : T;       -- NOFLAG
+      X : T;       --  NOFLAG
 
    begin
       null;

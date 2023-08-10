@@ -1,7 +1,7 @@
 package body Pack is
 
    procedure Proc (J : in out Integer) is
-      K : Integer := J;                            -- NOFLAG
+      K : Integer := J;                            --  NOFLAG
       Local_Rec : Rec;
 
       Var_Arr_Local : Arr;
@@ -9,10 +9,10 @@ package body Pack is
 
       procedure Inner_Proc (N : in out Integer) is
       begin
-         N := I +                                  -- NOFLAG
+         N := I +                                  --  NOFLAG
               K +                                  --  FLAG
               J +                                  --  FLAG
-              Global_Rec.C +                       -- NOFLAG
+              Global_Rec.C +                       --  NOFLAG
               Local_Rec.C;                         --  FLAG
       end Inner_Proc;
 
@@ -22,9 +22,9 @@ package body Pack is
          I := I1;                                   --  FLAG
       end Inner2;
 
-   begin                                           -- NOFLAG
-      I := J;                                      -- NOFLAG
-      J := K + 1;                                  -- NOFLAG
+   begin                                           --  NOFLAG
+      I := J;                                      --  NOFLAG
+      J := K + 1;                                  --  NOFLAG
    end Proc;
 
 end Pack;

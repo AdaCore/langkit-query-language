@@ -6,9 +6,9 @@ package body Foo is
          raise Exception_Declarations.Ex;   --  FLAG
       else
          I := I - 1;
-         raise Local_Exc;      -- NOFLAG
+         raise Local_Exc;      --  NOFLAG
       end if;
 
-      raise Constraint_Error;  -- NOFLAG
+      raise Constraint_Error;  --  NOFLAG
    end Proc;
 end Foo;

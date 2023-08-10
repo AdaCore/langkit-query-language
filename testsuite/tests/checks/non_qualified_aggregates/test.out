@@ -3,26 +3,26 @@ aggr.ads:5:18: rule violation: aggregate is not a part of a qualified expression
   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 aggr.ads:15:18: rule violation: aggregate is not a part of a qualified expression
-15 |    t1 : Table := (1, 8, 5);                                    -- FLAG
+15 |    t1 : Table := (1, 8, 5);                                    --  FLAG
    |                  ^^^^^^^^^
 
 aggr.ads:16:27: rule violation: aggregate is not a part of a qualified expression
-16 |    t2 : constant Table := (others => 5);                       -- FLAG
+16 |    t2 : constant Table := (others => 5);                       --  FLAG
    |                           ^^^^^^^^^^^^^
 
 aggr.ads:19:26: rule violation: aggregate is not a part of a qualified expression
-19 |    t5 : Two_Dim_Array := (('a', 'b'), ('e', 'f'));             -- FLAG
+19 |    t5 : Two_Dim_Array := (('a', 'b'), ('e', 'f'));             --  FLAG
    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
 
 aggr.ads:33:17: rule violation: aggregate is not a part of a qualified expression
-33 |    dd : Date := (4, January, 2011);                             -- FLAG
+33 |    dd : Date := (4, January, 2011);                             --  FLAG
    |                 ^^^^^^^^^^^^^^^^^^
 
 aggr.ads:34:20: rule violation: aggregate is not a part of a qualified expression
-34 |    tt : Weather := (2, March, 2011, 30);                        -- FLAG
+34 |    tt : Weather := (2, March, 2011, 30);                        --  FLAG
    |                    ^^^^^^^^^^^^^^^^^^^^
 
 aggr.ads:36:29: rule violation: aggregate is not a part of a qualified expression
-36 |    tc : constant Weather := (Date'(26, August, 1974) with 15);  -- FLAG
+36 |    tc : constant Weather := (Date'(26, August, 1974) with 15);  --  FLAG
    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -29,7 +29,7 @@ package body Generics is
       --  Now come a couple of straight cases private to the generic body,
       --  coming live as soon as the generic is instantiated.
 
-      function Local_Blank return String;  -- FLAG
+      function Local_Blank return String;  --  FLAG
 
       -----------------
       -- Local Image --
@@ -37,7 +37,7 @@ package body Generics is
 
       --  Returns unconstrained, acts as spec.
 
-      function Local_Image (X : Integer) return String is  -- FLAG
+      function Local_Image (X : Integer) return String is  --  FLAG
       begin
          return Local_Blank;
       end;
@@ -48,7 +48,7 @@ package body Generics is
 
       --  Completion of a separate declaration. Only the latter is flagged.
 
-      function Local_Blank return String is -- NOFLAG
+      function Local_Blank return String is --  NOFLAG
       begin
          return " ";
       end;

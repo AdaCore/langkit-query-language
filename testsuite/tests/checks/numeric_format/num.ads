@@ -1,9 +1,9 @@
 package Num is
-   A : constant := -1_000_000;             -- NOFLAG
-   B : constant := 2#0001_0001_1010_1011#; -- NOFLAG
-   C : constant := 8#777_001#;             -- NOFLAG
-   D : constant := 16#12AB_C000#;          -- NOFLAG
-   E : constant := 3.5E3;                  -- NOFLAG
+   A : constant := -1_000_000;             --  NOFLAG
+   B : constant := 2#0001_0001_1010_1011#; --  NOFLAG
+   C : constant := 8#777_001#;             --  NOFLAG
+   D : constant := 16#12AB_C000#;          --  NOFLAG
+   E : constant := 3.5E3;                  --  NOFLAG
 
    F : constant := 1000000;                --  FLAG
    G : constant := 2#0001000110101011#;    --  FLAG

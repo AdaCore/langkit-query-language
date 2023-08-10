@@ -1,4 +1,4 @@
-package Q is   -- NOFLAG
+package Q is   --  NOFLAG
    type T is tagged null record;
 
    package Nested is

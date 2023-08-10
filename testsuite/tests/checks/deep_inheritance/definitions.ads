@@ -6,5 +6,5 @@ package Test is
     type T0 is tagged null record;
     type T1 is new T0 and I0 with null record;
     type T2 is new T0 and I1 with null record;
-    type T3 is new T0 and I2 with null record; -- FLAG (if rule parameter is 2)
+    type T3 is new T0 and I2 with null record; --  FLAG (if rule parameter is 2)
 end Test;

@@ -1,5 +1,5 @@
 package Foo is
-    Const1 : constant Integer := 1;  -- NOFLAG
+    Const1 : constant Integer := 1;  --  NOFLAG
     Var1 : Integer;                  --  FLAG
     procedure Proc;
 private

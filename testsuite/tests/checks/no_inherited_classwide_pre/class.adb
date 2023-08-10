@@ -5,8 +5,8 @@ package body Class is
       return False;
    end Test;
 
-   procedure Proc (X : in out NT1) is null;  -- NOFLAG
-   procedure Proc (X : in out NT2) is        -- NOFLAG
+   procedure Proc (X : in out NT1) is null;  --  NOFLAG
+   procedure Proc (X : in out NT2) is        --  NOFLAG
    begin
       null;
    end Proc;

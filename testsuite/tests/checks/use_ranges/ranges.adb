@@ -15,7 +15,7 @@ begin
       end if;
    end loop;
 
-   for J in Str'Range loop    -- NOFLAG
+   for J in Str'Range loop    --  NOFLAG
       Obj (J) := ' ';
    end loop;
 

@@ -8,9 +8,9 @@ begin
    end if;
 
    if Cond then
-      raise Constraint_Error;   -- NOFLAG
+      raise Constraint_Error;   --  NOFLAG
    else
-      return;                   -- NOFLAG
+      return;                   --  NOFLAG
    end if;
 
    if Cond then
@@ -35,7 +35,7 @@ begin
       if Cond then
          exit when Cond;
       else
-         I := 1;    -- NOFLAG
+         I := 1;    --  NOFLAG
       end if;
 
       if Cond then
@@ -46,7 +46,7 @@ begin
    end loop;
 
    if Cond then
-      begin                        -- NOFLAG
+      begin                        --  NOFLAG
          raise Constraint_Error;
       end;
    else
@@ -64,7 +64,7 @@ begin
    end if;
 
    if Cond then
-      declare                      -- NOFLAG
+      declare                      --  NOFLAG
       begin
          raise Constraint_Error;
       end;
@@ -73,7 +73,7 @@ begin
    end if;
 
    if Cond then
-      begin                        -- NOFLAG
+      begin                        --  NOFLAG
          declare
          begin
             raise Constraint_Error;
@@ -91,6 +91,6 @@ begin
             null;
       end;
    else
-      I := I + 1;                  -- NOFLAG
+      I := I + 1;                  --  NOFLAG
    end if;
 end Paths;

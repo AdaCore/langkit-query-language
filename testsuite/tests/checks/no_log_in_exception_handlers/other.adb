@@ -13,7 +13,7 @@ begin
 exception
    when Constraint_Error =>
       I := Integer'Last;
-   when E : others =>      -- NOFLAG
+   when E : others =>      --  NOFLAG
       I := J;
       Log (Exception_Message (E));
 end Other;

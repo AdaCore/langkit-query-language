@@ -24,7 +24,7 @@ package P is
 
    type Rec is record
       Field1 : Union;    --  FLAG
-      Field2 : Integer;  -- NOFLAG
+      Field2 : Integer;  --  NOFLAG
    end record;
    
 end;

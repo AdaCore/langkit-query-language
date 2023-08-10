@@ -22,7 +22,7 @@ main.adb:16:16: expression function
 main.adb:25:16: expression function
    (unjustified)
 main.adb:30:19: implicit IN mode in parameter specification
-   (justify line off -- FLAG in valid exemptions)
+   (justify line off --  FLAG in valid exemptions)
 main.adb:33:19: implicit IN mode in parameter specification
    (unjustified)
 

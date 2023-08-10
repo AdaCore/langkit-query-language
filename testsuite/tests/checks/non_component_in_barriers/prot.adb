@@ -13,14 +13,14 @@ procedure Prot is
 
    protected body Obj is
       entry Get (V : out Integer)
-        when Is_Set is             -- NOFLAG
+        when Is_Set is             --  NOFLAG
       begin
          V := Local;
          Is_Set := False;
       end Get;
 
       entry Get2
-        when True is               -- NOFLAG
+        when True is               --  NOFLAG
       begin
          Is_Set := False;
       end Get2;

@@ -23,11 +23,11 @@ begin
       null;
    end;
 
-   Named: begin   -- NOFLAG
+   Named: begin   --  NOFLAG
       null;
    end Named;
 
-   Named: loop    -- NOFLAG
+   Named: loop    --  NOFLAG
       loop        --  FLAG
          null;
       end loop;

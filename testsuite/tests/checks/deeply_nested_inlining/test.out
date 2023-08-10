@@ -35,7 +35,7 @@ deeply_inlined.ads:33:13: rule violation: deeply nested inlining
    |             ^^^
 
 deeply_inlined_2012.adb:32:14: rule violation: deeply nested inlining
-32 |    procedure New_P4 is new P4;   -- FLAG
+32 |    procedure New_P4 is new P4;   --  FLAG
    |              ^^^^^^
 
 deeply_inlined_2012.ads:16:14: rule violation: deeply nested inlining

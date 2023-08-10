@@ -25,5 +25,5 @@ procedure P is
   Is_Valid  : Boolean := My_Record.Az'Valid;   --  FLAG
 
 begin
-  Is_Valid := My_Record2.Az'Valid;             -- NOFLAG
+  Is_Valid := My_Record2.Az'Valid;             --  NOFLAG
 end P;

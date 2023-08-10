@@ -5,7 +5,7 @@ procedure Loop1 (Str : in out String) is
 
 begin
    J := 0;
-   while J <= F (Str) loop   -- NOFLAG
+   while J <= F (Str) loop   --  NOFLAG
       if Str (J) = ' ' then
          Str (J) := 'a';
       end if;

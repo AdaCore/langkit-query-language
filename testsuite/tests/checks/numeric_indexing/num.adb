@@ -1,7 +1,7 @@
 package body Num is
     X : Integer := Var (2);      --  FLAG
-    Y : Integer := Var (1 + 2);  -- NOFLAG
-    Z : Integer := Var (2 - 1);  -- NOFLAG
+    Y : Integer := Var (1 + 2);  --  NOFLAG
+    Z : Integer := Var (2 - 1);  --  NOFLAG
 
    function "-" (I : Integer) return T_Index is
    begin
@@ -13,5 +13,5 @@ package body Num is
    end "-";
 
 begin
-  F := Var_T (-1);     -- NOFLAG
+  F := Var_T (-1);     --  NOFLAG
 end Num;

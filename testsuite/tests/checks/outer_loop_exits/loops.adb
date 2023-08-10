@@ -14,7 +14,7 @@ begin
       Outer2: for K in S2'Range loop
          if S1 (J) = S2 (K) then
             Detected := True;
-            exit Outer2;                    -- NOFLAG
+            exit Outer2;                    --  NOFLAG
          end if;
       end loop Outer2;
    end loop;

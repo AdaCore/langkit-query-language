@@ -4,7 +4,7 @@ package body P is
    begin
       return X = None;   --  FLAG
       return None /= X;  --  FLAG
-      return X = X;      -- NOFLAG
+      return X = X;      --  NOFLAG
    end P1;
 
 end P;

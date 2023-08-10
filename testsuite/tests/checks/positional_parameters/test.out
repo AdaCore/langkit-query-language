@@ -1,28 +1,28 @@
 pos.adb:33:10: rule violation: positional parameter association
-33 |    T.E1 (10, 11);                       -- FLAG (2)
+33 |    T.E1 (10, 11);                       --  FLAG (2)
    |          ^^
 
 pos.adb:33:14: rule violation: positional parameter association
-33 |    T.E1 (10, 11);                       -- FLAG (2)
+33 |    T.E1 (10, 11);                       --  FLAG (2)
    |              ^^
 
 pos.adb:37:15: rule violation: positional parameter association
-37 |    I := Fun2 (J, K);                    -- FLAG (2)
+37 |    I := Fun2 (J, K);                    --  FLAG (2)
    |               ^
 
 pos.adb:37:18: rule violation: positional parameter association
-37 |    I := Fun2 (J, K);                    -- FLAG (2)
+37 |    I := Fun2 (J, K);                    --  FLAG (2)
    |                  ^
 
 pos.adb:38:23: rule violation: positional parameter association
-38 |    I := Fun2_Default (J);               -- FLAG
+38 |    I := Fun2_Default (J);               --  FLAG
    |                       ^
 
 pos.adb:43:11: rule violation: positional parameter association
-43 |    Proc2 (I);                           -- FLAG
+43 |    Proc2 (I);                           --  FLAG
    |           ^
 
 pos.adb:52:19: rule violation: positional parameter association
-52 |    Var_T.T_Proc3 (10);                  -- FLAG
+52 |    Var_T.T_Proc3 (10);                  --  FLAG
    |                   ^^
 

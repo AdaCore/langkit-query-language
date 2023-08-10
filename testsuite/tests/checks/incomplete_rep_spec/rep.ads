@@ -9,7 +9,7 @@ package Rep is
       B at 4 range 0 .. 7;
    end record;
 
-   type Rec2 is record  -- NOFLAG
+   type Rec2 is record  --  NOFLAG
       I : Integer;
    end record;
    pragma Pack (Rec2);

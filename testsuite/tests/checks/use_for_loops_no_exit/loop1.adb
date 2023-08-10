@@ -2,7 +2,7 @@ procedure Loop1 (Str : in out String) is
    J, K, L : Integer;
 begin
    J := 0;
-   while J <= Str'Last loop   -- NOFLAG
+   while J <= Str'Last loop   --  NOFLAG
       if Str (J) = ' ' then
          Str (J) := 'a';
          exit;
@@ -13,7 +13,7 @@ begin
 
    K := 0;
    Loop1:
-   while K <= Str'Last loop   -- NOFLAG
+   while K <= Str'Last loop   --  NOFLAG
       if Str (K) = ' ' then
          Str (K) := 'a';
          exit Loop1;

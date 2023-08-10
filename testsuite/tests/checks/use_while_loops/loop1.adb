@@ -13,13 +13,13 @@ begin
       J := J + 1;
    end loop;
 
-   loop           -- NOFLAG
+   loop           --  NOFLAG
       null;
    end loop;
 
    Outer_Loop:
-   loop           -- NOFLAG
-      loop        -- NOFLAG
+   loop           --  NOFLAG
+      loop        --  NOFLAG
          exit Outer_Loop when True;
       end loop;
    end loop Outer_Loop;

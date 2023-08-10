@@ -14,6 +14,6 @@ begin
       when Constraint_Error => null;
    end;
 
-   raise Constraint_Error; -- NOFLAG
+   raise Constraint_Error; --  NOFLAG
 end Test2;
 

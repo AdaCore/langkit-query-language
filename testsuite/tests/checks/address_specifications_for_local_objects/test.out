@@ -1,4 +1,4 @@
 address_specifications_for_local_objects.adb:3:7: rule violation: address specification for local object
-3 |       Tmp : Integer with Address =>  -- FLAG
+3 |       Tmp : Integer with Address =>  --  FLAG
   |       ^^^
 

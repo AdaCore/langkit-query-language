@@ -7,7 +7,7 @@ begin
       return 2;
    end if;
 
-   if X = 1 then   -- NOFLAG
+   if X = 1 then   --  NOFLAG
       null;
    else
       null;
@@ -21,7 +21,7 @@ begin
       return 3;
    end if;
 
-   if X = 1 then   -- NOFLAG
+   if X = 1 then   --  NOFLAG
       return 1;
    elsif X = 2 then
       X := 2;
@@ -29,7 +29,7 @@ begin
       return 3;
    end if;
 
-   if X >= 2 then   -- NOFLAG
+   if X >= 2 then   --  NOFLAG
       X := X + 1;
    elsif X <= 0 then
       Y := X - 1;

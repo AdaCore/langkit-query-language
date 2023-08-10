@@ -3,7 +3,7 @@ package Rep is
    type Int1 is range 0 .. 1024;
    type Int2 is range 0 .. 1024;
 
-   for Int2'Size use 16;         -- NOFLAG
+   for Int2'Size use 16;         --  NOFLAG
    for Int1'Size use 16;         --  FLAG
 
    type Rec1 is record
@@ -21,7 +21,7 @@ package Rep is
    Var1 : Integer;
    Var2 : Integer;
 
-   pragma Atomic (Var2);         -- NOFLAG
+   pragma Atomic (Var2);         --  NOFLAG
    pragma Atomic (Var1);         --  FLAG
 
    type Rec3 is record

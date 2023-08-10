@@ -38,7 +38,7 @@ package body Complex is
       X := 1;
    end Many_Stmts;
 
-   procedure With_UC with Inline is   -- NOFLAG
+   procedure With_UC with Inline is   --  NOFLAG
       function Convert is new Ada.Unchecked_Conversion (Integer, Character);
    begin
       null;

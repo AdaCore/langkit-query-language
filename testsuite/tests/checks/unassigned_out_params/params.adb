@@ -15,7 +15,7 @@ procedure Params is
       C2 : Integer;
    end record;
 
-   procedure Proc2                         -- NOFLAG
+   procedure Proc2                         --  NOFLAG
      (P1 : out Arr;
       P2 : out Rec;
       P3 : out Boolean)
@@ -58,7 +58,7 @@ procedure Params is
       P5 (P4) := 2;
    end;
 
-   procedure Proc (X : out Integer) is     -- FLAG X
+   procedure Proc (X : out Integer) is     --  FLAG X
    begin
       begin
          null;

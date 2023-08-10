@@ -9,7 +9,7 @@ procedure Pos (I : in out Integer) is
    function To_Integer is new Ada.Unchecked_Conversion
      (My_Int, Integer);                                --  FLAG (2)
 
-   package My_Int_IO is new Ada.Text_IO.Integer_IO (My_Int);  -- NOFLAG
+   package My_Int_IO is new Ada.Text_IO.Integer_IO (My_Int);  --  NOFLAG
 begin
    null;
 end Pos;

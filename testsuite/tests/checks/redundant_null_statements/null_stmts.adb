@@ -1,14 +1,14 @@
 procedure Null_Stmts is
 begin
-   null;      -- NOFLAG
+   null;      --  NOFLAG
    null;      --  FLAG
 
    begin
-      null;   -- NOFLAG
+      null;   --  NOFLAG
    end;
 
    loop
-      null;   -- NOFLAG
+      null;   --  NOFLAG
    end loop;
 
    loop
@@ -16,7 +16,7 @@ begin
       null;   --  FLAG
    end loop;
 
-   <<label>> null;  -- NOFLAG (label)
+   <<label>> null;  --  NOFLAG (label)
 
    begin
       null;   --  FLAG

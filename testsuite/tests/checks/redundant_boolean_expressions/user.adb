@@ -14,7 +14,7 @@ procedure User is
       K   : Integer;
       function "=" (L, R : T) return Boolean is (True);
    begin
-      if Var = True then  -- NOFLAG
+      if Var = True then  --  NOFLAG
          K := 1;
       end if;
    end P;
@@ -22,7 +22,7 @@ procedure User is
    I : Integer;
    function "<" (L, R : Integer) return Boolean is (L <= R);
 begin
-   if not (I < 1) then    -- NOFLAG
+   if not (I < 1) then    --  NOFLAG
       null;
    end if;
 end User;

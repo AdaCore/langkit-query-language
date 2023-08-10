@@ -6,7 +6,7 @@ begin
       function "<" (L, R : Integer) return Boolean is (L <= R);
       I : Integer := 1;
    begin
-      while I < 10 loop                                          -- NOFLAG
+      while I < 10 loop                                          --  NOFLAG
          I := I - 1;
       end loop;
    end Non_Predefined_Relation;
@@ -15,7 +15,7 @@ begin
       function "+" (L, R : Integer) return Integer is (L * R);
       I : Integer := 1;
    begin
-      while I < 10 loop                                         -- NOFLAG
+      while I < 10 loop                                         --  NOFLAG
          I := I + 1;
       end loop;
    end Non_Predefined_Increment;
@@ -24,7 +24,7 @@ begin
       function "<" (L, R : Integer) return Boolean renames Junk;
       I : Integer := 1;
    begin
-      while I < 10 loop                                          -- NOFLAG
+      while I < 10 loop                                          --  NOFLAG
          I := I - 1;
       end loop;
    end Renamed_Relation;
@@ -33,7 +33,7 @@ begin
       function "+" (L, R : Integer) return Integer renames Junk;
       I : Integer := 1;
    begin
-      while I < 10 loop                                         -- NOFLAG
+      while I < 10 loop                                         --  NOFLAG
          I := I + 1;
       end loop;
    end Renamed_Increment;

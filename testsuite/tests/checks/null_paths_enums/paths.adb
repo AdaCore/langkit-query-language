@@ -4,8 +4,8 @@ procedure Paths is
 begin
    case Obj is
       when A =>
-         null;    -- NOFLAG
+         null;    --  NOFLAG
       when B =>
-         null;    -- NOFLAG
+         null;    --  NOFLAG
    end case;
 end Paths;

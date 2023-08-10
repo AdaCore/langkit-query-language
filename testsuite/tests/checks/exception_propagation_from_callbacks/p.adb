@@ -20,7 +20,7 @@ package body P is
    procedure Calls is
    begin
       Take_Cb (Param => P1'Access, I => 1);   --  FLAG
-      Take_Cb (1, P2'Access);                 -- NOFLAG
+      Take_Cb (1, P2'Access);                 --  NOFLAG
    end Calls;
 
    --  Tests on generics

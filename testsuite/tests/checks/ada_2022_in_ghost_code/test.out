@@ -1,19 +1,19 @@
 test_flag_ada_2022.adb:9:21: rule violation: Ada 2022 construct forbidden outside of ghost code
-9 |    Sum : Integer := Vals'Reduce ("+", 0);  -- FLAG
+9 |    Sum : Integer := Vals'Reduce ("+", 0);  --  FLAG
   |                     ^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:12:7: rule violation: Ada 2022 construct forbidden outside of ghost code
-12 |       (declare A : constant Integer := 12;  -- FLAG
+12 |       (declare A : constant Integer := 12;  --  FLAG
    | _______^
 13 ||               B : constant Integer := 15; begin A + B);
    ||_____________________________________________________^
 
 test_flag_ada_2022.adb:16:18: rule violation: Ada 2022 construct forbidden outside of ghost code
-16 |    P2 : Point := (P with delta Y => 18);  -- FLAG
+16 |    P2 : Point := (P with delta Y => 18);  --  FLAG
    |                  ^^^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:18:26: rule violation: Ada 2022 construct forbidden outside of ghost code
-18 |    Vals_2 : Int_Array := (for I of Vals => I * 2); -- FLAG
+18 |    Vals_2 : Int_Array := (for I of Vals => I * 2); --  FLAG
    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:24:17: rule violation: Ada 2022 construct forbidden outside of ghost code
@@ -29,15 +29,15 @@ test_flag_ada_2022.adb:28:33: rule violation: Ada 2022 construct forbidden outsi
    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:33:37: rule violation: Ada 2022 construct forbidden outside of ghost code
-33 |    type Big_Int is null record with Integer_Literal => To_Big_Int; -- FLAG
+33 |    type Big_Int is null record with Integer_Literal => To_Big_Int; --  FLAG
    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:38:38: rule violation: Ada 2022 construct forbidden outside of ghost code
-38 |    type Big_Real is null record with Real_Literal => To_Big_Real; -- FLAG
+38 |    type Big_Real is null record with Real_Literal => To_Big_Real; --  FLAG
    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:42:31: rule violation: Ada 2022 construct forbidden outside of ghost code
-42 |    function Foo (Bar: Integer with Test_Aspect) return Integer is (21);  -- FLAG
+42 |    function Foo (Bar: Integer with Test_Aspect) return Integer is (21);  --  FLAG
    |                               ^^^^^^^^^^^^^^^^
 
 test_flag_ada_2022.adb:51:14: rule violation: Ada 2022 construct forbidden outside of ghost code
@@ -49,6 +49,6 @@ test_flag_ada_2022.adb:54:12: rule violation: Ada 2022 construct forbidden outsi
    |            ^
 
 test_ghost_code.adb:20:21: rule violation: Ada 2022 construct forbidden outside of ghost code
-20 |       B : String := A'Image;  -- FLAG (via instantiation line 23)
+20 |       B : String := A'Image;  --  FLAG (via instantiation line 23)
    |                     ^^^^^^^
 

@@ -19,7 +19,7 @@ params.adb:48:7: rule violation: unassigned OUT parameter P4
    |       ^^
 
 params.adb:61:20: rule violation: unassigned OUT parameter X
-61 |    procedure Proc (X : out Integer) is     -- FLAG X
+61 |    procedure Proc (X : out Integer) is     --  FLAG X
    |                    ^
 
 params.adb:81:7: rule violation: unassigned OUT parameter A

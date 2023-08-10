@@ -11,13 +11,13 @@ package body Params is
       I, J : Integer;
 
    begin
-      Proc (A, A);                 -- NOFLAG
-      Proc2 (Test.A.Field1, A);    -- NOFLAG
-      Proc3 (A, A);                -- NOFLAG
-      Proc3 (A, B);                -- NOFLAG
-      Proc4 (A.Field1, B.Field1);  -- NOFLAG
+      Proc (A, A);                 --  NOFLAG
+      Proc2 (Test.A.Field1, A);    --  NOFLAG
+      Proc3 (A, A);                --  NOFLAG
+      Proc3 (A, B);                --  NOFLAG
+      Proc4 (A.Field1, B.Field1);  --  NOFLAG
       Proc5 (Arr (I), Arr (J));    --  FLAG
-      Proc5 (Arr (1), Arr (2));    -- NOFLAG
+      Proc5 (Arr (1), Arr (2));    --  NOFLAG
    end Test;
 
 end Params;

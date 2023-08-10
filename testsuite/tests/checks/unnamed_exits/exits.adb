@@ -2,10 +2,10 @@ procedure Exits is
 begin
    Named: loop
       loop
-         exit;    -- NOFLAG
+         exit;    --  NOFLAG
       end loop;
 
       exit;       --  FLAG
-      exit Named; -- NOFLAG
+      exit Named; --  NOFLAG
    end loop Named;
 end Exits;

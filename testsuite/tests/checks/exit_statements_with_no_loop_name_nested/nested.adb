@@ -9,7 +9,7 @@ begin
    end loop;
 
    loop
-      exit when I < J;  -- NOFLAG
+      exit when I < J;  --  NOFLAG
       I := I - 1;
       J := J + 1;
    end loop;

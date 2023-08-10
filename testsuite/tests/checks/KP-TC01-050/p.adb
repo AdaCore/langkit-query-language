@@ -10,6 +10,6 @@ function P return Boolean is
    Pp : Event'Class := Get_Event;
 
 begin
-   return Pp in Registered_Event'Class;   -- NOFLAG
+   return Pp in Registered_Event'Class;   --  NOFLAG
    return Pp in Registered_Event;         --  FLAG
 end P;

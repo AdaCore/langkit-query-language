@@ -5,5 +5,5 @@ procedure Attr is
    subtype Ind is Integer range Arr'First .. Arr'Last; --  FLAG (2)
 begin
    for J in Arr'Range loop                             --  FLAG
-      Arr_Var (J) := Integer'Succ (J);                 -- NOFLAG
+      Arr_Var (J) := Integer'Succ (J);                 --  NOFLAG
 end Attr;

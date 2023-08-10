@@ -14,7 +14,7 @@ begin
    declare
       function True return Boolean is (False);
    begin
-      while True loop         -- NOFLAG
+      while True loop         --  NOFLAG
          null;
       end loop;
    end;

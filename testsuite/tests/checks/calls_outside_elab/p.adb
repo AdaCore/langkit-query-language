@@ -11,15 +11,15 @@ package body P is
       X : Integer := Create;    --  FLAG
    begin
       X := Create;              --  FLAG
-      X := Create2;             -- NOFLAG
-      X := Create3;             -- NOFLAG
+      X := Create2;             --  NOFLAG
+      X := Create3;             --  NOFLAG
    end;
 
-   Global : Integer := Create;  -- NOFLAG
+   Global : Integer := Create;  --  NOFLAG
 begin
-   Global := Create;            -- NOFLAG
+   Global := Create;            --  NOFLAG
 
    begin
-      Global := Create;         -- NOFLAG
+      Global := Create;         --  NOFLAG
    end;
 end;

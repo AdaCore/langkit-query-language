@@ -6,7 +6,7 @@ package body Straight is
 
    --  This function body isn't a completion, hence acts as a declaration.
 
-   function Blank return String is  -- FLAG
+   function Blank return String is  --  FLAG
    begin
       return " ";
    end Blank;
@@ -19,7 +19,7 @@ package body Straight is
    --  this package.  Only the declaration is expected to be flagged, when the
    --  spec is processed.
 
-   function Image (X : Integer) return String is -- NOFLAG
+   function Image (X : Integer) return String is --  NOFLAG
    begin
       return Blank;
    end Image;
@@ -34,14 +34,14 @@ package body Straight is
 
    procedure Nest is
 
-      function My_Image (X : Integer) return String;  -- FLAG
+      function My_Image (X : Integer) return String;  --  FLAG
 
-      function My_Blank return String is -- FLAG
+      function My_Blank return String is --  FLAG
       begin
          return " ";
       end My_Blank;
 
-      function My_Image (X : Integer) return String is -- NOFLAG
+      function My_Image (X : Integer) return String is --  NOFLAG
       begin
          return My_Blank;
       end My_Image;

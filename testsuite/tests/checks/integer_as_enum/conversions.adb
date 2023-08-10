@@ -1,7 +1,7 @@
 procedure Conversions is
-    type Enum1 is range 1 .. 3;  -- NOFLAG
-    type Enum2 is range 1 .. 3;  -- NOFLAG
-    type Int is range 1 .. 10;   -- NOFLAG
+    type Enum1 is range 1 .. 3;  --  NOFLAG
+    type Enum2 is range 1 .. 3;  --  NOFLAG
+    type Int is range 1 .. 10;   --  NOFLAG
 
     E1 : Enum1 := 1;
     E2 : Enum2 := 1;

@@ -19,6 +19,6 @@ other.ads:29:29: rule violation: OTHERS choice in aggregate
    |                             ^^^^^^
 
 other.ads:33:64: rule violation: OTHERS choice in aggregate
-33 |    New_Tagged_Rec_Var : New_Tagged_Rec := (Tagged_Rec_Var with others => 0); -- FLAG
+33 |    New_Tagged_Rec_Var : New_Tagged_Rec := (Tagged_Rec_Var with others => 0); --  FLAG
    |                                                                ^^^^^^
 

@@ -18,7 +18,7 @@ procedure Main is
    Obj : BBool;
 
    S1 : constant String := BBool'Image (BBool'(True));   --  FLAG
-   S2 : constant String := BBool'Image (Obj);            -- NOFLAG
+   S2 : constant String := BBool'Image (Obj);            --  NOFLAG
 begin
    null;
 end Main;
