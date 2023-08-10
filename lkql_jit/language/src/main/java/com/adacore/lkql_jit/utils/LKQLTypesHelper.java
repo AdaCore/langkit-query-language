@@ -29,6 +29,7 @@ import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.math.BigInteger;
@@ -139,6 +140,17 @@ public final class LKQLTypesHelper {
     public static final String ANALYSIS_UNIT = "Analysis_Unit";
 
     // ----- Class methods -----
+
+    /**
+     * Create a type union from the given atomic types.
+     *
+     * @param types The types to union.
+     * @return The string representing the union.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static String typeUnion(String... types) {
+        return String.join(" | ", types);
+    }
 
     /**
      * Get the LKQL type in a string from the Java type
