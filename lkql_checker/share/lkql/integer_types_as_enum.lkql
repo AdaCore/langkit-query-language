@@ -37,7 +37,8 @@ fun types() =
            [c.f_type_def.f_subtype_indication?.f_name?.p_referenced_decl()
             for c in select TypeDecl(f_type_def is DerivedTypeDef)].to_list)
 
-@check(message="integer type may be replaced by an enumeration",
+@check(help="integer type may be replaced by an enumeration (global analysis required)",
+       message="integer type may be replaced by an enumeration",
        category="Style", subcategory="Programming Practice")
 fun integer_types_as_enum(node) =
      node is TypeDecl(p_is_int_type() is true)
