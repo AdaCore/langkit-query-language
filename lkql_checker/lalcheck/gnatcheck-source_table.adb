@@ -39,7 +39,6 @@ with GPR2.Path_Name;
 with GPR2.Project.Tree;
 with GPR2.Project.View;
 with GPR2.Project.Source.Set;
-with GPR2.Project.Registry.Attribute;
 
 with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;               use Gnatcheck.Ids;
@@ -59,6 +58,7 @@ with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Iterators;
 with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
+with Libadalang.Config_Pragmas;
 
 with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
 with LKQL.Errors;        use LKQL.Errors;
@@ -265,53 +265,7 @@ package body Gnatcheck.Source_Table is
    is
       use GPR2.Project.View;
       use GPR2.Project.Source.Set;
-      use GPR2.Project.Registry.Attribute;
       Units : Unit_Vectors.Vector;
-
-      procedure Check_Pragmas (Attribute : GPR2.Q_Attribute_Id);
-      --  Check whether some local or global configuration pragmas project
-      --  attribute is specified and add the corresponding files in Units.
-
-      procedure Check_Pragmas (Attribute : GPR2.Q_Attribute_Id) is
-         Prj : GPR2.Project.View.Object := Project.Tree.Root_Project;
-
-         procedure Append_File (File : String);
-         --  Append File to Units
-
-         -----------------
-         -- Append_File --
-         -----------------
-
-         procedure Append_File (File : String) is
-         begin
-            if Is_Absolute_Path (File) then
-               Units.Append (Ctx.Analysis_Ctx.Get_From_File (File));
-            else
-               --  Resolve File relative to Prj's directory
-
-               Units.Append
-                 (Ctx.Analysis_Ctx.Get_From_File
-                    (Prj.Path_Name.Dir_Name & File));
-            end if;
-         end Append_File;
-
-      begin
-         if Prj.Has_Attribute (Attribute) then
-            Append_File (Prj.Attribute (Attribute).Value.Text);
-         else
-            while Prj.Is_Extending loop
-               if Prj.Is_Extending_All then
-                  Prj := Prj.Extended_Root;
-               else
-                  Prj := Prj.Extended.First_Element;
-               end if;
-
-               if Prj.Has_Attribute (Attribute) then
-                  Append_File (Prj.Attribute (Attribute).Value.Text);
-               end if;
-            end loop;
-         end if;
-      end Check_Pragmas;
 
    begin
       --  If no project specified or Simple_Project, register all files listed
@@ -334,11 +288,6 @@ package body Gnatcheck.Source_Table is
                end if;
             end loop;
          end loop;
-
-         --  In addition, also register files containing configuration pragmas
-
-         Check_Pragmas (Builder.Global_Configuration_Pragmas);
-         Check_Pragmas (Compiler.Local_Configuration_Pragmas);
       end if;
 
       declare
@@ -1797,6 +1746,11 @@ package body Gnatcheck.Source_Table is
            (Charset       => Charset.all,
             Unit_Provider => Partition (Partition'First).Provider,
             Event_Handler => EHR_Object);
+
+         --  Setup the configuration pragma mapping by reading the
+         --  configuration file given by the project.
+         Libadalang.Config_Pragmas.Import_From_Project
+           (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree.all);
       end if;
 
       --  It's too early to compute units, so provide an empty value for now,

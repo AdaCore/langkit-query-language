@@ -523,13 +523,26 @@ public final class LKQLContext {
             }
         }
 
+        // Setup the event handler
+        final Libadalang.EventHandler.UnitRequestedCallback unitRequested =
+            (ctx, name, from, found, not_found_is_error) -> {
+                if (!found && not_found_is_error) {
+                    boolean isFatal = !this.keepGoingOnMissingFile();
+                    this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
+                    if (isFatal) {
+                        this.env.getContext().closeExited(null, 1);
+                    }
+                }
+            };
+        final Libadalang.EventHandler eventHandler = Libadalang.EventHandler.create(unitRequested, null);
+
         // If the option is the empty string, the language implementation will end up setting it to the default
         // value for its language (e.g. iso-8859-1 for Ada).
         String charset = this.env.getOptions().get(LKQLLanguage.charset);
 
         // Get the project file and parse it if there is one
         String projectFileName = this.getProjectFile();
-        final Libadalang.UnitProvider provider;
+
         if (projectFileName != null && !projectFileName.isEmpty() && !projectFileName.isBlank()) {
             // Create the project manager
             this.projectManager = Libadalang.ProjectManager.create(projectFileName, this.getScenarioVars(), "", "");
@@ -551,12 +564,18 @@ public final class LKQLContext {
                 this.projectManager.getFiles(Libadalang.SourceFileMode.WHOLE_PROJECT, subprojects)
             ).toList();
 
-            provider = this.projectManager.getProvider(subprojectName.isEmpty() ? null : subprojectName);
+            this.adaContext = this.projectManager.createContext(
+                subprojectName.isEmpty() ? null : subprojectName,
+                eventHandler,
+                true,
+                8
+            );
         } else {
             // When no project is specified, `units()` should return the same set of units as `specified_units()`.
             this.allSourceFiles = this.specifiedSourceFiles;
 
             // If required, create an auto provider with the specified files.
+            final Libadalang.UnitProvider provider;
             if (this.env.getOptions().get(LKQLLanguage.useAutoProvider)) {
                 final List<String> allFiles = this.fetchAdaRuntimeFiles();
                 allFiles.addAll(this.allSourceFiles);
@@ -569,23 +588,7 @@ public final class LKQLContext {
             if (this.getScenarioVars().length != 0) {
                 System.err.println("Scenario variable specifications require a project file");
             }
-        }
 
-        // Setup the event handler
-        final Libadalang.EventHandler.UnitRequestedCallback unitRequested =
-            (ctx, name, from, found, not_found_is_error) -> {
-                if (!found && not_found_is_error) {
-                    boolean isFatal = !this.keepGoingOnMissingFile();
-                    this.getDiagnosticEmitter().emitMissingFile(from, name, isFatal, this);
-                    if (isFatal) {
-                        this.env.getContext().closeExited(null, 1);
-                    }
-                }
-            };
-
-        try (Libadalang.EventHandler eventHandler =
-                 Libadalang.EventHandler.create(unitRequested, null)) {
-            // Create the ada context
             this.adaContext = Libadalang.AnalysisContext.create(
                 charset,
                 null,
@@ -594,7 +597,12 @@ public final class LKQLContext {
                 true,
                 8
             );
+
+            // In the absence of a project file, we consider for now that there are no configuration pragmas.
+            this.adaContext.setConfigPragmasMapping(null, null);
         }
+
+        eventHandler.close();
 
         // The retrieved source files are not yet parsed
         this.parsed = false;

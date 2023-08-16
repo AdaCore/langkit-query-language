@@ -31,6 +31,7 @@ with Ada.Wide_Wide_Text_IO; use Ada.Wide_Wide_Text_IO;
 with Langkit_Support.Diagnostics.Output;
 with Langkit_Support.Images; use Langkit_Support.Images;
 
+with Libadalang.Config_Pragmas;
 with Libadalang.Project_Provider; use Libadalang.Project_Provider;
 with Libadalang.Generic_API; use Libadalang.Generic_API;
 
@@ -873,6 +874,11 @@ package body Checker_App is
                   Units.Append
                     (Context.Analysis_Ctx.Get_From_File (To_String (F)));
                end loop;
+
+               --  Setup the configuration pragma mapping by reading the
+               --  configuration file given by the project.
+               Libadalang.Config_Pragmas.Import_From_Project
+                 (Context.Analysis_Ctx, Context.App_Ctx.Provider.Project.all);
 
             when Default =>
                for F of App.Args.Files.Get loop
