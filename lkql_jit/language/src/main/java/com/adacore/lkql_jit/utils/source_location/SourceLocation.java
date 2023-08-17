@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit.utils.source_location;
 
 import com.adacore.liblkqllang.Liblkqllang;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
 
@@ -157,26 +158,42 @@ public final class SourceLocation {
     }
 
     /**
-     * Get the lines from the source between the start and end index.
+     * Get the source lines concerned by the location.
      *
-     * @param start The start line (included).
-     * @param end   The end line (excluded).
-     * @return The lines from the source.
+     * @return The source lines.
      */
-    public String[] getLines(int start, int end) {
-        // Verify the argument validity
-        if (end <= start) {
-            return new String[0];
-        }
+    public String[] getLines() {
+        // Compute the start and end values
+        final int start = this.startLine - 1;
+        final int end = this.endLine;
 
-        // Prepare the result
-        String[] res = new String[end - start];
+        // Get the source location concerned lines
+        final String[] res = new String[end - start];
         for (int i = start; i < end; i++) {
             res[i - start] = this.source.getCharacters(i + 1).toString();
         }
 
         // Return the result
         return res;
+    }
+
+    /**
+     * Get the underlined source code represented by this source location.
+     *
+     * @param underlineColor The ANSI color to apply to the underlining.
+     * @return A string representing the underlined source code.
+     */
+    public String underlinedSource(
+        final String underlineColor
+    ) {
+        return StringUtils.underlineSource(
+            this.getLines(),
+            this.startLine,
+            this.startColumn,
+            this.endLine,
+            this.endColumn,
+            underlineColor
+        );
     }
 
     // ----- Override methods -----

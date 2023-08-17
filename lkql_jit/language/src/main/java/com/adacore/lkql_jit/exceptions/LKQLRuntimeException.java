@@ -476,33 +476,6 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     }
 
     /**
-     * Get a string representing the LKQL source with the underlined location.
-     *
-     * @param location The location to generate source representation for.
-     * @return The string representing the LKQL source.
-     */
-    private static String sourceText(Locatable location) {
-        // Get the positional information
-        int startLine = location.getLocation().getStartLine();
-        int endLine = location.getLocation().getEndLine();
-        int startCol = location.getLocation().getStartColumn();
-        int endCol = location.getLocation().getEndColumn();
-
-        String[] lines = location.getLocation().getLines(
-            startLine - 1,
-            endLine
-        );
-        return StringUtils.underlineSource(
-            lines,
-            startLine,
-            startCol,
-            endLine,
-            endCol,
-            StringUtils.ANSI_RED
-        );
-    }
-
-    /**
      * Wrap an error message with the full error text (base text + position text).
      *
      * @param errorMessage The error message.
@@ -512,7 +485,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     private static String fullErrorText(String errorMessage, Locatable location) {
         return baseErrorText(location) +
             errorMessage + "\n" +
-            sourceText(location) + "\n";
+            location.getLocation().underlinedSource(StringUtils.ANSI_RED) + "\n";
     }
 
     // ----- Instance methods -----
