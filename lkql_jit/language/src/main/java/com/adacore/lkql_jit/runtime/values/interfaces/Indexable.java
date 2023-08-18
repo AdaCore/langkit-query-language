@@ -23,9 +23,6 @@
 
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
-import com.adacore.lkql_jit.exceptions.InvalidIndexException;
-
-
 /**
  * This class defines the indexable interface for all the indexable LKQL types.
  *
@@ -38,9 +35,9 @@ public interface Indexable extends LKQLValue {
      *
      * @param index The index to get.
      * @return The element at the position.
-     * @throws InvalidIndexException If the index is not valid.
+     * @throws IndexOutOfBoundsException If the index is not in indexable bounds.
      */
-    Object get(int index) throws InvalidIndexException;
+    Object get(int index) throws IndexOutOfBoundsException;
 
     /**
      * Get the content of the indexable value in an array.

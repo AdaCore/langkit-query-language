@@ -23,7 +23,6 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.exceptions.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
@@ -69,10 +68,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
      * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int)
      */
     @Override
-    public Object get(int index) throws InvalidIndexException {
-        if (index < 0 || index >= this.content.length) {
-            throw new InvalidIndexException();
-        }
+    public Object get(int index) throws IndexOutOfBoundsException {
         return this.content[index];
     }
 

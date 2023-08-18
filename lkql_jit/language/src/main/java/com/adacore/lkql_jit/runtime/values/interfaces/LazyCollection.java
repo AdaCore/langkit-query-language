@@ -23,7 +23,6 @@
 
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
-import com.adacore.lkql_jit.exceptions.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -76,7 +75,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
      * @see com.adacore.lkql_jit.runtime.values.interfaces.Indexable#get(int)
      */
     @Override
-    public Object get(int index) throws InvalidIndexException {
+    public Object get(int index) throws IndexOutOfBoundsException {
         if (index >= 0) {
             // Initialize the cache to the given index
             this.initCache(index);
@@ -86,7 +85,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
         }
 
         // If the index is not a valid one, throw an exception
-        throw new InvalidIndexException();
+        throw new IndexOutOfBoundsException();
     }
 
     /**
@@ -239,7 +238,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
             try {
                 this.lazyCollection.get(this.pointer);
                 return true;
-            } catch (InvalidIndexException e) {
+            } catch (IndexOutOfBoundsException e) {
                 return false;
             }
         }
