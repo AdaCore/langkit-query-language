@@ -74,7 +74,7 @@ public final class ArgList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**
@@ -116,7 +116,7 @@ public final class ArgList extends LKQLNode {
             throw LKQLRuntimeException.wrongArity(
                 paramNames.length,
                 args.length,
-                this
+                this.location
             );
         }
 
@@ -137,7 +137,7 @@ public final class ArgList extends LKQLNode {
             if (index > -1) {
                 res[index] = arg.executeGeneric(frame);
             } else {
-                throw LKQLRuntimeException.unknownArgument(arg.getArgName().getName(), arg.getArgName());
+                throw LKQLRuntimeException.unknownArgument(arg.getArgName().getName(), arg.getArgName().getLocation());
             }
         }
 

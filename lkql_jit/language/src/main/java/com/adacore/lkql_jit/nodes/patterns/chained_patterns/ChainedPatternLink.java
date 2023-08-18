@@ -77,7 +77,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
      */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**
@@ -122,7 +122,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.ADA_NODE,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        this
+                        this.location
                     );
                 }
             }
@@ -133,7 +133,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_LIST,
                 LKQLTypesHelper.fromJava(resultObject),
-                this
+                this.location
             );
         }
 

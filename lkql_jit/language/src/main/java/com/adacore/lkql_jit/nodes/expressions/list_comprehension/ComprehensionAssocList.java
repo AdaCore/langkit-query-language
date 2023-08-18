@@ -74,7 +74,7 @@ public final class ComprehensionAssocList extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**

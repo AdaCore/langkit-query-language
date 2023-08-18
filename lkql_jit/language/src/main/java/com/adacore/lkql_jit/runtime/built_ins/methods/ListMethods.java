@@ -91,7 +91,7 @@ public final class ListMethods extends IterableMethods {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
                         LKQLTypesHelper.fromJava(args[0]),
-                        call.getArgList().getArgs()[0]
+                        call.getArgList().getArgs()[0].getLocation()
                     );
                 }
 
@@ -99,7 +99,7 @@ public final class ListMethods extends IterableMethods {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_INTEGER,
                         LKQLTypesHelper.fromJava(args[1]),
-                        call.getArgList().getArgs()[1]
+                        call.getArgList().getArgs()[1].getLocation()
                     );
                 }
 
@@ -107,7 +107,7 @@ public final class ListMethods extends IterableMethods {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_INTEGER,
                         LKQLTypesHelper.fromJava(args[2]),
-                        call.getArgList().getArgs()[2]
+                        call.getArgList().getArgs()[2].getLocation()
                     );
                 }
 
@@ -116,9 +116,9 @@ public final class ListMethods extends IterableMethods {
                 long highBound = LKQLTypeSystemGen.asLong(args[2]);
 
                 if (lowBound < 1) {
-                    throw LKQLRuntimeException.invalidIndex((int) lowBound, call);
+                    throw LKQLRuntimeException.invalidIndex((int) lowBound, call.getLocation());
                 } else if (highBound > list.getContent().length) {
-                    throw LKQLRuntimeException.invalidIndex((int) highBound, call);
+                    throw LKQLRuntimeException.invalidIndex((int) highBound, call.getLocation());
                 }
 
                 return new ListValue(Arrays.copyOfRange(list.getContent(), (int) lowBound - 1, (int) highBound));

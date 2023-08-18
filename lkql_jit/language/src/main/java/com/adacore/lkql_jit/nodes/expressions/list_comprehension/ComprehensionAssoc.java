@@ -104,7 +104,7 @@ public final class ComprehensionAssoc extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**
@@ -120,7 +120,7 @@ public final class ComprehensionAssoc extends LKQLNode {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_ITERABLE,
                 LKQLTypesHelper.fromJava(e.getResult()),
-                this.collection
+                this.collection.getLocation()
             );
         }
     }

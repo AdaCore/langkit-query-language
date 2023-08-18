@@ -114,7 +114,7 @@ public final class SelectorCall extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**
@@ -202,7 +202,7 @@ public final class SelectorCall extends LKQLNode {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_SELECTOR,
                 LKQLTypesHelper.fromJava(selectorObject),
-                this.selectorExpr
+                this.selectorExpr.getLocation()
             );
         }
 
@@ -224,7 +224,7 @@ public final class SelectorCall extends LKQLNode {
                             throw LKQLRuntimeException.wrongType(
                                 LKQLTypesHelper.LKQL_INTEGER,
                                 LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
+                                arg.getArgExpr().getLocation()
                             );
                         }
                         break;
@@ -237,7 +237,7 @@ public final class SelectorCall extends LKQLNode {
                             throw LKQLRuntimeException.wrongType(
                                 LKQLTypesHelper.LKQL_INTEGER,
                                 LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
+                                arg.getArgExpr().getLocation()
                             );
                         }
                         break;
@@ -250,7 +250,7 @@ public final class SelectorCall extends LKQLNode {
                             throw LKQLRuntimeException.wrongType(
                                 LKQLTypesHelper.LKQL_INTEGER,
                                 LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
+                                arg.getArgExpr().getLocation()
                             );
                         }
                         break;

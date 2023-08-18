@@ -28,11 +28,11 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.exceptions.LangkitException;
 import com.adacore.lkql_jit.exceptions.UnsupportedTypeException;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
@@ -71,7 +71,7 @@ public final class ReflectionUtils {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_STRING,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        argument
+                        argument.getLocation()
                     );
                 }
                 res = Libadalang.Symbol.create(resString);
@@ -89,7 +89,7 @@ public final class ReflectionUtils {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_LIST,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    argument
+                    argument.getLocation()
                 );
             }
             Libadalang.AnalysisUnitArray resArray = Libadalang.AnalysisUnitArray.create((int) resList.size());
@@ -100,7 +100,7 @@ public final class ReflectionUtils {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.ANALYSIS_UNIT,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        argument
+                        argument.getLocation()
                     );
                 }
             }
@@ -125,13 +125,13 @@ public final class ReflectionUtils {
     public static Object callProperty(
         Libadalang.AdaNode node,
         Libadalang.LibadalangField fieldDescription,
-        Locatable caller,
+        LKQLNode caller,
         ArgList argList,
         Object... arguments
     ) throws LangkitException, UnsupportedTypeException {
         // Verify if there is more arguments than params
         if (arguments.length > fieldDescription.params.size()) {
-            throw LKQLRuntimeException.wrongArity(fieldDescription.params.size(), arguments.length, argList);
+            throw LKQLRuntimeException.wrongArity(fieldDescription.params.size(), arguments.length, argList.getLocation());
         }
 
         Object[] refinedArgs = new Object[fieldDescription.params.size()];
@@ -149,7 +149,7 @@ public final class ReflectionUtils {
                     if (currentParam instanceof Libadalang.ParamWithDefaultValue paramWithDefaultValue) {
                         refinedArgs[i] = paramWithDefaultValue.defaultValue;
                     } else {
-                        throw LKQLRuntimeException.wrongArity(fieldDescription.params.size(), arguments.length, argList);
+                        throw LKQLRuntimeException.wrongArity(fieldDescription.params.size(), arguments.length, argList.getLocation());
                     }
                 }
             }
@@ -165,7 +165,7 @@ public final class ReflectionUtils {
                     throw LKQLRuntimeException.conversionError(
                         LKQLTypesHelper.fromJava(refinedArgs[i]),
                         LKQLTypesHelper.debugName(fieldDescription.params.get(i).type),
-                        caller
+                        caller.getLocation()
                     );
                 }
             }
@@ -173,7 +173,7 @@ public final class ReflectionUtils {
             // Throw a default exception
             throw LKQLRuntimeException.fromMessage(
                 "Invalid argument type, but cannot find which",
-                argList
+                argList.getLocation()
             );
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
@@ -189,9 +189,9 @@ public final class ReflectionUtils {
                 // be an ExitException.
                 throw error;
             }
-            throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller);
+            throw LKQLRuntimeException.fromJavaException(e.getTargetException(), caller.getLocation());
         } catch (IllegalAccessException e) {
-            throw LKQLRuntimeException.fromMessage("Java reflection access failed", caller);
+            throw LKQLRuntimeException.fromMessage("Java reflection access failed", caller.getLocation());
         }
     }
 

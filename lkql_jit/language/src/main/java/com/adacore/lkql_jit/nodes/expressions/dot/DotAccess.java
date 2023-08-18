@@ -111,7 +111,7 @@ public abstract class DotAccess extends Expr {
         }
 
         // Throw an exception if the member was not found
-        throw LKQLRuntimeException.noSuchMember(this);
+        throw LKQLRuntimeException.noSuchMember(this.location);
     }
 
     /**
@@ -135,7 +135,7 @@ public abstract class DotAccess extends Expr {
         }
 
         // Throw an exception if the member was n<w>t found
-        throw LKQLRuntimeException.noSuchMember(this);
+        throw LKQLRuntimeException.noSuchMember(this.location);
     }
 
     /**
@@ -184,13 +184,13 @@ public abstract class DotAccess extends Expr {
 
         // Test if the node is null
         if (receiver == NodeNull.getInstance()) {
-            throw LKQLRuntimeException.nullReceiver(this);
+            throw LKQLRuntimeException.nullReceiver(this.location);
         }
 
         // Create the property reference
         PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(this.member);
+            throw LKQLRuntimeException.noSuchField(this.member.getLocation());
         }
 
         // Return the result
@@ -215,7 +215,7 @@ public abstract class DotAccess extends Expr {
         throw LKQLRuntimeException.wrongMember(
             this.member.getName(),
             LKQLTypesHelper.fromJava(receiver),
-            this.member
+            this.member.getLocation()
         );
     }
 

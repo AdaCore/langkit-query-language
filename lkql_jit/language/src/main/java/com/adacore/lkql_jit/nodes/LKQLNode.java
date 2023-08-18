@@ -25,7 +25,6 @@ package com.adacore.lkql_jit.nodes;
 
 import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
@@ -43,7 +42,7 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 @TypeSystemReference(LKQLTypeSystem.class)
-public abstract class LKQLNode extends Node implements Locatable {
+public abstract class LKQLNode extends Node {
 
     // ----- Attributes -----
 
@@ -67,10 +66,6 @@ public abstract class LKQLNode extends Node implements Locatable {
 
     // ----- Getters -----
 
-    /**
-     * @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation()
-     */
-    @Override
     public SourceLocation getLocation() {
         return location;
     }

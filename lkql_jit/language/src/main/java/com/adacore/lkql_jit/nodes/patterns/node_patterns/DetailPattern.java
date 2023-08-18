@@ -80,7 +80,7 @@ public final class DetailPattern extends DetailValue {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.ADA_NODE,
                 LKQLTypesHelper.fromJava(value),
-                this
+                this.location
             );
         }
 

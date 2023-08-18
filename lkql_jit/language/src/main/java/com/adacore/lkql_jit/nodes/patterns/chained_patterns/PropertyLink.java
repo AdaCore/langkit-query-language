@@ -127,7 +127,7 @@ public abstract class PropertyLink extends ChainedPatternLink {
 
         // Test if the property is valid
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(this);
+            throw LKQLRuntimeException.noSuchField(this.location);
         }
 
         // Return the result

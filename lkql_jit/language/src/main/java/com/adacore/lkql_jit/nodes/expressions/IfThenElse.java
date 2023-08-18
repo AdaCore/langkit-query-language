@@ -97,7 +97,7 @@ public final class IfThenElse extends Expr {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_BOOLEAN,
                 LKQLTypesHelper.fromJava(e.getResult()),
-                this.condition
+                this.condition.getLocation()
             );
         }
 

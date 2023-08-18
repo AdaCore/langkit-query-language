@@ -3,6 +3,7 @@ package com.adacore.lkql_jit.utils.functions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 
@@ -87,7 +88,7 @@ public class CheckerUtils {
             String ruleName,
             Libadalang.AnalysisUnit unit,
             Libadalang.SourceLocation adaLocation,
-            String errorLocation,
+            SourceLocation errorLocation,
             String errorName,
             String errorMessage,
             LKQLContext context
@@ -138,7 +139,7 @@ public class CheckerUtils {
             final String ruleName,
             final Libadalang.AnalysisUnit unit,
             final Libadalang.SourceLocation adaLocation,
-            final String errorLocation,
+            final SourceLocation errorLocation,
             final String errorName,
             final String errorMessage,
             final LKQLContext context
@@ -268,14 +269,14 @@ public class CheckerUtils {
             final String ruleName,
             final Libadalang.AnalysisUnit unit,
             final Libadalang.SourceLocation adaLocation,
-            final String errorLocation,
+            final SourceLocation errorLocation,
             final String errorName,
             final String errorMessage,
             final LKQLContext context
         ) {
             context.println(unit.getFileName(false) + ":" +
                 adaLocation.line + ":" + String.format("%02d", adaLocation.column) + ": check: " +
-                "internal error at " + errorLocation + ": " +
+                "internal error at " + errorLocation.toString() + ": " +
                 "raised " + errorName + " : " +
                 errorMessage +
                 " [" + ruleName.toLowerCase() + "]"

@@ -25,11 +25,11 @@ package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLCompilationException;
 import com.adacore.lkql_jit.exceptions.TranslatorException;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFramesBuilder;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFactory;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.source.Source;
 
@@ -79,10 +79,10 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      * @param node The node to create a source location for.
      * @return A source location for the given node.
      */
-    private DummyLocation loc(
+    private SourceLocation loc(
         final Liblkqllang.LkqlNode node
     ) {
-        return new DummyLocation(new SourceLocation(this.source, node.getSourceLocationRange()));
+        return new SourceLocation(this.source, node.getSourceLocationRange());
     }
 
     /**
@@ -97,7 +97,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         final Liblkqllang.LkqlNode node
     ) throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.bindingExists(symbol)) {
-            throw LKQLRuntimeException.existingSymbol(symbol, loc(node));
+            throw LKQLCompilationException.existingSymbol(symbol, loc(node));
         }
     }
 
@@ -113,7 +113,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         final Liblkqllang.LkqlNode node
     ) throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.parameterExists(symbol)) {
-            throw LKQLRuntimeException.existingParameter(symbol, loc(node));
+            throw LKQLCompilationException.existingParameter(symbol, loc(node));
         }
     }
 

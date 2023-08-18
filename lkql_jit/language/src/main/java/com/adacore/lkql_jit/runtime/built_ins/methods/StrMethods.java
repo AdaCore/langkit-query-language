@@ -294,7 +294,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_INTEGER,
                     LKQLTypesHelper.fromJava(startObject),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -302,7 +302,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_INTEGER,
                     LKQLTypesHelper.fromJava(endObject),
-                    this.callNode.getArgList().getArgs()[1]
+                    this.callNode.getArgList().getArgs()[1].getLocation()
                 );
             }
 
@@ -318,10 +318,10 @@ public final class StrMethods extends CommonMethods {
 
             // Verify the start and end
             if (start < 0) {
-                throw LKQLRuntimeException.invalidIndex(start, this.callNode.getArgList().getArgs()[0]);
+                throw LKQLRuntimeException.invalidIndex(start, this.callNode.getArgList().getArgs()[0].getLocation());
             }
             if (end > LKQLTypeSystemGen.asString(frame.getArguments()[0]).length()) {
-                throw LKQLRuntimeException.invalidIndex(end, this.callNode.getArgList().getArgs()[1]);
+                throw LKQLRuntimeException.invalidIndex(end, this.callNode.getArgList().getArgs()[1].getLocation());
             }
 
             // Return the substring
@@ -344,7 +344,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_STRING,
                     LKQLTypesHelper.fromJava(separatorObject),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -387,7 +387,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_STRING,
                     LKQLTypesHelper.fromJava(toFindObject),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -424,7 +424,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_STRING,
                     LKQLTypesHelper.fromJava(toFindObject),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -447,7 +447,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_STRING,
                     LKQLTypesHelper.fromJava(prefixObject),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -474,7 +474,7 @@ public final class StrMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_STRING,
                     LKQLTypesHelper.fromJava(suffixObject),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 

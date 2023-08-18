@@ -97,7 +97,7 @@ public final class SelectorArm extends LKQLNode {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**
@@ -127,7 +127,7 @@ public final class SelectorArm extends LKQLNode {
                     catch (UnexpectedResultException e) {
                         throw LKQLRuntimeException.wrongSelectorType(
                             LKQLTypesHelper.fromJava(obj),
-                            this.expr
+                            this.expr.getLocation()
                         );
                     }
                 }
@@ -150,7 +150,7 @@ public final class SelectorArm extends LKQLNode {
             // Throw an exception
             throw LKQLRuntimeException.wrongSelectorType(
                 LKQLTypesHelper.fromJava(res),
-                this.expr
+                this.expr.getLocation()
             );
         }
 

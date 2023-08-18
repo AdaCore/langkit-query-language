@@ -34,7 +34,6 @@ import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -61,7 +60,7 @@ public abstract class FunCall extends Expr {
     /**
      * The location of the callee token.
      */
-    protected final DummyLocation calleeLocation;
+    protected final SourceLocation calleeLocation;
 
     // ----- Children -----
 
@@ -92,7 +91,7 @@ public abstract class FunCall extends Expr {
     protected FunCall(
         SourceLocation location,
         boolean isSafe,
-        DummyLocation calleeLocation,
+        SourceLocation calleeLocation,
         ArgList argList
     ) {
         super(location);
@@ -144,7 +143,7 @@ public abstract class FunCall extends Expr {
                 if (defaultValues[i] != null) {
                     realArgs[i] = defaultValues[i].executeGeneric(frame);
                 } else {
-                    throw LKQLRuntimeException.missingArgument(i + 1, this);
+                    throw LKQLRuntimeException.missingArgument(i + 1, this.location);
                 }
             }
         }
@@ -180,7 +179,7 @@ public abstract class FunCall extends Expr {
                 if (defaultValues[i] != null) {
                     realArgs[i] = defaultValues[i].executeGeneric(frame);
                 } else {
-                    throw LKQLRuntimeException.missingArgument(i + 1, this);
+                    throw LKQLRuntimeException.missingArgument(i + 1, this.location);
                 }
             }
         }
@@ -228,9 +227,7 @@ public abstract class FunCall extends Expr {
 
         // Verify the argument number
         if (argList.length < 1) {
-            throw LKQLRuntimeException.selectorWithoutNode(
-                this
-            );
+            throw LKQLRuntimeException.selectorWithoutNode(this.location);
         }
 
         // Get the node from the argument
@@ -241,7 +238,7 @@ public abstract class FunCall extends Expr {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.ADA_NODE,
                 LKQLTypesHelper.fromJava(e.getResult()),
-                argList[0]
+                argList[0].getLocation()
             );
         }
 

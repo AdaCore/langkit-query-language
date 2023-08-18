@@ -101,7 +101,7 @@ public final class ListComprehensionRootNode extends BaseRootNode {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_BOOLEAN,
                 LKQLTypesHelper.fromJava(e.getResult()),
-                this.predicate
+                this.predicate.getLocation()
             );
         }
     }

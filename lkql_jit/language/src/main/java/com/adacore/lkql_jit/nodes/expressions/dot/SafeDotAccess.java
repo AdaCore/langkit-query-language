@@ -140,7 +140,7 @@ public abstract class SafeDotAccess extends Expr {
         // Create the property reference
         PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(this.member);
+            throw LKQLRuntimeException.noSuchField(this.member.getLocation());
         }
 
         // Return the result
@@ -157,7 +157,7 @@ public abstract class SafeDotAccess extends Expr {
         throw LKQLRuntimeException.wrongType(
             LKQLTypesHelper.ADA_NODE,
             LKQLTypesHelper.fromJava(receiver),
-            this
+            this.location
         );
     }
 

@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit.langkit_translator.passes;
 
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLCompilationException;
 import com.adacore.lkql_jit.exceptions.TranslatorException;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.Identifier;
@@ -60,7 +60,6 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.Source;
@@ -280,7 +279,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // If the symbol hasn't been found, throw an exception
-        throw LKQLRuntimeException.unknownSymbol(symbol, new DummyLocation(loc(identifier)));
+        throw LKQLCompilationException.unknownSymbol(symbol, loc(identifier));
     }
 
     /**
@@ -470,7 +469,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             // Verify the position after named arguments
             if (curArg instanceof ExprArg) {
                 if (namedPhase) {
-                    throw LKQLRuntimeException.positionAfterNamedArgument(curArg);
+                    throw LKQLCompilationException.positionAfterNamedArgument(curArg.getLocation());
                 }
             }
 
@@ -478,7 +477,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             else if (curArg instanceof NamedArg namedArg) {
                 namedPhase = true;
                 if (seenNames.contains(namedArg.getArgName().getName())) {
-                    throw LKQLRuntimeException.multipleSameNameArgument(curArg);
+                    throw LKQLCompilationException.multipleSameNameArgument(curArg.getLocation());
                 }
                 seenNames.add(namedArg.getArgName().getName());
             }
@@ -540,28 +539,28 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr left = (Expr) binOp.fLeft().accept(this);
         final Expr right = (Expr) binOp.fRight().accept(this);
 
-        final DummyLocation leftLocation = new DummyLocation(left.getLocation());
-        final DummyLocation rightLocation = new DummyLocation(right.getLocation());
-        final SourceLocation location = loc(binOp);
+        final SourceLocation leftLocation = left.getLocation();
+        final SourceLocation rightLocation = right.getLocation();
+        final SourceLocation opLocation = loc(binOp);
 
         // Create the binary operator by switching on the operator type
         return switch (binOp.fOp().getKindName()) {
             case Liblkqllang.OpPlus.kindName ->
-                BinPlusNodeGen.create(location, leftLocation, rightLocation, left, right);
+                BinPlusNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpMinus.kindName ->
-                BinMinusNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpMul.kindName -> BinMulNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpDiv.kindName -> BinDivNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpAnd.kindName -> new BinAnd(location, left, right);
-            case Liblkqllang.OpOr.kindName -> new BinOr(location, left, right);
-            case Liblkqllang.OpEq.kindName -> BinEqNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpNeq.kindName -> BinNeqNodeGen.create(location, leftLocation, rightLocation, left, right);
+                BinMinusNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpMul.kindName -> BinMulNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpDiv.kindName -> BinDivNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpAnd.kindName -> new BinAnd(opLocation, left, right);
+            case Liblkqllang.OpOr.kindName -> new BinOr(opLocation, left, right);
+            case Liblkqllang.OpEq.kindName -> BinEqNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpNeq.kindName -> BinNeqNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
             case Liblkqllang.OpConcat.kindName ->
-                BinConcatNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpLt.kindName -> BinLtNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpLeq.kindName -> BinLeqNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpGt.kindName -> BinGtNodeGen.create(location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpGeq.kindName -> BinGeqNodeGen.create(location, leftLocation, rightLocation, left, right);
+                BinConcatNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpLt.kindName -> BinLtNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpLeq.kindName -> BinLeqNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpGt.kindName -> BinGtNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
+            case Liblkqllang.OpGeq.kindName -> BinGeqNodeGen.create(opLocation, leftLocation, rightLocation, left, right);
             default -> null;
         };
     }
@@ -604,14 +603,14 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the unary operator argument
         final Expr arg = (Expr) unOp.fOperand().accept(this);
 
-        final DummyLocation argLocation = new DummyLocation(arg.getLocation());
-        final SourceLocation location = new SourceLocation(this.source, unOp.getSourceLocationRange());
+        final SourceLocation argLocation = arg.getLocation();
+        final SourceLocation opLocation = new SourceLocation(this.source, unOp.getSourceLocationRange());
 
         // Create the unary operator by switching on the operator type
         return switch (unOp.fOp().getKindName()) {
-            case Liblkqllang.OpNot.kindName -> UnNotNodeGen.create(location, argLocation, arg);
-            case Liblkqllang.OpPlus.kindName -> UnPlusNodeGen.create(location, argLocation, arg);
-            case Liblkqllang.OpMinus.kindName -> UnMinusNodeGen.create(location, argLocation, arg);
+            case Liblkqllang.OpNot.kindName -> UnNotNodeGen.create(opLocation, argLocation, arg);
+            case Liblkqllang.OpPlus.kindName -> UnPlusNodeGen.create(opLocation, argLocation, arg);
+            case Liblkqllang.OpMinus.kindName -> UnMinusNodeGen.create(opLocation, argLocation, arg);
             default -> null;
         };
     }
@@ -791,8 +790,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Return the new in node
         return InClauseNodeGen.create(
             loc(inClause),
-            new DummyLocation(elem.getLocation()),
-            new DummyLocation(indexable.getLocation()),
+            elem.getLocation(),
+            indexable.getLocation(),
             elem,
             indexable
         );
@@ -897,7 +896,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Return the result
         return IsClauseNodeGen.create(
             loc(isClause),
-            new DummyLocation(nodeExpr.getLocation()),
+            nodeExpr.getLocation(),
             pattern,
             nodeExpr
         );
@@ -1400,7 +1399,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return FunCallNodeGen.create(
             loc(funCall),
             isSafe,
-            new DummyLocation(callee.getLocation()),
+            callee.getLocation(),
             arguments,
             callee
         );

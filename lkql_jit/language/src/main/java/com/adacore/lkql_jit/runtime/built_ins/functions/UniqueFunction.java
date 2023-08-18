@@ -67,7 +67,7 @@ public final class UniqueFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
                         LKQLTypesHelper.fromJava(indexableObject),
-                        call.getArgList().getArgs()[0]
+                        call.getArgList().getArgs()[0].getLocation()
                     );
                 }
 

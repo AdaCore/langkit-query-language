@@ -91,7 +91,7 @@ public final class MapFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_ITERABLE,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -101,7 +101,7 @@ public final class MapFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_FUNCTION,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
+                    this.callNode.getArgList().getArgs()[1].getLocation()
                 );
             }
 
@@ -109,7 +109,7 @@ public final class MapFunction {
             if (mapFunction.getParamNames().length != 1) {
                 throw LKQLRuntimeException.fromMessage(
                     "Function passed to map should have arity of one",
-                    this.callNode.getArgList().getArgs()[1]
+                    this.callNode.getArgList().getArgs()[1].getLocation()
                 );
             }
 

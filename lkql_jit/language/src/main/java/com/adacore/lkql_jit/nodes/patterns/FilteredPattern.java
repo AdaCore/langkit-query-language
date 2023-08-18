@@ -91,7 +91,7 @@ public final class FilteredPattern extends BasePattern {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.predicate
+                    this.predicate.getLocation()
                 );
             }
         }

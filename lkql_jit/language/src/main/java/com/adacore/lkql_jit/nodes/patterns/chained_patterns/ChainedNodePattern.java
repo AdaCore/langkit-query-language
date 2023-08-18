@@ -83,7 +83,7 @@ public final class ChainedNodePattern extends ValuePattern {
      */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        throw LKQLRuntimeException.wrongPatternType("ChainedNodePattern", this);
+        throw LKQLRuntimeException.wrongPatternType("ChainedNodePattern", this.location);
     }
 
     /**

@@ -26,6 +26,7 @@ package com.adacore.lkql_jit.nodes.declarations;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLCompilationException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
@@ -109,7 +110,7 @@ public final class Import extends LKQLNode {
                 FrameUtils.writeLocal(frame, this.slot, module);
             }
         } catch (IOException e) {
-            throw LKQLRuntimeException.moduleNotFound(this.name, this);
+            throw LKQLRuntimeException.fromJavaException(e, this.location);
         }
 
         // Return the unit value
@@ -194,7 +195,7 @@ public final class Import extends LKQLNode {
         }
 
         // Raise an exception if the module file is not found
-        throw LKQLRuntimeException.moduleNotFound(this.name, this);
+        throw LKQLCompilationException.moduleNotFound(this.name, this.location);
     }
 
     // ----- Override methods -----

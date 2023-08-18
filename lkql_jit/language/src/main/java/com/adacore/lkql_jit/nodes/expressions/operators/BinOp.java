@@ -24,7 +24,6 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.NodeChild;
 
@@ -43,12 +42,12 @@ public abstract class BinOp extends Expr {
     /**
      * The location of the left node.
      */
-    protected final DummyLocation leftLocation;
+    protected final SourceLocation leftLocation;
 
     /**
      * The location of the right node.
      */
-    protected final DummyLocation rightLocation;
+    protected final SourceLocation rightLocation;
 
     // ----- Constructors -----
 
@@ -61,8 +60,8 @@ public abstract class BinOp extends Expr {
      */
     protected BinOp(
         SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
+        SourceLocation leftLocation,
+        SourceLocation rightLocation
     ) {
         super(location);
         this.leftLocation = leftLocation;

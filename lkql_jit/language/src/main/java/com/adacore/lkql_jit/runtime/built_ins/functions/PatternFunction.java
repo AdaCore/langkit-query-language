@@ -68,7 +68,7 @@ public final class PatternFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_STRING,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        call.getArgList().getArgs()[0]
+                        call.getArgList().getArgs()[0].getLocation()
                     );
                 }
 
@@ -80,7 +80,7 @@ public final class PatternFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_BOOLEAN,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        call.getArgList().getArgs()[1]
+                        call.getArgList().getArgs()[1].getLocation()
                     );
                 }
 

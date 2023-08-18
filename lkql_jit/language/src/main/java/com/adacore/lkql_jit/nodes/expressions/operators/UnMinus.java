@@ -26,7 +26,6 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -51,7 +50,7 @@ public abstract class UnMinus extends UnOp {
      */
     protected UnMinus(
         SourceLocation location,
-        DummyLocation argLocation
+        SourceLocation argLocation
     ) {
         super(location, argLocation);
     }

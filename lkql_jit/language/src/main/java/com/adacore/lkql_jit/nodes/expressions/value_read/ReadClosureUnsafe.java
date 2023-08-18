@@ -70,7 +70,7 @@ public final class ReadClosureUnsafe extends BaseRead {
     public Object executeGeneric(VirtualFrame frame) {
         final Object res = FrameUtils.readClosure(frame, this.slot);
         if (res == null) {
-            throw LKQLRuntimeException.unknownSymbol(name, this);
+            throw LKQLRuntimeException.usedBeforeAssignment(name, this.location);
         } else {
             return res;
         }

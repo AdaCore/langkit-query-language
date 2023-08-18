@@ -96,7 +96,7 @@ public abstract class BinShortCircuit extends Expr {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_BOOLEAN,
                 LKQLTypesHelper.fromJava(e.getResult()),
-                this.left
+                this.left.getLocation()
             );
         }
 
@@ -109,7 +109,7 @@ public abstract class BinShortCircuit extends Expr {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.right
+                    this.right.getLocation()
                 );
             }
         }

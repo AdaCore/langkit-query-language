@@ -27,7 +27,6 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -53,8 +52,8 @@ public abstract class BinDiv extends BinOp {
      */
     protected BinDiv(
         SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
+        SourceLocation leftLocation,
+        SourceLocation rightLocation
     ) {
         super(location, leftLocation, rightLocation);
     }
@@ -71,7 +70,7 @@ public abstract class BinDiv extends BinOp {
     @Specialization
     protected long divLongs(long left, long right) {
         if (right == 0L) {
-            throw LKQLRuntimeException.divByZero(this);
+            throw LKQLRuntimeException.divByZero(this.location);
         }
         return Math.floorDiv(left, right);
     }
@@ -86,7 +85,7 @@ public abstract class BinDiv extends BinOp {
     @Specialization
     protected BigInteger divBigIntegers(BigInteger left, BigInteger right) {
         if (BigIntegerUtils.equals(right, BigInteger.ZERO)) {
-            throw LKQLRuntimeException.divByZero(this);
+            throw LKQLRuntimeException.divByZero(this.location);
         }
         return BigIntegerUtils.divide(left, right);
     }

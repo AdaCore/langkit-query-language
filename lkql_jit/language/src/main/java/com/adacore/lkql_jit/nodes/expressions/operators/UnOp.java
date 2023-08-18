@@ -24,7 +24,6 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.NodeChild;
 
@@ -42,7 +41,7 @@ public abstract class UnOp extends Expr {
     /**
      * The location of the argument node.
      */
-    protected final DummyLocation argLocation;
+    protected final SourceLocation argLocation;
 
     // ----- Constructors -----
 
@@ -54,7 +53,7 @@ public abstract class UnOp extends Expr {
      */
     protected UnOp(
         SourceLocation location,
-        DummyLocation argLocation
+        SourceLocation argLocation
     ) {
         super(location);
         this.argLocation = argLocation;

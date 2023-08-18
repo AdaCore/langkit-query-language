@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLParsingException;
 import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
@@ -395,8 +395,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
             // Verify the parsing result
             final List<Liblkqllang.Diagnostic> diagnostics = unit.getDiagnostics();
-            if (diagnostics.size() > 0) {
-                throw LKQLRuntimeException.parsingException(diagnostics, request.getSource());
+            if (!diagnostics.isEmpty()) {
+                throw new LKQLParsingException(diagnostics, request.getSource());
             }
 
             // Get the LKQL langkit AST

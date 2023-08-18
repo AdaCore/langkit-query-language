@@ -26,7 +26,6 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -52,8 +51,8 @@ public abstract class BinEq extends BinOp {
      */
     protected BinEq(
         SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
+        SourceLocation leftLocation,
+        SourceLocation rightLocation
     ) {
         super(location, leftLocation, rightLocation);
     }

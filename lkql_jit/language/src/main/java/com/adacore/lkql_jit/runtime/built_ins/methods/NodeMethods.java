@@ -301,7 +301,7 @@ public final class NodeMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.ADA_NODE,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 

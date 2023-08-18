@@ -93,7 +93,7 @@ public abstract class MatchArm extends LKQLNode {
      */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**

@@ -27,14 +27,12 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This class represents the "concat" built-in function in the LKQL language.
@@ -69,7 +67,7 @@ public final class ConcatFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
                         LKQLTypesHelper.fromJava(lists),
-                        call.getArgList().getArgs()[0]
+                        call.getArgList().getArgs()[0].getLocation()
                     );
                 }
 
@@ -90,7 +88,7 @@ public final class ConcatFunction {
                                 throw LKQLRuntimeException.wrongType(
                                     LKQLTypesHelper.LKQL_STRING,
                                     LKQLTypesHelper.fromJava(item),
-                                    call.getArgList().getArgs()[0]
+                                    call.getArgList().getArgs()[0].getLocation()
                                 );
                             }
                             result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
@@ -110,7 +108,7 @@ public final class ConcatFunction {
                                 throw LKQLRuntimeException.wrongType(
                                     LKQLTypesHelper.LKQL_LIST,
                                     LKQLTypesHelper.fromJava(item),
-                                    call.getArgList().getArgs()[0]
+                                    call.getArgList().getArgs()[0].getLocation()
                                 );
                             }
                             result = ArrayUtils.concat(
@@ -125,7 +123,7 @@ public final class ConcatFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.typeUnion(LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
                         LKQLTypesHelper.fromJava(firstItem),
-                        call.getArgList().getArgs()[0]
+                        call.getArgList().getArgs()[0].getLocation()
                     );
                 }
 

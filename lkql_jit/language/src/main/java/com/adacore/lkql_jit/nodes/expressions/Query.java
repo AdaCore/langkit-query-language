@@ -135,7 +135,7 @@ public final class Query extends Expr {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_SELECTOR,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.throughExpr
+                    this.throughExpr.getLocation()
                 );
             }
         }
@@ -159,14 +159,14 @@ public final class Query extends Expr {
                     try {
                         fromNodes[i] = LKQLTypeSystemGen.expectAdaNode(fromList.get(i));
                     } catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongFromList(this.fromExpr);
+                        throw LKQLRuntimeException.wrongFromList(this.fromExpr.getLocation());
                     }
                 }
             }
 
             // Else, throw an exception on the "from" expression type
             else {
-                throw LKQLRuntimeException.wrongFrom(this.fromExpr);
+                throw LKQLRuntimeException.wrongFrom(this.fromExpr.getLocation());
             }
         }
 

@@ -75,7 +75,7 @@ public final class BlockBodyExpr extends BlockBody {
         if (LKQLTypeSystemGen.isNullish(result)) {
             return result;
         } else {
-            throw LKQLRuntimeException.ignoredExpressionReturn(this);
+            throw LKQLRuntimeException.ignoredExpressionReturn(this.location);
         }
     }
 

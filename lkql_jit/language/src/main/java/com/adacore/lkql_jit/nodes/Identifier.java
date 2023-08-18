@@ -23,7 +23,6 @@
 
 package com.adacore.lkql_jit.nodes;
 
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.adacore.lkql_jit.utils.SourceLocation;
 
 
@@ -32,7 +31,7 @@ import com.adacore.lkql_jit.utils.SourceLocation;
  *
  * @author Hugo GUERRIER
  */
-public final class Identifier implements Locatable {
+public final class Identifier {
 
     // ----- Attributes -----
 
@@ -64,10 +63,6 @@ public final class Identifier implements Locatable {
 
     // ----- Getters -----
 
-    /**
-     * @see com.adacore.lkql_jit.utils.source_location.Locatable#getLocation()
-     */
-    @Override
     public SourceLocation getLocation() {
         return this.location;
     }

@@ -26,12 +26,12 @@ package com.adacore.lkql_jit.runtime.values;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.exceptions.UnsupportedTypeException;
+import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
 
 
@@ -122,7 +122,7 @@ public final class PropertyRefValue implements LKQLValue {
      * @param arguments The argument for the property call.
      * @return The result of the property execution.
      */
-    public Object execute(Locatable caller, ArgList argList, Object... arguments) {
+    public Object execute(LKQLNode caller, ArgList argList, Object... arguments) {
         try {
             return ReflectionUtils.callProperty(
                 this.node,
@@ -134,7 +134,7 @@ public final class PropertyRefValue implements LKQLValue {
         } catch (UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
                 LKQLTypesHelper.category(e.getType()),
-                caller
+                caller.getLocation()
             );
         }
     }
@@ -145,7 +145,7 @@ public final class PropertyRefValue implements LKQLValue {
      * @param caller The locatable which called the execution.
      * @return The result of the field call.
      */
-    public Object executeAsField(Locatable caller) {
+    public Object executeAsField(LKQLNode caller) {
         try {
             return ReflectionUtils.callProperty(
                 this.node,
@@ -156,7 +156,7 @@ public final class PropertyRefValue implements LKQLValue {
         } catch (UnsupportedTypeException e) {
             throw LKQLRuntimeException.unsupportedType(
                 LKQLTypesHelper.category(e.getType()),
-                caller
+                caller.getLocation()
             );
         }
     }

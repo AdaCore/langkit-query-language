@@ -84,7 +84,7 @@ public abstract class Indexing extends Expr {
             if (this.isSafe) {
                 return UnitValue.getInstance();
             } else {
-                throw LKQLRuntimeException.invalidIndex((int) index, this);
+                throw LKQLRuntimeException.invalidIndex((int) index, this.location);
             }
         }
     }
@@ -101,7 +101,7 @@ public abstract class Indexing extends Expr {
         if (index > node.getChildrenCount()) {
             return NodeNull.getInstance();
         } else if (index < 1) {
-            throw LKQLRuntimeException.invalidIndex((int) index, this);
+            throw LKQLRuntimeException.invalidIndex((int) index, this.location);
         }
         Libadalang.AdaNode res = node.getChild((int) index - 1);
         return res.isNone() ? NodeNull.getInstance() : res;
@@ -119,13 +119,13 @@ public abstract class Indexing extends Expr {
             throw LKQLRuntimeException.wrongType(
                 "list, tuple, node or iterator",
                 LKQLTypesHelper.fromJava(collection),
-                this
+                this.location
             );
         } else {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.LKQL_INTEGER,
                 LKQLTypesHelper.fromJava(index),
-                this
+                this.location
             );
         }
     }

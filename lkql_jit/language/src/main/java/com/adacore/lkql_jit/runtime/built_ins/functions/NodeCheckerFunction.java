@@ -108,7 +108,7 @@ public final class NodeCheckerFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.ADA_NODE,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
+                    this.callNode.getArgList().getArgs()[0].getLocation()
                 );
             }
 
@@ -241,7 +241,7 @@ public final class NodeCheckerFunction {
                                 (String) checker.get("name"),
                                 currentNode.getUnit(),
                                 currentNode.getSourceLocationRange().start,
-                                e.getLoc().toString(),
+                                e.getLoc(),
                                 StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                                 e.getMsg(),
                                 context
@@ -253,9 +253,9 @@ public final class NodeCheckerFunction {
                             (String) checker.get("name"),
                             currentNode.getUnit(),
                             currentNode.getSourceLocationRange().start,
-                            e.getLocationString(),
+                            e.getSourceLocation(),
                             "LKQL.ERRORS.STOP_EVALUATION_ERROR",
-                            e.getRawMessage(),
+                            e.getSourceMessage(),
                             context
                         );
                     }
@@ -309,7 +309,7 @@ public final class NodeCheckerFunction {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    functionValue.getBody()
+                    functionValue.getBody().getLocation()
                 );
             }
 

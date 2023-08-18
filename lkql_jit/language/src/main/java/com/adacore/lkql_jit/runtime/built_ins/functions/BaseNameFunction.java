@@ -27,12 +27,10 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This class represents the "base_name" built-in function in the LKQL language.
@@ -65,7 +63,7 @@ public final class BaseNameFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_STRING,
                         LKQLTypesHelper.fromJava(path),
-                        call.getArgList().getArgs()[0]
+                        call.getArgList().getArgs()[0].getLocation()
                     );
                 }
 

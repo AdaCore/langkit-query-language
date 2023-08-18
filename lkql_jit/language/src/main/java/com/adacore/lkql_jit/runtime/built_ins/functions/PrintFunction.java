@@ -71,7 +71,7 @@ public final class PrintFunction {
                     throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_BOOLEAN,
                         LKQLTypesHelper.fromJava(e.getResult()),
-                        call.getArgList().getArgs()[1]
+                        call.getArgList().getArgs()[1].getLocation()
                     );
                 }
 

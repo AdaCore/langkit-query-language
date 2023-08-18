@@ -29,7 +29,6 @@ import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -53,8 +52,8 @@ public abstract class BinConcat extends BinOp {
      */
     protected BinConcat(
         SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
+        SourceLocation leftLocation,
+        SourceLocation rightLocation
     ) {
         super(location, leftLocation, rightLocation);
     }
@@ -97,14 +96,14 @@ public abstract class BinConcat extends BinOp {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.fromJava(left),
                 LKQLTypesHelper.fromJava(right),
-                this
+                this.location
             );
         } else {
             throw LKQLRuntimeException.unsupportedOperation(
                 LKQLTypesHelper.fromJava(left),
                 "&",
                 LKQLTypesHelper.fromJava(right),
-                this
+                this.location
             );
         }
     }

@@ -108,7 +108,7 @@ public abstract class FieldLink extends ChainedPatternLink {
 
         // Verify if the field method is null
         if (propertyRef.getFieldDescription() == null) {
-            throw LKQLRuntimeException.noSuchField(this);
+            throw LKQLRuntimeException.noSuchField(this.location);
         }
 
         // Execute the field detail

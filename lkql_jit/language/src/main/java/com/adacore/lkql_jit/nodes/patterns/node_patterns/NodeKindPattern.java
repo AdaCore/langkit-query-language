@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
+import com.adacore.lkql_jit.exceptions.LKQLCompilationException;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -56,7 +56,7 @@ public final class NodeKindPattern extends NodePattern {
         super(location);
         this.nodeClazz = Libadalang.NODE_CLASS_MAP.get(kindName);
         if (this.nodeClazz == null) {
-            throw LKQLRuntimeException.invalidKindName(this);
+            throw LKQLCompilationException.invalidKindName(this.location);
         }
     }
 

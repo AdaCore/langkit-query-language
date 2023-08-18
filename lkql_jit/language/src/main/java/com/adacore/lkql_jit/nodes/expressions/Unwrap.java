@@ -72,7 +72,7 @@ public final class Unwrap extends Expr {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.ADA_NODE,
                 LKQLTypesHelper.fromJava(nodeValue),
-                this.expr
+                this.expr.getLocation()
             );
         }
 

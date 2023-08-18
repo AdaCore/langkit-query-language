@@ -28,7 +28,6 @@ import com.adacore.lkql_jit.exceptions.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -49,7 +48,7 @@ public abstract class IsClause extends Expr {
     /**
      * The location of the node expression.
      */
-    private final DummyLocation nodeLocation;
+    private final SourceLocation nodeLocation;
 
     // ----- Children -----
 
@@ -71,7 +70,7 @@ public abstract class IsClause extends Expr {
      */
     protected IsClause(
         SourceLocation location,
-        DummyLocation nodeLocation,
+        SourceLocation nodeLocation,
         BasePattern pattern
     ) {
         super(location);

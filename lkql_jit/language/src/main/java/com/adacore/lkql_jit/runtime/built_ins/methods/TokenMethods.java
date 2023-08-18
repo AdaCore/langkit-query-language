@@ -223,7 +223,7 @@ public final class TokenMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.TOKEN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
+                    this.callNode.getArgList().getArgs()[1].getLocation()
                 );
             }
 
@@ -256,7 +256,7 @@ public final class TokenMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
+                    this.callNode.getArgList().getArgs()[1].getLocation()
                 );
             }
 
@@ -285,7 +285,7 @@ public final class TokenMethods extends CommonMethods {
                 throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_BOOLEAN,
                     LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
+                    this.callNode.getArgList().getArgs()[1].getLocation()
                 );
             }
 

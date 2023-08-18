@@ -54,7 +54,7 @@ public abstract class BasePattern extends LKQLNode {
      */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     /**
@@ -77,7 +77,7 @@ public abstract class BasePattern extends LKQLNode {
         throw LKQLRuntimeException.wrongType(
             LKQLTypesHelper.ADA_NODE,
             LKQLTypesHelper.LKQL_STRING,
-            this
+            this.location
         );
     }
 

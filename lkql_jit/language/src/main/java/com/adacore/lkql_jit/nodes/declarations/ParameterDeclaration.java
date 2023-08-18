@@ -87,7 +87,7 @@ public final class ParameterDeclaration extends Declaration {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Fail because this node is not executable as a generic one
-        throw LKQLRuntimeException.shouldNotExecute(this);
+        throw LKQLRuntimeException.shouldNotExecute(this.location);
     }
 
     // ----- Override methods -----
