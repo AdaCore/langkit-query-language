@@ -4,13 +4,6 @@
 
 import stdlib
 
-fun is_instance_of_uc(d) =
-    d is GenericSubpInstantiation
-    when ({
-        val name = d.p_designated_subp().p_fully_qualified_name();
-        name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"
-    })
-
 @unit_check(message="instance of Unchecked_Conversion as actual parameter",
             category="Style", subcategory="Programming Practice")
 fun unchecked_conversions_as_actuals(unit) = [
@@ -18,7 +11,8 @@ fun unchecked_conversions_as_actuals(unit) = [
               (if n is CallExpr(any parent is CallStmt)
                then "actual parameter" else "default parameter value"),
      loc: n}
-    for n in from unit.root select
-    node@CallExpr(any parent is CallStmt or SubpSpec)
-    when is_instance_of_uc(stdlib.
-                           ultimate_subprogram_alias(node.p_referenced_decl()))]
+    for n in from unit.root
+    select node@CallExpr(any parent is CallStmt or SubpSpec)
+    when stdlib.is_unchecked_conversion(
+        stdlib.ultimate_subprogram_alias(node.p_referenced_decl())
+    )]

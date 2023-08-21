@@ -1,15 +1,14 @@
 # Flag calls to instantiations of Unchecked_Conversion of an aggregate whose
 # type has a size aspect.
 
-fun is_uc(str) =
-    str == "unchecked_conversion" or str == "ada.unchecked_conversion"
+import stdlib
 
 @check(message="possible occurrence of KP S124-035",
        impact="7.[1-4].*,1[7-9].*")
 fun kp_s124_035(node) =
     node is CallExpr(p_is_call() is true)
     when node.f_name.p_referenced_decl() is i@GenericSubpInstantiation
-     when is_uc(i.p_designated_subp()?.p_canonical_fully_qualified_name?())
+     when stdlib.is_unchecked_conversion(i)
       and (from node.f_suffix select first Aggregate) != null
       and node.f_suffix[1].f_r_expr.p_expression_type().p_has_aspect("Size")
 
