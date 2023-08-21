@@ -21,7 +21,7 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.exception;
+package com.adacore.lkql_jit.exceptions;
 
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 

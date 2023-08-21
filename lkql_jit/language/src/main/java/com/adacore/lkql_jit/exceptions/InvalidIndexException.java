@@ -21,22 +21,18 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.exception.utils;
+package com.adacore.lkql_jit.exceptions;
+
+import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This exception represents an error in the importation of a foreign value in the LKQL system.
+ * This exception represents an invalid index access in LKQL.
  *
  * @author Hugo GUERRIER
  */
-public final class UnsupportedTypeException extends Exception {
-    private final Class<?> type;
-
-    public UnsupportedTypeException(Class<?> type) {
-        this.type = type;
-    }
-
-    public Class<?> getType() {
-        return type;
+public final class InvalidIndexException extends RuntimeException {
+    @CompilerDirectives.TruffleBoundary
+    public InvalidIndexException() {
     }
 }

@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.utils;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
+import com.adacore.lkql_jit.exceptions.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;

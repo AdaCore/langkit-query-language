@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.exceptions.TranslatorException;
 
 import java.util.ArrayList;
 import java.util.List;
