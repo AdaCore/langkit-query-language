@@ -16,11 +16,9 @@ fun complex_declaration(decls) =
     |" Return the first complex declaration found in decls, null otherwise
     from decls
     select first SubpBody or PackageDecl or TaskBody or ProtectedBody
-    or GenericPackageInstantiation or GenericSubpInstantiation(
-        p_designated_subp() is not *(
-            p_canonical_fully_qualified_name() is "ada.unchecked_conversion"
-        )
-    )
+    or GenericPackageInstantiation
+    or (node@GenericSubpInstantiation
+        when not stdlib.is_unchecked_conversion(node))
 
 @memoized
 fun complex_statement(stmts) =

@@ -39,11 +39,7 @@ fun message(n, alignment) = {
 fun kp_ua12_036(unit, alignment: int = 16) = [
     message(n, alignment)
     for n in from unit.root select node@GenericSubpInstantiation
-    when ({
-         val name = stdlib.ultimate_subprogram_alias(node.p_designated_subp()).
-                    p_fully_qualified_name();
-         name == "Ada.Unchecked_Deallocation" or
-         name == "Unchecked_Deallocation"})
+    when stdlib.is_unchecked_deallocation(node)
      and node.f_params is params@AssocList
          when params.children_count == 2
           and if not params[1].f_designator or

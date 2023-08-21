@@ -290,6 +290,15 @@ fun enclosing_package(n) =
     if pkg then pkg else null
 }
 
+fun ultimate_designated_generic_subp(subp_inst) =
+    |" Given a node representing an instantiation of a generic subprogram,
+    |" return that non-instantiated subprogram after resolving all renamings.
+{
+    val inst = subp_inst.p_designated_subp();
+    val aliased = ultimate_subprogram_alias(inst);
+    aliased.p_get_uninstantiated_node()
+}
+
 # TODO: move to LAL
 fun is_classwide_type(t) =
     |" Return true if t is a classwide TypeDecl.
@@ -319,6 +328,26 @@ fun is_constructor(spec) =
 fun is_constant_object(node) =
     |" Return true is node represents a constant object, false otherwise
     node is ObjectDecl or ParamSpec and node.p_is_constant_object()
+
+fun is_unchecked_conversion(node) =
+    |" Return true if node represents an instantiation of the
+    |" `Ada.Unchecked_Conversion` subprogram
+    node is GenericSubpInstantiation
+    when ({
+        val subp = ultimate_designated_generic_subp(node);
+        val fqn = subp.p_fully_qualified_name();
+        fqn == "Ada.Unchecked_Conversion" or fqn == "Unchecked_Conversion"
+    })
+
+fun is_unchecked_deallocation(node) =
+    |" Return true if node represents an instantiation of the
+    |" `Ada.Unchecked_Deallocation` subprogram
+    node is GenericSubpInstantiation
+    when ({
+        val subp = ultimate_designated_generic_subp(node);
+        val fqn = subp.p_fully_qualified_name();
+        fqn == "Ada.Unchecked_Deallocation" or fqn == "Unchecked_Deallocation"
+    })
 
 @memoized
 fun get_subp_body(node) =

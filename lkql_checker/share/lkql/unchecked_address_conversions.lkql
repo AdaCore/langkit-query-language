@@ -30,10 +30,7 @@ fun check_uc_params(source, target, all) =
 fun unchecked_address_conversions(node, all=false, no_instantiations=false) =
     node is GenericSubpInstantiation
     when not (no_instantiations and stdlib.in_generic_instance(node))
-     and ({
-        val name = stdlib.ultimate_subprogram_alias(node.p_designated_subp()).
-                   p_fully_qualified_name();
-        name == "Ada.Unchecked_Conversion" or name == "Unchecked_Conversion"})
+     and stdlib.is_unchecked_conversion(node)
      and node.f_params is params@AssocList
          when params.children_count == 2
           and if not params[1].f_designator or

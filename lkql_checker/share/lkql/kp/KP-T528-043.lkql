@@ -3,9 +3,6 @@
 
 import stdlib
 
-fun is_uc(str) =
-    str == "ada.unchecked_conversion" or str == "unchecked_conversion"
-
 @check(message="possible occurrence of KP T528-043",
        impact="18.*,19.[1-5],20.[12]")
 fun kp_t528_043(node) =
@@ -13,7 +10,7 @@ fun kp_t528_043(node) =
         node.p_has_aspect("Address") and
         stdlib.has_non_default_sso(node.f_type_expr.p_designated_type_decl())
     or GenericSubpInstantiation when
-        is_uc(node.p_designated_subp().p_canonical_fully_qualified_name()) and
+        stdlib.is_unchecked_conversion(node) and
         (stdlib.has_non_default_sso(node.f_params[1].f_r_expr.
                                     p_referenced_decl()) or
          stdlib.has_non_default_sso(node.f_params[2].f_r_expr.
