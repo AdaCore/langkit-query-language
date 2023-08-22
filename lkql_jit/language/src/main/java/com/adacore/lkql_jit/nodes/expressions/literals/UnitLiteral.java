@@ -22,8 +22,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -53,7 +53,7 @@ public final class UnitLiteral extends Expr {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return UnitValue.getInstance();
+        return LKQLUnit.INSTANCE;
     }
 
     /**
@@ -61,8 +61,8 @@ public final class UnitLiteral extends Expr {
      *     com.adacore.lkql_jit.nodes.expressions.Expr#executeUnit(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public UnitValue executeUnit(VirtualFrame frame) {
-        return UnitValue.getInstance();
+    public LKQLUnit executeUnit(VirtualFrame frame) {
+        return LKQLUnit.INSTANCE;
     }
 
     // ----- Override methods -----

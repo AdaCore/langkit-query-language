@@ -27,11 +27,11 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
@@ -215,7 +215,7 @@ public final class NodeMethods extends CommonMethods {
         public Object executeGeneric(VirtualFrame frame) {
             LKQLLanguage.getContext(this)
                     .print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpAST());
-            return UnitValue.getInstance();
+            return LKQLUnit.INSTANCE;
         }
     }
 

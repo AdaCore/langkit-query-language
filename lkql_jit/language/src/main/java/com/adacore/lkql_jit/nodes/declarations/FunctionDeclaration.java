@@ -23,10 +23,10 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
@@ -120,7 +120,7 @@ public final class FunctionDeclaration extends Declaration {
         FrameUtils.writeLocal(frame, this.slot, functionValue);
 
         // Return the unit value
-        return UnitValue.getInstance();
+        return LKQLUnit.INSTANCE;
     }
 
     // ----- Instance methods -----

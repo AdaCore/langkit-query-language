@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -235,8 +236,8 @@ public abstract class FunCall extends Expr {
      * @return The unit value.
      */
     @Specialization(guards = "isSafe")
-    protected Object onNullish(@SuppressWarnings("unused") Nullish value) {
-        return UnitValue.getInstance();
+    protected Object onNullish(@SuppressWarnings("unused") final Nullish value) {
+        return LKQLUnit.INSTANCE;
     }
 
     /**

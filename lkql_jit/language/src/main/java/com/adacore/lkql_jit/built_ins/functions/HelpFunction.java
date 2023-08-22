@@ -25,9 +25,9 @@ package com.adacore.lkql_jit.built_ins.functions;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -68,7 +68,7 @@ public final class HelpFunction {
                     }
 
                     // Return the default empty documentation
-                    return UnitValue.getInstance();
+                    return LKQLUnit.INSTANCE;
                 });
     }
 }

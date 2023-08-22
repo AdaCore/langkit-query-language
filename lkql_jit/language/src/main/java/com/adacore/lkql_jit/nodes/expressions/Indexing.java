@@ -25,10 +25,10 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -87,7 +87,7 @@ public abstract class Indexing extends Expr {
             return tupleLibrary.readArrayElement(tuple, index - 1);
         } catch (InvalidArrayIndexException e) {
             if (this.isSafe) {
-                return UnitValue.getInstance();
+                return LKQLUnit.INSTANCE;
             } else {
                 throw LKQLRuntimeException.invalidIndex((int) index, this);
             }
@@ -109,7 +109,7 @@ public abstract class Indexing extends Expr {
             return collection.get((int) index - 1);
         } catch (InvalidIndexException e) {
             if (this.isSafe) {
-                return UnitValue.getInstance();
+                return LKQLUnit.INSTANCE;
             } else {
                 throw LKQLRuntimeException.invalidIndex((int) index, this);
             }

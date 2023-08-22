@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
@@ -68,8 +69,8 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization
     protected boolean eqUnit(
-            @SuppressWarnings("unused") UnitValue left,
-            @SuppressWarnings("unused") UnitValue right) {
+            @SuppressWarnings("unused") final LKQLUnit left,
+            @SuppressWarnings("unused") final LKQLUnit right) {
         return true;
     }
 

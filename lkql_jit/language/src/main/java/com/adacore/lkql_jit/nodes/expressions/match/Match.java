@@ -22,8 +22,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -82,7 +82,7 @@ public final class Match extends Expr {
 
         // If no arm matched, return the unit value
         // Probably want to raise an exception in the future
-        return UnitValue.getInstance();
+        return LKQLUnit.INSTANCE;
     }
 
     // ----- Override methods -----

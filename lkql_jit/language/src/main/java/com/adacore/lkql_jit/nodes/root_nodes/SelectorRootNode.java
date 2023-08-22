@@ -22,10 +22,10 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -117,7 +117,7 @@ public final class SelectorRootNode
             if (res != null) break;
         }
         if (res == null) {
-            res = new SelectorCallResult(SelectorExpr.Mode.DEFAULT, UnitValue.getInstance());
+            res = new SelectorCallResult(SelectorExpr.Mode.DEFAULT, LKQLUnit.INSTANCE);
         }
 
         // Do the memoization cache addition

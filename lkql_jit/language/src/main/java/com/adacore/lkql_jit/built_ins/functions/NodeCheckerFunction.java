@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
@@ -35,7 +36,6 @@ import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -187,7 +187,7 @@ public final class NodeCheckerFunction {
             }
 
             // Return the unit instance
-            return UnitValue.getInstance();
+            return LKQLUnit.INSTANCE;
         }
 
         /**

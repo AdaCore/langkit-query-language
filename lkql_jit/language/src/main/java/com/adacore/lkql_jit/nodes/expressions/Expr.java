@@ -26,6 +26,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -64,8 +65,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as unit.
      * @throws UnexpectedResultException If the node cannot be evaluated as a unit value.
      */
-    public UnitValue executeUnit(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectUnitValue(executeGeneric(frame));
+    public LKQLUnit executeUnit(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLUnit(executeGeneric(frame));
     }
 
     /**

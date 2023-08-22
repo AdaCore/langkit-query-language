@@ -25,11 +25,11 @@ package com.adacore.lkql_jit.built_ins.functions;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -77,7 +77,7 @@ public final class PrintFunction {
                     }
 
                     // Return the unit value
-                    return UnitValue.getInstance();
+                    return LKQLUnit.INSTANCE;
                 });
     }
 }
