@@ -144,7 +144,7 @@ public final class LKQLTypesHelper {
             return LKQL_PROPERTY_REF;
         } else if (LKQLTypeSystemGen.isSelectorValue(obj)) {
             return LKQL_SELECTOR;
-        } else if (LKQLTypeSystemGen.isTupleValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLTuple(obj)) {
             return LKQL_TUPLE;
         } else if (LKQLTypeSystemGen.isListValue(obj)) {
             return LKQL_LIST;

@@ -24,6 +24,7 @@ package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.*;
@@ -48,7 +49,7 @@ import java.math.BigInteger;
     FunctionValue.class,
     PropertyRefValue.class,
     SelectorValue.class,
-    TupleValue.class,
+    LKQLTuple.class,
     ListValue.class,
     LazyListValue.class,
     SelectorListValue.class,

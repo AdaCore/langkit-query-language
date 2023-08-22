@@ -1,0 +1,7 @@
+=== Tuple interop messages:
+  toString(): (1, "Coucou", (1, 2))
+  hasArrayElements(): true
+  getArraySize(): 3
+  getArrayElement(0): 1
+  getArrayElement(1): Coucou
+  getArrayElement(2): (1, 2)
