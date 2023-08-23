@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.runtime.values.*;
@@ -252,9 +253,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right object value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqObjects(ObjectValue left, ObjectValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqObjects(
+            final LKQLObject left,
+            final LKQLObject right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

@@ -24,10 +24,10 @@ package com.adacore.lkql_jit.utils;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
@@ -160,7 +160,7 @@ public final class LKQLTypesHelper {
             return ANALYSIS_UNIT;
         } else if (LKQLTypeSystemGen.isBoolean(obj)) {
             return LKQL_BOOLEAN;
-        } else if (LKQLTypeSystemGen.isObjectValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLObject(obj)) {
             return LKQL_OBJECT;
         } else if (LKQLTypeSystemGen.isLKQLNamespace(obj)) {
             return LKQL_NAMESPACE;
@@ -286,7 +286,7 @@ public final class LKQLTypesHelper {
                         ? NodeNull.getInstance()
                         : Libadalang.AdaNode.fromEntity(aspect.value)
             };
-            return new ObjectValue(keys, values);
+            return LKQLObject.createUncached(keys, values);
         }
 
         // If the source is a reference result structure
@@ -298,7 +298,7 @@ public final class LKQLTypesHelper {
                         ? NodeNull.getInstance()
                         : Libadalang.AdaNode.fromEntity(refResultStruct.ref)
             };
-            return new ObjectValue(keys, values);
+            return LKQLObject.createUncached(keys, values);
         }
 
         // If the source is a parameter-actual structure
@@ -308,7 +308,7 @@ public final class LKQLTypesHelper {
                 Libadalang.AdaNode.fromEntity(paramActual.actual),
                 Libadalang.AdaNode.fromEntity(paramActual.param)
             };
-            return new ObjectValue(keys, values);
+            return LKQLObject.createUncached(keys, values);
         }
 
         // Else, throw an exception for the unsupported type

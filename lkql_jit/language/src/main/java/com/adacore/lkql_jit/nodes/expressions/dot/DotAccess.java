@@ -27,13 +27,13 @@ import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -84,13 +84,15 @@ public abstract class DotAccess extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Execute the dot access on an object value.
+     * Access to a member of an object value.
      *
      * @param receiver The receiver object value.
      * @return The member of the object.
      */
-    @Specialization
-    protected Object onObject(ObjectValue receiver) {
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object onObject(
+            final LKQLObject receiver,
+            @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
         // Try to get the built in
         Object builtIn = this.tryBuildIn(receiver);
         if (builtIn != null) {
@@ -98,7 +100,7 @@ public abstract class DotAccess extends Expr {
         }
 
         // Get the object member
-        Object res = receiver.get(this.member.getName());
+        final Object res = receiverLibrary.getOrDefault(receiver, this.member.getName(), null);
         if (res != null) {
             return res;
         }

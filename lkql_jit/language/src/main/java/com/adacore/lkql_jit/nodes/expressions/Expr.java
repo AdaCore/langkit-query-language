@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -232,8 +233,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as an object value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an object.
      */
-    public ObjectValue executeObject(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectObjectValue(executeGeneric(frame));
+    public LKQLObject executeObject(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLObject(executeGeneric(frame));
     }
 
     /**

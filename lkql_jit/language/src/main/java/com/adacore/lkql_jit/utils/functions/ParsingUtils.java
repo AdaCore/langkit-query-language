@@ -26,10 +26,10 @@ import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
 import com.oracle.truffle.api.CallTarget;
@@ -146,7 +146,7 @@ public class ParsingUtils {
 
             // Get the rules
             final Object allRulesSource = objectLibrary.getOrDefault(namespace, "rules", null);
-            if (allRulesSource instanceof ObjectValue allRulesObject) {
+            if (allRulesSource instanceof LKQLObject allRulesObject) {
                 processRulesObject(allRulesObject, allRules, aliases, args);
             } else {
                 throw LKQLRuntimeException.fromMessage(
@@ -155,14 +155,14 @@ public class ParsingUtils {
 
             // Get the Ada rules (not mandatory)
             final Object adaRulesSource = objectLibrary.getOrDefault(namespace, "ada_rules", null);
-            if (adaRulesSource instanceof ObjectValue adaRulesObject) {
+            if (adaRulesSource instanceof LKQLObject adaRulesObject) {
                 processRulesObject(adaRulesObject, adaRules, aliases, args);
             }
 
             // Get the SPARK rules (not mandatory)
             final Object sparkRulesSource =
                     objectLibrary.getOrDefault(namespace, "spark_rules", null);
-            if (sparkRulesSource instanceof ObjectValue sparkRulesObject) {
+            if (sparkRulesSource instanceof LKQLObject sparkRulesObject) {
                 processRulesObject(sparkRulesObject, sparkRules, aliases, args);
             }
 
@@ -182,14 +182,15 @@ public class ParsingUtils {
      * @param args The map containing all parsed arguments.
      */
     private static void processRulesObject(
-            final ObjectValue rulesObject,
+            final LKQLObject rulesObject,
             final List<String> rules,
             final Map<String, String> aliases,
             final Map<String, Map<String, Object>> args) {
         // For each rule in the rules object explore its arguments
-        for (String ruleName : rulesObject.getContent().keySet()) {
+        for (Object ruleNameObject : rulesObject.keysUncached()) {
             // Get the rule arguments and check that it's an indexable value
-            final Object ruleArgs = rulesObject.get(ruleName);
+            final String ruleName = (String) ruleNameObject;
+            final Object ruleArgs = rulesObject.getUncached(ruleName);
             if (!LKQLTypeSystemGen.isIndexable(ruleArgs)) {
                 throw LKQLRuntimeException.fromMessage("Rule arguments must be an indexable value");
             }
@@ -200,13 +201,13 @@ public class ParsingUtils {
                 rules.add(ruleName);
             } else {
                 for (Object ruleArg : ruleArgsContent) {
-                    if (!LKQLTypeSystemGen.isObjectValue(ruleArg)) {
+                    if (!LKQLTypeSystemGen.isLKQLObject(ruleArg)) {
                         throw LKQLRuntimeException.fromMessage(
                                 "Rule argument must be an object value");
                     }
                     processArgObject(
                             ruleName,
-                            LKQLTypeSystemGen.asObjectValue(ruleArg),
+                            LKQLTypeSystemGen.asLKQLObject(ruleArg),
                             rules,
                             aliases,
                             args);
@@ -226,13 +227,13 @@ public class ParsingUtils {
      */
     private static void processArgObject(
             final String ruleName,
-            final ObjectValue argObject,
+            final LKQLObject argObject,
             final List<String> rules,
             final Map<String, String> aliases,
             final Map<String, Map<String, Object>> args) {
         // If the arg has an alias get the name of it and add it in the alias list
         final String realName;
-        final Object aliasName = argObject.get(Constants.ALIAS_NAME_SYMBOL);
+        final Object aliasName = argObject.getUncached(Constants.ALIAS_NAME_SYMBOL);
         if (aliasName != null) {
             if (!LKQLTypeSystemGen.isString(aliasName)) {
                 throw LKQLRuntimeException.fromMessage("Rule alias name must be a string");
@@ -247,14 +248,16 @@ public class ParsingUtils {
         rules.add(realName);
 
         // Get all other arguments
-        for (String argName : argObject.getContent().keySet()) {
+        for (Object argNameObject : argObject.keysUncached()) {
+            final String argName = (String) argNameObject;
+
             // If the argument name is "alias_symbol" continue the exploration
             if (argName.equals(Constants.ALIAS_NAME_SYMBOL)) {
                 continue;
             }
 
             // Put the argument in the map
-            Object argValue = argObject.get(argName);
+            Object argValue = argObject.getUncached(argName);
             Map<String, Object> ruleArgs = args.getOrDefault(realName, new HashMap<>());
             ruleArgs.put(argName, argValue);
             args.put(realName, ruleArgs);

@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
@@ -35,7 +36,6 @@ import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -179,9 +179,9 @@ public final class UnitCheckerFunction {
             arguments[0] = functionValue.getClosure().getContent();
 
             // Get the message list from the checker function
-            final Iterable messageList;
+            final Iterable violationList;
             try {
-                messageList =
+                violationList =
                         LKQLTypeSystemGen.expectIterable(
                                 this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
@@ -192,14 +192,14 @@ public final class UnitCheckerFunction {
             }
 
             // Display all the violation message
-            Iterator messageIterator = messageList.iterator();
-            while (messageIterator.hasNext()) {
-                ObjectValue message = (ObjectValue) messageIterator.next();
+            Iterator violationIterator = violationList.iterator();
+            while (violationIterator.hasNext()) {
+                LKQLObject violation = (LKQLObject) violationIterator.next();
 
-                // Get the message text
-                String messageText;
+                // Get the violation text
+                String message;
                 try {
-                    messageText = LKQLTypeSystemGen.expectString(message.get("message"));
+                    message = LKQLTypeSystemGen.expectString(violation.getUncached("message"));
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
                             LKQLTypesHelper.LKQL_STRING,
@@ -207,8 +207,8 @@ public final class UnitCheckerFunction {
                             functionValue.getBody());
                 }
 
-                // Get the message location
-                Object loc = message.get("loc");
+                // Get the violation location
+                Object loc = violation.getUncached("loc");
                 final Libadalang.AnalysisUnit locUnit;
                 final Libadalang.SourceLocationRange slocRange;
                 final Libadalang.AdaNodeArray genericInstantiations;
@@ -233,7 +233,7 @@ public final class UnitCheckerFunction {
                 context.getDiagnosticEmitter()
                         .emitRuleViolation(
                                 lowerRuleName,
-                                messageText,
+                                message,
                                 slocRange,
                                 locUnit,
                                 genericInstantiations,

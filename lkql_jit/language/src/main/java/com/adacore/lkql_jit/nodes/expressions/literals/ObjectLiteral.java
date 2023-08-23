@@ -22,11 +22,13 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.object.DynamicObjectLibrary;
+import com.oracle.truffle.api.object.Shape;
 
 /**
  * This node represents the literal node for an LKQL object.
@@ -40,10 +42,18 @@ public final class ObjectLiteral extends Expr {
     /** Object ordered keys. */
     private final String[] keys;
 
+    /** The shape of the dynamic object. */
+    private final Shape shape;
+
     // ----- Children -----
 
     /** Object ordered values. */
-    @Children private Expr[] values;
+    @Children private final Expr[] values;
+
+    /** Object library to insert values in the result. */
+    @Child
+    @SuppressWarnings("FieldMayBeFinal")
+    private DynamicObjectLibrary objectLibrary;
 
     // ----- Constructors -----
 
@@ -55,10 +65,12 @@ public final class ObjectLiteral extends Expr {
      * @param keys Ordered keys of the object.
      * @param values Ordered values of the object.
      */
-    public ObjectLiteral(SourceLocation location, String[] keys, Expr[] values) {
+    public ObjectLiteral(final SourceLocation location, final String[] keys, final Expr[] values) {
         super(location);
         this.keys = keys;
+        this.shape = Shape.newBuilder().build();
         this.values = values;
+        this.objectLibrary = DynamicObjectLibrary.getUncached();
     }
 
     // ----- Execution methods -----
@@ -78,15 +90,15 @@ public final class ObjectLiteral extends Expr {
      */
     @Override
     @ExplodeLoop
-    public ObjectValue executeObject(VirtualFrame frame) {
-        // Execute the values of the object
-        final Object[] values = new Object[this.keys.length];
+    public LKQLObject executeObject(final VirtualFrame frame) {
+        // Create the result object
+        LKQLObject res = new LKQLObject(this.shape);
         for (int i = 0; i < this.keys.length; i++) {
-            values[i] = this.values[i].executeGeneric(frame);
+            this.objectLibrary.put(res, this.keys[i], this.values[i].executeGeneric(frame));
         }
 
-        // Return the object value
-        return new ObjectValue(this.keys, values);
+        // Return the new LKQL object
+        return res;
     }
 
     // ----- Override methods -----
@@ -95,7 +107,7 @@ public final class ObjectLiteral extends Expr {
      * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
      */
     @Override
-    public String toString(int indentLevel) {
+    public String toString(final int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
 }
