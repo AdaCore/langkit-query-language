@@ -27,7 +27,7 @@ endif
 ADDITIONAL_MANAGE_ARGS=
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql lkql_checker lalcheck doc lkql_jit lkql_native_jit
+all: lkql lkql_checker lalcheck doc lkql_native_jit
 
 lkql: build/bin/liblkqllang_parse
 
@@ -58,12 +58,12 @@ clean_lkql_jit:
 	cd lkql_jit && mvn clean
 
 lkql_jit: lkql
-	cd lkql/build/java && mvn package install
-	cd lkql_jit && mvn package install
+	mvn -f lkql/build/java/ install
+	mvn -f lkql_jit/ clean install
 
 lkql_native_jit: lkql
-	cd lkql/build/java && mvn package install
-	cd lkql_jit && mvn package install -P native-all
+	mvn -f lkql/build/java/ install
+	mvn -f lkql_jit/ clean install -P native-all
 
 .PHONY: lkql_checker
 
