@@ -25,11 +25,12 @@ package com.adacore.lkql_jit;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.declarations.FunctionDeclaration;
 import com.adacore.lkql_jit.runtime.GlobalScope;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
+import com.adacore.lkql_jit.utils.checkers.BaseChecker;
+import com.adacore.lkql_jit.utils.checkers.NodeChecker;
+import com.adacore.lkql_jit.utils.checkers.UnitChecker;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.ParsingUtils;
@@ -116,16 +117,16 @@ public final class LKQLContext {
     private Map<String, Map<String, Object>> allRulesArgs = null;
 
     /** The filtered node checkers cache. */
-    private ObjectValue[] filteredAllNodeCheckers = null;
+    private NodeChecker[] filteredAllNodeCheckers = null;
 
     /** The filtered node checkers for Ada code only. */
-    private ObjectValue[] filteredAdaNodeCheckers = null;
+    private NodeChecker[] filteredAdaNodeCheckers = null;
 
     /** The filtered node checkers for SPARK code only. */
-    private ObjectValue[] filteredSparkNodeCheckers = null;
+    private NodeChecker[] filteredSparkNodeCheckers = null;
 
     /** The filtered unit checkers cache. */
-    private ObjectValue[] filteredUnitCheckers = null;
+    private UnitChecker[] filteredUnitCheckers = null;
 
     /** Whether there is at least one rule that needs to follow generic instantiations. */
     private boolean needsToFollowInstantiations = false;
@@ -789,7 +790,7 @@ public final class LKQLContext {
      * @return The node checkers array filtered according to options.
      */
     @CompilerDirectives.TruffleBoundary
-    public ObjectValue[] getAllNodeCheckers() {
+    public NodeChecker[] getAllNodeCheckers() {
         if (this.filteredAllNodeCheckers == null) {
             this.initCheckerCaches();
         }
@@ -801,7 +802,7 @@ public final class LKQLContext {
      *
      * @return The node checkers array for Ada code only.
      */
-    public ObjectValue[] getAdaNodeCheckers() {
+    public NodeChecker[] getAdaNodeCheckers() {
         if (this.filteredAdaNodeCheckers == null) {
             this.initCheckerCaches();
         }
@@ -813,7 +814,7 @@ public final class LKQLContext {
      *
      * @return The node checkers array for SPARK code only.
      */
-    public ObjectValue[] getSparkNodeCheckers() {
+    public NodeChecker[] getSparkNodeCheckers() {
         if (this.filteredSparkNodeCheckers == null) {
             this.initCheckerCaches();
         }
@@ -826,7 +827,7 @@ public final class LKQLContext {
      * @return The list for unit checkers filtered according to options.
      */
     @CompilerDirectives.TruffleBoundary
-    public ObjectValue[] getUnitCheckersFiltered() {
+    public UnitChecker[] getUnitCheckersFiltered() {
         if (this.filteredUnitCheckers == null) {
             this.initCheckerCaches();
         }
@@ -837,11 +838,11 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     private void initCheckerCaches() {
         // Prepare the working variables
-        final List<ObjectValue> allNodeCheckers = new ArrayList<>();
-        final List<ObjectValue> adaNodeCheckers = new ArrayList<>();
-        final List<ObjectValue> sparkNodeCheckers = new ArrayList<>();
-        final List<ObjectValue> unitCheckers = new ArrayList<>();
-        final Map<String, ObjectValue> allCheckers = this.global.getCheckers();
+        final List<NodeChecker> allNodeCheckers = new ArrayList<>();
+        final List<NodeChecker> adaNodeCheckers = new ArrayList<>();
+        final List<NodeChecker> sparkNodeCheckers = new ArrayList<>();
+        final List<UnitChecker> unitCheckers = new ArrayList<>();
+        final Map<String, BaseChecker> allCheckers = this.global.getCheckers();
 
         // Get the command line required rules
         final List<String> allRules = this.getAllRules();
@@ -849,44 +850,45 @@ public final class LKQLContext {
         final List<String> sparkRules = this.getSparkRules();
 
         // Lambda to dispatch checkers in the correct lists
-        final BiConsumer<ObjectValue, List<ObjectValue>> dispatchChecker =
+        final BiConsumer<BaseChecker, List<NodeChecker>> dispatchChecker =
                 (checker, nodeCheckers) -> {
-                    if (checker.get("mode") == FunctionDeclaration.CheckerMode.NODE) {
-                        nodeCheckers.add(checker);
-                        if ((boolean) checker.get("follow_generic_instantiations")) {
+                    if (checker instanceof NodeChecker nodeChecker) {
+                        nodeCheckers.add(nodeChecker);
+                        if (nodeChecker.isFollowGenericInstantiations()) {
                             needsToFollowInstantiations = true;
                         }
                     } else {
-                        unitCheckers.add(checker);
+                        UnitChecker unitChecker = (UnitChecker) checker;
+                        unitCheckers.add(unitChecker);
                     }
                 };
 
         // Lambda to get the checker object value from the rule name
-        final Function<String, ObjectValue> getAssociatedChecker =
+        final Function<String, BaseChecker> getAssociatedChecker =
                 (ruleName) -> {
                     // Get the checker from the given rule name
-                    ObjectValue res = null;
+                    BaseChecker checker;
                     final String aliasResolved = this.getRuleFromAlias(ruleName);
                     if (aliasResolved != null) {
-                        res = new ObjectValue(allCheckers.get(aliasResolved));
-                        res.set("alias", ruleName);
+                        checker = allCheckers.get(aliasResolved).copy();
+                        checker.setAlias(ruleName);
                     } else {
-                        res = allCheckers.get(ruleName);
+                        checker = allCheckers.get(ruleName);
                     }
 
                     // Verify that the checker is not null
-                    if (res == null) {
+                    if (checker == null) {
                         throw LKQLRuntimeException.fromMessage(
                                 "Could not find any rule named " + ruleName);
                     }
 
                     // Return the result
-                    return res;
+                    return checker;
                 };
 
         // If there is no wanted rule, run them all (if the appropriate option is set)
         if (allRules.size() == 0 && this.env.getOptions().get(LKQLLanguage.fallbackToAllRules)) {
-            for (ObjectValue checker : allCheckers.values()) {
+            for (BaseChecker checker : allCheckers.values()) {
                 dispatchChecker.accept(checker, allNodeCheckers);
             }
         }
@@ -905,10 +907,10 @@ public final class LKQLContext {
         }
 
         // Set the checker caches
-        this.filteredAllNodeCheckers = allNodeCheckers.toArray(new ObjectValue[0]);
-        this.filteredAdaNodeCheckers = adaNodeCheckers.toArray(new ObjectValue[0]);
-        this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new ObjectValue[0]);
-        this.filteredUnitCheckers = unitCheckers.toArray(new ObjectValue[0]);
+        this.filteredAllNodeCheckers = allNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredAdaNodeCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
+        this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
     }
 
     /**

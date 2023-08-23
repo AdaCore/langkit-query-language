@@ -116,8 +116,4 @@ public class Constants {
     /** The default values for annotation parameters. */
     public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =
             new Object[] {null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64"};
-
-    /** The valid value for the remediation parameters. */
-    public static final String[] CHECKER_VALID_REMEDIATION =
-            new String[] {"EASY", "MEDIUM", "MAJOR"};
 }

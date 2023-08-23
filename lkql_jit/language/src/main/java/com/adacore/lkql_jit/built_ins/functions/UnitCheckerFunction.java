@@ -39,6 +39,7 @@ import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.checkers.UnitChecker;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -83,7 +84,7 @@ public final class UnitCheckerFunction {
             // Get the arguments
             LKQLContext context = LKQLLanguage.getContext(this);
             Libadalang.AnalysisUnit unit;
-            ObjectValue[] checkers = context.getUnitCheckersFiltered();
+            UnitChecker[] checkers = context.getUnitCheckersFiltered();
 
             try {
                 unit = LKQLTypeSystemGen.expectAnalysisUnit(frame.getArguments()[0]);
@@ -98,9 +99,9 @@ public final class UnitCheckerFunction {
             CheckerUtils.SourceLinesCache linesCache = new CheckerUtils.SourceLinesCache();
 
             // Iterate over all checker
-            for (ObjectValue rule : checkers) {
+            for (UnitChecker checker : checkers) {
                 try {
-                    this.applyUnitRule(frame, rule, unit, context, linesCache);
+                    this.applyUnitRule(frame, checker, unit, context, linesCache);
                 } catch (LangkitException e) {
                     // TODO: Remove those clunky hardcoded names when getting rid of Ada
                     // implementation
@@ -108,7 +109,7 @@ public final class UnitCheckerFunction {
                     if (context.isCheckerDebug()) {
                         context.getDiagnosticEmitter()
                                 .emitInternalError(
-                                        (String) rule.get("name"),
+                                        checker.getName(),
                                         unit,
                                         Libadalang.SourceLocation.create(1, (short) 1),
                                         e.getLoc().toString(),
@@ -121,7 +122,7 @@ public final class UnitCheckerFunction {
                     // implementation
                     context.getDiagnosticEmitter()
                             .emitInternalError(
-                                    (String) rule.get("name"),
+                                    checker.getName(),
                                     unit,
                                     Libadalang.SourceLocation.create(1, (short) 1),
                                     e.getLocationString(),
@@ -136,26 +137,26 @@ public final class UnitCheckerFunction {
         }
 
         /**
-         * Apply the rule on the given unit.
+         * Apply the checker on the given unit.
          *
-         * @param frame The frame for the rule execution.
-         * @param rule The rule to execute.
-         * @param unit The unit to execute the rule on.
+         * @param frame The frame for the checker execution.
+         * @param checker The checker to execute.
+         * @param unit The unit to execute the checker on.
          * @param context The context for the execution.
          * @param linesCache The cache of all units' source text lines.
          */
         private void applyUnitRule(
                 VirtualFrame frame,
-                ObjectValue rule,
+                UnitChecker checker,
                 Libadalang.AnalysisUnit unit,
                 LKQLContext context,
                 CheckerUtils.SourceLinesCache linesCache) {
             // Get the function for the checker
-            final FunctionValue functionValue = (FunctionValue) rule.get("function");
+            final FunctionValue functionValue = checker.getFunction();
 
-            // Retrieve the rule name
-            final String aliasName = (String) rule.get("alias");
-            final String lowerRuleName = StringUtils.toLowerCase((String) rule.get("name"));
+            // Retrieve the checker name
+            final String aliasName = checker.getAlias();
+            final String lowerRuleName = StringUtils.toLowerCase(checker.getName());
 
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.getParamNames().length + 1];
@@ -177,7 +178,7 @@ public final class UnitCheckerFunction {
             // Put the closure in the arguments
             arguments[0] = functionValue.getClosure().getContent();
 
-            // Get the message list from the rule function
+            // Get the message list from the checker function
             final Iterable messageList;
             try {
                 messageList =

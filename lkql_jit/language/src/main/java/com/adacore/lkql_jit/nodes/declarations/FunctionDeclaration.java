@@ -26,9 +26,10 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.checkers.BaseChecker;
+import com.adacore.lkql_jit.utils.checkers.NodeChecker;
+import com.adacore.lkql_jit.utils.checkers.UnitChecker;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -144,24 +145,47 @@ public final class FunctionDeclaration extends Declaration {
         if (checkerArguments[1] == null) checkerArguments[1] = this.name;
 
         // Verify the remediation mode
-        if (ArrayUtils.indexOf(Constants.CHECKER_VALID_REMEDIATION, checkerArguments[5]) == -1) {
-            checkerArguments[5] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[5];
-        }
+        final BaseChecker.Remediation remediation =
+                switch ((String) checkerArguments[5]) {
+                    case "EASY" -> BaseChecker.Remediation.EASY;
+                    case "MAJOR" -> BaseChecker.Remediation.MAJOR;
+                    default -> BaseChecker.Remediation.MEDIUM;
+                };
 
         // Create the object value representing the checker
-        final ObjectValue checkerObject =
-                new ObjectValue(
-                        ArrayUtils.concat(
-                                Constants.CHECKER_PARAMETER_NAMES,
-                                new String[] {"function", "name", "mode"}),
-                        ArrayUtils.concat(
-                                checkerArguments,
-                                new Object[] {functionValue, this.name, this.checkerMode}));
+        final BaseChecker checker =
+                this.checkerMode == CheckerMode.NODE
+                        ? new NodeChecker(
+                                this.name,
+                                functionValue,
+                                (String) checkerArguments[0],
+                                (String) checkerArguments[1],
+                                (boolean) checkerArguments[2],
+                                (String) checkerArguments[3],
+                                (String) checkerArguments[4],
+                                remediation,
+                                (long) checkerArguments[6],
+                                (boolean) checkerArguments[7],
+                                (String) checkerArguments[8],
+                                (String) checkerArguments[9])
+                        : new UnitChecker(
+                                this.name,
+                                functionValue,
+                                (String) checkerArguments[0],
+                                (String) checkerArguments[1],
+                                (boolean) checkerArguments[2],
+                                (String) checkerArguments[3],
+                                (String) checkerArguments[4],
+                                remediation,
+                                (long) checkerArguments[6],
+                                (boolean) checkerArguments[7],
+                                (String) checkerArguments[8],
+                                (String) checkerArguments[9]);
 
         // Put the object in the context
         LKQLLanguage.getContext(this)
                 .getGlobal()
-                .addChecker(StringUtils.toLowerCase(functionValue.getName()), checkerObject);
+                .addChecker(StringUtils.toLowerCase(functionValue.getName()), checker);
     }
 
     // ----- Override methods -----

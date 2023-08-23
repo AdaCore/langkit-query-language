@@ -35,8 +35,8 @@ import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.checkers.NodeChecker;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -88,9 +88,9 @@ public final class NodeCheckerFunction {
             // Get the arguments
             final LKQLContext context = LKQLLanguage.getContext(this);
             final Libadalang.AdaNode root;
-            final ObjectValue[] allNodeCheckers = context.getAllNodeCheckers();
-            final ObjectValue[] adaNodeCheckers = context.getAdaNodeCheckers();
-            final ObjectValue[] sparkNodeCheckers = context.getSparkNodeCheckers();
+            final NodeChecker[] allNodeCheckers = context.getAllNodeCheckers();
+            final NodeChecker[] adaNodeCheckers = context.getAdaNodeCheckers();
+            final NodeChecker[] sparkNodeCheckers = context.getSparkNodeCheckers();
             final boolean mustFollowInstantiations = context.mustFollowInstantiations();
             final boolean hasSparkCheckers = sparkNodeCheckers.length > 0;
 
@@ -204,13 +204,13 @@ public final class NodeCheckerFunction {
                 VirtualFrame frame,
                 VisitStep currentStep,
                 Libadalang.AdaNode currentNode,
-                ObjectValue[] checkers,
+                NodeChecker[] checkers,
                 LKQLContext context,
                 CheckerUtils.SourceLinesCache linesCache) {
-            // For each checker apply it on the current node of needed
-            for (ObjectValue checker : checkers) {
+            // For each checker apply it on the current node if needed
+            for (NodeChecker checker : checkers) {
                 if (!currentStep.inGenericInstantiation()
-                        || (boolean) checker.get("follow_generic_instantiations")) {
+                        || checker.isFollowGenericInstantiations()) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context, linesCache);
                     } catch (LangkitException e) {
@@ -220,7 +220,7 @@ public final class NodeCheckerFunction {
                         if (context.isCheckerDebug()) {
                             context.getDiagnosticEmitter()
                                     .emitInternalError(
-                                            (String) checker.get("name"),
+                                            checker.getName(),
                                             currentNode.getUnit(),
                                             currentNode.getSourceLocationRange().start,
                                             e.getLoc().toString(),
@@ -234,7 +234,7 @@ public final class NodeCheckerFunction {
                         // implementation
                         context.getDiagnosticEmitter()
                                 .emitInternalError(
-                                        (String) checker.get("name"),
+                                        checker.getName(),
                                         currentNode.getUnit(),
                                         currentNode.getSourceLocationRange().start,
                                         e.getLocationString(),
@@ -247,24 +247,24 @@ public final class NodeCheckerFunction {
         }
 
         /**
-         * Apply the rule on the given node.
+         * Apply the checker on the given node.
          *
          * @param frame The frame to execute the default arg value.
-         * @param rule The rule to apply.
-         * @param node The node to apply the rule on.
+         * @param checker The checker to apply.
+         * @param node The node to apply the checker on.
          * @param context The LKQL context.
          * @param linesCache The cache of all units' source text lines.
          */
         private void applyNodeRule(
                 VirtualFrame frame,
-                ObjectValue rule,
+                NodeChecker checker,
                 Libadalang.AdaNode node,
                 LKQLContext context,
                 CheckerUtils.SourceLinesCache linesCache) {
             // Get the function for the checker
-            FunctionValue functionValue = (FunctionValue) rule.get("function");
-            String aliasName = (String) rule.get("alias");
-            String lowerRuleName = StringUtils.toLowerCase((String) rule.get("name"));
+            FunctionValue functionValue = checker.getFunction();
+            String aliasName = checker.getAlias();
+            String lowerRuleName = StringUtils.toLowerCase(checker.getName());
 
             // Prepare the arguments
             Object[] arguments = new Object[functionValue.getParamNames().length + 1];
@@ -286,7 +286,7 @@ public final class NodeCheckerFunction {
             // Place the closure in the arguments
             arguments[0] = functionValue.getClosure().getContent();
 
-            // Call the rule
+            // Call the checker
             final boolean ruleResult;
             try {
                 ruleResult =
@@ -300,7 +300,7 @@ public final class NodeCheckerFunction {
             }
 
             if (ruleResult) {
-                reportViolation(context, rule, node, linesCache);
+                reportViolation(context, checker, node, linesCache);
             }
         }
 
@@ -308,14 +308,14 @@ public final class NodeCheckerFunction {
          * Report a rule violation with the node that violate it.
          *
          * @param context The context to output the message.
-         * @param rule The violated rule.
-         * @param node The node that violated the rule.
+         * @param checker The checker corresponding to the violated rule.
+         * @param node The node that violated the checker.
          * @param linesCache The cache of all units' source text lines.
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportViolation(
                 LKQLContext context,
-                ObjectValue rule,
+                NodeChecker checker,
                 Libadalang.AdaNode node,
                 CheckerUtils.SourceLinesCache linesCache) {
             if (node instanceof Libadalang.BasicDecl basicDecl) {
@@ -324,8 +324,8 @@ public final class NodeCheckerFunction {
             }
             context.getDiagnosticEmitter()
                     .emitRuleViolation(
-                            (String) rule.get("name"),
-                            (String) rule.get("message"),
+                            checker.getName(),
+                            checker.getMessage(),
                             node.getSourceLocationRange(),
                             node.getUnit(),
                             node.pGenericInstantiations(),

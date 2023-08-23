@@ -23,7 +23,7 @@
 package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
+import com.adacore.lkql_jit.utils.checkers.BaseChecker;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public final class GlobalScope {
     // ----- Attributes -----
 
     /** The defined LKQL rules. */
-    private final Map<String, ObjectValue> checkers;
+    private final Map<String, BaseChecker> checkers;
 
     /** The array containing the built-in functions and selectors. */
     private final Object[] builtIns;
@@ -67,7 +67,7 @@ public final class GlobalScope {
      *
      * @return The LKQL checkers.
      */
-    public Map<String, ObjectValue> getCheckers() {
+    public Map<String, BaseChecker> getCheckers() {
         return this.checkers;
     }
 
@@ -78,7 +78,7 @@ public final class GlobalScope {
      * @param checker The object representing the checker.
      */
     @CompilerDirectives.TruffleBoundary
-    public void addChecker(String name, ObjectValue checker) {
+    public void addChecker(String name, BaseChecker checker) {
         this.checkers.put(name, checker);
     }
 
