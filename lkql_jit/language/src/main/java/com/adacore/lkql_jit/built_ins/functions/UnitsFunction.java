@@ -24,9 +24,9 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
@@ -47,8 +47,7 @@ public final class UnitsFunction {
                 "Return an iterator on all units",
                 new String[] {},
                 new Expr[] {},
-                (VirtualFrame frame, FunCall call) -> {
-                    return new ListValue(LKQLLanguage.getContext(call).getAllUnits());
-                });
+                (VirtualFrame frame, FunCall call) ->
+                        new LKQLArrayList(LKQLLanguage.getContext(call).getAllUnits()));
     }
 }

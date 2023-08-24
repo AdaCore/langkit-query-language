@@ -1,0 +1,12 @@
+=== List interop messages:
+  toString(): [1, "Hello", [1, 2]]
+  hasArrayElements(): true
+  getArraySize(): 3
+  isBoolean(): true
+  isBoolean() (empty list): true
+  asBoolean(): true
+  asBoolean() (empty list): false
+  getArrayElement(0): 1
+  getArrayElement(1): Hello
+  getArrayElement(2): [1, 2]
+  hasIterator(): true

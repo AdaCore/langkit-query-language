@@ -25,10 +25,11 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.functions.UniqueFunction;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.Arrays;
@@ -81,7 +82,7 @@ public final class ListMethods extends IterableMethods {
                         (VirtualFrame frame, FunCall call) -> {
                             var args = frame.getArguments();
 
-                            if (!LKQLTypeSystemGen.isListValue(args[0])) {
+                            if (!LKQLTypeSystemGen.isLKQLList(args[0])) {
                                 throw LKQLRuntimeException.wrongType(
                                         LKQLTypesHelper.LKQL_LIST,
                                         LKQLTypesHelper.fromJava(args[0]),
@@ -102,7 +103,7 @@ public final class ListMethods extends IterableMethods {
                                         call.getArgList().getArgs()[2]);
                             }
 
-                            ListValue list = LKQLTypeSystemGen.asListValue(args[0]);
+                            LKQLList list = LKQLTypeSystemGen.asLKQLList(args[0]);
                             long lowBound = LKQLTypeSystemGen.asLong(args[1]);
                             long highBound = LKQLTypeSystemGen.asLong(args[2]);
 
@@ -112,7 +113,7 @@ public final class ListMethods extends IterableMethods {
                                 throw LKQLRuntimeException.invalidIndex((int) highBound, call);
                             }
 
-                            return new ListValue(
+                            return new LKQLArrayList(
                                     Arrays.copyOfRange(
                                             list.getContent(),
                                             (int) lowBound - 1,

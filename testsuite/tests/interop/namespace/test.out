@@ -5,3 +5,4 @@
   hasMember('y'): false
   getMember('x'): 42
   getMember('y'): null
+  getMemberKeys(): [x]

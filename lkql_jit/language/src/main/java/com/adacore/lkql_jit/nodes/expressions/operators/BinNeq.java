@@ -27,6 +27,7 @@ import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
@@ -182,9 +183,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right list value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqLists(ListValue left, ListValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqLists(
+            final LKQLList left,
+            final LKQLList right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

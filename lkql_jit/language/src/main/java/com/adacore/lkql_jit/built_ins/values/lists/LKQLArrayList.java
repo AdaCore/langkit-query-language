@@ -20,35 +20,57 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.functions;
+package com.adacore.lkql_jit.built_ins.values.lists;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
-/**
- * This class represents the "units" built-in function in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class SpecifiedUnitsFunction {
+/** This class represents an array list in the LKQL language. */
+@ExportLibrary(InteropLibrary.class)
+public final class LKQLArrayList extends LKQLList {
 
     // ----- Attributes -----
 
-    /** The name of the built-in. */
-    public static final String NAME = "specified_units";
+    /** The content of the array list. */
+    private final Object[] content;
 
-    public static BuiltInFunctionValue getValue() {
-        return new BuiltInFunctionValue(
-                NAME,
-                "Return an iterator on units specified by the user",
-                new String[] {},
-                new Expr[] {},
-                (VirtualFrame frame, FunCall call) -> {
-                    return new LKQLArrayList(LKQLLanguage.getContext(call).getSpecifiedUnits());
-                });
+    // ----- Constructors -----
+
+    /** Create a new array list with its content. */
+    public LKQLArrayList(final Object[] content) {
+        this.content = content;
+    }
+
+    // ----- List required methods -----
+
+    @Override
+    public long size() {
+        return this.content.length;
+    }
+
+    @Override
+    public Object get(int i) throws InvalidIndexException {
+        try {
+            return this.content[i];
+        } catch (IndexOutOfBoundsException e) {
+            throw new InvalidIndexException();
+        }
+    }
+
+    @Override
+    public Object[] asArray() {
+        return this.content;
+    }
+
+    // ----- Value methods -----
+
+    /** Return the identity hash code for the given LKQL array list. */
+    @CompilerDirectives.TruffleBoundary
+    @ExportMessage
+    public static int identityHashCode(LKQLArrayList receiver) {
+        return System.identityHashCode(receiver);
     }
 }

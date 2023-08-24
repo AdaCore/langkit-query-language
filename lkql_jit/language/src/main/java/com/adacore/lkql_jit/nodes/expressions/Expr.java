@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -177,8 +178,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a list.
      */
-    public ListValue executeList(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectListValue(executeGeneric(frame));
+    public LKQLList executeList(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLList(executeGeneric(frame));
     }
 
     /**

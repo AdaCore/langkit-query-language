@@ -23,8 +23,8 @@
 package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.runtime.Cell;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
@@ -205,7 +205,7 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
     Object getMembers(
             @SuppressWarnings("unused") final boolean includeInternal,
             @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return new ListValue(objectLibrary.getKeyArray(this));
+        return new LKQLArrayList(objectLibrary.getKeyArray(this));
     }
 
     /** Get the value of the wanted member in the receiver namespace. */

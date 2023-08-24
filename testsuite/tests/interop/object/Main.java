@@ -28,6 +28,6 @@ public class Main {
         print("getMember('x')", object.getMember("x"));
         print("getMember('y')", object.getMember("y"));
         print("getMember('z')", object.getMember("z"));
-        // TODO (LATER IN MR): Call "getMemberKeys" when list values are interop
+        print("getMemberKeys()", object.getMemberKeys());
     }
 }

@@ -25,8 +25,8 @@ package com.adacore.lkql_jit.utils;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
@@ -146,7 +146,7 @@ public final class LKQLTypesHelper {
             return LKQL_SELECTOR;
         } else if (LKQLTypeSystemGen.isLKQLTuple(obj)) {
             return LKQL_TUPLE;
-        } else if (LKQLTypeSystemGen.isListValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLList(obj)) {
             return LKQL_LIST;
         } else if (LKQLTypeSystemGen.isLazyListValue(obj)) {
             return LKQL_LAZY_LIST;
@@ -265,7 +265,7 @@ public final class LKQLTypesHelper {
                 res[i] = toLKQLValue(obj);
                 i++;
             }
-            return new ListValue(res);
+            return new LKQLArrayList(res);
         }
 
         // If the source is an enum

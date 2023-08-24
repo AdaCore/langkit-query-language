@@ -26,8 +26,8 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.functions.ReduceFunction;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -84,7 +84,7 @@ public abstract class IterableMethods extends CommonMethods {
             }
 
             // Return the new list value
-            return new ListValue(resList.toArray(new Object[0]));
+            return new LKQLArrayList(resList.toArray(new Object[0]));
         }
     }
 

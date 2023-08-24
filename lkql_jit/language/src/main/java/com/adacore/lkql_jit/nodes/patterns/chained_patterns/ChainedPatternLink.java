@@ -24,10 +24,10 @@ package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -103,8 +103,8 @@ public abstract class ChainedPatternLink extends LKQLNode {
         }
 
         // If the result object is a list of node
-        else if (LKQLTypeSystemGen.isListValue(resultObject)) {
-            ListValue listValue = LKQLTypeSystemGen.asListValue(resultObject);
+        else if (LKQLTypeSystemGen.isLKQLList(resultObject)) {
+            LKQLList listValue = LKQLTypeSystemGen.asLKQLList(resultObject);
             for (int i = 0; i < listValue.size(); i++) {
                 try {
                     Libadalang.AdaNode toVerify = LKQLTypeSystemGen.expectAdaNode(listValue.get(i));

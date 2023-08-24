@@ -24,10 +24,11 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -59,7 +60,7 @@ public final class ConcatFunction {
                     Object lists = frame.getArguments()[0];
 
                     // Check the type of the argument
-                    if (!LKQLTypeSystemGen.isListValue(lists)) {
+                    if (!LKQLTypeSystemGen.isLKQLList(lists)) {
                         throw LKQLRuntimeException.wrongType(
                                 LKQLTypesHelper.LKQL_LIST,
                                 LKQLTypesHelper.fromJava(lists),
@@ -67,7 +68,7 @@ public final class ConcatFunction {
                     }
 
                     // Cast the argument to list
-                    ListValue listValue = (ListValue) lists;
+                    LKQLList listValue = LKQLTypeSystemGen.asLKQLList(lists);
 
                     // If the list is not empty
                     if (listValue.size() > 0) {
@@ -95,12 +96,12 @@ public final class ConcatFunction {
                         }
 
                         // If the first item is a list look for lists in the list
-                        if (LKQLTypeSystemGen.isListValue(firstItem)) {
+                        if (LKQLTypeSystemGen.isLKQLList(firstItem)) {
                             // Create a result array and add all list of the argument
-                            Object[] result = LKQLTypeSystemGen.asListValue(firstItem).getContent();
+                            Object[] result = LKQLTypeSystemGen.asLKQLList(firstItem).getContent();
                             for (int i = 1; i < listValue.size(); i++) {
                                 final Object item = listValue.get(i);
-                                if (!LKQLTypeSystemGen.isListValue(item)) {
+                                if (!LKQLTypeSystemGen.isLKQLList(item)) {
                                     throw LKQLRuntimeException.wrongType(
                                             LKQLTypesHelper.LKQL_LIST,
                                             LKQLTypesHelper.fromJava(item),
@@ -109,9 +110,9 @@ public final class ConcatFunction {
                                 result =
                                         ArrayUtils.concat(
                                                 result,
-                                                LKQLTypeSystemGen.asListValue(item).getContent());
+                                                LKQLTypeSystemGen.asLKQLList(item).getContent());
                             }
-                            return new ListValue(result);
+                            return new LKQLArrayList(result);
                         }
 
                         // Else there is an error
@@ -124,7 +125,7 @@ public final class ConcatFunction {
 
                     // If the list is empty just return an empty list
                     else {
-                        return new ListValue(new Object[0]);
+                        return new LKQLArrayList(new Object[0]);
                     }
                 });
     }

@@ -27,6 +27,7 @@ import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.*;
@@ -52,7 +53,7 @@ import java.math.BigInteger;
     PropertyRefValue.class,
     SelectorValue.class,
     LKQLTuple.class,
-    ListValue.class,
+    LKQLList.class,
     LazyListValue.class,
     SelectorListValue.class,
     LazyCollection.class,

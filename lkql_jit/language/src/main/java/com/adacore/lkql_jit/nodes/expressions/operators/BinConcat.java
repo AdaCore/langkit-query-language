@@ -23,15 +23,20 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.runtime.values.ListValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
+import java.util.Arrays;
 
 /**
  * This node represents the concatenation operation in the LKQL language.
@@ -75,9 +80,21 @@ public abstract class BinConcat extends BinOp {
      * @param right The right list value.
      * @return The result of the list concatenation.
      */
-    @Specialization
-    protected ListValue concatLists(ListValue left, ListValue right) {
-        return new ListValue(ArrayUtils.concat(left.getContent(), right.getContent()));
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected LKQLList concatLists(
+            final LKQLList left,
+            final LKQLList right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        try {
+            final int leftSize = (int) leftLibrary.getArraySize(left);
+            final int rightSize = (int) rightLibrary.getArraySize(right);
+            final Object[] resContent = Arrays.copyOf(left.asArray(), leftSize + rightSize);
+            System.arraycopy(right.asArray(), 0, resContent, leftSize, rightSize);
+            return new LKQLArrayList(resContent);
+        } catch (UnsupportedMessageException e) {
+            throw LKQLRuntimeException.fromJavaException(e, this);
+        }
     }
 
     /**
@@ -88,7 +105,7 @@ public abstract class BinConcat extends BinOp {
      */
     @Fallback
     protected void nonConcatenable(Object left, Object right) {
-        if (LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isListValue(left)) {
+        if (LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isLKQLList(left)) {
             throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.fromJava(left), LKQLTypesHelper.fromJava(right), this);
         } else {

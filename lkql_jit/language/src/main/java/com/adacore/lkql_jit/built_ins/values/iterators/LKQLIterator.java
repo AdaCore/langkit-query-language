@@ -20,35 +20,57 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.functions;
+package com.adacore.lkql_jit.built_ins.values.iterators;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.adacore.lkql_jit.utils.Iterator;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.StopIterationException;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
-/**
- * This class represents the "units" built-in function in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class SpecifiedUnitsFunction {
+/** This class represents an iterator value in the LKQL language. */
+@ExportLibrary(InteropLibrary.class)
+public abstract class LKQLIterator implements TruffleObject, Iterator {
 
-    // ----- Attributes -----
+    // ----- Constructors -----
 
-    /** The name of the built-in. */
-    public static final String NAME = "specified_units";
+    /** The protected constructor. */
+    protected LKQLIterator() {}
 
-    public static BuiltInFunctionValue getValue() {
-        return new BuiltInFunctionValue(
-                NAME,
-                "Return an iterator on units specified by the user",
-                new String[] {},
-                new Expr[] {},
-                (VirtualFrame frame, FunCall call) -> {
-                    return new LKQLArrayList(LKQLLanguage.getContext(call).getSpecifiedUnits());
-                });
+    // ----- Iterator required methods -----
+
+    /** Get whether the iterator has a next element. */
+    public abstract boolean hasNext();
+
+    /** Get the next element and move the cursor forward. */
+    public abstract Object next();
+
+    // ----- Value methods -----
+
+    /** Tell the interop library that the value is an iterator. */
+    @ExportMessage
+    public boolean isIterator() {
+        return true;
+    }
+
+    /** Get if the iterator has a next element. */
+    @ExportMessage
+    public boolean hasIteratorNextElement() {
+        return this.hasNext();
+    }
+
+    /**
+     * Get the next element of the iterator.
+     *
+     * @throws StopIterationException If there is no next element.
+     */
+    @ExportMessage
+    public Object getIteratorNextElement() throws StopIterationException {
+        try {
+            return this.next();
+        } catch (IndexOutOfBoundsException e) {
+            throw StopIterationException.create(e);
+        }
     }
 }

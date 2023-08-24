@@ -25,11 +25,12 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
@@ -137,9 +138,9 @@ public final class Query extends Expr {
             }
 
             // Else, if the "from" is a list of node
-            else if (LKQLTypeSystemGen.isListValue(fromObject)) {
+            else if (LKQLTypeSystemGen.isLKQLList(fromObject)) {
                 // Verify the content of the list
-                ListValue fromList = LKQLTypeSystemGen.asListValue(fromObject);
+                LKQLList fromList = LKQLTypeSystemGen.asLKQLList(fromObject);
                 fromNodes = new Libadalang.AdaNode[(int) fromList.size()];
                 for (int i = 0; i < fromList.size(); i++) {
                     try {
@@ -174,7 +175,7 @@ public final class Query extends Expr {
             }
 
             // Return the result list value
-            return new ListValue(resNodes.toArray(new Libadalang.AdaNode[0]));
+            return new LKQLArrayList(resNodes.toArray(new Libadalang.AdaNode[0]));
         }
 
         // If the query mode is first

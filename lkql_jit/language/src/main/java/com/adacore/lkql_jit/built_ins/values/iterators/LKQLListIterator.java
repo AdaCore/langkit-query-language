@@ -20,35 +20,43 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.functions;
+package com.adacore.lkql_jit.built_ins.values.iterators;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
-import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 
-/**
- * This class represents the "units" built-in function in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class SpecifiedUnitsFunction {
+/** This class represents an iterator on a list in the LKQL language. */
+public final class LKQLListIterator extends LKQLIterator {
 
-    // ----- Attributes -----
+    // ----- Instance attributes -----
 
-    /** The name of the built-in. */
-    public static final String NAME = "specified_units";
+    /** The list to iterate on. */
+    private final LKQLList list;
 
-    public static BuiltInFunctionValue getValue() {
-        return new BuiltInFunctionValue(
-                NAME,
-                "Return an iterator on units specified by the user",
-                new String[] {},
-                new Expr[] {},
-                (VirtualFrame frame, FunCall call) -> {
-                    return new LKQLArrayList(LKQLLanguage.getContext(call).getSpecifiedUnits());
-                });
+    /** The cursor to the next element to return. */
+    private int cursor;
+
+    // ----- Constructors -----
+
+    /** Create a new list iterator with the iterated list. */
+    public LKQLListIterator(final LKQLList list) {
+        this.list = list;
+        this.cursor = 0;
+    }
+
+    // ----- Iterator required methods -----
+
+    @Override
+    public boolean hasNext() {
+        return this.cursor < this.list.size();
+    }
+
+    @Override
+    public Object next() {
+        return this.list.get(this.cursor++);
+    }
+
+    @Override
+    public void reset() {
+        this.cursor = 0;
     }
 }

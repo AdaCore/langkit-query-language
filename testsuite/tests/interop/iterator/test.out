@@ -1,0 +1,9 @@
+=== List interop messages:
+  toString() (list): [1, "Hello", [1, 2]]
+  hasIterator(): true
+  isIterator(): true
+  hasIteratorNextElement(): true
+  iterator elements:
+    - 1
+    - Hello
+    - [1, 2]

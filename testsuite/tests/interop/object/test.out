@@ -7,3 +7,4 @@
   getMember('x'): 42
   getMember('y'): Hello
   getMember('z'): null
+  getMemberKeys(): [x, y]

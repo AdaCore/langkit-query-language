@@ -25,6 +25,6 @@ public class Main {
         print("hasMember('y')", namespace.hasMember("y"));
         print("getMember('x')", namespace.getMember("x"));
         print("getMember('y')", namespace.getMember("y"));
-        // TODO (LATER IN MR): Call "getMemberKeys" when list values are interop
+        print("getMemberKeys()", namespace.getMemberKeys());
     }
 }

@@ -24,12 +24,12 @@ package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -78,9 +78,9 @@ public final class ReflectionUtils {
 
         // If the required type is a unit array
         else if (type.equals(Libadalang.AnalysisUnitArray.class)) {
-            ListValue resList;
+            LKQLList resList;
             try {
-                resList = LKQLTypeSystemGen.expectListValue(res);
+                resList = LKQLTypeSystemGen.expectLKQLList(res);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
