@@ -1,0 +1,7 @@
+with "otherlib/static_lib.gpr";
+project Shared_Lib is
+   for Library_Dir use "lib";
+   for Library_Name use "sharedlib";
+   for Library_Kind use "dynamic";
+end Shared_Lib;
+
