@@ -159,6 +159,16 @@ library.
 
     Return ``true`` if ``n`` is the name of a numeric type or subtype in Standard
 
+.. function:: is_unchecked_conversion(node)
+
+    Return true if node represents an instantiation of the
+    `Ada.Unchecked_Conversion` subprogram
+
+.. function:: is_unchecked_deallocation(node)
+
+    Return true if node represents an instantiation of the
+    `Ada.Unchecked_Deallocation` subprogram
+
 .. function:: list_of_units()
 
     Return a (cached) list of all known units
@@ -225,6 +235,11 @@ library.
     consider all kinds of nodes, otherwise consider only BaseId and
     DottedName. If strip_component is true, go to the prefix when
     encountering a component, otherwise stop at the ComponentDecl.
+
+.. function:: ultimate_designated_generic_subp(subp_inst)
+
+    Given a node representing an instantiation of a generic subprogram,
+    return that non-instantiated subprogram after resolving all renamings.
 
 .. function:: ultimate_exception_alias(name)
 
