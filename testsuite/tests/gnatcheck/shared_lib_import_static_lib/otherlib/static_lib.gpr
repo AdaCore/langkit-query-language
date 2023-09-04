@@ -1,0 +1,5 @@
+project Static_Lib is
+   for Library_Dir use "lib";
+   for Library_Name use "staticlib";
+   for Library_Kind use "static";
+end Static_Lib;

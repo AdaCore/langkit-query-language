@@ -603,6 +603,7 @@ package body Gnatcheck.Projects is
            (if Subdir_Name = null then
                  No_Name
             else Name_Type (Subdir_Name.all)),
+         Check_Shared_Lib  => False,
          Target            => Optional_Name_Type (Target.all),
          Language_Runtimes => RTS,
          Base => KB);

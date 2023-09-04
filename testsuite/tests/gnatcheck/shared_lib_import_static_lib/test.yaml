@@ -1,0 +1,5 @@
+format: brief
+driver: gnatcheck
+project: shared_lib.gpr
+rules:
+  - +Rpredefined_numeric_types
