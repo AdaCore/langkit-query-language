@@ -10,18 +10,18 @@ package body Enumeration_Ranges_In_Case_Statements is
             I := I + 1;
          when D .. E =>      --  FLAG
             null;
-         when F | G =>       --  NO FLAG
+         when F | G =>       --  NOFLAG
             null;
-         when others =>      --  NO FLAG
+         when others =>      --  NOFLAG
             null;
       end case;
 
       case I is
-         when S =>   -- NO FLAG
+         when S =>   --  NOFLAG
             return;
-         when 11 .. 20 =>   -- NO FLAG
+         when 11 .. 20 =>   --  NOFLAG
             return;
-         when others =>      --  NO FLAG
+         when others =>      --  NOFLAG
             null;
       end case;
    end Bar;

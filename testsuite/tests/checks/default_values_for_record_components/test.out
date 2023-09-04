@@ -1,8 +1,8 @@
 default_values_for_record_components.ads:3:7: rule violation: default value for record component
-3 |       I : Integer := 0;                    -- FLAG
+3 |       I : Integer := 0;                    --  FLAG
   |       ^
 
 default_values_for_record_components.ads:8:13: rule violation: default value for record component
-8 |             C : Character := 'A';          -- FLAG
+8 |             C : Character := 'A';          --  FLAG
   |             ^
 

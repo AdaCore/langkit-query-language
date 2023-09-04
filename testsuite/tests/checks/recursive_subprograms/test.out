@@ -55,7 +55,7 @@ recursive_subprograms-generics.ads:55:16: rule violation: recursive subprogram
    |                ^^
 
 pkg_g-foo.adb:3:14: rule violation: recursive subprogram
-3 |    procedure Rec is
+3 |    procedure Rec is  --  FLAG
   |              ^^^
 
 expr_p.adb:3:13: rule violation: recursive subprogram

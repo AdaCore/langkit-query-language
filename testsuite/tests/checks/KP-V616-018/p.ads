@@ -4,13 +4,13 @@ package P is
    type Access_To_Array is access String;
 
    type Parent is tagged record
-      F0 : Access_To_Array;  -- NO FLAG
+      F0 : Access_To_Array;  --  NOFLAG
    end record;
 
    type Child is new Parent with record
-      F1 : Integer;          -- NO FLAG
-      F2 : Access_To_Array;  -- FLAG
-      F3 : access String;    -- FLAG
+      F1 : Integer;          --  NOFLAG
+      F2 : Access_To_Array;  --  FLAG
+      F3 : access String;    --  FLAG
    end record;
 
    generic

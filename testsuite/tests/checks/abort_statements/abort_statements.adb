@@ -7,7 +7,7 @@ package body Abort_Statements is
 
    procedure Do_Abort is
    begin
-      abort T; -- FLAG
+      abort T; --  FLAG
    end Do_Abort;
 
 end Abort_Statements;

@@ -15,6 +15,6 @@ num.ads:10:12: rule violation: reference to predefined type
    |            ^^^^^^^^^^^^
 
 num.ads:14:29: rule violation: reference to predefined type
-14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; --  FLAG
    |                             ^^^^^^^
 

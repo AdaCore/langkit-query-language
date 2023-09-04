@@ -1,12 +1,12 @@
 ascii.ads:1:1: rule violation: non printable ASCII character
-1 | --  invalid	comment
-  | ^^^^^^^^^^^^^^^^^^^^^^^
+1 | --  invalid	comment          --  FLAG
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ascii.ads:3:4: rule violation: non printable ASCII character
-3 |    Non_ASCII_é : Integer;   --  FLAG
+3 |    Non_ASCII_é : Integer;        --  FLAG
   |    ^^^^^^^^^^^
 
 ascii.ads:4:4: rule violation: non printable ASCII character
-4 |    --  another invalidcomment
-  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 |    --  another invalidcomment  --  FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

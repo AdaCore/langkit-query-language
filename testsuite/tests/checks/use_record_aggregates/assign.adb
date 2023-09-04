@@ -13,12 +13,12 @@ procedure Assign is
 begin
    null;
    O1.Comp1 := 1;   --  FLAG
-   O1.Comp2 := 1;   --  NO FLAG (flag only first assignment)
+   O1.Comp2 := 1;   --  NOFLAG (flag only first assignment)
 
-   O2.Comp1 := 1;   --  NO FLAG (single component)
+   O2.Comp1 := 1;   --  NOFLAG (single component)
 
    begin
-      O1.Comp1 := 1;   --  NO FLAG (not consecutive assignments on O1)
+      O1.Comp1 := 1;   --  NOFLAG (not consecutive assignments on O1)
       O2.Comp2 := 1;
       O1.Comp2 := 1;
    end;
@@ -26,17 +26,17 @@ begin
    begin
       null;
       O3.Comp1 := 1;   --  FLAG
-      O3.Comp2 := 1;   --  NO FLAG
+      O3.Comp2 := 1;   --  NOFLAG
    end;
 
    begin
-      O3.Comp1 := 1;   --  NO FLAG
+      O3.Comp1 := 1;   --  NOFLAG
 
       if True then
          null;
       end if;
 
-      O3.Comp2 := 1;   --  NO FLAG
+      O3.Comp2 := 1;   --  NOFLAG
    end;
 
    declare
@@ -51,11 +51,11 @@ begin
       Discr : Rec_Discr (1);
       Obj   : Rec_Tagged;
    begin
-      Discr.A := 1;   --  NO FLAG (discriminants)
-      Discr.B := 1;   --  NO FLAG
+      Discr.A := 1;   --  NOFLAG (discriminants)
+      Discr.B := 1;   --  NOFLAG
 
-      Obj.A := 1;   --  NO FLAG (tagged)
-      Obj.B := 1;   --  NO FLAG
+      Obj.A := 1;   --  NOFLAG (tagged)
+      Obj.B := 1;   --  NOFLAG
    end
 
    declare
@@ -70,7 +70,7 @@ begin
       Obj1, Obj2 : Rec;
 
    begin
-      Obj1.L.Next := 0;   --  NO FLAG
-      Obj2.L.Prev := 0;   --  NO FLAG
+      Obj1.L.Next := 0;   --  NOFLAG
+      Obj2.L.Prev := 0;   --  NOFLAG
    end;
 end Assign;

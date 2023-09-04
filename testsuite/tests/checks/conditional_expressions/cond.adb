@@ -3,8 +3,8 @@ procedure Cond (I, J : Integer) is
    Var2 : Integer := I + J;
 
    function F (B : Boolean) return Boolean is (B)
-     with Pre'Class => (if B then False); --  FLAG unless Except_Assertions
+     with Pre'Class => (if B then False); --  NOFLAG because of Except_Assertions
 
 begin
-   pragma Assert (if I = 0 then False);   --  FLAG unless Except_Assertions
+   pragma Assert (if I = 0 then False);   --  NOFLAG because of Except_Assertions
 end Cond;

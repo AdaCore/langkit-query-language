@@ -1,12 +1,88 @@
 import os
 import os.path as P
+import re
+import xml.etree.ElementTree as ET
 
 from e3.testsuite.driver.diff import (
     ReplacePath,
     Substitute,
+    OutputRefiner,
 )
 
-from support.base_driver import BaseDriver
+from drivers.base_driver import BaseDriver, Flags
+
+
+# --- GNATcheck output parsing functions
+
+_flag_line_pattern = re.compile(
+    r"^([a-zA-Z][a-zA-Z0-9_\.\-]*\.(adb|ads|ada|ada_spec)):(\d+):\d+: .*$"
+)
+
+def _parse_full(output: str) -> Flags:
+    """
+    Parse the full formatted gnatcheck output.
+    """
+    # Prepare the result
+    res = Flags()
+
+    # Parse the gnatcheck full output
+    is_parsing = False
+    for line in output.splitlines():
+        if not is_parsing:
+            is_parsing = "2. Exempted Coding Standard Violations" in line
+        else:
+            search_result = _flag_line_pattern.search(line)
+            if search_result is not None:
+                (file, _, line_num) = search_result.groups()
+                res.add_flag(file, int(line_num))
+            is_parsing = "5. Language violations" not in line
+
+    # Return the result
+    return res
+
+def _parse_short_and_brief(output: str) -> Flags:
+    """
+    Parse the short formatted gnatcheck output.
+    """
+    # Prepare the result
+    res = Flags()
+
+    # Parse the output
+    for line in output.splitlines():
+        search_result = _flag_line_pattern.search(line)
+        if search_result is not None:
+            (file, _, line_num) = search_result.groups()
+            res.add_flag(file, int(line_num))
+
+    # Return the result
+    return res
+
+def _parse_xml(output: str) -> Flags:
+    """
+    Parse the xml formatted gnatcheck output.
+    """
+    # Prepare the result
+    res = Flags()
+
+    # Parse the xml result
+    xml_tree = ET.fromstring(output)
+    violations = xml_tree.find("violations")
+
+    # If the "violations" tag exists in the output, parse it as a full XML output
+    if violations is not None:
+        for violation in violations:
+            file, line_num = violation.attrib["file"], int(violation.attrib["line"])
+            res.add_flag(file, line_num)
+
+    # Else the ouput is a brief XML one
+    else:
+        for elem in xml_tree.findall("*"):
+            if elem.tag in ("violation", "exemption-problem", "exempted-violation"):
+                file, line_num = elem.attrib["file"], int(elem.attrib["line"])
+                res.add_flag(file, line_num)
+
+    # Return the result
+    return res
 
 
 class GnatcheckDriver(BaseDriver):
@@ -64,19 +140,26 @@ class GnatcheckDriver(BaseDriver):
           before/after the test
 
     .. NOTE:: In practice, the above allows several different ways to express
-        the same test, which is not ideal. It was necessary to transition
+        the same test, which dis not ideal. It was necessary to transition
         painlessly existing bash tests.
     """
 
     perf_supported = True
+    flag_checking_supported = True
 
     modes = {
         "gnatcheck": "gnatcheck",
         "gnatkp": "gnatkp"
     }
     output_formats = set(['brief', 'full', 'short', 'xml'])
+    parsers = {
+        'full': _parse_full,
+        'short': _parse_short_and_brief,
+        'brief': _parse_short_and_brief,
+        'xml': _parse_xml
+    }
 
-    def run(self):
+    def run(self) -> None:
         gnatcheck_env = dict(os.environ)
 
         # Here we don't want to pollute the LKQL_RULES_PATH with this
@@ -96,6 +179,9 @@ class GnatcheckDriver(BaseDriver):
         if global_python:
             exec(global_python, globs, locs)
 
+        # Prepare the execution flagged lines as an empty object
+        flagged_lines = Flags()
+
         def capture_exec_python(code: str) -> None:
             """
             Execute the python code, and capture it's output. Add it to the
@@ -111,7 +197,7 @@ class GnatcheckDriver(BaseDriver):
             self.output += f.getvalue()
             os.chdir(cwd)
 
-        def run_one_test(test_data):
+        def run_one_test(test_data: dict[str, any]) -> None:
             output_format = test_data.get('format', 'full')
             assert output_format in GnatcheckDriver.output_formats
             brief = output_format == 'brief'
@@ -169,24 +255,35 @@ class GnatcheckDriver(BaseDriver):
                 if label:
                     self.output += label + "\n" + ("=" * len(label)) + "\n\n"
 
-                p = self.shell(args, catch_error=False, env=gnatcheck_env)
+                p = self.shell(args, env=gnatcheck_env, catch_error=False, analyze_output=False)
 
+                # Get the GNATcheck execution output
+                exec_output = p.out
                 if output_format in ['full', 'short']:
                     with open(
                         P.join(self.test_env["working_dir"], "gnatcheck.out")
                     ) as f:
                         if output_format == 'short':
-                            self.output += f.read()
+                            exec_output += f.read()
                         else:
                             # Strip the 10 first lines of the report, which contain
                             # run-specific information that we don't want to
                             # include in the test baseline.
-                            self.output += "".join(f.readlines()[9:])
+                            exec_output += "".join(f.readlines()[9:])
                 elif output_format == 'xml':
                     with open(
                         P.join(self.test_env["working_dir"], "gnatcheck.xml")
                     ) as f:
-                        self.output += f.read()
+                        exec_output += f.read()
+
+                # Get the execution flagged lines and add it to the global flags
+                if self.flag_checking:
+                    flagged_lines.add_other_flags(
+                        self.parse_flagged_lines(exec_output, output_format)
+                    )
+
+                # Add the execution output to the test output
+                self.output += exec_output
 
                 if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
                     self.output += ">>>program returned status code {}\n".format(p.status)
@@ -208,9 +305,17 @@ class GnatcheckDriver(BaseDriver):
         else:
             run_one_test(self.test_env)
 
+        # Check the execution flagged lines
+        if self.flag_checking:
+            self.check_flags(flagged_lines)
+
     @property
-    def output_refiners(self):
+    def output_refiners(self) -> list[OutputRefiner]:
         result = super().output_refiners + [ReplacePath(self.working_dir())]
         if self.test_env.get("canonicalize_backslashes", False):
             result.append(Substitute("\\", "/"))
         return result
+
+    def parse_flagged_lines(self, output: str, format: str) -> Flags:
+        assert format in self.output_formats
+        return self.parsers[format](output)

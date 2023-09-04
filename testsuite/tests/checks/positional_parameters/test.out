@@ -1,17 +1,17 @@
 pos.adb:33:10: rule violation: positional parameter association
-33 |    T.E1 (10, 11);                       --  FLAG twice
+33 |    T.E1 (10, 11);                       --  FLAG (2)
    |          ^^
 
 pos.adb:33:14: rule violation: positional parameter association
-33 |    T.E1 (10, 11);                       --  FLAG twice
+33 |    T.E1 (10, 11);                       --  FLAG (2)
    |              ^^
 
 pos.adb:37:15: rule violation: positional parameter association
-37 |    I := Fun2 (J, K);                    --  FLAG twice
+37 |    I := Fun2 (J, K);                    --  FLAG (2)
    |               ^
 
 pos.adb:37:18: rule violation: positional parameter association
-37 |    I := Fun2 (J, K);                    --  FLAG twice
+37 |    I := Fun2 (J, K);                    --  FLAG (2)
    |                  ^
 
 pos.adb:38:23: rule violation: positional parameter association

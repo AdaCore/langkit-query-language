@@ -1,5 +1,5 @@
-with A;
+with A;  --  FLAG
 
-package P is   --  FLAG
+package P is
    procedure Proc;
 end P;

@@ -7,6 +7,6 @@ deeply_nested_generics.ads:12:15: rule violation: deeply nested generic (1)
    |               ^^^^^
 
 deeply_nested_generics.ads:14:18: rule violation: deeply nested generic (2)
-14 |          package P_G_2 is -- FLAG (depth=2)
+14 |          package P_G_2 is --  FLAG (depth=2)
    |                  ^^^^^
 

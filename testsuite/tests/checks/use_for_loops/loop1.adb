@@ -14,7 +14,7 @@ begin
    declare
       I : Integer := 1;
    begin
-      while I < 10 loop           --  NO FLAG
+      while I < 10 loop           --  NOFLAG
          begin
             I := I + 1;
          end;

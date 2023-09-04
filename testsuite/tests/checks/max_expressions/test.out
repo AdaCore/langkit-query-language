@@ -11,10 +11,10 @@ statements.adb:9:9: rule violation: expression has too many sub-expressions (2)
   |         ^^^^^
 
 statements.adb:10:9: rule violation: expression has too many sub-expressions (10)
-10 |    I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);   --  FLAG (twice) if N < 5
+10 |    I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);      --  FLAG (2) if N < 5
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 statements.adb:10:13: rule violation: expression has too many sub-expressions (5)
-10 |    I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);   --  FLAG (twice) if N < 5
+10 |    I := F5 (1 + 2 + 3 + 4 + 5, 2, 3, 4, 5);      --  FLAG (2) if N < 5
    |             ^^^^^^^^^^^^^^^^^
 

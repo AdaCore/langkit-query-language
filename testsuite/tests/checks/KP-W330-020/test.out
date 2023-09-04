@@ -1,8 +1,8 @@
 p.ads:13:25: rule violation: possible occurrence of KP W330-020
-13 |   X : System.Address := Data'Address;   -- FLAG
+13 |   X : System.Address := Data'Address;   --  FLAG
    |                         ^^^^^^^^^^^^
 
 p.ads:15:25: rule violation: possible occurrence of KP W330-020
-15 |   Z : System.Address := Data2'Address;  -- FLAG
+15 |   Z : System.Address := Data2'Address;  --  FLAG
    |                         ^^^^^^^^^^^^^
 

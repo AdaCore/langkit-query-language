@@ -1,9 +1,9 @@
 package body Goto_Statements is
 
-   
+
    procedure P is
    begin
-      goto A;
+      goto A;  --  FLAG
       <<A>>
    end P;
 

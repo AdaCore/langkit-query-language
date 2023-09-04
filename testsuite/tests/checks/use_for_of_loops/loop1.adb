@@ -12,7 +12,7 @@ begin
       Str (J) := ' ';
    end loop;
 
-   for J in Str'Range loop    --  NO FLAG
+   for J in Str'Range loop    --  NOFLAG
       exit when J > 1;
    end loop;
 end Loop1;

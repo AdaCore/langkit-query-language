@@ -1,4 +1,4 @@
 package A is
-   --#FLAG
-   --#  FLAG
+   --#--  FLAG
+   --#  --  FLAG
 end A;

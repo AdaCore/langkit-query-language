@@ -3,15 +3,15 @@ package Anon is
    type Acc is access Integer;
 
    A : array (1 .. 10) of Integer;  --  FLAG
-   B : Arr;                         --  NO FLAG
+   B : Arr;                         --  NOFLAG
 
    C : access Integer;              --  FLAG
-   D : Acc;                         --  NO FLAG
+   D : Acc;                         --  NOFLAG
 
    generic
       F1 : access Integer;          --  FLAG
-      F2 : Acc;                     --  NO FLAG
+      F2 : Acc;                     --  NOFLAG
    procedure Proc_G
-     (P1 : access Integer;          --  NO FLAG
-      P2 : Acc);                    --  NO FLAG
+     (P1 : access Integer;          --  NOFLAG
+      P2 : Acc);                    --  NOFLAG
 end Anon;

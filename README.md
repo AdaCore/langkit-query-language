@@ -52,3 +52,26 @@ cd testsuite
 # Run the testsuite, keep the temp results in tmp
 python testsuite.py -dtmp
 ```
+
+### Adding a test
+
+To add a test case in the testsuite you must follow the e3-testsuite standard. Moreover
+you have to annotate Ada flagged lines when using `checker` and `gnatcheck` drivers.
+To annotate an Ada line as flagged you must follow this syntax:
+
+```ada
+   My_Function (My_Arg);  -- FLAG This line should be flagged by the test case
+```
+
+If a line is flagged multiple times by the test case you can use this syntax:
+
+```ada
+   My_Other_Function;  -- FLAG (2) This line should be flagged two times
+```
+
+If you want to ensure a line is not flagged by the test case you can use the `NOFLAG`
+annotation:
+
+```ada
+   Not_Flagged (My_Arg);  -- NOFLAG
+```

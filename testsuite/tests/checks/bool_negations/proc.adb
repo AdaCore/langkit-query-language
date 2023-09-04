@@ -1,5 +1,5 @@
 procedure Proc (Buffer_Length : Integer) is
-   Is_Data_Available : Boolean := Buffer_Length > 0;   --  NO FLAG
+   Is_Data_Available : Boolean := Buffer_Length > 0;   --  NOFLAG
 begin
    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
 

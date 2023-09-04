@@ -35,28 +35,28 @@ Simple_Cases:
 
       R1, R2 : By_Ref;
    begin
-      Proc_CC (I, I);                         -- FLAG
-      Proc_CCC (I, I, I);                     -- NO FLAG (by copy type)
-      Proc_RRR (R1, R1, R1);                  -- FLAG
-      Proc_CC (I, J);                         -- NO FLAG
-      Proc_CCC(I,  J,  J);                    -- NO FLAG
-      Proc_RRR(R1, R2, R2);                   -- NO FLAG
-      Proc_CCC(I,  I,  J);                    -- NO FLAG (by copy type)
-      Proc_RRR(R1, R1, R2);                   -- FLAG
-      Proc_CC3(    I,  J,  I);                -- NO FLAG (by copy type)
-      Proc_RR3(   R1, R2, R1);                -- FLAG
-      Proc_CC2(J+1, J);                       -- NO FLAG
-      Proc_CC (X => I, Y => J);               -- NO FLAG
-      Proc_CC (X => Simple_Cases.I, Y => I);  -- FLAG
+      Proc_CC (I, I);                         --  FLAG
+      Proc_CCC (I, I, I);                     --  NOFLAG (by copy type)
+      Proc_RRR (R1, R1, R1);                  --  FLAG
+      Proc_CC (I, J);                         --  NOFLAG
+      Proc_CCC(I,  J,  J);                    --  NOFLAG
+      Proc_RRR(R1, R2, R2);                   --  NOFLAG
+      Proc_CCC(I,  I,  J);                    --  NOFLAG (by copy type)
+      Proc_RRR(R1, R1, R2);                   --  FLAG
+      Proc_CC3(    I,  J,  I);                --  NOFLAG (by copy type)
+      Proc_RR3(   R1, R2, R1);                --  FLAG
+      Proc_CC2(J+1, J);                       --  NOFLAG
+      Proc_CC (X => I, Y => J);               --  NOFLAG
+      Proc_CC (X => Simple_Cases.I, Y => I);  --  FLAG
 
-      Proc_CC (I, By_Copy(I));                -- FLAG
+      Proc_CC (I, By_Copy(I));                --  FLAG
 
-      Proc_CC (I, Alias1);                    -- FLAG
-      Proc_CC (Pack1.X, Pack2.X);             -- FLAG
+      Proc_CC (I, Alias1);                    --  FLAG
+      Proc_CC (Pack1.X, Pack2.X);             --  FLAG
 
-      Result := Func_CC (I, I);                         -- FLAG
-      Result := Func_CC (X => Simple_Cases.I, Y => I);  -- FLAG
-      Result := Func_CC (I, J);                         -- NO FLAG
+      Result := Func_CC (I, I);                         --  FLAG
+      Result := Func_CC (X => Simple_Cases.I, Y => I);  --  FLAG
+      Result := Func_CC (I, J);                         --  NOFLAG
    end Simple_Cases;
 
 Selectors:
@@ -80,21 +80,21 @@ Selectors:
       Alias2 : Rec2 renames R1;
       Alias3 : Rec1 renames Alias2.K;
    begin
-      Proc_CC (R1.I, R1.I);                   -- FLAG
-      Proc_CC (R1.I, R1.J);                   -- NO FLAG
-      Proc_CC (R1.I, R2.I);                   -- NO FLAG
+      Proc_CC (R1.I, R1.I);                   --  FLAG
+      Proc_CC (R1.I, R1.J);                   --  NOFLAG
+      Proc_CC (R1.I, R2.I);                   --  NOFLAG
 
-      Proc_R2C (R1,     R1.I);                -- FLAG
-      Proc_R2C (R1,     R1.K.I);              -- FLAG
-      Proc_R2C (R1,     R1.K.J);              -- FLAG
-      Proc_R2C (Alias2, R1.K.J);              -- FLAG
-      Proc_R2C (R1,     Alias2.K.J);          -- FLAG
-      Proc_R2C (R1,     Alias3.J);            -- FLAG
-      Proc_R2C (Alias2, Alias2.K.J);          -- FLAG
+      Proc_R2C (R1,     R1.I);                --  FLAG
+      Proc_R2C (R1,     R1.K.I);              --  FLAG
+      Proc_R2C (R1,     R1.K.J);              --  FLAG
+      Proc_R2C (Alias2, R1.K.J);              --  FLAG
+      Proc_R2C (R1,     Alias2.K.J);          --  FLAG
+      Proc_R2C (R1,     Alias3.J);            --  FLAG
+      Proc_R2C (Alias2, Alias2.K.J);          --  FLAG
 
-      Proc_R1C (Alias3, Alias3.J);            -- FLAG
-      Proc_R1C (R1.K, R1.K.J);                -- FLAG
-      Proc_R1C (R1.L, R1.K.J);                -- NO FLAG
+      Proc_R1C (Alias3, Alias3.J);            --  FLAG
+      Proc_R1C (R1.K, R1.K.J);                --  FLAG
+      Proc_R1C (R1.L, R1.K.J);                --  NOFLAG
    end Selectors;
 
 Indexing:
@@ -110,14 +110,14 @@ Indexing:
       Tab2 : array (Enum) of By_Copy;
       E : Enum;
    begin
-      Proc_SC (X.S,               X.S(I));            -- FLAG
-      Proc_CC (X.S(3),            X.S(4));            -- NO FLAG (static indexing)
-      Proc_CC (X.S(3),            X.S(10#3#));        -- FLAG
-      Proc_CC (Tab2 (A),          Tab2 (B));          -- NO FLAG (static indexing)
-      Proc_CC (Tab2 (Indexing.A), Tab2 (Indexing.B)); -- NO FLAG (static indexing)
-      Proc_CC (Tab2 (A),          Tab2 (a));          -- FLAG
-      Proc_SC (Tab1(I).S,         Tab1(J).S(3));      -- NO FLAG (potential aliasing)
-      Proc_SC (Tab1(I).S(3..5),   Tab1(J).S(J));      -- NO FLAG (potential aliasing)
+      Proc_SC (X.S,               X.S(I));            --  FLAG
+      Proc_CC (X.S(3),            X.S(4));            --  NOFLAG (static indexing)
+      Proc_CC (X.S(3),            X.S(10#3#));        --  FLAG
+      Proc_CC (Tab2 (A),          Tab2 (B));          --  NOFLAG (static indexing)
+      Proc_CC (Tab2 (Indexing.A), Tab2 (Indexing.B)); --  NOFLAG (static indexing)
+      Proc_CC (Tab2 (A),          Tab2 (a));          --  FLAG
+      Proc_SC (Tab1(I).S,         Tab1(J).S(3));      --  NOFLAG (potential aliasing)
+      Proc_SC (Tab1(I).S(3..5),   Tab1(J).S(J));      --  NOFLAG (potential aliasing)
    end Indexing;
 
 Dereferences:
@@ -142,9 +142,9 @@ Dereferences:
       B : Acc renames R.A;
       C : Acc := R.S'Access;
    begin
-      Proc_SC (A.all,   A(3));                      -- FLAG
-      Proc_SC (B.all,   R.A(3));                    -- FLAG
-      Proc_SC (R.A.all, R.A(3));                    -- FLAG
+      Proc_SC (A.all,   A(3));                      --  FLAG
+      Proc_SC (B.all,   R.A(3));                    --  FLAG
+      Proc_SC (R.A.all, R.A(3));                    --  FLAG
    end Dereferences;
 
 Dispatching:
@@ -162,8 +162,8 @@ Dispatching:
       Z : T'Class := Y;
    begin
       Proc_T (Y, Z);
-      Proc_T (Y, Y);                          -- FLAG
-      Proc_T (A => Y, B => Y);                -- FLAG
+      Proc_T (Y, Y);                          --  FLAG
+      Proc_T (A => Y, B => Y);                --  FLAG
    end Dispatching;
 
 Dispatching2:
@@ -182,8 +182,8 @@ Dispatching2:
       procedure P1 (X, Y : in out By_Copy) is null;
 
    begin
-      P1 (VT.I, VT.I);                        -- FLAG
-      P1 (VTA.I, VTA.I);                      -- FLAG
-      P1 (VTAC.I, VTAC.I);                    -- FLAG
+      P1 (VT.I, VT.I);                        --  FLAG
+      P1 (VTA.I, VTA.I);                      --  FLAG
+      P1 (VTAC.I, VTAC.I);                    --  FLAG
    end Dispatching2;
 end Params3;

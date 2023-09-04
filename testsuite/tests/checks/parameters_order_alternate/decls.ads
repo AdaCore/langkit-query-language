@@ -1,5 +1,5 @@
 package Decls is
-    procedure Proc_Valid   --  NO FLAG
+    procedure Proc_Valid   --  NOFLAG
       (A : Boolean;
        B : Boolean := True;
        C : in out Integer;

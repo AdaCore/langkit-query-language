@@ -7,11 +7,11 @@ begin
       null;
    end if;
 
-   if Flag_1 <= Flag_2 then     --  NO FLAG: user defined
+   if Flag_1 <= Flag_2 then     --  NOFLAG: user defined
       null;
    end if;
 
-   if Boolean'Pos (Flag_1) < Boolean'Pos (Flag_2) then    --  NO FLAG
+   if Boolean'Pos (Flag_1) < Boolean'Pos (Flag_2) then    --  NOFLAG
       null;
    end if;
 

@@ -1,5 +1,5 @@
 p-sep.adb:1:1: rule violation: separate unit
-1 |  separate(P)
+1 |  separate(P)  --  FLAG
   | _^
   ||
   || ~~~ 3 other lines ~~~

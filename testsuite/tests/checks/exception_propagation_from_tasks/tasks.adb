@@ -15,7 +15,7 @@ procedure Tasks is
       when Constraint_Error => null;
    end T2;
 
-   task body T2 is  --  NO FLAG
+   task body T2 is  --  NOFLAG
    begin
       null;
    exception

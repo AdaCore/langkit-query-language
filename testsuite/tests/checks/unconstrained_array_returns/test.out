@@ -1,5 +1,5 @@
 generics.ads:6:13: rule violation: function returns unconstrained array
-6 |    function Image (X : Integer) return String;   --  will FLAG in instances
+6 |    function Image (X : Integer) return String;   --  FLAG 
   |             ^^^^^
 
 generics.ads:12:15: rule violation: function returns unconstrained array
@@ -7,34 +7,34 @@ generics.ads:12:15: rule violation: function returns unconstrained array
    |               ^^^
 
 generics.adb:32:16: rule violation: function returns unconstrained array
-32 |       function Local_Blank return String;  -- will FLAG in instances
+32 |       function Local_Blank return String;  --  FLAG
    |                ^^^^^^^^^^^
 
 generics.adb:40:16: rule violation: function returns unconstrained array
-40 |       function Local_Image (X : Integer) return String is  -- will FLAG in instances
+40 |       function Local_Image (X : Integer) return String is  --  FLAG
    |                ^^^^^^^^^^^
 
 straight.adb:9:13: rule violation: function returns unconstrained array
-9 |    function Blank return String is  -- FLAG
+9 |    function Blank return String is  --  FLAG
   |             ^^^^^
 
 straight.adb:37:16: rule violation: function returns unconstrained array
-37 |       function My_Image (X : Integer) return String;  -- FLAG
+37 |       function My_Image (X : Integer) return String;  --  FLAG
    |                ^^^^^^^^
 
 straight.adb:39:16: rule violation: function returns unconstrained array
-39 |       function My_Blank return String is -- FLAG
+39 |       function My_Blank return String is --  FLAG
    |                ^^^^^^^^
 
 straight.ads:2:13: rule violation: function returns unconstrained array
-2 |    function Image (X : Integer) return String;  -- FLAG
+2 |    function Image (X : Integer) return String;  --  FLAG
   |             ^^^^^
 
 stub.adb:5:13: rule violation: function returns unconstrained array
-5 |    function Subp1 (I : Integer) return String; -- FLAG
+5 |    function Subp1 (I : Integer) return String; --  FLAG
   |             ^^^^^
 
 stub.adb:8:13: rule violation: function returns unconstrained array
-8 |    function Subp2 (I : Integer) return String is separate; -- FLAG
+8 |    function Subp2 (I : Integer) return String is separate; --  FLAG
   |             ^^^^^
 

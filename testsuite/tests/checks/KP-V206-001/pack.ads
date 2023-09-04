@@ -8,7 +8,7 @@ package Pack is
    package Conversions is new System.Address_To_Access_Conversions  --  FLAG
      (Object => I1'Class);
 
-   package Conv2 is new System.Address_To_Access_Conversions  --  NO FLAG
+   package Conv2 is new System.Address_To_Access_Conversions  --  NOFLAG
      (Object => Tag);
 
 end Pack;

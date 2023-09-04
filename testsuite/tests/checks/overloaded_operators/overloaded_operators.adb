@@ -20,20 +20,20 @@ package body Overloaded_Operators is
 
    --  Function bodies and stubs that have separate specs
 
-   function "+" (L, R : Int) return Int is (1);                --  NO FLAG
+   function "+" (L, R : Int) return Int is (1);                --  NOFLAG
 
-   function "*" (L, R : Int) return Boolean is                 --  NO FLAG
+   function "*" (L, R : Int) return Boolean is                 --  NOFLAG
    begin
       return L + R > 0;
    end "*";
 
-   function "and" (L : Int; R : Boolean) return Boolean is     --  NO FLAG
+   function "and" (L : Int; R : Boolean) return Boolean is     --  NOFLAG
    begin
       return R or (L > 0);
    end "and";
 
    --  Renaming as body:
-   function "not" (L : Char) return Char renames Fun_Char;     --  NO FLAG
+   function "not" (L : Char) return Char renames Fun_Char;     --  NOFLAG
 
    --  Function instantiations:
 
@@ -59,7 +59,7 @@ package body Overloaded_Operators is
                declare
                   function "+" (L, R : Large) return Large;    --  FLAG
 
-                  function "+" (L, R : Large) return Large is  --  NO FLAG
+                  function "+" (L, R : Large) return Large is  --  NOFLAG
                   begin
                      return L * R - L - R;
                   end "+";

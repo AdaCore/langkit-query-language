@@ -1,5 +1,5 @@
 procedure Ident is
-   I : Integer;              --  NO FLAG
+   I : Integer;              --  NOFLAG
    J : String (1 .. 10);     --  FLAG
 
    type T is null record;    --  FLAG

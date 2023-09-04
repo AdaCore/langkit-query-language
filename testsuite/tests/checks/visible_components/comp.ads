@@ -1,8 +1,8 @@
 with Types;
 package Comp is
-   type Null_Record is null record;              --  FLAG unless tagged_only
+   type Null_Record is null record;              --  NOFLAG because tagged_only
 
-   type Not_Null_Record is record                --  FLAG unless tagged_only
+   type Not_Null_Record is record                --  NOFLAG because tagged_only
       I : Integer;
       B : Boolean;
    end record;

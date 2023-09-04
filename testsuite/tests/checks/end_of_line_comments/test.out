@@ -1,6 +1,6 @@
 a.ads:3:18: rule violation: end of line comment
-3 |    I : Integer;  -- FLAG
-  |                  ^^^^^^^
+3 |    I : Integer;  --  FLAG
+  |                  ^^^^^^^^
 
 a.ads:4:9: rule violation: end of line comment
 4 | end A;  --  FLAG

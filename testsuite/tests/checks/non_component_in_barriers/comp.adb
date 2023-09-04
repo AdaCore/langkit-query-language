@@ -26,22 +26,22 @@ procedure Comp is
 
    protected body Obj is
 
-      entry E1 when A (1) is          --  NO FLAG
+      entry E1 when A (1) is          --  NOFLAG
       begin
          Is_Set := False;
       end E1;
 
-      entry E2 when R.C is            --  NO FLAG
+      entry E2 when R.C is            --  NOFLAG
       begin
          Is_Set := True;
       end E2;
 
-      entry E3 when A_R (1).C is      --  NO FLAG
+      entry E3 when A_R (1).C is      --  NOFLAG
       begin
          Is_Set := True;
       end E3;
 
-      entry E4 when R = R1 is      --  NO FLAG
+      entry E4 when R = R1 is      --  NOFLAG
       begin
          Is_Set := True;
       end E4;

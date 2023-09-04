@@ -9,7 +9,7 @@ package Repr is
    type State_Mask    is array (State) of Boolean  --  FLAG
      with Component_Size => 1;
 
-   type State_Mask2 is new State_Mask;             --  NO FLAG
+   type State_Mask2 is new State_Mask;             --  NOFLAG
 
    Var : Integer;                                  --  FLAG
    pragma Volatile (Var);

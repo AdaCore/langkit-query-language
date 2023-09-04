@@ -15,10 +15,10 @@ num.ads:10:12: rule violation: explicit reference to predefined numeric subtype
    |            ^^^^^^^^^^^^
 
 num.ads:14:29: rule violation: explicit reference to predefined numeric subtype
-14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; --  FLAG (2)
    |                             ^^^^^^^
 
 num.ads:14:40: rule violation: explicit reference to predefined numeric subtype
-14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; -- FLAG (twice)
+14 |    Duration_Machine_Radix : Integer := Duration'Machine_Radix; --  FLAG (2)
    |                                        ^^^^^^^^
 

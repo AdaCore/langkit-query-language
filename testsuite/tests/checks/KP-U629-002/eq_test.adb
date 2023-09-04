@@ -16,14 +16,14 @@ procedure Eq_Test is
       end record;
       overriding function Convert
         (Ref : not null access Root'Class) return E1 is
-        (E1 (Ref.all));
+        (E1 (Ref.all));  --  FLAG
 
       type E2 is new E1 with record
          F2 : Integer;
       end record;
       overriding function Convert
         (Ref : not null access Root'Class) return E2 is
-        (E2 (Ref.all));
+        (E2 (Ref.all));  --  FLAG
 
    end Pkg;
    use Pkg;

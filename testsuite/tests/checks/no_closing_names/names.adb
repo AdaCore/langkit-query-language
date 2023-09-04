@@ -4,7 +4,7 @@ package body Names is  --  FLAG
       null;
    end;
 
-   procedure Proc2 is   --  NO FLAG
+   procedure Proc2 is   --  NOFLAG
    begin
       null;
    end Proc2;
@@ -14,7 +14,7 @@ package body Names is  --  FLAG
       null;
    end;
 
-   task body Task2 is   --  NO FLAG
+   task body Task2 is   --  NOFLAG
    begin null; end;
 
    protected body Prot1 is   --  FLAG
@@ -24,7 +24,7 @@ package body Names is  --  FLAG
       end;
    end;
 
-   protected body Prot2 is  --  NO FLAG
+   protected body Prot2 is  --  NOFLAG
       --
       --
    end Prot2;

@@ -12,6 +12,6 @@ procedure P is
    Table : constant Arr :=
      (3 => (Text => "INVALID "), others => (Text => "OTHERS  "));  --  FLAG
    Table2 : constant Arr :=
-     (1 => (Text => "  VALID "), 2 => (Text => "OTHERS  "));       --  NO FLAG
+     (1 => (Text => "  VALID "), 2 => (Text => "OTHERS  "));       --  NOFLAG
 
 end;

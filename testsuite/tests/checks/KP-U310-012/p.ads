@@ -12,7 +12,7 @@ package P is
    function Create return T_Array2;                   --  FLAG
 
    function Create return T_Array with Post => True;  --  FLAG
-   function No_Flag return T_Array;                   --  NO FLAG
+   function No_Flag return T_Array;                   --  NOFLAG
 
 private
 

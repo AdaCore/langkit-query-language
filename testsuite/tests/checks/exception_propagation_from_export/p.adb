@@ -18,7 +18,7 @@ package body P is
          Reraise_Occurrence (E);
    end P2;
 
-   procedure P3 is   --  NO FLAG (no export)
+   procedure P3 is   --  NOFLAG (no export)
    begin
       raise Constraint_Error;
    end P2;

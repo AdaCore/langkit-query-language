@@ -14,5 +14,5 @@ procedure Params2 is
    end Set;
 
 begin
-   Set (Var, Var); -- FLAG
+   Set (Var, Var); --  FLAG
 end Param2;

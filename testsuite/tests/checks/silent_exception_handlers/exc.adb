@@ -13,11 +13,11 @@ begin
    end;
 
 exception
-   when Constraint_Error =>  --  NO FLAG
+   when Constraint_Error =>  --  NOFLAG
       raise;
-   when Program_Error =>     --  NO FLAG
+   when Program_Error =>     --  NOFLAG
       Log ("");
-   when E : others =>        --  NO FLAG
+   when E : others =>        --  NOFLAG
       I := 0;
       Log (Exception_Message (E));
 end Exc;

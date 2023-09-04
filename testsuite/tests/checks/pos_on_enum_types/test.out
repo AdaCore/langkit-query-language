@@ -7,10 +7,10 @@ pos.adb:5:7: rule violation: prefix of 'POS attribute has enumeration type
   |       ^^^^^^^^^^^^^
 
 pos.adb:7:13: rule violation: prefix of 'POS attribute has enumeration type
-7 |       I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (twice)
+7 |       I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (2)
   |             ^^^^^^^^^^^^^
 
 pos.adb:7:35: rule violation: prefix of 'POS attribute has enumeration type
-7 |       I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (twice)
+7 |       I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (2)
   |                                   ^^^^^^^^^^^^^
 

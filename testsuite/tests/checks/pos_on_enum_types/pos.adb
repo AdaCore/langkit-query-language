@@ -4,6 +4,6 @@ begin
      and then
       Character'Pos (Ch2) not in 0 .. 31         --  FLAG
    then
-      I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (twice)
+      I := (Character'Pos (Ch1) + Character'Pos (Ch2)) / 2;  --  FLAG (2)
    end if;
 end Pos;

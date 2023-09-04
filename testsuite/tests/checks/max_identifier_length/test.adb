@@ -6,7 +6,7 @@ procedure Test is
    type This_Is_A_Very_Very_Very_Long_Type_Name is null record;  --  FLAG
 
    type Enum_Type is
-     (This_Is_A_Very_Very_Very_Long_Enum_Literal_Name);  --  NO FLAG
+     (This_Is_A_Very_Very_Very_Long_Enum_Literal_Name);  --  NOFLAG
 begin
    null;
 end Test;

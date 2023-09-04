@@ -1,8 +1,8 @@
 eq_test.adb:19:14: rule violation: possible occurrence of KP U629-002
-19 |         (E1 (Ref.all));
+19 |         (E1 (Ref.all));  --  FLAG
    |              ^^^^^^^
 
 eq_test.adb:26:14: rule violation: possible occurrence of KP U629-002
-26 |         (E2 (Ref.all));
+26 |         (E2 (Ref.all));  --  FLAG
    |              ^^^^^^^
 

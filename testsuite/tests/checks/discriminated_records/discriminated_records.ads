@@ -15,12 +15,12 @@ package Discriminated_Records is
        B : Boolean;
     end record;
 
-    type Rec_2_Deriv (D : Idx) is new Rec_2(D); -- NO FLAG
-    type Rec_3_Deriv (D_Other : Idx) is new Rec_2(D => D_Other); -- FLAG
+    type Rec_2_Deriv (D : Idx) is new Rec_2(D); --  NOFLAG
+    type Rec_3_Deriv (D_Other : Idx) is new Rec_2(D => D_Other); --  FLAG
 
-    type Pv_Rec (D : Idx) is private; -- NO FLAG
+    type Pv_Rec (D : Idx) is private; --  NOFLAG
 
 private
-    type Pv_Rec (D : Idx) is null record; -- FLAG
+    type Pv_Rec (D : Idx) is null record; --  FLAG
 
 end Discriminated_Records;

@@ -1,6 +1,6 @@
 package Deeply_Inlined is
 
-   procedure P3;  --  NO FLAG
+   procedure P3;  --  NOFLAG
    pragma Inline (P3);
 
    procedure P5;  --  FLAG
@@ -12,7 +12,7 @@ package Deeply_Inlined is
    procedure P7;  --  FLAG
    pragma Inline (P7);
 
-   function F3 return Boolean;  --  NO FLAG
+   function F3 return Boolean;  --  NOFLAG
    pragma Inline (F3);
 
    function F4 return Boolean;  --  FLAG
@@ -24,7 +24,7 @@ package Deeply_Inlined is
    --  F7 is not an inlined subprogram
    function F7 return Boolean;
 
-   function F8 return Boolean;  --  NO FLAG
+   function F8 return Boolean;  --  NOFLAG
    pragma Inline (F8);
 
    function F9 return Boolean   --  FLAG

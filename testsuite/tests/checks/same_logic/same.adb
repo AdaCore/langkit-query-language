@@ -7,5 +7,5 @@ function Same (A, B : Boolean) return Boolean is
    end Same_Logic;
 
 begin
-   return A or else B;            --  NO FLAG
+   return A or else B;            --  NOFLAG
 end Same;

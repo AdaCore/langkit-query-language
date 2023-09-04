@@ -7,7 +7,7 @@ procedure Loop2 (Str : in out String) is
    end Nested;
 begin
    J := 0;
-   while J <= Str'Last loop   --  NO FLAG: Nested modifies J
+   while J <= Str'Last loop   --  NOFLAG: Nested modifies J
       Nested;
 
       if Str (J) = ' ' then

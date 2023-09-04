@@ -1,7 +1,7 @@
 package Decls is
 
    protected P0 is
-      entry Get (I: Integer);       --  NO FLAG
+      entry Get (I: Integer);       --  NOFLAG
       entry Put (I: out Integer);   --  FLAG
       entry Put2;                   --  FLAG
       procedure Reset;
@@ -11,7 +11,7 @@ package Decls is
    end P0;
 
    protected P1 is
-      entry E;  --  NO FLAG
+      entry E;  --  NOFLAG
    end P1;
 
 end Decls;  

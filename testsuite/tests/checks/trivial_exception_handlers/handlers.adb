@@ -3,7 +3,7 @@ begin
    begin
       null;
    exception
-      when Constraint_Error =>  --  NO FLAG
+      when Constraint_Error =>  --  NOFLAG
          raise;
       when others =>
          null;

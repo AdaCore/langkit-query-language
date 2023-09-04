@@ -3,9 +3,9 @@ begin
    declare  --  level 1
       package P is   --  level 2
          package P1 is   --  level 3
-            task type T1 is   --  level 4: FLAG
+            task type T1 is   --  FLAG level 4
             end T1;
-            task body T1 is   --  level 4: FLAG
+            task body T1 is   --  FLAG level 4
             begin
                null;
             end T1;
@@ -14,7 +14,7 @@ begin
    begin
       begin  --  level 2
          begin  --  level 3
-            begin  --  level 4: FLAG
+            begin  --  FLAG level 4
                null;
             end;
          end;

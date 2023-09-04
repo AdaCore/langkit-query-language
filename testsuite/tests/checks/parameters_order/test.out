@@ -1,8 +1,8 @@
 decls.ads:3:31: rule violation: parameter out of order
-3 |     procedure Proc_Invalid_1 (Flag : in out Integer; B : Boolean);
+3 |     procedure Proc_Invalid_1 (Flag : in out Integer; B : Boolean);  --  FLAG
   |                               ^^^^
 
 decls.ads:4:31: rule violation: parameter out of order
-4 |     procedure Proc_Invalid_2 (Flag: Boolean := True; B2 : Boolean);
+4 |     procedure Proc_Invalid_2 (Flag: Boolean := True; B2 : Boolean);  --  FLAG
   |                               ^^^^
 

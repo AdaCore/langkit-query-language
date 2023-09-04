@@ -1,9 +1,9 @@
 p.ads:12:7: rule violation: possible occurrence of KP V616-018
-12 |       F2 : Access_To_Array;  -- FLAG
+12 |       F2 : Access_To_Array;  --  FLAG
    |       ^^
 
 p.ads:13:7: rule violation: possible occurrence of KP V616-018
-13 |       F3 : access String;    -- FLAG
+13 |       F3 : access String;    --  FLAG
    |       ^^
 
 p.ads:25:10: rule violation: possible occurrence of KP V616-018

@@ -3,11 +3,11 @@ calls.adb:30:4: rule violation: call to unavailable body
    |    ^^^^^^^
 
 calls.adb:31:4: rule violation: call to unavailable body
-31 |    X.all (1);   --  FLAG
+31 |    X.all (1);   --  FLAG (2)
    |    ^^^^^^^^^
 
 calls.adb:31:4: rule violation: call to unavailable body
-31 |    X.all (1);   --  FLAG
+31 |    X.all (1);   --  FLAG (2)
    |    ^^^^^
 
 calls.adb:32:4: rule violation: call to unavailable body

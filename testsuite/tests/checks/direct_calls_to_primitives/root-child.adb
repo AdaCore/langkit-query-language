@@ -3,7 +3,7 @@ package body Root.Child is
 
    procedure Primitive_1 (X : in out T_Child) is
    begin
-      Primitive_1 (T_Root (X));      --  NO FLAG
+      Primitive_1 (T_Root (X));      --  NOFLAG
       Primitive_2 (T_Root (X));      --  FLAG
       Primitive_2 (X);               --  FLAG
    end Primitive_1;

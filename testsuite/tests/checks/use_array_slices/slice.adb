@@ -19,7 +19,7 @@ begin
       S (I) := ' ';
    end loop;
 
-   for I in Table_Array_Type'Range loop   --  NO FLAG
+   for I in Table_Array_Type'Range loop   --  NOFLAG
       Secondary_Table (I) := Primary_Table (Func (I));
    end loop;
 

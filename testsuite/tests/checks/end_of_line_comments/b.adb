@@ -1,5 +1,5 @@
 procedure B is
 begin  --  FLAG
    null;
-   --  NO FLAG
+   --  NOFLAG
 end B;

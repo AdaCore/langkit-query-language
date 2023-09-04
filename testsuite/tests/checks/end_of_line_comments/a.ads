@@ -1,4 +1,4 @@
 package A is
-   -- NO FLAG
-   I : Integer;  -- FLAG
+   --  NOFLAG
+   I : Integer;  --  FLAG
 end A;  --  FLAG

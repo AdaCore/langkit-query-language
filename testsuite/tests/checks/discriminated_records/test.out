@@ -7,10 +7,10 @@ discriminated_records.ads:10:10: rule violation: declaration of discriminated re
    |          ^^^^^
 
 discriminated_records.ads:19:10: rule violation: declaration of discriminated record
-19 |     type Rec_3_Deriv (D_Other : Idx) is new Rec_2(D => D_Other); -- FLAG
+19 |     type Rec_3_Deriv (D_Other : Idx) is new Rec_2(D => D_Other); --  FLAG
    |          ^^^^^^^^^^^
 
 discriminated_records.ads:24:10: rule violation: declaration of discriminated record
-24 |     type Pv_Rec (D : Idx) is null record; -- FLAG
+24 |     type Pv_Rec (D : Idx) is null record; --  FLAG
    |          ^^^^^^
 

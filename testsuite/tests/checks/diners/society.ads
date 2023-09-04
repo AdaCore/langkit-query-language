@@ -10,7 +10,7 @@ package Society is
 
   subtype Unique_DNA_Codes is Positive range 1..5;
 
-  Name_Register : array(Unique_DNA_Codes) of String(1..18) :=
+  Name_Register : array(Unique_DNA_Codes) of String(1..18) :=  --  FLAG
 
      ("Edsger Dijkstra   ",
       "Bjarne Stroustrup ",

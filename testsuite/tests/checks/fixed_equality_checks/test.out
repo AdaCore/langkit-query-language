@@ -1,16 +1,16 @@
 fixed_equality_checks.adb:5:29: rule violation: use of equality operation for fixed values
-5 |    B1 : constant Boolean := A_Volt = B_Volt;    -- FLAG
+5 |    B1 : constant Boolean := A_Volt = B_Volt;    --  FLAG
   |                             ^^^^^^^^^^^^^^^
 
 fixed_equality_checks.adb:6:29: rule violation: use of equality operation for fixed values
-6 |    B2 : constant Boolean := A_Volt /= B_Volt;   -- FLAG
+6 |    B2 : constant Boolean := A_Volt /= B_Volt;   --  FLAG
   |                             ^^^^^^^^^^^^^^^^
 
 fixed_equality_checks.adb:11:14: rule violation: use of equality operation for fixed values
-11 |    Result := "=" (A_Volt, B_Volt);              -- FLAG
+11 |    Result := "=" (A_Volt, B_Volt);              --  FLAG
    |              ^^^^^^^^^^^^^^^^^^^^
 
 fixed_equality_checks.adb:12:14: rule violation: use of equality operation for fixed values
-12 |    Result := Fixed_Equality_Checks."/=" (A_Volt, B_Volt);   -- FLAG
+12 |    Result := Fixed_Equality_Checks."/=" (A_Volt, B_Volt);   --  FLAG
    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

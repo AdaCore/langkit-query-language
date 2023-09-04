@@ -19,130 +19,130 @@ params.adb:24:7: rule violation: parameter aliasing between formals P1 and P2
    |       ^^^^^^^^^^^^^^^^^^^^^
 
 params2.adb:17:4: rule violation: parameter aliasing between formals In_Record and Out_Record
-17 |    Set (Var, Var); -- FLAG
+17 |    Set (Var, Var); --  FLAG
    |    ^^^^^^^^^^^^^^
 
 params3.adb:38:7: rule violation: parameter aliasing between formals X and Y
-38 |       Proc_CC (I, I);                         -- FLAG
+38 |       Proc_CC (I, I);                         --  FLAG
    |       ^^^^^^^^^^^^^^
 
 params3.adb:40:7: rule violation: parameter aliasing between formals Y and X
-40 |       Proc_RRR (R1, R1, R1);                  -- FLAG
+40 |       Proc_RRR (R1, R1, R1);                  --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:45:7: rule violation: parameter aliasing between formals Y and X
-45 |       Proc_RRR(R1, R1, R2);                   -- FLAG
+45 |       Proc_RRR(R1, R1, R2);                   --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:47:7: rule violation: parameter aliasing between formals Y and X
-47 |       Proc_RR3(   R1, R2, R1);                -- FLAG
+47 |       Proc_RR3(   R1, R2, R1);                --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:50:7: rule violation: parameter aliasing between formals X and Y
-50 |       Proc_CC (X => Simple_Cases.I, Y => I);  -- FLAG
+50 |       Proc_CC (X => Simple_Cases.I, Y => I);  --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:52:7: rule violation: parameter aliasing between formals X and Y
-52 |       Proc_CC (I, By_Copy(I));                -- FLAG
+52 |       Proc_CC (I, By_Copy(I));                --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:54:7: rule violation: parameter aliasing between formals X and Y
-54 |       Proc_CC (I, Alias1);                    -- FLAG
+54 |       Proc_CC (I, Alias1);                    --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^
 
 params3.adb:55:7: rule violation: parameter aliasing between formals X and Y
-55 |       Proc_CC (Pack1.X, Pack2.X);             -- FLAG
+55 |       Proc_CC (Pack1.X, Pack2.X);             --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:57:17: rule violation: parameter aliasing between formals X and Y
-57 |       Result := Func_CC (I, I);                         -- FLAG
+57 |       Result := Func_CC (I, I);                         --  FLAG
    |                 ^^^^^^^^^^^^^^
 
 params3.adb:58:17: rule violation: parameter aliasing between formals X and Y
-58 |       Result := Func_CC (X => Simple_Cases.I, Y => I);  -- FLAG
+58 |       Result := Func_CC (X => Simple_Cases.I, Y => I);  --  FLAG
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:83:7: rule violation: parameter aliasing between formals X and Y
-83 |       Proc_CC (R1.I, R1.I);                   -- FLAG
+83 |       Proc_CC (R1.I, R1.I);                   --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:87:7: rule violation: parameter aliasing between formals X and Y
-87 |       Proc_R2C (R1,     R1.I);                -- FLAG
+87 |       Proc_R2C (R1,     R1.I);                --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:88:7: rule violation: parameter aliasing between formals X and Y
-88 |       Proc_R2C (R1,     R1.K.I);              -- FLAG
+88 |       Proc_R2C (R1,     R1.K.I);              --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:89:7: rule violation: parameter aliasing between formals X and Y
-89 |       Proc_R2C (R1,     R1.K.J);              -- FLAG
+89 |       Proc_R2C (R1,     R1.K.J);              --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:90:7: rule violation: parameter aliasing between formals X and Y
-90 |       Proc_R2C (Alias2, R1.K.J);              -- FLAG
+90 |       Proc_R2C (Alias2, R1.K.J);              --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:91:7: rule violation: parameter aliasing between formals X and Y
-91 |       Proc_R2C (R1,     Alias2.K.J);          -- FLAG
+91 |       Proc_R2C (R1,     Alias2.K.J);          --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:92:7: rule violation: parameter aliasing between formals X and Y
-92 |       Proc_R2C (R1,     Alias3.J);            -- FLAG
+92 |       Proc_R2C (R1,     Alias3.J);            --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:93:7: rule violation: parameter aliasing between formals X and Y
-93 |       Proc_R2C (Alias2, Alias2.K.J);          -- FLAG
+93 |       Proc_R2C (Alias2, Alias2.K.J);          --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:95:7: rule violation: parameter aliasing between formals X and Y
-95 |       Proc_R1C (Alias3, Alias3.J);            -- FLAG
+95 |       Proc_R1C (Alias3, Alias3.J);            --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:96:7: rule violation: parameter aliasing between formals X and Y
-96 |       Proc_R1C (R1.K, R1.K.J);                -- FLAG
+96 |       Proc_R1C (R1.K, R1.K.J);                --  FLAG
    |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:113:7: rule violation: parameter aliasing between formals X and Y
-113 |       Proc_SC (X.S,               X.S(I));            -- FLAG
+113 |       Proc_SC (X.S,               X.S(I));            --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:115:7: rule violation: parameter aliasing between formals X and Y
-115 |       Proc_CC (X.S(3),            X.S(10#3#));        -- FLAG
+115 |       Proc_CC (X.S(3),            X.S(10#3#));        --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:118:7: rule violation: parameter aliasing between formals X and Y
-118 |       Proc_CC (Tab2 (A),          Tab2 (a));          -- FLAG
+118 |       Proc_CC (Tab2 (A),          Tab2 (a));          --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:145:7: rule violation: parameter aliasing between formals X and Y
-145 |       Proc_SC (A.all,   A(3));                      -- FLAG
+145 |       Proc_SC (A.all,   A(3));                      --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:146:7: rule violation: parameter aliasing between formals X and Y
-146 |       Proc_SC (B.all,   R.A(3));                    -- FLAG
+146 |       Proc_SC (B.all,   R.A(3));                    --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:147:7: rule violation: parameter aliasing between formals X and Y
-147 |       Proc_SC (R.A.all, R.A(3));                    -- FLAG
+147 |       Proc_SC (R.A.all, R.A(3));                    --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:165:7: rule violation: parameter aliasing between formals A and B
-165 |       Proc_T (Y, Y);                          -- FLAG
+165 |       Proc_T (Y, Y);                          --  FLAG
     |       ^^^^^^^^^^^^^
 
 params3.adb:166:7: rule violation: parameter aliasing between formals A and B
-166 |       Proc_T (A => Y, B => Y);                -- FLAG
+166 |       Proc_T (A => Y, B => Y);                --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^^^^^
 
 params3.adb:185:7: rule violation: parameter aliasing between formals X and Y
-185 |       P1 (VT.I, VT.I);                        -- FLAG
+185 |       P1 (VT.I, VT.I);                        --  FLAG
     |       ^^^^^^^^^^^^^^^
 
 params3.adb:186:7: rule violation: parameter aliasing between formals X and Y
-186 |       P1 (VTA.I, VTA.I);                      -- FLAG
+186 |       P1 (VTA.I, VTA.I);                      --  FLAG
     |       ^^^^^^^^^^^^^^^^^
 
 params3.adb:187:7: rule violation: parameter aliasing between formals X and Y
-187 |       P1 (VTAC.I, VTAC.I);                    -- FLAG
+187 |       P1 (VTAC.I, VTAC.I);                    --  FLAG
     |       ^^^^^^^^^^^^^^^^^^^
 

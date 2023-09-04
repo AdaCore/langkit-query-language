@@ -4,7 +4,7 @@ procedure Handler is
 begin
    null;
 exception
-   when Constraint_Error =>   --  NO FLAG
+   when Constraint_Error =>   --  NOFLAG
       Safe_P;
    when Program_Error =>      --  FLAG
       Safe_P;

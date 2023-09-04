@@ -4,7 +4,7 @@ procedure Calls is
 
    function F return Integer is (1);
 
-   Val : Integer := F;      --  NO FLAG
+   Val : Integer := F;      --  NOFLAG
 
    type Proc_A is access procedure (X : Integer);
    X : Proc_A;
@@ -22,13 +22,13 @@ procedure Calls is
    package body P_G is
       procedure P is
       begin
-         P_F;   --  NO FLAG
+         P_F;   --  NOFLAG
       end P;
    end P_G;
 
 begin
    Unknown;     --  FLAG
-   X.all (1);   --  FLAG
+   X.all (1);   --  FLAG (2)
    X (1);       --  FLAG
    Y.all;       --  FLAG
 end Calls;

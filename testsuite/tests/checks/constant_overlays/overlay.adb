@@ -8,7 +8,7 @@ procedure Overlay (I : Integer) is
 
    C1 : constant Integer := 1;
    V1 : constant Integer with Import;
-   for V1'Address use C1'Address;         --  NO FLAG
+   for V1'Address use C1'Address;         --  NOFLAG
 
    C2 : constant Integer := 1;
    V2 : constant Integer with Import, Volatile;

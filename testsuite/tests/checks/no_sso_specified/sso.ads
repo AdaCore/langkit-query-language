@@ -9,7 +9,7 @@ package SSO is
       I at 0 range 0 .. 31;
    end record;
 
-   type Rec2 is record      --  NO FLAG
+   type Rec2 is record      --  NOFLAG
       I : Integer;
    end record;
 
@@ -34,10 +34,10 @@ package SSO is
       J at 12 range 0 .. 31;
    end record;
 
-   type Tag3 is new Tag1 with null record;   --  NO FLAG
+   type Tag3 is new Tag1 with null record;   --  NOFLAG
    for Tag3'Scalar_Storage_Order use System.Low_Order_First;
 
-   type Tag4 is new Tag3 with record   --  NO FLAG
+   type Tag4 is new Tag3 with record   --  NOFLAG
       J : Integer;
    end record;
 

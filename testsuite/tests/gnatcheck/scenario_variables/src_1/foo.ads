@@ -1,3 +1,3 @@
-package Foo is
-   procedure F (X : Integer);
+package Foo is  --  FLAG
+   procedure F (X : Integer);  --  FLAG
 end Foo;

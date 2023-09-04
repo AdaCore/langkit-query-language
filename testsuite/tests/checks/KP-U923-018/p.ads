@@ -16,6 +16,6 @@ package P is
    function Func return Coordinates3;  --  FLAG
    function Func return Coordinates4;  --  FLAG
 
-   function Func return Coordinates5;  --  NO FLAG
+   function Func return Coordinates5;  --  NOFLAG
 
 end P;

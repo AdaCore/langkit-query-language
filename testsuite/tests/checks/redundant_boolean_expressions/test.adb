@@ -29,5 +29,5 @@ begin
    end;
 
    return X = Standard.False;  --  FLAG
-   return False;               --  NO FLAG
+   return False;               --  NOFLAG
 end Test;

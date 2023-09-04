@@ -1,7 +1,7 @@
 package Bit is
    type My_Mod is mod 8;
 
-   type Rec1 is record              --  NO FLAG
+   type Rec1 is record              --  NOFLAG
       I : My_Mod;
    end record;
    for Rec1 use record

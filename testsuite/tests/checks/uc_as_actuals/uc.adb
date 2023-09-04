@@ -21,5 +21,5 @@ procedure UC (I : in out Integer) is
 
 begin
    Ident (UC (Var1), Var2);                --  FLAG
-   Ident (Func (Var1), Var2);              --  NO FLAG
+   Ident (Func (Var1), Var2);              --  NOFLAG
 end UC;
