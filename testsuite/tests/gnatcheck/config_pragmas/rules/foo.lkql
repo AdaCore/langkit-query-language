@@ -1,0 +1,5 @@
+@unit_check
+fun foo(unit) = [{
+    message: img(unit.root.p_all_config_pragmas()),
+    loc: unit.root
+}]

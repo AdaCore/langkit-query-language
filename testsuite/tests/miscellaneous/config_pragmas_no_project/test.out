@@ -1,0 +1,9 @@
+test.adb:1:1: rule violation: []
+1 |  procedure Test is  --  FLAG
+  | _^
+  ||
+  || ~~~ 2 other lines ~~~
+  ||
+4 || end Test;
+  ||_________^
+

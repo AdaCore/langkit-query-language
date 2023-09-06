@@ -1,0 +1,9 @@
+test.adb:1:1: rule violation: [<PragmaNode gnat.adc:1:1-1:24>, <PragmaNode gnat.adc:2:1-2:75>, <PragmaNode gnat.adc:3:1-3:73>, <PragmaNode gnat.adc:4:1-4:25>, <PragmaNode gnat.adc:5:1-5:47>]
+1 |  procedure Test is  --  FLAG
+  | _^
+  ||
+  || ~~~ 2 other lines ~~~
+  ||
+4 || end Test;
+  ||_________^
+

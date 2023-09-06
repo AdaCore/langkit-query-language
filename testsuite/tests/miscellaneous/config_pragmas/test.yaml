@@ -1,0 +1,4 @@
+driver: 'checker'
+rule_name: 'test_config_pragmas'
+project: test.gpr
+input_sources: [test.adb]

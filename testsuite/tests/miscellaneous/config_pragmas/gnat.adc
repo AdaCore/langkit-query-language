@@ -1,0 +1,5 @@
+pragma Detect_Blocking;
+pragma Restriction_Warnings (No_Dependence => Ada.Unchecked_Deallocation);
+pragma Restriction_Warnings (No_Dependence => Ada.Unchecked_Conversion);
+pragma Implicit_Packing;
+pragma Warnings (Off, "[enabled by default]");
