@@ -1,0 +1,13 @@
+format: brief
+driver: gnatcheck
+rules_dirs:
+  - rules
+rules:
+  - +Rfoo
+tests:
+  - project: prj.gpr
+  - input_sources: [main.adb]
+  - project: prj.gpr
+    extra_args: [-j2]
+  - input_sources: [main.adb]
+    extra_args: [-j2]
