@@ -1456,7 +1456,9 @@ package body Gnatcheck.Source_Table is
          --  Also never store "memoized error" messages which are
          --  cascaded errors.
 
-         if (Kind = Internal_Error and then not Debug_Mode)
+         if (Kind = Internal_Error
+             and then not Debug_Mode
+             and then Index (Msg, "STOP_EVALUATION_ERROR") = 0)
            or else Has_Suffix (Msg, "(memoized)")
            or else Has_Suffix (Msg, "Memoized Error")  -- pending W119-041
          then
