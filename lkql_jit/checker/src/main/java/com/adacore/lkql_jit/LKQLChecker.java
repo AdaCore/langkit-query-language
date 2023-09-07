@@ -212,6 +212,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         // Set the LKQL language mode to interpreter
         contextBuilder.option("lkql.checkerMode", "true");
+        contextBuilder.option("lkql.checkerDebug", "true");
 
         // Set the context options
         if (this.verbose) {

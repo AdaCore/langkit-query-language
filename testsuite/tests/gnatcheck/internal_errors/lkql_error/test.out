@@ -1,0 +1,45 @@
+Total gnatcheck failures: 9
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 0
+   unverified sources                    : 1
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 0
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 9
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+   no non-exempted violations detected
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+main.adb:1:01: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:1:01: internal error at foo_unit.lkql:4:22: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:1:11: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:1:18: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:2:06: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:3:04: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:3:08: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:4:05: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+main.adb:4:10: internal error at foo.lkql:4:17: raised LKQL.ERRORS.STOP_EVALUATION_ERROR : Null receiver in dot access
+
+>>>program returned status code 2

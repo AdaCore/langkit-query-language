@@ -201,6 +201,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // --- Checker options
 
     /**
+     * The option to define the checker debug mode
+     */
+    @Option(
+        help = "If the checker is in debug mode",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<Boolean> checkerDebug = new OptionKey<>(false);
+
+    /**
      * The option to define the directories to look the rules from
      */
     @Option(

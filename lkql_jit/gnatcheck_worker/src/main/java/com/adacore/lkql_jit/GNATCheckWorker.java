@@ -76,6 +76,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     private String subprojectFile = null;
 
     /**
+     * Whether GNATcheck is in debug mode.
+     */
+    private boolean debug = false;
+
+    /**
      * The project's scenario variables
      */
     private String scenarioVars = null;
@@ -177,6 +182,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         if (this.subprojectFile != null) {
             contextBuilder.option("lkql.subprojectFile", this.subprojectFile);
+        }
+
+        if (this.debug) {
+            contextBuilder.option("lkql.checkerDebug", "true");
         }
 
         if (this.scenarioVars != null) {
@@ -316,6 +325,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         // TODO: handle "--target"
 
         if (currentArg.equals("-d")) {
+            this.debug = true;
             currentArg = iterator.next();
         }
 

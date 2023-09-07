@@ -34,6 +34,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.source.Source;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -456,15 +457,10 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     private static String baseErrorText(Locatable location) {
         if (LKQLLanguage.SUPPORT_COLOR) {
-            return StringUtils.ANSI_BOLD + location.getLocation().getFileName() +
-                ":" + location.getLocation().getStartLine() +
-                ":" + location.getLocation().getStartColumn() +
+            return StringUtils.ANSI_BOLD + location.getLocation().toString() +
                 ":" + StringUtils.ANSI_RED + " error: " + StringUtils.ANSI_RESET;
         } else {
-            return location.getLocation().getFileName() +
-                ":" + location.getLocation().getStartLine() +
-                ":" + location.getLocation().getStartColumn() +
-                ": error: ";
+            return location.getLocation().toString() + ": error: ";
         }
     }
 
@@ -506,6 +502,35 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
         return baseErrorText(location) +
             errorMessage + "\n" +
             sourceText(location) + "\n";
+    }
+
+    // ----- Instance methods -----
+
+    /**
+     * Get the raw message of the exception; just the exception message without the LKQL file name, location and source
+     * listing.
+     * TODO: Remove this hackish method when
+     * https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language/-/merge_requests/89 is merged
+     *
+     * @return The raw message without filename and source listing.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public String getRawMessage() {
+        final String[] splitHeader = this.getMessage().split(System.lineSeparator())[0].split(":");
+        return splitHeader[splitHeader.length - 1].strip();
+    }
+
+    /**
+     * Get the source location of the exception as a string: "my_file.lkql:15:13".
+     * TODO: Remove this hackish method when
+     * https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language/-/merge_requests/89 is merged
+     *
+     * @return The error source location as a string.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public String getLocationString() {
+        final String[] splitHeader = this.getMessage().split(System.lineSeparator())[0].split(" ");
+        return splitHeader[0].substring(0, splitHeader[0].length() - 1);
     }
 
 }

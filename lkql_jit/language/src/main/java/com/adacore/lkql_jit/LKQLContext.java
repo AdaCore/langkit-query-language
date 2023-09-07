@@ -172,6 +172,12 @@ public final class LKQLContext {
     private String errorMode = null;
 
     /**
+     * Whether the checker is in debug mode
+     */
+    @CompilerDirectives.CompilationFinal
+    private Boolean checkerDebug = null;
+
+    /**
      * The rle to execute
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
@@ -366,6 +372,19 @@ public final class LKQLContext {
             this.errorMode = this.env.getOptions().get(LKQLLanguage.errorMode);
         }
         return this.errorMode;
+    }
+
+    /**
+     * Get whether the checker is in debug mode
+     *
+     * @return True if the checker is in debug mode, false else
+     */
+    @CompilerDirectives.TruffleBoundary
+    public boolean isCheckerDebug() {
+        if (this.checkerDebug == null) {
+            this.checkerDebug = this.env.getOptions().get(LKQLLanguage.checkerDebug);
+        }
+        return this.checkerDebug;
     }
 
     /**

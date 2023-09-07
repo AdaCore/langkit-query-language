@@ -1,0 +1,4 @@
+# Check which always raise an internal error in GNATcheck
+@unit_check(message="foo_unit",
+            remediation="TRIVIAL", category="Feature")
+fun foo_unit(unit) = null.p_name()
