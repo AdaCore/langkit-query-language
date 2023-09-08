@@ -1,0 +1,5 @@
+# Check which always raise an internal error in GNATcheck
+@unit_check(message="foo",
+            remediation="TRIVIAL", category="Feature")
+fun foo_unit(unit) = [{loc: node, message: img(node.p_get_aspect("lol"))}
+                      for node in from unit.root select ObjectDecl]

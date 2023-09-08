@@ -1,8 +1,10 @@
 package com.adacore.lkql_jit.utils.util_functions;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 
@@ -73,6 +75,25 @@ public class CheckerUtils {
             boolean isFatal,
             LKQLContext context
         );
+
+        /**
+         * @param ruleName      The name of the rule the error occurred during.
+         * @param unit          The analysis unit in which the error occurred.
+         * @param adaLocation   The location in the unit of the error.
+         * @param errorLocation The location in the LKQL code which rose the exception.
+         * @param errorName     The name of the error.
+         * @param errorMessage  The message of the error.
+         * @param context       The context to output the message.
+         */
+        void emitInternalError(
+            String ruleName,
+            Libadalang.AnalysisUnit unit,
+            Libadalang.SourceLocation adaLocation,
+            String errorLocation,
+            String errorName,
+            String errorMessage,
+            LKQLContext context
+        );
     }
 
     /**
@@ -111,6 +132,22 @@ public class CheckerUtils {
         ) {
             final String prefix = isFatal ? "ERROR" : "WARNING";
             context.println(prefix + ": File " + FileUtils.baseName(missingFileName) + " not found");
+        }
+
+        @Override
+        @CompilerDirectives.TruffleBoundary
+        public void emitInternalError(
+            final String ruleName,
+            final Libadalang.AnalysisUnit unit,
+            final Libadalang.SourceLocation adaLocation,
+            final String errorLocation,
+            final String errorName,
+            final String errorMessage,
+            final LKQLContext context
+        ) {
+            context.println(unit.getFileName(false) +
+                "1:01: internal error: " +
+                errorName + ": " + errorMessage + "[" + ruleName.toLowerCase() + "]");
         }
     }
 
@@ -225,6 +262,26 @@ public class CheckerUtils {
         ) {
             // Use the full name for files: GNATcheck will reformat it if a specific flag is set
             context.println(fromUnit.getFileName() + ":1:1: warning: cannot find " + missingFileName);
+        }
+
+        @Override
+        @CompilerDirectives.TruffleBoundary
+        public void emitInternalError(
+            final String ruleName,
+            final Libadalang.AnalysisUnit unit,
+            final Libadalang.SourceLocation adaLocation,
+            final String errorLocation,
+            final String errorName,
+            final String errorMessage,
+            final LKQLContext context
+        ) {
+            context.println(unit.getFileName(false) + ":" +
+                adaLocation.line + ":" + String.format("%02d", adaLocation.column) + ": check: " +
+                "internal error at " + errorLocation + ": " +
+                "raised " + errorName + " : " +
+                errorMessage +
+                " [" + ruleName.toLowerCase() + "]"
+            );
         }
     }
 

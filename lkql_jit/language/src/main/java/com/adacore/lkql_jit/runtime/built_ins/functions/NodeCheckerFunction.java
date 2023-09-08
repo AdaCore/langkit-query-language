@@ -197,9 +197,30 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                         try {
                             this.applyNodeRule(frame, rule, currentNode, context, linesCache);
                         } catch (LangkitException e) {
-                            reportException(context, rule, e);
+                            // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
+                            // Report LAL exception only in debug mode
+                            if (context.isCheckerDebug()) {
+                                context.getDiagnosticEmitter().emitInternalError(
+                                    (String) rule.get("name"),
+                                    currentNode.getUnit(),
+                                    currentNode.getSourceLocationRange().start,
+                                    e.getLoc().toString(),
+                                    StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getType()),
+                                    e.getMsg(),
+                                    context
+                                );
+                            }
                         } catch (LKQLRuntimeException e) {
-                            reportException(context, e);
+                            // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
+                            context.getDiagnosticEmitter().emitInternalError(
+                                (String) rule.get("name"),
+                                currentNode.getUnit(),
+                                currentNode.getSourceLocationRange().start,
+                                e.getLocationString(),
+                                "LKQL.ERRORS.STOP_EVALUATION_ERROR",
+                                e.getRawMessage(),
+                                context
+                            );
                         }
                     }
                 }

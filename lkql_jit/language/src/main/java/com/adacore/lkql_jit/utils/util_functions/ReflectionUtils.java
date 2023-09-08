@@ -178,7 +178,11 @@ public final class ReflectionUtils {
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             if (targetException instanceof Libadalang.LangkitException langkitException) {
-                throw new LangkitException(langkitException.kind.toString(), langkitException.getMessage());
+                throw new LangkitException(
+                    langkitException.kind.toString(),
+                    langkitException.getMessage(),
+                    caller.getLocation()
+                );
             } else if (targetException instanceof Error error) {
                 // Forward fatal errors without wrapping them in LKQLRuntimeExceptions: those shouldn't
                 // be caught as they imply that resuming execution is not appropriate. This could for example

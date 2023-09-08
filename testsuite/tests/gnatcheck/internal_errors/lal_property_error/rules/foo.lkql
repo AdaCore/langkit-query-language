@@ -1,0 +1,4 @@
+# Check which always raise an internal error in GNATcheck
+@check(message="foo",
+       remediation="TRIVIAL", category="Feature")
+fun foo(node) = node is o@ObjectDecl when o.p_get_aspect("lol")

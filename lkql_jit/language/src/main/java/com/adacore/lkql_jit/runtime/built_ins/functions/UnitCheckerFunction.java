@@ -41,6 +41,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.util_classes.Iterator;
 import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.util_functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -157,9 +158,30 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                 try {
                     this.applyUnitRule(frame, rule, unit, context, linesCache);
                 } catch (LangkitException e) {
-                    reportException(context, rule, e);
+                    // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
+                    // Report LAL exception only in debug mode
+                    if (context.isCheckerDebug()) {
+                        context.getDiagnosticEmitter().emitInternalError(
+                            (String) rule.get("name"),
+                            unit,
+                            Libadalang.SourceLocation.create(1, (short) 1),
+                            e.getLoc().toString(),
+                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getType()),
+                            e.getMsg(),
+                            context
+                        );
+                    }
                 } catch (LKQLRuntimeException e) {
-                    reportException(context, e);
+                    // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
+                    context.getDiagnosticEmitter().emitInternalError(
+                        (String) rule.get("name"),
+                        unit,
+                        Libadalang.SourceLocation.create(1, (short) 1),
+                        e.getLocationString(),
+                        "LKQL.ERRORS.STOP_EVALUATION_ERROR",
+                        e.getRawMessage(),
+                        context
+                    );
                 }
             }
 
@@ -273,28 +295,6 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     context
                 );
             }
-        }
-
-        /**
-         * Report the langkit exception raised by a rule
-         *
-         * @param rule The rule which caused the exception
-         * @param e    The exception to report
-         */
-        @CompilerDirectives.TruffleBoundary
-        private static void reportException(LKQLContext context, ObjectValue rule, LangkitException e) {
-            context.println("TODO : Report exception");
-        }
-
-        /**
-         * Report the LQKL exception
-         *
-         * @param e The LKQL exception
-         */
-        @CompilerDirectives.TruffleBoundary
-        private static void reportException(LKQLContext context, LKQLRuntimeException e) {
-            context.println("Exception in the LKQL code :");
-            context.println(e.getMessage());
         }
 
     }

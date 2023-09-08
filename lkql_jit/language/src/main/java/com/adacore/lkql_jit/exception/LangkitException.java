@@ -23,6 +23,8 @@
 
 package com.adacore.lkql_jit.exception;
 
+import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 
 
@@ -45,6 +47,11 @@ public final class LangkitException extends AbstractTruffleException {
      */
     private final String msg;
 
+    /**
+     * Location of the node which rose this error.
+     */
+    private final SourceLocation location;
+
     // ----- Constructors -----
 
     /**
@@ -55,10 +62,12 @@ public final class LangkitException extends AbstractTruffleException {
      */
     public LangkitException(
         String type,
-        String msg
+        String msg,
+        SourceLocation location
     ) {
         this.type = type;
         this.msg = msg;
+        this.location = location;
     }
 
     // ----- Getters -----
@@ -69,6 +78,10 @@ public final class LangkitException extends AbstractTruffleException {
 
     public String getMsg() {
         return msg;
+    }
+
+    public SourceLocation getLoc() {
+        return location;
     }
 
 }

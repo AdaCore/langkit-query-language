@@ -217,12 +217,9 @@ public final class SourceLocation {
     // ----- Override methods -----
 
     @Override
+    @CompilerDirectives.TruffleBoundary
     public String toString() {
-        return "<" + this.startLine +
-            ":" + this.startColumn +
-            " - " + this.endLine +
-            ":" + this.endColumn +
-            ">";
+        return this.getFileName() + ":" + this.startLine + ":" + this.startColumn;
     }
 
 }
