@@ -621,7 +621,7 @@ package body Checker_App is
 
                exception
                   when E : LKQL.Errors.Stop_Evaluation_Error =>
-                     Handle_Error (Rule, Lk_Unit.Root, E, Severe => True);
+                     Handle_Error (Rule, Lk_Unit.Root, E, Severe => False);
                end;
             end if;
 
