@@ -516,7 +516,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public String getRawMessage() {
-        final String[] splitHeader = this.getMessage().split(System.lineSeparator())[0].split(":");
+        final String[] splitHeader = this.getMessage().split("\n")[0].split(":");
         return splitHeader[splitHeader.length - 1].strip();
     }
 
@@ -529,7 +529,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public String getLocationString() {
-        final String[] splitHeader = this.getMessage().split(System.lineSeparator())[0].split(" ");
+        final String[] splitHeader = this.getMessage().split("\n")[0].split(" ");
         return splitHeader[0].substring(0, splitHeader[0].length() - 1);
     }
 
