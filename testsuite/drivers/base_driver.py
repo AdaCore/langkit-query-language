@@ -6,6 +6,7 @@ import sys
 from typing import TextIO
 
 from e3.fs import mkdir
+from e3.testsuite.control import YAMLTestControlCreator
 from e3.testsuite.driver.diff import DiffTestDriver
 from e3.testsuite.driver.classic import TestAbortWithError, ProcessResult
 
@@ -132,6 +133,12 @@ class BaseDriver(DiffTestDriver):
         # In perf mode, our purpose is to measure performance, not to check
         # results.
         return (None, "", False) if self.perf_mode else super().baseline
+
+    @property
+    def test_control_creator(self):
+        return YAMLTestControlCreator({
+            'mode': self.env.options.mode
+        })
 
     def set_up(self) -> None:
         super().set_up()

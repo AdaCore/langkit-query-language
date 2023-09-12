@@ -66,13 +66,35 @@ public final class ObjectValue implements LKQLValue {
         }
     }
 
+    /**
+     * Create a deep copy of the given object value.
+     *
+     * @param other The other object.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public ObjectValue(
+        ObjectValue other
+    ) {
+        this.content = new HashMap<>(other.content);
+    }
+
     // ----- Getters -----
+
+    public Map<String, Object> getContent() {
+        return this.content;
+    }
 
     @CompilerDirectives.TruffleBoundary
     public Object get(String key) {
         return this.content.getOrDefault(key, null);
     }
 
+    @CompilerDirectives.TruffleBoundary
+    public void set(String key, Object value) {
+        this.content.put(key, value);
+    }
+
+    @CompilerDirectives.TruffleBoundary
     public boolean contains(String key) {
         return this.content.containsKey(key);
     }

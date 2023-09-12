@@ -201,6 +201,16 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<String> rules = new OptionKey<>("");
 
     /**
+     * The option to specify the LKQL configuration file.
+     */
+    @Option(
+        help = "The LKQL file to get the rule configuration from",
+        category = OptionCategory.USER,
+        stability = OptionStability.STABLE
+    )
+    static final OptionKey<String> LKQLRuleFile = new OptionKey<>("");
+
+    /**
      * The option to control what should be done when no rules are provided
      */
     @Option(

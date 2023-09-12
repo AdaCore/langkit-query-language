@@ -1490,6 +1490,12 @@ package body Gnatcheck.Compiler is
       Num_Args := @ + 1;
       Args (Num_Args) := new String'("-from=" & Rule_File);
 
+      if LKQL_Rule_File_Name /= null then
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("-from-lkql=" &
+                                        LKQL_Rule_File_Name.all);
+      end if;
+
       if Debug_Mode then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name

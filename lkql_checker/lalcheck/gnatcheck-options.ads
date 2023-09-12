@@ -297,6 +297,10 @@ package Gnatcheck.Options is
    --  If More_Then_One_Rule_File_Set is OFF and if a rule file has been
    --  processed, keeps the name of this file, otherwise is null.
 
+   LKQL_Rule_File_Name : GNAT.OS_Lib.String_Access;
+   --  Contains the name of the LKQL file to use for rule configuration if
+   --  one has been provided, otherwise is null.
+
    Full_Source_Locations : Boolean := False;
    --  '-l'
    --  If this flag is set ON, gnatcheck adds full source locations in the

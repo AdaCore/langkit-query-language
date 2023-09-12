@@ -1033,7 +1033,7 @@ package body Gnatcheck.Projects is
    -- Process_Rule_Options --
    --------------------------
 
-   type Option_Kind is (File, Option);
+   type Option_Kind is (File, LKQL_File, Option);
 
    type Option_Record is record
       Kind  : Option_Kind;
@@ -1052,6 +1052,16 @@ package body Gnatcheck.Projects is
          case O.Kind is
             when File =>
                Process_Rule_File (To_String (O.Value));
+            when LKQL_File =>
+               declare
+                  LKQL_Rule_File_Name : constant String := To_String (O.Value);
+               begin
+                  if not Is_Regular_File (LKQL_Rule_File_Name) then
+                     Error ("can not locate LKQL rule file " &
+                            LKQL_Rule_File_Name);
+                     Missing_Rule_File_Detected := True;
+                  end if;
+               end;
             when Option =>
                Process_Rule_Option (To_String (O.Value), Defined_At => "");
          end case;
@@ -1087,22 +1097,35 @@ package body Gnatcheck.Projects is
          Goto_Section ("rules", Parser => Parser);
 
          loop
-            case GNAT.Command_Line.Getopt ("* from=", Parser => Parser) is
+            case GNAT.Command_Line.Getopt
+              ("* from= from-lkql=", Parser => Parser) is
             --  We do not want to depend on the set of the currently
             --  implemented rules
                when ASCII.NUL =>
                   exit;
                when 'f' =>
-                  Rule_Options.Append
-                    (Option_Record'(File,
-                      To_Unbounded_String (Parameter (Parser => Parser))));
-
-                  if not More_Then_One_Rule_File_Set then
-                     Rule_File_Name :=
-                       new String'(Parameter (Parser => Parser));
-                     More_Then_One_Rule_File_Set := True;
+                  if Full_Switch (Parser => Parser) = "from" then
+                     Rule_Options.Append
+                       (Option_Record'(File,
+                         To_Unbounded_String (Parameter (Parser => Parser))));
+                     if not More_Then_One_Rule_File_Set then
+                        Rule_File_Name :=
+                        new String'(Parameter (Parser => Parser));
+                        More_Then_One_Rule_File_Set := True;
+                     else
+                        Free (Rule_File_Name);
+                     end if;
                   else
-                     Free (Rule_File_Name);
+                     Rule_Options.Append
+                       (Option_Record'(LKQL_File,
+                         To_Unbounded_String (Parameter (Parser => Parser))));
+                     if LKQL_Rule_File_Name = null then
+                        LKQL_Rule_File_Name :=
+                        new String'(Parameter (Parser => Parser));
+                     else
+                        Error ("only one LKQL configuration file is allowed");
+                        Rule_Option_Problem_Detected := True;
+                     end if;
                   end if;
 
                when others =>
@@ -1722,6 +1745,12 @@ package body Gnatcheck.Projects is
             exit;
          end if;
       end loop;
+
+      --  If an LKQL rule files was provided consider that there are active
+      --  rules.
+      if LKQL_Rule_File_Name /= null then
+         Active_Rule_Present := True;
+      end if;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          Error ("No rule to check specified");

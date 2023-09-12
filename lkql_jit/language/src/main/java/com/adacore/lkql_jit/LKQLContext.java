@@ -24,21 +24,19 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
-import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.declarations.FunctionDeclaration;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
+import com.adacore.lkql_jit.utils.functions.ParsingUtils;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.source.Source;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,7 +44,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 
 /**
@@ -116,14 +116,49 @@ public final class LKQLContext {
     // ----- Checker attributes -----
 
     /**
-     * The rule arguments.
+     * Result of the LKQL config file parsing and execution.
      */
-    private Map<String, Map<String, Object>> rulesArgs = null;
+    private LKQLConfigFileResult ruleConfigFileResult = null;
 
     /**
-     * The filtered not checkers cache.
+     * List containing all rules to run on all code (SPARK and Ada).
      */
-    private ObjectValue[] filteredNodeCheckers = null;
+    private List<String> allRules = null;
+
+    /**
+     * List containing rules to apply only to Ada code.
+     */
+    private List<String> adaRules = null;
+
+    /**
+     * List containing rules to apply only to SPARK code.
+     */
+    private List<String> sparkRules = null;
+
+    /**
+     * Aliases of the rules.
+     */
+    private Map<String, String> allAliases = null;
+
+    /**
+     * The rules arguments.
+     */
+    private Map<String, Map<String, Object>> allRulesArgs = null;
+
+    /**
+     * The filtered node checkers cache.
+     */
+    private ObjectValue[] filteredAllNodeCheckers = null;
+
+    /**
+     * The filtered node checkers for Ada code only.
+     */
+    private ObjectValue[] filteredAdaNodeCheckers = null;
+
+    /**
+     * The filtered node checkers for SPARK code only.
+     */
+    private ObjectValue[] filteredSparkNodeCheckers = null;
 
     /**
      * The filtered unit checkers cache.
@@ -180,7 +215,13 @@ public final class LKQLContext {
      * The rules to execute.
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] rules;
+    private String[] specifiedRules;
+
+    /**
+     * The LKQL file containing rules configuration.
+     */
+    @CompilerDirectives.CompilationFinal
+    private String ruleConfigFile;
 
     /**
      * The directories where the rule files are located.
@@ -378,16 +419,28 @@ public final class LKQLContext {
      * @return The rule to run.
      */
     @CompilerDirectives.TruffleBoundary
-    private String[] getRules() {
-        if (this.rules == null) {
+    private String[] getSpecifiedRules() {
+        if (this.specifiedRules == null) {
             String[] unfilteredRules = this.env.getOptions().get(LKQLLanguage.rules).trim().replace(" ", "").split(",");
-            this.rules = Arrays.stream(unfilteredRules)
+            this.specifiedRules = Arrays.stream(unfilteredRules)
                 .filter(s -> !s.isBlank() && !s.isEmpty())
                 .map(String::toLowerCase)
                 .distinct()
                 .toArray(String[]::new);
         }
-        return this.rules;
+        return this.specifiedRules;
+    }
+
+    /**
+     * Get the LKQL file to configure the rules.
+     *
+     * @return The LKQL file name to configure the rules.
+     */
+    private String getRuleConfigFile() {
+        if (this.ruleConfigFile == null) {
+            this.ruleConfigFile = this.env.getOptions().get(LKQLLanguage.LKQLRuleFile);
+        }
+        return this.ruleConfigFile;
     }
 
     /**
@@ -429,10 +482,18 @@ public final class LKQLContext {
         this.projectFile = null;
         this.files = null;
         this.errorMode = null;
-        this.rules = null;
+        this.specifiedRules = null;
+        this.ruleConfigFile = null;
         this.ruleDirectories = null;
         this.ignores = null;
         this.emitter = null;
+
+        this.ruleConfigFileResult = null;
+        this.allRules = null;
+        this.adaRules = null;
+        this.sparkRules = null;
+        this.allAliases = null;
+        this.allRulesArgs = null;
     }
 
     // ----- Value related methods -----
@@ -655,6 +716,81 @@ public final class LKQLContext {
 
     // ----- Checker methods -----
 
+    /**
+     * Get the LQKL rule configuration file parsing result.
+     *
+     * @return The LKQL rule configuration file parsing result.
+     */
+    private LKQLConfigFileResult getRuleConfigFileResult() {
+        if (this.ruleConfigFileResult == null) {
+            if (!this.getRuleConfigFile().isEmpty()) {
+                this.ruleConfigFileResult = ParsingUtils.parseLKQLConfigFile(this, this.getRuleConfigFile());
+            } else {
+                this.ruleConfigFileResult = new LKQLConfigFileResult(
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new HashMap<>(),
+                    new HashMap<>()
+                );
+            }
+        }
+        return this.ruleConfigFileResult;
+    }
+
+    /**
+     * Get rules to apply to all codes.
+     *
+     * @return The list containing rules.
+     */
+    public List<String> getAllRules() {
+        if (this.allRules == null) {
+            this.allRules = new ArrayList<>();
+            this.allRules.addAll(this.getRuleConfigFileResult().allRules());
+            this.allRules.addAll(List.of(this.getSpecifiedRules()));
+        }
+        return this.allRules;
+    }
+
+    /**
+     * Get rules to apply to Ada code only.
+     *
+     * @return The list containing rules.
+     */
+    public List<String> getAdaRules() {
+        if (this.adaRules == null) {
+            this.adaRules = new ArrayList<>();
+            this.adaRules.addAll(this.getRuleConfigFileResult().adaRules());
+        }
+        return this.adaRules;
+    }
+
+    /**
+     * Get the rules to apply to SPARK code only.
+     *
+     * @return The list containing the rules.
+     */
+    public List<String> getSparkRules() {
+        if (this.sparkRules == null) {
+            this.sparkRules = new ArrayList<>();
+            this.sparkRules.addAll(this.getRuleConfigFileResult().sparkRules());
+        }
+        return this.sparkRules;
+    }
+
+    /**
+     * Get the rule name corresponding to the given alias.
+     *
+     * @param alias The alias to get the rule from.
+     * @return The rule name if the alias corresponds to one, null else.
+     */
+    public String getRuleFromAlias(final String alias) {
+        if (this.allAliases == null) {
+            this.allAliases = new HashMap<>();
+            this.allAliases.putAll(this.getRuleConfigFileResult().aliases());
+        }
+        return this.allAliases.get(alias);
+    }
 
     /**
      * Get the argument value for the wanted rule.
@@ -665,127 +801,54 @@ public final class LKQLContext {
      */
     @CompilerDirectives.TruffleBoundary
     public Object getRuleArg(String ruleName, String argName) {
-        if (this.rulesArgs == null) {
-            this.initRuleArguments();
+        if (this.allRulesArgs == null) {
+            this.allRulesArgs = new HashMap<>();
+            this.allRulesArgs.putAll(this.getRuleConfigFileResult().args());
+            this.allRulesArgs.putAll(ParsingUtils.parseRulesArgs(
+                this.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";")
+            ));
         }
-        Map<String, Object> ruleArgs = this.rulesArgs.getOrDefault(ruleName, null);
+        Map<String, Object> ruleArgs = this.allRulesArgs.getOrDefault(ruleName, null);
         return ruleArgs == null ?
             null :
             ruleArgs.getOrDefault(argName, null);
     }
 
     /**
-     * Initialize the rule arguments and populate the map.
-     */
-    private void initRuleArguments() {
-        // Split the rules arguments and initialize the rule arguments map
-        final String[] rulesArgsSources = this.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";");
-        this.rulesArgs = new HashMap<>();
-
-        for (String ruleArgSource : rulesArgsSources) {
-            // Verify that the rule is not empty
-            if (ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
-
-            // Split the get the names and the value
-            final String[] valueSplit = ruleArgSource.split("=");
-            final String[] nameSplit = valueSplit[0].split("\\.");
-
-            // Verify the rule argument syntax
-            if (valueSplit.length != 2 || nameSplit.length != 2) {
-                throw LKQLRuntimeException.fromMessage("Rule argument syntax error : '" + ruleArgSource + "'");
-            }
-
-            // Get the information from the rule argument source
-            final String ruleName = nameSplit[0].toLowerCase().trim();
-            final String argName = nameSplit[1].toLowerCase().trim();
-            final String valueSource = valueSplit[1].trim();
-
-            // Parse the value source with Liblkqllang
-            final Object argumentValue;
-            try (Liblkqllang.AnalysisContext context = Liblkqllang.AnalysisContext.create()) {
-                // Parse the argument value source with Liblkqllang
-                final Liblkqllang.AnalysisUnit unit = context.getUnitFromBuffer(
-                    valueSource,
-                    "rule_argument",
-                    null,
-                    Liblkqllang.GrammarRule.EXPR_RULE
-                );
-                final Liblkqllang.LkqlNode root = unit.getRoot();
-
-                // Validate the argument value node
-                if (!isValidRuleArgument(root)) {
-                    throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : " + valueSource);
-                }
-
-                // Execute the value source with LKQL implementation
-                final Source source = Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument").build();
-                final LKQLNode node = LangkitTranslator.translate(root, source);
-                argumentValue = node.executeGeneric(null);
-            }
-
-            // Add the argument in the context
-            final Map<String, Object> argumentMap = this.rulesArgs.getOrDefault(ruleName, new HashMap<>());
-            argumentMap.put(argName, argumentValue);
-            this.rulesArgs.put(ruleName, argumentMap);
-        }
-    }
-
-    /**
-     * Get if the given LKQL node is a valid argument node.
-     *
-     * @param argumentNode The argument to validate.
-     * @return True if the node is a valid argument node, false else.
-     */
-    private static boolean isValidRuleArgument(Liblkqllang.LkqlNode argumentNode) {
-        // If the node is just a literal it's value
-        if (argumentNode instanceof Liblkqllang.Literal) return true;
-
-            // Else if it's a tuple literal we must verify the expressions inside it
-        else if (argumentNode instanceof Liblkqllang.Tuple tupleLiteral) {
-            Liblkqllang.ExprList exprList = tupleLiteral.fExprs();
-            int childrenCount = exprList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                if (!isValidRuleArgument(exprList.getChild(i))) return false;
-            }
-            return true;
-        }
-
-        // Else if it's a list literal we must verify the expressions of the list
-        else if (argumentNode instanceof Liblkqllang.ListLiteral listLiteral) {
-            Liblkqllang.ExprList exprList = listLiteral.fExprs();
-            int childrenCount = exprList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                if (!isValidRuleArgument(exprList.getChild(i))) return false;
-            }
-            return true;
-        }
-
-        // Else if it's an object literal we must verify all association values
-        else if (argumentNode instanceof Liblkqllang.ObjectLiteral objectLiteral) {
-            Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
-            int childrenCount = assocList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
-                if (!isValidRuleArgument(assoc.fExpr())) return false;
-            }
-            return true;
-        }
-
-        // By default return false
-        return false;
-    }
-
-    /**
      * Get the filtered node rules in this context.
      *
-     * @return The node rule list filtered according to options.
+     * @return The node checkers array filtered according to options.
      */
     @CompilerDirectives.TruffleBoundary
-    public ObjectValue[] getNodeCheckersFiltered() {
-        if (this.filteredNodeCheckers == null) {
+    public ObjectValue[] getAllNodeCheckers() {
+        if (this.filteredAllNodeCheckers == null) {
             this.initCheckerCaches();
         }
-        return this.filteredNodeCheckers;
+        return this.filteredAllNodeCheckers;
+    }
+
+    /**
+     * Get the filtered node checkers for Ada code only.
+     *
+     * @return The node checkers array for Ada code only.
+     */
+    public ObjectValue[] getAdaNodeCheckers() {
+        if (this.filteredAdaNodeCheckers == null) {
+            this.initCheckerCaches();
+        }
+        return this.filteredAdaNodeCheckers;
+    }
+
+    /**
+     * Get the filtered node checkers for SPARK code only.
+     *
+     * @return The node checkers array for SPARK code only.
+     */
+    public ObjectValue[] getSparkNodeCheckers() {
+        if (this.filteredSparkNodeCheckers == null) {
+            this.initCheckerCaches();
+        }
+        return this.filteredSparkNodeCheckers;
     }
 
     /**
@@ -807,13 +870,19 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     private void initCheckerCaches() {
         // Prepare the working variables
-        final List<ObjectValue> nodeCheckers = new ArrayList<>();
+        final List<ObjectValue> allNodeCheckers = new ArrayList<>();
+        final List<ObjectValue> adaNodeCheckers = new ArrayList<>();
+        final List<ObjectValue> sparkNodeCheckers = new ArrayList<>();
         final List<ObjectValue> unitCheckers = new ArrayList<>();
         final Map<String, ObjectValue> allCheckers = this.global.getCheckers();
-        final String[] wantedRules = this.getRules();
+
+        // Get the command line required rules
+        final List<String> allRules = this.getAllRules();
+        final List<String> adaRules = this.getAdaRules();
+        final List<String> sparkRules = this.getSparkRules();
 
         // Lambda to dispatch checkers in the correct lists
-        final Consumer<ObjectValue> dispatchChecker = (checker) -> {
+        final BiConsumer<ObjectValue, List<ObjectValue>> dispatchChecker = (checker, nodeCheckers) -> {
             if (checker.get("mode") == FunctionDeclaration.CheckerMode.NODE) {
                 nodeCheckers.add(checker);
                 if ((boolean) checker.get("follow_generic_instantiations")) {
@@ -824,26 +893,51 @@ public final class LKQLContext {
             }
         };
 
+        // Lambda to get the checker object value from the rule name
+        final Function<String, ObjectValue> getAssociatedChecker = (ruleName) -> {
+            // Get the checker from the given rule name
+            ObjectValue res = null;
+            final String aliasResolved = this.getRuleFromAlias(ruleName);
+            if (aliasResolved != null) {
+                res = new ObjectValue(allCheckers.get(aliasResolved));
+                res.set("alias", ruleName);
+            } else {
+                res = allCheckers.get(ruleName);
+            }
+
+            // Verify that the checker is not null
+            if (res == null) {
+                throw LKQLRuntimeException.fromMessage("Could not find any rule named " + ruleName);
+            }
+
+            // Return the result
+            return res;
+        };
+
         // If there is no wanted rule, run them all (if the appropriate option is set)
-        if (wantedRules.length == 0 && this.env.getOptions().get(LKQLLanguage.fallbackToAllRules)) {
+        if (allRules.size() == 0 && this.env.getOptions().get(LKQLLanguage.fallbackToAllRules)) {
             for (ObjectValue checker : allCheckers.values()) {
-                dispatchChecker.accept(checker);
+                dispatchChecker.accept(checker, allNodeCheckers);
             }
         }
 
         // Else verify and add the wanted rules
         else {
-            for (String rule : wantedRules) {
-                if (allCheckers.containsKey(rule)) {
-                    dispatchChecker.accept(allCheckers.get(rule));
-                } else {
-                    throw LKQLRuntimeException.fromMessage("Could not find any rule named " + rule);
-                }
+            for (String ruleName : allRules) {
+                dispatchChecker.accept(getAssociatedChecker.apply(ruleName), allNodeCheckers);
+            }
+            for (String ruleName : adaRules) {
+                dispatchChecker.accept(getAssociatedChecker.apply(ruleName), adaNodeCheckers);
+            }
+            for (String ruleName : sparkRules) {
+                dispatchChecker.accept(getAssociatedChecker.apply(ruleName), sparkNodeCheckers);
             }
         }
 
         // Set the checker caches
-        this.filteredNodeCheckers = nodeCheckers.toArray(new ObjectValue[0]);
+        this.filteredAllNodeCheckers = allNodeCheckers.toArray(new ObjectValue[0]);
+        this.filteredAdaNodeCheckers = adaNodeCheckers.toArray(new ObjectValue[0]);
+        this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new ObjectValue[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new ObjectValue[0]);
     }
 
