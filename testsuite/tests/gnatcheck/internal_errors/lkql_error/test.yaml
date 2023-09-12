@@ -5,3 +5,5 @@ rules_dirs:
 rules:
   - +Rfoo
   - +Rfoo_unit
+control:
+  - [XFAIL, "mode == 'ada' and os_name == 'nt'", "GNATcheck doesn't report LKQL exception on Windows"]
