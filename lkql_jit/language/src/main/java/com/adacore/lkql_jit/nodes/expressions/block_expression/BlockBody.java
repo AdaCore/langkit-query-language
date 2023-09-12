@@ -23,14 +23,12 @@
 
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents a body part of a block expression
+ * This class represents a body part of a block expression.
  *
  * @author Hugo GUERRIER
  */
@@ -39,32 +37,14 @@ public abstract class BlockBody extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new block body node
+     * Create a new block body node.
      *
-     * @param location The location of the node in the source
+     * @param location The location of the node in the source.
      */
     protected BlockBody(
         SourceLocation location
     ) {
         super(location);
     }
-
-    // ----- Execution methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
-     */
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        throw LKQLRuntimeException.shouldNotExecute(this);
-    }
-
-    /**
-     * Execute the block body part
-     *
-     * @param frame The frame for the execution
-     * @return The result of the execution
-     */
-    public abstract Object executeBlockBody(VirtualFrame frame);
 
 }

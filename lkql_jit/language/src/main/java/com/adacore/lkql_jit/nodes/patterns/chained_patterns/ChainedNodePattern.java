@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.ListUtils;
+import com.adacore.lkql_jit.utils.functions.ListUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.List;
 
 
 /**
- * This node represents a chained node pattern in the LKQL language
+ * This node represents a chained node pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,14 +45,14 @@ public final class ChainedNodePattern extends ValuePattern {
     // ----- Children -----
 
     /**
-     * The node pattern start of the chain
+     * The node pattern start of the chain.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern nodePattern;
 
     /**
-     * The chain for the node pattern
+     * The chain for the node pattern.
      */
     @Children
     private final ChainedPatternLink[] chain;
@@ -60,11 +60,11 @@ public final class ChainedNodePattern extends ValuePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new chained node pattern with parameters
+     * Create a new chained node pattern with parameters.
      *
-     * @param location    The location of the node in the source
-     * @param nodePattern The node pattern
-     * @param chain       The chain for the node pattern
+     * @param location    The location of the node in the source.
+     * @param nodePattern The node pattern.
+     * @param chain       The chain for the node pattern.
      */
     public ChainedNodePattern(
         SourceLocation location,
@@ -87,11 +87,11 @@ public final class ChainedNodePattern extends ValuePattern {
     }
 
     /**
-     * Get the result node from the chained pattern
+     * Get the result node from the chained pattern.
      *
-     * @param frame The frame to execute in
-     * @param node  The node to verify
-     * @return The result of the chained pattern
+     * @param frame The frame to execute in.
+     * @param node  The node to verify.
+     * @return The result of the chained pattern.
      */
     public Libadalang.AdaNode[] executeChained(VirtualFrame frame, Libadalang.AdaNode node) {
         if (this.nodePattern.executeNode(frame, node)) {
@@ -104,12 +104,12 @@ public final class ChainedNodePattern extends ValuePattern {
     // ----- Class methods -----
 
     /**
-     * Execute the link of the chain at the given index with the given node
+     * Execute the link of the chain at the given index with the given node.
      *
-     * @param frame The frame to execute in
-     * @param index The index of the link to execute
-     * @param node  The node to execute the link on
-     * @return The array of the link execution result
+     * @param frame The frame to execute in.
+     * @param index The index of the link to execute.
+     * @param node  The node to execute the link on.
+     * @return The array of the link execution result.
      */
     private Libadalang.AdaNode[] executeLink(VirtualFrame frame, int index, Libadalang.AdaNode node) {
         // Get the result of the link execution

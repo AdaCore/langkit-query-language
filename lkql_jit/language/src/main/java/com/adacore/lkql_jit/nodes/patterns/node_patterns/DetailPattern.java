@@ -32,7 +32,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a pattern detail value in the LKQL language
+ * This node represents a pattern detail value in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -41,7 +41,7 @@ public final class DetailPattern extends DetailValue {
     // ----- Children -----
 
     /**
-     * The pattern to verify for the detail value
+     * The pattern to verify for the detail value.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -50,10 +50,10 @@ public final class DetailPattern extends DetailValue {
     // ----- Constructors -----
 
     /**
-     * Create a new pattern detail
+     * Create a new pattern detail.
      *
-     * @param location The location of the node in the source
-     * @param pattern  The pattern to verify
+     * @param location The location of the node in the source.
+     * @param pattern  The pattern to verify.
      */
     public DetailPattern(
         SourceLocation location,

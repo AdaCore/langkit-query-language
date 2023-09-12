@@ -28,9 +28,9 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.Iterator;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.Objects;
@@ -46,16 +46,16 @@ public final class ListValue implements Iterable, Indexable, Truthy {
     // ----- Attributes -----
 
     /**
-     * The content of the list
+     * The content of the list.
      */
     private final Object[] content;
 
     // ----- Constructors -----
 
     /**
-     * Create a new list value
+     * Create a new list value.
      *
-     * @param content The list content
+     * @param content The list content.
      */
     public ListValue(
         Object[] content
@@ -165,28 +165,28 @@ public final class ListValue implements Iterable, Indexable, Truthy {
     // ----- Inner classes -----
 
     /**
-     * This class represents an iterator for a list value
+     * This class represents an iterator for a list value.
      */
     public static final class ListValueIterator implements Iterator {
 
         // ----- Attributes -----
 
         /**
-         * The list to iterate on
+         * The list to iterate on.
          */
         private final ListValue list;
 
         /**
-         * The pointer to the next value to return
+         * The pointer to the next value to return.
          */
         private int pointer;
 
         // ----- Constructors -----
 
         /**
-         * Create a new iterator on the list value
+         * Create a new iterator on the list value.
          *
-         * @param list The list to iterate on
+         * @param list The list to iterate on.
          */
         public ListValueIterator(
             ListValue list
@@ -198,7 +198,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         // ----- Iteration methods -----
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext()
+         * @see com.adacore.lkql_jit.utils.Iterator#hasNext()
          */
         @Override
         public boolean hasNext() {
@@ -206,7 +206,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#next()
+         * @see com.adacore.lkql_jit.utils.Iterator#next()
          */
         @Override
         public Object next() {
@@ -214,7 +214,7 @@ public final class ListValue implements Iterable, Indexable, Truthy {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#reset()
+         * @see com.adacore.lkql_jit.utils.Iterator#reset()
          */
         @Override
         public void reset() {

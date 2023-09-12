@@ -27,10 +27,11 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 
 /**
- * This node represents a pattern matching expression in the LKQL language
+ * This node represents a pattern matching expression in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -39,14 +40,14 @@ public final class Match extends Expr {
     // ----- Children -----
 
     /**
-     * The expression to match
+     * Expression to match.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr matchedExpr;
+    private Expr expr;
 
     /**
-     * The matching arms
+     * Matching arms.
      */
     @Children
     private final MatchArm[] arms;
@@ -54,19 +55,19 @@ public final class Match extends Expr {
     // ----- constructors -----
 
     /**
-     * Create a new match node
+     * Create a new match node.
      *
-     * @param location    The location of the node in the source
-     * @param matchedExpr The expression to match
-     * @param arms        The matching arms
+     * @param location The location of the node in the source.
+     * @param expr     The expression to match.
+     * @param arms     The matching arms.
      */
     public Match(
         SourceLocation location,
-        Expr matchedExpr,
+        Expr expr,
         MatchArm[] arms
     ) {
         super(location);
-        this.matchedExpr = matchedExpr;
+        this.expr = expr;
         this.arms = arms;
     }
 
@@ -76,9 +77,10 @@ public final class Match extends Expr {
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
+    @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the expression as a node
-        Object toMatch = this.matchedExpr.executeGeneric(frame);
+        Object toMatch = this.expr.executeGeneric(frame);
 
         // For every match arm try to match and return the result
         for (MatchArm arm : this.arms) {

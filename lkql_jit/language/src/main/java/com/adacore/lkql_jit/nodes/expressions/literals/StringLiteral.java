@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a string literal in the LKQL language
+ * This node represents a string literal in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,17 +38,17 @@ public final class StringLiteral extends Expr {
     // ----- Attributes -----
 
     /**
-     * The value of the string literal
+     * The value of the string literal.
      */
     private final String value;
 
     // ----- Constructors -----
 
     /**
-     * Create a new string literal with its value
+     * Create a new string literal with its value.
      *
-     * @param location The location of the node in the source
-     * @param value    The value of the string
+     * @param location The location of the node in the source.
+     * @param value    The value of the string.
      */
     public StringLiteral(
         SourceLocation location,

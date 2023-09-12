@@ -30,7 +30,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 
 
 /**
- * This node is the base of all binary operations in the LKQL language
+ * This node is the base of all binary operations in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -41,23 +41,23 @@ public abstract class BinOp extends Expr {
     // ----- Attributes -----
 
     /**
-     * The location of the left node
+     * The location of the left node.
      */
     protected final DummyLocation leftLocation;
 
     /**
-     * The location of the right node
+     * The location of the right node.
      */
     protected final DummyLocation rightLocation;
 
     // ----- Constructors -----
 
     /**
-     * Create a binary operation node
+     * Create a binary operation node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinOp(
         SourceLocation location,

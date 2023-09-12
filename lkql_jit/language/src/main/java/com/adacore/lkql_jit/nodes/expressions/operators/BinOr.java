@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This node represents the "or" logical operation in the LKQL language
+ * This node represents the "or" logical operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -37,11 +37,11 @@ public final class BinOr extends BinShortCircuit {
     // ----- Constructors -----
 
     /**
-     * Create an "or" node
+     * Create an "or" node.
      *
-     * @param location The location of the node in the source
-     * @param left     The left expression
-     * @param right    The right expression
+     * @param location The location of the node in the source.
+     * @param left     The left expression.
+     * @param right    The right expression.
      */
     public BinOr(
         SourceLocation location,

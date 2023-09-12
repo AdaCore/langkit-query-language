@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the pattern that filters by node kind in the LKQL language
+ * This node represents the pattern that filters by node kind in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,17 +40,17 @@ public final class NodeKindPattern extends NodePattern {
     // ----- Attributes -----
 
     /**
-     * The Java class of the node kind
+     * The Java class of the node kind.
      */
     private final Class<? extends Libadalang.AdaNode> nodeClazz;
 
     // ----- Constructors -----
 
     /**
-     * Create a new node kind pattern node
+     * Create a new node kind pattern node.
      *
-     * @param location The location of the node in the source
-     * @param kindName The node kind name
+     * @param location The location of the node in the source.
+     * @param kindName The node kind name.
      */
     public NodeKindPattern(SourceLocation location, String kindName) {
         super(location);

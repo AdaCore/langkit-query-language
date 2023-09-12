@@ -30,7 +30,7 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.util.LinkedList;
@@ -38,7 +38,7 @@ import java.util.List;
 
 
 /**
- * This class contains all built-in methods for the iterable type in the LKQL language
+ * This class contains all built-in methods for the iterable type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -71,7 +71,7 @@ public abstract class IterableMethods extends CommonMethods {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "to_list" method
+     * Expression of the "to_list" method.
      */
     public static class ToListExpr extends BuiltInExpr {
         @Override
@@ -92,7 +92,7 @@ public abstract class IterableMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "length" method
+     * Expression of the "length" method.
      */
     public static class LengthExpr extends BuiltInExpr {
         @Override

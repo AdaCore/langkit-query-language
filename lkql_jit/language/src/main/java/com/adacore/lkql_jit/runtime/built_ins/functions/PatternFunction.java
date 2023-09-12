@@ -36,7 +36,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represents the "pattern" built-in function in the LKQL language
+ * This class represents the "pattern" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,33 +45,33 @@ public final class PatternFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "pattern" built-in
+     * The only instance of the "pattern" built-in.
      */
     private static PatternFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "pattern";
 
     /**
-     * The expression that represents the "pattern" function execution
+     * The expression that represents the "pattern" function execution.
      */
     private final PatternExpr patternExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private PatternFunction() {
         this.patternExpr = new PatternExpr();
     }
 
     /**
-     * Get the only instance of the built-in function
+     * Get the only instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static PatternFunction getInstance() {
         if (instance == null) {
@@ -107,7 +107,7 @@ public final class PatternFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "pattern" function
+     * Expression of the "pattern" function.
      */
     public final static class PatternExpr extends BuiltInExpr {
         @Override

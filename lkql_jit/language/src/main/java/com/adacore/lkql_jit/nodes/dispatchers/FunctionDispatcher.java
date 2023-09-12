@@ -32,7 +32,7 @@ import com.oracle.truffle.api.nodes.Node;
 
 
 /**
- * This node is a dispatcher for the function execution in the LKQL JIT
+ * This node is a dispatcher for the function execution in the LKQL JIT.
  *
  * @author Hugo GUERRIER
  */
@@ -41,17 +41,17 @@ public abstract class FunctionDispatcher extends Node {
     // ----- Execution methods -----
 
     /**
-     * Method to enter the dispatch of the node
+     * Method to enter the dispatch of the node.
      */
     public abstract Object executeDispatch(FunctionValue function, Object[] arguments);
 
     /**
-     * Execute the function via a cached direct node
+     * Execute the function via a cached direct node.
      *
-     * @param function       The function value to execute
-     * @param arguments      The calling arguments
-     * @param directCallNode The direct call node
-     * @return The result of the function execution
+     * @param function       The function value to execute.
+     * @param arguments      The calling arguments.
+     * @param directCallNode The direct call node.
+     * @return The result of the function execution.
      */
     @Specialization(guards = "function.getCallTarget() == directCallNode.getCallTarget()")
     protected static Object dispatchDirect(
@@ -63,12 +63,12 @@ public abstract class FunctionDispatcher extends Node {
     }
 
     /**
-     * Execute the function with an indirect call
+     * Execute the function with an indirect call.
      *
-     * @param function         The function value to execute
-     * @param arguments        The function call arguments
-     * @param indirectCallNode The indirect call node
-     * @return The result of the function execution
+     * @param function         The function value to execute.
+     * @param arguments        The function call arguments.
+     * @param indirectCallNode The indirect call node.
+     * @return The result of the function execution.
      */
     @Specialization(replaces = "dispatchDirect")
     protected static Object dispatchIndirect(

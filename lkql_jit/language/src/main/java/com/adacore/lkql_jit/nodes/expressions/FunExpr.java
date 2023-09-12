@@ -23,10 +23,14 @@
 
 package com.adacore.lkql_jit.nodes.expressions;
 
-import com.adacore.lkql_jit.nodes.declarations.ParameterDecl;
+import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
+import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -34,7 +38,7 @@ import java.util.Arrays;
 
 
 /**
- * This node represents a function expression in the LKQL language
+ * This node represents a function expression in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -43,34 +47,29 @@ public final class FunExpr extends Expr {
     // ----- Attributes -----
 
     /**
-     * The frame descriptor for the callable function node creation
+     * Closure descriptor of the function.
      */
-    private final FrameDescriptor frameDescriptor;
+    private final ClosureDescriptor closureDescriptor;
 
     /**
-     * The limit for the closure
+     * The root node representing the function execution.
      */
-    private final int closureLimit;
+    private final FunctionRootNode functionRootNode;
 
     /**
-     * The slots to put the arguments in
+     * The names of the parameters.
      */
-    private final int[] slots;
+    private final String[] parameterNames;
 
     /**
-     * The name of the arguments
+     * The default values of the parameters.
      */
-    private final String[] names;
-
-    /**
-     * The default values of the arguments
-     */
-    private final Expr[] values;
+    private final Expr[] parameterValues;
 
     // ----- Children -----
 
     /**
-     * The body of the function
+     * The body of the function.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -79,27 +78,31 @@ public final class FunExpr extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new function expression node
+     * Create a new function expression node.
      *
-     * @param location        The location of the node in the source
-     * @param frameDescriptor The frame descriptor for the function root node
-     * @param closureLimit    The limit of the closure
-     * @param parameters      The parameters of the function
-     * @param body            The body of the function
+     * @param location          The location of the node in the source.
+     * @param frameDescriptor   The frame descriptor for the function root node.
+     * @param closureDescriptor The closure descriptor for the function.
+     * @param parameters        The parameters of the function.
+     * @param body              The body of the function.
      */
     public FunExpr(
-        SourceLocation location,
-        FrameDescriptor frameDescriptor,
-        int closureLimit,
-        ParameterDecl[] parameters,
-        Expr body
+        final SourceLocation location,
+        final FrameDescriptor frameDescriptor,
+        final ClosureDescriptor closureDescriptor,
+        final ParameterDeclaration[] parameters,
+        final Expr body
     ) {
         super(location);
-        this.frameDescriptor = frameDescriptor;
-        this.closureLimit = closureLimit;
-        this.slots = new int[parameters.length];
-        this.names = new String[parameters.length];
-        this.values = new Expr[parameters.length];
+        this.closureDescriptor = closureDescriptor;
+        this.functionRootNode = new FunctionRootNode(
+            LKQLLanguage.getLanguage(this),
+            frameDescriptor,
+            false,
+            body
+        );
+        this.parameterNames = new String[parameters.length];
+        this.parameterValues = new Expr[parameters.length];
         this.body = body;
 
         this.initParams(parameters);
@@ -108,11 +111,10 @@ public final class FunExpr extends Expr {
     /**
      * Initialize the parameter fields
      */
-    private void initParams(ParameterDecl[] parameters) {
+    private void initParams(ParameterDeclaration[] parameters) {
         for (int i = 0; i < parameters.length; i++) {
-            this.slots[i] = parameters[i].getSlot();
-            this.names[i] = parameters[i].getName();
-            this.values[i] = parameters[i].getDefaultValue();
+            this.parameterNames[i] = parameters[i].getName();
+            this.parameterValues[i] = parameters[i].getDefaultValue();
         }
     }
 
@@ -132,15 +134,12 @@ public final class FunExpr extends Expr {
     @Override
     public FunctionValue executeFunction(VirtualFrame frame) {
         return new FunctionValue(
-            this.frameDescriptor,
-            new Closure(frame.materialize(), this.closureLimit),
-            false,
-            "lambda",
-            "",
-            this.slots,
-            this.names,
-            this.values,
-            this.body
+            this.functionRootNode,
+            Closure.create(frame.materialize(), this.closureDescriptor),
+            Constants.FUNCTION_DEFAULT_NAME,
+            Constants.FUNCTION_DEFAULT_DOC,
+            this.parameterNames,
+            this.parameterValues
         );
     }
 
@@ -153,8 +152,8 @@ public final class FunExpr extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"names", "slots"},
-            new Object[]{Arrays.toString(this.names), Arrays.toString(this.slots)}
+            new String[]{"names"},
+            new Object[]{Arrays.toString(this.parameterNames)}
         );
     }
 

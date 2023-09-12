@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents all type of arguments in the LKQL language
+ * This node represents all type of arguments in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,14 +40,14 @@ public abstract class Arg extends LKQLNode {
     // ----- Attributes -----
 
     /**
-     * The argument name, can be null if the arg is an expr one
+     * The argument name, can be null if the arg is an expr one.
      */
     protected final Identifier argName;
 
     // ----- Children -----
 
     /**
-     * The expression of the argument
+     * The expression of the argument.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -56,11 +56,11 @@ public abstract class Arg extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new argument node
+     * Create a new argument node.
      *
-     * @param location The location of the argument in the sources
-     * @param argName  The name of the argument
-     * @param argExpr  The expression of the argument
+     * @param location The location of the argument in the sources.
+     * @param argName  The name of the argument.
+     * @param argExpr  The expression of the argument.
      */
     protected Arg(
         SourceLocation location,

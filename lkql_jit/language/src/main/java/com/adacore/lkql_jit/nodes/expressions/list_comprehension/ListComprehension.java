@@ -26,18 +26,18 @@ package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
+import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.LazyListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.adacore.lkql_jit.utils.ClosureDescriptor;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a list comprehension in the LKQL language
+ * This node represents a list comprehension in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -46,70 +46,71 @@ public final class ListComprehension extends Expr {
     // ----- Attributes -----
 
     /**
-     * The slots of the lsit comprehension associations
+     * Slots for the list comprehension parameters.
      */
     private final int[] slots;
 
     /**
-     * The descriptor for the list comprehension root node
+     * Descriptor of the frame to create.
      */
-    private final FrameDescriptor descriptor;
+    private final FrameDescriptor frameDescriptor;
 
     /**
-     * The limit of the closure
+     * Descriptor for the values to close.
      */
-    private final int closureLimit;
+    private final ClosureDescriptor closureDescriptor;
 
     // ----- Children -----
 
     /**
-     * The generators of the list comprehension
+     * Generators of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private ListCompAssocList generators;
+    private ComprehensionAssocList generators;
 
     /**
-     * The expression result of the list comprehension
+     * Result expression of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
 
     /**
-     * The guard of the list comprehension
+     * Guard expression of the list comprehension.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr guard;
 
     /**
-     * The root node containing the list comprehension logic
+     * Root node of the list comprehension.
      */
     private final ListComprehensionRootNode rootNode;
 
     // -----  Constructors -----
 
     /**
-     * Create a new list comprehension node
+     * Create a new list comprehension node.
      *
-     * @param location   The location of the node in the source
-     * @param descriptor The frame descriptor for the root node
-     * @param expr       The result expression of the list comprehension
-     * @param generators The generators of the list comprehension
-     * @param guard      The guard of the list comprehension
+     * @param location          The location of the node in the source.
+     * @param frameDescriptor   The frame descriptor for the root node.
+     * @param closureDescriptor The descriptor for the closure.
+     * @param expr              The result expression of the list comprehension.
+     * @param generators        The generators of the list comprehension.
+     * @param guard             The guard of the list comprehension.
      */
     public ListComprehension(
-        SourceLocation location,
-        FrameDescriptor descriptor,
-        int closureLimit,
-        ListCompAssocList generators,
-        Expr expr,
-        Expr guard
+        final SourceLocation location,
+        final FrameDescriptor frameDescriptor,
+        final ClosureDescriptor closureDescriptor,
+        final ComprehensionAssocList generators,
+        final Expr expr,
+        final Expr guard
     ) {
         super(location);
-        this.descriptor = descriptor;
-        this.closureLimit = closureLimit;
+        this.frameDescriptor = frameDescriptor;
+        this.closureDescriptor = closureDescriptor;
         this.generators = generators;
         this.slots = new int[generators.getCompAssocs().length];
         for (int i = 0; i < this.slots.length; i++) {
@@ -147,8 +148,8 @@ public final class ListComprehension extends Expr {
         // Verify that the result size is strictly positive
         if (resultSize < 1) {
             return new LazyListValue(
-                new Closure(frame.materialize(), this.closureLimit),
-                rootNode,
+                this.rootNode,
+                Closure.create(frame.materialize(), this.closureDescriptor),
                 new Object[0][]
             );
         }
@@ -172,8 +173,8 @@ public final class ListComprehension extends Expr {
 
         // Return the result of the list comprehension as a lazy list
         return new LazyListValue(
-            new Closure(frame.materialize(), this.closureLimit),
             this.rootNode,
+            Closure.create(frame.materialize(), this.closureDescriptor),
             argsList
         );
     }
@@ -181,11 +182,11 @@ public final class ListComprehension extends Expr {
     // ----- Class methods -----
 
     /**
-     * Increase the indexes for the
+     * Increase the iteration indexes.
      *
-     * @param iterators   The iterators containing the current iteration information
-     * @param valueBuffer The buffer to put the values in
-     * @return True if the indexes have been increased
+     * @param iterators   The iterators containing the current iteration information.
+     * @param valueBuffer The buffer to put the values in.
+     * @return True if the indexes have been increased.
      */
     private boolean increaseIndexes(Iterator[] iterators, Object[] valueBuffer) {
         for (int i = iterators.length - 1; i >= 0; i--) {
@@ -205,16 +206,14 @@ public final class ListComprehension extends Expr {
     }
 
     /**
-     * Create a root node for the list comprehension
+     * Create a root node for the list comprehension.
      *
-     * @return The root node for the list comprehension execution
+     * @return The root node for the list comprehension execution.
      */
-    @CompilerDirectives.TruffleBoundary
     private ListComprehensionRootNode createRootNode() {
         return new ListComprehensionRootNode(
             LKQLLanguage.getLanguage(this),
-            this.descriptor,
-            this.slots,
+            this.frameDescriptor,
             this.guard,
             this.expr
         );

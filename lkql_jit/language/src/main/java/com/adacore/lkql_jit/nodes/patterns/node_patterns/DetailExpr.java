@@ -26,12 +26,12 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an expression detail value in the LKQL language
+ * This node represents an expression detail value in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,7 +40,7 @@ public final class DetailExpr extends DetailValue {
     // ----- Children -----
 
     /**
-     * The expression of the detail value
+     * The expression of the detail value.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -49,10 +49,10 @@ public final class DetailExpr extends DetailValue {
     // ----- Constructors -----
 
     /**
-     * Create a new detail expression node
+     * Create a new detail expression node.
      *
-     * @param location The location of the node in the source
-     * @param expr     The expression of the detail value
+     * @param location The location of the node in the source.
+     * @param expr     The expression of the detail value.
      */
     public DetailExpr(
         SourceLocation location,

@@ -26,13 +26,13 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "img" built-in function in the LKQL language
+ * This class represents the "img" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -41,33 +41,33 @@ public final class ImgFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance for the "img" built-in
+     * The only instance for the "img" built-in.
      */
     private static ImgFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "img";
 
     /**
-     * The expression that represents the "img" function execution
+     * The expression that represents the "img" function execution.
      */
     private final ImgExpr imgExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private ImgFunction() {
         this.imgExpr = new ImgExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static ImgFunction getInstance() {
         if (instance == null) {
@@ -103,7 +103,7 @@ public final class ImgFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "img" function
+     * Expression of the "img" function.
      */
     public final static class ImgExpr extends BuiltInExpr {
         @Override

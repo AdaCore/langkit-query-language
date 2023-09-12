@@ -32,7 +32,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represent the base of the binary operation node that are edibles to the short circuit strategy
+ * This class represent the base of the binary operation node that are edibles to the short circuit strategy.
  *
  * @author Hugo GUERRIER
  */
@@ -41,14 +41,14 @@ public abstract class BinShortCircuit extends Expr {
     // ----- Children -----
 
     /**
-     * The left operand expression
+     * The left operand expression.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr left;
 
     /**
-     * The right operand expression
+     * The right operand expression.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -57,11 +57,11 @@ public abstract class BinShortCircuit extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new bin op short circuit node
+     * Create a new bin op short circuit node.
      *
-     * @param location The location of the node in the source
-     * @param left     The left expression
-     * @param right    The right expression
+     * @param location The location of the node in the source.
+     * @param left     The left expression.
+     * @param right    The right expression.
      */
     protected BinShortCircuit(
         SourceLocation location,
@@ -121,19 +121,19 @@ public abstract class BinShortCircuit extends Expr {
     // ----- Class methods -----
 
     /**
-     * Get if the right execution is necessary
+     * Get if the right execution is necessary.
      *
-     * @param leftValue The left value
-     * @return True if the right execution is necessary, false else
+     * @param leftValue The left value.
+     * @return True if the right execution is necessary, false else.
      */
     protected abstract boolean doRightEvaluation(boolean leftValue);
 
     /**
-     * Do the execution for the left and right value
+     * Do the execution for the left and right value.
      *
-     * @param leftValue  The left value
-     * @param rightValue The right value
-     * @return The result of the node execution
+     * @param leftValue  The left value.
+     * @param rightValue The right value.
+     * @return The result of the node execution.
      */
     protected abstract boolean execute(boolean leftValue, boolean rightValue);
 

@@ -23,15 +23,18 @@
 
 package com.adacore.lkql_jit.runtime.values;
 
+import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
 /**
- * This class represents the namespace values in the LKQL language
+ * This class represents the namespace values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,63 +43,62 @@ public final class NamespaceValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * An array containing the name of the values in the namespace
+     * Map which contains the symbols in the namespace.
      */
-    private final String[] names;
-
-    /**
-     * An array containing all values in the namespace
-     */
-    private final Object[] values;
-
-    /**
-     * LKQL checkers defined in the namespace
-     */
-    private final Map<String, ObjectValue> checkers;
+    private final Map<String, Object> symbols;
 
     // ----- Constructors -----
 
     /**
-     * Create a new namespace with its name and bindings
+     * Create a new namespace with its name and bindings.
      *
-     * @param names  The names of the variables to put in the namespace
-     * @param values The values of the variables to put in the namespace
+     * @param symbols The symbols in the namespace.
      */
     public NamespaceValue(
-        String[] names,
-        Object[] values,
-        Map<String, ObjectValue> checkers
+        final Map<String, Object> symbols
     ) {
-        this.names = names;
-        this.values = values;
-        this.checkers = checkers;
+        this.symbols = symbols;
+    }
+
+    /**
+     * Create a namespace from the given frame.
+     *
+     * @param frame The frame to create the namespace from.
+     * @return The newly created namespace.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static NamespaceValue create(
+        final MaterializedFrame frame
+    ) {
+        // Prepare the map for the symbols
+        final Map<String, Object> symbols = new HashMap<>();
+
+        // Get the frame descriptor to iterate on the frame slots
+        final FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
+        for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
+            final String name = (String) frameDescriptor.getSlotName(i);
+            if (name != null) {
+                symbols.put(name, ((Cell) frame.getObject(i)).getRef());
+            }
+        }
+
+        // Return the new namespace
+        return new NamespaceValue(symbols);
     }
 
     // ----- Getters -----
 
-    public Object[] getValues() {
-        return values;
-    }
-
-    public String[] getNames() {
-        return names;
-    }
-
-    public Map<String, ObjectValue> getCheckers() {
-        return this.checkers;
-    }
-
     /**
-     * Get a value from the namespace with its name
+     * Get a value from the namespace with its name.
      *
-     * @param symbol The name of the value to get
-     * @return The value if it exists, null else
+     * @param symbol The name of the value to get.
+     * @return The value if it exists, null else.
      */
-    public Object get(String symbol) {
-        for (int i = 0; i < this.names.length; i++) {
-            if (this.names[i].equals(symbol)) return this.values[i];
-        }
-        return null;
+    @CompilerDirectives.TruffleBoundary
+    public Object get(
+        final String symbol
+    ) {
+        return this.symbols.getOrDefault(symbol, null);
     }
 
     // ----- Value methods -----
@@ -105,11 +107,11 @@ public final class NamespaceValue implements LKQLValue {
      * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
+    @CompilerDirectives.TruffleBoundary
     public boolean internalEquals(LKQLValue o) {
         if (o == this) return true;
         if (!(o instanceof NamespaceValue other)) return false;
-        return ArrayUtils.equals(this.values, other.values) &&
-            ArrayUtils.equals(this.names, other.names);
+        return this.symbols.equals(other.symbols);
     }
 
     // ----- Override methods -----
@@ -117,16 +119,8 @@ public final class NamespaceValue implements LKQLValue {
     @Override
     @CompilerDirectives.TruffleBoundary
     public String toString() {
-        // Create the string for the mapping
-        StringBuilder symbols = new StringBuilder();
-        for (int i = 0; i < this.names.length; i++) {
-            symbols.append(this.names[i]).append(": ").append(this.values[i].toString());
-            if (i < this.names.length - 1) symbols.append(", ");
-        }
-
         // Return the string
-        return "Namespace <symbols = " + symbols +
-            ", checkers = " + this.checkers + ">";
+        return "Namespace <symbols = " + this.symbols + ">";
     }
 
 }

@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 
 
 /**
- * This class contains all built-in methods for the list type in the LKQL language
+ * This class contains all built-in methods for the list type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -37,7 +37,7 @@ public final class ListMethods extends IterableMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static ListMethods instance = null;
 
@@ -51,9 +51,9 @@ public final class ListMethods extends IterableMethods {
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the list methods.
      */
     public static ListMethods getInstance() {
         if (instance == null) {

@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a boolean literal in the LKQL language
+ * This node represents a boolean literal in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,17 +38,17 @@ public final class BooleanLiteral extends Expr {
     // ----- Attributes -----
 
     /**
-     * The value of the boolean
+     * The value of the boolean.
      */
     private final boolean value;
 
     // ----- Constructors -----
 
     /**
-     * Create a new boolean literal with its value
+     * Create a new boolean literal with its value.
      *
-     * @param location The location of the node in the source
-     * @param value    The value of the boolean
+     * @param location The location of the node in the source.
+     * @param value    The value of the boolean.
      */
     public BooleanLiteral(
         SourceLocation location,

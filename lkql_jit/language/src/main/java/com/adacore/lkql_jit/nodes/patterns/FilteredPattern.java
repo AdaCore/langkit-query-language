@@ -33,7 +33,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This node represents a pattern with a filter in the LKQL language
+ * This node represents a pattern with a filter in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -42,14 +42,14 @@ public final class FilteredPattern extends BasePattern {
     // ----- Children -----
 
     /**
-     * The pattern to filter
+     * The pattern to filter.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private UnfilteredPattern pattern;
 
     /**
-     * The predicate to do the filtering
+     * The predicate to do the filtering.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -58,11 +58,11 @@ public final class FilteredPattern extends BasePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new filtered pattern node
+     * Create a new filtered pattern node.
      *
-     * @param location  The location of the node in the source
-     * @param pattern   The pattern to filter
-     * @param predicate The predicate expression
+     * @param location  The location of the node in the source.
+     * @param pattern   The pattern to filter.
+     * @param predicate The predicate expression.
      */
     public FilteredPattern(
         SourceLocation location,

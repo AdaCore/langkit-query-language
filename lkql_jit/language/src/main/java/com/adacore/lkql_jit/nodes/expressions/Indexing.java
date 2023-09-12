@@ -37,7 +37,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 
 /**
- * This node represents the indexing operation in the LKQL language (i.e. "test"[1])
+ * This node represents the indexing operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -48,17 +48,17 @@ public abstract class Indexing extends Expr {
     // ----- Attributes -----
 
     /**
-     * If the indexing is safe
+     * Whether the indexing is safe.
      */
     protected final boolean isSafe;
 
     // ----- Constructors -----
 
     /**
-     * Create an indexing node with the needed parameters
+     * Create an indexing node with the needed parameters.
      *
-     * @param location The location of the node in the source
-     * @param isSafe   If the indexing operation is safe
+     * @param location The location of the node in the source.
+     * @param isSafe   Whether the indexing operation is safe.
      */
     protected Indexing(
         SourceLocation location,
@@ -71,11 +71,11 @@ public abstract class Indexing extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Get a value in the collection with a long index
+     * Get a value in the collection with a long index.
      *
-     * @param collection The collection
-     * @param index      The index of the wanted element
-     * @return The element
+     * @param collection The collection to get the element from.
+     * @param index      The index of the wanted element.
+     * @return The element of the collection.
      */
     @Specialization
     protected Object indexIndexable(Indexable collection, long index) {
@@ -91,11 +91,11 @@ public abstract class Indexing extends Expr {
     }
 
     /**
-     * Specialization for the indexing operation on a node
+     * Specialization for the indexing operation on a node.
      *
-     * @param node  The node to get the child from
-     * @param index The index of the child to get
-     * @return The child or null if there is none
+     * @param node  The node to get the child from.
+     * @param index The index of the child to get.
+     * @return The child or null if there is none.
      */
     @Specialization
     protected Object indexNode(Libadalang.AdaNode node, long index) {
@@ -109,10 +109,10 @@ public abstract class Indexing extends Expr {
     }
 
     /**
-     * Fallback methods when the indexing operation cannot be performed
+     * Fallback methods when the indexing operation cannot be performed.
      *
-     * @param collection The collection
-     * @param index      The index
+     * @param collection The maybe invalid collection.
+     * @param index      The maybe invalid index.
      */
     @Fallback
     protected void indexError(Object collection, Object index) {
@@ -133,6 +133,9 @@ public abstract class Indexing extends Expr {
 
     // ----- Override methods -----
 
+    /**
+     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
+     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(

@@ -34,7 +34,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a pattern detail on a property in the LKQL language
+ * This node represents a pattern detail on a property in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -43,21 +43,21 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     // ----- Attributes -----
 
     /**
-     * The name of the property to call
+     * The name of the property to call.
      */
     protected final String propertyName;
 
     // ----- Children -----
 
     /**
-     * The list of the argument for the property call
+     * The list of the argument for the property call.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected ArgList argList;
 
     /**
-     * The expected value for the property call
+     * The expected value for the property call.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -66,12 +66,12 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     // ----- Constructors -----
 
     /**
-     * Create a new pattern detail on a property
+     * Create a new pattern detail on a property.
      *
-     * @param location     The token location in the source
-     * @param propertyName The name of the property to call
-     * @param argList      The arguments for the property call
-     * @param expected     The expected value of the property call
+     * @param location     The token location in the source.
+     * @param propertyName The name of the property to call.
+     * @param argList      The arguments for the property call.
+     * @param expected     The expected value of the property call.
      */
     public NodePatternProperty(
         SourceLocation location,
@@ -88,12 +88,12 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     // ----- Execution methods -----
 
     /**
-     * Execute the property detail with the cached path
+     * Execute the property detail with the cached path.
      *
-     * @param frame       The frame to execute in
-     * @param node        The node get the property from
-     * @param propertyRef The cached property reference
-     * @return True if the detail is valid, false else
+     * @param frame       The frame to execute in.
+     * @param node        The node get the property from.
+     * @param propertyRef The cached property reference.
+     * @return True if the detail is valid, false else.
      */
     @Specialization(guards = {
         "node == propertyRef.getNode()",
@@ -118,11 +118,11 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     }
 
     /**
-     * Execute the property detail with the un-cached path
+     * Execute the property detail with the un-cached path.
      *
-     * @param frame The frame to execute in
-     * @param node  The node get the property from
-     * @return True if the detail is valid, false else
+     * @param frame The frame to execute in.
+     * @param node  The node get the property from.
+     * @return True if the detail is valid, false else.
      */
     @Specialization(replaces = "propertyCached")
     protected boolean propertyUncached(

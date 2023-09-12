@@ -31,7 +31,7 @@ import java.util.Map;
 
 
 /**
- * This class contains the common built-in methods for all type in the LKQL language
+ * This class contains the common built-in methods for all type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,14 +40,14 @@ public abstract class CommonMethods implements BuiltInMethods {
     // ----- Attributes -----
 
     /**
-     * The methods map from their names to their function values
+     * The methods map from their names to their function values.
      */
     protected final Map<String, BuiltInFunctionValue> methods;
 
     // ----- Constructors -----
 
     /**
-     * Create the common methods for all type
+     * Create the common methods for all type.
      */
     protected CommonMethods() {
         this.methods = new HashMap<>();
@@ -55,7 +55,7 @@ public abstract class CommonMethods implements BuiltInMethods {
     }
 
     /**
-     * Initialize the common methods
+     * Initialize the common methods.
      */
     protected void initMethods() {
         this.methods.put(ImgFunction.NAME, ImgFunction.getInstance().getValue());

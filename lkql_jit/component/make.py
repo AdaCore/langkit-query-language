@@ -56,9 +56,9 @@ binary
 
 import os
 import os.path as P
-import sys
 import shutil
 import subprocess
+import sys
 
 sys.path.append('..')
 from utils import GraalManager, parse_args, is_windows, component_template, missing_module

@@ -23,7 +23,7 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.utils.util_classes.Closure;
+import com.adacore.lkql_jit.runtime.Cell;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -32,103 +32,48 @@ import com.oracle.truffle.api.nodes.RootNode;
 
 
 /**
- * This node is the base of all LKQL root nodes
+ * This node is the base of all LKQL root nodes.
  *
  * @author Hugo GUERRIER
  */
 public abstract class BaseRootNode extends RootNode {
 
-    // ----- Attributes -----
-
-    /**
-     * The closure of the root node
-     */
-    protected final Closure closure;
-
-    // ----- Children -----
-
-    /**
-     * The argument writing nodes
-     */
-    @Children
-    protected WriteArg[] argumentWriting;
-
     // ----- Constructors -----
 
     /**
-     * Create a new root node
+     * Create a new base root node.
      *
-     * @param language        The language instance to link the root node with
-     * @param frameDescriptor The frame descriptor for the root node
-     * @param closure         The execution closure of the root node
+     * @param language        The language instance to link the root node with.
+     * @param frameDescriptor The frame descriptor for the root node.
      */
     protected BaseRootNode(
-        TruffleLanguage<?> language,
-        FrameDescriptor frameDescriptor,
-        Closure closure
+        final TruffleLanguage<?> language,
+        final FrameDescriptor frameDescriptor
     ) {
         super(language, frameDescriptor);
-        this.closure = closure;
     }
 
-    // ----- Getters -----
-
-    public Closure getClosure() {
-        return this.closure;
-    }
-
-    // ----- Internal methods -----
+    // ----- Instance methods -----
 
     /**
-     * Create the arg writing nodes from the function parameter slots
+     * Get the call target as a generic Truffle calling interface.
      *
-     * @param slots The function parameter slots
-     * @return The argument writing nodes
-     */
-    protected WriteArg[] createArgWritings(int[] slots) {
-        // Create the result array with the correct length
-        WriteArg[] res = new WriteArg[slots.length];
-
-        // Create the writing nodes
-        for (int i = 0; i < slots.length; i++) {
-            res[i] = new WriteArg(slots[i]);
-        }
-
-        // Return the result
-        return res;
-    }
-
-    /**
-     * Instantiate the closure if it's not null
-     *
-     * @param frame The frame to instantiate the closure in
-     */
-    protected void instantiateClosure(VirtualFrame frame) {
-        if (this.closure != null) {
-            this.closure.instantiate(frame.materialize());
-        }
-    }
-
-    /**
-     * Instantiate the arguments in the local frame
-     *
-     * @param frame The frame to instantiate the args in
-     */
-    protected void instantiateArgs(VirtualFrame frame) {
-        for (int i = 0; i < this.argumentWriting.length; i++) {
-            this.argumentWriting[i].executeWrite(frame, i);
-        }
-    }
-
-    // ----- Class methods -----
-
-    /**
-     * Get the call target as a generic Truffle calling interface
-     *
-     * @return The call target
+     * @return The call target.
      */
     public CallTarget getRealCallTarget() {
         return this.getCallTarget();
+    }
+
+    /**
+     * Initialize the frame slots at empty cells.
+     *
+     * @param frame The frame to initialize.
+     */
+    protected void initFrame(VirtualFrame frame) {
+        final int slotNumber = frame.getFrameDescriptor().getNumberOfSlots();
+        for (int i = 0; i < slotNumber; i++) {
+            frame.setObject(i, new Cell());
+        }
     }
 
 }

@@ -30,7 +30,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a pattern that access fields or properties of nodes
+ * This node represents a pattern that access fields or properties of nodes.
  *
  * @author Hugo GUERRIER
  */
@@ -39,14 +39,14 @@ public final class ExtendedNodePattern extends NodePattern {
     // ----- Children -----
 
     /**
-     * The pattern to extend
+     * The pattern to extend.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ValuePattern basePattern;
 
     /**
-     * The details representing the extension
+     * The details representing the extension.
      */
     @Children
     private final NodePatternDetail[] details;
@@ -54,11 +54,11 @@ public final class ExtendedNodePattern extends NodePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new extended node pattern node
+     * Create a new extended node pattern node.
      *
-     * @param location    The location of the node in the source
-     * @param basePattern The base pattern to extend
-     * @param details     The extensions for the base pattern
+     * @param location    The location of the node in the source.
+     * @param basePattern The base pattern to extend.
+     * @param details     The extensions for the base pattern.
      */
     public ExtendedNodePattern(
         SourceLocation location,

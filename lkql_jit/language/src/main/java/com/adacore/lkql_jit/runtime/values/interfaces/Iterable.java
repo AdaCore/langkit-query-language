@@ -23,35 +23,35 @@
 
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 
 
 /**
- * This interface defines the iterable interface for all the iterable LKQL types
+ * This interface defines the iterable interface for all the iterable LKQL types.
  *
  * @author Hugo GUERRIER
  */
 public interface Iterable extends LKQLValue {
 
     /**
-     * Get the size of the iterable collection
+     * Get the size of the iterable collection.
      *
-     * @return The size of the iterable
+     * @return The size of the iterable.
      */
     long size();
 
     /**
-     * Get if the iterable contains the given element
+     * Get if the iterable contains the given element.
      *
-     * @param elem The element to look for
-     * @return True if the iterable contains the element, false else
+     * @param elem The element to look for.
+     * @return True if the iterable contains the element, false else.
      */
     boolean contains(Object elem);
 
     /**
-     * Get the iterator for the iterable object
+     * Get the iterator for the iterable object.
      *
-     * @return The iterator
+     * @return The iterator.
      */
     Iterator iterator();
 

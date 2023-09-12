@@ -33,7 +33,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 
 /**
- * This node represents the logic unary negation in the LKQL language
+ * This node represents the logic unary negation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -42,10 +42,10 @@ public abstract class UnNot extends UnOp {
     // ----- Constructors -----
 
     /**
-     * Create a logic unary negation node
+     * Create a logic unary negation node.
      *
-     * @param location    The location of the node in the source
-     * @param argLocation The location of the argument node
+     * @param location    The location of the node in the source.
+     * @param argLocation The location of the argument node.
      */
     protected UnNot(
         SourceLocation location,
@@ -57,10 +57,10 @@ public abstract class UnNot extends UnOp {
     // ----- Execution methods -----
 
     /**
-     * Logically negate a boolean value
+     * Logically negate a boolean value.
      *
-     * @param arg The value to negate
-     * @return The negated value
+     * @param arg The value to negate.
+     * @return The negated value.
      */
     @Specialization
     protected boolean negateBoolean(boolean arg) {
@@ -68,10 +68,10 @@ public abstract class UnNot extends UnOp {
     }
 
     /**
-     * Logically negate the truthy value
+     * Logically negate the truthy value.
      *
-     * @param arg The value to negate
-     * @return The negated value
+     * @param arg The value to negate.
+     * @return The negated value.
      */
     @Specialization
     protected boolean negateTruthy(Truthy arg) {
@@ -79,9 +79,9 @@ public abstract class UnNot extends UnOp {
     }
 
     /**
-     * Fallback error method when the argument is a non-truthy value
+     * Fallback error method when the argument is a non-truthy value.
      *
-     * @param arg The non-truthy argument
+     * @param arg The non-truthy argument.
      */
     @Fallback
     protected void notBoolean(Object arg) {

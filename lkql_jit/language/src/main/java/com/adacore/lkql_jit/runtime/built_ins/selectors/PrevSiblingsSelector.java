@@ -26,8 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.selectors;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
@@ -40,7 +40,7 @@ import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 
 /**
- * This class represents the "previous_siblings" built-in selector
+ * This class represents the "previous_siblings" built-in selector.
  *
  * @author Hugo GUERRIER
  */
@@ -49,33 +49,33 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "previous_siblings" built-in selector
+     * The only instance of the "previous_siblings" built-in selector.
      */
     private static PrevSiblingsSelector instance = null;
 
     /**
-     * The name of the selector
+     * The name of the selector.
      */
     public static final String NAME = "prev_siblings";
 
     /**
-     * The arms representing the "previous_siblings" selector execution
+     * The arms representing the "previous_siblings" selector execution.
      */
     public final SelectorArm[] arms;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private PrevSiblingsSelector() {
         this.arms = createArms();
     }
 
     /**
-     * Get the only instance of the built-in selector
+     * Get the only instance of the built-in selector.
      *
-     * @return The instance of the selector
+     * @return The instance of the selector.
      */
     public static PrevSiblingsSelector getInstance() {
         if (instance == null) {
@@ -109,9 +109,9 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
     // ----- Class methods -----
 
     /**
-     * Create the selector arms and return them
+     * Create the selector arms and return them.
      *
-     * @return The selector arms
+     * @return The selector arms.
      */
     private static SelectorArm[] createArms() {
         // Prepare the result

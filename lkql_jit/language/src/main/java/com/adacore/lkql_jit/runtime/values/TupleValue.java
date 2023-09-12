@@ -26,14 +26,14 @@ package com.adacore.lkql_jit.runtime.values;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.Objects;
 
 
 /**
- * This class represents the tuple values in the LKQL language
+ * This class represents the tuple values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -42,16 +42,16 @@ public final class TupleValue implements Indexable {
     // ----- Attributes -----
 
     /**
-     * The values contained in the tuple
+     * The values contained in the tuple.
      */
     private final Object[] content;
 
     // ----- Constructors -----
 
     /**
-     * Create a new tuple value
+     * Create a new tuple value.
      *
-     * @param content The content of the tuple
+     * @param content The content of the tuple.
      */
     public TupleValue(
         Object[] content

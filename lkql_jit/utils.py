@@ -23,9 +23,9 @@
 
 # This python file contains utils for the building process of LKQL JIT
 
+import argparse
 import os
 import os.path as P
-import argparse
 
 
 class GraalManager:

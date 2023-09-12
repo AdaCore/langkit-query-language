@@ -32,13 +32,13 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ObjectUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represents the "print" built-in function in the LKQL language
+ * This class represents the "print" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -47,33 +47,33 @@ public final class PrintFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance for the "print" built-in
+     * The only instance for the "print" built-in.
      */
     private static PrintFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "print";
 
     /**
-     * The expression that represents the "print" function execution
+     * The expression that represents the "print" function execution.
      */
     private final PrintExpr printExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private PrintFunction() {
         this.printExpr = new PrintExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static PrintFunction getInstance() {
         if (instance == null) {
@@ -109,7 +109,7 @@ public final class PrintFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "print" function
+     * Expression of the "print" function.
      */
     public final static class PrintExpr extends BuiltInExpr {
         @Override

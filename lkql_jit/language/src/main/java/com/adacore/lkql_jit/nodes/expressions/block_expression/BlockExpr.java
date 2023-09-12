@@ -26,6 +26,7 @@ package com.adacore.lkql_jit.nodes.expressions.block_expression;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 
 /**
@@ -38,13 +39,13 @@ public final class BlockExpr extends Expr {
     // ----- Children -----
 
     /**
-     * The body parts of the expression block
+     * The body parts of the expression block.
      */
     @Children
     private final BlockBody[] body;
 
     /**
-     * The expression of the block, to return after the parts execution
+     * The expression of the block, to return after the parts execution.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -53,11 +54,11 @@ public final class BlockExpr extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new expression block node
+     * Create a new expression block node.
      *
-     * @param location  The location of the node in the source
-     * @param bodyParts The block body parts
-     * @param expr      The expression to return
+     * @param location  The location of the node in the source.
+     * @param bodyParts The block body parts.
+     * @param expr      The expression to return.
      */
     public BlockExpr(
         SourceLocation location,
@@ -75,10 +76,11 @@ public final class BlockExpr extends Expr {
      * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame) (VirtualFrame)
      */
     @Override
+    @ExplodeLoop
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the declarations
         for (BlockBody bodyPart : this.body) {
-            bodyPart.executeBlockBody(frame);
+            bodyPart.executeGeneric(frame);
         }
 
         // Return the expression

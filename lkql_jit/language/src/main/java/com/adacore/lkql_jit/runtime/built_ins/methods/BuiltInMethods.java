@@ -29,23 +29,23 @@ import java.util.Map;
 
 
 /**
- * This interface defines the LKQL built-in methods collections
+ * This interface defines the LKQL built-in methods collections.
  *
  * @author Hugo GUERRIER
  */
 public interface BuiltInMethods {
 
     /**
-     * Get the type to attach to the methods
+     * Get the type to attach to the methods.
      *
-     * @return The LKQL type in a string
+     * @return The LKQL type in a string.
      */
     String getType();
 
     /**
-     * Get the methods to attach to the type
+     * Get the methods to attach to the type.
      *
-     * @return The methods for the type
+     * @return The methods for the type.
      */
     Map<String, BuiltInFunctionValue> getMethods();
 

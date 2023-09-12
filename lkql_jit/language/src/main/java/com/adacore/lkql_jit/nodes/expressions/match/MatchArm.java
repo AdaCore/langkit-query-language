@@ -35,7 +35,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an arm from a match expression in the LKQL language
+ * This node represents an arm from a match expression in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,14 +44,14 @@ public abstract class MatchArm extends LKQLNode {
     // ----- Children -----
 
     /**
-     * The pattern to match during the execution
+     * Pattern to match during the execution.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
 
     /**
-     * The result of the arm execution
+     * Result of the arm execution.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -60,11 +60,11 @@ public abstract class MatchArm extends LKQLNode {
     // ----- Constructors -----
 
     /**
-     * Create a new match arm node
+     * Create a new match arm node.
      *
-     * @param location The location of the node in the source
-     * @param pattern  The pattern of the match arm
-     * @param expr     The result of the match arm
+     * @param location The location of the node in the source.
+     * @param pattern  The pattern of the match arm.
+     * @param expr     The result of the match arm.
      */
     protected MatchArm(
         SourceLocation location,
@@ -97,19 +97,19 @@ public abstract class MatchArm extends LKQLNode {
     }
 
     /**
-     * Verify the pattern of the arm and if matched, execute the arm expression
+     * Verify the pattern of the arm and if matched, execute the arm expression.
      *
-     * @param toMatch The node to match
-     * @return The result of the arm expression if the pattern is valid, null else
+     * @param toMatch The node to match.
+     * @return The result of the arm expression if the pattern is valid, null else.
      */
     public abstract Object executeArm(VirtualFrame frame, Object toMatch);
 
     /**
-     * Execute the matching arm on a node value
+     * Execute the matching arm on a node value.
      *
-     * @param frame The frame to execute in
-     * @param node  The node value
-     * @return The match expression if the pattern is valid
+     * @param frame The frame to execute in.
+     * @param node  The node value.
+     * @return The match expression if the pattern is valid.
      */
     @Specialization
     protected Object onNode(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -121,11 +121,11 @@ public abstract class MatchArm extends LKQLNode {
     }
 
     /**
-     * Execute the matching arm on a string value
+     * Execute the matching arm on a string value.
      *
-     * @param frame The frame to execute in
-     * @param str   The string value
-     * @return The match expression if the pattern is valid
+     * @param frame The frame to execute in.
+     * @param str   The string value.
+     * @return The match expression if the pattern is valid.
      */
     @Specialization
     protected Object onString(VirtualFrame frame, String str) {
@@ -137,11 +137,11 @@ public abstract class MatchArm extends LKQLNode {
     }
 
     /**
-     * Fallback when the value cannot be matched
+     * Fallback when the value cannot be matched.
      *
-     * @param frame The frame to execute in
-     * @param other The value
-     * @return Just null
+     * @param frame The frame to execute in.
+     * @param other The value.
+     * @return Just null.
      */
     @Fallback
     protected Object onOther(VirtualFrame frame, Object other) {

@@ -32,7 +32,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "doc" built-in function in the LKQL language
+ * This class represents the "doc" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -41,33 +41,33 @@ public final class DocFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "doc" built-in
+     * The only instance of the "doc" built-in.
      */
     private static DocFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "doc";
 
     /**
-     * The expression that represents the "doc" function execution
+     * The expression that represents the "doc" function execution.
      */
     private final DocExpr docExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private DocFunction() {
         this.docExpr = new DocExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static DocFunction getInstance() {
         if (instance == null) {
@@ -103,7 +103,7 @@ public final class DocFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "doc" function
+     * Expression of the "doc" function.
      */
     public final static class DocExpr extends BuiltInExpr {
         @Override

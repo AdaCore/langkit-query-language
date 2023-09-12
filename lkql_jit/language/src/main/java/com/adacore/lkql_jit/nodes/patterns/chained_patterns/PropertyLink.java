@@ -35,7 +35,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a property link in a chained pattern in the LKQL language
+ * This node represents a property link in a chained pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,14 +44,14 @@ public abstract class PropertyLink extends ChainedPatternLink {
     // ----- Attributes -----
 
     /**
-     * The name of the property to call
+     * The name of the property to call.
      */
     protected final String propertyName;
 
     // ----- Children -----
 
     /**
-     * The list of the argument for the property call
+     * The list of the argument for the property call.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -60,12 +60,12 @@ public abstract class PropertyLink extends ChainedPatternLink {
     // ----- Constructors -----
 
     /**
-     * Create a new property link node
+     * Create a new property link node.
      *
-     * @param location     The token location in the source
-     * @param pattern      The pattern to verify
-     * @param propertyName The name of the property to call
-     * @param argList      The argument list
+     * @param location     The token location in the source.
+     * @param pattern      The pattern to verify.
+     * @param propertyName The name of the property to call.
+     * @param argList      The argument list.
      */
     public PropertyLink(
         SourceLocation location,
@@ -81,12 +81,12 @@ public abstract class PropertyLink extends ChainedPatternLink {
     // ----- Execution methods -----
 
     /**
-     * Execute the property link with the cached property
+     * Execute the property link with the cached property.
      *
-     * @param frame       The frame to execute the link in
-     * @param node        The node get the property from
-     * @param propertyRef The cached property reference
-     * @return The result of the link
+     * @param frame       The frame to execute the link in.
+     * @param node        The node get the property from.
+     * @param propertyRef The cached property reference.
+     * @return The result of the link.
      */
     @Specialization(guards = {
         "node == propertyRef.getNode()",
@@ -111,11 +111,11 @@ public abstract class PropertyLink extends ChainedPatternLink {
     }
 
     /**
-     * Execute the property link with the un-cached path
+     * Execute the property link with the un-cached path.
      *
-     * @param frame The frame to execute the link in
-     * @param node  The node get the property from
-     * @return The result of the link
+     * @param frame The frame to execute the link in.
+     * @param node  The node get the property from.
+     * @return The result of the link.
      */
     @Specialization(replaces = "propertyCached")
     protected Libadalang.AdaNode[] propertyUncached(

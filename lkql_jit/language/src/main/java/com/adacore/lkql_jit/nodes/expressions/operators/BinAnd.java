@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This node represent the logic "and" operation in the LKQL language
+ * This node represent the logic "and" operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -37,11 +37,11 @@ public final class BinAnd extends BinShortCircuit {
     // ----- Constructors -----
 
     /**
-     * Create an "and" node
+     * Create an "and" node.
      *
-     * @param location The location of the node in the source
-     * @param left     The left expression
-     * @param right    The right expression
+     * @param location The location of the node in the source.
+     * @param left     The left expression.
+     * @param right    The right expression.
      */
     public BinAnd(
         SourceLocation location,

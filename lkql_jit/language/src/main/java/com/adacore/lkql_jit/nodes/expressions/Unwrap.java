@@ -40,23 +40,23 @@ public final class Unwrap extends Expr {
     // ----- Children -----
 
     /**
-     * The expression of the node to unwrap
+     * The expression of the node to unwrap.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
-    private Expr nodeExpr;
+    private Expr expr;
 
     // ----- Constructors -----
 
     /**
-     * Create a new unwrap node with parameters
+     * Create a new unwrap node with parameters.
      *
-     * @param location The location of the node in the source
-     * @param nodeExpr The node expression
+     * @param location The location of the node in the source.
+     * @param expr     The node expression.
      */
-    public Unwrap(SourceLocation location, Expr nodeExpr) {
+    public Unwrap(SourceLocation location, Expr expr) {
         super(location);
-        this.nodeExpr = nodeExpr;
+        this.expr = expr;
     }
 
     // ----- Execution methods -----
@@ -67,12 +67,12 @@ public final class Unwrap extends Expr {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Evaluate the node value and test it
-        Object nodeValue = this.nodeExpr.executeGeneric(frame);
+        Object nodeValue = this.expr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isAdaNode(nodeValue)) {
             throw LKQLRuntimeException.wrongType(
                 LKQLTypesHelper.ADA_NODE,
                 LKQLTypesHelper.fromJava(nodeValue),
-                this.nodeExpr
+                this.expr
             );
         }
 

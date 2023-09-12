@@ -31,12 +31,12 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "unique" built-in function in the LKQL language
+ * This class represents the "unique" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,33 +45,33 @@ public final class UniqueFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "unique" built-in
+     * The only instance of the "unique" built-in.
      */
     private static UniqueFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "unique";
 
     /**
-     * The expression that represents the "unique" function execution
+     * The expression that represents the "unique" function execution.
      */
     private final UniqueExpr uniqueExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private UniqueFunction() {
         this.uniqueExpr = new UniqueExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static UniqueFunction getInstance() {
         if (instance == null) {
@@ -107,7 +107,7 @@ public final class UniqueFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "unique" function
+     * Expression of the "unique" function.
      */
     public final static class UniqueExpr extends BuiltInExpr {
         @Override

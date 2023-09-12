@@ -37,7 +37,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
@@ -53,25 +53,15 @@ import java.util.List;
  */
 public final class Query extends Expr {
 
-    // ----- Macros and enums -----
-
-    /**
-     * This enum represents the query kinds
-     */
-    public enum QueryKind {
-        ALL,
-        FIRST
-    }
-
     // ----- Attributes -----
 
     /**
      * The kind of the query
      */
-    private final QueryKind queryKind;
+    private final Kind kind;
 
     /**
-     * If the traversal should follow the generic instantiations
+     * Whether the traversal should follow the generic instantiations
      */
     private final boolean followGenerics;
 
@@ -104,22 +94,22 @@ public final class Query extends Expr {
      * Create a new query node
      *
      * @param location       The location of the node in the source
-     * @param queryKind      The kind of the query
-     * @param followGenerics If the tree traversal should follow the generic instantiations
+     * @param kind           The kind of the query
+     * @param followGenerics Whether the tree traversal should follow the generic instantiations
      * @param throughExpr    The expression of the "through" element
      * @param fromExpr       The "from" expression (might be null)
      * @param pattern        The pattern of the query node
      */
     public Query(
         SourceLocation location,
-        QueryKind queryKind,
+        Kind kind,
         boolean followGenerics,
         Expr throughExpr,
         Expr fromExpr,
         BasePattern pattern
     ) {
         super(location);
-        this.queryKind = queryKind;
+        this.kind = kind;
         this.followGenerics = followGenerics;
         this.throughExpr = throughExpr;
         this.fromExpr = fromExpr;
@@ -186,7 +176,7 @@ public final class Query extends Expr {
         }
 
         // If the query mode is all
-        if (this.queryKind == QueryKind.ALL) {
+        if (this.kind == Kind.ALL) {
             // Prepare the result
             List<Libadalang.AdaNode> resNodes = new LinkedList<>();
 
@@ -323,11 +313,26 @@ public final class Query extends Expr {
         return this.nodeRepresentation(
             indentLevel,
             new String[]{"queryKind"},
-            new Object[]{this.queryKind}
+            new Object[]{this.kind}
         );
     }
 
     // ----- Inner classes -----
+
+    /**
+     * This enum represents a query kind.
+     */
+    public enum Kind {
+        /**
+         * Select all nodes matching the query pattern.
+         */
+        ALL,
+
+        /**
+         * Select only the first node matching the query pattern.
+         */
+        FIRST
+    }
 
     /**
      * This class is a tool to represent the tree exploration for a default query
@@ -342,7 +347,7 @@ public final class Query extends Expr {
         private final Libadalang.AdaNode root;
 
         /**
-         * If the traversal should follow the generic instantiations
+         * Whether the traversal should follow the generic instantiations
          */
         private final boolean followGenerics;
 
@@ -352,7 +357,7 @@ public final class Query extends Expr {
          * Create a new child iterable
          *
          * @param root           The root node
-         * @param followGenerics If the traversal should follow the ada generic instantiations
+         * @param followGenerics Whether the traversal should follow the ada generic instantiations
          */
         public ChildIterable(
             Libadalang.AdaNode root,
@@ -404,7 +409,7 @@ public final class Query extends Expr {
         private final LinkedList<Libadalang.AdaNode> queue;
 
         /**
-         * If the iterator should follow the generic instantiations
+         * Whether the iterator should follow the generic instantiations
          */
         private final boolean followGenerics;
 
@@ -428,7 +433,7 @@ public final class Query extends Expr {
         // ----- Override methods -----
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#hasNext()
+         * @see com.adacore.lkql_jit.utils.Iterator#hasNext()
          */
         @Override
         public boolean hasNext() {
@@ -436,7 +441,7 @@ public final class Query extends Expr {
         }
 
         /**
-         * @see com.adacore.lkql_jit.utils.util_classes.Iterator#next()
+         * @see com.adacore.lkql_jit.utils.Iterator#next()
          */
         @Override
         public Object next() {
@@ -477,6 +482,7 @@ public final class Query extends Expr {
 
         /**
          * Return whether the given node is inside an instantiated generic.
+         *
          * @param node The node to check
          */
         private static boolean inGenericInstantiation(Libadalang.AdaNode node) {

@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.BigIntegerUtils;
+import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 
@@ -36,7 +36,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the addition operation in the LKQL language
+ * This node represents the addition operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -45,11 +45,11 @@ public abstract class BinPlus extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a binary addition node
+     * Create a binary addition node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinPlus(
         SourceLocation location,
@@ -62,11 +62,11 @@ public abstract class BinPlus extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Add two longs
+     * Add two longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The addition of two longs
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The addition of two longs.
      */
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long addLongs(long left, long right) {
@@ -74,11 +74,11 @@ public abstract class BinPlus extends BinOp {
     }
 
     /**
-     * Add two big integers
+     * Add two big integers.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The addition of two big integers
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The addition of two big integers.
      */
     @Specialization(replaces = "addLongs")
     protected BigInteger addBigIntegers(BigInteger left, BigInteger right) {
@@ -86,10 +86,10 @@ public abstract class BinPlus extends BinOp {
     }
 
     /**
-     * Raise a type exception if there is a non-integer parameter
+     * Raise a type exception if there is a non-integer parameter.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void notNumbers(Object left, Object right) {

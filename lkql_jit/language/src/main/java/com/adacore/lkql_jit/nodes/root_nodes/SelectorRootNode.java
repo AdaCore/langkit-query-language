@@ -23,59 +23,44 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.LKQLContext;
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorArm;
-import com.adacore.lkql_jit.nodes.declarations.selectors.SelectorExpr;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
+import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
-import com.adacore.lkql_jit.utils.util_classes.Closure;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import java.util.HashMap;
-
 
 /**
- * This root node represents a selector execution on a given node in the LKQL language
+ * This root node represents a selector execution on a given node in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class SelectorRootNode extends BaseRootNode {
+public final class SelectorRootNode extends MemoizedRootNode<DepthNode, SelectorRootNode.SelectorCallResult> {
 
     // ----- Attributes -----
 
     /**
-     * The name of the selector
-     */
-    private final String name;
-
-    /**
-     * The slot of the "this" variable
+     * The slot of the "this" variable.
      */
     private final int thisSlot;
 
     /**
-     * The slot of the "depth" variable
+     * The slot of the "depth" variable.
      */
     private final int depthSlot;
 
     /**
-     * If the selector is memoized
+     * Whether the selector is memoized.
      */
     private final boolean isMemoized;
-
-    /**
-     * The memoization cache
-     */
-    private final HashMap<DepthNode, SelectorCallResult> memCache;
 
     // ----- Children -----
 
     /**
-     * The selector arms
+     * The selector arms.
      */
     @Children
     private final SelectorArm[] arms;
@@ -83,31 +68,25 @@ public final class SelectorRootNode extends BaseRootNode {
     // ----- Constructors -----
 
     /**
-     * Create a new selector root node with the parameters
+     * Create a new selector root node.
      *
-     * @param language        The language instance to link the root node with
-     * @param frameDescriptor The frame descriptor for the root node
-     * @param closure         The closure of the selector
-     * @param isMemoized      If the selector is memoized
-     * @param name            The name of the selector
-     * @param thisSlot        The slot to put the "this" variable
-     * @param depthSlot       The slot to put the "depth" variable
-     * @param arms            The arms of the selector
+     * @param language        The language instance to link the root node with.
+     * @param frameDescriptor The frame descriptor for the root node.
+     * @param isMemoized      Whether the selector is memoized.
+     * @param thisSlot        The slot to put the "this" variable.
+     * @param depthSlot       The slot to put the "depth" variable.
+     * @param arms            The arms of the selector.
      */
     public SelectorRootNode(
         TruffleLanguage<?> language,
         FrameDescriptor frameDescriptor,
-        Closure closure,
         boolean isMemoized,
-        String name,
         int thisSlot,
         int depthSlot,
         SelectorArm[] arms
     ) {
-        super(language, frameDescriptor, closure);
+        super(language, frameDescriptor);
         this.isMemoized = isMemoized;
-        this.memCache = new HashMap<>();
-        this.name = name;
         this.thisSlot = thisSlot;
         this.depthSlot = depthSlot;
         this.arms = arms;
@@ -116,30 +95,30 @@ public final class SelectorRootNode extends BaseRootNode {
     // ----- Execution methods -----
 
     /**
-     * Execute the selector on the given node, the first argument in the array
+     * Execute the selector on the given node, the first argument in the array.
      * Return either :
-     * - A Node if the result is only a node
-     * - A Node[] if the result is an unpack of node
-     * The return is wrapped in a selector call result record to have the mode information
+     * - A Node if the result is only a node.
+     * - A Node[] if the result is an unpack of node.
+     * The return value is wrapped in a selector call result record to have the mode information.
      *
      * @see com.oracle.truffle.api.nodes.RootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object execute(VirtualFrame frame) {
-        // Instantiate the closure
-        this.instantiateClosure(frame);
+        // Initialize the frame
+        this.initFrame(frame);
 
         // Get the node and set it into the frame
-        DepthNode node = (DepthNode) frame.getArguments()[0];
+        DepthNode node = (DepthNode) frame.getArguments()[1];
 
-        // Try the memoization
+        // Try memoization
         if (this.isMemoized) {
-            if (this.inMemCache(node)) return this.getMemCache(node);
+            if (this.isMemoized(node)) return this.getMemoized(node);
         }
 
         if (this.thisSlot > -1 && this.depthSlot > -1) {
-            frame.setObject(this.thisSlot, node);
-            frame.setObject(this.depthSlot, ((Integer) node.getDepth()).longValue());
+            FrameUtils.writeLocal(frame, this.thisSlot, node);
+            FrameUtils.writeLocal(frame, this.depthSlot, ((Integer) node.getDepth()).longValue());
         }
 
         // Prepare the result
@@ -156,73 +135,25 @@ public final class SelectorRootNode extends BaseRootNode {
 
         // Do the memoization cache addition
         if (this.isMemoized) {
-            this.addMemCache(node, res);
+            this.putMemoized(node, res);
         }
 
         // Return the result
         return res;
     }
 
-    // ----- Class methods -----
-
-    /**
-     * Get if the given node is in the memoization cache
-     *
-     * @param node The node to use as a key
-     * @return True if the node is in the memoization cache, false else
-     */
-    @CompilerDirectives.TruffleBoundary
-    private boolean inMemCache(DepthNode node) {
-        return this.memCache.containsKey(node);
-    }
-
-    /**
-     * Get the memoization result for the given node in the memoization cache
-     *
-     * @param node The node to get the result from
-     * @return The result from the node in the memoization cache
-     */
-    @CompilerDirectives.TruffleBoundary
-    private SelectorCallResult getMemCache(DepthNode node) {
-        return this.memCache.get(node);
-    }
-
-    /**
-     * Associate a node with a selector result in the memoization cache
-     *
-     * @param node The node to use as a key
-     * @param res  The selector call result as a value
-     */
-    @CompilerDirectives.TruffleBoundary
-    private void addMemCache(DepthNode node, SelectorCallResult res) {
-        this.memCache.put(node, res);
-    }
-
-    /**
-     * Get the context of the root node
-     *
-     * @return The context
-     */
-    public LKQLContext getContext() {
-        return LKQLLanguage.getContext(this.arms[0]);
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return "Selector<" + this.name + ">";
-    }
-
     // ----- Inner classes -----
 
     /**
-     * This record represents a result of a call to the selector on a node
+     * This record represents a result of a call to the selector on a node.
      *
-     * @param mode   The mode of the result
-     * @param result The result value
+     * @param mode   The mode of the result.
+     * @param result The result value.
      */
-    public record SelectorCallResult(SelectorExpr.Mode mode, Object result) {
+    public record SelectorCallResult(
+        SelectorExpr.Mode mode,
+        Object result
+    ) {
     }
 
 }

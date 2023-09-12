@@ -27,6 +27,7 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,35 +38,37 @@ import java.util.*;
 
 /**
  * Implement a worker process for the GNATcheck driver.
+ *
+ * @author Romain BEGUET
  */
 public class GNATCheckWorker extends AbstractLanguageLauncher {
 
     // ----- Macros and enums -----
 
     /**
-     * The identifier of the LKQL language
+     * The identifier of the LKQL language.
      */
     private static final String ID = "lkql";
 
     // ----- Launcher options -----
 
     /**
-     * The charset to decode the LKQL sources
+     * The charset to decode the LKQL sources.
      */
     private String charset = null;
 
     /**
-     * If the project analysis should be recursive
+     * If the project analysis should be recursive.
      */
     private boolean recursive = false;
 
     /**
-     * If the verbose mode should be activated
+     * If the verbose mode should be activated.
      */
     private boolean verbose = false;
 
     /**
-     * The project file to analyse
+     * The project file to analyse.
      */
     private String projectFile = null;
 
@@ -81,7 +84,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     private boolean debug = false;
 
     /**
-     * The project's scenario variables
+     * The project's scenario variables.
      */
     private String scenarioVars = null;
 
@@ -91,27 +94,27 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     private boolean isSimpleProject = false;
 
     /**
-     * A directory containing all user added rules
+     * A directory containing all user added rules.
      */
     private String rulesDirs = null;
 
     /**
-     * The rules to apply
+     * The rules to apply.
      */
     private String rulesFrom = null;
     private String filesFrom = null;
 
     /**
-     * The source files to ignore during analysis
+     * The source files to ignore during analysis.
      */
     private String ignore = null;
 
     // ----- Checker methods -----
 
     /**
-     * Display the help message for the LKQL language
+     * Display the help message for the LKQL language.
      *
-     * @param maxCategory The option category
+     * @param maxCategory The option category.
      */
     @Override
     protected void printHelp(OptionCategory maxCategory) {
@@ -119,9 +122,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     }
 
     /**
-     * Simply return the language id
+     * Simply return the language id.
      *
-     * @return The language id
+     * @return The language id.
      */
     @Override
     protected String getLanguageId() {
@@ -129,18 +132,18 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     }
 
     /**
-     * Start the LKQL checker
+     * Start the LKQL checker.
      *
-     * @param args The params
+     * @param args The params.
      */
     public static void main(String[] args) {
         new GNATCheckWorker().launch(args);
     }
 
     /**
-     * Start the GNATcheck worker
+     * Start the GNATcheck worker.
      *
-     * @param contextBuilder The context builder to build LKQL context
+     * @param contextBuilder The context builder to build LKQL context.
      */
     @Override
     protected void launch(Context.Builder contextBuilder) {
@@ -151,18 +154,15 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
     }
 
     /**
-     * Execute the GNATcheck worker script and return the exit code
+     * Execute the GNATcheck worker script and return the exit code.
      *
-     * @param contextBuilder The context builder
-     * @return The exit code of the script
+     * @param contextBuilder The context builder.
+     * @return The exit code of the script.
      */
     protected int executeScript(Context.Builder contextBuilder) {
         // Set the builder common options
         contextBuilder.allowIO(true);
         contextBuilder.option("lkql.diagnosticOutputMode", "GNATCHECK");
-
-        // Set the LKQL language mode to interpreter
-        contextBuilder.option("lkql.checkerMode", "true");
 
         // If no rules are provided, don't do anything
         contextBuilder.option("lkql.fallbackToAllRules", "false");
@@ -230,13 +230,12 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.ignores", this.ignore);
         }
 
+        // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            // Create the context and run it with the script
-            Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
+            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
                 .build();
-            context.eval(source);
-
-            // Return the success
+            final Value executable = context.parse(source);
+            executable.executeVoid(true);
             return 0;
         } catch (Exception e) {
             if (this.verbose) {
@@ -277,9 +276,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      *      specifications (to be parsed) that this worker should use during its run
      * </ul>
      *
-     * @param arguments       The arguments to parse
-     * @param polyglotOptions The polyglot options
-     * @return The unrecognized options
+     * @param arguments       The arguments to parse.
+     * @param polyglotOptions The polyglot options.
+     * @return The unrecognized options.
      */
     @Override
     protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
@@ -388,9 +387,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * <p>
      * The file is expected to have one rule specification per line.
      *
-     * @param filename The filename containing the rule specifications for this run
-     * @param allRules The list in which to add all parsed rules
-     * @param allArgs  The list in which to add all parsed rule arguments
+     * @param filename The filename containing the rule specifications for this run.
+     * @param allRules The list in which to add all parsed rules.
+     * @param allArgs  The list in which to add all parsed rule arguments.
      */
     private static void processRuleSpecificationFile(
         String filename,
@@ -412,9 +411,9 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * A GNATcheck rule specification can also specify arguments for that rule, so these are parsed as well
      * and added to the list of rule arguments.
      *
-     * @param ruleSpec The rule specification to parse
-     * @param allRules The list of all currently parsed rules, in which we'll add this one
-     * @param allArgs  The list of all currently specified rule arguments, which might be expanded here
+     * @param ruleSpec The rule specification to parse.
+     * @param allRules The list of all currently parsed rules, in which we'll add this one.
+     * @param allArgs  The list of all currently specified rule arguments, which might be expanded here.
      */
     private static void processRuleSpecification(
         String ruleSpec,

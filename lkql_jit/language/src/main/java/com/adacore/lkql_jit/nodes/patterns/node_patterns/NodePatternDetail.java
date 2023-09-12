@@ -31,20 +31,18 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents the base node for all pattern detail in the LKQL language
+ * This node represents the base node for all pattern detail in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
 public abstract class NodePatternDetail extends LKQLNode {
 
     /**
-     * Create a new node pattern detail
+     * Create a new node pattern detail.
      *
-     * @param location The token location in the source
+     * @param location The token location in the source.
      */
-    protected NodePatternDetail(
-        SourceLocation location
-    ) {
+    protected NodePatternDetail(SourceLocation location) {
         super(location);
     }
 
@@ -59,11 +57,11 @@ public abstract class NodePatternDetail extends LKQLNode {
     }
 
     /**
-     * Execute the pattern detail on a node and return if the detail is valid
+     * Execute the pattern detail on a node and return if the detail is valid.
      *
-     * @param frame The frame to execute the detail in
-     * @param node  The node to test in the detail
-     * @return True if the detail is valid, false else
+     * @param frame The frame to execute the detail in.
+     * @param node  The node to test in the detail.
+     * @return True if the detail is valid, false else.
      */
     public abstract boolean executeDetail(VirtualFrame frame, Libadalang.AdaNode node);
 

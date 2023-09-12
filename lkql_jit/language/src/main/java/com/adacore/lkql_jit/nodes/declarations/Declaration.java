@@ -28,8 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This node represents all declarations done in the LKQL language
- * imports, values or functions
+ * This node represents all declarations done in the LKQL: language imports, values or functions.
  *
  * @author Hugo GUERRIER
  */
@@ -38,22 +37,25 @@ public abstract class Declaration extends LKQLNode {
     // ----- Children -----
 
     /**
-     * The annotation of the declaration
+     * Annotation of the declaration.
      */
     @Child
-    protected DeclAnnotation annotation;
+    protected Annotation annotation;
 
     // ----- Constructors -----
 
     /**
-     * Create the declaration node
+     * Create the declaration node.
      *
-     * @param location The location of the node in the source
+     * @param location   The location of the node in the source.
+     * @param annotation The annotation associated with the declaration.
      */
     protected Declaration(
-        SourceLocation location
+        SourceLocation location,
+        Annotation annotation
     ) {
         super(location);
+        this.annotation = annotation;
     }
 
 }

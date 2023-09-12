@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-import com.adacore.lkql_jit.utils.util_functions.BigIntegerUtils;
+import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 
@@ -35,7 +35,7 @@ import java.math.BigInteger;
 
 
 /**
- * This node represents the "lower than" operation in the LKQL language
+ * This node represents the "lower than" operation in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,11 +44,11 @@ public abstract class BinLt extends BinOp {
     // ----- Constructors -----
 
     /**
-     * Create a "lower than" node
+     * Create a "lower than" node.
      *
-     * @param location      The location of the node in the source
-     * @param leftLocation  The location of the left node
-     * @param rightLocation The location of the right node
+     * @param location      The location of the node in the source.
+     * @param leftLocation  The location of the left node.
+     * @param rightLocation The location of the right node.
      */
     protected BinLt(
         SourceLocation location,
@@ -61,11 +61,11 @@ public abstract class BinLt extends BinOp {
     // ----- Execution methods -----
 
     /**
-     * Do the "lower than" comparison on longs
+     * Do the "lower than" comparison on longs.
      *
-     * @param left  The left long value
-     * @param right The right long value
-     * @return The result of the comparison
+     * @param left  The left long value.
+     * @param right The right long value.
+     * @return The result of the comparison.
      */
     @Specialization
     protected boolean ltLongs(long left, long right) {
@@ -73,11 +73,11 @@ public abstract class BinLt extends BinOp {
     }
 
     /**
-     * Do the "lower than" comparison on big integers
+     * Do the "lower than" comparison on big integers.
      *
-     * @param left  The left big integer value
-     * @param right The right big integer value
-     * @return The result of the comparison
+     * @param left  The left big integer value.
+     * @param right The right big integer value.
+     * @return The result of the comparison.
      */
     @Specialization
     protected boolean ltBigInteger(BigInteger left, BigInteger right) {
@@ -85,11 +85,11 @@ public abstract class BinLt extends BinOp {
     }
 
     /**
-     * Do the "lower than" comparison on strings
+     * Do the "lower than" comparison on strings.
      *
-     * @param left  The left string value
-     * @param right The right string value
-     * @return The result of the comparison
+     * @param left  The left string value.
+     * @param right The right string value.
+     * @return The result of the comparison.
      */
     @Specialization
     protected boolean ltString(String left, String right) {
@@ -97,10 +97,10 @@ public abstract class BinLt extends BinOp {
     }
 
     /**
-     * Do the "lower than" comparison on not comparable values
+     * Do the "lower than" comparison on not comparable values.
      *
-     * @param left  The left value
-     * @param right The right value
+     * @param left  The left value.
+     * @param right The right value.
      */
     @Fallback
     protected void notComparable(Object left, Object right) {

@@ -29,7 +29,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 
 
 /**
- * This class represents the unit value in the LKQL language
+ * This class represents the unit value in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,22 +38,22 @@ public final class UnitValue implements Nullish, Truthy {
     // ----- Attributes -----
 
     /**
-     * The unique instance of the unit value in the language
+     * The unique instance of the unit value in the language.
      */
     private static UnitValue instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Create a new unit value, private for the singleton
+     * Create a new unit value, private for the singleton.
      */
     private UnitValue() {
     }
 
     /**
-     * Get the unique instance of the unit value
+     * Get the unique instance of the unit value.
      *
-     * @return The unit value
+     * @return The unit value.
      */
     public static UnitValue getInstance() {
         if (instance == null) {

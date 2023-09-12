@@ -31,13 +31,13 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "concat" built-in function in the LKQL language
+ * This class represents the "concat" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -46,33 +46,33 @@ public final class ConcatFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "concat" built-in
+     * The only instance of the "concat" built-in.
      */
     private static ConcatFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "concat";
 
     /**
-     * The expression that represents the "concat" execution
+     * The expression that represents the "concat" execution.
      */
     private final ConcatExpr concatExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private ConcatFunction() {
         this.concatExpr = new ConcatExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static ConcatFunction getInstance() {
         if (instance == null) {
@@ -108,7 +108,7 @@ public final class ConcatFunction implements BuiltInFunction {
     // ------ Inner classes -----
 
     /**
-     * Expression of the "concat" function
+     * Expression of the "concat" function.
      */
     public final static class ConcatExpr extends BuiltInExpr {
         @Override

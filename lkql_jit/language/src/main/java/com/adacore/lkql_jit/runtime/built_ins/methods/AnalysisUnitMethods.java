@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 
 /**
- * This class contains all built-in methods for the analysis unit type in the LKQL language
+ * This class contains all built-in methods for the analysis unit type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -46,23 +46,23 @@ public final class AnalysisUnitMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static AnalysisUnitMethods instance;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private AnalysisUnitMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the analysis unit method.
      */
     public static AnalysisUnitMethods getInstance() {
         if (instance == null) {
@@ -121,7 +121,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "root" method
+     * Expression of the "root" method.
      */
     public final static class RootExpr extends BuiltInExpr {
         @Override
@@ -132,7 +132,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "name" method
+     * Expression of the "name" method.
      */
     public final static class NameExpr extends BuiltInExpr {
         @Override
@@ -142,7 +142,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "tokens" method
+     * Expression of the "tokens" method.
      */
     public final static class TokensExpr extends BuiltInExpr {
         @Override
@@ -160,7 +160,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     }
 
     /**
-     * Expression of the "text" methods
+     * Expression of the "text" method.
      */
     public final static class TextExpr extends BuiltInExpr {
         @Override

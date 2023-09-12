@@ -39,16 +39,16 @@ import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
-import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.Iterator;
+import com.adacore.lkql_jit.utils.functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represents the "unit_checker" built-in function in the LKQL language
+ * This class represents the "unit_checker" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -57,33 +57,33 @@ public final class UnitCheckerFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "unit_checker" built-in
+     * The only instance of the "unit_checker" built-in.
      */
     private static UnitCheckerFunction instance = null;
 
     /**
-     * The name of the built-in
+     * The name of the built-in.
      */
     public static final String NAME = "unit_checker";
 
     /**
-     * The expression that represents the "unit_checker" function execution
+     * The expression that represents the "unit_checker" function execution.
      */
     private final UnitCheckerFunction.UnitCheckerExpr unitCheckerExpr;
 
     // ----- Constructors -----
 
     /**
-     * This private constructor
+     * This private constructor.
      */
     private UnitCheckerFunction() {
         this.unitCheckerExpr = new UnitCheckerExpr();
     }
 
     /**
-     * Get the only instance of the built-in
+     * Get the only instance of the built-in.
      *
-     * @return The built-in instance
+     * @return The built-in instance.
      */
     public static UnitCheckerFunction getInstance() {
         if (instance == null) {
@@ -119,12 +119,12 @@ public final class UnitCheckerFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * This class is the expression of the "unit_checker" function
+     * This class is the expression of the "unit_checker" function.
      */
     private static final class UnitCheckerExpr extends BuiltInExpr {
 
         /**
-         * The dispatcher for the rule functions
+         * The dispatcher for the rule functions.
          */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
@@ -166,7 +166,7 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                             unit,
                             Libadalang.SourceLocation.create(1, (short) 1),
                             e.getLoc().toString(),
-                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getType()),
+                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                             e.getMsg(),
                             context
                         );
@@ -190,13 +190,13 @@ public final class UnitCheckerFunction implements BuiltInFunction {
         }
 
         /**
-         * Apply the rule on the given unit
+         * Apply the rule on the given unit.
          *
-         * @param frame      The frame for the rule execution
-         * @param rule       The rule to execute
-         * @param unit       The unit to execute the rule on
-         * @param context    The context for the execution
-         * @param linesCache The cache of all units' source text lines
+         * @param frame      The frame for the rule execution.
+         * @param rule       The rule to execute.
+         * @param unit       The unit to execute the rule on.
+         * @param context    The context for the execution.
+         * @param linesCache The cache of all units' source text lines.
          */
         private void applyUnitRule(
             VirtualFrame frame,
@@ -212,23 +212,21 @@ public final class UnitCheckerFunction implements BuiltInFunction {
             final String ruleName = (String) rule.get("name");
 
             // Prepare the arguments
-            Object[] arguments = new Object[functionValue.getParamNames().length];
-            arguments[0] = unit;
+            Object[] arguments = new Object[functionValue.getParamNames().length + 1];
+            arguments[1] = unit;
             for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
                 Object userDefinedArg = context.getRuleArg((String) rule.get("name"), paramName);
-                arguments[i] = userDefinedArg == null ?
+                arguments[i + 1] = userDefinedArg == null ?
                     functionValue.getDefaultValues()[i].executeGeneric(frame) :
                     userDefinedArg;
             }
 
-            // Put the namespace
-            if (functionValue.getNamespace() != null) {
-                context.getGlobalValues().pushNamespace(functionValue.getNamespace());
-            }
+            // Put the closure in the arguments
+            arguments[0] = functionValue.getClosure().getContent();
 
             // Get the message list from the rule function
-            Iterable messageList;
+            final Iterable messageList;
             try {
                 messageList = LKQLTypeSystemGen.expectIterable(this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
@@ -237,11 +235,6 @@ public final class UnitCheckerFunction implements BuiltInFunction {
                     LKQLTypesHelper.fromJava(e.getResult()),
                     functionValue.getBody()
                 );
-            } finally {
-                // Remove the namespace
-                if (functionValue.getNamespace() != null) {
-                    context.getGlobalValues().popNamespace();
-                }
             }
 
             // Display all the violation message

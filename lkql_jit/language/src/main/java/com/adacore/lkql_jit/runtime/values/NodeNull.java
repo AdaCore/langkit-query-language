@@ -31,7 +31,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 
 /**
  * This value represent the null value in the LKQL language, it extends the ada node class because null is a special
- * shape of node
+ * shape of node.
  *
  * @author Hugo GUERRIER
  */
@@ -40,14 +40,14 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     // ----- Attributes -----
 
     /**
-     * The unique instance of the null value in the LKQL language
+     * The unique instance of the null value in the LKQL language.
      */
     private static NodeNull instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Create a new null value, private for the singleton
+     * Create a new null value, private for the singleton.
      */
     private NodeNull() {
         super(Libadalang.Entity.create(
@@ -65,9 +65,9 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     }
 
     /**
-     * Get the only instance of null value
+     * Get the only instance of null value.
      *
-     * @return The instance of null value
+     * @return The instance of null value.
      */
     public static NodeNull getInstance() {
         if (instance == null) {

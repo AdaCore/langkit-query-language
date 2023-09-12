@@ -30,12 +30,12 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents "help" built-in function in the LKQL language
+ * This class represents "help" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -44,33 +44,33 @@ public final class HelpFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "help" built-in
+     * The only instance of the "help" built-in.
      */
     private static HelpFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "help";
 
     /**
-     * The expression that represents the "help" function execution
+     * The expression that represents the "help" function execution.
      */
     private final HelpExpr helpExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private HelpFunction() {
         this.helpExpr = new HelpExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static HelpFunction getInstance() {
         if (instance == null) {
@@ -106,7 +106,7 @@ public final class HelpFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "help" function
+     * Expression of the "help" function.
      */
     public final static class HelpExpr extends BuiltInExpr {
         @Override

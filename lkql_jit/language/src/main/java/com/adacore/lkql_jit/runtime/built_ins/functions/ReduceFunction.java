@@ -33,13 +33,13 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
-import com.adacore.lkql_jit.utils.util_classes.Iterator;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
 /**
- * This class represents the "reduce" built-in function in the LKQL language
+ * This class represents the "reduce" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -48,33 +48,33 @@ public final class ReduceFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "reduce" built-in
+     * The only instance of the "reduce" built-in.
      */
     private static ReduceFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "reduce";
 
     /**
-     * The expression that represents the "reduce" function execution
+     * The expression that represents the "reduce" function execution.
      */
     private final ReduceExpr reduceExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private ReduceFunction() {
         this.reduceExpr = new ReduceExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static ReduceFunction getInstance() {
         if (instance == null) {
@@ -110,12 +110,12 @@ public final class ReduceFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression for the "reduce" function
+     * Expression for the "reduce" function.
      */
     public final static class ReduceExpr extends BuiltInExpr {
 
         /**
-         * The dispatcher for the reduce function
+         * The dispatcher for the reduce function.
          */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
@@ -161,7 +161,7 @@ public final class ReduceFunction implements BuiltInFunction {
             while (iterator.hasNext()) {
                 initValue = this.dispatcher.executeDispatch(
                     reduceFunction,
-                    new Object[]{initValue, iterator.next()}
+                    new Object[]{reduceFunction.getClosure().getContent(), initValue, iterator.next()}
                 );
             }
 

@@ -24,44 +24,29 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a binding pattern in the LKQL language
+ * This node represents a binding pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
 public final class BindingPattern extends UnfilteredPattern {
 
-    // ----- Macros and enums -----
-
-    /**
-     * The mode of binding
-     */
-    public enum Mode {
-        LOCAL,
-        GLOBAL
-    }
-
     // ----- Attributes -----
 
     /**
-     * The mode of the binding
-     */
-    private final Mode mode;
-
-    /**
-     * The slot to put the node in
+     * Frame slot to put the node in.
      */
     private final int slot;
 
     // ----- Children -----
 
     /**
-     * The pattern to execute with the binding done
+     * Pattern to execute once the binding done.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -70,21 +55,18 @@ public final class BindingPattern extends UnfilteredPattern {
     // ----- Constructors -----
 
     /**
-     * Create a new binding pattern node
+     * Create a new binding pattern node.
      *
-     * @param location The location of the node in the source
-     * @param mode     The binding mode
-     * @param slot     The slot to put the node in
-     * @param pattern  The pattern to bind
+     * @param location The location of the node in the source.
+     * @param slot     The frame slot to put the node in.
+     * @param pattern  The pattern to bind in.
      */
     public BindingPattern(
         SourceLocation location,
-        Mode mode,
         int slot,
         ValuePattern pattern
     ) {
         super(location);
-        this.mode = mode;
         this.slot = slot;
         this.pattern = pattern;
     }
@@ -97,11 +79,7 @@ public final class BindingPattern extends UnfilteredPattern {
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
         // Do the node binding
-        if (mode == Mode.GLOBAL) {
-            LKQLLanguage.getContext(this).setGlobal(this.slot, null, node);
-        } else {
-            frame.setObject(this.slot, node);
-        }
+        FrameUtils.writeLocal(frame, this.slot, node);
 
         // Execute the pattern with the binding done
         return this.pattern.executeNode(frame, node);
@@ -113,11 +91,7 @@ public final class BindingPattern extends UnfilteredPattern {
     @Override
     public boolean executeString(VirtualFrame frame, String str) {
         // Do the node binding
-        if (mode == Mode.GLOBAL) {
-            LKQLLanguage.getContext(this).setGlobal(this.slot, null, str);
-        } else {
-            frame.setObject(this.slot, str);
-        }
+        FrameUtils.writeLocal(frame, this.slot, str);
 
         // Execute the pattern with the binding done
         return this.pattern.executeString(frame, str);
@@ -132,8 +106,8 @@ public final class BindingPattern extends UnfilteredPattern {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
             indentLevel,
-            new String[]{"mode", "slot"},
-            new Object[]{this.mode, this.slot}
+            new String[]{"slot"},
+            new Object[]{this.slot}
         );
     }
 

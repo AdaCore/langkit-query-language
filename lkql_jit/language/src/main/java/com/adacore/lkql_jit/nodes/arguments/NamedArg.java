@@ -29,7 +29,7 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 
 
 /**
- * This node represents a named argument in the LKQL language
+ * This node represents a named argument in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,18 +38,18 @@ public final class NamedArg extends Arg {
     // ----- Constructor -----
 
     /**
-     * Create a new named argument node
+     * Create a new named argument node.
      *
-     * @param location The location of the node in the sources
-     * @param name     The name of the argument
-     * @param argExpr  The expression of the argument
+     * @param location The location of the node in the sources.
+     * @param name     The name of the argument.
+     * @param expr     The expression of the argument.
      */
     public NamedArg(
         SourceLocation location,
         Identifier name,
-        Expr argExpr
+        Expr expr
     ) {
-        super(location, name, argExpr);
+        super(location, name, expr);
     }
 
     // ----- Override methods -----

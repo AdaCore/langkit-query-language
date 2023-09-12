@@ -26,7 +26,7 @@ package com.adacore.lkql_jit.runtime.built_ins.methods;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 
 /**
- * This class contains all built-in methods for the integer type in the LKQL language
+ * This class contains all built-in methods for the integer type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -35,23 +35,23 @@ public final class IntMethods extends CommonMethods {
     // ----- Attributes -----
 
     /**
-     * The only instance of the method collection
+     * The only instance of the method collection.
      */
     private static IntMethods instance = null;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private IntMethods() {
         super();
     }
 
     /**
-     * Get the only instance of the method collection
+     * Get the only instance of the method collection.
      *
-     * @return The instance
+     * @return The instance of the integer methods.
      */
     public static IntMethods getInstance() {
         if (instance == null) {

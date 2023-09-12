@@ -26,13 +26,12 @@ package com.adacore.lkql_jit.utils.source_location;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.source.SourceSection;
 
 import java.io.File;
 
 
 /**
- * This class represents a source location
+ * This class represents a source location.
  *
  * @author Hugo GUERRIER
  */
@@ -41,37 +40,37 @@ public final class SourceLocation {
     // ----- Attributes -----
 
     /**
-     * The source
+     * The Truffle source.
      */
     private final Source source;
 
     /**
-     * The starting line of the source location
+     * The starting line of the source location.
      */
     private final int startLine;
 
     /**
-     * The starting column of the source location
+     * The starting column of the source location.
      */
     private final short startColumn;
 
     /**
-     * The ending line of the source location
+     * The ending line of the source location.
      */
     private final int endLine;
 
     /**
-     * The ending column of the source location
+     * The ending column of the source location.
      */
     private final short endColumn;
 
     // ----- Constructors -----
 
     /**
-     * Create a source location from a langkit source location range
+     * Create a source location from a Langkit source location range.
      *
-     * @param source        The source
-     * @param locationRange The source location range from langkit
+     * @param source        The source from Truffle.
+     * @param locationRange The source location range from Langkit.
      */
     public SourceLocation(
         Source source,
@@ -87,13 +86,13 @@ public final class SourceLocation {
     }
 
     /**
-     * Create a new source location from the lines and columns
+     * Create a new source location from the lines and columns.
      *
-     * @param source      The source
-     * @param startLine   The starting line
-     * @param startColumn The starting column
-     * @param endLine     The ending line
-     * @param endColumn   The ending column
+     * @param source      The source.
+     * @param startLine   The starting line.
+     * @param startColumn The starting column.
+     * @param endLine     The ending line.
+     * @param endColumn   The ending column.
      */
     public SourceLocation(
         Source source,
@@ -134,9 +133,9 @@ public final class SourceLocation {
     // ----- Source accessing methods -----
 
     /**
-     * Get the source file name
+     * Get the source file name.
      *
-     * @return The source file name
+     * @return The source file name.
      */
     @CompilerDirectives.TruffleBoundary
     public String getFileName() {
@@ -144,19 +143,9 @@ public final class SourceLocation {
     }
 
     /**
-     * Get the module name (the file name without extension)
+     * Get the current working directory.
      *
-     * @return The module name
-     */
-    @CompilerDirectives.TruffleBoundary
-    public String getModuleName() {
-        return this.source.getName().split("\\.")[0];
-    }
-
-    /**
-     * Get the current working directory
-     *
-     * @return The current directory or null if the source is command line
+     * @return The current directory or null if the source is command line.
      */
     @CompilerDirectives.TruffleBoundary
     public File getCurrentDir() {
@@ -168,21 +157,11 @@ public final class SourceLocation {
     }
 
     /**
-     * Get all the lines from the source
+     * Get the lines from the source between the start and end index.
      *
-     * @return All the text lines from the source
-     */
-    @CompilerDirectives.TruffleBoundary
-    public String[] getLines() {
-        return this.source.getCharacters().toString().split(System.lineSeparator());
-    }
-
-    /**
-     * Get the lines from the source between the start and end index
-     *
-     * @param start The start line (included)
-     * @param end   The end line (excluded)
-     * @return The lines from the source
+     * @param start The start line (included).
+     * @param end   The end line (excluded).
+     * @return The lines from the source.
      */
     public String[] getLines(int start, int end) {
         // Verify the argument validity
@@ -198,20 +177,6 @@ public final class SourceLocation {
 
         // Return the result
         return res;
-    }
-
-    /**
-     * Create a source section for the compiler debugging
-     *
-     * @return The source section of the node
-     */
-    public SourceSection createSection() {
-        return this.source.createSection(
-            this.startLine,
-            this.startColumn,
-            this.endLine,
-            this.endColumn
-        );
     }
 
     // ----- Override methods -----

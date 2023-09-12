@@ -24,14 +24,17 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
 
 
 /**
- * This class represents the object values in the LKQL language
+ * This class represents the object values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -40,17 +43,17 @@ public final class ObjectValue implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The content of the object
+     * The content of the object.
      */
     private final Map<String, Object> content;
 
     // ----- Constructors -----
 
     /**
-     * Create an object value
+     * Create an object value.
      *
-     * @param keys   The keys of the object
-     * @param values The values of the object
+     * @param keys   The keys of the object.
+     * @param values The values of the object.
      */
     @CompilerDirectives.TruffleBoundary
     public ObjectValue(

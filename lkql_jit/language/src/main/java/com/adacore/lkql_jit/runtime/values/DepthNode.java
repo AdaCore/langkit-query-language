@@ -29,7 +29,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 
 /**
- * This class represents an ada node with the depth information
+ * This class represents an ada node with the depth information.
  *
  * @author Hugo GUERRIER
  */
@@ -38,22 +38,22 @@ public final class DepthNode implements LKQLValue {
     // ----- Attributes -----
 
     /**
-     * The depth of the node
+     * The depth of the node.
      */
     private final int depth;
 
     /**
-     * The decorated node
+     * The decorated node.
      */
     private final Libadalang.AdaNode node;
 
     // ----- Constructors -----
 
     /**
-     * Create a new depth node
+     * Create a new depth node.
      *
-     * @param depth The depth of the node
-     * @param node  The node
+     * @param depth The depth of the node.
+     * @param node  The node.
      */
     public DepthNode(
         int depth,

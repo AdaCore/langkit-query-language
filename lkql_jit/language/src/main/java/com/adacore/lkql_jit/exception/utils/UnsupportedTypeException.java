@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.exception.utils;
 
 
 /**
- * This exception represents an error in the importation of a foreign value in the LKQL system
+ * This exception represents an error in the importation of a foreign value in the LKQL system.
  *
  * @author Hugo GUERRIER
  */

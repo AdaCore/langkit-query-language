@@ -31,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents an expression part in a block expression
+ * This node represents an expression part in a block expression.
  *
  * @author Hugo GUERRIER
  */
@@ -49,10 +49,10 @@ public final class BlockBodyExpr extends BlockBody {
     // ----- Constructors -----
 
     /**
-     * Create a new expression block body part
+     * Create a new expression block body part.
      *
-     * @param location The location of the node in the source
-     * @param expr     The expression of the block body part
+     * @param location The location of the node in the source.
+     * @param expr     The expression of the block body part.
      */
     public BlockBodyExpr(
         SourceLocation location,
@@ -65,13 +65,13 @@ public final class BlockBodyExpr extends BlockBody {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeBlockBody(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see com.adacore.lkql_jit.nodes.expressions.block_expression.BlockBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public Object executeBlockBody(VirtualFrame frame) {
+    public Object executeGeneric(VirtualFrame frame) {
         Object result = this.expr.executeGeneric(frame);
 
-        // Verify if the expression result if nullish
+        // Verify if the expression result is nullish
         if (LKQLTypeSystemGen.isNullish(result)) {
             return result;
         } else {

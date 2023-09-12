@@ -32,7 +32,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This class represents the "profile" built-in function in the LKQL language
+ * This class represents the "profile" built-in function in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -41,33 +41,33 @@ public final class ProfileFunction implements BuiltInFunction {
     // ----- Attributes -----
 
     /**
-     * The only instance of the "profile" built-in
+     * The only instance of the "profile" built-in.
      */
     private static ProfileFunction instance = null;
 
     /**
-     * The name of the function
+     * The name of the function.
      */
     public static final String NAME = "profile";
 
     /**
-     * The expression that represents the "profile" function execution
+     * The expression that represents the "profile" function execution.
      */
     private final ProfileExpr profileExpr;
 
     // ----- Constructors -----
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private ProfileFunction() {
         this.profileExpr = new ProfileExpr();
     }
 
     /**
-     * Get the instance of the built-in function
+     * Get the instance of the built-in function.
      *
-     * @return The only instance
+     * @return The only instance.
      */
     public static ProfileFunction getInstance() {
         if (instance == null) {
@@ -103,7 +103,7 @@ public final class ProfileFunction implements BuiltInFunction {
     // ----- Inner classes -----
 
     /**
-     * Expression of the "profile" function
+     * Expression of the "profile" function.
      */
     public final static class ProfileExpr extends BuiltInExpr {
         @Override

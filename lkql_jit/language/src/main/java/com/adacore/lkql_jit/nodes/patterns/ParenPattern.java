@@ -29,7 +29,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 
 /**
- * This node represents a parented pattern in the LKQL language
+ * This node represents a parented pattern in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -38,7 +38,7 @@ public final class ParenPattern extends ValuePattern {
     // ----- Children -----
 
     /**
-     * The pattern inside the parenthesis
+     * The pattern inside the parenthesis.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -47,10 +47,10 @@ public final class ParenPattern extends ValuePattern {
     // ----- Constructors -----
 
     /**
-     * Create a new parented pattern node
+     * Create a new parented pattern node.
      *
-     * @param location The location of the node in the source
-     * @param pattern  The pattern inside the parenthesis
+     * @param location The location of the node in the source.
+     * @param pattern  The pattern inside the parenthesis.
      */
     public ParenPattern(
         SourceLocation location,

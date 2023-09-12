@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.nodes.expressions.FunCall;
 
 
 /**
- * This node represents a body of a built-in function
+ * This node represents a body of a built-in function.
  *
  * @author Hugo GUERRIER
  */
@@ -37,14 +37,14 @@ public abstract class BuiltInExpr extends Expr {
     // ----- Attributes -----
 
     /**
-     * The node that called the expression
+     * The node that called the expression.
      */
     protected FunCall callNode;
 
     // ----- Constructors -----
 
     /**
-     * Create a new expression for a built-in function
+     * Create a new expression for a built-in function.
      */
     protected BuiltInExpr() {
         super(null);

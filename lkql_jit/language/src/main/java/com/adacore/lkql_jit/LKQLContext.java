@@ -24,16 +24,21 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.declarations.functions.FunDecl;
+import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
+import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.nodes.declarations.FunctionDeclaration;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
-import com.adacore.lkql_jit.utils.util_functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.util_functions.CheckerUtils;
-import com.adacore.lkql_jit.utils.util_functions.StringUtils;
+import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.CheckerUtils;
+import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.source.Source;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,7 +50,7 @@ import java.util.function.Consumer;
 
 
 /**
- * This class represents the execution context of an LKQL script
+ * This class represents the execution context of an LKQL script.
  *
  * @author Hugo GUERRIER
  */
@@ -54,25 +59,25 @@ public final class LKQLContext {
     // ----- Attributes -----
 
     /**
-     * Environment of the language
+     * Environment of the language.
      */
     @CompilerDirectives.CompilationFinal
     private TruffleLanguage.Env env;
 
     /**
-     * The global values of the LKQL execution
+     * The global values of the LKQL execution.
      */
-    private final GlobalScope globalValues;
+    private final GlobalScope global;
 
     // ----- Ada project attributes -----
 
     /**
-     * The analysis context for the ada files
+     * The analysis context for the ada files.
      */
     private Libadalang.AnalysisContext adaContext;
 
     /**
-     * The project manager for the ada project
+     * The project manager for the ada project.
      */
     private Libadalang.ProjectManager projectManager;
 
@@ -83,12 +88,12 @@ public final class LKQLContext {
     private List<String> specifiedSourceFiles;
 
     /**
-     * All the source files of the project, including those of its non-externally-built dependencies
+     * All the source files of the project, including those of its non-externally-built dependencies.
      */
     private List<String> allSourceFiles;
 
     /**
-     * If the source files were parsed
+     * Whether the source files were parsed.
      */
     private boolean parsed;
 
@@ -99,7 +104,7 @@ public final class LKQLContext {
     private Libadalang.AnalysisUnit[] specifiedUnits;
 
     /**
-     * All the units of the project, including those of its non-externally-built dependencies
+     * All the units of the project, including those of its non-externally-built dependencies.
      */
     private Libadalang.AnalysisUnit[] allUnits;
 
@@ -111,117 +116,113 @@ public final class LKQLContext {
     // ----- Checker attributes -----
 
     /**
-     * The rule arguments
+     * The rule arguments.
      */
-    private final Map<String, Map<String, Object>> rulesArgs;
+    private Map<String, Map<String, Object>> rulesArgs = null;
 
     /**
-     * The filtered not checkers cache
+     * The filtered not checkers cache.
      */
     private ObjectValue[] filteredNodeCheckers = null;
 
     /**
-     * The filtered unit checkers cache
+     * The filtered unit checkers cache.
      */
     private ObjectValue[] filteredUnitCheckers = null;
 
     /**
-     * Whether there is at least one rule that needs to follow generic instantiations
+     * Whether there is at least one rule that needs to follow generic instantiations.
      */
     private boolean needsToFollowInstantiations = false;
 
     // ----- Option caches -----
 
     /**
-     * If the language is in the verbose mode
+     * Whether the language is in the verbose mode.
      */
     @CompilerDirectives.CompilationFinal
     private Boolean isVerbose = null;
-
-    /**
-     * If the language is in the checker mode
-     */
-    @CompilerDirectives.CompilationFinal
-    private Boolean isChecker = null;
 
     @CompilerDirectives.CompilationFinal
     private Boolean keepGoingOnMissingFile = null;
 
     /**
-     * The project file to analyse
+     * The project file to analyse.
      */
     @CompilerDirectives.CompilationFinal
     private String projectFile = null;
 
     /**
-     * The project's scenario variables
+     * The project's scenario variables.
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private Libadalang.ScenarioVariable[] scenarioVars = null;
 
     /**
-     * The ada files passed through the command line
+     * The ada files passed through the command line.
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] files = null;
 
     /**
-     * The error printing mode
+     * The error printing mode.
      */
     @CompilerDirectives.CompilationFinal
     private String errorMode = null;
 
     /**
-     * Whether the checker is in debug mode
+     * Whether the checker is in debug mode.
      */
     @CompilerDirectives.CompilationFinal
     private Boolean checkerDebug = null;
 
     /**
-     * The rle to execute
+     * The rules to execute.
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] rules;
 
     /**
-     * The directories where the rule files are located
+     * The directories where the rule files are located.
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
-    private String[] rulesDirs;
+    private String[] ruleDirectories;
 
     /**
-     * The files to ignore during an analysis
+     * The files to ignore during an analysis.
      */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] ignores;
 
+    /**
+     * Tool to emit diagnostics in the wanted format.
+     */
     @CompilerDirectives.CompilationFinal
     private CheckerUtils.DiagnosticEmitter emitter;
 
     // ----- Constructors -----
 
     /**
-     * Create a new LKQL context
+     * Create a new LKQL context.
      *
-     * @param env          The environment
-     * @param globalValues The initialized global values
+     * @param env    The environment.
+     * @param global The initialized global values.
      */
     public LKQLContext(
         TruffleLanguage.Env env,
-        GlobalScope globalValues
+        GlobalScope global
     ) {
         this.env = env;
-        this.globalValues = globalValues;
+        this.global = global;
         this.specifiedSourceFiles = new ArrayList<>();
         this.allSourceFiles = new ArrayList<>();
-        this.rulesArgs = new HashMap<>();
         this.parsed = false;
     }
 
     // ----- Destructors -----
 
     /**
-     * Finalize the LKQL context to close libadalang context
+     * Finalize the LKQL context to close libadalang context.
      */
     public void finalizeContext() {
         this.adaContext.close();
@@ -234,8 +235,8 @@ public final class LKQLContext {
         return this.env;
     }
 
-    public GlobalScope getGlobalValues() {
-        return this.globalValues;
+    public GlobalScope getGlobal() {
+        return this.global;
     }
 
     public Libadalang.AnalysisUnit[] getSpecifiedUnits() {
@@ -259,10 +260,6 @@ public final class LKQLContext {
         return this.allUnitsRoots;
     }
 
-    public boolean isRootContext() {
-        return this.globalValues.getStackSize() == 0;
-    }
-
     // ----- Setters -----
 
     public void patchContext(TruffleLanguage.Env newEnv) {
@@ -275,27 +272,15 @@ public final class LKQLContext {
     // ----- Options getting methods -----
 
     /**
-     * Get if the language execution is in verbose mode
+     * Get if the language execution is in verbose mode.
      *
-     * @return True if the verbose flag is on
+     * @return True if the verbose flag is on.
      */
     public boolean isVerbose() {
         if (this.isVerbose == null) {
             this.isVerbose = this.env.getOptions().get(LKQLLanguage.verbose);
         }
         return this.isVerbose;
-    }
-
-    /**
-     * Get if the language is in checker mode
-     *
-     * @return True if the language is in checher mode
-     */
-    public boolean isChecker() {
-        if (this.isChecker == null) {
-            this.isChecker = this.env.getOptions().get(LKQLLanguage.checkerMode);
-        }
-        return this.isChecker;
     }
 
     /**
@@ -309,9 +294,9 @@ public final class LKQLContext {
     }
 
     /**
-     * Return the project file of the language context
+     * Return the project file of the language context.
      *
-     * @return The project file in a string
+     * @return The project file in a string.
      */
     public String getProjectFile() {
         if (this.projectFile == null) {
@@ -351,9 +336,9 @@ public final class LKQLContext {
     }
 
     /**
-     * Get the files to analyse
+     * Get the files to analyse.
      *
-     * @return The files to analyse in an array
+     * @return The files to analyse in an array.
      */
     public String[] getFiles() {
         if (this.files == null) {
@@ -363,19 +348,7 @@ public final class LKQLContext {
     }
 
     /**
-     * Get the error handling mode
-     *
-     * @return The mode in a string
-     */
-    public String getErrorMode() {
-        if (this.errorMode == null) {
-            this.errorMode = this.env.getOptions().get(LKQLLanguage.errorMode);
-        }
-        return this.errorMode;
-    }
-
-    /**
-     * Get whether the checker is in debug mode
+     * Get whether the checker is in debug mode.
      *
      * @return True if the checker is in debug mode, false else
      */
@@ -388,9 +361,21 @@ public final class LKQLContext {
     }
 
     /**
-     * Get the rule to run with the checker
+     * Get the error handling mode.
      *
-     * @return The rule to run
+     * @return The mode in a string.
+     */
+    public String getErrorMode() {
+        if (this.errorMode == null) {
+            this.errorMode = this.env.getOptions().get(LKQLLanguage.errorMode);
+        }
+        return this.errorMode;
+    }
+
+    /**
+     * Get the rule to run with the checker.
+     *
+     * @return The rule to run.
      */
     @CompilerDirectives.TruffleBoundary
     private String[] getRules() {
@@ -406,25 +391,25 @@ public final class LKQLContext {
     }
 
     /**
-     * Get the directories to get the rules from
+     * Get the directories to get the rules from.
      *
-     * @return The directory array
+     * @return The directory array.
      */
-    public String[] getRulesDirs() {
-        if (this.rulesDirs == null) {
-            this.rulesDirs = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.rulesDirs));
-            String additionalRulesDirs = System.getenv("LKQL_RULES_PATH");
+    public String[] getRuleDirectories() {
+        if (this.ruleDirectories == null) {
+            this.ruleDirectories = StringUtils.splitPaths(this.env.getOptions().get(LKQLLanguage.rulesDirs));
+            String additionalRulesDirs = System.getenv(Constants.LKQL_RULES_PATH);
             if (additionalRulesDirs != null) {
-                this.rulesDirs = ArrayUtils.concat(this.rulesDirs, StringUtils.splitPaths(additionalRulesDirs));
+                this.ruleDirectories = ArrayUtils.concat(this.ruleDirectories, StringUtils.splitPaths(additionalRulesDirs));
             }
         }
-        return this.rulesDirs;
+        return this.ruleDirectories;
     }
 
     /**
-     * Get the Ada file to ignore during the analysis
+     * Get the Ada file to ignore during the analysis.
      *
-     * @return The array containing all Ada files to ignore
+     * @return The array containing all Ada files to ignore.
      */
     public String[] getIgnores() {
         if (this.ignores == null) {
@@ -437,16 +422,15 @@ public final class LKQLContext {
     }
 
     /**
-     * Invalidate the option caches
+     * Invalidate the option caches.
      */
     private void invalidateOptionCaches() {
         this.isVerbose = null;
-        this.isChecker = null;
         this.projectFile = null;
         this.files = null;
         this.errorMode = null;
         this.rules = null;
-        this.rulesDirs = null;
+        this.ruleDirectories = null;
         this.ignores = null;
         this.emitter = null;
     }
@@ -454,42 +438,21 @@ public final class LKQLContext {
     // ----- Value related methods -----
 
     /**
-     * Get the value of a global symbol
+     * Get the meta table for the given type.
      *
-     * @param slot The slot to get
-     * @return The value in the global scope
-     */
-    public Object getGlobal(int slot) {
-        return this.globalValues.get(slot);
-    }
-
-    /**
-     * Set a global value in the context
-     *
-     * @param slot   The slot of the variable
-     * @param symbol The value symbol
-     * @param value  The value
-     */
-    public void setGlobal(int slot, String symbol, Object value) {
-        this.globalValues.set(slot, symbol, value);
-    }
-
-    /**
-     * Get the meta table for the given type
-     *
-     * @param type The type to get the meta table for
-     * @return The meta table for the type
+     * @param type The type to get the meta table for.
+     * @return The meta table for the type.
      */
     public Map<String, BuiltInFunctionValue> getMetaTable(String type) {
-        return this.globalValues.getMetaTable(type);
+        return this.global.getMetaTable(type);
     }
 
     // ----- IO methods -----
 
     /**
-     * Display the given string
+     * Display the given string.
      *
-     * @param toPrint The string to print
+     * @param toPrint The string to print.
      */
     @CompilerDirectives.TruffleBoundary
     public void print(String toPrint) {
@@ -497,9 +460,9 @@ public final class LKQLContext {
     }
 
     /**
-     * Display the given string with a newline
+     * Display the given string with a newline.
      *
-     * @param toPrint The string to print
+     * @param toPrint The string to print.
      */
     @CompilerDirectives.TruffleBoundary
     public void println(String toPrint) {
@@ -523,7 +486,43 @@ public final class LKQLContext {
     // ----- Project analysis methods -----
 
     /**
-     * Initialize the ada sources
+     * Parse the ada source files and store analysis units and root nodes.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public void parseSources() {
+        // Filter the Ada source file list
+        String[] ignores = this.getIgnores();
+        String[] usedSources = this.specifiedSourceFiles.stream()
+            .filter(source -> {
+                for (String ignore : ignores) {
+                    if (source.contains(ignore)) return false;
+                }
+                return true;
+            })
+            .toArray(String[]::new);
+
+        // For each specified source file, store its corresponding analysis unit in the list of specified units
+        this.specifiedUnits = new Libadalang.AnalysisUnit[usedSources.length];
+        for (int i = 0; i < usedSources.length; i++) {
+            this.specifiedUnits[i] = this.adaContext.getUnitFromFile(usedSources[i]);
+        }
+
+        // For each source file of the project, store its corresponding analysis unit in the list of all the units
+        // of the project, as well as their root nodes.
+        this.allUnits = new Libadalang.AnalysisUnit[this.allSourceFiles.size()];
+        this.allUnitsRoots = new Libadalang.AdaNode[this.allSourceFiles.size()];
+
+        for (int i = 0; i < this.allUnits.length; i++) {
+            this.allUnits[i] = this.adaContext.getUnitFromFile(this.allSourceFiles.get(i));
+            this.allUnitsRoots[i] = this.allUnits[i].getRoot();
+        }
+
+        // All source files are now parsed
+        this.parsed = true;
+    }
+
+    /**
+     * Initialize the ada sources.
      */
     public void initSources() {
         // Prepare the list of ada files to analyse
@@ -654,71 +653,152 @@ public final class LKQLContext {
         return runtimeFiles;
     }
 
-    /**
-     * Parse the ada source files and store analysis units and root nodes
-     */
-    @CompilerDirectives.TruffleBoundary
-    public void parseSources() {
-        // Filter the Ada source file list
-        String[] ignores = this.getIgnores();
-        String[] usedSources = this.specifiedSourceFiles.stream()
-            .filter(source -> {
-                for (String ignore : ignores) {
-                    if (source.contains(ignore)) return false;
-                }
-                return true;
-            })
-            .toArray(String[]::new);
-
-        // For each specified source file, store its corresponding analysis unit in the list of specified units
-        this.specifiedUnits = new Libadalang.AnalysisUnit[usedSources.length];
-        for (int i = 0; i < usedSources.length; i++) {
-            this.specifiedUnits[i] = this.adaContext.getUnitFromFile(usedSources[i]);
-        }
-
-        // For each source file of the project, store its corresponding analysis unit in the list of all the units
-        // of the project, as well as their root nodes.
-        this.allUnits = new Libadalang.AnalysisUnit[this.allSourceFiles.size()];
-        this.allUnitsRoots = new Libadalang.AdaNode[this.allSourceFiles.size()];
-
-        for (int i = 0; i < this.allUnits.length; i++) {
-            this.allUnits[i] = this.adaContext.getUnitFromFile(this.allSourceFiles.get(i));
-            this.allUnitsRoots[i] = this.allUnits[i].getRoot();
-        }
-
-        // All source files are now parsed
-        this.parsed = true;
-    }
-
     // ----- Checker methods -----
 
-    /**
-     * Add an argument for a rule execution
-     *
-     * @param ruleName The rule name
-     * @param argName  The argument name
-     * @param value    The value of the argument
-     */
-    @CompilerDirectives.TruffleBoundary
-    public void addRuleArg(String ruleName, String argName, Object value) {
-        Map<String, Object> args = this.rulesArgs.getOrDefault(ruleName, new HashMap<>());
-        args.put(argName, value);
-        this.rulesArgs.put(ruleName, args);
-    }
 
     /**
-     * Get the argument value for the wanted rule
+     * Get the argument value for the wanted rule.
      *
-     * @param ruleName The name of the rule to get the arguments for
-     * @param argName  The argument name to get
-     * @return The value of the argument for the rule or null
+     * @param ruleName The name of the rule to get the arguments for.
+     * @param argName  The argument name to get.
+     * @return The value of the argument for the rule or null.
      */
     @CompilerDirectives.TruffleBoundary
     public Object getRuleArg(String ruleName, String argName) {
+        if (this.rulesArgs == null) {
+            this.initRuleArguments();
+        }
         Map<String, Object> ruleArgs = this.rulesArgs.getOrDefault(ruleName, null);
         return ruleArgs == null ?
             null :
             ruleArgs.getOrDefault(argName, null);
+    }
+
+    /**
+     * Initialize the rule arguments and populate the map.
+     */
+    private void initRuleArguments() {
+        // Split the rules arguments and initialize the rule arguments map
+        final String[] rulesArgsSources = this.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";");
+        this.rulesArgs = new HashMap<>();
+
+        for (String ruleArgSource : rulesArgsSources) {
+            // Verify that the rule is not empty
+            if (ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
+
+            // Split the get the names and the value
+            final String[] valueSplit = ruleArgSource.split("=");
+            final String[] nameSplit = valueSplit[0].split("\\.");
+
+            // Verify the rule argument syntax
+            if (valueSplit.length != 2 || nameSplit.length != 2) {
+                throw LKQLRuntimeException.fromMessage("Rule argument syntax error : '" + ruleArgSource + "'");
+            }
+
+            // Get the information from the rule argument source
+            final String ruleName = nameSplit[0].toLowerCase().trim();
+            final String argName = nameSplit[1].toLowerCase().trim();
+            final String valueSource = valueSplit[1].trim();
+
+            // Parse the value source with Liblkqllang
+            final Object argumentValue;
+            try (Liblkqllang.AnalysisContext context = Liblkqllang.AnalysisContext.create()) {
+                // Parse the argument value source with Liblkqllang
+                final Liblkqllang.AnalysisUnit unit = context.getUnitFromBuffer(
+                    valueSource,
+                    "rule_argument",
+                    null,
+                    Liblkqllang.GrammarRule.EXPR_RULE
+                );
+                final Liblkqllang.LkqlNode root = unit.getRoot();
+
+                // Validate the argument value node
+                if (!isValidRuleArgument(root)) {
+                    throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : " + valueSource);
+                }
+
+                // Execute the value source with LKQL implementation
+                final Source source = Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument").build();
+                final LKQLNode node = LangkitTranslator.translate(root, source);
+                argumentValue = node.executeGeneric(null);
+            }
+
+            // Add the argument in the context
+            final Map<String, Object> argumentMap = this.rulesArgs.getOrDefault(ruleName, new HashMap<>());
+            argumentMap.put(argName, argumentValue);
+            this.rulesArgs.put(ruleName, argumentMap);
+        }
+    }
+
+    /**
+     * Get if the given LKQL node is a valid argument node.
+     *
+     * @param argumentNode The argument to validate.
+     * @return True if the node is a valid argument node, false else.
+     */
+    private static boolean isValidRuleArgument(Liblkqllang.LkqlNode argumentNode) {
+        // If the node is just a literal it's value
+        if (argumentNode instanceof Liblkqllang.Literal) return true;
+
+            // Else if it's a tuple literal we must verify the expressions inside it
+        else if (argumentNode instanceof Liblkqllang.Tuple tupleLiteral) {
+            Liblkqllang.ExprList exprList = tupleLiteral.fExprs();
+            int childrenCount = exprList.getChildrenCount();
+            for (int i = 0; i < childrenCount; i++) {
+                if (!isValidRuleArgument(exprList.getChild(i))) return false;
+            }
+            return true;
+        }
+
+        // Else if it's a list literal we must verify the expressions of the list
+        else if (argumentNode instanceof Liblkqllang.ListLiteral listLiteral) {
+            Liblkqllang.ExprList exprList = listLiteral.fExprs();
+            int childrenCount = exprList.getChildrenCount();
+            for (int i = 0; i < childrenCount; i++) {
+                if (!isValidRuleArgument(exprList.getChild(i))) return false;
+            }
+            return true;
+        }
+
+        // Else if it's an object literal we must verify all association values
+        else if (argumentNode instanceof Liblkqllang.ObjectLiteral objectLiteral) {
+            Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
+            int childrenCount = assocList.getChildrenCount();
+            for (int i = 0; i < childrenCount; i++) {
+                Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
+                if (!isValidRuleArgument(assoc.fExpr())) return false;
+            }
+            return true;
+        }
+
+        // By default return false
+        return false;
+    }
+
+    /**
+     * Get the filtered node rules in this context.
+     *
+     * @return The node rule list filtered according to options.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public ObjectValue[] getNodeCheckersFiltered() {
+        if (this.filteredNodeCheckers == null) {
+            this.initCheckerCaches();
+        }
+        return this.filteredNodeCheckers;
+    }
+
+    /**
+     * Get the filtered unit checkers for the context.
+     *
+     * @return The list for unit checkers filtered according to options.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public ObjectValue[] getUnitCheckersFiltered() {
+        if (this.filteredUnitCheckers == null) {
+            this.initCheckerCaches();
+        }
+        return this.filteredUnitCheckers;
     }
 
     /**
@@ -729,12 +809,12 @@ public final class LKQLContext {
         // Prepare the working variables
         final List<ObjectValue> nodeCheckers = new ArrayList<>();
         final List<ObjectValue> unitCheckers = new ArrayList<>();
-        final Map<String, ObjectValue> allCheckers = this.globalValues.getCheckers();
+        final Map<String, ObjectValue> allCheckers = this.global.getCheckers();
         final String[] wantedRules = this.getRules();
 
         // Lambda to dispatch checkers in the correct lists
         final Consumer<ObjectValue> dispatchChecker = (checker) -> {
-            if (checker.get("mode") == FunDecl.CheckerMode.NODE) {
+            if (checker.get("mode") == FunctionDeclaration.CheckerMode.NODE) {
                 nodeCheckers.add(checker);
                 if ((boolean) checker.get("follow_generic_instantiations")) {
                     needsToFollowInstantiations = true;
@@ -768,36 +848,10 @@ public final class LKQLContext {
     }
 
     /**
-     * @return whether there is at least one rule that needs to follow generic instantiations
+     * @return whether there is at least one rule that needs to follow generic instantiations.
      */
     public boolean mustFollowInstantiations() {
         return needsToFollowInstantiations;
-    }
-
-    /**
-     * Get the filtered node rules in this context
-     *
-     * @return The node rule list filtered according to options
-     */
-    @CompilerDirectives.TruffleBoundary
-    public ObjectValue[] getNodeCheckersFiltered() {
-        if (this.filteredNodeCheckers == null) {
-            this.initCheckerCaches();
-        }
-        return this.filteredNodeCheckers;
-    }
-
-    /**
-     * Get the filtered unit checkers for the context
-     *
-     * @return The list for unit checkers filtered according to options
-     */
-    @CompilerDirectives.TruffleBoundary
-    public ObjectValue[] getUnitCheckersFiltered() {
-        if (this.filteredUnitCheckers == null) {
-            this.initCheckerCaches();
-        }
-        return this.filteredUnitCheckers;
     }
 
 }

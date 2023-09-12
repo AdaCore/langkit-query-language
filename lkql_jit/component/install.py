@@ -23,8 +23,8 @@
 
 # Script to install the LKQL GraalVM component in the local GraalVM installation
 
-import sys
 import subprocess
+import sys
 
 sys.path.append('..')
 from utils import GraalManager

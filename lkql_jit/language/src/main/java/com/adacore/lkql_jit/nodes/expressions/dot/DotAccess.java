@@ -48,7 +48,7 @@ import java.util.Map;
 
 
 /**
- * This node represents the dot access in the LKQL language
+ * This node represents the dot access in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
@@ -58,14 +58,14 @@ public abstract class DotAccess extends Expr {
     // ----- Attributes -----
 
     /**
-     * The member to access
+     * The member to access.
      */
     protected final Identifier member;
 
     // ----- Children -----
 
     /**
-     * The dispatcher for the built-in calls
+     * The dispatcher for the built-in calls.
      */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
@@ -74,10 +74,10 @@ public abstract class DotAccess extends Expr {
     // ----- Constructors -----
 
     /**
-     * Create a new base dot access with the needed parameters
+     * Create a new base dot access with the needed parameters.
      *
-     * @param location The location of the node in the source
-     * @param member   The member to access
+     * @param location The location of the node in the source.
+     * @param member   The member to access.
      */
     protected DotAccess(
         SourceLocation location,
@@ -91,10 +91,10 @@ public abstract class DotAccess extends Expr {
     // ----- Execution methods -----
 
     /**
-     * Execute the dot access on an object value
+     * Execute the dot access on an object value.
      *
-     * @param receiver The receiver object value
-     * @return The member of the object
+     * @param receiver The receiver object value.
+     * @return The member of the object.
      */
     @Specialization
     protected Object onObject(ObjectValue receiver) {
@@ -115,10 +115,10 @@ public abstract class DotAccess extends Expr {
     }
 
     /**
-     * Execute the dot access on a namespace value
+     * Execute the dot access on a namespace value.
      *
-     * @param receiver The namespace
-     * @return The member of the namespace
+     * @param receiver The namespace.
+     * @return The member of the namespace.
      */
     @Specialization
     protected Object onNamespace(NamespaceValue receiver) {
@@ -139,12 +139,12 @@ public abstract class DotAccess extends Expr {
     }
 
     /**
-     * Execute the dot access on a node with the cached strategy
+     * Execute the dot access on a node with the cached strategy.
      *
-     * @param receiver    The node receiver
-     * @param propertyRef The cached property reference
-     * @param isField     The cached value if the property is a field
-     * @return The result of the property reference
+     * @param receiver    The node receiver.
+     * @param propertyRef The cached property reference.
+     * @param isField     The cached value if the property is a field.
+     * @return The result of the property reference.
      */
     @Specialization(guards = {
         "!receiver.isNone()",
@@ -169,10 +169,10 @@ public abstract class DotAccess extends Expr {
     }
 
     /**
-     * Execute the dot access on a node with the un-cached strategy
+     * Execute the dot access on a node with the un-cached strategy.
      *
-     * @param receiver The node receiver
-     * @return The result of the property call
+     * @param receiver The node receiver.
+     * @return The result of the property call.
      */
     @Specialization(replaces = "onNodeCached")
     protected Object onNodeUncached(Libadalang.AdaNode receiver) {
@@ -198,10 +198,10 @@ public abstract class DotAccess extends Expr {
     }
 
     /**
-     * Fallback when the receiver is a generic object
+     * Fallback when the receiver is a generic object.
      *
-     * @param receiver The receiver generic value
-     * @return The execution of the dot access
+     * @param receiver The receiver generic value.
+     * @return The execution of the dot access.
      */
     @Fallback
     protected Object onGeneric(Object receiver) {
@@ -222,10 +222,10 @@ public abstract class DotAccess extends Expr {
     // ----- Class methods -----
 
     /**
-     * Try to get a built-in method and execute it if there is no parameters
+     * Try to get a built-in method and execute it if there is no parameters.
      *
-     * @param receiver The receiver object
-     * @return The built-in result, null if the built-in method doesn't exist
+     * @param receiver The receiver object.
+     * @return The built-in result, null if the built-in method doesn't exist.
      */
     protected Object tryBuildIn(Object receiver) {
         // Get the built in
@@ -244,10 +244,10 @@ public abstract class DotAccess extends Expr {
     }
 
     /**
-     * Get the built-in method for the receiver
+     * Get the built-in method for the receiver.
      *
-     * @param receiver The receiver object
-     * @return The member if it exists, null else
+     * @param receiver The receiver object.
+     * @return The member if it exists, null else.
      */
     @CompilerDirectives.TruffleBoundary
     protected BuiltInFunctionValue getBuiltIn(Object receiver) {

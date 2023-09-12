@@ -27,23 +27,23 @@ import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 
 
 /**
- * This interface defines the LKQL built-in function factories
+ * This interface defines the LKQL built-in function factories.
  *
  * @author Hugo GUERRIER
  */
 public interface BuiltInFunction {
 
     /**
-     * Get the name of the build-in function
+     * Get the name of the build-in function.
      *
-     * @return The name
+     * @return The name of the built-in function.
      */
     String getName();
 
     /**
-     * Return the function value for the built-in function
+     * Return the function value for the built-in function.
      *
-     * @return The function value
+     * @return The function value.
      */
     BuiltInFunctionValue getValue();
 

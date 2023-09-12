@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.utils.source_location;
 
 
 /**
- * This class is a dummy location, a locatable when nodes aren't reachable
+ * This class is a dummy location, a locatable when nodes aren't reachable.
  *
  * @author Hugo GUERRIER
  */
@@ -34,16 +34,16 @@ public final class DummyLocation implements Locatable {
     // ----- Attributes -----
 
     /**
-     * The location
+     * The represented location.
      */
     private final SourceLocation location;
 
     // ----- Constructors -----
 
     /**
-     * Create a new dummy location
+     * Create a new dummy location.
      *
-     * @param location The location
+     * @param location The location of the dummy.
      */
     public DummyLocation(SourceLocation location) {
         this.location = location;
