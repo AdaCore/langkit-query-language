@@ -1177,6 +1177,45 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new ObjectLiteral(loc(objectLiteral), keys, values);
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.AtObjectAssoc atObjectAssoc) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.AtObjectAssocList atObjectAssocList) {
+        return null;
+    }
+
+    /**
+     * Visit an at object literal node.
+     *
+     * @param atObjectLiteral The at object literal node from Langkit.
+     * @return The equivalent object literal node for Truffle.
+     */
+    @Override
+    public LKQLNode visit(Liblkqllang.AtObjectLiteral atObjectLiteral) {
+        // Get the association list and prepare the keys and values
+        final Liblkqllang.AtObjectAssocList assocList = atObjectLiteral.fAssocs();
+        final int assocNumber = assocList.getChildrenCount();
+        final String[] keys = new String[assocNumber];
+        final Expr[] values = new Expr[assocNumber];
+
+        // Iterate on object associations and translate them
+        for (int i = 0; i < assocNumber; i++) {
+            final Liblkqllang.AtObjectAssoc assoc = (Liblkqllang.AtObjectAssoc) assocList.getChild(i);
+            keys[i] = assoc.fName().getText();
+            final Liblkqllang.Expr exprBase = assoc.fExpr();
+            values[i] = exprBase.isNone() ?
+                new ListLiteral(loc(assoc.fName()), new Expr[0]) :
+                (Expr) exprBase.accept(this);
+        }
+
+        // Return the new object literal node because at object is juste syntactic sugar
+        return new ObjectLiteral(loc(atObjectLiteral), keys, values);
+    }
+
+
     // --- Block expressions
 
     /**

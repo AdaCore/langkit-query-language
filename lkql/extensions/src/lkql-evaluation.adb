@@ -117,6 +117,9 @@ package body LKQL.Evaluation is
    function Eval_Object_Literal
      (Ctx : Eval_Context; Node : L.Object_Literal) return Primitive;
 
+   function Eval_At_Object_Literal
+     (Ctx : Eval_Context; Node : L.At_Object_Literal) return Primitive;
+
    function Eval_Match (Ctx : Eval_Context; Node : L.Match) return Primitive;
 
    function Eval_Unwrap (Ctx : Eval_Context; Node : L.Unwrap) return Primitive;
@@ -262,6 +265,9 @@ package body LKQL.Evaluation is
          when LCO.Lkql_Object_Literal =>
             Result := Eval_Object_Literal
               (Local_Context, Node.As_Object_Literal);
+         when LCO.Lkql_At_Object_Literal =>
+            Result := Eval_At_Object_Literal
+              (Local_Context, Node.As_At_Object_Literal);
          when others =>
             raise Assertion_Error
               with "Invalid evaluation root kind: " & Node.Kind_Name;
@@ -993,6 +999,25 @@ package body LKQL.Evaluation is
       end loop;
       return Res;
    end Eval_Object_Literal;
+
+   ----------------------------
+   -- Eval_At_Object_Literal --
+   ----------------------------
+
+   function Eval_At_Object_Literal
+     (Ctx : Eval_Context; Node : L.At_Object_Literal) return Primitive
+   is
+      Res   : constant Primitive := Make_Empty_Object (Ctx.Pool);
+   begin
+      for Assoc of Node.F_Assocs loop
+         Res.Obj_Assocs.Elements.Include
+           (Symbol (Assoc.F_Name),
+            (if Assoc.F_Expr.Is_Null
+             then Make_Empty_List (Ctx.Pool)
+             else Eval (Ctx, Assoc.F_Expr)));
+      end loop;
+      return Res;
+   end Eval_At_Object_Literal;
 
    -----------------
    -- Eval_Unwrap --

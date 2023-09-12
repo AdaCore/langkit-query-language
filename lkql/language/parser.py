@@ -633,6 +633,23 @@ class ObjectAssoc(LkqlNode):
     expr = Field(type=Expr)
 
 
+class AtObjectAssoc(LkqlNode):
+    """
+    At object literal association of the form:
+    ``label opt(: <value>)``
+    """
+    name = Field(type=Identifier)
+    expr = Field(type=Expr)
+
+
+class AtObjectLiteral(Expr):
+    """
+    Object literal with @ in front of it:
+    ``@{ label1, label2: value }``
+    """
+    assocs = Field(type=AtObjectAssoc.list)
+
+
 @abstract
 class BlockBody(LkqlNode):
     """
@@ -1235,8 +1252,14 @@ lkql_grammar.add_rules(
         List(G.object_assoc, empty_valid=True, sep=","),
         "}"
     ),
-
     object_assoc=ObjectAssoc(G.id, ":", G.expr),
+
+    at_object_lit=AtObjectLiteral(
+        "@", "{",
+        List(G.at_object_assoc, empty_valid=True, sep=","),
+        "}"
+    ),
+    at_object_assoc=AtObjectAssoc(G.id, Opt(":", G.expr)),
 
     listcomp=ListComprehension(
         "[",
@@ -1328,6 +1351,7 @@ lkql_grammar.add_rules(
         G.listcomp,
         G.listlit,
         G.objectlit,
+        G.at_object_lit,
         G.match,
         G.id,
         G.string_literal,
