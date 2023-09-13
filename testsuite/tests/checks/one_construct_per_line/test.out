@@ -36,15 +36,24 @@ line.adb:13:12: rule violation: more than one construct on the same line
 13 |            I := 0; end if;                                 --  FLAG
    |            ^^^^^^^
 
-line.adb:21:7: rule violation: more than one construct on the same line
-21 |       Tmp := I; I := I + 1;                                --  FLAG (2)
+line.adb:26:18: rule violation: more than one construct on the same line
+26 |        My_Loop_2: for I in 1 .. 2 loop                      --  FLAG
+   | __________________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+28 ||       end loop My_Loop_2;
+   ||_________________________^
+
+line.adb:30:7: rule violation: more than one construct on the same line
+30 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |       ^^^^^^^^^
 
-line.adb:21:17: rule violation: more than one construct on the same line
-21 |       Tmp := I; I := I + 1;                                --  FLAG (2)
+line.adb:30:17: rule violation: more than one construct on the same line
+30 |       Tmp := I; I := I + 1;                                --  FLAG (2)
    |                 ^^^^^^^^^^^
 
-line.adb:23:7: rule violation: more than one construct on the same line
-23 |       I := I + 1; end Proc;                                --  FLAG
+line.adb:32:7: rule violation: more than one construct on the same line
+32 |       I := I + 1; end Proc;                                --  FLAG
    |       ^^^^^^^^^^^
 
