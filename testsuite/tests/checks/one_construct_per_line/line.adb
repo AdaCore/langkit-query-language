@@ -18,6 +18,15 @@ package body Line is
          null;
       end loop;
 
+      My_Loop:                                             --  NOFLAG
+      for I in 1 .. 2 loop
+         null;
+      end loop My_Loop;
+
+      My_Loop_2: for I in 1 .. 2 loop                      --  FLAG
+         null;
+      end loop My_Loop_2;
+
       Tmp := I; I := I + 1;                                --  FLAG (2)
       I := I + Tmp;                                        --  NOFLAG
       I := I + 1; end Proc;                                --  FLAG
