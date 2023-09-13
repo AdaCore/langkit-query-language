@@ -237,7 +237,7 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                             visitList.addFirst(new VisitStep(
                                 child,
                                 inGenericInstantiation,
-                                subpBody.pIsSpark()
+                                subpBody.pIsSpark(true)
                             ));
                         } else {
                             visitList.addFirst(new VisitStep(
