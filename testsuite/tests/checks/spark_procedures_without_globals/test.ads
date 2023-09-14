@@ -4,7 +4,7 @@ package Test is
 
    procedure Q is null; -- NOFLAG
 
-   function Foo return Integer  -- FLAG
+   function Foo return Integer  -- NOFLAG
    is (12)
    with SPARK_Mode => On;
 
