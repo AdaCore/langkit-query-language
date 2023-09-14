@@ -232,12 +232,12 @@ public final class NodeCheckerFunction implements BuiltInFunction {
                     final Libadalang.AdaNode child = currentNode.getChild(i);
                     if (!child.isNone()) {
                         // No need to check if the child is a base subprogram body in SPARK mode if there is no required
-                        // SPARK checkers. This avoids useless calls to 'pIsSpark'.
+                        // SPARK checkers. This avoids useless calls to 'pIsSubjectToProof'.
                         if (hasSparkCheckers && child instanceof Libadalang.BaseSubpBody subpBody) {
                             visitList.addFirst(new VisitStep(
                                 child,
                                 inGenericInstantiation,
-                                subpBody.pIsSpark(true)
+                                subpBody.pIsSubjectToProof()
                             ));
                         } else {
                             visitList.addFirst(new VisitStep(

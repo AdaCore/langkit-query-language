@@ -1,6 +1,6 @@
-package Test
-is
-   procedure P; -- FLAG
+package Test is
+
+   procedure P with SPARK_Mode => On; -- FLAG
 
    procedure Q is null; -- NOFLAG
 
