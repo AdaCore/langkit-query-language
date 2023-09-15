@@ -84,7 +84,6 @@ public class ParsingUtils {
             final String valueSource = valueSplit[1].trim();
 
             // Parse the value source with Liblkqllang
-            final Object argValue;
             try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
                 // Parse the argument value source with Liblkqllang
                 final Liblkqllang.AnalysisUnit unit = analysisContext.getUnitFromBuffer(
@@ -94,71 +93,24 @@ public class ParsingUtils {
                     Liblkqllang.GrammarRule.EXPR_RULE
                 );
                 final Liblkqllang.LkqlNode root = unit.getRoot();
-
-                // Validate the argument value node
-                if (!isValidRuleArgument(root)) {
-                    throw LKQLRuntimeException.fromMessage("The rule argument value must be an LKQL literal : " + valueSource);
-                }
-
-                // Execute the value source with LKQL implementation
                 final Source source = Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument").build();
                 final LKQLNode node = LangkitTranslator.translate(root, source);
-                argValue = node.executeGeneric(null);
-            }
 
-            // Add the argument in the result
-            Map<String, Object> ruleArgs = res.getOrDefault(ruleName, new HashMap<>());
-            ruleArgs.put(argName, argValue);
-            res.put(ruleName, ruleArgs);
+                try {
+                    // Add the argument in the result
+                    Map<String, Object> ruleArgs = res.getOrDefault(ruleName, new HashMap<>());
+                    ruleArgs.put(argName, node.executeGeneric(null));
+                    res.put(ruleName, ruleArgs);
+                } catch (Exception e) {
+                    throw LKQLRuntimeException.fromMessage(
+                        "The rule argument value generated an interpreter error: " + valueSource
+                    );
+                }
+            }
         }
 
         // Return the result
         return res;
-    }
-
-    /**
-     * Get if the given LKQL node is a valid argument node.
-     *
-     * @param argumentNode The argument to validate.
-     * @return True if the node is a valid argument node, false else.
-     */
-    private static boolean isValidRuleArgument(Liblkqllang.LkqlNode argumentNode) {
-        // If the node is just a literal it's value
-        if (argumentNode instanceof Liblkqllang.Literal) return true;
-
-            // Else if it's a tuple literal we must verify the expressions inside it
-        else if (argumentNode instanceof Liblkqllang.Tuple tupleLiteral) {
-            Liblkqllang.ExprList exprList = tupleLiteral.fExprs();
-            int childrenCount = exprList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                if (!isValidRuleArgument(exprList.getChild(i))) return false;
-            }
-            return true;
-        }
-
-        // Else if it's a list literal we must verify the expressions of the list
-        else if (argumentNode instanceof Liblkqllang.ListLiteral listLiteral) {
-            Liblkqllang.ExprList exprList = listLiteral.fExprs();
-            int childrenCount = exprList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                if (!isValidRuleArgument(exprList.getChild(i))) return false;
-            }
-            return true;
-        }
-
-        // Else if it's an object literal we must verify all association values
-        else if (argumentNode instanceof Liblkqllang.ObjectLiteral objectLiteral) {
-            Liblkqllang.ObjectAssocList assocList = objectLiteral.fAssocs();
-            int childrenCount = assocList.getChildrenCount();
-            for (int i = 0; i < childrenCount; i++) {
-                Liblkqllang.ObjectAssoc assoc = (Liblkqllang.ObjectAssoc) assocList.getChild(i);
-                if (!isValidRuleArgument(assoc.fExpr())) return false;
-            }
-            return true;
-        }
-
-        // By default return false
-        return false;
     }
 
     // ----- LKQL rule configuration file -----
