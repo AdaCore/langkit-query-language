@@ -10,6 +10,7 @@ endif
 PROCS=0
 PREFIX=install
 PYTHON=python
+MAVEN=mvn
 BUILD_DIR=/undefined
 LKQL_DIR=$(BUILD_DIR)/lkql
 GPRBUILD=gprbuild -j$(PROCS) -p -XBUILD_MODE=$(BUILD_MODE)
@@ -41,7 +42,7 @@ lalcheck: lkql
 	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java
+	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN)
 
 test:
 	testsuite/testsuite.py -Edtmp
@@ -55,15 +56,15 @@ clean_lkql_checker:
 	gprclean -P lkql_checker/lkql_checker.gpr
 
 clean_lkql_jit:
-	cd lkql_jit && mvn clean
+	cd lkql_jit && $(MAVEN) clean
 
 lkql_jit: lkql
-	mvn -f lkql/build/java/ install
-	mvn -f lkql_jit/ clean install
+	$(MAVEN) -f lkql/build/java/ install
+	$(MAVEN) -f lkql_jit/ clean install
 
 lkql_native_jit: lkql
-	mvn -f lkql/build/java/ install
-	mvn -f lkql_jit/ clean install -P native-all
+	$(MAVEN) -f lkql/build/java/ install
+	$(MAVEN) -f lkql_jit/ clean install -P native-all
 
 .PHONY: lkql_checker
 
