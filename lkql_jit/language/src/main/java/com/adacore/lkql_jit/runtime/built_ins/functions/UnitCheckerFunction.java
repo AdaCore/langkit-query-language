@@ -52,67 +52,22 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class UnitCheckerFunction implements BuiltInFunction {
+public final class UnitCheckerFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "unit_checker" built-in.
-     */
-    private static UnitCheckerFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "unit_checker";
 
-    /**
-     * The expression that represents the "unit_checker" function execution.
-     */
-    private final UnitCheckerFunction.UnitCheckerExpr unitCheckerExpr;
-
-    // ----- Constructors -----
-
-    /**
-     * This private constructor.
-     */
-    private UnitCheckerFunction() {
-        this.unitCheckerExpr = new UnitCheckerExpr();
-    }
-
-    /**
-     * Get the only instance of the built-in.
-     *
-     * @return The built-in instance.
-     */
-    public static UnitCheckerFunction getInstance() {
-        if (instance == null) {
-            instance = new UnitCheckerFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a unit, apply all the unit checker on it",
             new String[]{"unit"},
             new Expr[]{null},
-            this.unitCheckerExpr
+            new UnitCheckerExpr()
         );
     }
 

@@ -38,67 +38,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class BaseNameFunction implements BuiltInFunction {
+public final class BaseNameFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "base_name" function.
-     */
-    private static BaseNameFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "base_name";
 
-    /**
-     * The expression that represents the "base_name" execution.
-     */
-    private final BaseNameExpr baseNameExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private BaseNameFunction() {
-        this.baseNameExpr = new BaseNameExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static BaseNameFunction getInstance() {
-        if (instance == null) {
-            instance = new BaseNameFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a string that represents a file name, returns the basename",
             new String[]{"str"},
             new Expr[]{null},
-            this.baseNameExpr
+            new BaseNameExpr()
         );
     }
 

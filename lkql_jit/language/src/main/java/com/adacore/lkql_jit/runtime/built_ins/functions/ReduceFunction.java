@@ -43,67 +43,24 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class ReduceFunction implements BuiltInFunction {
+public final class ReduceFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "reduce" built-in.
-     */
-    private static ReduceFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "reduce";
 
-    /**
-     * The expression that represents the "reduce" function execution.
-     */
-    private final ReduceExpr reduceExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private ReduceFunction() {
-        this.reduceExpr = new ReduceExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static ReduceFunction getInstance() {
-        if (instance == null) {
-            instance = new ReduceFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a collection, a reduction function, and an initial value reduce the result",
             new String[]{"indexable", "fn", "init"},
             new Expr[]{null, null, null},
-            this.reduceExpr
+            new ReduceExpr()
         );
     }
 

@@ -80,7 +80,7 @@ public final class StrMethods extends CommonMethods {
     @Override
     protected void initMethods() {
         super.initMethods();
-        this.methods.put(BaseNameFunction.NAME, BaseNameFunction.getInstance().getValue());
+        this.methods.put(BaseNameFunction.NAME, BaseNameFunction.getValue());
         this.methods.put("to_lower_case", new BuiltInFunctionValue(
             "to_lower_case",
             "Return the given string written with lower case characters only",

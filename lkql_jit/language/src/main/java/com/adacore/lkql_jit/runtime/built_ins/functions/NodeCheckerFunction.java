@@ -53,67 +53,24 @@ import java.util.LinkedList;
  *
  * @author Hugo GUERRIER
  */
-public final class NodeCheckerFunction implements BuiltInFunction {
+public final class NodeCheckerFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "node_checker" built-in.
-     */
-    private static NodeCheckerFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "node_checker";
 
-    /**
-     * The expression that represents the "node_checker" function execution.
-     */
-    private final NodeCheckerExpr nodeCheckerExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private NodeCheckerFunction() {
-        this.nodeCheckerExpr = new NodeCheckerExpr();
-    }
-
-    /**
-     * Get the only instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static NodeCheckerFunction getInstance() {
-        if (instance == null) {
-            instance = new NodeCheckerFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a root, execute all node checker while traverse the tree",
             new String[]{"root"},
             new Expr[]{null},
-            this.nodeCheckerExpr
+            new NodeCheckerExpr()
         );
     }
 

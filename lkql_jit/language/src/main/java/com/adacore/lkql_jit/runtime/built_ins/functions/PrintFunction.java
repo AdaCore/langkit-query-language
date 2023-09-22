@@ -42,67 +42,24 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class PrintFunction implements BuiltInFunction {
+public final class PrintFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance for the "print" built-in.
-     */
-    private static PrintFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "print";
 
-    /**
-     * The expression that represents the "print" function execution.
-     */
-    private final PrintExpr printExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private PrintFunction() {
-        this.printExpr = new PrintExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static PrintFunction getInstance() {
-        if (instance == null) {
-            instance = new PrintFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Built-in print function. Prints whatever is passed as an argument",
             new String[]{"val", "new_line"},
             new Expr[]{null, new BooleanLiteral(null, true)},
-            this.printExpr
+            new PrintExpr()
         );
     }
 

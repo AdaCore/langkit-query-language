@@ -68,7 +68,7 @@ public final class ListMethods extends IterableMethods {
     @Override
     protected void initMethods() {
         super.initMethods();
-        this.methods.put(UniqueFunction.NAME, UniqueFunction.getInstance().getValue());
+        this.methods.put(UniqueFunction.NAME, UniqueFunction.getValue());
     }
 
     // ----- Override methods -----

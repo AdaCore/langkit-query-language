@@ -41,67 +41,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class ConcatFunction implements BuiltInFunction {
+public final class ConcatFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "concat" built-in.
-     */
-    private static ConcatFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "concat";
 
-    /**
-     * The expression that represents the "concat" execution.
-     */
-    private final ConcatExpr concatExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private ConcatFunction() {
-        this.concatExpr = new ConcatExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static ConcatFunction getInstance() {
-        if (instance == null) {
-            instance = new ConcatFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a list of lists or strings, return a concatenated list or string",
             new String[]{"lists"},
             new Expr[]{null},
-            this.concatExpr
+            new ConcatExpr()
         );
     }
 

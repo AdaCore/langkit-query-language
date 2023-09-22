@@ -36,67 +36,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class ProfileFunction implements BuiltInFunction {
+public final class ProfileFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "profile" built-in.
-     */
-    private static ProfileFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "profile";
 
-    /**
-     * The expression that represents the "profile" function execution.
-     */
-    private final ProfileExpr profileExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private ProfileFunction() {
-        this.profileExpr = new ProfileExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static ProfileFunction getInstance() {
-        if (instance == null) {
-            instance = new ProfileFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given any object, if it is a callable, return its profile as text",
             new String[]{"obj"},
             new Expr[]{null},
-            this.profileExpr
+            new ProfileExpr()
         );
     }
 

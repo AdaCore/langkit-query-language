@@ -36,67 +36,22 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class SpecifiedUnitsFunction implements BuiltInFunction {
+public final class SpecifiedUnitsFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only function of the "units" built-in.
-     */
-    private static SpecifiedUnitsFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "specified_units";
 
-    /**
-     * The expression that represents the "units" function execution.
-     */
-    private final SpecifiedUnitsExpr specifiedUnitsExpr;
-
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private SpecifiedUnitsFunction() {
-        this.specifiedUnitsExpr = new SpecifiedUnitsExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static SpecifiedUnitsFunction getInstance() {
-        if (instance == null) {
-            instance = new SpecifiedUnitsFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Return an iterator on units specified by the user",
             new String[]{},
             new Expr[]{},
-            this.specifiedUnitsExpr
+            new SpecifiedUnitsExpr()
         );
     }
 

@@ -36,67 +36,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class ImgFunction implements BuiltInFunction {
+public final class ImgFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance for the "img" built-in.
-     */
-    private static ImgFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "img";
 
-    /**
-     * The expression that represents the "img" function execution.
-     */
-    private final ImgExpr imgExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private ImgFunction() {
-        this.imgExpr = new ImgExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static ImgFunction getInstance() {
-        if (instance == null) {
-            instance = new ImgFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Return a string representation of an object",
             new String[]{"val"},
             new Expr[]{null},
-            this.imgExpr
+            new ImgExpr()
         );
     }
 

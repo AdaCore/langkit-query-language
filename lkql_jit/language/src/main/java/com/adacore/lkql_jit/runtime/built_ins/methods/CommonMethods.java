@@ -58,11 +58,11 @@ public abstract class CommonMethods implements BuiltInMethods {
      * Initialize the common methods.
      */
     protected void initMethods() {
-        this.methods.put(ImgFunction.NAME, ImgFunction.getInstance().getValue());
-        this.methods.put(PrintFunction.NAME, PrintFunction.getInstance().getValue());
-        this.methods.put(DocFunction.NAME, DocFunction.getInstance().getValue());
-        this.methods.put(ProfileFunction.NAME, ProfileFunction.getInstance().getValue());
-        this.methods.put(HelpFunction.NAME, HelpFunction.getInstance().getValue());
+        this.methods.put(ImgFunction.NAME, ImgFunction.getValue());
+        this.methods.put(PrintFunction.NAME, PrintFunction.getValue());
+        this.methods.put(DocFunction.NAME, DocFunction.getValue());
+        this.methods.put(ProfileFunction.NAME, ProfileFunction.getValue());
+        this.methods.put(HelpFunction.NAME, HelpFunction.getValue());
     }
 
     // ----- Override methods -----

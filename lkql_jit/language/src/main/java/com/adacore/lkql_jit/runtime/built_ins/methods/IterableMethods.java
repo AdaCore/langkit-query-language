@@ -51,7 +51,7 @@ public abstract class IterableMethods extends CommonMethods {
     protected void initMethods() {
         super.initMethods();
 
-        this.methods.put(ReduceFunction.NAME, ReduceFunction.getInstance().getValue());
+        this.methods.put(ReduceFunction.NAME, ReduceFunction.getValue());
         this.methods.put("to_list", new BuiltInFunctionValue(
             "to_list",
             "Transform an iterator into a list",

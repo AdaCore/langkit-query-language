@@ -36,67 +36,22 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class UnitsFunction implements BuiltInFunction {
+public final class UnitsFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only function of the "units" built-in.
-     */
-    private static UnitsFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "units";
 
-    /**
-     * The expression that represents the "units" function execution.
-     */
-    private final UnitsExpr unitsExpr;
-
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private UnitsFunction() {
-        this.unitsExpr = new UnitsExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static UnitsFunction getInstance() {
-        if (instance == null) {
-            instance = new UnitsFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Return an iterator on all units",
             new String[]{},
             new Expr[]{},
-            this.unitsExpr
+            new UnitsExpr()
         );
     }
 
