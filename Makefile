@@ -42,7 +42,7 @@ lalcheck: lkql
 	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
-	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN)
+	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
 
 test:
 	testsuite/testsuite.py -Edtmp
