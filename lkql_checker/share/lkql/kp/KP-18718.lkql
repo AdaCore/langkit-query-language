@@ -1,0 +1,36 @@
+# Flag object declarations initialized via a call to a function being
+# either an expression function or consisting of a single return statement,
+# returning a discriminated record type with default discriminants and a
+# variant part
+
+@check(help="possible occurrence of KP 18718",
+       message="possible occurrence of KP 18718 if compiled with optimization",
+       impact="23.*")
+fun kp_18718(node) =
+    node is ObjectDecl(
+        # An ObjectDecl with a default expression being a function call
+        f_default_expr is c@Name(p_is_call() is true)
+        when {
+            # Retrieve the function body for the call
+            val b = match c.p_referenced_decl()
+                    | decl@BaseSubpBody => decl
+                    | decl@SubpDecl     => decl.p_body_part()
+                    | *                 => null;
+
+            # An expression function or a function with a single return
+            (b is ExprFunction or
+                  SubpBody when b.f_stmts.f_stmts.children_count == 1
+                            and b.f_stmts.f_stmts[1] is ReturnStmt or
+                                                        ExtendedReturnStmt) and
+            # Retrieve the return type
+            b.f_subp_spec.p_return_type() is t@BaseTypeDecl
+               when t.p_canonical_type().p_full_view() is type@TypeDecl
+            # Return type has discriminants
+               when type.f_discriminants is KnownDiscriminantPart
+            # with default values
+                and [d for d in type.f_discriminants.f_discr_specs.children
+                                if d.f_default_expr != null]
+            # and a variant part
+                and type.f_type_def.f_record_def.f_components.
+                    f_variant_part is VariantPart
+        })
