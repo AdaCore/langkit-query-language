@@ -1,0 +1,8 @@
+p.adb:15:7: rule violation: possible occurrence of KP 18718 if compiled with optimization
+15 |       D  : constant Discr := Work;      --  FLAG
+   |       ^
+
+p.adb:16:7: rule violation: possible occurrence of KP 18718 if compiled with optimization
+16 |       D2 : constant Discr := Work (1);  --  FLAG
+   |       ^^
+
