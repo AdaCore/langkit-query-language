@@ -26,8 +26,9 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -57,45 +58,36 @@ public final class PatternFunction {
             "Given a regex pattern string, create a pattern object",
             new String[]{"regex", "case_sensitive"},
             new Expr[]{null, new BooleanLiteral(null, true)},
-            new PatternExpr()
+
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the string parameter
+                String regexString;
+                try {
+                    regexString = LKQLTypeSystemGen.expectString(frame.getArguments()[0]);
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                // Get the case sensitiveness parameter
+                boolean caseSensitive;
+                try {
+                    caseSensitive = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        call.getArgList().getArgs()[1]
+                    );
+                }
+
+                // Create the pattern and return it
+                return new Pattern(call, regexString, caseSensitive);
+            }
         );
-    }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "pattern" function.
-     */
-    public final static class PatternExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the string parameter
-            String regexString;
-            try {
-                regexString = LKQLTypeSystemGen.expectString(frame.getArguments()[0]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
-
-            // Get the case sensitiveness parameter
-            boolean caseSensitive;
-            try {
-                caseSensitive = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
-                );
-            }
-
-            // Create the pattern and return it
-            return new Pattern(this.callNode, regexString, caseSensitive);
-        }
     }
 
 }

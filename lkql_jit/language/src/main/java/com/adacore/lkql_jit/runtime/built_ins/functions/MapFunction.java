@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
@@ -70,7 +70,7 @@ public final class MapFunction {
     /**
      * Expression of the "map" function.
      */
-    public static final class MapExpr extends BuiltInExpr {
+    public static final class MapExpr extends BuiltinFunctionBody {
 
         /**
          * The dispatcher for the mapping function.

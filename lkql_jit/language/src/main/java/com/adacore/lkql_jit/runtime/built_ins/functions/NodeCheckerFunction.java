@@ -32,7 +32,7 @@ import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
@@ -44,7 +44,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 
@@ -80,7 +79,7 @@ public final class NodeCheckerFunction {
      * This class is the expression of the "node_checker" built-in.
      * This expression contains the traversing logic to checker the nodes.
      */
-    private static final class NodeCheckerExpr extends BuiltInExpr {
+    private static final class NodeCheckerExpr extends BuiltinFunctionBody {
 
         /**
          * The dispatcher for the rule functions.
@@ -90,7 +89,7 @@ public final class NodeCheckerFunction {
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
 
         /**
-         * @see com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+         * @see BuiltinFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
          */
         @Override
         public Object executeGeneric(VirtualFrame frame) {

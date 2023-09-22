@@ -26,7 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
@@ -55,33 +56,23 @@ public final class BaseNameFunction {
             "Given a string that represents a file name, returns the basename",
             new String[]{"str"},
             new Expr[]{null},
-            new BaseNameExpr()
-        );
-    }
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the file full path
+                Object path = frame.getArguments()[0];
 
-    // ----- Inner classes -----
+                // Check the argument type
+                if (!LKQLTypeSystemGen.isString(path)) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(path),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
 
-    /**
-     * Expression of the "base_name" function.
-     */
-    public final static class BaseNameExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the file full path
-            Object path = frame.getArguments()[0];
-
-            // Check the argument type
-            if (!LKQLTypeSystemGen.isString(path)) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(path),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                // Return the base name of the file
+                return FileUtils.baseName(LKQLTypeSystemGen.asString(path));
             }
-
-            // Return the base name of the file
-            return FileUtils.baseName(LKQLTypeSystemGen.asString(path));
-        }
+        );
     }
 
 }

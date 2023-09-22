@@ -26,7 +26,7 @@ package com.adacore.lkql_jit.runtime.built_ins.methods;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
@@ -123,7 +123,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     /**
      * Expression of the "root" method.
      */
-    public final static class RootExpr extends BuiltInExpr {
+    public final static class RootExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode res = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getRoot();
@@ -134,7 +134,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     /**
      * Expression of the "name" method.
      */
-    public final static class NameExpr extends BuiltInExpr {
+    public final static class NameExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
@@ -144,7 +144,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     /**
      * Expression of the "tokens" method.
      */
-    public final static class TokensExpr extends BuiltInExpr {
+    public final static class TokensExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AnalysisUnit unit = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
@@ -162,7 +162,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
     /**
      * Expression of the "text" method.
      */
-    public final static class TextExpr extends BuiltInExpr {
+    public final static class TextExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getText();

@@ -26,7 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
@@ -56,32 +57,22 @@ public final class HelpFunction {
             "Given any object, return formatted help for it",
             new String[]{"obj"},
             new Expr[]{null},
-            new HelpExpr()
+
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the argument
+                Object arg = frame.getArguments()[0];
+
+                // If the argument is an LKQL value, read the documentation from ir
+                if (LKQLTypeSystemGen.isLKQLValue(arg)) {
+                    LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
+                    LKQLLanguage.getContext(call).println(StringUtils.concat(
+                        value.getProfile(), "\n", value.getDocumentation()
+                    ));
+                }
+
+                // Return the default empty documentation
+                return UnitValue.getInstance();
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "help" function.
-     */
-    public final static class HelpExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object arg = frame.getArguments()[0];
-
-            // If the argument is an LKQL value, read the documentation from ir
-            if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
-                LKQLLanguage.getContext(this.callNode).println(StringUtils.concat(
-                    value.getProfile(), "\n", value.getDocumentation()
-                ));
-            }
-
-            // Return the default empty documentation
-            return UnitValue.getInstance();
-        }
-    }
-
 }

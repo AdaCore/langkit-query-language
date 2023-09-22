@@ -26,7 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -57,38 +58,27 @@ public final class UniqueFunction {
             "Given collection, remove all identical elements in order to have only one instance of each",
             new String[]{"indexable"},
             new Expr[]{null},
-            new UniqueExpr()
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the argument
+                Object indexableObject = frame.getArguments()[0];
+
+                // Verify the argument type
+                if (!LKQLTypeSystemGen.isIndexable(indexableObject)) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(indexableObject),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                // Cast the argument
+                Indexable indexable = LKQLTypeSystemGen.asIndexable(indexableObject);
+
+                Object[] res = ArrayUtils.unique(indexable.getContent());
+
+                // Return the result list
+                return new ListValue(ArrayUtils.unique(indexable.getContent()));
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "unique" function.
-     */
-    public final static class UniqueExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object indexableObject = frame.getArguments()[0];
-
-            // Verify the argument type
-            if (!LKQLTypeSystemGen.isIndexable(indexableObject)) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_LIST,
-                    LKQLTypesHelper.fromJava(indexableObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
-
-            // Cast the argument
-            Indexable indexable = LKQLTypeSystemGen.asIndexable(indexableObject);
-
-            Object[] res = ArrayUtils.unique(indexable.getContent());
-
-            // Return the result list
-            return new ListValue(ArrayUtils.unique(indexable.getContent()));
-        }
-    }
-
 }

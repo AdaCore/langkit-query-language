@@ -27,8 +27,9 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -59,42 +60,31 @@ public final class PrintFunction {
             "Built-in print function. Prints whatever is passed as an argument",
             new String[]{"val", "new_line"},
             new Expr[]{null, new BooleanLiteral(null, true)},
-            new PrintExpr()
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the arguments
+                Object toPrint = frame.getArguments()[0];
+
+                boolean newLine;
+                try {
+                    newLine = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        call.getArgList().getArgs()[1]
+                    );
+                }
+
+                // Print the value
+                if (newLine) {
+                    LKQLLanguage.getContext(call).println(ObjectUtils.toString(toPrint));
+                } else {
+                    LKQLLanguage.getContext(call).print(ObjectUtils.toString(toPrint));
+                }
+
+                // Return the unit value
+                return UnitValue.getInstance();
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "print" function.
-     */
-    public final static class PrintExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the arguments
-            Object toPrint = frame.getArguments()[0];
-
-            boolean newLine;
-            try {
-                newLine = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
-                );
-            }
-
-            // Print the value
-            if (newLine) {
-                LKQLLanguage.getContext(this.callNode).println(ObjectUtils.toString(toPrint));
-            } else {
-                LKQLLanguage.getContext(this.callNode).print(ObjectUtils.toString(toPrint));
-            }
-
-            // Return the unit value
-            return UnitValue.getInstance();
-        }
-    }
-
 }

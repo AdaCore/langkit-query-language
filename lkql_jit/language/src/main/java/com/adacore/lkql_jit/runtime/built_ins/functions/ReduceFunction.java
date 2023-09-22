@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
@@ -69,7 +69,7 @@ public final class ReduceFunction {
     /**
      * Expression for the "reduce" function.
      */
-    public final static class ReduceExpr extends BuiltInExpr {
+    public final static class ReduceExpr extends BuiltinFunctionBody {
 
         /**
          * The dispatcher for the reduce function.

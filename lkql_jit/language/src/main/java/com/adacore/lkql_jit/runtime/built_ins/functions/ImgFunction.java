@@ -24,7 +24,8 @@
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -53,25 +54,14 @@ public final class ImgFunction {
             "Return a string representation of an object",
             new String[]{"val"},
             new Expr[]{null},
-            new ImgExpr()
+            (VirtualFrame frame, FunCall call) -> {
+                // Return the string representation of the argument
+                if (frame.getArguments()[0] instanceof String s) {
+                    return StringUtils.toRepr(s);
+                } else {
+                    return ObjectUtils.toString(frame.getArguments()[0]);
+                }
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "img" function.
-     */
-    public final static class ImgExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Return the string representation of the argument
-            if (frame.getArguments()[0] instanceof String s) {
-                return StringUtils.toRepr(s);
-            } else {
-                return ObjectUtils.toString(frame.getArguments()[0]);
-            }
-        }
-    }
-
 }

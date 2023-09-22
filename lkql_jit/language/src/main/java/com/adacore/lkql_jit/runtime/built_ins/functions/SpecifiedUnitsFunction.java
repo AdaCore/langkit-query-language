@@ -25,7 +25,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -51,20 +52,9 @@ public final class SpecifiedUnitsFunction {
             "Return an iterator on units specified by the user",
             new String[]{},
             new Expr[]{},
-            new SpecifiedUnitsExpr()
+            (VirtualFrame frame, FunCall call) -> {
+                return new ListValue(LKQLLanguage.getContext(call).getSpecifiedUnits());
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "specified_units" function.
-     */
-    public static final class SpecifiedUnitsExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return new ListValue(LKQLLanguage.getContext(this.callNode).getSpecifiedUnits());
-        }
-    }
-
 }

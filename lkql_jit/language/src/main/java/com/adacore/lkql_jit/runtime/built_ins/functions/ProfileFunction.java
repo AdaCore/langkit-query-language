@@ -25,7 +25,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -53,29 +54,18 @@ public final class ProfileFunction {
             "Given any object, if it is a callable, return its profile as text",
             new String[]{"obj"},
             new Expr[]{null},
-            new ProfileExpr()
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the argument
+                Object arg = frame.getArguments()[0];
+
+                // If the argument is an LKQL value, read the documentation from ir
+                if (LKQLTypeSystemGen.isLKQLValue(arg)) {
+                    return ((LKQLValue) arg).getProfile();
+                }
+
+                // Return the default empty documentation
+                return "";
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "profile" function.
-     */
-    public final static class ProfileExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object arg = frame.getArguments()[0];
-
-            // If the argument is an LKQL value, read the documentation from ir
-            if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                return ((LKQLValue) arg).getProfile();
-            }
-
-            // Return the default empty documentation
-            return "";
-        }
-    }
-
 }

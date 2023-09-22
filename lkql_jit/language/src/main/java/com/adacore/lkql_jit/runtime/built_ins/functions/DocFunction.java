@@ -25,7 +25,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -53,29 +54,19 @@ public final class DocFunction {
             "Given any object, return the documentation associated with it",
             new String[]{"obj"},
             new Expr[]{null},
-            new DocExpr()
-        );
-    }
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the argument
+                Object arg = frame.getArguments()[0];
 
-    // ----- Inner classes -----
+                // If the argument is an LKQL value, read the documentation from ir
+                if (LKQLTypeSystemGen.isLKQLValue(arg)) {
+                    return ((LKQLValue) arg).getDocumentation();
+                }
 
-    /**
-     * Expression of the "doc" function.
-     */
-    public final static class DocExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object arg = frame.getArguments()[0];
-
-            // If the argument is an LKQL value, read the documentation from ir
-            if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                return ((LKQLValue) arg).getDocumentation();
+                // Return the default empty documentation
+                return "";
             }
-
-            // Return the default empty documentation
-            return "";
-        }
+        );
     }
 
 }
