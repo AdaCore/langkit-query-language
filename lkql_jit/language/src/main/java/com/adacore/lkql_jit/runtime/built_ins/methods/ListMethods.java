@@ -23,8 +23,17 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.built_ins.functions.UniqueFunction;
+import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.oracle.truffle.api.frame.VirtualFrame;
+
+import java.util.Arrays;
 
 
 /**
@@ -69,6 +78,52 @@ public final class ListMethods extends IterableMethods {
     protected void initMethods() {
         super.initMethods();
         this.methods.put(UniqueFunction.NAME, UniqueFunction.getValue());
+        this.methods.put("sublist", new BuiltInFunctionValue(
+            "sublist",
+            "Return a sublist of `list` from `low_bound` to `high_bound`",
+            new String[]{"list", "low_bound", "high_bound"},
+            new Expr[]{null, null, null},
+
+            (VirtualFrame frame, FunCall call) -> {
+                var args = frame.getArguments();
+
+                if (!LKQLTypeSystemGen.isListValue(args[0])) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(args[0]),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                if (!LKQLTypeSystemGen.isLong(args[1])) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_INTEGER,
+                        LKQLTypesHelper.fromJava(args[1]),
+                        call.getArgList().getArgs()[1]
+                    );
+                }
+
+                if (!LKQLTypeSystemGen.isLong(args[2])) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_INTEGER,
+                        LKQLTypesHelper.fromJava(args[2]),
+                        call.getArgList().getArgs()[2]
+                    );
+                }
+
+                ListValue list = LKQLTypeSystemGen.asListValue(args[0]);
+                long lowBound = LKQLTypeSystemGen.asLong(args[1]);
+                long highBound = LKQLTypeSystemGen.asLong(args[2]);
+
+                if (lowBound < 1) {
+                    throw LKQLRuntimeException.invalidIndex((int) lowBound, call);
+                } else if (highBound > list.getContent().length) {
+                    throw LKQLRuntimeException.invalidIndex((int) highBound, call);
+                }
+
+                return new ListValue(Arrays.copyOfRange(list.getContent(), (int) lowBound - 1, (int) highBound));
+            })
+        );
     }
 
     // ----- Override methods -----
