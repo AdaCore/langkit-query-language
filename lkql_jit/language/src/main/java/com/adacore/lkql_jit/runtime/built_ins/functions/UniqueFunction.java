@@ -74,8 +74,6 @@ public final class UniqueFunction {
                 // Cast the argument
                 Indexable indexable = LKQLTypeSystemGen.asIndexable(indexableObject);
 
-                Object[] res = ArrayUtils.unique(indexable.getContent());
-
                 // Return the result list
                 return new ListValue(ArrayUtils.unique(indexable.getContent()));
             }
