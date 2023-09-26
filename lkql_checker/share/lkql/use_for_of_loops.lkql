@@ -17,6 +17,21 @@ fun num_indices(type) =
         | a@UnconstrainedArrayIndices => a.f_types.children_count)
     | DerivedTypeDef => num_indices(type.p_base_type())
 
+fun is_same_object(a, b) =
+    |" Return whether the two given expressions refer to the same object
+    |" This conservatively returns false for paths that are too complex.
+{
+    val def_a = a.p_referenced_defining_name();
+    val def_b = b.p_referenced_defining_name();
+    (def_a == def_b) and match def_a.p_basic_decl()
+    | ParamSpec => true
+    | ObjectDecl => true
+    | ComponentDecl =>
+        (a is DottedName) and (b is DottedName)
+        and is_same_object(a.f_prefix, b.f_prefix)
+    | * => false
+}
+
 @check(message="FOR loop may be replaced by a FOR OF loop",
        category="Style", subcategory="Programming Practice")
 fun use_for_of_loops(node, n : int = 1, ignore = false) =
@@ -39,15 +54,9 @@ fun use_for_of_loops(node, n : int = 1, ignore = false) =
          not [f for f in ids
               if match f.parent
                  | ParamAssoc(parent is AssocList(parent is call@CallExpr)) =>
-                     call.f_name.p_referenced_decl() !=
-                         attr.f_prefix.p_referenced_decl()
+                     not is_same_object(call.f_name, attr.f_prefix)
                  | * => true]
          # Finally check that we have at least N references to <index>
-         and (n == 0 or
-              [f for f in ids
-               if match f.parent
-                  | ParamAssoc(parent is AssocList(parent is call@CallExpr)) =>
-                      call.f_name.p_referenced_decl() ==
-                          attr.f_prefix.p_referenced_decl()
-                  | * => false]?[n])}
+         and ids.length >= n
+      }
 

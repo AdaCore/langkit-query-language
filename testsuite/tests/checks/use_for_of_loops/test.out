@@ -16,3 +16,12 @@ loop1.adb:11:4: rule violation: FOR loop may be replaced by a FOR OF loop
 13 ||    end loop;
    ||____________^
 
+loop2.adb:13:4: rule violation: FOR loop may be replaced by a FOR OF loop
+13 |     for I in X.Bounds'Range loop                -- FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+15 ||    end loop;
+   ||____________^
+
