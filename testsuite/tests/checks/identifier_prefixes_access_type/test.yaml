@@ -1,0 +1,6 @@
+driver: 'checker'
+rule_name: Identifier_Prefixes
+project: 'prj.gpr'
+rule_arguments:
+    identifier_prefixes.type: '"Typ_"'
+    identifier_prefixes.access: '"Typ_Ptr_"'
