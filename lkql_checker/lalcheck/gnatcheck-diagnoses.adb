@@ -58,7 +58,7 @@ package body Gnatcheck.Diagnoses is
    package LCO renames Libadalang.Common;
 
    Match_Diagnosis : constant Pattern_Matcher :=
-     Compile ("^(.*)?:(\d+)?:(\d+)?: (.*)$");
+     Compile ("^([^:]*)?:(\d+)?:(\d+)?: (.*)$");
    --  Matcher for a diagnostic
 
    Match_Rule_Name : constant Pattern_Matcher :=
