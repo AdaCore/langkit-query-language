@@ -15,4 +15,12 @@ begin
    for J in Str'Range loop    --  NOFLAG
       exit when J > 1;
    end loop;
+
+   declare
+      Str2 : constant String := Str;
+   begin
+      for J in Str'Range loop
+         Str (J) := Str2 (J);  --  NOFLAG
+      end loop;
+   end;
 end Loop1;
