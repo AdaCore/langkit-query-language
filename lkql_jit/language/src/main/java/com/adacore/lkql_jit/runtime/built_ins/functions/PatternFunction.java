@@ -26,8 +26,9 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -40,105 +41,53 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class PatternFunction implements BuiltInFunction {
+public final class PatternFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "pattern" built-in.
-     */
-    private static PatternFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "pattern";
 
-    /**
-     * The expression that represents the "pattern" function execution.
-     */
-    private final PatternExpr patternExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private PatternFunction() {
-        this.patternExpr = new PatternExpr();
-    }
-
-    /**
-     * Get the only instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static PatternFunction getInstance() {
-        if (instance == null) {
-            instance = new PatternFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a regex pattern string, create a pattern object",
             new String[]{"regex", "case_sensitive"},
             new Expr[]{null, new BooleanLiteral(null, true)},
-            this.patternExpr
+
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the string parameter
+                String regexString;
+                try {
+                    regexString = LKQLTypeSystemGen.expectString(frame.getArguments()[0]);
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                // Get the case sensitiveness parameter
+                boolean caseSensitive;
+                try {
+                    caseSensitive = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        call.getArgList().getArgs()[1]
+                    );
+                }
+
+                // Create the pattern and return it
+                return new Pattern(call, regexString, caseSensitive);
+            }
         );
-    }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "pattern" function.
-     */
-    public final static class PatternExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the string parameter
-            String regexString;
-            try {
-                regexString = LKQLTypeSystemGen.expectString(frame.getArguments()[0]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
-
-            // Get the case sensitiveness parameter
-            boolean caseSensitive;
-            try {
-                caseSensitive = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
-                );
-            }
-
-            // Create the pattern and return it
-            return new Pattern(this.callNode, regexString, caseSensitive);
-        }
     }
 
 }

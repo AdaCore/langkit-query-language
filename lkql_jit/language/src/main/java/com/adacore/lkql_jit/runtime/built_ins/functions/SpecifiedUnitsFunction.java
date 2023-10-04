@@ -25,7 +25,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -36,80 +37,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class SpecifiedUnitsFunction implements BuiltInFunction {
+public final class SpecifiedUnitsFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only function of the "units" built-in.
-     */
-    private static SpecifiedUnitsFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "specified_units";
 
-    /**
-     * The expression that represents the "units" function execution.
-     */
-    private final SpecifiedUnitsExpr specifiedUnitsExpr;
-
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private SpecifiedUnitsFunction() {
-        this.specifiedUnitsExpr = new SpecifiedUnitsExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static SpecifiedUnitsFunction getInstance() {
-        if (instance == null) {
-            instance = new SpecifiedUnitsFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Return an iterator on units specified by the user",
             new String[]{},
             new Expr[]{},
-            this.specifiedUnitsExpr
+            (VirtualFrame frame, FunCall call) -> {
+                return new ListValue(LKQLLanguage.getContext(call).getSpecifiedUnits());
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "specified_units" function.
-     */
-    public static final class SpecifiedUnitsExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            return new ListValue(LKQLLanguage.getContext(this.callNode).getSpecifiedUnits());
-        }
-    }
-
 }

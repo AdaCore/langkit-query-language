@@ -70,6 +70,9 @@ LKQL has two composite data types, lists and objects.
 * Lists are contiguous sequences of items that can be indexed, a bit like Ada
   vectors or Python lists.
 
+.. attention:: Lists are indexed starting from `1`, like in Lua/R/.., unlike in
+   Python/Java/etc..
+
 * Objects are heterogeneous records that can contain any number of key to value
   mappings, where keys are labels and values are any valid LKQL value.
 

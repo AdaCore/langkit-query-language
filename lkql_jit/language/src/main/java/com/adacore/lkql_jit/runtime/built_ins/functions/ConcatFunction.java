@@ -23,11 +23,11 @@
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
-import com.adacore.lkql_jit.LKQLTypeSystem;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -41,151 +41,99 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class ConcatFunction implements BuiltInFunction {
+public final class ConcatFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "concat" built-in.
-     */
-    private static ConcatFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "concat";
 
-    /**
-     * The expression that represents the "concat" execution.
-     */
-    private final ConcatExpr concatExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private ConcatFunction() {
-        this.concatExpr = new ConcatExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static ConcatFunction getInstance() {
-        if (instance == null) {
-            instance = new ConcatFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a list of lists or strings, return a concatenated list or string",
             new String[]{"lists"},
             new Expr[]{null},
-            this.concatExpr
+
+            (VirtualFrame frame, FunCall call) -> {
+
+                // Get the argument
+                Object lists = frame.getArguments()[0];
+
+                // Check the type of the argument
+                if (!LKQLTypeSystemGen.isListValue(lists)) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(lists),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                // Cast the argument to list
+                ListValue listValue = (ListValue) lists;
+
+                // If the list is not empty
+                if (listValue.size() > 0) {
+                    final Object firstItem = listValue.get(0);
+
+                    // If the first value is a string look for strings in the list
+                    if (LKQLTypeSystemGen.isString(firstItem)) {
+                        // Create a string builder and add all strings in the list
+                        String result = LKQLTypeSystemGen.asString(firstItem);
+                        for (int i = 1; i < listValue.size(); i++) {
+                            final Object item = listValue.get(i);
+                            if (!LKQLTypeSystemGen.isString(item)) {
+                                throw LKQLRuntimeException.wrongType(
+                                    LKQLTypesHelper.LKQL_STRING,
+                                    LKQLTypesHelper.fromJava(item),
+                                    call.getArgList().getArgs()[0]
+                                );
+                            }
+                            result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
+                        }
+
+                        // Return the result
+                        return result;
+                    }
+
+                    // If the first item is a list look for lists in the list
+                    if (LKQLTypeSystemGen.isListValue(firstItem)) {
+                        // Create a result array and add all list of the argument
+                        Object[] result = LKQLTypeSystemGen.asListValue(firstItem).getContent();
+                        for (int i = 1; i < listValue.size(); i++) {
+                            final Object item = listValue.get(i);
+                            if (!LKQLTypeSystemGen.isListValue(item)) {
+                                throw LKQLRuntimeException.wrongType(
+                                    LKQLTypesHelper.LKQL_LIST,
+                                    LKQLTypesHelper.fromJava(item),
+                                    call.getArgList().getArgs()[0]
+                                );
+                            }
+                            result = ArrayUtils.concat(
+                                result,
+                                LKQLTypeSystemGen.asListValue(item).getContent()
+                            );
+                        }
+                        return new ListValue(result);
+                    }
+
+                    // Else there is an error
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.typeUnion(LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
+                        LKQLTypesHelper.fromJava(firstItem),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                // If the list is empty just return an empty list
+                else {
+                    return new ListValue(new Object[0]);
+                }
+            }
         );
     }
-
-    // ------ Inner classes -----
-
-    /**
-     * Expression of the "concat" function.
-     */
-    public final static class ConcatExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object lists = frame.getArguments()[0];
-
-            // Check the type of the argument
-            if (!LKQLTypeSystemGen.isListValue(lists)) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_LIST,
-                    LKQLTypesHelper.fromJava(lists),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
-
-            // Cast the argument to list
-            ListValue listValue = (ListValue) lists;
-
-            // If the list is not empty
-            if (listValue.size() > 0) {
-                final Object firstItem = listValue.get(0);
-
-                // If the first value is a string look for strings in the list
-                if (LKQLTypeSystemGen.isString(firstItem)) {
-                    // Create a string builder and add all strings in the list
-                    String result = LKQLTypeSystemGen.asString(firstItem);
-                    for (int i = 1; i < listValue.size(); i++) {
-                        final Object item = listValue.get(i);
-                        if (!LKQLTypeSystemGen.isString(item)) {
-                            throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_STRING,
-                                LKQLTypesHelper.fromJava(item),
-                                this.callNode.getArgList().getArgs()[0]
-                            );
-                        }
-                        result = StringUtils.concat(result, LKQLTypeSystemGen.asString(item));
-                    }
-
-                    // Return the result
-                    return result;
-                }
-
-                // If the first item is a list look for lists in the list
-                if (LKQLTypeSystemGen.isListValue(firstItem)) {
-                    // Create a result array and add all list of the argument
-                    Object[] result = LKQLTypeSystemGen.asListValue(firstItem).getContent();
-                    for (int i = 1; i < listValue.size(); i++) {
-                        final Object item = listValue.get(i);
-                        if (!LKQLTypeSystemGen.isListValue(item)) {
-                            throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_LIST,
-                                LKQLTypesHelper.fromJava(item),
-                                this.callNode.getArgList().getArgs()[0]
-                            );
-                        }
-                        result = ArrayUtils.concat(
-                            result,
-                            LKQLTypeSystemGen.asListValue(item).getContent()
-                        );
-                    }
-                    return new ListValue(result);
-                }
-
-                // Else there is an error
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.typeUnion(LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.LKQL_STRING),
-                    LKQLTypesHelper.fromJava(firstItem),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
-
-            // If the list is empty just return an empty list
-            else {
-                return new ListValue(new Object[0]);
-            }
-        }
-    }
-
 }

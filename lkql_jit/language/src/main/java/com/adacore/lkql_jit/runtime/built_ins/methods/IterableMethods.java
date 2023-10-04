@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.runtime.built_ins.methods;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.built_ins.functions.ReduceFunction;
 import com.adacore.lkql_jit.runtime.values.ListValue;
@@ -51,7 +51,7 @@ public abstract class IterableMethods extends CommonMethods {
     protected void initMethods() {
         super.initMethods();
 
-        this.methods.put(ReduceFunction.NAME, ReduceFunction.getInstance().getValue());
+        this.methods.put(ReduceFunction.NAME, ReduceFunction.getValue());
         this.methods.put("to_list", new BuiltInFunctionValue(
             "to_list",
             "Transform an iterator into a list",
@@ -73,7 +73,7 @@ public abstract class IterableMethods extends CommonMethods {
     /**
      * Expression of the "to_list" method.
      */
-    public static class ToListExpr extends BuiltInExpr {
+    public static class ToListExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver
@@ -94,7 +94,7 @@ public abstract class IterableMethods extends CommonMethods {
     /**
      * Expression of the "length" method.
      */
-    public static class LengthExpr extends BuiltInExpr {
+    public static class LengthExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the iterable receiver

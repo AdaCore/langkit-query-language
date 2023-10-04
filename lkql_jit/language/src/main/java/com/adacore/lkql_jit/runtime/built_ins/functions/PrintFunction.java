@@ -27,8 +27,9 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.literals.BooleanLiteral;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -42,102 +43,48 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class PrintFunction implements BuiltInFunction {
+public final class PrintFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance for the "print" built-in.
-     */
-    private static PrintFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "print";
 
-    /**
-     * The expression that represents the "print" function execution.
-     */
-    private final PrintExpr printExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private PrintFunction() {
-        this.printExpr = new PrintExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static PrintFunction getInstance() {
-        if (instance == null) {
-            instance = new PrintFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Built-in print function. Prints whatever is passed as an argument",
             new String[]{"val", "new_line"},
             new Expr[]{null, new BooleanLiteral(null, true)},
-            this.printExpr
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the arguments
+                Object toPrint = frame.getArguments()[0];
+
+                boolean newLine;
+                try {
+                    newLine = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
+                } catch (UnexpectedResultException e) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        call.getArgList().getArgs()[1]
+                    );
+                }
+
+                // Print the value
+                if (newLine) {
+                    LKQLLanguage.getContext(call).println(ObjectUtils.toString(toPrint));
+                } else {
+                    LKQLLanguage.getContext(call).print(ObjectUtils.toString(toPrint));
+                }
+
+                // Return the unit value
+                return UnitValue.getInstance();
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "print" function.
-     */
-    public final static class PrintExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the arguments
-            Object toPrint = frame.getArguments()[0];
-
-            boolean newLine;
-            try {
-                newLine = LKQLTypeSystemGen.expectBoolean(frame.getArguments()[1]);
-            } catch (UnexpectedResultException e) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[1]
-                );
-            }
-
-            // Print the value
-            if (newLine) {
-                LKQLLanguage.getContext(this.callNode).println(ObjectUtils.toString(toPrint));
-            } else {
-                LKQLLanguage.getContext(this.callNode).print(ObjectUtils.toString(toPrint));
-            }
-
-            // Return the unit value
-            return UnitValue.getInstance();
-        }
-    }
-
 }

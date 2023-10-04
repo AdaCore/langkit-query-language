@@ -26,7 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
@@ -38,93 +39,40 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class BaseNameFunction implements BuiltInFunction {
+public final class BaseNameFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "base_name" function.
-     */
-    private static BaseNameFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "base_name";
 
-    /**
-     * The expression that represents the "base_name" execution.
-     */
-    private final BaseNameExpr baseNameExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private BaseNameFunction() {
-        this.baseNameExpr = new BaseNameExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static BaseNameFunction getInstance() {
-        if (instance == null) {
-            instance = new BaseNameFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a string that represents a file name, returns the basename",
             new String[]{"str"},
             new Expr[]{null},
-            this.baseNameExpr
-        );
-    }
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the file full path
+                Object path = frame.getArguments()[0];
 
-    // ----- Inner classes -----
+                // Check the argument type
+                if (!LKQLTypeSystemGen.isString(path)) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(path),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
 
-    /**
-     * Expression of the "base_name" function.
-     */
-    public final static class BaseNameExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the file full path
-            Object path = frame.getArguments()[0];
-
-            // Check the argument type
-            if (!LKQLTypeSystemGen.isString(path)) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(path),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                // Return the base name of the file
+                return FileUtils.baseName(LKQLTypeSystemGen.asString(path));
             }
-
-            // Return the base name of the file
-            return FileUtils.baseName(LKQLTypeSystemGen.asString(path));
-        }
+        );
     }
 
 }

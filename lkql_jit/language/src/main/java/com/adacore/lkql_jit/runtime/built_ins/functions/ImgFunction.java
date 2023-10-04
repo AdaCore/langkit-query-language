@@ -24,7 +24,8 @@
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -36,85 +37,31 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class ImgFunction implements BuiltInFunction {
+public final class ImgFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance for the "img" built-in.
-     */
-    private static ImgFunction instance = null;
 
     /**
      * The name of the built-in.
      */
     public static final String NAME = "img";
 
-    /**
-     * The expression that represents the "img" function execution.
-     */
-    private final ImgExpr imgExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private ImgFunction() {
-        this.imgExpr = new ImgExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static ImgFunction getInstance() {
-        if (instance == null) {
-            instance = new ImgFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Return a string representation of an object",
             new String[]{"val"},
             new Expr[]{null},
-            this.imgExpr
+            (VirtualFrame frame, FunCall call) -> {
+                // Return the string representation of the argument
+                if (frame.getArguments()[0] instanceof String s) {
+                    return StringUtils.toRepr(s);
+                } else {
+                    return ObjectUtils.toString(frame.getArguments()[0]);
+                }
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "img" function.
-     */
-    public final static class ImgExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Return the string representation of the argument
-            if (frame.getArguments()[0] instanceof String s) {
-                return StringUtils.toRepr(s);
-            } else {
-                return ObjectUtils.toString(frame.getArguments()[0]);
-            }
-        }
-    }
-
 }

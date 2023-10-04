@@ -28,6 +28,10 @@ import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.oracle.truffle.api.frame.VirtualFrame;
+
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 
 /**
@@ -60,7 +64,7 @@ public final class BuiltInFunctionValue extends FunctionValue {
         String documentation,
         String[] names,
         Expr[] defaultValues,
-        BuiltInExpr body
+        BuiltinFunctionBody body
     ) {
         super(
             new FunctionRootNode(null, null, false, body),
@@ -72,6 +76,28 @@ public final class BuiltInFunctionValue extends FunctionValue {
         );
     }
 
+    public BuiltInFunctionValue(
+        String name,
+        String documentation,
+        String[] names,
+        Expr[] defaultValues,
+        BuiltinFunctionCallback fn
+    ) {
+        super(
+            new FunctionRootNode(null, null, false,
+                new BuiltinFunctionBody() {
+                    @Override
+                    public Object executeGeneric(VirtualFrame frame) {
+                        return fn.apply(frame, this.callNode);
+                    }
+                }),
+            Closure.EMPTY,
+            name,
+            documentation,
+            names,
+            defaultValues
+        );
+    }
     // ----- Getters -----
 
     public Object getThisValue() {
@@ -92,7 +118,14 @@ public final class BuiltInFunctionValue extends FunctionValue {
      * @param callNode The node which called the built-in.
      */
     public void setCallNode(FunCall callNode) {
-        ((BuiltInExpr) this.getBody()).setCallNode(callNode);
+        ((BuiltinFunctionBody) this.getBody()).setCallNode(callNode);
     }
 
+
+    /**
+     * Function interface for lambda constructor to {@link BuiltInFunctionValue}.
+     */
+    public interface BuiltinFunctionCallback {
+        public Object apply(VirtualFrame frame, FunCall call);
+    }
 }

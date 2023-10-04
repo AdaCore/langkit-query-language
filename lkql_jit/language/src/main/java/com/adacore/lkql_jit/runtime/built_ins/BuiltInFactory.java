@@ -30,6 +30,7 @@ import com.adacore.lkql_jit.runtime.built_ins.methods.*;
 import com.adacore.lkql_jit.runtime.built_ins.selectors.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -50,7 +51,7 @@ public final class BuiltInFactory {
     /**
      * The built-in function list.
      */
-    private final List<BuiltInFunction> builtInFunctions;
+    private final List<BuiltInFunctionValue> builtInFunctions;
 
     /**
      * The built-in selector list.
@@ -93,22 +94,21 @@ public final class BuiltInFactory {
      * Initialize the built-in functions.
      */
     private void initializeFunctions() {
-        this.builtInFunctions.add(PrintFunction.getInstance());
-        this.builtInFunctions.add(ImgFunction.getInstance());
-        this.builtInFunctions.add(BaseNameFunction.getInstance());
-        this.builtInFunctions.add(ConcatFunction.getInstance());
-        this.builtInFunctions.add(ReduceFunction.getInstance());
-        this.builtInFunctions.add(MapFunction.getInstance());
-        this.builtInFunctions.add(UniqueFunction.getInstance());
-        this.builtInFunctions.add(DocFunction.getInstance());
-        this.builtInFunctions.add(ProfileFunction.getInstance());
-        this.builtInFunctions.add(HelpFunction.getInstance());
-        this.builtInFunctions.add(UnitsFunction.getInstance());
-        this.builtInFunctions.add(SpecifiedUnitsFunction.getInstance());
-        this.builtInFunctions.add(PatternFunction.getInstance());
-
-        this.builtInFunctions.add(NodeCheckerFunction.getInstance());
-        this.builtInFunctions.add(UnitCheckerFunction.getInstance());
+        this.builtInFunctions.add(PrintFunction.getValue());
+        this.builtInFunctions.add(ImgFunction.getValue());
+        this.builtInFunctions.add(BaseNameFunction.getValue());
+        this.builtInFunctions.add(ConcatFunction.getValue());
+        this.builtInFunctions.add(ReduceFunction.getValue());
+        this.builtInFunctions.add(MapFunction.getValue());
+        this.builtInFunctions.add(UniqueFunction.getValue());
+        this.builtInFunctions.add(DocFunction.getValue());
+        this.builtInFunctions.add(ProfileFunction.getValue());
+        this.builtInFunctions.add(HelpFunction.getValue());
+        this.builtInFunctions.add(UnitsFunction.getValue());
+        this.builtInFunctions.add(SpecifiedUnitsFunction.getValue());
+        this.builtInFunctions.add(PatternFunction.getValue());
+        this.builtInFunctions.add(NodeCheckerFunction.getValue());
+        this.builtInFunctions.add(UnitCheckerFunction.getValue());
     }
 
     /**
@@ -165,8 +165,8 @@ public final class BuiltInFactory {
     public void addBuiltIns(GlobalScope globalValues) {
         // Add the built-in functions
         for (int i = 0; i < this.builtInFunctions.size(); i++) {
-            BuiltInFunction function = this.builtInFunctions.get(i);
-            globalValues.setBuiltIn(i, function.getValue());
+            BuiltInFunctionValue function = this.builtInFunctions.get(i);
+            globalValues.setBuiltIn(i, function);
         }
 
         // Add the built-in selectors
@@ -190,7 +190,7 @@ public final class BuiltInFactory {
         final ScriptFramesBuilder scriptFramesBuilder
     ) {
         // Add the built-in functions
-        for (BuiltInFunction function : this.builtInFunctions) {
+        for (BuiltInFunctionValue function : this.builtInFunctions) {
             scriptFramesBuilder.addBuiltIn(function.getName());
         }
 

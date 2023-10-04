@@ -26,7 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
@@ -39,92 +40,39 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class HelpFunction implements BuiltInFunction {
+public final class HelpFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "help" built-in.
-     */
-    private static HelpFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "help";
 
-    /**
-     * The expression that represents the "help" function execution.
-     */
-    private final HelpExpr helpExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private HelpFunction() {
-        this.helpExpr = new HelpExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static HelpFunction getInstance() {
-        if (instance == null) {
-            instance = new HelpFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given any object, return formatted help for it",
             new String[]{"obj"},
             new Expr[]{null},
-            this.helpExpr
+
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the argument
+                Object arg = frame.getArguments()[0];
+
+                // If the argument is an LKQL value, read the documentation from ir
+                if (LKQLTypeSystemGen.isLKQLValue(arg)) {
+                    LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
+                    LKQLLanguage.getContext(call).println(StringUtils.concat(
+                        value.getProfile(), "\n", value.getDocumentation()
+                    ));
+                }
+
+                // Return the default empty documentation
+                return UnitValue.getInstance();
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "help" function.
-     */
-    public final static class HelpExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object arg = frame.getArguments()[0];
-
-            // If the argument is an LKQL value, read the documentation from ir
-            if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
-                LKQLLanguage.getContext(this.callNode).println(StringUtils.concat(
-                    value.getProfile(), "\n", value.getDocumentation()
-                ));
-            }
-
-            // Return the default empty documentation
-            return UnitValue.getInstance();
-        }
-    }
-
 }

@@ -26,7 +26,8 @@ package com.adacore.lkql_jit.runtime.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -40,98 +41,42 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class UniqueFunction implements BuiltInFunction {
+public final class UniqueFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "unique" built-in.
-     */
-    private static UniqueFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "unique";
 
-    /**
-     * The expression that represents the "unique" function execution.
-     */
-    private final UniqueExpr uniqueExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * Private constructor.
-     */
-    private UniqueFunction() {
-        this.uniqueExpr = new UniqueExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static UniqueFunction getInstance() {
-        if (instance == null) {
-            instance = new UniqueFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given collection, remove all identical elements in order to have only one instance of each",
             new String[]{"indexable"},
             new Expr[]{null},
-            this.uniqueExpr
+            (VirtualFrame frame, FunCall call) -> {
+                // Get the argument
+                Object indexableObject = frame.getArguments()[0];
+
+                // Verify the argument type
+                if (!LKQLTypeSystemGen.isIndexable(indexableObject)) {
+                    throw LKQLRuntimeException.wrongType(
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(indexableObject),
+                        call.getArgList().getArgs()[0]
+                    );
+                }
+
+                // Cast the argument
+                Indexable indexable = LKQLTypeSystemGen.asIndexable(indexableObject);
+
+                // Return the result list
+                return new ListValue(ArrayUtils.unique(indexable.getContent()));
+            }
         );
     }
-
-    // ----- Inner classes -----
-
-    /**
-     * Expression of the "unique" function.
-     */
-    public final static class UniqueExpr extends BuiltInExpr {
-        @Override
-        public Object executeGeneric(VirtualFrame frame) {
-            // Get the argument
-            Object indexableObject = frame.getArguments()[0];
-
-            // Verify the argument type
-            if (!LKQLTypeSystemGen.isIndexable(indexableObject)) {
-                throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_LIST,
-                    LKQLTypesHelper.fromJava(indexableObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
-            }
-
-            // Cast the argument
-            Indexable indexable = LKQLTypeSystemGen.asIndexable(indexableObject);
-
-            Object[] res = ArrayUtils.unique(indexable.getContent());
-
-            // Return the result list
-            return new ListValue(ArrayUtils.unique(indexable.getContent()));
-        }
-    }
-
 }

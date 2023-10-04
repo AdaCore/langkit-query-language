@@ -28,7 +28,7 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInExpr;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
@@ -44,67 +44,24 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  *
  * @author Hugo GUERRIER
  */
-public final class MapFunction implements BuiltInFunction {
+public final class MapFunction {
 
     // ----- Attributes -----
-
-    /**
-     * The only instance of the "map" built-in.
-     */
-    private static MapFunction instance = null;
 
     /**
      * The name of the function.
      */
     public static final String NAME = "map";
 
-    /**
-     * The expression that represents the "map" function execution.
-     */
-    private final MapFunction.MapExpr mapExpr;
+    // ----- Class methods -----
 
-    // ----- Constructors -----
-
-    /**
-     * This private constructor.
-     */
-    public MapFunction() {
-        this.mapExpr = new MapExpr();
-    }
-
-    /**
-     * Get the instance of the built-in function.
-     *
-     * @return The only instance.
-     */
-    public static MapFunction getInstance() {
-        if (instance == null) {
-            instance = new MapFunction();
-        }
-        return instance;
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getName()
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.built_ins.functions.BuiltInFunction#getValue()
-     */
-    @Override
-    public BuiltInFunctionValue getValue() {
+    public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
             NAME,
             "Given a collection, a mapping function",
             new String[]{"indexable", "fn"},
             new Expr[]{null, null},
-            this.mapExpr
+            new MapExpr()
         );
     }
 
@@ -113,7 +70,7 @@ public final class MapFunction implements BuiltInFunction {
     /**
      * Expression of the "map" function.
      */
-    public static final class MapExpr extends BuiltInExpr {
+    public static final class MapExpr extends BuiltinFunctionBody {
 
         /**
          * The dispatcher for the mapping function.

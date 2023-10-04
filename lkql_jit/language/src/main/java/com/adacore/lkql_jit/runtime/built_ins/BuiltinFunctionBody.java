@@ -32,7 +32,7 @@ import com.adacore.lkql_jit.nodes.expressions.FunCall;
  *
  * @author Hugo GUERRIER
  */
-public abstract class BuiltInExpr extends Expr {
+public abstract class BuiltinFunctionBody extends Expr {
 
     // ----- Attributes -----
 
@@ -46,7 +46,7 @@ public abstract class BuiltInExpr extends Expr {
     /**
      * Create a new expression for a built-in function.
      */
-    protected BuiltInExpr() {
+    protected BuiltinFunctionBody() {
         super(null);
     }
 
