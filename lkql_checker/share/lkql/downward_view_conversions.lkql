@@ -1,5 +1,22 @@
 # Flag downward view conversions.
 
+fun is_downward_conv(expr_type, t) =
+    |" Whether converting from `expr_type` to `t` is a downward view conversion
+    |" of tagged types
+    expr_type is AdaNode
+    and t is AdaNode
+    and t.p_full_view() is target@BaseTypeDecl
+      # Compare specific types in case one or the other is the classwide
+      # version
+      when target.p_specific_type() != expr_type.p_specific_type()
+       and target.p_is_derived_type(expr_type)
+
+fun is_tagged(typ) =
+    |" Whether typ is tagged or an access to a tagged type
+    |" TODO: Maybe share in the stdlib?
+    typ.p_is_tagged_type()
+    or typ.p_accessed_type() is BaseTypeDecl(p_is_tagged_type() is true)
+
 @check(message="downward view conversion",
        category="Style", subcategory="Object Orientation")
 fun downward_view_conversions(node) =
@@ -7,7 +24,7 @@ fun downward_view_conversions(node) =
     node is CallExpr(
         # Select type conversions
         p_referenced_decl() is BaseTypeDecl(
-            p_base_subtype() is t@BaseTypeDecl(p_is_tagged_type() is true)
+            p_base_subtype() is t@BaseTypeDecl when is_tagged (t)
         )
     )
 
@@ -15,9 +32,7 @@ fun downward_view_conversions(node) =
     # taking full views into account.
     when node.f_suffix[1].f_r_expr?.p_expression_type().p_full_view()
         is expr_type@BaseTypeDecl
-
-     when t.p_full_view() is target@BaseTypeDecl
-      # Compare specific types in case one or the other is the classwide
-      # version
-      when target.p_specific_type() != expr_type.p_specific_type()
-       and target.p_is_derived_type(expr_type)
+           # Regular case
+           when is_downward_conv(expr_type, t)
+                # Downward view conversion case
+                or is_downward_conv (expr_type.p_accessed_type(), t.p_accessed_type())
