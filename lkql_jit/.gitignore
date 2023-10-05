@@ -10,6 +10,9 @@
 /.idea/inspectionProfiles/*
 !/.idea/inspectionProfiles/Project_Default.xml
 
+# Ignore the target of the LKQL JIT project
+target
+
 # Ignore from the component module
 component/lkql_jit_component
 component/target
