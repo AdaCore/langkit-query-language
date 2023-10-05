@@ -183,17 +183,6 @@ public abstract class Expr extends LKQLNode {
     }
 
     /**
-     * Execute the expression as a lazy list value.
-     *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a lazy list value.
-     * @throws UnexpectedResultException If the node cannot be evaluated as a lazy list.
-     */
-    public LazyListValue executeLazyList(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectLazyListValue(executeGeneric(frame));
-    }
-
-    /**
      * Execute the expression as an indexable value.
      *
      * @param frame The frame for execution.

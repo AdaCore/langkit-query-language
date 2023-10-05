@@ -54,7 +54,6 @@ import java.math.BigInteger;
     SelectorValue.class,
     LKQLTuple.class,
     LKQLList.class,
-    LazyListValue.class,
     SelectorListValue.class,
     LazyCollection.class,
     Indexable.class,

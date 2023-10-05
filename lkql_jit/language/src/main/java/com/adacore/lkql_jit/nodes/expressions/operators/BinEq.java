@@ -192,18 +192,6 @@ public abstract class BinEq extends BinOp {
     }
 
     /**
-     * Do the equality verification on lazy lists.
-     *
-     * @param left The left lazy list value.
-     * @param right The right lazy list value.
-     * @return The result of the equality verification.
-     */
-    @Specialization
-    protected boolean eqLazyLists(LazyListValue left, LazyListValue right) {
-        return left.internalEquals(right);
-    }
-
-    /**
      * Do the equality verification on selector lists.
      *
      * @param left The left selector list value.

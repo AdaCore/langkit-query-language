@@ -193,18 +193,6 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on lazy lists.
-     *
-     * @param left The left lazy list value.
-     * @param right The right lazy list value.
-     * @return The result of the non-equality verification.
-     */
-    @Specialization
-    protected boolean neqLazyLists(LazyListValue left, LazyListValue right) {
-        return !left.internalEquals(right);
-    }
-
-    /**
      * Do the non-equality verification on selector lists.
      *
      * @param left The left selector list value.

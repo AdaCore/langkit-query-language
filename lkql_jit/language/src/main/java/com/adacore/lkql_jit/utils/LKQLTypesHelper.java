@@ -148,8 +148,6 @@ public final class LKQLTypesHelper {
             return LKQL_TUPLE;
         } else if (LKQLTypeSystemGen.isLKQLList(obj)) {
             return LKQL_LIST;
-        } else if (LKQLTypeSystemGen.isLazyListValue(obj)) {
-            return LKQL_LAZY_LIST;
         } else if (LKQLTypeSystemGen.isSelectorListValue(obj)) {
             return LKQL_SELECTOR_LIST;
         } else if (LKQLTypeSystemGen.isAdaNode(obj)) {
