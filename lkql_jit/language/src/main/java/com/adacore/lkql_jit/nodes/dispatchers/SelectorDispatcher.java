@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.dispatchers;
 
@@ -32,7 +31,6 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 
-
 /**
  * This node the dispatcher for the selector root nodes execution.
  *
@@ -40,49 +38,43 @@ import com.oracle.truffle.api.nodes.Node;
  */
 public abstract class SelectorDispatcher extends Node {
 
-    /**
-     * Function to execute the selector root node and get the result.
-     */
+    /** Function to execute the selector root node and get the result. */
     public abstract SelectorRootNode.SelectorCallResult executeDispatch(
-        SelectorRootNode rootNode,
-        Cell[] closure,
-        DepthNode node
-    );
+            SelectorRootNode rootNode, Cell[] closure, DepthNode node);
 
     /**
      * Execute the selector root node with the direct path.
      *
-     * @param rootNode       The selector root node to execute.
-     * @param node           The node to execute the selector on.
+     * @param rootNode The selector root node to execute.
+     * @param node The node to execute the selector on.
      * @param directCallNode The direct call node.
      * @return The result of the selector call.
      */
     @Specialization(guards = "rootNode.getRealCallTarget() == directCallNode.getCallTarget()")
     protected static SelectorRootNode.SelectorCallResult executeCached(
-        SelectorRootNode rootNode,
-        Cell[] closure,
-        DepthNode node,
-        @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode
-    ) {
+            SelectorRootNode rootNode,
+            Cell[] closure,
+            DepthNode node,
+            @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {
         return (SelectorRootNode.SelectorCallResult) directCallNode.call(closure, node);
     }
 
     /**
      * Execute the selector root node in an indirect way.
      *
-     * @param rootNode         The selector root node to execute.
-     * @param node             The node to execute the selector on.
+     * @param rootNode The selector root node to execute.
+     * @param node The node to execute the selector on.
      * @param indirectCallNode The indirect call node.
      * @return The result of the selector call.
      */
     @Specialization(replaces = "executeCached")
     protected static SelectorRootNode.SelectorCallResult executeUncached(
-        SelectorRootNode rootNode,
-        Cell[] closure,
-        DepthNode node,
-        @Cached IndirectCallNode indirectCallNode
-    ) {
-        return (SelectorRootNode.SelectorCallResult) indirectCallNode.call(rootNode.getRealCallTarget(), closure, node);
+            SelectorRootNode rootNode,
+            Cell[] closure,
+            DepthNode node,
+            @Cached IndirectCallNode indirectCallNode) {
+        return (SelectorRootNode.SelectorCallResult)
+                indirectCallNode.call(rootNode.getRealCallTarget(), closure, node);
     }
 
     // ----- Override methods -----
@@ -91,5 +83,4 @@ public abstract class SelectorDispatcher extends Node {
     public String toString() {
         return "SelectorDispatcher";
     }
-
 }

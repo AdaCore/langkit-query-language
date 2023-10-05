@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,15 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-
 
 /**
  * This node represents a body of a built-in function.
@@ -36,16 +34,12 @@ public abstract class BuiltinFunctionBody extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * The node that called the expression.
-     */
+    /** The node that called the expression. */
     protected FunCall callNode;
 
     // ----- Constructors -----
 
-    /**
-     * Create a new expression for a built-in function.
-     */
+    /** Create a new expression for a built-in function. */
     protected BuiltinFunctionBody() {
         super(null);
     }
@@ -65,5 +59,4 @@ public abstract class BuiltinFunctionBody extends Expr {
     public String toString(int indentLevel) {
         return "BUILT_IN NODE";
     }
-
 }

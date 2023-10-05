@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
@@ -29,7 +28,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
-
 
 /**
  * This node is the base of all LKQL root nodes.
@@ -43,13 +41,11 @@ public abstract class BaseRootNode extends RootNode {
     /**
      * Create a new base root node.
      *
-     * @param language        The language instance to link the root node with.
+     * @param language The language instance to link the root node with.
      * @param frameDescriptor The frame descriptor for the root node.
      */
     protected BaseRootNode(
-        final TruffleLanguage<?> language,
-        final FrameDescriptor frameDescriptor
-    ) {
+            final TruffleLanguage<?> language, final FrameDescriptor frameDescriptor) {
         super(language, frameDescriptor);
     }
 
@@ -75,5 +71,4 @@ public abstract class BaseRootNode extends RootNode {
             frame.setObject(i, new Cell());
         }
     }
-
 }

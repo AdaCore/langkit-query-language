@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
@@ -32,7 +31,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
  * This node represents a pattern detail on a property in the LKQL language.
  *
@@ -42,23 +40,17 @@ public abstract class NodePatternProperty extends NodePatternDetail {
 
     // ----- Attributes -----
 
-    /**
-     * The name of the property to call.
-     */
+    /** The name of the property to call. */
     protected final String propertyName;
 
     // ----- Children -----
 
-    /**
-     * The list of the argument for the property call.
-     */
+    /** The list of the argument for the property call. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected ArgList argList;
 
-    /**
-     * The expected value for the property call.
-     */
+    /** The expected value for the property call. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected DetailValue expected;
@@ -68,17 +60,13 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     /**
      * Create a new pattern detail on a property.
      *
-     * @param location     The token location in the source.
+     * @param location The token location in the source.
      * @param propertyName The name of the property to call.
-     * @param argList      The arguments for the property call.
-     * @param expected     The expected value of the property call.
+     * @param argList The arguments for the property call.
+     * @param expected The expected value of the property call.
      */
     public NodePatternProperty(
-        SourceLocation location,
-        String propertyName,
-        ArgList argList,
-        DetailValue expected
-    ) {
+            SourceLocation location, String propertyName, ArgList argList, DetailValue expected) {
         super(location);
         this.propertyName = propertyName;
         this.argList = argList;
@@ -90,20 +78,17 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     /**
      * Execute the property detail with the cached path.
      *
-     * @param frame       The frame to execute in.
-     * @param node        The node get the property from.
+     * @param frame The frame to execute in.
+     * @param node The node get the property from.
      * @param propertyRef The cached property reference.
      * @return True if the detail is valid, false else.
      */
-    @Specialization(guards = {
-        "node == propertyRef.getNode()",
-        "propertyRef.getFieldDescription() != null"
-    })
+    @Specialization(
+            guards = {"node == propertyRef.getNode()", "propertyRef.getFieldDescription() != null"})
     protected boolean propertyCached(
-        VirtualFrame frame,
-        @SuppressWarnings("unused") Libadalang.AdaNode node,
-        @Cached("create(node, propertyName)") PropertyRefValue propertyRef
-    ) {
+            VirtualFrame frame,
+            @SuppressWarnings("unused") Libadalang.AdaNode node,
+            @Cached("create(node, propertyName)") PropertyRefValue propertyRef) {
         // Evaluate the arguments
         Object[] arguments = new Object[this.argList.getArgs().length];
         for (int i = 0; i < arguments.length; i++) {
@@ -121,14 +106,11 @@ public abstract class NodePatternProperty extends NodePatternDetail {
      * Execute the property detail with the un-cached path.
      *
      * @param frame The frame to execute in.
-     * @param node  The node get the property from.
+     * @param node The node get the property from.
      * @return True if the detail is valid, false else.
      */
     @Specialization(replaces = "propertyCached")
-    protected boolean propertyUncached(
-        VirtualFrame frame,
-        Libadalang.AdaNode node
-    ) {
+    protected boolean propertyUncached(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the property methods
         PropertyRefValue propertyRef = new PropertyRefValue(node, this.propertyName);
 
@@ -138,11 +120,7 @@ public abstract class NodePatternProperty extends NodePatternDetail {
         }
 
         // Return the result
-        return this.propertyCached(
-            frame,
-            node,
-            propertyRef
-        );
+        return this.propertyCached(frame, node, propertyRef);
     }
 
     // ----- Override methods -----
@@ -153,10 +131,6 @@ public abstract class NodePatternProperty extends NodePatternDetail {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"propertyName"},
-            new Object[]{this.propertyName}
-        );
+                indentLevel, new String[] {"propertyName"}, new Object[] {this.propertyName});
     }
-
 }

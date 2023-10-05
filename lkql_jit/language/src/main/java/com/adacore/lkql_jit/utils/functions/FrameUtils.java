@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils.functions;
-
 
 import com.adacore.lkql_jit.runtime.Cell;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -38,13 +36,10 @@ public final class FrameUtils {
      * Get the local value stored in the frame at the given slot.
      *
      * @param frame The frame to read the local in.
-     * @param slot  The slot to read the local at.
+     * @param slot The slot to read the local at.
      * @return The local value at the slot.
      */
-    public static Object readLocal(
-        final VirtualFrame frame,
-        final int slot
-    ) {
+    public static Object readLocal(final VirtualFrame frame, final int slot) {
         return ((Cell) frame.getObject(slot)).getRef();
     }
 
@@ -52,14 +47,10 @@ public final class FrameUtils {
      * Write the local value at the given slot in the given frame.
      *
      * @param frame The frame to write the value in.
-     * @param slot  The slot to write the value at.
+     * @param slot The slot to write the value at.
      * @param value The value to write.
      */
-    public static void writeLocal(
-        final VirtualFrame frame,
-        final int slot,
-        final Object value
-    ) {
+    public static void writeLocal(final VirtualFrame frame, final int slot, final Object value) {
         ((Cell) frame.getObject(slot)).setRef(value);
     }
 
@@ -67,14 +58,10 @@ public final class FrameUtils {
      * Read the closure value stored in the frame at the given slot.
      *
      * @param frame The frame to read the closure value in.
-     * @param slot  The slot to read the closure at.
+     * @param slot The slot to read the closure at.
      * @return The closure value at the slot.
      */
-    public static Object readClosure(
-        final VirtualFrame frame,
-        final int slot
-    ) {
+    public static Object readClosure(final VirtualFrame frame, final int slot) {
         return (((Cell[]) frame.getArguments()[0])[slot]).getRef();
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.langkit_translator;
 
@@ -29,7 +28,6 @@ import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
 import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.oracle.truffle.api.source.Source;
-
 
 /**
  * This class is the top level class to translate a LKQL Langkit AST into a Truffle AST.
@@ -42,13 +40,11 @@ public final class LangkitTranslator {
      * Translate the given source Langkit AST.
      *
      * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
-     * @param source          The Truffle source of the AST.
+     * @param source The Truffle source of the AST.
      * @return The translated LKQL Truffle AST.
      */
     public static LKQLNode translate(
-        final Liblkqllang.LkqlNode lkqlLangkitRoot,
-        final Source source
-    ) {
+            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
         // Do the framing pass to create the script frame descriptions
         final FramingPass framingPass = new FramingPass(source);
         lkqlLangkitRoot.accept(framingPass);
@@ -58,5 +54,4 @@ public final class LangkitTranslator {
         final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
         return lkqlLangkitRoot.accept(translationPass);
     }
-
 }

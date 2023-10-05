@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,16 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils.functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.math.BigInteger;
-
 
 /**
  * Util functions for the big integers.
@@ -71,7 +68,7 @@ public final class BigIntegerUtils {
     /**
      * Add two big integers.
      *
-     * @param left  The left operand.
+     * @param left The left operand.
      * @param right The right operand.
      * @return The result of the addition.
      */
@@ -83,7 +80,7 @@ public final class BigIntegerUtils {
     /**
      * Subtract a big integer to another big integer.
      *
-     * @param left  The left big integer.
+     * @param left The left big integer.
      * @param right The right big integer.
      * @return The result of the subtraction.
      */
@@ -95,7 +92,7 @@ public final class BigIntegerUtils {
     /**
      * Multiply two big integers.
      *
-     * @param left  The left operand.
+     * @param left The left operand.
      * @param right The right operand.
      * @return The result of the multiplication.
      */
@@ -107,7 +104,7 @@ public final class BigIntegerUtils {
     /**
      * Divide two big integers.
      *
-     * @param left  The left operand.
+     * @param left The left operand.
      * @param right The right operand.
      * @return The result of the division.
      */
@@ -119,7 +116,7 @@ public final class BigIntegerUtils {
     /**
      * Get if the left big integer is equals to the right one.
      *
-     * @param left  The left big integer.
+     * @param left The left big integer.
      * @param right The right big integer.
      * @return If those are equals.
      */
@@ -131,7 +128,7 @@ public final class BigIntegerUtils {
     /**
      * Get the result of the comparison of the two big integers.
      *
-     * @param left  The left one.
+     * @param left The left one.
      * @param right The right one.
      * @return The result of the comparison.
      */
@@ -150,5 +147,4 @@ public final class BigIntegerUtils {
     public static int intValue(BigInteger biggie) {
         return biggie.intValue();
     }
-
 }

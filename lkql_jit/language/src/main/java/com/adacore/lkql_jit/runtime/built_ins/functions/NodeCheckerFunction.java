@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
@@ -32,8 +31,8 @@ import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
@@ -43,9 +42,7 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
 import java.util.LinkedList;
-
 
 /**
  * This class represents the "node_checker" built-in function in the LKQL language.
@@ -56,34 +53,29 @@ public final class NodeCheckerFunction {
 
     // ----- Attributes -----
 
-    /**
-     * The name of the built-in.
-     */
+    /** The name of the built-in. */
     public static final String NAME = "node_checker";
 
     // ----- Class methods -----
 
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-            NAME,
-            "Given a root, execute all node checker while traverse the tree",
-            new String[]{"root"},
-            new Expr[]{null},
-            new NodeCheckerExpr()
-        );
+                NAME,
+                "Given a root, execute all node checker while traverse the tree",
+                new String[] {"root"},
+                new Expr[] {null},
+                new NodeCheckerExpr());
     }
 
     // ----- Inner classes -----
 
     /**
-     * This class is the expression of the "node_checker" built-in.
-     * This expression contains the traversing logic to checker the nodes.
+     * This class is the expression of the "node_checker" built-in. This expression contains the
+     * traversing logic to checker the nodes.
      */
     private static final class NodeCheckerExpr extends BuiltinFunctionBody {
 
-        /**
-         * The dispatcher for the rule functions.
-         */
+        /** The dispatcher for the rule functions. */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
@@ -106,10 +98,9 @@ public final class NodeCheckerFunction {
                 root = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Initialize the cache that will contain decoded source lines of all needed units
@@ -129,7 +120,8 @@ public final class NodeCheckerFunction {
                 final boolean inSparkCode = currentStep.inSparkCode();
 
                 try {
-                    if (mustFollowInstantiations && currentNode instanceof Libadalang.GenericInstantiation genInst) {
+                    if (mustFollowInstantiations
+                            && currentNode instanceof Libadalang.GenericInstantiation genInst) {
                         // If the node is a generic instantiation, traverse the instantiated generic
                         final Libadalang.BasicDecl genDecl = genInst.pDesignatedGenericDecl();
                         final Libadalang.BodyNode genBody = genDecl.pBodyPartForDecl(false);
@@ -138,69 +130,57 @@ public final class NodeCheckerFunction {
                             visitList.addFirst(new VisitStep(genBody, true, inSparkCode));
                         }
                         visitList.addFirst(new VisitStep(genDecl, true, inSparkCode));
-                    } else if (inGenericInstantiation && currentNode instanceof Libadalang.BodyStub stub) {
-                        // If this node is a body stub and we are currently traversing a generic instantiation,
+                    } else if (inGenericInstantiation
+                            && currentNode instanceof Libadalang.BodyStub stub) {
+                        // If this node is a body stub and we are currently traversing a generic
+                        // instantiation,
                         // we should also traverse the stub's completion.
                         final Libadalang.BasicDecl stubBody = stub.pNextPartForDecl(false);
                         visitList.addFirst(new VisitStep(stubBody, true, inSparkCode));
                     }
                 } catch (Libadalang.LangkitException e) {
-                    context.println(StringUtils.concat(
-                        "Error during generic instantiation walking: ",
-                        e.getMessage()
-                    ));
+                    context.println(
+                            StringUtils.concat(
+                                    "Error during generic instantiation walking: ",
+                                    e.getMessage()));
                     continue;
                 }
 
                 // Apply the "both" checkers
                 this.executeCheckers(
-                    frame,
-                    currentStep,
-                    currentNode,
-                    allNodeCheckers,
-                    context,
-                    linesCache
-                );
+                        frame, currentStep, currentNode, allNodeCheckers, context, linesCache);
 
                 // If we're in Ada code execute the Ada checkers else execute the SPARK checkers
                 if (inSparkCode) {
                     this.executeCheckers(
-                        frame,
-                        currentStep,
-                        currentNode,
-                        sparkNodeCheckers,
-                        context,
-                        linesCache
-                    );
+                            frame,
+                            currentStep,
+                            currentNode,
+                            sparkNodeCheckers,
+                            context,
+                            linesCache);
                 } else {
                     this.executeCheckers(
-                        frame,
-                        currentStep,
-                        currentNode,
-                        adaNodeCheckers,
-                        context,
-                        linesCache
-                    );
+                            frame, currentStep, currentNode, adaNodeCheckers, context, linesCache);
                 }
 
                 // Add the children to the visit list
                 for (int i = currentNode.getChildrenCount() - 1; i >= 0; i--) {
                     final Libadalang.AdaNode child = currentNode.getChild(i);
                     if (!child.isNone()) {
-                        // No need to check if the child is a base subprogram body in SPARK mode if there is no required
+                        // No need to check if the child is a base subprogram body in SPARK mode if
+                        // there is no
+                        // required
                         // SPARK checkers. This avoids useless calls to 'pIsSubjectToProof'.
                         if (hasSparkCheckers && child instanceof Libadalang.BaseSubpBody subpBody) {
-                            visitList.addFirst(new VisitStep(
-                                child,
-                                inGenericInstantiation,
-                                subpBody.pIsSubjectToProof()
-                            ));
+                            visitList.addFirst(
+                                    new VisitStep(
+                                            child,
+                                            inGenericInstantiation,
+                                            subpBody.pIsSubjectToProof()));
                         } else {
-                            visitList.addFirst(new VisitStep(
-                                child,
-                                inGenericInstantiation,
-                                inSparkCode
-                            ));
+                            visitList.addFirst(
+                                    new VisitStep(child, inGenericInstantiation, inSparkCode));
                         }
                     }
                 }
@@ -213,51 +193,54 @@ public final class NodeCheckerFunction {
         /**
          * Execute the given checker array to the given Ada node.
          *
-         * @param frame       The frame to execute in.
+         * @param frame The frame to execute in.
          * @param currentStep The current step of the visiting.
          * @param currentNode The node to execute the checkers on.
-         * @param checkers    The checekrs to execute.
-         * @param context     The LKQL context.
-         * @param linesCache  The cache for Ada lines.
+         * @param checkers The checekrs to execute.
+         * @param context The LKQL context.
+         * @param linesCache The cache for Ada lines.
          */
         private void executeCheckers(
-            VirtualFrame frame,
-            VisitStep currentStep,
-            Libadalang.AdaNode currentNode,
-            ObjectValue[] checkers,
-            LKQLContext context,
-            CheckerUtils.SourceLinesCache linesCache
-        ) {
+                VirtualFrame frame,
+                VisitStep currentStep,
+                Libadalang.AdaNode currentNode,
+                ObjectValue[] checkers,
+                LKQLContext context,
+                CheckerUtils.SourceLinesCache linesCache) {
             // For each checker apply it on the current node of needed
             for (ObjectValue checker : checkers) {
-                if (!currentStep.inGenericInstantiation() || (boolean) checker.get("follow_generic_instantiations")) {
+                if (!currentStep.inGenericInstantiation()
+                        || (boolean) checker.get("follow_generic_instantiations")) {
                     try {
                         this.applyNodeRule(frame, checker, currentNode, context, linesCache);
                     } catch (LangkitException e) {
-                        // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
+                        // TODO: Remove those clunky hardcoded names when getting rid of Ada
+                        // implementation
                         // Report LAL exception only in debug mode
                         if (context.isCheckerDebug()) {
-                            context.getDiagnosticEmitter().emitInternalError(
-                                (String) checker.get("name"),
-                                currentNode.getUnit(),
-                                currentNode.getSourceLocationRange().start,
-                                e.getLoc().toString(),
-                                StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
-                                e.getMsg(),
-                                context
-                            );
+                            context.getDiagnosticEmitter()
+                                    .emitInternalError(
+                                            (String) checker.get("name"),
+                                            currentNode.getUnit(),
+                                            currentNode.getSourceLocationRange().start,
+                                            e.getLoc().toString(),
+                                            StringUtils.concat(
+                                                    "LANGKIT_SUPPORT.ERRORS.", e.getKind()),
+                                            e.getMsg(),
+                                            context);
                         }
                     } catch (LKQLRuntimeException e) {
-                        // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
-                        context.getDiagnosticEmitter().emitInternalError(
-                            (String) checker.get("name"),
-                            currentNode.getUnit(),
-                            currentNode.getSourceLocationRange().start,
-                            e.getLocationString(),
-                            "LKQL.ERRORS.STOP_EVALUATION_ERROR",
-                            e.getRawMessage(),
-                            context
-                        );
+                        // TODO: Remove those clunky hardcoded names when getting rid of Ada
+                        // implementation
+                        context.getDiagnosticEmitter()
+                                .emitInternalError(
+                                        (String) checker.get("name"),
+                                        currentNode.getUnit(),
+                                        currentNode.getSourceLocationRange().start,
+                                        e.getLocationString(),
+                                        "LKQL.ERRORS.STOP_EVALUATION_ERROR",
+                                        e.getRawMessage(),
+                                        context);
                     }
                 }
             }
@@ -266,19 +249,18 @@ public final class NodeCheckerFunction {
         /**
          * Apply the rule on the given node.
          *
-         * @param frame      The frame to execute the default arg value.
-         * @param rule       The rule to apply.
-         * @param node       The node to apply the rule on.
-         * @param context    The LKQL context.
+         * @param frame The frame to execute the default arg value.
+         * @param rule The rule to apply.
+         * @param node The node to apply the rule on.
+         * @param context The LKQL context.
          * @param linesCache The cache of all units' source text lines.
          */
         private void applyNodeRule(
-            VirtualFrame frame,
-            ObjectValue rule,
-            Libadalang.AdaNode node,
-            LKQLContext context,
-            CheckerUtils.SourceLinesCache linesCache
-        ) {
+                VirtualFrame frame,
+                ObjectValue rule,
+                Libadalang.AdaNode node,
+                LKQLContext context,
+                CheckerUtils.SourceLinesCache linesCache) {
             // Get the function for the checker
             FunctionValue functionValue = (FunctionValue) rule.get("function");
             String aliasName = (String) rule.get("alias");
@@ -289,13 +271,16 @@ public final class NodeCheckerFunction {
             arguments[1] = node;
             for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
-                Object userDefinedArg = context.getRuleArg(
-                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
-                    StringUtils.toLowerCase(paramName)
-                );
-                arguments[i + 1] = userDefinedArg == null ?
-                    functionValue.getDefaultValues()[i].executeGeneric(frame) :
-                    userDefinedArg;
+                Object userDefinedArg =
+                        context.getRuleArg(
+                                (aliasName == null
+                                        ? lowerRuleName
+                                        : StringUtils.toLowerCase(aliasName)),
+                                StringUtils.toLowerCase(paramName));
+                arguments[i + 1] =
+                        userDefinedArg == null
+                                ? functionValue.getDefaultValues()[i].executeGeneric(frame)
+                                : userDefinedArg;
             }
 
             // Place the closure in the arguments
@@ -304,13 +289,14 @@ public final class NodeCheckerFunction {
             // Call the rule
             final boolean ruleResult;
             try {
-                ruleResult = LKQLTypeSystemGen.expectBoolean(this.dispatcher.executeDispatch(functionValue, arguments));
+                ruleResult =
+                        LKQLTypeSystemGen.expectBoolean(
+                                this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    functionValue.getBody()
-                );
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        functionValue.getBody());
             }
 
             if (ruleResult) {
@@ -321,31 +307,30 @@ public final class NodeCheckerFunction {
         /**
          * Report a rule violation with the node that violate it.
          *
-         * @param context    The context to output the message.
-         * @param rule       The violated rule.
-         * @param node       The node that violated the rule.
+         * @param context The context to output the message.
+         * @param rule The violated rule.
+         * @param node The node that violated the rule.
          * @param linesCache The cache of all units' source text lines.
          */
         @CompilerDirectives.TruffleBoundary
         private static void reportViolation(
-            LKQLContext context,
-            ObjectValue rule,
-            Libadalang.AdaNode node,
-            CheckerUtils.SourceLinesCache linesCache
-        ) {
+                LKQLContext context,
+                ObjectValue rule,
+                Libadalang.AdaNode node,
+                CheckerUtils.SourceLinesCache linesCache) {
             if (node instanceof Libadalang.BasicDecl basicDecl) {
                 Libadalang.AdaNode definingName = basicDecl.pDefiningName();
                 node = definingName.isNone() ? node : definingName;
             }
-            context.getDiagnosticEmitter().emitRuleViolation(
-                (String) rule.get("name"),
-                (String) rule.get("message"),
-                node.getSourceLocationRange(),
-                node.getUnit(),
-                node.pGenericInstantiations(),
-                linesCache,
-                context
-            );
+            context.getDiagnosticEmitter()
+                    .emitRuleViolation(
+                            (String) rule.get("name"),
+                            (String) rule.get("message"),
+                            node.getSourceLocationRange(),
+                            node.getUnit(),
+                            node.pGenericInstantiations(),
+                            linesCache,
+                            context);
         }
 
         // ----- Inner classes -----
@@ -353,16 +338,10 @@ public final class NodeCheckerFunction {
         /**
          * This record contains the information for a visiting step.
          *
-         * @param node                   The node to visit.
+         * @param node The node to visit.
          * @param inGenericInstantiation Whether the visit is currently in a generic instantiation.
          */
         private record VisitStep(
-            Libadalang.AdaNode node,
-            boolean inGenericInstantiation,
-            boolean inSparkCode
-        ) {
-        }
-
+                Libadalang.AdaNode node, boolean inGenericInstantiation, boolean inSparkCode) {}
     }
-
 }

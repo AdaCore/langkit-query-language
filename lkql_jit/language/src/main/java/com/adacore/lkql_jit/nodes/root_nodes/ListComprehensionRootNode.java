@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
@@ -31,24 +30,20 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-
 /**
- * This root node represents a list comprehension execution (expression and predicate) in the LKQL language.
+ * This root node represents a list comprehension execution (expression and predicate) in the LKQL
+ * language.
  *
  * @author Hugo GUERRIER
  */
 public final class ListComprehensionRootNode extends BaseRootNode {
 
-    /**
-     * The predicate of the list comprehension.
-     */
+    /** The predicate of the list comprehension. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr predicate;
 
-    /**
-     * The result expression of the list comprehension.
-     */
+    /** The result expression of the list comprehension. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr result;
@@ -58,17 +53,16 @@ public final class ListComprehensionRootNode extends BaseRootNode {
     /**
      * Create a new list comprehension root node.
      *
-     * @param language        The language instance to link the root node with.
+     * @param language The language instance to link the root node with.
      * @param frameDescriptor The frame descriptor for the root node.
-     * @param predicate       The predicate of the list comprehension.
-     * @param result          The result expression of the list comprehension.
+     * @param predicate The predicate of the list comprehension.
+     * @param result The result expression of the list comprehension.
      */
     public ListComprehensionRootNode(
-        TruffleLanguage<?> language,
-        FrameDescriptor frameDescriptor,
-        Expr predicate,
-        Expr result
-    ) {
+            TruffleLanguage<?> language,
+            FrameDescriptor frameDescriptor,
+            Expr predicate,
+            Expr result) {
         super(language, frameDescriptor);
         this.predicate = predicate;
         this.result = result;
@@ -83,7 +77,8 @@ public final class ListComprehensionRootNode extends BaseRootNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.root_nodes.BaseRootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.root_nodes.BaseRootNode#execute(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object execute(VirtualFrame frame) {
@@ -99,11 +94,9 @@ public final class ListComprehensionRootNode extends BaseRootNode {
             }
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN,
-                LKQLTypesHelper.fromJava(e.getResult()),
-                this.predicate
-            );
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.predicate);
         }
     }
-
 }

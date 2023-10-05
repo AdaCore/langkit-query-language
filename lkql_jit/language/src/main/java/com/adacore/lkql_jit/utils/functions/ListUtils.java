@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,16 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils.functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.List;
-
 
 /**
  * Util functions for the java generic list type.
@@ -40,12 +37,11 @@ public final class ListUtils {
      *
      * @param list The list to verify.
      * @param elem The element to find.
-     * @param <T>  The type of the element.
+     * @param <T> The type of the element.
      * @return True if the list contains the element.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> boolean contains(List<T> list, T elem) {
         return list.contains(elem);
     }
-
 }

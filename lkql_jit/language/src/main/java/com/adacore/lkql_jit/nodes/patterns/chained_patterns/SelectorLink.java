@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
@@ -28,7 +27,6 @@ import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.SelectorCall;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This node represents a selector in a chained pattern.
@@ -39,9 +37,7 @@ public final class SelectorLink extends ChainedPatternLink {
 
     // ----- Children -----
 
-    /**
-     * The selector call to perform during link execution.
-     */
+    /** The selector call to perform during link execution. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private SelectorCall selectorCall;
@@ -51,15 +47,11 @@ public final class SelectorLink extends ChainedPatternLink {
     /**
      * Create a new selector link node.
      *
-     * @param location     The location of the node in the source.
-     * @param pattern      The pattern to verify.
+     * @param location The location of the node in the source.
+     * @param pattern The pattern to verify.
      * @param selectorCall The selector call.
      */
-    public SelectorLink(
-        SourceLocation location,
-        BasePattern pattern,
-        SelectorCall selectorCall
-    ) {
+    public SelectorLink(SourceLocation location, BasePattern pattern, SelectorCall selectorCall) {
         super(location, pattern);
         this.selectorCall = selectorCall;
     }
@@ -67,11 +59,14 @@ public final class SelectorLink extends ChainedPatternLink {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedPatternLink#executeLink(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     * @see
+     *     com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedPatternLink#executeLink(com.oracle.truffle.api.frame.VirtualFrame,
+     *     com.adacore.libadalang.Libadalang.AdaNode)
      */
     @Override
     public Libadalang.AdaNode[] executeLink(VirtualFrame frame, Libadalang.AdaNode node) {
-        return (Libadalang.AdaNode[]) this.selectorCall.executeFiltering(frame, node, this.pattern).getContent();
+        return (Libadalang.AdaNode[])
+                this.selectorCall.executeFiltering(frame, node, this.pattern).getContent();
     }
 
     // ----- Override methods -----
@@ -83,5 +78,4 @@ public final class SelectorLink extends ChainedPatternLink {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

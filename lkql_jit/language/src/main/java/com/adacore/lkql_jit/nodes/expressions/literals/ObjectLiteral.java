@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
@@ -28,7 +27,6 @@ import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-
 
 /**
  * This node represents the literal node for an LKQL object.
@@ -39,35 +37,25 @@ public final class ObjectLiteral extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * Object ordered keys.
-     */
+    /** Object ordered keys. */
     private final String[] keys;
 
     // ----- Children -----
 
-    /**
-     * Object ordered values.
-     */
-    @Children
-    private Expr[] values;
+    /** Object ordered values. */
+    @Children private Expr[] values;
 
     // ----- Constructors -----
 
     /**
-     * Create a new object literal node.
-     * !!! IMPORTANT !!!
-     * Keys and values MUST be in the same order such as: obj.keys[n] = values[n].
+     * Create a new object literal node. !!! IMPORTANT !!! Keys and values MUST be in the same order
+     * such as: obj.keys[n] = values[n].
      *
      * @param location The location of the node in the source.
-     * @param keys     Ordered keys of the object.
-     * @param values   Ordered values of the object.
+     * @param keys Ordered keys of the object.
+     * @param values Ordered values of the object.
      */
-    public ObjectLiteral(
-        SourceLocation location,
-        String[] keys,
-        Expr[] values
-    ) {
+    public ObjectLiteral(SourceLocation location, String[] keys, Expr[] values) {
         super(location);
         this.keys = keys;
         this.values = values;
@@ -76,7 +64,8 @@ public final class ObjectLiteral extends Expr {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -84,7 +73,8 @@ public final class ObjectLiteral extends Expr {
     }
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeObject(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     @ExplodeLoop
@@ -108,5 +98,4 @@ public final class ObjectLiteral extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

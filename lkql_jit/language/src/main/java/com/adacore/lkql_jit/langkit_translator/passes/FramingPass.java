@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.langkit_translator.passes;
 
@@ -33,22 +32,15 @@ import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.source.Source;
 
-
-/**
- * This class represents the framing pass for the Langkit AST translation process.
- */
+/** This class represents the framing pass for the Langkit AST translation process. */
 public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
     // ----- Attributes -----
 
-    /**
-     * Truffle source of the AST.
-     */
+    /** Truffle source of the AST. */
     private final Source source;
 
-    /**
-     * Script frames builder object.
-     */
+    /** Script frames builder object. */
     private final ScriptFramesBuilder scriptFramesBuilder;
 
     // ----- Attributes -----
@@ -58,9 +50,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      *
      * @param source The Truffle source.
      */
-    public FramingPass(
-        final Source source
-    ) {
+    public FramingPass(final Source source) {
         this.source = source;
         this.scriptFramesBuilder = new ScriptFramesBuilder();
     }
@@ -79,39 +69,35 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      * @param node The node to create a source location for.
      * @return A source location for the given node.
      */
-    private DummyLocation loc(
-        final Liblkqllang.LkqlNode node
-    ) {
+    private DummyLocation loc(final Liblkqllang.LkqlNode node) {
         return new DummyLocation(new SourceLocation(this.source, node.getSourceLocationRange()));
     }
 
     /**
-     * Check that the given symbol doesn't exist in the current bindings. Throw an exception if it does.
+     * Check that the given symbol doesn't exist in the current bindings. Throw an exception if it
+     * does.
      *
      * @param symbol The symbol to check.
-     * @param node   The node where the symbol was introduced.
+     * @param node The node where the symbol was introduced.
      * @throws LKQLRuntimeException If the symbol is already in the current bindings.
      */
-    private void checkDuplicateBindings(
-        final String symbol,
-        final Liblkqllang.LkqlNode node
-    ) throws LKQLRuntimeException {
+    private void checkDuplicateBindings(final String symbol, final Liblkqllang.LkqlNode node)
+            throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.bindingExists(symbol)) {
             throw LKQLRuntimeException.existingSymbol(symbol, loc(node));
         }
     }
 
     /**
-     * Check that the given symbol doesn't exist in the current parameters. Throw an exception if it does.
+     * Check that the given symbol doesn't exist in the current parameters. Throw an exception if it
+     * does.
      *
      * @param symbol The symbol to check.
-     * @param node   The node where the symbol was introduced.
+     * @param node The node where the symbol was introduced.
      * @throws LKQLRuntimeException If the symbol is already in the current parameters.
      */
-    private void checkDuplicateParameters(
-        final String symbol,
-        final Liblkqllang.LkqlNode node
-    ) throws LKQLRuntimeException {
+    private void checkDuplicateParameters(final String symbol, final Liblkqllang.LkqlNode node)
+            throws LKQLRuntimeException {
         if (this.scriptFramesBuilder.parameterExists(symbol)) {
             throw LKQLRuntimeException.existingParameter(symbol, loc(node));
         }
@@ -122,9 +108,7 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
      *
      * @param node The node to traverse the children of.
      */
-    private void traverseChildren(
-        final Liblkqllang.LkqlNode node
-    ) {
+    private void traverseChildren(final Liblkqllang.LkqlNode node) {
         int childrenCount = node.getChildrenCount();
         for (int i = 0; i < childrenCount; i++) {
             Liblkqllang.LkqlNode child = node.getChild(i);
@@ -162,7 +146,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         this.scriptFramesBuilder.closeFrame();
         return null;
     }
-
 
     // --- Symbol introducer nodes
 
@@ -299,7 +282,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-
     // --- Frame opening nodes
 
     /**
@@ -346,14 +328,16 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
 
         // Visit all generator expressions
         for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(i);
+            final Liblkqllang.ListCompAssoc assoc =
+                    (Liblkqllang.ListCompAssoc) generators.getChild(i);
             assoc.fCollExpr().accept(this);
         }
 
         // Open the frame and visit the list comprehension expressions
         this.scriptFramesBuilder.openFrame(listComprehension);
         for (int i = 0; i < generatorsCount; i++) {
-            final Liblkqllang.ListCompAssoc assoc = (Liblkqllang.ListCompAssoc) generators.getChild(i);
+            final Liblkqllang.ListCompAssoc assoc =
+                    (Liblkqllang.ListCompAssoc) generators.getChild(i);
             final String symbol = assoc.fBindingName().getText();
             checkDuplicateParameters(symbol, assoc.fBindingName());
             this.scriptFramesBuilder.addParameter(symbol);
@@ -463,7 +447,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         this.scriptFramesBuilder.closeFrame();
         return null;
     }
-
 
     // --- Non frame-changing nodes
 
@@ -988,5 +971,4 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         traverseChildren(tuple);
         return null;
     }
-
 }

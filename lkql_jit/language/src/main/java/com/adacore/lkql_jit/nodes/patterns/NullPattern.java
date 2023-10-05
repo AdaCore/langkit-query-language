@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns;
 
@@ -27,7 +26,6 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This node represents the null pattern in the LKQL language.
@@ -43,16 +41,16 @@ public final class NullPattern extends ValuePattern {
      *
      * @param location The location of the node in the source.
      */
-    public NullPattern(
-        SourceLocation location
-    ) {
+    public NullPattern(SourceLocation location) {
         super(location);
     }
 
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     * @see
+     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
+     *     com.adacore.libadalang.Libadalang.AdaNode)
      */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -68,5 +66,4 @@ public final class NullPattern extends ValuePattern {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

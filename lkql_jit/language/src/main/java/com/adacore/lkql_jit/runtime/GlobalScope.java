@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,23 +17,20 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * This class represents a global LKQL scope which is common to all LKQL scripts.
- * This is shared between all scripts during an execution.
+ * This class represents a global LKQL scope which is common to all LKQL scripts. This is shared
+ * between all scripts during an execution.
  *
  * @author Hugo GUERRIER
  */
@@ -41,19 +38,13 @@ public final class GlobalScope {
 
     // ----- Attributes -----
 
-    /**
-     * The defined LKQL rules.
-     */
+    /** The defined LKQL rules. */
     private final Map<String, ObjectValue> checkers;
 
-    /**
-     * The array containing the built-in functions and selectors.
-     */
+    /** The array containing the built-in functions and selectors. */
     private final Object[] builtIns;
 
-    /**
-     * The meta tables that contains built-in methods.
-     */
+    /** The meta tables that contains built-in methods. */
     private final Map<String, Map<String, BuiltInFunctionValue>> metaTables;
 
     // ----- Constructors -----
@@ -63,9 +54,7 @@ public final class GlobalScope {
      *
      * @param buildInNb The number of built-in functions.
      */
-    public GlobalScope(
-        int buildInNb
-    ) {
+    public GlobalScope(int buildInNb) {
         this.checkers = new HashMap<>();
         this.builtIns = new Object[buildInNb];
         this.metaTables = new HashMap<>();
@@ -85,7 +74,7 @@ public final class GlobalScope {
     /**
      * Add the given LKQL checker in the global values.
      *
-     * @param name    The name of the checker.
+     * @param name The name of the checker.
      * @param checker The object representing the checker.
      */
     @CompilerDirectives.TruffleBoundary
@@ -106,7 +95,7 @@ public final class GlobalScope {
     /**
      * Set a built-in value, this function is only used in built-in factory.
      *
-     * @param slot  The slot to set the built-in in.
+     * @param slot The slot to set the built-in in.
      * @param value The value of the built-in to set.
      */
     public void setBuiltIn(int slot, Object value) {
@@ -127,12 +116,11 @@ public final class GlobalScope {
     /**
      * Put a new meta table for a given type.
      *
-     * @param type    The type of the meta table.
+     * @param type The type of the meta table.
      * @param methods The methods for the type.
      */
     @CompilerDirectives.TruffleBoundary
     public void putMetaTable(String type, Map<String, BuiltInFunctionValue> methods) {
         this.metaTables.put(type, methods);
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
@@ -32,7 +31,6 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-
 /**
  * This node represents an association in a list comprehension in the LKQL language.
  *
@@ -42,21 +40,15 @@ public final class ComprehensionAssoc extends LKQLNode {
 
     // ----- Attributes -----
 
-    /**
-     * The name of the binding value.
-     */
+    /** The name of the binding value. */
     private final String name;
 
-    /**
-     * The slot to put the value in.
-     */
+    /** The slot to put the value in. */
     private final int slot;
 
     // ----- Children -----
 
-    /**
-     * The expression that contains the collection to iterate on.
-     */
+    /** The expression that contains the collection to iterate on. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr collection;
@@ -66,17 +58,12 @@ public final class ComprehensionAssoc extends LKQLNode {
     /**
      * Create a new comprehension association.
      *
-     * @param location   The location of the node in the source.
-     * @param name       The name of the binding value.
-     * @param slot       The slot to put the value in.
+     * @param location The location of the node in the source.
+     * @param name The name of the binding value.
+     * @param slot The slot to put the value in.
      * @param collection The collection expression.
      */
-    public ComprehensionAssoc(
-        SourceLocation location,
-        String name,
-        int slot,
-        Expr collection
-    ) {
+    public ComprehensionAssoc(SourceLocation location, String name, int slot, Expr collection) {
         super(location);
         this.name = name;
         this.slot = slot;
@@ -100,7 +87,8 @@ public final class ComprehensionAssoc extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -118,10 +106,9 @@ public final class ComprehensionAssoc extends LKQLNode {
             return this.collection.executeIterable(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_ITERABLE,
-                LKQLTypesHelper.fromJava(e.getResult()),
-                this.collection
-            );
+                    LKQLTypesHelper.LKQL_ITERABLE,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.collection);
         }
     }
 
@@ -133,10 +120,6 @@ public final class ComprehensionAssoc extends LKQLNode {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
-        );
+                indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
     }
-
 }

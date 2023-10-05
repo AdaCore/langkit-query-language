@@ -18,7 +18,6 @@
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
 ---------------------------------------------------------------------------"""
 
 # Script to make a GraalVM component for the LKQL implementation
@@ -60,16 +59,22 @@ import shutil
 import subprocess
 import sys
 
-sys.path.append('..')
-from utils import GraalManager, parse_args, is_windows, component_template, missing_module
+sys.path.append("..")
+from utils import (
+    GraalManager,
+    parse_args,
+    is_windows,
+    component_template,
+    missing_module,
+)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create the utils
     graal = GraalManager()
     args = parse_args()
 
     # Create the hierarchy
-    comp_dir = P.realpath(P.join(P.dirname(__file__), 'lkql_jit_component'))
+    comp_dir = P.realpath(P.join(P.dirname(__file__), "lkql_jit_component"))
     shutil.rmtree(comp_dir, ignore_errors=True)
     meta_dir, lang_dir, bin_dir = component_template(comp_dir)
 
@@ -80,15 +85,22 @@ if __name__ == '__main__':
 
     # Define the native executables
     native_launcher_exe = "native_lkql_jit.exe" if is_windows() else "native_lkql_jit"
-    native_checker_exe = "native_lkql_jit_checker.exe" if is_windows() else "native_lkql_jit_checker"
-    native_gnatcheck_worker_exe = "native_gnatcheck_worker.exe" if is_windows() else "native_gnatcheck_worker"
+    native_checker_exe = (
+        "native_lkql_jit_checker.exe" if is_windows() else "native_lkql_jit_checker"
+    )
+    native_gnatcheck_worker_exe = (
+        "native_gnatcheck_worker.exe" if is_windows() else "native_gnatcheck_worker"
+    )
 
     # Copy the produced JARs to the component
     for name, source_filename in [
         ("language", P.join("..", "language", "target", "lkql_jit.jar")),
         ("launcher", P.join("..", "launcher", "target", "lkql_jit_launcher.jar")),
         ("checker", P.join("..", "checker", "target", "lkql_jit_checker.jar")),
-        ("gnatcheck_worker", P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"))
+        (
+            "gnatcheck_worker",
+            P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
+        ),
     ]:
         # Ensure the JAR has been produced
         if not P.isfile(source_filename):
@@ -98,117 +110,126 @@ if __name__ == '__main__':
 
     # Copy the GraalVM launching scripts
     if not is_windows():
-        shutil.copy(
-            P.join("scripts", "lkql_jit.sh"),
-            P.join(bin_dir, "lkql_jit")
-        )
+        shutil.copy(P.join("scripts", "lkql_jit.sh"), P.join(bin_dir, "lkql_jit"))
         shutil.copy(
             P.join("scripts", "lkql_jit_checker.sh"),
-            P.join(bin_dir, "lkql_jit_checker")
+            P.join(bin_dir, "lkql_jit_checker"),
         )
         shutil.copy(
             P.join("scripts", "gnatcheck_worker.sh"),
-            P.join(bin_dir, "gnatcheck_worker")
+            P.join(bin_dir, "gnatcheck_worker"),
         )
 
     # Copy the needed native images
     if include_native_launcher:
         shutil.copy(
             P.join("..", "native", "bin", native_launcher_exe),
-            P.join(bin_dir, "native_lkql_jit")
+            P.join(bin_dir, "native_lkql_jit"),
         )
     if include_native_checker:
         shutil.copy(
             P.join("..", "native", "bin", native_checker_exe),
-            P.join(bin_dir, "native_lkql_jit_checker")
+            P.join(bin_dir, "native_lkql_jit_checker"),
         )
     if include_native_worker:
         shutil.copy(
             P.join("..", "native", "bin", native_gnatcheck_worker_exe),
-            P.join(bin_dir, "native_gnatcheck_worker")
+            P.join(bin_dir, "native_gnatcheck_worker"),
         )
 
     # Create the needed file to compile in jar
-    open(P.join(lang_dir, "native-image.properties"), 'w').close()
+    open(P.join(lang_dir, "native-image.properties"), "w").close()
 
     # Write the manifest
-    with open(P.join(meta_dir, "MANIFEST.MF"), 'w') as f:
-        f.writelines([
-            "Bundle-Name: Langkit Query Language JIT\n",
-            "Bundle-Symbolic-Name: com.adacore.lkql_jit\n",
-            f"Bundle-Version: {args.lkql_version}\n",
-            "Bundle-RequireCapability: org.graalvm; " +
-            f"filter:=\"(&(graalvm_version={args.graal_version})(os_arch=amd64))\"\n",
-            "x-GraalVM-Polyglot-Part: True\n"
-        ])
+    with open(P.join(meta_dir, "MANIFEST.MF"), "w") as f:
+        f.writelines(
+            [
+                "Bundle-Name: Langkit Query Language JIT\n",
+                "Bundle-Symbolic-Name: com.adacore.lkql_jit\n",
+                f"Bundle-Version: {args.lkql_version}\n",
+                "Bundle-RequireCapability: org.graalvm; "
+                + f'filter:="(&(graalvm_version={args.graal_version})(os_arch=amd64))"\n',
+                "x-GraalVM-Polyglot-Part: True\n",
+            ]
+        )
 
     # Write the symbolic links
     # TODO: create symlink to native build or interpreter version depending on a setting
     # chosen at installation time?
     if not is_windows():
-        with open(P.join(meta_dir, "symlinks"), 'w') as f:
-            f.writelines([
-                (
-                    "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
-                    if include_native_launcher else
-                    ""
-                ),
-                (
-                    "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
-                    if include_native_checker else
-                    ""
-                ),
-                (
-                    "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
-                    if include_native_worker else
-                    ""
-                ),
-            ])
+        with open(P.join(meta_dir, "symlinks"), "w") as f:
+            f.writelines(
+                [
+                    (
+                        "bin/lkql_jit = ../languages/lkql/bin/lkql_jit\n"
+                        if include_native_launcher
+                        else ""
+                    ),
+                    (
+                        "bin/lkql_jit_checker = ../languages/lkql/bin/lkql_jit_checker\n"
+                        if include_native_checker
+                        else ""
+                    ),
+                    (
+                        "bin/gnatcheck_worker = ../languages/lkql/bin/gnatcheck_worker\n"
+                        if include_native_worker
+                        else ""
+                    ),
+                ]
+            )
 
     # Write the permissions file
-    with open(P.join(meta_dir, "permissions"), 'w') as f:
-        f.writelines([
-            "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
-            "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
-            "languages/lkql/bin/gnatcheck_worker = rwxrwxr-x\n",
-            (
-                f"languages/lkql/bin/{native_launcher_exe} = rwxrwxr-x\n"
-                if include_native_launcher else
-                ""
-            ),
-            (
-                f"languages/lkql/bin/{native_checker_exe} = rwxrwxr-x\n"
-                if include_native_checker else
-                ""
-            ),
-            (
-                f"languages/lkql/bin/{native_gnatcheck_worker_exe} = rwxrwxr-x\n"
-                if include_native_worker else
-                ""
-            ),
-        ])
+    with open(P.join(meta_dir, "permissions"), "w") as f:
+        f.writelines(
+            [
+                "languages/lkql/bin/lkql_jit = rwxrwxr-x\n",
+                "languages/lkql/bin/lkql_jit_checker = rwxrwxr-x\n",
+                "languages/lkql/bin/gnatcheck_worker = rwxrwxr-x\n",
+                (
+                    f"languages/lkql/bin/{native_launcher_exe} = rwxrwxr-x\n"
+                    if include_native_launcher
+                    else ""
+                ),
+                (
+                    f"languages/lkql/bin/{native_checker_exe} = rwxrwxr-x\n"
+                    if include_native_checker
+                    else ""
+                ),
+                (
+                    f"languages/lkql/bin/{native_gnatcheck_worker_exe} = rwxrwxr-x\n"
+                    if include_native_worker
+                    else ""
+                ),
+            ]
+        )
 
     # Create the component jar
     os.chdir(comp_dir)
-    subprocess.check_call([
-        graal.jar,
-        "cfm",
-        P.join("..", "lkql_jit_component.jar"),
-        P.join("META-INF", "MANIFEST.MF"),
-        ".",
-    ])
+    subprocess.check_call(
+        [
+            graal.jar,
+            "cfm",
+            P.join("..", "lkql_jit_component.jar"),
+            P.join("META-INF", "MANIFEST.MF"),
+            ".",
+        ]
+    )
 
     if not is_windows():
-        subprocess.check_call([
+        subprocess.check_call(
+            [
+                graal.jar,
+                "uf",
+                P.join("..", "lkql_jit_component.jar"),
+                P.join("META-INF", "symlinks"),
+            ]
+        )
+
+    subprocess.check_call(
+        [
             graal.jar,
             "uf",
             P.join("..", "lkql_jit_component.jar"),
-            P.join("META-INF", "symlinks"),
-        ])
-
-    subprocess.check_call([
-        graal.jar,
-        "uf",
-        P.join("..", "lkql_jit_component.jar"),
-        P.join("META-INF", "permissions"),
-    ])
+            P.join("META-INF", "permissions"),
+        ]
+    )

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,15 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.arguments;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-
 
 /**
  * This node represents an unnamed argument in the LKQL language.
@@ -40,12 +38,9 @@ public final class ExprArg extends Arg {
      * Create a new expression argument node.
      *
      * @param location The location of the node in the sources.
-     * @param expr     The expression of the argument.
+     * @param expr The expression of the argument.
      */
-    public ExprArg(
-        SourceLocation location,
-        Expr expr
-    ) {
+    public ExprArg(SourceLocation location, Expr expr) {
         super(location, null, expr);
     }
 
@@ -58,5 +53,4 @@ public final class ExprArg extends Arg {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

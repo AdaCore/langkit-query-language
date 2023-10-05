@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,15 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-
 
 /**
  * This node represent the logic "and" operation in the LKQL language.
@@ -40,22 +38,18 @@ public final class BinAnd extends BinShortCircuit {
      * Create an "and" node.
      *
      * @param location The location of the node in the source.
-     * @param left     The left expression.
-     * @param right    The right expression.
+     * @param left The left expression.
+     * @param right The right expression.
      */
-    public BinAnd(
-        SourceLocation location,
-        Expr left,
-        Expr right
-    ) {
+    public BinAnd(SourceLocation location, Expr left, Expr right) {
         super(location, left, right);
     }
-
 
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#doRightEvaluation(boolean)
+     * @see
+     *     com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#doRightEvaluation(boolean)
      */
     @Override
     protected boolean doRightEvaluation(boolean leftValue) {
@@ -63,7 +57,8 @@ public final class BinAnd extends BinShortCircuit {
     }
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#execute(boolean, boolean)
+     * @see com.adacore.lkql_jit.nodes.expressions.operators.BinShortCircuit#execute(boolean,
+     *     boolean)
      */
     @Override
     protected boolean execute(boolean leftValue, boolean rightValue) {
@@ -79,5 +74,4 @@ public final class BinAnd extends BinShortCircuit {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

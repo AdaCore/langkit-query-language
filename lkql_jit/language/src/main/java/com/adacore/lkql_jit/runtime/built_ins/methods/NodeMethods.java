@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
@@ -28,8 +27,8 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
@@ -39,9 +38,7 @@ import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
 import java.util.ArrayList;
-
 
 /**
  * This class contains all built-in methods for the node type in the LKQL language.
@@ -52,16 +49,12 @@ public final class NodeMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /**
-     * The only instance of the method collection.
-     */
+    /** The only instance of the method collection. */
     private static NodeMethods instance = null;
 
     // ----- Constructors -----
 
-    /**
-     * Private constructors.
-     */
+    /** Private constructors. */
     private NodeMethods() {
         super();
     }
@@ -84,76 +77,86 @@ public final class NodeMethods extends CommonMethods {
     @Override
     protected void initMethods() {
         super.initMethods();
-        this.methods.put("children_count", new BuiltInFunctionValue(
-            "children_count",
-            "Given a node, return the count of its children",
-            new String[]{"node"},
-            new Expr[]{null},
-            new ChildrenCountExpr()
-        ));
-        this.methods.put("children", new BuiltInFunctionValue(
-            "children",
-            "Given a node, get the list of all its children",
-            new String[]{"node"},
-            new Expr[]{null},
-            new ChildrenExpr()
-        ));
-        this.methods.put("parent", new BuiltInFunctionValue(
-            "parent",
-            "Given a node, get the parent of it",
-            new String[]{"node"},
-            new Expr[]{null},
-            new ParentExpr()
-        ));
-        this.methods.put("dump", new BuiltInFunctionValue(
-            "dump",
-            "Given an ast node, return a structured dump of the subtree",
-            new String[]{"node"},
-            new Expr[]{null},
-            new DumpExpr()
-        ));
-        this.methods.put("text", new BuiltInFunctionValue(
-            "text",
-            "Given an ast node, return its text",
-            new String[]{"node"},
-            new Expr[]{null},
-            new TextExpr()
-        ));
-        this.methods.put("image", new BuiltInFunctionValue(
-            "image",
-            "Given an ast node, return its image",
-            new String[]{"node"},
-            new Expr[]{null},
-            new ImageExpr()
-        ));
-        this.methods.put("unit", new BuiltInFunctionValue(
-            "unit",
-            "Given an ast node, return its analysis unit",
-            new String[]{"node"},
-            new Expr[]{null},
-            new UnitExpr()
-        ));
-        this.methods.put("kind", new BuiltInFunctionValue(
-            "kind",
-            "Return the kind of this node, as a string",
-            new String[]{"node"},
-            new Expr[]{null},
-            new KindExpr()
-        ));
-        this.methods.put("tokens", new BuiltInFunctionValue(
-            "tokens",
-            "Given a node, return an iterator on its tokens",
-            new String[]{"node"},
-            new Expr[]{null},
-            new TokensExpr()
-        ));
-        this.methods.put("same_tokens", new BuiltInFunctionValue(
-            "same_tokens",
-            "Return whether two nodes have the same tokens, ignoring trivias",
-            new String[]{"node", "other"},
-            new Expr[]{null, null},
-            new SameTokensExpr()
-        ));
+        this.methods.put(
+                "children_count",
+                new BuiltInFunctionValue(
+                        "children_count",
+                        "Given a node, return the count of its children",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new ChildrenCountExpr()));
+        this.methods.put(
+                "children",
+                new BuiltInFunctionValue(
+                        "children",
+                        "Given a node, get the list of all its children",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new ChildrenExpr()));
+        this.methods.put(
+                "parent",
+                new BuiltInFunctionValue(
+                        "parent",
+                        "Given a node, get the parent of it",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new ParentExpr()));
+        this.methods.put(
+                "dump",
+                new BuiltInFunctionValue(
+                        "dump",
+                        "Given an ast node, return a structured dump of the subtree",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new DumpExpr()));
+        this.methods.put(
+                "text",
+                new BuiltInFunctionValue(
+                        "text",
+                        "Given an ast node, return its text",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new TextExpr()));
+        this.methods.put(
+                "image",
+                new BuiltInFunctionValue(
+                        "image",
+                        "Given an ast node, return its image",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new ImageExpr()));
+        this.methods.put(
+                "unit",
+                new BuiltInFunctionValue(
+                        "unit",
+                        "Given an ast node, return its analysis unit",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new UnitExpr()));
+        this.methods.put(
+                "kind",
+                new BuiltInFunctionValue(
+                        "kind",
+                        "Return the kind of this node, as a string",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new KindExpr()));
+        this.methods.put(
+                "tokens",
+                new BuiltInFunctionValue(
+                        "tokens",
+                        "Given a node, return an iterator on its tokens",
+                        new String[] {"node"},
+                        new Expr[] {null},
+                        new TokensExpr()));
+        this.methods.put(
+                "same_tokens",
+                new BuiltInFunctionValue(
+                        "same_tokens",
+                        "Return whether two nodes have the same tokens, ignoring trivias",
+                        new String[] {"node", "other"},
+                        new Expr[] {null, null},
+                        new SameTokensExpr()));
     }
 
     // ----- Override methods -----
@@ -168,10 +171,8 @@ public final class NodeMethods extends CommonMethods {
 
     // ----- Inner classes -----
 
-    /**
-     * Expression of the "children" method.
-     */
-    public final static class ChildrenExpr extends BuiltinFunctionBody {
+    /** Expression of the "children" method. */
+    public static final class ChildrenExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the node
@@ -190,82 +191,68 @@ public final class NodeMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "parent" method.
-     */
-    public final static class ParentExpr extends BuiltinFunctionBody {
+    /** Expression of the "parent" method. */
+    public static final class ParentExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AdaNode parent = LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).parent();
+            Libadalang.AdaNode parent =
+                    LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).parent();
             return parent.isNone() ? NodeNull.getInstance() : parent;
         }
     }
 
-    /**
-     * Expression of the "children_count" method.
-     */
-    public final static class ChildrenCountExpr extends BuiltinFunctionBody {
+    /** Expression of the "children_count" method. */
+    public static final class ChildrenCountExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return (long) LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getChildrenCount();
         }
     }
 
-    /**
-     * Expression of the "dump" method.
-     */
-    public final static class DumpExpr extends BuiltinFunctionBody {
+    /** Expression of the "dump" method. */
+    public static final class DumpExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            LKQLLanguage.getContext(this).print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpAST());
+            LKQLLanguage.getContext(this)
+                    .print(LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).dumpAST());
             return UnitValue.getInstance();
         }
     }
 
-    /**
-     * Expression of the "text" method.
-     */
-    public final static class TextExpr extends BuiltinFunctionBody {
+    /** Expression of the "text" method. */
+    public static final class TextExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getText();
         }
     }
 
-    /**
-     * Expression of the "image" method.
-     */
-    public final static class ImageExpr extends BuiltinFunctionBody {
+    /** Expression of the "image" method. */
+    public static final class ImageExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getImage();
         }
     }
 
-    /**
-     * Expression of the "unit" method.
-     */
-    public final static class UnitExpr extends BuiltinFunctionBody {
+    /** Expression of the "unit" method. */
+    public static final class UnitExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).getUnit();
         }
     }
 
-    /**
-     * Expression of the "kind" method.
-     */
-    public final static class KindExpr extends BuiltinFunctionBody {
+    /** Expression of the "kind" method. */
+    public static final class KindExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return ReflectionUtils.getClassSimpleName(frame.getArguments()[0]);
         }
     }
 
-    /**
-     * Expression of the "tokens" method.
-     */
-    public final static class TokensExpr extends BuiltinFunctionBody {
+    /** Expression of the "tokens" method. */
+    public static final class TokensExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the node
@@ -286,10 +273,8 @@ public final class NodeMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "same_tokens" method.
-     */
-    public final static class SameTokensExpr extends BuiltinFunctionBody {
+    /** Expression of the "same_tokens" method. */
+    public static final class SameTokensExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the nodes to compare
@@ -299,10 +284,9 @@ public final class NodeMethods extends CommonMethods {
                 rightNode = LKQLTypeSystemGen.expectAdaNode(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.ADA_NODE,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Get the tokens
@@ -317,9 +301,8 @@ public final class NodeMethods extends CommonMethods {
                 if (leftToken.kind != rightToken.kind) return false;
                 if (leftToken.kind == Libadalang.TokenKind.ADA_IDENTIFIER) {
                     if (!ObjectUtils.equals(
-                        StringUtils.toLowerCase(leftToken.getText()),
-                        StringUtils.toLowerCase(rightToken.getText())
-                    )) return false;
+                            StringUtils.toLowerCase(leftToken.getText()),
+                            StringUtils.toLowerCase(rightToken.getText()))) return false;
                 } else if (!ObjectUtils.equals(leftToken.getText(), rightToken.getText())) {
                     return false;
                 }
@@ -352,5 +335,4 @@ public final class NodeMethods extends CommonMethods {
             return res;
         }
     }
-
 }

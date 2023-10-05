@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
@@ -35,7 +34,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
  * This node represents the is clause in the LKQL language.
  *
@@ -46,16 +44,12 @@ public abstract class IsClause extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * The location of the node expression.
-     */
+    /** The location of the node expression. */
     private final DummyLocation nodeLocation;
 
     // ----- Children -----
 
-    /**
-     * The pattern node to evaluate the "is" clause.
-     */
+    /** The pattern node to evaluate the "is" clause. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
@@ -65,15 +59,11 @@ public abstract class IsClause extends Expr {
     /**
      * Create a new "is" clause with the parameters.
      *
-     * @param location     The token location in the source.
+     * @param location The token location in the source.
      * @param nodeLocation The location of the node expression node.
-     * @param pattern      The pattern to execute the is clause.
+     * @param pattern The pattern to execute the is clause.
      */
-    protected IsClause(
-        SourceLocation location,
-        DummyLocation nodeLocation,
-        BasePattern pattern
-    ) {
+    protected IsClause(SourceLocation location, DummyLocation nodeLocation, BasePattern pattern) {
         super(location);
         this.nodeLocation = nodeLocation;
         this.pattern = pattern;
@@ -85,7 +75,7 @@ public abstract class IsClause extends Expr {
      * Execute the is clause when the expression is a node.
      *
      * @param frame The frame to execute the pattern in.
-     * @param node  The node to verify.
+     * @param node The node to verify.
      * @return The result of the pattern execution.
      */
     @Specialization
@@ -101,10 +91,7 @@ public abstract class IsClause extends Expr {
     @Fallback
     protected void notNode(Object notNode) {
         throw LKQLRuntimeException.wrongType(
-            LKQLTypesHelper.ADA_NODE,
-            LKQLTypesHelper.fromJava(notNode),
-            this.nodeLocation
-        );
+                LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(notNode), this.nodeLocation);
     }
 
     // ----- Override methods -----
@@ -116,5 +103,4 @@ public abstract class IsClause extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

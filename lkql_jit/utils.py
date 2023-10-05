@@ -18,7 +18,6 @@
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
 ---------------------------------------------------------------------------"""
 
 # This python file contains utils for the building process of LKQL JIT
@@ -40,12 +39,14 @@ class GraalManager:
         """
         Initialize the Graal manager.
         """
-        self.home = P.realpath(os.environ.get('GRAAL_HOME'))
+        self.home = P.realpath(os.environ.get("GRAAL_HOME"))
 
         # Verify the GraalVM installation
         if not self.home:
-            raise RuntimeError("Define the 'GRAAL_HOME' environment variable on your "
-                               "local GraalVM installation directory")
+            raise RuntimeError(
+                "Define the 'GRAAL_HOME' environment variable on your "
+                "local GraalVM installation directory"
+            )
 
     # --- Binaries getting ---
 
@@ -53,29 +54,31 @@ class GraalManager:
     def native_image(self):
         if not self._native_image:
             self._native_image = (
-                P.join(self.home, 'bin', 'native-image.cmd')
-                if is_windows() else
-                P.join(self.home, 'bin', 'native-image')
+                P.join(self.home, "bin", "native-image.cmd")
+                if is_windows()
+                else P.join(self.home, "bin", "native-image")
             )
             if not P.isfile(self._native_image):
-                raise RuntimeError("Native-image tool is not available in your GraalVM"
-                                   "installation, install it with 'gu'")
+                raise RuntimeError(
+                    "Native-image tool is not available in your GraalVM"
+                    "installation, install it with 'gu'"
+                )
         return self._native_image
 
     @property
     def jar(self):
         return (
-            P.join(self.home, 'bin', 'jar.exe')
-            if is_windows() else
-            P.join(self.home, 'bin', 'jar')
+            P.join(self.home, "bin", "jar.exe")
+            if is_windows()
+            else P.join(self.home, "bin", "jar")
         )
 
     @property
     def gu(self):
         return (
-            P.join(self.home, 'bin', 'gu.cmd')
-            if is_windows() else
-            P.join(self.home, 'bin', 'gu')
+            P.join(self.home, "bin", "gu.cmd")
+            if is_windows()
+            else P.join(self.home, "bin", "gu")
         )
 
 
@@ -86,9 +89,9 @@ def component_template(dir):
     :param dir: The directory to create the hierarchy.
     :return The directories from the created hierarchy.
     """
-    meta_dir = P.join(dir, 'META-INF')
-    lang_dir = P.join(dir, 'languages', 'lkql')
-    bin_dir = P.join(lang_dir, 'bin')
+    meta_dir = P.join(dir, "META-INF")
+    lang_dir = P.join(dir, "languages", "lkql")
+    bin_dir = P.join(lang_dir, "bin")
 
     os.makedirs(dir)
     os.makedirs(meta_dir)
@@ -102,7 +105,7 @@ def is_windows():
     """
     Return if the current platform is Windows.
     """
-    return os.name == 'nt'
+    return os.name == "nt"
 
 
 def parse_args():
@@ -115,21 +118,24 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Add the options
-    parser.add_argument('--build-mode',
-                        choices=['dev', 'prod', 'debug'],
-                        default='dev',
-                        help="Define the JIT build mode")
-    parser.add_argument('--native-components',
-                        help="Native components to build")
-    parser.add_argument('--lkql-version',
-                        help="The version of LKQL you're building")
-    parser.add_argument('--graal-version',
-                        help="Version of GraalVM you're building with")
+    parser.add_argument(
+        "--build-mode",
+        choices=["dev", "prod", "debug"],
+        default="dev",
+        help="Define the JIT build mode",
+    )
+    parser.add_argument("--native-components", help="Native components to build")
+    parser.add_argument("--lkql-version", help="The version of LKQL you're building")
+    parser.add_argument(
+        "--graal-version", help="Version of GraalVM you're building with"
+    )
 
     # Parse the command line and return the result
     return parser.parse_args()
 
 
 def missing_module(name, file):
-    return RuntimeError(f"File '{P.realpath(file)}' not found. Make sure you ran `mvn package`"
-                        f" for the '{name}' module.")
+    return RuntimeError(
+        f"File '{P.realpath(file)}' not found. Make sure you ran `mvn package`"
+        f" for the '{name}' module."
+    )

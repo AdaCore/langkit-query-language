@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,15 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +67,7 @@ public final class StringUtils {
     /**
      * Compare the given strings ignoring the casing of them.
      *
-     * @param left  The left string.
+     * @param left The left string.
      * @param right The right string.
      * @return True if the strings are equals, false else.
      */
@@ -82,7 +80,7 @@ public final class StringUtils {
      * Fill the given string with space character to get to the given size.
      *
      * @param toFill The string to fill with space.
-     * @param size   The size to get to.
+     * @param size The size to get to.
      * @return The filled string.
      */
     @CompilerDirectives.TruffleBoundary
@@ -94,7 +92,7 @@ public final class StringUtils {
     /**
      * Get if a string contains a given target.
      *
-     * @param place  The place to search in.
+     * @param place The place to search in.
      * @param target The target to look for.
      * @return True if the place contains the target.
      */
@@ -106,7 +104,7 @@ public final class StringUtils {
     /**
      * Get the index of the target string in.
      *
-     * @param in     The string to search in.
+     * @param in The string to search in.
      * @param target The target string.
      * @return The index of the target string.
      */
@@ -118,7 +116,7 @@ public final class StringUtils {
     /**
      * Split a string according to a splitter regular expression.
      *
-     * @param toSplit  The string to split.
+     * @param toSplit The string to split.
      * @param splitter The splitter expression.
      * @return The split string in an array.
      */
@@ -211,11 +209,7 @@ public final class StringUtils {
      */
     @CompilerDirectives.TruffleBoundary
     public static String toRepr(String source) {
-        return "\"" +
-            source
-                .replace("\"", "\\\"")
-                .replace("\n", "\\x0a") +
-            "\"";
+        return "\"" + source.replace("\"", "\\\"").replace("\n", "\\x0a") + "\"";
     }
 
     /**
@@ -227,14 +221,14 @@ public final class StringUtils {
     @CompilerDirectives.TruffleBoundary
     public static String translateEscapes(String toTranslate) {
         return toTranslate
-            .replace("\\n", "\n")
-            .replace("\\r", "\r")
-            .replace("\\t", "\t")
-            .replace("\\b", "\b")
-            .replace("\\f", "\f")
-            .replace("\\\"", "\"")
-            .replace("\\'", "'")
-            .replace("\\\\", "\\");
+                .replace("\\n", "\n")
+                .replace("\\r", "\r")
+                .replace("\\t", "\t")
+                .replace("\\b", "\b")
+                .replace("\\f", "\f")
+                .replace("\\\"", "\"")
+                .replace("\\'", "'")
+                .replace("\\\\", "\\");
     }
 
     /**
@@ -268,50 +262,48 @@ public final class StringUtils {
     /**
      * Get the underlined source representation.
      *
-     * @param lines          The lines to display.
-     * @param startLine      The starting line.
-     * @param startCol       The starting column.
-     * @param endLine        The ending line.
-     * @param endCol         The ending colum.
+     * @param lines The lines to display.
+     * @param startLine The starting line.
+     * @param startCol The starting column.
+     * @param endLine The ending line.
+     * @param endCol The ending colum.
      * @param underLineColor The color of the underline.
      * @return The underlined lines in a string.
      */
     @CompilerDirectives.TruffleBoundary
     public static String underlineSource(
-        String[] lines,
-        int startLine,
-        int startCol,
-        int endLine,
-        int endCol,
-        String underLineColor
-    ) {
+            String[] lines,
+            int startLine,
+            int startCol,
+            int endLine,
+            int endCol,
+            String underLineColor) {
         // Prepare the result
         StringBuilder res = new StringBuilder();
         int colSize = String.valueOf(endLine).length();
 
         // Create the function to start a line
-        Consumer<Integer> lineStarting = (lineNum) -> {
-            res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
-            if (lineNum < 1) {
-                res.append(" ".repeat(colSize));
-            } else {
-                res.append(fill(String.valueOf(lineNum), colSize));
-            }
-            res.append(" |")
-                .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
-        };
+        Consumer<Integer> lineStarting =
+                (lineNum) -> {
+                    res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_BLUE : "");
+                    if (lineNum < 1) {
+                        res.append(" ".repeat(colSize));
+                    } else {
+                        res.append(fill(String.valueOf(lineNum), colSize));
+                    }
+                    res.append(" |").append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
+                };
 
         // If the source is single line
         if (lines.length == 1) {
             lineStarting.accept(startLine);
-            res.append(' ')
-                .append(lines[0]);
+            res.append(' ').append(lines[0]);
             if (startCol != endCol) {
                 res.append('\n');
                 lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append(" ".repeat(startCol))
-                    .append("^".repeat(Math.max(0, endCol - startCol)));
+                        .append(" ".repeat(startCol))
+                        .append("^".repeat(Math.max(0, endCol - startCol)));
             }
         }
 
@@ -319,46 +311,41 @@ public final class StringUtils {
         else {
             int difference = endLine - startLine - 1;
             lineStarting.accept(startLine);
-            res.append("  ")
-                .append(lines[0])
-                .append("\n");
+            res.append("  ").append(lines[0]).append("\n");
             lineStarting.accept(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append(" ")
-                .append("_".repeat(startCol))
-                .append("^\n");
+                    .append(" ")
+                    .append("_".repeat(startCol))
+                    .append("^\n");
 
             if (difference > 0) {
                 lineStarting.accept(0);
-                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append("|\n");
+                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
                 lineStarting.accept(0);
                 res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append('|')
-                    .append(" ~~~ ")
-                    .append(difference)
-                    .append(" other lines ~~~\n");
+                        .append('|')
+                        .append(" ~~~ ")
+                        .append(difference)
+                        .append(" other lines ~~~\n");
                 lineStarting.accept(0);
-                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                    .append("|\n");
+                res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "").append("|\n");
             }
 
             lineStarting.accept(endLine);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append("| ")
-                .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
-                .append(lines[lines.length - 1])
-                .append('\n');
+                    .append("| ")
+                    .append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "")
+                    .append(lines[lines.length - 1])
+                    .append('\n');
             lineStarting.accept(0);
             res.append(LKQLLanguage.SUPPORT_COLOR ? underLineColor : "")
-                .append("|")
-                .append("_".repeat(Math.max(1, endCol - 1)))
-                .append("^");
+                    .append("|")
+                    .append("_".repeat(Math.max(1, endCol - 1)))
+                    .append("^");
         }
 
         // Return the underlined sources
         res.append(LKQLLanguage.SUPPORT_COLOR ? ANSI_RESET : "");
         return res.toString();
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.root_nodes;
-
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -38,9 +36,7 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
 
     // ----- Attributes -----
 
-    /**
-     * Cache to store the root node execution results.
-     */
+    /** Cache to store the root node execution results. */
     protected final EconomicMap<K, V> memoizationCache;
 
     // ----- Constructors -----
@@ -48,13 +44,11 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
     /**
      * Create a new memoized root node.
      *
-     * @param language        The language instance which owns the root node.
+     * @param language The language instance which owns the root node.
      * @param frameDescriptor The descriptor of the frame for the root node execution.
      */
     protected MemoizedRootNode(
-        final TruffleLanguage<?> language,
-        final FrameDescriptor frameDescriptor
-    ) {
+            final TruffleLanguage<?> language, final FrameDescriptor frameDescriptor) {
         super(language, frameDescriptor);
         this.memoizationCache = EconomicMap.create();
     }
@@ -68,9 +62,7 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      * @return True if the call has been done and the result is in the cache, false else.
      */
     @CompilerDirectives.TruffleBoundary
-    protected boolean isMemoized(
-        final K key
-    ) {
+    protected boolean isMemoized(final K key) {
         return this.memoizationCache.containsKey(key);
     }
 
@@ -81,24 +73,18 @@ public abstract class MemoizedRootNode<K, V> extends BaseRootNode {
      * @return The result of the call with the key, null if it doesn't exist.
      */
     @CompilerDirectives.TruffleBoundary
-    protected V getMemoized(
-        final K key
-    ) {
+    protected V getMemoized(final K key) {
         return this.memoizationCache.get(key, null);
     }
 
     /**
      * Associate the given call key with the given call value in the memoization cache.
      *
-     * @param key   The key to store in the cache.
+     * @param key The key to store in the cache.
      * @param value The value of the call with the key.
      */
     @CompilerDirectives.TruffleBoundary
-    protected void putMemoized(
-        final K key,
-        final V value
-    ) {
+    protected void putMemoized(final K key, final V value) {
         this.memoizationCache.put(key, value);
     }
-
 }

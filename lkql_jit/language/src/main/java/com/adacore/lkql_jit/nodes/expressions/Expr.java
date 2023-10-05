@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions;
 
@@ -34,9 +33,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
 import java.math.BigInteger;
-
 
 /**
  * This node is the base of all expressions in the LKQL language.
@@ -52,9 +49,7 @@ public abstract class Expr extends LKQLNode {
      *
      * @param location The location of the node in the source.
      */
-    protected Expr(
-        SourceLocation location
-    ) {
+    protected Expr(SourceLocation location) {
         super(location);
     }
 
@@ -144,7 +139,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a property reference value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a property reference.
      */
-    public PropertyRefValue executePropertyRef(VirtualFrame frame) throws UnexpectedResultException {
+    public PropertyRefValue executePropertyRef(VirtualFrame frame)
+            throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectPropertyRefValue(executeGeneric(frame));
     }
 
@@ -210,7 +206,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a selector list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a selector list.
      */
-    public SelectorListValue executeSelectorList(VirtualFrame frame) throws UnexpectedResultException {
+    public SelectorListValue executeSelectorList(VirtualFrame frame)
+            throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectSelectorListValue(executeGeneric(frame));
     }
 
@@ -268,5 +265,4 @@ public abstract class Expr extends LKQLNode {
     public Libadalang.AdaNode executeNode(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectAdaNode(executeGeneric(frame));
     }
-
 }

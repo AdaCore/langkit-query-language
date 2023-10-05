@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,19 +17,17 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.exception;
 
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import java.io.Serial;
 
-
 /**
- * This exception represents an exception in the LKQL static analysis.
- * This doesn't represent a static error in the LKQL code.
+ * This exception represents an exception in the LKQL static analysis. This doesn't represent a
+ * static error in the LKQL code.
  *
  * @author Hugo GUERRIER
  */
@@ -41,10 +39,7 @@ public final class TranslatorException extends AbstractTruffleException {
      *
      * @param message The message of the exception.
      */
-    public TranslatorException(
-        final String message
-    ) {
+    public TranslatorException(final String message) {
         super(message);
     }
-
 }

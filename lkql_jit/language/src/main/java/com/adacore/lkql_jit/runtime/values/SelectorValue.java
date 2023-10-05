@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
@@ -28,7 +27,6 @@ import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
-
 
 /**
  * This class represents the selector values in the LQKL language.
@@ -39,24 +37,16 @@ public class SelectorValue implements LKQLValue {
 
     // ----- Attributes -----
 
-    /**
-     * The root node of the selector.
-     */
+    /** The root node of the selector. */
     private final SelectorRootNode rootNode;
 
-    /**
-     * The closure of the selector.
-     */
+    /** The closure of the selector. */
     private final Closure closure;
 
-    /**
-     * The name of the selector.
-     */
+    /** The name of the selector. */
     private final String name;
 
-    /**
-     * The documentation of the selector value.
-     */
+    /** The documentation of the selector value. */
     private final String documentation;
 
     // ----- Constructors -----
@@ -65,17 +55,13 @@ public class SelectorValue implements LKQLValue {
      * Create a new selector value.
      *
      * @param selectorRootNode The root node of the selector.
-     * @param closure          The closure of the selector.
-     * @param name             The name of the selector.
-     * @param documentation    The documentation of the selector.
+     * @param closure The closure of the selector.
+     * @param name The name of the selector.
+     * @param documentation The documentation of the selector.
      */
     @CompilerDirectives.TruffleBoundary
     public SelectorValue(
-        SelectorRootNode selectorRootNode,
-        Closure closure,
-        String name,
-        String documentation
-    ) {
+            SelectorRootNode selectorRootNode, Closure closure, String name, String documentation) {
         this.rootNode = selectorRootNode;
         this.closure = closure;
         this.name = name;
@@ -97,13 +83,14 @@ public class SelectorValue implements LKQLValue {
     /**
      * Execute the selector value on an ada node with additional arguments.
      *
-     * @param node     The node to execute the selector on.
+     * @param node The node to execute the selector on.
      * @param maxDepth The maximum depth of the selector list.
      * @param minDepth The minimal depth of the selector list.
-     * @param depth    The precise depth to get.
+     * @param depth The precise depth to get.
      * @return The selector list value.
      */
-    public SelectorListValue execute(Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
+    public SelectorListValue execute(
+            Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
         return new SelectorListValue(this.rootNode, this.closure, node, maxDepth, minDepth, depth);
     }
 
@@ -118,7 +105,8 @@ public class SelectorValue implements LKQLValue {
     }
 
     /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * @see
+     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
     public boolean internalEquals(LKQLValue o) {
@@ -134,5 +122,4 @@ public class SelectorValue implements LKQLValue {
     public String toString() {
         return "selector<" + this.name + ">";
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
@@ -30,7 +29,6 @@ import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
-
 
 /**
  * This node represents the "in" clause in the LKQL language.
@@ -44,15 +42,12 @@ public abstract class InClause extends BinOp {
     /**
      * Create an "in" clause node.
      *
-     * @param location      The location of the node in the source.
-     * @param leftLocation  The location of the left node.
+     * @param location The location of the node in the source.
+     * @param leftLocation The location of the left node.
      * @param rightLocation The location of the right node.
      */
     protected InClause(
-        SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
-    ) {
+            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
         super(location, leftLocation, rightLocation);
     }
 
@@ -61,7 +56,7 @@ public abstract class InClause extends BinOp {
     /**
      * Execute the "in" clause, return true if the element is in the collection.
      *
-     * @param elem     The element to search in the list.
+     * @param elem The element to search in the list.
      * @param iterable The list to search in.
      * @return True the iterable value contains the element, false else.
      */
@@ -73,16 +68,15 @@ public abstract class InClause extends BinOp {
     /**
      * Fallback method when user try to do an "in" clause on a non-iterable value.
      *
-     * @param elem        The element to search in the list.
+     * @param elem The element to search in the list.
      * @param notIterable The non-iterable value.
      */
     @Fallback
     protected void notIterable(@SuppressWarnings("unused") Object elem, Object notIterable) {
         throw LKQLRuntimeException.wrongType(
-            LKQLTypesHelper.LKQL_LIST,
-            LKQLTypesHelper.fromJava(notIterable),
-            this.rightLocation
-        );
+                LKQLTypesHelper.LKQL_LIST,
+                LKQLTypesHelper.fromJava(notIterable),
+                this.rightLocation);
     }
 
     // ----- Override methods -----
@@ -94,5 +88,4 @@ public abstract class InClause extends BinOp {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

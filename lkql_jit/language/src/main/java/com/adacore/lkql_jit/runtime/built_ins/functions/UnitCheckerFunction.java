@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
@@ -32,8 +31,8 @@ import com.adacore.lkql_jit.exception.LangkitException;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
@@ -45,7 +44,6 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-
 /**
  * This class represents the "unit_checker" built-in function in the LKQL language.
  *
@@ -55,31 +53,24 @@ public final class UnitCheckerFunction {
 
     // ----- Attributes -----
 
-    /**
-     * The name of the built-in.
-     */
+    /** The name of the built-in. */
     public static final String NAME = "unit_checker";
 
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-            NAME,
-            "Given a unit, apply all the unit checker on it",
-            new String[]{"unit"},
-            new Expr[]{null},
-            new UnitCheckerExpr()
-        );
+                NAME,
+                "Given a unit, apply all the unit checker on it",
+                new String[] {"unit"},
+                new Expr[] {null},
+                new UnitCheckerExpr());
     }
 
     // ----- Inner classes -----
 
-    /**
-     * This class is the expression of the "unit_checker" function.
-     */
+    /** This class is the expression of the "unit_checker" function. */
     private static final class UnitCheckerExpr extends BuiltinFunctionBody {
 
-        /**
-         * The dispatcher for the rule functions.
-         */
+        /** The dispatcher for the rule functions. */
         @Child
         @SuppressWarnings("FieldMayBeFinal")
         private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
@@ -98,10 +89,9 @@ public final class UnitCheckerFunction {
                 unit = LKQLTypeSystemGen.expectAnalysisUnit(frame.getArguments()[0]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ANALYSIS_UNIT,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.ANALYSIS_UNIT,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Initialize the cache that will contain decoded source lines of all needed units
@@ -112,30 +102,32 @@ public final class UnitCheckerFunction {
                 try {
                     this.applyUnitRule(frame, rule, unit, context, linesCache);
                 } catch (LangkitException e) {
-                    // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
+                    // TODO: Remove those clunky hardcoded names when getting rid of Ada
+                    // implementation
                     // Report LAL exception only in debug mode
                     if (context.isCheckerDebug()) {
-                        context.getDiagnosticEmitter().emitInternalError(
-                            (String) rule.get("name"),
-                            unit,
-                            Libadalang.SourceLocation.create(1, (short) 1),
-                            e.getLoc().toString(),
-                            StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
-                            e.getMsg(),
-                            context
-                        );
+                        context.getDiagnosticEmitter()
+                                .emitInternalError(
+                                        (String) rule.get("name"),
+                                        unit,
+                                        Libadalang.SourceLocation.create(1, (short) 1),
+                                        e.getLoc().toString(),
+                                        StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
+                                        e.getMsg(),
+                                        context);
                     }
                 } catch (LKQLRuntimeException e) {
-                    // TODO: Remove those clunky hardcoded names when getting rid of Ada implementation
-                    context.getDiagnosticEmitter().emitInternalError(
-                        (String) rule.get("name"),
-                        unit,
-                        Libadalang.SourceLocation.create(1, (short) 1),
-                        e.getLocationString(),
-                        "LKQL.ERRORS.STOP_EVALUATION_ERROR",
-                        e.getRawMessage(),
-                        context
-                    );
+                    // TODO: Remove those clunky hardcoded names when getting rid of Ada
+                    // implementation
+                    context.getDiagnosticEmitter()
+                            .emitInternalError(
+                                    (String) rule.get("name"),
+                                    unit,
+                                    Libadalang.SourceLocation.create(1, (short) 1),
+                                    e.getLocationString(),
+                                    "LKQL.ERRORS.STOP_EVALUATION_ERROR",
+                                    e.getRawMessage(),
+                                    context);
                 }
             }
 
@@ -146,19 +138,18 @@ public final class UnitCheckerFunction {
         /**
          * Apply the rule on the given unit.
          *
-         * @param frame      The frame for the rule execution.
-         * @param rule       The rule to execute.
-         * @param unit       The unit to execute the rule on.
-         * @param context    The context for the execution.
+         * @param frame The frame for the rule execution.
+         * @param rule The rule to execute.
+         * @param unit The unit to execute the rule on.
+         * @param context The context for the execution.
          * @param linesCache The cache of all units' source text lines.
          */
         private void applyUnitRule(
-            VirtualFrame frame,
-            ObjectValue rule,
-            Libadalang.AnalysisUnit unit,
-            LKQLContext context,
-            CheckerUtils.SourceLinesCache linesCache
-        ) {
+                VirtualFrame frame,
+                ObjectValue rule,
+                Libadalang.AnalysisUnit unit,
+                LKQLContext context,
+                CheckerUtils.SourceLinesCache linesCache) {
             // Get the function for the checker
             final FunctionValue functionValue = (FunctionValue) rule.get("function");
 
@@ -171,13 +162,16 @@ public final class UnitCheckerFunction {
             arguments[1] = unit;
             for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
                 String paramName = functionValue.getParamNames()[i];
-                Object userDefinedArg = context.getRuleArg(
-                    (aliasName == null ? lowerRuleName : StringUtils.toLowerCase(aliasName)),
-                    paramName
-                );
-                arguments[i + 1] = userDefinedArg == null ?
-                    functionValue.getDefaultValues()[i].executeGeneric(frame) :
-                    userDefinedArg;
+                Object userDefinedArg =
+                        context.getRuleArg(
+                                (aliasName == null
+                                        ? lowerRuleName
+                                        : StringUtils.toLowerCase(aliasName)),
+                                paramName);
+                arguments[i + 1] =
+                        userDefinedArg == null
+                                ? functionValue.getDefaultValues()[i].executeGeneric(frame)
+                                : userDefinedArg;
             }
 
             // Put the closure in the arguments
@@ -186,13 +180,14 @@ public final class UnitCheckerFunction {
             // Get the message list from the rule function
             final Iterable messageList;
             try {
-                messageList = LKQLTypeSystemGen.expectIterable(this.dispatcher.executeDispatch(functionValue, arguments));
+                messageList =
+                        LKQLTypeSystemGen.expectIterable(
+                                this.dispatcher.executeDispatch(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_LIST,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    functionValue.getBody()
-                );
+                        LKQLTypesHelper.LKQL_LIST,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        functionValue.getBody());
             }
 
             // Display all the violation message
@@ -206,10 +201,9 @@ public final class UnitCheckerFunction {
                     messageText = LKQLTypeSystemGen.expectString(message.get("message"));
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.LKQL_STRING,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        functionValue.getBody()
-                    );
+                            LKQLTypesHelper.LKQL_STRING,
+                            LKQLTypesHelper.fromJava(e.getResult()),
+                            functionValue.getBody());
                 }
 
                 // Get the message location
@@ -230,24 +224,21 @@ public final class UnitCheckerFunction {
                     genericInstantiations = node.pGenericInstantiations();
                 } else {
                     throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
-                        LKQLTypesHelper.fromJava(loc),
-                        functionValue.getBody()
-                    );
+                            LKQLTypesHelper.ADA_NODE,
+                            LKQLTypesHelper.fromJava(loc),
+                            functionValue.getBody());
                 }
 
-                context.getDiagnosticEmitter().emitRuleViolation(
-                    lowerRuleName,
-                    messageText,
-                    slocRange,
-                    locUnit,
-                    genericInstantiations,
-                    linesCache,
-                    context
-                );
+                context.getDiagnosticEmitter()
+                        .emitRuleViolation(
+                                lowerRuleName,
+                                messageText,
+                                slocRange,
+                                locUnit,
+                                genericInstantiations,
+                                linesCache,
+                                context);
             }
         }
-
     }
-
 }

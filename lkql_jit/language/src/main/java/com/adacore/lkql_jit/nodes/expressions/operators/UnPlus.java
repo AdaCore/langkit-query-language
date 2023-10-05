@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
@@ -29,9 +28,7 @@ import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
-
 import java.math.BigInteger;
-
 
 /**
  * This node represents the arithmetic unary "plus" operation in the LKQL language.
@@ -45,13 +42,10 @@ public abstract class UnPlus extends UnOp {
     /**
      * Create an arithmetic unary "plus" node.
      *
-     * @param location    The location of the node in the source.
+     * @param location The location of the node in the source.
      * @param argLocation The location of the argument node.
      */
-    protected UnPlus(
-        SourceLocation location,
-        DummyLocation argLocation
-    ) {
+    protected UnPlus(SourceLocation location, DummyLocation argLocation) {
         super(location, argLocation);
     }
 
@@ -87,10 +81,7 @@ public abstract class UnPlus extends UnOp {
     @Fallback
     protected void notNumber(Object arg) {
         throw LKQLRuntimeException.wrongType(
-            LKQLTypesHelper.LKQL_INTEGER,
-            LKQLTypesHelper.fromJava(arg),
-            this.argLocation
-        );
+                LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(arg), this.argLocation);
     }
 
     // ----- Override methods -----
@@ -102,5 +93,4 @@ public abstract class UnPlus extends UnOp {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

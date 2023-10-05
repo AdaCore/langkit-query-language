@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils;
-
 
 import java.util.Map;
 
@@ -35,24 +33,16 @@ public final class ClosureDescriptor {
 
     // ----- Attributes -----
 
-    /**
-     * Size of the closure.
-     */
+    /** Size of the closure. */
     private final int closureSize;
 
-    /**
-     * Map that goes from closure slots to local slots to close.
-     */
+    /** Map that goes from closure slots to local slots to close. */
     private final Map<Integer, Integer> closingLocals;
 
-    /**
-     * Map that goes from closure slots to parameters slots to close.
-     */
+    /** Map that goes from closure slots to parameters slots to close. */
     private final Map<Integer, Integer> closingParameters;
 
-    /**
-     * Map that goes from closure slots to upper closure slots to close.
-     */
+    /** Map that goes from closure slots to upper closure slots to close. */
     private final Map<Integer, Integer> closingClosures;
 
     // ----- Constructors -----
@@ -60,17 +50,16 @@ public final class ClosureDescriptor {
     /**
      * Create a new closure descriptor with its values.
      *
-     * @param closureSize       Size of the closure.
-     * @param closingLocals     Local values to enclose.
+     * @param closureSize Size of the closure.
+     * @param closingLocals Local values to enclose.
      * @param closingParameters Parameters to enclose.
-     * @param closingClosures   Closure values to enclose.
+     * @param closingClosures Closure values to enclose.
      */
     public ClosureDescriptor(
-        final int closureSize,
-        final Map<Integer, Integer> closingLocals,
-        final Map<Integer, Integer> closingParameters,
-        final Map<Integer, Integer> closingClosures
-    ) {
+            final int closureSize,
+            final Map<Integer, Integer> closingLocals,
+            final Map<Integer, Integer> closingParameters,
+            final Map<Integer, Integer> closingClosures) {
         this.closureSize = closureSize;
         this.closingLocals = closingLocals;
         this.closingParameters = closingParameters;
@@ -94,5 +83,4 @@ public final class ClosureDescriptor {
     public Map<Integer, Integer> getClosingClosures() {
         return this.closingClosures;
     }
-
 }

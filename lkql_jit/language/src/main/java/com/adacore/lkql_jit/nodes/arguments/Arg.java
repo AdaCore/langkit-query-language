@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.arguments;
 
@@ -28,7 +27,6 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This node represents all type of arguments in the LKQL language.
@@ -39,16 +37,12 @@ public abstract class Arg extends LKQLNode {
 
     // ----- Attributes -----
 
-    /**
-     * The argument name, can be null if the arg is an expr one.
-     */
+    /** The argument name, can be null if the arg is an expr one. */
     protected final Identifier argName;
 
     // ----- Children -----
 
-    /**
-     * The expression of the argument.
-     */
+    /** The expression of the argument. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr argExpr;
@@ -59,14 +53,10 @@ public abstract class Arg extends LKQLNode {
      * Create a new argument node.
      *
      * @param location The location of the argument in the sources.
-     * @param argName  The name of the argument.
-     * @param argExpr  The expression of the argument.
+     * @param argName The name of the argument.
+     * @param argExpr The expression of the argument.
      */
-    protected Arg(
-        SourceLocation location,
-        Identifier argName,
-        Expr argExpr
-    ) {
+    protected Arg(SourceLocation location, Identifier argName, Expr argExpr) {
         super(location);
         this.argName = argName;
         this.argExpr = argExpr;
@@ -85,11 +75,11 @@ public abstract class Arg extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return this.argExpr.executeGeneric(frame);
     }
-
 }

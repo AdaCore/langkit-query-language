@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,24 +17,21 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 import java.util.ArrayList;
-
 
 /**
  * This class contains all built-in methods for the analysis unit type in the LKQL language.
@@ -45,16 +42,12 @@ public final class AnalysisUnitMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /**
-     * The only instance of the method collection.
-     */
+    /** The only instance of the method collection. */
     private static AnalysisUnitMethods instance;
 
     // ----- Constructors -----
 
-    /**
-     * Private constructor.
-     */
+    /** Private constructor. */
     private AnalysisUnitMethods() {
         super();
     }
@@ -78,34 +71,38 @@ public final class AnalysisUnitMethods extends CommonMethods {
     protected void initMethods() {
         super.initMethods();
 
-        this.methods.put("root", new BuiltInFunctionValue(
-            "root",
-            "Return the root for this unit",
-            new String[]{"unit"},
-            new Expr[]{null},
-            new RootExpr()
-        ));
-        this.methods.put("name", new BuiltInFunctionValue(
-            "name",
-            "Return the name of this unit",
-            new String[]{"unit"},
-            new Expr[]{null},
-            new NameExpr()
-        ));
-        this.methods.put("tokens", new BuiltInFunctionValue(
-            "tokens",
-            "Return the tokens of the unit",
-            new String[]{"unit"},
-            new Expr[]{null},
-            new TokensExpr()
-        ));
-        this.methods.put("text", new BuiltInFunctionValue(
-            "text",
-            "Return the text of the analysis unit",
-            new String[]{"unit"},
-            new Expr[]{null},
-            new TextExpr()
-        ));
+        this.methods.put(
+                "root",
+                new BuiltInFunctionValue(
+                        "root",
+                        "Return the root for this unit",
+                        new String[] {"unit"},
+                        new Expr[] {null},
+                        new RootExpr()));
+        this.methods.put(
+                "name",
+                new BuiltInFunctionValue(
+                        "name",
+                        "Return the name of this unit",
+                        new String[] {"unit"},
+                        new Expr[] {null},
+                        new NameExpr()));
+        this.methods.put(
+                "tokens",
+                new BuiltInFunctionValue(
+                        "tokens",
+                        "Return the tokens of the unit",
+                        new String[] {"unit"},
+                        new Expr[] {null},
+                        new TokensExpr()));
+        this.methods.put(
+                "text",
+                new BuiltInFunctionValue(
+                        "text",
+                        "Return the text of the analysis unit",
+                        new String[] {"unit"},
+                        new Expr[] {null},
+                        new TextExpr()));
     }
 
     // ----- Override methods -----
@@ -120,34 +117,30 @@ public final class AnalysisUnitMethods extends CommonMethods {
 
     // ----- Inner classes -----
 
-    /**
-     * Expression of the "root" method.
-     */
-    public final static class RootExpr extends BuiltinFunctionBody {
+    /** Expression of the "root" method. */
+    public static final class RootExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AdaNode res = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getRoot();
+            Libadalang.AdaNode res =
+                    LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getRoot();
             return res.isNone() ? NodeNull.getInstance() : res;
         }
     }
 
-    /**
-     * Expression of the "name" method.
-     */
-    public final static class NameExpr extends BuiltinFunctionBody {
+    /** Expression of the "name" method. */
+    public static final class NameExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getFileName();
         }
     }
 
-    /**
-     * Expression of the "tokens" method.
-     */
-    public final static class TokensExpr extends BuiltinFunctionBody {
+    /** Expression of the "tokens" method. */
+    public static final class TokensExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            Libadalang.AnalysisUnit unit = LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
+            Libadalang.AnalysisUnit unit =
+                    LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]);
             Libadalang.Token current = unit.getFirstToken();
             Libadalang.Token last = unit.getLastToken();
             ArrayList<Libadalang.Token> resList = new ArrayList<>();
@@ -159,14 +152,11 @@ public final class AnalysisUnitMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "text" method.
-     */
-    public final static class TextExpr extends BuiltinFunctionBody {
+    /** Expression of the "text" method. */
+    public static final class TextExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             return LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getText();
         }
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit;
 
@@ -32,9 +31,7 @@ import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
-
 import java.math.BigInteger;
-
 
 /**
  * This class represents the type system of LKQL that contains type casts and checks.
@@ -115,7 +112,9 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(boolean.class)
     public static boolean isBoolean(Object value) {
-        return value instanceof Boolean || value instanceof Truthy || value instanceof Libadalang.AdaNode;
+        return value instanceof Boolean
+                || value instanceof Truthy
+                || value instanceof Libadalang.AdaNode;
     }
 
     /**
@@ -157,8 +156,7 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(Libadalang.AdaNode.class)
     public static boolean isAdaNode(Object nodeObject) {
-        return nodeObject instanceof Libadalang.AdaNode ||
-            nodeObject instanceof DepthNode;
+        return nodeObject instanceof Libadalang.AdaNode || nodeObject instanceof DepthNode;
     }
 
     /**
@@ -182,5 +180,4 @@ public abstract class LKQLTypeSystem {
         // Return the default value
         return NodeNull.getInstance();
     }
-
 }

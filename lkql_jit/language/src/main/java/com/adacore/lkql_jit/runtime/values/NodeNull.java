@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
@@ -28,10 +27,9 @@ import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 
-
 /**
- * This value represent the null value in the LKQL language, it extends the ada node class because null is a special
- * shape of node.
+ * This value represent the null value in the LKQL language, it extends the ada node class because
+ * null is a special shape of node.
  *
  * @author Hugo GUERRIER
  */
@@ -39,29 +37,23 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
 
     // ----- Attributes -----
 
-    /**
-     * The unique instance of the null value in the LKQL language.
-     */
+    /** The unique instance of the null value in the LKQL language. */
     private static NodeNull instance = null;
 
     // ----- Constructors -----
 
-    /**
-     * Create a new null value, private for the singleton.
-     */
+    /** Create a new null value, private for the singleton. */
     private NodeNull() {
-        super(Libadalang.Entity.create(
-            Libadalang.PointerWrapper.nullPointer(),
-            Libadalang.EntityInfo.create(
-                Libadalang.Metadata.create(
-                    false,
-                    Libadalang.PointerWrapper.nullPointer(),
-                    Libadalang.PointerWrapper.nullPointer()
-                ),
-                Libadalang.PointerWrapper.nullPointer(),
-                false
-            )
-        ));
+        super(
+                Libadalang.Entity.create(
+                        Libadalang.PointerWrapper.nullPointer(),
+                        Libadalang.EntityInfo.create(
+                                Libadalang.Metadata.create(
+                                        false,
+                                        Libadalang.PointerWrapper.nullPointer(),
+                                        Libadalang.PointerWrapper.nullPointer()),
+                                Libadalang.PointerWrapper.nullPointer(),
+                                false)));
     }
 
     /**
@@ -87,7 +79,8 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     }
 
     /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * @see
+     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
     public boolean internalEquals(LKQLValue o) {
@@ -95,7 +88,6 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     }
 
     // ----- Override methods -----
-
 
     @Override
     public boolean isNone() {
@@ -116,5 +108,4 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     public int hashCode() {
         return 0;
     }
-
 }

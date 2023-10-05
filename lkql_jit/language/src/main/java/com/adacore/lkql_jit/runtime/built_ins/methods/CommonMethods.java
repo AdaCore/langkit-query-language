@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,18 +17,15 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.built_ins.functions.*;
-
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * This class contains the common built-in methods for all type in the LKQL language.
@@ -39,24 +36,18 @@ public abstract class CommonMethods implements BuiltInMethods {
 
     // ----- Attributes -----
 
-    /**
-     * The methods map from their names to their function values.
-     */
+    /** The methods map from their names to their function values. */
     protected final Map<String, BuiltInFunctionValue> methods;
 
     // ----- Constructors -----
 
-    /**
-     * Create the common methods for all type.
-     */
+    /** Create the common methods for all type. */
     protected CommonMethods() {
         this.methods = new HashMap<>();
         this.initMethods();
     }
 
-    /**
-     * Initialize the common methods.
-     */
+    /** Initialize the common methods. */
     protected void initMethods() {
         this.methods.put(ImgFunction.NAME, ImgFunction.getValue());
         this.methods.put(PrintFunction.NAME, PrintFunction.getValue());
@@ -74,5 +65,4 @@ public abstract class CommonMethods implements BuiltInMethods {
     public Map<String, BuiltInFunctionValue> getMethods() {
         return this.methods;
     }
-
 }

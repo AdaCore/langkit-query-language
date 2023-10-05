@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
@@ -30,10 +29,8 @@ import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.functions.ListUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * This node represents a chained node pattern in the LKQL language.
@@ -44,33 +41,25 @@ public final class ChainedNodePattern extends ValuePattern {
 
     // ----- Children -----
 
-    /**
-     * The node pattern start of the chain.
-     */
+    /** The node pattern start of the chain. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern nodePattern;
 
-    /**
-     * The chain for the node pattern.
-     */
-    @Children
-    private final ChainedPatternLink[] chain;
+    /** The chain for the node pattern. */
+    @Children private final ChainedPatternLink[] chain;
 
     // ----- Constructors -----
 
     /**
      * Create a new chained node pattern with parameters.
      *
-     * @param location    The location of the node in the source.
+     * @param location The location of the node in the source.
      * @param nodePattern The node pattern.
-     * @param chain       The chain for the node pattern.
+     * @param chain The chain for the node pattern.
      */
     public ChainedNodePattern(
-        SourceLocation location,
-        BasePattern nodePattern,
-        ChainedPatternLink[] chain
-    ) {
+            SourceLocation location, BasePattern nodePattern, ChainedPatternLink[] chain) {
         super(location);
         this.nodePattern = nodePattern;
         this.chain = chain;
@@ -79,7 +68,9 @@ public final class ChainedNodePattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     * @see
+     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
+     *     com.adacore.libadalang.Libadalang.AdaNode)
      */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -90,7 +81,7 @@ public final class ChainedNodePattern extends ValuePattern {
      * Get the result node from the chained pattern.
      *
      * @param frame The frame to execute in.
-     * @param node  The node to verify.
+     * @param node The node to verify.
      * @return The result of the chained pattern.
      */
     public Libadalang.AdaNode[] executeChained(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -108,10 +99,11 @@ public final class ChainedNodePattern extends ValuePattern {
      *
      * @param frame The frame to execute in.
      * @param index The index of the link to execute.
-     * @param node  The node to execute the link on.
+     * @param node The node to execute the link on.
      * @return The array of the link execution result.
      */
-    private Libadalang.AdaNode[] executeLink(VirtualFrame frame, int index, Libadalang.AdaNode node) {
+    private Libadalang.AdaNode[] executeLink(
+            VirtualFrame frame, int index, Libadalang.AdaNode node) {
         // Get the result of the link execution
         Libadalang.AdaNode[] linkRes = this.chain[index].executeLink(frame, node);
 
@@ -148,5 +140,4 @@ public final class ChainedNodePattern extends ValuePattern {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }
