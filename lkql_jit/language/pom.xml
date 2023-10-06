@@ -33,13 +33,22 @@
                         <configuration>
                             <finalName>lkql_jit</finalName>
                             <artifactSet>
-                                <excludes>
-                                    <exclude>org.graalvm.truffle:truffle-api</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-dsl-processor</exclude>
-                                    <exclude>org.graalvm.truffle:truffle-tck</exclude>
-                                    <exclude>org.graalvm:graal-sdk</exclude>
-                                </excludes>
+                                <includes>
+                                    <include>com.adacore:liblkqllang</include>
+                                    <include>com.adacore:libadalang</include>
+                                </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.DES</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
