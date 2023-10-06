@@ -14,7 +14,9 @@
 
     <properties>
         <!--suppress UnresolvedMavenProperty -->
-        <java.library.path>${java.library.path}:${env.LD_LIBRARY_PATH}</java.library.path>
+        <java.library.path>
+            ${java.library.path}${path.separator}${env.LD_LIBRARY_PATH}
+        </java.library.path>
     </properties>
 
     <build>
