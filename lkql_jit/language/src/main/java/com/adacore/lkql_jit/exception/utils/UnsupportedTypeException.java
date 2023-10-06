@@ -23,6 +23,7 @@
 
 package com.adacore.lkql_jit.exception.utils;
 
+import java.io.Serial;
 
 /**
  * This exception represents an error in the importation of a foreign value in the LKQL system.
@@ -30,6 +31,8 @@ package com.adacore.lkql_jit.exception.utils;
  * @author Hugo GUERRIER
  */
 public final class UnsupportedTypeException extends Exception {
+    @Serial private static final long serialVersionUID = 7197470955602340792L;
+
     private final Class<?> type;
 
     public UnsupportedTypeException(Class<?> type) {

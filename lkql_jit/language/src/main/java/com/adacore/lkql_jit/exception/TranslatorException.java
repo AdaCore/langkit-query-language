@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit.exception;
 
 import com.oracle.truffle.api.exception.AbstractTruffleException;
+import java.io.Serial;
 
 
 /**
@@ -33,6 +34,7 @@ import com.oracle.truffle.api.exception.AbstractTruffleException;
  * @author Hugo GUERRIER
  */
 public final class TranslatorException extends AbstractTruffleException {
+    @Serial private static final long serialVersionUID = -1480198635766066797L;
 
     /**
      * Create a new exception from its message.

@@ -98,7 +98,6 @@
 
     </profiles>
 
-    <!-- Project wide dependencies -->
     <build>
         <plugins>
             <!-- Configure the Java compiler -->
@@ -109,6 +108,11 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Xlint:all,-processing</arg>
+                        <arg>-Werror</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

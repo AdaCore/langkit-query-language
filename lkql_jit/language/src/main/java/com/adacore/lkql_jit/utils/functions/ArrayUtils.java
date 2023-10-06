@@ -27,6 +27,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -96,14 +97,14 @@ public final class ArrayUtils {
      * @return The unique array.
      */
     @CompilerDirectives.TruffleBoundary
-    public static <T> T[] unique(T[] array) {
+    public static <T> List<T> unique(T[] array) {
         ArrayList<T> resList = new ArrayList<>();
         for (T elem : array) {
             if (!resList.contains(elem)) {
                 resList.add(elem);
             }
         }
-        return (T[]) resList.toArray();
+        return resList;
     }
 
     /**

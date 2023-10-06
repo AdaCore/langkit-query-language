@@ -34,6 +34,7 @@ import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.source.Source;
 
 import java.util.Arrays;
+import java.io.Serial;
 import java.util.List;
 
 
@@ -43,6 +44,10 @@ import java.util.List;
  * @author Hugo GUERRIER
  */
 public final class LKQLRuntimeException extends AbstractTruffleException {
+
+    // ----- Attributes -----
+
+    @Serial private static final long serialVersionUID = 8401390548003855662L;
 
     // ----- Constructors -----
 

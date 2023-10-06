@@ -24,6 +24,7 @@
 package com.adacore.lkql_jit.exception.utils;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import java.io.Serial;
 
 
 /**
@@ -32,6 +33,8 @@ import com.oracle.truffle.api.CompilerDirectives;
  * @author Hugo GUERRIER
  */
 public final class InvalidIndexException extends RuntimeException {
+    @Serial private static final long serialVersionUID = 6248743740479992497L;
+
     @CompilerDirectives.TruffleBoundary
     public InvalidIndexException() {
     }

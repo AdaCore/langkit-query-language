@@ -26,6 +26,7 @@ package com.adacore.lkql_jit.exception;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
+import java.io.Serial;
 
 
 /**
@@ -36,6 +37,8 @@ import com.oracle.truffle.api.exception.AbstractTruffleException;
 public final class LangkitException extends AbstractTruffleException {
 
     // ----- Attributes -----
+
+    @Serial private static final long serialVersionUID = 1755847711876252095L;
 
     /**
      * Kind of the Langkit exception.
