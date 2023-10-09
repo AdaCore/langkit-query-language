@@ -4,11 +4,6 @@ def install():
     anod_install("libgpr2", qualifier="bare")
     anod_install("gprbuild")
 
-def lkql():
-    install()
-    anod_test("lkql")
-    anod_test("gnatcheck")
-
 def lkql_jit():
     install()
     anod_test("lkql", qualifier="implementation=jit")

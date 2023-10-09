@@ -3,5 +3,3 @@ project: prj.gpr
 lkql_rule_file: config.lkql
 format: brief
 show_rule: True
-control:
-  - [SKIP, "mode == 'ada'", "LKQL rule file feature unavailable on Ada implementation"]
