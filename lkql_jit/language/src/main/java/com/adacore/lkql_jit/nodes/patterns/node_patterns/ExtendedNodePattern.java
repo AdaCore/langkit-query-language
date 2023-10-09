@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 

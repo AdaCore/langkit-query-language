@@ -24,6 +24,8 @@
 package com.adacore.lkql_jit.utils.source_location;
 
 
+import com.adacore.lkql_jit.utils.SourceLocation;
+
 /**
  * This class is a dummy location, a locatable when nodes aren't reachable.
  *

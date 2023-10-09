@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit.nodes.expressions.block_expression;
 
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.SourceLocation;
 
 
 /**

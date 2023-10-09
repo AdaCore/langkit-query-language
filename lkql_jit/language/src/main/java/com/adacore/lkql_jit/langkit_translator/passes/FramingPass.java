@@ -30,7 +30,7 @@ import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFactory;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.SourceLocation;
 import com.oracle.truffle.api.source.Source;
 
 

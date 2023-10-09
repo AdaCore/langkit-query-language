@@ -1,10 +1,8 @@
 package com.adacore.lkql_jit.utils.functions;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 

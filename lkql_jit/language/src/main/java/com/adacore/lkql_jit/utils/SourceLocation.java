@@ -21,7 +21,7 @@
 --                                                                          --
 -----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.source_location;
+package com.adacore.lkql_jit.utils;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.utils.functions.StringUtils;

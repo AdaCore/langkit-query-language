@@ -24,6 +24,8 @@
 package com.adacore.lkql_jit.utils.source_location;
 
 
+import com.adacore.lkql_jit.utils.SourceLocation;
+
 /**
  * This interface defines the locatable interface, a locatable object has a location in the LKQL source.
  *

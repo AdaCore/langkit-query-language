@@ -24,7 +24,7 @@
 package com.adacore.lkql_jit.nodes;
 
 import com.adacore.lkql_jit.utils.source_location.Locatable;
-import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.adacore.lkql_jit.utils.SourceLocation;
 
 
 /**
