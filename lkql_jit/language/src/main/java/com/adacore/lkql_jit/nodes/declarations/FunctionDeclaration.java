@@ -23,9 +23,9 @@
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.checkers.BaseChecker;
 import com.adacore.lkql_jit.utils.checkers.NodeChecker;
@@ -108,9 +108,9 @@ public final class FunctionDeclaration extends Declaration {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the function expression to get the functional value
-        final FunctionValue functionValue = this.functionExpression.executeFunction(frame);
+        final LKQLFunction functionValue = this.functionExpression.executeFunction(frame);
         functionValue.setName(this.name);
-        functionValue.setMemoized(this.isMemoized);
+        functionValue.getRootNode().setMemoized(this.isMemoized);
 
         // If the function is a checker, place it in the context
         if (this.checkerMode != CheckerMode.OFF) {
@@ -127,7 +127,7 @@ public final class FunctionDeclaration extends Declaration {
     // ----- Instance methods -----
 
     /** Export the checker object in the LKQL context. */
-    private void exportChecker(VirtualFrame frame, FunctionValue functionValue) {
+    private void exportChecker(VirtualFrame frame, LKQLFunction functionValue) {
         // Execute the annotation arguments
         final Object[] checkerArguments =
                 this.annotation

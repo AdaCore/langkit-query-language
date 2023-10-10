@@ -138,7 +138,7 @@ public final class LKQLTypesHelper {
             return LKQL_STRING;
         } else if (LKQLTypeSystemGen.isPattern(obj)) {
             return LKQL_PATTERN;
-        } else if (LKQLTypeSystemGen.isFunctionValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLFunction(obj)) {
             return LKQL_FUNCTION;
         } else if (LKQLTypeSystemGen.isPropertyRefValue(obj)) {
             return LKQL_PROPERTY_REF;

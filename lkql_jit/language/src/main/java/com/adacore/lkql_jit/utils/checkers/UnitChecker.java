@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.utils.checkers;
 
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 
 /** This class represents a unit checker in the LKQL system. */
 public final class UnitChecker extends BaseChecker {
@@ -32,7 +32,7 @@ public final class UnitChecker extends BaseChecker {
     /** Create a new unit checker. */
     public UnitChecker(
             final String name,
-            final FunctionValue function,
+            final LKQLFunction function,
             final String message,
             final String help,
             final boolean followGenericInstantiations,

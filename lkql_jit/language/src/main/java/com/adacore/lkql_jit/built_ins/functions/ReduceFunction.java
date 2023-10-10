@@ -25,15 +25,17 @@ package com.adacore.lkql_jit.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 /**
@@ -64,16 +66,14 @@ public final class ReduceFunction {
     /** Expression for the "reduce" function. */
     public static final class ReduceExpr extends BuiltinFunctionBody {
 
-        /** The dispatcher for the reduce function. */
-        @Child
-        @SuppressWarnings("FieldMayBeFinal")
-        private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
+        /** An uncached interop library for the checker functions execution. */
+        private InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
             Iterable iterable;
-            FunctionValue reduceFunction;
+            LKQLFunction reduceFunction;
             Object initValue = frame.getArguments()[2];
 
             try {
@@ -86,7 +86,7 @@ public final class ReduceFunction {
             }
 
             try {
-                reduceFunction = LKQLTypeSystemGen.expectFunctionValue(frame.getArguments()[1]);
+                reduceFunction = LKQLTypeSystemGen.expectLKQLFunction(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_FUNCTION,
@@ -95,7 +95,7 @@ public final class ReduceFunction {
             }
 
             // Verify the function arity
-            if (reduceFunction.getParamNames().length != 2) {
+            if (reduceFunction.getParameterNames().length != 2) {
                 throw LKQLRuntimeException.fromMessage(
                         "Function passed to reduce should have arity of two",
                         this.callNode.getArgList().getArgs()[1]);
@@ -104,14 +104,20 @@ public final class ReduceFunction {
             // Execute the reducing
             Iterator iterator = iterable.iterator();
             while (iterator.hasNext()) {
-                initValue =
-                        this.dispatcher.executeDispatch(
-                                reduceFunction,
-                                new Object[] {
+                try {
+                    initValue =
+                            this.interopLibrary.execute(
+                                    reduceFunction,
                                     reduceFunction.getClosure().getContent(),
                                     initValue,
-                                    iterator.next()
-                                });
+                                    iterator.next());
+                } catch (ArityException
+                        | UnsupportedTypeException
+                        | UnsupportedMessageException e) {
+                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
+                    // on them (#138)
+                    throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                }
             }
 
             // Return the result

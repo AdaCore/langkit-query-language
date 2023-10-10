@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.utils.checkers;
 
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 
 /**
  * This class represents a checker in the LKQL language. A checker is an annotated function which is
@@ -39,7 +39,7 @@ public abstract class BaseChecker {
     protected String alias;
 
     /** Function to execute as checker. */
-    protected final FunctionValue function;
+    protected final LKQLFunction function;
 
     /** Message to display when the rule violated. */
     protected final String message;
@@ -76,7 +76,7 @@ public abstract class BaseChecker {
     /** Create a base checker with all its value. */
     public BaseChecker(
             final String name,
-            final FunctionValue function,
+            final LKQLFunction function,
             final String message,
             final String help,
             final boolean followGenericInstantiations,
@@ -111,7 +111,7 @@ public abstract class BaseChecker {
         return alias;
     }
 
-    public FunctionValue getFunction() {
+    public LKQLFunction getFunction() {
         return function;
     }
 

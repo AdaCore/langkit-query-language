@@ -28,8 +28,6 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
@@ -40,6 +38,10 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import java.util.Map;
 
 /**
@@ -55,13 +57,6 @@ public abstract class SafeDotAccess extends Expr {
     /** The member to access. */
     protected final Identifier member;
 
-    // ----- Children -----
-
-    /** The dispatcher for the built-in calls. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    protected FunctionDispatcher dispatcher;
-
     // ----- Constructors -----
 
     /**
@@ -73,7 +68,6 @@ public abstract class SafeDotAccess extends Expr {
     protected SafeDotAccess(SourceLocation location, Identifier member) {
         super(location);
         this.member = member;
-        this.dispatcher = FunctionDispatcherNodeGen.create();
     }
 
     // ----- Execution methods -----
@@ -161,8 +155,17 @@ public abstract class SafeDotAccess extends Expr {
         // Get the built in
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
-            if (builtIn.getParamNames().length <= 1) {
-                return this.dispatcher.executeDispatch(builtIn, new Object[] {receiver});
+            InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtIn);
+            if (builtIn.getParameterNames().length <= 1) {
+                try {
+                    return builtInLibrary.execute(builtIn, receiver);
+                } catch (ArityException
+                        | UnsupportedTypeException
+                        | UnsupportedMessageException e) {
+                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
+                    // on them (#138)
+                    throw LKQLRuntimeException.fromJavaException(e, this.member);
+                }
             } else {
                 builtIn.setThisValue(receiver);
                 return builtIn;

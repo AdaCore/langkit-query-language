@@ -25,16 +25,18 @@ package com.adacore.lkql_jit.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 /**
@@ -65,16 +67,14 @@ public final class MapFunction {
     /** Expression of the "map" function. */
     public static final class MapExpr extends BuiltinFunctionBody {
 
-        /** The dispatcher for the mapping function. */
-        @Child
-        @SuppressWarnings("FieldMayBeFinal")
-        private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
+        /** An uncached interop library for the checker functions execution. */
+        private InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
             Iterable iterable;
-            FunctionValue mapFunction;
+            LKQLFunction mapFunction;
 
             try {
                 iterable = LKQLTypeSystemGen.expectIterable(frame.getArguments()[0]);
@@ -86,7 +86,7 @@ public final class MapFunction {
             }
 
             try {
-                mapFunction = LKQLTypeSystemGen.expectFunctionValue(frame.getArguments()[1]);
+                mapFunction = LKQLTypeSystemGen.expectLKQLFunction(frame.getArguments()[1]);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_FUNCTION,
@@ -95,7 +95,7 @@ public final class MapFunction {
             }
 
             // Verify the function arrity
-            if (mapFunction.getParamNames().length != 1) {
+            if (mapFunction.getParameterNames().length != 1) {
                 throw LKQLRuntimeException.fromMessage(
                         "Function passed to map should have arity of one",
                         this.callNode.getArgList().getArgs()[1]);
@@ -108,12 +108,19 @@ public final class MapFunction {
             int i = 0;
             Iterator iterator = iterable.iterator();
             while (iterator.hasNext()) {
-                res[i] =
-                        this.dispatcher.executeDispatch(
-                                mapFunction,
-                                new Object[] {
-                                    mapFunction.getClosure().getContent(), iterator.next()
-                                });
+                try {
+                    res[i] =
+                            this.interopLibrary.execute(
+                                    mapFunction,
+                                    mapFunction.getClosure().getContent(),
+                                    iterator.next());
+                } catch (ArityException
+                        | UnsupportedTypeException
+                        | UnsupportedMessageException e) {
+                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
+                    // on them (#138)
+                    throw LKQLRuntimeException.fromJavaException(e, this.callNode);
+                }
                 i++;
             }
 

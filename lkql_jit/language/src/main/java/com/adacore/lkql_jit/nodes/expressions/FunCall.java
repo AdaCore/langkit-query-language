@@ -24,15 +24,15 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
@@ -41,6 +41,11 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 /**
@@ -66,11 +71,6 @@ public abstract class FunCall extends Expr {
     @SuppressWarnings("FieldMayBeFinal")
     private ArgList argList;
 
-    /** The function dispatch node to optimize execution. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    private FunctionDispatcher dispatcher;
-
     // ----- Constructors -----
 
     /**
@@ -90,7 +90,6 @@ public abstract class FunCall extends Expr {
         this.isSafe = isSafe;
         this.calleeLocation = calleeLocation;
         this.argList = argList;
-        this.dispatcher = FunctionDispatcherNodeGen.create();
     }
 
     // ----- Getters -----
@@ -105,30 +104,31 @@ public abstract class FunCall extends Expr {
      * Execute the function call on a built-in function.
      *
      * @param frame The frame to execute the built-in in.
-     * @param builtInFunctionValue The built-in function.
+     * @param builtIn The built-in function.
      * @return The result of the built-in call.
      */
-    @Specialization
-    protected Object onBuiltIn(VirtualFrame frame, BuiltInFunctionValue builtInFunctionValue) {
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object onBuiltIn(
+            VirtualFrame frame,
+            BuiltInFunctionValue builtIn,
+            @CachedLibrary("builtIn") InteropLibrary builtInLibrary) {
         // Set the call node in the built-in function
-        builtInFunctionValue.setCallNode(this);
+        builtIn.setCallNode(this);
 
         // Get the real argument names and default values
-        String[] actualParam = builtInFunctionValue.getParamNames();
-        Expr[] defaultValues = builtInFunctionValue.getDefaultValues();
+        String[] actualParam = builtIn.getParameterNames();
+        Expr[] defaultValues = builtIn.getParameterDefaultValues();
 
         // Execute the argument list
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
         // compilation error
         Object[] realArgs =
                 this.argList.executeArgList(
-                        frame.materialize(),
-                        actualParam,
-                        builtInFunctionValue.getThisValue() == null ? 0 : 1);
+                        frame.materialize(), actualParam, builtIn.getThisValue() == null ? 0 : 1);
 
         // Add the "this" value to the arguments
-        if (builtInFunctionValue.getThisValue() != null) {
-            realArgs[0] = builtInFunctionValue.getThisValue();
+        if (builtIn.getThisValue() != null) {
+            realArgs[0] = builtIn.getThisValue();
         }
 
         // Verify that there is all arguments
@@ -144,26 +144,35 @@ public abstract class FunCall extends Expr {
 
         // We don't place the closure in the arguments because built-ins don't have any.
         // Just execute the function.
-        return this.dispatcher.executeDispatch(builtInFunctionValue, realArgs);
+        try {
+            return builtInLibrary.execute(builtIn, realArgs);
+        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
+            // (#138)
+            throw LKQLRuntimeException.fromJavaException(e, this.calleeLocation);
+        }
     }
 
     /**
      * Execute the function call on a function value.
      *
      * @param frame The frame to execution the function in.
-     * @param functionValue The function value to execute.
+     * @param function The function value to execute.
      * @return The result of the function call.
      */
-    @Specialization
-    protected Object onFunction(VirtualFrame frame, FunctionValue functionValue) {
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object onFunction(
+            final VirtualFrame frame,
+            final LKQLFunction function,
+            @CachedLibrary("function") InteropLibrary functionLibrary) {
         // Get the real argument names and default values
-        String[] actualParam = functionValue.getParamNames();
-        Expr[] defaultValues = functionValue.getDefaultValues();
+        String[] names = function.getParameterNames();
+        Expr[] defaultValues = function.getParameterDefaultValues();
 
         // Prepare the argument array and the working var
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
         // compilation error
-        Object[] realArgs = this.argList.executeArgList(frame.materialize(), actualParam);
+        Object[] realArgs = this.argList.executeArgList(frame.materialize(), names);
 
         // Verify if there is no missing argument and evaluate the default values
         for (int i = 0; i < realArgs.length; i++) {
@@ -177,11 +186,16 @@ public abstract class FunCall extends Expr {
         }
 
         // Place the closure in the arguments
-        realArgs =
-                ArrayUtils.concat(new Object[] {functionValue.getClosure().getContent()}, realArgs);
+        realArgs = ArrayUtils.concat(new Object[] {function.getClosure().getContent()}, realArgs);
 
         // Return the result of the function call
-        return this.dispatcher.executeDispatch(functionValue, realArgs);
+        try {
+            return functionLibrary.execute(function, realArgs);
+        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+            // TODO: Implement runtime checks in the LKQLFunction class and base computing on them
+            // (#138)
+            throw LKQLRuntimeException.fromJavaException(e, this.calleeLocation);
+        }
     }
 
     /**

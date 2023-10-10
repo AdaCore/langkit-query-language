@@ -28,14 +28,12 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.LangkitException;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -43,6 +41,10 @@ import com.adacore.lkql_jit.utils.checkers.UnitChecker;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 /**
@@ -71,10 +73,8 @@ public final class UnitCheckerFunction {
     /** This class is the expression of the "unit_checker" function. */
     private static final class UnitCheckerExpr extends BuiltinFunctionBody {
 
-        /** The dispatcher for the rule functions. */
-        @Child
-        @SuppressWarnings("FieldMayBeFinal")
-        private FunctionDispatcher dispatcher = FunctionDispatcherNodeGen.create();
+        /** An uncached interop library for the checker functions execution. */
+        private InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
         /**
          * @see BuiltinFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
@@ -152,17 +152,17 @@ public final class UnitCheckerFunction {
                 LKQLContext context,
                 CheckerUtils.SourceLinesCache linesCache) {
             // Get the function for the checker
-            final FunctionValue functionValue = checker.getFunction();
+            final LKQLFunction functionValue = checker.getFunction();
 
             // Retrieve the checker name
             final String aliasName = checker.getAlias();
             final String lowerRuleName = StringUtils.toLowerCase(checker.getName());
 
             // Prepare the arguments
-            Object[] arguments = new Object[functionValue.getParamNames().length + 1];
+            Object[] arguments = new Object[functionValue.getParameterNames().length + 1];
             arguments[1] = unit;
-            for (int i = 1; i < functionValue.getDefaultValues().length; i++) {
-                String paramName = functionValue.getParamNames()[i];
+            for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
+                String paramName = functionValue.getParameterNames()[i];
                 Object userDefinedArg =
                         context.getRuleArg(
                                 (aliasName == null
@@ -171,7 +171,7 @@ public final class UnitCheckerFunction {
                                 paramName);
                 arguments[i + 1] =
                         userDefinedArg == null
-                                ? functionValue.getDefaultValues()[i].executeGeneric(frame)
+                                ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
                                 : userDefinedArg;
             }
 
@@ -183,12 +183,15 @@ public final class UnitCheckerFunction {
             try {
                 violationList =
                         LKQLTypeSystemGen.expectIterable(
-                                this.dispatcher.executeDispatch(functionValue, arguments));
+                                this.interopLibrary.execute(functionValue, arguments));
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
                         LKQLTypesHelper.LKQL_LIST,
                         LKQLTypesHelper.fromJava(e.getResult()),
                         functionValue.getBody());
+            } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+                // TODO: Move function runtime verification to the LKQLFunction class (#138)
+                throw LKQLRuntimeException.fromJavaException(e, this.callNode);
             }
 
             // Display all the violation message

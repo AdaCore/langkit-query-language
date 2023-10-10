@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.utils.checkers;
 
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 
 /** This class represents a node checker in the LKQL system. */
 public final class NodeChecker extends BaseChecker {
@@ -32,7 +32,7 @@ public final class NodeChecker extends BaseChecker {
     /** Create a new node checker. */
     public NodeChecker(
             final String name,
-            final FunctionValue function,
+            final LKQLFunction function,
             final String message,
             final String help,
             final boolean followGenericInstantiations,
