@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.runtime;
 
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashMap;
