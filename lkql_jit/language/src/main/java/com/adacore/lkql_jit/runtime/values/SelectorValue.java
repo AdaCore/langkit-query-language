@@ -23,6 +23,7 @@
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
@@ -76,7 +77,7 @@ public class SelectorValue implements LKQLValue {
      * @param node The node to execute the selector on.
      * @return The selector list value.
      */
-    public SelectorListValue execute(Libadalang.AdaNode node) {
+    public LKQLSelectorList execute(Libadalang.AdaNode node) {
         return this.execute(node, -1, -1, -1);
     }
 
@@ -89,9 +90,9 @@ public class SelectorValue implements LKQLValue {
      * @param depth The precise depth to get.
      * @return The selector list value.
      */
-    public SelectorListValue execute(
+    public LKQLSelectorList execute(
             Libadalang.AdaNode node, int maxDepth, int minDepth, int depth) {
-        return new SelectorListValue(this.rootNode, this.closure, node, maxDepth, minDepth, depth);
+        return new LKQLSelectorList(this.rootNode, this.closure, node, maxDepth, minDepth, depth);
     }
 
     // ----- Value methods -----

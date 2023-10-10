@@ -193,18 +193,6 @@ public abstract class BinNeq extends BinOp {
     }
 
     /**
-     * Do the non-equality verification on selector lists.
-     *
-     * @param left The left selector list value.
-     * @param right The right selector list value.
-     * @return The result of the non-equality verification.
-     */
-    @Specialization
-    protected boolean neqSelectorLists(SelectorListValue left, SelectorListValue right) {
-        return !left.internalEquals(right);
-    }
-
-    /**
      * Do the non-equality verification on nodes.
      *
      * @param left The left node value.

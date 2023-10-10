@@ -192,18 +192,6 @@ public abstract class BinEq extends BinOp {
     }
 
     /**
-     * Do the equality verification on selector lists.
-     *
-     * @param left The left selector list value.
-     * @param right The right selector list value.
-     * @return The result of the equality verification.
-     */
-    @Specialization
-    protected boolean eqSelectorLists(SelectorListValue left, SelectorListValue right) {
-        return left.internalEquals(right);
-    }
-
-    /**
      * Do the equality verification on nodes.
      *
      * @param left The left node value.

@@ -20,7 +20,7 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values;
+package com.adacore.lkql_jit.built_ins.values.lists;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -28,18 +28,18 @@ import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection;
+import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * This class represents a list returned by a selector call, this is a lazy list.
- *
- * @author Hugo GUERRIER
- */
-public final class SelectorListValue extends LazyCollection {
+/** This class represents the list returned by a selector call in the LKQL language. */
+@ExportLibrary(InteropLibrary.class)
+public class LKQLSelectorList extends LKQLLazyList {
 
     // ----- Attributes -----
 
@@ -52,8 +52,8 @@ public final class SelectorListValue extends LazyCollection {
     /** The dispatcher for the selector root node. */
     private final SelectorDispatcher dispatcher;
 
-    /** The cache in a set to perform recursion guard. */
-    private final HashSet<DepthNode> hashCache;
+    /** The cache of already explored nodes. */
+    private final HashSet<DepthNode> alreadyVisited;
 
     /** The list of the node to recurs on. */
     private final List<DepthNode> recursList;
@@ -80,34 +80,29 @@ public final class SelectorListValue extends LazyCollection {
      * @param depth The precise required depth of the returned nodes.
      */
     @CompilerDirectives.TruffleBoundary
-    public SelectorListValue(
+    public LKQLSelectorList(
             final SelectorRootNode rootNode,
             final Closure closure,
             final Libadalang.AdaNode adaNode,
             final int maxDepth,
             final int minDepth,
             final int depth) {
-        super(0);
         this.rootNode = rootNode;
         this.closure = closure;
         this.dispatcher = SelectorDispatcherNodeGen.create();
-        this.hashCache = new HashSet<>();
+        this.alreadyVisited = new HashSet<>();
         this.recursList = new LinkedList<>();
-        this.recursList.add(new DepthNode(0, adaNode));
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.depth = depth;
+        this.recursList.add(new DepthNode(0, adaNode));
     }
 
-    // ----- Class methods -----
+    // ----- Lazy list required methods -----
 
-    /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection#initCache(int)
-     */
     @Override
-    @CompilerDirectives.TruffleBoundary
-    protected void initCache(int index) {
-        while (!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
+    public void initCache(int n) {
+        while (!(this.recursList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
             // Get the first recurse item and execute the selector on it
             DepthNode nextNode = this.recursList.remove(0);
             SelectorRootNode.SelectorCallResult result =
@@ -125,15 +120,12 @@ public final class SelectorListValue extends LazyCollection {
         }
     }
 
-    /**
-     * Add the object to the result cache of the selector list.
-     *
-     * @param toAdd The object to add.
-     */
+    /** Add the object to the result cache of the selector list. */
+    @CompilerDirectives.TruffleBoundary
     private void addResult(Object toAdd) {
         // If the object is just a node
         if (toAdd instanceof DepthNode node) {
-            if (this.isRecursionGuarded(node)) {
+            if (!this.alreadyVisited.contains(node)) {
                 this.addNodeResult(node);
             }
         }
@@ -141,22 +133,19 @@ public final class SelectorListValue extends LazyCollection {
         // If the object is an array of node
         else if (toAdd instanceof DepthNode[] nodes) {
             for (DepthNode node : nodes) {
-                if (this.isRecursionGuarded(node)) {
+                if (!this.alreadyVisited.contains(node)) {
                     this.addNodeResult(node);
                 }
             }
         }
     }
 
-    /**
-     * Add the object to the recursing list of the selector list.
-     *
-     * @param toAdd The object to add.
-     */
+    /** Add the object to the recursing list of the selector list. */
+    @CompilerDirectives.TruffleBoundary
     private void addRecurs(Object toAdd) {
         // If the object is just a node
         if (toAdd instanceof DepthNode node) {
-            if (this.isRecursionGuarded(node)) {
+            if (!this.alreadyVisited.contains(node)) {
                 this.recursList.add(node);
             }
         }
@@ -164,22 +153,19 @@ public final class SelectorListValue extends LazyCollection {
         // If the object is an array of node
         else if (toAdd instanceof DepthNode[] nodes) {
             for (DepthNode node : nodes) {
-                if (this.isRecursionGuarded(node)) {
+                if (!this.alreadyVisited.contains(node)) {
                     this.recursList.add(node);
                 }
             }
         }
     }
 
-    /**
-     * Add the object to the result and the recursing list.
-     *
-     * @param toAdd The object to add.
-     */
+    /** Add the object to the result and the recursing list. */
+    @CompilerDirectives.TruffleBoundary
     private void addRecursAndResult(Object toAdd) {
         // If the object is just a node
         if (toAdd instanceof DepthNode node) {
-            if (this.isRecursionGuarded(node)) {
+            if (!this.alreadyVisited.contains(node)) {
                 this.addNodeResult(node);
                 this.recursList.add(node);
             }
@@ -188,7 +174,7 @@ public final class SelectorListValue extends LazyCollection {
         // If the object is an array of node
         else if (toAdd instanceof DepthNode[] nodes) {
             for (DepthNode node : nodes) {
-                if (this.isRecursionGuarded(node)) {
+                if (!this.alreadyVisited.contains(node)) {
                     this.addNodeResult(node);
                     this.recursList.add(node);
                 }
@@ -196,18 +182,15 @@ public final class SelectorListValue extends LazyCollection {
         }
     }
 
-    /**
-     * Add a node in the result and hashed cache with all verifications.
-     *
-     * @param node The node to add in the cache.
-     */
+    /** Add a node in the result and hashed cache with all verifications. */
+    @CompilerDirectives.TruffleBoundary
     private void addNodeResult(DepthNode node) {
         // If there is no defined depth
         if (this.depth < 0) {
             if ((this.maxDepth < 0 || node.getDepth() <= this.maxDepth)
                     && (this.minDepth < 0 || node.getDepth() >= this.minDepth)) {
                 this.cache.add(node);
-                this.hashCache.add(node);
+                this.alreadyVisited.add(node);
             }
         }
 
@@ -215,18 +198,17 @@ public final class SelectorListValue extends LazyCollection {
         else {
             if (node.getDepth() == this.depth) {
                 this.cache.add(node);
-                this.hashCache.add(node);
+                this.alreadyVisited.add(node);
             }
         }
     }
 
-    /**
-     * Get if a node is recursion guarded.
-     *
-     * @param node The node to verify.
-     * @return True if this node is recursion guarded, false else.
-     */
-    private boolean isRecursionGuarded(DepthNode node) {
-        return !this.hashCache.contains(node);
+    // ----- Value methods -----
+
+    /** Return the identity hash code for the given LKQL selector list. */
+    @CompilerDirectives.TruffleBoundary
+    @ExportMessage
+    public static int identityHashCode(LKQLSelectorList receiver) {
+        return System.identityHashCode(receiver);
     }
 }
