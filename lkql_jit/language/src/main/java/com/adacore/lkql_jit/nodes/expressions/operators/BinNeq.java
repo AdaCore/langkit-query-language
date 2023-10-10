@@ -23,12 +23,16 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.runtime.values.*;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
 import java.math.BigInteger;
 
 /**
@@ -268,9 +272,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right namespace value
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqNamespaces(NamespaceValue left, NamespaceValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqNamespaces(
+            final LKQLNamespace left,
+            final LKQLNamespace right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

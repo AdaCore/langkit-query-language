@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
@@ -240,8 +241,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a namespace value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a namespace.
      */
-    public NamespaceValue executeNamespace(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectNamespaceValue(executeGeneric(frame));
+    public LKQLNamespace executeNamespace(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLNamespace(executeGeneric(frame));
     }
 
     /**

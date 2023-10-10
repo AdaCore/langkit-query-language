@@ -162,7 +162,7 @@ public final class LKQLTypesHelper {
             return LKQL_BOOLEAN;
         } else if (LKQLTypeSystemGen.isObjectValue(obj)) {
             return LKQL_OBJECT;
-        } else if (LKQLTypeSystemGen.isNamespaceValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLNamespace(obj)) {
             return LKQL_NAMESPACE;
         } else {
             return defaultValue;

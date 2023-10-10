@@ -25,14 +25,15 @@ package com.adacore.lkql_jit.utils.functions;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.source.Source;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,13 +140,13 @@ public class ParsingUtils {
             final CallTarget callTarget = context.getEnv().parseInternal(source);
 
             // Get the namespace of the LKQL config file to extract rule configuration
-            final NamespaceValue namespace =
-                    (NamespaceValue) context.getEnv().asHostObject(callTarget.call());
+            final LKQLNamespace namespace = (LKQLNamespace) callTarget.call();
+            final DynamicObjectLibrary objectLibrary =
+                    DynamicObjectLibrary.getFactory().create(namespace);
 
             // Get the rules
-            final Object allRulesSource = namespace.get("rules");
-            if (LKQLTypeSystemGen.isObjectValue(allRulesSource)) {
-                final ObjectValue allRulesObject = LKQLTypeSystemGen.asObjectValue(allRulesSource);
+            final Object allRulesSource = objectLibrary.getOrDefault(namespace, "rules", null);
+            if (allRulesSource instanceof ObjectValue allRulesObject) {
                 processRulesObject(allRulesObject, allRules, aliases, args);
             } else {
                 throw LKQLRuntimeException.fromMessage(
@@ -153,17 +154,15 @@ public class ParsingUtils {
             }
 
             // Get the Ada rules (not mandatory)
-            final Object adaRulesSource = namespace.get("ada_rules");
-            if (LKQLTypeSystemGen.isObjectValue(adaRulesSource)) {
-                final ObjectValue adaRulesObject = LKQLTypeSystemGen.asObjectValue(adaRulesSource);
+            final Object adaRulesSource = objectLibrary.getOrDefault(namespace, "ada_rules", null);
+            if (adaRulesSource instanceof ObjectValue adaRulesObject) {
                 processRulesObject(adaRulesObject, adaRules, aliases, args);
             }
 
             // Get the SPARK rules (not mandatory)
-            final Object sparkRulesSource = namespace.get("spark_rules");
-            if (LKQLTypeSystemGen.isObjectValue(sparkRulesSource)) {
-                final ObjectValue sparkRulesObject =
-                        LKQLTypeSystemGen.asObjectValue(sparkRulesSource);
+            final Object sparkRulesSource =
+                    objectLibrary.getOrDefault(namespace, "spark_rules", null);
+            if (sparkRulesSource instanceof ObjectValue sparkRulesObject) {
                 processRulesObject(sparkRulesObject, sparkRules, aliases, args);
             }
 

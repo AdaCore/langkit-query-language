@@ -26,15 +26,16 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.NamespaceValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -42,6 +43,8 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import java.util.Map;
 
 /**
@@ -110,8 +113,10 @@ public abstract class DotAccess extends Expr {
      * @param receiver The namespace.
      * @return The member of the namespace.
      */
-    @Specialization
-    protected Object onNamespace(NamespaceValue receiver) {
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object onNamespace(
+            final LKQLNamespace receiver,
+            @CachedLibrary("receiver") DynamicObjectLibrary receiverLibrary) {
         // Try to get the built in
         Object builtIn = this.tryBuildIn(receiver);
         if (builtIn != null) {
@@ -119,7 +124,7 @@ public abstract class DotAccess extends Expr {
         }
 
         // Get the namespace member
-        Object res = receiver.get(this.member.getName());
+        Object res = receiverLibrary.getOrDefault(receiver, this.member.getName(), null);
         if (res != null) {
             return res;
         }

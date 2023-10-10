@@ -29,6 +29,20 @@ package com.adacore.lkql_jit.utils;
  */
 public class Constants {
 
+    // ----- JIT configuration ----
+
+    /**
+     * Number of internally dispatched specialized Truffle library. For more information see
+     * https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/library/CachedLibrary.html#limit--
+     */
+    public static final String DISPATCHED_LIB_LIMIT = "4";
+
+    /**
+     * Number of specialization instantiations. For more information see
+     * https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/dsl/Specialization.html#limit--
+     */
+    public static final String SPECIALIZED_LIB_LIMIT = "3";
+
     // ----- LKQL values -----
 
     /** Identifier of LKQL in the GraalVM system. */

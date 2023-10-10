@@ -1,0 +1,7 @@
+=== Namespace interop messages:
+  toString(): Namespace(x: 42)
+  hasMembers(): true
+  hasMember('x'): true
+  hasMember('y'): false
+  getMember('x'): 42
+  getMember('y'): null
