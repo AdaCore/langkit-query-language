@@ -13,8 +13,6 @@
     <artifactId>language</artifactId>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
         <!--suppress UnresolvedMavenProperty -->
         <java.library.path>${java.library.path}:${env.LD_LIBRARY_PATH}</java.library.path>
     </properties>
