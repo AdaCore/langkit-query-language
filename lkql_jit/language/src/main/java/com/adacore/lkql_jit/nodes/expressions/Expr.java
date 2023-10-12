@@ -153,8 +153,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a selector value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a selector.
      */
-    public SelectorValue executeSelector(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectSelectorValue(executeGeneric(frame));
+    public LKQLSelector executeSelector(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLSelector(executeGeneric(frame));
     }
 
     /**

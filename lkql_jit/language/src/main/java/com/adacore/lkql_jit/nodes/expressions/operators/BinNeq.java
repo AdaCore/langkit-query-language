@@ -156,9 +156,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right selector value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqSelectors(SelectorValue left, SelectorValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqSelectors(
+            final LKQLSelector left,
+            final LKQLSelector right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

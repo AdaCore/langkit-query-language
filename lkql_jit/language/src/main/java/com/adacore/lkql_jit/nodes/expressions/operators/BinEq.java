@@ -155,9 +155,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right selector value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqSelectors(SelectorValue left, SelectorValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqSelectors(
+            final LKQLSelector left,
+            final LKQLSelector right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

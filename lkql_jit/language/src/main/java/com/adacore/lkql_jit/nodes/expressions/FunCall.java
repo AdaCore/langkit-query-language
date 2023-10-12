@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -222,7 +223,7 @@ public abstract class FunCall extends Expr {
      * @return The result of the selector value execution.
      */
     @Specialization
-    protected LKQLSelectorList onSelector(VirtualFrame frame, SelectorValue selectorValue) {
+    protected LKQLSelectorList onSelector(VirtualFrame frame, LKQLSelector selectorValue) {
         // Get the argument list and get the node from it
         Arg[] argList = this.argList.getArgs();
 
@@ -241,7 +242,7 @@ public abstract class FunCall extends Expr {
         }
 
         // Return the selector list value
-        return selectorValue.execute(node);
+        return selectorValue.getList(node);
     }
 
     /**

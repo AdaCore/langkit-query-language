@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -32,7 +33,6 @@ import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Iterator;
@@ -112,7 +112,7 @@ public final class Query extends Expr {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Prepare the working variable
-        SelectorValue through = null;
+        LKQLSelector through = null;
         Libadalang.AdaNode[] fromNodes;
 
         // Get the through expression
@@ -276,11 +276,11 @@ public final class Query extends Expr {
      *     exploration
      * @return The iterator for the node exploration
      */
-    private Iterable createNodeIterable(Libadalang.AdaNode root, SelectorValue through) {
+    private Iterable createNodeIterable(Libadalang.AdaNode root, LKQLSelector through) {
         if (through == null) {
             return new ChildIterable(root, this.followGenerics);
         } else {
-            return through.execute(root);
+            return through.getList(root);
         }
     }
 

@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
@@ -34,7 +35,6 @@ import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -190,7 +190,7 @@ public final class SelectorCall extends LKQLNode {
     private LKQLSelectorList getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the selector and verify its type
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
-        if (!LKQLTypeSystemGen.isSelectorValue(selectorObject)) {
+        if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {
             throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_SELECTOR,
                     LKQLTypesHelper.fromJava(selectorObject),
@@ -247,8 +247,8 @@ public final class SelectorCall extends LKQLNode {
         }
 
         // Cast the selector value and return the selector list
-        SelectorValue selectorValue = LKQLTypeSystemGen.asSelectorValue(selectorObject);
-        return selectorValue.execute(node, maxDepth, minDepth, depth);
+        LKQLSelector selectorValue = LKQLTypeSystemGen.asLKQLSelector(selectorObject);
+        return selectorValue.getList(node, maxDepth, minDepth, depth);
     }
 
     /**

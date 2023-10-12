@@ -23,6 +23,7 @@
 package com.adacore.lkql_jit.built_ins.selectors;
 
 import com.adacore.lkql_jit.built_ins.BuiltInSelectorValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
@@ -35,7 +36,6 @@ import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.UnitLiteral;
 import com.adacore.lkql_jit.nodes.patterns.UniversalPattern;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
 /**
  * This class represents the "next_siblings" built-in selector.
@@ -88,7 +88,7 @@ public final class NextSiblingsSelector implements BuiltInSelector {
      * @see BuiltInSelector#getValue()
      */
     @Override
-    public SelectorValue getValue() {
+    public LKQLSelector getValue() {
         return new BuiltInSelectorValue(
                 NAME, "Yields the siblings following the given node in the tree\n", this.arms);
     }
