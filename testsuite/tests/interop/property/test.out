@@ -1,0 +1,3 @@
+=== Property interop messages:
+  toString(): property<p_enclosing_compilation_unit>
+  canExecute(): false

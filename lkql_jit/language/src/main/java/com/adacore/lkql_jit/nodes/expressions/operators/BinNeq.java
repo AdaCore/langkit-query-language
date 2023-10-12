@@ -144,9 +144,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right property reference value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqPropertyRefs(PropertyRefValue left, PropertyRefValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqPropertyRefs(
+            final LKQLProperty left,
+            final LKQLProperty right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

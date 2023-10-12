@@ -144,8 +144,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right property reference value.
      * @return The result of the equality verification.
      */
-    protected boolean eqPropertyRefs(PropertyRefValue left, PropertyRefValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqPropertyRefs(
+            final LKQLProperty left,
+            final LKQLProperty right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

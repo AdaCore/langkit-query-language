@@ -25,13 +25,13 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
+import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
-import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -203,16 +203,16 @@ public abstract class FunCall extends Expr {
      * Execute the function call on a property reference value.
      *
      * @param frame The frame to execute the property reference in.
-     * @param propertyRefValue The property reference value to execute.
+     * @param property The property reference value to execute.
      * @return The result of the property call.
      */
     @Specialization
-    protected Object onProperty(VirtualFrame frame, PropertyRefValue propertyRefValue) {
+    protected Object onProperty(VirtualFrame frame, LKQLProperty property) {
         // Execute the arguments as a simple array
         Object[] arguments = this.argList.executeArgList(frame);
 
         // Call the property and return its result
-        return propertyRefValue.execute(this, this.argList, arguments);
+        return property.executeAsProperty(this, this.argList, arguments);
     }
 
     /**

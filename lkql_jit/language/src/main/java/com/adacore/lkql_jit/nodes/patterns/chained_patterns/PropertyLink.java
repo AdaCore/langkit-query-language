@@ -23,10 +23,10 @@
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -75,15 +75,14 @@ public abstract class PropertyLink extends ChainedPatternLink {
      *
      * @param frame The frame to execute the link in.
      * @param node The node get the property from.
-     * @param propertyRef The cached property reference.
+     * @param property The cached property reference.
      * @return The result of the link.
      */
-    @Specialization(
-            guards = {"node == propertyRef.getNode()", "propertyRef.getFieldDescription() != null"})
+    @Specialization(guards = {"node == property.getNode()", "property.getDescription() != null"})
     protected Libadalang.AdaNode[] propertyCached(
             VirtualFrame frame,
             @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(node, propertyName)") PropertyRefValue propertyRef) {
+            @Cached("create(propertyName, node)") LKQLProperty property) {
         // Evaluate the arguments
         Object[] arguments = new Object[this.argList.getArgs().length];
         for (int i = 0; i < arguments.length; i++) {
@@ -91,7 +90,7 @@ public abstract class PropertyLink extends ChainedPatternLink {
         }
 
         // Get the property result
-        Object value = propertyRef.execute(this, this.argList, arguments);
+        Object value = property.executeAsProperty(this, this.argList, arguments);
 
         // Do the filtering
         return this.doPatternFiltering(frame, value);
@@ -107,15 +106,15 @@ public abstract class PropertyLink extends ChainedPatternLink {
     @Specialization(replaces = "propertyCached")
     protected Libadalang.AdaNode[] propertyUncached(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the property methods
-        PropertyRefValue propertyRef = new PropertyRefValue(node, this.propertyName);
+        LKQLProperty property = new LKQLProperty(this.propertyName, node);
 
         // Test if the property is valid
-        if (propertyRef.getFieldDescription() == null) {
+        if (property.getDescription() == null) {
             throw LKQLRuntimeException.noSuchField(this);
         }
 
         // Return the result
-        return this.propertyCached(frame, node, propertyRef);
+        return this.propertyCached(frame, node, property);
     }
 
     // ----- Override methods -----

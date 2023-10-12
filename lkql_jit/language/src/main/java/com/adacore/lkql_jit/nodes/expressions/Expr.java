@@ -141,9 +141,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a property reference value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a property reference.
      */
-    public PropertyRefValue executePropertyRef(VirtualFrame frame)
-            throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectPropertyRefValue(executeGeneric(frame));
+    public LKQLProperty executeProperty(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLProperty(executeGeneric(frame));
     }
 
     /**

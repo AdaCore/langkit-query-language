@@ -26,11 +26,11 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -76,7 +76,7 @@ public abstract class SafeDotAccess extends Expr {
      * Execute the safe dot access on a node with the cached strategy.
      *
      * @param receiver The node receiver.
-     * @param propertyRef The cached property reference.
+     * @param property The cached property reference.
      * @param isField The cached value if the property is a field.
      * @return The property reference or the field value.
      */
@@ -84,22 +84,22 @@ public abstract class SafeDotAccess extends Expr {
             guards = {
                 "!receiver.isNone()",
                 "getBuiltIn(receiver) == null",
-                "receiver == propertyRef.getNode()",
-                "propertyRef.getFieldDescription() != null"
+                "receiver == property.getNode()",
+                "property.getDescription() != null"
             },
             limit = "1")
     protected Object onNodeCached(
             Libadalang.AdaNode receiver,
-            @Cached("create(receiver, member.getName())") PropertyRefValue propertyRef,
-            @Cached("propertyRef.isField()") boolean isField) {
+            @Cached("create(member.getName(), receiver)") LKQLProperty property,
+            @Cached("property.isField()") boolean isField) {
         // If the method is a field
         if (isField) {
-            return propertyRef.executeAsField(this);
+            return property.executeAsField(this);
         }
 
         // If the method is a property
         else {
-            return propertyRef;
+            return property;
         }
     }
 
@@ -123,8 +123,8 @@ public abstract class SafeDotAccess extends Expr {
         }
 
         // Create the property reference
-        PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
-        if (propertyRef.getFieldDescription() == null) {
+        LKQLProperty propertyRef = new LKQLProperty(this.member.getName(), receiver);
+        if (propertyRef.getDescription() == null) {
             throw LKQLRuntimeException.noSuchField(this.member);
         }
 
