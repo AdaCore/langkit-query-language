@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -34,7 +35,6 @@ import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -264,7 +264,7 @@ public final class SelectorCall extends LKQLNode {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            DepthNode depthNode = (DepthNode) iterator.next();
+            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
             if (!pattern.executeNode(frame, depthNode.getNode())) return false;
         }
 
@@ -285,7 +285,7 @@ public final class SelectorCall extends LKQLNode {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            DepthNode depthNode = (DepthNode) iterator.next();
+            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
             if (pattern.executeNode(frame, depthNode.getNode())) return true;
         }
 
@@ -309,7 +309,7 @@ public final class SelectorCall extends LKQLNode {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            DepthNode depthNode = (DepthNode) iterator.next();
+            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
             if (pattern.executeNode(frame, depthNode.getNode())) {
                 resList.add(depthNode.getNode());
             }

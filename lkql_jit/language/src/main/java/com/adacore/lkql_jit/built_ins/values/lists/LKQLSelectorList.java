@@ -24,11 +24,11 @@ package com.adacore.lkql_jit.built_ins.values.lists;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.SelectorDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -53,10 +53,10 @@ public class LKQLSelectorList extends LKQLLazyList {
     private final SelectorDispatcher dispatcher;
 
     /** The cache of already explored nodes. */
-    private final HashSet<DepthNode> alreadyVisited;
+    private final HashSet<LKQLDepthNode> alreadyVisited;
 
     /** The list of the node to recurs on. */
-    private final List<DepthNode> recursList;
+    private final List<LKQLDepthNode> recursList;
 
     /** The maximal depth for the return. */
     private final int maxDepth;
@@ -95,7 +95,7 @@ public class LKQLSelectorList extends LKQLLazyList {
         this.maxDepth = maxDepth;
         this.minDepth = minDepth;
         this.depth = depth;
-        this.recursList.add(new DepthNode(0, adaNode));
+        this.recursList.add(new LKQLDepthNode(0, adaNode));
     }
 
     // ----- Lazy list required methods -----
@@ -104,7 +104,7 @@ public class LKQLSelectorList extends LKQLLazyList {
     public void initCache(int n) {
         while (!(this.recursList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
             // Get the first recurse item and execute the selector on it
-            DepthNode nextNode = this.recursList.remove(0);
+            LKQLDepthNode nextNode = this.recursList.remove(0);
             SelectorRootNode.SelectorCallResult result =
                     this.dispatcher.executeDispatch(
                             this.rootNode, this.closure.getContent(), nextNode);
@@ -124,15 +124,15 @@ public class LKQLSelectorList extends LKQLLazyList {
     @CompilerDirectives.TruffleBoundary
     private void addResult(Object toAdd) {
         // If the object is just a node
-        if (toAdd instanceof DepthNode node) {
+        if (toAdd instanceof LKQLDepthNode node) {
             if (!this.alreadyVisited.contains(node)) {
                 this.addNodeResult(node);
             }
         }
 
         // If the object is an array of node
-        else if (toAdd instanceof DepthNode[] nodes) {
-            for (DepthNode node : nodes) {
+        else if (toAdd instanceof LKQLDepthNode[] nodes) {
+            for (LKQLDepthNode node : nodes) {
                 if (!this.alreadyVisited.contains(node)) {
                     this.addNodeResult(node);
                 }
@@ -144,15 +144,15 @@ public class LKQLSelectorList extends LKQLLazyList {
     @CompilerDirectives.TruffleBoundary
     private void addRecurs(Object toAdd) {
         // If the object is just a node
-        if (toAdd instanceof DepthNode node) {
+        if (toAdd instanceof LKQLDepthNode node) {
             if (!this.alreadyVisited.contains(node)) {
                 this.recursList.add(node);
             }
         }
 
         // If the object is an array of node
-        else if (toAdd instanceof DepthNode[] nodes) {
-            for (DepthNode node : nodes) {
+        else if (toAdd instanceof LKQLDepthNode[] nodes) {
+            for (LKQLDepthNode node : nodes) {
                 if (!this.alreadyVisited.contains(node)) {
                     this.recursList.add(node);
                 }
@@ -164,7 +164,7 @@ public class LKQLSelectorList extends LKQLLazyList {
     @CompilerDirectives.TruffleBoundary
     private void addRecursAndResult(Object toAdd) {
         // If the object is just a node
-        if (toAdd instanceof DepthNode node) {
+        if (toAdd instanceof LKQLDepthNode node) {
             if (!this.alreadyVisited.contains(node)) {
                 this.addNodeResult(node);
                 this.recursList.add(node);
@@ -172,8 +172,8 @@ public class LKQLSelectorList extends LKQLLazyList {
         }
 
         // If the object is an array of node
-        else if (toAdd instanceof DepthNode[] nodes) {
-            for (DepthNode node : nodes) {
+        else if (toAdd instanceof LKQLDepthNode[] nodes) {
+            for (LKQLDepthNode node : nodes) {
                 if (!this.alreadyVisited.contains(node)) {
                     this.addNodeResult(node);
                     this.recursList.add(node);
@@ -184,7 +184,7 @@ public class LKQLSelectorList extends LKQLLazyList {
 
     /** Add a node in the result and hashed cache with all verifications. */
     @CompilerDirectives.TruffleBoundary
-    private void addNodeResult(DepthNode node) {
+    private void addNodeResult(LKQLDepthNode node) {
         // If there is no defined depth
         if (this.depth < 0) {
             if ((this.maxDepth < 0 || node.getDepth() <= this.maxDepth)

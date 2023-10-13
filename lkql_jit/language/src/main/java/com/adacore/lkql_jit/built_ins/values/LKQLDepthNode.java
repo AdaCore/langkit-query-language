@@ -20,18 +20,27 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values;
+package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.utilities.TriState;
 
 /**
- * This class represents an ada node with the depth information.
- *
- * @author Hugo GUERRIER
+ * This class represents an ada node with the depth information. TODO : This value will change when
+ * all Libadalang objects will be wrapped in interop LKQL values (#154).
  */
-public final class DepthNode implements LKQLValue {
+@ExportLibrary(InteropLibrary.class)
+public final class LKQLDepthNode implements TruffleObject, LKQLValue {
 
     // ----- Attributes -----
 
@@ -43,13 +52,8 @@ public final class DepthNode implements LKQLValue {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new depth node.
-     *
-     * @param depth The depth of the node.
-     * @param node The node.
-     */
-    public DepthNode(int depth, Libadalang.AdaNode node) {
+    /** Create a new depth node. */
+    public LKQLDepthNode(int depth, Libadalang.AdaNode node) {
         this.depth = depth;
         this.node = node;
     }
@@ -66,14 +70,56 @@ public final class DepthNode implements LKQLValue {
 
     // ----- Value methods -----
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
-     */
+    /** Tell the interop library that the depth node has an associated language */
+    @ExportMessage
+    boolean hasLanguage() {
+        return true;
+    }
+
+    /** Give the LKQL language class to the interop library. */
+    @ExportMessage
+    Class<? extends TruffleLanguage<?>> getLanguage() {
+        return LKQLLanguage.class;
+    }
+
+    /** Exported message to compare two LKQL depth nodes. */
+    @ExportMessage
+    static class IsIdenticalOrUndefined {
+        /** Compare two LKQL depth nodes. */
+        @Specialization
+        protected static TriState onNode(final LKQLDepthNode left, final LKQLDepthNode right) {
+            if (left.internalEquals(right)) return TriState.TRUE;
+            else return TriState.FALSE;
+        }
+
+        /** Do the comparison with another element. */
+        @Fallback
+        protected static TriState onOther(
+                @SuppressWarnings("unused") final LKQLDepthNode receiver,
+                @SuppressWarnings("unused") final Object other) {
+            return TriState.UNDEFINED;
+        }
+    }
+
+    /** Return the identity hash code for the given LKQL depth node. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    static int identityHashCode(final LKQLDepthNode receiver) {
+        return System.identityHashCode(receiver);
+    }
+
+    /** Get the displayable string for the interop library. */
+    @ExportMessage
+    Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+        return this.node.toString();
+    }
+
+    // ----- LKQL Value methods -----
+
     @Override
     public boolean internalEquals(LKQLValue o) {
         if (o == this) return true;
-        if (!(o instanceof DepthNode other)) return false;
+        if (!(o instanceof LKQLDepthNode other)) return false;
         return other.node.equals(this.node);
     }
 
@@ -93,7 +139,7 @@ public final class DepthNode implements LKQLValue {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof DepthNode other)) return false;
+        if (!(o instanceof LKQLDepthNode other)) return false;
         return this.node.equals(other.node);
     }
 }

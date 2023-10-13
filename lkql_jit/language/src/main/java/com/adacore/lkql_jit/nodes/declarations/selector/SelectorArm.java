@@ -23,11 +23,11 @@
 package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
-import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -97,20 +97,20 @@ public final class SelectorArm extends LKQLNode {
      * @param node The node to match.
      * @return The result of the arm execution or null if the arm doesn't match.
      */
-    public SelectorRootNode.SelectorCallResult executeArm(VirtualFrame frame, DepthNode node) {
+    public SelectorRootNode.SelectorCallResult executeArm(VirtualFrame frame, LKQLDepthNode node) {
         if (this.pattern.executeNode(frame, node.getNode())) {
             // Execute the selector expression
             Object res = this.expr.executeGeneric(frame);
 
             // If the result of the expression is an array
             if (res instanceof Object[] resList) {
-                List<DepthNode> depthNodes = new ArrayList<>(resList.length);
+                List<LKQLDepthNode> depthNodes = new ArrayList<>(resList.length);
                 for (Object obj : resList) {
                     // For each object of the array, verify that it is a node
                     try {
                         if (!LKQLTypeSystemGen.isNullish(obj)) {
                             depthNodes.add(
-                                    new DepthNode(
+                                    new LKQLDepthNode(
                                             node.getDepth() + 1,
                                             LKQLTypeSystemGen.expectAdaNode(obj)));
                         }
@@ -123,7 +123,7 @@ public final class SelectorArm extends LKQLNode {
                     }
                 }
                 return new SelectorRootNode.SelectorCallResult(
-                        this.expr.getMode(), depthNodes.toArray(new DepthNode[0]));
+                        this.expr.getMode(), depthNodes.toArray(new LKQLDepthNode[0]));
             }
 
             // If the result of the expression is nullish
@@ -135,7 +135,7 @@ public final class SelectorArm extends LKQLNode {
             else if (LKQLTypeSystemGen.isAdaNode(res)) {
                 return new SelectorRootNode.SelectorCallResult(
                         this.expr.getMode(),
-                        new DepthNode(node.getDepth() + 1, LKQLTypeSystemGen.asAdaNode(res)));
+                        new LKQLDepthNode(node.getDepth() + 1, LKQLTypeSystemGen.asAdaNode(res)));
             }
 
             // Throw an exception

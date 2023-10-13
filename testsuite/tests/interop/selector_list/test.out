@@ -4,4 +4,7 @@
   getArraySize(): 57
   isBoolean(): true
   asBoolean(): true
+  getArrayElement(0): <AdaNodeList main.adb:1:1-1:35>
+  getArrayElement(1): <LibraryItem main.adb:3:1-8:10>
+  getArrayElement(2): <PragmaNodeList main.adb:8:10-8:10>
   hasIterator(): true

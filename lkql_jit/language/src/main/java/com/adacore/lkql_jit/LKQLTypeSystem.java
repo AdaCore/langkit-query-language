@@ -25,7 +25,6 @@ package com.adacore.lkql_jit;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.*;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -155,7 +154,7 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(Libadalang.AdaNode.class)
     public static boolean isAdaNode(Object nodeObject) {
-        return nodeObject instanceof Libadalang.AdaNode || nodeObject instanceof DepthNode;
+        return nodeObject instanceof Libadalang.AdaNode || nodeObject instanceof LKQLDepthNode;
     }
 
     /**
@@ -172,7 +171,7 @@ public abstract class LKQLTypeSystem {
         }
 
         // If the value is a depth node
-        else if (nodeObject instanceof DepthNode depthNode) {
+        else if (nodeObject instanceof LKQLDepthNode depthNode) {
             return depthNode.getNode();
         }
 

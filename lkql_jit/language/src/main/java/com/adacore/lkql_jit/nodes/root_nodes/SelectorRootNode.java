@@ -22,10 +22,10 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
-import com.adacore.lkql_jit.runtime.values.DepthNode;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -37,7 +37,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  * @author Hugo GUERRIER
  */
 public final class SelectorRootNode
-        extends MemoizedRootNode<DepthNode, SelectorRootNode.SelectorCallResult> {
+        extends MemoizedRootNode<LKQLDepthNode, SelectorRootNode.SelectorCallResult> {
 
     // ----- Attributes -----
 
@@ -96,7 +96,7 @@ public final class SelectorRootNode
         this.initFrame(frame);
 
         // Get the node and set it into the frame
-        DepthNode node = (DepthNode) frame.getArguments()[1];
+        LKQLDepthNode node = (LKQLDepthNode) frame.getArguments()[1];
 
         // Try memoization
         if (this.isMemoized) {

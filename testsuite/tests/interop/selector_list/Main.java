@@ -25,7 +25,9 @@ public class Main {
         print("getArraySize()", nodes.getArraySize());
         print("isBoolean()", nodes.isBoolean());
         print("asBoolean()", nodes.asBoolean());
-        // TODO (LATER IN MR): Get first elements of the list when depth node are interop
+        print("getArrayElement(0)", nodes.getArrayElement(0));
+        print("getArrayElement(1)", nodes.getArrayElement(1));
+        print("getArrayElement(2)", nodes.getArrayElement(2));
         print("hasIterator()", nodes.hasIterator());
     }
 }
