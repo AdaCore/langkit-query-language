@@ -25,7 +25,6 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.runtime.values.*;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
@@ -116,9 +115,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right pattern value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqPatterns(Pattern left, Pattern right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqPatterns(
+            final LKQLPattern left,
+            final LKQLPattern right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

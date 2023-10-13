@@ -136,7 +136,7 @@ public final class LKQLTypesHelper {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
-        } else if (LKQLTypeSystemGen.isPattern(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLPattern(obj)) {
             return LKQL_PATTERN;
         } else if (LKQLTypeSystemGen.isLKQLFunction(obj)) {
             return LKQL_FUNCTION;

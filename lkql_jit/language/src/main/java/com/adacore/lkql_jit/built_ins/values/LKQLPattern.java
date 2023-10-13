@@ -20,36 +20,46 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values;
+package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
-import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.*;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.utilities.TriState;
 
 /**
  * This class represents the pattern values in the LKQL language. Pattern values are compiled
  * regular expression.
- *
- * @author Hugo GUERRIER
  */
-public final class Pattern implements LKQLValue {
+@ExportLibrary(InteropLibrary.class)
+public final class LKQLPattern implements TruffleObject, LKQLValue {
 
     // ----- Attributes -----
 
-    /** The string of the regex. */
+    /** Members of the pattern LKQL value. */
+    private final LKQLArrayList MEMBERS = new LKQLArrayList(new String[] {"contains", "find"});
+
+    /** The interop regex object from the TRegex language. */
+    private final Object regexObject;
+
+    /** The source string of the regex. */
     private final String regexString;
 
-    /** If the regex is case-sensitive. */
+    /** Whether the regex is case-sensitive. */
     private final boolean caseSensitive;
-
-    /** The regex object. */
-    private final Object regexObject;
 
     // ----- Constructors -----
 
@@ -61,7 +71,8 @@ public final class Pattern implements LKQLValue {
      * @param caseSensitive Whether the regex is case-sensitive.
      */
     @CompilerDirectives.TruffleBoundary
-    public Pattern(LKQLNode creator, String regexString, boolean caseSensitive) {
+    public LKQLPattern(
+            final LKQLNode creator, final String regexString, final boolean caseSensitive) {
         this.regexString = regexString;
         this.caseSensitive = caseSensitive;
 
@@ -83,20 +94,9 @@ public final class Pattern implements LKQLValue {
         }
     }
 
-    // ----- Getters -----
+    // ----- Instance methods -----
 
-    public String getRegexString() {
-        return regexString;
-    }
-
-    // ----- Class methods -----
-
-    /**
-     * Get if the given string contains a substring that validate the regex.
-     *
-     * @param string The string to search in.
-     * @return True if the string validate the pattern, false else.
-     */
+    /** Get whether the given string contains a substring that validate the regex. */
     public boolean contains(String string) {
         try {
             Object resultObject =
@@ -108,12 +108,7 @@ public final class Pattern implements LKQLValue {
         }
     }
 
-    /**
-     * Get the index of the first matched group in the given string.
-     *
-     * @param string The string to match.
-     * @return The index of the first matcher group or -1.
-     */
+    /** Get the index of the first matched group in the given string, return -1 if there is none. */
     public int find(String string) {
         try {
             Object resultObject =
@@ -127,14 +122,104 @@ public final class Pattern implements LKQLValue {
 
     // ----- Value methods -----
 
+    /** Tell the interop API that the value has an associated language. */
+    @ExportMessage
+    boolean hasLanguage() {
+        return true;
+    }
+
+    /** Give the LKQL language class to the interop library. */
+    @ExportMessage
+    Class<? extends TruffleLanguage<?>> getLanguage() {
+        return LKQLLanguage.class;
+    }
+
+    /** Exported message to compare two LKQL patterns. */
+    @ExportMessage
+    static class IsIdenticalOrUndefined {
+        /** Compare two LKQL patterns. */
+        @Specialization
+        protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
+            if (left.internalEquals(right)) return TriState.TRUE;
+            else return TriState.FALSE;
+        }
+
+        /** Do the comparison with another element. */
+        @Fallback
+        protected static TriState onOther(
+                @SuppressWarnings("unused") final LKQLPattern receiver,
+                @SuppressWarnings("unused") final Object other) {
+            return TriState.UNDEFINED;
+        }
+    }
+
+    /** Return the identity hash code for the given LKQL pattern. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    static int identityHashCode(final LKQLPattern receiver) {
+        return System.identityHashCode(receiver);
+    }
+
+    /** Get the displayable string for the interop library. */
+    @ExportMessage
+    @CompilerDirectives.TruffleBoundary
+    String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+        return "pattern<\"" + this.regexString + "\">";
+    }
+
+    /** Tell the interop library that the value has members. */
+    @ExportMessage
+    boolean hasMembers() {
+        return true;
+    }
+
+    /** Get the existing members on the pattern. */
+    @ExportMessage
+    Object getMembers(@SuppressWarnings("unused") final boolean includeInternal) {
+        return MEMBERS;
+    }
+
+    /** Tell the interop library whether the given member is invokable. */
+    @ExportMessage
+    boolean isMemberInvocable(String member) {
+        return MEMBERS.contains(member);
+    }
+
     /**
-     * @see
-     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * Call the given member on the pattern object.
+     *
+     * @throws ArityException If there is an error in the argument arity.
+     * @throws UnsupportedTypeException If the given arguments hasn't the good type.
+     * @throws UnknownIdentifierException If the provided member doesn't exist.
      */
+    @ExportMessage
+    Object invokeMember(String member, Object... args)
+            throws ArityException, UnsupportedTypeException, UnknownIdentifierException {
+        // Verify the argument number
+        if (args.length < 1) {
+            throw ArityException.create(1, 1, args.length);
+        }
+
+        // Get the first arguments as a string
+        if (!LKQLTypeSystemGen.isString(args[0])) {
+            throw UnsupportedTypeException.create(args, "String is required as first argument");
+        }
+        final String arg = LKQLTypeSystemGen.asString(args[0]);
+
+        // Call the valid method
+        return switch (member) {
+            case "contains" -> this.contains(arg);
+            case "find" -> this.find(arg);
+            default -> throw UnknownIdentifierException.create(member);
+        };
+    }
+
+    // ----- LKQL Value methods -----
+
     @Override
     public boolean internalEquals(LKQLValue o) {
         if (o == this) return true;
-        if (!(o instanceof Pattern other)) return false;
+        if (!(o instanceof LKQLPattern other)) return false;
         return other.regexString.equals(this.regexString)
                 && (this.caseSensitive && other.caseSensitive);
     }

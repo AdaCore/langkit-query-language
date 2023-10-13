@@ -26,10 +26,10 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.functions.BaseNameFunction;
+import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.Pattern;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -360,8 +360,8 @@ public final class StrMethods extends CommonMethods {
             }
 
             // If the argument is a pattern
-            else if (LKQLTypeSystemGen.isPattern(toFindObject)) {
-                Pattern pattern = LKQLTypeSystemGen.asPattern(toFindObject);
+            else if (LKQLTypeSystemGen.isLKQLPattern(toFindObject)) {
+                LKQLPattern pattern = LKQLTypeSystemGen.asLKQLPattern(toFindObject);
                 contains = pattern.contains(receiver);
             }
 
@@ -394,8 +394,8 @@ public final class StrMethods extends CommonMethods {
             }
 
             // If the argument is a pattern
-            else if (LKQLTypeSystemGen.isPattern(toFindObject)) {
-                Pattern pattern = LKQLTypeSystemGen.asPattern(toFindObject);
+            else if (LKQLTypeSystemGen.isLKQLPattern(toFindObject)) {
+                LKQLPattern pattern = LKQLTypeSystemGen.asLKQLPattern(toFindObject);
                 index = pattern.find(receiver);
             }
 

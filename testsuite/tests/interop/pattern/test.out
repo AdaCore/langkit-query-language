@@ -1,0 +1,9 @@
+=== Property interop messages:
+  toString(): pattern<"he..o">
+  hasMembers(): true
+  getMemberKeys(): [contains, find]
+  canInvokeMember('contains'): true
+  canInvokeMember('find'): true
+  invokeMember('contains', 'hello world'): true
+  invokeMember('contains', 'good morning world'): false
+  invokeMember('find', 'this is hello world'): 8

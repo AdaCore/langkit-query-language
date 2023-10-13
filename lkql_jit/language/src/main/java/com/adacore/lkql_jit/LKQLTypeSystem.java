@@ -45,7 +45,7 @@ import java.math.BigInteger;
     long.class,
     BigInteger.class,
     String.class,
-    Pattern.class,
+    LKQLPattern.class,
     LKQLFunction.class,
     LKQLSelector.class,
     LKQLProperty.class,
