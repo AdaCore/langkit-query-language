@@ -58,7 +58,7 @@ package body Gnatcheck.Diagnoses is
    package LCO renames Libadalang.Common;
 
    Match_Diagnosis : constant Pattern_Matcher :=
-     Compile ("^([^:]*)?:(\d+)?:(\d+)?: (.*)$");
+     Compile ("^(([A-Z]:)?[^:]*):(\d+):(\d+): (.*)$");
    --  Matcher for a diagnostic
 
    Match_Rule_Name : constant Pattern_Matcher :=
@@ -2892,7 +2892,7 @@ package body Gnatcheck.Diagnoses is
       Rule           : Rule_Id := No_Rule;
       Justification  : Unbounded_String := Null_Unbounded_String)
    is
-      Matches : Match_Array (0 .. 4);
+      Matches : Match_Array (0 .. 5);
       Sloc    : Source_Location;
    begin
 
@@ -2902,14 +2902,14 @@ package body Gnatcheck.Diagnoses is
         (Matches (0) /= No_Match, "Invalid text for diagnostic: " & Text);
 
       Sloc.Line :=
-        Line_Number'Value (Text (Matches (2).First .. Matches (2).Last));
+        Line_Number'Value (Text (Matches (3).First .. Matches (3).Last));
       Sloc.Column :=
-        Column_Number'Value (Text (Matches (3).First .. Matches (3).Last));
+        Column_Number'Value (Text (Matches (4).First .. Matches (4).Last));
 
       Store_Diagnosis
         (Full_File_Name => Text (Matches (1).First .. Matches (1).Last),
          Sloc           => Sloc,
-         Message        =>  Text (Matches (4).First .. Matches (4).Last),
+         Message        => Text (Matches (5).First .. Matches (5).Last),
          Diagnosis_Kind => Diagnosis_Kind,
          SF             => SF,
          Rule           => Rule,
