@@ -20,30 +20,36 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values;
+package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.utilities.TriState;
 
-/**
- * This value represent the null value in the LKQL language, it extends the ada node class because
- * null is a special shape of node.
- *
- * @author Hugo GUERRIER
- */
-public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truthy {
+/** This class represents the null value in LKQL. */
+@ExportLibrary(InteropLibrary.class)
+public class LKQLNull extends Libadalang.AdaNode implements TruffleObject, Nullish, Truthy {
 
     // ----- Attributes -----
 
-    /** The unique instance of the null value in the LKQL language. */
-    private static NodeNull instance = null;
+    /** The sole instance of the LKQL null value. */
+    public static final LKQLNull INSTANCE = new LKQLNull();
+
+    /** The identity hash of the only instance of the LKQL null. */
+    private static final int IDENTITY_HASH = System.identityHashCode(INSTANCE);
 
     // ----- Constructors -----
 
-    /** Create a new null value, private for the singleton. */
-    private NodeNull() {
+    /** Private constructor for the null value. */
+    private LKQLNull() {
         super(
                 Libadalang.Entity.create(
                         Libadalang.PointerWrapper.nullPointer(),
@@ -56,43 +62,80 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
                                 false)));
     }
 
-    /**
-     * Get the only instance of null value.
-     *
-     * @return The instance of null value.
-     */
-    public static NodeNull getInstance() {
-        if (instance == null) {
-            instance = new NodeNull();
-        }
-        return instance;
-    }
-
-    // ----- Value methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.Truthy#isTruthy()
-     */
-    @Override
-    public boolean isTruthy() {
-        return false;
-    }
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
-     */
-    @Override
-    public boolean internalEquals(LKQLValue o) {
-        return o == this;
-    }
-
-    // ----- Override methods -----
+    // ----- Node methods -----
 
     @Override
     public boolean isNone() {
         return true;
     }
+
+    // ----- Value methods -----
+
+    /** Tell the interop API that the value has an associated language. */
+    @ExportMessage
+    boolean hasLanguage() {
+        return true;
+    }
+
+    /** Give the LKQL language class to the interop library. */
+    @ExportMessage
+    Class<? extends TruffleLanguage<?>> getLanguage() {
+        return LKQLLanguage.class;
+    }
+
+    /** Tell the interop API if the given other value is null. */
+    @ExportMessage
+    static TriState isIdenticalOrUndefined(
+            @SuppressWarnings("unused") final LKQLNull receiver, final Object other) {
+        return TriState.valueOf(receiver == other);
+    }
+
+    /**
+     * Return the identity hash code for the given receiver (always the same because null value is
+     * singleton).
+     */
+    @ExportMessage
+    static int identityHashCode(@SuppressWarnings("unused") final LKQLNull receiver) {
+        return IDENTITY_HASH;
+    }
+
+    /** Get the displayable string for the interop library. */
+    @ExportMessage
+    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffect) {
+        return "null";
+    }
+
+    /** Tell the interop API that the value is nullish. */
+    @ExportMessage
+    boolean isNull() {
+        return true;
+    }
+
+    /** Tell the interop API that the value is a boolean like value. */
+    @ExportMessage
+    boolean isBoolean() {
+        return true;
+    }
+
+    /** Get the boolean like value from null, which is always false. */
+    @ExportMessage
+    boolean asBoolean() {
+        return false;
+    }
+
+    // ----- LKQL value methods -----
+
+    @Override
+    public boolean internalEquals(LKQLValue o) {
+        return o == this;
+    }
+
+    @Override
+    public boolean isTruthy() {
+        return false;
+    }
+
+    // ----- Override methods -----
 
     @Override
     public String toString() {
@@ -100,12 +143,7 @@ public final class NodeNull extends Libadalang.AdaNode implements Nullish, Truth
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj == this;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
+    public boolean equals(Object o) {
+        return o == this;
     }
 }

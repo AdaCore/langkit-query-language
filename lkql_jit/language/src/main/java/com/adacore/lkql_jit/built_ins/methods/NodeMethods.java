@@ -27,11 +27,11 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
@@ -183,7 +183,7 @@ public final class NodeMethods extends CommonMethods {
             Libadalang.AdaNode[] res = new Libadalang.AdaNode[childrenCount];
             for (int i = 0; i < childrenCount; i++) {
                 Libadalang.AdaNode child = node.getChild(i);
-                res[i] = (child.isNone() ? NodeNull.getInstance() : child);
+                res[i] = (child.isNone() ? LKQLNull.INSTANCE : child);
             }
 
             // Return the list value
@@ -197,7 +197,7 @@ public final class NodeMethods extends CommonMethods {
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode parent =
                     LKQLTypeSystemGen.asAdaNode(frame.getArguments()[0]).parent();
-            return parent.isNone() ? NodeNull.getInstance() : parent;
+            return parent.isNone() ? LKQLNull.INSTANCE : parent;
         }
     }
 

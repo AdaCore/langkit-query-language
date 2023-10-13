@@ -26,9 +26,9 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.ArrayList;
@@ -123,7 +123,7 @@ public final class AnalysisUnitMethods extends CommonMethods {
         public Object executeGeneric(VirtualFrame frame) {
             Libadalang.AdaNode res =
                     LKQLTypeSystemGen.asAnalysisUnit(frame.getArguments()[0]).getRoot();
-            return res.isNone() ? NodeNull.getInstance() : res;
+            return res.isNone() ? LKQLNull.INSTANCE : res;
         }
     }
 

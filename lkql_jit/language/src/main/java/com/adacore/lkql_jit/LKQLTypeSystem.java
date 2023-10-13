@@ -98,7 +98,7 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(Nullish.class)
     public static boolean isNullish(final Object value) {
-        return value == LKQLUnit.INSTANCE || value == NodeNull.getInstance();
+        return value == LKQLUnit.INSTANCE || value == LKQLNull.INSTANCE;
     }
 
     // ----- Boolean value methods -----
@@ -177,6 +177,6 @@ public abstract class LKQLTypeSystem {
         }
 
         // Return the default value
-        return NodeNull.getInstance();
+        return LKQLNull.INSTANCE;
     }
 }

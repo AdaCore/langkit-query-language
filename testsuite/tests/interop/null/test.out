@@ -1,0 +1,5 @@
+=== Null interop messages:
+  toString(): null
+  isNull(): true
+  isBoolean(): true
+  asBoolean(): false

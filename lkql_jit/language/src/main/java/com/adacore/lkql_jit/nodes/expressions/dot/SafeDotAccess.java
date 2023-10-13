@@ -26,11 +26,11 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -118,8 +118,8 @@ public abstract class SafeDotAccess extends Expr {
         }
 
         // Test if the receiver is null
-        if (receiver == NodeNull.getInstance()) {
-            return NodeNull.getInstance();
+        if (receiver == LKQLNull.INSTANCE) {
+            return LKQLNull.INSTANCE;
         }
 
         // Create the property reference

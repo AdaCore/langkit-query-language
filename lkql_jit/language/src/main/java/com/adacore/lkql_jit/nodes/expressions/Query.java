@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
@@ -32,7 +33,6 @@ import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
 import com.adacore.lkql_jit.runtime.values.DepthNode;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Iterator;
@@ -187,7 +187,7 @@ public final class Query extends Expr {
             }
 
             // Return the null value if there is none
-            return NodeNull.getInstance();
+            return LKQLNull.INSTANCE;
         }
     }
 
@@ -265,7 +265,7 @@ public final class Query extends Expr {
         }
 
         // Return the null value
-        return NodeNull.getInstance();
+        return LKQLNull.INSTANCE;
     }
 
     /**

@@ -24,10 +24,10 @@ package com.adacore.lkql_jit.utils;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
@@ -240,7 +240,7 @@ public final class LKQLTypesHelper {
 
         // If the source is an AdaNode
         else if (javaValue instanceof Libadalang.AdaNode adaNode) {
-            return adaNode.isNone() ? NodeNull.getInstance() : adaNode;
+            return adaNode.isNone() ? LKQLNull.INSTANCE : adaNode;
         }
 
         // If the source is a token
@@ -276,10 +276,10 @@ public final class LKQLTypesHelper {
                 aspect.exists,
                 aspect.inherited,
                 aspect.node.node.isNull()
-                        ? NodeNull.getInstance()
+                        ? LKQLNull.INSTANCE
                         : Libadalang.AdaNode.fromEntity(aspect.node),
                 aspect.value.node.isNull()
-                        ? NodeNull.getInstance()
+                        ? LKQLNull.INSTANCE
                         : Libadalang.AdaNode.fromEntity(aspect.value)
             };
             return LKQLObject.createUncached(keys, values);
@@ -291,7 +291,7 @@ public final class LKQLTypesHelper {
             Object[] values = {
                 toLKQLValue(refResultStruct.kind),
                 refResultStruct.ref.node.isNull()
-                        ? NodeNull.getInstance()
+                        ? LKQLNull.INSTANCE
                         : Libadalang.AdaNode.fromEntity(refResultStruct.ref)
             };
             return LKQLObject.createUncached(keys, values);

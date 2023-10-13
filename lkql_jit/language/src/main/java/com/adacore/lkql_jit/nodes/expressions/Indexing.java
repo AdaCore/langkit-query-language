@@ -24,11 +24,11 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -126,12 +126,12 @@ public abstract class Indexing extends Expr {
     @Specialization
     protected Object indexNode(Libadalang.AdaNode node, long index) {
         if (index > node.getChildrenCount()) {
-            return NodeNull.getInstance();
+            return LKQLNull.INSTANCE;
         } else if (index < 1) {
             throw LKQLRuntimeException.invalidIndex((int) index, this);
         }
         Libadalang.AdaNode res = node.getChild((int) index - 1);
-        return res.isNone() ? NodeNull.getInstance() : res;
+        return res.isNone() ? LKQLNull.INSTANCE : res;
     }
 
     /**
