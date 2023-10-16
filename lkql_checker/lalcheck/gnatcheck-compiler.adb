@@ -1405,6 +1405,13 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
+      --  Test if the worker executable exists
+      if Worker = null then
+         Error ("cannot locate the worker executable: "
+                & Base_Name (Worker_Command));
+         raise Fatal_Error;
+      end if;
+
       if Prj /= "" then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
