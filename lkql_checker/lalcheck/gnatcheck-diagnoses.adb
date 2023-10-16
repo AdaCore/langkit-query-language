@@ -703,9 +703,6 @@ package body Gnatcheck.Diagnoses is
          end if;
 
          case Error_Messages_Storage.Element (Position).Diagnosis_Kind is
-            when Not_A_Diagnosis =>
-               pragma Assert (False);
-               null;
             when Rule_Violation =>
                if Error_Messages_Storage.Element (Position).Justification =
                   Null_Unbounded_String

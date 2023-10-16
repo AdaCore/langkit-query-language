@@ -46,8 +46,7 @@ package Gnatcheck.Diagnoses is
    -----------------------
 
    type Diagnosis_Kinds is
-     (Not_A_Diagnosis,
-      Rule_Violation,
+     (Rule_Violation,
       --  Corresponds to all rule diagnoses, including compiler checks
       Exemption_Warning,
       --  Warnings generated for Annotate pragmas used to implement rule
