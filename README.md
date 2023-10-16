@@ -53,6 +53,16 @@ cd testsuite
 python testsuite.py -dtmp
 ```
 
+You can run the performance testsuite with the following command:
+
+```
+cd testsuite
+python testsuite.py --perf-mode result.out [--perf-no-profile]
+```
+
+NOTE: You must checkout the libadalang internal testsuite in the `testsuite/ada_projects`
+directory to be able to run performances tests.
+
 ### Adding a test
 
 To add a test case in the testsuite you must follow the e3-testsuite standard. Moreover
