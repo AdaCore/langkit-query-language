@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,16 +17,14 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
-
 
 /**
  * This class represents the unit value in the LKQL language.
@@ -37,18 +35,13 @@ public final class UnitValue implements Nullish, Truthy {
 
     // ----- Attributes -----
 
-    /**
-     * The unique instance of the unit value in the language.
-     */
+    /** The unique instance of the unit value in the language. */
     private static UnitValue instance = null;
 
     // ----- Constructors -----
 
-    /**
-     * Create a new unit value, private for the singleton.
-     */
-    private UnitValue() {
-    }
+    /** Create a new unit value, private for the singleton. */
+    private UnitValue() {}
 
     /**
      * Get the unique instance of the unit value.
@@ -73,7 +66,8 @@ public final class UnitValue implements Nullish, Truthy {
     }
 
     /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * @see
+     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
     public boolean internalEquals(LKQLValue o) {
@@ -86,5 +80,4 @@ public final class UnitValue implements Nullish, Truthy {
     public String toString() {
         return "()";
     }
-
 }

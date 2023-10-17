@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,18 +17,15 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils.source_location;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
-
 import java.io.File;
-
 
 /**
  * This class represents a source location.
@@ -39,29 +36,19 @@ public final class SourceLocation {
 
     // ----- Attributes -----
 
-    /**
-     * The Truffle source.
-     */
+    /** The Truffle source. */
     private final Source source;
 
-    /**
-     * The starting line of the source location.
-     */
+    /** The starting line of the source location. */
     private final int startLine;
 
-    /**
-     * The starting column of the source location.
-     */
+    /** The starting column of the source location. */
     private final short startColumn;
 
-    /**
-     * The ending line of the source location.
-     */
+    /** The ending line of the source location. */
     private final int endLine;
 
-    /**
-     * The ending column of the source location.
-     */
+    /** The ending column of the source location. */
     private final short endColumn;
 
     // ----- Constructors -----
@@ -69,38 +56,29 @@ public final class SourceLocation {
     /**
      * Create a source location from a Langkit source location range.
      *
-     * @param source        The source from Truffle.
+     * @param source The source from Truffle.
      * @param locationRange The source location range from Langkit.
      */
-    public SourceLocation(
-        Source source,
-        Liblkqllang.SourceLocationRange locationRange
-    ) {
+    public SourceLocation(Source source, Liblkqllang.SourceLocationRange locationRange) {
         this(
-            source,
-            locationRange.start.line,
-            locationRange.start.column,
-            locationRange.end.line,
-            locationRange.end.column
-        );
+                source,
+                locationRange.start.line,
+                locationRange.start.column,
+                locationRange.end.line,
+                locationRange.end.column);
     }
 
     /**
      * Create a new source location from the lines and columns.
      *
-     * @param source      The source.
-     * @param startLine   The starting line.
+     * @param source The source.
+     * @param startLine The starting line.
      * @param startColumn The starting column.
-     * @param endLine     The ending line.
-     * @param endColumn   The ending column.
+     * @param endLine The ending line.
+     * @param endColumn The ending column.
      */
     public SourceLocation(
-        Source source,
-        int startLine,
-        short startColumn,
-        int endLine,
-        short endColumn
-    ) {
+            Source source, int startLine, short startColumn, int endLine, short endColumn) {
         this.source = source;
         this.startLine = startLine;
         this.startColumn = startColumn;
@@ -160,7 +138,7 @@ public final class SourceLocation {
      * Get the lines from the source between the start and end index.
      *
      * @param start The start line (included).
-     * @param end   The end line (excluded).
+     * @param end The end line (excluded).
      * @return The lines from the source.
      */
     public String[] getLines(int start, int end) {
@@ -186,5 +164,4 @@ public final class SourceLocation {
     public String toString() {
         return this.getFileName() + ":" + this.startLine + ":" + this.startColumn;
     }
-
 }

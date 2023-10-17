@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit;
 
@@ -36,242 +35,184 @@ import com.adacore.lkql_jit.utils.enums.DiagnosticOutputMode;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Option;
 import com.oracle.truffle.api.TruffleLanguage;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.options.OptionDescriptors;
 import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionStability;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-
 /**
- * This class represents the registration and the entry point of the LKQL language Truffle implementation.
+ * This class represents the registration and the entry point of the LKQL language Truffle
+ * implementation.
  *
  * @author Hugo GUERRIER
  */
 @TruffleLanguage.Registration(
-    id = Constants.LKQL_ID,
-    name = "Langkit Query Language",
-    defaultMimeType = Constants.LKQL_MIME,
-    characterMimeTypes = Constants.LKQL_MIME,
-    contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
-    dependentLanguages = {"regex"}
-)
+        id = Constants.LKQL_ID,
+        name = "Langkit Query Language",
+        defaultMimeType = Constants.LKQL_MIME,
+        characterMimeTypes = Constants.LKQL_MIME,
+        contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
+        dependentLanguages = {"regex"})
 public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     // ----- Static variables -----
 
-    /**
-     * The reference to the LKQL language.
-     */
-    private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE = LanguageReference.create(LKQLLanguage.class);
+    /** The reference to the LKQL language. */
+    private static final LanguageReference<LKQLLanguage> LANGUAGE_REFERENCE =
+            LanguageReference.create(LKQLLanguage.class);
 
-    /**
-     * The reference to the LKQL context.
-     */
-    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE = ContextReference.create(LKQLLanguage.class);
+    /** The reference to the LKQL context. */
+    private static final ContextReference<LKQLContext> CONTEXT_REFERENCE =
+            ContextReference.create(LKQLLanguage.class);
 
-    /**
-     * Whether the current language spawning support the color.
-     */
+    /** Whether the current language spawning support the color. */
     public static boolean SUPPORT_COLOR = false;
 
     // ----- Options -----
 
     // --- Language options
 
-    /**
-     * The option to define if the language is verbose.
-     */
+    /** The option to define if the language is verbose. */
     @Option(
-        help = "If the language should be verbose",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "If the language should be verbose",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<Boolean> verbose = new OptionKey<>(false);
-
 
     // --- LKQL options
 
-    /**
-     * The option to define the charset of the LKQL sources.
-     */
+    /** The option to define the charset of the LKQL sources. */
     @Option(
-        help = "The LKQL source charset",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The LKQL source charset",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> charset = new OptionKey<>("");
 
-    /**
-     * The option to define the project file to analyze.
-     */
+    /** The option to define the project file to analyze. */
     @Option(
-        help = "The GPR project file to load",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The GPR project file to load",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> projectFile = new OptionKey<>("");
 
-    /**
-     * The name of the subproject to analyze. If empty, use the root project instead
-     */
+    /** The name of the subproject to analyze. If empty, use the root project instead */
     @Option(
-        help = "The name of the subproject to analyze.",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The name of the subproject to analyze.",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> subprojectFile = new OptionKey<>("");
 
     /**
-     * The scenario variables to load the project file with, where "key=value" variable specifications
-     * are encoded as Base64 and separated by semicolons.
+     * The scenario variables to load the project file with, where "key=value" variable
+     * specifications are encoded as Base64 and separated by semicolons.
      */
     @Option(
-        help = "The scenario variables to load the project file with",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The scenario variables to load the project file with",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> scenarioVars = new OptionKey<>("");
 
-    /**
-     * Whether to create an auto provider with the specified files if no project is provided.
-     */
+    /** Whether to create an auto provider with the specified files if no project is provided. */
     @Option(
-        help = "Whether to create an auto provider with the specified files if no project" +
-            "is provided.",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help =
+                    "Whether to create an auto provider with the specified files if no project"
+                            + "is provided.",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<Boolean> useAutoProvider = new OptionKey<>(false);
 
-    /**
-     * The option to define the files to analyze.
-     */
+    /** The option to define the files to analyze. */
     @Option(
-        help = "The ada files to analyze in LKQL",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The ada files to analyze in LKQL",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> files = new OptionKey<>("");
 
-    /**
-     * The option to define the jobs.
-     */
+    /** The option to define the jobs. */
     @Option(
-        help = "The number of parallel jobs in the LKQL interpreter",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The number of parallel jobs in the LKQL interpreter",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<Integer> jobs = new OptionKey<>(0);
-
 
     // --- Checker options
 
-    /**
-     * The option to define the checker debug mode.
-     */
+    /** The option to define the checker debug mode. */
     @Option(
-        help = "If the checker is in debug mode",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "If the checker is in debug mode",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<Boolean> checkerDebug = new OptionKey<>(false);
 
-    /**
-     * The option to define the directories to look the rules from.
-     */
+    /** The option to define the directories to look the rules from. */
     @Option(
-        help = "The directories to search rules in",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The directories to search rules in",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> rulesDirs = new OptionKey<>("");
 
-    /**
-     * The option to specify the rule to run.
-     */
+    /** The option to specify the rule to run. */
     @Option(
-        help = "The comma separated rules to apply",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The comma separated rules to apply",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> rules = new OptionKey<>("");
 
-    /**
-     * The option to specify the LKQL configuration file.
-     */
+    /** The option to specify the LKQL configuration file. */
     @Option(
-        help = "The LKQL file to get the rule configuration from",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The LKQL file to get the rule configuration from",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> LKQLRuleFile = new OptionKey<>("");
 
-    /**
-     * The option to control what should be done when no rules are provided
-     */
+    /** The option to control what should be done when no rules are provided */
     @Option(
-        help = "If true, consider that an empty value for 'rules' means to run all the rules",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "If true, consider that an empty value for 'rules' means to run all the rules",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<Boolean> fallbackToAllRules = new OptionKey<>(true);
 
-    /**
-     * The option to control what should be done when a source file cannot be found.
-     */
+    /** The option to control what should be done when a source file cannot be found. */
     @Option(
-        help = "If true, do not stop the engine when a source file cannot be found",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "If true, do not stop the engine when a source file cannot be found",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
 
-    /**
-     * The option to specify arguments for the rules.
-     */
+    /** The option to specify arguments for the rules. */
     @Option(
-        help = "Arguments for the LKQL rules",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "Arguments for the LKQL rules",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> rulesArgs = new OptionKey<>("");
 
-    /**
-     * The option to specify the files to ignore during the checking.
-     */
+    /** The option to specify the files to ignore during the checking. */
     @Option(
-        help = "Files to ignore during the analysis",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "Files to ignore during the analysis",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> ignores = new OptionKey<>("");
 
-    /**
-     * The option to specify the error recovery mode.
-     */
+    /** The option to specify the error recovery mode. */
     @Option(
-        help = "The mode of error recovery in the checker",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
+            help = "The mode of error recovery in the checker",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
     static final OptionKey<String> errorMode = new OptionKey<>("");
 
     @Option(
-        help = "The message emitter",
-        category = OptionCategory.USER,
-        stability = OptionStability.STABLE
-    )
-    static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode = new OptionKey<>(DiagnosticOutputMode.PRETTY);
+            help = "The message emitter",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode =
+            new OptionKey<>(DiagnosticOutputMode.PRETTY);
 
     // ----- Constructors -----
 
-    /**
-     * A simple constructor for the library loading.
-     */
+    /** A simple constructor for the library loading. */
     public LKQLLanguage() {
         super();
 
@@ -304,7 +245,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     // ----- Language methods -----
 
     /**
-     * @see com.oracle.truffle.api.TruffleLanguage#createContext(com.oracle.truffle.api.TruffleLanguage.Env)
+     * @see
+     *     com.oracle.truffle.api.TruffleLanguage#createContext(com.oracle.truffle.api.TruffleLanguage.Env)
      */
     @Override
     protected LKQLContext createContext(Env env) {
@@ -370,7 +312,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
         // Print the Truffle AST if the JIT is in debug mode
         if (context.isVerbose()) {
-            System.out.println("=== Truffle AST <" + topLevelList.getLocation().getFileName() + "> :\n" + topLevelList);
+            System.out.println(
+                    "=== Truffle AST <"
+                            + topLevelList.getLocation().getFileName()
+                            + "> :\n"
+                            + topLevelList);
         }
 
         // Return the call target
@@ -388,7 +334,9 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final Liblkqllang.AnalysisUnit unit;
         try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
             if (request.getSource().getPath() == null) {
-                unit = analysisContext.getUnitFromBuffer(request.getSource().getCharacters().toString(), "<command-line>");
+                unit =
+                        analysisContext.getUnitFromBuffer(
+                                request.getSource().getCharacters().toString(), "<command-line>");
             } else {
                 unit = analysisContext.getUnitFromFile(request.getSource().getPath());
             }
@@ -400,11 +348,11 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             }
 
             // Get the LKQL langkit AST
-            final Liblkqllang.TopLevelList lkqlLangkitRoot = (Liblkqllang.TopLevelList) unit.getRoot();
+            final Liblkqllang.TopLevelList lkqlLangkitRoot =
+                    (Liblkqllang.TopLevelList) unit.getRoot();
 
             // Translate the LKQL AST from Langkit to a Truffle AST
             return (TopLevelList) LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
         }
     }
-
 }

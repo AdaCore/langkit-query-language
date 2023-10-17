@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
@@ -33,10 +32,8 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * This node is the base of all chained pattern links in LKQL language.
@@ -47,9 +44,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
 
     // ----- Children -----
 
-    /**
-     * The pattern to match in the link.
-     */
+    /** The pattern to match in the link. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected BasePattern pattern;
@@ -60,12 +55,9 @@ public abstract class ChainedPatternLink extends LKQLNode {
      * Create a new chained pattern link.
      *
      * @param location The location of the node in the source.
-     * @param pattern  The pattern to match.
+     * @param pattern The pattern to match.
      */
-    protected ChainedPatternLink(
-        SourceLocation location,
-        BasePattern pattern
-    ) {
+    protected ChainedPatternLink(SourceLocation location, BasePattern pattern) {
         super(location);
         this.pattern = pattern;
     }
@@ -73,7 +65,8 @@ public abstract class ChainedPatternLink extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
@@ -84,7 +77,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
      * Execute the link with a node and return the list of the matched node.
      *
      * @param frame The frame to execute the link in.
-     * @param node  The input node in the chain.
+     * @param node The input node in the chain.
      * @return The result of the chain link execution.
      */
     public abstract Libadalang.AdaNode[] executeLink(VirtualFrame frame, Libadalang.AdaNode node);
@@ -94,7 +87,7 @@ public abstract class ChainedPatternLink extends LKQLNode {
     /**
      * Do the pattern filtering logic on the given result object.
      *
-     * @param frame        The frame to execute the pattern in.
+     * @param frame The frame to execute the pattern in.
      * @param resultObject The result object to filter and add in the result.
      * @return The result of the filtering.
      */
@@ -120,10 +113,9 @@ public abstract class ChainedPatternLink extends LKQLNode {
                     }
                 } catch (UnexpectedResultException e) {
                     throw LKQLRuntimeException.wrongType(
-                        LKQLTypesHelper.ADA_NODE,
-                        LKQLTypesHelper.fromJava(e.getResult()),
-                        this
-                    );
+                            LKQLTypesHelper.ADA_NODE,
+                            LKQLTypesHelper.fromJava(e.getResult()),
+                            this);
                 }
             }
         }
@@ -131,14 +123,10 @@ public abstract class ChainedPatternLink extends LKQLNode {
         // Else, throw a type exception
         else {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_LIST,
-                LKQLTypesHelper.fromJava(resultObject),
-                this
-            );
+                    LKQLTypesHelper.LKQL_LIST, LKQLTypesHelper.fromJava(resultObject), this);
         }
 
         // Return the result as an array of node
         return resList.toArray(new Libadalang.AdaNode[0]);
     }
-
 }

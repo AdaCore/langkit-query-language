@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,17 +17,16 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.methods;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.Pattern;
@@ -35,9 +34,7 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 import java.math.BigInteger;
-
 
 /**
  * This class contains all built-in methods for the string type in the LKQL language.
@@ -48,16 +45,12 @@ public final class StrMethods extends CommonMethods {
 
     // ----- Attributes -----
 
-    /**
-     * The only instance of the method collection.
-     */
+    /** The only instance of the method collection. */
     private static StrMethods instance = null;
 
     // ----- Constructors -----
 
-    /**
-     * Create the methods for the string type.
-     */
+    /** Create the methods for the string type. */
     private StrMethods() {
         super();
     }
@@ -81,94 +74,108 @@ public final class StrMethods extends CommonMethods {
     protected void initMethods() {
         super.initMethods();
         this.methods.put(BaseNameFunction.NAME, BaseNameFunction.getValue());
-        this.methods.put("to_lower_case", new BuiltInFunctionValue(
-            "to_lower_case",
-            "Return the given string written with lower case characters only",
-            new String[]{"str"},
-            new Expr[]{null},
-            new ToLowerCaseExpr()
-        ));
-        this.methods.put("is_lower_case", new BuiltInFunctionValue(
-            "is_lower_case",
-            "Return whether the given string contains lower case characters only",
-            new String[]{"str"},
-            new Expr[]{null},
-            new IsLowerCaseExpr()
-        ));
-        this.methods.put("to_upper_case", new BuiltInFunctionValue(
-            "to_upper_case",
-            "Return the given string written with upper case characters only",
-            new String[]{"str"},
-            new Expr[]{null},
-            new ToUpperCaseExpr()
-        ));
-        this.methods.put("is_upper_case", new BuiltInFunctionValue(
-            "is_upper_case",
-            "Return whether the given string contains upper case characters only",
-            new String[]{"str"},
-            new Expr[]{null},
-            new IsUpperCaseExpr()
-        ));
-        this.methods.put("is_mixed_case", new BuiltInFunctionValue(
-            "is_mixed_case",
-            "Return whether the given string is written in mixed case, that is, with only lower case" +
-                " characters except the first one and every character following an underscore",
-            new String[]{"str"},
-            new Expr[]{null},
-            new IsMixedCaseExpr()
-        ));
-        this.methods.put("length", new BuiltInFunctionValue(
-            "length",
-            "Given a string, return the length of it in character",
-            new String[]{"str"},
-            new Expr[]{null},
-            new LengthExpr()
-        ));
-        this.methods.put("substring", new BuiltInFunctionValue(
-            "substring",
-            "Given a string and two indices (from and to), return the substring contained between" +
-                " indices from and to (both included)",
-            new String[]{"str", "from", "to"},
-            new Expr[]{null, null, null},
-            new SubstringExpr()
-        ));
-        this.methods.put("split", new BuiltInFunctionValue(
-            "split",
-            "Given a string, return an iterator on the words contained by str separated by separator",
-            new String[]{"str", "separator"},
-            new Expr[]{null, null},
-            new SplitExpr()
-        ));
-        this.methods.put("contains", new BuiltInFunctionValue(
-            "contains",
-            "Search for to_find in the given string. Return whether a match is found. to_find can" +
-                " be either a pattern or a string",
-            new String[]{"str", "to_find"},
-            new Expr[]{null, null},
-            new ContainsExpr()
-        ));
-        this.methods.put("find", new BuiltInFunctionValue(
-            "find",
-            "Search for to_find in the given string. Return position of the match, or -1 if no match." +
-                " to_find can be either a pattern or a string",
-            new String[]{"str", "to_find"},
-            new Expr[]{null, null},
-            new FindExpr()
-        ));
-        this.methods.put("starts_with", new BuiltInFunctionValue(
-            "starts_with",
-            "Given a string, returns whether it starts with the given prefix",
-            new String[]{"str", "prefix"},
-            new Expr[]{null, null},
-            new StartsWithExpr()
-        ));
-        this.methods.put("ends_with", new BuiltInFunctionValue(
-            "ends_with",
-            "Given a string, returns whether it ends with the given suffix",
-            new String[]{"str", "suffix"},
-            new Expr[]{null, null},
-            new EndsWithExpr()
-        ));
+        this.methods.put(
+                "to_lower_case",
+                new BuiltInFunctionValue(
+                        "to_lower_case",
+                        "Return the given string written with lower case characters only",
+                        new String[] {"str"},
+                        new Expr[] {null},
+                        new ToLowerCaseExpr()));
+        this.methods.put(
+                "is_lower_case",
+                new BuiltInFunctionValue(
+                        "is_lower_case",
+                        "Return whether the given string contains lower case characters only",
+                        new String[] {"str"},
+                        new Expr[] {null},
+                        new IsLowerCaseExpr()));
+        this.methods.put(
+                "to_upper_case",
+                new BuiltInFunctionValue(
+                        "to_upper_case",
+                        "Return the given string written with upper case characters only",
+                        new String[] {"str"},
+                        new Expr[] {null},
+                        new ToUpperCaseExpr()));
+        this.methods.put(
+                "is_upper_case",
+                new BuiltInFunctionValue(
+                        "is_upper_case",
+                        "Return whether the given string contains upper case characters only",
+                        new String[] {"str"},
+                        new Expr[] {null},
+                        new IsUpperCaseExpr()));
+        this.methods.put(
+                "is_mixed_case",
+                new BuiltInFunctionValue(
+                        "is_mixed_case",
+                        "Return whether the given string is written in mixed case, that is, with"
+                            + " only lower case characters except the first one and every character"
+                            + " following an underscore",
+                        new String[] {"str"},
+                        new Expr[] {null},
+                        new IsMixedCaseExpr()));
+        this.methods.put(
+                "length",
+                new BuiltInFunctionValue(
+                        "length",
+                        "Given a string, return the length of it in character",
+                        new String[] {"str"},
+                        new Expr[] {null},
+                        new LengthExpr()));
+        this.methods.put(
+                "substring",
+                new BuiltInFunctionValue(
+                        "substring",
+                        "Given a string and two indices (from and to), return the substring"
+                                + " contained between indices from and to (both included)",
+                        new String[] {"str", "from", "to"},
+                        new Expr[] {null, null, null},
+                        new SubstringExpr()));
+        this.methods.put(
+                "split",
+                new BuiltInFunctionValue(
+                        "split",
+                        "Given a string, return an iterator on the words contained by str separated"
+                                + " by separator",
+                        new String[] {"str", "separator"},
+                        new Expr[] {null, null},
+                        new SplitExpr()));
+        this.methods.put(
+                "contains",
+                new BuiltInFunctionValue(
+                        "contains",
+                        "Search for to_find in the given string. Return whether a match is found."
+                                + " to_find can be either a pattern or a string",
+                        new String[] {"str", "to_find"},
+                        new Expr[] {null, null},
+                        new ContainsExpr()));
+        this.methods.put(
+                "find",
+                new BuiltInFunctionValue(
+                        "find",
+                        "Search for to_find in the given string. Return position of the match, or"
+                                + " -1 if no match. to_find can be either a pattern or a string",
+                        new String[] {"str", "to_find"},
+                        new Expr[] {null, null},
+                        new FindExpr()));
+        this.methods.put(
+                "starts_with",
+                new BuiltInFunctionValue(
+                        "starts_with",
+                        "Given a string, returns whether it starts with the given prefix",
+                        new String[] {"str", "prefix"},
+                        new Expr[] {null, null},
+                        new StartsWithExpr()));
+        this.methods.put(
+                "ends_with",
+                new BuiltInFunctionValue(
+                        "ends_with",
+                        "Given a string, returns whether it ends with the given suffix",
+                        new String[] {"str", "suffix"},
+                        new Expr[] {null, null},
+                        new EndsWithExpr()));
     }
 
     // ----- Override methods -----
@@ -183,22 +190,16 @@ public final class StrMethods extends CommonMethods {
 
     // ----- Inner classes -----
 
-    /**
-     * Expression of the "to_lower_case" method.
-     */
-    public final static class ToLowerCaseExpr extends BuiltinFunctionBody {
+    /** Expression of the "to_lower_case" method. */
+    public static final class ToLowerCaseExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return StringUtils.toLowerCase(LKQLTypeSystemGen.asString(
-                frame.getArguments()[0]
-            ));
+            return StringUtils.toLowerCase(LKQLTypeSystemGen.asString(frame.getArguments()[0]));
         }
     }
 
-    /**
-     * Expression of the "is_lower_case" method.
-     */
-    public final static class IsLowerCaseExpr extends BuiltinFunctionBody {
+    /** Expression of the "is_lower_case" method. */
+    public static final class IsLowerCaseExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             String arg = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
@@ -206,22 +207,16 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "to_upper_case" method.
-     */
-    public final static class ToUpperCaseExpr extends BuiltinFunctionBody {
+    /** Expression of the "to_upper_case" method. */
+    public static final class ToUpperCaseExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
-            return StringUtils.toUpperCase(LKQLTypeSystemGen.asString(
-                frame.getArguments()[0]
-            ));
+            return StringUtils.toUpperCase(LKQLTypeSystemGen.asString(frame.getArguments()[0]));
         }
     }
 
-    /**
-     * Expression of the "is_upper_case" method.
-     */
-    public final static class IsUpperCaseExpr extends BuiltinFunctionBody {
+    /** Expression of the "is_upper_case" method. */
+    public static final class IsUpperCaseExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             String arg = LKQLTypeSystemGen.asString(frame.getArguments()[0]);
@@ -229,10 +224,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "is_mixed_case" method.
-     */
-    public final static class IsMixedCaseExpr extends BuiltinFunctionBody {
+    /** Expression of the "is_mixed_case" method. */
+    public static final class IsMixedCaseExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the receiver
@@ -265,10 +258,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "length" method.
-     */
-    public final static class LengthExpr extends BuiltinFunctionBody {
+    /** Expression of the "length" method. */
+    public static final class LengthExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the receiver
@@ -279,10 +270,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "substring" method.
-     */
-    public final static class SubstringExpr extends BuiltinFunctionBody {
+    /** Expression of the "substring" method. */
+    public static final class SubstringExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -292,25 +281,22 @@ public final class StrMethods extends CommonMethods {
             // Verify the type of arguments
             if (!LKQLTypeSystemGen.isImplicitBigInteger(startObject)) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER,
-                    LKQLTypesHelper.fromJava(startObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.LKQL_INTEGER,
+                        LKQLTypesHelper.fromJava(startObject),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             if (!LKQLTypeSystemGen.isImplicitBigInteger(endObject)) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_INTEGER,
-                    LKQLTypesHelper.fromJava(endObject),
-                    this.callNode.getArgList().getArgs()[1]
-                );
+                        LKQLTypesHelper.LKQL_INTEGER,
+                        LKQLTypesHelper.fromJava(endObject),
+                        this.callNode.getArgList().getArgs()[1]);
             }
 
             // Cast the arguments
-            BigInteger startBig = BigIntegerUtils.subtract(
-                LKQLTypeSystemGen.asImplicitBigInteger(startObject),
-                BigInteger.ONE
-            );
+            BigInteger startBig =
+                    BigIntegerUtils.subtract(
+                            LKQLTypeSystemGen.asImplicitBigInteger(startObject), BigInteger.ONE);
             BigInteger endBig = LKQLTypeSystemGen.asImplicitBigInteger(endObject);
 
             int start = BigIntegerUtils.intValue(startBig);
@@ -318,10 +304,12 @@ public final class StrMethods extends CommonMethods {
 
             // Verify the start and end
             if (start < 0) {
-                throw LKQLRuntimeException.invalidIndex(start, this.callNode.getArgList().getArgs()[0]);
+                throw LKQLRuntimeException.invalidIndex(
+                        start, this.callNode.getArgList().getArgs()[0]);
             }
             if (end > LKQLTypeSystemGen.asString(frame.getArguments()[0]).length()) {
-                throw LKQLRuntimeException.invalidIndex(end, this.callNode.getArgList().getArgs()[1]);
+                throw LKQLRuntimeException.invalidIndex(
+                        end, this.callNode.getArgList().getArgs()[1]);
             }
 
             // Return the substring
@@ -329,10 +317,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "split" method.
-     */
-    public final static class SplitExpr extends BuiltinFunctionBody {
+    /** Expression of the "split" method. */
+    public static final class SplitExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -342,27 +328,24 @@ public final class StrMethods extends CommonMethods {
             // Verify the argument type
             if (!LKQLTypeSystemGen.isString(separatorObject)) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(separatorObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(separatorObject),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Split the string
-            String[] separated = StringUtils.split(
-                LKQLTypeSystemGen.asString(toSplit),
-                LKQLTypeSystemGen.asString(separatorObject)
-            );
+            String[] separated =
+                    StringUtils.split(
+                            LKQLTypeSystemGen.asString(toSplit),
+                            LKQLTypeSystemGen.asString(separatorObject));
 
             // Return the list value of the split string
             return new ListValue(separated);
         }
     }
 
-    /**
-     * Expression of the "contains" method.
-     */
-    public final static class ContainsExpr extends BuiltinFunctionBody {
+    /** Expression of the "contains" method. */
+    public static final class ContainsExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -385,10 +368,9 @@ public final class StrMethods extends CommonMethods {
             // Else, just thrown an error
             else {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(toFindObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(toFindObject),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Return if the receiver contains the to find
@@ -396,10 +378,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "find" method.
-     */
-    public final static class FindExpr extends BuiltinFunctionBody {
+    /** Expression of the "find" method. */
+    public static final class FindExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the arguments
@@ -422,10 +402,9 @@ public final class StrMethods extends CommonMethods {
             // Else, just throw an error
             else {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(toFindObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(toFindObject),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Return the index
@@ -433,10 +412,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "starts_with" method.
-     */
-    public final static class StartsWithExpr extends BuiltinFunctionBody {
+    /** Expression of the "starts_with" method. */
+    public static final class StartsWithExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -445,10 +422,9 @@ public final class StrMethods extends CommonMethods {
             // Verify the argument type
             if (!LKQLTypeSystemGen.isString(prefixObject)) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(prefixObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(prefixObject),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Cast the arguments
@@ -460,10 +436,8 @@ public final class StrMethods extends CommonMethods {
         }
     }
 
-    /**
-     * Expression of the "ends_with" method.
-     */
-    public final static class EndsWithExpr extends BuiltinFunctionBody {
+    /** Expression of the "ends_with" method. */
+    public static final class EndsWithExpr extends BuiltinFunctionBody {
         @Override
         public Object executeGeneric(VirtualFrame frame) {
             // Get the argument
@@ -472,10 +446,9 @@ public final class StrMethods extends CommonMethods {
             // Verify the argument type
             if (!LKQLTypeSystemGen.isString(suffixObject)) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_STRING,
-                    LKQLTypesHelper.fromJava(suffixObject),
-                    this.callNode.getArgList().getArgs()[0]
-                );
+                        LKQLTypesHelper.LKQL_STRING,
+                        LKQLTypesHelper.fromJava(suffixObject),
+                        this.callNode.getArgList().getArgs()[0]);
             }
 
             // Cast the arguments
@@ -486,5 +459,4 @@ public final class StrMethods extends CommonMethods {
             return receiver.endsWith(suffix);
         }
     }
-
 }

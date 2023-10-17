@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,16 +17,14 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This root node represents the root execution of an LKQL program.
@@ -37,9 +35,7 @@ public final class TopLevelRootNode extends BaseRootNode {
 
     // ----- Attributes -----
 
-    /**
-     * The list of nodes representing the program.
-     */
+    /** The list of nodes representing the program. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private TopLevelList program;
@@ -49,13 +45,10 @@ public final class TopLevelRootNode extends BaseRootNode {
     /**
      * Create a new LKQL top level root node.
      *
-     * @param program  The LKQL program to execute.
+     * @param program The LKQL program to execute.
      * @param language The reference to the LKQL language instance.
      */
-    public TopLevelRootNode(
-        final TopLevelList program,
-        final LKQLLanguage language
-    ) {
+    public TopLevelRootNode(final TopLevelList program, final LKQLLanguage language) {
         super(language, program.getFrameDescriptor());
         this.program = program;
     }
@@ -63,9 +56,9 @@ public final class TopLevelRootNode extends BaseRootNode {
     // ----- Execution methods -----
 
     /**
-     * Execute the LKQL program and return the namespace, result of this program execution.
-     * This root node expects 1 argument:
-     * - boolean checkerMode: If the top level list node is in checker mode. Default is false.
+     * Execute the LKQL program and return the namespace, result of this program execution. This
+     * root node expects 1 argument: - boolean checkerMode: If the top level list node is in checker
+     * mode. Default is false.
      *
      * @param frame The frame to execute in.
      * @return The namespace of the LKQL program.
@@ -88,5 +81,4 @@ public final class TopLevelRootNode extends BaseRootNode {
         // Execute the program
         return this.program.executeGeneric(frame);
     }
-
 }

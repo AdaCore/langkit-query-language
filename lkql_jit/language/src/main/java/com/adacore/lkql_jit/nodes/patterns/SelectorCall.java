@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns;
 
@@ -42,10 +41,8 @@ import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * This node represents the call of a selector in the LKQL language.
@@ -56,28 +53,20 @@ public final class SelectorCall extends LKQLNode {
 
     // ----- Attributes -----
 
-    /**
-     * The quantifier for the selector call.
-     */
+    /** The quantifier for the selector call. */
     private final Quantifier quantifier;
 
-    /**
-     * The slot to put the binding value in, might be -1 if there is no binding.
-     */
+    /** The slot to put the binding value in, might be -1 if there is no binding. */
     private final int bindingSlot;
 
     // ----- Children -----
 
-    /**
-     * The selector to call.
-     */
+    /** The selector to call. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr selectorExpr;
 
-    /**
-     * The arguments for the selector call.
-     */
+    /** The arguments for the selector call. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ArgList args;
@@ -87,19 +76,18 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Create a new selector call node.
      *
-     * @param location     The location of the node in the source.
-     * @param quantifier   The quantifier for the selector.
-     * @param bindingSlot  The slot of the binding.
+     * @param location The location of the node in the source.
+     * @param quantifier The quantifier for the selector.
+     * @param bindingSlot The slot of the binding.
      * @param selectorExpr The selector expression.
-     * @param args         The arguments for the call.
+     * @param args The arguments for the call.
      */
     public SelectorCall(
-        SourceLocation location,
-        Quantifier quantifier,
-        int bindingSlot,
-        Expr selectorExpr,
-        ArgList args
-    ) {
+            SourceLocation location,
+            Quantifier quantifier,
+            int bindingSlot,
+            Expr selectorExpr,
+            ArgList args) {
         super(location);
         this.quantifier = quantifier;
         this.bindingSlot = bindingSlot;
@@ -110,7 +98,8 @@ public final class SelectorCall extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -118,15 +107,16 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Execute the selector on the given node and return if the tree traversal valid the given pattern.
-     * TODO: Move this method and logic in the NodePatternSelector node.
+     * Execute the selector on the given node and return if the tree traversal valid the given
+     * pattern. TODO: Move this method and logic in the NodePatternSelector node.
      *
-     * @param frame   The frame to execute in.
-     * @param node    The node to execute the selector on.
+     * @param frame The frame to execute in.
+     * @param node The node to execute the selector on.
      * @param pattern The pattern to verify.
      * @return True if the traversal verify the pattern, false else.
      */
-    public boolean executeVerification(VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
+    public boolean executeVerification(
+            VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
         SelectorListValue selectorListValue = this.getSelectorList(frame, node);
 
@@ -148,15 +138,16 @@ public final class SelectorCall extends LKQLNode {
     }
 
     /**
-     * Execute the filtering logic on the selector call with the given pattern and return the result list value.
-     * TODO: Move this method and logic in the SelectorLink node.
+     * Execute the filtering logic on the selector call with the given pattern and return the result
+     * list value. TODO: Move this method and logic in the SelectorLink node.
      *
-     * @param frame   The frame to execute in.
-     * @param node    The node to execute the selector on.
+     * @param frame The frame to execute in.
+     * @param node The node to execute the selector on.
      * @param pattern The pattern to perform the filtering logic.
      * @return The list of the validating nodes.
      */
-    public ListValue executeFiltering(VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
+    public ListValue executeFiltering(
+            VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
         SelectorListValue selectorListValue = this.getSelectorList(frame, node);
 
@@ -192,7 +183,7 @@ public final class SelectorCall extends LKQLNode {
      * Get the selector list for the selector call.
      *
      * @param frame The frame to execute in.
-     * @param node  The root node of the selector list.
+     * @param node The root node of the selector list.
      * @return The selector list for the selector call.
      */
     private SelectorListValue getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -200,10 +191,9 @@ public final class SelectorCall extends LKQLNode {
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
         if (!LKQLTypeSystemGen.isSelectorValue(selectorObject)) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_SELECTOR,
-                LKQLTypesHelper.fromJava(selectorObject),
-                this.selectorExpr
-            );
+                    LKQLTypesHelper.LKQL_SELECTOR,
+                    LKQLTypesHelper.fromJava(selectorObject),
+                    this.selectorExpr);
         }
 
         // Get the arguments
@@ -222,36 +212,33 @@ public final class SelectorCall extends LKQLNode {
                             depth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
                             throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_INTEGER,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
-                            );
+                                    LKQLTypesHelper.LKQL_INTEGER,
+                                    LKQLTypesHelper.fromJava(e.getResult()),
+                                    arg.getArgExpr());
                         }
                         break;
 
-                    // If the maximum depth is given
+                        // If the maximum depth is given
                     case Constants.MAX_DEPTH_SYMBOL:
                         try {
                             maxDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
                             throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_INTEGER,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
-                            );
+                                    LKQLTypesHelper.LKQL_INTEGER,
+                                    LKQLTypesHelper.fromJava(e.getResult()),
+                                    arg.getArgExpr());
                         }
                         break;
 
-                    // If the minimum depth is given
+                        // If the minimum depth is given
                     case Constants.MIN_DEPTH_SYMBOL:
                         try {
                             minDepth = (int) arg.getArgExpr().executeLong(frame);
                         } catch (UnexpectedResultException e) {
                             throw LKQLRuntimeException.wrongType(
-                                LKQLTypesHelper.LKQL_INTEGER,
-                                LKQLTypesHelper.fromJava(e.getResult()),
-                                arg.getArgExpr()
-                            );
+                                    LKQLTypesHelper.LKQL_INTEGER,
+                                    LKQLTypesHelper.fromJava(e.getResult()),
+                                    arg.getArgExpr());
                         }
                         break;
                 }
@@ -266,12 +253,13 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Verify if all node verify the pattern.
      *
-     * @param frame             The frame to execute in.
+     * @param frame The frame to execute in.
      * @param selectorListValue The list representing traversal of the selector.
-     * @param pattern           The pattern to verify.
+     * @param pattern The pattern to verify.
      * @return True of all nodes of the traversal verify the pattern, false else.
      */
-    private boolean isAll(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+    private boolean isAll(
+            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -286,12 +274,13 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Verify if any of the node verify the pattern.
      *
-     * @param frame             The frame to execute in.
+     * @param frame The frame to execute in.
      * @param selectorListValue The list representing traversal of the selector.
-     * @param pattern           The pattern to verify.
+     * @param pattern The pattern to verify.
      * @return True if there is any node that verify the pattern, false else.
      */
-    private boolean isAny(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+    private boolean isAny(
+            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
@@ -306,12 +295,13 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Get the list value filtered with the given pattern.
      *
-     * @param frame             The frame to execute in.
+     * @param frame The frame to execute in.
      * @param selectorListValue The selector list value to filter.
-     * @param pattern           The pattern for the filtering.
+     * @param pattern The pattern for the filtering.
      * @return The list value
      */
-    private ListValue getFilteredList(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+    private ListValue getFilteredList(
+            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         // Prepare the result
         List<Libadalang.AdaNode> resList = new ArrayList<>();
 
@@ -331,11 +321,12 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Do the binding process.
      *
-     * @param frame             The frame to execute in.
+     * @param frame The frame to execute in.
      * @param selectorListValue The selector list to bind.
-     * @param pattern           The pattern to filter the list.
+     * @param pattern The pattern to filter the list.
      */
-    private void doBinding(VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+    private void doBinding(
+            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
         ListValue listValue = this.getFilteredList(frame, selectorListValue, pattern);
         this.doBinding(frame, listValue);
     }
@@ -343,7 +334,7 @@ public final class SelectorCall extends LKQLNode {
     /**
      * Do the binding with the already computed list.
      *
-     * @param frame     The frame to execute in.
+     * @param frame The frame to execute in.
      * @param listValue The list bind.
      */
     private void doBinding(VirtualFrame frame, ListValue listValue) {
@@ -358,27 +349,19 @@ public final class SelectorCall extends LKQLNode {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"quantifier", "slot"},
-            new Object[]{this.quantifier, this.bindingSlot}
-        );
+                indentLevel,
+                new String[] {"quantifier", "slot"},
+                new Object[] {this.quantifier, this.bindingSlot});
     }
 
     // ----- Inner classes -----
 
-    /**
-     * This enum represents the quantifier for a selector call.
-     */
+    /** This enum represents the quantifier for a selector call. */
     public enum Quantifier {
-        /**
-         * The selector will match if any visited node validate. the associated pattern.
-         */
+        /** The selector will match if any visited node validate. the associated pattern. */
         ANY,
 
-        /**
-         * The selector will match if every visited nodes validate the associated pattern.
-         */
+        /** The selector will match if every visited nodes validate the associated pattern. */
         ALL
     }
-
 }

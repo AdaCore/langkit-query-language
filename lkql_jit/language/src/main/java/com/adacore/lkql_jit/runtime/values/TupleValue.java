@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
@@ -28,9 +27,7 @@ import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.Objects;
-
 
 /**
  * This class represents the tuple values in the LKQL language.
@@ -41,9 +38,7 @@ public final class TupleValue implements Indexable {
 
     // ----- Attributes -----
 
-    /**
-     * The values contained in the tuple.
-     */
+    /** The values contained in the tuple. */
     private final Object[] content;
 
     // ----- Constructors -----
@@ -53,9 +48,7 @@ public final class TupleValue implements Indexable {
      *
      * @param content The content of the tuple.
      */
-    public TupleValue(
-        Object[] content
-    ) {
+    public TupleValue(Object[] content) {
         this.content = content;
     }
 
@@ -81,7 +74,8 @@ public final class TupleValue implements Indexable {
     }
 
     /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * @see
+     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
     @CompilerDirectives.TruffleBoundary
@@ -124,5 +118,4 @@ public final class TupleValue implements Indexable {
         // Return the tuple string representation
         return builder.toString();
     }
-
 }

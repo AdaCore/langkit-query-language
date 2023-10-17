@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
@@ -27,7 +26,6 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.nodes.patterns.ValuePattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This node represents a pattern that access fields or properties of nodes.
@@ -38,33 +36,25 @@ public final class ExtendedNodePattern extends NodePattern {
 
     // ----- Children -----
 
-    /**
-     * The pattern to extend.
-     */
+    /** The pattern to extend. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ValuePattern basePattern;
 
-    /**
-     * The details representing the extension.
-     */
-    @Children
-    private final NodePatternDetail[] details;
+    /** The details representing the extension. */
+    @Children private final NodePatternDetail[] details;
 
     // ----- Constructors -----
 
     /**
      * Create a new extended node pattern node.
      *
-     * @param location    The location of the node in the source.
+     * @param location The location of the node in the source.
      * @param basePattern The base pattern to extend.
-     * @param details     The extensions for the base pattern.
+     * @param details The extensions for the base pattern.
      */
     public ExtendedNodePattern(
-        SourceLocation location,
-        ValuePattern basePattern,
-        NodePatternDetail[] details
-    ) {
+            SourceLocation location, ValuePattern basePattern, NodePatternDetail[] details) {
         super(location);
         this.basePattern = basePattern;
         this.details = details;
@@ -73,7 +63,9 @@ public final class ExtendedNodePattern extends NodePattern {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame, com.adacore.libadalang.Libadalang.AdaNode)
+     * @see
+     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
+     *     com.adacore.libadalang.Libadalang.AdaNode)
      */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
@@ -101,5 +93,4 @@ public final class ExtendedNodePattern extends NodePattern {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

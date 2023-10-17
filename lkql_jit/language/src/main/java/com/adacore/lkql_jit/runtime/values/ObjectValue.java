@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,21 +17,18 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-
 
 /**
  * This class represents the object values in the LKQL language.
@@ -42,9 +39,7 @@ public final class ObjectValue implements LKQLValue {
 
     // ----- Attributes -----
 
-    /**
-     * The content of the object.
-     */
+    /** The content of the object. */
     private final Map<String, Object> content;
 
     // ----- Constructors -----
@@ -52,14 +47,11 @@ public final class ObjectValue implements LKQLValue {
     /**
      * Create an object value.
      *
-     * @param keys   The keys of the object.
+     * @param keys The keys of the object.
      * @param values The values of the object.
      */
     @CompilerDirectives.TruffleBoundary
-    public ObjectValue(
-        String[] keys,
-        Object[] values
-    ) {
+    public ObjectValue(String[] keys, Object[] values) {
         this.content = new HashMap<>(keys.length);
         for (int i = 0; i < keys.length; i++) {
             this.content.put(keys[i], values[i]);
@@ -72,9 +64,7 @@ public final class ObjectValue implements LKQLValue {
      * @param other The other object.
      */
     @CompilerDirectives.TruffleBoundary
-    public ObjectValue(
-        ObjectValue other
-    ) {
+    public ObjectValue(ObjectValue other) {
         this.content = new HashMap<>(other.content);
     }
 
@@ -102,7 +92,8 @@ public final class ObjectValue implements LKQLValue {
     // ----- Value methods -----
 
     /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * @see
+     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
     @CompilerDirectives.TruffleBoundary
@@ -130,9 +121,7 @@ public final class ObjectValue implements LKQLValue {
         // Create the object string builder
         StringBuilder res = new StringBuilder();
         res.append("{");
-        Iterator<String> keyIterator = this.content.keySet().stream()
-            .sorted()
-            .iterator();
+        Iterator<String> keyIterator = this.content.keySet().stream().sorted().iterator();
         while (keyIterator.hasNext()) {
             String key = keyIterator.next();
             Object value = this.content.get(key);
@@ -156,5 +145,4 @@ public final class ObjectValue implements LKQLValue {
         // Return the result
         return res.toString();
     }
-
 }

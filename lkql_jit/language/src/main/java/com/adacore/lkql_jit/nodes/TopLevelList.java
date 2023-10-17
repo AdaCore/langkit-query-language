@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes;
 
@@ -32,16 +31,14 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
- * This node represents the list of all top level instructions of a LKQL program.
- * It's the "highest" node in a LKQL AST and is the starting point of the program.
+ * This node represents the list of all top level instructions of a LKQL program. It's the "highest"
+ * node in a LKQL AST and is the starting point of the program.
  *
  * @author Hugo GUERRIER
  */
@@ -49,39 +46,28 @@ public final class TopLevelList extends LKQLNode {
 
     // ----- Attributes -----
 
-    /**
-     * Descriptor of the top level frame.
-     */
+    /** Descriptor of the top level frame. */
     private final FrameDescriptor frameDescriptor;
 
     // ----- Children -----
 
-    /**
-     * The rule importation nodes.
-     */
-    @Children
-    private Import[] ruleImports;
+    /** The rule importation nodes. */
+    @Children private Import[] ruleImports;
 
-    /**
-     * The list of nodes representing the LKQL program.
-     */
-    @Children
-    private final LKQLNode[] program;
+    /** The list of nodes representing the LKQL program. */
+    @Children private final LKQLNode[] program;
 
     // ----- Constructors -----
 
     /**
      * Create a new top level list node.
      *
-     * @param location        The location of the node in the source.
+     * @param location The location of the node in the source.
      * @param frameDescriptor The frame descriptor for the top level.
-     * @param nodes           The nodes to execute in the top level.
+     * @param nodes The nodes to execute in the top level.
      */
     public TopLevelList(
-        SourceLocation location,
-        FrameDescriptor frameDescriptor,
-        LKQLNode[] nodes
-    ) {
+            SourceLocation location, FrameDescriptor frameDescriptor, LKQLNode[] nodes) {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.program = nodes;
@@ -96,7 +82,8 @@ public final class TopLevelList extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -116,16 +103,12 @@ public final class TopLevelList extends LKQLNode {
         final LKQLContext context = LKQLLanguage.getContext(this);
 
         // Return the namespace corresponding to the program execution
-        return context.getEnv().asGuestValue(
-            NamespaceValue.create(frame.materialize())
-        );
+        return context.getEnv().asGuestValue(NamespaceValue.create(frame.materialize()));
     }
 
     // ----- Class methods -----
 
-    /**
-     * Add all required rule importing nodes.
-     */
+    /** Add all required rule importing nodes. */
     @CompilerDirectives.TruffleBoundary
     public void addRuleImports() {
         // Get the current context
@@ -139,14 +122,24 @@ public final class TopLevelList extends LKQLNode {
         for (String dirName : ruleDirectories) {
             File ruleDirectory = new File(dirName);
             if (ruleDirectory.isDirectory() && ruleDirectory.canRead()) {
-                final File[] ruleDirectoryFiles = ruleDirectory.listFiles(f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION));
+                final File[] ruleDirectoryFiles =
+                        ruleDirectory.listFiles(
+                                f -> f.canRead() && f.getName().endsWith(Constants.LKQL_EXTENSION));
                 if (ruleDirectoryFiles != null) {
                     ruleImports.addAll(
-                        Arrays.stream(ruleDirectoryFiles)
-                            .filter(File::canRead)
-                            .map(f -> new Import(null, f.getName().replace(Constants.LKQL_EXTENSION, ""), -1))
-                            .toList()
-                    );
+                            Arrays.stream(ruleDirectoryFiles)
+                                    .filter(File::canRead)
+                                    .map(
+                                            f ->
+                                                    new Import(
+                                                            null,
+                                                            f.getName()
+                                                                    .replace(
+                                                                            Constants
+                                                                                    .LKQL_EXTENSION,
+                                                                            ""),
+                                                            -1))
+                                    .toList());
                 }
             }
         }
@@ -164,5 +157,4 @@ public final class TopLevelList extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.selectors;
 
@@ -35,7 +34,6 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInSelectorValue;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
-
 /**
  * This class represents the "children" built-in selector.
  *
@@ -45,26 +43,18 @@ public final class ChildrenSelector implements BuiltInSelector {
 
     // ----- Attributes -----
 
-    /**
-     * The only instance of the "children" built-in selector.
-     */
+    /** The only instance of the "children" built-in selector. */
     private static ChildrenSelector instance = null;
 
-    /**
-     * The name of the selector.
-     */
+    /** The name of the selector. */
     public static final String NAME = "children";
 
-    /**
-     * The arms representing the "children" selector execution.
-     */
+    /** The arms representing the "children" selector execution. */
     public final SelectorArm[] arms;
 
     // ----- Constructors -----
 
-    /**
-     * Private constructor.
-     */
+    /** Private constructor. */
     private ChildrenSelector() {
         this.arms = createArms();
     }
@@ -97,10 +87,7 @@ public final class ChildrenSelector implements BuiltInSelector {
     @Override
     public SelectorValue getValue() {
         return new BuiltInSelectorValue(
-            NAME,
-            "Yields all the descendants of the given node in the tree\n",
-            this.arms
-        );
+                NAME, "Yields all the descendants of the given node in the tree\n", this.arms);
     }
 
     // ----- Class methods -----
@@ -115,30 +102,25 @@ public final class ChildrenSelector implements BuiltInSelector {
         SelectorArm[] res = new SelectorArm[2];
 
         // Create the children path
-        DotAccess toUnpack = DotAccessNodeGen.create(
-            null,
-            new Identifier(null, "children"),
-            new ReadBuiltInThis()
-        );
-        SelectorArm childrenPath = new SelectorArm(
-            null,
-            new NodeKindPattern(null, "AdaNode"),
-            new SelectorExpr(null, SelectorExpr.Mode.REC,
-                new Unpack(null, toUnpack)
-            )
-        );
+        DotAccess toUnpack =
+                DotAccessNodeGen.create(
+                        null, new Identifier(null, "children"), new ReadBuiltInThis());
+        SelectorArm childrenPath =
+                new SelectorArm(
+                        null,
+                        new NodeKindPattern(null, "AdaNode"),
+                        new SelectorExpr(null, SelectorExpr.Mode.REC, new Unpack(null, toUnpack)));
         res[0] = childrenPath;
 
         // Create the universal path
-        SelectorArm universalPath = new SelectorArm(
-            null,
-            new UniversalPattern(null),
-            new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null))
-        );
+        SelectorArm universalPath =
+                new SelectorArm(
+                        null,
+                        new UniversalPattern(null),
+                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
         res[1] = universalPath;
 
         // Return the result
         return res;
     }
-
 }

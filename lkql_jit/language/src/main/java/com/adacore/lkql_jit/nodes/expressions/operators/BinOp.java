@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
@@ -27,7 +26,6 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.NodeChild;
-
 
 /**
  * This node is the base of all binary operations in the LKQL language.
@@ -40,14 +38,10 @@ public abstract class BinOp extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * The location of the left node.
-     */
+    /** The location of the left node. */
     protected final DummyLocation leftLocation;
 
-    /**
-     * The location of the right node.
-     */
+    /** The location of the right node. */
     protected final DummyLocation rightLocation;
 
     // ----- Constructors -----
@@ -55,18 +49,14 @@ public abstract class BinOp extends Expr {
     /**
      * Create a binary operation node.
      *
-     * @param location      The location of the node in the source.
-     * @param leftLocation  The location of the left node.
+     * @param location The location of the node in the source.
+     * @param leftLocation The location of the left node.
      * @param rightLocation The location of the right node.
      */
     protected BinOp(
-        SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
-    ) {
+            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
         super(location);
         this.leftLocation = leftLocation;
         this.rightLocation = rightLocation;
     }
-
 }

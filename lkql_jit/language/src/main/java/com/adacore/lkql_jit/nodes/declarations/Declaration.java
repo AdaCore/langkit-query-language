@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,15 +17,13 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
-
 
 /**
  * This node represents all declarations done in the LKQL: language imports, values or functions.
@@ -36,26 +34,19 @@ public abstract class Declaration extends LKQLNode {
 
     // ----- Children -----
 
-    /**
-     * Annotation of the declaration.
-     */
-    @Child
-    protected Annotation annotation;
+    /** Annotation of the declaration. */
+    @Child protected Annotation annotation;
 
     // ----- Constructors -----
 
     /**
      * Create the declaration node.
      *
-     * @param location   The location of the node in the source.
+     * @param location The location of the node in the source.
      * @param annotation The annotation associated with the declaration.
      */
-    protected Declaration(
-        SourceLocation location,
-        Annotation annotation
-    ) {
+    protected Declaration(SourceLocation location, Annotation annotation) {
         super(location);
         this.annotation = annotation;
     }
-
 }

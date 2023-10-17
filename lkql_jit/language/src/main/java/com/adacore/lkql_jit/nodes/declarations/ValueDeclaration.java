@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.declarations;
-
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
@@ -39,16 +37,12 @@ public final class ValueDeclaration extends Declaration {
 
     // ----- Attributes -----
 
-    /**
-     * Frame slot to place the value in.
-     */
+    /** Frame slot to place the value in. */
     private final int slot;
 
     // ----- Children -----
 
-    /**
-     * The expression representing the value of the variable.
-     */
+    /** The expression representing the value of the variable. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr value;
@@ -59,14 +53,10 @@ public final class ValueDeclaration extends Declaration {
      * Create a new value declaration node.
      *
      * @param location The location of the node in the source.
-     * @param slot     The frame slot to place the value in.
-     * @param value    The expression representing the value.
+     * @param slot The frame slot to place the value in.
+     * @param value The expression representing the value.
      */
-    public ValueDeclaration(
-        final SourceLocation location,
-        final int slot,
-        final Expr value
-    ) {
+    public ValueDeclaration(final SourceLocation location, final int slot, final Expr value) {
         super(location, null);
         this.slot = slot;
         this.value = value;
@@ -75,7 +65,8 @@ public final class ValueDeclaration extends Declaration {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -91,10 +82,6 @@ public final class ValueDeclaration extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"slot"},
-            new Object[]{this.slot}
-        );
+                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
     }
-
 }

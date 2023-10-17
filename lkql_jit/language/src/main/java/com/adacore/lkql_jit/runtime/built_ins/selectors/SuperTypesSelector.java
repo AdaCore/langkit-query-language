@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.selectors;
 
@@ -39,7 +38,6 @@ import com.adacore.lkql_jit.nodes.patterns.node_patterns.NodeKindPattern;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInSelectorValue;
 import com.adacore.lkql_jit.runtime.values.SelectorValue;
 
-
 /**
  * This class represents the "super_types" built-in selector.
  *
@@ -49,26 +47,18 @@ public final class SuperTypesSelector implements BuiltInSelector {
 
     // ----- Attributes -----
 
-    /**
-     * The only instance of the "super_types" built-in selector.
-     */
+    /** The only instance of the "super_types" built-in selector. */
     private static SuperTypesSelector instance = null;
 
-    /**
-     * The name of the selector.
-     */
+    /** The name of the selector. */
     public static final String NAME = "super_types";
 
-    /**
-     * The arms representing the "super_types" selector execution.
-     */
+    /** The arms representing the "super_types" selector execution. */
     public final SelectorArm[] arms;
 
     // ----- Constructors -----
 
-    /**
-     * Private constructors.
-     */
+    /** Private constructors. */
     private SuperTypesSelector() {
         this.arms = createArms();
     }
@@ -101,10 +91,7 @@ public final class SuperTypesSelector implements BuiltInSelector {
     @Override
     public SelectorValue getValue() {
         return new BuiltInSelectorValue(
-            NAME,
-            "Given a TypeDecl node, yields all the super types of the type\n",
-            this.arms
-        );
+                NAME, "Given a TypeDecl node, yields all the super types of the type\n", this.arms);
     }
 
     // ----- Class methods -----
@@ -119,37 +106,29 @@ public final class SuperTypesSelector implements BuiltInSelector {
         SelectorArm[] res = new SelectorArm[2];
 
         // Create the base type path
-        DotAccess propertyAccess = DotAccessNodeGen.create(
-            null,
-            new Identifier(null, "p_base_types"),
-            new ReadBuiltInThis()
-        );
-        FunCall propertyCall = FunCallNodeGen.create(
-            null,
-            false,
-            null,
-            new ArgList(null, new Arg[0]),
-            propertyAccess
-        );
-        SelectorArm baseTypePath = new SelectorArm(
-            null,
-            new NodeKindPattern(null, "BaseTypeDecl"),
-            new SelectorExpr(null, SelectorExpr.Mode.REC,
-                new Unpack(null, propertyCall)
-            )
-        );
+        DotAccess propertyAccess =
+                DotAccessNodeGen.create(
+                        null, new Identifier(null, "p_base_types"), new ReadBuiltInThis());
+        FunCall propertyCall =
+                FunCallNodeGen.create(
+                        null, false, null, new ArgList(null, new Arg[0]), propertyAccess);
+        SelectorArm baseTypePath =
+                new SelectorArm(
+                        null,
+                        new NodeKindPattern(null, "BaseTypeDecl"),
+                        new SelectorExpr(
+                                null, SelectorExpr.Mode.REC, new Unpack(null, propertyCall)));
         res[0] = baseTypePath;
 
         // Create the universal path
-        SelectorArm universalPath = new SelectorArm(
-            null,
-            new UniversalPattern(null),
-            new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null))
-        );
+        SelectorArm universalPath =
+                new SelectorArm(
+                        null,
+                        new UniversalPattern(null),
+                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
         res[1] = universalPath;
 
         // Return the result
         return res;
     }
-
 }

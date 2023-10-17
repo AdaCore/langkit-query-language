@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions;
 
@@ -47,9 +46,7 @@ public abstract class Indexing extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * Whether the indexing is safe.
-     */
+    /** Whether the indexing is safe. */
     protected final boolean isSafe;
 
     // ----- Constructors -----
@@ -58,12 +55,9 @@ public abstract class Indexing extends Expr {
      * Create an indexing node with the needed parameters.
      *
      * @param location The location of the node in the source.
-     * @param isSafe   Whether the indexing operation is safe.
+     * @param isSafe Whether the indexing operation is safe.
      */
-    protected Indexing(
-        SourceLocation location,
-        boolean isSafe
-    ) {
+    protected Indexing(SourceLocation location, boolean isSafe) {
         super(location);
         this.isSafe = isSafe;
     }
@@ -74,7 +68,7 @@ public abstract class Indexing extends Expr {
      * Get a value in the collection with a long index.
      *
      * @param collection The collection to get the element from.
-     * @param index      The index of the wanted element.
+     * @param index The index of the wanted element.
      * @return The element of the collection.
      */
     @Specialization
@@ -93,7 +87,7 @@ public abstract class Indexing extends Expr {
     /**
      * Specialization for the indexing operation on a node.
      *
-     * @param node  The node to get the child from.
+     * @param node The node to get the child from.
      * @param index The index of the child to get.
      * @return The child or null if there is none.
      */
@@ -112,22 +106,16 @@ public abstract class Indexing extends Expr {
      * Fallback methods when the indexing operation cannot be performed.
      *
      * @param collection The maybe invalid collection.
-     * @param index      The maybe invalid index.
+     * @param index The maybe invalid index.
      */
     @Fallback
     protected void indexError(Object collection, Object index) {
         if (!LKQLTypeSystemGen.isIndexable(collection)) {
             throw LKQLRuntimeException.wrongType(
-                "list, tuple, node or iterator",
-                LKQLTypesHelper.fromJava(collection),
-                this
-            );
+                    "list, tuple, node or iterator", LKQLTypesHelper.fromJava(collection), this);
         } else {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_INTEGER,
-                LKQLTypesHelper.fromJava(index),
-                this
-            );
+                    LKQLTypesHelper.LKQL_INTEGER, LKQLTypesHelper.fromJava(index), this);
         }
     }
 
@@ -139,10 +127,6 @@ public abstract class Indexing extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"isSafe"},
-            new Object[]{this.isSafe}
-        );
+                indentLevel, new String[] {"isSafe"}, new Object[] {this.isSafe});
     }
-
 }

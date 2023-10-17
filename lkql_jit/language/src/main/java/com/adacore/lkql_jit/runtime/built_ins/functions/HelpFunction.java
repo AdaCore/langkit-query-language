@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
@@ -27,13 +26,11 @@ import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This class represents "help" built-in function in the LKQL language.
@@ -44,35 +41,34 @@ public final class HelpFunction {
 
     // ----- Attributes -----
 
-    /**
-     * The name of the function.
-     */
+    /** The name of the function. */
     public static final String NAME = "help";
 
     // ----- Class methods -----
 
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-            NAME,
-            "Given any object, return formatted help for it",
-            new String[]{"obj"},
-            new Expr[]{null},
+                NAME,
+                "Given any object, return formatted help for it",
+                new String[] {"obj"},
+                new Expr[] {null},
+                (VirtualFrame frame, FunCall call) -> {
+                    // Get the argument
+                    Object arg = frame.getArguments()[0];
 
-            (VirtualFrame frame, FunCall call) -> {
-                // Get the argument
-                Object arg = frame.getArguments()[0];
+                    // If the argument is an LKQL value, read the documentation from ir
+                    if (LKQLTypeSystemGen.isLKQLValue(arg)) {
+                        LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
+                        LKQLLanguage.getContext(call)
+                                .println(
+                                        StringUtils.concat(
+                                                value.getProfile(),
+                                                "\n",
+                                                value.getDocumentation()));
+                    }
 
-                // If the argument is an LKQL value, read the documentation from ir
-                if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                    LKQLValue value = LKQLTypeSystemGen.asLKQLValue(arg);
-                    LKQLLanguage.getContext(call).println(StringUtils.concat(
-                        value.getProfile(), "\n", value.getDocumentation()
-                    ));
-                }
-
-                // Return the default empty documentation
-                return UnitValue.getInstance();
-            }
-        );
+                    // Return the default empty documentation
+                    return UnitValue.getInstance();
+                });
     }
 }

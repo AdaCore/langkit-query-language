@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.declarations;
-
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.FunExpr;
@@ -45,52 +43,40 @@ public final class FunctionDeclaration extends Declaration {
 
     // ----- Attributes -----
 
-    /**
-     * Name of the declared function.
-     */
+    /** Name of the declared function. */
     private final String name;
 
-    /**
-     * Local slot to place the function value in.
-     */
+    /** Local slot to place the function value in. */
     private final int slot;
 
-    /**
-     * If the function is annotated as memoized.
-     */
+    /** If the function is annotated as memoized. */
     private final boolean isMemoized;
 
-    /**
-     * If the function is annotated as a checker.
-     */
+    /** If the function is annotated as a checker. */
     private final CheckerMode checkerMode;
 
     // ----- Children -----
 
-    /**
-     * Expression to get the function value from.
-     */
-    @Child
-    private FunExpr functionExpression;
+    /** Expression to get the function value from. */
+    @Child private FunExpr functionExpression;
 
     // ----- Constructors -----
 
     /**
      * Create a new function declaration node.
      *
-     * @param location           The location of the node in the source.
-     * @param annotation         The annotation on the function if there is one (can be null).
-     * @param name               The name of the declared function.
-     * @param slot               The local slot to place the function in.
+     * @param location The location of the node in the source.
+     * @param annotation The annotation on the function if there is one (can be null).
+     * @param name The name of the declared function.
+     * @param slot The local slot to place the function in.
      * @param functionExpression The expression which returns the function value.
      */
     public FunctionDeclaration(
-        final SourceLocation location,
-        final Annotation annotation,
-        final String name,
-        final int slot,
-        final FunExpr functionExpression
-    ) {
+            final SourceLocation location,
+            final Annotation annotation,
+            final String name,
+            final int slot,
+            final FunExpr functionExpression) {
         super(location, annotation);
         this.name = name;
         this.slot = slot;
@@ -139,19 +125,18 @@ public final class FunctionDeclaration extends Declaration {
 
     // ----- Instance methods -----
 
-    /**
-     * Export the checker object in the LKQL context.
-     */
+    /** Export the checker object in the LKQL context. */
     private void exportChecker(VirtualFrame frame, FunctionValue functionValue) {
         // Execute the annotation arguments
-        final Object[] checkerArguments = this.annotation.getArguments().executeArgList(
-            frame,
-            Constants.CHECKER_PARAMETER_NAMES
-        );
+        final Object[] checkerArguments =
+                this.annotation
+                        .getArguments()
+                        .executeArgList(frame, Constants.CHECKER_PARAMETER_NAMES);
 
         // Set the default values of the checker arguments
         for (int i = 0; i < checkerArguments.length; i++) {
-            if (checkerArguments[i] == null) checkerArguments[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
+            if (checkerArguments[i] == null)
+                checkerArguments[i] = Constants.CHECKER_PARAMETER_DEFAULT_VALUES[i];
         }
 
         // Verify the message and help
@@ -164,23 +149,19 @@ public final class FunctionDeclaration extends Declaration {
         }
 
         // Create the object value representing the checker
-        final ObjectValue checkerObject = new ObjectValue(
-            ArrayUtils.concat(Constants.CHECKER_PARAMETER_NAMES, new String[]{"function", "name", "mode"}),
-            ArrayUtils.concat(
-                checkerArguments,
-                new Object[]{
-                    functionValue,
-                    this.name,
-                    this.checkerMode
-                }
-            )
-        );
+        final ObjectValue checkerObject =
+                new ObjectValue(
+                        ArrayUtils.concat(
+                                Constants.CHECKER_PARAMETER_NAMES,
+                                new String[] {"function", "name", "mode"}),
+                        ArrayUtils.concat(
+                                checkerArguments,
+                                new Object[] {functionValue, this.name, this.checkerMode}));
 
         // Put the object in the context
-        LKQLLanguage.getContext(this).getGlobal().addChecker(
-            StringUtils.toLowerCase(functionValue.getName()),
-            checkerObject
-        );
+        LKQLLanguage.getContext(this)
+                .getGlobal()
+                .addChecker(StringUtils.toLowerCase(functionValue.getName()), checkerObject);
     }
 
     // ----- Override methods -----
@@ -191,32 +172,20 @@ public final class FunctionDeclaration extends Declaration {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"slot"},
-            new Object[]{this.slot}
-        );
+                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
     }
 
     // ----- Inner classes -----
 
-    /**
-     * Enum representing the checker mode of a function
-     */
+    /** Enum representing the checker mode of a function */
     public enum CheckerMode {
-        /**
-         * The function is not a checker.
-         */
+        /** The function is not a checker. */
         OFF,
 
-        /**
-         * The function is a node checker.
-         */
+        /** The function is a node checker. */
         NODE,
 
-        /**
-         * The function is a unit checker.
-         */
+        /** The function is a unit checker. */
         UNIT
     }
-
 }

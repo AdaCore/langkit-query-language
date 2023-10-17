@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions;
 
@@ -42,7 +41,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-
 /**
  * This node represents a function call node in the LKQL language.
  *
@@ -53,28 +51,20 @@ public abstract class FunCall extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * Whether the function call is safe access.
-     */
+    /** Whether the function call is safe access. */
     protected final boolean isSafe;
 
-    /**
-     * The location of the callee token.
-     */
+    /** The location of the callee token. */
     protected final DummyLocation calleeLocation;
 
     // ----- Children -----
 
-    /**
-     * The function call arguments.
-     */
+    /** The function call arguments. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ArgList argList;
 
-    /**
-     * The function dispatch node to optimize execution.
-     */
+    /** The function dispatch node to optimize execution. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private FunctionDispatcher dispatcher;
@@ -84,17 +74,16 @@ public abstract class FunCall extends Expr {
     /**
      * Create a new function call node.
      *
-     * @param location       The location of the node in the source.
-     * @param isSafe         Whether the function call is protected with a safe operator.
+     * @param location The location of the node in the source.
+     * @param isSafe Whether the function call is protected with a safe operator.
      * @param calleeLocation The location of the callee expression.
-     * @param argList        The arguments of the function call.
+     * @param argList The arguments of the function call.
      */
     protected FunCall(
-        SourceLocation location,
-        boolean isSafe,
-        DummyLocation calleeLocation,
-        ArgList argList
-    ) {
+            SourceLocation location,
+            boolean isSafe,
+            DummyLocation calleeLocation,
+            ArgList argList) {
         super(location);
         this.isSafe = isSafe;
         this.calleeLocation = calleeLocation;
@@ -113,15 +102,12 @@ public abstract class FunCall extends Expr {
     /**
      * Execute the function call on a built-in function.
      *
-     * @param frame                The frame to execute the built-in in.
+     * @param frame The frame to execute the built-in in.
      * @param builtInFunctionValue The built-in function.
      * @return The result of the built-in call.
      */
     @Specialization
-    protected Object onBuiltIn(
-        VirtualFrame frame,
-        BuiltInFunctionValue builtInFunctionValue
-    ) {
+    protected Object onBuiltIn(VirtualFrame frame, BuiltInFunctionValue builtInFunctionValue) {
         // Set the call node in the built-in function
         builtInFunctionValue.setCallNode(this);
 
@@ -130,8 +116,13 @@ public abstract class FunCall extends Expr {
         Expr[] defaultValues = builtInFunctionValue.getDefaultValues();
 
         // Execute the argument list
-        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle compilation error
-        Object[] realArgs = this.argList.executeArgList(frame.materialize(), actualParam, builtInFunctionValue.getThisValue() == null ? 0 : 1);
+        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
+        // compilation error
+        Object[] realArgs =
+                this.argList.executeArgList(
+                        frame.materialize(),
+                        actualParam,
+                        builtInFunctionValue.getThisValue() == null ? 0 : 1);
 
         // Add the "this" value to the arguments
         if (builtInFunctionValue.getThisValue() != null) {
@@ -157,21 +148,19 @@ public abstract class FunCall extends Expr {
     /**
      * Execute the function call on a function value.
      *
-     * @param frame         The frame to execution the function in.
+     * @param frame The frame to execution the function in.
      * @param functionValue The function value to execute.
      * @return The result of the function call.
      */
     @Specialization
-    protected Object onFunction(
-        VirtualFrame frame,
-        FunctionValue functionValue
-    ) {
+    protected Object onFunction(VirtualFrame frame, FunctionValue functionValue) {
         // Get the real argument names and default values
         String[] actualParam = functionValue.getParamNames();
         Expr[] defaultValues = functionValue.getDefaultValues();
 
         // Prepare the argument array and the working var
-        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle compilation error
+        // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
+        // compilation error
         Object[] realArgs = this.argList.executeArgList(frame.materialize(), actualParam);
 
         // Verify if there is no missing argument and evaluate the default values
@@ -186,7 +175,8 @@ public abstract class FunCall extends Expr {
         }
 
         // Place the closure in the arguments
-        realArgs = ArrayUtils.concat(new Object[]{functionValue.getClosure().getContent()}, realArgs);
+        realArgs =
+                ArrayUtils.concat(new Object[] {functionValue.getClosure().getContent()}, realArgs);
 
         // Return the result of the function call
         return this.dispatcher.executeDispatch(functionValue, realArgs);
@@ -195,15 +185,12 @@ public abstract class FunCall extends Expr {
     /**
      * Execute the function call on a property reference value.
      *
-     * @param frame            The frame to execute the property reference in.
+     * @param frame The frame to execute the property reference in.
      * @param propertyRefValue The property reference value to execute.
      * @return The result of the property call.
      */
     @Specialization
-    protected Object onProperty(
-        VirtualFrame frame,
-        PropertyRefValue propertyRefValue
-    ) {
+    protected Object onProperty(VirtualFrame frame, PropertyRefValue propertyRefValue) {
         // Execute the arguments as a simple array
         Object[] arguments = this.argList.executeArgList(frame);
 
@@ -214,23 +201,18 @@ public abstract class FunCall extends Expr {
     /**
      * Execute function call on a selector value.
      *
-     * @param frame         The frame to execute the selector value in.
+     * @param frame The frame to execute the selector value in.
      * @param selectorValue The selector value to execute.
      * @return The result of the selector value execution.
      */
     @Specialization
-    protected SelectorListValue onSelector(
-        VirtualFrame frame,
-        SelectorValue selectorValue
-    ) {
+    protected SelectorListValue onSelector(VirtualFrame frame, SelectorValue selectorValue) {
         // Get the argument list and get the node from it
         Arg[] argList = this.argList.getArgs();
 
         // Verify the argument number
         if (argList.length < 1) {
-            throw LKQLRuntimeException.selectorWithoutNode(
-                this
-            );
+            throw LKQLRuntimeException.selectorWithoutNode(this);
         }
 
         // Get the node from the argument
@@ -239,10 +221,7 @@ public abstract class FunCall extends Expr {
             node = argList[0].getArgExpr().executeNode(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE,
-                LKQLTypesHelper.fromJava(e.getResult()),
-                argList[0]
-            );
+                    LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(e.getResult()), argList[0]);
         }
 
         // Return the selector list value
@@ -268,10 +247,9 @@ public abstract class FunCall extends Expr {
     @Fallback
     protected void nonExecutable(Object nonExec) {
         throw LKQLRuntimeException.wrongType(
-            LKQLTypesHelper.LKQL_FUNCTION,
-            LKQLTypesHelper.fromJava(nonExec),
-            this.calleeLocation
-        );
+                LKQLTypesHelper.LKQL_FUNCTION,
+                LKQLTypesHelper.fromJava(nonExec),
+                this.calleeLocation);
     }
 
     // ----- Override methods -----
@@ -282,10 +260,6 @@ public abstract class FunCall extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"isSafe"},
-            new Object[]{this.isSafe}
-        );
+                indentLevel, new String[] {"isSafe"}, new Object[] {this.isSafe});
     }
-
 }

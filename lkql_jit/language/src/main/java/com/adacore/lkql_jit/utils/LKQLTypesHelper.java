@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils;
 
@@ -30,9 +29,7 @@ import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.math.BigInteger;
-
 
 /**
  * This class contains all helper values to manipulate LKQL types.
@@ -43,99 +40,61 @@ public final class LKQLTypesHelper {
 
     // ----- Static values -----
 
-    /**
-     * The string representing the LKQL indexable interface.
-     */
+    /** The string representing the LKQL indexable interface. */
     public static final String LKQL_INDEXABLE = "Indexable";
 
-    /**
-     * The string representing the LKQL iterable interface.
-     */
+    /** The string representing the LKQL iterable interface. */
     public static final String LKQL_ITERABLE = "Iterable";
 
-    /**
-     * The string representing the LKQL unit type.
-     */
+    /** The string representing the LKQL unit type. */
     public static final String LKQL_UNIT = "Unit";
 
-    /**
-     * The string representing the LKQL boolean type.
-     */
+    /** The string representing the LKQL boolean type. */
     public static final String LKQL_BOOLEAN = "Bool";
 
-    /**
-     * The string representing the LKQL integer type.
-     */
+    /** The string representing the LKQL integer type. */
     public static final String LKQL_INTEGER = "Int";
 
-    /**
-     * The string representing the LKQL string type.
-     */
+    /** The string representing the LKQL string type. */
     public static final String LKQL_STRING = "Str";
 
-    /**
-     * The string representing the LKQL pattern type.
-     */
+    /** The string representing the LKQL pattern type. */
     public static final String LKQL_PATTERN = "Pattern";
 
-    /**
-     * The string representing the LKQL functional type.
-     */
+    /** The string representing the LKQL functional type. */
     public static final String LKQL_FUNCTION = "Function";
 
-    /**
-     * The string representing the LKQL property reference type.
-     */
+    /** The string representing the LKQL property reference type. */
     public static final String LKQL_PROPERTY_REF = "Property_Reference";
 
-    /**
-     * The string representing the LKQL selector type.
-     */
+    /** The string representing the LKQL selector type. */
     public static final String LKQL_SELECTOR = "Selector";
 
-    /**
-     * The string representing the LKQL tuple type.
-     */
+    /** The string representing the LKQL tuple type. */
     public static final String LKQL_TUPLE = "Tuple";
 
-    /**
-     * The string representing the LKQL list type.
-     */
+    /** The string representing the LKQL list type. */
     public static final String LKQL_LIST = "List";
 
-    /**
-     * The string representing the LKQL lazy list type.
-     */
+    /** The string representing the LKQL lazy list type. */
     public static final String LKQL_LAZY_LIST = "Lazy_List";
 
-    /**
-     * The string representing the LKQL selector list type.
-     */
+    /** The string representing the LKQL selector list type. */
     public static final String LKQL_SELECTOR_LIST = "Selector_List";
 
-    /**
-     * The string representing the LKQL object type.
-     */
+    /** The string representing the LKQL object type. */
     public static final String LKQL_OBJECT = "Object";
 
-    /**
-     * The string representing the LKQL namespace type.
-     */
+    /** The string representing the LKQL namespace type. */
     public static final String LKQL_NAMESPACE = "Namespace";
 
-    /**
-     * The string representing the ada node type.
-     */
+    /** The string representing the ada node type. */
     public static final String ADA_NODE = "Node";
 
-    /**
-     * The string representing the token type.
-     */
+    /** The string representing the token type. */
     public static final String TOKEN = "Token";
 
-    /**
-     * The string representing the analysis unit type.
-     */
+    /** The string representing the analysis unit type. */
     public static final String ANALYSIS_UNIT = "Analysis_Unit";
 
     // ----- Class methods -----
@@ -164,14 +123,16 @@ public final class LKQLTypesHelper {
     /**
      * Get the string representation of the Java type for the LKQL language.
      *
-     * @param obj          The object to get the type for.
+     * @param obj The object to get the type for.
      * @param defaultValue The default value to return.
      * @return The string representing the type in the LKQL language.
      */
     public static String fromJava(Object obj, String defaultValue) {
         if (LKQLTypeSystemGen.isUnit(obj)) {
             return LKQL_UNIT;
-        } else if (LKQLTypeSystemGen.isLong(obj) || LKQLTypeSystemGen.isBigInteger(obj) || obj instanceof Integer) {
+        } else if (LKQLTypeSystemGen.isLong(obj)
+                || LKQLTypeSystemGen.isBigInteger(obj)
+                || obj instanceof Integer) {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
@@ -223,8 +184,8 @@ public final class LKQLTypesHelper {
     }
 
     /**
-     * Get the category of value for the given Java type.
-     * This category represents a kind of value from Libadalang which cannot be imported in the LKQL context.
+     * Get the category of value for the given Java type. This category represents a kind of value
+     * from Libadalang which cannot be imported in the LKQL context.
      *
      * @param type The type to get the category for.
      * @return The type category.
@@ -318,12 +279,12 @@ public final class LKQLTypesHelper {
             Object[] values = {
                 aspect.exists,
                 aspect.inherited,
-                aspect.node.node.isNull() ?
-                    NodeNull.getInstance() :
-                    Libadalang.AdaNode.fromEntity(aspect.node),
-                aspect.value.node.isNull() ?
-                    NodeNull.getInstance() :
-                    Libadalang.AdaNode.fromEntity(aspect.value)
+                aspect.node.node.isNull()
+                        ? NodeNull.getInstance()
+                        : Libadalang.AdaNode.fromEntity(aspect.node),
+                aspect.value.node.isNull()
+                        ? NodeNull.getInstance()
+                        : Libadalang.AdaNode.fromEntity(aspect.value)
             };
             return new ObjectValue(keys, values);
         }
@@ -333,9 +294,9 @@ public final class LKQLTypesHelper {
             String[] keys = {"kind", "ref"};
             Object[] values = {
                 toLKQLValue(refResultStruct.kind),
-                refResultStruct.ref.node.isNull() ?
-                    NodeNull.getInstance() :
-                    Libadalang.AdaNode.fromEntity(refResultStruct.ref)
+                refResultStruct.ref.node.isNull()
+                        ? NodeNull.getInstance()
+                        : Libadalang.AdaNode.fromEntity(refResultStruct.ref)
             };
             return new ObjectValue(keys, values);
         }
@@ -387,5 +348,4 @@ public final class LKQLTypesHelper {
             return lkqlValue;
         }
     }
-
 }

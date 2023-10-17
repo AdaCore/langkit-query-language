@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,18 +17,16 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.utils.functions;
 
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-
 
 /**
  * Util functions to manipulate the arrays in the JIT implementation.
@@ -55,9 +53,9 @@ public final class ArrayUtils {
     /**
      * Compare the two array.
      *
-     * @param left  The left array.
+     * @param left The left array.
      * @param right The right array.
-     * @param <T>   The type of the array elements.
+     * @param <T> The type of the array elements.
      * @return The result of the comparison.
      */
     @CompilerDirectives.TruffleBoundary
@@ -77,9 +75,9 @@ public final class ArrayUtils {
     /**
      * Concatenate two array of arbitrary types.
      *
-     * @param left  The left array.
+     * @param left The left array.
      * @param right The right array.
-     * @param <T>   The array type.
+     * @param <T> The array type.
      * @return The concatenation of the arrays in a new array.
      */
     public static <T> T[] concat(T[] left, T[] right) {
@@ -92,30 +90,29 @@ public final class ArrayUtils {
      * Create an array where duplicate entries of input are deleted.
      *
      * @param array The input array.
-     * @param <T>   Type of the array.
+     * @param <T> Type of the array.
      * @return The unique array.
      */
     @CompilerDirectives.TruffleBoundary
-    public static <T> T[] unique(T[] array) {
+    public static <T> List<T> unique(T[] array) {
         ArrayList<T> resList = new ArrayList<>();
         for (T elem : array) {
             if (!resList.contains(elem)) {
                 resList.add(elem);
             }
         }
-        return (T[]) resList.toArray();
+        return resList;
     }
 
     /**
      * Get the string representation of a given array.
      *
      * @param array The array to get the representation from.
-     * @param <T>   The type of the array elements.
+     * @param <T> The type of the array elements.
      * @return The string representation of the array.
      */
     @CompilerDirectives.TruffleBoundary
     public static <T> String toString(T[] array) {
         return Arrays.toString(array);
     }
-
 }

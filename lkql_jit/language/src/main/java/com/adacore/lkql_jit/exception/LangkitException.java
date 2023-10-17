@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,16 +17,14 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.exception;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
-
+import java.io.Serial;
 
 /**
  * This class represents an exception from a Langkit call.
@@ -37,19 +35,15 @@ public final class LangkitException extends AbstractTruffleException {
 
     // ----- Attributes -----
 
-    /**
-     * Kind of the Langkit exception.
-     */
+    @Serial private static final long serialVersionUID = 1755847711876252095L;
+
+    /** Kind of the Langkit exception. */
     private final String kind;
 
-    /**
-     * Message of the exception.
-     */
+    /** Message of the exception. */
     private final String msg;
 
-    /**
-     * Location of the node which rose this error.
-     */
+    /** Location of the node which rose this error. */
     private final SourceLocation location;
 
     // ----- Constructors -----
@@ -57,15 +51,11 @@ public final class LangkitException extends AbstractTruffleException {
     /**
      * Create a new Langkit exception.
      *
-     * @param kind     The kind of the exception.
-     * @param msg      The message of the exception.
+     * @param kind The kind of the exception.
+     * @param msg The message of the exception.
      * @param location The location of the exception.
      */
-    public LangkitException(
-        String kind,
-        String msg,
-        SourceLocation location
-    ) {
+    public LangkitException(String kind, String msg, SourceLocation location) {
         this.kind = kind;
         this.msg = msg;
         this.location = location;
@@ -84,5 +74,4 @@ public final class LangkitException extends AbstractTruffleException {
     public SourceLocation getLoc() {
         return location;
     }
-
 }

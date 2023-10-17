@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.match;
 
@@ -33,7 +32,6 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
  * This node represents an arm from a match expression in the LKQL language.
  *
@@ -43,16 +41,12 @@ public abstract class MatchArm extends LKQLNode {
 
     // ----- Children -----
 
-    /**
-     * Pattern to match during the execution.
-     */
+    /** Pattern to match during the execution. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
 
-    /**
-     * Result of the arm execution.
-     */
+    /** Result of the arm execution. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
@@ -63,14 +57,10 @@ public abstract class MatchArm extends LKQLNode {
      * Create a new match arm node.
      *
      * @param location The location of the node in the source.
-     * @param pattern  The pattern of the match arm.
-     * @param expr     The result of the match arm.
+     * @param pattern The pattern of the match arm.
+     * @param expr The result of the match arm.
      */
-    protected MatchArm(
-        SourceLocation location,
-        BasePattern pattern,
-        Expr expr
-    ) {
+    protected MatchArm(SourceLocation location, BasePattern pattern, Expr expr) {
         super(location);
         this.pattern = pattern;
         this.expr = expr;
@@ -89,7 +79,8 @@ public abstract class MatchArm extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public final Object executeGeneric(VirtualFrame frame) {
@@ -108,7 +99,7 @@ public abstract class MatchArm extends LKQLNode {
      * Execute the matching arm on a node value.
      *
      * @param frame The frame to execute in.
-     * @param node  The node value.
+     * @param node The node value.
      * @return The match expression if the pattern is valid.
      */
     @Specialization
@@ -124,7 +115,7 @@ public abstract class MatchArm extends LKQLNode {
      * Execute the matching arm on a string value.
      *
      * @param frame The frame to execute in.
-     * @param str   The string value.
+     * @param str The string value.
      * @return The match expression if the pattern is valid.
      */
     @Specialization
@@ -157,5 +148,4 @@ public abstract class MatchArm extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

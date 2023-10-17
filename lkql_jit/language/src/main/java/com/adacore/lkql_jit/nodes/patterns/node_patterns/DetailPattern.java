@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
@@ -30,7 +29,6 @@ import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
  * This node represents a pattern detail value in the LKQL language.
  *
@@ -40,9 +38,7 @@ public final class DetailPattern extends DetailValue {
 
     // ----- Children -----
 
-    /**
-     * The pattern to verify for the detail value.
-     */
+    /** The pattern to verify for the detail value. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private BasePattern pattern;
@@ -53,12 +49,9 @@ public final class DetailPattern extends DetailValue {
      * Create a new pattern detail.
      *
      * @param location The location of the node in the source.
-     * @param pattern  The pattern to verify.
+     * @param pattern The pattern to verify.
      */
-    public DetailPattern(
-        SourceLocation location,
-        BasePattern pattern
-    ) {
+    public DetailPattern(SourceLocation location, BasePattern pattern) {
         super(location);
         this.pattern = pattern;
     }
@@ -66,7 +59,9 @@ public final class DetailPattern extends DetailValue {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object)
+     * @see
+     *     com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame,
+     *     java.lang.Object)
      */
     @Override
     public boolean executeDetailValue(VirtualFrame frame, Object value) {
@@ -78,10 +73,7 @@ public final class DetailPattern extends DetailValue {
         // Verify that the value is a node
         if (!LKQLTypeSystemGen.isAdaNode(value)) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.ADA_NODE,
-                LKQLTypesHelper.fromJava(value),
-                this
-            );
+                    LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(value), this);
         }
 
         // Execute the pattern with the node
@@ -97,5 +89,4 @@ public final class DetailPattern extends DetailValue {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

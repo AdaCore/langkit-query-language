@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,16 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
@@ -30,17 +34,10 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-
-
 /**
- * This class represents the LKQL checker entry point with the LKQL JIT backend.
- * This is a TEMPORARY driver to perform efficiency tests on LKQL JIT in real life use case.
- * TODO : Support all flags and options of the lkql_checker original implementation.
+ * This class represents the LKQL checker entry point with the LKQL JIT backend. This is a TEMPORARY
+ * driver to perform efficiency tests on LKQL JIT in real life use case. TODO : Support all flags
+ * and options of the lkql_checker original implementation.
  *
  * @author Hugo GUERRIER
  */
@@ -48,9 +45,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
     // ----- Macros and enums -----
 
-    /**
-     * Represents the status of an argument.
-     */
+    /** Represents the status of an argument. */
     protected enum ArgumentStatus {
         Consumed,
         Unhandled,
@@ -58,73 +53,47 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         ExpectInt
     }
 
-    /**
-     * The identifier of the LKQL language.
-     */
+    /** The identifier of the LKQL language. */
     private static final String ID = "lkql";
 
     // ----- Launcher options -----
 
-    /**
-     * The charset to decode the LKQL sources.
-     */
+    /** The charset to decode the LKQL sources. */
     private String charset = null;
 
-    /**
-     * The project file to analyse.
-     */
+    /** The project file to analyse. */
     private String projectFile = null;
 
-    /**
-     * Source files to analyse.
-     */
+    /** Source files to analyse. */
     private final List<String> files = new ArrayList<>();
 
-    /**
-     * If the project analysis should be recursive.
-     */
+    /** If the project analysis should be recursive. */
     private boolean recursive = false;
 
-    /**
-     * Number of parallel jobs.
-     */
+    /** Number of parallel jobs. */
     private int jobs = 0;
 
-    /**
-     * If the verbose mode should be activated.
-     */
+    /** If the verbose mode should be activated. */
     private boolean verbose = false;
 
-    /**
-     * Whether to keep the engine running when a required file was not found
-     */
+    /** Whether to keep the engine running when a required file was not found */
     private boolean keepGoingOnMissingFile = false;
 
     // ----- Checker options -----
 
-    /**
-     * A directory containing all user added rules.
-     */
+    /** A directory containing all user added rules. */
     private String rulesDirs = null;
 
-    /**
-     * The rules to apply.
-     */
+    /** The rules to apply. */
     private String rules = null;
 
-    /**
-     * The arguments to pass to the rules.
-     */
+    /** The arguments to pass to the rules. */
     private List<String> rulesArgs = new ArrayList<>();
 
-    /**
-     * The source files to ignore during analysis.
-     */
+    /** The source files to ignore during analysis. */
     private String ignores = null;
 
-    /**
-     * The mode of error recovery.
-     */
+    /** The mode of error recovery. */
     private final String errorMode = "continue_and_warn";
 
     // ----- Checker methods -----
@@ -137,7 +106,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     @Override
     protected void printHelp(OptionCategory maxCategory) {
         System.out.println(
-            """
+                """
                 usage : lkql_jit_checker [options ...] files [files ...]
 
                 The LKQL checker using LKQL JIT compiler
@@ -165,8 +134,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                                                     Possible alternatives: continue_and_warn,
                                                     continue_and_log, raise_error. Default:
                                                     continue_and_warn
-                """
-        );
+                """);
     }
 
     /**
@@ -258,8 +226,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql")
-                .build();
+            final Source source = Source.newBuilder("lkql", checkerSource, "checker.lkql").build();
             final Value executable = context.parse(source);
             executable.executeVoid(true);
             return 0;
@@ -280,12 +247,13 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     /**
      * Get the checker specific argument and return the unparsed ones to the default parser.
      *
-     * @param arguments       The arguments to parse.
+     * @param arguments The arguments to parse.
      * @param polyglotOptions The polyglot options.
      * @return The unrecognized options.
      */
     @Override
-    protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
+    protected List<String> preprocessArguments(
+            List<String> arguments, Map<String, String> polyglotOptions) {
         // Prepare the list to return
         final List<String> unrecognizedArguments = new ArrayList<>();
 
@@ -378,12 +346,12 @@ public class LKQLChecker extends AbstractLanguageLauncher {
      */
     protected ArgumentStatus processFlag(String flag) {
         switch (flag) {
-            // The recursive flag
+                // The recursive flag
             case "recursive":
                 this.recursive = true;
                 break;
 
-            // The verbose flag
+                // The verbose flag
             case "verbose":
                 this.verbose = true;
                 break;
@@ -392,7 +360,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 this.keepGoingOnMissingFile = true;
                 break;
 
-            // Default behavior
+                // Default behavior
             default:
                 return ArgumentStatus.Unhandled;
         }
@@ -402,13 +370,13 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     /**
      * Process a flag with its argument.
      *
-     * @param flag  The flag to process.
+     * @param flag The flag to process.
      * @param value The argument value.
      * @return If the flag was consumed, unhandled or wrong.
      */
     protected ArgumentStatus processFlag(String flag, String value) {
         switch (flag) {
-            // The charset value
+                // The charset value
             case "charset":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -416,7 +384,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 this.charset = value;
                 break;
 
-            // The project value
+                // The project value
             case "project":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -424,7 +392,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 this.projectFile = value;
                 break;
 
-            // The jobs value
+                // The jobs value
             case "jobs":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -436,7 +404,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 }
                 break;
 
-            // The add rule dir
+                // The add rule dir
             case "rules-dirs":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -444,7 +412,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 this.rulesDirs = value;
                 break;
 
-            // The rule precision
+                // The rule precision
             case "rules":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -466,7 +434,7 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 this.ignores = value;
                 break;
 
-            // The default unhandled flag
+                // The default unhandled flag
             default:
                 return ArgumentStatus.Unhandled;
         }
@@ -492,12 +460,11 @@ public class LKQLChecker extends AbstractLanguageLauncher {
     // ----- The LKQL checker -----
 
     public static final String checkerSource =
-        """
+            """
             val analysis_units = specified_units()
             val roots = [unit.root for unit in analysis_units]
 
             map(roots, (root) => node_checker(root))
             map(analysis_units, (unit) => unit_checker(unit))
             """;
-
 }

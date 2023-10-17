@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2023, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,20 +17,17 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.runtime.values.ListValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This class represents the "units" built-in function in the LKQL language.
@@ -41,20 +38,17 @@ public final class SpecifiedUnitsFunction {
 
     // ----- Attributes -----
 
-    /**
-     * The name of the built-in.
-     */
+    /** The name of the built-in. */
     public static final String NAME = "specified_units";
 
     public static BuiltInFunctionValue getValue() {
         return new BuiltInFunctionValue(
-            NAME,
-            "Return an iterator on units specified by the user",
-            new String[]{},
-            new Expr[]{},
-            (VirtualFrame frame, FunCall call) -> {
-                return new ListValue(LKQLLanguage.getContext(call).getSpecifiedUnits());
-            }
-        );
+                NAME,
+                "Return an iterator on units specified by the user",
+                new String[] {},
+                new Expr[] {},
+                (VirtualFrame frame, FunCall call) -> {
+                    return new ListValue(LKQLLanguage.getContext(call).getSpecifiedUnits());
+                });
     }
 }

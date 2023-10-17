@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
@@ -34,7 +33,6 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 
-
 /**
  * This node represents the concatenation operation in the LKQL language.
  *
@@ -47,15 +45,12 @@ public abstract class BinConcat extends BinOp {
     /**
      * Create a concatenation node.
      *
-     * @param location      The location of the node in the source.
-     * @param leftLocation  The location of the left node.
+     * @param location The location of the node in the source.
+     * @param leftLocation The location of the left node.
      * @param rightLocation The location of the right node.
      */
     protected BinConcat(
-        SourceLocation location,
-        DummyLocation leftLocation,
-        DummyLocation rightLocation
-    ) {
+            SourceLocation location, DummyLocation leftLocation, DummyLocation rightLocation) {
         super(location, leftLocation, rightLocation);
     }
 
@@ -64,7 +59,7 @@ public abstract class BinConcat extends BinOp {
     /**
      * Concatenate two strings.
      *
-     * @param left  The left string value.
+     * @param left The left string value.
      * @param right The right string value.
      * @return The result of the string concatenation.
      */
@@ -76,7 +71,7 @@ public abstract class BinConcat extends BinOp {
     /**
      * Concatenate two lists.
      *
-     * @param left  The left list value.
+     * @param left The left list value.
      * @param right The right list value.
      * @return The result of the list concatenation.
      */
@@ -88,24 +83,17 @@ public abstract class BinConcat extends BinOp {
     /**
      * The fallback method if the concatenation is not applied to correct types.
      *
-     * @param left  The left value.
+     * @param left The left value.
      * @param right The right value.
      */
     @Fallback
     protected void nonConcatenable(Object left, Object right) {
         if (LKQLTypeSystemGen.isString(left) || LKQLTypeSystemGen.isListValue(left)) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.fromJava(left),
-                LKQLTypesHelper.fromJava(right),
-                this
-            );
+                    LKQLTypesHelper.fromJava(left), LKQLTypesHelper.fromJava(right), this);
         } else {
             throw LKQLRuntimeException.unsupportedOperation(
-                LKQLTypesHelper.fromJava(left),
-                "&",
-                LKQLTypesHelper.fromJava(right),
-                this
-            );
+                    LKQLTypesHelper.fromJava(left), "&", LKQLTypesHelper.fromJava(right), this);
         }
     }
 
@@ -118,5 +106,4 @@ public abstract class BinConcat extends BinOp {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.arguments;
 
@@ -28,7 +27,6 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This node represents a list of arguments in a function call.
@@ -39,11 +37,8 @@ public final class ArgList extends LKQLNode {
 
     // ----- Children -----
 
-    /**
-     * The arguments in the list.
-     */
-    @Children
-    private final Arg[] args;
+    /** The arguments in the list. */
+    @Children private final Arg[] args;
 
     // ----- Constructors -----
 
@@ -51,12 +46,9 @@ public final class ArgList extends LKQLNode {
      * Create a new argument list with its arguments.
      *
      * @param location The location of the argument list in the source.
-     * @param args     The arguments in the list.
+     * @param args The arguments in the list.
      */
-    public ArgList(
-        SourceLocation location,
-        Arg[] args
-    ) {
+    public ArgList(SourceLocation location, Arg[] args) {
         super(location);
         this.args = args;
     }
@@ -70,7 +62,8 @@ public final class ArgList extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -94,7 +87,7 @@ public final class ArgList extends LKQLNode {
     /**
      * Execute the argument list and order the results according to the parameter names.
      *
-     * @param frame      The frame to execute the arguments in.
+     * @param frame The frame to execute the arguments in.
      * @param paramNames The ordered names of the parameters.
      * @return The array with the argument values.
      */
@@ -105,19 +98,15 @@ public final class ArgList extends LKQLNode {
     /**
      * Execute the argument list and get the array of evaluated argument.
      *
-     * @param frame      The frame to execute the arguments in.
+     * @param frame The frame to execute the arguments in.
      * @param paramNames The names of the parameters.
-     * @param offset     The offset of the first argument.
+     * @param offset The offset of the first argument.
      * @return The array with the ordered and offset argument values.
      */
     public Object[] executeArgList(VirtualFrame frame, String[] paramNames, int offset) {
         // Verify the arity
         if (paramNames.length < this.args.length) {
-            throw LKQLRuntimeException.wrongArity(
-                paramNames.length,
-                args.length,
-                this
-            );
+            throw LKQLRuntimeException.wrongArity(paramNames.length, args.length, this);
         }
 
         // Prepare the result
@@ -137,7 +126,8 @@ public final class ArgList extends LKQLNode {
             if (index > -1) {
                 res[index] = arg.executeGeneric(frame);
             } else {
-                throw LKQLRuntimeException.unknownArgument(arg.getArgName().getName(), arg.getArgName());
+                throw LKQLRuntimeException.unknownArgument(
+                        arg.getArgName().getName(), arg.getArgName());
             }
         }
 
@@ -154,5 +144,4 @@ public final class ArgList extends LKQLNode {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

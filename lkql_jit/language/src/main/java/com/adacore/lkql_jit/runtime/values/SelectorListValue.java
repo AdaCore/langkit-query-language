@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
@@ -31,11 +30,9 @@ import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.adacore.lkql_jit.runtime.values.interfaces.LazyCollection;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-
 
 /**
  * This class represents a list returned by a selector call, this is a lazy list.
@@ -46,44 +43,28 @@ public final class SelectorListValue extends LazyCollection {
 
     // ----- Attributes -----
 
-    /**
-     * The root node of the selector.
-     */
+    /** The root node of the selector. */
     private final SelectorRootNode rootNode;
 
-    /**
-     * The closure for the root node execution.
-     */
+    /** The closure for the root node execution. */
     private final Closure closure;
 
-    /**
-     * The dispatcher for the selector root node.
-     */
-
+    /** The dispatcher for the selector root node. */
     private final SelectorDispatcher dispatcher;
-    /**
-     * The cache in a set to perform recursion guard.
-     */
+
+    /** The cache in a set to perform recursion guard. */
     private final HashSet<DepthNode> hashCache;
 
-    /**
-     * The list of the node to recurs on.
-     */
+    /** The list of the node to recurs on. */
     private final List<DepthNode> recursList;
 
-    /**
-     * The maximal depth for the return.
-     */
+    /** The maximal depth for the return. */
     private final int maxDepth;
 
-    /**
-     * The minimal depth for the return.
-     */
+    /** The minimal depth for the return. */
     private final int minDepth;
 
-    /**
-     * The precise depth to get from the selector.
-     */
+    /** The precise depth to get from the selector. */
     private final int depth;
 
     // ----- Constructors -----
@@ -92,21 +73,20 @@ public final class SelectorListValue extends LazyCollection {
      * Create a new selector list.
      *
      * @param rootNode The selector root node.
-     * @param closure  The closure for the root node execution.
-     * @param adaNode  The ada node.
+     * @param closure The closure for the root node execution.
+     * @param adaNode The ada node.
      * @param maxDepth The maximum depth of the returned nodes.
      * @param minDepth The minimum depth of the returned nodes.
-     * @param depth    The precise required depth of the returned nodes.
+     * @param depth The precise required depth of the returned nodes.
      */
     @CompilerDirectives.TruffleBoundary
     public SelectorListValue(
-        final SelectorRootNode rootNode,
-        final Closure closure,
-        final Libadalang.AdaNode adaNode,
-        final int maxDepth,
-        final int minDepth,
-        final int depth
-    ) {
+            final SelectorRootNode rootNode,
+            final Closure closure,
+            final Libadalang.AdaNode adaNode,
+            final int maxDepth,
+            final int minDepth,
+            final int depth) {
         super(0);
         this.rootNode = rootNode;
         this.closure = closure;
@@ -130,7 +110,9 @@ public final class SelectorListValue extends LazyCollection {
         while (!this.recursList.isEmpty() && (this.cache.size() - 1 < index || index == -1)) {
             // Get the first recurse item and execute the selector on it
             DepthNode nextNode = this.recursList.remove(0);
-            SelectorRootNode.SelectorCallResult result = this.dispatcher.executeDispatch(this.rootNode, this.closure.getContent(), nextNode);
+            SelectorRootNode.SelectorCallResult result =
+                    this.dispatcher.executeDispatch(
+                            this.rootNode, this.closure.getContent(), nextNode);
 
             // If the result is a selector call result, do the needed operations
             if (!LKQLTypeSystemGen.isNullish(result.result())) {
@@ -222,10 +204,8 @@ public final class SelectorListValue extends LazyCollection {
     private void addNodeResult(DepthNode node) {
         // If there is no defined depth
         if (this.depth < 0) {
-            if (
-                (this.maxDepth < 0 || node.getDepth() <= this.maxDepth) &&
-                    (this.minDepth < 0 || node.getDepth() >= this.minDepth)
-            ) {
+            if ((this.maxDepth < 0 || node.getDepth() <= this.maxDepth)
+                    && (this.minDepth < 0 || node.getDepth() >= this.minDepth)) {
                 this.cache.add(node);
                 this.hashCache.add(node);
             }
@@ -249,5 +229,4 @@ public final class SelectorListValue extends LazyCollection {
     private boolean isRecursionGuarded(DepthNode node) {
         return !this.hashCache.contains(node);
     }
-
 }

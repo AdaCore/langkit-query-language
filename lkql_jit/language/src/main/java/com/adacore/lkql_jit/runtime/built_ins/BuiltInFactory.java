@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.built_ins;
 
@@ -28,11 +27,8 @@ import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.runtime.built_ins.functions.*;
 import com.adacore.lkql_jit.runtime.built_ins.methods.*;
 import com.adacore.lkql_jit.runtime.built_ins.selectors.*;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
 
 /**
  * This class is a helper to add all built-ins of LKQL in the context and scope.
@@ -43,31 +39,21 @@ public final class BuiltInFactory {
 
     // ----- Attributes -----
 
-    /**
-     * The only instance of the built-in factory.
-     */
+    /** The only instance of the built-in factory. */
     private static BuiltInFactory instance = null;
 
-    /**
-     * The built-in function list.
-     */
+    /** The built-in function list. */
     private final List<BuiltInFunctionValue> builtInFunctions;
 
-    /**
-     * The built-in selector list.
-     */
+    /** The built-in selector list. */
     private final List<BuiltInSelector> builtInSelectors;
 
-    /**
-     * The built-in method list.
-     */
+    /** The built-in method list. */
     private final List<BuiltInMethods> builtInMethods;
 
     // ----- Static initializer -----
 
-    /**
-     * Create a build in factory as a singleton.
-     */
+    /** Create a build in factory as a singleton. */
     private BuiltInFactory() {
         this.builtInFunctions = new ArrayList<>();
         this.builtInSelectors = new ArrayList<>();
@@ -90,9 +76,7 @@ public final class BuiltInFactory {
         return instance;
     }
 
-    /**
-     * Initialize the built-in functions.
-     */
+    /** Initialize the built-in functions. */
     private void initializeFunctions() {
         this.builtInFunctions.add(PrintFunction.getValue());
         this.builtInFunctions.add(ImgFunction.getValue());
@@ -111,9 +95,7 @@ public final class BuiltInFactory {
         this.builtInFunctions.add(UnitCheckerFunction.getValue());
     }
 
-    /**
-     * Initialize the built-in selectors.
-     */
+    /** Initialize the built-in selectors. */
     private void initializeSelectors() {
         this.builtInSelectors.add(ChildrenSelector.getInstance());
         this.builtInSelectors.add(ParentSelector.getInstance());
@@ -122,9 +104,7 @@ public final class BuiltInFactory {
         this.builtInSelectors.add(SuperTypesSelector.getInstance());
     }
 
-    /**
-     * Initialize the built-in methods.
-     */
+    /** Initialize the built-in methods. */
     private void initializeMethods() {
         this.builtInMethods.add(UnitMethods.getInstance());
         this.builtInMethods.add(BoolMethods.getInstance());
@@ -186,9 +166,7 @@ public final class BuiltInFactory {
      *
      * @param scriptFramesBuilder The script frames builder to add the built-ins in.
      */
-    public void addBuiltIns(
-        final ScriptFramesBuilder scriptFramesBuilder
-    ) {
+    public void addBuiltIns(final ScriptFramesBuilder scriptFramesBuilder) {
         // Add the built-in functions
         for (BuiltInFunctionValue function : this.builtInFunctions) {
             scriptFramesBuilder.addBuiltIn(function.getName());
@@ -199,5 +177,4 @@ public final class BuiltInFactory {
             scriptFramesBuilder.addBuiltIn(selector.getName());
         }
     }
-
 }

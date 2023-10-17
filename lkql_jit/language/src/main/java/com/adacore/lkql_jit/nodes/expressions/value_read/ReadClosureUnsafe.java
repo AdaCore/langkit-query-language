@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,12 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.value_read;
-
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
@@ -38,9 +36,7 @@ public final class ReadClosureUnsafe extends BaseRead {
 
     // ----- Attributes -----
 
-    /**
-     * Symbol to read in the closure.
-     */
+    /** Symbol to read in the closure. */
     private final String name;
 
     // ----- Constructors -----
@@ -49,14 +45,10 @@ public final class ReadClosureUnsafe extends BaseRead {
      * Create a new closure read unsafe node.
      *
      * @param location The location of the node in the source.
-     * @param slot     The closure slot to read.
-     * @param name     The name of the closure symbol.
+     * @param slot The closure slot to read.
+     * @param name The name of the closure symbol.
      */
-    public ReadClosureUnsafe(
-        final SourceLocation location,
-        final int slot,
-        final String name
-    ) {
+    public ReadClosureUnsafe(final SourceLocation location, final int slot, final String name) {
         super(location, slot);
         this.name = name;
     }
@@ -64,7 +56,8 @@ public final class ReadClosureUnsafe extends BaseRead {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -81,10 +74,6 @@ public final class ReadClosureUnsafe extends BaseRead {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"slot"},
-            new Object[]{this.slot}
-        );
+                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
     }
-
 }

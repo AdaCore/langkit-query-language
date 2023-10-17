@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
@@ -35,7 +34,6 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-
 /**
  * This node represents a list comprehension in the LKQL language.
  *
@@ -45,47 +43,33 @@ public final class ListComprehension extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * Slots for the list comprehension parameters.
-     */
+    /** Slots for the list comprehension parameters. */
     private final int[] slots;
 
-    /**
-     * Descriptor of the frame to create.
-     */
+    /** Descriptor of the frame to create. */
     private final FrameDescriptor frameDescriptor;
 
-    /**
-     * Descriptor for the values to close.
-     */
+    /** Descriptor for the values to close. */
     private final ClosureDescriptor closureDescriptor;
 
     // ----- Children -----
 
-    /**
-     * Generators of the list comprehension.
-     */
+    /** Generators of the list comprehension. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private ComprehensionAssocList generators;
 
-    /**
-     * Result expression of the list comprehension.
-     */
+    /** Result expression of the list comprehension. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
 
-    /**
-     * Guard expression of the list comprehension.
-     */
+    /** Guard expression of the list comprehension. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     private Expr guard;
 
-    /**
-     * Root node of the list comprehension.
-     */
+    /** Root node of the list comprehension. */
     private final ListComprehensionRootNode rootNode;
 
     // -----  Constructors -----
@@ -93,21 +77,20 @@ public final class ListComprehension extends Expr {
     /**
      * Create a new list comprehension node.
      *
-     * @param location          The location of the node in the source.
-     * @param frameDescriptor   The frame descriptor for the root node.
+     * @param location The location of the node in the source.
+     * @param frameDescriptor The frame descriptor for the root node.
      * @param closureDescriptor The descriptor for the closure.
-     * @param expr              The result expression of the list comprehension.
-     * @param generators        The generators of the list comprehension.
-     * @param guard             The guard of the list comprehension.
+     * @param expr The result expression of the list comprehension.
+     * @param generators The generators of the list comprehension.
+     * @param guard The guard of the list comprehension.
      */
     public ListComprehension(
-        final SourceLocation location,
-        final FrameDescriptor frameDescriptor,
-        final ClosureDescriptor closureDescriptor,
-        final ComprehensionAssocList generators,
-        final Expr expr,
-        final Expr guard
-    ) {
+            final SourceLocation location,
+            final FrameDescriptor frameDescriptor,
+            final ClosureDescriptor closureDescriptor,
+            final ComprehensionAssocList generators,
+            final Expr expr,
+            final Expr guard) {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.closureDescriptor = closureDescriptor;
@@ -124,7 +107,8 @@ public final class ListComprehension extends Expr {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -132,7 +116,8 @@ public final class ListComprehension extends Expr {
     }
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeLazyList(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeLazyList(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public LazyListValue executeLazyList(VirtualFrame frame) {
@@ -148,10 +133,9 @@ public final class ListComprehension extends Expr {
         // Verify that the result size is strictly positive
         if (resultSize < 1) {
             return new LazyListValue(
-                this.rootNode,
-                Closure.create(frame.materialize(), this.closureDescriptor),
-                new Object[0][]
-            );
+                    this.rootNode,
+                    Closure.create(frame.materialize(), this.closureDescriptor),
+                    new Object[0][]);
         }
 
         // Prepare the array of arguments for each iteration in the list comprehension
@@ -173,10 +157,9 @@ public final class ListComprehension extends Expr {
 
         // Return the result of the list comprehension as a lazy list
         return new LazyListValue(
-            this.rootNode,
-            Closure.create(frame.materialize(), this.closureDescriptor),
-            argsList
-        );
+                this.rootNode,
+                Closure.create(frame.materialize(), this.closureDescriptor),
+                argsList);
     }
 
     // ----- Class methods -----
@@ -184,7 +167,7 @@ public final class ListComprehension extends Expr {
     /**
      * Increase the iteration indexes.
      *
-     * @param iterators   The iterators containing the current iteration information.
+     * @param iterators The iterators containing the current iteration information.
      * @param valueBuffer The buffer to put the values in.
      * @return True if the indexes have been increased.
      */
@@ -212,11 +195,7 @@ public final class ListComprehension extends Expr {
      */
     private ListComprehensionRootNode createRootNode() {
         return new ListComprehensionRootNode(
-            LKQLLanguage.getLanguage(this),
-            this.frameDescriptor,
-            this.guard,
-            this.expr
-        );
+                LKQLLanguage.getLanguage(this), this.frameDescriptor, this.guard, this.expr);
     }
 
     // ----- Override methods -----
@@ -228,5 +207,4 @@ public final class ListComprehension extends Expr {
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
     }
-
 }

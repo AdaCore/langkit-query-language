@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
@@ -30,9 +29,9 @@ import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-
 /**
- * This class represent the base of the binary operation node that are edibles to the short circuit strategy.
+ * This class represent the base of the binary operation node that are edibles to the short circuit
+ * strategy.
  *
  * @author Hugo GUERRIER
  */
@@ -40,16 +39,12 @@ public abstract class BinShortCircuit extends Expr {
 
     // ----- Children -----
 
-    /**
-     * The left operand expression.
-     */
+    /** The left operand expression. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr left;
 
-    /**
-     * The right operand expression.
-     */
+    /** The right operand expression. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected Expr right;
@@ -60,14 +55,10 @@ public abstract class BinShortCircuit extends Expr {
      * Create a new bin op short circuit node.
      *
      * @param location The location of the node in the source.
-     * @param left     The left expression.
-     * @param right    The right expression.
+     * @param left The left expression.
+     * @param right The right expression.
      */
-    protected BinShortCircuit(
-        SourceLocation location,
-        Expr left,
-        Expr right
-    ) {
+    protected BinShortCircuit(SourceLocation location, Expr left, Expr right) {
         super(location);
         this.left = left;
         this.right = right;
@@ -76,7 +67,8 @@ public abstract class BinShortCircuit extends Expr {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -84,7 +76,8 @@ public abstract class BinShortCircuit extends Expr {
     }
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeBoolean(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeBoolean(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public boolean executeBoolean(VirtualFrame frame) {
@@ -94,10 +87,9 @@ public abstract class BinShortCircuit extends Expr {
             leftValue = this.left.executeBoolean(frame);
         } catch (UnexpectedResultException e) {
             throw LKQLRuntimeException.wrongType(
-                LKQLTypesHelper.LKQL_BOOLEAN,
-                LKQLTypesHelper.fromJava(e.getResult()),
-                this.left
-            );
+                    LKQLTypesHelper.LKQL_BOOLEAN,
+                    LKQLTypesHelper.fromJava(e.getResult()),
+                    this.left);
         }
 
         // Execute the right value if needed
@@ -107,10 +99,9 @@ public abstract class BinShortCircuit extends Expr {
                 rightValue = this.right.executeBoolean(frame);
             } catch (UnexpectedResultException e) {
                 throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.LKQL_BOOLEAN,
-                    LKQLTypesHelper.fromJava(e.getResult()),
-                    this.right
-                );
+                        LKQLTypesHelper.LKQL_BOOLEAN,
+                        LKQLTypesHelper.fromJava(e.getResult()),
+                        this.right);
             }
         }
 
@@ -131,10 +122,9 @@ public abstract class BinShortCircuit extends Expr {
     /**
      * Do the execution for the left and right value.
      *
-     * @param leftValue  The left value.
+     * @param leftValue The left value.
      * @param rightValue The right value.
      * @return The result of the node execution.
      */
     protected abstract boolean execute(boolean leftValue, boolean rightValue);
-
 }

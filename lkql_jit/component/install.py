@@ -18,7 +18,6 @@
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
 ---------------------------------------------------------------------------"""
 
 # Script to install the LKQL GraalVM component in the local GraalVM installation
@@ -26,18 +25,20 @@
 import subprocess
 import sys
 
-sys.path.append('..')
+sys.path.append("..")
 from utils import GraalManager
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Prepare the utils
     graal = GraalManager()
 
     # Run the component installation
-    subprocess.run([
-        graal.gu,
-        "-L",
-        "install",
-        "-f",
-        "lkql_jit_component.jar",
-    ])
+    subprocess.run(
+        [
+            graal.gu,
+            "-L",
+            "install",
+            "-f",
+            "lkql_jit_component.jar",
+        ]
+    )

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values;
 
@@ -34,8 +33,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.source.Source;
 
 /**
- * This class represents the pattern values in the LKQL language.
- * Pattern values are compiled regular expression.
+ * This class represents the pattern values in the LKQL language. Pattern values are compiled
+ * regular expression.
  *
  * @author Hugo GUERRIER
  */
@@ -43,19 +42,13 @@ public final class Pattern implements LKQLValue {
 
     // ----- Attributes -----
 
-    /**
-     * The string of the regex.
-     */
+    /** The string of the regex. */
     private final String regexString;
 
-    /**
-     * If the regex is case-sensitive.
-     */
+    /** If the regex is case-sensitive. */
     private final boolean caseSensitive;
 
-    /**
-     * The regex object.
-     */
+    /** The regex object. */
     private final Object regexObject;
 
     // ----- Constructors -----
@@ -63,31 +56,28 @@ public final class Pattern implements LKQLValue {
     /**
      * Create a new pattern value with the regex string.
      *
-     * @param creator       The creator of the pattern.
-     * @param regexString   The regex string.
+     * @param creator The creator of the pattern.
+     * @param regexString The regex string.
      * @param caseSensitive Whether the regex is case-sensitive.
      */
     @CompilerDirectives.TruffleBoundary
-    public Pattern(
-        LKQLNode creator,
-        String regexString,
-        boolean caseSensitive
-    ) {
+    public Pattern(LKQLNode creator, String regexString, boolean caseSensitive) {
         this.regexString = regexString;
         this.caseSensitive = caseSensitive;
 
         // Prepare the regex string
-        String regexSource = "Flavor=PythonStr/" +
-            regexString +
-            (caseSensitive ? "/" : "/i");
+        String regexSource = "Flavor=PythonStr/" + regexString + (caseSensitive ? "/" : "/i");
 
         // Call the TRegex language
         try {
-            this.regexObject = LKQLLanguage.getContext(creator).getEnv().parseInternal(
-                Source.newBuilder("regex", regexSource, "lkql_jit")
-                    .internal(true)
-                    .build()
-            ).call();
+            this.regexObject =
+                    LKQLLanguage.getContext(creator)
+                            .getEnv()
+                            .parseInternal(
+                                    Source.newBuilder("regex", regexSource, "lkql_jit")
+                                            .internal(true)
+                                            .build())
+                            .call();
         } catch (AbstractTruffleException e) {
             throw LKQLRuntimeException.regexSyntaxError(regexString, creator);
         }
@@ -109,10 +99,12 @@ public final class Pattern implements LKQLValue {
      */
     public boolean contains(String string) {
         try {
-            Object resultObject = InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject =
+                    InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
             return (boolean) InteropLibrary.getUncached().readMember(resultObject, "isMatch");
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(StringUtils.concat("Pattern execution failed: ", this.regexString));
+            throw LKQLRuntimeException.fromMessage(
+                    StringUtils.concat("Pattern execution failed: ", this.regexString));
         }
     }
 
@@ -124,23 +116,27 @@ public final class Pattern implements LKQLValue {
      */
     public int find(String string) {
         try {
-            Object resultObject = InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
+            Object resultObject =
+                    InteropLibrary.getUncached().invokeMember(this.regexObject, "exec", string, 0);
             return (int) InteropLibrary.getUncached().invokeMember(resultObject, "getStart", 0);
         } catch (Exception e) {
-            throw LKQLRuntimeException.fromMessage(StringUtils.concat("Pattern execution failed: ", this.regexString));
+            throw LKQLRuntimeException.fromMessage(
+                    StringUtils.concat("Pattern execution failed: ", this.regexString));
         }
     }
 
     // ----- Value methods -----
 
     /**
-     * @see com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
+     * @see
+     *     com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue#internalEquals(com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue)
      */
     @Override
     public boolean internalEquals(LKQLValue o) {
         if (o == this) return true;
         if (!(o instanceof Pattern other)) return false;
-        return other.regexString.equals(this.regexString) && (this.caseSensitive && other.caseSensitive);
+        return other.regexString.equals(this.regexString)
+                && (this.caseSensitive && other.caseSensitive);
     }
 
     // ----- Override methods -----
@@ -149,5 +145,4 @@ public final class Pattern implements LKQLValue {
     public String toString() {
         return this.regexString;
     }
-
 }

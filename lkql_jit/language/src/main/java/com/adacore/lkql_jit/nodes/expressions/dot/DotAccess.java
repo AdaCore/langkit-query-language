@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.dot;
 
@@ -43,9 +42,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-
 import java.util.Map;
-
 
 /**
  * This node represents the dot access in the LKQL language.
@@ -57,16 +54,12 @@ public abstract class DotAccess extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * The member to access.
-     */
+    /** The member to access. */
     protected final Identifier member;
 
     // ----- Children -----
 
-    /**
-     * The dispatcher for the built-in calls.
-     */
+    /** The dispatcher for the built-in calls. */
     @Child
     @SuppressWarnings("FieldMayBeFinal")
     protected FunctionDispatcher dispatcher;
@@ -77,12 +70,9 @@ public abstract class DotAccess extends Expr {
      * Create a new base dot access with the needed parameters.
      *
      * @param location The location of the node in the source.
-     * @param member   The member to access.
+     * @param member The member to access.
      */
-    protected DotAccess(
-        SourceLocation location,
-        Identifier member
-    ) {
+    protected DotAccess(SourceLocation location, Identifier member) {
         super(location);
         this.member = member;
         this.dispatcher = FunctionDispatcherNodeGen.create();
@@ -141,22 +131,23 @@ public abstract class DotAccess extends Expr {
     /**
      * Execute the dot access on a node with the cached strategy.
      *
-     * @param receiver    The node receiver.
+     * @param receiver The node receiver.
      * @param propertyRef The cached property reference.
-     * @param isField     The cached value if the property is a field.
+     * @param isField The cached value if the property is a field.
      * @return The result of the property reference.
      */
-    @Specialization(guards = {
-        "!receiver.isNone()",
-        "getBuiltIn(receiver) == null",
-        "receiver == propertyRef.getNode()",
-        "propertyRef.getFieldDescription() != null"
-    }, limit = "1")
+    @Specialization(
+            guards = {
+                "!receiver.isNone()",
+                "getBuiltIn(receiver) == null",
+                "receiver == propertyRef.getNode()",
+                "propertyRef.getFieldDescription() != null"
+            },
+            limit = "1")
     protected Object onNodeCached(
-        Libadalang.AdaNode receiver,
-        @Cached("create(receiver, member.getName())") PropertyRefValue propertyRef,
-        @Cached("propertyRef.isField()") boolean isField
-    ) {
+            Libadalang.AdaNode receiver,
+            @Cached("create(receiver, member.getName())") PropertyRefValue propertyRef,
+            @Cached("propertyRef.isField()") boolean isField) {
         // If the method is a field
         if (isField) {
             return propertyRef.executeAsField(this);
@@ -213,10 +204,7 @@ public abstract class DotAccess extends Expr {
 
         // Throw an exception
         throw LKQLRuntimeException.wrongMember(
-            this.member.getName(),
-            LKQLTypesHelper.fromJava(receiver),
-            this.member
-        );
+                this.member.getName(), LKQLTypesHelper.fromJava(receiver), this.member);
     }
 
     // ----- Class methods -----
@@ -232,7 +220,7 @@ public abstract class DotAccess extends Expr {
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             if (builtIn.getParamNames().length <= 1) {
-                return this.dispatcher.executeDispatch(builtIn, new Object[]{receiver});
+                return this.dispatcher.executeDispatch(builtIn, new Object[] {receiver});
             } else {
                 builtIn.setThisValue(receiver);
                 return builtIn;
@@ -253,7 +241,8 @@ public abstract class DotAccess extends Expr {
     protected BuiltInFunctionValue getBuiltIn(Object receiver) {
         // Get the LKQL context
         LKQLContext context = LKQLLanguage.getContext(this);
-        Map<String, BuiltInFunctionValue> metaTable = context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
+        Map<String, BuiltInFunctionValue> metaTable =
+                context.getMetaTable(LKQLTypesHelper.fromJava(receiver));
 
         // Return the built-in method or null
         return metaTable.getOrDefault(this.member.getName(), null);
@@ -267,10 +256,6 @@ public abstract class DotAccess extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"member"},
-            new Object[]{this.member}
-        );
+                indentLevel, new String[] {"member"}, new Object[] {this.member});
     }
-
 }

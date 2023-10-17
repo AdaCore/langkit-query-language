@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.runtime.values.interfaces;
 
@@ -27,11 +26,9 @@ import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 
 /**
  * This abstract class represents the base of all lazy collection in the LKQL JIT.
@@ -42,9 +39,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
 
     // ----- Attributes -----
 
-    /**
-     * The cache of the lazy collection.
-     */
+    /** The cache of the lazy collection. */
     protected final List<Object> cache;
 
     // ----- Constructors -----
@@ -54,17 +49,15 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
      *
      * @param initialCacheSize The initial cache size.
      */
-    protected LazyCollection(
-        int initialCacheSize
-    ) {
+    protected LazyCollection(int initialCacheSize) {
         this.cache = new ArrayList<>(initialCacheSize);
     }
 
     // ----- Class methods -----
 
     /**
-     * Initialize the cache to the given index.
-     * If the index is -1 this method should compute all the cache elements.
+     * Initialize the cache to the given index. If the index is -1 this method should compute all
+     * the cache elements.
      *
      * @param index The index to index the cache to.
      */
@@ -198,21 +191,15 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
 
     // ----- Inner classes -----
 
-    /**
-     * This class represents an iterator for a lazy collection.
-     */
+    /** This class represents an iterator for a lazy collection. */
     public static class LazyCollectionIterator implements Iterator {
 
         // ----- Attributes -----
 
-        /**
-         * The lazy collection to iterate on.
-         */
+        /** The lazy collection to iterate on. */
         private final LazyCollection lazyCollection;
 
-        /**
-         * The pointer for the iterator.
-         */
+        /** The pointer for the iterator. */
         private int pointer;
 
         // ----- Constructors -----
@@ -222,9 +209,7 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
          *
          * @param lazyCollection The lazy collection.
          */
-        public LazyCollectionIterator(
-            LazyCollection lazyCollection
-        ) {
+        public LazyCollectionIterator(LazyCollection lazyCollection) {
             this.lazyCollection = lazyCollection;
             this.pointer = 0;
         }
@@ -259,7 +244,5 @@ public abstract class LazyCollection implements Indexable, Iterable, Truthy {
         public void reset() {
             this.pointer = 0;
         }
-
     }
-
 }

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,16 +17,14 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 
 /**
  * This node represents a string literal in the LKQL language.
@@ -37,9 +35,7 @@ public final class StringLiteral extends Expr {
 
     // ----- Attributes -----
 
-    /**
-     * The value of the string literal.
-     */
+    /** The value of the string literal. */
     private final String value;
 
     // ----- Constructors -----
@@ -48,12 +44,9 @@ public final class StringLiteral extends Expr {
      * Create a new string literal with its value.
      *
      * @param location The location of the node in the source.
-     * @param value    The value of the string.
+     * @param value The value of the string.
      */
-    public StringLiteral(
-        SourceLocation location,
-        String value
-    ) {
+    public StringLiteral(SourceLocation location, String value) {
         super(location);
         this.value = value;
     }
@@ -61,7 +54,8 @@ public final class StringLiteral extends Expr {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -69,7 +63,8 @@ public final class StringLiteral extends Expr {
     }
 
     /**
-     * @see com.adacore.lkql_jit.nodes.expressions.Expr#executeString(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeString(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public String executeString(VirtualFrame frame) {
@@ -84,10 +79,6 @@ public final class StringLiteral extends Expr {
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"value"},
-            new Object[]{this.value}
-        );
+                indentLevel, new String[] {"value"}, new Object[] {this.value});
     }
-
 }

@@ -99,6 +99,14 @@
     </profiles>
 
     <!-- Project wide dependencies -->
+    <dependencies>
+        <dependency>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>2.40.0</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <!-- Configure the Java compiler -->
@@ -109,8 +117,59 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Xlint:all,-processing</arg>
+                        <arg>-Werror</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!-- Configure the spotless Java formatter -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.40.0</version>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <java>
+                        <includes>
+                            <include>checker/src/main/java/**/*.java</include>
+                            <include>gnatcheck_worker/src/main/java/**/*.java</include>
+                            <include>language/src/main/java/**/*.java</include>
+                            <include>launcher/src/main/java/**/*.java</include>
+                        </includes>
+
+                        <licenseHeader>
+                            <file>${project.basedir}${file.separator}LICENSE</file>
+                        </licenseHeader>
+
+                        <googleJavaFormat>
+                            <version>1.17.0</version>
+                            <style>AOSP</style>
+                            <reflowLongStrings>true</reflowLongStrings>
+                            <formatJavadoc>true</formatJavadoc>
+                        </googleJavaFormat>
+
+                        <importOrder>
+                            <wildcardsLast>true</wildcardsLast>
+                            <semanticSort>true</semanticSort>
+                        </importOrder>
+                        <formatAnnotations/>
+                        <removeUnusedImports/>
+                    </java>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>

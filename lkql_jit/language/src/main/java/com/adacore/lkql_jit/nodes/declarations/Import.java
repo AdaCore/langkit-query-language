@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,9 +17,8 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit.nodes.declarations;
 
@@ -37,11 +36,9 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.Source;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
 
 /**
  * This node represents the import statement in the LKQL language.
@@ -52,24 +49,16 @@ public final class Import extends LKQLNode {
 
     // ----- Attributes -----
 
-    /**
-     * A cache to avoid importing same module multiple times.
-     */
+    /** A cache to avoid importing same module multiple times. */
     private static final Map<File, NamespaceValue> importCache = new HashMap<>();
 
-    /**
-     * Name of the module to import.
-     */
+    /** Name of the module to import. */
     private final String name;
 
-    /**
-     * LKQL file of the module.
-     */
+    /** LKQL file of the module. */
     private final File moduleFile;
 
-    /**
-     * Slot to put the namespace in (if it's -1 the import is an internal operation rule import)
-     */
+    /** Slot to put the namespace in (if it's -1 the import is an internal operation rule import) */
     private final int slot;
 
     // ----- Constructors -----
@@ -78,14 +67,10 @@ public final class Import extends LKQLNode {
      * Create a new import node.
      *
      * @param location The location of the node in the source.
-     * @param name     The name of the module to import.
-     * @param slot     The slot to put the namespace in.
+     * @param name The name of the module to import.
+     * @param slot The slot to put the namespace in.
      */
-    public Import(
-        SourceLocation location,
-        String name,
-        int slot
-    ) {
+    public Import(SourceLocation location, String name, int slot) {
         super(location);
         this.name = name;
         this.slot = slot;
@@ -97,7 +82,8 @@ public final class Import extends LKQLNode {
     // ----- Execution methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -136,9 +122,12 @@ public final class Import extends LKQLNode {
             LKQLContext context = LKQLLanguage.getContext(this);
 
             // Prepare the source
-            Source source = Source
-                .newBuilder(Constants.LKQL_ID, context.getEnv().getPublicTruffleFile(moduleFile.getAbsolutePath()))
-                .build();
+            Source source =
+                    Source.newBuilder(
+                                    Constants.LKQL_ID,
+                                    context.getEnv()
+                                            .getPublicTruffleFile(moduleFile.getAbsolutePath()))
+                            .build();
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
@@ -169,19 +158,18 @@ public final class Import extends LKQLNode {
 
         // Compute the directories to import from
         String lkqlPath = System.getenv().getOrDefault(Constants.LKQL_PATH, "");
-        List<File> importableDirs = new ArrayList<>(
-            Arrays.stream(StringUtils.splitPaths(lkqlPath))
-                .filter(s -> !s.isEmpty() && !s.isBlank())
-                .map(File::new)
-                .toList()
-        );
+        List<File> importableDirs =
+                new ArrayList<>(
+                        Arrays.stream(StringUtils.splitPaths(lkqlPath))
+                                .filter(s -> !s.isEmpty() && !s.isBlank())
+                                .map(File::new)
+                                .toList());
 
         importableDirs.addAll(
-            Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
-                .filter(s -> !s.isEmpty() && !s.isBlank())
-                .map(File::new)
-                .toList()
-        );
+                Arrays.stream(LKQLLanguage.getContext(this).getRuleDirectories())
+                        .filter(s -> !s.isEmpty() && !s.isBlank())
+                        .map(File::new)
+                        .toList());
 
         // Search in the importable directories
         for (File dir : importableDirs) {
@@ -200,15 +188,12 @@ public final class Import extends LKQLNode {
     // ----- Override methods -----
 
     /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see
+     *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(
-            indentLevel,
-            new String[]{"name", "slot"},
-            new Object[]{this.name, this.slot}
-        );
+                indentLevel, new String[] {"name", "slot"}, new Object[] {this.name, this.slot});
     }
-
 }

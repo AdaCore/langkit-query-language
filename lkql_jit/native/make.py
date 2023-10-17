@@ -18,7 +18,6 @@
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
 ---------------------------------------------------------------------------"""
 
 # Script to build the LKQL JIT drivers with native-image
@@ -46,10 +45,10 @@ import os.path as P
 import subprocess
 import sys
 
-sys.path.append('..')
+sys.path.append("..")
 from utils import GraalManager, parse_args, missing_module
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create the dir hierarchy
     os.makedirs(P.join(P.dirname(__file__), "bin"), exist_ok=True)
 
@@ -58,9 +57,9 @@ if __name__ == '__main__':
     args = parse_args()
 
     # Get the components to build
-    build_launcher = 'launcher' in args.native_components
-    build_checker = 'checker' in args.native_components
-    build_worker = 'gnatcheck_worker' in args.native_components
+    build_launcher = "launcher" in args.native_components
+    build_checker = "checker" in args.native_components
+    build_worker = "gnatcheck_worker" in args.native_components
 
     # Create the common command
     cmd = [
@@ -72,14 +71,16 @@ if __name__ == '__main__':
     ]
 
     # Handle the dev and debug build mode
-    if args.build_mode in ('dev', 'debug'):
-        cmd.extend([
-            "-H:-DeleteLocalSymbols",
-            "-H:+SourceLevelDebug",
-            "-H:+PreserveFramePointer",
-            "-H:+IncludeNodeSourcePositions",
-        ])
-        if args.build_mode == 'debug':
+    if args.build_mode in ("dev", "debug"):
+        cmd.extend(
+            [
+                "-H:-DeleteLocalSymbols",
+                "-H:+SourceLevelDebug",
+                "-H:+PreserveFramePointer",
+                "-H:+IncludeNodeSourcePositions",
+            ]
+        )
+        if args.build_mode == "debug":
             cmd.append("-H:+PrintRuntimeCompileMethods")
 
     # Get the language JAR and verify its existence
@@ -89,25 +90,25 @@ if __name__ == '__main__':
 
     for name, do_native_build, jar_filename, exe_name, class_name in [
         (
-                "launcher",
-                build_launcher,
-                P.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
-                "native_lkql_jit",
-                "LKQLLauncher"
+            "launcher",
+            build_launcher,
+            P.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
+            "native_lkql_jit",
+            "LKQLLauncher",
         ),
         (
-                "checker",
-                build_checker,
-                P.join("..", "checker", "target", "lkql_jit_checker.jar"),
-                "native_lkql_jit_checker",
-                "LKQLChecker"
+            "checker",
+            build_checker,
+            P.join("..", "checker", "target", "lkql_jit_checker.jar"),
+            "native_lkql_jit_checker",
+            "LKQLChecker",
         ),
         (
-                "gnatcheck_worker",
-                build_worker,
-                P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
-                "native_gnatcheck_worker",
-                "GNATCheckWorker"
+            "gnatcheck_worker",
+            build_worker,
+            P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
+            "native_gnatcheck_worker",
+            "GNATCheckWorker",
         ),
     ]:
         if do_native_build:
@@ -116,9 +117,10 @@ if __name__ == '__main__':
 
             class_path = os.pathsep.join([language_jar, jar_filename])
             final_cmd = cmd + [
-                "-cp", class_path,
+                "-cp",
+                class_path,
                 f"com.adacore.lkql_jit.{class_name}",
-                P.join("bin", exe_name)
+                P.join("bin", exe_name),
             ]
             print(f"Execute: {final_cmd}", flush=True)
             subprocess.check_call(final_cmd)

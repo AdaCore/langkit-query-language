@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
 --                             L K Q L   J I T                              --
 --                                                                          --
---                     Copyright (C) 2022, AdaCore                          --
+--                     Copyright (C) 2022-2023, AdaCore                     --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -17,17 +17,10 @@
 -- You should have received a copy of the GNU General Public License and    --
 -- a copy of the GCC Runtime Library Exception along with this program;     --
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
--- <http://www.gnu.org/licenses/>.                                          --
---                                                                          --
------------------------------------------------------------------------------*/
+-- <http://www.gnu.org/licenses/.>                                          --
+----------------------------------------------------------------------------*/
 
 package com.adacore.lkql_jit;
-
-import org.graalvm.launcher.AbstractLanguageLauncher;
-import org.graalvm.options.OptionCategory;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,22 +28,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-
+import org.graalvm.launcher.AbstractLanguageLauncher;
+import org.graalvm.options.OptionCategory;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 /**
- * This class is the LKQL launcher, this will handle all execution request coming from the command line.
+ * This class is the LKQL launcher, this will handle all execution request coming from the command
+ * line.
  *
  * @author Hugo GUERRIER
- * <p>
- * TODO : Support all features of the original LKQL Ada implementation
+ *     <p>TODO : Support all features of the original LKQL Ada implementation
  */
 public class LKQLLauncher extends AbstractLanguageLauncher {
 
     // ----- Macros and enums -----
 
-    /**
-     * Represents the status of an argument.
-     */
+    /** Represents the status of an argument. */
     protected enum ArgumentStatus {
         Consumed,
         Unhandled,
@@ -58,48 +53,32 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         ExpectInt
     }
 
-    /**
-     * The identifier of the LKQL language.
-     */
+    /** The identifier of the LKQL language. */
     private static final String ID = "lkql";
 
     // ----- Launcher options -----
 
-    /**
-     * The charset to decode the LKQL sources.
-     */
+    /** The charset to decode the LKQL sources. */
     private String charset = null;
 
-    /**
-     * The project file to analyse.
-     */
+    /** The project file to analyse. */
     private String projectFile = null;
 
-    /**
-     * Source files to analyse.
-     */
+    /** Source files to analyse. */
     private final List<String> files = new ArrayList<>();
 
-    /**
-     * If the project analysis should be recursive.
-     */
+    /** If the project analysis should be recursive. */
     private boolean recursive = false;
 
-    /**
-     * Number of parallel jobs.
-     */
+    /** Number of parallel jobs. */
     private int jobs = 0;
 
-    /**
-     * The LKQL script to evaluate.
-     */
+    /** The LKQL script to evaluate. */
     private String script = null;
 
     // ----- JIT options -----
 
-    /**
-     * If the verbose mode should be activated.
-     */
+    /** If the verbose mode should be activated. */
     private boolean verbose = false;
 
     // ----- Launcher methods -----
@@ -112,7 +91,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     @Override
     protected void printHelp(OptionCategory maxCategory) {
         System.out.println(
-            """
+                """
                 usage : lkql_jit [options ...] files [files ...] [--script|-S SCRIPT_PATH]
 
                 The LKQL JIT compiler
@@ -130,8 +109,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                   --script-path, -S            Path of the LKQL script to evaluate
 
                   --verbose, -v                Enable the verbose mode
-                """
-        );
+                """);
     }
 
     /**
@@ -199,8 +177,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", new File(this.script))
-                .build();
+            final Source source = Source.newBuilder("lkql", new File(this.script)).build();
             final Value executable = context.parse(source);
             executable.executeVoid(false);
             return 0;
@@ -220,14 +197,16 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     // ----- Argument parsing methods -----
 
     /**
-     * Parse the command line arguments and return the unrecognized options to parse it with the default parser.
+     * Parse the command line arguments and return the unrecognized options to parse it with the
+     * default parser.
      *
-     * @param arguments       The arguments to parse.
+     * @param arguments The arguments to parse.
      * @param polyglotOptions The polyglot options.
      * @return The unrecognized options.
      */
     @Override
-    protected List<String> preprocessArguments(List<String> arguments, Map<String, String> polyglotOptions) {
+    protected List<String> preprocessArguments(
+            List<String> arguments, Map<String, String> polyglotOptions) {
         // Prepare the list to return
         final List<String> unrecognizedArguments = new ArrayList<>();
 
@@ -318,17 +297,17 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
      */
     protected ArgumentStatus processFlag(String flag) {
         switch (flag) {
-            // The recursive flag
+                // The recursive flag
             case "recursive":
                 this.recursive = true;
                 break;
 
-            // The verbose flag
+                // The verbose flag
             case "verbose":
                 this.verbose = true;
                 break;
 
-            // Default behavior
+                // Default behavior
             default:
                 return ArgumentStatus.Unhandled;
         }
@@ -338,13 +317,13 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
     /**
      * Process a flag with its argument.
      *
-     * @param flag  The flag to process.
+     * @param flag The flag to process.
      * @param value The argument value.
      * @return If the flag was consumed, unhandled or wrong.
      */
     protected ArgumentStatus processFlag(String flag, String value) {
         switch (flag) {
-            // The charset value
+                // The charset value
             case "charset":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -352,7 +331,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 this.charset = value;
                 break;
 
-            // The project value
+                // The project value
             case "project":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -360,7 +339,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 this.projectFile = value;
                 break;
 
-            // The jobs value
+                // The jobs value
             case "jobs":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -372,7 +351,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 }
                 break;
 
-            // The script flag
+                // The script flag
             case "script-path":
                 if (value == null) {
                     return ArgumentStatus.Malformed;
@@ -380,7 +359,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 this.script = value;
                 break;
 
-            // The default unhandled flag
+                // The default unhandled flag
             default:
                 return ArgumentStatus.Unhandled;
         }
@@ -407,5 +386,4 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
             throw this.abort("Please provide a script file to evaluate");
         }
     }
-
 }
