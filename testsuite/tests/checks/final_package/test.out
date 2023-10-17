@@ -1,0 +1,4 @@
+foo-child.ads:1:9: rule violation: child package cannot have a final parent package
+1 | package Foo.Child is -- FLAG
+  |         ^^^^^^^^^
+
