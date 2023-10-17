@@ -478,6 +478,12 @@ package body Gnatcheck.Compiler is
                   end if;
                end;
             end if;
+         elsif Line_Len >= 20
+               and then Line (1 .. 20) = "WORKER_FATAL_ERROR: "
+         then
+            Error ("error raised by the worker: " & Line (21 .. Line_Len));
+            Errors := True;
+            return;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
