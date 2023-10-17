@@ -235,7 +235,6 @@ public abstract class LKQLNode extends Node implements Locatable {
                                 + childField.getName()
                                 + " for "
                                 + this.getClass().getSimpleName());
-                e.printStackTrace();
             }
         }
 

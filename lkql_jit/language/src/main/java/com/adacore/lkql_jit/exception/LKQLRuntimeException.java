@@ -78,7 +78,7 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public static LKQLRuntimeException fromMessage(String message) {
-        return new LKQLRuntimeException("Error: " + message);
+        return new LKQLRuntimeException(message);
     }
 
     /**
