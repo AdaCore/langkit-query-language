@@ -28,13 +28,13 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -333,7 +333,7 @@ public final class Query extends Expr {
         // ----- Override methods -----
 
         /**
-         * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#iterator()
+         * @see Iterable#iterator()
          */
         @Override
         public Iterator iterator() {

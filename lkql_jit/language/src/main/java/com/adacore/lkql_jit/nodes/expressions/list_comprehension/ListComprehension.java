@@ -23,12 +23,12 @@
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLListComprehension;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;

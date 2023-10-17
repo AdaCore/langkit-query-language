@@ -23,12 +23,12 @@
 package com.adacore.lkql_jit.built_ins.values.lists;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
 import com.adacore.lkql_jit.built_ins.values.iterators.LKQLListIterator;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;

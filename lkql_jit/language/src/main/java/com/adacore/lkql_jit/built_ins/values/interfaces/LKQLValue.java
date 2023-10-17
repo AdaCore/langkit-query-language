@@ -20,11 +20,38 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values.interfaces;
+package com.adacore.lkql_jit.built_ins.values.interfaces;
 
 /**
- * This interface represents all nullish values in the LKQL language.
+ * This interface defines the LKQL values basic interface.
  *
  * @author Hugo GUERRIER
  */
-public interface Nullish extends LKQLValue {}
+public interface LKQLValue {
+
+    /**
+     * Get the documentation for the LKQL value.
+     *
+     * @return A string representing the LKQL documentation.
+     */
+    default String getDocumentation() {
+        return "";
+    }
+
+    /**
+     * Get the profile for the callable LKQL value.
+     *
+     * @return The string representing the callable profile.
+     */
+    default String getProfile() {
+        return "TODO : Implement the profile information";
+    }
+
+    /**
+     * Do an internal equality verification.
+     *
+     * @param o The other lkql value.
+     * @return True of the values are LKQLy equals, false else.
+     */
+    boolean internalEquals(LKQLValue o);
+}

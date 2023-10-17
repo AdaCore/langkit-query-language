@@ -20,30 +20,11 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values.interfaces;
-
-import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+package com.adacore.lkql_jit.built_ins.values.interfaces;
 
 /**
- * This class defines the indexable interface for all the indexable LKQL types.
+ * This interface represents all nullish values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public interface Indexable extends LKQLValue {
-
-    /**
-     * Get the element at the given index.
-     *
-     * @param index The index to get.
-     * @return The element at the position.
-     * @throws com.adacore.lkql_jit.exception.utils.InvalidIndexException If the index is not valid.
-     */
-    Object get(int index) throws InvalidIndexException;
-
-    /**
-     * Get the content of the indexable value in an array.
-     *
-     * @return The content of the indexable value.
-     */
-    Object[] getContent();
-}
+public interface Nullish extends LKQLValue {}

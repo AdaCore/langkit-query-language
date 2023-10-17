@@ -24,9 +24,9 @@ package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.*;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.*;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.*;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;

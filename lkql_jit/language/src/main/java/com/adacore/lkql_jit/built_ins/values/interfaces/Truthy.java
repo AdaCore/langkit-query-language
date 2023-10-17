@@ -20,38 +20,19 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values.interfaces;
+package com.adacore.lkql_jit.built_ins.values.interfaces;
 
 /**
- * This interface defines the LKQL values basic interface.
+ * This class represents all LKQL values that can be interpreted as a boolean.
  *
  * @author Hugo GUERRIER
  */
-public interface LKQLValue {
+public interface Truthy extends LKQLValue {
 
     /**
-     * Get the documentation for the LKQL value.
+     * Get the boolean representation of the object.
      *
-     * @return A string representing the LKQL documentation.
+     * @return True if the object is evaluated as true, false else.
      */
-    default String getDocumentation() {
-        return "";
-    }
-
-    /**
-     * Get the profile for the callable LKQL value.
-     *
-     * @return The string representing the callable profile.
-     */
-    default String getProfile() {
-        return "TODO : Implement the profile information";
-    }
-
-    /**
-     * Do an internal equality verification.
-     *
-     * @param o The other lkql value.
-     * @return True of the values are LKQLy equals, false else.
-     */
-    boolean internalEquals(LKQLValue o);
+    boolean isTruthy();
 }

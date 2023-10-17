@@ -20,19 +20,30 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.runtime.values.interfaces;
+package com.adacore.lkql_jit.built_ins.values.interfaces;
+
+import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 
 /**
- * This class represents all LKQL values that can be interpreted as a boolean.
+ * This class defines the indexable interface for all the indexable LKQL types.
  *
  * @author Hugo GUERRIER
  */
-public interface Truthy extends LKQLValue {
+public interface Indexable extends LKQLValue {
 
     /**
-     * Get the boolean representation of the object.
+     * Get the element at the given index.
      *
-     * @return True if the object is evaluated as true, false else.
+     * @param index The index to get.
+     * @return The element at the position.
+     * @throws com.adacore.lkql_jit.exception.utils.InvalidIndexException If the index is not valid.
      */
-    boolean isTruthy();
+    Object get(int index) throws InvalidIndexException;
+
+    /**
+     * Get the content of the indexable value in an array.
+     *
+     * @return The content of the indexable value.
+     */
+    Object[] getContent();
 }

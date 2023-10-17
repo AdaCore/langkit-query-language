@@ -24,7 +24,7 @@ package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
