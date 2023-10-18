@@ -10,7 +10,7 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>launcher</artifactId>
+    <artifactId>lkql</artifactId>
 
     <build>
         <plugins>
@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.adacore.lkql_jit.LKQLLauncher</mainClass>
+                            <mainClass>com.adacore.lkql_jit.LKQLMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -40,7 +40,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>lkql_jit_launcher</finalName>
+                            <finalName>lkql</finalName>
                             <artifactSet>
                                 <includes>
                                     <include>org.graalvm.sdk:launcher-common</include>
@@ -63,6 +63,7 @@
                 </executions>
             </plugin>
 
+
             <!-- Skip the Spotless check because everything is handled by the parent -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -72,6 +73,26 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher -->
+                <version>3.5</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>4.7.5</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

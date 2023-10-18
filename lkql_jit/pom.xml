@@ -10,7 +10,7 @@
     <version>0.1.0</version>
     <modules>
         <module>language</module>
-        <module>launcher</module>
+        <module>lkql</module>
         <module>checker</module>
         <module>gnatcheck_worker</module>
         <module>native</module>
@@ -46,16 +46,16 @@
         <!-- Native components profiles -->
 
         <profile>
-            <id>native-checker</id>
+            <id>native-lkql</id>
             <properties>
-                <config.nativeComponents>checker</config.nativeComponents>
+                <config.nativeComponents>lkql</config.nativeComponents>
             </properties>
         </profile>
 
         <profile>
-            <id>native-launcher</id>
+            <id>native-checker</id>
             <properties>
-                <config.nativeComponents>launcher</config.nativeComponents>
+                <config.nativeComponents>checker</config.nativeComponents>
             </properties>
         </profile>
 
@@ -69,7 +69,7 @@
         <profile>
             <id>native-all</id>
             <properties>
-                <config.nativeComponents>launcher checker gnatcheck_worker</config.nativeComponents>
+                <config.nativeComponents>lkql checker gnatcheck_worker</config.nativeComponents>
             </properties>
         </profile>
 
@@ -146,7 +146,7 @@
                             <include>checker/src/main/java/**/*.java</include>
                             <include>gnatcheck_worker/src/main/java/**/*.java</include>
                             <include>language/src/main/java/**/*.java</include>
-                            <include>launcher/src/main/java/**/*.java</include>
+                            <include>lkql/src/main/java/**/*.java</include>
                         </includes>
 
                         <licenseHeader>
