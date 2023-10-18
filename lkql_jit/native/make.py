@@ -74,6 +74,8 @@ if __name__ == "__main__":
     if args.build_mode in ("dev", "debug"):
         cmd.extend(
             [
+                "-g",
+                "-O0",
                 "-H:-DeleteLocalSymbols",
                 "-H:+SourceLevelDebug",
                 "-H:+PreserveFramePointer",
