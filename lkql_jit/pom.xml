@@ -167,6 +167,7 @@
                         <formatAnnotations/>
                         <removeUnusedImports/>
                     </java>
+                    <lineEndings>UNIX</lineEndings>
                 </configuration>
             </plugin>
         </plugins>
