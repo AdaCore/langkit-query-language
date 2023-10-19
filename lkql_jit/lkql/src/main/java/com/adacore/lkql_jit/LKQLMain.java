@@ -30,7 +30,14 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true,
         name = "lkql",
         synopsisSubcommandLabel = "COMMAND",
-        subcommands = {LKQLLauncher.LKQLRun.class})
+        subcommands = {
+            LKQLLauncher.LKQLRun.class,
+            LKQLChecker.Args.class,
+            GNATCheckWorker.Args.class
+        },
+        description =
+                "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "
+                        + "scripts or apply specific checks on a given Ada codebase")
 public class LKQLMain implements Callable<Integer> {
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;

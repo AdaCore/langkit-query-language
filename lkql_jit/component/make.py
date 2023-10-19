@@ -95,7 +95,6 @@ if __name__ == "__main__":
     # Copy the produced JARs to the component
     for name, source_filename in [
         ("language", P.join("..", "language", "target", "lkql_jit.jar")),
-        ("checker", P.join("..", "checker", "target", "lkql_jit_checker.jar")),
         (
             "gnatcheck_worker",
             P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),

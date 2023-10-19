@@ -11,7 +11,6 @@
     <modules>
         <module>language</module>
         <module>lkql</module>
-        <module>checker</module>
         <module>gnatcheck_worker</module>
         <module>native</module>
         <module>component</module>
@@ -49,13 +48,6 @@
             <id>native-lkql</id>
             <properties>
                 <config.nativeComponents>lkql</config.nativeComponents>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>native-checker</id>
-            <properties>
-                <config.nativeComponents>checker</config.nativeComponents>
             </properties>
         </profile>
 
@@ -143,7 +135,6 @@
                 <configuration>
                     <java>
                         <includes>
-                            <include>checker/src/main/java/**/*.java</include>
                             <include>gnatcheck_worker/src/main/java/**/*.java</include>
                             <include>language/src/main/java/**/*.java</include>
                             <include>lkql/src/main/java/**/*.java</include>
