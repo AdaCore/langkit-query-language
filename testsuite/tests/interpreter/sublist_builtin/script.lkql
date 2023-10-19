@@ -1,0 +1,6 @@
+val l = [1, 2, 3, 4, 5]
+print(l[2])
+print(l[3])
+print(l.sublist(2, 3))
+print(l.sublist(1, 5))
+print(l.sublist(0, 5))
