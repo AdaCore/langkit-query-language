@@ -274,7 +274,7 @@ class LKQLTestsuite(Testsuite):
             return "{:.2f}s".format(seconds)
 
         def format_memory(bytes_count: int) -> str:
-            units = ["B", "KB", "MB", "GB"]
+            units = ["KB", "MB", "GB"]
             unit = units.pop(0)
             while units and bytes_count > 1000:
                 unit = units.pop(0)
