@@ -294,6 +294,7 @@ class LKQLTestsuite(Testsuite):
 
         # Define the function to display the statistics of the ``time`` output
         def print_time_stats(entry):
+            print(f"--- {test_name} (run {entry.info['run_count']} time(s))", file=output_file)
             print(
                 f"    time:"
                 f" {compute_stats(entry.info['time'], float, format_time)}",
