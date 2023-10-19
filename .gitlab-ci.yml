@@ -19,7 +19,7 @@ test:
 
   parallel:
     matrix:
-      - LKQL_VARIANT: [lkql, lkql_jit, lkql_native_jit]
+      - LKQL_VARIANT: [lkql_jit, lkql_native_jit]
   artifacts:
     reports:
       junit: xunit-*.xml

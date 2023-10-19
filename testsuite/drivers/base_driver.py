@@ -427,14 +427,8 @@ class BaseDriver(DiffTestDriver):
                         print(line, file=ada_file)
 
     def _define_lkql_executables(self) -> None:
-        # If the mode is Ada
-        if self.env.options.mode == "ada":
-            self.lkql_exe = ["lkql_ada"]
-            self.lkql_checker_exe = ["lkql_checker"]
-            self.gnatcheck_worker_exe = ["gnatcheck"]
-
         # If the mode is JIT
-        elif self.env.options.mode == "jit":
+        if self.env.options.mode == "jit":
             python_wrapper = P.join(self.env.support_dir, "lkql_jit.py")
             command_base = [sys.executable, python_wrapper]
             self.lkql_exe = [*command_base, "launcher"]

@@ -85,10 +85,9 @@ class LKQLTestsuite(Testsuite):
 
     def add_options(self, parser: ArgumentParser) -> None:
         parser.add_argument(
-            '--mode', default='ada',
-            choices=['ada', 'jit', 'native_jit'],
+            '--mode', default='jit', choices=['jit', 'native_jit'],
             help='The LKQL implementations to test.'
-                 ' Possible values are "ada", "jit" and "native_jit".'
+                 ' Possible values are "jit" and "native_jit".'
         )
         parser.add_argument(
             '--no-auto-path', action='store_true',
