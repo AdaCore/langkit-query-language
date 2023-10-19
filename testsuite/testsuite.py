@@ -11,7 +11,9 @@ from typing import TextIO, Callable
 
 from e3.fs import mkdir, rm
 from e3.testsuite import Testsuite, logger, TestsuiteCore
-from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder, TestFinderResult
+from e3.testsuite.testcase_finder import (
+    ProbingError, TestFinder, YAMLTestFinder, TestFinderResult
+)
 
 from drivers import (
     checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver,
@@ -134,7 +136,7 @@ class LKQLTestsuite(Testsuite):
         )
 
     @property
-    def test_finders(self) -> list[YAMLTestFinder]:
+    def test_finders(self) -> list[TestFinder]:
         return [
             PerfTestFinder()
             if self.env.perf_mode else
