@@ -60,6 +60,11 @@ html_theme = 'sphinx_rtd_theme'
 if os.path.isfile('favicon.ico'):
     html_favicon = 'favicon.ico'
 
+html_logo = 'adacore-logo-white.png'
+html_theme_options = {
+    "style_nav_header_background": "#12284c",
+}
+
 latex_additional_files = ['gnat.sty']
 
 latex_elements = {
