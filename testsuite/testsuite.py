@@ -154,21 +154,23 @@ class LKQLTestsuite(Testsuite):
         ])
 
         # If the performance mode is enabled, verify that the user has checked
-        # out the libadalang-internal-testsuite in the "ada_projects" directory.
+        # out the common-testsuite-sources in the "ada_projects" directory.
         # Additionally add the internal sources to the GPR project path.
         if self.env.options.perf_mode:
-            lalinttest_dir = P.join(
+            common_sources = P.join(
                 self.root_dir,
                 "ada_projects",
-                "libadalang-internal-testsuite"
+                "common-testsuite-sources"
             )
-            if not P.isdir(lalinttest_dir):
+            if not P.isdir(common_sources):
                 raise RuntimeError("You need to check out"
-                                   " 'libadalang-internal-testsuite' to enable"
+                                   " 'common-testsuite-sources' to enable"
                                    " performance testing")
             else:
-                lalinttest_sources = glob.glob(P.join(lalinttest_dir, "sources", "*"))
-                for source_dir in [s for s in lalinttest_sources if P.isdir(s)]:
+                lalinttest_sources = glob.glob(P.join(common_sources, "*"))
+                for source_dir in [
+                    s for s in lalinttest_sources if P.isdir(s)
+                ]:
                     os.environ['GPR_PROJECT_PATH'] = P.pathsep.join([
                         source_dir,
                         os.environ.get("GPR_PROJECT_PATH", ""),

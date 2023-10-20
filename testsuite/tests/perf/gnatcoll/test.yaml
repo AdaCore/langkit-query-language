@@ -1,5 +1,5 @@
 driver: 'gnatcheck'
-project: 'libadalang-internal-testsuite/sources/gnatcoll/gnatcoll.gpr'
+project: 'common-testsuite-sources/gnatcoll/gnatcoll.gpr'
 rules:
   - +Rrecursive_subprograms
   - +Routside_references_from_subprograms
