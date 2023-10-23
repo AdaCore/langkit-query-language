@@ -1,0 +1,3 @@
+project Prj is
+    for Excluded_Source_Files use ("invalid.adb");
+end Prj;
