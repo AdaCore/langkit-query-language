@@ -1,0 +1,5 @@
+driver: gnatcheck
+format: brief
+project: prj.gpr
+rules:
+  - +RGOTO_Statements
