@@ -140,6 +140,7 @@ class GnatcheckDriver(BaseDriver):
         - ``pre_python``/``post_python``: Python code to be executed
           before/after the test
         - ``worker``: Provide a custom worker for the GNATcheck run
+        - ``timeout``: Set the test timeout in seconds.
 
     .. NOTE:: In practice, the above allows several different ways to express
         the same test, which dis not ideal. It was necessary to transition
@@ -160,6 +161,10 @@ class GnatcheckDriver(BaseDriver):
         'brief': _parse_short_and_brief,
         'xml': _parse_xml
     }
+
+    @property
+    def default_process_timeout(self):
+        return self.test_env.get("timeout", 300)
 
     def run(self) -> None:
         gnatcheck_env = dict(os.environ)
