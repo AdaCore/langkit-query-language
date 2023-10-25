@@ -128,6 +128,8 @@ class GnatcheckDriver(BaseDriver):
           project is passed)
         - ``rule_file``: If passed, files to analyse will be fetched from this
           file
+        - ``ignore_file``: If passed, ignore all sources listed in the provided
+          file.
         - ``extra_args``: Extra arguments to pass to GNATcheck
         - ``rules``: A list of rules with their arguments, in the gnatcheck
           format.  Note that the list can be empty, and people can instead
@@ -232,6 +234,15 @@ class GnatcheckDriver(BaseDriver):
             # Use the test's project, if any
             if test_data.get('project', None):
                 args += ['-P', test_data['project']]
+
+            # Add the ignore file if any
+            ignore_file = test_data.get('ignore_file', None)
+            if ignore_file:
+                abs_ignore_file = self.working_dir(ignore_file)
+                ignore_file = (abs_ignore_file
+                               if P.isfile(abs_ignore_file) else
+                               ignore_file)
+                args += [f'--ignore={ignore_file}']
 
             if test_data.get('input_sources', None):
                 args += test_data['input_sources']
