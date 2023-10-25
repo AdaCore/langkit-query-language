@@ -7245,13 +7245,16 @@ This rule has no parameters.
 
 Flag all explicit calls to the predefined equality operations for
 floating-point types and private types whose completions are floating-point
-types. Both '``=``' and '``/=``' operations are checked.
-User-defined equality operations are not flagged, nor are uses of operators
-that are renamings of the predefined equality operations.
-Also, the '``=``' and '``/=``' operations for fixed-point types
-are not flagged.
+types. Both '=' and '/=' operations are checked. User-defined equality
+operations are not flagged. Also, the '=' and '/=' operations for fixed-point
+types are not flagged. Uses of operators that are renamings of the predefined
+equality operations will be flagged if `Follow_Renamings` is true.
 
-This rule has no parameters.
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*Follow_Renamings*
+    Take renamings of predefined equality operations into account.
+
 
 .. rubric:: Example
 
