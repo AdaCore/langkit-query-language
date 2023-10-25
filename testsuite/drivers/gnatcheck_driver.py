@@ -244,9 +244,11 @@ class GnatcheckDriver(BaseDriver):
                                ignore_file)
                 args += [f'--ignore={ignore_file}']
 
+            # Add the specified sources to GNATcheck arguments
             if test_data.get('input_sources', None):
                 args += test_data['input_sources']
 
+            # Precise the wanted format to the GNATcheck command line
             if output_format == 'brief':
                 args.append('--brief')
             elif output_format == 'xml':
@@ -254,16 +256,22 @@ class GnatcheckDriver(BaseDriver):
             elif output_format == 'short':
                 args.append('-s')
 
+            # Add the scenario variables
             for k, v in test_data.get('scenario_variables', {}).items():
                 args.append(f'-X{k}={v}')
 
+            # Add the rule directories
             for rule_dir in test_data.get('rules_dirs', []):
                 args.append(f'--rules-dir={rule_dir}')
 
+            # Finally add all extra arguments given in the test
             for extra_arg in test_data.get('extra_args', []):
                 args.append(extra_arg)
 
+            # Start the GNATcheck rule section
             args.append("-rules")
+
+            # Add the rule configuration arguments
             rule_file = test_data.get('rule_file', None)
             lkql_rule_file = test_data.get('lkql_rule_file', None)
             if rule_file:
