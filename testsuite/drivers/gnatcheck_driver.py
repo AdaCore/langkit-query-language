@@ -267,6 +267,10 @@ class GnatcheckDriver(BaseDriver):
             rule_file = test_data.get('rule_file', None)
             lkql_rule_file = test_data.get('lkql_rule_file', None)
             if rule_file:
+                abs_rule_file = self.working_dir(rule_file)
+                rule_file = (abs_rule_file
+                             if P.isfile(abs_rule_file) else
+                             rule_file)
                 args += ['-from', rule_file]
             if lkql_rule_file:
                 args += ['-from-lkql', lkql_rule_file]
