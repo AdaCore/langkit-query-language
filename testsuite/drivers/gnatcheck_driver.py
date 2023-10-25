@@ -215,7 +215,7 @@ class GnatcheckDriver(BaseDriver):
             assert output_format in GnatcheckDriver.output_formats
             brief = output_format == 'brief'
             exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
-            args = [exe, '-q']
+            args = [exe, '-q', '-m0']
 
             pre_python = test_data.get('pre_python', None)
             post_python = test_data.get('post_python', None)
