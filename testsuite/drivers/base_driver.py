@@ -8,7 +8,9 @@ from typing import TextIO
 from e3.fs import mkdir
 from e3.testsuite.control import YAMLTestControlCreator
 from e3.testsuite.driver.diff import DiffTestDriver
-from e3.testsuite.driver.classic import TestAbortWithError, ProcessResult
+from e3.testsuite.driver.classic import (
+    TestAbortWithError, ProcessResult, TestSkip
+)
 
 
 _flag_pattern = re.compile(r"--\s*FLAG\s*(\((\d+)\))?\s*(.*)")
@@ -143,6 +145,14 @@ class BaseDriver(DiffTestDriver):
 
     def set_up(self) -> None:
         super().set_up()
+
+        # If requested, skip internal testcases
+        if (
+            hasattr(self.env.options, "skip_internal_tests") and
+            self.env.options.skip_internal_tests and
+            self.test_env['test_name'].startswith('internal__')
+        ):
+            raise TestSkip('Skipping internal testcase')
 
         self._define_lkql_executables()
 
