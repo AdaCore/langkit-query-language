@@ -126,14 +126,14 @@ package Gnatcheck.Compiler is
    --  format of restriction rules and places the output into the specified
    --  file that is supposed to be an opened out file.
 
-   function Spawn_Gnatcheck
+   function Spawn_Gnatcheck_Worker
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String) return Process_Id;
-   --  Spawn gnatcheck on the main project file with the relevant options
-   --  on the rules given by Rule_File, redirecting the output to Msg_File.
-   --  Source_File is the name of a file listing all the source files to
-   --  analyze.
+   --  Spawn a gnatcheck worker (LKQL) on the main project file with the
+   --  relevant options on the rules given by Rule_File, redirecting the
+   --  output to Msg_File. Source_File is the name of a file listing all the
+   --  source files to analyze.
 
    function Spawn_GPRbuild (Output_File : String) return Process_Id;
    --  Spawn gprbuild on the main project file with the relevant options,

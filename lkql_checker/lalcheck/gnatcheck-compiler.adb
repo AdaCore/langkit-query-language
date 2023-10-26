@@ -1372,11 +1372,11 @@ package body Gnatcheck.Compiler is
       end if;
    end Set_Compiler_Checks;
 
-   ---------------------
-   -- Spawn_Gnatcheck --
-   ---------------------
+   ----------------------------
+   -- Spawn_Gnatcheck_Worker --
+   ----------------------------
 
-   function Spawn_Gnatcheck
+   function Spawn_Gnatcheck_Worker
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String) return Process_Id
@@ -1405,9 +1405,6 @@ package body Gnatcheck.Compiler is
          end if;
       end loop;
 
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("--subprocess");
-
       if Prj /= "" then
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("-P" & Prj);
@@ -1428,14 +1425,6 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-A");
          Num_Args := @ + 1;
          Args (Num_Args) := new String'(Get_Aggregated_Project);
-
-         if XML_Report_ON then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("-ox=" & Get_XML_Report_File_Name);
-         else
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("-o=" & Get_Report_File_Name);
-         end if;
       end if;
 
       if RTS_Path.all /= "" then
@@ -1458,48 +1447,29 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'("-eL");
       end if;
 
-      if No_Object_Dir then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--no_objects_dir");
-      end if;
-
       for Dir of Additional_Rules_Dirs loop
          Num_Args := @ + 1;
          Args (Num_Args) := new String'("--rules-dir=" & Dir);
       end loop;
 
-      if U_Option_Set then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-U");
-      end if;
-
-      if not Main_Unit.Is_Empty then
-         for MU of Main_Unit loop
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'(String (MU.Name));
-         end loop;
-      end if;
-
       Num_Args := @ + 1;
-      Args (Num_Args) := new String'("-files=" & Source_File);
+      Args (Num_Args) := new String'("--files-from=" & Source_File);
 
       Append_Variables (Args, Num_Args);
 
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("-rules");
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("-from=" & Rule_File);
-
       if LKQL_Rule_File_Name /= null then
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-from-lkql=" &
-                                        LKQL_Rule_File_Name.all);
+         Args (Num_Args) :=
+           new String'("--rules-from=" & LKQL_Rule_File_Name.all);
+      else
+         Num_Args := @ + 1;
+         Args (Num_Args) := new String'("--rules-from=" & Rule_File);
       end if;
 
       if Debug_Mode then
          --  For debug purposes, we don't want to put the full path to the
          --  worker command, if it is a full path. We just want the base name
-         Put (Base_Name (Worker_Command));
+         Put (Base_Name (Worker.all));
 
          for J in 1 .. Num_Args loop
             Put (" " & Args (J).all);
@@ -1518,7 +1488,7 @@ package body Gnatcheck.Compiler is
       end loop;
 
       return Pid;
-   end Spawn_Gnatcheck;
+   end Spawn_Gnatcheck_Worker;
 
    --------------------
    -- Spawn_GPRbuild --

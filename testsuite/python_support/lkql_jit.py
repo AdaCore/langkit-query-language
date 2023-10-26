@@ -9,13 +9,11 @@ import subprocess
 
 # Jar for each LKQL JIT entry point
 jars = {
-    "gnatcheck_worker": "gnatcheck_worker.jar",
     "lkql": "lkql.jar"
 }
 
 # Main class for each LKQL JIT entry point
 main_classes = {
-    "gnatcheck_worker": "GNATCheckWorker",
     "lkql": "LKQLMain"
 }
 
@@ -66,7 +64,6 @@ if __name__ == '__main__':
                                      description=__doc__)
     subparsers = parser.add_subparsers(help="LKQL JIT entry point", required=True)
     for subcommand, help in [
-        ("gnatcheck_worker", "Use the LKQL JIT GNATcheck worker (this should be only used by GNATcheck)."),
         ("lkql", "Main entry point for LKQL")
     ]:
         subp = subparsers.add_parser(subcommand, help=help)
