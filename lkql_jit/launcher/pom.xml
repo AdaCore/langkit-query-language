@@ -44,6 +44,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.graalvm.sdk:launcher-common</include>
+                                    <include>info.picocli:picocli</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -75,6 +76,12 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.5</version>
+        </dependency>
+
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>graal-sdk</artifactId>
