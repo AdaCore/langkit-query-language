@@ -2,15 +2,27 @@ p.adb:22:25: rule violation: callback may propagate exceptions
 22 |       Take_Cb (Param => P1'Access, I => 1);   --  FLAG
    |                         ^^^^^^^^^
 
-p.adb:45:19: rule violation: callback may propagate exceptions
-45 |       Take_Cb (1, P3'Access);        --  FLAG
+p.adb:61:19: rule violation: callback may propagate exceptions
+61 |       Take_Cb (1, P3'Access);           --  FLAG
    |                   ^^^^^^^^^
 
-p.adb:46:21: rule violation: callback may propagate exceptions
-46 |       Take_Cb_I (1, P1'Access);      --  FLAG
+p.adb:64:21: rule violation: callback may propagate exceptions
+64 |       Take_Cb_I (1, P1'Access);         --  FLAG
    |                     ^^^^^^^^^
 
-p.adb:55:19: rule violation: callback may propagate exceptions
-55 |       Take_Cb (1, Sep'Access);      --  FLAG
+p.adb:67:23: rule violation: callback may propagate exceptions
+67 |       Take_Cb_I_2 (1, P1'Access);       --  FLAG
+   |                       ^^^^^^^^^
+
+p.adb:71:28: rule violation: callback may propagate exceptions
+71 |       Pkg_Inst.Take_Cb (1, P1'Access);  --  FLAG
+   |                            ^^^^^^^^^
+
+p.adb:73:19: rule violation: callback may propagate exceptions
+73 |       Cb_Inst (1, P1'Access);           -- FLAG
+   |                   ^^^^^^^^^
+
+p.adb:82:19: rule violation: callback may propagate exceptions
+82 |       Take_Cb (1, Sep'Access);      --  FLAG
    |                   ^^^^^^^^^^
 
