@@ -520,7 +520,7 @@ justified violations. However, exempted violations along with their
 justification are documented in a special section of the report file that
 ``gnatcheck`` generates.
 
-.. _Using_pragma_``Annotate``_to_Control_Rule_Exemption:
+.. _Using_pragma_Annotate_to_Control_Rule_Exemption:
 
 Using pragma ``Annotate`` to Control Rule Exemption
 ---------------------------------------------------
@@ -701,49 +701,41 @@ Using GNATcheck as a Known Problem Detector
 
 If you are a GNAT Pro Assurance customer, you have access to a special
 packaging of GNATcheck called ``gnatkp`` (GNAT Known Problem detector)
-where the ``gnatcheck`` executable is replaced by ``gnatkp`` and provides
-the following main user interface:
+where the ``gnatcheck`` executable is replaced by ``gnatkp``, and the
+coding standard rules are replaced by rules designed to detect constructs
+affected by known problems in official compiler releases. Note that GNATkp
+comes in addition and not as a replacement of GNATcheck.
 
-.. code-block:: sh
+You can use the command ``gnatkp --help`` to list all the switches
+relevant to GNATkp. GNATkp mostly accepts the same command arguments as
+GNATcheck and behaves in a similar way, but there are some differences that
+are described below.
 
-   gnatkp -Pproject -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
+The easiest way to use GNATkp is by specifying the version of GNAT Pro that
+you have and letting ``gnatkp`` run all known problem detectors
+registered for this version, via the switch ``--kp-version``. For example:
 
-where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You can
-get the list of detectors available via the command ``gnatkp -h``. When
-combined with the ``--kp-version`` and possibly ``--target`` switches (see
-below), ``gnatkp -h`` will only list the detectors relevant to the version
-(and target) specified.
-
-Note that GNATkp comes in addition and not as a replacement of GNATcheck: it
-only comes with known problem detectors, and does not include coding standard
-rules.
-
-The ``gnatkp`` command above will process all the files in the
-given project file and run the listed known problem detectors, generating
-a list of occurrences on standard error, as well as in a file called
-:file:`gnatkp.out`.
-
-Alternatively you can specify the version of GNAT Pro relevant to your
-query and let ``gnatkp`` run all the registered known problem detectors
-relevant to this version, via the ``--kp-version`` switch, e.g:
-
-.. code-block:: sh
+.. code-block:: none
 
    gnatkp -Pproject --kp-version=21.2
 
-will run all the detectors relevant to GNAT Pro 21.2. The list of detectors
-will be displayed as info messages, and will also be listed in the file
-:file:`gnatkp-rule-list.out`. You can also list them without running the
-detectors via:
+will run all detectors relevant to GNAT Pro 21.2 on all files in the
+project. The list of detectors will be displayed as info messages, and will
+also be listed in the file :file:`gnatkp-rule-list.out`. The list of detected
+source locations will be generated on standard error, as well as in a file
+called :file:`gnatkp.out`.
 
-.. code-block:: sh
+You can display the list of detectors without running them by specifying
+additionally the ``-h`` switch, e.g.:
+
+.. code-block:: none
 
    gnatkp --kp-version=21.2 -h
 
 You can also combine the ``--kp-version`` switch with the ``--target`` switch
 to filter out detectors not relevant for your target, e.g:
 
-.. code-block:: sh
+.. code-block:: none
 
    gnatkp -Pproject --kp-version=21.2 --target=powerpc-elf
 
@@ -753,14 +745,25 @@ target.
 Note that you need to have the corresponding target GNAT compiler installed
 to use this option. By default, detectors for all targets are enabled.
 
-You can also use the command ``gnatkp --help`` to list all the switches
-relevant to ``gnatkp``.
+It is also possible to specify the custom list of detectors for GNATkp to run
+using the switch ``-rules``:
+
+.. code-block:: none
+
+   gnatkp -Pproject -rules +Rkp_xxxx_xxx [+Rkp_xxxx_xxx]
+
+where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You
+can get the list of available detectors via the command ``gnatkp -h``. When
+combined with the ``--kp-version`` and possibly ``--target`` switches,
+``gnatkp -h`` will only list the detectors relevant to the version
+(and target) specified.
 
 You can check via the GNAT Tracker interface which known problems are
 relevant to your version of GNAT and your target before deciding which
 known problems may impact you: most known problems are only relevant to a
-specific version of GNAT or a specific target. Do not hesitate to contact the
-AdaCore support if needed to identify the relevant entries.
+specific version of GNAT, a specific target, or a specific usage profile. Do
+not hesitate to contact the AdaCore support if you need help identifying the
+entries that may be relevant to you.
 
 .. _Transition_from_ASIS-based_GNATcheck:
 

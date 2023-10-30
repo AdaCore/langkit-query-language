@@ -3,6 +3,7 @@ testsuite/tests/*/*/*/*.ad[bs] no-precommit-check
 testsuite/ada_projects/*/*.ad[bs] no-precommit-check
 
 * text eol=lf
+*.bat text eol=crlf
 
 # No needs
 *.java no-precommit-check
