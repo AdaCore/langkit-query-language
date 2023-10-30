@@ -154,12 +154,13 @@ fun param_pos(n, pos: int = 0) =
     if not n then pos else param_pos(n?.previous_sibling(), pos+1)
 
 # TODO: move this in LAL
-fun is_predefined_op(op) =
+fun is_predefined_op(op, follow_renamings=false) =
     |" Return true if op is a predefined operator
 {
     val ref = op.p_referenced_decl();
+    val real_ref = if follow_renamings then ultimate_subprogram_alias(ref) else ref;
     # TODO: remove null check once all operators are synthesized (UB16-053)
-    not ref or ref is SyntheticSubpDecl
+    not real_ref or real_ref is SyntheticSubpDecl
 }
 
 fun is_standard_numeric(n) =
