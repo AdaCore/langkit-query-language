@@ -57,6 +57,8 @@ public final class TopLevelList extends LKQLNode {
     /** The list of nodes representing the LKQL program. */
     @Children private final LKQLNode[] program;
 
+    private final boolean isInteractive;
+
     // ----- Constructors -----
 
     /**
@@ -67,10 +69,14 @@ public final class TopLevelList extends LKQLNode {
      * @param nodes The nodes to execute in the top level.
      */
     public TopLevelList(
-            SourceLocation location, FrameDescriptor frameDescriptor, LKQLNode[] nodes) {
+            SourceLocation location,
+            FrameDescriptor frameDescriptor,
+            LKQLNode[] nodes,
+            boolean isInteractive) {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.program = nodes;
+        this.isInteractive = isInteractive;
     }
 
     // ----- Getters -----
@@ -94,16 +100,32 @@ public final class TopLevelList extends LKQLNode {
             }
         }
 
+        Object val = null;
+
         // Execute the nodes of the program
         for (LKQLNode node : program) {
-            node.executeGeneric(frame);
+            val = node.executeGeneric(frame);
         }
 
         // Get the language context and initialize it
         final LKQLContext context = LKQLLanguage.getContext(this);
 
-        // Return the namespace corresponding to the program execution
-        return LKQLNamespace.createUncached(frame.materialize());
+        if (this.isInteractive) {
+            // In interactive mode, return the last evaluated value, and add the namespace values
+            // to the global namespace
+            this.updateGlobals(LKQLNamespace.createUncached(frame.materialize()));
+            return context.getEnv().asGuestValue(val);
+        } else {
+            // Else return the namespace corresponding to the program execution
+            return LKQLNamespace.createUncached(frame.materialize());
+        }
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private void updateGlobals(LKQLNamespace namespace) {
+        var context = LKQLLanguage.getContext(this);
+        var globalObjects = context.getGlobal().getGlobalObjects();
+        globalObjects.putAll(namespace.asMap());
     }
 
     // ----- Class methods -----

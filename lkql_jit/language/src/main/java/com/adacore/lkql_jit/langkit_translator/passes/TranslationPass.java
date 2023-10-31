@@ -183,7 +183,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.TopLevelList topLevelList) {
-        // Entre the top level frame
+        // Enter the top level frame
         this.scriptFrames.enterFrame(topLevelList);
 
         // Initialize the top level nodes list
@@ -201,7 +201,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new TopLevelList(
                 loc(topLevelList),
                 this.scriptFrames.getFrameDescriptor(),
-                topLevelNodes.toArray(new LKQLNode[0]));
+                topLevelNodes.toArray(new LKQLNode[0]),
+                this.source.isInteractive());
     }
 
     // --- Literals
@@ -263,6 +264,13 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Finally look in the LKQL built-ins
         else if (this.scriptFrames.isBuiltIn(symbol)) {
             return new ReadBuiltIn(location, this.scriptFrames.getBuiltIn(symbol));
+        }
+
+        // If we're in interactive mode and the symbol hasn't been found any other way, issue a
+        // ReadDynamic, which will read from the global scope. This is only necessary in
+        // interactive mode.
+        else if (this.source.isInteractive()) {
+            return new ReadDynamic(location, symbol);
         }
 
         // If the symbol hasn't been found, throw an exception

@@ -32,7 +32,10 @@ import org.graalvm.launcher.AbstractLanguageLauncher;
 import org.graalvm.options.OptionCategory;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
+import org.graalvm.shadowed.org.jline.reader.EndOfFileException;
+import org.graalvm.shadowed.org.jline.reader.LineReader;
+import org.graalvm.shadowed.org.jline.reader.LineReaderBuilder;
+import org.graalvm.shadowed.org.jline.reader.UserInterruptException;
 import picocli.CommandLine;
 
 /**
@@ -90,7 +93,12 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         @CommandLine.Option(
                 names = {"-S", "--script-path"},
                 description = "The LKQL script to execute")
-        public String script;
+        public String script = null;
+
+        @CommandLine.Option(
+                names = {"-i", "--interactive"},
+                description = "Run a REPL")
+        public boolean interactive;
 
         @CommandLine.Option(
                 names = "--keep-going-on-missing-file",
@@ -203,9 +211,31 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
         // Create the context and run the script in it
         try (Context context = contextBuilder.build()) {
-            final Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
-            final Value executable = context.parse(source);
-            executable.executeVoid(false);
+            if (this.args.script != null) {
+                final Source source = Source.newBuilder("lkql", new File(this.args.script)).build();
+                context.eval(source);
+            }
+
+            if (this.args.interactive) {
+                LineReader reader = LineReaderBuilder.builder().build();
+                String prompt = "> ";
+                while (true) {
+                    String line = null;
+                    try {
+                        line = reader.readLine(prompt);
+                        final Source source =
+                                Source.newBuilder("lkql", line, "<input>")
+                                        .interactive(true)
+                                        .build();
+                        context.eval(source);
+                    } catch (UserInterruptException e) {
+                        // Ignore
+                    } catch (EndOfFileException e) {
+                        return 12;
+                    }
+                }
+            }
+
             return 0;
         } catch (IOException e) {
             System.err.println("File not found : " + this.args.script);

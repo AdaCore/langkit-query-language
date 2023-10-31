@@ -47,6 +47,12 @@ public final class GlobalScope {
     /** The meta tables that contains built-in methods. */
     private final Map<String, Map<String, BuiltInFunctionValue>> metaTables;
 
+    /**
+     * The global objects table. This is only used in the interactive interpreter, because in every
+     * other context we have pre-computed frames and namespaces.
+     */
+    private final Map<String, Object> globalObjects;
+
     // ----- Constructors -----
 
     /**
@@ -58,6 +64,7 @@ public final class GlobalScope {
         this.checkers = new HashMap<>();
         this.builtIns = new Object[buildInNb];
         this.metaTables = new HashMap<>();
+        this.globalObjects = new HashMap<>();
     }
 
     // ----- Instance methods -----
@@ -122,5 +129,9 @@ public final class GlobalScope {
     @CompilerDirectives.TruffleBoundary
     public void putMetaTable(String type, Map<String, BuiltInFunctionValue> methods) {
         this.metaTables.put(type, methods);
+    }
+
+    public Map<String, Object> getGlobalObjects() {
+        return globalObjects;
     }
 }

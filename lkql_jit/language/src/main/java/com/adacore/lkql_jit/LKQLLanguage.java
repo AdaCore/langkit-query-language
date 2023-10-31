@@ -318,34 +318,9 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     @Override
     protected CallTarget parse(ParsingRequest request) {
-        // Parse the given file or buffer
-        TopLevelList topLevelList = this.getTopLevelList(request);
-
-        // Get the LKQL context
-        LKQLContext context = getContext(topLevelList);
-
-        // Print the Truffle AST if the JIT is in debug mode
-        if (context.isVerbose()) {
-            System.out.println(
-                    "=== Truffle AST <"
-                            + topLevelList.getLocation().getFileName()
-                            + "> :\n"
-                            + topLevelList);
-        }
-
-        // Return the call target
-        return new TopLevelRootNode(topLevelList, this).getCallTarget();
-    }
-
-    /**
-     * Get a LKQL top level list from a parsing request.
-     *
-     * @param request The parsing request.
-     * @return The LKQL top level list.
-     */
-    private TopLevelList getTopLevelList(ParsingRequest request) {
-        // Parse the given file or buffer
         final Liblkqllang.AnalysisUnit unit;
+        TopLevelList result;
+
         try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
             if (request.getSource().getPath() == null) {
                 unit =
@@ -366,7 +341,21 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                     (Liblkqllang.TopLevelList) unit.getRoot();
 
             // Translate the LKQL AST from Langkit to a Truffle AST
-            return (TopLevelList) LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
+            result =
+                    (TopLevelList)
+                            LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
         }
+
+        // Get the LKQL context
+        LKQLContext context = getContext(result);
+
+        // Print the Truffle AST if the JIT is in debug mode
+        if (context.isVerbose()) {
+            System.out.println(
+                    "=== Truffle AST <" + result.getLocation().getFileName() + "> :\n" + result);
+        }
+
+        // Return the call target
+        return new TopLevelRootNode(result, this).getCallTarget();
     }
 }
