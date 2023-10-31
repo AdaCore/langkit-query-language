@@ -2359,24 +2359,19 @@ This rule has no parameters.
 
 Flag an ``'Address`` or ``'Access`` attribute if:
 
-*
-  this attribute is a reference to a subprogram;
+* this attribute is a reference to a subprogram;
 
-*
-  this subprogram may propagate an exception;
+* this subprogram may propagate an exception;
 
-*
-  this attribute is an actual parameter of a subprogram call, and both the
+* this attribute is an actual parameter of a subprogram call, and both the
   subprogram called and the corresponding formal parameter are specified by a
   rule parameter.
 
 A subprogram is considered as not propagating an exception if:
 
-*
-  its body has an exception handler with ``others`` exception choice;
+* its body has an exception handler with ``others`` exception choice;
 
-*
-  no exception handler in the body contains a raise statement nor a call to
+* no exception handler in the body contains a raise statement nor a call to
   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
 
 The rule has an optional parameter for the ``+R`` option:
@@ -2412,6 +2407,11 @@ the subprogram of interest in case if renamings are used for this subprogram.
 
 Note also, that the rule does not make any overload resolution, so calls to
 all the subprograms corresponding to ``subprogram_name`` are checked.
+
+.. note:: Note that you can use both fully qualified names to
+   instantiated or non-instantiated generic subprograms, depending on the
+   granularity you wish for. However **you cannot use a mix of the two**, so
+   the names need to be either fully instantiated or fully uninstantiated.
 
 
 .. rubric:: Example

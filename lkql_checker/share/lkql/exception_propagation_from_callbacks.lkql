@@ -13,6 +13,16 @@
 
 import stdlib
 
+fun get_uninstantiated_subp(subp) =
+   |" Works around an inconsistency in LAL's API wrt. generic subprograms
+   |" TODO: Fix when eng/libadalang/libadalang/-/issues/1127 is fixed
+    match subp
+    | GenericSubpInstantiation(f_generic_subp_name is s@*) =>
+        s.p_referenced_decl().p_get_uninstantiated_node()
+    | AdaNode => subp.p_get_uninstantiated_node()
+    | * => null
+
+
 @check(help="callback may propagate exceptions (global analysis required)",
        message="callback may propagate exceptions",
        category="Style", subcategory="Programming Practice")
@@ -26,10 +36,18 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
      when (from node through parent
            select first CallExpr(p_is_call() is true)) is call@CallExpr
       when {
-          val n = call.f_name.p_referenced_decl()?.
-                  p_canonical_fully_qualified_name?();
-          val name = if n == () then "" else n;
-          val params = [c[2] for c in callbacks if c[1] == name].to_list;
+          val uninst_subp_name = get_uninstantiated_subp(
+              call.f_name.p_referenced_decl()
+          )?.p_canonical_fully_qualified_name?();
+
+          val subp_name = call.f_name.p_referenced_decl()
+                              ?.p_canonical_fully_qualified_name?();
+
+          val params = [
+              c[2] for c in callbacks
+              if c[1] == uninst_subp_name
+                 or c[1] == subp_name
+          ].to_list;
 
           params.length != 0 and
           [p for p in call.p_call_params()
