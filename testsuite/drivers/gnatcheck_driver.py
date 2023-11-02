@@ -169,7 +169,9 @@ class GnatcheckDriver(BaseDriver):
         # is a copy of the original LKQL repository (which is actually what
         # happens in production: the checkout used for testing is separate
         # from that used for building).
-        gnatcheck_env["LKQL_RULES_PATH"] = ""
+        gnatcheck_env["LKQL_RULES_PATH"] = getattr(
+            self.env, "gnatcheck_rules_path", ""
+        )
         gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
             self.gnatcheck_worker_exe
         )
