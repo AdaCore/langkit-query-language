@@ -123,6 +123,7 @@ class GnatcheckDriver(BaseDriver):
     This driver also supports performance testing.
 
     Test arguments:
+        - ``jobs``: The number of jobs to forward to the GNATcheck command.
         - ``project``: GPR build file to use (if any)
         - ``input_sources``: Ada files to analyze (if explicit, optional if
           project is passed)
@@ -230,6 +231,10 @@ class GnatcheckDriver(BaseDriver):
             # Set the "--show-rule" flag according to the test
             if test_data.get('show_rule', False):
                 args.append('--show-rule')
+
+            # Set the number of wanted jobs
+            if test_data.get('jobs', None):
+                args.append(f'-j{test_data["jobs"]}')
 
             # Use the test's project, if any
             if test_data.get('project', None):
