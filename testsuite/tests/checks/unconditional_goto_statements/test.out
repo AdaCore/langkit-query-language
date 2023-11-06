@@ -1,0 +1,8 @@
+test_uncond_goto_stmt.adb:34:7: rule violation: goto statement
+34 |       goto Label2; -- FLAG: not contained within if
+   |       ^^^^^^^^^^^^
+
+test_uncond_goto_stmt.adb:45:10: rule violation: goto statement
+45 |          goto Label0; -- FLAG: not _directly_ contained within if
+   |          ^^^^^^^^^^^^
+
