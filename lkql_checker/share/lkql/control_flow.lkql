@@ -1,0 +1,56 @@
+|" LKQL control_flow module
+|"
+|" This module defines utility functions for doing very basic control flow analysis.
+|" In particular, note that this module does not perform any sophisticated analysis
+|" to discover conditions that are statically known to be true or to detect statements
+|" that are necessarily dead. Also note that some constructs are not yet handled (e.g.
+|" goto statements).
+
+import stdlib
+
+selector executed_children
+    |" Return all children that are on the execution path. Children that are
+    |" inside conditionals or loops are therefore not returned, as there may
+    |" exist execution scenarios in which where they are not taken.
+    | null     => ()
+    | BodyNode => ()
+    | IfStmt   => rec this.f_cond_expr
+    | CaseStmt => rec this.f_expr
+    | BaseLoopStmt => rec this.f_spec
+    | *        => rec *this.children
+
+fun all_branches(stmt) =
+    |" Return a list of branches corresponding to alternative execution paths
+    |" that could be taken when the program runs through this statement.
+    |" For example, for an if statement, this returns a list of all its branches.
+    |" Likewise for a case statement. The null value is used to represent the
+    |" case where the control continues in its current path.
+    match stmt
+    | IfStmt =>
+        [stmt.f_then_stmts]
+        & [alt.f_stmts for alt in stmt.f_alternatives.children].to_list
+        & [stmt.f_else_stmts]
+    | CaseStmt =>
+        [alt.f_stmts for alt in stmt.f_alternatives]
+    | BaseLoopStmt =>
+        # We cannot know for sure that control will go inside the loop, so
+        # return "null" as well.
+        [stmt.f_stmts, null]
+    | * => [null]
+
+fun analyze(stmts, predicate, mode) =
+    |" Return whether the execution of the given list of statements will go
+    |" through a node which satisfies the given `predicate` function. In the
+    |" presence of conditionals, the given `mode` will determine the behavior
+    |" of the analysis: the `must` mode requires all execution paths to go
+    |" through such a node, whereas the `may` mode requires only that at least
+    |" one execution path goes through such a node.
+    stdlib.any([
+        predicate(stmt)
+        or mode([analyze(branch, predicate, mode)
+                 for branch in all_branches(stmt)])
+        for stmt in executed_children(stmts)
+    ])
+
+val must = stdlib.all
+val may = stdlib.any
