@@ -138,6 +138,7 @@ class GnatcheckDriver(BaseDriver):
             - ``profile-time``: Enable the time profiling or not as a boolean
         - ``pre_python``/``post_python``: Python code to be executed
           before/after the test
+        - ``worker``: Provide a custom worker for the GNATcheck run
 
     .. NOTE:: In practice, the above allows several different ways to express
         the same test, which dis not ideal. It was necessary to transition
@@ -172,7 +173,8 @@ class GnatcheckDriver(BaseDriver):
         gnatcheck_env["LKQL_RULES_PATH"] = getattr(
             self.env, "gnatcheck_rules_path", ""
         )
-        gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
+        custom_worker = self.test_env.get('worker', None)
+        gnatcheck_env["GNATCHECK_WORKER"] = custom_worker or " ".join(
             self.gnatcheck_worker_exe
         )
 
