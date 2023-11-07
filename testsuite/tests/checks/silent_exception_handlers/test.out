@@ -4,3 +4,25 @@ exc.adb:11:7: rule violation: silent exception handler
 12 ||          null;
    ||______________^
 
+exc_2.adb:11:4: rule violation: silent exception handler
+11 |     when Constraint_Error =>  --  FLAG
+   | ____^
+   ||
+   || ~~~ 8 other lines ~~~
+   ||
+20 ||       end if;
+   ||_____________^
+
+exc_2.adb:21:4: rule violation: silent exception handler
+21 |     when Program_Error =>     --  FLAG
+   | ____^
+   ||
+   || ~~~ 3 other lines ~~~
+   ||
+25 ||       end loop;
+   ||_______________^
+
+exc_2.adb:26:9: rule violation: silent exception handler
+26 |    when E : others =>        --  FLAG
+   |         ^
+
