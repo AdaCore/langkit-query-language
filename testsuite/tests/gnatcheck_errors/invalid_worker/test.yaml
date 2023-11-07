@@ -1,0 +1,7 @@
+driver: gnatcheck
+format: brief
+worker: "echo Not a message\nnot_a_file.adb:01:01: Should not appear\nMessage: Should appear\n"
+input_sources:
+  - main.adb
+rules:
+  - +RGOTO_Statements
