@@ -10,7 +10,7 @@
     <version>0.1.0</version>
     <modules>
         <module>language</module>
-        <module>lkql</module>
+        <module>lkql_cli</module>
         <module>native</module>
         <module>component</module>
     </modules>
@@ -46,7 +46,7 @@
         <profile>
             <id>native</id>
             <properties>
-                <config.nativeComponents>lkql</config.nativeComponents>
+                <config.nativeComponents>lkql_cli</config.nativeComponents>
             </properties>
         </profile>
 
@@ -121,7 +121,7 @@
                     <java>
                         <includes>
                             <include>language/src/main/java/**/*.java</include>
-                            <include>lkql/src/main/java/**/*.java</include>
+                            <include>lkql_cli/src/main/java/**/*.java</include>
                         </includes>
 
                         <licenseHeader>

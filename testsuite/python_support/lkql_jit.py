@@ -9,7 +9,7 @@ import subprocess
 
 # Jar for each LKQL JIT entry point
 jars = {
-    "lkql": "lkql.jar"
+    "lkql": "lkql_cli.jar"
 }
 
 # Main class for each LKQL JIT entry point

@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # Get the components to build
     build_checker = "checker" in args.native_components
     build_worker = "gnatcheck_worker" in args.native_components
-    build_lkql = "lkql" in args.native_components
+    build_lkql = "lkql_cli" in args.native_components
 
     # Create the common command
     cmd = [
@@ -106,9 +106,9 @@ if __name__ == "__main__":
             "GNATCheckWorker",
         ),
         (
-                "lkql",
+                "lkql_cli",
                 build_lkql,
-                P.join("..", "lkql", "target", "lkql.jar"),
+                P.join("..", "lkql_cli", "target", "lkql_cli.jar"),
                 "lkql",
                 "LKQLMain"
         ),

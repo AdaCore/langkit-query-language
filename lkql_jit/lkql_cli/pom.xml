@@ -10,7 +10,7 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>lkql</artifactId>
+    <artifactId>lkql_cli</artifactId>
 
     <build>
         <plugins>
@@ -40,7 +40,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>lkql</finalName>
+                            <finalName>lkql_cli</finalName>
                             <artifactSet>
                                 <includes>
                                     <include>org.graalvm.sdk:launcher-common</include>
