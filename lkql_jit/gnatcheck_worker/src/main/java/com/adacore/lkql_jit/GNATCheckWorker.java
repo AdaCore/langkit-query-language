@@ -141,7 +141,6 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      */
     protected int executeScript(Context.Builder contextBuilder) {
         // Set the builder common options
-        contextBuilder.allowIO(true);
         contextBuilder.option("lkql.diagnosticOutputMode", "GNATCHECK");
 
         // If no rules are provided, don't do anything

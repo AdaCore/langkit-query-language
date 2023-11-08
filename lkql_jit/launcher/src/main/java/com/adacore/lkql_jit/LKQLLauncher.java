@@ -151,9 +151,6 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
      * @return The exit code of the script.
      */
     protected int executeScript(Context.Builder contextBuilder) {
-        // Set the builder common options
-        contextBuilder.allowIO(true);
-
         // Set the context options
         if (this.verbose) {
             System.out.println("=== LKQL JIT is in verbose mode ===");

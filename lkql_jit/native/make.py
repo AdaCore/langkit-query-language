@@ -66,7 +66,6 @@ if __name__ == "__main__":
         graal.native_image,
         "--macro:truffle",
         "--no-fallback",
-        "--language:regex",
         "--initialize-at-build-time=com.adacore.lkql_jit",
     ]
 

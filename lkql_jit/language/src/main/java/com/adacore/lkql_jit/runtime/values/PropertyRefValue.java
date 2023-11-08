@@ -32,6 +32,7 @@ import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Idempotent;
 
 /**
  * This class represents a reference to an ada node property stored in a value.
@@ -86,6 +87,7 @@ public final class PropertyRefValue implements LKQLValue {
         return this.propertyName;
     }
 
+    @Idempotent
     public Libadalang.LibadalangField getFieldDescription() {
         return this.fieldDescription;
     }

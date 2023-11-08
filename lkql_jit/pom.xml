@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Used GraalVM version -->
-        <graalvm.version>22.3.1</graalvm.version>
+        <graalvm.version>23.0.2</graalvm.version>
 
         <!-- Libadalang version -->
         <config.libadalangVersion>0.1</config.libadalangVersion>

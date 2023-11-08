@@ -177,8 +177,6 @@ public class LKQLChecker extends AbstractLanguageLauncher {
      */
     protected int executeScript(Context.Builder contextBuilder) {
         // Set the builder common options
-        contextBuilder.allowIO(true);
-
         contextBuilder.option("lkql.checkerDebug", "true");
 
         // Set the context options
