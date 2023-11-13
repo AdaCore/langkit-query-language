@@ -1,0 +1,7 @@
+driver: checker
+project: gnatcov.gpr
+rule_name: integer_types_as_enum
+
+perf:
+  default: 1
+  profile-time: true

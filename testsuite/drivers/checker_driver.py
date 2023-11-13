@@ -21,6 +21,7 @@ class CheckerDriver(BaseDriver):
         - rule_arguments: A dict mapping rule argument names to their values
     """
 
+    perf_supported = True
     flag_checking_supported = True
 
     def run(self) -> None:
@@ -44,7 +45,10 @@ class CheckerDriver(BaseDriver):
         args += ['--keep-going-on-missing-file']
 
         # Run the checker
-        self.check_run(args)
+        if self.perf_mode:
+            self.perf_run(args)
+        else:
+            self.check_run(args)
 
     def parse_flagged_lines(self, output: str) -> Flags:
         # Compile the pattern to match a checker output
