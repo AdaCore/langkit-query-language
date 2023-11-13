@@ -14,7 +14,8 @@ from e3.testsuite import Testsuite, logger, TestsuiteCore
 from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder, TestFinderResult
 
 from drivers import (
-    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver
+    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver,
+    benchmarks_driver,
 )
 
 class PerfTestFinder(YAMLTestFinder):
@@ -37,7 +38,7 @@ class PerfTestFinder(YAMLTestFinder):
 
         # Reject testcases which do not contain performance measuring
         # instructions.
-        if result is None or "perf" not in result.test_env:
+        if result is None or P.join("tests", "perf") not in result.test_dir:
             return None
 
         # Make sure that the driver supports performance measuring
@@ -82,7 +83,8 @@ class LKQLTestsuite(Testsuite):
                        'interpreter': interpreter_driver.InterpreterDriver,
                        'java': java_driver.JavaDriver,
                        'checker': checker_driver.CheckerDriver,
-                       'gnatcheck': gnatcheck_driver.GnatcheckDriver}
+                       'gnatcheck': gnatcheck_driver.GnatcheckDriver,
+                       'benchmarks': benchmarks_driver.BenchmarksDriver,}
 
     def add_options(self, parser: ArgumentParser) -> None:
         parser.add_argument(
@@ -181,9 +183,9 @@ class LKQLTestsuite(Testsuite):
                     ])
 
         # Unless specifically told not to, add test programs to the environment
+        repo_root = P.dirname(self.root_dir)
+        self.env.root_dir = repo_root
         if not self.env.options.no_auto_path:
-            repo_root = P.dirname(self.root_dir)
-
             def in_repo(*args):
                 return P.join(repo_root, *args)
 
@@ -273,7 +275,7 @@ class LKQLTestsuite(Testsuite):
                 bytes_count /= 1000
             return "{:.2f}{}".format(bytes_count, unit)
 
-        # Define the function to display the given statistics
+        # Define the function to compute the given statistics
         def compute_stats(numbers_str: str,
                           get_value: Callable[[str], any],
                           format_value: Callable[[any], str]) -> str:
@@ -284,9 +286,8 @@ class LKQLTestsuite(Testsuite):
                 f" mean: {format_value(statistics.mean(numbers))})"
             )
 
-        # For each test compute the statistics and display them
-        for test_name, entry in sorted(self.report_index.entries.items()):
-            print(f"--- {test_name}", file=output_file)
+        # Define the function to display the statistics of the ``time`` output
+        def print_time_stats(entry):
             print(
                 f"    time:"
                 f" {compute_stats(entry.info['time'], float, format_time)}",
@@ -298,6 +299,20 @@ class LKQLTestsuite(Testsuite):
                 file=output_file
             )
 
+        # Define the function to display the statistics of the benchmarks
+        def print_benchmark_stats(entry):
+            for benchmark, runs in entry.info['benchmark_results'].items():
+                print(f"    {benchmark}")
+                for run, score in runs.items():
+                    print(f"      {run} : {score['score']} {score['unit']}")
+
+        # For each test result, display the statistics
+        for test_name, entry in sorted(self.report_index.entries.items()):
+            print(f"--- {test_name}", file=output_file)
+            if entry.info.get('time') and entry.info.get('memory'):
+                print_time_stats(entry)
+            else:
+                print_benchmark_stats(entry)
 
 if __name__ == "__main__":
     sys.exit(LKQLTestsuite().testsuite_main())
