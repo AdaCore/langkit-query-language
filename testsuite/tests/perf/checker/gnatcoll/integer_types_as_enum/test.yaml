@@ -1,0 +1,7 @@
+driver: checker
+project: gnatcoll.gpr
+rule_name: integer_types_as_enum
+
+perf:
+  default: 1
+  profile-time: true

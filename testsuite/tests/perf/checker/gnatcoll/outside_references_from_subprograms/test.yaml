@@ -1,0 +1,7 @@
+driver: checker
+project: gnatcoll.gpr
+rule_name: outside_references_from_subprograms
+
+perf:
+  default: 1
+  profile-time: true
