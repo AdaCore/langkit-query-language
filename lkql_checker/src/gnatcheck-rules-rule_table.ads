@@ -148,5 +148,6 @@ package Gnatcheck.Rules.Rule_Table is
 
    procedure Process_Requested_Rules (Ctx : in out Lkql_Context);
    --  Process the rules enabled and set Ctx.Traverse_Instantiations
+   --  TODO: Useless? See #190
 
 end Gnatcheck.Rules.Rule_Table;

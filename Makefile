@@ -28,18 +28,15 @@ endif
 ADDITIONAL_MANAGE_ARGS=
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql lkql_checker lalcheck lkql_native_jit doc
+all: lkql gnatcheck lkql_native_jit doc
 
 lkql: build/bin/liblkqllang_parse
 
 doc: lkql_native_jit
 	cd user_manual && make clean html
 
-lkql_checker: lkql
-	gprbuild -P lkql_checker/lkql_checker.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
-
-lalcheck: lkql
-	gprbuild -P lkql_checker/lalcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
+gnatcheck: lkql
+	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
 build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
 	lkql/manage.py make -P --pass-on="emit railroad diagrams" --enable-build-warnings --build-mode=$(BUILD_MODE) --enable-java --maven-executable $(MAVEN) $(ADDITIONAL_MANAGE_ARGS)
@@ -47,13 +44,10 @@ build/bin/liblkqllang_parse: lkql/language/parser.py lkql/language/lexer.py
 test:
 	testsuite/testsuite.py -Edtmp
 
-clean: clean_lkql_checker clean_lkql clean_lkql_jit
+clean: clean_lkql clean_lkql_jit
 
 clean_lkql:
 	rm lkql/build -rf
-
-clean_lkql_checker:
-	gprclean -P lkql_checker/lkql_checker.gpr
 
 clean_lkql_jit:
 	cd lkql_jit && $(MAVEN) clean
@@ -72,17 +66,11 @@ automated:
 	rm -rf "$(PREFIX)"
 	mkdir -p "$(PREFIX)/share" "$(PREFIX)/share/examples" "$(PREFIX)/lib"
 	$(PYTHON) lkql/manage.py make $(MANAGE_ARGS) $(ADDITIONAL_MANAGE_ARGS)
-	$(GPRBUILD) -Plkql_checker/lkql_checker.gpr -largs -s
-	$(GPRBUILD) -Plkql_checker/lalcheck.gpr -largs -s
-	$(GPRBUILD) -Plkql/liblkqllang_encapsulated -XLIBRARY_TYPE=static-pic -largs -s
-	$(GPRINSTALL) --mode=usage -Plkql_checker/lkql_checker.gpr
-	$(GPRINSTALL) --mode=usage -Plkql_checker/lalcheck.gpr
+	$(GPRBUILD) -Plkql_checker/gnatcheck.gpr -largs -s
+	$(GPRINSTALL) --mode=usage -Plkql_checker/gnatcheck.gpr
 	$(GPRINSTALL) --mode=usage -P$(LKQL_DIR)/mains.gpr
 	cp -pr lkql_checker/share/lkql "$(PREFIX)/share"
 	cp -pr lkql_checker/share/examples "$(PREFIX)/share/examples/gnatcheck"
-	cp -p lkql_repl.py "$(PREFIX)/bin"
-	cp -pr "$(BUILD_DIR)/lkql/python" "$(PREFIX)/lib"
-	cp -p lkql/encapsulated/*$(SOEXT) "$(PREFIX)/lib/python/liblkqllang"
 
 automated-cov:
 	rm -rf "$(PREFIX)" "$(BUILD_DIR)"

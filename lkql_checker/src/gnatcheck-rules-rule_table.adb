@@ -24,7 +24,6 @@ with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
 with Ada.Text_IO;                use Ada.Text_IO;
-with Ada.Wide_Wide_Text_IO;
 
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.OS_Lib;                use GNAT.OS_Lib;
@@ -40,8 +39,6 @@ with Rule_Commands;              use Rule_Commands;
 with Rules_Factory;              use Rules_Factory;
 
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-with LKQL.Primitives; use LKQL.Primitives;
-with LKQL.Evaluation; use LKQL.Evaluation;
 
 with Langkit_Support.Text;        use Langkit_Support.Text;
 
@@ -1335,7 +1332,8 @@ package body Gnatcheck.Rules.Rule_Table is
       end if;
 
       Ctx.All_Rules :=
-        Rules_Factory.All_Rules (Ctx.Eval_Ctx, Additional_Rules_Dirs);
+        Rules_Factory.All_Rules
+          (Ctx.LKQL_Analysis_Context, Additional_Rules_Dirs);
 
       for R of Ctx.All_Rules loop
          declare
@@ -1415,7 +1413,6 @@ package body Gnatcheck.Rules.Rule_Table is
             Rule.Parameters                    := R.Parameters;
             Rule.Remediation_Level             := R.Remediation_Level;
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
-            Rule.Follow_Instantiations         := R.Follow_Instantiations;
             Rule.Impact                        := R.Impact;
             Rule.Target                        := R.Target;
             All_Rules.Append (Rule);
@@ -1428,10 +1425,6 @@ package body Gnatcheck.Rules.Rule_Table is
    -----------------------------
 
    procedure Process_Requested_Rules (Ctx : in out Lkql_Context) is
-
-      Dummy : Primitive;
-
-   --  Start of processing for Process_Requested_Rules
 
    begin
       --  Process potential arguments for rules
@@ -1466,49 +1459,8 @@ package body Gnatcheck.Rules.Rule_Table is
                end if;
             end loop;
          end;
-
-         --  Call prepare *after* processing the arguments, since it needs the
-         --  arguments processed.
-
-         Rule.Prepare;
       end loop;
 
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
-            declare
-               Found : Boolean := False;
-            begin
-               for R of Ctx.All_Rules loop
-                  if To_Text (All_Rules.Table (Rule).Name.all)
-                       = To_Text (R.Name)
-                  then
-                     Append_Rule (Ctx, R);
-                     Found := True;
-                     exit;
-                  end if;
-               end loop;
-
-               if not Found then
-                  raise Exit_App
-                    with "no such rule - " & All_Rules.Table (Rule).Name.all;
-               end if;
-            end;
-         end if;
-      end loop;
-
-      for Rule of Ctx.All_Rules loop
-         --  Eval the rule's code (which should contain only definitions). TODO
-         --  this should be encapsulated.
-         begin
-            Dummy := Eval (Rule.Eval_Ctx, Rule.Lkql_Root);
-         exception
-            when others =>
-               Put ("internal error loading rule ");
-               Ada.Wide_Wide_Text_IO.Put (To_Wide_Wide_String (Rule.Name));
-               Put_Line (":");
-               raise;
-         end;
-      end loop;
    end Process_Requested_Rules;
 
 end Gnatcheck.Rules.Rule_Table;

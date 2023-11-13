@@ -9,7 +9,7 @@ class Manage(ManageScript):
 
     @property
     def main_programs(self):
-        return super().main_programs | {'lkql_ada'}
+        return super().main_programs
 
     def create_context(self, args):
 
@@ -22,9 +22,6 @@ class Manage(ManageScript):
                          short_name='lkql',
                          lexer=lkql_lexer,
                          grammar=lkql_grammar)
-
-        ctx.add_with_clause('Implementation', AdaSourceKind.body,
-                            'Liblkqllang.Prelude', use_clause=True)
 
         return ctx
 

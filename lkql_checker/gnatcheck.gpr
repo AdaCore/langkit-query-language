@@ -1,23 +1,26 @@
 with "libadalang";
 with "liblkqllang";
-with "lkql_checker";
 with "gpr2";
 
-project Lalcheck is
+project GNATcheck is
 
-   for Source_Dirs use ("lalcheck");
-   for Object_Dir use "obj/" & Lkql_Checker.Build_Mode;
+   type Build_Mode_Type is ("dev", "prod");
+   Build_Mode : Build_Mode_Type := external
+     ("BUILD_MODE", external ("LKQL_CHECKER_BUILD_MODE", "dev"));
+
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj/" & Build_Mode;
    for Exec_Dir use "bin";
-   for Main use ("lalcheck.adb");
+   for Main use ("gnatcheck_main.adb");
 
    package Builder is
-      for Executable ("lalcheck.adb") use "gnatcheck";
+      for Executable ("gnatcheck_main.adb") use "gnatcheck";
       for Switches ("Ada") use ("-j0");
    end Builder;
 
    package Compiler is
       Switches := ("-gnatyg", "-gnatwa", "-g", "-gnat2022");
-      case Lkql_Checker.Build_Mode is
+      case Build_Mode is
          when "dev" =>
             Switches := Switches & ("-O0", "-gnata", "-gnatwe");
          when "prod" =>
@@ -27,4 +30,4 @@ project Lalcheck is
       for Default_Switches ("Ada") use Switches;
    end Compiler;
 
-end Lalcheck;
+end GNATcheck;

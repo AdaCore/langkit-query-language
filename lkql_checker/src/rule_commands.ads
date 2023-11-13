@@ -24,8 +24,6 @@
 with Ada.Containers.Vectors;
 with GNAT.Regexp;
 
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-
 with Liblkqllang.Analysis;
 
 with Libadalang.Analysis;
@@ -102,17 +100,9 @@ package Rule_Commands is
       --  returns a list of messages) or a node check (function that returns a
       --  node).
 
-      Eval_Ctx      : Eval_Context;
-      --  LKQL eval context in which to eval the rule. Each rule will have a
-      --  separate frame, so as to not leak identifier from one rule to the
-      --  other.
-
       Kind_Pattern  : L.Node_Kind_Pattern;
       --  If we determined that the rule only needs to run on a specific node
       --  kind, store the corresponding node pattern here.
-
-      Follow_Instantiations : Boolean;
-      --  Whether we should follow generic instantiations or not for this rule.
 
       Param_Kind : Rule_Param_Kind;
       --  Category of parameters.
@@ -124,7 +114,6 @@ package Rule_Commands is
       --  Remediation level to compute technical debt.
 
       Parametric_Exemption : Boolean;
-      --  Whether this rule allows parametric exemption.
 
       Impact : Regexp_Access;
       --  For a KP detector, regexp to match relevant releases impacted, if
@@ -148,17 +137,12 @@ package Rule_Commands is
    package Eval_Diagnostic_Vectors
    is new Ada.Containers.Vectors (Positive, Eval_Diagnostic);
 
-   procedure Prepare (Self : in out Rule_Command);
-
    function Create_Rule_Command
      (Lkql_File_Path : String;
-      Ctx            : Eval_Context;
+      Ctx            : L.Analysis_Context;
       Rc             : out Rule_Command) return Boolean;
    --  Create a Rule_Command value with the given name and arguments and
    --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
    --  corresponds to a rule file, ``False`` otherwise.
-
-   procedure Destroy (Self : in out Rule_Command);
-   --  Destroy the rule and associated data
 
 end Rule_Commands;

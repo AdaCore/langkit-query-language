@@ -43,11 +43,8 @@ with GPR2.Project.Source.Set;
 with Gnatcheck.Diagnoses;         use Gnatcheck.Diagnoses;
 with Gnatcheck.Ids;               use Gnatcheck.Ids;
 with Gnatcheck.Output;            use Gnatcheck.Output;
-with Gnatcheck.Rules;             use Gnatcheck.Rules;
-with Gnatcheck.Rules.Rule_Table;  use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
 
-with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
 with Langkit_Support.Text;        use Langkit_Support.Text;
 with Langkit_Support.Generic_API.Introspection;
 
@@ -60,15 +57,16 @@ with Libadalang.Generic_API;      use Libadalang.Generic_API;
 with Libadalang.Common;
 with Libadalang.Config_Pragmas;
 
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-with LKQL.Errors;        use LKQL.Errors;
-with LKQL.Primitives;    use LKQL.Primitives;
+with Langkit_Support.Generic_API.Analysis;
+
+with Liblkqllang.Analysis;
 
 package body Gnatcheck.Source_Table is
 
-   use Langkit_Support.Generic_API;
-
+   package LK renames Langkit_Support.Generic_API.Analysis;
    package LKI renames Langkit_Support.Generic_API.Introspection;
+
+   type LK_Unit_Array is array (Positive range <>) of LK.Lk_Unit;
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
@@ -260,7 +258,7 @@ package body Gnatcheck.Source_Table is
    ----------------------------
 
    procedure Add_Sources_To_Context
-     (Ctx     : Lkql_Context;
+     (Ctx     : Checker_App.Lkql_Context;
       Project : Arg_Project_Type'Class)
    is
       use GPR2.Project.View;
@@ -291,13 +289,15 @@ package body Gnatcheck.Source_Table is
       end if;
 
       declare
+         use LK;
          Lk_Units : LK_Unit_Array (Units.First_Index .. Units.Last_Index);
       begin
          for I in Lk_Units'Range loop
             Lk_Units (I) := To_Generic_Unit (Units (I));
          end loop;
 
-         Set_Units (Ctx.Eval_Ctx, Lk_Units);
+         --  Set_Units (Ctx.Eval_Ctx, Lk_Units);
+         --  TODO: Useless ?
       end;
    end Add_Sources_To_Context;
 
@@ -1405,109 +1405,15 @@ package body Gnatcheck.Source_Table is
    ---------------------
 
    procedure Process_Sources
-     (Ctx : Lkql_Context; Annotate_Only : Boolean := False)
+     (Ctx : Checker_App.Lkql_Context)
    is
       Next_SF : SF_Id;
-      Cached_Rule_Id : Rule_Id;
-      Cached_Rule    : Unbounded_Text_Type;
 
       use Libadalang.Iterators;
 
       function Strip_LF (S : String) return String is
       (if S (S'Last) = ASCII.LF then S (S'First .. S'Last - 1) else S);
       --  Remove trailing LF if any
-
-      function File_Name (Unit : LK.Lk_Unit) return String is
-        (if Full_Source_Locations
-         then Unit.Filename
-         else Ada.Directories.Simple_Name (Unit.Filename));
-      --  Return a string representing the name of Unit, taking
-      --  Options.Full_Source_Location into account.
-
-      procedure Store_Message
-        (Message    : Unbounded_Text_Type;
-         Unit       : LK.Lk_Unit;
-         Rule       : Unbounded_Text_Type;
-         Kind       : Message_Kinds;
-         Sloc_Range : Source_Location_Range);
-      --  Callback to store messages
-
-      -------------------
-      -- Store_Message --
-      -------------------
-
-      procedure Store_Message
-        (Message    : Unbounded_Text_Type;
-         Unit       : LK.Lk_Unit;
-         Rule       : Unbounded_Text_Type;
-         Kind       : Message_Kinds;
-         Sloc_Range : Source_Location_Range)
-      is
-         Id : Rule_Id;
-
-         use Ada.Directories;
-
-         Msg : constant String := To_String (To_Text (Message));
-
-         Actual_SF : SF_Id;
-
-      begin
-         --  Only store internal error messages in Debug_Mode for now.
-         --  Also never store "memoized error" messages which are
-         --  cascaded errors.
-
-         if (Kind = Internal_Error
-             and then not Debug_Mode
-             and then Index (Msg, "STOP_EVALUATION_ERROR") = 0)
-           or else Has_Suffix (Msg, "(memoized)")
-           or else Has_Suffix (Msg, "Memoized Error")  -- pending W119-041
-         then
-            return;
-         end if;
-
-         GNAT.Task_Lock.Lock;
-
-         if Rule = Cached_Rule then
-            Id := Cached_Rule_Id;
-         else
-            Id             := Get_Rule (To_String (To_Text (Rule)));
-            Cached_Rule_Id := Id;
-            Cached_Rule    := Rule;
-         end if;
-
-         --  If Follow_Instantiations is True then the relevant file id
-         --  may not be Next_SF, so perform a lookup.
-         Actual_SF := File_Find
-           (Simple_Name (Unit.Filename), Use_Short_Name => True);
-
-         if not Present (Actual_SF) then
-            return;
-         end if;
-
-         if Subprocess_Mode then
-            Put_Line
-              (File_Name (Unit) & ":" &
-               Sloc_Image (Start_Sloc (Sloc_Range)) & ": " &
-               "check: " & Msg &
-               Annotate_Rule (All_Rules.Table (Id).all));
-
-         else
-            Store_Diagnosis
-              (Text           =>
-                 File_Name (Unit) & ":" &
-                 Sloc_Image (Start_Sloc (Sloc_Range)) & ": " &
-                 Msg & (if Id = No_Rule then ""
-                        else Annotate_Rule (All_Rules.Table (Id).all)),
-               Diagnosis_Kind =>
-                 (if Kind = Rule_Violation then Rule_Violation
-                  else Internal_Error),
-               SF             => Actual_SF,
-               Rule           => Id,
-               Justification  => Exemption_Justification (Id));
-         end if;
-
-         GNAT.Task_Lock.Unlock;
-      end Store_Message;
 
    begin
       loop
@@ -1519,47 +1425,39 @@ package body Gnatcheck.Source_Table is
             Unit : constant Analysis_Unit :=
               Ctx.Analysis_Ctx.Get_From_File (Source_Name (Next_SF));
          begin
-            if not Annotate_Only then
-               Output_Source (Next_SF);
-               Process_Unit (Ctx, Unit, Store_Message'Access);
-            end if;
+            --  Process exemption pragmas for Unit
 
-            if not Subprocess_Mode then
-               --  Process exemption pragmas for Unit
+            declare
+               It      : Traverse_Iterator'Class := Traverse (Unit.Root);
+               Current : Ada_Node;
+               Dummy   : constant Boolean := It.Next (Current);
 
-               declare
-                  It      : Traverse_Iterator'Class := Traverse (Unit.Root);
-                  Current : Ada_Node;
-                  Dummy   : constant Boolean := It.Next (Current);
+               use Libadalang.Common;
+            begin
+               while It.Next (Current) loop
+                  if Current.Kind = Ada_Pragma_Node
+                    and then Is_Exemption_Pragma (Current.As_Pragma_Node)
+                  then
+                     Process_Exemption_Pragma (Current.As_Pragma_Node);
+                  end if;
+               end loop;
+            end;
 
-                  use Libadalang.Common;
-               begin
-                  while It.Next (Current) loop
-                     if Current.Kind = Ada_Pragma_Node
-                       and then Is_Exemption_Pragma (Current.As_Pragma_Node)
-                     then
-                        Process_Exemption_Pragma (Current.As_Pragma_Node);
-                     end if;
-                  end loop;
-               end;
+            --  Process exemption comments for Unit
 
-               --  Process exemption comments for Unit
+            declare
+               use Libadalang.Common;
+               TR : Token_Reference := Unit.First_Token;
+            begin
+               while TR /= No_Token loop
+                  if Kind (Data (TR)) = Ada_Comment then
+                     Process_Exemption_Comment (TR, Unit);
+                  end if;
+                  TR := Next (TR);
+               end loop;
+            end;
 
-               declare
-                  use Libadalang.Common;
-                  TR : Token_Reference := Unit.First_Token;
-               begin
-                  while TR /= No_Token loop
-                     if Kind (Data (TR)) = Ada_Comment then
-                        Process_Exemption_Comment (TR, Unit);
-                     end if;
-                     TR := Next (TR);
-                  end loop;
-               end;
-
-               Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
-            end if;
-
+            Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
          exception
             when E : others =>
                if Debug_Mode then
@@ -1589,9 +1487,8 @@ package body Gnatcheck.Source_Table is
 
    Partition : GPR2_Provider_And_Projects_Array_Access;
 
-   function Create_Context return Lkql_Context is
-      Ctx   : Lkql_Context;
-      Dummy : Primitive;
+   function Create_Context return Checker_App.Lkql_Context is
+      Ctx   : Checker_App.Lkql_Context;
       Files : File_Array_Access;
       Last  : Natural := 0;
 
@@ -1755,18 +1652,13 @@ package body Gnatcheck.Source_Table is
            (Ctx.Analysis_Ctx, Gnatcheck_Prj.Tree.all);
       end if;
 
-      --  It's too early to compute units, so provide an empty value for now,
-      --  until Add_Sources_To_Context is called.
-
-      Ctx.Eval_Ctx := Make_Eval_Context ([], Ada_Lang_Id);
-
-      LKQL.Errors.Property_Error_Recovery := LKQL.Errors.Continue_And_Warn;
-
       --  Initialize the cached rules array, with an array that goes from
       --  the index of the first root node type, to the index of the last
       --  derived type. This array will have too many slots since is has
       --  slots for abstract types, but we don't really care.
       declare
+         use Checker_App;
+
          Root_Node_Type : LKI.Type_Ref
            renames LKI.Root_Node_Type (Ada_Lang_Id);
          subtype Rules_By_Kind_Array_Subt is
@@ -1777,6 +1669,9 @@ package body Gnatcheck.Source_Table is
       begin
          Ctx.Cached_Rules := new Rules_By_Kind_Array_Subt;
       end;
+
+      Ctx.LKQL_Analysis_Context := Liblkqllang.Analysis.Create_Context
+        (Charset => "utf-8");
 
       return Ctx;
 

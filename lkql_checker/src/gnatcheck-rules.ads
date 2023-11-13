@@ -99,9 +99,6 @@ package Gnatcheck.Rules is
       Subcategory : String_Access;
       --  Subcategory for this rule, "" if none
 
-      Follow_Instantiations : Boolean;
-      --  True if this rule follows generic instantiations
-
       Allows_Parametrized_Exemption : Boolean;
       --  Whether you can specify a rule parameter when defining an exemption
       --  section for this Rule. In case if a rule parameter has the form like

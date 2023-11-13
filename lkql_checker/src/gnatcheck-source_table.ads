@@ -27,7 +27,7 @@ with GNATCOLL.Projects;    use GNATCOLL.Projects;
 
 with Gnatcheck.Options;    use Gnatcheck.Options;
 with Gnatcheck.Projects;   use Gnatcheck.Projects;
-with Checker_App;          use Checker_App;
+with Checker_App;
 
 package Gnatcheck.Source_Table is
 
@@ -204,16 +204,17 @@ package Gnatcheck.Source_Table is
    --  progress indicator. (Unconditionally) decreases the counter of the
    --  sources which have to be processed (Sources_Left)
 
-   function Create_Context return Lkql_Context;
+   function Create_Context return Checker_App.Lkql_Context;
    --  Create the LKQL context
 
    procedure Add_Sources_To_Context
-     (Ctx     : Lkql_Context;
+     (Ctx     : Checker_App.Lkql_Context;
       Project : Arg_Project_Type'Class);
    --  Add all sources from Project to Ctx
+   --  TODO: MAYBEREMOVE
 
    procedure Process_Sources
-     (Ctx : Lkql_Context; Annotate_Only : Boolean := False);
+     (Ctx : Checker_App.Lkql_Context);
    --  Procedure all sources. Only process pragma Annotate if Annotate_Only
    --  is true.
 

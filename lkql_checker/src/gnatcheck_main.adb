@@ -40,16 +40,13 @@ with Gnatcheck.Rules;     use Gnatcheck.Rules;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
 with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
+with Checker_App;
 
-with Checker_App; use Checker_App;
-with Rules_Factory;
-
-procedure Lalcheck is
+procedure Gnatcheck_Main is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
 
-   Ctx          : Lkql_Context;
+   Ctx          : Checker_App.Lkql_Context;
    GPRbuild_Pid : Process_Id := Invalid_Pid;
 
    E_Success   : constant := 0; --  No tool failure, no rule violation detected
@@ -288,7 +285,7 @@ procedure Lalcheck is
       begin
          --  Process sources to take pragma Annotate into account
 
-         Process_Sources (Ctx, Annotate_Only => True);
+         Process_Sources (Ctx);
 
          for Job in 1 .. Num_Jobs loop
             Create (File, Out_File, File_Name ("files", Job));
@@ -423,9 +420,7 @@ begin
 
    --  Exemptions are handled fully in the parent process
 
-   if not Subprocess_Mode then
-      Gnatcheck.Diagnoses.Init_Exemptions;
-   end if;
+   Gnatcheck.Diagnoses.Init_Exemptions;
 
    if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;
@@ -442,15 +437,6 @@ begin
       --  In this case we spawn gnatcheck for each project being aggregated
       Gnatcheck.Projects.Aggregate.Process_Aggregated_Projects (Gnatcheck_Prj);
 
-   elsif Subprocess_Mode then
-      --  The call to Create_Context above was made before sources are computed
-      --  by Check_Parameters, so reset them now.
-
-      Add_Sources_To_Context (Ctx, Gnatcheck_Prj);
-      Process_Sources (Ctx);
-      Rules_Factory.Finalize_Rules (Ctx.Eval_Ctx);
-      Free_Eval_Context (Ctx.Eval_Ctx);
-
    else
       --  The call to Create_Context above was made before sources are computed
       --  by Check_Parameters, so reset them now.
@@ -461,47 +447,10 @@ begin
       --  In the default (-j1, no custom worker) mode, process all sources in
       --  the main process.
 
-      if Process_Num <= 1 and then not Use_External_Worker then
-
-         --  Spawn gprbuild in background to process the files in parallel
-
-         if Analyze_Compiler_Output then
-            GPRbuild_Pid := Spawn_GPRbuild
-                              (Global_Report_Dir.all & "gprbuild.err");
-         end if;
-
-         Process_Sources (Ctx);
-
-         --  Wait for gprbuild to finish if we've launched it earlier and
-         --  analyze its output.
-
-         if Analyze_Compiler_Output then
-            declare
-               Ignore : Boolean;
-               Pid    : Process_Id;
-            begin
-               if not Quiet_Mode then
-                  Info ("Waiting for gprbuild...");
-               end if;
-
-               Wait_Process (Pid, Ignore);
-
-               if Pid = GPRbuild_Pid then
-                  Analyze_Output (Global_Report_Dir.all & "gprbuild.err",
-                                  Ignore);
-               else
-                  Info ("Error while waiting for gprbuild process.");
-               end if;
-            end;
-         end if;
-      else
-         Schedule_Files;
-      end if;
+      Schedule_Files;
 
       Generate_Qualification_Report;
       Gnatcheck.Output.Close_Report_Files;
-      Rules_Factory.Finalize_Rules (Ctx.Eval_Ctx);
-      Free_Eval_Context (Ctx.Eval_Ctx);
 
       if Tool_Failures > 0 then
          Info ("Total gnatcheck failures:" & Tool_Failures'Img);
@@ -550,4 +499,4 @@ exception
       Gnatcheck.Output.Report_Unhandled_Exception (Ex);
       Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
       OS_Exit (E_Error);
-end Lalcheck;
+end Gnatcheck_Main;

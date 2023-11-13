@@ -34,7 +34,7 @@ package body Rules_Factory is
    ---------------
 
    function All_Rules
-     (Ctx  : in out Eval_Context;
+     (Ctx  : L.Analysis_Context;
       Dirs : Path_Vector := Path_Vectors.Empty_Vector) return Rule_Vector
    is
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
@@ -48,7 +48,6 @@ package body Rules_Factory is
 
       for Rules_Dir of Rules_Dirs loop
          if Is_Directory (Rules_Dir) then
-            Ctx.Add_Lkql_Path (+Rules_Dir.Full_Name);
 
             declare
                Dir : File_Array_Access := Read_Dir (Rules_Dir);
@@ -122,14 +121,5 @@ package body Rules_Factory is
          return Custom_Checkers_Dirs;
       end;
    end Get_Rules_Directories;
-
-   --------------------
-   -- Finalize_Rules --
-   --------------------
-
-   procedure Finalize_Rules (Ctx : Eval_Context) is
-   begin
-      null;
-   end Finalize_Rules;
 
 end Rules_Factory;
