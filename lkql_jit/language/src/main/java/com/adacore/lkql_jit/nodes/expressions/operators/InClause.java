@@ -24,7 +24,9 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -62,7 +64,11 @@ public abstract class InClause extends BinOp {
      */
     @Specialization
     protected boolean inIterable(Object elem, Iterable iterable) {
-        return iterable.contains(elem);
+        Iterator iterator = iterable.iterator();
+        while (iterator.hasNext()) {
+            if (ObjectUtils.equals(elem, iterator.next())) return true;
+        }
+        return false;
     }
 
     /**

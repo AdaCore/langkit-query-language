@@ -37,7 +37,7 @@ public final class LKQLListIterator extends LKQLIterator {
 
     // ----- Constructors -----
 
-    /** Create a new list iterator with the iterated list. */
+    /** Create a new list iterator for the given list. */
     public LKQLListIterator(final LKQLList list) {
         this.list = list;
         this.cursor = 0;

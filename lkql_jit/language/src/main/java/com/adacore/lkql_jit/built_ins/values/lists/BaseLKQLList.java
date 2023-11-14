@@ -20,11 +20,14 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values;
+package com.adacore.lkql_jit.built_ins.values.lists;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
+import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -33,30 +36,35 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
-import java.util.Arrays;
 import java.util.Objects;
 
-/** This class represents a tuple in LKQL. */
+/** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLTuple implements TruffleObject, Indexable {
-
-    // ----- Attributes -----
-
-    /** The content of the tuple. */
-    private final Object[] content;
+public abstract class BaseLKQLList implements TruffleObject, Iterable, Indexable, Truthy {
 
     // ----- Constructors -----
 
-    /** Create a new tuple with its content. */
-    public LKQLTuple(final Object[] content) {
-        this.content = content;
-    }
+    protected BaseLKQLList() {}
+
+    // ----- Basic list methods to fulfill -----
+
+    /** Get the size of the list as a long value. */
+    public abstract long size();
+
+    /**
+     * Get the element at the given position in the list.
+     *
+     * @throws InvalidIndexException If the provided index is not in the list bounds.
+     */
+    public abstract Object get(long i) throws InvalidIndexException;
+
+    /** Get the iterator for the list. */
+    public abstract LKQLIterator iterator();
 
     // ----- Value methods -----
 
@@ -72,12 +80,12 @@ public class LKQLTuple implements TruffleObject, Indexable {
         return LKQLLanguage.class;
     }
 
-    /** Exported message to compare two tuples. */
+    /** Exported message to compare two lists. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
-        /** Compare two LKQL tuples. */
+        /** Compare two LKQL lists. */
         @Specialization
-        public static TriState onTuple(final LKQLTuple left, final LKQLTuple right) {
+        public static TriState onList(final BaseLKQLList left, final BaseLKQLList right) {
             if (left.internalEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
@@ -85,16 +93,16 @@ public class LKQLTuple implements TruffleObject, Indexable {
         /** Do the comparison with another element. */
         @Fallback
         public static TriState onOther(
-                @SuppressWarnings("unused") final LKQLTuple receiver,
+                @SuppressWarnings("unused") final BaseLKQLList receiver,
                 @SuppressWarnings("unused") final Object other) {
             return TriState.UNDEFINED;
         }
     }
 
-    /** Return the identity hash code for the given LKQL tuple. */
+    /** Return the identity hash code for the given LKQL list. */
     @CompilerDirectives.TruffleBoundary
     @ExportMessage
-    public static int identityHashCode(final LKQLTuple receiver) {
+    public static int identityHashCode(BaseLKQLList receiver) {
         return System.identityHashCode(receiver);
     }
 
@@ -103,30 +111,42 @@ public class LKQLTuple implements TruffleObject, Indexable {
     @ExportMessage
     public Object toDisplayString(
             @SuppressWarnings("unused") final boolean allowSideEffect,
-            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary interopLibrary) {
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
         // Prepare the result
-        StringBuilder resultBuilder = new StringBuilder("(");
+        StringBuilder resultBuilder = new StringBuilder("[");
 
         // Iterate over the list values
-        for (int i = 0; i < this.content.length; i++) {
-            Object elem = this.content[i];
+        for (int i = 0; i < this.size(); i++) {
+            Object elem = this.get(i);
 
             // Get the element string
             String elemString;
             if (elem instanceof String) {
-                elemString = StringUtils.toRepr((String) interopLibrary.toDisplayString(elem));
+                elemString = StringUtils.toRepr((String) elems.toDisplayString(elem));
             } else {
-                elemString = (String) interopLibrary.toDisplayString(elem);
+                elemString = (String) elems.toDisplayString(elem);
             }
 
             // Add the element string to the result
             resultBuilder.append(elemString);
-            if (i < this.content.length - 1) resultBuilder.append(", ");
+            if (i < this.size() - 1) resultBuilder.append(", ");
         }
 
         // Return the result
-        resultBuilder.append(")");
+        resultBuilder.append("]");
         return resultBuilder.toString();
+    }
+
+    /** Tell the interop API that the list can be cast to a boolean. */
+    @ExportMessage
+    public boolean isBoolean() {
+        return true;
+    }
+
+    /** Get the boolean representation of the list. */
+    @ExportMessage
+    public boolean asBoolean() {
+        return this.isTruthy();
     }
 
     /** Tell the interop library that the value is array like. */
@@ -138,58 +158,85 @@ public class LKQLTuple implements TruffleObject, Indexable {
     /** Get the array size for the interop library. */
     @ExportMessage
     public long getArraySize() {
-        return this.content.length;
+        return this.size();
     }
 
     /** Tell the interop library if the wanted index is readable. */
     @ExportMessage
-    public boolean isArrayElementReadable(final long index) {
-        return index < this.content.length && index >= 0;
+    public boolean isArrayElementReadable(long index) {
+        try {
+            this.get((int) index);
+            return true;
+        } catch (InvalidIndexException e) {
+            return false;
+        }
     }
 
     /** Get the array element of the given index. */
     @ExportMessage
-    public Object readArrayElement(final long index) throws InvalidArrayIndexException {
-        try {
-            return this.content[(int) index];
-        } catch (IndexOutOfBoundsException e) {
-            throw InvalidArrayIndexException.create(index, e);
-        }
+    public Object readArrayElement(long index) {
+        return this.get(index);
     }
 
-    // ----- Indexable methods -----
-
-    @Override
-    public Object get(long index) throws InvalidIndexException {
-        try {
-            return this.content[(int) index];
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidIndexException();
-        }
+    /** Tell the interop library that the list has an iterator object. */
+    @ExportMessage
+    public boolean hasIterator() {
+        return true;
     }
+
+    /** Get the iterator for the list. */
+    @ExportMessage
+    public Object getIterator() {
+        return this.iterator();
+    }
+
+    // ----- Indexable required methods -----
 
     @Override
     public Object[] getContent() {
-        return this.content;
+        Object[] res = new Object[(int) this.size()];
+        for (int i = 0; i < this.size(); i++) {
+            res[i] = this.get(i);
+        }
+        return res;
     }
 
-    // ----- LKQL value methods -----
+    // ----- Truthy required values -----
+
+    @Override
+    public boolean isTruthy() {
+        try {
+            this.get(0);
+            return true;
+        } catch (InvalidIndexException e) {
+            return false;
+        }
+    }
+
+    // ----- LKQL value required methods -----
 
     @Override
     @CompilerDirectives.TruffleBoundary
-    public boolean internalEquals(final LKQLValue o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLTuple other)) return false;
-        if (other.content.length != this.content.length) return false;
-        for (int i = 0; i < this.content.length; i++) {
-            Object mineObject = this.content[i];
-            Object hisObject = other.content[i];
-            if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if (!mine.internalEquals(his)) return false;
+    public boolean internalEquals(LKQLValue o) {
+        if (this == o) return true;
+        if (!(o instanceof BaseLKQLList other)) return false;
+
+        // Compare the list size
+        if (this.size() != other.size()) return false;
+
+        // Then compare each element of the lists
+        for (long i = 0; i < this.size(); i++) {
+            Object thisElem = this.get(i);
+            Object otherElem = other.get(i);
+            if ((thisElem instanceof LKQLValue thisValue)
+                    && (otherElem instanceof LKQLValue otherValue)) {
+                if (!thisValue.internalEquals(otherValue)) return false;
             } else {
-                if (!Objects.equals(mineObject, hisObject)) return false;
+                if (!Objects.equals(thisElem, otherElem)) return false;
             }
         }
+
+        // If we get here, lists are equals
         return true;
     }
 
@@ -197,19 +244,14 @@ public class LKQLTuple implements TruffleObject, Indexable {
 
     @Override
     public String toString() {
-        InteropLibrary tupleLib = InteropLibrary.getUncached(this);
-        return (String) tupleLib.toDisplayString(this);
+        InteropLibrary listLibrary = InteropLibrary.getUncached(this);
+        return (String) listLibrary.toDisplayString(this);
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLTuple other)) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BaseLKQLList other)) return false;
         return this.internalEquals(other);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(this.content);
     }
 }

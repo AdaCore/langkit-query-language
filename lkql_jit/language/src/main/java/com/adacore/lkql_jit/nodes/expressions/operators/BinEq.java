@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.*;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
@@ -202,6 +203,12 @@ public abstract class BinEq extends BinOp {
             @CachedLibrary("left") InteropLibrary leftLibrary,
             @CachedLibrary("right") InteropLibrary rightLibrary) {
         return leftLibrary.isIdentical(left, right, rightLibrary);
+    }
+
+    /** Do the equality verification in lazy lists. */
+    @Specialization
+    protected boolean onLazyLists(final LKQLLazyList left, final LKQLLazyList right) {
+        return left == right;
     }
 
     /**

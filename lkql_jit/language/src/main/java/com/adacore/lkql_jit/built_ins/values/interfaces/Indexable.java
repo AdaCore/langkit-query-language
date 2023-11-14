@@ -38,7 +38,7 @@ public interface Indexable extends LKQLValue {
      * @return The element at the position.
      * @throws com.adacore.lkql_jit.exception.utils.InvalidIndexException If the index is not valid.
      */
-    Object get(int index) throws InvalidIndexException;
+    Object get(long index) throws InvalidIndexException;
 
     /**
      * Get the content of the indexable value in an array.

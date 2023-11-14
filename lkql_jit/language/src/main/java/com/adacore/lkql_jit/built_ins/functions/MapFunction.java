@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.Iterator;
@@ -125,7 +125,7 @@ public final class MapFunction {
             }
 
             // Return the result
-            return new LKQLArrayList(res);
+            return new LKQLList(res);
         }
     }
 }

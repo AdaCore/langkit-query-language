@@ -101,7 +101,7 @@ public class LKQLSelectorList extends LKQLLazyList {
     // ----- Lazy list required methods -----
 
     @Override
-    public void initCache(int n) {
+    public void initCache(long n) {
         while (!(this.recursList.size() == 0) && (this.cache.size() - 1 < n || n == -1)) {
             // Get the first recurse item and execute the selector on it
             LKQLDepthNode nextNode = this.recursList.remove(0);

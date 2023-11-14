@@ -24,7 +24,7 @@ package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -191,7 +191,7 @@ public final class LKQLObject extends DynamicObject implements TruffleObject, LK
     Object getMembers(
             @SuppressWarnings("unused") final boolean includeInternal,
             @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return new LKQLArrayList(objectLibrary.getKeyArray(this));
+        return new LKQLList(objectLibrary.getKeyArray(this));
     }
 
     /** Get the value of the wanted member in the receiver object. */

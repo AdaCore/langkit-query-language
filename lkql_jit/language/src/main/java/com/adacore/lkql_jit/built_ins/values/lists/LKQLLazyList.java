@@ -22,6 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.values.lists;
 
+import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
+import com.adacore.lkql_jit.built_ins.values.iterators.LKQLLazyListIterator;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -32,7 +34,7 @@ import java.util.List;
 
 /** This class represents the base of all LKQL lazy lists. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLLazyList extends LKQLList {
+public abstract class LKQLLazyList extends BaseLKQLList {
 
     // ----- Attributes -----
 
@@ -51,7 +53,7 @@ public abstract class LKQLLazyList extends LKQLList {
      * Initialize the lazy list cache to the given index. If n < 0 then initialize all the lazy list
      * values.
      */
-    public abstract void initCache(int n);
+    public abstract void initCache(long n);
 
     // ----- List required methods -----
 
@@ -62,22 +64,18 @@ public abstract class LKQLLazyList extends LKQLList {
     }
 
     @Override
-    public Object get(int i) throws InvalidIndexException {
-        if (i >= 0) {
-            this.initCache(i);
-            try {
-                return this.cache.get(i);
-            } catch (IndexOutOfBoundsException e) {
-                throw new InvalidIndexException();
-            }
+    public Object get(long i) throws InvalidIndexException {
+        this.initCache(i);
+        try {
+            return this.cache.get((int) i);
+        } catch (IndexOutOfBoundsException e) {
+            throw new InvalidIndexException();
         }
-        throw new InvalidIndexException();
     }
 
     @Override
-    public Object[] asArray() {
-        this.initCache(-1);
-        return this.cache.toArray(new Object[0]);
+    public LKQLIterator iterator() {
+        return new LKQLLazyListIterator(this);
     }
 
     // ----- Value methods -----

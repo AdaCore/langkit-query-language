@@ -24,7 +24,7 @@ package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLListComprehension;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
@@ -113,14 +113,14 @@ public final class ListComprehension extends Expr {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return this.executeList(frame);
+        return this.executeLazyList(frame);
     }
 
     /**
      * @see Expr#executeList(VirtualFrame)
      */
     @Override
-    public LKQLList executeList(VirtualFrame frame) {
+    public LKQLLazyList executeLazyList(VirtualFrame frame) {
         // Get the iterables for the list comprehension
         Iterable[] iterables = this.generators.executeCollections(frame);
 

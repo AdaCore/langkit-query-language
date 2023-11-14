@@ -24,7 +24,6 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -112,7 +111,7 @@ public final class ConcatFunction {
                                                 result,
                                                 LKQLTypeSystemGen.asLKQLList(item).getContent());
                             }
-                            return new LKQLArrayList(result);
+                            return new LKQLList(result);
                         }
 
                         // Else there is an error
@@ -125,7 +124,7 @@ public final class ConcatFunction {
 
                     // If the list is empty just return an empty list
                     else {
-                        return new LKQLArrayList(new Object[0]);
+                        return new LKQLList(new Object[0]);
                     }
                 });
     }

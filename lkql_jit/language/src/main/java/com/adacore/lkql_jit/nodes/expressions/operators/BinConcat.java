@@ -23,7 +23,6 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.Constants;
@@ -89,9 +88,9 @@ public abstract class BinConcat extends BinOp {
         try {
             final int leftSize = (int) leftLibrary.getArraySize(left);
             final int rightSize = (int) rightLibrary.getArraySize(right);
-            final Object[] resContent = Arrays.copyOf(left.asArray(), leftSize + rightSize);
-            System.arraycopy(right.asArray(), 0, resContent, leftSize, rightSize);
-            return new LKQLArrayList(resContent);
+            final Object[] resContent = Arrays.copyOf(left.content, leftSize + rightSize);
+            System.arraycopy(right.content, 0, resContent, leftSize, rightSize);
+            return new LKQLList(resContent);
         } catch (UnsupportedMessageException e) {
             throw LKQLRuntimeException.fromJavaException(e, this);
         }

@@ -25,7 +25,6 @@ package com.adacore.lkql_jit.built_ins.methods;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.functions.UniqueFunction;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -113,7 +112,7 @@ public final class ListMethods extends IterableMethods {
                                 throw LKQLRuntimeException.invalidIndex((int) highBound, call);
                             }
 
-                            return new LKQLArrayList(
+                            return new LKQLList(
                                     Arrays.copyOfRange(
                                             list.getContent(),
                                             (int) lowBound - 1,

@@ -22,7 +22,6 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -79,7 +78,7 @@ public final class ListLiteral extends Expr {
         }
 
         // Return the list value
-        return new LKQLArrayList(values);
+        return new LKQLList(values);
     }
 
     // ----- Override methods -----

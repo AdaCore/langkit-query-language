@@ -30,7 +30,6 @@ import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
@@ -175,7 +174,7 @@ public final class Query extends Expr {
             }
 
             // Return the result list value
-            return new LKQLArrayList(resNodes.toArray(new Libadalang.AdaNode[0]));
+            return new LKQLList(resNodes.toArray(new Libadalang.AdaNode[0]));
         }
 
         // If the query mode is first
@@ -345,11 +344,6 @@ public final class Query extends Expr {
         @Override
         public long size() {
             return -1;
-        }
-
-        @Override
-        public boolean contains(Object elem) {
-            return false;
         }
 
         @Override

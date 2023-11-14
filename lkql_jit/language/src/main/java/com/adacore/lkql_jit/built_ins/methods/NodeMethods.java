@@ -29,7 +29,7 @@ import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -187,7 +187,7 @@ public final class NodeMethods extends CommonMethods {
             }
 
             // Return the list value
-            return new LKQLArrayList(res);
+            return new LKQLList(res);
         }
     }
 
@@ -269,7 +269,7 @@ public final class NodeMethods extends CommonMethods {
             }
 
             // Return the result
-            return new LKQLArrayList(resList.toArray(new Libadalang.Token[0]));
+            return new LKQLList(resList.toArray(new Libadalang.Token[0]));
         }
     }
 

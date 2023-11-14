@@ -26,7 +26,6 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -160,7 +159,7 @@ public final class SelectorCall extends LKQLNode {
             if (this.isAll(frame, selectorListValue, pattern)) {
                 res = this.getFilteredList(frame, selectorListValue, pattern);
             } else {
-                res = new LKQLArrayList(new Libadalang.AdaNode[0]);
+                res = new LKQLList(new Libadalang.AdaNode[0]);
             }
         }
 
@@ -316,7 +315,7 @@ public final class SelectorCall extends LKQLNode {
         }
 
         // Return the result
-        return new LKQLArrayList(resList.toArray(new Libadalang.AdaNode[0]));
+        return new LKQLList(resList.toArray(new Libadalang.AdaNode[0]));
     }
 
     /**

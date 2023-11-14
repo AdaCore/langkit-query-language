@@ -24,7 +24,7 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -48,7 +48,7 @@ public final class SpecifiedUnitsFunction {
                 new String[] {},
                 new Expr[] {},
                 (VirtualFrame frame, FunCall call) -> {
-                    return new LKQLArrayList(LKQLLanguage.getContext(call).getSpecifiedUnits());
+                    return new LKQLList(LKQLLanguage.getContext(call).getSpecifiedUnits());
                 });
     }
 }

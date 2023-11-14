@@ -39,14 +39,6 @@ public interface Iterable extends LKQLValue {
     long size();
 
     /**
-     * Get if the iterable contains the given element.
-     *
-     * @param elem The element to look for.
-     * @return True if the iterable contains the element, false else.
-     */
-    boolean contains(Object elem);
-
-    /**
      * Get the iterator for the iterable object.
      *
      * @return The iterator.

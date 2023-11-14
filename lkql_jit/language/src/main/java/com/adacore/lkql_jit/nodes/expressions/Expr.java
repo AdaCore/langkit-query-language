@@ -29,6 +29,7 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -175,6 +176,17 @@ public abstract class Expr extends LKQLNode {
      */
     public LKQLList executeList(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectLKQLList(executeGeneric(frame));
+    }
+
+    /**
+     * Execute the expression as a lazy list value.
+     *
+     * @param frame The frame for execution.
+     * @return The result of the node execution as a lazy list value.
+     * @throws UnexpectedResultException If the node cannot be evaluated as a lazy list.
+     */
+    public LKQLLazyList executeLazyList(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLLazyList(executeGeneric(frame));
     }
 
     /**

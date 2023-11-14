@@ -27,7 +27,7 @@ import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.functions.BaseNameFunction;
 import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -340,7 +340,7 @@ public final class StrMethods extends CommonMethods {
                             LKQLTypeSystemGen.asString(separatorObject));
 
             // Return the list value of the split string
-            return new LKQLArrayList(separated);
+            return new LKQLList(separated);
         }
     }
 

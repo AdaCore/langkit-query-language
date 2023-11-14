@@ -25,9 +25,10 @@ package com.adacore.lkql_jit.built_ins.values;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -50,7 +51,7 @@ public final class LKQLPattern implements TruffleObject, LKQLValue {
     // ----- Attributes -----
 
     /** Members of the pattern LKQL value. */
-    private final LKQLArrayList MEMBERS = new LKQLArrayList(new String[] {"contains", "find"});
+    private final LKQLList MEMBERS = new LKQLList(new String[] {"contains", "find"});
 
     /** The interop regex object from the TRegex language. */
     private final Object regexObject;
@@ -182,7 +183,7 @@ public final class LKQLPattern implements TruffleObject, LKQLValue {
     /** Tell the interop library whether the given member is invokable. */
     @ExportMessage
     boolean isMemberInvocable(String member) {
-        return MEMBERS.contains(member);
+        return ObjectUtils.equals(member, "contains") || ObjectUtils.equals(member, "find");
     }
 
     /**

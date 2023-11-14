@@ -25,7 +25,7 @@ package com.adacore.lkql_jit.built_ins.functions;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLArrayList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
@@ -70,7 +70,7 @@ public final class UniqueFunction {
                     Indexable indexable = LKQLTypeSystemGen.asIndexable(indexableObject);
 
                     // Return the result list
-                    return new LKQLArrayList(
+                    return new LKQLList(
                             ArrayUtils.unique(indexable.getContent()).toArray(new Object[0]));
                 });
     }
