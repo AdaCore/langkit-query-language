@@ -45,7 +45,7 @@ package Gnatcheck.Options is
    --  The name of the environment variable used to define a custom worker
    --  executable.
 
-   Default_Worker : constant String := "native_gnatcheck_worker";
+   Default_Worker : constant String := "lkql gnatcheck_worker";
    --  The name of the worker executable to use.
 
    Worker_Name : constant String :=

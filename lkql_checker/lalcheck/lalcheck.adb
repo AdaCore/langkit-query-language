@@ -314,7 +314,7 @@ procedure Lalcheck is
             --  -rules -from=rules0.txt -files=files?.txt
 
             Pids (Job) :=
-              Spawn_Gnatcheck
+              Spawn_Gnatcheck_Worker
                 (File_Name ("rules", 0),
                  File_Name ("out", Job),
                  File_Name ("files", Job));

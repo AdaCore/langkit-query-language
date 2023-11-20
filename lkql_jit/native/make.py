@@ -57,9 +57,9 @@ if __name__ == "__main__":
     args = parse_args()
 
     # Get the components to build
-    build_launcher = "launcher" in args.native_components
     build_checker = "checker" in args.native_components
     build_worker = "gnatcheck_worker" in args.native_components
+    build_lkql = "lkql_cli" in args.native_components
 
     # Create the common command
     cmd = [
@@ -74,6 +74,8 @@ if __name__ == "__main__":
     if args.build_mode in ("dev", "debug"):
         cmd.extend(
             [
+                "-g",
+                "-O0",
                 "-H:-DeleteLocalSymbols",
                 "-H:+SourceLevelDebug",
                 "-H:+PreserveFramePointer",
@@ -90,18 +92,11 @@ if __name__ == "__main__":
 
     for name, do_native_build, jar_filename, exe_name, class_name in [
         (
-            "launcher",
-            build_launcher,
-            P.join("..", "launcher", "target", "lkql_jit_launcher.jar"),
-            "native_lkql_jit",
-            "LKQLLauncher",
-        ),
-        (
-            "checker",
-            build_checker,
-            P.join("..", "checker", "target", "lkql_jit_checker.jar"),
-            "native_lkql_jit_checker",
-            "LKQLChecker",
+                "checker",
+                build_checker,
+                P.join("..", "checker", "target", "lkql_jit_checker.jar"),
+                "native_lkql_jit_checker",
+                "LKQLChecker"
         ),
         (
             "gnatcheck_worker",
@@ -109,6 +104,13 @@ if __name__ == "__main__":
             P.join("..", "gnatcheck_worker", "target", "gnatcheck_worker.jar"),
             "native_gnatcheck_worker",
             "GNATCheckWorker",
+        ),
+        (
+                "lkql_cli",
+                build_lkql,
+                P.join("..", "lkql_cli", "target", "lkql_cli.jar"),
+                "lkql",
+                "LKQLMain"
         ),
     ]:
         if do_native_build:

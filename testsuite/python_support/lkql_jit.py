@@ -9,16 +9,12 @@ import subprocess
 
 # Jar for each LKQL JIT entry point
 jars = {
-    "launcher": "lkql_jit_launcher.jar",
-    "checker": "lkql_jit_checker.jar",
-    "gnatcheck_worker": "gnatcheck_worker.jar"
+    "lkql": "lkql_cli.jar"
 }
 
 # Main class for each LKQL JIT entry point
 main_classes = {
-    "launcher": "LKQLLauncher",
-    "checker": "LKQLChecker",
-    "gnatcheck_worker": "GNATCheckWorker"
+    "lkql": "LKQLMain"
 }
 
 def get_java_command(entry_point: str) -> list[str]:
@@ -68,9 +64,7 @@ if __name__ == '__main__':
                                      description=__doc__)
     subparsers = parser.add_subparsers(help="LKQL JIT entry point", required=True)
     for subcommand, help in [
-        ("launcher", "Use LKQL JIT in normal mode."),
-        ("checker", "Use the LKQL JIT checker driver."),
-        ("gnatcheck_worker", "Use the LKQL JIT GNATcheck worker (this should be only used by GNATcheck).")
+        ("lkql", "Main entry point for LKQL")
     ]:
         subp = subparsers.add_parser(subcommand, help=help)
         subp.set_defaults(subc=subcommand)

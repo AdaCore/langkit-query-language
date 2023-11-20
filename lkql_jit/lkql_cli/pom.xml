@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>lkql_jit</artifactId>
         <groupId>com.adacore</groupId>
         <version>0.1.0</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>gnatcheck_worker</artifactId>
+    <artifactId>lkql_cli</artifactId>
 
     <build>
         <plugins>
@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.adacore.lkql_jit.GNATCheckWorker</mainClass>
+                            <mainClass>com.adacore.lkql_jit.LKQLMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -40,10 +40,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>gnatcheck_worker</finalName>
+                            <finalName>lkql_cli</finalName>
                             <artifactSet>
                                 <includes>
                                     <include>org.graalvm.sdk:launcher-common</include>
+                                    <include>info.picocli:picocli</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -62,6 +63,7 @@
                 </executions>
             </plugin>
 
+
             <!-- Skip the Spotless check because everything is handled by the parent -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -71,10 +73,36 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher -->
+                <version>3.5</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>4.7.5</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.5</version>
+        </dependency>
+
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>graal-sdk</artifactId>
