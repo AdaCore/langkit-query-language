@@ -160,11 +160,13 @@ public class CheckerUtils {
                 final LKQLContext context) {
             context.println(
                     unit.getFileName(false)
-                            + "1:01: internal error: "
+                            + ":1:01: internal error: "
                             + errorName
+                            + ":"
+                            + errorLocation
                             + ": "
                             + errorMessage
-                            + "["
+                            + " ["
                             + ruleName.toLowerCase()
                             + "]");
         }

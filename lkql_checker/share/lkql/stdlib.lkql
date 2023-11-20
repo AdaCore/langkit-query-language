@@ -19,6 +19,14 @@ selector children_no_nested
     | null     => ()
     | *        => rec *this.children
 
+fun all(iterable) =
+    |" Return whether all elements in the given iterable are truthy
+    [x for x in iterable if not x].length == 0
+
+fun any(iterable) =
+    |" Return whether at least one element in the given iterable is truthy
+    [x for x in iterable if x].length > 0
+
 fun is_assert_pragma(s) =
     |" Return ``true`` if the string ``s`` is the name of an assert pragma
 
