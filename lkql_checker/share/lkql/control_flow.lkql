@@ -31,7 +31,7 @@ fun all_branches(stmt) =
         & [alt.f_stmts for alt in stmt.f_alternatives.children].to_list
         & [stmt.f_else_stmts]
     | CaseStmt =>
-        [alt.f_stmts for alt in stmt.f_alternatives]
+        [alt.f_stmts for alt in stmt.f_alternatives.children]
     | BaseLoopStmt =>
         # We cannot know for sure that control will go inside the loop, so
         # return "null" as well.

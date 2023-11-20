@@ -22,9 +22,14 @@ exception
       if I = 0 then
          Log ("0");
       elsif I = 1 then
-         Log ("other");
+         Log ("1");
       else
-         raise;
+         case I is
+            when 2 =>
+               Log ("2");
+            when others =>
+               raise
+         end case;
       end if;
    when E : others =>        --  NOFLAG
       I := 0;
