@@ -225,6 +225,16 @@ package Gnatcheck.Projects is
    --  Raises Gnatcheck.Common.Parameter_Error if any of these check fails,
    --  stores the name of the project file My_Project otherwise.
 
+   procedure Store_CGPR_Source
+     (My_Project     : in out Arg_Project_Type;
+      CGPR_File_Name : String);
+   --  Stores configuration project file.
+   --  Checks that:
+   --    - this is the first --config option provided as a tool parameter;
+   --    - the configuration project file exists.???
+   --  Raises Gnatcheck.Common.Parameter_Error if any of these check fails,
+   --  stores the name of the configuration project file otherwise.
+
    function Is_Specified (My_Project : Arg_Project_Type) return Boolean;
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
@@ -239,6 +249,10 @@ package Gnatcheck.Projects is
    function Source_Prj (My_Project : Arg_Project_Type) return String;
    --  If My_Project.Is_Specified then returns the full normalized name of the
    --  project file, otherwise returns a null string.
+
+   function Source_CGPR (My_Project : Arg_Project_Type) return String;
+   --  If My_Project.Source_CGPR is specified then returns its value,
+   --  otherwise returns a null string.
 
    procedure Load_Tool_Project (My_Project : in out Arg_Project_Type);
    --  Loads argument project
@@ -352,8 +366,9 @@ package Gnatcheck.Projects is
 private
 
    type Arg_Project_Type is tagged limited record
-      Tree       : aliased GPR2.Project.Tree.Object;
-      Source_Prj : String_Access;
+      Tree        : aliased GPR2.Project.Tree.Object;
+      Source_Prj  : String_Access;
+      Source_CGPR : String_Access;
 
       Files : File_Array_Access;
       --  Files associated with this project, when using --simple-project

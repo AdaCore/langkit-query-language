@@ -1394,6 +1394,7 @@ package body Gnatcheck.Compiler is
       Split_Command : constant Slice_Set := Create (Worker_Command, " ");
       Worker        : String_Access := null;
       Prj           : constant String := Gnatcheck_Prj.Source_Prj;
+      CGPR          : constant String := Gnatcheck_Prj.Source_CGPR;
       Args          : Argument_List (1 .. 128);
       Num_Args      : Integer := 0;
 
@@ -1441,14 +1442,20 @@ package body Gnatcheck.Compiler is
          Args (Num_Args) := new String'(Get_Aggregated_Project);
       end if;
 
-      if RTS_Path.all /= "" then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--RTS=" & RTS_Path.all);
-      end if;
+      if CGPR = "" then
+         if RTS_Path.all /= "" then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("--RTS=" & RTS_Path.all);
+         end if;
 
-      if Target.all /= "" then
+         if Target.all /= "" then
+            Num_Args := @ + 1;
+            Args (Num_Args) := new String'("--target=" & Target.all);
+         end if;
+      else
+         --  Target and runtime will be taken from config project anyway
          Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--target=" & Target.all);
+         Args (Num_Args) := new String'("--config=" & CGPR);
       end if;
 
       if Debug_Mode then

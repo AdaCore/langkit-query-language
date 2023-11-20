@@ -39,6 +39,7 @@ with GPR2.Log;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
 with GPR2.Project.Attribute_Index;
+with GPR2.Project.Configuration;
 with GPR2.Project.Registry.Attribute;
 with GPR2.Project.Registry.Pack;
 with GPR2.Project.Source.Set;
@@ -72,6 +73,7 @@ package body Gnatcheck.Projects is
 
    Project_Context  : GPR2.Context.Object;
    Project_File_Set : Boolean := False;
+   CGPR_File_Set    : Boolean := False;
 
    Default_Switches_Attr : constant GPR2.Q_Attribute_Id :=
      (GPR2."+"("Check"), GPR2."+"("Default_Switches"));
@@ -497,30 +499,60 @@ package body Gnatcheck.Projects is
 
       RTS : Lang_Value_Map := Lang_Value_Maps.Empty_Map;
 
+      Conf_Obj : GPR2.Project.Configuration.Object;
+
       Agg_Context : GPR2.Context.Object;
 
       KB : constant GPR2.KB.Object :=
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
    begin
-      if RTS_Path.all /= "" then
-         RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
-      end if;
+      if CGPR_File_Set then
+         if RTS_Path.all /= "" then
+            Warning
+              ("runtimes are taken into account only in auto-configuration");
+         end if;
 
-      My_Project.Tree.Restrict_Autoconf_To_Languages
-        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+         Conf_Obj := Project.Configuration.Load
+           (Path_Name.Create_File
+              (Filename_Type (My_Project.Source_CGPR.all)));
+         My_Project.Tree.Load
+           (Filename         =>
+              Create_File
+                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+            Context          => Project_Context,
+            Config           => Conf_Obj,
+            Subdirs          =>
+              (if Subdir_Name = null then
+                    No_Name
+               else Name_Type (Subdir_Name.all)),
+            Check_Shared_Lib => False);
 
-      My_Project.Tree.Load_Autoconf
-        (Filename          =>
-           Create_File
-             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
-         Context           => Project_Context,
-         Subdirs           =>
-           (if Subdir_Name = null then
+         if My_Project.Tree.Has_Runtime_Project then
+            Free (RTS_Path);
+            RTS_Path := new String'
+              (My_Project.Tree.Runtime_Project.Path_Name.Value);
+         end if;
+      else
+         if RTS_Path.all /= "" then
+            RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
+         end if;
+
+         My_Project.Tree.Restrict_Autoconf_To_Languages
+           (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+
+         My_Project.Tree.Load_Autoconf
+           (Filename          =>
+              Create_File
+                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+            Context           => Project_Context,
+            Subdirs           =>
+              (if Subdir_Name = null then
                  No_Name
-            else Name_Type (Subdir_Name.all)),
-         Target            => Optional_Name_Type (Target.all),
-         Language_Runtimes => RTS,
-         Base => KB);
+               else Name_Type (Subdir_Name.all)),
+            Target            => Optional_Name_Type (Target.all),
+            Language_Runtimes => RTS,
+            Base => KB);
+      end if;
 
       if not My_Project.Tree.Is_Defined then
          Error ("project not loaded");
@@ -534,20 +566,33 @@ package body Gnatcheck.Projects is
 
       My_Project.Tree.Unload;
 
-      My_Project.Tree.Restrict_Autoconf_To_Languages
-        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+      if CGPR_File_Set then
+         My_Project.Tree.Load
+           (Filename         => GPR2.Path_Name.Create_File
+              (Filename_Type (Get_Aggregated_Project)),
+            Context          => Agg_Context,
+            Config           => Conf_Obj,
+            Subdirs          =>
+              (if Subdir_Name = null then
+                    No_Name
+               else Name_Type (Subdir_Name.all)),
+            Check_Shared_Lib => False);
+      else
+         My_Project.Tree.Restrict_Autoconf_To_Languages
+           (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
 
-      My_Project.Tree.Load_Autoconf
-        (Filename          => GPR2.Path_Name.Create_File
+         My_Project.Tree.Load_Autoconf
+           (Filename          => GPR2.Path_Name.Create_File
              (Filename_Type (Get_Aggregated_Project)),
-         Context           => Agg_Context,
-         Subdirs           =>
-           (if Subdir_Name = null then
-                 No_Name
-            else Name_Type (Subdir_Name.all)),
-         Target            => Optional_Name_Type (Target.all),
-         Language_Runtimes => RTS,
-         Base => KB);
+            Context           => Agg_Context,
+            Subdirs           =>
+              (if Subdir_Name = null then
+                    No_Name
+               else Name_Type (Subdir_Name.all)),
+            Target            => Optional_Name_Type (Target.all),
+            Language_Runtimes => RTS,
+            Base => KB);
+      end if;
 
       My_Project.Tree.Update_Sources
         (Stop_On_Error => True,  With_Runtime => True);
@@ -584,29 +629,60 @@ package body Gnatcheck.Projects is
 
       Agg_Context : GPR2.Context.Object;
 
+      Conf_Obj : GPR2.Project.Configuration.Object;
+
       KB : constant GPR2.KB.Object :=
         GPR2.KB.Create_Default (GPR2.KB.Default_Flags);
    begin
-      if RTS_Path.all /= "" then
-         RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
+
+      if CGPR_File_Set then
+         if RTS_Path.all /= "" then
+            Warning
+              ("runtimes are taken into account only in auto-configuration");
+         end if;
+
+         Conf_Obj := Project.Configuration.Load
+           (Path_Name.Create_File
+              (Filename_Type (My_Project.Source_CGPR.all)));
+         My_Project.Tree.Load
+           (Filename         =>
+              Create_File
+                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+            Context          => Project_Context,
+            Config           => Conf_Obj,
+            Subdirs          =>
+              (if Subdir_Name = null then
+                    No_Name
+               else Name_Type (Subdir_Name.all)),
+            Check_Shared_Lib => False);
+
+         if My_Project.Tree.Has_Runtime_Project then
+            Free (RTS_Path);
+            RTS_Path := new String'
+              (My_Project.Tree.Runtime_Project.Path_Name.Value);
+         end if;
+      else
+         if RTS_Path.all /= "" then
+            RTS.Insert (GPR2.Ada_Language, RTS_Path.all);
+         end if;
+
+         My_Project.Tree.Restrict_Autoconf_To_Languages
+           (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+
+         My_Project.Tree.Load_Autoconf
+           (Filename          =>
+              Create_File
+                (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
+            Context           => Project_Context,
+            Subdirs           =>
+              (if Subdir_Name = null then
+                    No_Name
+               else Name_Type (Subdir_Name.all)),
+            Check_Shared_Lib  => False,
+            Target            => Optional_Name_Type (Target.all),
+            Language_Runtimes => RTS,
+            Base => KB);
       end if;
-
-      My_Project.Tree.Restrict_Autoconf_To_Languages
-        (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
-
-      My_Project.Tree.Load_Autoconf
-        (Filename          =>
-           Create_File
-             (Filename_Type (My_Project.Source_Prj.all), No_Resolution),
-         Context           => Project_Context,
-         Subdirs           =>
-           (if Subdir_Name = null then
-                 No_Name
-            else Name_Type (Subdir_Name.all)),
-         Check_Shared_Lib  => False,
-         Target            => Optional_Name_Type (Target.all),
-         Language_Runtimes => RTS,
-         Base => KB);
 
       if My_Project.Tree.Root_Project.Kind in Aggregate_Kind then
          Collect_Aggregated_Projects (My_Project.Tree.Root_Project);
@@ -633,19 +709,33 @@ package body Gnatcheck.Projects is
 
                My_Project.Tree.Unload;
 
-               My_Project.Tree.Restrict_Autoconf_To_Languages
-                 (GPR2.Containers.Language_Id_Set.To_Set (GPR2.Ada_Language));
+               if CGPR_File_Set then
+                  My_Project.Tree.Load
+                    (Filename         => Aggregated_Prj_Name,
+                     Context          => Agg_Context,
+                     Config           => Conf_Obj,
+                     Subdirs          =>
+                       (if Subdir_Name = null then
+                             No_Name
+                        else Name_Type (Subdir_Name.all)),
+                     Check_Shared_Lib => False);
+               else
+                  My_Project.Tree.Restrict_Autoconf_To_Languages
+                    (GPR2.Containers.Language_Id_Set.To_Set
+                       (GPR2.Ada_Language));
 
-               My_Project.Tree.Load_Autoconf
-                 (Filename          => Aggregated_Prj_Name,
-                  Context           => Agg_Context,
-                  Subdirs           =>
-                    (if Subdir_Name = null then
-                          No_Name
-                     else Name_Type (Subdir_Name.all)),
-                  Target            => Optional_Name_Type (Target.all),
-                  Language_Runtimes => RTS,
-                  Base => KB);
+                  My_Project.Tree.Load_Autoconf
+                    (Filename          => Aggregated_Prj_Name,
+                     Context           => Agg_Context,
+                     Subdirs           =>
+                       (if Subdir_Name = null then
+                             No_Name
+                        else Name_Type (Subdir_Name.all)),
+                     Target            => Optional_Name_Type (Target.all),
+                     Language_Runtimes => RTS,
+                     Base => KB);
+               end if;
+
                My_Project.Tree.Update_Sources
                  (Stop_On_Error => True,  With_Runtime => True);
 
@@ -865,6 +955,23 @@ package body Gnatcheck.Projects is
       end if;
    end Source_Prj;
 
+   -----------------
+   -- Source_CGPR --
+   -----------------
+
+   function Source_CGPR (My_Project : Arg_Project_Type) return String is
+   begin
+      if not Is_Specified (My_Project) or else My_Project.Source_CGPR = null
+      then
+         return "";
+      elsif My_Project.Tree.Is_Defined then
+         return My_Project.Tree.
+           Configuration.Corresponding_View.Path_Name.Value;
+      else
+         return My_Project.Source_CGPR.all;
+      end if;
+   end Source_CGPR;
+
    -----------------------------
    -- Store_External_Variable --
    -----------------------------
@@ -954,6 +1061,24 @@ package body Gnatcheck.Projects is
 
       My_Project.Source_Prj := new String'(Project_File_Name & Ext);
    end Store_Project_Source;
+
+   -----------------------
+   -- Store_CGPR_Source --
+   -----------------------
+
+   procedure Store_CGPR_Source
+     (My_Project     : in out Arg_Project_Type;
+      CGPR_File_Name : String) is
+   begin
+      if CGPR_File_Set then
+         Error ("cannot have several configuration project files specified");
+         raise Parameter_Error;
+      else
+         CGPR_File_Set := True;
+      end if;
+
+      My_Project.Source_CGPR := new String'(CGPR_File_Name);
+   end Store_CGPR_Source;
 
    -------------------------------------
    -- Aggregate_Project_Report_Header --
@@ -1170,32 +1295,32 @@ package body Gnatcheck.Projects is
       loop
          Initial_Char :=
            GNAT.Command_Line.Getopt
-             ("v q t h hx s "             &
-              "m? files= a "              &
-              "P: U X! vP! eL A: "        &   --  project-specific options
-              "-no-subprojects "          &
-              "-brief "                   &
-              "-charset= "                &
-              "-check-semantic "          &
-              "-check-redefinition "      &
-              "-no_objects_dir "          &
-              "-subdirs= "                &
-              "-target= "                 &
-              "-kp-version= "             &
-              "j! "                       &
-              "d dd dkp "                 &
-              "o= "                       &
-              "ox= "                      &
-              "-RTS= "                    &
-              "l log "                    &
-              "-include-file= "           &
-              "-rules-dir= "              &
-              "-show-rule "               &
-              "-subprocess "              &
-              "-version -help "           &
-              "-ignore= "                 &
-              "-ignore-project-switches " &
-              "-simple-project "          &
+             ("v q t h hx s "               &
+              "m? files= a "                &
+              "P: U X! vP! eL A: -config! " &   --  project-specific options
+              "-no-subprojects "            &
+              "-brief "                     &
+              "-charset= "                  &
+              "-check-semantic "            &
+              "-check-redefinition "        &
+              "-no_objects_dir "            &
+              "-subdirs= "                  &
+              "-target= "                   &
+              "-kp-version= "               &
+              "j! "                         &
+              "d dd dkp "                   &
+              "o= "                         &
+              "ox= "                        &
+              "-RTS= "                      &
+              "l log "                      &
+              "-include-file= "             &
+              "-rules-dir= "                &
+              "-show-rule "                 &
+              "-subprocess "                &
+              "-version -help "             &
+              "-ignore= "                   &
+              "-ignore-project-switches "   &
+              "-simple-project "            &
               "nt xml",
               Parser => Parser);
 
@@ -1560,6 +1685,33 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-RTS" then
                      Free (RTS_Path);
                      RTS_Path := new String'(Parameter (Parser => Parser));
+
+                  elsif Full_Switch (Parser => Parser) = "-config" then
+                     if In_Project_File then
+                        Error ("configuration project cannot be set in " &
+                                 "a project file");
+                        raise Parameter_Error;
+                     else
+                        declare
+                           Arg : constant String :=
+                             Parameter (Parser => Parser);
+                        begin
+                           --  Mimicking gprtools behaviour, --config accepts
+                           --  only '=' as a delimiter.
+                           if Arg'Length > 1 and then Arg (Arg'First) = '='
+                           then
+                              My_Project.Store_CGPR_Source
+                                (Arg (Arg'First + 1 .. Arg'Last));
+                           else
+                              Error
+                                ("invalid switch: "
+                                 & Full_Switch (Parser => Parser)
+                                 &  Parameter (Parser => Parser));
+                              raise Parameter_Error;
+                           end if;
+
+                        end;
+                     end if;
 
                   elsif Full_Switch (Parser => Parser) = "-subdirs" then
                      Set_Subdir_Name (Parameter (Parser => Parser));
