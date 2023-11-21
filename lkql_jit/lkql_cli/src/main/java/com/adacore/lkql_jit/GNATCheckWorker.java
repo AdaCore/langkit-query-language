@@ -262,11 +262,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             executable.executeVoid(true);
             return 0;
         } catch (Exception e) {
-            if (this.args.verbose) {
-                e.printStackTrace();
-            } else {
-                System.err.println(e.getMessage());
-            }
+            System.out.println("WORKER_FATAL_ERROR: " + e.getMessage());
             return 0;
         }
     }

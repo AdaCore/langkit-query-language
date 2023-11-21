@@ -259,8 +259,7 @@ package body Gnatcheck.Compiler is
 
          procedure Format_Error is
          begin
-            Error ("Unexpected format of message:");
-            Error_No_Tool_Name (Msg);
+            Error ("Unparsable line: " & Msg);
             Errors := True;
          end Format_Error;
 
@@ -271,8 +270,9 @@ package body Gnatcheck.Compiler is
          end if;
 
          --  We assume the following format of the message:
+         --    filename:line:column: <message body>
          --
-         --   filename:line:column: <message body>
+         --  If this format is violated we display the line as unparasable.
 
          Idx := Index (Msg (Idx .. Msg'Last), ":");
 
@@ -283,11 +283,6 @@ package body Gnatcheck.Compiler is
 
          File_Idx := Idx;
          SF := File_Find (Msg (First_Idx .. Idx - 1), Use_Short_Name => True);
-
-         if not Present (SF) or else Source_Info (SF) = Ignore_Unit then
-            --  This source should be ignored
-            return;
-         end if;
 
          Word_End := Index (Msg (Idx + 1 .. Msg'Last), ":");
 
@@ -319,6 +314,12 @@ package body Gnatcheck.Compiler is
                Format_Error;
                return;
          end;
+
+         --  Test if the provided sources is present and is not ignored
+         if not Present (SF) or else Source_Info (SF) = Ignore_Unit then
+            --  This source should be ignored
+            return;
+         end if;
 
          Idx := Word_End + 2;
 
@@ -478,6 +479,12 @@ package body Gnatcheck.Compiler is
                   end if;
                end;
             end if;
+         elsif Line_Len >= 20
+               and then Line (1 .. 20) = "WORKER_FATAL_ERROR: "
+         then
+            Error ("error raised by the worker: " & Line (21 .. Line_Len));
+            Errors := True;
+            return;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
@@ -1404,6 +1411,13 @@ package body Gnatcheck.Compiler is
             Args (Num_Args) := new String'(Arg);
          end if;
       end loop;
+
+      --  Test if the worker executable exists
+      if Worker = null then
+         Error ("cannot locate the worker executable: "
+                & Base_Name (Worker_Command));
+         raise Fatal_Error;
+      end if;
 
       if Prj /= "" then
          Num_Args := @ + 1;

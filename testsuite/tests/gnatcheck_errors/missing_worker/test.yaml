@@ -1,0 +1,7 @@
+driver: gnatcheck
+format: brief
+worker: i_dont_exist
+input_sources:
+  - main.adb
+rules:
+  - +RGOTO_Statements

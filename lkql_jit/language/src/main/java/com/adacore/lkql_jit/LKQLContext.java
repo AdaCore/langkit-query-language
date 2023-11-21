@@ -533,7 +533,8 @@ public final class LKQLContext {
                 if (sourceFile.isFile()) {
                     this.specifiedSourceFiles.add(sourceFile.getAbsolutePath());
                 } else {
-                    System.err.println("Source file '" + file + "' not found");
+                    this.getDiagnosticEmitter()
+                            .emitMissingFile(null, file, !this.keepGoingOnMissingFile(), this);
                 }
             }
         }
@@ -566,6 +567,12 @@ public final class LKQLContext {
             this.projectManager =
                     Libadalang.ProjectManager.create(
                             projectFileName, this.getScenarioVars(), "", "");
+
+            // Test if there is any diagnostic in the project manager
+            if (!this.projectManager.getDiagnostics().isEmpty()) {
+                throw LKQLRuntimeException.fromMessage(
+                        "Error(s) during project opening: " + this.projectManager.getDiagnostics());
+            }
 
             final String subprojectName = this.env.getOptions().get(LKQLLanguage.subprojectFile);
             final String[] subprojects =
@@ -616,7 +623,8 @@ public final class LKQLContext {
 
             // We should not get any scenario variable if we are being run without a project file.
             if (this.getScenarioVars().length != 0) {
-                System.err.println("Scenario variable specifications require a project file");
+                throw LKQLRuntimeException.fromMessage(
+                        "Scenario variable specifications require a project file");
             }
 
             this.adaContext =
