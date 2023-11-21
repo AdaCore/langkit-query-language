@@ -7,6 +7,14 @@ This module contains functions that are shared accross lkql_checker rules.
 These functions may be moved in the future in Libadalang or LKQL's builtin
 library.
 
+.. function:: all(iterable)
+
+    Return whether all elements in the given iterable are truthy
+
+.. function:: any(iterable)
+
+    Return whether at least one element in the given iterable is truthy
+
 .. function:: children_no_nested
 
     Return all children nodes starting from a base subprogram body, but not
@@ -138,7 +146,7 @@ library.
 
     Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
 
-.. function:: is_predefined_op(op)
+.. function:: is_predefined_op(op, follow_renamings=false)
 
     Return true if op is a predefined operator
 
