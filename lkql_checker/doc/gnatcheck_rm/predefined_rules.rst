@@ -4429,11 +4429,12 @@ same function.
 
 .. index:: Silent_Exception_Handlers
 
-Flag any exception handler that neither raises an exception by a
-``raise`` statement or a call to ``Ada.Exceptions.Raise_Exception`` or
-to ``Ada.Exceptions.Reraise_Occurrence`` nor contains a call to some subprogram
-specified by the rule parameters. The rule can have any number of parameters,
-each parameter should be of one of the following kinds:
+Flag any exception handler in which there exists at least one an execution path
+that does not raise an exception by a ``raise`` statement or a call to
+``Ada.Exceptions.Raise_Exception`` or to ``Ada.Exceptions.Reraise_Occurrence``
+nor contains a call to some subprogram specified by the rule parameters.
+The rule can have any number of parameters, each parameter should be of one of
+the following kinds:
 
 *
   a full qualified Ada name of a subprogram that starts from some
