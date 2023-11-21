@@ -27,6 +27,7 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -42,7 +43,6 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.utilities.TriState;
 import java.util.Arrays;
-import java.util.Objects;
 
 /** This class represents an object value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
@@ -111,10 +111,34 @@ public final class LKQLObject extends DynamicObject implements LKQLValue {
     @ExportMessage
     static class IsIdenticalOrUndefined {
         /** Compare two LKQL objects. */
-        @Specialization
-        protected static TriState onLKQLObject(final LKQLObject left, final LKQLObject right) {
-            if (left.lkqlEquals(right)) return TriState.TRUE;
-            else return TriState.FALSE;
+        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+        protected static TriState onLKQLObject(
+                final LKQLObject left,
+                final LKQLObject right,
+                @CachedLibrary("left") DynamicObjectLibrary lefts,
+                @CachedLibrary("right") DynamicObjectLibrary rights,
+                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftValues,
+                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightValues) {
+            // Get the objects key sets and compare their size
+            Object[] leftKeys = lefts.getKeyArray(left);
+            Object[] rightKeys = rights.getKeyArray(right);
+            if (leftKeys.length != rightKeys.length) return TriState.FALSE;
+
+            // Then compare each value
+            for (Object key : leftKeys) {
+                if (!rights.containsKey(right, key)) return TriState.FALSE;
+                Object leftValue = lefts.getOrDefault(left, key, null);
+                Object rightValue = rights.getOrDefault(right, key, null);
+                if (leftValues.hasIdentity(leftValue)) {
+                    if (!leftValues.isIdentical(leftValue, rightValue, rightValues))
+                        return TriState.FALSE;
+                } else {
+                    if (!ObjectUtils.equals(leftValue, rightValue)) return TriState.FALSE;
+                }
+            }
+
+            // If we get here, the objects are equals
+            return TriState.TRUE;
         }
 
         /** Do the comparison with another element. */
@@ -203,45 +227,6 @@ public final class LKQLObject extends DynamicObject implements LKQLValue {
         return result;
     }
 
-    // ----- LKQL value methods -----
-
-    @Override
-    @CompilerDirectives.TruffleBoundary
-    public boolean lkqlEquals(final LKQLValue o) {
-        if (this == o) return true;
-        if (!(o instanceof LKQLObject other)) return false;
-
-        // Create the libraries to access object fields
-        DynamicObjectLibrary thisLib = DynamicObjectLibrary.getFactory().getUncached(this);
-        DynamicObjectLibrary otherLib = DynamicObjectLibrary.getFactory().getUncached(other);
-
-        // Get the keys
-        Object[] thisKeys = thisLib.getKeyArray(this);
-        Object[] otherKeys = otherLib.getKeyArray(other);
-
-        // Check the key array length
-        if (thisKeys.length != otherKeys.length) return false;
-
-        // Iterate over the keys and verify their values
-        for (Object key : thisKeys) {
-            // Ensure that the other contains the key
-            if (!otherLib.containsKey(other, key)) return false;
-
-            // Compare the values
-            Object thisObject = thisLib.getOrDefault(this, key, null);
-            Object otherObject = otherLib.getOrDefault(other, key, null);
-            if ((thisObject instanceof LKQLValue thisValue)
-                    && (otherObject instanceof LKQLValue otherValue)) {
-                if (!thisValue.lkqlEquals(otherValue)) return false;
-            } else {
-                if (!Objects.equals(thisObject, otherObject)) return false;
-            }
-        }
-
-        // Return the success
-        return true;
-    }
-
     // ----- Override methods -----
 
     @Override
@@ -254,7 +239,9 @@ public final class LKQLObject extends DynamicObject implements LKQLValue {
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof LKQLObject other)) return false;
-        return this.lkqlEquals(other);
+        InteropLibrary thisLibrary = InteropLibrary.getUncached(this);
+        InteropLibrary otherLibrary = InteropLibrary.getUncached(other);
+        return thisLibrary.isIdentical(this, other, otherLibrary);
     }
 
     @Override

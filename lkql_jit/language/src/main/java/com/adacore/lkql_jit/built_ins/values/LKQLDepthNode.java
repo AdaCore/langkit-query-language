@@ -73,8 +73,7 @@ public final class LKQLDepthNode implements LKQLValue {
         /** Compare two LKQL depth nodes. */
         @Specialization
         protected static TriState onNode(final LKQLDepthNode left, final LKQLDepthNode right) {
-            if (left.lkqlEquals(right)) return TriState.TRUE;
-            else return TriState.FALSE;
+            return TriState.valueOf(left.node.equals(right.node));
         }
 
         /** Do the comparison with another element. */
@@ -97,15 +96,6 @@ public final class LKQLDepthNode implements LKQLValue {
     @ExportMessage
     Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
         return this.node.toString();
-    }
-
-    // ----- LKQL Value methods -----
-
-    @Override
-    public boolean lkqlEquals(LKQLValue o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLDepthNode other)) return false;
-        return other.node.equals(this.node);
     }
 
     // ----- Override methods -----

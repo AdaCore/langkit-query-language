@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -135,8 +136,7 @@ public class LKQLProperty implements LKQLValue {
         /** Compare two LKQL properties. */
         @Specialization
         protected static TriState onProperty(final LKQLProperty left, final LKQLProperty right) {
-            if (left.lkqlEquals(right)) return TriState.TRUE;
-            else return TriState.FALSE;
+            return TriState.valueOf(ObjectUtils.equals(left.description, right.description));
         }
 
         /** Do the comparison with another element. */
@@ -175,16 +175,6 @@ public class LKQLProperty implements LKQLValue {
             throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
         // TODO (issue #143): implement this method to execute the property as a simple function
         return null;
-    }
-
-    // ----- LKQL values methods -----
-
-    @Override
-    @CompilerDirectives.TruffleBoundary
-    public boolean lkqlEquals(LKQLValue o) {
-        if (this == o) return true;
-        if (!(o instanceof LKQLProperty other)) return false;
-        return this.description.equals(other.description);
     }
 
     // ----- Override methods -----

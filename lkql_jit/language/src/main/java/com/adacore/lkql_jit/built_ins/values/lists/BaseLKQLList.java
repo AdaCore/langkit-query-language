@@ -28,8 +28,10 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
 import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -40,7 +42,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
-import java.util.Objects;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
@@ -83,10 +84,36 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
     @ExportMessage
     public static class IsIdenticalOrUndefined {
         /** Compare two LKQL lists. */
-        @Specialization
-        public static TriState onList(final BaseLKQLList left, final BaseLKQLList right) {
-            if (left.lkqlEquals(right)) return TriState.TRUE;
-            else return TriState.FALSE;
+        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+        public static TriState onList(
+                final BaseLKQLList left,
+                final BaseLKQLList right,
+                @CachedLibrary("left") InteropLibrary lefts,
+                @CachedLibrary("right") InteropLibrary rights,
+                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
+                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems) {
+            try {
+                // Get the left list size and compare it with the right list
+                long size = lefts.getArraySize(left);
+                if (size != rights.getArraySize(right)) return TriState.FALSE;
+
+                // Then compare each element of the lists
+                for (long i = 0; i < size; i++) {
+                    Object leftElem = lefts.readArrayElement(left, i);
+                    Object rightElem = rights.readArrayElement(right, i);
+                    if (leftElems.hasIdentity(leftElem)) {
+                        if (!leftElems.isIdentical(leftElem, rightElem, rightElems))
+                            return TriState.FALSE;
+                    } else {
+                        if (!ObjectUtils.equals(leftElem, rightElem)) return TriState.FALSE;
+                    }
+                }
+
+                // If we get here, lists are equal
+                return TriState.TRUE;
+            } catch (Exception e) {
+                throw LKQLRuntimeException.shouldNotHappen("Lists comparison");
+            }
         }
 
         /** Do the comparison with another element. */
@@ -212,33 +239,6 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
         }
     }
 
-    // ----- LKQL value required methods -----
-
-    @Override
-    @CompilerDirectives.TruffleBoundary
-    public boolean lkqlEquals(LKQLValue o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseLKQLList other)) return false;
-
-        // Compare the list size
-        if (this.size() != other.size()) return false;
-
-        // Then compare each element of the lists
-        for (long i = 0; i < this.size(); i++) {
-            Object thisElem = this.get(i);
-            Object otherElem = other.get(i);
-            if ((thisElem instanceof LKQLValue thisValue)
-                    && (otherElem instanceof LKQLValue otherValue)) {
-                if (!thisValue.lkqlEquals(otherValue)) return false;
-            } else {
-                if (!Objects.equals(thisElem, otherElem)) return false;
-            }
-        }
-
-        // If we get here, lists are equals
-        return true;
-    }
-
     // ----- Override methods -----
 
     @Override
@@ -251,6 +251,8 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BaseLKQLList other)) return false;
-        return this.lkqlEquals(other);
+        InteropLibrary thisLibrary = InteropLibrary.getUncached(this);
+        InteropLibrary otherLibrary = InteropLibrary.getUncached(other);
+        return thisLibrary.isIdentical(this, other, otherLibrary);
     }
 }

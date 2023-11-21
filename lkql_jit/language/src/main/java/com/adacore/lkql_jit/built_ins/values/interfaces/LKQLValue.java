@@ -35,11 +35,4 @@ public interface LKQLValue extends TruffleObject {
     default String lkqlProfile() {
         return "TODO : Implement the profile information";
     }
-
-    /**
-     * Do an equality verification with the LKQL semantics.
-     *
-     * @return Whether the given value is equals to the current LKQL value.
-     */
-    boolean lkqlEquals(LKQLValue o);
 }

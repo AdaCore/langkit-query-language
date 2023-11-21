@@ -125,11 +125,6 @@ public class LKQLNull extends Libadalang.AdaNode implements LKQLValue, Nullish, 
     // ----- LKQL value methods -----
 
     @Override
-    public boolean lkqlEquals(LKQLValue o) {
-        return o == this;
-    }
-
-    @Override
     public boolean isTruthy() {
         return false;
     }

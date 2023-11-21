@@ -141,8 +141,9 @@ public final class LKQLPattern implements LKQLValue {
         /** Compare two LKQL patterns. */
         @Specialization
         protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
-            if (left.lkqlEquals(right)) return TriState.TRUE;
-            else return TriState.FALSE;
+            return TriState.valueOf(
+                    left.regexString.equals(right.regexString)
+                            && left.caseSensitive == right.caseSensitive);
         }
 
         /** Do the comparison with another element. */
@@ -213,16 +214,6 @@ public final class LKQLPattern implements LKQLValue {
             case "find" -> this.find(arg);
             default -> throw UnknownIdentifierException.create(member);
         };
-    }
-
-    // ----- LKQL Value methods -----
-
-    @Override
-    public boolean lkqlEquals(LKQLValue o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLPattern other)) return false;
-        return other.regexString.equals(this.regexString)
-                && (this.caseSensitive && other.caseSensitive);
     }
 
     // ----- Override methods -----

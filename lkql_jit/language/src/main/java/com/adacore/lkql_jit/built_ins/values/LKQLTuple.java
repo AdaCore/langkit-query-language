@@ -25,8 +25,10 @@ package com.adacore.lkql_jit.built_ins.values;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Constants;
+import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -39,7 +41,6 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
 import java.util.Arrays;
-import java.util.Objects;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -75,10 +76,36 @@ public class LKQLTuple implements LKQLValue, Indexable {
     @ExportMessage
     public static class IsIdenticalOrUndefined {
         /** Compare two LKQL tuples. */
-        @Specialization
-        public static TriState onTuple(final LKQLTuple left, final LKQLTuple right) {
-            if (left.lkqlEquals(right)) return TriState.TRUE;
-            else return TriState.FALSE;
+        @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+        public static TriState onTuple(
+                final LKQLTuple left,
+                final LKQLTuple right,
+                @CachedLibrary("left") InteropLibrary lefts,
+                @CachedLibrary("right") InteropLibrary rights,
+                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
+                @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems) {
+            try {
+                // Get the left tuple size and compare it with the right tuple
+                long size = lefts.getArraySize(left);
+                if (size != rights.getArraySize(right)) return TriState.FALSE;
+
+                // Then compare each element of the tuples
+                for (long i = 0; i < size; i++) {
+                    Object leftElem = lefts.readArrayElement(left, i);
+                    Object rightElem = rights.readArrayElement(right, i);
+                    if (leftElems.hasIdentity(leftElem)) {
+                        if (!leftElems.isIdentical(leftElem, rightElem, rightElems))
+                            return TriState.FALSE;
+                    } else {
+                        if (!ObjectUtils.equals(leftElem, rightElem)) return TriState.FALSE;
+                    }
+                }
+
+                // If we get here, tuples are equal
+                return TriState.TRUE;
+            } catch (Exception e) {
+                throw LKQLRuntimeException.shouldNotHappen("Tuples comparison");
+            }
         }
 
         /** Do the comparison with another element. */
@@ -172,26 +199,6 @@ public class LKQLTuple implements LKQLValue, Indexable {
         return this.content;
     }
 
-    // ----- LKQL value methods -----
-
-    @Override
-    @CompilerDirectives.TruffleBoundary
-    public boolean lkqlEquals(final LKQLValue o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLTuple other)) return false;
-        if (other.content.length != this.content.length) return false;
-        for (int i = 0; i < this.content.length; i++) {
-            Object mineObject = this.content[i];
-            Object hisObject = other.content[i];
-            if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if (!mine.lkqlEquals(his)) return false;
-            } else {
-                if (!Objects.equals(mineObject, hisObject)) return false;
-            }
-        }
-        return true;
-    }
-
     // ----- Override methods -----
 
     @Override
@@ -204,7 +211,9 @@ public class LKQLTuple implements LKQLValue, Indexable {
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof LKQLTuple other)) return false;
-        return this.lkqlEquals(other);
+        InteropLibrary thisLibrary = InteropLibrary.getUncached(this);
+        InteropLibrary otherLibrary = InteropLibrary.getUncached(other);
+        return thisLibrary.isIdentical(this, other, otherLibrary);
     }
 
     @Override

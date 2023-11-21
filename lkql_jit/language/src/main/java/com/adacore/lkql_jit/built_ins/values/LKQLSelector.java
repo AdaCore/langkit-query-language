@@ -116,8 +116,7 @@ public class LKQLSelector implements LKQLValue {
         /** Compare two LKQL selectors. */
         @Specialization
         protected static TriState onSelector(final LKQLSelector left, final LKQLSelector right) {
-            if (left.rootNode == right.rootNode) return TriState.TRUE;
-            else return TriState.FALSE;
+            return TriState.valueOf(left.rootNode == right.rootNode);
         }
 
         /** Do the comparison with another element. */
@@ -160,13 +159,6 @@ public class LKQLSelector implements LKQLValue {
     }
 
     // ----- LKQL value methods -----
-
-    @Override
-    public boolean lkqlEquals(LKQLValue o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLSelector other)) return false;
-        return this.rootNode == other.rootNode;
-    }
 
     @Override
     public String lkqlDocumentation() {
