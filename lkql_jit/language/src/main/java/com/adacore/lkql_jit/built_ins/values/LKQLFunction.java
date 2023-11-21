@@ -34,7 +34,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -43,7 +42,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLFunction implements TruffleObject, LKQLValue {
+public class LKQLFunction implements LKQLValue {
 
     // ----- Attributes -----
 
@@ -227,14 +226,14 @@ public class LKQLFunction implements TruffleObject, LKQLValue {
     // ----- LKQL values methods -----
 
     @Override
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (this == o) return true;
         if (!(o instanceof LKQLFunction other)) return false;
         return this.rootNode == other.rootNode;
     }
 
     @Override
-    public String getDocumentation() {
+    public String lkqlDocumentation() {
         return this.documentation;
     }
 

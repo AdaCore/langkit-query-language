@@ -39,7 +39,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLSelector implements TruffleObject, LKQLValue {
+public class LKQLSelector implements LKQLValue {
 
     // ----- Attributes -----
 
@@ -162,14 +162,14 @@ public class LKQLSelector implements TruffleObject, LKQLValue {
     // ----- LKQL value methods -----
 
     @Override
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (o == this) return true;
         if (!(o instanceof LKQLSelector other)) return false;
         return this.rootNode == other.rootNode;
     }
 
     @Override
-    public String getDocumentation() {
+    public String lkqlDocumentation() {
         return this.documentation;
     }
 

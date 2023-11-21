@@ -34,7 +34,6 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -44,7 +43,7 @@ import java.util.Objects;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLTuple implements TruffleObject, Indexable {
+public class LKQLTuple implements LKQLValue, Indexable {
 
     // ----- Attributes -----
 
@@ -78,7 +77,7 @@ public class LKQLTuple implements TruffleObject, Indexable {
         /** Compare two LKQL tuples. */
         @Specialization
         public static TriState onTuple(final LKQLTuple left, final LKQLTuple right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -177,7 +176,7 @@ public class LKQLTuple implements TruffleObject, Indexable {
 
     @Override
     @CompilerDirectives.TruffleBoundary
-    public boolean internalEquals(final LKQLValue o) {
+    public boolean lkqlEquals(final LKQLValue o) {
         if (o == this) return true;
         if (!(o instanceof LKQLTuple other)) return false;
         if (other.content.length != this.content.length) return false;
@@ -185,7 +184,7 @@ public class LKQLTuple implements TruffleObject, Indexable {
             Object mineObject = this.content[i];
             Object hisObject = other.content[i];
             if ((mineObject instanceof LKQLValue mine) && (hisObject instanceof LKQLValue his)) {
-                if (!mine.internalEquals(his)) return false;
+                if (!mine.lkqlEquals(his)) return false;
             } else {
                 if (!Objects.equals(mineObject, hisObject)) return false;
             }
@@ -205,7 +204,7 @@ public class LKQLTuple implements TruffleObject, Indexable {
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof LKQLTuple other)) return false;
-        return this.internalEquals(other);
+        return this.lkqlEquals(other);
     }
 
     @Override

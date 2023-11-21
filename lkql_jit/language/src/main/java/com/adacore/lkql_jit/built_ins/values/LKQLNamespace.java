@@ -129,7 +129,7 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
         @Specialization
         protected static TriState onLKQLNamespace(
                 final LKQLNamespace left, final LKQLNamespace right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -222,7 +222,7 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
 
     @Override
     @CompilerDirectives.TruffleBoundary
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (this == o) return true;
         if (!(o instanceof LKQLNamespace other)) return false;
 
@@ -247,7 +247,7 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
             Object otherObject = otherLib.getOrDefault(other, key, null);
             if ((thisObject instanceof LKQLValue thisValue)
                     && (otherObject instanceof LKQLValue otherValue)) {
-                if (!thisValue.internalEquals(otherValue)) return false;
+                if (!thisValue.lkqlEquals(otherValue)) return false;
             } else {
                 if (!Objects.equals(thisObject, otherObject)) return false;
             }
@@ -267,7 +267,7 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof LKQLNamespace other)) return false;
-        return this.internalEquals(other);
+        return this.lkqlEquals(other);
     }
 
     @Override

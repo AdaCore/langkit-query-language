@@ -28,14 +28,13 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the unit value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLUnit implements TruffleObject, LKQLValue, Truthy, Nullish {
+public class LKQLUnit implements LKQLValue, Truthy, Nullish {
 
     // ----- Attributes -----
 
@@ -107,7 +106,7 @@ public class LKQLUnit implements TruffleObject, LKQLValue, Truthy, Nullish {
     // ----- LKQL value methods -----
 
     @Override
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         return o == this;
     }
 

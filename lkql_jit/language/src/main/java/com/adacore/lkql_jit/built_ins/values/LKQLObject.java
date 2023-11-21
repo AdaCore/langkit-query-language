@@ -33,7 +33,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -47,7 +46,7 @@ import java.util.Objects;
 
 /** This class represents an object value in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLObject extends DynamicObject implements TruffleObject, LKQLValue {
+public final class LKQLObject extends DynamicObject implements LKQLValue {
 
     // ----- Class attributes -----
 
@@ -114,7 +113,7 @@ public final class LKQLObject extends DynamicObject implements TruffleObject, LK
         /** Compare two LKQL objects. */
         @Specialization
         protected static TriState onLKQLObject(final LKQLObject left, final LKQLObject right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -208,7 +207,7 @@ public final class LKQLObject extends DynamicObject implements TruffleObject, LK
 
     @Override
     @CompilerDirectives.TruffleBoundary
-    public boolean internalEquals(final LKQLValue o) {
+    public boolean lkqlEquals(final LKQLValue o) {
         if (this == o) return true;
         if (!(o instanceof LKQLObject other)) return false;
 
@@ -233,7 +232,7 @@ public final class LKQLObject extends DynamicObject implements TruffleObject, LK
             Object otherObject = otherLib.getOrDefault(other, key, null);
             if ((thisObject instanceof LKQLValue thisValue)
                     && (otherObject instanceof LKQLValue otherValue)) {
-                if (!thisValue.internalEquals(otherValue)) return false;
+                if (!thisValue.lkqlEquals(otherValue)) return false;
             } else {
                 if (!Objects.equals(thisObject, otherObject)) return false;
             }
@@ -255,7 +254,7 @@ public final class LKQLObject extends DynamicObject implements TruffleObject, LK
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof LKQLObject other)) return false;
-        return this.internalEquals(other);
+        return this.lkqlEquals(other);
     }
 
     @Override

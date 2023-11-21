@@ -41,7 +41,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents a Libadalang property access in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLProperty implements TruffleObject, LKQLValue {
+public class LKQLProperty implements LKQLValue {
 
     // ----- Attributes -----
 
@@ -135,7 +135,7 @@ public class LKQLProperty implements TruffleObject, LKQLValue {
         /** Compare two LKQL properties. */
         @Specialization
         protected static TriState onProperty(final LKQLProperty left, final LKQLProperty right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -181,7 +181,7 @@ public class LKQLProperty implements TruffleObject, LKQLValue {
 
     @Override
     @CompilerDirectives.TruffleBoundary
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (this == o) return true;
         if (!(o instanceof LKQLProperty other)) return false;
         return this.description.equals(other.description);

@@ -62,9 +62,9 @@ public final class HelpFunction {
                         LKQLLanguage.getContext(call)
                                 .println(
                                         StringUtils.concat(
-                                                value.getProfile(),
+                                                value.lkqlProfile(),
                                                 "\n",
-                                                value.getDocumentation()));
+                                                value.lkqlDocumentation()));
                     }
 
                     // Return the default empty documentation

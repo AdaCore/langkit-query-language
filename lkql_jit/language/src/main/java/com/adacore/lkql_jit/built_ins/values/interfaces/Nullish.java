@@ -27,4 +27,4 @@ package com.adacore.lkql_jit.built_ins.values.interfaces;
  *
  * @author Hugo GUERRIER
  */
-public interface Nullish extends LKQLValue {}
+public interface Nullish {}

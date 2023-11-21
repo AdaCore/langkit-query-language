@@ -55,7 +55,7 @@ public final class DocFunction {
 
                     // If the argument is an LKQL value, read the documentation from ir
                     if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                        return ((LKQLValue) arg).getDocumentation();
+                        return ((LKQLValue) arg).lkqlDocumentation();
                     }
 
                     // Return the default empty documentation

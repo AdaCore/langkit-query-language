@@ -70,7 +70,7 @@ public final class DetailExpr extends DetailValue {
         // Verify the equality
         if (LKQLTypeSystemGen.isLKQLValue(value) && LKQLTypeSystemGen.isLKQLValue(expected)) {
             return LKQLTypeSystemGen.asLKQLValue(value)
-                    .internalEquals(LKQLTypeSystemGen.asLKQLValue(expected));
+                    .lkqlEquals(LKQLTypeSystemGen.asLKQLValue(expected));
         } else {
             return ObjectUtils.equals(value, expected);
         }

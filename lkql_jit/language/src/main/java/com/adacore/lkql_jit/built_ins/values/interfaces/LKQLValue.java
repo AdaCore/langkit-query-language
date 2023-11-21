@@ -22,36 +22,24 @@
 
 package com.adacore.lkql_jit.built_ins.values.interfaces;
 
-/**
- * This interface defines the LKQL values basic interface.
- *
- * @author Hugo GUERRIER
- */
-public interface LKQLValue {
+import com.oracle.truffle.api.interop.TruffleObject;
 
-    /**
-     * Get the documentation for the LKQL value.
-     *
-     * @return A string representing the LKQL documentation.
-     */
-    default String getDocumentation() {
+/** This interface defines the LKQL values basic interface. */
+public interface LKQLValue extends TruffleObject {
+    /** Get a documentation string for the LKQL value. */
+    default String lkqlDocumentation() {
         return "";
     }
 
-    /**
-     * Get the profile for the callable LKQL value.
-     *
-     * @return The string representing the callable profile.
-     */
-    default String getProfile() {
+    /** Get a string representing the LKQL colling profile. */
+    default String lkqlProfile() {
         return "TODO : Implement the profile information";
     }
 
     /**
-     * Do an internal equality verification.
+     * Do an equality verification with the LKQL semantics.
      *
-     * @param o The other lkql value.
-     * @return True of the values are LKQLy equals, false else.
+     * @return Whether the given value is equals to the current LKQL value.
      */
-    boolean internalEquals(LKQLValue o);
+    boolean lkqlEquals(LKQLValue o);
 }

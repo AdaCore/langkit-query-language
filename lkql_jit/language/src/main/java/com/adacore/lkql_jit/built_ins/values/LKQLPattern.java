@@ -46,7 +46,7 @@ import com.oracle.truffle.api.utilities.TriState;
  * regular expression.
  */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLPattern implements TruffleObject, LKQLValue {
+public final class LKQLPattern implements LKQLValue {
 
     // ----- Attributes -----
 
@@ -141,7 +141,7 @@ public final class LKQLPattern implements TruffleObject, LKQLValue {
         /** Compare two LKQL patterns. */
         @Specialization
         protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -218,7 +218,7 @@ public final class LKQLPattern implements TruffleObject, LKQLValue {
     // ----- LKQL Value methods -----
 
     @Override
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (o == this) return true;
         if (!(o instanceof LKQLPattern other)) return false;
         return other.regexString.equals(this.regexString)

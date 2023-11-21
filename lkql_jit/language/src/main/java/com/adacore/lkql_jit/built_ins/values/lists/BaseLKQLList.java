@@ -36,7 +36,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -45,7 +44,7 @@ import java.util.Objects;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLList implements TruffleObject, Iterable, Indexable, Truthy {
+public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Truthy {
 
     // ----- Constructors -----
 
@@ -86,7 +85,7 @@ public abstract class BaseLKQLList implements TruffleObject, Iterable, Indexable
         /** Compare two LKQL lists. */
         @Specialization
         public static TriState onList(final BaseLKQLList left, final BaseLKQLList right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -217,7 +216,7 @@ public abstract class BaseLKQLList implements TruffleObject, Iterable, Indexable
 
     @Override
     @CompilerDirectives.TruffleBoundary
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (this == o) return true;
         if (!(o instanceof BaseLKQLList other)) return false;
 
@@ -230,7 +229,7 @@ public abstract class BaseLKQLList implements TruffleObject, Iterable, Indexable
             Object otherElem = other.get(i);
             if ((thisElem instanceof LKQLValue thisValue)
                     && (otherElem instanceof LKQLValue otherValue)) {
-                if (!thisValue.internalEquals(otherValue)) return false;
+                if (!thisValue.lkqlEquals(otherValue)) return false;
             } else {
                 if (!Objects.equals(thisElem, otherElem)) return false;
             }
@@ -252,6 +251,6 @@ public abstract class BaseLKQLList implements TruffleObject, Iterable, Indexable
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BaseLKQLList other)) return false;
-        return this.internalEquals(other);
+        return this.lkqlEquals(other);
     }
 }

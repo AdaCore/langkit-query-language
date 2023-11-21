@@ -55,7 +55,7 @@ public final class ProfileFunction {
 
                     // If the argument is an LKQL value, read the documentation from ir
                     if (LKQLTypeSystemGen.isLKQLValue(arg)) {
-                        return ((LKQLValue) arg).getProfile();
+                        return ((LKQLValue) arg).lkqlProfile();
                     }
 
                     // Return the default empty documentation

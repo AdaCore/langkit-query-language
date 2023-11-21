@@ -27,7 +27,7 @@ package com.adacore.lkql_jit.built_ins.values.interfaces;
  *
  * @author Hugo GUERRIER
  */
-public interface Truthy extends LKQLValue {
+public interface Truthy {
 
     /**
      * Get the boolean representation of the object.

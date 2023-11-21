@@ -23,14 +23,11 @@
 package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
@@ -40,7 +37,7 @@ import com.oracle.truffle.api.utilities.TriState;
  * all Libadalang objects will be wrapped in interop LKQL values (#154).
  */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLDepthNode implements TruffleObject, LKQLValue {
+public final class LKQLDepthNode implements LKQLValue {
 
     // ----- Attributes -----
 
@@ -70,25 +67,13 @@ public final class LKQLDepthNode implements TruffleObject, LKQLValue {
 
     // ----- Value methods -----
 
-    /** Tell the interop library that the depth node has an associated language */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
     /** Exported message to compare two LKQL depth nodes. */
     @ExportMessage
     static class IsIdenticalOrUndefined {
         /** Compare two LKQL depth nodes. */
         @Specialization
         protected static TriState onNode(final LKQLDepthNode left, final LKQLDepthNode right) {
-            if (left.internalEquals(right)) return TriState.TRUE;
+            if (left.lkqlEquals(right)) return TriState.TRUE;
             else return TriState.FALSE;
         }
 
@@ -117,7 +102,7 @@ public final class LKQLDepthNode implements TruffleObject, LKQLValue {
     // ----- LKQL Value methods -----
 
     @Override
-    public boolean internalEquals(LKQLValue o) {
+    public boolean lkqlEquals(LKQLValue o) {
         if (o == this) return true;
         if (!(o instanceof LKQLDepthNode other)) return false;
         return other.node.equals(this.node);
