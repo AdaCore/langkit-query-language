@@ -4,6 +4,8 @@ testsuite/ada_projects/*/*.ad[bs] no-precommit-check
 
 * text eol=lf
 *.bat text eol=crlf
+*.png -text
+*.jpeg -text
 
 # No needs
 *.java no-precommit-check
