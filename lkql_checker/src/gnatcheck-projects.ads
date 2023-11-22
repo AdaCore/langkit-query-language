@@ -2,7 +2,7 @@
 --                                                                          --
 --                                 GNATCHECK                                --
 --                                                                          --
---                     Copyright (C) 2013-2023, AdaCore                     --
+--                     Copyright (C) 2013-2024, AdaCore                     --
 --                                                                          --
 -- GNATCHECK  is free software;  you can redistribute it and/or modify  it  --
 -- under terms of the GNU General Public License  as published by the Free  --
@@ -201,6 +201,14 @@ package Gnatcheck.Projects is
 
    No_Object_Dir : Boolean := False;
    --  If this flag is ON, the output files are placed in the current directory
+
+   ----------------------------------------------------------------
+   -- --print-gpr-registry : print gnatcheck attributes and exit --
+   ----------------------------------------------------------------
+
+   Print_Gpr_Registry : Boolean := False;
+   --  If this flag is ON, gpr attributes registered by gnatcheck are printed
+   --  and gnatcheck exit returning 0.
 
    ---------------------------------------------------------
    -- Type to represent a project passed as a tool option --

@@ -1,0 +1,4 @@
+format: brief
+driver: gnatcheck
+extra_args:
+  - --print-gpr-registry
