@@ -22,10 +22,9 @@
 
 package com.adacore.lkql_jit.built_ins.values.lists;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
 import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
@@ -34,7 +33,6 @@ import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -45,7 +43,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This abstract class represents all list like values in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Truthy {
+public abstract class BaseLKQLList extends ArrayLKQLValue implements Iterable, Indexable, Truthy {
 
     // ----- Constructors -----
 
@@ -67,18 +65,6 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
     public abstract LKQLIterator iterator();
 
     // ----- Value methods -----
-
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    public boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    public Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
 
     /** Exported message to compare two lists. */
     @ExportMessage
@@ -125,11 +111,13 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
         }
     }
 
-    /** Return the identity hash code for the given LKQL list. */
-    @CompilerDirectives.TruffleBoundary
+    /** Get the identity hash code for the given LKQL list */
     @ExportMessage
-    public static int identityHashCode(BaseLKQLList receiver) {
-        return System.identityHashCode(receiver);
+    public static int identityHashCode(
+            BaseLKQLList receiver,
+            @CachedLibrary("receiver") InteropLibrary receivers,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        return arrayValueHashCode(receiver, receivers, elems);
     }
 
     /** Get the displayable string for the interop library. */
@@ -175,7 +163,7 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
         return this.isTruthy();
     }
 
-    /** Tell the interop library that the value is array like. */
+    /** Tell the interop library that tuple has array elements. */
     @ExportMessage
     public boolean hasArrayElements() {
         return true;
@@ -237,22 +225,5 @@ public abstract class BaseLKQLList implements LKQLValue, Iterable, Indexable, Tr
         } catch (InvalidIndexException e) {
             return false;
         }
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        InteropLibrary listLibrary = InteropLibrary.getUncached(this);
-        return (String) listLibrary.toDisplayString(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseLKQLList other)) return false;
-        InteropLibrary thisLibrary = InteropLibrary.getUncached(this);
-        InteropLibrary otherLibrary = InteropLibrary.getUncached(other);
-        return thisLibrary.isIdentical(this, other, otherLibrary);
     }
 }

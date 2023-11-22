@@ -22,14 +22,12 @@
 
 package com.adacore.lkql_jit.built_ins.values;
 
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -42,7 +40,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLFunction implements LKQLValue {
+public class LKQLFunction extends BasicLKQLValue {
 
     // ----- Attributes -----
 
@@ -137,21 +135,9 @@ public class LKQLFunction implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
     /** Exported message to compare two LKQL functions. */
     @ExportMessage
-    static class IsIdenticalOrUndefined {
+    public static class IsIdenticalOrUndefined {
         /** Compare two LKQL functions. */
         @Specialization
         protected static TriState onFunction(final LKQLFunction left, final LKQLFunction right) {
@@ -170,26 +156,27 @@ public class LKQLFunction implements LKQLValue {
     /** Return the identity hash code for the given LKQL function. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    static int identityHashCode(final LKQLFunction receiver) {
+    public static int identityHashCode(final LKQLFunction receiver) {
         return System.identityHashCode(receiver);
     }
 
     /** Get the displayable string for the interop library. */
+    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
         return "function<" + this.name + ">";
     }
 
     /** Tell the interop library that the value is executable. */
     @ExportMessage
-    boolean isExecutable() {
+    public boolean isExecutable() {
         return true;
     }
 
     /** Inner class for the function execution. */
     @ExportMessage
-    static class Execute {
+    public static class Execute {
         /** Execute the function with the cached strategy. */
         @Specialization(guards = "callTarget == directCallNode.getCallTarget()")
         protected static Object doCached(
@@ -212,13 +199,13 @@ public class LKQLFunction implements LKQLValue {
 
     /** Tell the interop library that this value has an executable name. */
     @ExportMessage
-    boolean hasExecutableName() {
+    public boolean hasExecutableName() {
         return true;
     }
 
     /** Return the function name to the interop library. */
     @ExportMessage
-    Object getExecutableName() {
+    public Object getExecutableName() {
         return this.name;
     }
 
@@ -227,12 +214,5 @@ public class LKQLFunction implements LKQLValue {
     @Override
     public String lkqlDocumentation() {
         return this.documentation;
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return "function<" + this.name + ">";
     }
 }

@@ -22,41 +22,29 @@
 
 package com.adacore.lkql_jit.built_ins.values;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.bases.ObjectLKQLValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.ArrayUtils;
-import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.utilities.TriState;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /** This class represents the namespaces in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLNamespace extends DynamicObject implements LKQLValue {
-
-    // ----- Attributes -----
-
-    /** The dynamic object library to perform uncached operations on the LKQL namespace. */
-    private static final DynamicObjectLibrary objectLibrary = DynamicObjectLibrary.getUncached();
+public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
 
     // ----- Constructors -----
 
@@ -85,42 +73,12 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
         // Return the new namespace
         LKQLNamespace res = new LKQLNamespace(Shape.newBuilder().build());
         for (String key : symbols.keySet()) {
-            objectLibrary.put(res, key, symbols.get(key));
+            uncachedObjectLibrary.put(res, key, symbols.get(key));
         }
         return res;
     }
 
-    // ----- Instance methods -----
-
-    /**
-     * Get the value in the LKQL namespace at the given key with the uncached strategy. This method
-     * uses an uncached library so this is not design for performance critical usages.
-     */
-    public Object getUncached(final Object key) {
-        return objectLibrary.getOrDefault(this, key, null);
-    }
-
-    /**
-     * Get the key array from the namespace value. This method uses an uncached library so this is
-     * not designed for performance critical usages.
-     */
-    public Object[] keysUncached() {
-        return objectLibrary.getKeyArray(this);
-    }
-
     // ----- Value methods -----
-
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
 
     /** Exported message to compare two LKQL namespaces. */
     @ExportMessage
@@ -134,26 +92,8 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
                 @CachedLibrary("right") DynamicObjectLibrary rights,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftValues,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightValues) {
-            // Get the namespaces key sets and compare their size
-            Object[] leftKeys = lefts.getKeyArray(left);
-            Object[] rightKeys = rights.getKeyArray(right);
-            if (leftKeys.length != rightKeys.length) return TriState.FALSE;
-
-            // Then compare each value
-            for (Object key : leftKeys) {
-                if (!rights.containsKey(right, key)) return TriState.FALSE;
-                Object leftValue = lefts.getOrDefault(left, key, null);
-                Object rightValue = rights.getOrDefault(right, key, null);
-                if (leftValues.hasIdentity(leftValue)) {
-                    if (!leftValues.isIdentical(leftValue, rightValue, rightValues))
-                        return TriState.FALSE;
-                } else {
-                    if (!ObjectUtils.equals(leftValue, rightValue)) return TriState.FALSE;
-                }
-            }
-
-            // If we get here, the namespace are equals
-            return TriState.TRUE;
+            return TriState.valueOf(
+                    objectValueEquals(left, right, lefts, rights, leftValues, rightValues));
         }
 
         /** Do the comparison with another element. */
@@ -165,10 +105,10 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
         }
     }
 
-    /** Return the identity hash code for the given LKQL namespace. */
-    @ExportMessage
+    /** Get the identity hash code for the given namespace */
     @CompilerDirectives.TruffleBoundary
-    static int identityHashCode(final LKQLNamespace receiver) {
+    @ExportMessage
+    public static int identityHashCode(LKQLNamespace receiver) {
         return System.identityHashCode(receiver);
     }
 
@@ -205,66 +145,5 @@ public class LKQLNamespace extends DynamicObject implements LKQLValue {
         // Return the string result
         resultBuilder.append(")");
         return resultBuilder.toString();
-    }
-
-    /** Tell the interop library that this value has members. */
-    @ExportMessage
-    boolean hasMembers() {
-        return true;
-    }
-
-    /**
-     * Get if the given member is in the receiver namespace. All members are readable but not
-     * modifiable.
-     */
-    @ExportMessage
-    boolean isMemberReadable(
-            final String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return objectLibrary.containsKey(this, member);
-    }
-
-    /** Get the existing members for the receiver namespace. */
-    @ExportMessage
-    Object getMembers(
-            @SuppressWarnings("unused") final boolean includeInternal,
-            @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return new LKQLList(objectLibrary.getKeyArray(this));
-    }
-
-    /** Get the value of the wanted member in the receiver namespace. */
-    @ExportMessage
-    Object readMember(
-            final String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
-            throws UnknownIdentifierException {
-        final Object result = objectLibrary.getOrDefault(this, member, null);
-        if (result == null) throw UnknownIdentifierException.create(member);
-        return result;
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        InteropLibrary interopLibrary = InteropLibrary.getUncached(this);
-        return (String) interopLibrary.toDisplayString(this);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLNamespace other)) return false;
-        InteropLibrary thisLibrary = InteropLibrary.getUncached(this);
-        InteropLibrary otherLibrary = InteropLibrary.getUncached(other);
-        return thisLibrary.isIdentical(this, other, otherLibrary);
-    }
-
-    @Override
-    public int hashCode() {
-        Object[] keys = this.keysUncached();
-        Object[] values = new Object[keys.length];
-        for (int i = 0; i < keys.length; i++) {
-            values[i] = this.getUncached(keys[i]);
-        }
-        return Arrays.hashCode(ArrayUtils.concat(keys, values));
     }
 }

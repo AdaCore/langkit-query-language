@@ -24,14 +24,13 @@ package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
@@ -46,7 +45,7 @@ import com.oracle.truffle.api.utilities.TriState;
  * regular expression.
  */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLPattern implements LKQLValue {
+public final class LKQLPattern extends BasicLKQLValue {
 
     // ----- Attributes -----
 
@@ -123,21 +122,9 @@ public final class LKQLPattern implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
     /** Exported message to compare two LKQL patterns. */
     @ExportMessage
-    static class IsIdenticalOrUndefined {
+    public static class IsIdenticalOrUndefined {
         /** Compare two LKQL patterns. */
         @Specialization
         protected static TriState onPattern(final LKQLPattern left, final LKQLPattern right) {
@@ -158,32 +145,33 @@ public final class LKQLPattern implements LKQLValue {
     /** Return the identity hash code for the given LKQL pattern. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    static int identityHashCode(final LKQLPattern receiver) {
+    public static int identityHashCode(final LKQLPattern receiver) {
         return System.identityHashCode(receiver);
     }
 
     /** Get the displayable string for the interop library. */
+    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
         return "pattern<\"" + this.regexString + "\">";
     }
 
     /** Tell the interop library that the value has members. */
     @ExportMessage
-    boolean hasMembers() {
+    public boolean hasMembers() {
         return true;
     }
 
     /** Get the existing members on the pattern. */
     @ExportMessage
-    Object getMembers(@SuppressWarnings("unused") final boolean includeInternal) {
+    public Object getMembers(@SuppressWarnings("unused") final boolean includeInternal) {
         return MEMBERS;
     }
 
     /** Tell the interop library whether the given member is invokable. */
     @ExportMessage
-    boolean isMemberInvocable(String member) {
+    public boolean isMemberInvocable(String member) {
         return ObjectUtils.equals(member, "contains") || ObjectUtils.equals(member, "find");
     }
 
@@ -195,7 +183,7 @@ public final class LKQLPattern implements LKQLValue {
      * @throws UnknownIdentifierException If the provided member doesn't exist.
      */
     @ExportMessage
-    Object invokeMember(String member, Object... args)
+    public Object invokeMember(String member, Object... args)
             throws ArityException, UnsupportedTypeException, UnknownIdentifierException {
         // Verify the argument number
         if (args.length < 1) {
@@ -214,12 +202,5 @@ public final class LKQLPattern implements LKQLValue {
             case "find" -> this.find(arg);
             default -> throw UnknownIdentifierException.create(member);
         };
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return this.regexString;
     }
 }

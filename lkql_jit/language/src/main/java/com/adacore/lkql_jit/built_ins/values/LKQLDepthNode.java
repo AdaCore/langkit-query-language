@@ -23,7 +23,7 @@
 package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -37,7 +37,7 @@ import com.oracle.truffle.api.utilities.TriState;
  * all Libadalang objects will be wrapped in interop LKQL values (#154).
  */
 @ExportLibrary(InteropLibrary.class)
-public final class LKQLDepthNode implements LKQLValue {
+public final class LKQLDepthNode extends BasicLKQLValue {
 
     // ----- Attributes -----
 
@@ -69,7 +69,7 @@ public final class LKQLDepthNode implements LKQLValue {
 
     /** Exported message to compare two LKQL depth nodes. */
     @ExportMessage
-    static class IsIdenticalOrUndefined {
+    public static class IsIdenticalOrUndefined {
         /** Compare two LKQL depth nodes. */
         @Specialization
         protected static TriState onNode(final LKQLDepthNode left, final LKQLDepthNode right) {
@@ -88,13 +88,13 @@ public final class LKQLDepthNode implements LKQLValue {
     /** Return the identity hash code for the given LKQL depth node. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    static int identityHashCode(final LKQLDepthNode receiver) {
+    public static int identityHashCode(final LKQLDepthNode receiver) {
         return System.identityHashCode(receiver);
     }
 
     /** Get the displayable string for the interop library. */
     @ExportMessage
-    Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
         return this.node.toString();
     }
 

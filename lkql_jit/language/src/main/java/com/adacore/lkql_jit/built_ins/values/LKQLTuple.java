@@ -22,16 +22,12 @@
 
 package com.adacore.lkql_jit.built_ins.values;
 
-import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.bases.ArrayLKQLValue;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 import com.adacore.lkql_jit.utils.Constants;
-import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -40,11 +36,10 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
-import java.util.Arrays;
 
 /** This class represents a tuple in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLTuple implements LKQLValue, Indexable {
+public class LKQLTuple extends ArrayLKQLValue implements Indexable {
 
     // ----- Attributes -----
 
@@ -60,18 +55,6 @@ public class LKQLTuple implements LKQLValue, Indexable {
 
     // ----- Value methods -----
 
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    public boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    public Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
     /** Exported message to compare two tuples. */
     @ExportMessage
     public static class IsIdenticalOrUndefined {
@@ -84,28 +67,8 @@ public class LKQLTuple implements LKQLValue, Indexable {
                 @CachedLibrary("right") InteropLibrary rights,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary leftElems,
                 @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary rightElems) {
-            try {
-                // Get the left tuple size and compare it with the right tuple
-                long size = lefts.getArraySize(left);
-                if (size != rights.getArraySize(right)) return TriState.FALSE;
-
-                // Then compare each element of the tuples
-                for (long i = 0; i < size; i++) {
-                    Object leftElem = lefts.readArrayElement(left, i);
-                    Object rightElem = rights.readArrayElement(right, i);
-                    if (leftElems.hasIdentity(leftElem)) {
-                        if (!leftElems.isIdentical(leftElem, rightElem, rightElems))
-                            return TriState.FALSE;
-                    } else {
-                        if (!ObjectUtils.equals(leftElem, rightElem)) return TriState.FALSE;
-                    }
-                }
-
-                // If we get here, tuples are equal
-                return TriState.TRUE;
-            } catch (Exception e) {
-                throw LKQLRuntimeException.shouldNotHappen("Tuples comparison");
-            }
+            return TriState.valueOf(
+                    arrayValueEquals(left, right, lefts, rights, leftElems, rightElems));
         }
 
         /** Do the comparison with another element. */
@@ -117,11 +80,13 @@ public class LKQLTuple implements LKQLValue, Indexable {
         }
     }
 
-    /** Return the identity hash code for the given LKQL tuple. */
-    @CompilerDirectives.TruffleBoundary
+    /** Get the identity hash code for the given LKQL tuple */
     @ExportMessage
-    public static int identityHashCode(final LKQLTuple receiver) {
-        return System.identityHashCode(receiver);
+    public static int identityHashCode(
+            LKQLTuple receiver,
+            @CachedLibrary("receiver") InteropLibrary receivers,
+            @CachedLibrary(limit = Constants.DISPATCHED_LIB_LIMIT) InteropLibrary elems) {
+        return arrayValueHashCode(receiver, receivers, elems);
     }
 
     /** Get the displayable string for the interop library. */
@@ -155,7 +120,7 @@ public class LKQLTuple implements LKQLValue, Indexable {
         return resultBuilder.toString();
     }
 
-    /** Tell the interop library that the value is array like. */
+    /** Tell the interop library that tuple has array elements. */
     @ExportMessage
     public boolean hasArrayElements() {
         return true;
@@ -197,27 +162,5 @@ public class LKQLTuple implements LKQLValue, Indexable {
     @Override
     public Object[] getContent() {
         return this.content;
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        InteropLibrary tupleLib = InteropLibrary.getUncached(this);
-        return (String) tupleLib.toDisplayString(this);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof LKQLTuple other)) return false;
-        InteropLibrary thisLibrary = InteropLibrary.getUncached(this);
-        InteropLibrary otherLibrary = InteropLibrary.getUncached(other);
-        return thisLibrary.isIdentical(this, other, otherLibrary);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(this.content);
     }
 }

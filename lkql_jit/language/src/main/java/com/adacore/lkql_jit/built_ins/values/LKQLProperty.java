@@ -23,8 +23,7 @@
 package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -32,7 +31,6 @@ import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.ReflectionUtils;
 import com.adacore.lkql_jit.utils.source_location.Locatable;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
@@ -42,7 +40,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents a Libadalang property access in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLProperty implements LKQLValue {
+public class LKQLProperty extends BasicLKQLValue {
 
     // ----- Attributes -----
 
@@ -118,21 +116,9 @@ public class LKQLProperty implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
     /** Exported message to compare two LKQL properties. */
     @ExportMessage
-    static class IsIdenticalOrUndefined {
+    public static class IsIdenticalOrUndefined {
         /** Compare two LKQL properties. */
         @Specialization
         protected static TriState onProperty(final LKQLProperty left, final LKQLProperty right) {
@@ -151,36 +137,30 @@ public class LKQLProperty implements LKQLValue {
     /** Return the identity hash code for the given LKQL property. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    static int identityHashCode(final LKQLProperty receiver) {
+    public static int identityHashCode(final LKQLProperty receiver) {
         return System.identityHashCode(receiver);
     }
 
     /** Get the displayable string for the interop library. */
+    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
         return "property<" + this.name + ">";
     }
 
     /** Tell the interop library that the value is not executable. */
     @ExportMessage
-    boolean isExecutable() {
+    public boolean isExecutable() {
         // TODO (issue #143): Make the LKQLSelector executable as LKQLFunctions
         return false;
     }
 
     /** Placeholder function for the Truffle DSL. */
     @ExportMessage
-    Object execute(Object[] arguments)
+    public Object execute(Object[] arguments)
             throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
         // TODO (issue #143): implement this method to execute the property as a simple function
         return null;
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return "property<" + this.name + ">";
     }
 }

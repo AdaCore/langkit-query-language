@@ -23,13 +23,11 @@
 package com.adacore.lkql_jit.built_ins.values;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
@@ -39,7 +37,7 @@ import com.oracle.truffle.api.utilities.TriState;
 
 /** This class represents the selector values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
-public class LKQLSelector implements LKQLValue {
+public class LKQLSelector extends BasicLKQLValue {
 
     // ----- Attributes -----
 
@@ -98,21 +96,9 @@ public class LKQLSelector implements LKQLValue {
 
     // ----- Value methods -----
 
-    /** Tell the interop API that the value has an associated language. */
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    /** Give the LKQL language class to the interop library. */
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return LKQLLanguage.class;
-    }
-
     /** Exported message to compare two LKQL selectors. */
     @ExportMessage
-    static class IsIdenticalOrUndefined {
+    public static class IsIdenticalOrUndefined {
         /** Compare two LKQL selectors. */
         @Specialization
         protected static TriState onSelector(final LKQLSelector left, final LKQLSelector right) {
@@ -131,27 +117,28 @@ public class LKQLSelector implements LKQLValue {
     /** Return the identity hash code for the given LKQL selector. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    static int identityHashCode(final LKQLSelector receiver) {
+    public static int identityHashCode(final LKQLSelector receiver) {
         return System.identityHashCode(receiver);
     }
 
     /** Get the displayable string for the interop library. */
+    @Override
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
+    public String toDisplayString(@SuppressWarnings("unused") final boolean allowSideEffects) {
         return "selector<" + this.name + ">";
     }
 
     /** Tell the interop library that the value is not executable. */
     @ExportMessage
-    boolean isExecutable() {
+    public boolean isExecutable() {
         // TODO (issue #143): Make the LKQLSelector executable as LKQLFunctions
         return false;
     }
 
     /** Placeholder function for the Truffle DSL. */
     @ExportMessage
-    Object execute(Object[] arguments)
+    public Object execute(Object[] arguments)
             throws UnsupportedTypeException, ArityException, UnsupportedMessageException {
         // TODO (issue #143): implement this method to execute the selector as a simple function
         // returning a selector list
@@ -163,12 +150,5 @@ public class LKQLSelector implements LKQLValue {
     @Override
     public String lkqlDocumentation() {
         return this.documentation;
-    }
-
-    // ----- Override methods -----
-
-    @Override
-    public String toString() {
-        return "selector<" + this.name + ">";
     }
 }
