@@ -10,3 +10,4 @@ testsuite/ada_projects/*/*.ad[bs] no-precommit-check
 # No needs
 *.java no-precommit-check
 
+*.png -text
