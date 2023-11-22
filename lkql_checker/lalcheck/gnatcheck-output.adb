@@ -716,6 +716,7 @@ package body Gnatcheck.Output is
       Info (" -Pproject        - Use project file project. Only one such switch can be used");
       Info (" -U               - check all sources of the argument project");
       Info (" -U main          - check the closure of units rooted at unit main");
+      Info (" --no-subprojects - process only sources of root project");
       Info (" -Xname=value     - specify an external reference for argument project file");
       Info (" --subdirs=dir    - specify subdirectory to place the result files into");
       Info (" --simple-project - simple project set up");
