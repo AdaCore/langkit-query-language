@@ -1,5 +1,7 @@
 driver: gnatcheck
 format: brief
-project: prj.gpr
+worker: "unparsable_generator"
+input_sources:
+  - main.adb
 rules:
   - +RGOTO_Statements
