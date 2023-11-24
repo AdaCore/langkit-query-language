@@ -137,7 +137,8 @@ class BaseDriver(DiffTestDriver):
     @property
     def test_control_creator(self):
         return YAMLTestControlCreator({
-            'mode': self.env.options.mode
+            'mode': self.env.options.mode,
+            'os': self.env.build.os.name,
         })
 
     def set_up(self) -> None:

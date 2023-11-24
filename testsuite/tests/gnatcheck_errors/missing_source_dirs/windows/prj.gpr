@@ -1,0 +1,3 @@
+project Prj is
+    for Source_Dirs use ("invalid_source_dirs");
+end Prj;
