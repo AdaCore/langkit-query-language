@@ -1,0 +1,3 @@
+gnatcheck: Unparsable line: This line is not parsable
+gnatcheck: Unparsable line: Message: should appear
+gnatcheck: Unparsable line: This line is not parsable either

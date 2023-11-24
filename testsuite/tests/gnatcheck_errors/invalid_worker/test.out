@@ -1,3 +1,0 @@
-gnatcheck: Unparsable line: Not a message
-gnatcheck: Unparsable line: Message: Should appear
-gnatcheck: Unparsable line:  --files-from=/gnatcheck-files1.TMP --rules-from=/gnatcheck-rules0.TMP

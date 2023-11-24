@@ -58,18 +58,31 @@ def get_java_command(entry_point: str) -> list[str]:
         f'com.adacore.lkql_jit.{main_classes[entry_point]}'
     ]
 
+def print_gnatcheck_unparsable():
+    print("This line is not parsable")
+    print("Message: should appear")
+    print("no_a_file.adb:01:01: Message: Should not appear")
+    print("This line is not parsable either")
+
 if __name__ == '__main__':
     # Create the script argument parser
     parser = argparse.ArgumentParser(prog="lkql_jit.py",
                                      description=__doc__)
     subparsers = parser.add_subparsers(help="LKQL JIT entry point", required=True)
     for subcommand, help in [
-        ("lkql", "Main entry point for LKQL")
+        ("lkql", "Main entry point for LKQL"),
+        (
+            "unparsable_generator",
+            "Entry point to generate unparsable GNATcheck messages"
+        )
     ]:
         subp = subparsers.add_parser(subcommand, help=help)
         subp.set_defaults(subc=subcommand)
 
     args, to_forward = parser.parse_known_args()
-    command = get_java_command(args.subc)
-    command.extend(to_forward)
-    subprocess.run(command)
+    if args.subc == "unparsable_generator":
+        print_gnatcheck_unparsable()
+    else:
+        command = get_java_command(args.subc)
+        command.extend(to_forward)
+        subprocess.run(command)
