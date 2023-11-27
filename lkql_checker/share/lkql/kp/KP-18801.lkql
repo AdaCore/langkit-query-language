@@ -1,0 +1,53 @@
+# Flag equality operations in a generic package, where one of the operands is
+# a call to an overloaded function declared in the generic package whose
+# result type is declared outside the package.
+
+import stdlib
+
+fun is_overloaded(n) = {
+    val d    = if n is BodyNode then n.p_decl_part() else n;
+    val decl = if d == null then n else d;
+
+    decl is (ClassicSubpDecl or BaseSubpBody) and
+    decl.f_subp_spec.f_subp_name is name@DefiningName
+    when (decl is *(any prev_siblings is sib@SubpDecl
+                   when sib.f_subp_spec.f_subp_name.p_name_matches(name)) or
+          decl is *(any next_siblings is sib@SubpDecl
+                   when sib.f_subp_spec.f_subp_name.p_name_matches(name)))
+}
+
+fun is_wrong_call(n, pkg) =
+   # n is a function call
+   n is Name(p_is_call() is true,
+   # declared in pkg
+             any stdlib.semantic_parent() is
+                 p@GenericPackageDecl when p == pkg,
+             p_referenced_decl() is decl@*)
+   # and is overloaded
+   when is_overloaded(decl)
+   # and the result type is declared outside pkg
+    and n.p_expression_type() is not
+        BasicDecl(any stdlib.semantic_parent is p@GenericPackageDecl
+                  when p == pkg)
+
+fun check_params(n) = {
+    val pkg = [p for p in stdlib.semantic_parent(n)
+               if p is GenericPackageDecl]?[1];
+
+    # n is inside a generic package
+    pkg is AdaNode and
+    # and one of its operands is a problematic function call
+    match n
+    | BinOp    => is_wrong_call(n.f_right, pkg) or is_wrong_call(n.f_left, pkg)
+    | CallExpr => is_wrong_call(n.f_suffix[1].f_r_expr, pkg) or
+                  is_wrong_call(n.f_suffix[2].f_r_expr, pkg)
+    | *        => false
+}
+
+@check(help="possible occurrence of KP 18801",
+       message="possible occurrence of KP 18801",
+       impact="23.*,24.*")
+fun kp_18801(node) =
+    node is (BinOp(f_op is OpEq) or
+             CallExpr(p_kind() is "call") when node.f_name.p_name_is("\"=\""))
+    when check_params(node)

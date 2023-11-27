@@ -1,0 +1,8 @@
+g1.adb:10:8: rule violation: possible occurrence of KP 18801
+10 |     if Get = "" then           --  FLAG
+   |        ^^^^^^^^
+
+g1.adb:12:11: rule violation: possible occurrence of KP 18801
+12 |     elsif "=" ("", Get) then   --  FLAG
+   |           ^^^^^^^^^^^^^
+
