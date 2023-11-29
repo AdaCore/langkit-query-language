@@ -2659,7 +2659,7 @@ This rule has the following optional parameter for the ``+R`` option:
 
 *Only_Unconditional*
    Only flag unconditional goto statements, that is, goto statements that are
-   not directly enclosed in an if statement:
+   not directly enclosed in an if or a case statement:
 
 .. rubric:: Example
 
