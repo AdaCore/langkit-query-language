@@ -1,0 +1,10 @@
+# We're testing what happens when we pass an unknown target to gnatcheck
+# Expected behavior here is that gnatcheck will fail early with a toolchain
+# error
+
+driver: gnatcheck
+project: prj.gpr
+rules:
+  - +Rrecursive_subprograms
+extra_args:
+  - --target=wrong

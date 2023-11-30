@@ -61,6 +61,12 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 description = "Charset to use for the source decoding")
         public String charset = null;
 
+        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
+        public String RTS = null;
+
+        @CommandLine.Option(names = "--target", description = "Hardware target to pass to GPR")
+        public String target = null;
+
         @CommandLine.Option(
                 names = {"-P", "--project"},
                 description = "Project file to use")
@@ -217,6 +223,14 @@ public class LKQLChecker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.charset", this.args.charset);
         }
 
+        if (this.args.RTS != null) {
+            contextBuilder.option("lkql.runtime", this.args.RTS);
+        }
+
+        if (this.args.target != null) {
+            contextBuilder.option("lkql.target", this.args.target);
+        }
+
         // Set the rule directories
         if (!this.args.rulesDirs.isEmpty()) {
             contextBuilder.option(
@@ -251,6 +265,9 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 System.err.println(e.getMessage());
             }
             return 0;
+        } catch (Error e) {
+            System.err.println(e.getMessage());
+            return 1;
         }
     }
 
