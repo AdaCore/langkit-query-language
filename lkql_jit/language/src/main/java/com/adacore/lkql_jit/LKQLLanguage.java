@@ -105,6 +105,20 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     static final OptionKey<String> subprojectFile = new OptionKey<>("");
 
+    /** The runtime to load the project with */
+    @Option(
+            help = "The runtime to pass to GPR",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> runtime = new OptionKey<>("");
+
+    /** The target to load the project with */
+    @Option(
+            help = "The hardware target to pass to GPR",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> target = new OptionKey<>("");
+
     /**
      * The scenario variables to load the project file with, where "key=value" variable
      * specifications are encoded as Base64 and separated by semicolons.

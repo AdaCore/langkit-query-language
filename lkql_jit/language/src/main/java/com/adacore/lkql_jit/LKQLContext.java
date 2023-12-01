@@ -271,6 +271,14 @@ public final class LKQLContext {
         return this.projectFile;
     }
 
+    public String getTarget() {
+        return this.env.getOptions().get(LKQLLanguage.target);
+    }
+
+    public String getRuntime() {
+        return this.env.getOptions().get(LKQLLanguage.runtime);
+    }
+
     /** Return the list of scenario variables to specify when loading the GPR project file. */
     public Libadalang.ScenarioVariable[] getScenarioVars() {
         if (this.scenarioVars == null) {
@@ -566,7 +574,10 @@ public final class LKQLContext {
             // Create the project manager
             this.projectManager =
                     Libadalang.ProjectManager.create(
-                            projectFileName, this.getScenarioVars(), "", "");
+                            projectFileName,
+                            this.getScenarioVars(),
+                            this.getTarget(),
+                            this.getRuntime());
 
             // Test if there is any diagnostic in the project manager
             if (!this.projectManager.getDiagnostics().isEmpty()) {

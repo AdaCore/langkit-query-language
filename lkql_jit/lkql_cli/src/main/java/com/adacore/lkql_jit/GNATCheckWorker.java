@@ -55,10 +55,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 description = "Charset to use for the source decoding")
         public String charset = null;
 
-        @CommandLine.Option(names = "--RTS", description = "Runtime to use (not handled yet)")
+        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
         public String RTS = null;
 
-        @CommandLine.Option(names = "--target", description = "Runtime to use (not handled yet)")
+        @CommandLine.Option(names = "--target", description = "Target to pass to GPR")
         public String target = null;
 
         @CommandLine.Option(
@@ -218,6 +218,14 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
             contextBuilder.option("lkql.scenarioVars", scenarioVars.toString());
         }
 
+        if (this.args.target != null) {
+            contextBuilder.option("lkql.target", this.args.target);
+        }
+
+        if (this.args.RTS != null) {
+            contextBuilder.option("lkql.runtime", this.args.RTS);
+        }
+
         // Set the files
         if (this.args.filesFrom != null) {
             try {
@@ -230,9 +238,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
 
         // Set the charset
-        if (this.args.charset != null
-                && !this.args.charset.isEmpty()
-                && !this.args.charset.isBlank()) {
+        if (this.args.charset != null) {
             contextBuilder.option("lkql.charset", this.args.charset);
         }
 

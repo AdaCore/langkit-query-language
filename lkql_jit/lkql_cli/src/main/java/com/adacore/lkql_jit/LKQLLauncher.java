@@ -62,6 +62,12 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
                 description = "Project file to use")
         public String project = null;
 
+        @CommandLine.Option(names = "--RTS", description = "Runtime to pass to GPR")
+        public String RTS = null;
+
+        @CommandLine.Option(names = "--target", description = "Hardware target to pass to GPR")
+        public String target = null;
+
         @CommandLine.Option(
                 names = {"-U", "--recursive"},
                 description =
@@ -169,6 +175,14 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
         // Set the project file
         if (this.args.project != null) {
             contextBuilder.option("lkql.projectFile", this.args.project);
+        }
+
+        if (this.args.RTS != null) {
+            contextBuilder.option("lkql.runtime", this.args.RTS);
+        }
+
+        if (this.args.target != null) {
+            contextBuilder.option("lkql.target", this.args.target);
         }
 
         if (this.args.keepGoingOnMissingFile) {

@@ -1,0 +1,10 @@
+# Expected behavior here is that runtime files for Ada.Text_IO are not found,
+# because libgpr doesn't warn when a runtime doesn't exist, but no runtime
+# files will be found
+
+driver: gnatcheck
+project: prj.gpr
+rules:
+  - +Rrecursive_subprograms
+extra_args:
+  - --RTS=unknown
