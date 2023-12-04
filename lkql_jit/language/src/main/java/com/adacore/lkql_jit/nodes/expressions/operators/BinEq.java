@@ -23,12 +23,17 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.*;
+import com.adacore.lkql_jit.built_ins.values.*;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
 import java.math.BigInteger;
 
 /**
@@ -63,8 +68,8 @@ public abstract class BinEq extends BinOp {
      */
     @Specialization
     protected boolean eqUnit(
-            @SuppressWarnings("unused") UnitValue left,
-            @SuppressWarnings("unused") UnitValue right) {
+            @SuppressWarnings("unused") final LKQLUnit left,
+            @SuppressWarnings("unused") final LKQLUnit right) {
         return true;
     }
 
@@ -111,9 +116,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right pattern value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqPatterns(Pattern left, Pattern right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqPatterns(
+            final LKQLPattern left,
+            final LKQLPattern right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -123,9 +132,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right function value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqFunctions(FunctionValue left, FunctionValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqFunctions(
+            final LKQLFunction left,
+            final LKQLFunction right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -135,8 +148,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right property reference value.
      * @return The result of the equality verification.
      */
-    protected boolean eqPropertyRefs(PropertyRefValue left, PropertyRefValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqPropertyRefs(
+            final LKQLProperty left,
+            final LKQLProperty right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -146,9 +164,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right selector value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqSelectors(SelectorValue left, SelectorValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqSelectors(
+            final LKQLSelector left,
+            final LKQLSelector right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -158,9 +180,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right tuple value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqTuples(TupleValue left, TupleValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqTuples(
+            final LKQLTuple left,
+            final LKQLTuple right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -170,33 +196,19 @@ public abstract class BinEq extends BinOp {
      * @param right The right list value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqLists(ListValue left, ListValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqLists(
+            final LKQLList left,
+            final LKQLList right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
-    /**
-     * Do the equality verification on lazy lists.
-     *
-     * @param left The left lazy list value.
-     * @param right The right lazy list value.
-     * @return The result of the equality verification.
-     */
+    /** Do the equality verification in lazy lists. */
     @Specialization
-    protected boolean eqLazyLists(LazyListValue left, LazyListValue right) {
-        return left.internalEquals(right);
-    }
-
-    /**
-     * Do the equality verification on selector lists.
-     *
-     * @param left The left selector list value.
-     * @param right The right selector list value.
-     * @return The result of the equality verification.
-     */
-    @Specialization
-    protected boolean eqSelectorLists(SelectorListValue left, SelectorListValue right) {
-        return left.internalEquals(right);
+    protected boolean onLazyLists(final LKQLLazyList left, final LKQLLazyList right) {
+        return left == right;
     }
 
     /**
@@ -242,9 +254,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right object value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqObjects(ObjectValue left, ObjectValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqObjects(
+            final LKQLObject left,
+            final LKQLObject right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -254,9 +270,13 @@ public abstract class BinEq extends BinOp {
      * @param right The right namespace value.
      * @return The result of the equality verification.
      */
-    @Specialization
-    protected boolean eqNamespaces(NamespaceValue left, NamespaceValue right) {
-        return left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean eqNamespaces(
+            final LKQLNamespace left,
+            final LKQLNamespace right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

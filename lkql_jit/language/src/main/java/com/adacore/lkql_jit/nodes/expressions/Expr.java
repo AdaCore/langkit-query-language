@@ -24,12 +24,14 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.*;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Nullish;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.Nullish;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -62,8 +64,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as unit.
      * @throws UnexpectedResultException If the node cannot be evaluated as a unit value.
      */
-    public UnitValue executeUnit(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectUnitValue(executeGeneric(frame));
+    public LKQLUnit executeUnit(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLUnit(executeGeneric(frame));
     }
 
     /**
@@ -128,8 +130,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a function value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a function.
      */
-    public FunctionValue executeFunction(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectFunctionValue(executeGeneric(frame));
+    public LKQLFunction executeFunction(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLFunction(executeGeneric(frame));
     }
 
     /**
@@ -139,9 +141,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a property reference value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a property reference.
      */
-    public PropertyRefValue executePropertyRef(VirtualFrame frame)
-            throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectPropertyRefValue(executeGeneric(frame));
+    public LKQLProperty executeProperty(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLProperty(executeGeneric(frame));
     }
 
     /**
@@ -151,8 +152,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a selector value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a selector.
      */
-    public SelectorValue executeSelector(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectSelectorValue(executeGeneric(frame));
+    public LKQLSelector executeSelector(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLSelector(executeGeneric(frame));
     }
 
     /**
@@ -162,8 +163,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a tuple value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a tuple.
      */
-    public TupleValue executeTuple(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectTupleValue(executeGeneric(frame));
+    public LKQLTuple executeTuple(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLTuple(executeGeneric(frame));
     }
 
     /**
@@ -173,8 +174,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a list.
      */
-    public ListValue executeList(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectListValue(executeGeneric(frame));
+    public LKQLList executeList(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLList(executeGeneric(frame));
     }
 
     /**
@@ -184,8 +185,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a lazy list value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a lazy list.
      */
-    public LazyListValue executeLazyList(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectLazyListValue(executeGeneric(frame));
+    public LKQLLazyList executeLazyList(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLLazyList(executeGeneric(frame));
     }
 
     /**
@@ -197,18 +198,6 @@ public abstract class Expr extends LKQLNode {
      */
     public Indexable executeIndexable(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectIndexable(executeGeneric(frame));
-    }
-
-    /**
-     * Execute the expression as a selector list value.
-     *
-     * @param frame The frame for execution.
-     * @return The result of the node execution as a selector list value.
-     * @throws UnexpectedResultException If the node cannot be evaluated as a selector list.
-     */
-    public SelectorListValue executeSelectorList(VirtualFrame frame)
-            throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectSelectorListValue(executeGeneric(frame));
     }
 
     /**
@@ -229,8 +218,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as an object value.
      * @throws UnexpectedResultException If the node cannot be evaluated as an object.
      */
-    public ObjectValue executeObject(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectObjectValue(executeGeneric(frame));
+    public LKQLObject executeObject(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLObject(executeGeneric(frame));
     }
 
     /**
@@ -240,8 +229,8 @@ public abstract class Expr extends LKQLNode {
      * @return The result of the node execution as a namespace value.
      * @throws UnexpectedResultException If the node cannot be evaluated as a namespace.
      */
-    public NamespaceValue executeNamespace(VirtualFrame frame) throws UnexpectedResultException {
-        return LKQLTypeSystemGen.expectNamespaceValue(executeGeneric(frame));
+    public LKQLNamespace executeNamespace(VirtualFrame frame) throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectLKQLNamespace(executeGeneric(frame));
     }
 
     /**

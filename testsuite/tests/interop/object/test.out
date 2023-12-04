@@ -1,0 +1,10 @@
+=== Object interop messages:
+  toString(): {"x": 42, "y": "Hello"}
+  hasMembers(): true
+  hasMember('x'): true
+  hasMember('y'): true
+  hasMember('z'): false
+  getMember('x'): 42
+  getMember('y'): Hello
+  getMember('z'): null
+  getMemberKeys(): [x, y]

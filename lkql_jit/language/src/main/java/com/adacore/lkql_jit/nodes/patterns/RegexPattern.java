@@ -23,8 +23,8 @@
 package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.Pattern;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
+import com.adacore.lkql_jit.built_ins.values.LKQLPattern;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -38,7 +38,7 @@ public final class RegexPattern extends ValuePattern {
     // ----- Attributes -----
 
     /** The regex pattern to match the node text with. */
-    private final Pattern pattern;
+    private final LKQLPattern pattern;
 
     // ----- Constructors -----
 
@@ -50,7 +50,7 @@ public final class RegexPattern extends ValuePattern {
      */
     public RegexPattern(SourceLocation location, String regex) {
         super(location);
-        this.pattern = new Pattern(this, regex, true);
+        this.pattern = new LKQLPattern(this, regex, true);
     }
 
     // ----- Execution methods -----
@@ -62,7 +62,7 @@ public final class RegexPattern extends ValuePattern {
      */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.pattern.contains(node.getText()) && node != NodeNull.getInstance();
+        return this.pattern.contains(node.getText()) && node != LKQLNull.INSTANCE;
     }
 
     /**

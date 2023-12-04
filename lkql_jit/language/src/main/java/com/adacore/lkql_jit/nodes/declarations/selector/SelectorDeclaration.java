@@ -23,12 +23,12 @@
 package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.declarations.Annotation;
 import com.adacore.lkql_jit.nodes.declarations.Declaration;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
@@ -115,12 +115,12 @@ public final class SelectorDeclaration extends Declaration {
         FrameUtils.writeLocal(
                 frame,
                 this.slot,
-                new SelectorValue(
+                new LKQLSelector(
                         this.selectorRootNode,
                         Closure.create(frame.materialize(), this.closureDescriptor),
                         this.name,
                         this.documentation));
-        return UnitValue.getInstance();
+        return LKQLUnit.INSTANCE;
     }
 
     // ----- Override methods -----

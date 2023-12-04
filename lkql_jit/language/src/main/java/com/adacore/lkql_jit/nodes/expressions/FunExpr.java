@@ -23,10 +23,10 @@
 package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.nodes.declarations.ParameterDeclaration;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.FunctionValue;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -114,8 +114,8 @@ public final class FunExpr extends Expr {
      *     com.adacore.lkql_jit.nodes.expressions.Expr#executeFunction(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public FunctionValue executeFunction(VirtualFrame frame) {
-        return new FunctionValue(
+    public LKQLFunction executeFunction(VirtualFrame frame) {
+        return new LKQLFunction(
                 this.functionRootNode,
                 Closure.create(frame.materialize(), this.closureDescriptor),
                 Constants.FUNCTION_DEFAULT_NAME,

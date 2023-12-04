@@ -1,0 +1,4 @@
+=== Function interop messages:
+  toString(): function<my_function>
+  canExecute(): true
+  execute(5): 10

@@ -109,6 +109,16 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
     }
 
     /**
+     * Create an exception which should not happened during a normal execution.
+     *
+     * @param message Additional message.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public static LKQLRuntimeException shouldNotHappen(String message) {
+        return new LKQLRuntimeException("This exception should not happen: " + message);
+    }
+
+    /**
      * Create a new exception for a parsing exception in the LKQL sources.
      *
      * @param diagnostics The diagnostics of the LKQL parsing.

@@ -44,6 +44,12 @@ public final class ObjectUtils {
         return Objects.equals(left, right);
     }
 
+    /** Bounded method to access an object hash code. */
+    @CompilerDirectives.TruffleBoundary
+    public static int hashCode(Object o) {
+        return o.hashCode();
+    }
+
     /**
      * Get the string representation of the object.
      *

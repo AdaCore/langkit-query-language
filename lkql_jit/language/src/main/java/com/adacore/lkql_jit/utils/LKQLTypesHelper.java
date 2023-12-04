@@ -24,10 +24,10 @@ package com.adacore.lkql_jit.utils;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
+import com.adacore.lkql_jit.built_ins.values.LKQLObject;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.utils.UnsupportedTypeException;
-import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.ObjectValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.math.BigInteger;
 
@@ -136,22 +136,20 @@ public final class LKQLTypesHelper {
             return LKQL_INTEGER;
         } else if (LKQLTypeSystemGen.isString(obj)) {
             return LKQL_STRING;
-        } else if (LKQLTypeSystemGen.isPattern(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLPattern(obj)) {
             return LKQL_PATTERN;
-        } else if (LKQLTypeSystemGen.isFunctionValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLFunction(obj)) {
             return LKQL_FUNCTION;
-        } else if (LKQLTypeSystemGen.isPropertyRefValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLProperty(obj)) {
             return LKQL_PROPERTY_REF;
-        } else if (LKQLTypeSystemGen.isSelectorValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLSelector(obj)) {
             return LKQL_SELECTOR;
-        } else if (LKQLTypeSystemGen.isTupleValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLTuple(obj)) {
             return LKQL_TUPLE;
-        } else if (LKQLTypeSystemGen.isListValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLList(obj)) {
             return LKQL_LIST;
-        } else if (LKQLTypeSystemGen.isLazyListValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLLazyList(obj)) {
             return LKQL_LAZY_LIST;
-        } else if (LKQLTypeSystemGen.isSelectorListValue(obj)) {
-            return LKQL_SELECTOR_LIST;
         } else if (LKQLTypeSystemGen.isAdaNode(obj)) {
             return ADA_NODE;
         } else if (LKQLTypeSystemGen.isToken(obj)) {
@@ -160,9 +158,9 @@ public final class LKQLTypesHelper {
             return ANALYSIS_UNIT;
         } else if (LKQLTypeSystemGen.isBoolean(obj)) {
             return LKQL_BOOLEAN;
-        } else if (LKQLTypeSystemGen.isObjectValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLObject(obj)) {
             return LKQL_OBJECT;
-        } else if (LKQLTypeSystemGen.isNamespaceValue(obj)) {
+        } else if (LKQLTypeSystemGen.isLKQLNamespace(obj)) {
             return LKQL_NAMESPACE;
         } else {
             return defaultValue;
@@ -244,7 +242,7 @@ public final class LKQLTypesHelper {
 
         // If the source is an AdaNode
         else if (javaValue instanceof Libadalang.AdaNode adaNode) {
-            return adaNode.isNone() ? NodeNull.getInstance() : adaNode;
+            return adaNode.isNone() ? LKQLNull.INSTANCE : adaNode;
         }
 
         // If the source is a token
@@ -265,7 +263,7 @@ public final class LKQLTypesHelper {
                 res[i] = toLKQLValue(obj);
                 i++;
             }
-            return new ListValue(res);
+            return new LKQLList(res);
         }
 
         // If the source is an enum
@@ -280,13 +278,13 @@ public final class LKQLTypesHelper {
                 aspect.exists,
                 aspect.inherited,
                 aspect.node.node.isNull()
-                        ? NodeNull.getInstance()
+                        ? LKQLNull.INSTANCE
                         : Libadalang.AdaNode.fromEntity(aspect.node),
                 aspect.value.node.isNull()
-                        ? NodeNull.getInstance()
+                        ? LKQLNull.INSTANCE
                         : Libadalang.AdaNode.fromEntity(aspect.value)
             };
-            return new ObjectValue(keys, values);
+            return LKQLObject.createUncached(keys, values);
         }
 
         // If the source is a reference result structure
@@ -295,10 +293,10 @@ public final class LKQLTypesHelper {
             Object[] values = {
                 toLKQLValue(refResultStruct.kind),
                 refResultStruct.ref.node.isNull()
-                        ? NodeNull.getInstance()
+                        ? LKQLNull.INSTANCE
                         : Libadalang.AdaNode.fromEntity(refResultStruct.ref)
             };
-            return new ObjectValue(keys, values);
+            return LKQLObject.createUncached(keys, values);
         }
 
         // If the source is a parameter-actual structure
@@ -308,7 +306,7 @@ public final class LKQLTypesHelper {
                 Libadalang.AdaNode.fromEntity(paramActual.actual),
                 Libadalang.AdaNode.fromEntity(paramActual.param)
             };
-            return new ObjectValue(keys, values);
+            return LKQLObject.createUncached(keys, values);
         }
 
         // Else, throw an exception for the unsupported type

@@ -25,15 +25,14 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
 import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
-import com.adacore.lkql_jit.runtime.values.DepthNode;
-import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -111,7 +110,7 @@ public final class Query extends Expr {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         // Prepare the working variable
-        SelectorValue through = null;
+        LKQLSelector through = null;
         Libadalang.AdaNode[] fromNodes;
 
         // Get the through expression
@@ -137,9 +136,9 @@ public final class Query extends Expr {
             }
 
             // Else, if the "from" is a list of node
-            else if (LKQLTypeSystemGen.isListValue(fromObject)) {
+            else if (LKQLTypeSystemGen.isLKQLList(fromObject)) {
                 // Verify the content of the list
-                ListValue fromList = LKQLTypeSystemGen.asListValue(fromObject);
+                LKQLList fromList = LKQLTypeSystemGen.asLKQLList(fromObject);
                 fromNodes = new Libadalang.AdaNode[(int) fromList.size()];
                 for (int i = 0; i < fromList.size(); i++) {
                     try {
@@ -174,7 +173,7 @@ public final class Query extends Expr {
             }
 
             // Return the result list value
-            return new ListValue(resNodes.toArray(new Libadalang.AdaNode[0]));
+            return new LKQLList(resNodes.toArray(new Libadalang.AdaNode[0]));
         }
 
         // If the query mode is first
@@ -186,7 +185,7 @@ public final class Query extends Expr {
             }
 
             // Return the null value if there is none
-            return NodeNull.getInstance();
+            return LKQLNull.INSTANCE;
         }
     }
 
@@ -209,7 +208,7 @@ public final class Query extends Expr {
             Libadalang.AdaNode adaNode =
                     this.throughExpr == null
                             ? (Libadalang.AdaNode) nodeIterator.next()
-                            : ((DepthNode) nodeIterator.next()).getNode();
+                            : ((LKQLDepthNode) nodeIterator.next()).getNode();
 
             // If the pattern is a chained one
             if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
@@ -245,7 +244,7 @@ public final class Query extends Expr {
             Libadalang.AdaNode adaNode =
                     this.throughExpr == null
                             ? (Libadalang.AdaNode) nodeIterator.next()
-                            : ((DepthNode) nodeIterator.next()).getNode();
+                            : ((LKQLDepthNode) nodeIterator.next()).getNode();
 
             // If the pattern is a chained one
             if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
@@ -264,7 +263,7 @@ public final class Query extends Expr {
         }
 
         // Return the null value
-        return NodeNull.getInstance();
+        return LKQLNull.INSTANCE;
     }
 
     /**
@@ -275,11 +274,11 @@ public final class Query extends Expr {
      *     exploration
      * @return The iterator for the node exploration
      */
-    private Iterable createNodeIterable(Libadalang.AdaNode root, SelectorValue through) {
+    private Iterable createNodeIterable(Libadalang.AdaNode root, LKQLSelector through) {
         if (through == null) {
             return new ChildIterable(root, this.followGenerics);
         } else {
-            return through.execute(root);
+            return through.getList(root);
         }
     }
 
@@ -332,7 +331,7 @@ public final class Query extends Expr {
         // ----- Override methods -----
 
         /**
-         * @see com.adacore.lkql_jit.runtime.values.interfaces.Iterable#iterator()
+         * @see Iterable#iterator()
          */
         @Override
         public Iterator iterator() {
@@ -344,16 +343,6 @@ public final class Query extends Expr {
         @Override
         public long size() {
             return -1;
-        }
-
-        @Override
-        public boolean contains(Object elem) {
-            return false;
-        }
-
-        @Override
-        public boolean internalEquals(LKQLValue o) {
-            return false;
         }
     }
 

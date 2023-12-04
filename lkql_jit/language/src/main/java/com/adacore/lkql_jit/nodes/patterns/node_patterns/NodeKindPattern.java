@@ -23,8 +23,8 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -65,7 +65,7 @@ public final class NodeKindPattern extends NodePattern {
      */
     @Override
     public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.nodeClazz.isInstance(node) && node != NodeNull.getInstance();
+        return this.nodeClazz.isInstance(node) && node != LKQLNull.INSTANCE;
     }
 
     // ----- Override methods -----

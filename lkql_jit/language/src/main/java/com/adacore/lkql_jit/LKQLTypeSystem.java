@@ -23,9 +23,11 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.*;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
-import com.adacore.lkql_jit.runtime.values.interfaces.*;
+import com.adacore.lkql_jit.built_ins.values.*;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.interfaces.*;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
@@ -39,27 +41,25 @@ import java.math.BigInteger;
  * @author Hugo GUERRIER
  */
 @TypeSystem({
-    UnitValue.class,
+    LKQLUnit.class,
     long.class,
     BigInteger.class,
     String.class,
-    Pattern.class,
-    FunctionValue.class,
-    PropertyRefValue.class,
-    SelectorValue.class,
-    TupleValue.class,
-    ListValue.class,
-    LazyListValue.class,
-    SelectorListValue.class,
-    LazyCollection.class,
+    LKQLPattern.class,
+    LKQLFunction.class,
+    LKQLSelector.class,
+    LKQLProperty.class,
+    LKQLTuple.class,
+    LKQLList.class,
+    LKQLLazyList.class,
     Indexable.class,
     Iterable.class,
     Libadalang.AdaNode.class,
     Libadalang.Token.class,
     Libadalang.AnalysisUnit.class,
     boolean.class,
-    ObjectValue.class,
-    NamespaceValue.class,
+    LKQLNamespace.class,
+    LKQLObject.class,
     Nullish.class,
     LKQLValue.class,
 })
@@ -73,9 +73,9 @@ public abstract class LKQLTypeSystem {
      * @param value The value to test.
      * @return True if the value is unit, false else.
      */
-    @TypeCheck(UnitValue.class)
-    public static boolean isUnit(Object value) {
-        return value == UnitValue.getInstance();
+    @TypeCheck(LKQLUnit.class)
+    public static boolean isUnit(final Object value) {
+        return value == LKQLUnit.INSTANCE;
     }
 
     /**
@@ -84,9 +84,9 @@ public abstract class LKQLTypeSystem {
      * @param value The value to cast.
      * @return The unit value.
      */
-    @TypeCast(UnitValue.class)
-    public static UnitValue asUnit(Object value) {
-        return UnitValue.getInstance();
+    @TypeCast(LKQLUnit.class)
+    public static LKQLUnit asUnit(@SuppressWarnings("unused") final Object value) {
+        return LKQLUnit.INSTANCE;
     }
 
     // ----- Nullish values -----
@@ -98,8 +98,8 @@ public abstract class LKQLTypeSystem {
      * @return True if the value si nullish, false else.
      */
     @TypeCheck(Nullish.class)
-    public static boolean isNullish(Object value) {
-        return value == UnitValue.getInstance() || value == NodeNull.getInstance();
+    public static boolean isNullish(final Object value) {
+        return value == LKQLUnit.INSTANCE || value == LKQLNull.INSTANCE;
     }
 
     // ----- Boolean value methods -----
@@ -156,7 +156,7 @@ public abstract class LKQLTypeSystem {
      */
     @TypeCheck(Libadalang.AdaNode.class)
     public static boolean isAdaNode(Object nodeObject) {
-        return nodeObject instanceof Libadalang.AdaNode || nodeObject instanceof DepthNode;
+        return nodeObject instanceof Libadalang.AdaNode || nodeObject instanceof LKQLDepthNode;
     }
 
     /**
@@ -173,11 +173,11 @@ public abstract class LKQLTypeSystem {
         }
 
         // If the value is a depth node
-        else if (nodeObject instanceof DepthNode depthNode) {
+        else if (nodeObject instanceof LKQLDepthNode depthNode) {
             return depthNode.getNode();
         }
 
         // Return the default value
-        return NodeNull.getInstance();
+        return LKQLNull.INSTANCE;
     }
 }

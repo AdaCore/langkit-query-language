@@ -24,16 +24,22 @@ package com.adacore.lkql_jit.nodes.expressions;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
+import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
 
 /**
  * This node represents the indexing operation in the LKQL language.
@@ -65,6 +71,32 @@ public abstract class Indexing extends Expr {
     // ----- Execution methods -----
 
     /**
+     * Execute the indexing operation on a truffle tuple.
+     *
+     * @param tuple The tuple to index
+     * @param index The index of the element to get.
+     * @return The element at the given index in the tuple, unit if the index is invalid and the
+     *     indexing is safe else raise a runtime error.
+     */
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected Object indexTuple(
+            final LKQLTuple tuple,
+            final long index,
+            @CachedLibrary("tuple") InteropLibrary tupleLibrary) {
+        try {
+            return tupleLibrary.readArrayElement(tuple, index - 1);
+        } catch (InvalidArrayIndexException e) {
+            if (this.isSafe) {
+                return LKQLUnit.INSTANCE;
+            } else {
+                throw LKQLRuntimeException.invalidIndex((int) index, this);
+            }
+        } catch (UnsupportedMessageException e) {
+            throw LKQLRuntimeException.fromJavaException(e, this);
+        }
+    }
+
+    /**
      * Get a value in the collection with a long index.
      *
      * @param collection The collection to get the element from.
@@ -77,7 +109,7 @@ public abstract class Indexing extends Expr {
             return collection.get((int) index - 1);
         } catch (InvalidIndexException e) {
             if (this.isSafe) {
-                return UnitValue.getInstance();
+                return LKQLUnit.INSTANCE;
             } else {
                 throw LKQLRuntimeException.invalidIndex((int) index, this);
             }
@@ -94,12 +126,12 @@ public abstract class Indexing extends Expr {
     @Specialization
     protected Object indexNode(Libadalang.AdaNode node, long index) {
         if (index > node.getChildrenCount()) {
-            return NodeNull.getInstance();
+            return LKQLNull.INSTANCE;
         } else if (index < 1) {
             throw LKQLRuntimeException.invalidIndex((int) index, this);
         }
         Libadalang.AdaNode res = node.getChild((int) index - 1);
-        return res.isNone() ? NodeNull.getInstance() : res;
+        return res.isNone() ? LKQLNull.INSTANCE : res;
     }
 
     /**

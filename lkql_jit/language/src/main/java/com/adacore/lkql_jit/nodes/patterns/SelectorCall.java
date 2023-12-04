@@ -24,16 +24,16 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
+import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.arguments.Arg;
 import com.adacore.lkql_jit.nodes.arguments.ArgList;
 import com.adacore.lkql_jit.nodes.arguments.NamedArg;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.DepthNode;
-import com.adacore.lkql_jit.runtime.values.ListValue;
-import com.adacore.lkql_jit.runtime.values.SelectorListValue;
-import com.adacore.lkql_jit.runtime.values.SelectorValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
@@ -118,7 +118,7 @@ public final class SelectorCall extends LKQLNode {
     public boolean executeVerification(
             VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
-        SelectorListValue selectorListValue = this.getSelectorList(frame, node);
+        LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
 
         // Get the result of the validation
         boolean isValid;
@@ -146,20 +146,20 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to perform the filtering logic.
      * @return The list of the validating nodes.
      */
-    public ListValue executeFiltering(
+    public LKQLList executeFiltering(
             VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
         // Get the selector list
-        SelectorListValue selectorListValue = this.getSelectorList(frame, node);
+        LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
 
         // Prepare the result
-        ListValue res;
+        LKQLList res;
 
         // If the quantifier is all, verify it before returning anything
         if (this.quantifier == Quantifier.ALL) {
             if (this.isAll(frame, selectorListValue, pattern)) {
                 res = this.getFilteredList(frame, selectorListValue, pattern);
             } else {
-                res = new ListValue(new Libadalang.AdaNode[0]);
+                res = new LKQLList(new Libadalang.AdaNode[0]);
             }
         }
 
@@ -186,10 +186,10 @@ public final class SelectorCall extends LKQLNode {
      * @param node The root node of the selector list.
      * @return The selector list for the selector call.
      */
-    private SelectorListValue getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
+    private LKQLSelectorList getSelectorList(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the selector and verify its type
         Object selectorObject = this.selectorExpr.executeGeneric(frame);
-        if (!LKQLTypeSystemGen.isSelectorValue(selectorObject)) {
+        if (!LKQLTypeSystemGen.isLKQLSelector(selectorObject)) {
             throw LKQLRuntimeException.wrongType(
                     LKQLTypesHelper.LKQL_SELECTOR,
                     LKQLTypesHelper.fromJava(selectorObject),
@@ -246,8 +246,8 @@ public final class SelectorCall extends LKQLNode {
         }
 
         // Cast the selector value and return the selector list
-        SelectorValue selectorValue = LKQLTypeSystemGen.asSelectorValue(selectorObject);
-        return selectorValue.execute(node, maxDepth, minDepth, depth);
+        LKQLSelector selectorValue = LKQLTypeSystemGen.asLKQLSelector(selectorObject);
+        return selectorValue.getList(node, maxDepth, minDepth, depth);
     }
 
     /**
@@ -259,11 +259,11 @@ public final class SelectorCall extends LKQLNode {
      * @return True of all nodes of the traversal verify the pattern, false else.
      */
     private boolean isAll(
-            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            DepthNode depthNode = (DepthNode) iterator.next();
+            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
             if (!pattern.executeNode(frame, depthNode.getNode())) return false;
         }
 
@@ -280,11 +280,11 @@ public final class SelectorCall extends LKQLNode {
      * @return True if there is any node that verify the pattern, false else.
      */
     private boolean isAny(
-            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            DepthNode depthNode = (DepthNode) iterator.next();
+            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
             if (pattern.executeNode(frame, depthNode.getNode())) return true;
         }
 
@@ -300,22 +300,22 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern for the filtering.
      * @return The list value
      */
-    private ListValue getFilteredList(
-            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
+    private LKQLList getFilteredList(
+            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Prepare the result
         List<Libadalang.AdaNode> resList = new ArrayList<>();
 
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            DepthNode depthNode = (DepthNode) iterator.next();
+            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
             if (pattern.executeNode(frame, depthNode.getNode())) {
                 resList.add(depthNode.getNode());
             }
         }
 
         // Return the result
-        return new ListValue(resList.toArray(new Libadalang.AdaNode[0]));
+        return new LKQLList(resList.toArray(new Libadalang.AdaNode[0]));
     }
 
     /**
@@ -326,8 +326,8 @@ public final class SelectorCall extends LKQLNode {
      * @param pattern The pattern to filter the list.
      */
     private void doBinding(
-            VirtualFrame frame, SelectorListValue selectorListValue, BasePattern pattern) {
-        ListValue listValue = this.getFilteredList(frame, selectorListValue, pattern);
+            VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
+        LKQLList listValue = this.getFilteredList(frame, selectorListValue, pattern);
         this.doBinding(frame, listValue);
     }
 
@@ -337,7 +337,7 @@ public final class SelectorCall extends LKQLNode {
      * @param frame The frame to execute in.
      * @param listValue The list bind.
      */
-    private void doBinding(VirtualFrame frame, ListValue listValue) {
+    private void doBinding(VirtualFrame frame, LKQLList listValue) {
         FrameUtils.writeLocal(frame, this.bindingSlot, listValue);
     }
 

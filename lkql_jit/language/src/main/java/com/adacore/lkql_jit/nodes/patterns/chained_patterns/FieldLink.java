@@ -23,9 +23,9 @@
 package com.adacore.lkql_jit.nodes.patterns.chained_patterns;
 
 import com.adacore.libadalang.Libadalang;
+import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -64,17 +64,16 @@ public abstract class FieldLink extends ChainedPatternLink {
      *
      * @param frame The frame to execute the link in.
      * @param node The node get the field from.
-     * @param propertyRef The cached property reference.
+     * @param property The cached property reference.
      * @return The result of the link.
      */
-    @Specialization(
-            guards = {"node == propertyRef.getNode()", "propertyRef.getFieldDescription() != null"})
+    @Specialization(guards = {"node == property.getNode()", "property.getDescription() != null"})
     protected Libadalang.AdaNode[] fieldCached(
             VirtualFrame frame,
             @SuppressWarnings("unused") Libadalang.AdaNode node,
-            @Cached("create(node, fieldName)") PropertyRefValue propertyRef) {
+            @Cached("create(fieldName, node)") LKQLProperty property) {
         // Get the value of the field
-        Object value = propertyRef.executeAsField(this);
+        Object value = property.executeAsField(this);
 
         // Do the pattern filtering
         return this.doPatternFiltering(frame, value);
@@ -90,15 +89,15 @@ public abstract class FieldLink extends ChainedPatternLink {
     @Specialization(replaces = "fieldCached")
     protected Libadalang.AdaNode[] fieldUnached(VirtualFrame frame, Libadalang.AdaNode node) {
         // Get the field method
-        PropertyRefValue propertyRef = new PropertyRefValue(node, this.fieldName);
+        LKQLProperty property = new LKQLProperty(this.fieldName, node);
 
         // Verify if the field method is null
-        if (propertyRef.getFieldDescription() == null) {
+        if (property.getDescription() == null) {
             throw LKQLRuntimeException.noSuchField(this);
         }
 
         // Execute the field detail
-        return this.fieldCached(frame, node, propertyRef);
+        return this.fieldCached(frame, node, property);
     }
 
     // ----- Override methods -----

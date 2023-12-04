@@ -27,6 +27,7 @@ import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.InteropLibrary;
 
 /**
  * This node represents an expression detail value in the LKQL language.
@@ -69,8 +70,9 @@ public final class DetailExpr extends DetailValue {
 
         // Verify the equality
         if (LKQLTypeSystemGen.isLKQLValue(value) && LKQLTypeSystemGen.isLKQLValue(expected)) {
-            return LKQLTypeSystemGen.asLKQLValue(value)
-                    .internalEquals(LKQLTypeSystemGen.asLKQLValue(expected));
+            InteropLibrary valueLibrary = InteropLibrary.getUncached(value);
+            InteropLibrary expectedLibrary = InteropLibrary.getUncached(expected);
+            return valueLibrary.isIdentical(value, expected, expectedLibrary);
         } else {
             return ObjectUtils.equals(value, expected);
         }

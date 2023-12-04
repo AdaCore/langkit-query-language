@@ -23,12 +23,17 @@
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.runtime.values.*;
+import com.adacore.lkql_jit.built_ins.values.*;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
+import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.source_location.DummyLocation;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
 import java.math.BigInteger;
 
 /**
@@ -63,8 +68,8 @@ public abstract class BinNeq extends BinOp {
      */
     @Specialization
     protected boolean neqUnit(
-            @SuppressWarnings("unused") UnitValue left,
-            @SuppressWarnings("unused") UnitValue right) {
+            @SuppressWarnings("unused") final LKQLUnit left,
+            @SuppressWarnings("unused") final LKQLUnit right) {
         return false;
     }
 
@@ -111,9 +116,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right pattern value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqPatterns(Pattern left, Pattern right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqPatterns(
+            final LKQLPattern left,
+            final LKQLPattern right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -123,9 +132,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right function value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqFunctions(FunctionValue left, FunctionValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqFunctions(
+            final LKQLFunction left,
+            final LKQLFunction right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -135,9 +148,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right property reference value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqPropertyRefs(PropertyRefValue left, PropertyRefValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqPropertyRefs(
+            final LKQLProperty left,
+            final LKQLProperty right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -147,9 +164,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right selector value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqSelectors(SelectorValue left, SelectorValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqSelectors(
+            final LKQLSelector left,
+            final LKQLSelector right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -159,9 +180,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right tuple value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqTuples(TupleValue left, TupleValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqTuples(
+            final LKQLTuple left,
+            final LKQLTuple right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -171,33 +196,19 @@ public abstract class BinNeq extends BinOp {
      * @param right The right list value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqLists(ListValue left, ListValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqLists(
+            final LKQLList left,
+            final LKQLList right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
-    /**
-     * Do the non-equality verification on lazy lists.
-     *
-     * @param left The left lazy list value.
-     * @param right The right lazy list value.
-     * @return The result of the non-equality verification.
-     */
+    /** Do the non-equality verification on lazy lists. */
     @Specialization
-    protected boolean neqLazyLists(LazyListValue left, LazyListValue right) {
-        return !left.internalEquals(right);
-    }
-
-    /**
-     * Do the non-equality verification on selector lists.
-     *
-     * @param left The left selector list value.
-     * @param right The right selector list value.
-     * @return The result of the non-equality verification.
-     */
-    @Specialization
-    protected boolean neqSelectorLists(SelectorListValue left, SelectorListValue right) {
-        return !left.internalEquals(right);
+    protected boolean neqLazyLists(final LKQLLazyList left, final LKQLLazyList right) {
+        return left != right;
     }
 
     /**
@@ -256,9 +267,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right object value.
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqObjects(ObjectValue left, ObjectValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqObjects(
+            final LKQLObject left,
+            final LKQLObject right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**
@@ -268,9 +283,13 @@ public abstract class BinNeq extends BinOp {
      * @param right The right namespace value
      * @return The result of the non-equality verification.
      */
-    @Specialization
-    protected boolean neqNamespaces(NamespaceValue left, NamespaceValue right) {
-        return !left.internalEquals(right);
+    @Specialization(limit = Constants.SPECIALIZED_LIB_LIMIT)
+    protected boolean neqNamespaces(
+            final LKQLNamespace left,
+            final LKQLNamespace right,
+            @CachedLibrary("left") InteropLibrary leftLibrary,
+            @CachedLibrary("right") InteropLibrary rightLibrary) {
+        return !leftLibrary.isIdentical(left, right, rightLibrary);
     }
 
     /**

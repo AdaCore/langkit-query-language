@@ -14,7 +14,7 @@ from e3.testsuite import Testsuite, logger, TestsuiteCore
 from e3.testsuite.testcase_finder import ProbingError, YAMLTestFinder, TestFinderResult
 
 from drivers import (
-    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver
+    checker_driver, gnatcheck_driver, interpreter_driver, parser_driver, java_driver
 )
 
 class PerfTestFinder(YAMLTestFinder):
@@ -80,6 +80,7 @@ class LKQLTestsuite(Testsuite):
     tests_subdir = "tests"
     test_driver_map = {'parser': parser_driver.ParserDriver,
                        'interpreter': interpreter_driver.InterpreterDriver,
+                       'java': java_driver.JavaDriver,
                        'checker': checker_driver.CheckerDriver,
                        'gnatcheck': gnatcheck_driver.GnatcheckDriver}
 

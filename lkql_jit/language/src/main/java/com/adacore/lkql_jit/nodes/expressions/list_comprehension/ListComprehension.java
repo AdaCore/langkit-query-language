@@ -23,11 +23,12 @@
 package com.adacore.lkql_jit.nodes.expressions.list_comprehension;
 
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLLazyList;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLListComprehension;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.root_nodes.ListComprehensionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
-import com.adacore.lkql_jit.runtime.values.LazyListValue;
-import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -116,23 +117,22 @@ public final class ListComprehension extends Expr {
     }
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.expressions.Expr#executeLazyList(com.oracle.truffle.api.frame.VirtualFrame)
+     * @see Expr#executeList(VirtualFrame)
      */
     @Override
-    public LazyListValue executeLazyList(VirtualFrame frame) {
+    public LKQLLazyList executeLazyList(VirtualFrame frame) {
         // Get the iterables for the list comprehension
         Iterable[] iterables = this.generators.executeCollections(frame);
 
         // Get the result size and prepare the result
         int resultSize = 1;
         for (Iterable iterable : iterables) {
-            resultSize *= iterable.size();
+            resultSize *= (int) iterable.size();
         }
 
         // Verify that the result size is strictly positive
         if (resultSize < 1) {
-            return new LazyListValue(
+            return new LKQLListComprehension(
                     this.rootNode,
                     Closure.create(frame.materialize(), this.closureDescriptor),
                     new Object[0][]);
@@ -156,7 +156,7 @@ public final class ListComprehension extends Expr {
         } while (this.increaseIndexes(iterators, valueBuffer));
 
         // Return the result of the list comprehension as a lazy list
-        return new LazyListValue(
+        return new LKQLListComprehension(
                 this.rootNode,
                 Closure.create(frame.materialize(), this.closureDescriptor),
                 argsList);

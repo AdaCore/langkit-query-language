@@ -29,6 +29,20 @@ package com.adacore.lkql_jit.utils;
  */
 public class Constants {
 
+    // ----- JIT configuration ----
+
+    /**
+     * Number of internally dispatched specialized Truffle library. For more information see
+     * https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/library/CachedLibrary.html#limit--
+     */
+    public static final String DISPATCHED_LIB_LIMIT = "4";
+
+    /**
+     * Number of specialization instantiations. For more information see
+     * https://www.graalvm.org/truffle/javadoc/com/oracle/truffle/api/dsl/Specialization.html#limit--
+     */
+    public static final String SPECIALIZED_LIB_LIMIT = "3";
+
     // ----- LKQL values -----
 
     /** Identifier of LKQL in the GraalVM system. */
@@ -102,8 +116,4 @@ public class Constants {
     /** The default values for annotation parameters. */
     public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =
             new Object[] {null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64"};
-
-    /** The valid value for the remediation parameters. */
-    public static final String[] CHECKER_VALID_REMEDIATION =
-            new String[] {"EASY", "MEDIUM", "MAJOR"};
 }

@@ -22,10 +22,11 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLTuple;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.values.TupleValue;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 /**
  * This node represents a tuple literal declaration in the LKQL language.
@@ -68,7 +69,8 @@ public final class TupleLiteral extends Expr {
      *     com.adacore.lkql_jit.nodes.expressions.Expr#executeTuple(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public TupleValue executeTuple(VirtualFrame frame) {
+    @ExplodeLoop
+    public LKQLTuple executeTuple(VirtualFrame frame) {
         // Evaluate the tuple values
         Object[] values = new Object[this.exprs.length];
         for (int i = 0; i < this.exprs.length; i++) {
@@ -76,7 +78,7 @@ public final class TupleLiteral extends Expr {
         }
 
         // Return the tuple value
-        return new TupleValue(values);
+        return new LKQLTuple(values);
     }
 
     // ----- Override methods -----

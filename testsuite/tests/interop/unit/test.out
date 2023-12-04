@@ -1,0 +1,5 @@
+=== Unit interop messages:
+  toString(): ()
+  isNull(): true
+  isBoolean(): true
+  asBoolean(): false

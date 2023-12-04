@@ -24,10 +24,10 @@ package com.adacore.lkql_jit.nodes.declarations;
 
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
+import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
-import com.adacore.lkql_jit.runtime.values.NamespaceValue;
-import com.adacore.lkql_jit.runtime.values.UnitValue;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
@@ -50,7 +50,7 @@ public final class Import extends LKQLNode {
     // ----- Attributes -----
 
     /** A cache to avoid importing same module multiple times. */
-    private static final Map<File, NamespaceValue> importCache = new HashMap<>();
+    private static final Map<File, LKQLNamespace> importCache = new HashMap<>();
 
     /** Name of the module to import. */
     private final String name;
@@ -89,7 +89,7 @@ public final class Import extends LKQLNode {
     public Object executeGeneric(VirtualFrame frame) {
         // Execute the module file
         try {
-            NamespaceValue module = this.importModule(this.moduleFile);
+            LKQLNamespace module = this.importModule(this.moduleFile);
             // TODO: Create a new ImportInternal node to avoid this runtime check
             if (this.slot != -1) {
                 FrameUtils.writeLocal(frame, this.slot, module);
@@ -99,7 +99,7 @@ public final class Import extends LKQLNode {
         }
 
         // Return the unit value
-        return UnitValue.getInstance();
+        return LKQLUnit.INSTANCE;
     }
 
     /**
@@ -110,7 +110,7 @@ public final class Import extends LKQLNode {
      * @throws IOException If Truffle cannot create a source from the file.
      */
     @CompilerDirectives.TruffleBoundary
-    private NamespaceValue importModule(File moduleFile) throws IOException {
+    private LKQLNamespace importModule(File moduleFile) throws IOException {
         // If the file is already in the cache
         if (importCache.containsKey(moduleFile)) {
             return importCache.get(moduleFile);
@@ -131,7 +131,7 @@ public final class Import extends LKQLNode {
 
             // Get the current context and parse the file with the internal strategy
             CallTarget target = context.getEnv().parseInternal(source);
-            NamespaceValue res = (NamespaceValue) context.getEnv().asHostObject(target.call());
+            LKQLNamespace res = (LKQLNamespace) target.call();
             importCache.put(moduleFile, res);
             return res;
         }

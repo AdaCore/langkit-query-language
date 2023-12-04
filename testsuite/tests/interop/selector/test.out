@@ -1,0 +1,3 @@
+=== Selector interop messages:
+  toString(): selector<my_selector>
+  canExecute(): false

@@ -25,14 +25,12 @@ package com.adacore.lkql_jit.nodes.expressions.dot;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.values.LKQLNull;
+import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcher;
-import com.adacore.lkql_jit.nodes.dispatchers.FunctionDispatcherNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.runtime.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.runtime.values.NodeNull;
-import com.adacore.lkql_jit.runtime.values.PropertyRefValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -40,6 +38,10 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import java.util.Map;
 
 /**
@@ -55,13 +57,6 @@ public abstract class SafeDotAccess extends Expr {
     /** The member to access. */
     protected final Identifier member;
 
-    // ----- Children -----
-
-    /** The dispatcher for the built-in calls. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    protected FunctionDispatcher dispatcher;
-
     // ----- Constructors -----
 
     /**
@@ -73,7 +68,6 @@ public abstract class SafeDotAccess extends Expr {
     protected SafeDotAccess(SourceLocation location, Identifier member) {
         super(location);
         this.member = member;
-        this.dispatcher = FunctionDispatcherNodeGen.create();
     }
 
     // ----- Execution methods -----
@@ -82,7 +76,7 @@ public abstract class SafeDotAccess extends Expr {
      * Execute the safe dot access on a node with the cached strategy.
      *
      * @param receiver The node receiver.
-     * @param propertyRef The cached property reference.
+     * @param property The cached property reference.
      * @param isField The cached value if the property is a field.
      * @return The property reference or the field value.
      */
@@ -90,22 +84,22 @@ public abstract class SafeDotAccess extends Expr {
             guards = {
                 "!receiver.isNone()",
                 "getBuiltIn(receiver) == null",
-                "receiver == propertyRef.getNode()",
-                "propertyRef.getFieldDescription() != null"
+                "receiver == property.getNode()",
+                "property.getDescription() != null"
             },
             limit = "1")
     protected Object onNodeCached(
             Libadalang.AdaNode receiver,
-            @Cached("create(receiver, member.getName())") PropertyRefValue propertyRef,
-            @Cached("propertyRef.isField()") boolean isField) {
+            @Cached("create(member.getName(), receiver)") LKQLProperty property,
+            @Cached("property.isField()") boolean isField) {
         // If the method is a field
         if (isField) {
-            return propertyRef.executeAsField(this);
+            return property.executeAsField(this);
         }
 
         // If the method is a property
         else {
-            return propertyRef;
+            return property;
         }
     }
 
@@ -124,13 +118,13 @@ public abstract class SafeDotAccess extends Expr {
         }
 
         // Test if the receiver is null
-        if (receiver == NodeNull.getInstance()) {
-            return NodeNull.getInstance();
+        if (receiver == LKQLNull.INSTANCE) {
+            return LKQLNull.INSTANCE;
         }
 
         // Create the property reference
-        PropertyRefValue propertyRef = PropertyRefValue.create(receiver, this.member.getName());
-        if (propertyRef.getFieldDescription() == null) {
+        LKQLProperty propertyRef = new LKQLProperty(this.member.getName(), receiver);
+        if (propertyRef.getDescription() == null) {
             throw LKQLRuntimeException.noSuchField(this.member);
         }
 
@@ -161,8 +155,17 @@ public abstract class SafeDotAccess extends Expr {
         // Get the built in
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
-            if (builtIn.getParamNames().length <= 1) {
-                return this.dispatcher.executeDispatch(builtIn, new Object[] {receiver});
+            InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtIn);
+            if (builtIn.getParameterNames().length <= 1) {
+                try {
+                    return builtInLibrary.execute(builtIn, receiver);
+                } catch (ArityException
+                        | UnsupportedTypeException
+                        | UnsupportedMessageException e) {
+                    // TODO: Implement runtime checks in the LKQLFunction class and base computing
+                    // on them (#138)
+                    throw LKQLRuntimeException.fromJavaException(e, this.member);
+                }
             } else {
                 builtIn.setThisValue(receiver);
                 return builtIn;
