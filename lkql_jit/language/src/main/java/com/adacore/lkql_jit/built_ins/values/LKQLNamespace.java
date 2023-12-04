@@ -112,6 +112,15 @@ public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
         return System.identityHashCode(receiver);
     }
 
+    public Map<String, Object> asMap() {
+        Object[] keys = this.keysUncached();
+        var values = new HashMap<String, Object>();
+        for (int i = 0; i < keys.length; i++) {
+            values.put((String) keys[i], this.getUncached(keys[i]));
+        }
+        return values;
+    }
+
     /** Get the displayable string for the interop library. */
     @ExportMessage
     @CompilerDirectives.TruffleBoundary
