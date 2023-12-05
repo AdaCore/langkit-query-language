@@ -1,27 +1,16 @@
+#! /usr/bin/env python
 """
 Python wrapper to call the Java version of LKQL JIT.
 """
 
-import argparse
 import os
 import os.path as P
 import subprocess
+import sys
 
-# Jar for each LKQL JIT entry point
-jars = {
-    "lkql": "lkql_cli.jar"
-}
+if __name__ == '__main__':
 
-# Main class for each LKQL JIT entry point
-main_classes = {
-    "lkql": "LKQLMain"
-}
-
-def get_java_command(entry_point: str) -> list[str]:
-    """
-    Get the Java command as a list of string to run the given LKQL JIT entry point.
-    """
-    # Get the utis paths
+    # Get the utils paths
     graal_home = os.environ['GRAAL_HOME']
     lkql_jit_home = os.environ.get(
         'LKQL_JIT_HOME',
@@ -29,60 +18,25 @@ def get_java_command(entry_point: str) -> list[str]:
     )
 
     # Get the Java executable
-    java = (
-        P.join(graal_home, 'bin', 'java.exe')
-        if os.name == 'nt' else
-        P.join(graal_home, 'bin', 'java')
-    )
+    java = P.join(graal_home, 'bin', 'java.exe' if os.name == 'nt' else 'java')
 
     # Create the class path
     class_path = os.pathsep.join([
         P.join(graal_home, 'lib', 'truffle', 'truffle-api.jar'),
         P.join(lkql_jit_home, 'lkql_jit.jar'),
-        P.join(lkql_jit_home, jars[entry_point])
+        P.join(lkql_jit_home, 'lkql_cli.jar')
     ])
 
     # Create the java.library.path property
-    java_library_path = (
-        os.environ.get('PATH', "")
-        if os.name == 'nt' else
-        os.environ.get('LD_LIBRARY_PATH', "")
+    java_library_path = os.environ.get(
+        'PATH' if os.name == 'nt' else "LD_LIBRARY_PATH", ""
     )
 
-    # Return the full command
-    return [
+    # Run the full command
+    subprocess.run([
         java,
         '-cp', class_path,
         f'-Djava.library.path={java_library_path}',
         f'-Dtruffle.class.path.append={P.join(lkql_jit_home, "lkql_jit.jar")}',
-        f'com.adacore.lkql_jit.{main_classes[entry_point]}'
-    ]
-
-def print_gnatcheck_unparsable():
-    print("This line is not parsable")
-    print("Message: should appear")
-    print("no_a_file.adb:01:01: Message: Should not appear")
-    print("This line is not parsable either")
-
-if __name__ == '__main__':
-    # Create the script argument parser
-    parser = argparse.ArgumentParser(prog="lkql_jit.py",
-                                     description=__doc__)
-    subparsers = parser.add_subparsers(help="LKQL JIT entry point", required=True)
-    for subcommand, help in [
-        ("lkql", "Main entry point for LKQL"),
-        (
-            "unparsable_generator",
-            "Entry point to generate unparsable GNATcheck messages"
-        )
-    ]:
-        subp = subparsers.add_parser(subcommand, help=help)
-        subp.set_defaults(subc=subcommand)
-
-    args, to_forward = parser.parse_known_args()
-    if args.subc == "unparsable_generator":
-        print_gnatcheck_unparsable()
-    else:
-        command = get_java_command(args.subc)
-        command.extend(to_forward)
-        subprocess.run(command)
+        f'com.adacore.lkql_jit.LKQLMain'
+    ] + sys.argv[1:])

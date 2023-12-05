@@ -178,15 +178,6 @@ class GnatcheckDriver(BaseDriver):
         # Get the test provided custom GNATcheck worker
         custom_worker = self.test_env.get('worker', None)
 
-        # Special case if the provided worker is "unparsable_generator" then
-        # we call the lkql_jit.py script in a special mode.
-        if custom_worker == "unparsable_generator":
-            custom_worker = " ".join([
-                sys.executable,
-                P.join(self.env.support_dir, "lkql_jit.py"),
-                "unparsable_generator"
-            ])
-
         gnatcheck_env["GNATCHECK_WORKER"] = custom_worker or " ".join(
             self.gnatcheck_worker_exe
         )
