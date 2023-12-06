@@ -1531,6 +1531,7 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Process_Rules (Ctx : in out Lkql_Context) is
       Rule : Rule_Access;
+      Seen_Rules : Rule_Set := Rule_Sets.Empty_Set;
    begin
       if not Ctx.All_Rules.Is_Empty then
          return;
@@ -1544,6 +1545,12 @@ package body Gnatcheck.Rules.Rule_Table is
          declare
             Name : constant String := To_String (To_Wide_Wide_String (R.Name));
          begin
+            if Seen_Rules.Contains (Name) then
+               Error ("multiple rules with the same name: " & Name);
+               raise Gnatcheck.Options.Fatal_Error;
+            end if;
+            Seen_Rules.Include (Name);
+
             case R.Param_Kind is
                when No_Param =>
                   Rule := new Rule_Template;
