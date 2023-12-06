@@ -1275,6 +1275,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
         final Expr body = (Expr) baseFunction.fBodyExpr().accept(this);
 
+        final var docstring = baseFunction.pDoc();
+
         // Return the new function expression node
         final FunExpr res =
                 new FunExpr(
@@ -1282,6 +1284,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                         this.scriptFrames.getFrameDescriptor(),
                         this.scriptFrames.getClosureDescriptor(),
                         parameters.toArray(new ParameterDeclaration[0]),
+                        docstring.isNone() ? "" : parseStringLiteral(docstring),
                         body);
 
         // Exit the function frame

@@ -1,3 +1,8 @@
+fun user_fn() =
+    |" This is the docstring
+    12
+
 print(print.doc)
 print(doc.doc)
 print(children.doc)
+print(user_fn.doc)

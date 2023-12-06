@@ -52,6 +52,9 @@ public final class FunExpr extends Expr {
     /** The names of the parameters. */
     private final String[] parameterNames;
 
+    /** Documentation for the function */
+    private final String documentation;
+
     /** The default values of the parameters. */
     private final Expr[] parameterValues;
 
@@ -78,6 +81,7 @@ public final class FunExpr extends Expr {
             final FrameDescriptor frameDescriptor,
             final ClosureDescriptor closureDescriptor,
             final ParameterDeclaration[] parameters,
+            final String documentation,
             final Expr body) {
         super(location);
         this.closureDescriptor = closureDescriptor;
@@ -86,6 +90,7 @@ public final class FunExpr extends Expr {
         this.parameterNames = new String[parameters.length];
         this.parameterValues = new Expr[parameters.length];
         this.body = body;
+        this.documentation = documentation.strip();
 
         this.initParams(parameters);
     }
@@ -119,7 +124,7 @@ public final class FunExpr extends Expr {
                 this.functionRootNode,
                 Closure.create(frame.materialize(), this.closureDescriptor),
                 Constants.FUNCTION_DEFAULT_NAME,
-                Constants.FUNCTION_DEFAULT_DOC,
+                this.documentation,
                 this.parameterNames,
                 this.parameterValues);
     }
