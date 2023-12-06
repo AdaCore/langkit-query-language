@@ -1,0 +1,2 @@
+@check
+fun use_array_slices(node) = false
