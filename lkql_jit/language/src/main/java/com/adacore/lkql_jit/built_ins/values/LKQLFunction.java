@@ -37,6 +37,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.utilities.TriState;
+import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -214,5 +215,20 @@ public class LKQLFunction extends BasicLKQLValue {
     @Override
     public String lkqlDocumentation() {
         return this.documentation;
+    }
+
+    @Override
+    @CompilerDirectives.TruffleBoundary
+    public String lkqlProfile() {
+        var expandedParams = new ArrayList<String>();
+        for (int i = 0; i < parameterNames.length; i++) {
+            var defVal = parameterDefaultValues[i];
+            if (defVal != null) {
+                expandedParams.add(parameterNames[i] + "=" + defVal.getLocation().getText());
+            } else {
+                expandedParams.add(parameterNames[i]);
+            }
+        }
+        return name + "(" + String.join(", ", expandedParams.toArray(new String[0])) + ")";
     }
 }

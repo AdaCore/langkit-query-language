@@ -26,6 +26,7 @@ import com.adacore.liblkqllang.Liblkqllang;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * This class represents a source location.
@@ -155,6 +156,27 @@ public final class SourceLocation {
 
         // Return the result
         return res;
+    }
+
+    /**
+     * @return the text for this source location.
+     */
+    @CompilerDirectives.TruffleBoundary
+    public String getText() {
+        var lines = new ArrayList<String>();
+        for (int i = startLine; i <= endLine; i++) {
+            var line = this.source.getCharacters(i);
+            if (i == startLine && i == endLine) {
+                lines.add(line.subSequence(startColumn - 1, endColumn - 1).toString());
+            } else if (i == startLine) {
+                lines.add(line.subSequence(startColumn - 1, line.length() - 1).toString());
+            } else if (i == endLine) {
+                lines.add(line.subSequence(0, endColumn - 1).toString());
+            } else {
+                lines.add(line.toString());
+            }
+        }
+        return String.join("\n", lines);
     }
 
     // ----- Override methods -----
