@@ -14,14 +14,26 @@ with GNAT.OS_Lib;
 with Gnatcheck.JSON_Utilities;   use Gnatcheck.JSON_Utilities;
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
-with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 with Gnatcheck.Rules.Rule_Table; use Gnatcheck.Rules.Rule_Table;
+with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Langkit_Support.Text;       use Langkit_Support.Text;
 
 package body Gnatcheck.Rules is
 
-   procedure Append_Param
+   procedure Append_Int_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name : Text_Type;
+      Value :        Integer);
+   --  Add the integer actual parameter to the given argument vector
+
+   procedure Append_Bool_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name : Text_Type;
+      Value : Tri_State);
+   --  Add the boolean actual parameter to the given argument vector
+
+   procedure Append_String_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
       Value : Unbounded_Wide_Wide_String);
@@ -32,7 +44,7 @@ package body Gnatcheck.Rules is
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
       Value : Unbounded_Wide_Wide_String);
-   --  Like Append_Param, for an array of strings represented by a comma
+   --  Like Append_String_Param, for an array of strings represented by a comma
    --  separated list in Value.
 
    procedure Process_String_Arg
@@ -46,6 +58,13 @@ package body Gnatcheck.Rules is
    --  If `Params_Object` contains `Param_Name` then unset the field.
    --  If `Narmalize` is true, then remove spaces and lower the extracted
    --  string.
+
+   procedure Handle_Array_Param
+     (Args        : in out Rule_Argument_Vectors.Vector;
+      Rule        : in out One_Array_Parameter_Rule;
+      Param_Value : Unbounded_Wide_Wide_String);
+   --  Common procedure to handle array parameter rules and aliases by adding
+   --  their parameter actual value in the provided rule arguments vector.
 
    function Expand_Env_Variables (Name : String) return String;
    --  Assuming that Name is a name of a dictionary file (used as rule
@@ -64,7 +83,8 @@ package body Gnatcheck.Rules is
 
    procedure Load_Dictionary
      (File_Name : String;
-      Rule      : in out Rule_Template'Class;
+      Rule_Name : String;
+      State     : in out Rule_States;
       Param     : in out Unbounded_Wide_Wide_String);
    --  Load dictionary file File_Name for rule Rule and append the result in
    --  Param as a comma separated list.
@@ -76,6 +96,67 @@ package body Gnatcheck.Rules is
    function From_Boolean (B : Boolean) return Tri_State is
      (if B then On else Off);
    --  Get the `Tri_State` value corresponding to the given boolean
+
+   function Param_Name
+     (Rule : Rule_Template'Class; Index : Positive) return Text_Type is
+     (Rule.Parameters.Child (Index).As_Parameter_Decl.F_Param_Identifier
+        .Text);
+   --  Get the name of the rule parameter at the given index
+
+   ----------------------
+   -- Append_Int_Param --
+   ----------------------
+
+   procedure Append_Int_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : Text_Type;
+      Value : Integer) is
+   begin
+      if Value /= Integer'First then
+         Args.Append
+           (Rule_Argument'
+              (Name  => To_Unbounded_Text (Name),
+               Value => To_Unbounded_Text (Value'Wide_Wide_Image)));
+      end if;
+   end Append_Int_Param;
+
+   -----------------------
+   -- Append_Bool_Param --
+   -----------------------
+
+   procedure Append_Bool_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : Text_Type;
+      Value : Tri_State)
+   is
+   begin
+      if Value /= Unset then
+         Args.Append
+           (Rule_Argument'
+              (Name  => To_Unbounded_Text (Name),
+               Value =>
+                 To_Unbounded_Text
+                   (if Value = On then "true" else "false")));
+      end if;
+   end Append_Bool_Param;
+
+   -------------------------
+   -- Append_String_Param --
+   -------------------------
+
+   procedure Append_String_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : Wide_Wide_String;
+      Value : Unbounded_Wide_Wide_String) is
+   begin
+      if Length (Value) /= 0 then
+         Args.Append
+           (Rule_Argument'
+             (Name  => To_Unbounded_Text (Name),
+              Value => To_Unbounded_Text
+                         ('"' & To_Wide_Wide_String (Value) & '"')));
+      end if;
+   end Append_String_Param;
 
    ------------------------
    -- Append_Array_Param --
@@ -110,23 +191,180 @@ package body Gnatcheck.Rules is
       end if;
    end Append_Array_Param;
 
-   ------------------
-   -- Append_Param --
-   ------------------
+   ------------------------
+   -- Handle_Array_Param --
+   ------------------------
 
-   procedure Append_Param
-     (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String) is
+   procedure Handle_Array_Param
+     (Args        : in out Rule_Argument_Vectors.Vector;
+      Rule        : in out One_Array_Parameter_Rule;
+      Param_Value : Unbounded_Wide_Wide_String)
+   is
+      Last : constant Natural := Length (Param_Value);
+
+      procedure Error;
+      --  Emit an error message when an invalid parameter is detected.
+
+      function Find_Char
+        (Str      : Wide_Wide_String;
+         C        : Wide_Wide_Character;
+         Backward : Boolean := False) return Natural;
+      --  Return the first occurrence of C in Str, 0 if none
+      --  If Backward is True, search from the end of the string.
+
+      -----------
+      -- Error --
+      -----------
+
+      procedure Error is
+      begin
+         Error ("(" & Rule.Name.all & ") wrong parameter: " &
+                To_String (Param_Value));
+         Rule.Rule_State   := Disabled;
+         Bad_Rule_Detected := True;
+      end Error;
+
+      -----------
+      -- Index --
+      -----------
+
+      function Find_Char
+        (Str      : Wide_Wide_String;
+         C        : Wide_Wide_Character;
+         Backward : Boolean := False) return Natural is
+      begin
+         if Backward then
+            for J in reverse Str'Range loop
+               if Str (J) = C then
+                  return J;
+               end if;
+            end loop;
+         else
+            for J in Str'Range loop
+               if Str (J) = C then
+                  return J;
+               end if;
+            end loop;
+         end if;
+
+         return 0;
+      end Find_Char;
+
    begin
-      if Length (Value) /= 0 then
-         Args.Append
-           (Rule_Argument'
-             (Name  => To_Unbounded_Text (Name),
-              Value => To_Unbounded_Text
-                         ('"' & To_Wide_Wide_String (Value) & '"')));
+
+      --  Check whether we have 5 arguments for parameters_out_of_order
+      if Rule.Name.all = "parameters_out_of_order"
+        and then Last /= 0
+        and then Slice_Count (Create (To_String (Param_Value), ",")) /= 5
+      then
+         Error ("(" & Rule.Name.all & ") requires 5 parameters, got: " &
+                To_String (Param_Value));
+         Bad_Rule_Detected := True;
+         Rule.Rule_State   := Disabled;
+         return;
       end if;
-   end Append_Param;
+
+      if Rule.Name.all = "actual_parameters" and then Last /= 0 then
+         declare
+            Param        : Unbounded_Wide_Wide_String;
+            C            : Wide_Wide_Character;
+            Num_Elements : Positive := 1;
+            Lower        : Boolean  := True;
+
+         begin
+            Append (Param, "[(""");
+
+            for J in 1 .. Last loop
+               C := Element (Param_Value, J);
+
+               case C is
+                  when '"'    =>
+                     if Num_Elements = 3 then
+                        if Element (Param_Value, J - 1) = ':' then
+                           Append (Param, '|');
+                           Lower := False;
+
+                        elsif J /= Last
+                          and then Element (Param_Value, J + 1) /= ','
+                        then
+                           Error;
+                           return;
+                        end if;
+                     else
+                        Append (Param, "\""");
+                     end if;
+
+                  when ':'    =>
+                     Append (Param, """,""");
+                     Num_Elements := @ + 1;
+                     Lower := True;
+
+                  when ','    =>
+                     Append (Param, """),(""");
+                     Num_Elements := 1;
+                     Lower := True;
+
+                  when others =>
+                     Append (Param, (if Lower then To_Lower (C) else C));
+               end case;
+            end loop;
+
+            Append (Param, """)]");
+            Args.Append
+              (Rule_Argument'
+                (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
+                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+         end;
+      elsif Last /= 0
+        and then Rule.Name.all = "exception_propagation_from_callbacks"
+      then
+         declare
+            Param      : Unbounded_Wide_Wide_String;
+            Str        : constant Wide_Wide_String :=
+              To_Wide_Wide_String (Param_Value);
+            Current    : Natural := Str'First;
+            Next_Comma : Natural;
+            Dot        : Natural;
+
+         begin
+            Append (Param, "[(""");
+
+            loop
+               Next_Comma := Find_Char (Str (Current .. Str'Last), ',');
+
+               if Next_Comma = 0 then
+                  Next_Comma := Str'Last + 1;
+               end if;
+
+               Dot :=
+                 Find_Char
+                   (Str (Current .. Next_Comma - 1), '.', Backward => True);
+
+               if Dot = 0 then
+                  Error;
+                  return;
+               end if;
+
+               Append (Param, To_Lower (Str (Current .. Dot - 1)));
+               Append (Param, """,""");
+               Append (Param, To_Lower (Str (Dot + 1 .. Next_Comma - 1)));
+               Current := Next_Comma + 1;
+
+               exit when Current > Str'Last;
+
+               Append (Param, """),(""");
+            end loop;
+
+            Append (Param, """)]");
+            Args.Append
+              (Rule_Argument'
+                (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
+                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+         end;
+      else
+         Append_Array_Param (Args, Param_Name (Rule, 2), Param_Value);
+      end if;
+   end Handle_Array_Param;
 
    ------------------------
    -- Process_String_Arg --
@@ -157,19 +395,43 @@ package body Gnatcheck.Rules is
    -- Annotate_Rule --
    -------------------
 
-   function Annotate_Rule (Rule : Rule_Template) return String is
+   function Annotate_Rule
+     (Rule : Rule_Template;
+      Alias : String) return String is
    begin
       if Subprocess_Mode then
          return " [" & Rule_Name (Rule) & "]";
       elsif not Mapping_Mode then
          return "";
       else
-         return " ["                                           &
-         (if Has_Synonym (Rule) then Rule_Synonym (Rule) & "|"
-          else                       "")                       &
-         Rule_Name (Rule) & "]";
+         return " [" &
+                (if Alias /= "" then Alias & "|" else "") &
+                Rule_Name (Rule) & "]";
       end if;
    end Annotate_Rule;
+
+   ---------------------------
+   -- Create_Alias_For_Rule --
+   ---------------------------
+
+   function Create_Alias_For_Rule (R_Id : Rule_Id) return Alias_Access is
+      Rule   : constant Rule_Template'Class := All_Rules.Table (R_Id).all;
+      Result : Alias_Access;
+   begin
+      Result      := Create_Alias (Rule);
+      Result.Rule := R_Id;
+      return Result;
+   end Create_Alias_For_Rule;
+
+   --------------
+   -- Get_Rule --
+   --------------
+
+   function Get_Rule
+     (Alias : Alias_Template'Class) return Rule_Template'Class is
+   begin
+      return All_Rules.Table (Alias.Rule).all;
+   end Get_Rule;
 
    --------------------------
    -- Expand_Env_Variables --
@@ -267,15 +529,6 @@ package body Gnatcheck.Rules is
       end if;
    end Find_File;
 
-   -----------------
-   -- Has_Synonym --
-   -----------------
-
-   function Has_Synonym (Rule : Rule_Template) return Boolean is
-   begin
-      return Rule.User_Synonym /= null;
-   end Has_Synonym;
-
    -------------
    -- Has_Tip --
    -------------
@@ -306,20 +559,30 @@ package body Gnatcheck.Rules is
       return Rule.Rule_State = Enabled;
    end Is_Enabled;
 
+   function Is_Enabled (Alias : Alias_Template'Class) return Boolean is
+   begin
+      return Alias.Alias_State = Enabled;
+   end Is_Enabled;
+
+   function Is_Enabled (Alias : Alias_Access) return Boolean is
+   begin
+      return Alias /= null and then Alias.Alias_State = Enabled;
+   end Is_Enabled;
+
    ---------------------
    -- Load_Dictionary --
    ---------------------
 
    procedure Load_Dictionary
      (File_Name : String;
-      Rule      : in out Rule_Template'Class;
+      Rule_Name : String;
+      State     : in out Rule_States;
       Param     : in out Unbounded_Wide_Wide_String)
    is
-      Name : constant String := Find_File (File_Name);
-      File : File_Type;
-      Line : String (1 .. 1024);
-      Len  : Natural;
-
+      Name        : constant String := Find_File (File_Name);
+      File        : File_Type;
+      Line        : String (1 .. 1024);
+      Len         : Natural;
    begin
       if Name /= "" then
          Open (File, In_File, Name);
@@ -346,18 +609,18 @@ package body Gnatcheck.Rules is
          end loop;
 
          Close (File);
-         Rule.Rule_State := Enabled;
+         State := Enabled;
 
       else
-         Error ("(" & Rule.Name.all & "): cannot load file " & File_Name);
-         Rule.Rule_State   := Disabled;
+         Error ("(" & Rule_Name & "): cannot load file " & File_Name);
+         State             := Disabled;
          Bad_Rule_Detected := True;
       end if;
 
    exception
       when others =>
-         Error ("(" & Rule.Name.all & "): cannot load file " & File_Name);
-         Rule.Rule_State   := Disabled;
+         Error ("(" & Rule_Name & "): cannot load file " & File_Name);
+         State             := Disabled;
          Bad_Rule_Detected := True;
    end Load_Dictionary;
 
@@ -366,21 +629,26 @@ package body Gnatcheck.Rules is
    -----------------------------
 
    procedure Print_Rule_To_LKQL_File
-     (Rule         : in out Rule_Template'Class;
-      Rule_File    : File_Type)
+     (Rule      : in out Rule_Template'Class;
+      Rule_File : File_Type)
    is
       Args  : Rule_Argument_Vectors.Vector;
       First : Boolean := True;
-   begin
-      Map_Parameters (Rule, Args);
 
-      Put (Rule_File, Rule_Name (Rule));
+      procedure Print_Args_To_LKQL_File
+        (Args  : Rule_Argument_Vectors.Vector;
+         First : Boolean := True);
+      --  Procedure to print an arguments vector to the current `Rule_File`.
 
-      if not Args.Is_Empty then
-         Put (Rule_File, ": [{");
+      procedure Print_Args_To_LKQL_File
+        (Args  : Rule_Argument_Vectors.Vector;
+         First : Boolean := True)
+      is
+         F : Boolean := First;
+      begin
          for Param of Args loop
-            if First then
-               First := False;
+            if F then
+               F := False;
             else
                Put (Rule_File, ", ");
             end if;
@@ -388,7 +656,40 @@ package body Gnatcheck.Rules is
                  To_String (To_Wide_Wide_String (Param.Name)) & ": " &
                    To_String (To_Wide_Wide_String (Param.Value)));
          end loop;
-         Put (Rule_File, "}]");
+      end Print_Args_To_LKQL_File;
+   begin
+      Map_Parameters (Rule, Args);
+      Put (Rule_File, Rule_Name (Rule));
+
+      if not Args.Is_Empty
+        or else not Rule.Aliases.Is_Empty
+      then
+         Put (Rule_File, ": [");
+
+         --  Print the rule arguments if there are to configure the default
+         --  instance.
+         if not Args.Is_Empty then
+            Put (Rule_File, "{");
+            Print_Args_To_LKQL_File (Args);
+            Put (Rule_File, "}");
+            First := False;
+         end if;
+
+         --  Iterate on all aliases to add all other instances
+         for Alias of Rule.Aliases loop
+            if First then
+               First := False;
+            else
+               Put (Rule_File, ", ");
+            end if;
+            Put (Rule_File,
+                 "{alias_name: """ & To_String (Alias.Name) & """");
+            Args.Clear;
+            Map_Parameters (Alias.all, Args);
+            Print_Args_To_LKQL_File (Args, First => False);
+            Put (Rule_File, "}");
+         end loop;
+         Put (Rule_File, "]");
       end if;
    end Print_Rule_To_LKQL_File;
 
@@ -832,41 +1133,70 @@ package body Gnatcheck.Rules is
 
    procedure Process_Rule_Parameter
      (Rule       : in out Rule_Template;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String)
    is
       pragma Unreferenced (Defined_At);
+      State_Value : Rule_States;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value := Rule.Rule_State;
+      else
+         State_Value := Alias.Alias_State;
+      end if;
+
+      --  Process the actual parameter
       if Param /= "" then
          Error ("no parameter can be set for rule " & Rule.Name.all & ", " &
                 Param & " ignored");
          Bad_Rule_Detected := True;
       else
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
+      end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+      else
+         Alias.Alias_State := State_Value;
       end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Integer_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String) is
+      Defined_At : String)
+   is
+      State_Value : Rule_States;
+      Param_Value : Integer;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value := Rule.Rule_State;
+         Param_Value := Rule.Param;
+      else
+         State_Value := Alias.Alias_State;
+         Param_Value := One_Integer_Parameter_Alias (Alias.all).Param;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
          if Enable then
             Error ("(" & Rule.Name.all & ") parameter is required for +R");
             Bad_Rule_Detected := True;
          else
-            Rule.Rule_State := Disabled;
+            State_Value := Disabled;
          end if;
       else
          if Enable then
-            if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+            if Check_Param_Redefinition and then Rule.Rule_State = Enabled
+              and then Alias = null
+            then
                Error
                 ("redefining at " & Defined_Str (Defined_At) &
                  " parameter for rule " & Rule.Name.all &
@@ -875,21 +1205,20 @@ package body Gnatcheck.Rules is
             end if;
 
             begin
-               Rule.Param := Integer'Value (Param);
+               Param_Value := Integer'Value (Param);
 
-               if Rule.Param >= -1 then
-                  Rule.Rule_State := Enabled;
+               if Param_Value >= -1 then
+                  State_Value := Enabled;
                   Rule.Defined_At := new String'(Defined_At);
                else
                   Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-                  Rule.Rule_State   := Disabled;
+                  State_Value   := Disabled;
                   Bad_Rule_Detected := True;
                end if;
-
             exception
                when Constraint_Error =>
                   Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-                  Rule.Rule_State   := Disabled;
+                  State_Value   := Disabled;
                   Bad_Rule_Detected := True;
             end;
 
@@ -898,32 +1227,58 @@ package body Gnatcheck.Rules is
             Bad_Rule_Detected := True;
          end if;
       end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+         Rule.Param      := Param_Value;
+      else
+         Alias.Alias_State := State_Value;
+         One_Integer_Parameter_Alias (Alias.all).Param :=
+            Param_Value;
+      end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Boolean_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String) is
+      Defined_At : String)
+   is
+      State_Value : Rule_States;
+      Param_Value : Tri_State;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value := Rule.Rule_State;
+         Param_Value := Rule.Param;
+      else
+         State_Value := Alias.Alias_State;
+         Param_Value := One_Boolean_Parameter_Alias (Alias.all).Param;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
          if Enable then
-            Rule.Rule_State := Enabled;
+            State_Value     := Enabled;
             Rule.Defined_At := new String'(Defined_At);
          else
-            Rule.Param := Unset;
-            Rule.Rule_State := Disabled;
+            Param_Value := Unset;
+            State_Value := Disabled;
          end if;
       elsif To_String (Rule.Parameters.Child (2).As_Parameter_Decl.
                        F_Param_Identifier.Text) /= To_Lower (Param)
       then
          Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
          Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
-         Rule.Param        := Unset;
+         State_Value       := Disabled;
+         Param_Value       := Unset;
 
       elsif Enable then
-         if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+         if Check_Param_Redefinition and then Rule.Rule_State = Enabled
+           and then Alias = null
+         then
             Error
              ("redefining at " & Defined_Str (Defined_At) &
               " parameter " & Param & " for rule " & Rule.Name.all &
@@ -931,32 +1286,57 @@ package body Gnatcheck.Rules is
             Rule_Option_Problem_Detected := True;
          end if;
 
-         Rule.Param := On;
-         Rule.Rule_State := Enabled;
+         Param_Value     := On;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
       else
-         Rule.Param := Off;
-         Rule.Rule_State := Enabled;
+         Param_Value     := Off;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
+      end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+         Rule.Param      := Param_Value;
+      else
+         Alias.Alias_State := State_Value;
+         One_Boolean_Parameter_Alias (Alias.all).Param :=
+           Param_Value;
       end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_String_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String) is
+      Defined_At : String)
+   is
+      State_Value : Rule_States;
+      Param_Value : Unbounded_Wide_Wide_String;
+      File_Value  : Unbounded_String;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value := Rule.Rule_State;
+      else
+         State_Value := Alias.Alias_State;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
          if Enable then
             Error ("(" & Rule.Name.all & ") parameter is required for +R");
             Bad_Rule_Detected := True;
          else
-            Rule.Rule_State := Disabled;
+            State_Value := Disabled;
          end if;
       elsif Enable then
-         if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+         if Check_Param_Redefinition and then Rule.Rule_State = Enabled
+           and then Alias = null
+         then
             Error
              ("redefining at " & Defined_Str (Defined_At) &
               " parameter " & Param & " for rule " & Rule.Name.all &
@@ -968,51 +1348,97 @@ package body Gnatcheck.Rules is
          --  header contents.
 
          if Rule.Name.all = "headers" then
-            Rule.Load_File (Param);
+            Rule.Load_File
+              (To_Load => Param,
+               File_Name => File_Value,
+               File_Content => Param_Value,
+               State => State_Value);
          else
-            Append (Rule.Param, To_Wide_Wide_String (Param));
+            Append (Param_Value, To_Wide_Wide_String (Param));
          end if;
 
-         Rule.Rule_State := Enabled;
+         State_Value := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
       else
-         Rule.Rule_State := Disabled;
+         State_Value := Disabled;
          Rule.Defined_At := new String'(Defined_At);
+      end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+         Append (Rule.Param, Param_Value);
+         Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File,
+                                                     To_String (File_Value));
+      else
+         declare
+            Rec : One_String_Parameter_Alias renames
+              One_String_Parameter_Alias (Alias.all);
+         begin
+            Rec.Alias_State := State_Value;
+            Append (Rec.Param, Param_Value);
+            Ada.Strings.Unbounded.Set_Unbounded_String
+              (Rec.File, To_String (File_Value));
+         end;
       end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Integer_Or_Booleans_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String) is
+      Defined_At : String)
+   is
+      State_Value       : Rule_States;
+      Int_Param_Value   : Integer;
+      Bool_Params_Value : Boolean_Parameters;
+      Param_Found       : Boolean := False;
    begin
+      --  Intialize rule and alias common values
+      if Alias = null then
+         State_Value       := Rule.Rule_State;
+         Int_Param_Value   := Rule.Integer_Param;
+         Bool_Params_Value := Rule.Boolean_Params;
+      else
+         declare
+            Rec : One_Integer_Or_Booleans_Parameter_Alias renames
+              One_Integer_Or_Booleans_Parameter_Alias (Alias.all);
+         begin
+            State_Value       := Rec.Alias_State;
+            Int_Param_Value   := Rec.Integer_Param;
+            Bool_Params_Value := Rec.Boolean_Params;
+         end;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
          if Enable then
             if Rule.Name.all = "no_others_in_exception_handlers" then
                Error ("(" & Rule.Name.all & ") parameter is required for +R");
                Bad_Rule_Detected := True;
             else
-               Rule.Rule_State := Enabled;
+               State_Value     := Enabled;
                Rule.Defined_At := new String'(Defined_At);
             end if;
          else
-            Rule.Integer_Param := Integer'First;
+            Rule.Integer_Param  := Integer'First;
             Rule.Boolean_Params := [others => Unset];
-            Rule.Rule_State := Disabled;
+            State_Value         := Disabled;
          end if;
       else
          if Enable then
-            --  First try to extract an integer
 
+            --  First try to extract an integer
             declare
-               Integer_Param : constant Integer := Rule.Integer_Param;
+               Old_Integer : constant Integer := Int_Param_Value;
             begin
-               Rule.Integer_Param := Integer'Value (Param);
+               Int_Param_Value := Integer'Value (Param);
 
                if Check_Param_Redefinition
-                 and then Integer_Param /= Integer'First
+                 and then Old_Integer /= Integer'First
+                 and then Alias = null
                then
                   Error
                    ("redefining at " & Defined_Str (Defined_At) &
@@ -1020,75 +1446,114 @@ package body Gnatcheck.Rules is
                   Rule_Option_Problem_Detected := True;
                end if;
 
-               if Rule.Integer_Param >= 0 then
-                  Rule.Rule_State := Enabled;
+               if Int_Param_Value >= 0 then
+                  State_Value := Enabled;
                   Rule.Defined_At := new String'(Defined_At);
                else
                   Error ("(" & Rule.Name.all & ") wrong parameter: " &
                          Param);
-                  Bad_Rule_Detected   := True;
-                  Rule.Integer_Param  := Integer'First;
-                  Rule.Boolean_Params := [others => Unset];
-                  Rule.Rule_State     := Disabled;
+                  Bad_Rule_Detected := True;
+                  Int_Param_Value   := Integer'First;
+                  Bool_Params_Value := [others => Unset];
+                  State_Value       := Disabled;
                end if;
 
-               return;
+               Param_Found := True;
             exception
                when Constraint_Error =>
                   null;
             end;
 
-            --  Then find the relevant boolean parameter
-
-            for J in 2 .. Rule.Parameters.Last_Child_Index loop
-               if To_String (Rule.Parameters.Child (J).As_Parameter_Decl.
-                             F_Param_Identifier.Text) = To_Lower (Param)
-               then
-                  if Check_Param_Redefinition
-                    and then Rule.Boolean_Params (J) = On
+            --  Then find the relevant boolean if integer has not been parsed
+            if not Param_Found then
+               for J in 2 .. Rule.Parameters.Last_Child_Index loop
+                  if To_String (Rule.Parameters.Child (J).As_Parameter_Decl.
+                                F_Param_Identifier.Text) = To_Lower (Param)
                   then
-                     Error
-                      ("redefining at " & Defined_Str (Defined_At) &
-                       " parameter " & Param & " for rule " & Rule.Name.all);
-                     Rule_Option_Problem_Detected := True;
+                     if Check_Param_Redefinition
+                       and then Rule.Boolean_Params (J) = On
+                       and then Alias = null
+                     then
+                        Error
+                        ("redefining at " & Defined_Str (Defined_At) &
+                        " parameter " & Param & " for rule " & Rule.Name.all);
+                        Rule_Option_Problem_Detected := True;
+                     end if;
+
+                     Bool_Params_Value (J) := On;
+                     State_Value           := Enabled;
+                     Rule.Defined_At       := new String'(Defined_At);
+                     Param_Found           := True;
                   end if;
+               end loop;
+            end if;
 
-                  Rule.Boolean_Params (J) := On;
-                  Rule.Rule_State := Enabled;
-                  Rule.Defined_At := new String'(Defined_At);
-                  return;
-               end if;
-            end loop;
-
-            --  If we get there, it means we have no found any parameter
-
-            Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
-            Bad_Rule_Detected   := True;
-            Rule.Integer_Param  := Integer'First;
-            Rule.Boolean_Params := [others => Unset];
-            Rule.Rule_State     := Disabled;
+            --  If we get didn't find any valid parameter there is an error
+            if not Param_Found then
+               Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
+               Bad_Rule_Detected := True;
+               Int_Param_Value   := Integer'First;
+               Bool_Params_Value := [others => Unset];
+               State_Value       := Disabled;
+            end if;
 
          else
             Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
             Bad_Rule_Detected := True;
          end if;
       end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State     := State_Value;
+         Rule.Integer_Param  := Int_Param_Value;
+         Rule.Boolean_Params := Bool_Params_Value;
+      else
+         declare
+            Rec : One_Integer_Or_Booleans_Parameter_Alias renames
+              One_Integer_Or_Booleans_Parameter_Alias (Alias.all);
+         begin
+            Rec.Alias_State    := State_Value;
+            Rec.Integer_Param  := Int_Param_Value;
+            Rec.Boolean_Params := Bool_Params_Value;
+         end;
+      end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Array_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String) is
+      Defined_At : String)
+   is
+      State_Value : Rule_States;
+      Param_Value : Unbounded_Wide_Wide_String;
+      File_Value  : Unbounded_String;
    begin
+      --  Intialize rule and alias common values
+      if Alias = null then
+         State_Value := Rule.Rule_State;
+         Param_Value := Rule.Param;
+         File_Value  := Rule.File;
+      else
+         declare
+            Rec : One_Array_Parameter_Alias renames
+              One_Array_Parameter_Alias (Alias.all);
+         begin
+            State_Value := Rec.Alias_State;
+            Param_Value := Rec.Param;
+            File_Value  := Rec.File;
+         end;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
-         if Check_Param_Redefinition and then Rule.Rule_State = Enabled then
+         if Check_Param_Redefinition and then Rule.Rule_State = Enabled
+           and then Alias = null
+         then
             Error
              ("redefining at " & Defined_Str (Defined_At) &
               " parameter " & Param & " for rule " & Rule.Name.all &
@@ -1097,10 +1562,13 @@ package body Gnatcheck.Rules is
          end if;
 
          if Rule.Name.all = "name_clashes" then
-            Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Param);
-            Load_Dictionary (Expand_Env_Variables (Param), Rule, Rule.Param);
+            Ada.Strings.Unbounded.Set_Unbounded_String (File_Value, Param);
+            Load_Dictionary
+              (Expand_Env_Variables (Param),
+               Rule.Name.all,
+               State_Value,
+               Param_Value);
             Rule.Defined_At := new String'(Defined_At);
-
          else
             if (Rule.Name.all = "parameters_out_of_order"
                 and then Param not in
@@ -1110,29 +1578,47 @@ package body Gnatcheck.Rules is
             then
                Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
                Bad_Rule_Detected := True;
-               Rule.Rule_State   := Disabled;
+               State_Value       := Disabled;
                return;
             end if;
 
-            if Length (Rule.Param) /= 0 then
-               Append (Rule.Param, ",");
+            if Length (Param_Value) /= 0 then
+               Append (Param_Value, ",");
             end if;
 
-            Append (Rule.Param, To_Wide_Wide_String (Param));
-            Rule.Rule_State := Enabled;
+            Append (Param_Value, To_Wide_Wide_String (Param));
+            State_Value     := Enabled;
             Rule.Defined_At := new String'(Defined_At);
          end if;
       else
-         Set_Unbounded_Wide_Wide_String (Rule.Param, "");
+         Set_Unbounded_Wide_Wide_String (Param_Value, "");
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
          Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
+         State_Value       := Disabled;
          Rule.Defined_At   := new String'(Defined_At);
+      end if;
+
+      --  Set the rule or alias parameter values according to the
+      --  computed ones.
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+         Rule.Param      := Param_Value;
+         Rule.File       := File_Value;
+      else
+         declare
+            Rec : One_Array_Parameter_Alias renames
+              One_Array_Parameter_Alias (Alias.all);
+         begin
+            Rec.Alias_State := State_Value;
+            Rec.Param       := Param_Value;
+            Rec.File        := File_Value;
+         end;
       end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Suffixes_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String)
@@ -1141,31 +1627,68 @@ package body Gnatcheck.Rules is
       Norm_Param  : constant String := Remove_Spaces (Param);
       Lower_Param : constant String := To_Lower (Param);
 
+      State_Value                : Rule_States;
+      Type_Suffix_Value          : Unbounded_Wide_Wide_String;
+      Access_Suffix_Value        : Unbounded_Wide_Wide_String;
+      Access_Access_Suffix_Value : Unbounded_Wide_Wide_String;
+      Class_Access_Suffix_Value  : Unbounded_Wide_Wide_String;
+      Class_Subtype_Suffix_Value : Unbounded_Wide_Wide_String;
+      Constant_Suffix_Value      : Unbounded_Wide_Wide_String;
+      Renaming_Suffix_Value      : Unbounded_Wide_Wide_String;
+      Access_Obj_Suffix_Value    : Unbounded_Wide_Wide_String;
+      Interrupt_Suffix_Value     : Unbounded_Wide_Wide_String;
    begin
+      --  Initialize the parameter values
+      if Alias = null then
+         State_Value                := Rule.Rule_State;
+         Type_Suffix_Value          := Rule.Type_Suffix;
+         Access_Suffix_Value        := Rule.Access_Suffix;
+         Access_Access_Suffix_Value := Rule.Access_Access_Suffix;
+         Class_Access_Suffix_Value  := Rule.Class_Access_Suffix;
+         Class_Subtype_Suffix_Value := Rule.Class_Subtype_Suffix;
+         Constant_Suffix_Value      := Rule.Constant_Suffix;
+         Renaming_Suffix_Value      := Rule.Renaming_Suffix;
+         Access_Obj_Suffix_Value    := Rule.Access_Obj_Suffix;
+         Interrupt_Suffix_Value     := Rule.Interrupt_Suffix;
+      else
+         declare
+            Rec : Identifier_Suffixes_Alias renames
+               Identifier_Suffixes_Alias (Alias.all);
+         begin
+            State_Value                := Rec.Alias_State;
+            Type_Suffix_Value          := Rec.Type_Suffix;
+            Access_Suffix_Value        := Rec.Access_Suffix;
+            Access_Access_Suffix_Value := Rec.Access_Access_Suffix;
+            Class_Access_Suffix_Value  := Rec.Class_Access_Suffix;
+            Class_Subtype_Suffix_Value := Rec.Class_Subtype_Suffix;
+            Constant_Suffix_Value      := Rec.Constant_Suffix;
+            Renaming_Suffix_Value      := Rec.Renaming_Suffix;
+            Access_Obj_Suffix_Value    := Rec.Access_Obj_Suffix;
+            Interrupt_Suffix_Value     := Rec.Interrupt_Suffix;
+         end;
+      end if;
+
+      --  Process the actual parameter
       if Norm_Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
-         Rule.Rule_State := Enabled;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
          if Lower_Param = "default" then
-            Set_Unbounded_Wide_Wide_String (Rule.Type_Suffix, "_T");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Suffix, "_A");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Subtype_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Constant_Suffix, "_C");
-            Set_Unbounded_Wide_Wide_String (Rule.Renaming_Suffix, "_R");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Obj_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Interrupt_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Type_Suffix_Value, "_T");
+            Set_Unbounded_Wide_Wide_String (Access_Suffix_Value, "_A");
+            Set_Unbounded_Wide_Wide_String (Access_Access_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Class_Access_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Class_Subtype_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Constant_Suffix_Value, "_C");
+            Set_Unbounded_Wide_Wide_String (Renaming_Suffix_Value, "_R");
+            Set_Unbounded_Wide_Wide_String (Access_Obj_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Interrupt_Suffix_Value, "");
 
          elsif Has_Prefix (Norm_Param, "type_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Type_Suffix,
+              (Type_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 12 .. Norm_Param'Last)));
 
@@ -1176,104 +1699,135 @@ package body Gnatcheck.Rules is
                    (Norm_Param (Norm_Param'First + 14 .. Norm_Param'Last),
                     "(");
                Set_Unbounded_Wide_Wide_String
-                 (Rule.Access_Suffix,
+                 (Access_Suffix_Value,
                   To_Wide_Wide_String
                     (Norm_Param (Norm_Param'First + 14 .. Paren_Index - 1)));
                Set_Unbounded_Wide_Wide_String
-                 (Rule.Access_Access_Suffix,
+                 (Access_Access_Suffix_Value,
                   To_Wide_Wide_String
                     (Norm_Param (Paren_Index + 1 .. Norm_Param'Last - 1)));
 
             else
                Set_Unbounded_Wide_Wide_String
-                 (Rule.Access_Suffix,
+                 (Access_Suffix_Value,
                   To_Wide_Wide_String
                     (Norm_Param (Norm_Param'First + 14 .. Norm_Param'Last)));
                Set_Unbounded_Wide_Wide_String
-                 (Rule.Access_Access_Suffix, "");
+                 (Access_Access_Suffix_Value, "");
             end if;
 
          elsif Has_Prefix (Norm_Param, "class_access_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Class_Access_Suffix,
+              (Class_Access_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 20 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "class_subtype_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Class_Subtype_Suffix,
+              (Class_Subtype_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 21 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "constant_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Constant_Suffix,
+              (Constant_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 16 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "renaming_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Renaming_Suffix,
+              (Renaming_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 16 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "access_obj_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Access_Obj_Suffix,
+              (Access_Obj_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 18 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "interrupt_suffix=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Interrupt_Suffix,
+              (Interrupt_Suffix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 17 .. Norm_Param'Last)));
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
             Bad_Rule_Detected := True;
-            Rule.Rule_State   := Disabled;
+            State_Value       := Disabled;
          end if;
       else
-         Rule.Rule_State := Disabled;
+         State_Value     := Disabled;
          Rule.Defined_At := new String'(Defined_At);
 
          if Lower_Param = "all_suffixes" then
-            Set_Unbounded_Wide_Wide_String (Rule.Type_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Subtype_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Constant_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Renaming_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Obj_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Interrupt_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Type_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Access_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Access_Access_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Class_Access_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Class_Subtype_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Constant_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Renaming_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Access_Obj_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Interrupt_Suffix_Value, "");
 
          elsif Lower_Param = "type_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Type_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Type_Suffix_Value, "");
          elsif Lower_Param = "access_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Access_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Access_Suffix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Access_Access_Suffix_Value, "");
          elsif Lower_Param = "class_access_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Class_Access_Suffix_Value, "");
          elsif Lower_Param = "class_subtype_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Subtype_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Class_Subtype_Suffix_Value, "");
          elsif Lower_Param = "constant_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Constant_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Constant_Suffix_Value, "");
          elsif Lower_Param = "renaming_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Renaming_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Renaming_Suffix_Value, "");
          elsif Lower_Param = "access_obj_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Obj_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Access_Obj_Suffix_Value, "");
          elsif Lower_Param = "interrupt_suffix" then
-            Set_Unbounded_Wide_Wide_String (Rule.Interrupt_Suffix, "");
+            Set_Unbounded_Wide_Wide_String (Interrupt_Suffix_Value, "");
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
             Bad_Rule_Detected := True;
          end if;
       end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State           := State_Value;
+         Rule.Type_Suffix          := Type_Suffix_Value;
+         Rule.Access_Suffix        := Access_Suffix_Value;
+         Rule.Access_Access_Suffix := Access_Access_Suffix_Value;
+         Rule.Class_Access_Suffix  := Class_Access_Suffix_Value;
+         Rule.Class_Subtype_Suffix := Class_Subtype_Suffix_Value;
+         Rule.Constant_Suffix      := Constant_Suffix_Value;
+         Rule.Renaming_Suffix      := Renaming_Suffix_Value;
+         Rule.Access_Obj_Suffix    := Access_Obj_Suffix_Value;
+         Rule.Interrupt_Suffix     := Interrupt_Suffix_Value;
+      else
+         declare
+            Rec : Identifier_Suffixes_Alias renames
+               Identifier_Suffixes_Alias (Alias.all);
+         begin
+            Rec.Alias_State          := State_Value;
+            Rec.Type_Suffix          := Type_Suffix_Value;
+            Rec.Access_Suffix        := Access_Suffix_Value;
+            Rec.Access_Access_Suffix := Access_Access_Suffix_Value;
+            Rec.Class_Access_Suffix  := Class_Access_Suffix_Value;
+            Rec.Class_Subtype_Suffix := Class_Subtype_Suffix_Value;
+            Rec.Constant_Suffix      := Constant_Suffix_Value;
+            Rec.Renaming_Suffix      := Renaming_Suffix_Value;
+            Rec.Access_Obj_Suffix    := Access_Obj_Suffix_Value;
+            Rec.Interrupt_Suffix     := Interrupt_Suffix_Value;
+         end;
+      end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Prefixes_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String)
@@ -1282,47 +1836,87 @@ package body Gnatcheck.Rules is
       Norm_Param  : constant String := Remove_Spaces (Param);
       Lower_Param : constant String := To_Lower (Param);
 
+      State_Value                    : Rule_States;
+      Type_Prefix_Value              : Unbounded_Wide_Wide_String;
+      Concurrent_Prefix_Value        : Unbounded_Wide_Wide_String;
+      Access_Prefix_Value            : Unbounded_Wide_Wide_String;
+      Class_Access_Prefix_Value      : Unbounded_Wide_Wide_String;
+      Subprogram_Access_Prefix_Value : Unbounded_Wide_Wide_String;
+      Derived_Prefix_Value           : Unbounded_Wide_Wide_String;
+      Constant_Prefix_Value          : Unbounded_Wide_Wide_String;
+      Exception_Prefix_Value         : Unbounded_Wide_Wide_String;
+      Enum_Prefix_Value              : Unbounded_Wide_Wide_String;
+      Exclusive_Value                : Tri_State;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value                    := Rule.Rule_State;
+         Type_Prefix_Value              := Rule.Type_Prefix;
+         Concurrent_Prefix_Value        := Rule.Concurrent_Prefix;
+         Access_Prefix_Value            := Rule.Access_Prefix;
+         Class_Access_Prefix_Value      := Rule.Class_Access_Prefix;
+         Subprogram_Access_Prefix_Value := Rule.Subprogram_Access_Prefix;
+         Derived_Prefix_Value           := Rule.Derived_Prefix;
+         Constant_Prefix_Value          := Rule.Constant_Prefix;
+         Exception_Prefix_Value         := Rule.Exception_Prefix;
+         Enum_Prefix_Value              := Rule.Enum_Prefix;
+         Exclusive_Value                := Rule.Exclusive;
+      else
+         declare
+            Rec : Identifier_Prefixes_Alias renames
+              Identifier_Prefixes_Alias (Alias.all);
+         begin
+            State_Value                    := Rec.Alias_State;
+            Type_Prefix_Value              := Rec.Type_Prefix;
+            Concurrent_Prefix_Value        := Rec.Concurrent_Prefix;
+            Access_Prefix_Value            := Rec.Access_Prefix;
+            Class_Access_Prefix_Value      := Rec.Class_Access_Prefix;
+            Subprogram_Access_Prefix_Value := Rec.Subprogram_Access_Prefix;
+            Derived_Prefix_Value           := Rec.Derived_Prefix;
+            Constant_Prefix_Value          := Rec.Constant_Prefix;
+            Exception_Prefix_Value         := Rec.Exception_Prefix;
+            Enum_Prefix_Value              := Rec.Enum_Prefix;
+            Exclusive_Value                := Rec.Exclusive;
+         end;
+      end if;
+
+      --  Process the actual parameter
       if Norm_Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
-         Rule.Rule_State := Enabled;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
          if Lower_Param = "exclusive" then
-            Rule.Exclusive := On;
+            Exclusive_Value := On;
 
          elsif Has_Prefix (Norm_Param, "type=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Type_Prefix,
+              (Type_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "concurrent=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Concurrent_Prefix,
+              (Concurrent_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 11 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "access=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Access_Prefix,
+              (Access_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 7 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "class_access=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Class_Access_Prefix,
+              (Class_Access_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 13 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "subprogram_access=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Subprogram_Access_Prefix,
+              (Subprogram_Access_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 18 .. Norm_Param'Last)));
 
@@ -1332,94 +1926,129 @@ package body Gnatcheck.Rules is
                 (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last), ":");
 
             if Col_Index /= 0 then
-               if Length (Rule.Derived_Prefix) /= 0 then
-                  Append (Rule.Derived_Prefix, ",");
+               if Length (Derived_Prefix_Value) /= 0 then
+                  Append (Derived_Prefix_Value, ",");
                end if;
 
                Append
-                 (Rule.Derived_Prefix,
+                 (Derived_Prefix_Value,
                   To_Wide_Wide_String
                     (To_Lower
                       (Norm_Param (Norm_Param'First + 8 .. Col_Index - 1))));
                Append
-                 (Rule.Derived_Prefix,
+                 (Derived_Prefix_Value,
                   To_Wide_Wide_String
                     (Norm_Param (Col_Index .. Norm_Param'Last)));
 
             else
                Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
                Bad_Rule_Detected := True;
-               Rule.Rule_State   := Disabled;
+               State_Value       := Disabled;
             end if;
 
          elsif Has_Prefix (Norm_Param, "constant=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Constant_Prefix,
+              (Constant_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 9 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "exception=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Exception_Prefix,
+              (Exception_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 10 .. Norm_Param'Last)));
 
          elsif Has_Prefix (Norm_Param, "enum=") then
             Set_Unbounded_Wide_Wide_String
-              (Rule.Enum_Prefix,
+              (Enum_Prefix_Value,
                To_Wide_Wide_String
                  (Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last)));
 
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
             Bad_Rule_Detected := True;
-            Rule.Rule_State   := Disabled;
+            State_Value       := Disabled;
          end if;
       else
-         Rule.Rule_State := Disabled;
+         State_Value     := Disabled;
          Rule.Defined_At := new String'(Defined_At);
 
          if Lower_Param = "exclusive" then
-            Rule.Exclusive := Off;
+            Exclusive_Value := Off;
 
          elsif Lower_Param = "all_prefixes" then
-            Set_Unbounded_Wide_Wide_String (Rule.Type_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Concurrent_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Subprogram_Access_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Derived_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Constant_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Exception_Prefix, "");
-            Set_Unbounded_Wide_Wide_String (Rule.Enum_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Type_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Concurrent_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Access_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Class_Access_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Subprogram_Access_Prefix_Value,
+                                            "");
+            Set_Unbounded_Wide_Wide_String (Derived_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Constant_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Exception_Prefix_Value, "");
+            Set_Unbounded_Wide_Wide_String (Enum_Prefix_Value, "");
 
          elsif Lower_Param = "type" then
-            Set_Unbounded_Wide_Wide_String (Rule.Type_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Type_Prefix_Value, "");
          elsif Lower_Param = "concurrent" then
-            Set_Unbounded_Wide_Wide_String (Rule.Concurrent_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Concurrent_Prefix_Value, "");
          elsif Lower_Param = "access" then
-            Set_Unbounded_Wide_Wide_String (Rule.Access_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Access_Prefix_Value, "");
          elsif Lower_Param = "class_access" then
-            Set_Unbounded_Wide_Wide_String (Rule.Class_Access_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Class_Access_Prefix_Value, "");
          elsif Lower_Param = "subprogram_access" then
-            Set_Unbounded_Wide_Wide_String (Rule.Subprogram_Access_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Subprogram_Access_Prefix_Value,
+                                            "");
          elsif Lower_Param = "derived" then
-            Set_Unbounded_Wide_Wide_String (Rule.Derived_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Derived_Prefix_Value, "");
          elsif Lower_Param = "constant" then
-            Set_Unbounded_Wide_Wide_String (Rule.Constant_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Constant_Prefix_Value, "");
          elsif Lower_Param = "exception" then
-            Set_Unbounded_Wide_Wide_String (Rule.Exception_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Exception_Prefix_Value, "");
          elsif Lower_Param = "enum" then
-            Set_Unbounded_Wide_Wide_String (Rule.Enum_Prefix, "");
+            Set_Unbounded_Wide_Wide_String (Enum_Prefix_Value, "");
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
             Bad_Rule_Detected := True;
          end if;
       end if;
+
+      --  Set the parameter values in the rule or alias
+      if Alias = null then
+         Rule.Rule_State               := State_Value;
+         Rule.Type_Prefix              := Type_Prefix_Value;
+         Rule.Concurrent_Prefix        := Concurrent_Prefix_Value;
+         Rule.Access_Prefix            := Access_Prefix_Value;
+         Rule.Class_Access_Prefix      := Class_Access_Prefix_Value;
+         Rule.Subprogram_Access_Prefix := Subprogram_Access_Prefix_Value;
+         Rule.Derived_Prefix           := Derived_Prefix_Value;
+         Rule.Constant_Prefix          := Constant_Prefix_Value;
+         Rule.Exception_Prefix         := Exception_Prefix_Value;
+         Rule.Enum_Prefix              := Enum_Prefix_Value;
+         Rule.Exclusive                := Exclusive_Value;
+      else
+         declare
+            Rec : Identifier_Prefixes_Alias renames
+              Identifier_Prefixes_Alias (Alias.all);
+         begin
+            Rec.Alias_State              := State_Value;
+            Rec.Type_Prefix              := Type_Prefix_Value;
+            Rec.Concurrent_Prefix        := Concurrent_Prefix_Value;
+            Rec.Access_Prefix            := Access_Prefix_Value;
+            Rec.Class_Access_Prefix      := Class_Access_Prefix_Value;
+            Rec.Subprogram_Access_Prefix := Subprogram_Access_Prefix_Value;
+            Rec.Derived_Prefix           := Derived_Prefix_Value;
+            Rec.Constant_Prefix          := Constant_Prefix_Value;
+            Rec.Exception_Prefix         := Exception_Prefix_Value;
+            Rec.Enum_Prefix              := Enum_Prefix_Value;
+            Rec.Exclusive                := Exclusive_Value;
+         end;
+      end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Casing_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String)
@@ -1445,44 +2074,73 @@ package body Gnatcheck.Rules is
       end Check_And_Set;
 
       Norm_Param : constant String := To_Lower (Remove_Spaces (Param));
+
+      State_Value            : Rule_States;
+      Type_Casing_Value      : Unbounded_Wide_Wide_String;
+      Enum_Casing_Value      : Unbounded_Wide_Wide_String;
+      Constant_Casing_Value  : Unbounded_Wide_Wide_String;
+      Exception_Casing_Value : Unbounded_Wide_Wide_String;
+      Others_Casing_Value    : Unbounded_Wide_Wide_String;
+      Exclude_Value          : Unbounded_Wide_Wide_String;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value            := Rule.Rule_State;
+         Type_Casing_Value      := Rule.Type_Casing;
+         Enum_Casing_Value      := Rule.Enum_Casing;
+         Constant_Casing_Value  := Rule.Constant_Casing;
+         Exception_Casing_Value := Rule.Exception_Casing;
+         Others_Casing_Value    := Rule.Others_Casing;
+         Exclude_Value          := Rule.Exclude;
+      else
+         declare
+            Rec : Identifier_Casing_Alias renames
+              Identifier_Casing_Alias (Alias.all);
+         begin
+            State_Value            := Rec.Alias_State;
+            Type_Casing_Value      := Rec.Type_Casing;
+            Enum_Casing_Value      := Rec.Enum_Casing;
+            Constant_Casing_Value  := Rec.Constant_Casing;
+            Exception_Casing_Value := Rec.Exception_Casing;
+            Others_Casing_Value    := Rec.Others_Casing;
+            Exclude_Value          := Rec.Exclude;
+         end;
+      end if;
+
+      --  Process the actual parameter
       if Norm_Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
-         Rule.Rule_State := Enabled;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
          if Has_Prefix (Norm_Param, "type=") then
             Check_And_Set
-              (Rule.Type_Casing,
+              (Type_Casing_Value,
                Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last),
                "type");
 
          elsif Has_Prefix (Norm_Param, "enum=") then
             Check_And_Set
-              (Rule.Enum_Casing,
+              (Enum_Casing_Value,
                Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last),
                "enumeration literal");
 
          elsif Has_Prefix (Norm_Param, "constant=") then
             Check_And_Set
-              (Rule.Constant_Casing,
+              (Constant_Casing_Value,
                Norm_Param (Norm_Param'First + 9 .. Norm_Param'Last),
                "constant");
 
          elsif Has_Prefix (Norm_Param, "exception=") then
             Check_And_Set
-              (Rule.Exception_Casing,
+              (Exception_Casing_Value,
                Norm_Param (Norm_Param'First + 10 .. Norm_Param'Last),
                "exception");
 
          elsif Has_Prefix (Norm_Param, "others=") then
             Check_And_Set
-              (Rule.Others_Casing,
+              (Others_Casing_Value,
                Norm_Param (Norm_Param'First + 7 .. Norm_Param'Last),
                "others");
 
@@ -1490,18 +2148,42 @@ package body Gnatcheck.Rules is
             Load_Dictionary
               (Expand_Env_Variables
                  (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)),
-               Rule, Rule.Exclude);
+               Rule.Name.all, State_Value, Exclude_Value);
 
          else
             Error ("(" & Rule.Name.all & ") wrong parameter: " & Param);
             Bad_Rule_Detected := True;
-            Rule.Rule_State   := Disabled;
+            State_Value       := Disabled;
          end if;
       else
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
          Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
+         State_Value       := Disabled;
          Rule.Defined_At   := new String'(Defined_At);
+      end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State       := State_Value;
+         Rule.Type_Casing      := Type_Casing_Value;
+         Rule.Enum_Casing      := Enum_Casing_Value;
+         Rule.Constant_Casing  := Constant_Casing_Value;
+         Rule.Exception_Casing := Exception_Casing_Value;
+         Rule.Others_Casing    := Others_Casing_Value;
+         Rule.Exclude          := Exclude_Value;
+      else
+         declare
+            Rec : Identifier_Casing_Alias renames
+              Identifier_Casing_Alias (Alias.all);
+         begin
+            Rec.Alias_State      := State_Value;
+            Rec.Type_Casing      := Type_Casing_Value;
+            Rec.Enum_Casing      := Enum_Casing_Value;
+            Rec.Constant_Casing  := Constant_Casing_Value;
+            Rec.Exception_Casing := Exception_Casing_Value;
+            Rec.Others_Casing    := Others_Casing_Value;
+            Rec.Exclude          := Exclude_Value;
+         end;
       end if;
    end Process_Rule_Parameter;
 
@@ -1579,73 +2261,110 @@ package body Gnatcheck.Rules is
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Forbidden_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String)
    is
       Lower_Param : constant String := To_Lower (Param);
+
+      State_Value                    : Rule_States;
+      All_Flag_Value                 : Tri_State;
+      Forbidden_Value, Allowed_Value : Unbounded_Wide_Wide_String;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value     := Rule.Rule_State;
+         All_Flag_Value  := Rule.All_Flag;
+         Forbidden_Value := Rule.Forbidden;
+         Allowed_Value   := Rule.Allowed;
+      else
+         declare
+            Rec : Forbidden_Alias renames Forbidden_Alias (Alias.all);
+         begin
+            State_Value     := Rec.Alias_State;
+            All_Flag_Value  := Rec.All_Flag;
+            Forbidden_Value := Rec.Forbidden;
+            Allowed_Value   := Rec.Allowed;
+         end;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
          if Lower_Param = "all" then
-            Rule.All_Flag := On;
+            All_Flag_Value := On;
          else
-            if Length (Rule.Forbidden) /= 0 then
-               Append (Rule.Forbidden, ",");
+            if Length (Forbidden_Value) /= 0 then
+               Append (Forbidden_Value, ",");
             end if;
 
             if Lower_Param = "gnat" then
                if Rule.Name.all = "forbidden_attributes" then
-                  Append (Rule.Forbidden, GNAT_Attributes);
+                  Append (Forbidden_Value, GNAT_Attributes);
                elsif Rule.Name.all = "forbidden_pragmas" then
-                  Append (Rule.Forbidden, GNAT_Pragmas);
+                  Append (Forbidden_Value, GNAT_Pragmas);
                else
-                  Append (Rule.Forbidden, To_Wide_Wide_String (Lower_Param));
+                  Append (Forbidden_Value, To_Wide_Wide_String (Lower_Param));
                end if;
             else
-               Append (Rule.Forbidden, To_Wide_Wide_String (Lower_Param));
+               Append (Forbidden_Value, To_Wide_Wide_String (Lower_Param));
             end if;
          end if;
 
-         Rule.Rule_State := Enabled;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
       else
          if Lower_Param = "all" then
-            Rule.All_Flag   := Off;
-            Rule.Rule_State := Disabled;
-            Rule.Forbidden  := Null_Unbounded_Wide_Wide_String;
-            Rule.Allowed    := Null_Unbounded_Wide_Wide_String;
+            All_Flag_Value  := Off;
+            State_Value     := Disabled;
+            Forbidden_Value := Null_Unbounded_Wide_Wide_String;
+            Allowed_Value   := Null_Unbounded_Wide_Wide_String;
 
          else
-            if Length (Rule.Allowed) /= 0 then
-               Append (Rule.Allowed, ",");
+            if Length (Allowed_Value) /= 0 then
+               Append (Allowed_Value, ",");
             end if;
 
             if Lower_Param = "gnat" then
                if Rule.Name.all = "forbidden_attributes" then
-                  Append (Rule.Allowed, GNAT_Attributes);
+                  Append (Allowed_Value, GNAT_Attributes);
                elsif Rule.Name.all = "forbidden_pragmas" then
-                  Append (Rule.Allowed, GNAT_Pragmas);
+                  Append (Allowed_Value, GNAT_Pragmas);
                else
-                  Append (Rule.Allowed, To_Wide_Wide_String (Lower_Param));
+                  Append (Allowed_Value, To_Wide_Wide_String (Lower_Param));
                end if;
             else
-               Append (Rule.Allowed, To_Wide_Wide_String (Lower_Param));
+               Append (Allowed_Value, To_Wide_Wide_String (Lower_Param));
             end if;
          end if;
 
          Rule.Defined_At := new String'(Defined_At);
       end if;
+
+      --  Update the rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+         Rule.All_Flag   := All_Flag_Value;
+         Rule.Forbidden  := Forbidden_Value;
+         Rule.Allowed    := Allowed_Value;
+      else
+         declare
+            Rec : Forbidden_Alias renames Forbidden_Alias (Alias.all);
+         begin
+            Rec.Alias_State := State_Value;
+            Rec.All_Flag    := All_Flag_Value;
+            Rec.Forbidden   := Forbidden_Value;
+            Rec.Allowed     := Allowed_Value;
+         end;
+      end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Silent_Exception_Handlers_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String)
@@ -1670,44 +2389,85 @@ package body Gnatcheck.Rules is
          Append (Str, To_Wide_Wide_String (Param));
       end Add_To;
 
+      State_Value : Rule_States;
+      Subprograms_Value, Subprogram_Regexps_Value : Unbounded_Wide_Wide_String;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value              := Rule.Rule_State;
+         Subprograms_Value        := Rule.Subprograms;
+         Subprogram_Regexps_Value := Rule.Subprogram_Regexps;
+      else
+         declare
+            Rec : Silent_Exception_Handlers_Alias renames
+              Silent_Exception_Handlers_Alias (Alias.all);
+         begin
+            State_Value              := Rec.Alias_State;
+            Subprograms_Value        := Rec.Subprograms;
+            Subprogram_Regexps_Value := Rec.Subprogram_Regexps;
+         end;
+      end if;
+
+      --  Process the acutal parameter
       if Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
          if Param (Param'First) = '"' then
-            Add_To (Rule.Subprogram_Regexps,
+            Add_To (Subprogram_Regexps_Value,
                     Param (Param'First + 1 .. Param'Last - 1));
          else
-            Add_To (Rule.Subprograms, To_Lower (Param));
+            Add_To (Subprograms_Value, To_Lower (Param));
          end if;
 
-         Rule.Rule_State := Enabled;
+         State_Value     := Enabled;
          Rule.Defined_At := new String'(Defined_At);
 
       else
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
          Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
+         State_Value       := Disabled;
          Rule.Defined_At   := new String'(Defined_At);
+      end if;
+
+      --  Update rule or alias values with the computed ones
+      if Alias = null then
+         Rule.Rule_State         := State_Value;
+         Rule.Subprograms        := Subprograms_Value;
+         Rule.Subprogram_Regexps := Subprogram_Regexps_Value;
+      else
+         declare
+            Rec : Silent_Exception_Handlers_Alias renames
+              Silent_Exception_Handlers_Alias (Alias.all);
+         begin
+            Rec.Alias_State        := State_Value;
+            Rec.Subprograms        := Subprograms_Value;
+            Rec.Subprogram_Regexps := Subprogram_Regexps_Value;
+         end;
       end if;
    end Process_Rule_Parameter;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Custom_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
-      Defined_At : String) is
+      Defined_At : String)
+   is
+      State_Value     : Rule_States;
+      Arguments_Value : Rule_Argument_Vectors.Vector;
    begin
+      --  Initialize rule and alias common values
+      if Alias = null then
+         State_Value     := Rule.Rule_State;
+         Arguments_Value := Rule.Arguments;
+      else
+         State_Value     := Alias.Alias_State;
+         Arguments_Value := Custom_Alias (Alias.all).Arguments;
+      end if;
+
+      --  Process the actual parameter
       if Param = "" then
-         if Enable then
-            Rule.Rule_State := Enabled;
-         else
-            Rule.Rule_State := Disabled;
-         end if;
+         State_Value := (if Enable then Enabled else Disabled);
       elsif Enable then
          Rule.Defined_At := new String'(Defined_At);
 
@@ -1718,7 +2478,7 @@ package body Gnatcheck.Rules is
                Error ("(" & Rule.Name.all &
                       ") missing = in parameter argument: " & Param);
                Bad_Rule_Detected := True;
-               Rule.Rule_State   := Disabled;
+               State_Value       := Disabled;
                return;
             end if;
 
@@ -1739,27 +2499,36 @@ package body Gnatcheck.Rules is
                end loop;
 
                if Found then
-                  Rule.Arguments.Append (Rule_Argument'
+                  Arguments_Value.Append (Rule_Argument'
                     (Name  => To_Unbounded_Text
                                 (To_Text (Param_Name)),
                      Value => To_Unbounded_Text
                                 (To_Text
                                   (Param (First_Equal + 1 .. Param'Last)))));
-                  Rule.Rule_State := Enabled;
+                  State_Value := Enabled;
 
                else
                   Error ("(" & Rule.Name.all &
                          ") unknown parameter: " & Param_Name);
                   Bad_Rule_Detected := True;
-                  Rule.Rule_State   := Disabled;
+                  State_Value       := Disabled;
                end if;
             end;
          end;
       else
          Error ("(" & Rule.Name.all & ") no parameter allowed for -R");
          Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
+         State_Value       := Disabled;
          Rule.Defined_At   := new String'(Defined_At);
+      end if;
+
+      --  Place the computed parameter values in the rule or alias
+      if Alias = null then
+         Rule.Rule_State := State_Value;
+         Rule.Arguments  := Arguments_Value;
+      else
+         Alias.Alias_State                  := State_Value;
+         Custom_Alias (Alias.all).Arguments := Arguments_Value;
       end if;
    end Process_Rule_Parameter;
 
@@ -1798,9 +2567,12 @@ package body Gnatcheck.Rules is
    begin
       --  Handle the "headers" rule in a special way since the argument should
       --  be a file name.
-      --  TODOCUMENT
       if Rule.Name.all = "headers" then
-         Rule.Load_File (Expect_Literal (Params_Object, Param_Name));
+         Rule.Load_File
+           (To_Load => Expect_Literal (Params_Object, Param_Name),
+            File_Name => Rule.File,
+            File_Content => Rule.Param,
+            State => Rule.Rule_State);
          Params_Object.Unset_Field (Param_Name);
 
       --  Else, handle the parameter as a simple string
@@ -1821,7 +2593,6 @@ package body Gnatcheck.Rules is
    begin
       --  If the rule is "name_clashes", then load the provided file a
       --  dictionary file.
-      --  TODOCUMENT
       if Rule.Name.all = "name_clashes" then
          declare
             Param_Value : constant String :=
@@ -1829,7 +2600,10 @@ package body Gnatcheck.Rules is
          begin
             Set_Unbounded_String (Rule.File, Param_Value);
             Load_Dictionary
-              (Expand_Env_Variables (Param_Value), Rule, Rule.Param);
+              (Expand_Env_Variables (Param_Value),
+               Rule_Name (Rule),
+               Rule.Rule_State,
+               Rule.Param);
             Params_Object.Unset_Field ("dictionary_file");
          end;
       end if;
@@ -1857,7 +2631,6 @@ package body Gnatcheck.Rules is
 
             --  Special case for the "actual_parameters" rule which should
             --  have a list of three-elem tuples of strings.
-            --  TODOCUMENT
             elsif Rule.Name.all = "actual_parameters" then
                begin
                   for S of Param_Value loop
@@ -1872,7 +2645,6 @@ package body Gnatcheck.Rules is
 
             --  Special case for the "exception_propagation_from_callbacks"
             --  rule which should have a list of two-elems tuples of strings.
-            --  TODOCUMENT
             elsif Rule.Name.all = "exception_propagation_from_callbacks"
             then
                begin
@@ -1887,7 +2659,6 @@ package body Gnatcheck.Rules is
                end;
 
             --  Else the rule parameter is just a list of strings
-            --  TODOCUMENT
             else
                Res := Param_Value;
             end if;
@@ -1929,7 +2700,6 @@ package body Gnatcheck.Rules is
       Params_Object : in out JSON_Value) is
    begin
       --  Process the "default" boolean parameter
-      --  TODOCUMENT
       if Params_Object.Has_Field ("default") then
          if Expect_Literal (Params_Object, "default") then
             Set_Unbounded_Wide_Wide_String (Rule.Type_Suffix, "_T");
@@ -1946,7 +2716,6 @@ package body Gnatcheck.Rules is
       end if;
 
       --  Process the "access_suffix" special string argument
-      --  TODOCUMENT
       if Params_Object.Has_Field ("access_suffix") then
          declare
             Arg : constant String :=
@@ -1993,7 +2762,6 @@ package body Gnatcheck.Rules is
       Col_Index : Natural;
    begin
       --  Process the exclusive boolean argument
-      --  TODOCUMENT
       if Params_Object.Has_Field ("exclusive") then
          Rule.Exclusive :=
            From_Boolean (Expect_Literal (Params_Object, "exclusive"));
@@ -2001,7 +2769,6 @@ package body Gnatcheck.Rules is
       end if;
 
       --  Process the "derived" argument
-      --  TODOCUMENT
       if Params_Object.Has_Field ("derived") then
          Derived_Param := Expect_Literal (Params_Object, "derived");
          for S of Derived_Param loop
@@ -2043,11 +2810,11 @@ package body Gnatcheck.Rules is
       Params_Object : in out JSON_Value) is
    begin
       --  Process the "exclude" argument
-      --  TODOCUMENT
       if Params_Object.Has_Field ("exclude") then
          Load_Dictionary
            (Expand_Env_Variables (Expect_Literal (Params_Object, "exclude")),
-            Rule,
+            Rule_Name (Rule),
+            Rule.Rule_State,
             Rule.Exclude);
          Params_Object.Unset_Field ("exclude");
       end if;
@@ -2114,14 +2881,12 @@ package body Gnatcheck.Rules is
       end Process_List_Field;
    begin
       --  Process the "all" boolean argument
-      --  TODOCUMENT
       if Params_Object.Has_Field ("all") then
          Rule.All_Flag := From_Boolean (Expect_Literal (Params_Object, "all"));
          Params_Object.Unset_Field ("all");
       end if;
 
       --  Process the "forbidden" and "allowed" list argument
-      --  TODOCUMENT
       Process_List_Field ("forbidden", Rule.Forbidden);
       Process_List_Field ("allowed", Rule.Allowed);
    end Process_Rule_Params_Object;
@@ -2133,7 +2898,6 @@ package body Gnatcheck.Rules is
       Subp_Value : String_Vector;
    begin
       --  Process the "subprograms" list argument
-      --  TODOCUMENT
       if Params_Object.Has_Field ("subprograms") then
          Subp_Value := Expect_Literal (Params_Object, "subprograms");
          for S of Subp_Value loop
@@ -2184,276 +2948,146 @@ package body Gnatcheck.Rules is
      (Rule : in out One_Integer_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      if Rule.Param /= Integer'First then
-         Args.Append
-           (Rule_Argument'(Name  => To_Unbounded_Text
-                                      (Rule.Parameters.Child (2).
-                                       As_Parameter_Decl.F_Param_Identifier.
-                                       Text),
-                           Value => To_Unbounded_Text
-                                      (Rule.Param'Wide_Wide_Image)));
-      end if;
+      Append_Int_Param (Args, Param_Name (Rule, 2), Rule.Param);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_Integer_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_Int_Param (Args, Param_Name (Get_Rule (Alias), 2), Alias.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
      (Rule : in out One_Boolean_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      if Rule.Param /= Unset then
-         Args.Append
-           (Rule_Argument'
-             (Name  => To_Unbounded_Text
-                         (Rule.Parameters.Child (2).
-                          As_Parameter_Decl.F_Param_Identifier.Text),
-              Value => To_Unbounded_Text
-                         (if Rule.Param = On then "true" else "false")));
-      end if;
+      Append_Bool_Param (Args, Param_Name (Rule, 2), Rule.Param);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_Boolean_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_Bool_Param (Args, Param_Name (Get_Rule (Alias), 2), Alias.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
      (Rule : in out One_String_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      Append_Param (Args,
-                    Rule.Parameters.Child (2).
-                    As_Parameter_Decl.F_Param_Identifier.Text,
-                    Rule.Param);
+      Append_String_Param (Args, Param_Name (Rule, 2), Rule.Param);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_String_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector)
+   is
+   begin
+      Append_String_Param
+        (Args, Param_Name (Get_Rule (Alias), 2), Alias.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
      (Rule : in out One_Integer_Or_Booleans_Parameter_Rule;
-      Args : in out Rule_Argument_Vectors.Vector)
-   is
+      Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      if Rule.Integer_Param /= Integer'First then
-         Args.Append
-           (Rule_Argument'(Name  => To_Unbounded_Text
-                                      (Rule.Parameters.Child (2).
-                                       As_Parameter_Decl.F_Param_Identifier.
-                                       Text),
-                           Value => To_Unbounded_Text
-                                      (Rule.Integer_Param'Wide_Wide_Image)));
-      end if;
-
+      Append_Int_Param (Args, Param_Name (Rule, 2), Rule.Integer_Param);
       for J in 2 .. Rule.Parameters.Last_Child_Index loop
-         if Rule.Boolean_Params (J) /= Unset then
-            Args.Append
-              (Rule_Argument'
-                (Name  => To_Unbounded_Text
-                            (Rule.Parameters.Child (J).
-                             As_Parameter_Decl.F_Param_Identifier.Text),
-                 Value => To_Unbounded_Text
-                            (if Rule.Boolean_Params (J) = On
-                             then "true" else "false")));
-         end if;
+         Append_Bool_Param
+           (Args, Param_Name (Rule, J), Rule.Boolean_Params (J));
+      end loop;
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_Integer_Or_Booleans_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector)
+   is
+      Rule : constant Rule_Template'Class :=
+        All_Rules.Table (Alias.Rule).all;
+   begin
+      Append_Int_Param (Args, Param_Name (Rule, 2), Alias.Integer_Param);
+      for J in 2 .. Rule.Parameters.Last_Child_Index loop
+         Append_Bool_Param
+           (Args, Param_Name (Rule, J), Alias.Boolean_Params (J));
       end loop;
    end Map_Parameters;
 
    overriding procedure Map_Parameters
      (Rule : in out One_Array_Parameter_Rule;
-      Args : in out Rule_Argument_Vectors.Vector)
-   is
-      Last : constant Natural := Length (Rule.Param);
-
-      procedure Error;
-      --  Emit an error message when an invalid parameter is detected.
-
-      function Find_Char
-        (Str      : Wide_Wide_String;
-         C        : Wide_Wide_Character;
-         Backward : Boolean := False) return Natural;
-      --  Return the first occurrence of C in Str, 0 if none
-      --  If Backward is True, search from the end of the string.
-
-      -----------
-      -- Error --
-      -----------
-
-      procedure Error is
-      begin
-         Error ("(" & Rule.Name.all & ") wrong parameter: " &
-                To_String (Rule.Param));
-         Rule.Rule_State   := Disabled;
-         Bad_Rule_Detected := True;
-      end Error;
-
-      -----------
-      -- Index --
-      -----------
-
-      function Find_Char
-        (Str      : Wide_Wide_String;
-         C        : Wide_Wide_Character;
-         Backward : Boolean := False) return Natural is
-      begin
-         if Backward then
-            for J in reverse Str'Range loop
-               if Str (J) = C then
-                  return J;
-               end if;
-            end loop;
-         else
-            for J in Str'Range loop
-               if Str (J) = C then
-                  return J;
-               end if;
-            end loop;
-         end if;
-
-         return 0;
-      end Find_Char;
-
+      Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      --  Check whether we have 5 arguments for parameters_out_of_order
+      Handle_Array_Param (Args, Rule, Rule.Param);
+   end Map_Parameters;
 
-      if Rule.Name.all = "parameters_out_of_order"
-        and then Last /= 0
-        and then Slice_Count (Create (To_String (Rule.Param), ",")) /= 5
-      then
-         Error ("(" & Rule.Name.all & ") requires 5 parameters, got: " &
-                To_String (Rule.Param));
-         Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
-         return;
-      end if;
-
-      if Rule.Name.all = "actual_parameters" and then Last /= 0 then
-         declare
-            Param        : Unbounded_Wide_Wide_String;
-            C            : Wide_Wide_Character;
-            Num_Elements : Positive := 1;
-            Lower        : Boolean  := True;
-
-         begin
-            Append (Param, "[(""");
-
-            for J in 1 .. Last loop
-               C := Element (Rule.Param, J);
-
-               case C is
-                  when '"'    =>
-                     if Num_Elements = 3 then
-                        if Element (Rule.Param, J - 1) = ':' then
-                           Append (Param, '|');
-                           Lower := False;
-
-                        elsif J /= Last
-                          and then Element (Rule.Param, J + 1) /= ','
-                        then
-                           Error;
-                           return;
-                        end if;
-                     else
-                        Append (Param, "\""");
-                     end if;
-
-                  when ':'    =>
-                     Append (Param, """,""");
-                     Num_Elements := @ + 1;
-                     Lower := True;
-
-                  when ','    =>
-                     Append (Param, """),(""");
-                     Num_Elements := 1;
-                     Lower := True;
-
-                  when others =>
-                     Append (Param, (if Lower then To_Lower (C) else C));
-               end case;
-            end loop;
-
-            Append (Param, """)]");
-            Args.Append
-              (Rule_Argument'
-                (Name  => To_Unbounded_Text (Rule.Parameters.Child (2).
-                                             As_Parameter_Decl.
-                                             F_Param_Identifier.Text),
-                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
-         end;
-      elsif Last /= 0
-        and then Rule.Name.all = "exception_propagation_from_callbacks"
-      then
-         declare
-            Param      : Unbounded_Wide_Wide_String;
-            Str        : constant Wide_Wide_String :=
-              To_Wide_Wide_String (Rule.Param);
-            Current    : Natural := Str'First;
-            Next_Comma : Natural;
-            Dot        : Natural;
-
-         begin
-            Append (Param, "[(""");
-
-            loop
-               Next_Comma := Find_Char (Str (Current .. Str'Last), ',');
-
-               if Next_Comma = 0 then
-                  Next_Comma := Str'Last + 1;
-               end if;
-
-               Dot :=
-                 Find_Char
-                   (Str (Current .. Next_Comma - 1), '.', Backward => True);
-
-               if Dot = 0 then
-                  Error;
-                  return;
-               end if;
-
-               Append (Param, To_Lower (Str (Current .. Dot - 1)));
-               Append (Param, """,""");
-               Append (Param, To_Lower (Str (Dot + 1 .. Next_Comma - 1)));
-               Current := Next_Comma + 1;
-
-               exit when Current > Str'Last;
-
-               Append (Param, """),(""");
-            end loop;
-
-            Append (Param, """)]");
-            Args.Append
-              (Rule_Argument'
-                (Name  => To_Unbounded_Text (Rule.Parameters.Child (2).
-                                             As_Parameter_Decl.
-                                             F_Param_Identifier.Text),
-                 Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
-         end;
-      else
-         Append_Array_Param
-           (Args,
-            Rule.Parameters.Child (2).As_Parameter_Decl.
-              F_Param_Identifier.Text,
-            Rule.Param);
-      end if;
+   overriding procedure Map_Parameters
+     (Alias : in out One_Array_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector)
+   is
+      Rule : One_Array_Parameter_Rule :=
+        One_Array_Parameter_Rule (Get_Rule (Alias));
+   begin
+      Handle_Array_Param (Args, Rule, Alias.Param);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
      (Rule : in out Identifier_Suffixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      Append_Param (Args, "type_suffix", Rule.Type_Suffix);
-      Append_Param (Args, "access_suffix", Rule.Access_Suffix);
-      Append_Param (Args, "access_access_suffix", Rule.Access_Access_Suffix);
-      Append_Param (Args, "class_access_suffix", Rule.Class_Access_Suffix);
-      Append_Param (Args, "class_subtype_suffix", Rule.Class_Subtype_Suffix);
-      Append_Param (Args, "constant_suffix", Rule.Constant_Suffix);
-      Append_Param (Args, "renaming_suffix", Rule.Renaming_Suffix);
-      Append_Param (Args, "access_obj_suffix", Rule.Access_Obj_Suffix);
-      Append_Param (Args, "interrupt_suffix", Rule.Interrupt_Suffix);
+      Append_String_Param (Args, "type_suffix", Rule.Type_Suffix);
+      Append_String_Param (Args, "access_suffix", Rule.Access_Suffix);
+      Append_String_Param
+        (Args, "access_access_suffix", Rule.Access_Access_Suffix);
+      Append_String_Param
+        (Args, "class_access_suffix", Rule.Class_Access_Suffix);
+      Append_String_Param
+        (Args, "class_subtype_suffix", Rule.Class_Subtype_Suffix);
+      Append_String_Param
+        (Args, "constant_suffix", Rule.Constant_Suffix);
+      Append_String_Param
+        (Args, "renaming_suffix", Rule.Renaming_Suffix);
+      Append_String_Param
+        (Args, "access_obj_suffix", Rule.Access_Obj_Suffix);
+      Append_String_Param
+        (Args, "interrupt_suffix", Rule.Interrupt_Suffix);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out Identifier_Suffixes_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_String_Param (Args, "type_suffix", Alias.Type_Suffix);
+      Append_String_Param (Args, "access_suffix", Alias.Access_Suffix);
+      Append_String_Param
+        (Args, "access_access_suffix", Alias.Access_Access_Suffix);
+      Append_String_Param
+        (Args, "class_access_suffix", Alias.Class_Access_Suffix);
+      Append_String_Param
+        (Args, "class_subtype_suffix", Alias.Class_Subtype_Suffix);
+      Append_String_Param
+        (Args, "constant_suffix", Alias.Constant_Suffix);
+      Append_String_Param
+        (Args, "renaming_suffix", Alias.Renaming_Suffix);
+      Append_String_Param
+        (Args, "access_obj_suffix", Alias.Access_Obj_Suffix);
+      Append_String_Param
+        (Args, "interrupt_suffix", Alias.Interrupt_Suffix);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
      (Rule : in out Identifier_Prefixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      Append_Param (Args, "type", Rule.Type_Prefix);
-      Append_Param (Args, "concurrent", Rule.Concurrent_Prefix);
-      Append_Param (Args, "access", Rule.Access_Prefix);
-      Append_Param (Args, "class_access", Rule.Class_Access_Prefix);
-      Append_Param (Args, "subprogram_access", Rule.Subprogram_Access_Prefix);
-      Append_Param (Args, "constant", Rule.Constant_Prefix);
-      Append_Param (Args, "exception", Rule.Exception_Prefix);
-      Append_Param (Args, "enum", Rule.Enum_Prefix);
+      Append_String_Param (Args, "type", Rule.Type_Prefix);
+      Append_String_Param (Args, "concurrent", Rule.Concurrent_Prefix);
+      Append_String_Param (Args, "access", Rule.Access_Prefix);
+      Append_String_Param
+        (Args, "class_access", Rule.Class_Access_Prefix);
+      Append_String_Param
+        (Args, "subprogram_access", Rule.Subprogram_Access_Prefix);
+      Append_String_Param (Args, "constant", Rule.Constant_Prefix);
+      Append_String_Param (Args, "exception", Rule.Exception_Prefix);
+      Append_String_Param (Args, "enum", Rule.Enum_Prefix);
       Append_Array_Param (Args, "derived", Rule.Derived_Prefix);
 
       if Rule.Exclusive = Off then
@@ -2465,15 +3099,51 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
+     (Alias : in out Identifier_Prefixes_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_String_Param (Args, "type", Alias.Type_Prefix);
+      Append_String_Param (Args, "concurrent", Alias.Concurrent_Prefix);
+      Append_String_Param (Args, "access", Alias.Access_Prefix);
+      Append_String_Param
+        (Args, "class_access", Alias.Class_Access_Prefix);
+      Append_String_Param
+        (Args, "subprogram_access", Alias.Subprogram_Access_Prefix);
+      Append_String_Param (Args, "constant", Alias.Constant_Prefix);
+      Append_String_Param (Args, "exception", Alias.Exception_Prefix);
+      Append_String_Param (Args, "enum", Alias.Enum_Prefix);
+      Append_Array_Param (Args, "derived", Alias.Derived_Prefix);
+
+      if Alias.Exclusive = Off then
+         Args.Append
+           (Rule_Argument'
+             (Name  => To_Unbounded_Text ("exclusive"),
+              Value => To_Unbounded_Text ("false")));
+      end if;
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
      (Rule : in out Identifier_Casing_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
-      Append_Param (Args, "type", Rule.Type_Casing);
-      Append_Param (Args, "enum", Rule.Enum_Casing);
-      Append_Param (Args, "constant", Rule.Constant_Casing);
-      Append_Param (Args, "exception", Rule.Exception_Casing);
-      Append_Param (Args, "others", Rule.Others_Casing);
+      Append_String_Param (Args, "type", Rule.Type_Casing);
+      Append_String_Param (Args, "enum", Rule.Enum_Casing);
+      Append_String_Param (Args, "constant", Rule.Constant_Casing);
+      Append_String_Param (Args, "exception", Rule.Exception_Casing);
+      Append_String_Param (Args, "others", Rule.Others_Casing);
       Append_Array_Param (Args, "exclude", Rule.Exclude);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out Identifier_Casing_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_String_Param (Args, "type", Alias.Type_Casing);
+      Append_String_Param (Args, "enum", Alias.Enum_Casing);
+      Append_String_Param (Args, "constant", Alias.Constant_Casing);
+      Append_String_Param (Args, "exception", Alias.Exception_Casing);
+      Append_String_Param (Args, "others", Alias.Others_Casing);
+      Append_Array_Param (Args, "exclude", Alias.Exclude);
    end Map_Parameters;
 
    overriding procedure Map_Parameters
@@ -2492,6 +3162,21 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
+     (Alias : in out Forbidden_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      if Alias.All_Flag = On then
+         Args.Append
+           (Rule_Argument'
+             (Name  => To_Unbounded_Text ("all"),
+              Value => To_Unbounded_Text ("true")));
+      end if;
+
+      Append_Array_Param (Args, "forbidden", Alias.Forbidden);
+      Append_Array_Param (Args, "allowed", Alias.Allowed);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
      (Rule : in out Silent_Exception_Handlers_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
@@ -2500,10 +3185,28 @@ package body Gnatcheck.Rules is
    end Map_Parameters;
 
    overriding procedure Map_Parameters
+     (Alias : in out Silent_Exception_Handlers_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      Append_Array_Param (Args, "subprograms", Alias.Subprograms);
+      Append_Array_Param
+        (Args, "subprogram_regexps", Alias.Subprogram_Regexps);
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
      (Rule : in out Custom_Rule;
       Args : in out Rule_Argument_Vectors.Vector) is
    begin
       for Arg of Rule.Arguments loop
+         Args.Append (Arg);
+      end loop;
+   end Map_Parameters;
+
+   overriding procedure Map_Parameters
+     (Alias : in out Custom_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector) is
+   begin
+      for Arg of Alias.Arguments loop
          Args.Append (Arg);
       end loop;
    end Map_Parameters;
@@ -2649,19 +3352,6 @@ package body Gnatcheck.Rules is
          return "";
       end if;
    end Rule_Parameter;
-
-   ------------------
-   -- Rule_Synonym --
-   ------------------
-
-   function Rule_Synonym (Rule : Rule_Template) return String is
-   begin
-      if Has_Synonym (Rule) then
-         return Rule.User_Synonym.all;
-      else
-         return "";
-      end if;
-   end Rule_Synonym;
 
    --------------------
    -- Parameter_Name --
@@ -3378,6 +4068,81 @@ package body Gnatcheck.Rules is
       XML_Rule_Help (Rule_Template (Rule), Level);
    end XML_Rule_Help;
 
+   ------------------
+   -- Create_Alias --
+   ------------------
+
+   function Create_Alias (Rule : Rule_Template) return Alias_Access is
+   begin
+      return new Alias_Template;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : One_Integer_Parameter_Rule) return Alias_Access is
+   begin
+      return new One_Integer_Parameter_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : One_Boolean_Parameter_Rule) return Alias_Access is
+   begin
+      return new One_Boolean_Parameter_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : One_String_Parameter_Rule) return Alias_Access is
+   begin
+      return new One_String_Parameter_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : One_Array_Parameter_Rule) return Alias_Access is
+   begin
+      return new One_Array_Parameter_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : One_Integer_Or_Booleans_Parameter_Rule) return Alias_Access is
+   begin
+      return new One_Integer_Or_Booleans_Parameter_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : Identifier_Suffixes_Rule) return Alias_Access is
+   begin
+      return new Identifier_Suffixes_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : Identifier_Prefixes_Rule) return Alias_Access is
+   begin
+      return new Identifier_Prefixes_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : Identifier_Casing_Rule) return Alias_Access is
+   begin
+      return new Identifier_Casing_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : Forbidden_Rule) return Alias_Access is
+   begin
+      return new Forbidden_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : Silent_Exception_Handlers_Rule) return Alias_Access is
+   begin
+      return new Silent_Exception_Handlers_Alias;
+   end Create_Alias;
+
+   overriding function Create_Alias
+     (Rule : Custom_Rule) return Alias_Access is
+   begin
+      return new Custom_Alias;
+   end Create_Alias;
+
    -----------------------
    -- XML_Rule_Help_Tip --
    -----------------------
@@ -3392,20 +4157,23 @@ package body Gnatcheck.Rules is
    ---------------
 
    procedure Load_File
-     (Rule      : in out One_String_Parameter_Rule;
-      File_Name : String)
+     (Rule         : in out One_String_Parameter_Rule;
+      To_Load      : String;
+      File_Name    : in out Unbounded_String;
+      File_Content : in out Unbounded_Wide_Wide_String;
+      State        : in out Rule_States)
    is
-      Abs_Name : constant String := Find_File (File_Name);
+      Abs_Name : constant String := Find_File (To_Load);
       Str  : GNAT.OS_Lib.String_Access;
       Last : Natural;
    begin
       if Abs_Name /= "" then
          Str := Read_File (Abs_Name);
-         Ada.Strings.Unbounded.Set_Unbounded_String (Rule.File, Abs_Name);
+         Ada.Strings.Unbounded.Set_Unbounded_String (File_Name, Abs_Name);
       else
-         Error ("(" & Rule.Name.all & "): cannot load file " & File_Name);
+         Error ("(" & Rule.Name.all & "): cannot load file " & To_Load);
          Bad_Rule_Detected := True;
-         Rule.Rule_State   := Disabled;
+         State := Disabled;
          return;
       end if;
 
@@ -3420,7 +4188,7 @@ package body Gnatcheck.Rules is
          end if;
 
          Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
-           (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
+           (File_Content, To_Wide_Wide_String (Str (1 .. Last)));
          GNAT.OS_Lib.Free (Str);
       end if;
    end Load_File;

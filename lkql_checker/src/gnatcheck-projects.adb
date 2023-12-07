@@ -1986,6 +1986,13 @@ package body Gnatcheck.Projects is
          end if;
       end loop;
 
+      for Alias in All_Aliases.Iterate loop
+         if Is_Enabled (All_Aliases (Alias).all) then
+            Active_Rule_Present := True;
+            exit;
+         end if;
+      end loop;
+
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
          if Gnatkp_Mode and then KP_Version /= null then
             Error ("No rule for the given kp-version");

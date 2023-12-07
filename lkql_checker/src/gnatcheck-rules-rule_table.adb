@@ -213,17 +213,18 @@ package body Gnatcheck.Rules.Rule_Table is
       --  This is a rather ineficient implementation. At some point we
       --  should think about a hash table.
 
+      --  Try to get the rule from the rule table
       for J in First_Rule .. All_Rules.Last loop
-         --  Check the rule name as well as the user specified name, if any
-
          if To_Lower (All_Rules.Table (J).Name.all) = Normalized_Rule_Name
-           or else (All_Rules.Table (J).User_Synonym /= null
-                    and then To_Lower (All_Rules.Table (J).User_Synonym.all) =
-                             Normalized_Rule_Name)
          then
             return J;
          end if;
       end loop;
+
+      --  Then try to get the rule from the alias table
+      if All_Aliases.Contains (Normalized_Rule_Name) then
+         return All_Aliases (Normalized_Rule_Name).Rule;
+      end if;
 
       return No_Rule;
    end Get_Rule;
@@ -849,6 +850,7 @@ package body Gnatcheck.Rules.Rule_Table is
       --  set to 0.
 
       Rule    : Rule_Id;
+      Alias   : Alias_Access := null;
       Enable  : Boolean;
 
       Diag_Defined_At : constant String :=
@@ -1081,15 +1083,26 @@ package body Gnatcheck.Rules.Rule_Table is
                Set_Parameter;
 
                if Enable and then Rule_Synonym_Start > 0 then
-                  Free (All_Rules.Table (Rule).User_Synonym);
-                  All_Rules.Table (Rule).User_Synonym :=
-                    new String'(Option
-                      (Rule_Synonym_Start .. Rule_Synonym_End));
+                  declare
+                     User_Synonym : String renames
+                        Option (Rule_Synonym_Start .. Rule_Synonym_End);
+                  begin
+                     if All_Aliases.Contains (User_Synonym) then
+                        Error ("multiple aliases with the same name: " &
+                               User_Synonym);
+                        raise Gnatcheck.Options.Fatal_Error;
+                     end if;
+                     Alias      := Create_Alias_For_Rule (Rule);
+                     Alias.Name := To_Unbounded_String (User_Synonym);
+                     All_Aliases.Include (To_Lower (User_Synonym), Alias);
+                     All_Rules.Table (Rule).Aliases.Append (Alias);
+                  end;
                end if;
 
                if Word_Start = 0 then
                   Process_Rule_Parameter
                     (Rule       => All_Rules.Table (Rule).all,
+                     Alias      => Alias,
                      Param      => "",
                      Enable     => Enable,
                      Defined_At => Defined_At);
@@ -1098,6 +1111,7 @@ package body Gnatcheck.Rules.Rule_Table is
                   while Word_Start /= 0 loop
                      Process_Rule_Parameter
                        (Rule       => All_Rules.Table (Rule).all,
+                        Alias      => Alias,
                         Param      => Option (Word_Start .. Word_End),
                         Enable     => Enable,
                         Defined_At => Defined_At);
@@ -1221,9 +1235,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
          --  Then get the alias if there is any
          if Instance_Object.Has_Field ("instanceName") then
-            Free (Rule.User_Synonym);
-            Rule.User_Synonym :=
-              new String'(Expect (Instance_Object, "instanceName"));
+            --  At this state we cannot handle the instance name
+            null;
          end if;
 
          --  Process the arguments object with the rule template

@@ -2056,19 +2056,41 @@ package body Gnatcheck.Diagnoses is
    ---------------------------
 
    procedure Process_Exempt_Action (Self : Exempt_Action) is
-      SF          : constant SF_Id   := File_Find (Self.Unit.Get_Filename);
-      Rule_Name   : constant String  := To_String (Self.Rule_Name);
-      Rule        : constant Rule_Id := Get_Rule (Rule_Name);
-      Has_Params  : constant Boolean := not Self.Params.Is_Empty;
-      Exempted_At : Parametrized_Exemption_Sections.Cursor;
-      Sloc_Start  : constant Source_Location :=
+      function Is_Enabled (Rule : Rule_Id) return Boolean;
+      --  Get whether the given rule is enabled or has an enabled alias
+
+      SF              : constant SF_Id   := File_Find (Self.Unit.Get_Filename);
+      Rule_Name       : constant String  := To_String (Self.Rule_Name);
+      Lower_Rule_Name : constant String  := To_Lower (Rule_Name);
+      Rule            : constant Rule_Id := Get_Rule (Rule_Name);
+      Has_Params      : constant Boolean := not Self.Params.Is_Empty;
+      Exempted_At     : Parametrized_Exemption_Sections.Cursor;
+      Sloc_Start      : constant Source_Location :=
         Langkit_Support.Slocs.Start_Sloc (Self.Sloc_Range);
-      Sloc_End    : constant Source_Location :=
+      Sloc_End        : constant Source_Location :=
         Langkit_Support.Slocs.End_Sloc (Self.Sloc_Range);
+      Alias           : Alias_Access     := null;
 
       use Parametrized_Exemption_Sections;
 
       Action : Exempt_Action := Self;
+
+      function Is_Enabled (Rule : Rule_Id) return Boolean is
+      begin
+         if Gnatcheck.Rules.Rule_Table.Is_Enabled (Rule) then
+            return True;
+         end if;
+
+         if Rule not in Compiler_Checks then
+            for Alias of All_Rules.Table (Rule).Aliases loop
+               if Is_Enabled (Alias) then
+                  return True;
+               end if;
+            end loop;
+         end if;
+
+         return False;
+      end Is_Enabled;
    begin
       --  First part: Legality checks
 
@@ -2141,9 +2163,17 @@ package body Gnatcheck.Diagnoses is
             SF                 => SF);
       end if;
 
-      --  If Rule does not denote the enabled rule - nothing to do
+      --  Get the alias designated by the rule name if the latter is not the
+      --  same as the provided rule.
 
-      if not (Is_Enabled (Rule)
+      if Lower_Rule_Name /= Gnatcheck.Rules.Rule_Table.Rule_Name (Rule) then
+         Alias := All_Aliases (Lower_Rule_Name);
+      end if;
+
+      --  If Rule does not denote the enabled rule or alias - nothing to do
+
+      if not ((Alias /= null and then Is_Enabled (Alias.all))
+              or else Is_Enabled (Rule)
               or else
                 (Rule = Warnings_Id and then Is_Enabled (Restrictions_Id)))
       then

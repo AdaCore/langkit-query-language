@@ -8,6 +8,7 @@ package com.adacore.lkql_jit.checker.utils;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.checker.BaseChecker;
 import com.adacore.lkql_jit.utils.functions.FileUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -61,7 +62,7 @@ public class CheckerUtils {
 
         /** Emit a rule violation TODO: Meld that into emitDiagnostic eventually */
         void emitRuleViolation(
-                String ruleName,
+                BaseChecker checker,
                 String message,
                 SourceLocation violationLocation,
                 Libadalang.AdaNode[] genericInstantiations,
@@ -152,7 +153,7 @@ public class CheckerUtils {
         @Override
         @CompilerDirectives.TruffleBoundary
         public void emitRuleViolation(
-                String ruleName,
+                BaseChecker checker,
                 String message,
                 SourceLocation violationLocation,
                 Libadalang.AdaNode[] genericInstantiations,
@@ -205,7 +206,7 @@ public class CheckerUtils {
         @Override
         @CompilerDirectives.TruffleBoundary
         public void emitRuleViolation(
-                String ruleName,
+                BaseChecker checker,
                 String message,
                 SourceLocation violationLocation,
                 Libadalang.AdaNode[] genericInstantiations,
@@ -235,7 +236,8 @@ public class CheckerUtils {
                             + "check: "
                             + message
                             + " ["
-                            + StringUtils.toLowerCase(ruleName)
+                            + (checker.getAlias() == null ? "" : checker.getAlias() + "|")
+                            + StringUtils.toLowerCase(checker.getName())
                             + "]");
         }
 

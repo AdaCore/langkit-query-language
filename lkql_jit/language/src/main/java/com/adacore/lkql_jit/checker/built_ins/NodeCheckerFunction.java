@@ -285,7 +285,7 @@ public final class NodeCheckerFunction {
             }
             context.getDiagnosticEmitter()
                     .emitRuleViolation(
-                            checker.getName(),
+                            checker,
                             checker.getMessage(),
                             new LalLocationWrapper(node, context.linesCache),
                             node.pGenericInstantiations(),

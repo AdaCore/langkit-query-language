@@ -208,7 +208,7 @@ public final class UnitCheckerFunction {
 
                 context.getDiagnosticEmitter()
                         .emitRuleViolation(
-                                lowerRuleName,
+                                checker,
                                 message,
                                 new LalLocationWrapper(slocRange, locUnit, context.linesCache),
                                 genericInstantiations,

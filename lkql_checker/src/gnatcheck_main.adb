@@ -13,6 +13,7 @@ with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;       use Gnatcheck.Ids;
 with Gnatcheck.Options;   use Gnatcheck.Options;
 with Gnatcheck.Output;    use Gnatcheck.Output;
 with Gnatcheck.Projects;  use Gnatcheck.Projects;
@@ -135,7 +136,9 @@ procedure Gnatcheck_Main is
    begin
       Put_Line (File, "val " & Mode_String & " = @{");
       for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
+         if Is_Enabled (All_Rules.Table (Rule).all)
+           or else not All_Rules.Table (Rule).Aliases.Is_Empty
+         then
             if All_Rules.Table (Rule).all.Source_Mode = Mode then
                if First then
                   First := False;

@@ -7,9 +7,11 @@
 --  gnatcheck. For any rule the only means to get into this table is the
 --  call to the Register_Rule procedure
 
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
+
 with GNAT.Table;
-with Gnatcheck.Ids; use Gnatcheck.Ids;
-with Checker_App;   use Checker_App;
+with Checker_App; use Checker_App;
 
 package Gnatcheck.Rules.Rule_Table is
 
@@ -107,6 +109,15 @@ package Gnatcheck.Rules.Rule_Table is
      Table_Initial        => 100,
      Table_Increment      => 100,
      Table_Name           => "Rule table");
+
+   package Alias_Map is new Ada.Containers.Indefinite_Hashed_Maps (
+      Key_Type        => String,
+      Element_Type    => Alias_Access,
+      Hash            => Ada.Strings.Hash,
+      Equivalent_Keys => "=");
+   All_Aliases : Alias_Map.Map;
+   --  Map containins all defined aliases associated to their information,
+   --  with the identifier of the original rule and actual parameters.
 
    function Get_Rule (Rule_Name : String) return Rule_Id;
    --  Returns the Id for the rule registered under the name Rule_Name or
