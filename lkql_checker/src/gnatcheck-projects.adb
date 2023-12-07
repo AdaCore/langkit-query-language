@@ -2001,6 +2001,13 @@ package body Gnatcheck.Projects is
          end if;
       end loop;
 
+      for Alias in All_Aliases.Iterate loop
+         if Is_Enabled (All_Aliases (Alias).all) then
+            Active_Rule_Present := True;
+            exit;
+         end if;
+      end loop;
+
       --  If an LKQL rule files was provided consider that there are active
       --  rules.
       if LKQL_Rule_File_Name /= null then

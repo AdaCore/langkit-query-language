@@ -25,6 +25,7 @@ package com.adacore.lkql_jit.utils.functions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
+import com.adacore.lkql_jit.utils.checkers.BaseChecker;
 import com.oracle.truffle.api.CompilerDirectives;
 import org.graalvm.collections.EconomicMap;
 
@@ -66,7 +67,7 @@ public class CheckerUtils {
      */
     public interface DiagnosticEmitter {
         /**
-         * @param ruleName The name of the rule.
+         * @param checker The checker which raised a rule violation.
          * @param message The message of the violated rule.
          * @param slocRange The location where the error occurs in the code.
          * @param unit The analysis unit in which the error occurs.
@@ -75,7 +76,7 @@ public class CheckerUtils {
          * @param context The context to output the message.
          */
         void emitRuleViolation(
-                String ruleName,
+                BaseChecker checker,
                 String message,
                 Libadalang.SourceLocationRange slocRange,
                 Libadalang.AnalysisUnit unit,
@@ -119,7 +120,7 @@ public class CheckerUtils {
         @Override
         @CompilerDirectives.TruffleBoundary
         public void emitRuleViolation(
-                String ruleName,
+                BaseChecker checker,
                 String message,
                 Libadalang.SourceLocationRange slocRange,
                 Libadalang.AnalysisUnit unit,
@@ -230,7 +231,7 @@ public class CheckerUtils {
         @Override
         @CompilerDirectives.TruffleBoundary
         public void emitRuleViolation(
-                String ruleName,
+                BaseChecker checker,
                 String message,
                 Libadalang.SourceLocationRange slocRange,
                 Libadalang.AnalysisUnit unit,
@@ -271,7 +272,8 @@ public class CheckerUtils {
                             + "check: "
                             + message
                             + " ["
-                            + StringUtils.toLowerCase(ruleName)
+                            + (checker.getAlias() != null ? checker.getAlias() + "|" : "")
+                            + checker.getName().toLowerCase()
                             + "]");
         }
 

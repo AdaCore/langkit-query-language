@@ -239,7 +239,7 @@ public class ParsingUtils {
                 throw LKQLRuntimeException.fromMessage("Rule alias name must be a string");
             }
             realName = LKQLTypeSystemGen.asString(aliasName);
-            aliases.put(realName, ruleName);
+            aliases.put(realName.toLowerCase(), ruleName.toLowerCase());
         } else {
             realName = ruleName;
         }

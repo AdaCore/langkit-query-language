@@ -174,6 +174,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     static final OptionKey<String> rules = new OptionKey<>("");
 
+    /** The option to specify the rule aliases. */
+    @Option(
+            help = "The comma separated aliases for a checker run",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> aliases = new OptionKey<>("");
+
     /** The option to specify the LKQL configuration file. */
     @Option(
             help = "The LKQL file to get the rule configuration from",

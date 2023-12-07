@@ -235,7 +235,7 @@ public final class UnitCheckerFunction {
 
                 context.getDiagnosticEmitter()
                         .emitRuleViolation(
-                                lowerRuleName,
+                                checker,
                                 message,
                                 slocRange,
                                 locUnit,

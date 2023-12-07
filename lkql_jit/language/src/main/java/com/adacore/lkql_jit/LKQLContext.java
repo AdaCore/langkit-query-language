@@ -365,7 +365,6 @@ public final class LKQLContext {
             this.specifiedRules =
                     Arrays.stream(unfilteredRules)
                             .filter(s -> !s.isBlank() && !s.isEmpty())
-                            .map(String::toLowerCase)
                             .distinct()
                             .toArray(String[]::new);
         }
@@ -760,6 +759,7 @@ public final class LKQLContext {
         if (this.allAliases == null) {
             this.allAliases = new HashMap<>();
             this.allAliases.putAll(this.getRuleConfigFileResult().aliases());
+            this.allAliases.putAll(this.parseAliasesOption());
         }
         return this.allAliases.get(alias);
     }
@@ -868,12 +868,13 @@ public final class LKQLContext {
                 (ruleName) -> {
                     // Get the checker from the given rule name
                     BaseChecker checker;
-                    final String aliasResolved = this.getRuleFromAlias(ruleName);
+                    final String normalizedRuleName = ruleName.toLowerCase();
+                    final String aliasResolved = this.getRuleFromAlias(normalizedRuleName);
                     if (aliasResolved != null) {
                         checker = allCheckers.get(aliasResolved).copy();
                         checker.setAlias(ruleName);
                     } else {
-                        checker = allCheckers.get(ruleName);
+                        checker = allCheckers.get(normalizedRuleName);
                     }
 
                     // Verify that the checker is not null
@@ -911,6 +912,20 @@ public final class LKQLContext {
         this.filteredAdaNodeCheckers = adaNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredSparkNodeCheckers = sparkNodeCheckers.toArray(new NodeChecker[0]);
         this.filteredUnitCheckers = unitCheckers.toArray(new UnitChecker[0]);
+    }
+
+    /** Parse the aliases language option and return aliases stored in a map. */
+    private Map<String, String> parseAliasesOption() {
+        final Map<String, String> res = new HashMap<>();
+        final var aliasesSource = this.env.getOptions().get(LKQLLanguage.aliases);
+        if (!aliasesSource.isBlank() && !aliasesSource.isEmpty()) {
+            String[] aliases = aliasesSource.split(",");
+            for (String alias : aliases) {
+                String[] aliasSplit = alias.split("=");
+                res.put(aliasSplit[0].toLowerCase(), aliasSplit[1].toLowerCase());
+            }
+        }
+        return res;
     }
 
     /**

@@ -327,7 +327,7 @@ public final class NodeCheckerFunction {
             }
             context.getDiagnosticEmitter()
                     .emitRuleViolation(
-                            checker.getName(),
+                            checker,
                             checker.getMessage(),
                             node.getSourceLocationRange(),
                             node.getUnit(),

@@ -256,9 +256,11 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
                 } else {
                     final List<String> allRules = new ArrayList<>();
                     final List<String> allArgs = new ArrayList<>();
-                    processRuleSpecificationFile(rulesFrom, allRules, allArgs);
+                    final List<String> allAlias = new ArrayList<>();
+                    processRuleSpecificationFile(rulesFrom, allRules, allArgs, allAlias);
                     contextBuilder.option("lkql.rules", String.join(",", allRules));
                     contextBuilder.option("lkql.rulesArgs", String.join(";", allArgs));
+                    contextBuilder.option("lkql.aliases", String.join(",", allAlias));
                 }
             }
         }
@@ -286,10 +288,10 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      * @param allArgs The list in which to add all parsed rule arguments.
      */
     private static void processRuleSpecificationFile(
-            String filename, List<String> allRules, List<String> allArgs) {
+            String filename, List<String> allRules, List<String> allArgs, List<String> allAlias) {
         try {
             for (String ruleSpec : Files.readAllLines(Paths.get(filename))) {
-                processRuleSpecification(ruleSpec, allRules, allArgs);
+                processRuleSpecification(ruleSpec, allRules, allArgs, allAlias);
             }
         } catch (IOException e) {
             System.err.println("Could not read file: " + filename);
@@ -308,11 +310,15 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
      *     here.
      */
     private static void processRuleSpecification(
-            String ruleSpec, List<String> allRules, List<String> allArgs) {
+            String ruleSpec, List<String> allRules, List<String> allArgs, List<String> allAlias) {
         if (ruleSpec.startsWith("-")) {
             String ruleName = allRules.get(allRules.size() - 1);
             String arg = ruleSpec.substring(1);
             allArgs.add(ruleName + "." + arg);
+        } else if (ruleSpec.contains("|")) {
+            String[] split = ruleSpec.split("\\|", 2);
+            allRules.add(split[0]);
+            allAlias.add(split[0] + "=" + split[1]);
         } else {
             allRules.add(ruleSpec);
         }

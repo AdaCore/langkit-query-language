@@ -26,19 +26,21 @@
 --  This is the top of gnatcheck hierarchy that defines individual rules, rule
 --  table and rule checking process. It contains some basic type declarations
 
-with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Characters.Handling;         use Ada.Characters.Handling;
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Indefinite_Ordered_Sets;
+with Ada.Containers.Vectors;
+with Ada.Strings.Hash;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
+with Ada.Text_IO;                     use Ada.Text_IO;
 
-with Ada.Text_IO;             use Ada.Text_IO;
 with System.Rident;
 
 with Liblkqllang.Analysis;
-with Rule_Commands;           use Rule_Commands;
+with Rule_Commands; use Rule_Commands;
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Strings.Hash;
+with Gnatcheck.Ids; use Gnatcheck.Ids;
 
 package Gnatcheck.Rules is
 
@@ -58,28 +60,43 @@ package Gnatcheck.Rules is
    --  Zero means that the rule has exactly one variant of the diagnostic
    --  message
 
+   type Rule_States is (Enabled, Disabled);
+   --  Each rule and alias may have one of the following states:
+   --   Enabled -  the rule/alias should be checked at the moment, this state
+   --              may be changed during the gnatcheck run (as a result of
+   --              passing a control comment in the analyzed source)
+   --   Disabled - the rule/alias is disabled for the given gnatcheck run,
+   --              this state cannot be changed during the gnatcheck run
+
    -----------------
-   -- Rule States --
+   -- Alias types --
    -----------------
 
-   type Rule_States is (Enabled, Disabled);
-   --  Each rule may have one of the following states:
-   --   Enabled -  the rule should be checked at the moment, this state may
-   --              be changed during the gnatcheck run (as a result of passing
-   --              a control comment in the analyzed source)
-   --   Disabled - the rule is disabled for the given gnatcheck run, this
-   --              state cannot be changed during the gnatcheck run
+   type Alias_Template is tagged record
+      Name : Unbounded_String;
+      --  Name of the alias
+
+      Rule : Rule_Id;
+      --  Identifier of the rule associated to the alias
+
+      Alias_State : Rule_States;
+      --  Is the alias active or not
+   end record;
+
+   type Alias_Access is access all Alias_Template'Class;
+
+   package Alias_Vector is new Ada.Containers.Vectors
+     (Element_Type => Alias_Access, Index_Type => Natural);
+
+   ----------------
+   -- Rule types --
+   ----------------
 
    type Rule_Template is tagged record
       Name : String_Access;
       --  The only means of rule identification outside gnatcheck. All the
       --  rules implemented in gnatcheck should have unique names, the casing
       --  is not important.
-
-      User_Synonym : String_Access;
-      --  User-specified synonym for the rule name. This synonym is output
-      --  when --show-rule is specified and is also used for rule
-      --  identification (including rule exemption).
 
       Defined_At : String_Access;
       --  Location in the rule file where the rule has been enabled. Set to
@@ -115,9 +132,23 @@ package Gnatcheck.Rules is
 
       Parameters : Liblkqllang.Analysis.Parameter_Decl_List;
       --  List of formal parameters for this rule
+
+      Aliases : Alias_Vector.Vector;
    end record;
 
    type Rule_Access is access all Rule_Template'Class;
+
+   ----------------------
+   -- Alias operations --
+   ----------------------
+
+   function Create_Alias_For_Rule (R_Id : Rule_Id) return Alias_Access;
+   --  Create a new rule alias record according to the rule type and return
+   --  the access to it.
+
+   function Get_Rule
+     (Alias : Alias_Template'Class) return Rule_Template'Class;
+   --  Get the rule of which the given alias is a renaming of
 
    --------------------------------------------------------
    -- Operations that may be redefined by specific rules --
@@ -141,6 +172,7 @@ package Gnatcheck.Rules is
 
    procedure Process_Rule_Parameter
      (Rule       : in out Rule_Template;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -160,6 +192,9 @@ package Gnatcheck.Rules is
    --  * it contains at least one non-blank character;
    --
    --  * it does not contain a comma character;
+   --
+   --  If the Alias is not null, then the parameter is not place in the rule
+   --  but in the pointer alias record.
    --
    --  The order of calling these routine for substrings of the rule parameter
    --  string corresponds to the order of this substrings in the rule parameter
@@ -207,6 +242,12 @@ package Gnatcheck.Rules is
    --  After parameters have been processed, store the relevant parameters for
    --  Rule in Map.
 
+   procedure Map_Parameters
+     (Alias : in out Alias_Template;
+      Args  : in out Rule_Argument_Vectors.Vector)
+   is null;
+   --  Same as Map_Parameters for rules but with an alias.
+
    procedure Print_Rule_Help (Rule : Rule_Template);
    --  Prints into Stderr the rule help information. If the help info is long,
    --  no wrapping is performed.
@@ -232,6 +273,12 @@ package Gnatcheck.Rules is
    function Is_Enabled (Rule : Rule_Template) return Boolean;
    --  Checks if the rule should be checked
 
+   function Is_Enabled (Alias : Alias_Template'Class) return Boolean;
+   --  Return whether the alias is enabled
+
+   function Is_Enabled (Alias : Alias_Access) return Boolean;
+   --  Return whether the alias referenced by the provided access is enabled
+
    procedure Print_Rule_To_Universal_File
      (Rule         : in out Rule_Template'Class;
       Rule_File    : File_Type);
@@ -241,6 +288,13 @@ package Gnatcheck.Rules is
    --  Unlike the `Print_Rule_To_File` subprogram, this always prints the rule
    --  in the above format without special cases for specific rules names or
    --  rules with specific parameter types.
+
+   procedure Print_Alias_To_Universal_File
+     (Alias     : in out Alias_Template'Class;
+      Rule_File : File_Type);
+   --  Prints information about the given alias into the specified file with
+   --  the following universal format:
+   --  "{alias_name}|{rule_name}[:{param1}={value1}[,{param2}={value2},...]]"
 
    procedure Print_Rule_To_File
      (Rule         : Rule_Template;
@@ -256,16 +310,14 @@ package Gnatcheck.Rules is
    --  Similar to Print_Rule, but prints rule info into XML report file and
    --  does not add "+R" prefix to the rule name.
 
-   function Annotate_Rule (Rule : Rule_Template) return String;
+   function Annotate_Rule
+     (Rule : Rule_Template;
+      Alias : String) return String;
    --  If Gnatcheck.Options.Mapping_Mode is ON returns the rule annotation
    --  to be inserted into diagnosis, otherwise returns an empty string.
 
-   function Has_Synonym (Rule : Rule_Template) return Boolean;
-   --  Checks if the rule has a user-defined synonym.
-
-   function Rule_Synonym (Rule : Rule_Template) return String;
-   --  If Has_Synonym (Rule) then returns the rule synonym, otherwise returns
-   --  an empty string.
+   function Create_Alias (Rule : Rule_Template) return Alias_Access;
+   --  Create an alias record for the given rule.
 
    ----------------------------------
    -- "One integer parameter" rule --
@@ -278,8 +330,13 @@ package Gnatcheck.Rules is
    --  property to be checked by the rule, this is supposed to be set by the
    --  rule parameter.
 
+   type One_Integer_Parameter_Alias is new Alias_Template with record
+      Param : Integer := Integer'First;
+   end record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Integer_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -296,6 +353,10 @@ package Gnatcheck.Rules is
      (Rule : in out One_Integer_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
+   overriding procedure Map_Parameters
+     (Alias : in out One_Integer_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
+
    overriding procedure XML_Rule_Help
      (Rule  : One_Integer_Parameter_Rule;
       Level : Natural);
@@ -309,6 +370,9 @@ package Gnatcheck.Rules is
      (Rule         : One_Integer_Parameter_Rule;
       Indent_Level : Natural := 0);
 
+   overriding function Create_Alias
+     (Rule : One_Integer_Parameter_Rule) return Alias_Access;
+
    ----------------------------------
    -- "One boolean parameter" rule --
    ----------------------------------
@@ -319,8 +383,13 @@ package Gnatcheck.Rules is
       Param : Tri_State := Unset;
    end record;
 
+   type One_Boolean_Parameter_Alias is new Alias_Template with record
+      Param : Tri_State := Unset;
+   end record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Boolean_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -328,6 +397,10 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out One_Boolean_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_Boolean_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
      (Rule  : One_Boolean_Parameter_Rule;
@@ -342,6 +415,9 @@ package Gnatcheck.Rules is
      (Rule         : One_Boolean_Parameter_Rule;
       Indent_Level : Natural := 0);
 
+   overriding function Create_Alias
+     (Rule : One_Boolean_Parameter_Rule) return Alias_Access;
+
    ---------------------------------
    -- "One string parameter" rule --
    ---------------------------------
@@ -351,8 +427,14 @@ package Gnatcheck.Rules is
       File  : Unbounded_String;
    end record;
 
+   type One_String_Parameter_Alias is new Alias_Template with record
+      Param : Unbounded_Wide_Wide_String;
+      File  : Unbounded_String;
+   end record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_String_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -360,6 +442,10 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out One_String_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_String_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
      (Rule  : One_String_Parameter_Rule;
@@ -374,6 +460,9 @@ package Gnatcheck.Rules is
      (Rule         : One_String_Parameter_Rule;
       Indent_Level : Natural := 0);
 
+   overriding function Create_Alias
+     (Rule : One_String_Parameter_Rule) return Alias_Access;
+
    --------------------------------
    -- "One array parameter" rule --
    --------------------------------
@@ -381,8 +470,12 @@ package Gnatcheck.Rules is
    type One_Array_Parameter_Rule is new One_String_Parameter_Rule
    with null record;
 
+   type One_Array_Parameter_Alias is new One_String_Parameter_Alias
+   with null record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Array_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -390,6 +483,13 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out One_Array_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_Array_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
+
+   overriding function Create_Alias
+     (Rule : One_Array_Parameter_Rule) return Alias_Access;
 
    -------------------------------------------------------
    -- "One Integer and/or Many Booleans parameter" rule --
@@ -402,8 +502,15 @@ package Gnatcheck.Rules is
       Boolean_Params : Boolean_Parameters := [others => Unset];
    end record;
 
+   type One_Integer_Or_Booleans_Parameter_Alias
+   is new Alias_Template with record
+      Integer_Param  : Integer := Integer'First;
+      Boolean_Params : Boolean_Parameters := [others => Unset];
+   end record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out One_Integer_Or_Booleans_Parameter_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -411,6 +518,10 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out One_Integer_Or_Booleans_Parameter_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out One_Integer_Or_Booleans_Parameter_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
      (Rule  : One_Integer_Or_Booleans_Parameter_Rule;
@@ -424,6 +535,9 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : One_Integer_Or_Booleans_Parameter_Rule;
       Indent_Level : Natural := 0);
+
+   overriding function Create_Alias
+     (Rule : One_Integer_Or_Booleans_Parameter_Rule) return Alias_Access;
 
    ------------------------------
    -- Identifier_Suffixes rule --
@@ -441,12 +555,25 @@ package Gnatcheck.Rules is
       Interrupt_Suffix : Unbounded_Wide_Wide_String;
    end record;
 
+   type Identifier_Suffixes_Alias is new Alias_Template with record
+      Type_Suffix,
+      Access_Suffix,
+      Access_Access_Suffix,
+      Class_Access_Suffix,
+      Class_Subtype_Suffix,
+      Constant_Suffix,
+      Renaming_Suffix,
+      Access_Obj_Suffix,
+      Interrupt_Suffix : Unbounded_Wide_Wide_String;
+   end record;
+
    overriding function Rule_Parameter
      (Rule : Identifier_Suffixes_Rule;
       Diag : String) return String;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Suffixes_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -462,6 +589,10 @@ package Gnatcheck.Rules is
      (Rule : in out Identifier_Suffixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
+   overriding procedure Map_Parameters
+     (Alias : in out Identifier_Suffixes_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
+
    overriding procedure XML_Rule_Help
      (Rule  : Identifier_Suffixes_Rule;
       Level : Natural);
@@ -474,6 +605,9 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : Identifier_Suffixes_Rule;
       Indent_Level : Natural := 0);
+
+   overriding function Create_Alias
+     (Rule : Identifier_Suffixes_Rule) return Alias_Access;
 
    ------------------------------
    -- Identifier_Prefixes rule --
@@ -488,12 +622,26 @@ package Gnatcheck.Rules is
       Exclusive   : Tri_State := Unset;
    end record;
 
+   type Identifier_Prefixes_Alias is new Alias_Template with record
+      Type_Prefix,
+      Concurrent_Prefix,
+      Access_Prefix,
+      Class_Access_Prefix,
+      Subprogram_Access_Prefix,
+      Derived_Prefix,
+      Constant_Prefix,
+      Exception_Prefix,
+      Enum_Prefix : Unbounded_Wide_Wide_String;
+      Exclusive   : Tri_State := Unset;
+   end record;
+
    overriding function Rule_Parameter
      (Rule : Identifier_Prefixes_Rule;
       Diag : String) return String;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Prefixes_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -509,6 +657,10 @@ package Gnatcheck.Rules is
      (Rule : in out Identifier_Prefixes_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
+   overriding procedure Map_Parameters
+     (Alias : in out Identifier_Prefixes_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
+
    overriding procedure XML_Rule_Help
      (Rule  : Identifier_Prefixes_Rule;
       Level : Natural);
@@ -521,6 +673,9 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : Identifier_Prefixes_Rule;
       Indent_Level : Natural := 0);
+
+   overriding function Create_Alias
+     (Rule : Identifier_Prefixes_Rule) return Alias_Access;
 
    ----------------------------
    -- Identifier_Casing rule --
@@ -535,12 +690,22 @@ package Gnatcheck.Rules is
       Exclude : Unbounded_Wide_Wide_String;
    end record;
 
+   type Identifier_Casing_Alias is new Alias_Template with record
+      Type_Casing,
+      Enum_Casing,
+      Constant_Casing,
+      Exception_Casing,
+      Others_Casing,
+      Exclude : Unbounded_Wide_Wide_String;
+   end record;
+
    overriding function Rule_Parameter
      (Rule : Identifier_Casing_Rule;
       Diag : String) return String;
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Identifier_Casing_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -555,6 +720,10 @@ package Gnatcheck.Rules is
      (Rule : in out Identifier_Casing_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
 
+   overriding procedure Map_Parameters
+     (Alias : in out Identifier_Casing_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
+
    overriding procedure XML_Rule_Help
      (Rule  : Identifier_Casing_Rule;
       Level : Natural);
@@ -568,11 +737,20 @@ package Gnatcheck.Rules is
      (Rule         : Identifier_Casing_Rule;
       Indent_Level : Natural := 0);
 
+   overriding function Create_Alias
+     (Rule : Identifier_Casing_Rule) return Alias_Access;
+
    -----------------------
    -- Forbidden_* rules --
    -----------------------
 
    type Forbidden_Rule is new Rule_Template with record
+      All_Flag  : Tri_State := Unset;
+      Forbidden : Unbounded_Wide_Wide_String;
+      Allowed   : Unbounded_Wide_Wide_String;
+   end record;
+
+   type Forbidden_Alias is new Alias_Template with record
       All_Flag  : Tri_State := Unset;
       Forbidden : Unbounded_Wide_Wide_String;
       Allowed   : Unbounded_Wide_Wide_String;
@@ -584,6 +762,7 @@ package Gnatcheck.Rules is
 
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Forbidden_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -595,6 +774,10 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out Forbidden_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out Forbidden_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
      (Rule  : Forbidden_Rule;
@@ -609,6 +792,9 @@ package Gnatcheck.Rules is
      (Rule         : Forbidden_Rule;
       Indent_Level : Natural := 0);
 
+   overriding function Create_Alias
+     (Rule : Forbidden_Rule) return Alias_Access;
+
    ------------------------------------
    -- Silent_Exception_Handlers rule --
    ------------------------------------
@@ -618,8 +804,14 @@ package Gnatcheck.Rules is
       Subprogram_Regexps : Unbounded_Wide_Wide_String;
    end record;
 
+   type Silent_Exception_Handlers_Alias is new Alias_Template with record
+      Subprograms        : Unbounded_Wide_Wide_String;
+      Subprogram_Regexps : Unbounded_Wide_Wide_String;
+   end record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Silent_Exception_Handlers_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -627,6 +819,10 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out Silent_Exception_Handlers_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out Silent_Exception_Handlers_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
      (Rule  : Silent_Exception_Handlers_Rule;
@@ -641,6 +837,9 @@ package Gnatcheck.Rules is
      (Rule         : Silent_Exception_Handlers_Rule;
       Indent_Level : Natural := 0);
 
+   overriding function Create_Alias
+     (Rule : Silent_Exception_Handlers_Rule) return Alias_Access;
+
    -----------------
    -- Custom rule --
    -----------------
@@ -649,8 +848,13 @@ package Gnatcheck.Rules is
       Arguments : Rule_Argument_Vectors.Vector;
    end record;
 
+   type Custom_Alias is new Alias_Template with record
+      Arguments : Rule_Argument_Vectors.Vector;
+   end record;
+
    overriding procedure Process_Rule_Parameter
      (Rule       : in out Custom_Rule;
+      Alias      : Alias_Access;
       Param      : String;
       Enable     : Boolean;
       Defined_At : String);
@@ -658,6 +862,10 @@ package Gnatcheck.Rules is
    overriding procedure Map_Parameters
      (Rule : in out Custom_Rule;
       Args : in out Rule_Argument_Vectors.Vector);
+
+   overriding procedure Map_Parameters
+     (Alias : in out Custom_Alias;
+      Args  : in out Rule_Argument_Vectors.Vector);
 
    overriding procedure XML_Rule_Help
      (Rule  : Custom_Rule;
@@ -671,6 +879,9 @@ package Gnatcheck.Rules is
    overriding procedure XML_Print_Rule
      (Rule         : Custom_Rule;
       Indent_Level : Natural := 0);
+
+   overriding function Create_Alias
+     (Rule : Custom_Rule) return Alias_Access;
 
    --  Handling of User_Synonym and compiler related messages
 

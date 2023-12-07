@@ -1,0 +1,7 @@
+driver: gnatcheck
+format: brief
+input_sources:
+  - main.adb
+rules:
+  - +R:same_alias:goto_statements
+  - +R:same_alias:integer_types_as_enum

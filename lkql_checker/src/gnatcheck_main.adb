@@ -31,6 +31,7 @@ with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
+with Gnatcheck.Ids;       use Gnatcheck.Ids;
 with Gnatcheck.Options;   use Gnatcheck.Options;
 with Gnatcheck.Output;    use Gnatcheck.Output;
 with Gnatcheck.Projects;  use Gnatcheck.Projects;
@@ -189,6 +190,13 @@ procedure Gnatcheck_Main is
             else
                All_Rules.Table (Rule).Print_Rule_To_File (File);
             end if;
+            New_Line (File);
+         end if;
+      end loop;
+
+      for Alias in All_Aliases.Iterate loop
+         if Is_Enabled (All_Aliases (Alias).all) then
+            All_Aliases (Alias).all.Print_Alias_To_Universal_File (File);
             New_Line (File);
          end if;
       end loop;

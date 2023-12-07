@@ -1,0 +1,2 @@
+gnatcheck: multiple aliases with the same name: same_alias
+>>>program returned status code 2
