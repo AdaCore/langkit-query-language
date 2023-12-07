@@ -190,6 +190,14 @@ class GnatcheckDriver(BaseDriver):
             self.gnatcheck_worker_exe
         )
 
+        # Get the provided project path and set from the testsuite root
+        project_path = self.test_env.get('project_path', None)
+        if project_path:
+            gnatcheck_env["GPR_PROJECT_PATH"] = os.pathsep.join([
+                P.join(self.env.testsuite_root_dir, project_dir)
+                for project_dir in project_path
+            ])
+
         globs, locs = {}, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:

@@ -145,6 +145,9 @@ class LKQLTestsuite(Testsuite):
                 logger.error(f"--perf-mode incompatible with --coverage")
                 raise RuntimeError
 
+        # Give access ot the testsuite root dir to drivers
+        self.env.testsuite_root_dir = self.root_dir
+
         # Give access to python support directory to drivers
         self.env.support_dir = P.join(self.root_dir, "python_support")
 
