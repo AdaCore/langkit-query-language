@@ -19,6 +19,14 @@ selector children_no_nested
     | null     => ()
     | *        => rec *this.children
 
+fun all(iterable) =
+    |" Return whether all elements in the given iterable are truthy
+    [x for x in iterable if not x].length == 0
+
+fun any(iterable) =
+    |" Return whether at least one element in the given iterable is truthy
+    [x for x in iterable if x].length > 0
+
 fun is_assert_pragma(s) =
     |" Return ``true`` if the string ``s`` is the name of an assert pragma
 
@@ -154,12 +162,13 @@ fun param_pos(n, pos: int = 0) =
     if not n then pos else param_pos(n?.previous_sibling(), pos+1)
 
 # TODO: move this in LAL
-fun is_predefined_op(op) =
+fun is_predefined_op(op, follow_renamings=false) =
     |" Return true if op is a predefined operator
 {
     val ref = op.p_referenced_decl();
+    val real_ref = if follow_renamings then ultimate_subprogram_alias(ref) else ref;
     # TODO: remove null check once all operators are synthesized (UB16-053)
-    not ref or ref is SyntheticSubpDecl
+    not real_ref or real_ref is SyntheticSubpDecl
 }
 
 fun is_standard_numeric(n) =

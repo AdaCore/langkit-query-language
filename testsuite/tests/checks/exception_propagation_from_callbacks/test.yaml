@@ -2,4 +2,13 @@ driver: 'checker'
 rule_name: Exception_Propagation_From_Callbacks
 project: 'prj.gpr'
 rule_arguments:
-   exception_propagation_from_callbacks.callbacks: '[("p.take_cb", "Param"),("p.take_cb_i", "Param")]'
+   exception_propagation_from_callbacks.callbacks: |
+       [
+           ("p.take_cb", "Param"),
+           ("p.take_cb_i", "Param"),
+           ("p.take_cb_g_2", "Param"),
+           ("p.gen_pkg.take_cb", "Param"),
+           ("p.gen_pkg_2.gen_cb", "Param")
+       ]
+control:
+  - [SKIP, "mode == 'ada'", "Ada implementation doesn't support multiline rule args"]

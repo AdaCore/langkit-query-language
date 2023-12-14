@@ -1,0 +1,8 @@
+main.adb:17:38: rule violation: possible occurrence of KP 18701
+17 |   Con  : constant Op  := (Element => (Discriminate => True));               --  FLAG
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:18:38: rule violation: possible occurrence of KP 18701
+18 |   Con2 : constant Op2 := (Element => (Discriminate => True, Field => <>));  --  FLAG
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

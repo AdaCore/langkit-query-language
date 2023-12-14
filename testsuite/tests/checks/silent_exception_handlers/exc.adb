@@ -14,9 +14,23 @@ begin
 
 exception
    when Constraint_Error =>  --  NOFLAG
-      raise;
+      declare
+      begin
+         raise;
+      end;
    when Program_Error =>     --  NOFLAG
-      Log ("");
+      if I = 0 then
+         Log ("0");
+      elsif I = 1 then
+         Log ("1");
+      else
+         case I is
+            when 2 =>
+               Log ("2");
+            when others =>
+               raise
+         end case;
+      end if;
    when E : others =>        --  NOFLAG
       I := 0;
       Log (Exception_Message (E));

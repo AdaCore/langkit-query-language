@@ -1,21 +1,34 @@
-# Flag any exception handler with no raise/re-raise and no call
-# to a given list of subprograms (as listed by the parameter subprograms)
-# and subprogram regexps (as listed by subprogram_regexps).
-# For gnatcheck users: each parameter given is a fully qualified name of a
-# subprogram. If the parameter is quoted ("") then it is handled as a case
-# insensitive regular expression as defined in s-regpat.ads, otherwise a case
-# insensitive comparison is performed.
+# Flag any exception handler in which there exists an execution path that
+# performs no raise/re-raise and no call to a given list of subprograms
+# (as listed by the parameter subprograms) and subprogram regexps (as listed
+# by subprogram_regexps). For gnatcheck users: each parameter given is a fully
+# qualified name of a subprogram. If the parameter is quoted ("") then it is
+# handled as a case insensitive regular expression as defined in s-regpat.ads,
+# otherwise a case insensitive comparison is performed.
+
+import stdlib
+import control_flow
 
 @check(message="silent exception handler",
        category="Style", subcategory="Programming Practice")
-fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
+fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) = {
+    fun is_raise_or_log(stmt) =
+        stmt is RaiseStmt
+        or n@BaseId(p_is_call() is true)
+            when n.p_referenced_decl() is decl@BasicDecl
+                when match decl.p_canonical_fully_qualified_name()
+                 | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
+                 | n@* => [s for s in subprograms if n == s] or
+                          [r for r in subprogram_regexps
+                           if n.contains(pattern(r, case_sensitive=false))];
+
+    # Run a `must` control-flow analysis on the given exception handler to check
+    # that *all* execution paths contain a raise statement or a call to an
+    # appropriate subprogram, and flag if it is *not* the case.
     node is ExceptionHandler
-    when (from node.f_stmts
-          select first RaiseStmt or
-              n@BaseId(p_is_call() is true) when
-                  n.p_referenced_decl() is decl@BasicDecl
-                  when match decl.p_canonical_fully_qualified_name()
-                   | "^ada.exceptions.(raise_exception|reraise_occurrence)$" => true
-                   | n@* => [s for s in subprograms if n == s] or
-                            [r for r in subprogram_regexps
-                             if n.contains(pattern(r, case_sensitive=false))]) == null
+    when not control_flow.analyze(
+        node.f_stmts,
+        is_raise_or_log,
+        control_flow.must
+    )
+}

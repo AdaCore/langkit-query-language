@@ -205,7 +205,12 @@ fun identifier_prefixes(unit,
         ((not node.f_name.text.starts_with(access)) or
          check_exclusive(node.f_name.text,
                          exclusive=exclusive,
-                         access_exclusive=false))
+                         access_exclusive=false,
+                         # If both an Access prefix and a Type prefix are
+                         # set and the type prefix is a prefix of the access
+                         # prefix, we don't want to flag this access because
+                         # it broke the exclusivity of the type prefix.
+                         type_exclusive=false))
 
     # (Sub)Types derived from `derived`
     | p@(TypeDecl(f_type_def is DerivedTypeDef) or SubtypeDecl)

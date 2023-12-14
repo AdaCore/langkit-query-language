@@ -1,0 +1,40 @@
+fun is_final_pkg(pkg) =
+    |" Whether pkg is a final package; for the moment this means only packages 
+    |" with the `Annotate => (GNATcheck, Final)` aspect, but ultimately this
+    |" will also include packages annotated with the `Final` aspect, as such:
+    |"
+    |" .. code-block:: ada
+    |"     
+    |"     package Pkg with Final is
+    |"     end Pkg;
+    pkg is BasePackageDecl when {
+        val aspect = pkg.p_get_aspect("Annotate");
+        aspect.exists and aspect.value is Aggregate(
+            f_assocs is a@* when a[1] is "GNATcheck" and a[2] is "Final"
+        )
+    }
+
+@check(message="child package cannot have a final parent package",
+       category="Style", subcategory="Programming Practice")
+fun final_package(node) =
+    |" Check that package declarations annotated as final don't have child
+    |" packages
+    |"
+    |" .. note:: We don't do a transitive check, so grandchild packages won't
+    |"    be flagged. We consider this is not necessary, because the child
+    |"    package will be flagged anyway.
+    |"     
+    |" Here is an example:
+    |"
+    |"    .. code-block:: ada
+    |"
+    |"       package Pkg with Annotate => (GNATcheck, Final) is
+    |"       end Pkg;
+    |"        
+    |"       package Pkg.Child is -- FLAGGED
+    |"       end Pkg.Child;
+    |"     
+    |"       package Pkg.Child.Grandchild is -- NOT FLAGGED
+    |"       end Pkg.Child.Grandchild;
+    node is BasePackageDecl(parent is LibraryItem)
+    when is_final_pkg(node.p_semantic_parent())

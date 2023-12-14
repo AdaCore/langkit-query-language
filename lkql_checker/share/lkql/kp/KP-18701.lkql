@@ -1,0 +1,17 @@
+# Flag aggregates whose type is an immutably limited discriminated type
+# with default discriminant(s).
+
+import stdlib
+
+@check(message="possible occurrence of KP 18701", impact="23.*")
+fun kp_18701(node) =
+    node is Aggregate
+    when node.p_expression_type() is BaseTypeDecl(
+         p_canonical_type() is type@ConcreteTypeDecl
+         # Type has discriminants
+         when type.f_discriminants is KnownDiscriminantPart
+         # with default values
+          and [d for d in type.f_discriminants.f_discr_specs.children
+                          if d.f_default_expr != null]
+         # and is limited
+          and type.p_is_limited_type())

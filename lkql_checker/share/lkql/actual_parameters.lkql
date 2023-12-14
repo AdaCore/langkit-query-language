@@ -35,7 +35,7 @@ fun check_actual(name, expected) =
 @check(message="actual parameter mismatch",
        category="Style", subcategory="Programming Practice")
 fun actual_parameters(node, forbidden=[]) =
-    node is AssocList(parent is call@CallExpr(p_is_call() is true)
+    node is AssocList(parent is call@CallExpr(p_is_call() is true))
     when {
         val n = call.f_name.p_referenced_decl()?.
                 p_canonical_fully_qualified_name?();

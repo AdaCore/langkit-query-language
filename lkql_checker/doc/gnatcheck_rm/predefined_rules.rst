@@ -2359,24 +2359,19 @@ This rule has no parameters.
 
 Flag an ``'Address`` or ``'Access`` attribute if:
 
-*
-  this attribute is a reference to a subprogram;
+* this attribute is a reference to a subprogram;
 
-*
-  this subprogram may propagate an exception;
+* this subprogram may propagate an exception;
 
-*
-  this attribute is an actual parameter of a subprogram call, and both the
+* this attribute is an actual parameter of a subprogram call, and both the
   subprogram called and the corresponding formal parameter are specified by a
   rule parameter.
 
 A subprogram is considered as not propagating an exception if:
 
-*
-  its body has an exception handler with ``others`` exception choice;
+* its body has an exception handler with ``others`` exception choice;
 
-*
-  no exception handler in the body contains a raise statement nor a call to
+* no exception handler in the body contains a raise statement nor a call to
   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
 
 The rule has an optional parameter for the ``+R`` option:
@@ -2412,6 +2407,11 @@ the subprogram of interest in case if renamings are used for this subprogram.
 
 Note also, that the rule does not make any overload resolution, so calls to
 all the subprograms corresponding to ``subprogram_name`` are checked.
+
+.. note:: Note that you can use both fully qualified names to
+   instantiated or non-instantiated generic subprograms, depending on the
+   granularity you wish for. However **you cannot use a mix of the two**, so
+   the names need to be either fully instantiated or fully uninstantiated.
 
 
 .. rubric:: Example
@@ -4482,11 +4482,12 @@ same function.
 
 .. index:: Silent_Exception_Handlers
 
-Flag any exception handler that neither raises an exception by a
-``raise`` statement or a call to ``Ada.Exceptions.Raise_Exception`` or
-to ``Ada.Exceptions.Reraise_Occurrence`` nor contains a call to some subprogram
-specified by the rule parameters. The rule can have any number of parameters,
-each parameter should be of one of the following kinds:
+Flag any exception handler in which there exists at least one an execution path
+that does not raise an exception by a ``raise`` statement or a call to
+``Ada.Exceptions.Raise_Exception`` or to ``Ada.Exceptions.Reraise_Occurrence``
+nor contains a call to some subprogram specified by the rule parameters.
+The rule can have any number of parameters, each parameter should be of one of
+the following kinds:
 
 *
   a full qualified Ada name of a subprogram that starts from some
@@ -7245,13 +7246,16 @@ This rule has no parameters.
 
 Flag all explicit calls to the predefined equality operations for
 floating-point types and private types whose completions are floating-point
-types. Both '``=``' and '``/=``' operations are checked.
-User-defined equality operations are not flagged, nor are uses of operators
-that are renamings of the predefined equality operations.
-Also, the '``=``' and '``/=``' operations for fixed-point types
-are not flagged.
+types. Both '=' and '/=' operations are checked. User-defined equality
+operations are not flagged. Also, the '=' and '/=' operations for fixed-point
+types are not flagged. Uses of operators that are renamings of the predefined
+equality operations will be flagged if `Follow_Renamings` is true.
 
-This rule has no parameters.
+This rule has the following (optional) parameter for the ``+R`` option:
+
+*Follow_Renamings*
+    Take renamings of predefined equality operations into account.
+
 
 .. rubric:: Example
 
