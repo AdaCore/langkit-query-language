@@ -130,10 +130,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             final StringBuilder builder = new StringBuilder();
             for (Liblkqllang.LkqlNode subBlock :
                     ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs().children()) {
-                builder.append(StringUtils.translateEscapes(subBlock.getText().substring(2)))
-                        .append("\n");
+                var str = StringUtils.translateEscapes(subBlock.getText().substring(2));
+
+                if (str.length() > 0) {
+                    // First character should be a whitespace, as specified in
+                    // the user manual.
+                    if (str.charAt(0) != ' ') {
+                        throw LKQLRuntimeException.fromMessage(
+                                "Invalid blockstring: first character should be whitespace");
+                    }
+                    builder.append(str.substring(1)).append("\n");
+                }
             }
-            res = builder.toString().replaceAll("^\\s+", "");
+            res = builder.toString().trim();
         }
 
         // Return the result

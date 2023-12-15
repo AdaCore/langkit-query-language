@@ -90,7 +90,7 @@ public final class FunExpr extends Expr {
         this.parameterNames = new String[parameters.length];
         this.parameterValues = new Expr[parameters.length];
         this.body = body;
-        this.documentation = documentation.strip();
+        this.documentation = documentation;
 
         this.initParams(parameters);
     }

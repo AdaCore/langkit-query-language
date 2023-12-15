@@ -597,14 +597,18 @@ LKQL has literals for booleans, integers, strings, and null values:
     val c = "hello"
     val d = null
 
-LKQL has multi-line string literals, but they're a bit different than in Python
-or other languages:
+LKQL has multi-line string literals, called block-strings but they're a bit
+different than in Python or other languages:
 
 .. code-block:: lkql
 
    val a = |" Hello
            |" This is a multi line string
            |" Bue
+
+.. note:: The first character after the ``"`` should be a whitespace. This is
+   not enforced at parse-time but at run-time, so ``|"hello`` is still a
+   syntactically valid block-string, but will raise an error when evaluated.
 
 LKQL has a few built-in operators available:
 
