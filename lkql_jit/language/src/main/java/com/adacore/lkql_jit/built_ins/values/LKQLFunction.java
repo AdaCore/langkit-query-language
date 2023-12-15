@@ -48,7 +48,7 @@ public class LKQLFunction extends BasicLKQLValue {
     /** The root node representing the function body. */
     private final FunctionRootNode rootNode;
 
-    /** The closure for the function exercution. */
+    /** The closure for the function execution. */
     private final Closure closure;
 
     /** The name of the function. */
