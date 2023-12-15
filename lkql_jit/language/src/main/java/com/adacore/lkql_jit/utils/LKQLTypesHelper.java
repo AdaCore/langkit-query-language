@@ -65,7 +65,7 @@ public final class LKQLTypesHelper {
     public static final String LKQL_FUNCTION = "Function";
 
     /** The string representing the LKQL property reference type. */
-    public static final String LKQL_PROPERTY_REF = "Property_Reference";
+    public static final String LKQL_PROPERTY_REF = "PropertyReference";
 
     /** The string representing the LKQL selector type. */
     public static final String LKQL_SELECTOR = "Selector";
@@ -77,10 +77,10 @@ public final class LKQLTypesHelper {
     public static final String LKQL_LIST = "List";
 
     /** The string representing the LKQL lazy list type. */
-    public static final String LKQL_LAZY_LIST = "Lazy_List";
+    public static final String LKQL_LAZY_LIST = "LazyList";
 
     /** The string representing the LKQL selector list type. */
-    public static final String LKQL_SELECTOR_LIST = "Selector_List";
+    public static final String LKQL_SELECTOR_LIST = "SelectorList";
 
     /** The string representing the LKQL object type. */
     public static final String LKQL_OBJECT = "Object";
@@ -95,7 +95,7 @@ public final class LKQLTypesHelper {
     public static final String TOKEN = "Token";
 
     /** The string representing the analysis unit type. */
-    public static final String ANALYSIS_UNIT = "Analysis_Unit";
+    public static final String ANALYSIS_UNIT = "AnalysisUnit";
 
     // ----- Class methods -----
 
