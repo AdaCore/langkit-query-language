@@ -49,6 +49,9 @@ public final class TopLevelList extends LKQLNode {
     /** Descriptor of the top level frame. */
     private final FrameDescriptor frameDescriptor;
 
+    /** Documentation for the toplevel list */
+    private final String doc;
+
     // ----- Children -----
 
     /** The rule importation nodes. */
@@ -72,11 +75,13 @@ public final class TopLevelList extends LKQLNode {
             SourceLocation location,
             FrameDescriptor frameDescriptor,
             LKQLNode[] nodes,
-            boolean isInteractive) {
+            boolean isInteractive,
+            String doc) {
         super(location);
         this.frameDescriptor = frameDescriptor;
         this.program = nodes;
         this.isInteractive = isInteractive;
+        this.doc = doc;
     }
 
     // ----- Getters -----
@@ -103,8 +108,8 @@ public final class TopLevelList extends LKQLNode {
         Object val = null;
 
         // Execute the nodes of the program
-        for (LKQLNode node : program) {
-            val = node.executeGeneric(frame);
+        for (LKQLNode lkqlNode : program) {
+            val = lkqlNode.executeGeneric(frame);
         }
 
         // Get the language context and initialize it
@@ -113,11 +118,11 @@ public final class TopLevelList extends LKQLNode {
         if (this.isInteractive) {
             // In interactive mode, return the last evaluated value, and add the namespace values
             // to the global namespace
-            this.updateGlobals(LKQLNamespace.createUncached(frame.materialize()));
+            this.updateGlobals(LKQLNamespace.createUncached(frame.materialize(), doc));
             return context.getEnv().asGuestValue(val);
         } else {
             // Else return the namespace corresponding to the program execution
-            return LKQLNamespace.createUncached(frame.materialize());
+            return LKQLNamespace.createUncached(frame.materialize(), doc);
         }
     }
 

@@ -206,12 +206,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Exit the top level frame
         this.scriptFrames.exitFrame();
 
+        String doc = null;
+
+        if (topLevelNodes.size() > 0 && topLevelNodes.get(0) instanceof StringLiteral) {
+            doc = ((StringLiteral) topLevelNodes.get(0)).value;
+        }
+
         // Return the top level node
         return new TopLevelList(
                 loc(topLevelList),
                 this.scriptFrames.getFrameDescriptor(),
                 topLevelNodes.toArray(new LKQLNode[0]),
-                this.source.isInteractive());
+                this.source.isInteractive(),
+                doc);
     }
 
     // --- Literals
