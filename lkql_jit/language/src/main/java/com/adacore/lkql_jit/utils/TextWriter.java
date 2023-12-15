@@ -20,36 +20,50 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit;
+package com.adacore.lkql_jit.utils;
 
-import java.util.concurrent.Callable;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
+import java.io.IOException;
+import java.io.Writer;
 
-@Command(
-        mixinStandardHelpOptions = true,
-        name = "lkql",
-        synopsisSubcommandLabel = "COMMAND",
-        subcommands = {
-            LKQLLauncher.LKQLRun.class,
-            LKQLChecker.Args.class,
-            GNATCheckWorker.Args.class,
-            LKQLDoc.class
-        },
-        description =
-                "Unified driver for LKQL (Langkit query language). Allows you to run LKQL "
-                        + "scripts or apply specific checks on a given Ada codebase")
-public class LKQLMain implements Callable<Integer> {
+public class TextWriter implements AutoCloseable {
 
-    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+    private int indent;
 
-    @Override
-    public Integer call() throws Exception {
-        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
+    private final Writer writer;
+
+    public void withIndent(Runnable r) {
+        this.indent += 4;
+        r.run();
+        this.indent -= 4;
     }
 
-    public static void main(String[] args) {
-        int rc = new CommandLine(new LKQLMain()).execute(args);
-        System.exit(rc);
+    public TextWriter(Writer writer) {
+        this.writer = writer;
+    }
+
+    public void write(String str) {
+        try {
+            var lines = str.split("\\n", -1);
+            for (int i = 0; i < lines.length; i++) {
+                writeRaw(lines[i]);
+                if (i != lines.length - 1) {
+                    this.writer.write("\n");
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeRaw(String str) throws IOException {
+        for (int i = 0; i < indent; i++) {
+            this.writer.write(" ");
+        }
+        this.writer.write(str);
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.writer.close();
     }
 }

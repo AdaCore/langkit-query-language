@@ -28,11 +28,11 @@ endif
 ADDITIONAL_MANAGE_ARGS=
 
 # WARNING: Note that for some reason parallelizing the build still doesn't work
-all: lkql lkql_checker lalcheck doc lkql_native_jit
+all: lkql lkql_checker lalcheck lkql_native_jit doc
 
 lkql: build/bin/liblkqllang_parse
 
-doc: lkql
+doc: lkql_native_jit
 	cd user_manual && make clean html
 
 lkql_checker: lkql

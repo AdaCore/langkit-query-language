@@ -111,9 +111,7 @@ public final class MapFunction {
                 try {
                     res[i] =
                             this.interopLibrary.execute(
-                                    mapFunction,
-                                    mapFunction.closure.getContent(),
-                                    iterator.next());
+                                    mapFunction, mapFunction.closure.getContent(), iterator.next());
                 } catch (ArityException
                         | UnsupportedTypeException
                         | UnsupportedMessageException e) {

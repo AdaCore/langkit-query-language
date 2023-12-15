@@ -48,6 +48,8 @@ public final class BuiltInsHolder {
                     UniqueFunction.getValue(),
                     DocFunction.getValue(),
                     ProfileFunction.getValue(),
+                    DocumentBuiltins.getValue(),
+                    DocumentNamespace.getValue(),
                     HelpFunction.getValue(),
                     UnitsFunction.getValue(),
                     SpecifiedUnitsFunction.getValue(),

@@ -278,7 +278,9 @@ public final class NodeCheckerFunction {
                                         : StringUtils.toLowerCase(aliasName)),
                                 StringUtils.toLowerCase(paramName));
                 arguments[i + 1] =
-                    userDefinedArg == null ? functionValue.parameterDefaultValues[i].executeGeneric(frame) : userDefinedArg;
+                        userDefinedArg == null
+                                ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
+                                : userDefinedArg;
             }
 
             // Place the closure in the arguments

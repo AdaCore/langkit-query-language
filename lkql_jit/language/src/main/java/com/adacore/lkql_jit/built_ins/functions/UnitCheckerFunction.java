@@ -170,7 +170,9 @@ public final class UnitCheckerFunction {
                                         : StringUtils.toLowerCase(aliasName)),
                                 paramName);
                 arguments[i + 1] =
-                    userDefinedArg == null ? functionValue.parameterDefaultValues[i].executeGeneric(frame) : userDefinedArg;
+                        userDefinedArg == null
+                                ? functionValue.parameterDefaultValues[i].executeGeneric(frame)
+                                : userDefinedArg;
             }
 
             // Put the closure in the arguments
