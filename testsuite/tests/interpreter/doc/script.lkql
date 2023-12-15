@@ -1,8 +1,16 @@
+import test_module
+
 fun user_fn() =
     |" This is the docstring
     12
+
+selector user_selector
+    |" This is the selector's docstring
+    | null => ()
 
 print(print.doc)
 print(doc.doc)
 print(children.doc)
 print(user_fn.doc)
+print(user_selector.doc)
+print(test_module.doc)

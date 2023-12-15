@@ -3,3 +3,5 @@ Given any object, return the documentation associated with it
 Yields all the descendants of the given node in the tree
 
 This is the docstring
+This is the selector's docstring
+Pouet pouet pouet pouet
