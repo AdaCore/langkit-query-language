@@ -28,6 +28,7 @@ import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import java.util.Map;
 
 /**
  * This class represents the base of a built-in function value.
@@ -117,5 +118,23 @@ public final class BuiltInFunctionValue extends LKQLFunction {
     /** Function interface for lambda constructor to {@link BuiltInFunctionValue}. */
     public interface BuiltinFunctionCallback {
         public Object apply(VirtualFrame frame, FunCall call);
+    }
+
+    public static Map.Entry<String, BuiltInFunctionValue> create(
+            String name,
+            String doc,
+            String[] names,
+            Expr[] defaultValues,
+            BuiltinFunctionCallback callback) {
+        return Map.entry(name, new BuiltInFunctionValue(name, doc, names, defaultValues, callback));
+    }
+
+    public static Map.Entry<String, BuiltInFunctionValue> create(
+            String name,
+            String doc,
+            String[] names,
+            Expr[] defaultValues,
+            BuiltinFunctionBody body) {
+        return Map.entry(name, new BuiltInFunctionValue(name, doc, names, defaultValues, body));
     }
 }

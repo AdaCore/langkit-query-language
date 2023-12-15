@@ -22,6 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
@@ -34,143 +36,83 @@ import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import java.util.Map;
 
 /**
  * This class contains all built-in methods for the token type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class TokenMethods extends CommonMethods {
+public final class TokenMethods {
 
-    // ----- Attributes -----
-
-    /** The only instance of the method collection. */
-    private static TokenMethods instance = null;
-
-    // ----- Constructors -----
-
-    /** Private constructor. */
-    private TokenMethods() {
-        super();
-    }
-
-    /**
-     * Get the only instance of the token method library.
-     *
-     * @return The instance of the token methods.
-     */
-    public static TokenMethods getInstance() {
-        if (instance == null) {
-            instance = new TokenMethods();
-        }
-        return instance;
-    }
-
-    /**
-     * @see CommonMethods#initMethods()
-     */
-    @Override
-    protected void initMethods() {
-        super.initMethods();
-        this.methods.put(
-                "start_column",
-                new BuiltInFunctionValue(
-                        "start_column",
-                        "Return the column start",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new StartColExpr()));
-        this.methods.put(
-                "end_column",
-                new BuiltInFunctionValue(
-                        "end_column",
-                        "Return the column end",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new EndColExpr()));
-        this.methods.put(
-                "start_line",
-                new BuiltInFunctionValue(
-                        "start_line",
-                        "Return the line start",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new StartLineExpr()));
-        this.methods.put(
-                "end_line",
-                new BuiltInFunctionValue(
-                        "end_line",
-                        "Return the line end",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new EndLineExpr()));
-        this.methods.put(
-                "is_equivalent",
-                new BuiltInFunctionValue(
-                        "is_equivalent",
-                        "Return whether two tokens are structurally equivalent",
-                        new String[] {"this", "other"},
-                        new Expr[] {null, null},
-                        new IsEquivalentExpr()));
-        this.methods.put(
-                "is_trivia",
-                new BuiltInFunctionValue(
-                        "is_trivia",
-                        "Return whether this token is a trivia",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new IsTriviaExpr()));
-        this.methods.put(
-                "next",
-                new BuiltInFunctionValue(
-                        "next",
-                        "Return the next token",
-                        new String[] {"token", "exclude_trivia"},
-                        new Expr[] {null, new BooleanLiteral(null, false)},
-                        new NextExpr()));
-        this.methods.put(
-                "previous",
-                new BuiltInFunctionValue(
-                        "previous",
-                        "Return the previous token",
-                        new String[] {"token", "exclude_trivia"},
-                        new Expr[] {null, new BooleanLiteral(null, false)},
-                        new PrevExpr()));
-        this.methods.put(
-                "unit",
-                new BuiltInFunctionValue(
-                        "unit",
-                        "Return the unit for this token",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new UnitExpr()));
-        this.methods.put(
-                "text",
-                new BuiltInFunctionValue(
-                        "text",
-                        "Return the text of the token",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new TextExpr()));
-        this.methods.put(
-                "kind",
-                new BuiltInFunctionValue(
-                        "kind",
-                        "Return the kind of the token",
-                        new String[] {"token"},
-                        new Expr[] {null},
-                        new KindExpr()));
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see BuiltInMethods#getType()
-     */
-    @Override
-    public String getType() {
-        return LKQLTypesHelper.TOKEN;
-    }
+    public static final Map<String, BuiltInFunctionValue> methods =
+            Map.ofEntries(
+                    create(
+                            "start_column",
+                            "Return the column start",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new StartColExpr()),
+                    create(
+                            "end_column",
+                            "Return the column end",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new EndColExpr()),
+                    create(
+                            "start_line",
+                            "Return the line start",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new StartLineExpr()),
+                    create(
+                            "end_line",
+                            "Return the line end",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new EndLineExpr()),
+                    create(
+                            "is_equivalent",
+                            "Return whether two tokens are structurally equivalent",
+                            new String[] {"this", "other"},
+                            new Expr[] {null, null},
+                            new IsEquivalentExpr()),
+                    create(
+                            "is_trivia",
+                            "Return whether this token is a trivia",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new IsTriviaExpr()),
+                    create(
+                            "next",
+                            "Return the next token",
+                            new String[] {"token", "exclude_trivia"},
+                            new Expr[] {null, new BooleanLiteral(null, false)},
+                            new NextExpr()),
+                    create(
+                            "previous",
+                            "Return the previous token",
+                            new String[] {"token", "exclude_trivia"},
+                            new Expr[] {null, new BooleanLiteral(null, false)},
+                            new PrevExpr()),
+                    create(
+                            "unit",
+                            "Return the unit for this token",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new UnitExpr()),
+                    create(
+                            "text",
+                            "Return the text of the token",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new TextExpr()),
+                    create(
+                            "kind",
+                            "Return the kind of the token",
+                            new String[] {"token"},
+                            new Expr[] {null},
+                            new KindExpr()));
 
     // ----- Inner classes -----
 
