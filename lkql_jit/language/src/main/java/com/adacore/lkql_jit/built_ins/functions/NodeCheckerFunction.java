@@ -267,10 +267,10 @@ public final class NodeCheckerFunction {
             String lowerRuleName = StringUtils.toLowerCase(checker.getName());
 
             // Prepare the arguments
-            Object[] arguments = new Object[functionValue.getParameterNames().length + 1];
+            Object[] arguments = new Object[functionValue.parameterNames.length + 1];
             arguments[1] = node;
-            for (int i = 1; i < functionValue.getParameterDefaultValues().length; i++) {
-                String paramName = functionValue.getParameterNames()[i];
+            for (int i = 1; i < functionValue.parameterDefaultValues.length; i++) {
+                String paramName = functionValue.parameterNames[i];
                 Object userDefinedArg =
                         context.getRuleArg(
                                 (aliasName == null
@@ -278,13 +278,11 @@ public final class NodeCheckerFunction {
                                         : StringUtils.toLowerCase(aliasName)),
                                 StringUtils.toLowerCase(paramName));
                 arguments[i + 1] =
-                        userDefinedArg == null
-                                ? functionValue.getParameterDefaultValues()[i].executeGeneric(frame)
-                                : userDefinedArg;
+                    userDefinedArg == null ? functionValue.parameterDefaultValues[i].executeGeneric(frame) : userDefinedArg;
             }
 
             // Place the closure in the arguments
-            arguments[0] = functionValue.getClosure().getContent();
+            arguments[0] = functionValue.closure.getContent();
 
             // Call the checker
             final boolean ruleResult;

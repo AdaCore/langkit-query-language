@@ -156,7 +156,7 @@ public abstract class SafeDotAccess extends Expr {
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtIn);
-            if (builtIn.getParameterNames().length <= 1) {
+            if (builtIn.parameterNames.length <= 1) {
                 try {
                     return builtInLibrary.execute(builtIn, receiver);
                 } catch (ArityException

@@ -95,7 +95,7 @@ public final class MapFunction {
             }
 
             // Verify the function arrity
-            if (mapFunction.getParameterNames().length != 1) {
+            if (mapFunction.parameterNames.length != 1) {
                 throw LKQLRuntimeException.fromMessage(
                         "Function passed to map should have arity of one",
                         this.callNode.getArgList().getArgs()[1]);
@@ -112,7 +112,7 @@ public final class MapFunction {
                     res[i] =
                             this.interopLibrary.execute(
                                     mapFunction,
-                                    mapFunction.getClosure().getContent(),
+                                    mapFunction.closure.getContent(),
                                     iterator.next());
                 } catch (ArityException
                         | UnsupportedTypeException

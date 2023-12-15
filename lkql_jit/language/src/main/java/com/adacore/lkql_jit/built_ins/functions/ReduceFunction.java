@@ -95,7 +95,7 @@ public final class ReduceFunction {
             }
 
             // Verify the function arity
-            if (reduceFunction.getParameterNames().length != 2) {
+            if (reduceFunction.parameterNames.length != 2) {
                 throw LKQLRuntimeException.fromMessage(
                         "Function passed to reduce should have arity of two",
                         this.callNode.getArgList().getArgs()[1]);
@@ -108,7 +108,7 @@ public final class ReduceFunction {
                     initValue =
                             this.interopLibrary.execute(
                                     reduceFunction,
-                                    reduceFunction.getClosure().getContent(),
+                                    reduceFunction.closure.getContent(),
                                     initValue,
                                     iterator.next());
                 } catch (ArityException

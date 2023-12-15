@@ -110,7 +110,7 @@ public final class FunctionDeclaration extends Declaration {
         // Execute the function expression to get the functional value
         final LKQLFunction functionValue = this.functionExpression.executeFunction(frame);
         functionValue.setName(this.name);
-        functionValue.getRootNode().setMemoized(this.isMemoized);
+        functionValue.rootNode.setMemoized(this.isMemoized);
 
         // If the function is a checker, place it in the context
         if (this.checkerMode != CheckerMode.OFF) {
