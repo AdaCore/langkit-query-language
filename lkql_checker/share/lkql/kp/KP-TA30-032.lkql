@@ -6,7 +6,7 @@ import stdlib
 fun range_length(t) =
     match t.f_type_def.f_indices.f_types[1]
     | u@UnconstrainedArrayIndex => stdlib.number_of_values(
-        u.f_subtype_indication.f_name.p_referenced_decl()
+        u.f_subtype_name.p_referenced_decl()
       )
     | *                         => -1
 
