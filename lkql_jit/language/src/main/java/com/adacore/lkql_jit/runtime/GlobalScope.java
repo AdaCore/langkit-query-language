@@ -23,6 +23,8 @@
 package com.adacore.lkql_jit.runtime;
 
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltInsHolder;
+import com.adacore.lkql_jit.built_ins.selectors.BuiltInSelector;
 import com.adacore.lkql_jit.utils.checkers.BaseChecker;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashMap;
@@ -55,16 +57,36 @@ public final class GlobalScope {
 
     // ----- Constructors -----
 
-    /**
-     * Create a new global scope.
-     *
-     * @param buildInNb The number of built-in functions.
-     */
-    public GlobalScope(int buildInNb) {
+    /** Create a new global scope. */
+    public GlobalScope() {
+        var builtInsHolder = BuiltInsHolder.get();
         this.checkers = new HashMap<>();
-        this.builtIns = new Object[buildInNb];
+        this.builtIns =
+                new Object
+                        [builtInsHolder.builtInFunctions.size()
+                                + builtInsHolder.builtInMethods.size()];
         this.metaTables = new HashMap<>();
         this.globalObjects = new HashMap<>();
+
+        // Add the built-in functions
+        for (int i = 0; i < builtInsHolder.builtInFunctions.size(); i++) {
+            BuiltInFunctionValue function = builtInsHolder.builtInFunctions.get(i);
+            builtIns[i] = function;
+        }
+
+        // Add the built-in selectors
+        for (int i = 0; i < builtInsHolder.builtInSelectors.size(); i++) {
+            BuiltInSelector selector = builtInsHolder.builtInSelectors.get(i);
+            builtIns[i + builtInsHolder.builtInFunctions.size()] = selector.getValue();
+        }
+
+        // Add the built-in methods
+        for (var entry : builtInsHolder.builtInMethods.entrySet()) {
+            var methods = new HashMap<String, BuiltInFunctionValue>();
+            methods.putAll(builtInsHolder.commonMethods);
+            methods.putAll(entry.getValue());
+            metaTables.put(entry.getKey(), methods);
+        }
     }
 
     // ----- Instance methods -----
@@ -100,16 +122,6 @@ public final class GlobalScope {
     }
 
     /**
-     * Set a built-in value, this function is only used in built-in factory.
-     *
-     * @param slot The slot to set the built-in in.
-     * @param value The value of the built-in to set.
-     */
-    public void setBuiltIn(int slot, Object value) {
-        this.builtIns[slot] = value;
-    }
-
-    /**
      * Get a meta table for the given type.
      *
      * @param type The type to get the meta table for.
@@ -118,17 +130,6 @@ public final class GlobalScope {
     @CompilerDirectives.TruffleBoundary
     public Map<String, BuiltInFunctionValue> getMetaTable(String type) {
         return this.metaTables.get(type);
-    }
-
-    /**
-     * Put a new meta table for a given type.
-     *
-     * @param type The type of the meta table.
-     * @param methods The methods for the type.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public void putMetaTable(String type, Map<String, BuiltInFunctionValue> methods) {
-        this.metaTables.put(type, methods);
     }
 
     public Map<String, Object> getGlobalObjects() {

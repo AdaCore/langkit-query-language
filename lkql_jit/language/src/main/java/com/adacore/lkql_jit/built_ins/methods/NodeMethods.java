@@ -22,6 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
@@ -39,137 +41,77 @@ import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * This class contains all built-in methods for the node type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class NodeMethods extends CommonMethods {
+public final class NodeMethods {
 
-    // ----- Attributes -----
-
-    /** The only instance of the method collection. */
-    private static NodeMethods instance = null;
-
-    // ----- Constructors -----
-
-    /** Private constructors. */
-    private NodeMethods() {
-        super();
-    }
-
-    /**
-     * Get the only instance of the method collection.
-     *
-     * @return The instance of the node methods.
-     */
-    public static NodeMethods getInstance() {
-        if (instance == null) {
-            instance = new NodeMethods();
-        }
-        return instance;
-    }
-
-    /**
-     * @see CommonMethods#initMethods()
-     */
-    @Override
-    protected void initMethods() {
-        super.initMethods();
-        this.methods.put(
-                "children_count",
-                new BuiltInFunctionValue(
-                        "children_count",
-                        "Given a node, return the count of its children",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new ChildrenCountExpr()));
-        this.methods.put(
-                "children",
-                new BuiltInFunctionValue(
-                        "children",
-                        "Given a node, get the list of all its children",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new ChildrenExpr()));
-        this.methods.put(
-                "parent",
-                new BuiltInFunctionValue(
-                        "parent",
-                        "Given a node, get the parent of it",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new ParentExpr()));
-        this.methods.put(
-                "dump",
-                new BuiltInFunctionValue(
-                        "dump",
-                        "Given an ast node, return a structured dump of the subtree",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new DumpExpr()));
-        this.methods.put(
-                "text",
-                new BuiltInFunctionValue(
-                        "text",
-                        "Given an ast node, return its text",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new TextExpr()));
-        this.methods.put(
-                "image",
-                new BuiltInFunctionValue(
-                        "image",
-                        "Given an ast node, return its image",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new ImageExpr()));
-        this.methods.put(
-                "unit",
-                new BuiltInFunctionValue(
-                        "unit",
-                        "Given an ast node, return its analysis unit",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new UnitExpr()));
-        this.methods.put(
-                "kind",
-                new BuiltInFunctionValue(
-                        "kind",
-                        "Return the kind of this node, as a string",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new KindExpr()));
-        this.methods.put(
-                "tokens",
-                new BuiltInFunctionValue(
-                        "tokens",
-                        "Given a node, return an iterator on its tokens",
-                        new String[] {"node"},
-                        new Expr[] {null},
-                        new TokensExpr()));
-        this.methods.put(
-                "same_tokens",
-                new BuiltInFunctionValue(
-                        "same_tokens",
-                        "Return whether two nodes have the same tokens, ignoring trivias",
-                        new String[] {"node", "other"},
-                        new Expr[] {null, null},
-                        new SameTokensExpr()));
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see BuiltInMethods#getType()
-     */
-    @Override
-    public String getType() {
-        return LKQLTypesHelper.ADA_NODE;
-    }
-
-    // ----- Inner classes -----
+    public static final Map<String, BuiltInFunctionValue> methods =
+            Map.ofEntries(
+                    create(
+                            "children_count",
+                            "Given a node, return the count of its children",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new ChildrenCountExpr()),
+                    create(
+                            "children",
+                            "Given a node, get the list of all its children",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new ChildrenExpr()),
+                    create(
+                            "parent",
+                            "Given a node, get the parent of it",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new ParentExpr()),
+                    create(
+                            "dump",
+                            "Given an ast node, return a structured dump of the subtree",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new DumpExpr()),
+                    create(
+                            "text",
+                            "Given an ast node, return its text",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new TextExpr()),
+                    create(
+                            "image",
+                            "Given an ast node, return its image",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new ImageExpr()),
+                    create(
+                            "unit",
+                            "Given an ast node, return its analysis unit",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new UnitExpr()),
+                    create(
+                            "kind",
+                            "Return the kind of this node, as a string",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new KindExpr()),
+                    create(
+                            "tokens",
+                            "Given a node, return an iterator on its tokens",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new TokensExpr()),
+                    create(
+                            "same_tokens",
+                            "Return whether two nodes have the same tokens, ignoring trivias",
+                            new String[] {"node", "other"},
+                            new Expr[] {null, null},
+                            new SameTokensExpr()));
 
     /** Expression of the "children" method. */
     public static final class ChildrenExpr extends BuiltinFunctionBody {

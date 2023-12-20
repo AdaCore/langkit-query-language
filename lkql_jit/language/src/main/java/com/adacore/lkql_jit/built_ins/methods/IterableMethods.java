@@ -22,6 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
@@ -33,39 +35,30 @@ import com.adacore.lkql_jit.utils.Iterator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class contains all built-in methods for the iterable type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public abstract class IterableMethods extends CommonMethods {
+public class IterableMethods {
 
-    /**
-     * @see CommonMethods#initMethods()
-     */
-    @Override
-    protected void initMethods() {
-        super.initMethods();
-
-        this.methods.put(ReduceFunction.NAME, ReduceFunction.getValue());
-        this.methods.put(
-                "to_list",
-                new BuiltInFunctionValue(
-                        "to_list",
-                        "Transform an iterator into a list",
-                        new String[] {"iterable"},
-                        new Expr[] {null},
-                        new ToListExpr()));
-        this.methods.put(
-                "length",
-                new BuiltInFunctionValue(
-                        "length",
-                        "Get the length of the iterable element",
-                        new String[] {"iterable"},
-                        new Expr[] {null},
-                        new LengthExpr()));
-    }
+    public static final Map<String, BuiltInFunctionValue> methods =
+            Map.ofEntries(
+                    Map.entry(ReduceFunction.NAME, ReduceFunction.getValue()),
+                    create(
+                            "to_list",
+                            "Transform an iterator into a list",
+                            new String[] {"iterable"},
+                            new Expr[] {null},
+                            new ToListExpr()),
+                    create(
+                            "length",
+                            "Get the length of the iterable element",
+                            new String[] {"iterable"},
+                            new Expr[] {null},
+                            new LengthExpr()));
 
     // ----- Inner classes -----
 

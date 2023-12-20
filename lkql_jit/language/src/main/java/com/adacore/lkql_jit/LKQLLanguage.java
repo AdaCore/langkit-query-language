@@ -23,7 +23,6 @@
 package com.adacore.lkql_jit;
 
 import com.adacore.liblkqllang.Liblkqllang;
-import com.adacore.lkql_jit.built_ins.BuiltInFactory;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
 import com.adacore.lkql_jit.nodes.LKQLNode;
@@ -264,12 +263,8 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
      */
     @Override
     protected LKQLContext createContext(Env env) {
-        // Get the built-in factory
-        BuiltInFactory factory = BuiltInFactory.getInstance();
-
         // Create the global values
-        GlobalScope globalValues = new GlobalScope(factory.getNbBuiltInFunctions());
-        factory.addBuiltIns(globalValues);
+        GlobalScope globalValues = new GlobalScope();
 
         // Return the new context
         return new LKQLContext(env, globalValues);

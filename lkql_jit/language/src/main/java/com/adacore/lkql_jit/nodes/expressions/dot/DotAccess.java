@@ -26,10 +26,7 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLContext;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
-import com.adacore.lkql_jit.built_ins.values.LKQLNull;
-import com.adacore.lkql_jit.built_ins.values.LKQLObject;
-import com.adacore.lkql_jit.built_ins.values.LKQLProperty;
+import com.adacore.lkql_jit.built_ins.values.*;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
@@ -221,7 +218,7 @@ public abstract class DotAccess extends Expr {
         BuiltInFunctionValue builtIn = this.getBuiltIn(receiver);
         if (builtIn != null) {
             InteropLibrary builtInLibrary = InteropLibrary.getUncached(builtIn);
-            if (builtIn.getParameterNames().length <= 1) {
+            if (builtIn.parameterNames.length <= 1) {
                 try {
                     return builtInLibrary.execute(builtIn, receiver);
                 } catch (ArityException

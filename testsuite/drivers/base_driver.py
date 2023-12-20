@@ -432,9 +432,9 @@ class BaseDriver(DiffTestDriver):
         if self.env.options.mode == "jit":
             python_wrapper = P.join(self.env.support_dir, "lkql_jit.py")
             command_base = [sys.executable, python_wrapper]
-            self.lkql_exe = [*command_base, "lkql", "run"]
-            self.lkql_checker_exe = [*command_base, "lkql", "check"]
-            self.gnatcheck_worker_exe = [*command_base, "lkql", "gnatcheck_worker"]
+            self.lkql_exe = [*command_base, "run"]
+            self.lkql_checker_exe = [*command_base, "check"]
+            self.gnatcheck_worker_exe = [*command_base, "gnatcheck_worker"]
 
         # If the mode is native JIT
         elif self.env.options.mode == "native_jit":

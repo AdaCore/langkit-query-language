@@ -22,6 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
@@ -29,91 +31,43 @@ import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * This class contains all built-in methods for the analysis unit type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class AnalysisUnitMethods extends CommonMethods {
+public final class AnalysisUnitMethods {
 
-    // ----- Attributes -----
-
-    /** The only instance of the method collection. */
-    private static AnalysisUnitMethods instance;
-
-    // ----- Constructors -----
-
-    /** Private constructor. */
-    private AnalysisUnitMethods() {
-        super();
-    }
-
-    /**
-     * Get the only instance of the method collection.
-     *
-     * @return The instance of the analysis unit method.
-     */
-    public static AnalysisUnitMethods getInstance() {
-        if (instance == null) {
-            instance = new AnalysisUnitMethods();
-        }
-        return instance;
-    }
-
-    /**
-     * @see CommonMethods#initMethods()
-     */
-    @Override
-    protected void initMethods() {
-        super.initMethods();
-
-        this.methods.put(
-                "root",
-                new BuiltInFunctionValue(
-                        "root",
-                        "Return the root for this unit",
-                        new String[] {"unit"},
-                        new Expr[] {null},
-                        new RootExpr()));
-        this.methods.put(
-                "name",
-                new BuiltInFunctionValue(
-                        "name",
-                        "Return the name of this unit",
-                        new String[] {"unit"},
-                        new Expr[] {null},
-                        new NameExpr()));
-        this.methods.put(
-                "tokens",
-                new BuiltInFunctionValue(
-                        "tokens",
-                        "Return the tokens of the unit",
-                        new String[] {"unit"},
-                        new Expr[] {null},
-                        new TokensExpr()));
-        this.methods.put(
-                "text",
-                new BuiltInFunctionValue(
-                        "text",
-                        "Return the text of the analysis unit",
-                        new String[] {"unit"},
-                        new Expr[] {null},
-                        new TextExpr()));
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see BuiltInMethods#getType()
-     */
-    @Override
-    public String getType() {
-        return LKQLTypesHelper.ANALYSIS_UNIT;
-    }
+    public static final Map<String, BuiltInFunctionValue> methods =
+            Map.ofEntries(
+                    create(
+                            "root",
+                            "Return the root for this unit",
+                            new String[] {"unit"},
+                            new Expr[] {null},
+                            new RootExpr()),
+                    create(
+                            "name",
+                            "Return the name of this unit",
+                            new String[] {"unit"},
+                            new Expr[] {null},
+                            new NameExpr()),
+                    create(
+                            "tokens",
+                            "Return the tokens of the unit",
+                            new String[] {"unit"},
+                            new Expr[] {null},
+                            new TokensExpr()),
+                    create(
+                            "text",
+                            "Return the text of the analysis unit",
+                            new String[] {"unit"},
+                            new Expr[] {null},
+                            new TextExpr()));
 
     // ----- Inner classes -----
 

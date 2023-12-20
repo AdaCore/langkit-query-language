@@ -36,7 +36,7 @@ public final class StringLiteral extends Expr {
     // ----- Attributes -----
 
     /** The value of the string literal. */
-    private final String value;
+    public final String value;
 
     // ----- Constructors -----
 

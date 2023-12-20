@@ -37,6 +37,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.utilities.TriState;
+import java.util.ArrayList;
 
 /** This class represents the function values in LKQL. */
 @ExportLibrary(InteropLibrary.class)
@@ -45,25 +46,25 @@ public class LKQLFunction extends BasicLKQLValue {
     // ----- Attributes -----
 
     /** The root node representing the function body. */
-    private final FunctionRootNode rootNode;
+    public final FunctionRootNode rootNode;
 
-    /** The closure for the function exercution. */
-    private final Closure closure;
+    /** The closure for the function execution. */
+    public final Closure closure;
 
     /** The name of the function. */
-    @CompilerDirectives.CompilationFinal private String name;
+    @CompilerDirectives.CompilationFinal public String name;
 
     /** The documentation of the function. */
-    private final String documentation;
+    public final String documentation;
 
     /** Names of the function parameters. */
-    private final String[] parameterNames;
+    public final String[] parameterNames;
 
     /**
      * Default values of the function parameters (if a function parameter doesn't have any, the
      * value is 'null').
      */
-    private final Expr[] parameterDefaultValues;
+    public final Expr[] parameterDefaultValues;
 
     // ----- Constructors -----
 
@@ -94,24 +95,8 @@ public class LKQLFunction extends BasicLKQLValue {
 
     // ----- Getters ------
 
-    public FunctionRootNode getRootNode() {
-        return rootNode;
-    }
-
-    public Closure getClosure() {
-        return closure;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public String[] getParameterNames() {
-        return parameterNames;
-    }
-
-    public Expr[] getParameterDefaultValues() {
-        return parameterDefaultValues;
     }
 
     // ----- Setters -----
@@ -214,5 +199,20 @@ public class LKQLFunction extends BasicLKQLValue {
     @Override
     public String lkqlDocumentation() {
         return this.documentation;
+    }
+
+    @Override
+    @CompilerDirectives.TruffleBoundary
+    public String lkqlProfile() {
+        var expandedParams = new ArrayList<String>();
+        for (int i = 0; i < parameterNames.length; i++) {
+            var defVal = parameterDefaultValues[i];
+            if (defVal != null) {
+                expandedParams.add(parameterNames[i] + "=" + defVal.getLocation().getText());
+            } else {
+                expandedParams.add(parameterNames[i]);
+            }
+        }
+        return name + "(" + String.join(", ", expandedParams.toArray(new String[0])) + ")";
     }
 }

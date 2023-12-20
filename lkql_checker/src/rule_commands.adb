@@ -24,14 +24,10 @@
 with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
-with LKQL.Unit_Utils; use LKQL.Unit_Utils;
-with LKQL.Evaluation; use LKQL.Evaluation;
-
 with Liblkqllang.Common;
 with Liblkqllang.Generic_API.Introspection;
 use Liblkqllang.Generic_API.Introspection;
 with Liblkqllang.Iterators; use Liblkqllang.Iterators;
-with LKQL.Primitives;       use LKQL.Primitives;
 
 package body Rule_Commands is
 
@@ -114,11 +110,11 @@ package body Rule_Commands is
 
    function Create_Rule_Command
      (Lkql_File_Path : String;
-      Ctx            : Eval_Context;
+      Ctx            : L.Analysis_Context;
       Rc             : out Rule_Command) return Boolean
    is
       Root    : constant L.Lkql_Node :=
-        Make_Lkql_Unit (Ctx, Lkql_File_Path).Root;
+        Ctx.Get_From_File (Lkql_File_Path).Root;
 
       Check_Annotation : constant L.Decl_Annotation :=
         Find_First
@@ -169,10 +165,6 @@ package body Rule_Commands is
          Name                  : constant Text_Type := Fn.F_Name.Text;
          Toplevel_Node_Pattern : L.Node_Kind_Pattern;
 
-         Follow_Instantiations_Arg : constant L.Arg :=
-           Check_Annotation.P_Arg_With_Name
-             (To_Unbounded_Text ("follow_generic_instantiations"));
-         Follow_Instantiations : Boolean := False;
          Param_Kind            : Rule_Param_Kind;
 
          use LCO, GNAT.Regexp;
@@ -234,16 +226,9 @@ package body Rule_Commands is
          --  Get the "follow_generic_instantiations" settings if the user
          --  specified one. By default it is false.
 
-         if not Follow_Instantiations_Arg.Is_Null then
-            Follow_Instantiations :=
-              Bool_Val
-                (Eval (Ctx, Follow_Instantiations_Arg.P_Expr, Kind_Bool));
-         end if;
-
          if not Parametric_Exemption_Arg.Is_Null then
             Parametric_Exemption :=
-              Bool_Val
-                (Eval (Ctx, Parametric_Exemption_Arg.P_Expr, Kind_Bool));
+              Parametric_Exemption_Arg.P_Expr.Text = "true";
          end if;
 
          Get_Text (Msg_Arg, To_Unbounded_Text (Name), Msg);
@@ -318,13 +303,11 @@ package body Rule_Commands is
             Subcategory           => Subcategory,
             Lkql_Root             => Root,
             Function_Expr         => Fn.F_Fun_Expr.F_Body_Expr,
-            Eval_Ctx              => Ctx.Create_New_Frame,
             Rule_Args             => <>,
             Is_Unit_Check         =>
               Check_Annotation.F_Name.Text = "unit_check",
             Code                  => <>,
             Kind_Pattern          => Toplevel_Node_Pattern,
-            Follow_Instantiations => Follow_Instantiations,
             Param_Kind            => Param_Kind,
             Parameters            => Fn.F_Fun_Expr.F_Parameters,
             Remediation_Level     => Remediation_Level,
@@ -334,76 +317,5 @@ package body Rule_Commands is
          return True;
       end;
    end Create_Rule_Command;
-
-   -------------
-   -- Prepare --
-   -------------
-
-   procedure Prepare (Self : in out Rule_Command) is
-      Code : Unbounded_Text_Type;
-   begin
-      --  Create the code snippet that will be passed to Lkql_Eval, along with
-      --  the optional arguments passed to the rule via the command line.
-
-      Append (Code, To_Text (Self.Name));
-      Append (Code, "(");
-      for I in Self.Rule_Args.First_Index .. Self.Rule_Args.Last_Index loop
-         Append (Code,
-                 To_Text (Self.Rule_Args (I).Name)
-                 & "="
-                 & To_Text (Self.Rule_Args (I).Value));
-         if I < Self.Rule_Args.Last_Index then
-            Append (Code, ", ");
-         end if;
-      end loop;
-      Append (Code, ")");
-
-      Self.Code :=
-        Make_Lkql_Unit_From_Code
-          (Self.Eval_Ctx,
-           Image (To_Text (Code)),
-           "[" & Image (To_Text (Self.Name)) & " inline code]").Root;
-
-      if not Self.Is_Unit_Check then
-         --  For node checks, we optimize away the function call, so we will
-         --  add the parameters values to the environment.
-
-         --  First add bindings for formals who have default param values
-         for Param of
-            Self.Function_Expr.Parent.As_Base_Function.P_Default_Parameters
-         loop
-            Self.Eval_Ctx.Add_Binding
-              (Param.F_Param_Identifier.Text,
-               Eval
-                 (Self.Eval_Ctx,
-                  Param.F_Default_Expr));
-         end loop;
-
-         --  Then add bindings for all explicitly passed parameters
-         for I in Self.Rule_Args.First_Index + 1 .. Self.Rule_Args.Last_Index
-         loop
-            Self.Eval_Ctx.Add_Binding
-              (To_Text (Self.Rule_Args (I).Name),
-               Eval
-                 (Self.Eval_Ctx,
-                  Make_Lkql_Unit_From_Code
-                    (Self.Eval_Ctx,
-                     Image (To_Text (Self.Rule_Args (I).Value)),
-                     "[" & Image (To_Text (Self.Name)) & " inline code]")
-                  .Root.Child (1)));
-         end loop;
-
-      end if;
-
-   end Prepare;
-
-   -------------
-   -- Destroy --
-   -------------
-
-   procedure Destroy (Self : in out Rule_Command) is
-   begin
-      Self.Eval_Ctx.Release_Current_Frame;
-   end Destroy;
 
 end Rule_Commands;

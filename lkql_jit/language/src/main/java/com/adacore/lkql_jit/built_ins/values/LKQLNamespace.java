@@ -46,18 +46,21 @@ import java.util.Map;
 @ExportLibrary(InteropLibrary.class)
 public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
 
+    public final String documentation;
+
     // ----- Constructors -----
 
     /** Create a new LKQL namespace with its shape. */
-    public LKQLNamespace(Shape shape) {
+    public LKQLNamespace(Shape shape, String documentation) {
         super(shape);
+        this.documentation = documentation;
     }
 
     // ----- Class methods -----
 
     /** Create a namespace from the given Truffle frame and its store values. */
     @CompilerDirectives.TruffleBoundary
-    public static LKQLNamespace createUncached(MaterializedFrame frame) {
+    public static LKQLNamespace createUncached(MaterializedFrame frame, String doc) {
         // Prepare the map for the symbols
         final Map<String, Object> symbols = new HashMap<>();
 
@@ -71,7 +74,7 @@ public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
         }
 
         // Return the new namespace
-        LKQLNamespace res = new LKQLNamespace(Shape.newBuilder().build());
+        LKQLNamespace res = new LKQLNamespace(Shape.newBuilder().build(), doc);
         for (String key : symbols.keySet()) {
             uncachedObjectLibrary.put(res, key, symbols.get(key));
         }
@@ -154,5 +157,10 @@ public class LKQLNamespace extends ObjectLKQLValue implements LKQLValue {
         // Return the string result
         resultBuilder.append(")");
         return resultBuilder.toString();
+    }
+
+    @Override
+    public String lkqlDocumentation() {
+        return this.documentation;
     }
 }

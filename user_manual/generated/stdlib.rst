@@ -1,12 +1,8 @@
-API Doc For Module stdlib
---------------------------------
+stdlib's API doc
+----------------
 
-LKQL stdlib module
-
-This module contains functions that are shared accross lkql_checker rules.
-These functions may be moved in the future in Libadalang or LKQL's builtin
-library.
-
+Functions
+^^^^^^^^^
 .. function:: all(iterable)
 
     Return whether all elements in the given iterable are truthy
@@ -15,29 +11,20 @@ library.
 
     Return whether at least one element in the given iterable is truthy
 
-.. function:: children_no_nested
-
-    Return all children nodes starting from a base subprogram body, but not
-    entering in nested bodies.
-
 .. function:: closest_enclosing_generic(n)
 
     If ``n`` is part of a generic package or subprogram, whether it is
     instantiated or not, then return it.
 
-.. function:: component_types
-
-    Return all the BaseTypeDecl corresponding to all fields
-    of a given type, including their full views, base types and subtypes.
-
 .. function:: default_bit_order()
 
-    Return the value of System.Default_Bit_Order if any ``with System``
+    Return the value of ``System.Default_Bit_Order`` if any ``with System``
     clause is found, null otherwise.
 
 .. function:: enclosing_block(n)
 
-    Return the first DeclBlock enclosing n if any, null otherwise
+    Return the first ``DeclBlock`` enclosing ``n`` if any, ``null``
+    otherwise.
 
 .. function:: enclosing_body(n)
 
@@ -57,18 +44,14 @@ library.
 
     Return the index of the first non blank character of s, starting at ind
 
-.. function:: full_parent_types
-
-    Return all base (sub)types full views
-
 .. function:: full_root_type(t)
 
-    Return the full view of the root type of t, traversing subtypes,
+    Return the full view of the root type of ``t``, traversing subtypes,
     derivations and privacy.
 
 .. function:: get_parameter(params, actual)
 
-    Given a List[ParamActual], return the parameter corresponding to
+    Given a ``List[ParamActual]``, return the parameter corresponding to
     actual, null if actual is not found.
 
 .. function:: get_subp_body(node)
@@ -86,8 +69,9 @@ library.
 
 .. function:: has_non_default_sso(decl)
 
-    Return true if ``decl`` has a Scalar_Storage_Order aspect whose value
-    cannot be determined to be equal to System.Default_Storage_Order.
+    Return true if ``decl`` has a ``Scalar_Storage_Order`` aspect whose
+    value cannot be determined to be equal to
+    ``System.Default_Storage_Order``.
 
 .. function:: in_generic_instance(n)
 
@@ -109,7 +93,8 @@ library.
 
 .. function:: is_by_copy(param)
 
-    Return true if ``param`` (a ParamActual) has a non aliased by-copy type
+    Return true if ``param`` (a ``ParamActual``) has a non aliased by-copy
+    type
 
 .. function:: is_classwide_type(t)
 
@@ -148,12 +133,12 @@ library.
 
 .. function:: is_predefined_op(op, follow_renamings=false)
 
-    Return true if op is a predefined operator
+    Return true if ``op`` is a predefined operator
 
 .. function:: is_predefined_type(n)
 
-    Return true if n is the name of a type declared in a predefined package
-    spec.
+    Return true if ``n`` is the name of a type declared in a predefined
+    package spec.
 
 .. function:: is_program_unit(n)
 
@@ -161,7 +146,7 @@ library.
 
 .. function:: is_standard_boolean(n)
 
-    Return true if the root type of n is Standard.Boolean
+    Return true if the root type of ``n`` is ``Standard.Boolean``.
 
 .. function:: is_standard_numeric(n)
 
@@ -195,17 +180,9 @@ library.
     Return the number of values covered by a given BaseTypeDecl, -1 if
     this value cannot be determined.
 
-.. function:: param_pos(n, pos: int = 0)
+.. function:: param_pos(n, pos=0)
 
     Return the position of node ``n`` in its current list of siblings
-
-.. function:: parent_decl_chain
-
-    Return all parent basic decl nodes starting from a given node, using
-    semantic parent.
-    When on a subprogram or package body, go to the declaration
-    This allows us to, if in a generic template, always find back the
-    generic formal.
 
 .. function:: previous_non_blank_token_line(token)
 
@@ -215,18 +192,15 @@ library.
 .. function:: propagate_exceptions(body)
 
     Return true if the given body may propagate an exception, namely if:
-    - it has no exception handler with a "when others" choice;
+    - it has no exception handler with a ``when others`` choice;
     - or it has an exception handler containing a raise statement, or a call
-    to Ada.Exception.Raise_Exception or Ada.Exception.Reraise_Occurrence.
+    to ``Ada.Exception.Raise_Exception`` or
+    ``Ada.Exception.Reraise_Occurrence``.
 
 .. function:: range_values(left, right)
 
     Return the number of values covered between left and right expressions,
     -1 if it cannot be determined.
-
-.. function:: semantic_parent
-
-    Return all semantic parent nodes starting from a given node.
 
 .. function:: sloc_image(node)
 
@@ -234,15 +208,15 @@ library.
 
 .. function:: strip_conversions(node)
 
-    Strip ParenExpr, QualExpr and type conversions
+    Strip ``ParenExpr``, ``QualExpr`` and type conversions
 
 .. function:: ultimate_alias(name, all_nodes=true, strip_component=false)
 
     Return the ultimately designated ``ObjectDecl``, going through renamings
     This will not go through generic instantiations. If all_nodes is true,
-    consider all kinds of nodes, otherwise consider only BaseId and
-    DottedName. If strip_component is true, go to the prefix when
-    encountering a component, otherwise stop at the ComponentDecl.
+    consider all kinds of nodes, otherwise consider only ``BaseId`` and
+    ``DottedName``. If ``strip_component`` is true, go to the prefix when
+    encountering a component, otherwise stop at the ``ComponentDecl``.
 
 .. function:: ultimate_designated_generic_subp(subp_inst)
 
@@ -255,8 +229,8 @@ library.
 
 .. function:: ultimate_prefix(n)
 
-    Return n.f_prefix as long as n is a DottedName and designates a
-    ComponentDecl, n otherwise.
+    Return ``n.f_prefix`` as long as ``n`` is a ``DottedName`` and
+    designates a ``ComponentDecl``, ``n`` otherwise.
 
 .. function:: ultimate_subprogram_alias(name)
 
@@ -266,3 +240,32 @@ library.
 
     Return ``true`` if ``node`` is part of an assertion-related pragma or
     aspect.
+
+Selectors
+^^^^^^^^^
+.. function:: children_no_nested()
+
+    Return all children nodes starting from a base subprogram body, but not
+    entering in nested bodies.
+
+.. function:: component_types()
+
+    Return all the ``BaseTypeDecl``s corresponding to all fields of a given
+    type, including their full views, base types and subtypes.
+
+.. function:: full_parent_types()
+
+    Return all base (sub)types full views
+
+.. function:: parent_decl_chain()
+
+    Return all parent basic decl nodes starting from a given node, using
+    semantic parent.
+    When on a subprogram or package body, go to the declaration
+    This allows us to, if in a generic template, always find back the
+    generic formal.
+
+.. function:: semantic_parent()
+
+    Return all semantic parent nodes starting from a given node.
+

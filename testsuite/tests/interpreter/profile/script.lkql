@@ -1,0 +1,7 @@
+selector bar
+    | null => ()
+
+fun foo(a=12, b=(13, 14)) = a + b[0] + b[1]
+
+print(profile(foo))
+print(profile(bar))

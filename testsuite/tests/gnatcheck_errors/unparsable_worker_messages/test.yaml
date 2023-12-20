@@ -1,6 +1,6 @@
 driver: gnatcheck
 format: brief
-worker: "unparsable_generator"
+worker: "python bogus_lkql.py"
 input_sources:
   - main.adb
 rules:

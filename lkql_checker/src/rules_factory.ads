@@ -30,8 +30,6 @@ with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Hash;
 
-with LKQL.Eval_Contexts; use LKQL.Eval_Contexts;
-
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package Rules_Factory is
@@ -51,14 +49,10 @@ package Rules_Factory is
    subtype Path_Vector is Path_Vectors.Vector;
 
    function All_Rules
-     (Ctx  : in out Eval_Context;
+     (Ctx  : L.Analysis_Context;
       Dirs : Path_Vector := Path_Vectors.Empty_Vector) return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
-
-   procedure Finalize_Rules (Ctx : Eval_Context);
-   --  Free memory associated to rules. Needs to be called at the end of the
-   --  program.
 
 private
    type Virtual_File_Array is array (Positive range <>) of Virtual_File;

@@ -22,6 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.methods;
 
+import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
+
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
@@ -35,158 +37,96 @@ import com.adacore.lkql_jit.utils.functions.BigIntegerUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.math.BigInteger;
+import java.util.Map;
 
 /**
  * This class contains all built-in methods for the string type in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public final class StrMethods extends CommonMethods {
+public class StrMethods {
 
-    // ----- Attributes -----
-
-    /** The only instance of the method collection. */
-    private static StrMethods instance = null;
-
-    // ----- Constructors -----
-
-    /** Create the methods for the string type. */
-    private StrMethods() {
-        super();
-    }
-
-    /**
-     * Get the only instance of the method collection.
-     *
-     * @return The instance of the string methods.
-     */
-    public static StrMethods getInstance() {
-        if (instance == null) {
-            instance = new StrMethods();
-        }
-        return instance;
-    }
-
-    /**
-     * @see CommonMethods#initMethods()
-     */
-    @Override
-    protected void initMethods() {
-        super.initMethods();
-        this.methods.put(BaseNameFunction.NAME, BaseNameFunction.getValue());
-        this.methods.put(
-                "to_lower_case",
-                new BuiltInFunctionValue(
-                        "to_lower_case",
-                        "Return the given string written with lower case characters only",
-                        new String[] {"str"},
-                        new Expr[] {null},
-                        new ToLowerCaseExpr()));
-        this.methods.put(
-                "is_lower_case",
-                new BuiltInFunctionValue(
-                        "is_lower_case",
-                        "Return whether the given string contains lower case characters only",
-                        new String[] {"str"},
-                        new Expr[] {null},
-                        new IsLowerCaseExpr()));
-        this.methods.put(
-                "to_upper_case",
-                new BuiltInFunctionValue(
-                        "to_upper_case",
-                        "Return the given string written with upper case characters only",
-                        new String[] {"str"},
-                        new Expr[] {null},
-                        new ToUpperCaseExpr()));
-        this.methods.put(
-                "is_upper_case",
-                new BuiltInFunctionValue(
-                        "is_upper_case",
-                        "Return whether the given string contains upper case characters only",
-                        new String[] {"str"},
-                        new Expr[] {null},
-                        new IsUpperCaseExpr()));
-        this.methods.put(
-                "is_mixed_case",
-                new BuiltInFunctionValue(
-                        "is_mixed_case",
-                        "Return whether the given string is written in mixed case, that is, with"
-                            + " only lower case characters except the first one and every character"
-                            + " following an underscore",
-                        new String[] {"str"},
-                        new Expr[] {null},
-                        new IsMixedCaseExpr()));
-        this.methods.put(
-                "length",
-                new BuiltInFunctionValue(
-                        "length",
-                        "Given a string, return the length of it in character",
-                        new String[] {"str"},
-                        new Expr[] {null},
-                        new LengthExpr()));
-        this.methods.put(
-                "substring",
-                new BuiltInFunctionValue(
-                        "substring",
-                        "Given a string and two indices (from and to), return the substring"
-                                + " contained between indices from and to (both included)",
-                        new String[] {"str", "from", "to"},
-                        new Expr[] {null, null, null},
-                        new SubstringExpr()));
-        this.methods.put(
-                "split",
-                new BuiltInFunctionValue(
-                        "split",
-                        "Given a string, return an iterator on the words contained by str separated"
-                                + " by separator",
-                        new String[] {"str", "separator"},
-                        new Expr[] {null, null},
-                        new SplitExpr()));
-        this.methods.put(
-                "contains",
-                new BuiltInFunctionValue(
-                        "contains",
-                        "Search for to_find in the given string. Return whether a match is found."
-                                + " to_find can be either a pattern or a string",
-                        new String[] {"str", "to_find"},
-                        new Expr[] {null, null},
-                        new ContainsExpr()));
-        this.methods.put(
-                "find",
-                new BuiltInFunctionValue(
-                        "find",
-                        "Search for to_find in the given string. Return position of the match, or"
-                                + " -1 if no match. to_find can be either a pattern or a string",
-                        new String[] {"str", "to_find"},
-                        new Expr[] {null, null},
-                        new FindExpr()));
-        this.methods.put(
-                "starts_with",
-                new BuiltInFunctionValue(
-                        "starts_with",
-                        "Given a string, returns whether it starts with the given prefix",
-                        new String[] {"str", "prefix"},
-                        new Expr[] {null, null},
-                        new StartsWithExpr()));
-        this.methods.put(
-                "ends_with",
-                new BuiltInFunctionValue(
-                        "ends_with",
-                        "Given a string, returns whether it ends with the given suffix",
-                        new String[] {"str", "suffix"},
-                        new Expr[] {null, null},
-                        new EndsWithExpr()));
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see BuiltInMethods#getType()
-     */
-    @Override
-    public String getType() {
-        return LKQLTypesHelper.LKQL_STRING;
-    }
+    public static final Map<String, BuiltInFunctionValue> methods =
+            Map.ofEntries(
+                    Map.entry(BaseNameFunction.NAME, BaseNameFunction.getValue()),
+                    create(
+                            "to_lower_case",
+                            "Return the given string written with lower case characters only",
+                            new String[] {"str"},
+                            new Expr[] {null},
+                            new ToLowerCaseExpr()),
+                    create(
+                            "is_lower_case",
+                            "Return whether the given string contains lower case characters only",
+                            new String[] {"str"},
+                            new Expr[] {null},
+                            new IsLowerCaseExpr()),
+                    create(
+                            "to_upper_case",
+                            "Return the given string written with upper case characters only",
+                            new String[] {"str"},
+                            new Expr[] {null},
+                            new ToUpperCaseExpr()),
+                    create(
+                            "is_upper_case",
+                            "Return whether the given string contains upper case characters only",
+                            new String[] {"str"},
+                            new Expr[] {null},
+                            new IsUpperCaseExpr()),
+                    create(
+                            "is_mixed_case",
+                            "Return whether the given string is written in mixed case, that is,"
+                                + " with only lower case characters except the first one and every"
+                                + " character following an underscore",
+                            new String[] {"str"},
+                            new Expr[] {null},
+                            new IsMixedCaseExpr()),
+                    create(
+                            "length",
+                            "Given a string, return the length of it in character",
+                            new String[] {"str"},
+                            new Expr[] {null},
+                            new LengthExpr()),
+                    create(
+                            "substring",
+                            "Given a string and two indices (from and to), return the substring"
+                                    + " contained between indices from and to (both included)",
+                            new String[] {"str", "from", "to"},
+                            new Expr[] {null, null, null},
+                            new SubstringExpr()),
+                    create(
+                            "split",
+                            "Given a string, return an iterator on the words contained by str"
+                                    + " separated by separator",
+                            new String[] {"str", "separator"},
+                            new Expr[] {null, null},
+                            new SplitExpr()),
+                    create(
+                            "contains",
+                            "Search for to_find in the given string. Return whether a match is"
+                                    + " found. to_find can be either a pattern or a string",
+                            new String[] {"str", "to_find"},
+                            new Expr[] {null, null},
+                            new ContainsExpr()),
+                    create(
+                            "find",
+                            "Search for to_find in the given string. Return position of the match,"
+                                + " or -1 if no match. to_find can be either a pattern or a string",
+                            new String[] {"str", "to_find"},
+                            new Expr[] {null, null},
+                            new FindExpr()),
+                    create(
+                            "starts_with",
+                            "Given a string, returns whether it starts with the given prefix",
+                            new String[] {"str", "prefix"},
+                            new Expr[] {null, null},
+                            new StartsWithExpr()),
+                    create(
+                            "ends_with",
+                            "Given a string, returns whether it ends with the given suffix",
+                            new String[] {"str", "suffix"},
+                            new Expr[] {null, null},
+                            new EndsWithExpr()));
 
     // ----- Inner classes -----
 

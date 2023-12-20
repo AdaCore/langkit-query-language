@@ -130,10 +130,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             final StringBuilder builder = new StringBuilder();
             for (Liblkqllang.LkqlNode subBlock :
                     ((Liblkqllang.BlockStringLiteral) stringLiteral).fDocs().children()) {
-                builder.append(StringUtils.translateEscapes(subBlock.getText().substring(2)))
-                        .append("\n");
+                var str = StringUtils.translateEscapes(subBlock.getText().substring(2));
+
+                if (str.length() > 0) {
+                    // First character should be a whitespace, as specified in
+                    // the user manual.
+                    if (str.charAt(0) != ' ') {
+                        throw LKQLRuntimeException.fromMessage(
+                                "Invalid blockstring: first character should be whitespace");
+                    }
+                    builder.append(str.substring(1)).append("\n");
+                }
             }
-            res = builder.toString().replaceAll("^\\s+", "");
+            res = builder.toString().trim();
         }
 
         // Return the result
@@ -197,12 +206,19 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Exit the top level frame
         this.scriptFrames.exitFrame();
 
+        String doc = null;
+
+        if (topLevelNodes.size() > 0 && topLevelNodes.get(0) instanceof StringLiteral) {
+            doc = ((StringLiteral) topLevelNodes.get(0)).value;
+        }
+
         // Return the top level node
         return new TopLevelList(
                 loc(topLevelList),
                 this.scriptFrames.getFrameDescriptor(),
                 topLevelNodes.toArray(new LKQLNode[0]),
-                this.source.isInteractive());
+                this.source.isInteractive(),
+                doc);
     }
 
     // --- Literals
@@ -1275,6 +1291,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
         final Expr body = (Expr) baseFunction.fBodyExpr().accept(this);
 
+        final var docstring = baseFunction.pDoc();
+
         // Return the new function expression node
         final FunExpr res =
                 new FunExpr(
@@ -1282,6 +1300,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                         this.scriptFrames.getFrameDescriptor(),
                         this.scriptFrames.getClosureDescriptor(),
                         parameters.toArray(new ParameterDeclaration[0]),
+                        docstring.isNone() ? "" : parseStringLiteral(docstring),
                         body);
 
         // Exit the function frame

@@ -117,8 +117,8 @@ public abstract class FunCall extends Expr {
         builtIn.setCallNode(this);
 
         // Get the real argument names and default values
-        String[] actualParam = builtIn.getParameterNames();
-        Expr[] defaultValues = builtIn.getParameterDefaultValues();
+        String[] actualParam = builtIn.parameterNames;
+        Expr[] defaultValues = builtIn.parameterDefaultValues;
 
         // Execute the argument list
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
@@ -167,8 +167,8 @@ public abstract class FunCall extends Expr {
             final LKQLFunction function,
             @CachedLibrary("function") InteropLibrary functionLibrary) {
         // Get the real argument names and default values
-        String[] names = function.getParameterNames();
-        Expr[] defaultValues = function.getParameterDefaultValues();
+        String[] names = function.parameterNames;
+        Expr[] defaultValues = function.parameterDefaultValues;
 
         // Prepare the argument array and the working var
         // TODO: Do not materialize the frame here, for now we need to do it because of a Truffle
@@ -187,7 +187,7 @@ public abstract class FunCall extends Expr {
         }
 
         // Place the closure in the arguments
-        realArgs = ArrayUtils.concat(new Object[] {function.getClosure().getContent()}, realArgs);
+        realArgs = ArrayUtils.concat(new Object[] {function.closure.getContent()}, realArgs);
 
         // Return the result of the function call
         try {
