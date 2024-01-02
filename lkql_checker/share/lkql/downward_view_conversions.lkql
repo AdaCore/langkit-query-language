@@ -1,4 +1,5 @@
 # Flag downward view conversions.
+# This rule will also flag downward view conversions done through access types.
 
 fun is_downward_conv(expr_type, t) =
     |" Whether converting from `expr_type` to `t` is a downward view conversion
