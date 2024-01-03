@@ -1452,8 +1452,24 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the function body
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
 
-        // Return the new function declaration node
-        return new FunctionDeclaration(loc(funDecl), annotation, name, slot, funExpr);
+        // Create the new function declaration node
+        final var functionDecl =
+                new FunctionDeclaration(loc(funDecl), annotation, name, slot, funExpr);
+
+        // If the function is annotated as a checker, create a checker exportation node and
+        // return it
+        if (annotation != null) {
+            if (annotation.getName().equals(Constants.ANNOTATION_NODE_CHECK)) {
+                return new CheckerExport(
+                        loc(funDecl), annotation, CheckerExport.CheckerMode.NODE, functionDecl);
+            } else if (annotation.getName().equals(Constants.ANNOTATION_UNIT_CHECK)) {
+                return new CheckerExport(
+                        loc(funDecl), annotation, CheckerExport.CheckerMode.UNIT, functionDecl);
+            }
+        }
+
+        // Finally return the function declaration
+        return functionDecl;
     }
 
     // --- Safe tokens
