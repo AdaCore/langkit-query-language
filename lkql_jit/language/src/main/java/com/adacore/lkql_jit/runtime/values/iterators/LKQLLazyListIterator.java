@@ -20,57 +20,49 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.iterators;
+package com.adacore.lkql_jit.runtime.values.iterators;
 
-import com.adacore.lkql_jit.utils.Iterator;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.StopIterationException;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
+import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLLazyList;
 
-/** This class represents an iterator value in the LKQL language. */
-@ExportLibrary(InteropLibrary.class)
-public abstract class LKQLIterator implements TruffleObject, Iterator {
+/** This class represents an iterator for an LKQL lazy list. */
+public class LKQLLazyListIterator extends LKQLIterator {
+
+    // ----- Attributes -----
+
+    /** The lazy list to iterate on. */
+    private final LKQLLazyList lazyList;
+
+    /** The cursor for the iteration. */
+    private long cursor;
 
     // ----- Constructors -----
 
-    /** The protected constructor. */
-    protected LKQLIterator() {}
+    /** Create a new lazy list iterator for the given lazy list. */
+    public LKQLLazyListIterator(LKQLLazyList lazyList) {
+        this.lazyList = lazyList;
+        this.cursor = 0;
+    }
 
     // ----- Iterator required methods -----
 
-    /** Get whether the iterator has a next element. */
-    public abstract boolean hasNext();
-
-    /** Get the next element and move the cursor forward. */
-    public abstract Object next();
-
-    // ----- Value methods -----
-
-    /** Tell the interop library that the value is an iterator. */
-    @ExportMessage
-    public boolean isIterator() {
-        return true;
-    }
-
-    /** Get if the iterator has a next element. */
-    @ExportMessage
-    public boolean hasIteratorNextElement() {
-        return this.hasNext();
-    }
-
-    /**
-     * Get the next element of the iterator.
-     *
-     * @throws StopIterationException If there is no next element.
-     */
-    @ExportMessage
-    public Object getIteratorNextElement() throws StopIterationException {
+    @Override
+    public boolean hasNext() {
         try {
-            return this.next();
-        } catch (IndexOutOfBoundsException e) {
-            throw StopIterationException.create(e);
+            this.lazyList.get(cursor);
+            return true;
+        } catch (InvalidIndexException e) {
+            return false;
         }
+    }
+
+    @Override
+    public Object next() {
+        return this.lazyList.get(this.cursor++);
+    }
+
+    @Override
+    public void reset() {
+        this.cursor = 0;
     }
 }

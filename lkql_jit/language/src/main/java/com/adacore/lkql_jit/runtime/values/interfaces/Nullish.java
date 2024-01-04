@@ -20,28 +20,11 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.interfaces;
-
-import com.adacore.lkql_jit.utils.Iterator;
+package com.adacore.lkql_jit.runtime.values.interfaces;
 
 /**
- * This interface defines the iterable interface for all the iterable LKQL types.
+ * This interface represents all nullish values in the LKQL language.
  *
  * @author Hugo GUERRIER
  */
-public interface Iterable {
-
-    /**
-     * Get the size of the iterable collection.
-     *
-     * @return The size of the iterable.
-     */
-    long size();
-
-    /**
-     * Get the iterator for the iterable object.
-     *
-     * @return The iterator.
-     */
-    Iterator iterator();
-}
+public interface Nullish {}

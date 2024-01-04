@@ -20,7 +20,7 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.lists;
+package com.adacore.lkql_jit.runtime.values.lists;
 
 import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcher;
 import com.adacore.lkql_jit.nodes.dispatchers.ListComprehensionDispatcherNodeGen;

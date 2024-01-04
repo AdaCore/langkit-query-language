@@ -22,8 +22,8 @@
 
 package com.adacore.lkql_jit.built_ins.selectors;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**

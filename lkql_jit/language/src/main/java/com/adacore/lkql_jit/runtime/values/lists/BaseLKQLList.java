@@ -20,15 +20,15 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.lists;
+package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.built_ins.values.bases.ArrayLKQLValue;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Indexable;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
-import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
-import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.runtime.values.bases.ArrayLKQLValue;
+import com.adacore.lkql_jit.runtime.values.interfaces.Indexable;
+import com.adacore.lkql_jit.runtime.values.interfaces.Iterable;
+import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
+import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.functions.StringUtils;

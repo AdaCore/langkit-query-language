@@ -20,9 +20,9 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values;
+package com.adacore.lkql_jit.runtime.values;
 
-import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
+import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;

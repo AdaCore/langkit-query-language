@@ -20,54 +20,52 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.lists;
+package com.adacore.lkql_jit.runtime.values.lists;
 
-import com.adacore.lkql_jit.built_ins.values.iterators.LKQLIterator;
-import com.adacore.lkql_jit.built_ins.values.iterators.LKQLLazyListIterator;
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
+import com.adacore.lkql_jit.runtime.values.iterators.LKQLIterator;
+import com.adacore.lkql_jit.runtime.values.iterators.LKQLListIterator;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
-/** This class represents the base of all LKQL lazy lists. */
+/** This class represents an array list in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
-public abstract class LKQLLazyList extends BaseLKQLList {
+public final class LKQLList extends BaseLKQLList {
 
     // ----- Attributes -----
 
-    /** The cache of the lazy list. */
-    protected final List<Object> cache;
+    /** The content of the array list. */
+    public final Object[] content;
 
     // ----- Constructors -----
 
-    protected LKQLLazyList() {
-        this.cache = new ArrayList<>();
+    /** Create a new array list with its content. */
+    public LKQLList(final Object[] content) {
+        this.content = content;
     }
-
-    // ----- Lazy list required methods -----
-
-    /**
-     * Initialize the lazy list cache to the given index. If n < 0 then initialize all the lazy list
-     * values.
-     */
-    public abstract void computeItemAt(long n);
 
     // ----- List required methods -----
 
     @Override
     public long size() {
-        this.computeItemAt(-1);
-        return this.cache.size();
+        return this.content.length;
     }
 
     @Override
     public Object get(long i) throws InvalidIndexException {
-        this.computeItemAt(i);
         try {
-            return this.cache.get((int) i);
+            return this.content[(int) i];
+        } catch (IndexOutOfBoundsException e) {
+            throw new InvalidIndexException();
+        }
+    }
+
+    public Object[] getSlice(long first, long last) throws InvalidIndexException {
+        try {
+            return Arrays.copyOfRange(this.content, (int) first, (int) last);
         } catch (IndexOutOfBoundsException e) {
             throw new InvalidIndexException();
         }
@@ -75,15 +73,20 @@ public abstract class LKQLLazyList extends BaseLKQLList {
 
     @Override
     public LKQLIterator iterator() {
-        return new LKQLLazyListIterator(this);
+        return new LKQLListIterator(this);
+    }
+
+    @Override
+    public Object[] getContent() {
+        return this.content;
     }
 
     // ----- Value methods -----
 
-    /** Return the identity hash code for the given LKQL lazy list. */
+    /** Return the identity hash code for the given LKQL array list. */
     @CompilerDirectives.TruffleBoundary
     @ExportMessage
-    public static int identityHashCode(LKQLLazyList receiver) {
+    public static int identityHashCode(LKQLList receiver) {
         return System.identityHashCode(receiver);
     }
 }

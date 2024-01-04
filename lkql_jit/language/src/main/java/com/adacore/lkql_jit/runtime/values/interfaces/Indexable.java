@@ -20,7 +20,7 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.interfaces;
+package com.adacore.lkql_jit.runtime.values.interfaces;
 
 import com.adacore.lkql_jit.exception.utils.InvalidIndexException;
 
