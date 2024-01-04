@@ -5,7 +5,7 @@
 
 package com.adacore.lkql_jit.checker;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
+import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 
 /**
  * This class represents a checker in the LKQL language. A checker is an annotated function which is

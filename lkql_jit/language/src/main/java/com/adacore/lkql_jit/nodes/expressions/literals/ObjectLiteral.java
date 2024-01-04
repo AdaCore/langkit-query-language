@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.nodes.expressions.literals;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.LKQLObject;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
