@@ -78,7 +78,9 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
         @CommandLine.Option(
                 names = {"-r", "--rule"},
-                description = "Additional directories where rules will be sought")
+                description =
+                        "Rule to run on the provided code base (Run all rules if none is"
+                                + " provided)")
         public List<String> rules = new ArrayList<>();
 
         @CommandLine.Option(
