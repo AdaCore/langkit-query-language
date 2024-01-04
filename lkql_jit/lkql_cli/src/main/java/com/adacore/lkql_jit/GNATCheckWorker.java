@@ -323,7 +323,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         if (this.args.unmatched != null) {
             return this.args.unmatched;
         } else {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
 
