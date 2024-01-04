@@ -27,11 +27,11 @@ public abstract class ArrayLKQLValue extends BasicLKQLValue {
             InteropLibrary leftElems,
             InteropLibrary rightElems) {
         try {
-            // Get the left tuple size and compare it with the right tuple
+            // Get the left array size and compare it with the right array
             long size = lefts.getArraySize(left);
             if (size != rights.getArraySize(right)) return false;
 
-            // Then compare each element of the tuples
+            // Then compare each element of the arrays
             for (long i = 0; i < size; i++) {
                 Object leftElem = lefts.readArrayElement(left, i);
                 Object rightElem = rights.readArrayElement(right, i);
@@ -42,10 +42,10 @@ public abstract class ArrayLKQLValue extends BasicLKQLValue {
                 }
             }
 
-            // If we get here, tuples are equal
+            // If we get here, arrays are equal
             return true;
         } catch (Exception e) {
-            throw LKQLRuntimeException.shouldNotHappen("Tuples comparison");
+            throw LKQLRuntimeException.shouldNotHappen("Arrays comparison shouldn't fail");
         }
     }
 
