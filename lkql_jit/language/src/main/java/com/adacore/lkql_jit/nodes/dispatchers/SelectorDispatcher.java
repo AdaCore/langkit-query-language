@@ -5,10 +5,10 @@
 
 package com.adacore.lkql_jit.nodes.dispatchers;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
-import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Cell;
+import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
+import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;

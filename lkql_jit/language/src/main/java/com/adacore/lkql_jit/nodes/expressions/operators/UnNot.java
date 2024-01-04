@@ -5,9 +5,9 @@
 
 package com.adacore.lkql_jit.nodes.expressions.operators;
 
-import com.adacore.lkql_jit.built_ins.values.interfaces.Truthy;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.adacore.lkql_jit.runtime.values.interfaces.Truthy;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.source.SourceSection;
