@@ -6,12 +6,12 @@
 package com.adacore.lkql_jit.nodes.declarations.selector;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
-import com.adacore.lkql_jit.built_ins.values.LKQLRecValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
+import com.adacore.lkql_jit.runtime.values.LKQLDepthValue;
+import com.adacore.lkql_jit.runtime.values.LKQLRecValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;

@@ -7,9 +7,9 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
