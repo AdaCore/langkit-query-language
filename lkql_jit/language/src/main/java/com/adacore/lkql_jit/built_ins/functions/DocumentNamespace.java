@@ -7,13 +7,13 @@ package com.adacore.lkql_jit.built_ins.functions;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
-import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
-import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
-import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
-import com.adacore.lkql_jit.built_ins.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.values.LKQLFunction;
+import com.adacore.lkql_jit.runtime.values.LKQLNamespace;
+import com.adacore.lkql_jit.runtime.values.LKQLSelector;
+import com.adacore.lkql_jit.runtime.values.bases.BasicLKQLValue;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.TextWriter;
 import com.oracle.truffle.api.CompilerDirectives;
