@@ -20,12 +20,12 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.bases;
+package com.adacore.lkql_jit.runtime.values.bases;
 
 import com.adacore.lkql_jit.LKQLLanguage;
-import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
-import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.runtime.values.interfaces.LKQLValue;
+import com.adacore.lkql_jit.runtime.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;

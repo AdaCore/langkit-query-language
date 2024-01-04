@@ -22,10 +22,10 @@
 
 package com.adacore.lkql_jit.built_ins;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.runtime.values.LKQLSelector;
 
 /**
  * This class represents the base of the built-in selector values.

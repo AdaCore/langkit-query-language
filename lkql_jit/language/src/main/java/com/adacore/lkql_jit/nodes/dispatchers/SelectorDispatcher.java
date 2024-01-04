@@ -22,9 +22,9 @@
 
 package com.adacore.lkql_jit.nodes.dispatchers;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Cell;
+import com.adacore.lkql_jit.runtime.values.LKQLDepthNode;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;

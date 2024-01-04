@@ -20,7 +20,7 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.bases;
+package com.adacore.lkql_jit.runtime.values.bases;
 
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;

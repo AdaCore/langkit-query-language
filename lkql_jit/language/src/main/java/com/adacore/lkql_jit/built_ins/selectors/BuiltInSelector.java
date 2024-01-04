@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.built_ins.selectors;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
+import com.adacore.lkql_jit.runtime.values.LKQLSelector;
 
 /**
  * This interface defines the LKQL built-in selector factories.

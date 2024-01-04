@@ -20,19 +20,28 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.interfaces;
+package com.adacore.lkql_jit.runtime.values.interfaces;
+
+import com.adacore.lkql_jit.utils.Iterator;
 
 /**
- * This class represents all LKQL values that can be interpreted as a boolean.
+ * This interface defines the iterable interface for all the iterable LKQL types.
  *
  * @author Hugo GUERRIER
  */
-public interface Truthy {
+public interface Iterable {
 
     /**
-     * Get the boolean representation of the object.
+     * Get the size of the iterable collection.
      *
-     * @return True if the object is evaluated as true, false else.
+     * @return The size of the iterable.
      */
-    boolean isTruthy();
+    long size();
+
+    /**
+     * Get the iterator for the iterable object.
+     *
+     * @return The iterator.
+     */
+    Iterator iterator();
 }

@@ -22,10 +22,10 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
-import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
+import com.adacore.lkql_jit.runtime.values.LKQLDepthNode;
+import com.adacore.lkql_jit.runtime.values.LKQLUnit;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;

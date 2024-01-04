@@ -20,11 +20,19 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.built_ins.values.interfaces;
+package com.adacore.lkql_jit.runtime.values.interfaces;
 
 /**
- * This interface represents all nullish values in the LKQL language.
+ * This class represents all LKQL values that can be interpreted as a boolean.
  *
  * @author Hugo GUERRIER
  */
-public interface Nullish {}
+public interface Truthy {
+
+    /**
+     * Get the boolean representation of the object.
+     *
+     * @return True if the object is evaluated as true, false else.
+     */
+    boolean isTruthy();
+}
