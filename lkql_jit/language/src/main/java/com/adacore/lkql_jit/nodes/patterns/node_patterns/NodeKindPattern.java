@@ -6,8 +6,8 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.libadalang.Libadalang;
-import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.runtime.values.LKQLNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
