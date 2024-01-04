@@ -5,8 +5,8 @@
 
 package com.adacore.lkql_jit.runtime;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
+import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.LinkedList;
 

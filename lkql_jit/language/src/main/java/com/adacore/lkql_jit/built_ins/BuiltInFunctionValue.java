@@ -5,11 +5,11 @@
 
 package com.adacore.lkql_jit.built_ins;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLFunction;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.root_nodes.FunctionRootNode;
 import com.adacore.lkql_jit.runtime.Closure;
+import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 
 /** This class represents the LKQL value of a built-in function. */
 public class BuiltInFunctionValue extends LKQLFunction {
