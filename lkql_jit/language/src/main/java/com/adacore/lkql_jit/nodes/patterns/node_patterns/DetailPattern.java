@@ -22,10 +22,7 @@
 
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
-import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -34,7 +31,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  *
  * @author Hugo GUERRIER
  */
-public final class DetailPattern extends DetailValue {
+public class DetailPattern extends DetailValue {
 
     // ----- Children -----
 
@@ -56,37 +53,13 @@ public final class DetailPattern extends DetailValue {
         this.pattern = pattern;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame,
-     *     java.lang.Object)
-     */
-    @Override
-    public boolean executeDetailValue(VirtualFrame frame, Object value) {
-        // Check if the value is a string
-        if (LKQLTypeSystemGen.isString(value)) {
-            return this.pattern.executeString(frame, LKQLTypeSystemGen.asString(value));
-        }
-
-        // Verify that the value is a node
-        if (!LKQLTypeSystemGen.isAdaNode(value)) {
-            throw LKQLRuntimeException.wrongType(
-                    LKQLTypesHelper.ADA_NODE, LKQLTypesHelper.fromJava(value), this);
-        }
-
-        // Execute the pattern with the node
-        return this.pattern.executeNode(frame, LKQLTypeSystemGen.asAdaNode(value));
-    }
-
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
         return this.nodeRepresentation(indentLevel);
+    }
+
+    @Override
+    public boolean executeDetailValue(VirtualFrame frame, Object value) {
+        return this.pattern.executeValue(frame, value);
     }
 }

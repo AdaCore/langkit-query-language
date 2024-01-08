@@ -59,13 +59,11 @@ public final class NodeKindPattern extends NodePattern {
     // ----- Execution methods -----
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     * @see com.adacore.lkql_jit.nodes.patterns.BasePattern#executeValue(VirtualFrame, Object)
      */
     @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return this.nodeClazz.isInstance(node) && node != LKQLNull.INSTANCE;
+    public boolean executeValue(VirtualFrame frame, Object value) {
+        return this.nodeClazz.isInstance(value) && value != LKQLNull.INSTANCE;
     }
 
     // ----- Override methods -----

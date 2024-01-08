@@ -23,9 +23,13 @@
 package com.adacore.lkql_jit.nodes.patterns.node_patterns;
 
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.values.interfaces.LKQLValue;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.adacore.lkql_jit.utils.functions.ObjectUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 
@@ -34,7 +38,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
  *
  * @author Hugo GUERRIER
  */
-public final class DetailExpr extends DetailValue {
+public abstract class DetailExpr extends DetailValue {
 
     // ----- Children -----
 
@@ -56,26 +60,32 @@ public final class DetailExpr extends DetailValue {
         this.expr = expr;
     }
 
-    // ----- Execution methods -----
+    @Specialization(guards = {"other != null"})
+    public boolean onLKQLValues(
+            VirtualFrame frame,
+            LKQLValue value,
+            @Cached("getExprAsLKQLValue(frame)") LKQLValue other) {
+        InteropLibrary valueLibrary = InteropLibrary.getUncached(value);
+        InteropLibrary expectedLibrary = InteropLibrary.getUncached(other);
+        return valueLibrary.isIdentical(value, other, expectedLibrary);
+    }
 
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.node_patterns.DetailValue#executeDetailValue(com.oracle.truffle.api.frame.VirtualFrame,
-     *     java.lang.Object)
-     */
-    @Override
-    public boolean executeDetailValue(VirtualFrame frame, Object value) {
-        // Execute the expression
-        Object expected = this.expr.executeGeneric(frame);
+    @Fallback
+    public boolean onLKQLValues(
+            VirtualFrame frame, Object value, @Cached("getExpr(frame)") Object other) {
+        return ObjectUtils.equals(value, other);
+    }
 
-        // Verify the equality
-        if (LKQLTypeSystemGen.isLKQLValue(value) && LKQLTypeSystemGen.isLKQLValue(expected)) {
-            InteropLibrary valueLibrary = InteropLibrary.getUncached(value);
-            InteropLibrary expectedLibrary = InteropLibrary.getUncached(expected);
-            return valueLibrary.isIdentical(value, expected, expectedLibrary);
-        } else {
-            return ObjectUtils.equals(value, expected);
+    public Object getExpr(VirtualFrame frame) {
+        return this.expr.executeGeneric(frame);
+    }
+
+    public LKQLValue getExprAsLKQLValue(VirtualFrame frame) {
+        var val = this.expr.executeGeneric(frame);
+        if (LKQLTypeSystemGen.isLKQLValue(val)) {
+            return LKQLTypeSystemGen.asLKQLValue(val);
         }
+        return null;
     }
 
     // ----- Override methods -----

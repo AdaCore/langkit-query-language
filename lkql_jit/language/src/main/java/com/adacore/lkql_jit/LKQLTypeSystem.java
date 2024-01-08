@@ -145,39 +145,4 @@ public abstract class LKQLTypeSystem {
     public static BigInteger longToBigInteger(long value) {
         return BigInteger.valueOf(value);
     }
-
-    // ----- Node value methods -----
-
-    /**
-     * Check is a value is an ada node.
-     *
-     * @param nodeObject The object to check.
-     * @return True if the object is an ada node, false else.
-     */
-    @TypeCheck(Libadalang.AdaNode.class)
-    public static boolean isAdaNode(Object nodeObject) {
-        return nodeObject instanceof Libadalang.AdaNode || nodeObject instanceof LKQLDepthNode;
-    }
-
-    /**
-     * Cast a generic value to an ada node.
-     *
-     * @param nodeObject The node object.
-     * @return The object cast to an ada node.
-     */
-    @TypeCast(Libadalang.AdaNode.class)
-    public static Libadalang.AdaNode asAdaNode(Object nodeObject) {
-        // If the value is a node
-        if (nodeObject instanceof Libadalang.AdaNode adaNode) {
-            return adaNode;
-        }
-
-        // If the value is a depth node
-        else if (nodeObject instanceof LKQLDepthNode depthNode) {
-            return depthNode.getNode();
-        }
-
-        // Return the default value
-        return LKQLNull.INSTANCE;
-    }
 }

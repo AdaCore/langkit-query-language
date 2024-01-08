@@ -50,7 +50,7 @@ public abstract class DetailValue extends LKQLNode {
      *     com.adacore.lkql_jit.nodes.LKQLNode#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
      */
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public final Object executeGeneric(VirtualFrame frame) {
         throw LKQLRuntimeException.shouldNotExecute(this);
     }
 

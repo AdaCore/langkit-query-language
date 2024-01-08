@@ -22,7 +22,6 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -64,31 +63,15 @@ public final class BindingPattern extends UnfilteredPattern {
     // ----- Execution methods -----
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     * @see BasePattern#executeValue(VirtualFrame, Object)
      */
     @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
+    public boolean executeValue(VirtualFrame frame, Object value) {
         // Do the node binding
-        FrameUtils.writeLocal(frame, this.slot, node);
+        FrameUtils.writeLocal(frame, this.slot, value);
 
         // Execute the pattern with the binding done
-        return this.pattern.executeNode(frame, node);
-    }
-
-    /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeString(com.oracle.truffle.api.frame.VirtualFrame,
-     *     String)
-     */
-    @Override
-    public boolean executeString(VirtualFrame frame, String str) {
-        // Do the node binding
-        FrameUtils.writeLocal(frame, this.slot, str);
-
-        // Execute the pattern with the binding done
-        return this.pattern.executeString(frame, str);
+        return this.pattern.executeValue(frame, value);
     }
 
     // ----- Override methods -----

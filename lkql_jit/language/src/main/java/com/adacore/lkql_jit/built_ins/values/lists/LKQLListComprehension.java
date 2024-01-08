@@ -80,7 +80,7 @@ public final class LKQLListComprehension extends LKQLLazyList {
     // ----- Lazy list required methods -----
 
     @Override
-    public void initCache(long n) {
+    public void computeItemAt(long n) {
         while (this.pointer < this.argumentsList.length && (this.cache.size() - 1 < n || n < 0)) {
             final Object[] currentArguments = this.argumentsList[this.pointer++];
             System.arraycopy(currentArguments, 0, this.arguments, 1, currentArguments.length);

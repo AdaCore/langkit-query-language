@@ -50,7 +50,6 @@ import com.adacore.lkql_jit.nodes.expressions.list_comprehension.ListComprehensi
 import com.adacore.lkql_jit.nodes.expressions.literals.*;
 import com.adacore.lkql_jit.nodes.expressions.match.Match;
 import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
-import com.adacore.lkql_jit.nodes.expressions.match.MatchArmNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
@@ -921,7 +920,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         regex = regex.substring(1, regex.length() - 1);
 
         // Return the new regex pattern node
-        return new RegexPattern(loc(regexPattern), regex);
+        return RegexPatternNodeGen.create(loc(regexPattern), regex);
     }
 
     /**
@@ -1567,7 +1566,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Expr expr = (Expr) detailExpr.fExprValue().accept(this);
 
         // Return the new detail expression node
-        return new DetailExpr(loc(detailExpr), expr);
+        return DetailExprNodeGen.create(loc(detailExpr), expr);
     }
 
     /**
@@ -1780,7 +1779,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.exitFrame();
 
         // Return the new match arm
-        return MatchArmNodeGen.create(loc(matchArm), pattern, expr);
+        return new MatchArm(loc(matchArm), pattern, expr);
     }
 
     @Override

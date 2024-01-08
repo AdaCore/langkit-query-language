@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.nodes.dispatchers;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
 import com.adacore.lkql_jit.nodes.root_nodes.SelectorRootNode;
 import com.adacore.lkql_jit.runtime.Cell;
 import com.oracle.truffle.api.dsl.Cached;
@@ -40,7 +40,7 @@ public abstract class SelectorDispatcher extends Node {
 
     /** Function to execute the selector root node and get the result. */
     public abstract SelectorRootNode.SelectorCallResult executeDispatch(
-            SelectorRootNode rootNode, Cell[] closure, LKQLDepthNode node);
+            SelectorRootNode rootNode, Cell[] closure, LKQLDepthValue node);
 
     /**
      * Execute the selector root node with the direct path.
@@ -54,7 +54,7 @@ public abstract class SelectorDispatcher extends Node {
     protected static SelectorRootNode.SelectorCallResult executeCached(
             SelectorRootNode rootNode,
             Cell[] closure,
-            LKQLDepthNode node,
+            LKQLDepthValue node,
             @Cached("create(rootNode.getRealCallTarget())") DirectCallNode directCallNode) {
         return (SelectorRootNode.SelectorCallResult) directCallNode.call(closure, node);
     }
@@ -71,7 +71,7 @@ public abstract class SelectorDispatcher extends Node {
     protected static SelectorRootNode.SelectorCallResult executeUncached(
             SelectorRootNode rootNode,
             Cell[] closure,
-            LKQLDepthNode node,
+            LKQLDepthValue node,
             @Cached IndirectCallNode indirectCallNode) {
         return (SelectorRootNode.SelectorCallResult)
                 indirectCallNode.call(rootNode.getRealCallTarget(), closure, node);

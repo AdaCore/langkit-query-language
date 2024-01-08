@@ -24,7 +24,6 @@ package com.adacore.lkql_jit.nodes.patterns;
 
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLSelectorList;
@@ -263,8 +262,8 @@ public final class SelectorCall extends LKQLNode {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
-            if (!pattern.executeNode(frame, depthNode.getNode())) return false;
+            Object value = iterator.next();
+            if (!pattern.executeValue(frame, value)) return false;
         }
 
         // Return validation of all nodes
@@ -284,8 +283,8 @@ public final class SelectorCall extends LKQLNode {
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
-            if (pattern.executeNode(frame, depthNode.getNode())) return true;
+            Object val = iterator.next();
+            if (pattern.executeValue(frame, val)) return true;
         }
 
         // Return false if no node verify the pattern
@@ -303,19 +302,19 @@ public final class SelectorCall extends LKQLNode {
     private LKQLList getFilteredList(
             VirtualFrame frame, LKQLSelectorList selectorListValue, BasePattern pattern) {
         // Prepare the result
-        List<Libadalang.AdaNode> resList = new ArrayList<>();
+        List<Object> resList = new ArrayList<>();
 
         // Iterate on nodes
         Iterator iterator = selectorListValue.iterator();
         while (iterator.hasNext()) {
-            LKQLDepthNode depthNode = (LKQLDepthNode) iterator.next();
-            if (pattern.executeNode(frame, depthNode.getNode())) {
-                resList.add(depthNode.getNode());
+            Object value = iterator.next();
+            if (pattern.executeValue(frame, value)) {
+                resList.add(value);
             }
         }
 
         // Return the result
-        return new LKQLList(resList.toArray(new Libadalang.AdaNode[0]));
+        return new LKQLList(resList.toArray(new Object[0]));
     }
 
     /**

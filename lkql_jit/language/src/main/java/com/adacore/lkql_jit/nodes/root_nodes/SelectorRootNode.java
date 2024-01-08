@@ -22,7 +22,7 @@
 
 package com.adacore.lkql_jit.nodes.root_nodes;
 
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
 import com.adacore.lkql_jit.built_ins.values.LKQLUnit;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
@@ -37,7 +37,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  * @author Hugo GUERRIER
  */
 public final class SelectorRootNode
-        extends MemoizedRootNode<LKQLDepthNode, SelectorRootNode.SelectorCallResult> {
+        extends MemoizedRootNode<LKQLDepthValue, SelectorRootNode.SelectorCallResult> {
 
     // ----- Attributes -----
 
@@ -96,16 +96,16 @@ public final class SelectorRootNode
         this.initFrame(frame);
 
         // Get the node and set it into the frame
-        LKQLDepthNode node = (LKQLDepthNode) frame.getArguments()[1];
+        LKQLDepthValue value = (LKQLDepthValue) frame.getArguments()[1];
 
         // Try memoization
         if (this.isMemoized) {
-            if (this.isMemoized(node)) return this.getMemoized(node);
+            if (this.isMemoized(value)) return this.getMemoized(value);
         }
 
         if (this.thisSlot > -1 && this.depthSlot > -1) {
-            FrameUtils.writeLocal(frame, this.thisSlot, node);
-            FrameUtils.writeLocal(frame, this.depthSlot, ((Integer) node.getDepth()).longValue());
+            FrameUtils.writeLocal(frame, this.thisSlot, value.value);
+            FrameUtils.writeLocal(frame, this.depthSlot, ((Integer) value.depth).longValue());
         }
 
         // Prepare the result
@@ -113,7 +113,7 @@ public final class SelectorRootNode
 
         // Try to match an arm, if there is none, set the result to unit
         for (SelectorArm arm : this.arms) {
-            res = arm.executeArm(frame, node);
+            res = arm.executeArm(frame, value);
             if (res != null) break;
         }
         if (res == null) {
@@ -122,7 +122,7 @@ public final class SelectorRootNode
 
         // Do the memoization cache addition
         if (this.isMemoized) {
-            this.putMemoized(node, res);
+            this.putMemoized(value, res);
         }
 
         // Return the result

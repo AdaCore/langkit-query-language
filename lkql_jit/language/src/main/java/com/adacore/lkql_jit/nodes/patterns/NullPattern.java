@@ -22,7 +22,6 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -48,13 +47,11 @@ public final class NullPattern extends ValuePattern {
     // ----- Execution methods -----
 
     /**
-     * @see
-     *     com.adacore.lkql_jit.nodes.patterns.BasePattern#executeNode(com.oracle.truffle.api.frame.VirtualFrame,
-     *     com.adacore.libadalang.Libadalang.AdaNode)
+     * @see BasePattern#executeValue(VirtualFrame, Object)
      */
     @Override
-    public boolean executeNode(VirtualFrame frame, Libadalang.AdaNode node) {
-        return node == LKQLNull.INSTANCE;
+    public boolean executeValue(VirtualFrame frame, Object value) {
+        return value == LKQLNull.INSTANCE;
     }
 
     // ----- Override methods -----

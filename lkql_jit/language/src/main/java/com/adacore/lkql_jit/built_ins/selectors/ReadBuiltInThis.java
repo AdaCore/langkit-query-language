@@ -22,6 +22,7 @@
 
 package com.adacore.lkql_jit.built_ins.selectors;
 
+import com.adacore.lkql_jit.built_ins.values.LKQLDepthValue;
 import com.adacore.lkql_jit.nodes.expressions.Expr;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -45,7 +46,7 @@ public final class ReadBuiltInThis extends Expr {
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return frame.getArguments()[1];
+        return ((LKQLDepthValue) frame.getArguments()[1]).value;
     }
 
     // ----- Override methods -----

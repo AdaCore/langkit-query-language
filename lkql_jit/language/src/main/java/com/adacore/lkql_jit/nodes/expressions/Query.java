@@ -25,7 +25,6 @@ package com.adacore.lkql_jit.nodes.expressions;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.lkql_jit.LKQLLanguage;
 import com.adacore.lkql_jit.LKQLTypeSystemGen;
-import com.adacore.lkql_jit.built_ins.values.LKQLDepthNode;
 import com.adacore.lkql_jit.built_ins.values.LKQLNull;
 import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
@@ -163,7 +162,7 @@ public final class Query extends Expr {
         // If the query mode is all
         if (this.kind == Kind.ALL) {
             // Prepare the result
-            List<Libadalang.AdaNode> resNodes = new LinkedList<>();
+            List<Libadalang.AdaNode> resNodes = new ArrayList<>();
 
             // For each root node, explore it and return the result
             for (int i = fromNodes.length - 1; i >= 0; i--) {
@@ -205,10 +204,7 @@ public final class Query extends Expr {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            Libadalang.AdaNode adaNode =
-                    this.throughExpr == null
-                            ? (Libadalang.AdaNode) nodeIterator.next()
-                            : ((LKQLDepthNode) nodeIterator.next()).getNode();
+            Libadalang.AdaNode adaNode = (Libadalang.AdaNode) nodeIterator.next();
 
             // If the pattern is a chained one
             if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
@@ -220,7 +216,7 @@ public final class Query extends Expr {
 
             // Else, the pattern is a basic one
             else {
-                if (this.pattern.executeNode(frame, adaNode)) {
+                if (this.pattern.executeValue(frame, adaNode)) {
                     resList.add(adaNode);
                 }
             }
@@ -241,10 +237,7 @@ public final class Query extends Expr {
         // Iterate on all node in the iterator
         while (nodeIterator.hasNext()) {
             // Get the current node
-            Libadalang.AdaNode adaNode =
-                    this.throughExpr == null
-                            ? (Libadalang.AdaNode) nodeIterator.next()
-                            : ((LKQLDepthNode) nodeIterator.next()).getNode();
+            Libadalang.AdaNode adaNode = (Libadalang.AdaNode) nodeIterator.next();
 
             // If the pattern is a chained one
             if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
@@ -256,7 +249,7 @@ public final class Query extends Expr {
 
             // Else, the pattern is a basic one
             else {
-                if (this.pattern.executeNode(frame, adaNode)) {
+                if (this.pattern.executeValue(frame, adaNode)) {
                     return adaNode;
                 }
             }

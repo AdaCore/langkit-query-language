@@ -53,19 +53,19 @@ public abstract class LKQLLazyList extends BaseLKQLList {
      * Initialize the lazy list cache to the given index. If n < 0 then initialize all the lazy list
      * values.
      */
-    public abstract void initCache(long n);
+    public abstract void computeItemAt(long n);
 
     // ----- List required methods -----
 
     @Override
     public long size() {
-        this.initCache(-1);
+        this.computeItemAt(-1);
         return this.cache.size();
     }
 
     @Override
     public Object get(long i) throws InvalidIndexException {
-        this.initCache(i);
+        this.computeItemAt(i);
         try {
             return this.cache.get((int) i);
         } catch (IndexOutOfBoundsException e) {
