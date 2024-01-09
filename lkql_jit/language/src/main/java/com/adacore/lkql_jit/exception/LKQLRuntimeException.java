@@ -560,7 +560,9 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public String getRawMessage() {
-        final String[] splitHeader = this.getMessage().split("\n")[0].split(":");
+        // Here we remove the color ANSI characters since this message is GNATcheck specific
+        final String[] splitHeader =
+                this.getMessage().replaceAll("\u001B\\[[;\\d]*m", "").split("\n")[0].split(":");
         return splitHeader[splitHeader.length - 1].strip();
     }
 
@@ -574,7 +576,10 @@ public final class LKQLRuntimeException extends AbstractTruffleException {
      */
     @CompilerDirectives.TruffleBoundary
     public String getLocationString() {
-        final String[] splitHeader = this.getMessage().split("\n")[0].split(" ");
+        // Here we remove the color ANSI characters since this location string is destined to
+        // GNATcheck.
+        final String[] splitHeader =
+                this.getMessage().replaceAll("\u001B\\[[;\\d]*m", "").split("\n")[0].split(" ");
         return splitHeader[0].substring(0, splitHeader[0].length() - 1);
     }
 }
