@@ -58,7 +58,7 @@ lkql_jit: lkql
 
 lkql_native_jit: lkql
 	$(MAVEN) -f lkql/build/java/ install
-	$(MAVEN) -f lkql_jit/ clean install -P native
+	$(MAVEN) -f lkql_jit/ clean install -P native,dev
 
 .PHONY: lkql_checker
 
