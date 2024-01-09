@@ -100,7 +100,6 @@ public class CheckerUtils {
          * @param unit The analysis unit in which the error occurred.
          * @param adaLocation The location in the unit of the error.
          * @param errorLocation The location in the LKQL code which rose the exception.
-         * @param errorName The name of the error.
          * @param errorMessage The message of the error.
          * @param context The context to output the message.
          */
@@ -109,7 +108,6 @@ public class CheckerUtils {
                 Libadalang.AnalysisUnit unit,
                 Libadalang.SourceLocation adaLocation,
                 String errorLocation,
-                String errorName,
                 String errorMessage,
                 LKQLContext context);
     }
@@ -155,13 +153,12 @@ public class CheckerUtils {
                 final Libadalang.AnalysisUnit unit,
                 final Libadalang.SourceLocation adaLocation,
                 final String errorLocation,
-                final String errorName,
                 final String errorMessage,
                 final LKQLContext context) {
             context.println(
                     unit.getFileName(false)
-                            + ":1:01: internal error: "
-                            + errorName
+                            + ":"
+                            + adaLocation.toString()
                             + ":"
                             + errorLocation
                             + ": "
@@ -293,7 +290,6 @@ public class CheckerUtils {
                 final Libadalang.AnalysisUnit unit,
                 final Libadalang.SourceLocation adaLocation,
                 final String errorLocation,
-                final String errorName,
                 final String errorMessage,
                 final LKQLContext context) {
             context.println(
@@ -306,9 +302,6 @@ public class CheckerUtils {
                             + "internal error at "
                             + errorLocation
                             + ": "
-                            + "raised "
-                            + errorName
-                            + " : "
                             + errorMessage
                             + " ["
                             + ruleName.toLowerCase()

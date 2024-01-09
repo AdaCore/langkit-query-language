@@ -113,7 +113,6 @@ public final class UnitCheckerFunction {
                                         unit,
                                         Libadalang.SourceLocation.create(1, (short) 1),
                                         e.getLoc().toString(),
-                                        StringUtils.concat("LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                                         e.getMsg(),
                                         context);
                     }
@@ -126,7 +125,6 @@ public final class UnitCheckerFunction {
                                     unit,
                                     Libadalang.SourceLocation.create(1, (short) 1),
                                     e.getLocationString(),
-                                    "LKQL.ERRORS.STOP_EVALUATION_ERROR",
                                     e.getRawMessage(),
                                     context);
                 }

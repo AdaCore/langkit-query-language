@@ -224,8 +224,6 @@ public final class NodeCheckerFunction {
                                             currentNode.getUnit(),
                                             currentNode.getSourceLocationRange().start,
                                             e.getLoc().toString(),
-                                            StringUtils.concat(
-                                                    "LANGKIT_SUPPORT.ERRORS.", e.getKind()),
                                             e.getMsg(),
                                             context);
                         }
@@ -238,7 +236,6 @@ public final class NodeCheckerFunction {
                                         currentNode.getUnit(),
                                         currentNode.getSourceLocationRange().start,
                                         e.getLocationString(),
-                                        "LKQL.ERRORS.STOP_EVALUATION_ERROR",
                                         e.getRawMessage(),
                                         context);
                     }
