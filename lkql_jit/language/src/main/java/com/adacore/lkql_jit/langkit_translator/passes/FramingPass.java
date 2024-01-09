@@ -445,21 +445,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         return null;
     }
 
-    /**
-     * Create the frame description for a selector link.
-     *
-     * @param selectorLink The Langkit selector link node.
-     * @return Nothing.
-     */
-    @Override
-    public Void visit(Liblkqllang.SelectorLink selectorLink) {
-        selectorLink.fSelector().accept(this);
-        this.scriptFramesBuilder.openVirtualFrame(selectorLink);
-        selectorLink.fPattern().accept(this);
-        this.scriptFramesBuilder.closeFrame();
-        return null;
-    }
-
     // --- Non frame-changing nodes
 
     @Override
@@ -939,30 +924,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.ExtendedNodePattern extendedNodePattern) {
         traverseChildren(extendedNodePattern);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.ChainedPatternLinkList chainedPatternLinkList) {
-        traverseChildren(chainedPatternLinkList);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.FieldLink fieldLink) {
-        traverseChildren(fieldLink);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.PropertyLink propertyLink) {
-        traverseChildren(propertyLink);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.ChainedNodePattern chainedNodePattern) {
-        traverseChildren(chainedNodePattern);
         return null;
     }
 

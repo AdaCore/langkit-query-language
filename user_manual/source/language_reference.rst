@@ -797,7 +797,6 @@ keyword.
 Pattern
 -------
 
-.. lkql_doc_class:: UnfilteredPattern
 .. lkql_doc_class:: ValuePattern
 
 .. raw:: html
@@ -926,58 +925,6 @@ this is denoted by the parentheses after the property name.
 .. code-block:: lkql
 
    select BaseId(p_referenced_decl() is ObjectDecl)
-
-Chained Sub Patterns
-^^^^^^^^^^^^^^^^^^^^
-
-.. lkql_doc_class:: ChainedPatternLink
-.. lkql_doc_class:: SelectorCall
-
-Chained sub patterns are roughly similar to nested sub patterns, and come in
-similar flavours. The big difference between the two kind of patterns, is which
-nodes are yielded when the pattern is used in a query. Chained patterns will
-yield the sub-nodes, rather than just filtering and returning the top level
-node.
-
-You have the three different kind of chained patterns, corresponding to the
-nested ones.
-
-Selector Chain
-""""""""""""""
-
-A selector chain is a sub-pattern that allows you to recursively yield a
-sub-query via a selector call:
-
-.. code-block:: lkql
-
-   select Body any children is ForLoopStmt
-
-The quantifier part (``any``) can be either ``any`` or ``all``, which will
-alter how the sub-pattern matches:
-
-Field Chain
-"""""""""""
-
-A field chain is a sub-pattern that allows you to yield a specific field in the
-parent object, given that it satisfies a pattern.
-
-.. code-block:: lkql
-
-   select ObjectDecl.f_default_expr is IntLiteral
-
-This will yield the default exprssions for object decls, given that those
-default expressions are int literals.
-
-Property Chain
-""""""""""""""
-
-A property chain is very similar to a field chain, except that a property of
-the node is called, instead of a field accessed. Syntactically, this is denoted
-by the parentheses after the property name.
-
-.. code-block:: lkql
-
-   select BaseId.p_referenced_decl() is ObjectDecl
 
 Filtered Patterns and Binding Patterns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

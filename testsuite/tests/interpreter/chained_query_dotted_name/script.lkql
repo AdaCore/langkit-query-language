@@ -1,4 +1,0 @@
-val inDottedInWith =
-    select a @ AspectSpec any children is DottedName
-                         any children is Identifier
-print(inDottedInWith)

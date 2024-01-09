@@ -1,4 +1,0 @@
-<ConcreteTypeDecl ["Int_Access"] src.ads:3:5-3:43>
-<DefiningName "Int_Access" src.ads:3:10-3:20>
-<ConcreteTypeDecl ["Volt"] src.ads:5:5-5:49>
-<DefiningName "Volt" src.ads:5:10-5:14>

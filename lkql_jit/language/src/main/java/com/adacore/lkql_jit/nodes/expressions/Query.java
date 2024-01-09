@@ -31,7 +31,6 @@ import com.adacore.lkql_jit.built_ins.values.interfaces.Iterable;
 import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.nodes.patterns.BasePattern;
-import com.adacore.lkql_jit.nodes.patterns.chained_patterns.ChainedNodePattern;
 import com.adacore.lkql_jit.utils.Iterator;
 import com.adacore.lkql_jit.utils.LKQLTypesHelper;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
@@ -206,19 +205,8 @@ public final class Query extends Expr {
             // Get the current node
             Libadalang.AdaNode adaNode = (Libadalang.AdaNode) nodeIterator.next();
 
-            // If the pattern is a chained one
-            if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
-                Libadalang.AdaNode[] res = chainedNodePattern.executeChained(frame, adaNode);
-                if (res != null) {
-                    for (Libadalang.AdaNode resNode : res) resList.add(resNode);
-                }
-            }
-
-            // Else, the pattern is a basic one
-            else {
-                if (this.pattern.executeValue(frame, adaNode)) {
-                    resList.add(adaNode);
-                }
+            if (this.pattern.executeValue(frame, adaNode)) {
+                resList.add(adaNode);
             }
         }
 
@@ -239,19 +227,8 @@ public final class Query extends Expr {
             // Get the current node
             Libadalang.AdaNode adaNode = (Libadalang.AdaNode) nodeIterator.next();
 
-            // If the pattern is a chained one
-            if (this.pattern instanceof ChainedNodePattern chainedNodePattern) {
-                Libadalang.AdaNode[] res = chainedNodePattern.executeChained(frame, adaNode);
-                if (res != null && res.length > 0) {
-                    return res[0];
-                }
-            }
-
-            // Else, the pattern is a basic one
-            else {
-                if (this.pattern.executeValue(frame, adaNode)) {
-                    return adaNode;
-                }
+            if (this.pattern.executeValue(frame, adaNode)) {
+                return adaNode;
             }
         }
 

@@ -26,142 +26,140 @@ FunDecl
 |  |  |f_query_kind:
 |  |  |  QueryKindAll
 |  |  |f_pattern:
-|  |  |  ChainedNodePattern
-|  |  |  |f_first_pattern:
-|  |  |  |  ExtendedNodePattern
-|  |  |  |  |f_node_pattern:
-|  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  Identifier: CompilationUnit
-|  |  |  |  |f_details:
-|  |  |  |  |  NodePatternDetailList
-|  |  |  |  |  |  NodePatternSelector
-|  |  |  |  |  |  |f_call:
-|  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |f_quantifier:
-|  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |f_binding:
-|  |  |  |  |  |  |  |  Identifier: c
-|  |  |  |  |  |  |  |f_selector_call:
-|  |  |  |  |  |  |  |  Identifier: children
-|  |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  |  ExtendedNodePattern
-|  |  |  |  |  |  |  |f_node_pattern:
-|  |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  |  Identifier: Identifier
-|  |  |  |  |  |  |  |f_details:
-|  |  |  |  |  |  |  |  NodePatternDetailList
-|  |  |  |  |  |  |  |  |  NodePatternSelector
-|  |  |  |  |  |  |  |  |  |f_call:
-|  |  |  |  |  |  |  |  |  |  SelectorCall
-|  |  |  |  |  |  |  |  |  |  |f_quantifier:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: any
-|  |  |  |  |  |  |  |  |  |  |f_binding: <null>
-|  |  |  |  |  |  |  |  |  |  |f_selector_call:
-|  |  |  |  |  |  |  |  |  |  |  FunCall
-|  |  |  |  |  |  |  |  |  |  |  |f_name:
-|  |  |  |  |  |  |  |  |  |  |  |  Identifier: parent
-|  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
-|  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
-|  |  |  |  |  |  |  |  |  |  |  |f_arguments:
-|  |  |  |  |  |  |  |  |  |  |  |  ArgList
-|  |  |  |  |  |  |  |  |  |  |  |  |  NamedArg
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_arg_name:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: depth
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_value_expr:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  IntegerLiteral: 2
-|  |  |  |  |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: WithClause
-|  |  |  |f_chain:
-|  |  |  |  ChainedPatternLinkList
-|  |  |  |  |  FieldLink
-|  |  |  |  |  |f_field:
-|  |  |  |  |  |  Identifier: f_body
+|  |  |  ExtendedNodePattern
+|  |  |  |f_node_pattern:
+|  |  |  |  NodeKindPattern
+|  |  |  |  |f_kind_name:
+|  |  |  |  |  Identifier: CompilationUnit
+|  |  |  |f_details:
+|  |  |  |  NodePatternDetailList
+|  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |f_call:
+|  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |f_quantifier:
+|  |  |  |  |  |  |  Identifier: any
+|  |  |  |  |  |  |f_binding:
+|  |  |  |  |  |  |  Identifier: c
+|  |  |  |  |  |  |f_selector_call:
+|  |  |  |  |  |  |  Identifier: children
 |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  FilteredPattern
-|  |  |  |  |  |  |f_pattern:
-|  |  |  |  |  |  |  BindingPattern
-|  |  |  |  |  |  |  |f_binding:
-|  |  |  |  |  |  |  |  Identifier: l
-|  |  |  |  |  |  |  |f_value_pattern:
-|  |  |  |  |  |  |  |  NodeKindPattern
-|  |  |  |  |  |  |  |  |f_kind_name:
-|  |  |  |  |  |  |  |  |  Identifier: LibraryItem
-|  |  |  |  |  |  |f_predicate:
-|  |  |  |  |  |  |  BlockExpr
-|  |  |  |  |  |  |  |f_body:
-|  |  |  |  |  |  |  |  BlockBodyList
-|  |  |  |  |  |  |  |  |  BlockBodyDecl
-|  |  |  |  |  |  |  |  |  |f_decl:
-|  |  |  |  |  |  |  |  |  |  ValDecl
-|  |  |  |  |  |  |  |  |  |  |f_annotation: <null>
-|  |  |  |  |  |  |  |  |  |  |f_doc_node: <null>
-|  |  |  |  |  |  |  |  |  |  |f_identifier:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: semanticParent
-|  |  |  |  |  |  |  |  |  |  |f_value:
-|  |  |  |  |  |  |  |  |  |  |  FunCall
-|  |  |  |  |  |  |  |  |  |  |  |f_name:
-|  |  |  |  |  |  |  |  |  |  |  |  SafeAccess
-|  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  ExtendedNodePattern
+|  |  |  |  |  |  |f_node_pattern:
+|  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  Identifier: Identifier
+|  |  |  |  |  |  |f_details:
+|  |  |  |  |  |  |  NodePatternDetailList
+|  |  |  |  |  |  |  |  NodePatternSelector
+|  |  |  |  |  |  |  |  |f_call:
+|  |  |  |  |  |  |  |  |  SelectorCall
+|  |  |  |  |  |  |  |  |  |f_quantifier:
+|  |  |  |  |  |  |  |  |  |  Identifier: any
+|  |  |  |  |  |  |  |  |  |f_binding: <null>
+|  |  |  |  |  |  |  |  |  |f_selector_call:
+|  |  |  |  |  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  Identifier: parent
+|  |  |  |  |  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  |  |  |  |  SafeAbsent
+|  |  |  |  |  |  |  |  |  |  |f_arguments:
+|  |  |  |  |  |  |  |  |  |  |  ArgList
+|  |  |  |  |  |  |  |  |  |  |  |  NamedArg
+|  |  |  |  |  |  |  |  |  |  |  |  |f_arg_name:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: depth
+|  |  |  |  |  |  |  |  |  |  |  |  |f_value_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  IntegerLiteral: 2
+|  |  |  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  |  |  Identifier: WithClause
+|  |  |  |  |  NodePatternField
+|  |  |  |  |  |f_identifier:
+|  |  |  |  |  |  Identifier: f_body
+|  |  |  |  |  |f_expected_value:
+|  |  |  |  |  |  DetailPattern
+|  |  |  |  |  |  |f_pattern_value:
+|  |  |  |  |  |  |  FilteredPattern
+|  |  |  |  |  |  |  |f_pattern:
+|  |  |  |  |  |  |  |  BindingPattern
+|  |  |  |  |  |  |  |  |f_binding:
+|  |  |  |  |  |  |  |  |  Identifier: l
+|  |  |  |  |  |  |  |  |f_value_pattern:
+|  |  |  |  |  |  |  |  |  NodeKindPattern
+|  |  |  |  |  |  |  |  |  |f_kind_name:
+|  |  |  |  |  |  |  |  |  |  Identifier: LibraryItem
+|  |  |  |  |  |  |  |f_predicate:
+|  |  |  |  |  |  |  |  BlockExpr
+|  |  |  |  |  |  |  |  |f_body:
+|  |  |  |  |  |  |  |  |  BlockBodyList
+|  |  |  |  |  |  |  |  |  |  BlockBodyDecl
+|  |  |  |  |  |  |  |  |  |  |f_decl:
+|  |  |  |  |  |  |  |  |  |  |  ValDecl
+|  |  |  |  |  |  |  |  |  |  |  |f_annotation: <null>
+|  |  |  |  |  |  |  |  |  |  |  |f_doc_node: <null>
+|  |  |  |  |  |  |  |  |  |  |  |f_identifier:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier: semanticParent
+|  |  |  |  |  |  |  |  |  |  |  |f_value:
+|  |  |  |  |  |  |  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  |  SafeAccess
 |  |  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: l
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: f_item
-|  |  |  |  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_semantic_parent
-|  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
-|  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
-|  |  |  |  |  |  |  |  |  |  |  |f_arguments:
-|  |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
-|  |  |  |  |  |  |  |  |  BlockBodyDecl
-|  |  |  |  |  |  |  |  |  |f_decl:
-|  |  |  |  |  |  |  |  |  |  ValDecl
-|  |  |  |  |  |  |  |  |  |  |f_annotation: <null>
-|  |  |  |  |  |  |  |  |  |  |f_doc_node: <null>
-|  |  |  |  |  |  |  |  |  |  |f_identifier:
-|  |  |  |  |  |  |  |  |  |  |  Identifier: deps
-|  |  |  |  |  |  |  |  |  |  |f_value:
-|  |  |  |  |  |  |  |  |  |  |  ListComprehension
-|  |  |  |  |  |  |  |  |  |  |  |f_expr:
-|  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
-|  |  |  |  |  |  |  |  |  |  |  |f_generators:
-|  |  |  |  |  |  |  |  |  |  |  |  ListCompAssocList
-|  |  |  |  |  |  |  |  |  |  |  |  |  ListCompAssoc
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_binding_name:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_coll_expr:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: c
-|  |  |  |  |  |  |  |  |  |  |  |f_guard:
-|  |  |  |  |  |  |  |  |  |  |  |  RelBinOp
-|  |  |  |  |  |  |  |  |  |  |  |  |f_left:
-|  |  |  |  |  |  |  |  |  |  |  |  |  FunCall
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_name:
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  DotAccess
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: l
 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_referenced_decl
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
-|  |  |  |  |  |  |  |  |  |  |  |  |  |f_arguments:
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
-|  |  |  |  |  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  |  |  |  |  OpNeq
-|  |  |  |  |  |  |  |  |  |  |  |  |f_right:
-|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: semanticParent
-|  |  |  |  |  |  |  |f_expr:
-|  |  |  |  |  |  |  |  RelBinOp
-|  |  |  |  |  |  |  |  |f_left:
-|  |  |  |  |  |  |  |  |  DotAccess
-|  |  |  |  |  |  |  |  |  |f_receiver:
-|  |  |  |  |  |  |  |  |  |  Identifier: deps
-|  |  |  |  |  |  |  |  |  |f_member:
-|  |  |  |  |  |  |  |  |  |  Identifier: length
-|  |  |  |  |  |  |  |  |f_op:
-|  |  |  |  |  |  |  |  |  OpGt
-|  |  |  |  |  |  |  |  |f_right:
-|  |  |  |  |  |  |  |  |  Identifier: max_deps
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: f_item
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_semantic_parent
+|  |  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
+|  |  |  |  |  |  |  |  |  |  |  |  |f_arguments:
+|  |  |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
+|  |  |  |  |  |  |  |  |  |  BlockBodyDecl
+|  |  |  |  |  |  |  |  |  |  |f_decl:
+|  |  |  |  |  |  |  |  |  |  |  ValDecl
+|  |  |  |  |  |  |  |  |  |  |  |f_annotation: <null>
+|  |  |  |  |  |  |  |  |  |  |  |f_doc_node: <null>
+|  |  |  |  |  |  |  |  |  |  |  |f_identifier:
+|  |  |  |  |  |  |  |  |  |  |  |  Identifier: deps
+|  |  |  |  |  |  |  |  |  |  |  |f_value:
+|  |  |  |  |  |  |  |  |  |  |  |  ListComprehension
+|  |  |  |  |  |  |  |  |  |  |  |  |f_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |  |  |  |  |  |  |f_generators:
+|  |  |  |  |  |  |  |  |  |  |  |  |  ListCompAssocList
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  ListCompAssoc
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_binding_name:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_coll_expr:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: c
+|  |  |  |  |  |  |  |  |  |  |  |  |f_guard:
+|  |  |  |  |  |  |  |  |  |  |  |  |  RelBinOp
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  FunCall
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_name:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: x
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: p_referenced_decl
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_has_safe:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  SafeAbsent
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |f_arguments:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ArgList: <empty list>
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  OpNeq
+|  |  |  |  |  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  Identifier: semanticParent
+|  |  |  |  |  |  |  |  |f_expr:
+|  |  |  |  |  |  |  |  |  RelBinOp
+|  |  |  |  |  |  |  |  |  |f_left:
+|  |  |  |  |  |  |  |  |  |  DotAccess
+|  |  |  |  |  |  |  |  |  |  |f_receiver:
+|  |  |  |  |  |  |  |  |  |  |  Identifier: deps
+|  |  |  |  |  |  |  |  |  |  |f_member:
+|  |  |  |  |  |  |  |  |  |  |  Identifier: length
+|  |  |  |  |  |  |  |  |  |f_op:
+|  |  |  |  |  |  |  |  |  |  OpGt
+|  |  |  |  |  |  |  |  |  |f_right:
+|  |  |  |  |  |  |  |  |  |  Identifier: max_deps

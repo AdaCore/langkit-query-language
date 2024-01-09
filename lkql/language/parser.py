@@ -1014,52 +1014,6 @@ class ExtendedNodePattern(NodePattern):
     details = Field(type=NodePatternDetail.list)
 
 
-@abstract
-class ChainedPatternLink(LkqlNode):
-    """
-    Element of a chained pattern of the form:
-    ``(selector|field|property) pattern``
-    """
-    pattern = AbstractField(type=BasePattern)
-
-
-class SelectorLink(ChainedPatternLink):
-    """
-    Element of a chained pattern of the form:
-    ``quantifier selector_name pattern``
-    """
-    selector = Field(type=SelectorCall)
-    pattern = Field(type=BasePattern)
-
-
-class FieldLink(ChainedPatternLink):
-    """
-    Element of a chained pattern of the form:
-    ``field pattern``
-    """
-    field = Field(type=Identifier)
-    pattern = Field(type=BasePattern)
-
-
-class PropertyLink(ChainedPatternLink):
-    """
-    Element of a chained pattern of the form:
-    ``property(args) pattern``
-    """
-    property = Field(type=FunCall)
-    pattern = Field(type=BasePattern)
-
-
-class ChainedNodePattern(ValuePattern):
-    """
-    Node pattern of the form::
-
-    ``Kind1(details...) selector1 Kind2(details...) selector2 ... KindN``
-    """
-    first_pattern = Field(type=BasePattern)
-    chain = Field(type=ChainedPatternLink.list)
-
-
 class MatchArm(LkqlNode):
     """
     Represents one case of a 'match'.
@@ -1127,38 +1081,16 @@ lkql_grammar.add_rules(
     import_clause=Import("import", G.id),
 
     query=Query(
-        Opt(
-            "from",
-            Or(G.expr, Unpack("*", G.expr))
-        ),
-        Opt(
-            "through",
-            Or(G.expr)
-        ),
-        "select", c(), Or(
-            QueryKind.alt_first(L.Identifier(match_text="first")),
-            QueryKind.alt_all(),
-        ), G.pattern
+        Opt("from", Or(G.expr, Unpack("*", G.expr))),
+        Opt("through", Or(G.expr)),
+        "select", c(), 
+        Or(QueryKind.alt_first(L.Identifier(match_text="first")),
+           QueryKind.alt_all()), 
+        G.pattern
     ),
 
     pattern=Or(
-        OrPattern(
-            G.chained_node_pattern,
-            "or",
-            G.pattern
-        ),
-        G.chained_node_pattern
-    ),
-
-    chained_node_pattern=Or(
-        ChainedNodePattern(
-            G.filtered_pattern,
-            List(Or(
-                SelectorLink(G.selector_call, "is", G.filtered_pattern),
-                FieldLink(".", G.id, "is", G.filtered_pattern),
-                PropertyLink(".", G.fun_call, "is", G.filtered_pattern)
-            ))
-        ),
+        OrPattern(G.filtered_pattern, "or", G.pattern),
         G.filtered_pattern
     ),
 

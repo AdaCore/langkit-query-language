@@ -53,7 +53,6 @@ import com.adacore.lkql_jit.nodes.expressions.match.MatchArm;
 import com.adacore.lkql_jit.nodes.expressions.operators.*;
 import com.adacore.lkql_jit.nodes.expressions.value_read.*;
 import com.adacore.lkql_jit.nodes.patterns.*;
-import com.adacore.lkql_jit.nodes.patterns.chained_patterns.*;
 import com.adacore.lkql_jit.nodes.patterns.node_patterns.*;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.adacore.lkql_jit.utils.Constants;
@@ -1669,93 +1668,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Return the new extended node pattern node
         return new ExtendedNodePattern(
                 loc(extendedNodePattern), nodePattern, details.toArray(new NodePatternDetail[0]));
-    }
-
-    // --- Chained node patterns
-
-    /**
-     * Visit a selector link node.
-     *
-     * @param selectorLink The selector link node from Langkit.
-     * @return The selector link node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.SelectorLink selectorLink) {
-        // Translate the selector link selector
-        final SelectorCall selectorCall = (SelectorCall) selectorLink.fSelector().accept(this);
-
-        // Enter the selector link frame
-        this.scriptFrames.enterFrame(selectorLink);
-
-        // Translate the selector link pattern
-        final BasePattern pattern = (BasePattern) selectorLink.fPattern().accept(this);
-
-        // Exit the selector link frame
-        this.scriptFrames.exitFrame();
-
-        // Return the new selector link node
-        return new SelectorLink(loc(selectorLink), pattern, selectorCall);
-    }
-
-    /**
-     * Visit a field link node.
-     *
-     * @param fieldLink The field link node from Langkit.
-     * @return The field link node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.FieldLink fieldLink) {
-        // Translate the field link fields
-        final BasePattern pattern = (BasePattern) fieldLink.fPattern().accept(this);
-        final String fieldName = fieldLink.fField().getText();
-
-        // Return the new field link node
-        return FieldLinkNodeGen.create(loc(fieldLink), pattern, fieldName);
-    }
-
-    /**
-     * Visit a property link node.
-     *
-     * @param propertyLink The property link node from Langkit.
-     * @return The property link node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.PropertyLink propertyLink) {
-        // Translate the property link fields
-        final BasePattern pattern = (BasePattern) propertyLink.fPattern().accept(this);
-        final String propertyName = propertyLink.fProperty().fName().getText();
-        final ArgList argList = (ArgList) propertyLink.fProperty().fArguments().accept(this);
-
-        // Return the new field link node
-        return PropertyLinkNodeGen.create(loc(propertyLink), pattern, propertyName, argList);
-    }
-
-    @Override
-    public LKQLNode visit(Liblkqllang.ChainedPatternLinkList chainedPatternLinkList) {
-        return null;
-    }
-
-    /**
-     * Visit a chained node pattern node.
-     *
-     * @param chainedNodePattern The chained node pattern node from Langkit.
-     * @return The chained node pattern node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.ChainedNodePattern chainedNodePattern) {
-        // Translate the chained node pattern fields
-        final BasePattern nodePattern =
-                (BasePattern) chainedNodePattern.fFirstPattern().accept(this);
-
-        // Get the chained pattern link list
-        final List<ChainedPatternLink> chain = new ArrayList<>();
-        for (Liblkqllang.LkqlNode node : chainedNodePattern.fChain().children()) {
-            chain.add((ChainedPatternLink) node.accept(this));
-        }
-
-        // Return the new chained node pattern node
-        return new ChainedNodePattern(
-                loc(chainedNodePattern), nodePattern, chain.toArray(new ChainedPatternLink[0]));
     }
 
     // --- Pattern matching

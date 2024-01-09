@@ -136,46 +136,6 @@ public final class SelectorCall extends LKQLNode {
         return isValid;
     }
 
-    /**
-     * Execute the filtering logic on the selector call with the given pattern and return the result
-     * list value. TODO: Move this method and logic in the SelectorLink node.
-     *
-     * @param frame The frame to execute in.
-     * @param node The node to execute the selector on.
-     * @param pattern The pattern to perform the filtering logic.
-     * @return The list of the validating nodes.
-     */
-    public LKQLList executeFiltering(
-            VirtualFrame frame, Libadalang.AdaNode node, BasePattern pattern) {
-        // Get the selector list
-        LKQLSelectorList selectorListValue = this.getSelectorList(frame, node);
-
-        // Prepare the result
-        LKQLList res;
-
-        // If the quantifier is all, verify it before returning anything
-        if (this.quantifier == Quantifier.ALL) {
-            if (this.isAll(frame, selectorListValue, pattern)) {
-                res = this.getFilteredList(frame, selectorListValue, pattern);
-            } else {
-                res = new LKQLList(new Libadalang.AdaNode[0]);
-            }
-        }
-
-        // Else, just get the filtered list
-        else {
-            res = this.getFilteredList(frame, selectorListValue, pattern);
-        }
-
-        // Do the bindings
-        if (this.bindingSlot > -1) {
-            this.doBinding(frame, res);
-        }
-
-        // Return the result
-        return res;
-    }
-
     // ----- Class methods -----
 
     /**
