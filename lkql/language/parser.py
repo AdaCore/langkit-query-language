@@ -380,29 +380,7 @@ class BasePattern(LkqlNode):
     """
     Root node class for patterns.
     """
-
-    @langkit_property(return_type=T.Identifier, public=True,
-                      kind=AbstractKind.abstract)
-    def binding_name():
-        """
-        Return the pattern's binding name.
-        Return an empty String if the pattern doesn't contain a binding name.
-        """
-        pass
-
-    @langkit_property(return_type=T.Bool, public=True)
-    def has_binding():
-        """
-        Return whether the node pattern contains a binding name.
-        """
-        return dsl_expr.Not(Self.binding_name.is_null)
-
-    @langkit_property(return_type=T.ValuePattern, public=True)
-    def value_part():
-        """
-        Return the value pattern contained in the pattern , if any.
-        """
-        return No(ValuePattern)
+    pass
 
 
 class FilteredPattern(BasePattern):
@@ -417,14 +395,6 @@ class FilteredPattern(BasePattern):
     pattern = Field(type=BasePattern)
     predicate = Field(type=Expr)
 
-    @langkit_property()
-    def binding_name():
-        return Self.pattern.binding_name
-
-    @langkit_property()
-    def value_part():
-        return Self.pattern.value_part()
-
 
 @abstract
 class ValuePattern(BasePattern):
@@ -433,14 +403,7 @@ class ValuePattern(BasePattern):
     (As opposed to patterns that only bind values to a given name without
     doing any kind of filtering)
     """
-
-    @langkit_property()
-    def binding_name():
-        return dsl_expr.No(T.Identifier)
-
-    @langkit_property()
-    def value_part():
-        return Self
+    pass
 
 
 class BindingPattern(BasePattern):
@@ -454,10 +417,6 @@ class BindingPattern(BasePattern):
 
     binding = Field(type=Identifier)
     value_pattern = Field(type=ValuePattern)
-
-    @langkit_property()
-    def binding_name():
-        return Self.binding
 
 
 class IsClause(Expr):
