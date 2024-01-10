@@ -845,6 +845,17 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return BoolPatternNodeGen.create(loc(boolPatternTrue), true);
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.IntegerPattern integerPattern) {
+        try {
+            return IntegerPatternNodeGen.create(
+                    loc(integerPattern), Integer.parseInt(integerPattern.getText()));
+        } catch (NumberFormatException e) {
+            throw LKQLRuntimeException.fromMessage(
+                    "Invalid number literal for pattern", loc(integerPattern));
+        }
+    }
+
     /**
      * Visit a binding pattern node.
      *

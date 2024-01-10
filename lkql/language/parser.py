@@ -461,6 +461,13 @@ class BoolPattern(ValuePattern):
     alternatives = ['true', 'false']
 
 
+class IntegerPattern(ValuePattern):
+    """
+    Pattern to match on integers.
+    """
+    token_node = True
+
+
 class ParenPattern(ValuePattern):
     """
     A parenthesized pattern.
@@ -1088,6 +1095,7 @@ lkql_grammar.add_rules(
         NotPattern("not", G.value_pattern),
         BoolPattern.alt_true("true"),
         BoolPattern.alt_false("false"),
+        IntegerPattern(Token.Integer),
         ParenPattern("(", G.pattern, ")")
     ),
 
