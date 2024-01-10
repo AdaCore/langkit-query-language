@@ -405,14 +405,6 @@ class BasePattern(LkqlNode):
         return No(ValuePattern)
 
 
-@abstract
-class UnfilteredPattern(BasePattern):
-    """
-    Pattern without a filtering predicate.
-    """
-    pass
-
-
 class FilteredPattern(BasePattern):
     """
     Pattern with a filtering predicate, of the form:
@@ -422,7 +414,7 @@ class FilteredPattern(BasePattern):
 
        o@ObjectDecl when o.children.length == 3
     """
-    pattern = Field(type=UnfilteredPattern)
+    pattern = Field(type=BasePattern)
     predicate = Field(type=Expr)
 
     @langkit_property()
@@ -435,7 +427,7 @@ class FilteredPattern(BasePattern):
 
 
 @abstract
-class ValuePattern(UnfilteredPattern):
+class ValuePattern(BasePattern):
     """
     Root node class for patterns that filter values.
     (As opposed to patterns that only bind values to a given name without
@@ -451,7 +443,7 @@ class ValuePattern(UnfilteredPattern):
         return Self
 
 
-class BindingPattern(UnfilteredPattern):
+class BindingPattern(BasePattern):
     """
     Pattern comprising a binding name and a value pattern.
 
