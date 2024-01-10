@@ -1,0 +1,9 @@
+fun test_match(a) =
+    match a
+      | false => print("woop")
+      | true => print("doop")
+      | * => print("other")
+
+test_match(false)
+test_match(true)
+test_match("lol")

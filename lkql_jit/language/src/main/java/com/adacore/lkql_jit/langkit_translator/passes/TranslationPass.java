@@ -835,6 +835,16 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return new FilteredPattern(loc(filteredPattern), pattern, predicate);
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.BoolPatternFalse boolPatternFalse) {
+        return BoolPatternNodeGen.create(loc(boolPatternFalse), false);
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.BoolPatternTrue boolPatternTrue) {
+        return BoolPatternNodeGen.create(loc(boolPatternTrue), true);
+    }
+
     /**
      * Visit a binding pattern node.
      *

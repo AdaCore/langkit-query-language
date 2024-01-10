@@ -453,6 +453,14 @@ class RegexPattern(ValuePattern):
     token_node = True
 
 
+class BoolPattern(ValuePattern):
+    """
+    Pattern to match on booleans.
+    """
+    enum_node = True
+    alternatives = ['true', 'false']
+
+
 class ParenPattern(ValuePattern):
     """
     A parenthesized pattern.
@@ -1078,6 +1086,8 @@ lkql_grammar.add_rules(
         NullPattern("null"),
         RegexPattern(Token.String),
         NotPattern("not", G.value_pattern),
+        BoolPattern.alt_true("true"),
+        BoolPattern.alt_false("false"),
         ParenPattern("(", G.pattern, ")")
     ),
 
