@@ -1,0 +1,13 @@
+fun test_match_tuple(i) =
+    match i
+    | (1, 2, 3) => print("un, dos, tres")
+    | * => print("un pasito adelante maria")
+
+fun test_match_tuple_2(i) =
+    match i
+    | (1, a@*, b@*, 4) => { print(a); print(b) }
+
+test_match_tuple((1, 2, 3))
+test_match_tuple((4, 5, 6))
+test_match_tuple_2((1, 2, 3, 4))
+test_match_tuple_2((1, 22, 33, 4))

@@ -943,6 +943,18 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         return RegexPatternNodeGen.create(loc(regexPattern), regex);
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.TuplePattern tuplePattern) {
+        // Get the sub-patterns inside the tuple pattern
+        final List<BasePattern> tuplePatterns = new ArrayList<>();
+        for (Liblkqllang.LkqlNode pattern : tuplePattern.fPatterns().children()) {
+            tuplePatterns.add((BasePattern) pattern.accept(this));
+        }
+
+        return TuplePatternNodeGen.create(
+                loc(tuplePattern), tuplePatterns.toArray(new BasePattern[0]));
+    }
+
     /**
      * Visit a parented pattern node.
      *
@@ -1172,6 +1184,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
 
     @Override
     public LKQLNode visit(Liblkqllang.AtObjectAssocList atObjectAssocList) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.BasePatternList basePatternList) {
         return null;
     }
 

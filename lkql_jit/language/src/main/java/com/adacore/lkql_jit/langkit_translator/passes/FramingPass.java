@@ -745,6 +745,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.TuplePattern tuplePattern) {
+        traverseChildren(tuplePattern);
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.ParenPattern parenPattern) {
         traverseChildren(parenPattern);
         return null;
@@ -813,6 +819,12 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.AtObjectAssocList atObjectAssocList) {
         traverseChildren(atObjectAssocList);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.BasePatternList basePatternList) {
+        traverseChildren(basePatternList);
         return null;
     }
 

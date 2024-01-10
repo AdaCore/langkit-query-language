@@ -468,6 +468,13 @@ class IntegerPattern(ValuePattern):
     token_node = True
 
 
+class TuplePattern(ValuePattern):
+    """
+    Pattern to match on tuples.
+    """
+    patterns = Field(type=BasePattern.list)
+
+
 class ParenPattern(ValuePattern):
     """
     A parenthesized pattern.
@@ -1096,7 +1103,8 @@ lkql_grammar.add_rules(
         BoolPattern.alt_true("true"),
         BoolPattern.alt_false("false"),
         IntegerPattern(Token.Integer),
-        ParenPattern("(", G.pattern, ")")
+        ParenPattern("(", G.pattern, ")"),
+        TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
     ),
 
     pattern_arg=Or(
