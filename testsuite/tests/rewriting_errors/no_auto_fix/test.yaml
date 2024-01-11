@@ -1,0 +1,6 @@
+description: This test check that the rewriting API is working as expected
+driver: checker
+input_sources:
+  - main.adb
+rule_name: custom
+auto_fix: True

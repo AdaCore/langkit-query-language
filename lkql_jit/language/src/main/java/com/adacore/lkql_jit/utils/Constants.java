@@ -88,12 +88,13 @@ public class Constants {
                 "parametric_exemption",
                 "impact",
                 "target",
-                "rule_name"
+                "rule_name",
+                "auto_fix"
             };
 
     /** The default values for annotation parameters. */
     public static final Object[] CHECKER_PARAMETER_DEFAULT_VALUES =
             new Object[] {
-                null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64", null
+                null, null, false, "Misc", "Misc", "MEDIUM", 0L, false, "", "amd64", null, null
             };
 }

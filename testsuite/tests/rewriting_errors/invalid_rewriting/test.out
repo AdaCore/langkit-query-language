@@ -1,0 +1,7 @@
+main.adb:3:4: rule violation: Custom rule violation
+3 |    goto lbl;   --  FLAG
+  |    ^^^^^^^^^
+
+error: Error(s) while applying a rewriting context: [Missing ';' at <3:9-3:12>]
+ in node_checker (called at checker.lkql:4:22)
+ in map (called at checker.lkql:4:1)

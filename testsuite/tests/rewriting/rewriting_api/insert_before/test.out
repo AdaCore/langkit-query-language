@@ -1,0 +1,17 @@
+main.adb:3:4: rule violation: Custom rule violation
+3 |    goto lbl;   --  FLAG
+  |    ^^^^^^^^^
+
+main.adb:4:4: rule violation: Custom rule violation
+4 |    goto other; --  FLAG
+  |    ^^^^^^^^^^^
+
+Patched "main.adb":
+===================
+
+procedure Main is
+begin
+   null;goto lbl;   --  FLAG
+   null;goto other; --  FLAG
+end Main;
+

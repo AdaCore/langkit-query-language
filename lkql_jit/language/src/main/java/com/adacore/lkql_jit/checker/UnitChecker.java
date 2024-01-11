@@ -29,6 +29,7 @@ public final class UnitChecker extends BaseChecker {
         super(
                 name,
                 function,
+                null,
                 message,
                 help,
                 followGenericInstantiations,

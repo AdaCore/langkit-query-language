@@ -8,7 +8,9 @@ package com.adacore.lkql_jit;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
-import com.adacore.lkql_jit.checker.*;
+import com.adacore.lkql_jit.checker.BaseChecker;
+import com.adacore.lkql_jit.checker.NodeChecker;
+import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
 import com.adacore.lkql_jit.runtime.CallStack;
@@ -50,6 +52,9 @@ public final class LKQLContext {
 
     /** The analysis context for the ada files. */
     private Libadalang.AnalysisContext adaContext;
+
+    /** The rewriting context, opened from the Ada analysis context. */
+    private Libadalang.RewritingContext rewritingContext;
 
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
@@ -156,9 +161,12 @@ public final class LKQLContext {
 
     /** Finalize the LKQL context to close libadalang context. */
     public void finalizeContext() {
+        if (this.rewritingContext != null && !this.rewritingContext.isClosed()) {
+            this.rewritingContext.close();
+        }
+        this.eventHandler.close();
         this.adaContext.close();
         if (this.projectManager != null) this.projectManager.close();
-        this.eventHandler.close();
     }
 
     // ----- Getters -----
@@ -192,6 +200,34 @@ public final class LKQLContext {
         return this.allUnitsRoots;
     }
 
+    public boolean hasRewritingContext() {
+        return this.rewritingContext != null;
+    }
+
+    public Libadalang.RewritingContext getRewritingContext() {
+        if (this.rewritingContext == null) {
+            if (!this.parsed) {
+                this.parseSources();
+            }
+            this.rewritingContext = this.adaContext.startRewriting();
+        }
+        return this.rewritingContext;
+    }
+
+    /**
+     * Try applying the current rewriting context, reparsing the rewrote analysis unit. If this
+     * operation is a success then discard the current rewriting context. Otherwise, close it. This
+     * method assumes that the current rewriting context is not null.
+     */
+    public Libadalang.RewritingApplyResult applyOrCloseRewritingContext() {
+        final var res = this.rewritingContext.apply();
+        if (!res.success) {
+            this.rewritingContext.close();
+        }
+        this.rewritingContext = null;
+        return res;
+    }
+
     // ----- Setters -----
 
     public void patchContext(TruffleLanguage.Env newEnv) {
@@ -204,6 +240,7 @@ public final class LKQLContext {
     // ----- Options getting methods -----
 
     /** Parse the LKQL engine options passed as a JSON string, store it in a cache and return it. */
+    @CompilerDirectives.TruffleBoundary
     public LKQLOptions getOptions() {
         if (this.options == null) {
             final var optionsSource = this.env.getOptions().get(LKQLLanguage.options);
@@ -211,6 +248,10 @@ public final class LKQLContext {
             this.options = LKQLOptions.fromJson(jsonObject);
         }
         return this.options;
+    }
+
+    public EngineMode getEngineMode() {
+        return this.getOptions().engineMode();
     }
 
     /**
@@ -283,6 +324,11 @@ public final class LKQLContext {
     @CompilerDirectives.TruffleBoundary
     public boolean isCheckerDebug() {
         return this.getOptions().checkerDebug();
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public AutoFixMode getAutoFixMode() {
+        return this.getOptions().autoFixMode();
     }
 
     /**
@@ -660,6 +706,14 @@ public final class LKQLContext {
                 if (checker == null) {
                     throw LKQLRuntimeException.fromMessage(
                             "Could not find any rule named " + instance.ruleName());
+                }
+
+                // If the engine is in "fixer" mode, check that the rule has an auto-fixing function
+                if (getEngineMode() == EngineMode.FIXER && checker.autoFix == null) {
+                    throw LKQLRuntimeException.fromMessage(
+                            "Rule \""
+                                    + instance.ruleName()
+                                    + "\" is not defining any auto-fixing function");
                 }
 
                 // If the instance has a custom name, close the checker and set the alias name

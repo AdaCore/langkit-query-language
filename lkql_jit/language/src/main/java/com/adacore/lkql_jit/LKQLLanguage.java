@@ -88,7 +88,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
 
     /** The JSON encoded LKQL engine options. */
     @Option(
-            help = "If the language should be verbose",
+            help = "Options for the LKQL engine as a JSON object",
             category = OptionCategory.INTERNAL,
             stability = OptionStability.STABLE)
     static final OptionKey<String> options = new OptionKey<>("{}");

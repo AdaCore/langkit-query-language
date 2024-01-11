@@ -180,7 +180,12 @@ class BaseDriver(DiffTestDriver):
             )
             mkdir(self.traces_dir)
 
-    def check_run(self, args: list[str], **kwargs) -> ProcessResult:
+    def check_run(
+            self,
+            args: list[str],
+            parse_flags: bool = False,
+            **kwargs
+        ) -> ProcessResult:
         """
         Run a process and check that its output is the expected one.
         """
@@ -196,7 +201,11 @@ class BaseDriver(DiffTestDriver):
                 self.traces_dir, f'prog-{self.trace_counter}.srctrace'
             )
 
-        if self.flag_checking_supported and self.flag_checking:
+        if (
+            self.flag_checking_supported and
+            self.flag_checking and
+            parse_flags
+        ):
             run_result = self.shell(args, env=env, **kwargs)
             self.check_flags(self.parse_flagged_lines(run_result.out))
             return run_result
@@ -520,4 +529,5 @@ class BaseDriver(DiffTestDriver):
 
         self.lkql_exe = [*self.command_base, "run"]
         self.lkql_checker_exe = [*self.command_base, "check"]
+        self.lkql_fix_exe = [*self.command_base, "fix"]
         self.gnatcheck_worker_exe = [*self.command_base, "gnatcheck_worker"]

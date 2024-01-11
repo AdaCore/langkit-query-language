@@ -15,6 +15,7 @@ import org.json.JSONObject;
  * using the JSON format.
  */
 public record LKQLOptions(
+        EngineMode engineMode,
         boolean verbose,
         Optional<String> charset,
         Optional<String> projectFile,
@@ -31,13 +32,18 @@ public record LKQLOptions(
         boolean fallbackToAllRules,
         boolean keepGoingOnMissingFile,
         boolean showInstantiationChain,
-        DiagnosticOutputMode diagnosticOutputMode) {
+        DiagnosticOutputMode diagnosticOutputMode,
+        AutoFixMode autoFixMode) {
 
     // ----- Constructors -----
 
     public LKQLOptions {
         // Ensure that there is no null values in the LKQL options, also ensure that all
         // contained values are strictly unmodifiable.
+        if (engineMode == null) {
+            engineMode = EngineMode.INTERPRETER;
+        }
+
         if (scenarioVariables == null) {
             scenarioVariables = Map.of();
         } else {
@@ -71,6 +77,10 @@ public record LKQLOptions(
         if (diagnosticOutputMode == null) {
             diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         }
+
+        if (autoFixMode == null) {
+            autoFixMode = AutoFixMode.DISPLAY;
+        }
     }
 
     // ----- Class methods -----
@@ -85,6 +95,7 @@ public record LKQLOptions(
                     RuleInstance.fromJson(ruleInstancesJson.getJSONObject(instanceName)));
         }
         return new LKQLOptions(
+                EngineMode.valueOf(jsonLKQLOptions.getString("engineMode")),
                 jsonLKQLOptions.getBoolean("verbose"),
                 Optional.ofNullable(jsonLKQLOptions.optString("charset", null)),
                 Optional.ofNullable(jsonLKQLOptions.optString("projectFile", null)),
@@ -107,7 +118,8 @@ public record LKQLOptions(
                 jsonLKQLOptions.getBoolean("fallbackToAllRules"),
                 jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
                 jsonLKQLOptions.getBoolean("showInstantiationChain"),
-                DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")));
+                DiagnosticOutputMode.valueOf(jsonLKQLOptions.getString("diagnosticOutputMode")),
+                AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode")));
     }
 
     // ----- Instance methods -----
@@ -120,6 +132,7 @@ public record LKQLOptions(
                                 .map(e -> Map.entry(e.getKey(), e.getValue().toJson()))
                                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
         return new JSONObject()
+                .put("engineMode", engineMode.toString())
                 .put("verbose", verbose)
                 .put("charset", charset.orElse(null))
                 .put("projectFile", projectFile.orElse(null))
@@ -136,7 +149,8 @@ public record LKQLOptions(
                 .put("fallbackToAllRules", fallbackToAllRules)
                 .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
                 .put("showInstantiationChain", showInstantiationChain)
-                .put("diagnosticOutputMode", diagnosticOutputMode.toString());
+                .put("diagnosticOutputMode", diagnosticOutputMode.toString())
+                .put("autoFixMode", autoFixMode.toString());
     }
 
     // ----- Inner classes -----
@@ -158,6 +172,7 @@ public record LKQLOptions(
 
         // ----- Options -----
 
+        private EngineMode engineMode = EngineMode.INTERPRETER;
         private boolean verbose = false;
         private Optional<String> charset = Optional.empty();
         private Optional<String> projectFile = Optional.empty();
@@ -175,8 +190,14 @@ public record LKQLOptions(
         private boolean keepGoingOnMissingFile = false;
         private boolean showInstantiationChain = false;
         private DiagnosticOutputMode diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
+        private AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
 
         // ----- Setters -----
+
+        public Builder engineMode(EngineMode em) {
+            engineMode = em;
+            return this;
+        }
 
         public Builder verbose(boolean v) {
             verbose = v;
@@ -214,12 +235,12 @@ public record LKQLOptions(
         }
 
         public Builder scenarioVariables(Map<String, String> sv) {
-            this.scenarioVariables = sv;
+            scenarioVariables = sv;
             return this;
         }
 
-        public Builder files(List<String> files) {
-            this.files = files;
+        public Builder files(List<String> f) {
+            files = f;
             return this;
         }
 
@@ -229,17 +250,17 @@ public record LKQLOptions(
         }
 
         public Builder ignores(List<String> i) {
-            this.ignores = i;
+            ignores = i;
             return this;
         }
 
         public Builder rulesDir(List<String> rd) {
-            this.rulesDirs = rd;
+            rulesDirs = rd;
             return this;
         }
 
         public Builder ruleInstances(Map<String, RuleInstance> ri) {
-            this.ruleInstances = ri;
+            ruleInstances = ri;
             return this;
         }
 
@@ -268,10 +289,16 @@ public record LKQLOptions(
             return this;
         }
 
+        public Builder autoFixMode(AutoFixMode afm) {
+            autoFixMode = afm;
+            return this;
+        }
+
         // ----- Instance methods -----
 
         public LKQLOptions build() {
             return new LKQLOptions(
+                    engineMode,
                     verbose,
                     charset,
                     projectFile,
@@ -288,7 +315,8 @@ public record LKQLOptions(
                     fallbackToAllRules,
                     keepGoingOnMissingFile,
                     showInstantiationChain,
-                    diagnosticOutputMode);
+                    diagnosticOutputMode,
+                    autoFixMode);
         }
     }
 }

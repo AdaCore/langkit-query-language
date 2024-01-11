@@ -1,0 +1,13 @@
+main.adb:4:4: rule violation: Custom rule violation
+4 |    goto other; --  FLAG
+  |    ^^^^^^^^^^^
+
+Patched "main.adb":
+===================
+
+procedure Main is
+begin
+   null;
+   null;
+end Main;
+

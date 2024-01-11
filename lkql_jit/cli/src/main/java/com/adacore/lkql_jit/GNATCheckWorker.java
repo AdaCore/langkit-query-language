@@ -203,6 +203,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
 
         // Forward the command line options to the options object builder
         optionsBuilder
+                .engineMode(EngineMode.CHECKER)
                 .verbose(this.args.verbose)
                 .projectFile(this.args.project)
                 .subprojectFile(this.args.subProject)

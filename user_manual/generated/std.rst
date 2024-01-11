@@ -201,6 +201,38 @@ Methods for `Node`
 
     Given an ast node, return its analysis unit
 
+Methods for `RewritingContext`
+""""""""""""""""""""""""""""""
+.. method:: RewritingContext.add_first(this, list_node, new_node)
+
+    Insert the given new node at the beginning of the given list node (raises a runtime error if it is not a list node)
+
+.. method:: RewritingContext.add_last(this, list_node, new_node)
+
+    Insert the given new node at the end of the given list node(raises a runtime error if it is not a list node)
+
+.. method:: RewritingContext.insert_after(this, node, new_node)
+
+    Given a node, insert the new one after it in its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+
+.. method:: RewritingContext.insert_before(this, node, new_node)
+
+    Given a node, insert the new one before it in its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+
+.. method:: RewritingContext.remove(this, to_remove)
+
+    Delete the given node from its parent (this function expects this parent to be a list node, raises a runtime error otherwise)
+
+.. method:: RewritingContext.replace(this, old, new)
+
+    Replace old node by the new one
+
+Methods for `RewritingNode`
+"""""""""""""""""""""""""""
+.. method:: RewritingNode.clone(this)
+
+    Given a rewriting node, clone it and return its copy
+
 Methods for `SelectorList`
 """"""""""""""""""""""""""
 .. method:: SelectorList.enumerate(this)
