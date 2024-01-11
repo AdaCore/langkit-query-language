@@ -57,6 +57,8 @@ import java.math.BigInteger;
     Libadalang.AdaNode.class,
     Libadalang.Token.class,
     Libadalang.AnalysisUnit.class,
+    Libadalang.RewritingContext.class,
+    Libadalang.RewritingNode.class,
     boolean.class,
     LKQLNamespace.class,
     LKQLObject.class,

@@ -20,31 +20,34 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.functions;
+package com.adacore.lkql_jit.built_ins.methods;
 
-import com.oracle.truffle.api.CompilerDirectives;
-import java.io.File;
+import static com.adacore.lkql_jit.built_ins.BuiltInFunctionValue.create;
 
-/**
- * Util functions for the file java class manipulation in the JIT implementation.
- *
- * @author Hugo GUERRIER
- */
-public final class FileUtils {
-    /** Create a new file object from its name. */
-    @CompilerDirectives.TruffleBoundary
-    public static File create(String fileName) {
-        return new File(fileName);
-    }
+import com.adacore.lkql_jit.LKQLTypeSystemGen;
+import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
+import com.adacore.lkql_jit.built_ins.BuiltinFunctionBody;
+import com.adacore.lkql_jit.nodes.expressions.Expr;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import java.util.Map;
 
-    /**
-     * Get a file base name from a file path.
-     *
-     * @param filePath The file path.
-     * @return The file base name.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String baseName(String filePath) {
-        return new File(filePath).getName();
+/** This class contains all methods for the rewriting node type. */
+public final class RewritingNodeMethods {
+
+    public static final Map<String, BuiltInFunctionValue> methods =
+            Map.ofEntries(
+                    create(
+                            "clone",
+                            "Given a rewriting node, clone it and return its copy",
+                            new String[] {"node"},
+                            new Expr[] {null},
+                            new CloneExpr()));
+
+    /** Body for the clone method */
+    public static final class CloneExpr extends BuiltinFunctionBody {
+        @Override
+        public Object executeGeneric(VirtualFrame frame) {
+            return LKQLTypeSystemGen.asRewritingNode(frame.getArguments()[0]).clone();
+        }
     }
 }

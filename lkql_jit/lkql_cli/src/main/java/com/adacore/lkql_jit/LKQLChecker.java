@@ -22,6 +22,7 @@
 
 package com.adacore.lkql_jit;
 
+import com.adacore.lkql_jit.utils.enums.AutoFixMode;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -107,6 +108,21 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                         "Argument to pass to a rule, with the syntax"
                                 + " <rule_name>.<arg_name>=<arg_value>")
         public List<String> rulesArgs = new ArrayList<>();
+
+        @CommandLine.Option(
+                names = {"-f", "--auto-fix"},
+                description = "Auto fix to apply during the run")
+        public List<String> autoFixes = new ArrayList<>();
+
+        @CommandLine.Option(
+                names = {"--all-auto-fixes"},
+                description = "Enable all the available auto fixes")
+        public boolean allAutoFixes;
+
+        @CommandLine.Option(
+                names = {"--auto-fix-mode"},
+                description = "Mode to apply the auto fixes (default is 'DISPLAY')")
+        public AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
 
         enum PropertyErrorRecoveryMode {
             continueAndWarn,
@@ -247,6 +263,17 @@ public class LKQLChecker extends AbstractLanguageLauncher {
         // Set the rule argument
         contextBuilder.option("lkql.rulesArgs", String.join(";", this.args.rulesArgs));
 
+        // Set the auto fixes to apply
+        if (!this.args.autoFixes.isEmpty()) {
+            contextBuilder.option("lkql.autoFixes", String.join(",", this.args.autoFixes));
+        }
+
+        // Set the "all auto fixes" flag
+        contextBuilder.option("lkql.enableAllAutoFixes", Boolean.toString(this.args.allAutoFixes));
+
+        // Set the "auto fix mode" option
+        contextBuilder.option("lkql.autoFixMode", this.args.autoFixMode.toString());
+
         // Set the Ada files to ignore during the analysis
         if (this.args.ignores != null) {
             contextBuilder.option("lkql.ignores", this.args.ignores);
@@ -292,5 +319,6 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             map(roots, (root) => node_checker(root))
             map(analysis_units, (unit) => unit_checker(unit))
+            apply_quick_fixes()
             """;
 }

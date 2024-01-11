@@ -80,6 +80,17 @@ public final class NodeCheckerFunction {
         /** An uncached interop library for the checker functions execution. */
         private InteropLibrary interopLibrary = InteropLibrary.getUncached();
 
+        /** Cache for the current rewriting context. */
+        private Libadalang.RewritingContext rewritingContext;
+
+        /** Initialize and get the current LKQL rewriting context. */
+        private Libadalang.RewritingContext getRewritingContext() {
+            if (this.rewritingContext == null) {
+                this.rewritingContext = LKQLLanguage.getContext(this).getRewritingContext();
+            }
+            return this.rewritingContext;
+        }
+
         /**
          * @see BuiltinFunctionBody#executeGeneric(com.oracle.truffle.api.frame.VirtualFrame)
          */
@@ -301,6 +312,9 @@ public final class NodeCheckerFunction {
 
             if (ruleResult) {
                 reportViolation(context, checker, node, linesCache);
+                if (checker.autoFix != null) {
+                    callAutoFix(context, this.getRewritingContext(), interopLibrary, checker, node);
+                }
             }
         }
 
@@ -331,6 +345,33 @@ public final class NodeCheckerFunction {
                             node.pGenericInstantiations(),
                             linesCache,
                             context);
+        }
+
+        /**
+         * If the provided checker's auto fix is requested by the user, call it with the given node
+         * and the current rewriting context.
+         */
+        @CompilerDirectives.TruffleBoundary
+        private static void callAutoFix(
+                LKQLContext context,
+                Libadalang.RewritingContext rewritingContext,
+                InteropLibrary interopLibrary,
+                NodeChecker checker,
+                Libadalang.AdaNode node) {
+            if (context.getAutoFixes().contains(checker.getName())) {
+                try {
+                    interopLibrary.execute(
+                            checker.autoFix,
+                            checker.autoFix.closure.getContent(),
+                            node,
+                            rewritingContext);
+                } catch (ArityException
+                        | UnsupportedTypeException
+                        | UnsupportedMessageException e) {
+                    // TODO: Move function runtime verification to the LKQLFunction class (#138)
+                    throw LKQLRuntimeException.fromJavaException(e, checker.autoFix.getBody());
+                }
+            }
         }
 
         // ----- Inner classes -----

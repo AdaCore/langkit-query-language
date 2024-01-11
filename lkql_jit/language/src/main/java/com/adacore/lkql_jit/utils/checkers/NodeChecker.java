@@ -27,12 +27,18 @@ import com.adacore.lkql_jit.runtime.values.LKQLFunction;
 /** This class represents a node checker in the LKQL system. */
 public final class NodeChecker extends BaseChecker {
 
+    // ----- Attributes -----
+
+    /** Function to auto fix the violation. */
+    public final LKQLFunction autoFix;
+
     // ----- Constructors -----
 
     /** Create a new node checker. */
     public NodeChecker(
             final String name,
             final LKQLFunction function,
+            final LKQLFunction autoFix,
             final String message,
             final String help,
             final boolean followGenericInstantiations,
@@ -56,6 +62,7 @@ public final class NodeChecker extends BaseChecker {
                 parametricExemption,
                 impact,
                 target);
+        this.autoFix = autoFix;
     }
 
     // ----- Instance methods -----
@@ -65,6 +72,7 @@ public final class NodeChecker extends BaseChecker {
         return new NodeChecker(
                 this.name,
                 this.function,
+                this.autoFix,
                 this.message,
                 this.help,
                 this.followGenericInstantiations,

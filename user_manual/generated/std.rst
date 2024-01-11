@@ -72,6 +72,10 @@ Builtin functions
 
     Given a unit, apply all the unit checker on it
 
+.. function:: apply_quick_fixes()
+
+    Apply all collected quick fix actions
+
 Builtin selectors
 ^^^^^^^^^^^^^^^^^
 
@@ -212,6 +216,32 @@ Methods for `Node`
 .. method:: Node.unit(node)
 
     Given an ast node, return its analysis unit
+
+Methods for `RewritingContext`
+""""""""""""""""""""""""""""""
+.. method:: RewritingContext.delete(ctx, to_remove)
+
+    Delete the given node from its list node parent
+
+.. method:: RewritingContext.insertAfter(ctx, node, new_node)
+
+    Insert the given new node after the other provided node in its parent
+
+.. method:: RewritingContext.insertBefore(ctx, node, new_node)
+
+    Insert the given new node before the other provided node in its parent
+
+.. method:: RewritingContext.insertFirst(ctx, list_node, new_node)
+
+    Insert the given new node at the beginning of the given list node
+
+.. method:: RewritingContext.insertLast(ctx, list_node, new_node)
+
+    Insert the given new node at the end of the given list node
+
+.. method:: RewritingContext.replace(ctx, to_replace, new_node)
+
+    Replace the first node by the second one
 
 Methods for `SelectorList`
 """"""""""""""""""""""""""

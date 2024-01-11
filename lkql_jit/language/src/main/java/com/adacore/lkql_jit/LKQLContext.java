@@ -31,6 +31,7 @@ import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
 import com.adacore.lkql_jit.utils.checkers.BaseChecker;
 import com.adacore.lkql_jit.utils.checkers.NodeChecker;
 import com.adacore.lkql_jit.utils.checkers.UnitChecker;
+import com.adacore.lkql_jit.utils.enums.AutoFixMode;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.adacore.lkql_jit.utils.functions.CheckerUtils;
 import com.adacore.lkql_jit.utils.functions.ParsingUtils;
@@ -65,6 +66,9 @@ public final class LKQLContext {
 
     /** The analysis context for the ada files. */
     private Libadalang.AnalysisContext adaContext;
+
+    /** The rewriting context, opened from the Ada analysis context. */
+    private Libadalang.RewritingContext rewritingContext;
 
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
@@ -130,6 +134,12 @@ public final class LKQLContext {
     /** The rules arguments. */
     private Map<String, Map<String, Object>> allRulesArgs = null;
 
+    /** Set containing all rules to auto fix during a run. */
+    private Set<String> autoFixes = null;
+
+    /** Mode of the auto fixes. */
+    private AutoFixMode autoFixMode = null;
+
     /** The filtered node checkers cache. */
     private NodeChecker[] filteredAllNodeCheckers = null;
 
@@ -179,6 +189,10 @@ public final class LKQLContext {
     @CompilerDirectives.CompilationFinal(dimensions = 1)
     private String[] specifiedRules;
 
+    /** Auto fixes specified by the user. */
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    private String[] specifiedAutoFixes;
+
     /** The LKQL file containing rules configuration. */
     @CompilerDirectives.CompilationFinal private String ruleConfigFile;
 
@@ -213,9 +227,11 @@ public final class LKQLContext {
 
     /** Finalize the LKQL context to close libadalang context. */
     public void finalizeContext() {
-        this.adaContext.close();
+        if (this.rewritingContext != null && !this.rewritingContext.isClosed())
+            this.rewritingContext.close();
         if (this.projectManager != null) this.projectManager.close();
         this.eventHandler.close();
+        this.adaContext.close();
     }
 
     // ----- Getters -----
@@ -247,6 +263,20 @@ public final class LKQLContext {
             this.parseSources();
         }
         return this.allUnitsRoots;
+    }
+
+    public boolean hasRewritingContext() {
+        return this.rewritingContext != null;
+    }
+
+    public Libadalang.RewritingContext getRewritingContext() {
+        if (this.rewritingContext == null) {
+            if (!this.parsed) {
+                this.parseSources();
+            }
+            this.rewritingContext = this.adaContext.startRewriting();
+        }
+        return this.rewritingContext;
     }
 
     // ----- Setters -----
@@ -405,6 +435,27 @@ public final class LKQLContext {
                             .toArray(String[]::new);
         }
         return this.specifiedRules;
+    }
+
+    /** Get an array containing the normalized auto fixes specified by the user. */
+    @CompilerDirectives.TruffleBoundary
+    private String[] getSpecifiedAutoFixes() {
+        if (this.specifiedAutoFixes == null) {
+            final var unfilteredAutoFixes =
+                    this.env
+                            .getOptions()
+                            .get(LKQLLanguage.autoFixes)
+                            .trim()
+                            .replace(" ", "")
+                            .split(",");
+            this.specifiedAutoFixes =
+                    Arrays.stream(unfilteredAutoFixes)
+                            .filter(s -> !s.isEmpty() && !s.isBlank())
+                            .map(String::toLowerCase)
+                            .distinct()
+                            .toArray(String[]::new);
+        }
+        return this.specifiedAutoFixes;
     }
 
     /**
@@ -817,6 +868,27 @@ public final class LKQLContext {
         }
         Map<String, Object> ruleArgs = this.allRulesArgs.getOrDefault(ruleName, null);
         return ruleArgs == null ? null : ruleArgs.getOrDefault(argName, null);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public Set<String> getAutoFixes() {
+        if (this.autoFixes == null) {
+            this.autoFixes = new HashSet<>();
+            this.autoFixes.addAll(List.of(this.getSpecifiedAutoFixes()));
+            if (this.env.getOptions().get(LKQLLanguage.enableAllAutoFixes)) {
+                this.autoFixes.addAll(this.getAllRules());
+            }
+        }
+        return this.autoFixes;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public AutoFixMode getAutoFixMode() {
+        if (this.autoFixMode == null) {
+            this.autoFixMode =
+                    AutoFixMode.valueOf(this.env.getOptions().get(LKQLLanguage.autoFixMode));
+        }
+        return this.autoFixMode;
     }
 
     /**
