@@ -20,31 +20,16 @@
 -- <http://www.gnu.org/licenses/.>                                          --
 ----------------------------------------------------------------------------*/
 
-package com.adacore.lkql_jit.utils.functions;
+package com.adacore.lkql_jit.utils.enums;
 
-import com.oracle.truffle.api.CompilerDirectives;
-import java.io.File;
+/** This enum represents the mode for the auto fixes application. */
+public enum AutoFixMode {
+    /** Display the patched analysis unit to stdout. */
+    DISPLAY,
 
-/**
- * Util functions for the file java class manipulation in the JIT implementation.
- *
- * @author Hugo GUERRIER
- */
-public final class FileUtils {
-    /** Create a new file object from its name. */
-    @CompilerDirectives.TruffleBoundary
-    public static File create(String fileName) {
-        return new File(fileName);
-    }
+    /** Create a new file alongside the original one, containing the patched analysis unit. */
+    NEW_FILE,
 
-    /**
-     * Get a file base name from a file path.
-     *
-     * @param filePath The file path.
-     * @return The file base name.
-     */
-    @CompilerDirectives.TruffleBoundary
-    public static String baseName(String filePath) {
-        return new File(filePath).getName();
-    }
+    /** Replace the content of the original file with the patched analysis unit. */
+    PATCH_FILE
 }
