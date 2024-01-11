@@ -1439,15 +1439,15 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
      */
     @Override
     public LKQLNode visit(Liblkqllang.FunDecl funDecl) {
-        // Translate the declaration fields
+        // Get the current slot of the name
+        final String name = funDecl.fName().getText();
+        this.scriptFrames.declareBinding(name);
+        final int slot = this.scriptFrames.getBinding(name);
+
+        // Translate the declaration annotation
         final Liblkqllang.DeclAnnotation annotationBase = funDecl.fAnnotation();
         final Annotation annotation =
                 annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
-        final String name = funDecl.fName().getText();
-
-        // Get the current slot of the name
-        this.scriptFrames.declareBinding(name);
-        final int slot = this.scriptFrames.getBinding(name);
 
         // Translate the function body
         FunExpr funExpr = (FunExpr) funDecl.fFunExpr().accept(this);
@@ -1561,13 +1561,15 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final Liblkqllang.BaseStringLiteral documentationBase = selectorDecl.fDocNode();
         final String documentation =
                 documentationBase.isNone() ? "" : parseStringLiteral(documentationBase);
-        final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
-        final Annotation annotation =
-                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
 
         // Get the current slot to place the new selector in
         this.scriptFrames.declareBinding(name);
         final int slot = this.scriptFrames.getBinding(name);
+
+        // Translate the declaration annotation
+        final Liblkqllang.DeclAnnotation annotationBase = selectorDecl.fAnnotation();
+        final Annotation annotation =
+                annotationBase.isNone() ? null : (Annotation) annotationBase.accept(this);
 
         // Enter the selector frame
         this.scriptFrames.enterFrame(selectorDecl);

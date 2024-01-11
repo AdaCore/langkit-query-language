@@ -16,6 +16,7 @@ import picocli.CommandLine.Command;
         subcommands = {
             LKQLLauncher.LKQLRun.class,
             LKQLChecker.Args.class,
+            LKQLFix.Args.class,
             GNATCheckWorker.Args.class,
             LKQLDoc.class,
             LKQLRefactor.class

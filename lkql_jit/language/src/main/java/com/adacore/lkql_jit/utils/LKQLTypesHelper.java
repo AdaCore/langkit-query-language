@@ -79,6 +79,12 @@ public final class LKQLTypesHelper {
     /** The string representing the analysis unit type. */
     public static final String ANALYSIS_UNIT = "AnalysisUnit";
 
+    /** The string representing the rewriting context type. */
+    public static final String REWRITING_CONTEXT = "RewritingContext";
+
+    /** The string representing the rewriting node type. */
+    public static final String REWRITING_NODE = "RewritingNode";
+
     // ----- Class methods -----
 
     /**
@@ -149,6 +155,10 @@ public final class LKQLTypesHelper {
             return LKQL_OBJECT;
         } else if (LKQLTypeSystemGen.isLKQLNamespace(obj)) {
             return LKQL_NAMESPACE;
+        } else if (LKQLTypeSystemGen.isRewritingContext(obj)) {
+            return REWRITING_CONTEXT;
+        } else if (LKQLTypeSystemGen.isRewritingNode(obj)) {
+            return REWRITING_NODE;
         } else {
             return defaultValue;
         }

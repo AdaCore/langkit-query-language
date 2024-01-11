@@ -77,4 +77,9 @@ public final class ArrayUtils {
         }
         return resList;
     }
+
+    @CompilerDirectives.TruffleBoundary
+    public static <T> String toString(T[] array) {
+        return Arrays.toString(array);
+    }
 }

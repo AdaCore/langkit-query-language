@@ -162,6 +162,7 @@ public class LKQLLauncher extends AbstractLanguageLauncher {
 
         // Forward the command line options to the options object builder
         optionsBuilder
+                .engineMode(EngineMode.INTERPRETER)
                 .verbose(this.args.verbose)
                 .projectFile(this.args.project)
                 .target(this.args.target)
