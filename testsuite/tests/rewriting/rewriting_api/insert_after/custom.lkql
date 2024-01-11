@@ -1,0 +1,5 @@
+@check(
+    message="Custom rule violation",
+    auto_fix=(n, ctx) => ctx.insert_after(n, new NullStmt())
+)
+fun custom(node) = node is GotoStmt

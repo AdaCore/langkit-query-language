@@ -1,0 +1,13 @@
+main.adb:3:4: rule violation: Custom rule violation
+3 |    goto lbl;   --  FLAG
+  |    ^^^^^^^^^
+
+main.adb:4:4: rule violation: Custom rule violation
+4 |    goto other; --  FLAG
+  |    ^^^^^^^^^^^
+
+File "main.adb" has been patched (result in "main.adb.patched")
+=== main.adb.patched content:
+procedure Main is
+begin
+   null;null;end Main;
