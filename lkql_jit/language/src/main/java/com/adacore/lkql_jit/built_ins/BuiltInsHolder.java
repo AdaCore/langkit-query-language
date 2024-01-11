@@ -39,7 +39,8 @@ public final class BuiltInsHolder {
                     SpecifiedUnitsFunction.getValue(),
                     PatternFunction.getValue(),
                     NodeCheckerFunction.getValue(),
-                    UnitCheckerFunction.getValue());
+                    UnitCheckerFunction.getValue(),
+                    ApplyQuickFixes.getValue());
 
     /** The built-in method list. */
     public final Map<String, Map<String, BuiltInMethodFactory>> builtInMethods =
@@ -51,6 +52,8 @@ public final class BuiltInsHolder {
                     create(LKQLTypesHelper.TOKEN, TokenMethods.methods),
                     create(LKQLTypesHelper.LKQL_LAZY_LIST, IterableMethods.methods),
                     create(LKQLTypesHelper.LKQL_SELECTOR_LIST, IterableMethods.methods),
+                    create(LKQLTypesHelper.REWRITING_CONTEXT, RewritingContextMethods.methods),
+                    create(LKQLTypesHelper.REWRITING_NODE, RewritingNodeMethods.methods),
                     create(LKQLTypesHelper.LKQL_UNIT, null),
                     create(LKQLTypesHelper.LKQL_BOOLEAN, null),
                     create(LKQLTypesHelper.LKQL_INTEGER, null),

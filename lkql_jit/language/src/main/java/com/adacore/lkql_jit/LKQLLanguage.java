@@ -201,6 +201,24 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     public static final OptionKey<String> ruleInstances = new OptionKey<>("{}");
 
+    @Option(
+            help = "The comma separated auto fixes to apply",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> autoFixes = new OptionKey<>("");
+
+    @Option(
+            help = "Whether to apply all available auto fixes",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<Boolean> enableAllAutoFixes = new OptionKey<>(false);
+
+    @Option(
+            help = "Mode for the auto fixes application",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> autoFixMode = new OptionKey<>("DISPLAY");
+
     /** The option to control what should be done when no rules are provided */
     @Option(
             help = "If true, consider that an empty value for 'rules' means to run all the rules",
