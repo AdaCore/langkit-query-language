@@ -257,4 +257,26 @@ public abstract class Expr extends LKQLNode {
     public Libadalang.AdaNode executeNode(VirtualFrame frame) throws UnexpectedResultException {
         return LKQLTypeSystemGen.expectAdaNode(executeGeneric(frame));
     }
+
+    /**
+     * Execute the expression as a rewriting context.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a rewriting context.
+     */
+    @SuppressWarnings("unused")
+    public Libadalang.RewritingContext executeRewritingContext(VirtualFrame frame)
+            throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectRewritingContext(executeGeneric(frame));
+    }
+
+    /**
+     * Execute the expression as a rewriting context.
+     *
+     * @throws UnexpectedResultException If the node cannot be evaluated as a rewriting context.
+     */
+    @SuppressWarnings("unused")
+    public Libadalang.RewritingNode executeRewritingNode(VirtualFrame frame)
+            throws UnexpectedResultException {
+        return LKQLTypeSystemGen.expectRewritingNode(executeGeneric(frame));
+    }
 }

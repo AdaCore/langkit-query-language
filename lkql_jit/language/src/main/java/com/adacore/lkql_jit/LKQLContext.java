@@ -8,9 +8,12 @@ package com.adacore.lkql_jit;
 import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.built_ins.BuiltInMethodFactory;
-import com.adacore.lkql_jit.checker.*;
+import com.adacore.lkql_jit.checker.BaseChecker;
+import com.adacore.lkql_jit.checker.NodeChecker;
+import com.adacore.lkql_jit.checker.UnitChecker;
 import com.adacore.lkql_jit.checker.utils.CheckerUtils;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
+import com.adacore.lkql_jit.options.AutoFixMode;
 import com.adacore.lkql_jit.options.JsonUtils;
 import com.adacore.lkql_jit.options.RuleInstance;
 import com.adacore.lkql_jit.runtime.CallStack;
@@ -51,6 +54,9 @@ public final class LKQLContext {
 
     /** The analysis context for the ada files. */
     private Libadalang.AnalysisContext adaContext;
+
+    /** The rewriting context, opened from the Ada analysis context. */
+    private Libadalang.RewritingContext rewritingContext;
 
     /** The project manager for the ada project. */
     private Libadalang.ProjectManager projectManager;
@@ -126,6 +132,12 @@ public final class LKQLContext {
     /** Unit checkers to run. */
     private UnitChecker[] filteredUnitCheckers = null;
 
+    /** Set containing all rules to auto fix during a run. */
+    private Set<String> autoFixes = null;
+
+    /** Mode for the auto fixes applying. */
+    private AutoFixMode autoFixMode = null;
+
     // ----- Option caches -----
 
     /** Whether the language is in the verbose mode. */
@@ -152,6 +164,10 @@ public final class LKQLContext {
 
     /** Whether the checker is in debug mode. */
     @CompilerDirectives.CompilationFinal private Boolean checkerDebug = null;
+
+    /** Auto fixes specified by the user. */
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    private String[] specifiedAutoFixes;
 
     /** The directories where the rule files are located. */
     @CompilerDirectives.CompilationFinal(dimensions = 1)
@@ -185,9 +201,11 @@ public final class LKQLContext {
 
     /** Finalize the LKQL context to close libadalang context. */
     public void finalizeContext() {
-        this.adaContext.close();
+        if (this.rewritingContext != null && !this.rewritingContext.isClosed())
+            this.rewritingContext.close();
         if (this.projectManager != null) this.projectManager.close();
         this.eventHandler.close();
+        this.adaContext.close();
     }
 
     // ----- Getters -----
@@ -219,6 +237,20 @@ public final class LKQLContext {
             this.parseSources();
         }
         return this.allUnitsRoots;
+    }
+
+    public boolean hasRewritingContext() {
+        return this.rewritingContext != null;
+    }
+
+    public Libadalang.RewritingContext getRewritingContext() {
+        if (this.rewritingContext == null) {
+            if (!this.parsed) {
+                this.parseSources();
+            }
+            this.rewritingContext = this.adaContext.startRewriting();
+        }
+        return this.rewritingContext;
     }
 
     // ----- Setters -----
@@ -339,6 +371,27 @@ public final class LKQLContext {
             this.checkerDebug = this.env.getOptions().get(LKQLLanguage.checkerDebug);
         }
         return this.checkerDebug;
+    }
+
+    /** Get an array containing the normalized auto fixes specified by the user. */
+    @CompilerDirectives.TruffleBoundary
+    private String[] getSpecifiedAutoFixes() {
+        if (this.specifiedAutoFixes == null) {
+            final var unfilteredAutoFixes =
+                    this.env
+                            .getOptions()
+                            .get(LKQLLanguage.autoFixes)
+                            .trim()
+                            .replace(" ", "")
+                            .split(",");
+            this.specifiedAutoFixes =
+                    Arrays.stream(unfilteredAutoFixes)
+                            .filter(s -> !s.isEmpty() && !s.isBlank())
+                            .map(String::toLowerCase)
+                            .distinct()
+                            .toArray(String[]::new);
+        }
+        return this.specifiedAutoFixes;
     }
 
     /**
@@ -645,6 +698,28 @@ public final class LKQLContext {
         }
 
         return instanceArgs.get(argName);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public Set<String> getAutoFixes() {
+        if (this.autoFixes == null) {
+            this.autoFixes = new HashSet<>();
+            if (this.env.getOptions().get(LKQLLanguage.enableAllAutoFixes)) {
+                this.autoFixes.addAll(this.getRuleInstances().keySet());
+            } else {
+                this.autoFixes.addAll(List.of(this.getSpecifiedAutoFixes()));
+            }
+        }
+        return this.autoFixes;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public AutoFixMode getAutoFixMode() {
+        if (this.autoFixMode == null) {
+            this.autoFixMode =
+                    AutoFixMode.valueOf(this.env.getOptions().get(LKQLLanguage.autoFixMode));
+        }
+        return this.autoFixMode;
     }
 
     /**

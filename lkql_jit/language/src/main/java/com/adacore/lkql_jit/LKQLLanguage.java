@@ -215,6 +215,24 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
             stability = OptionStability.STABLE)
     static final OptionKey<Boolean> keepGoingOnMissingFile = new OptionKey<>(false);
 
+    @Option(
+            help = "The comma separated auto fixes to apply",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> autoFixes = new OptionKey<>("");
+
+    @Option(
+            help = "Whether to apply all available auto fixes",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<Boolean> enableAllAutoFixes = new OptionKey<>(false);
+
+    @Option(
+            help = "Mode for the auto fixes application",
+            category = OptionCategory.USER,
+            stability = OptionStability.STABLE)
+    static final OptionKey<String> autoFixMode = new OptionKey<>("DISPLAY");
+
     /** The option to specify the files to ignore during the checking. */
     @Option(
             help = "Files to ignore during the analysis",
