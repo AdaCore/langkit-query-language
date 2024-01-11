@@ -27,6 +27,9 @@ public record LKQLOptions(
         List<String> ignores,
         List<String> rulesDirs,
         Map<String, RuleInstance> ruleInstances,
+        List<String> autoFixes,
+        AutoFixMode autoFixMode,
+        boolean enableAllAutoFixes,
         boolean checkerDebug,
         boolean fallbackToAllRules,
         boolean keepGoingOnMissingFile,
@@ -68,6 +71,16 @@ public record LKQLOptions(
             ruleInstances = Collections.unmodifiableMap(ruleInstances);
         }
 
+        if (autoFixes == null) {
+            autoFixes = List.of();
+        } else {
+            autoFixes = Collections.unmodifiableList(autoFixes);
+        }
+
+        if (autoFixMode == null) {
+            autoFixMode = AutoFixMode.DISPLAY;
+        }
+
         if (diagnosticOutputMode == null) {
             diagnosticOutputMode = DiagnosticOutputMode.PRETTY;
         }
@@ -103,6 +116,11 @@ public record LKQLOptions(
                         .map(e -> (String) e)
                         .toList(),
                 ruleInstances,
+                jsonLKQLOptions.getJSONArray("autoFixes").toList().stream()
+                        .map(e -> (String) e)
+                        .toList(),
+                AutoFixMode.valueOf(jsonLKQLOptions.getString("autoFixMode")),
+                jsonLKQLOptions.getBoolean("enableAllAutoFixes"),
                 jsonLKQLOptions.getBoolean("checkerDebug"),
                 jsonLKQLOptions.getBoolean("fallbackToAllRules"),
                 jsonLKQLOptions.getBoolean("keepGoingOnMissingFile"),
@@ -132,6 +150,9 @@ public record LKQLOptions(
                 .put("ignores", new JSONArray(ignores))
                 .put("rulesDirs", new JSONArray(rulesDirs))
                 .put("ruleInstances", ruleInstancesJson)
+                .put("autoFixes", new JSONArray(autoFixes))
+                .put("autoFixMode", autoFixMode.toString())
+                .put("enableAllAutoFixes", enableAllAutoFixes)
                 .put("checkerDebug", checkerDebug)
                 .put("fallbackToAllRules", fallbackToAllRules)
                 .put("keepGoingOnMissingFile", keepGoingOnMissingFile)
@@ -170,6 +191,9 @@ public record LKQLOptions(
         private List<String> ignores = new ArrayList<>();
         private List<String> rulesDirs = new ArrayList<>();
         private Map<String, RuleInstance> ruleInstances = new HashMap<>();
+        List<String> autoFixes = new ArrayList<>();
+        AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
+        boolean enableAllAutoFixes = false;
         private boolean checkerDebug = false;
         private boolean fallbackToAllRules = false;
         private boolean keepGoingOnMissingFile = false;
@@ -243,6 +267,21 @@ public record LKQLOptions(
             return this;
         }
 
+        public Builder autoFixes(List<String> af) {
+            this.autoFixes = af;
+            return this;
+        }
+
+        public Builder autoFixMode(AutoFixMode afm) {
+            this.autoFixMode = afm;
+            return this;
+        }
+
+        public Builder enableAllAutoFixes(boolean eaaf) {
+            this.enableAllAutoFixes = eaaf;
+            return this;
+        }
+
         public Builder checkerDebug(boolean cd) {
             checkerDebug = cd;
             return this;
@@ -284,6 +323,9 @@ public record LKQLOptions(
                     ignores,
                     rulesDirs,
                     ruleInstances,
+                    autoFixes,
+                    autoFixMode,
+                    enableAllAutoFixes,
                     checkerDebug,
                     fallbackToAllRules,
                     keepGoingOnMissingFile,

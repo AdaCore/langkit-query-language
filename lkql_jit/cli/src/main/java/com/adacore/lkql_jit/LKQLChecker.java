@@ -90,6 +90,21 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                                 + " <rule_name>.<arg_name>=<arg_value>")
         public List<String> rulesArgs = new ArrayList<>();
 
+        @CommandLine.Option(
+                names = {"-f", "--auto-fix"},
+                description = "Auto fix to apply during the run")
+        public List<String> autoFixes = new ArrayList<>();
+
+        @CommandLine.Option(
+                names = {"--all-auto-fixes"},
+                description = "Enable all the available auto fixes")
+        public boolean allAutoFixes;
+
+        @CommandLine.Option(
+                names = {"--auto-fix-mode"},
+                description = "Mode to apply the auto fixes (default is 'DISPLAY')")
+        public AutoFixMode autoFixMode = AutoFixMode.DISPLAY;
+
         enum PropertyErrorRecoveryMode {
             continueAndWarn,
             continueAndLog,
@@ -200,7 +215,10 @@ public class LKQLChecker extends AbstractLanguageLauncher {
                 .target(this.args.target)
                 .runtime(this.args.RTS)
                 .rulesDir(this.args.rulesDirs)
-                .ruleInstances(this.getRuleInstances());
+                .ruleInstances(this.getRuleInstances())
+                .autoFixes(this.args.autoFixes)
+                .autoFixMode(this.args.autoFixMode)
+                .enableAllAutoFixes(this.args.allAutoFixes);
 
         // Finally, pass the options to the LKQL engine
         contextBuilder.option("lkql.options", optionsBuilder.build().toJson().toString());
@@ -290,5 +308,6 @@ public class LKQLChecker extends AbstractLanguageLauncher {
 
             map(roots, (root) => node_checker(root))
             map(analysis_units, (unit) => unit_checker(unit))
+            apply_quick_fixes()
             """;
 }

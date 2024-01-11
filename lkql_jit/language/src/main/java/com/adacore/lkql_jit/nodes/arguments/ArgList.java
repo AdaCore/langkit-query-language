@@ -10,6 +10,7 @@ import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.functions.ArrayUtils;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
+import java.util.Optional;
 
 /**
  * This node represents a list of arguments in a function call.
@@ -117,6 +118,18 @@ public final class ArgList extends LKQLNode {
 
         // Return the result array
         return res;
+    }
+
+    // ----- Class methods -----
+
+    /** Get the (eventually present) named argument node in the list with the provided name. */
+    public Optional<Arg> getArgWithName(final String name) {
+        for (var arg : this.args) {
+            if (arg instanceof NamedArg namedArg && namedArg.argName.getName().equals(name)) {
+                return Optional.of(namedArg);
+            }
+        }
+        return Optional.empty();
     }
 
     // ----- Override methods -----
