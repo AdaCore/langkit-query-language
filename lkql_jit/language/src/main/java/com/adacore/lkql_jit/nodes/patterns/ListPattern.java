@@ -22,66 +22,58 @@
 
 package com.adacore.lkql_jit.nodes.patterns;
 
-import com.adacore.lkql_jit.utils.functions.FrameUtils;
+import com.adacore.lkql_jit.built_ins.values.lists.LKQLList;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.Node;
 
-/**
- * This node represents a binding pattern in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class BindingPattern extends UnfilteredPattern {
+public abstract class ListPattern extends ValuePattern {
+    /** The sub-patterns for this list pattern. */
+    @Node.Children private final BasePattern[] patterns;
 
-    // ----- Attributes -----
-
-    /** Frame slot to put the node in. */
-    private final int slot;
-
-    // ----- Children -----
-
-    /** Pattern to execute once the binding done. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    public ValuePattern pattern;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new binding pattern node.
-     *
-     * @param location The location of the node in the source.
-     * @param slot The frame slot to put the node in.
-     * @param pattern The pattern to bind in.
-     */
-    public BindingPattern(SourceLocation location, int slot, ValuePattern pattern) {
+    public ListPattern(SourceLocation location, BasePattern[] patterns) {
         super(location);
-        this.slot = slot;
-        this.pattern = pattern;
+        this.patterns = patterns;
     }
 
-    // ----- Execution methods -----
+    @Specialization
+    public boolean onList(VirtualFrame frame, LKQLList list) {
+        var lastMatch = 0;
+        for (int i = 0; i < list.getArraySize(); i++) {
+            var pattern = patterns[i];
+            lastMatch = i;
+            // SplatPattern matches the rest of the list
+            if (pattern instanceof SplatPattern) {
+                return pattern.executeValue(
+                        frame, new LKQLList(list.getSlice(i, list.getArraySize())));
+            }
+            // Else, fail on the first pattern that fails
+            else if (!pattern.executeValue(frame, list.get(i))) {
+                return false;
+            }
+        }
 
-    /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
-     */
-    @Override
-    public boolean executeValue(VirtualFrame frame, Object value) {
-        // Do the node binding
-        FrameUtils.writeLocal(frame, this.slot, value);
+        if (lastMatch < patterns.length - 1) {
+            // If there are remaining patterns, there need to be only one, and it needs to be a
+            // SplatPattern.
+            if (lastMatch + 1 != patterns.length - 1
+                    || !(patterns[lastMatch + 1] instanceof SplatPattern)) {
+                return false;
+            }
+        }
 
-        // Execute the pattern with the binding done
-        return this.pattern.executeValue(frame, value);
+        return true;
     }
 
-    // ----- Override methods -----
+    @Fallback
+    public boolean onOther(VirtualFrame frame, Object other) {
+        return false;
+    }
 
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
+        return this.nodeRepresentation(indentLevel);
     }
 }

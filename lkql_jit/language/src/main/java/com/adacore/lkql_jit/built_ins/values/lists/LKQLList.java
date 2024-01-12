@@ -29,6 +29,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.util.Arrays;
 
 /** This class represents an array list in the LKQL language. */
 @ExportLibrary(InteropLibrary.class)
@@ -57,6 +58,14 @@ public final class LKQLList extends BaseLKQLList {
     public Object get(long i) throws InvalidIndexException {
         try {
             return this.content[(int) i];
+        } catch (IndexOutOfBoundsException e) {
+            throw new InvalidIndexException();
+        }
+    }
+
+    public Object[] getSlice(long first, long last) throws InvalidIndexException {
+        try {
+            return Arrays.copyOfRange(this.content, (int) first, (int) last);
         } catch (IndexOutOfBoundsException e) {
             throw new InvalidIndexException();
         }

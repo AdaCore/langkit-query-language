@@ -856,6 +856,30 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
     }
 
+    @Override
+    public LKQLNode visit(Liblkqllang.ListPattern listPattern) {
+        // Get the patterns inside the list
+        final List<BasePattern> listPatterns = new ArrayList<>();
+        for (Liblkqllang.LkqlNode pattern : listPattern.fPatterns().children()) {
+            listPatterns.add((BasePattern) pattern.accept(this));
+        }
+
+        return ListPatternNodeGen.create(
+                loc(listPattern), listPatterns.toArray(new BasePattern[0]));
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.SplatPattern splatPattern) {
+        // Get the binding value name
+        final String name = splatPattern.fBinding().getText();
+
+        // Get the slot of the binding
+        this.scriptFrames.declareBinding(name);
+        final int slot = this.scriptFrames.getBinding(name);
+
+        return new SplatPattern(loc(splatPattern), slot);
+    }
+
     /**
      * Visit a binding pattern node.
      *

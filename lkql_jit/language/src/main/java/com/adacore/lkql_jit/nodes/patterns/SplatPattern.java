@@ -26,62 +26,36 @@ import com.adacore.lkql_jit.utils.functions.FrameUtils;
 import com.adacore.lkql_jit.utils.source_location.SourceLocation;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-/**
- * This node represents a binding pattern in the LKQL language.
- *
- * @author Hugo GUERRIER
- */
-public final class BindingPattern extends UnfilteredPattern {
-
-    // ----- Attributes -----
-
-    /** Frame slot to put the node in. */
+public class SplatPattern extends ValuePattern {
     private final int slot;
 
-    // ----- Children -----
+    public SplatPattern(SourceLocation location) {
+        super(location);
+        this.slot = -1;
+    }
 
-    /** Pattern to execute once the binding done. */
-    @Child
-    @SuppressWarnings("FieldMayBeFinal")
-    public ValuePattern pattern;
-
-    // ----- Constructors -----
-
-    /**
-     * Create a new binding pattern node.
-     *
-     * @param location The location of the node in the source.
-     * @param slot The frame slot to put the node in.
-     * @param pattern The pattern to bind in.
-     */
-    public BindingPattern(SourceLocation location, int slot, ValuePattern pattern) {
+    public SplatPattern(SourceLocation location, int slot) {
         super(location);
         this.slot = slot;
-        this.pattern = pattern;
     }
 
-    // ----- Execution methods -----
-
-    /**
-     * @see BasePattern#executeValue(VirtualFrame, Object)
-     */
-    @Override
-    public boolean executeValue(VirtualFrame frame, Object value) {
-        // Do the node binding
-        FrameUtils.writeLocal(frame, this.slot, value);
-
-        // Execute the pattern with the binding done
-        return this.pattern.executeValue(frame, value);
+    public boolean hasBinding() {
+        return this.slot != -1;
     }
 
-    // ----- Override methods -----
-
-    /**
-     * @see com.adacore.lkql_jit.nodes.LKQLNode#toString(int)
-     */
     @Override
     public String toString(int indentLevel) {
-        return this.nodeRepresentation(
-                indentLevel, new String[] {"slot"}, new Object[] {this.slot});
+        return this.nodeRepresentation(indentLevel);
+    }
+
+    @Override
+    public boolean executeValue(VirtualFrame frame, Object value) {
+        if (hasBinding()) {
+            // Do the node binding
+            FrameUtils.writeLocal(frame, this.slot, value);
+        }
+
+        // Splat pattern always matches
+        return true;
     }
 }

@@ -475,6 +475,20 @@ class TuplePattern(ValuePattern):
     patterns = Field(type=BasePattern.list)
 
 
+class ListPattern(ValuePattern):
+    """
+    Pattern to match on lists.
+    """
+    patterns = Field(type=BasePattern.list)
+
+
+class SplatPattern(ValuePattern):
+    """
+    Pattern to match any remaining number of elements in a list pattern.
+    """
+    binding = Field(type=Identifier)
+
+
 class ParenPattern(ValuePattern):
     """
     A parenthesized pattern.
@@ -1103,9 +1117,15 @@ lkql_grammar.add_rules(
         BoolPattern.alt_true("true"),
         BoolPattern.alt_false("false"),
         IntegerPattern(Token.Integer),
+        ListPattern(
+            "[",
+            List(G.binding_pattern | G.splat_pattern, sep=","), "]"
+        ),
         ParenPattern("(", G.pattern, ")"),
         TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
     ),
+
+    splat_pattern=SplatPattern(Opt(G.id, "@"), "..."),
 
     pattern_arg=Or(
         NodePatternSelector(G.selector_call, "is", G.pattern),

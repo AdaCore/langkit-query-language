@@ -727,6 +727,21 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.ListPattern listPattern) {
+        traverseChildren(listPattern);
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.SplatPattern splatPattern) {
+        if (splatPattern.fBinding() != null) {
+            final String symbol = splatPattern.fBinding().getText();
+            this.scriptFramesBuilder.addBinding(symbol);
+        }
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.NullPattern nullPattern) {
         traverseChildren(nullPattern);
         return null;
