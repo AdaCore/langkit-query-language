@@ -529,31 +529,23 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         final SourceLocation location = loc(binOp);
 
         // Create the binary operator by switching on the operator type
-        return switch (binOp.fOp().getKindName()) {
-            case Liblkqllang.OpPlus.kindName -> BinPlusNodeGen.create(
+        return switch (binOp.fOp().getKind()) {
+            case OP_PLUS -> BinPlusNodeGen.create(
                     location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpMinus.kindName -> BinMinusNodeGen.create(
+            case OP_MINUS -> BinMinusNodeGen.create(
                     location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpMul.kindName -> BinMulNodeGen.create(
+            case OP_MUL -> BinMulNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_DIV -> BinDivNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_AND -> new BinAnd(location, left, right);
+            case OP_OR -> new BinOr(location, left, right);
+            case OP_EQ -> BinEqNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_NEQ -> BinNeqNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_CONCAT -> BinConcatNodeGen.create(
                     location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpDiv.kindName -> BinDivNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpAnd.kindName -> new BinAnd(location, left, right);
-            case Liblkqllang.OpOr.kindName -> new BinOr(location, left, right);
-            case Liblkqllang.OpEq.kindName -> BinEqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpNeq.kindName -> BinNeqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpConcat.kindName -> BinConcatNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpLt.kindName -> BinLtNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpLeq.kindName -> BinLeqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpGt.kindName -> BinGtNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
-            case Liblkqllang.OpGeq.kindName -> BinGeqNodeGen.create(
-                    location, leftLocation, rightLocation, left, right);
+            case OP_LT -> BinLtNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_LEQ -> BinLeqNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_GT -> BinGtNodeGen.create(location, leftLocation, rightLocation, left, right);
+            case OP_GEQ -> BinGeqNodeGen.create(location, leftLocation, rightLocation, left, right);
             default -> null;
         };
     }
@@ -600,10 +592,10 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
                 new SourceLocation(this.source, unOp.getSourceLocationRange());
 
         // Create the unary operator by switching on the operator type
-        return switch (unOp.fOp().getKindName()) {
-            case Liblkqllang.OpNot.kindName -> UnNotNodeGen.create(location, argLocation, arg);
-            case Liblkqllang.OpPlus.kindName -> UnPlusNodeGen.create(location, argLocation, arg);
-            case Liblkqllang.OpMinus.kindName -> UnMinusNodeGen.create(location, argLocation, arg);
+        return switch (unOp.fOp().getKind()) {
+            case OP_NOT -> UnNotNodeGen.create(location, argLocation, arg);
+            case OP_PLUS -> UnPlusNodeGen.create(location, argLocation, arg);
+            case OP_MINUS -> UnMinusNodeGen.create(location, argLocation, arg);
             default -> null;
         };
     }
