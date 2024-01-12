@@ -297,10 +297,11 @@ for example.
 
 Unwrap will raise an error if the value is null.
 
-Function Call
-^^^^^^^^^^^^^
+Call
+^^^^
 
 .. lkql_doc_class:: FunCall
+.. lkql_doc_class:: SelectorCall
 .. lkql_doc_class:: Arg
 
 .. raw:: html
@@ -330,6 +331,14 @@ the callee is null:
     fun add(a, b) = a + b
     val fn = if true then null else add
     fn?(1, 2) # Returns null
+
+Additionally, you can also call selectors via the call syntax. Selector calls
+take only one argument, which is the starting point of the selector call chain.
+
+.. code-block:: lkql
+
+   children(select first AdaNode)
+
 
 Indexing Expression
 ^^^^^^^^^^^^^^^^^^^
@@ -917,7 +926,7 @@ You can match simple integer values with this pattern
 
 .. code-block:: lkql
 
-   val is 12
+   v is 12
 
 Bool pattern
 """"""""""""
@@ -930,10 +939,10 @@ You can match simple boolean values with this pattern
 
 .. code-block:: lkql
 
-   val is true
+   v is true
 
 Regex pattern
-""""""""""""
+"""""""""""""
 
 .. lkql_doc_class:: RegexPattern
 .. raw:: html
@@ -944,8 +953,8 @@ complicated matching based on regular expressions.
 
 .. code-block:: lkql
 
-   val is "hello"
-   val is "hello.*?world"
+   v is "hello"
+   v is "hello.*?world"
 
 Tuple pattern
 """""""""""""
@@ -996,6 +1005,7 @@ Object pattern
 """"""""""""""
 
 .. lkql_doc_class:: ObjectPattern
+.. lkql_doc_class:: ObjectPatternAssoc
 .. lkql_doc_class:: SplatPattern
 
 .. raw:: html

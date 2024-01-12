@@ -250,7 +250,7 @@ Selectors
 
 .. function:: component_types()
 
-    Return all the ``BaseTypeDecl``s corresponding to all fields of a given
+    Return all the ``BaseTypeDecl`` corresponding to all fields of a given
     type, including their full views, base types and subtypes.
 
 .. function:: full_parent_types()
