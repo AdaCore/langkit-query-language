@@ -35,6 +35,9 @@ lkql: build/bin/liblkqllang_parse
 doc: build_lkql_native_jit
 	cd user_manual && make clean html
 
+format:
+	$(MAVEN) -f lkql_jit spotless:apply
+
 gnatcheck: lkql
 	gprbuild -P lkql_checker/gnatcheck.gpr -p $(GPR_ARGS) -XBUILD_MODE=$(BUILD_MODE)
 
