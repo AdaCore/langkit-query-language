@@ -1655,36 +1655,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     /**
-     * Visit a detail expression node.
-     *
-     * @param detailExpr The detail expression node from Langkit.
-     * @return The detail expression node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.DetailExpr detailExpr) {
-        // Translate the detail expression fields
-        final Expr expr = (Expr) detailExpr.fExprValue().accept(this);
-
-        // Return the new detail expression node
-        return DetailExprNodeGen.create(loc(detailExpr), expr);
-    }
-
-    /**
-     * Visit a detail pattern node.
-     *
-     * @param detailPattern The detail pattern node from Langkit
-     * @return The detail pattern node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.DetailPattern detailPattern) {
-        // Translate the detail pattern fields
-        final BasePattern pattern = (BasePattern) detailPattern.fPatternValue().accept(this);
-
-        // Return the new detail pattern node
-        return new DetailPattern(loc(detailPattern), pattern);
-    }
-
-    /**
      * Visit a node pattern field node.
      *
      * @param nodePatternField The node pattern field node from Langkit.
@@ -1694,7 +1664,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     public LKQLNode visit(Liblkqllang.NodePatternField nodePatternField) {
         // Translate the node pattern detail fields
         final String name = nodePatternField.fIdentifier().getText();
-        final DetailValue expected = (DetailValue) nodePatternField.fExpectedValue().accept(this);
+        final BasePattern expected = (BasePattern) nodePatternField.fExpectedValue().accept(this);
 
         // Return the new node pattern field detail
         return NodePatternFieldNodeGen.create(loc(nodePatternField), name, expected);
@@ -1711,8 +1681,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the node pattern detail fields
         final String propertyName = nodePatternProperty.fCall().fName().getText();
         final ArgList argList = (ArgList) nodePatternProperty.fCall().fArguments().accept(this);
-        final DetailValue expected =
-                (DetailValue) nodePatternProperty.fExpectedValue().accept(this);
+        final BasePattern expected =
+                (BasePattern) nodePatternProperty.fExpectedValue().accept(this);
 
         // Return the new node pattern property detail
         return NodePatternPropertyNodeGen.create(

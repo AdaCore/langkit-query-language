@@ -956,29 +956,6 @@ class NodeKindPattern(NodePattern):
 
 
 @abstract
-class DetailValue(LkqlNode):
-    """
-    Root node class for pattern data values.
-    Pattern data values can be expressions or patterns.
-    """
-    pass
-
-
-class DetailExpr(DetailValue):
-    """
-    Expression pattern data value.
-    """
-    expr_value = Field(type=Expr)
-
-
-class DetailPattern(DetailValue):
-    """
-    Pattern pattern data value
-    """
-    pattern_value = Field(type=BasePattern)
-
-
-@abstract
 class NodePatternDetail(LkqlNode):
     """
     Access to a field, property or selector inside a node pattern.
@@ -991,7 +968,7 @@ class NodePatternField(NodePatternDetail):
     Access to a field in a node pattern.
     """
     identifier = Field(type=Identifier)
-    expected_value = Field(type=DetailValue)
+    expected_value = Field(type=BasePattern)
 
 
 class NodePatternProperty(NodePatternDetail):
@@ -999,7 +976,7 @@ class NodePatternProperty(NodePatternDetail):
     Access to a property in a node pattern.
     """
     call = Field(type=FunCall)
-    expected_value = Field(type=DetailValue)
+    expected_value = Field(type=BasePattern)
 
 
 class NodePatternSelector(NodePatternDetail):
@@ -1162,11 +1139,9 @@ lkql_grammar.add_rules(
 
     pattern_arg=Or(
         NodePatternSelector(G.selector_call, "is", G.pattern),
-        NodePatternField(G.id, "is", c(), G.detail_value),
-        NodePatternProperty(G.fun_call, "is", c(), G.detail_value)
+        NodePatternField(G.id, "is", c(), G.pattern),
+        NodePatternProperty(G.fun_call, "is", c(), G.pattern)
     ),
-
-    detail_value=Or(DetailPattern(G.pattern), DetailExpr(G.expr)),
 
     selector_call=SelectorCall(
         Identifier(Or(

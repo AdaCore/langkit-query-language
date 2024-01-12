@@ -952,18 +952,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
-    public Void visit(Liblkqllang.DetailExpr detailExpr) {
-        traverseChildren(detailExpr);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.DetailPattern detailPattern) {
-        traverseChildren(detailPattern);
-        return null;
-    }
-
-    @Override
     public Void visit(Liblkqllang.NodePatternDetailList nodePatternDetailList) {
         traverseChildren(nodePatternDetailList);
         return null;
