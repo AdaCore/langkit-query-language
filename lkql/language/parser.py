@@ -1129,25 +1129,36 @@ lkql_grammar.add_rules(
         NodeKindPattern(G.kind_name),
         UniversalPattern("*"),
         NullPattern("null"),
-        RegexPattern(Token.String),
+        G.regex_pattern,
         NotPattern("not", G.value_pattern),
+        G.bool_pattern,
+        G.integer_pattern,
+        G.list_pattern,
+        G.object_pattern,
+        ParenPattern("(", G.pattern, ")"),
+        G.tuple_pattern
+    ),
+
+    regex_pattern=RegexPattern(Token.String),
+
+    bool_pattern=Or(
         BoolPattern.alt_true("true"),
         BoolPattern.alt_false("false"),
-        IntegerPattern(Token.Integer),
-        ListPattern(
-            "[",
-            List(G.binding_pattern | G.splat_pattern, sep=","), "]"
-        ),
-        ObjectPattern(
-            "{",
-            List(G.object_pattern_assoc | G.splat_pattern, sep=",", empty_valid=False),
-            "}"
-        ),
-        ParenPattern("(", G.pattern, ")"),
-        TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
     ),
 
     splat_pattern=SplatPattern(Opt(G.id, "@"), "..."),
+
+    integer_pattern=IntegerPattern(Token.Integer),
+    list_pattern=ListPattern(
+        "[",
+        List(G.binding_pattern | G.splat_pattern, sep=","), "]"
+    ),
+    object_pattern=ObjectPattern(
+        "{",
+        List(G.object_pattern_assoc | G.splat_pattern, sep=",", empty_valid=False),
+        "}"
+    ),
+    tuple_pattern=TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
 
     pattern_arg=Or(
         NodePatternSelector(G.selector_call, "is", G.pattern),
