@@ -18,6 +18,7 @@ class CheckerDriver(BaseDriver):
         - input_sources: Ada files to analyze (if explicit, optional if project
           is passed)
         - rule_name: The name of the rule to check
+        - auto_fixes: Whether to activate auto-fixes for the specified rule
         - rule_arguments: A dict mapping rule argument names to their values
     """
 
@@ -42,6 +43,10 @@ class CheckerDriver(BaseDriver):
         args += ['-r', self.test_env['rule_name']]
         args += ['--rules-dir', self.test_env['test_dir']]
         args += ['--keep-going-on-missing-file']
+
+        if self.test_env.get('auto_fixes', False):
+            args += ['-f', self.test_env['rule_name']]
+            args += ['--auto-fix-mode', 'DISPLAY']
 
         # Run the checker
         self.check_run(args)
