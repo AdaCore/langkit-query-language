@@ -350,6 +350,10 @@ The following options control the processing performed by ``gnatcheck``.
   Read the rule options from the text file `rule_option_filename`, referred
   to as a 'coding standard file' below.
 
+``-from-lkql=filename``
+  Read the rule options from the LKQL file `filename`. See :ref:`LKQL_options_file`
+  for more information about configuring rules with an LKQL file.
+
 
 .. note::
 
@@ -411,7 +415,7 @@ containing arguments for a run of the rule.
 
   Please note that the provided rule names (that are object keys) must strictly be
   lowercase, following the LKQL parsing rules.
-  Moreover, you cannot provide the same key twice; thus, the following code will 
+  Moreover, you cannot provide the same key twice; thus, the following code will
   result in a runtime error.
 
   ::
