@@ -8047,6 +8047,37 @@ This rule has no parameters.
       raise Constraint_Error;    --  FLAG
 
 
+.. _SPARK_Procedures_Without_Globals:
+
+``SPARK_Procedures_Without_Globals``
+------------------------------------
+
+.. index:: Separates
+
+Flags SPARK procedures that don't have a global aspect.
+
+This rule has no parameters.
+
+.. rubric:: Example
+
+.. code-block:: ada
+
+   package Test is
+       procedure P with SPARK_Mode => On; -- FLAG
+
+       procedure Q is null; -- NOFLAG
+
+       function Foo return Integer  -- NOFLAG
+       is (12)
+       with SPARK_Mode => On;
+
+       V : Integer;
+
+       procedure T with Global => V;  -- NOFLAG
+
+       function Bar return Integer with SPARK_Mode => On;  -- NOFLAG
+   end Test;
+
 .. _Separates:
 
 ``Separates``
