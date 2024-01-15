@@ -8,4 +8,9 @@ package body Test with SPARK_Mode => On is
    begin
       null;
    end T;
+
+   function Bar return Integer is
+   begin
+      return 12;
+   end Bar;
 end Test;

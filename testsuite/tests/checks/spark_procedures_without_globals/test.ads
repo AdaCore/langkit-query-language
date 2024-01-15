@@ -11,4 +11,6 @@ package Test is
    V : Integer;
 
    procedure T with Global => V;  -- NOFLAG
+
+   function Bar return Integer with SPARK_Mode => On;  -- NOFLAG
 end Test;
