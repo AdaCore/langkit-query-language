@@ -36,4 +36,8 @@ package Aggr is
    tc : constant Weather := (Date'(26, August, 1974) with 15);  --  FLAG
    td : Weather := Weather'((Date'(26, August, 1974) with 15)); --  NOFLAG
 
+   --  Check that the aggregate inside enum repr clauses cannot be flagged
+   type En is (Var1, Var2);
+   for En use (Var1 => 12, Var2 => 15); --  NOFLAG
+
 end Aggr;
