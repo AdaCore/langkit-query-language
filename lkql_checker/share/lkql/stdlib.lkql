@@ -463,47 +463,27 @@ fun range_values(left, right) =
 fun number_of_values(type) =
     |" Return the number of values covered by a given BaseTypeDecl, -1 if
     |" this value cannot be determined.
-{
-    fun count_values_decl(decl) = {
-        val def = decl.f_type_def;
-        match def
-        | EnumTypeDef           => (
-            match decl.f_name?.p_canonical_fully_qualified_name()
+    match type
+    | SubtypeDecl(f_subtype is *(f_constraint is RangeConstraint(f_range is *(f_range is op@BinOp)) => range_values(op.f_left, op.f_right)
+    | SubtypeDecl => number_of_values(type.f_subtype.f_name.p_referenced_decl())
+    | * when type == type.p_universal_int_type() => -1
+    | TypeDecl(f_type_def is type_def) => match type_def
+        | EnumTypeDef(f_enum_literals is e@*) => (
+            match type.f_name?.p_canonical_fully_qualified_name()
             | "standard.character"           => 256
             | "standard.wide_character"      => 65536
             | "standard.wide_wide_character" => 2147483648
-            | *                              => def.f_enum_literals.children_count
+            | * => e.children_count
         )
-        | ModIntTypeDef         => if def.f_expr.p_is_static_expr()
-                                then def.f_expr.p_eval_as_int() else -1
-        | SignedIntTypeDef
-        when def.f_range.f_range is BinOp(f_op is OpDoubleDot) => {
-            val op = def.f_range.f_range;
+        | m@ModIntTypeDef when m.f_expr.p_is_static_expr() => m.f_expr.p_eval_as_int()
+        | s@SignedIntTypeDef when s.f_range.f_range is BinOp(f_op is OpDoubleDot) => {
+            val op = s.f_range.f_range;
             range_values(op.f_left, op.f_right)
-        }
-        | DerivedTypeDef        =>
-            (match def.f_subtype_indication.f_constraint
-            | r@RangeConstraint =>
-                (match r.f_range.f_range
-                | op@BinOp => range_values(op.f_left, op.f_right)
-                | *        => -1)
-            | * => number_of_values(
-                def.f_subtype_indication.f_name.p_referenced_decl()))
-        | FormalDiscreteTypeDef => -1
+          }
+        | DerivedTypeDef(f_subtype_indication is *(f_constraint is RangeConstraint(f_range is *(f_range is op@BinOp)))) =>
+            range_values(op.f_left, op.f_right)
+        | DerivedTypeDef(f_subtype_indication is s@*) => number_of_values(s.f_name.p_referenced_decl())
         | *                     => -1
-    };
-
-    if type is SubtypeDecl
-    then (match type.f_subtype.f_constraint
-          | r@RangeConstraint => (match r.f_range.f_range
-                                  | op@BinOp => range_values(op.f_left, op.f_right)
-                                  | *        => -1)
-          | *                 => number_of_values(
-              type.f_subtype.f_name.p_referenced_decl()))
-    else if type == type.p_universal_int_type()
-    then -1
-    else count_values_decl(type)
-}
 
 fun has_interfaces(n) =
     |" Return true if ``n`` is an interface or implements some interfaces
