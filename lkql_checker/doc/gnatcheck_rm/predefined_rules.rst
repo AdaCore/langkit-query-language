@@ -4129,15 +4129,15 @@ This rule has the following (optional) parameter for the ``+R`` option:
 .. code-block:: ada
    :emphasize-lines: 9
 
-package Pack is
-   procedure Proc (P1 : out Integer; P2 : in out Integer);
-   type Arr is array (1 .. 10 ) of Integer;
-end Pack;
+    package Pack is
+       procedure Proc (P1 : out Integer; P2 : in out Integer);
+       type Arr is array (1 .. 10 ) of Integer;
+    end Pack;
 
-with Pack; use Pack;
-procedure Proc (X : in out Arr; I, J : Integer) is
-begin
-   Proc (X (I), X (J));   --  FLAG
+    with Pack; use Pack;
+    procedure Proc (X : in out Arr; I, J : Integer) is
+    begin
+       Proc (X (I), X (J));   --  FLAG
 
 
 .. _Profile_Discrepancies:
