@@ -1,8 +1,9 @@
 import stdlib
 
-@check(message="SPARK subprogram doesn't have a Global aspect",
+@check(message="SPARK procedure doesn't have a Global aspect",
        category="Style", subcategory="Programming Practice")
 fun spark_procedures_without_globals(node) =
     |" Check that every SPARK subprogram has a Global aspect
-    (node is BasicSubpDecl(p_has_spark_mode_on() is true))
+    (node is BasicSubpDecl(p_has_spark_mode_on() is true,
+                           p_subp_decl_spec() is BaseSubpSpec(p_return_type() is null)))
     and not node.p_has_aspect("Global")
