@@ -6,9 +6,10 @@
 fun assign_stmts(n, prefix) =
     |" Return all consecutive AssignStmt starting at n and following siblings
     |" when the destination is a DottedName whose prefix matches prefix.
-    if n is AssignStmt(f_dest is DottedName(
-                       f_prefix is Name(p_name_matches(prefix) is true)))
-    then [n] & assign_stmts(n.next_sibling(), prefix) else []
+    match n
+    | AssignStmt(f_dest is DottedName(f_prefix is Name(p_name_matches(prefix) is true)))
+        => [n] & assign_stmts(n.next_sibling(), prefix)
+    | * => []
 
 @check(message="component assignments may be replaced by an aggregate",
        category="Style", subcategory="Programming Practice")

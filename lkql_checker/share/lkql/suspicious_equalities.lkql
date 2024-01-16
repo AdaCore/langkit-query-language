@@ -3,10 +3,9 @@
 # are equality expressions comparing a same variable against two literals.
 
 fun name_of(node) =
-    if node.f_left is Name then
-        node.f_left
-    else
-        node.f_right
+    match node
+    | BinOp(f_left is n@Name) => n
+    | BinOp(f_right is r@*) => r
 
 fun is_literal(node) =
     node is CharLiteral or NumLiteral or StringLiteral
