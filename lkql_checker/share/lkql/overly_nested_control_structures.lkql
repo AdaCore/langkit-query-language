@@ -12,19 +12,18 @@
 
 fun check_control_parent(node, n) =
     |" Return true if node and its parents contain more than n control structure
-    if not node then false
-    else if node is (IfStmt or CaseStmt or BaseLoopStmt or SelectStmt)
-    then (if n == 0 then true
-         else check_control_parent(node.parent, n - 1))
-    else check_control_parent(node.parent, n)
+    match node
+    | null => false
+    | IfStmt or CaseStmt or BaseLoopStmt or SelectStmt =>
+        if n == 0 then true else check_control_parent(node.parent, n - 1)
+    | * => check_control_parent(node.parent, n)
 
 fun check_loop_parent(node, n) =
     |" Return true if node and its parents contain more than n loops
-    if not node then false
-    else if node is BaseLoopStmt
-    then (if n == 0 then true
-         else check_loop_parent(node.parent, n - 1))
-    else check_loop_parent(node.parent, n)
+    match node
+    | null => false
+    | BaseLoopStmt => if n == 0 then true else check_control_parent(node.parent, n - 1)
+    | * => check_control_parent(node.parent, n)
 
 @check(message="nesting level of control structures too deep",
        category="Style", subcategory="Programming Practice")
