@@ -29,7 +29,7 @@ fun exceptions_as_control_flow(node) =
           # Where there is a handler that handles this same exception (either
           # via an others clause, or a direct name handling)
           exc_handler.f_handled_exceptions is *(
-             any children is OthersDesignator or
+             any children is OthersDesignator |
                  i@Identifier(p_referenced_decl() is ExceptionDecl)
                  when canonical_exception(i) == canonical_exc)
 

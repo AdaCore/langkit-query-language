@@ -8,13 +8,13 @@ import stdlib
 
 @check(message="use of equality operation for fixed values", category="Feature")
 fun fixed_equality_checks(node) =
-    node is (RelationOp(f_op is op@(OpEq or OpNeq))
+    node is ((RelationOp(f_op is op@(OpEq | OpNeq))
              when stdlib.is_predefined_op(op)
               and node.f_left.p_expression_type() is
                   BaseTypeDecl(p_is_fixed_point() is true))
-    or CallExpr
+    | CallExpr
        when (node.f_name.p_name_is("\"=\"") or
              node.f_name.p_name_is("\"/=\""))
         and stdlib.is_predefined_op(node)
         and node.f_suffix[1].f_r_expr.p_expression_type() is
-            BaseTypeDecl(p_is_fixed_point() is true)
+            BaseTypeDecl(p_is_fixed_point() is true))

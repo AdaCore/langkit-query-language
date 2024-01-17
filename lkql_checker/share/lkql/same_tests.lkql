@@ -19,7 +19,7 @@ fun message(node) = {
 fun same_tests(unit) = [
     message(n)
     for n in from unit.root select
-    node@(IfStmt or IfExpr)
+    node@(IfStmt | IfExpr)
     when check_list([node.f_cond_expr] &
                     [n.f_cond_expr for n in node.f_alternatives.children].to_list)
 ]

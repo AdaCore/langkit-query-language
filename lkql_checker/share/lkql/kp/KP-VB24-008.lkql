@@ -7,6 +7,6 @@ fun kp_vb24_008(node) =
     when (from node.f_expr select first
           AttributeRef(f_attribute is Identifier(p_name_is("Old") is true))) != null
      and (from node.f_expr select first
-          op@BinOp(f_op is OpEq or OpNeq)
+          op@BinOp(f_op is OpEq | OpNeq)
           when op.f_left is NullLiteral or op.f_right is NullLiteral) != null
 

@@ -2,5 +2,5 @@
 
 @check(message="anonymous access type", category="Feature")
 fun anonymous_access(node) =
-    node is AnonymousTypeDecl(any parent is ObjectDecl or ComponentDecl,
+    node is AnonymousTypeDecl(any parent is ObjectDecl | ComponentDecl,
                               f_type_def is TypeAccessDef)

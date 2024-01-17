@@ -5,7 +5,7 @@
        category="Style", subcategory="Programming Practice")
 fun address_specifications_for_initialized_objects(node) =
     # for X'Address use ...
-    node is a@AttributeDefClause(
+    node is (a@AttributeDefClause(
         f_attribute_expr is AttributeRef(
             # Defined attribute is Address
             f_attribute is Name(p_name_is("Address") is true),
@@ -13,14 +13,14 @@ fun address_specifications_for_initialized_objects(node) =
             f_prefix is Name(p_referenced_decl() is
                              ObjectDecl(f_default_expr is not null))))
     # X := ... with Address => ...
-    or AspectAssoc(
+    | AspectAssoc(
         # Associated aspect is Address
         f_id is Name(p_name_is("Address") is true),
         # X has a default value
         any parent is ObjectDecl(f_default_expr is not null))
     # for X use at xxx'Address
-    or AtClause(f_expr is AttributeRef(f_attribute is
+    | AtClause(f_expr is AttributeRef(f_attribute is
                                        Name(p_name_is("Address") is true)),
                 # X has a default value
                 f_name is Name(p_referenced_decl() is
-                               ObjectDecl(f_default_expr is not null)))
+                               ObjectDecl(f_default_expr is not null))))

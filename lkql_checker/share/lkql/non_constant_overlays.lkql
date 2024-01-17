@@ -21,7 +21,7 @@ fun check_non_const_overlay(decl, overlaid) =
          val overlaid_object = stdlib.ultimate_alias(overlaid.f_prefix);
 
          # Check that overlaid is an object or a formal parameter,
-         overlaid_object is ObjectDecl or ParamSpec and
+         overlaid_object is (ObjectDecl | ParamSpec) and
 
          # that overlaid is constant,
          not stdlib.is_constant_object(overlaid_object)
@@ -33,7 +33,7 @@ fun check_non_const_overlay(decl, overlaid) =
               # or if overlaid object is not a parameter, it is not marked as
               # Volatile
               or (overlaid_object is
-                  not (ParamSpec or
+                  not (ParamSpec |
                        ObjectDecl(parent is GenericFormalObjDecl))
                   and not overlaid_object.p_has_aspect("Volatile")))})
 

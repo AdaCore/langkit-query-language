@@ -3,5 +3,5 @@
 
 @check(message="declaration of library level subprogram", category="Feature")
 fun library_level_subprograms(node) =
-    node is (BaseSubpBody or GenericSubpInstantiation)
+    node is (BaseSubpBody | GenericSubpInstantiation)
     when node.parent is LibraryItem

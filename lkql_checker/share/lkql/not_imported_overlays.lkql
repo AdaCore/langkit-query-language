@@ -8,16 +8,16 @@ import stdlib
 @check(message="not imported overlay",
        category="Style", subcategory="Programming Practice")
 fun not_imported_overlays(node) =
-    node is (
+    node is ((
       AspectAssoc(f_id is Identifier(p_name_is("Address") is true),
                   any parent(depth=3) is o@ObjectDecl
                   when not o.p_has_aspect("Import")))
-    or (AttributeDefClause(f_attribute_expr is at@AttributeRef
+    | (AttributeDefClause(f_attribute_expr is at@AttributeRef
         when at.f_attribute.p_name_is("Address")
          and at.f_prefix.p_referenced_decl() is o@ObjectDecl
-         when not o.p_has_aspect("Import")))
+         when not o.p_has_aspect("Import"))))
     # Check that we have an Overlaid'Address expression and that Overlaid is
     # an identifier corresponding to an ObjectDecl or ParamSpec
     and node.f_expr is at@AttributeRef
         when at.f_attribute.p_name_is("Address")
-         and stdlib.ultimate_alias(at.f_prefix, false) is ObjectDecl or ParamSpec
+         and stdlib.ultimate_alias(at.f_prefix, false) is (ObjectDecl | ParamSpec)

@@ -8,7 +8,7 @@ fun name_of(node) =
     | BinOp(f_right is r@*) => r
 
 fun is_literal(node) =
-    node is CharLiteral or NumLiteral or StringLiteral
+    node is (CharLiteral | NumLiteral | StringLiteral)
 
 fun is_name_binop_literal(node) =
     (node.f_left is Name and is_literal(node.f_right)) or
@@ -18,7 +18,7 @@ fun is_name_neq_literal(node) =
     node is BinOp(f_op is OpNeq) and is_name_binop_literal(node)
 
 fun is_or_neq(node) =
-    node is BinOp(f_op is OpOr or OpOrElse)
+    node is BinOp(f_op is OpOr | OpOrElse)
     when is_name_neq_literal(node.f_left)
      and is_name_neq_literal(node.f_right)
      and name_of(node.f_left).p_name_matches(name_of(node.f_right))
@@ -27,7 +27,7 @@ fun is_name_eq_literal(node) =
     node is BinOp(f_op is OpEq) and is_name_binop_literal(node)
 
 fun is_and_eq(node) =
-    node is BinOp(f_op is OpAnd or OpAndThen)
+    node is BinOp(f_op is OpAnd | OpAndThen)
     when is_name_eq_literal(node.f_left)
      and is_name_eq_literal(node.f_right)
      and name_of(node.f_left).p_name_matches(name_of(node.f_right))

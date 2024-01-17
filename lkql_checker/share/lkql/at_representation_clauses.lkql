@@ -2,4 +2,4 @@
 
 @check(message="AT representation clause", category="Feature")
 fun at_representation_clauses(node) =
-    node is AtClause or RecordRepClause(f_at_expr is not null)
+    node is (AtClause | RecordRepClause(f_at_expr is not null))

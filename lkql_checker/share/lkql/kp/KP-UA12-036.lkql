@@ -10,7 +10,7 @@ fun is_over_aligned(t, alignment) = {
     val aspect=t.p_get_aspect("Alignment");
     (aspect.exists and aspect.value is IntLiteral and
      aspect.value.p_denoted_value() > alignment) or
-    [f for f in from t select ComponentDef or DiscriminantSpec
+    [f for f in from t select (ComponentDef | DiscriminantSpec)
      if is_over_aligned(f.f_type_expr.p_designated_type_decl(), alignment)]
 }
 

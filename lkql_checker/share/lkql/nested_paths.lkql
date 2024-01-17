@@ -7,7 +7,7 @@
 
 fun has_last_breaking_stmt(list) =
     match list[list.children_count]
-    | RaiseStmt or ReturnStmt or ExitStmt(f_cond_expr is null) or GotoStmt => true
+    | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr is null) | GotoStmt) => true
     | b@BlockStmt => b.f_stmts.f_exceptions[1] == null and
                      has_last_breaking_stmt(b.f_stmts.f_stmts)
     | *           => false

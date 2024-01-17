@@ -46,6 +46,6 @@ fun message(node, min_size, min_stmt) = {
 fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) = [
     message(n, min_size, min_stmt)
     for n in from unit.root
-    select node@(IfStmt or IfExpr or CaseStmt or CaseExpr)
+    select node@(IfStmt | IfExpr | CaseStmt | CaseExpr)
     when check_list(gather_stmts(node), min_size, min_stmt)
 ]

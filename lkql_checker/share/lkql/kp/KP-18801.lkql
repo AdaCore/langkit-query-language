@@ -8,7 +8,7 @@ fun is_overloaded(n) = {
     val d    = if n is BodyNode then n.p_decl_part() else n;
     val decl = if d == null then n else d;
 
-    decl is (ClassicSubpDecl or BaseSubpBody) and
+    decl is (ClassicSubpDecl | BaseSubpBody) and
     decl.f_subp_spec.f_subp_name is name@DefiningName
     when (decl is *(any prev_siblings is sib@SubpDecl
                    when sib.f_subp_spec.f_subp_name.p_name_matches(name)) or
@@ -48,6 +48,6 @@ fun check_params(n) = {
        message="possible occurrence of KP 18801",
        impact="23.*")
 fun kp_18801(node) =
-    node is (BinOp(f_op is OpEq) or
+    node is (BinOp(f_op is OpEq) |
              CallExpr(p_kind() is "call") when node.f_name.p_name_is("\"=\""))
     when check_params(node)

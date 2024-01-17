@@ -61,7 +61,7 @@ fun use_for_loops(node, no_exit = false, no_function = false) =
         # which is of the form: id := id +/- 1
         refs[1].parent is
         assign@AssignStmt(f_expr is
-            expr@BinOp(f_op is op@(OpPlus or OpMinus)
+            expr@BinOp(f_op is op@(OpPlus | OpMinus)
                            when stdlib.is_predefined_op(op),
                        f_right is i@IntLiteral
                        when i.p_denoted_value() == 1,

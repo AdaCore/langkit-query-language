@@ -23,8 +23,8 @@ fun kp_r410_028(node) =
         p_is_call() is true,
         any parent is ForLoopSpec,
         p_referenced_decl() is
-            (decl@(ClassicSubpDecl or BaseSubpBody or SubpBodyStub)
+            (decl@(ClassicSubpDecl | BaseSubpBody | SubpBodyStub)
              when check_subp(decl))
-        or
+        |
             inst@GenericSubpInstantiation
             when check_subp(inst.p_designated_subp()))

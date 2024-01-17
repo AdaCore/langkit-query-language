@@ -3,8 +3,8 @@
 
 @check(message="subprogram marked inline", category="Feature")
 fun explicit_inlining(node) =
-    node is (SubpBody or GenericSubpInstantiation or ExprFunction or
-             SubpBodyStub or BasicSubpDecl)
+    node is (SubpBody | GenericSubpInstantiation | ExprFunction |
+             SubpBodyStub | BasicSubpDecl)
     when node.p_has_aspect("Inline")
-     and (node is (BasicSubpDecl or GenericSubpInstantiation) or
+     and (node is (BasicSubpDecl | GenericSubpInstantiation) or
           not node.p_previous_part())

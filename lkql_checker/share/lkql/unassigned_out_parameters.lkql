@@ -31,7 +31,7 @@ fun param_matches(id, param, name, ignore_comp) = {
         strip_component=not ignore_comp
       ) == param
      | * => decl == param and id.p_name_matches(name))
-   and not (ignore_comp and id.parent is DottedName or CallExpr)
+   and not (ignore_comp and id.parent is (DottedName | CallExpr))
 }
 
 # Return true if the list of stmts s contains any assignment to name as
@@ -45,7 +45,7 @@ fun check_stmts(param, name, s, ignore_comp) =
 # Return true if the exception handler h contains a raise statement, a call
 # to a No_Return procedure or an assignment to param as defined above.
 fun check_exception_handler(param, name, h, ignore_comp) =
-    (h.f_stmts is *(any children is RaiseStmt or
+    (h.f_stmts is *(any children is RaiseStmt |
                     c@CallStmt when c.f_call.p_is_call()
                                 and c.f_call.p_referenced_decl().
                                     p_has_aspect("No_Return"))) or

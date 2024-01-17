@@ -109,15 +109,15 @@ fun identifier_casing(unit,
                     then str & scheme & ")" else "in the dictionary";
 
                 match n.parent
-                   | (t@BaseTypeDecl when t is not SingleTaskTypeDecl or
-                      p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
+                   | (t@BaseTypeDecl when t is (not SingleTaskTypeDecl |
+                      p@TaskBody when p.p_previous_part() is not SingleTaskDecl))
                      when type != "" => msg("for subtype names (", type)
                    | EnumLiteralDecl when enum != ""
                    => msg("for enumeration literals (", enum)
 
                    | p@* =>
                        match p.parent
-                       | (ObjectDecl(p_is_constant_object() is true) or
+                       | (ObjectDecl(p_is_constant_object() is true) |
                           NumberDecl) when constant != ""
                        => msg("for constant names (", constant)
 
@@ -134,11 +134,11 @@ fun identifier_casing(unit,
     select node@DefiningName(f_name is id@Identifier)
     when match node.parent
         # Task objects
-        | SingleTaskDecl or SingleTaskTypeDecl
+        | (SingleTaskDecl | SingleTaskTypeDecl)
         => check_casing(id, others, exclude)
 
         # Types and subtypes, including TaskBody when the spec is a task type
-        | (BaseTypeDecl or
+        | (BaseTypeDecl |
            p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
           when type != "" => check_casing(id, type, exclude)
 
@@ -149,7 +149,7 @@ fun identifier_casing(unit,
         | p@* => match p.parent
 
         # Constants
-        | (ObjectDecl(p_is_constant_object() is true) or
+        | (ObjectDecl(p_is_constant_object() is true) |
            NumberDecl) when constant != ""
         =>
             check_casing(id, constant, exclude)

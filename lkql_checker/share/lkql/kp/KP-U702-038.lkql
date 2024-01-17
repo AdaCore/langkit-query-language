@@ -8,5 +8,5 @@ fun kp_u702_038(node) =
         f_type_expr is TypeExpr(
             p_designated_type_decl() is AnonymousTypeDecl(
                 p_accessed_type() is
-                    ClasswideTypeDecl or
+                    ClasswideTypeDecl |
                     BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl))))

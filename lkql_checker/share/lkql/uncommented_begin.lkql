@@ -11,8 +11,8 @@ fun uncommented_begin(unit) = [
     {message: "mark BEGIN with -- " & n.parent.p_defining_name().text,
      loc: n.token_start().previous(exclude_trivia=true)}
     for n in from unit.root
-    select node@HandledStmts(parent is p@(PackageBody or SubpBody or
-                                          EntryBody or ProtectedBody or
+    select node@HandledStmts(parent is p@(PackageBody | SubpBody |
+                                          EntryBody | ProtectedBody |
                                           TaskBody))
     when p.f_decls is *(f_decls is l@*)
          when l[1]

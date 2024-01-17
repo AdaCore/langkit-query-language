@@ -12,13 +12,13 @@ fun is_ada_2022(node) =
     => true
 
     # 'Reduce attribute, declare expression, @, delta aggregates
-    | ReduceAttributeRef or DeclExpr or TargetName or DeltaAggregate => true
+    | (ReduceAttributeRef | DeclExpr | TargetName | DeltaAggregate) => true
 
     # Iterators
     | Aggregate(any children is IteratedAssoc) => true
 
     # Expr fns and null procs in protected bodies
-    | (ExprFunction or NullSubpDecl)(any parent is ProtectedBody) => true
+    | (ExprFunction | NullSubpDecl)(any parent is ProtectedBody) => true
 
     # User defined literals
     | a@AspectAssoc(f_id is n@Name)
@@ -39,7 +39,7 @@ fun is_ada_2022(node) =
 fun is_in_ghost_code(node) =
     |" Return true iff node is in ghost code.
     node is *(any parent is (
-        BasicDecl or PragmaNode or AspectAssoc
+        BasicDecl | PragmaNode | AspectAssoc
     )(p_is_ghost_code() is true))
     
 @check(message="Ada 2022 construct forbidden outside of ghost code",

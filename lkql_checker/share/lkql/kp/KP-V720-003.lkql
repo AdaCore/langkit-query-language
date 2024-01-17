@@ -13,4 +13,4 @@ fun kp_v720_003(node) =
     when has_initialize_scalars(node.p_enclosing_compilation_unit()) and
          node.children_count >= 2 and
          [p for p in call.p_call_params()
-          if p.param.parent.parent is ParamSpec(f_mode is ModeOut or ModeInOut)]
+          if p.param.parent.parent is ParamSpec(f_mode is ModeOut | ModeInOut)]

@@ -1,2 +1,2 @@
-val test = select ObjectDecl or CallExpr
+val test = select (ObjectDecl | CallExpr)
 print (test)

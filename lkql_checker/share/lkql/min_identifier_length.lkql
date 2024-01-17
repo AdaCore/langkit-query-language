@@ -6,6 +6,6 @@
 fun min_identifier_length(node, n: int = 2) =
     node is DefiningName
     when node.text.length < n
-     and node.p_basic_decl()?.p_type_expression() is null or
+     and node.p_basic_decl()?.p_type_expression() is (null |
          TypeExpr(p_designated_type_decl() is t@BaseTypeDecl
-                  when not (t.p_is_int_type() or t.p_is_real_type()))
+                  when not (t.p_is_int_type() or t.p_is_real_type())))

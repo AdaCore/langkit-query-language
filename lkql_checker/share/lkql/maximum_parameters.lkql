@@ -18,8 +18,8 @@ fun maximum_parameters(unit, n: int = 3) = [
     {message: "too many formal parameters (" & img(num_params(n)) & ")",
      loc: n.p_defining_name()}
     for n in from unit.root select
-    node@(SubpBody or ExprFunction or NullSubpDecl or SubpBodyStub or
-          ClassicSubpDecl or GenericSubpInternal)
-    when (node is (ClassicSubpDecl or GenericSubpInternal) or
+    node@(SubpBody | ExprFunction | NullSubpDecl | SubpBodyStub |
+          ClassicSubpDecl | GenericSubpInternal)
+    when (node is (ClassicSubpDecl | GenericSubpInternal) or
           node.p_previous_part() == null)
      and num_params(node) > n]

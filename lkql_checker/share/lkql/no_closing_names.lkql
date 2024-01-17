@@ -4,11 +4,11 @@
 @check(message="no closing name", remediation="TRIVIAL",
        category="Style", subcategory="Programming Practice")
 fun no_closing_names(node, n : int = 0) =
-    node is SubpBody or PackageBody or BasePackageDecl or
-            TaskTypeDecl or TaskBody or
-            ProtectedTypeDecl or SingleProtectedDecl or ProtectedBody
+    node is (SubpBody | PackageBody | BasePackageDecl |
+            TaskTypeDecl | TaskBody |
+            ProtectedTypeDecl | SingleProtectedDecl | ProtectedBody)
      and node.token_end().end_line - node.token_start().start_line >= n
      and match node
-         | TaskTypeDecl or ProtectedTypeDecl or SingleProtectedDecl
+         | (TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl)
              => node.f_definition.f_end_name == null
          | * => node.f_end_name == null

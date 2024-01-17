@@ -63,7 +63,7 @@ fun within_assert(node) =
     |" aspect.
     node is *(any parent is
         (p@PragmaNode when is_assert_pragma(p.f_id?.p_canonical_text()))
-     or a@AspectAssoc
+     | a@AspectAssoc
         when (match a.f_id
               | id@Identifier   =>
                   is_assert_aspect(id.p_canonical_text())
@@ -79,7 +79,7 @@ fun ultimate_alias(name, all_nodes=true, strip_component=false) =
     |" ``DottedName``. If ``strip_component`` is true, go to the prefix when
     |" encountering a component, otherwise stop at the ``ComponentDecl``.
 
-    if all_nodes or name is (BaseId or DottedName) then {
+    if all_nodes or name is (BaseId | DottedName) then {
         val decl = name.p_referenced_decl();
 
         match decl
@@ -113,13 +113,13 @@ fun ultimate_subprogram_alias(name) =
 fun has_local_scope(n) =
     |" Return ``true`` if ``n`` is enclosed in a local scope
     n.parent is GenericFormalObjDecl or
-    n is *(any semantic_parent is BasicSubpDecl or SubpBody or TaskBody or
-                                  ExprFunction or BlockStmt or EntryBody or
+    n is *(any semantic_parent is BasicSubpDecl | SubpBody | TaskBody |
+                                  ExprFunction | BlockStmt | EntryBody |
                                   ProtectedBody)
 
 fun is_local_object(o) =
     |" Return ``true`` if ``o`` represents a local ``ObjectDecl`` or ``ParamSpec``
-    o is ParamSpec or ObjectDecl when has_local_scope(o)
+    o is (ParamSpec | ObjectDecl when has_local_scope(o))
 
 @memoized
 fun is_in_package_scope(o) =
@@ -141,12 +141,12 @@ fun is_in_package_scope(o) =
 
 fun is_program_unit(n) =
     |" Return ``true`` if ``n`` is a program unit spec, body or stub
-    n is SubpDecl or AbstractSubpDecl or BaseSubpBody
-      or BasePackageDecl or PackageBody or GenericPackageInstantiation
-      or GenericDecl or GenericInstantiation
-      or SingleTaskDecl or TaskTypeDecl or TaskBody
-      or SubpBodyStub or ProtectedBodyStub or PackageBodyStub or TaskBodyStub
-      or SingleProtectedDecl or ProtectedTypeDecl
+    n is (SubpDecl | AbstractSubpDecl | BaseSubpBody
+      | BasePackageDecl | PackageBody | GenericPackageInstantiation
+      | GenericDecl | GenericInstantiation
+      | SingleTaskDecl | TaskTypeDecl | TaskBody
+      | SubpBodyStub | ProtectedBodyStub | PackageBodyStub | TaskBodyStub
+      | SingleProtectedDecl | ProtectedTypeDecl)
 
 @memoized
 fun is_in_library_unit_body(o) =
@@ -230,7 +230,7 @@ selector parent_decl_chain
     |" This allows us to, if in a generic template, always find back the
     |" generic formal.
     | null         => ()
-    | BaseSubpBody or PackageBody => rec {
+    | (BaseSubpBody | PackageBody) => rec {
         val prev_part = this.p_decl_part();
 
         # Some subprogram bodies don't have a previous part because they're
@@ -296,7 +296,7 @@ fun enclosing_package(n) =
     |" null otherwise
 {
     val pkg = [p for p in n.parents(include_self=false)
-                  if p is BasePackageDecl or PackageBody]?[1];
+                  if p is (BasePackageDecl | PackageBody)]?[1];
     if pkg then pkg else null
 }
 
@@ -312,8 +312,8 @@ fun ultimate_designated_generic_subp(subp_inst) =
 # TODO: move to LAL
 fun is_classwide_type(t) =
     |" Return true if t is a classwide TypeDecl.
-    t is ClasswideTypeDecl or
-         BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+    t is (ClasswideTypeDecl |
+         BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl))
 
 # TODO: move to LAL
 fun is_controlling_param_type(t, spec) =
@@ -337,7 +337,7 @@ fun is_constructor(spec) =
 
 fun is_constant_object(node) =
     |" Return true is node represents a constant object, false otherwise
-    node is ObjectDecl or ParamSpec and node.p_is_constant_object()
+    node is (ObjectDecl | ParamSpec) and node.p_is_constant_object()
 
 fun is_unchecked_conversion(node) =
     |" Return true if node represents an instantiation of the
@@ -387,9 +387,9 @@ fun get_subp_body(node) =
 fun is_limited_type(type) =
     |" Return `true` if type is a limited type
     type.f_type_def is
-        (def@(DerivedTypeDef or PrivateTypeDef or RecordTypeDef)
-         when def.f_has_limited.p_as_bool()) or
-    InterfaceTypeDef(f_interface_kind is InterfaceKindLimited)
+        ((def@(DerivedTypeDef | PrivateTypeDef | RecordTypeDef)
+         when def.f_has_limited.p_as_bool()) |
+    InterfaceTypeDef(f_interface_kind is InterfaceKindLimited))
 
 @memoized
 fun list_of_units() =
@@ -506,12 +506,12 @@ fun propagate_exceptions(body) =
                select first OthersDesignator) != null] and
           # and no (re)raise statement
           (from body.f_stmts.f_exceptions.children
-           select first RaiseStmt or
+           select first (RaiseStmt |
                CallStmt(f_call is c@CallExpr) when {
                    val name = c.f_name.p_referenced_decl()?.
                               p_fully_qualified_name?();
                    name == "Ada.Exceptions.Raise_Exception" or
-                   name == "Ada.Exceptions.Reraise_Occurrence" }) == null)
+                   name == "Ada.Exceptions.Reraise_Occurrence" })) == null)
 
 fun is_by_copy(param) =
     |" Return true if ``param`` (a ``ParamActual``) has a non aliased by-copy

@@ -12,7 +12,7 @@ fun num_out_params(node) =
     |" Return the number of out parameters of a subprogram node
     (from node.f_subp_spec?.f_subp_params?.f_params
      select n@DefiningName
-     when n.parent.parent.f_mode is (ModeOut or ModeInOut)).length
+     when n.parent.parent.f_mode is (ModeOut | ModeInOut)).length
 
 @unit_check(help="maximum number of subprogram OUT parameters",
             category="Style", subcategory="Programming Practice")
@@ -20,7 +20,7 @@ fun maximum_out_parameters(unit, n: int = 3) = [
     {message: "too many formal OUT parameters (" & img(num_out_params(n)) & ")",
      loc: n.p_defining_name()}
     for n in from unit.root select
-    node@(SubpBody or ExprFunction or NullSubpDecl or SubpBodyStub or
+    node@(SubpBody | ExprFunction | NullSubpDecl | SubpBodyStub |
           ClassicSubpDecl)
     when (node is ClassicSubpDecl or not node.p_previous_part())
      and num_out_params(node) > n]

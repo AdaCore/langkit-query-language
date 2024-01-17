@@ -7,8 +7,8 @@ import stdlib
 @check(message="declaration of constructor function",
        category="Style", subcategory="Object Orientation")
 fun constructors(node) =
-    node is (BasicSubpDecl or
-             BaseSubpBody(p_previous_part() is null) or
+    node is (BasicSubpDecl |
+             BaseSubpBody(p_previous_part() is null) |
              SubpBodyStub(p_previous_part() is null))
     # Get subprogram declarations that are primitive of a tagged type
     when node.p_subp_spec_or_null() is

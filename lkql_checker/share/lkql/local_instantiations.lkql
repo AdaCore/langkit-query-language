@@ -7,7 +7,7 @@ import stdlib
 @check(message="local instantiation",
        category="Style", subcategory="Programming Practice")
 fun local_instantiations(node, packages=[]) =
-    node is (GenericPackageInstantiation(f_generic_pkg_name is name@Name) or
+    node is (GenericPackageInstantiation(f_generic_pkg_name is name@Name) |
              GenericSubpInstantiation(f_generic_subp_name is name@Name))
     when stdlib.has_local_scope(node)
      and (packages == [] or {

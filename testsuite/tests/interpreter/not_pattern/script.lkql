@@ -1,2 +1,2 @@
-val test = select not (ObjectDecl or CallExpr)
+val test = select not (ObjectDecl | CallExpr)
 print (test)

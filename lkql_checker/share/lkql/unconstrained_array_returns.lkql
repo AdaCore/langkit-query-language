@@ -28,8 +28,8 @@ fun unconstrained_array_type(type, except_string) =
 @check(message="function returns unconstrained array",
        follow_generic_instantiations=true, category="Feature")
 fun unconstrained_array_returns(node, except_string = false) =
-    node is (AbstractSubpDecl or SubpDecl or GenericSubpInternal or
-             BaseSubpBody(p_previous_part() is null) or
+    node is (AbstractSubpDecl | SubpDecl | GenericSubpInternal |
+             BaseSubpBody(p_previous_part() is null) |
              SubpBodyStub(p_previous_part() is null))
 
     when (not stdlib.in_generic_template(node))

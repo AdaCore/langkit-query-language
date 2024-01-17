@@ -12,6 +12,6 @@ fun unnamed_blocks_and_loops(unit) = [
      loc: n}
     for n in from unit.root select node@CompositeStmt
     when (not node.parent is NamedStmt)
-     and node is BlockStmt or
-                 BaseLoopStmt (any children is BaseLoopStmt) or
-                 BaseLoopStmt (any parent is BaseLoopStmt)]
+     and node is (BlockStmt |
+                 BaseLoopStmt (any children is BaseLoopStmt) |
+                 BaseLoopStmt (any parent is BaseLoopStmt))]

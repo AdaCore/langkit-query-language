@@ -20,7 +20,7 @@ fun kp_v127_049(node) =
     node is ParamAssoc(parent is AssocList(parent is inst@GenericInstantiation),
                        f_r_expr is expr@Name)
     # where the parameter is a subprogram
-    when expr.p_referenced_decl() is decl@(BaseSubpBody or ClassicSubpDecl or
+    when expr.p_referenced_decl() is decl@(BaseSubpBody | ClassicSubpDecl |
                                            SubpBodyStub)
      # returning a boolean (sub)type
      when (decl.f_subp_spec.f_subp_returns is t@TypeExpr

@@ -6,8 +6,8 @@ import stdlib
        message="possible occurrence of KP U923-018 on powerpc64 targets",
        impact="21.*", target="powerpc64*")
 fun kp_u923_018(node) =
-    node is (ClassicSubpDecl or
-             BaseSubpBody(p_previous_part() is null) or
+    node is (ClassicSubpDecl |
+             BaseSubpBody(p_previous_part() is null) |
              SubpBodyStub(p_previous_part() is null))
     when node.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
      when spec.f_subp_returns.p_designated_type_decl() is t@BaseTypeDecl
