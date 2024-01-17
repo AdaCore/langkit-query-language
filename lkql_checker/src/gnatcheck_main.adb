@@ -179,17 +179,7 @@ procedure Gnatcheck_Main is
 
       for Rule in All_Rules.First .. All_Rules.Last loop
          if Is_Enabled (All_Rules.Table (Rule).all) then
-            --  When the worker process to use is the GNATcheck executable
-            --  itself, the set of rules and their options are transfered in
-            --  the standard legacy GNATcheck rule format (the same format used
-            --  by users to specify rules). Otherwise, they are transfered in a
-            --  more universal format that can be easily parsed by custom
-            --  worker implementations.
-            if Use_External_Worker then
-               All_Rules.Table (Rule).Print_Rule_To_Universal_File (File);
-            else
-               All_Rules.Table (Rule).Print_Rule_To_File (File);
-            end if;
+            All_Rules.Table (Rule).Print_Rule_To_Universal_File (File);
             New_Line (File);
          end if;
       end loop;
