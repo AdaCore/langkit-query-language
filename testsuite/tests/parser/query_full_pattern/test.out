@@ -5,6 +5,7 @@ ValDecl
 |  Identifier: declWihAspect
 |f_value:
 |  Query
+|  |f_unpack_from: <null>
 |  |f_from_expr: <null>
 |  |f_through_expr: <null>
 |  |f_query_kind:

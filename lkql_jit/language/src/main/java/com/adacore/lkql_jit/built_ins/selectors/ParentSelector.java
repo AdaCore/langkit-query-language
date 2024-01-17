@@ -91,7 +91,7 @@ public final class ParentSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new NodeKindPattern(null, "AdaNode"),
-                        new SelectorExpr(null, SelectorExpr.Mode.REC, toUnpack));
+                        new SelectorExpr(null, SelectorExpr.Mode.REC, toUnpack, false));
         res[0] = parentPath;
 
         // Create the universal path
@@ -99,7 +99,8 @@ public final class ParentSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+                        new SelectorExpr(
+                                null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null), false));
         res[1] = universalPath;
 
         // Return the result

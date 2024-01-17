@@ -10,7 +10,6 @@ import com.adacore.lkql_jit.built_ins.values.LKQLSelector;
 import com.adacore.lkql_jit.nodes.Identifier;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
-import com.adacore.lkql_jit.nodes.expressions.Unpack;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.UnitLiteral;
@@ -92,7 +91,7 @@ public final class ChildrenSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new NodeKindPattern(null, "AdaNode"),
-                        new SelectorExpr(null, SelectorExpr.Mode.REC, new Unpack(null, toUnpack)));
+                        new SelectorExpr(null, SelectorExpr.Mode.REC, toUnpack, true));
         res[0] = childrenPath;
 
         // Create the universal path
@@ -100,7 +99,8 @@ public final class ChildrenSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+                        new SelectorExpr(
+                                null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null), false));
         res[1] = universalPath;
 
         // Return the result

@@ -15,6 +15,8 @@ SelectorDecl
 |  |  |  |  SelectorExpr
 |  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeSkip
+|  |  |  |  |f_unpack:
+|  |  |  |  |  UnpackAbsent
 |  |  |  |  |f_expr:
 |  |  |  |  |  DotAccess
 |  |  |  |  |  |f_receiver:
@@ -24,6 +26,8 @@ SelectorDecl
 |  |  |  |  SelectorExpr
 |  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeRec
+|  |  |  |  |f_unpack:
+|  |  |  |  |  UnpackAbsent
 |  |  |  |  |f_expr:
 |  |  |  |  |  DotAccess
 |  |  |  |  |  |f_receiver:
@@ -51,6 +55,8 @@ SelectorDecl
 |  |  |  |  SelectorExpr
 |  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeDefault
+|  |  |  |  |f_unpack:
+|  |  |  |  |  UnpackAbsent
 |  |  |  |  |f_expr:
 |  |  |  |  |  DotAccess
 |  |  |  |  |  |f_receiver:
@@ -65,5 +71,7 @@ SelectorDecl
 |  |  |  |  SelectorExpr
 |  |  |  |  |f_mode:
 |  |  |  |  |  SelectorExprModeDefault
+|  |  |  |  |f_unpack:
+|  |  |  |  |  UnpackAbsent
 |  |  |  |  |f_expr:
 |  |  |  |  |  UnitLiteral

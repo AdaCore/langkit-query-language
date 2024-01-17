@@ -86,26 +86,33 @@ public final class SelectorArm extends LKQLNode {
             Object res = this.expr.executeGeneric(frame);
 
             // If the result of the expression is an array
-            if (res instanceof Object[] resList) {
-                List<LKQLDepthValue> depthNodes = new ArrayList<>(resList.length);
-                for (Object obj : resList) {
-                    // For each object of the array, verify that it is a node
-                    try {
-                        if (!LKQLTypeSystemGen.isNullish(obj)) {
-                            depthNodes.add(
-                                    new LKQLDepthValue(
-                                            node.depth + 1, LKQLTypeSystemGen.expectAdaNode(obj)));
+            if (this.expr.hasUnpack) {
+                if (LKQLTypeSystemGen.isIndexable(res)) {
+                    var ct = LKQLTypeSystemGen.asIndexable(res).getContent();
+                    List<LKQLDepthValue> depthNodes = new ArrayList<>(ct.length);
+                    for (Object obj : ct) {
+                        // For each object of the array, verify that it is a node
+                        try {
+                            if (!LKQLTypeSystemGen.isNullish(obj)) {
+                                depthNodes.add(
+                                        new LKQLDepthValue(
+                                                node.depth + 1,
+                                                LKQLTypeSystemGen.expectAdaNode(obj)));
+                            }
+                        }
+
+                        // If it isn't a node, throw an exception
+                        catch (UnexpectedResultException e) {
+                            throw LKQLRuntimeException.wrongSelectorType(
+                                    LKQLTypesHelper.fromJava(obj), this.expr);
                         }
                     }
-
-                    // If it isn't a node, throw an exception
-                    catch (UnexpectedResultException e) {
-                        throw LKQLRuntimeException.wrongSelectorType(
-                                LKQLTypesHelper.fromJava(obj), this.expr);
-                    }
+                    return new SelectorRootNode.SelectorCallResult(
+                            this.expr.getMode(), depthNodes.toArray(new LKQLDepthValue[0]));
+                } else {
+                    throw LKQLRuntimeException.wrongType(
+                            "indexable", LKQLTypesHelper.fromJava(res), this.expr);
                 }
-                return new SelectorRootNode.SelectorCallResult(
-                        this.expr.getMode(), depthNodes.toArray(new LKQLDepthValue[0]));
             }
 
             // If the result of the expression is nullish

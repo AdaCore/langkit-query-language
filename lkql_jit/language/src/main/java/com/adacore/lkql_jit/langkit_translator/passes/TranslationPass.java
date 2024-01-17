@@ -340,6 +340,16 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     }
 
     @Override
+    public LKQLNode visit(Liblkqllang.UnpackAbsent unpackAbsent) {
+        return null;
+    }
+
+    @Override
+    public LKQLNode visit(Liblkqllang.UnpackPresent unpackPresent) {
+        return null;
+    }
+
+    @Override
     public LKQLNode visit(Liblkqllang.SubBlockLiteralList subBlockLiteralList) {
         return null;
     }
@@ -653,23 +663,6 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
     @Override
     public LKQLNode visit(Liblkqllang.OpNot opNot) {
         return null;
-    }
-
-    // --- Unpack node
-
-    /**
-     * Visit an unpack node.
-     *
-     * @param unpack The unpack node from Langkit.
-     * @return The unpack node for Truffle.
-     */
-    @Override
-    public LKQLNode visit(Liblkqllang.Unpack unpack) {
-        // Translate the unpack field
-        final Expr collectionExpr = (Expr) unpack.fCollectionExpr().accept(this);
-
-        // Return the new unpack node
-        return new Unpack(loc(unpack), collectionExpr);
     }
 
     // --- Value declaration
@@ -1472,6 +1465,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         // Translate the selector expression fields
         final Expr expr = (Expr) selectorExpr.fExpr().accept(this);
 
+        final boolean hasUnpack = selectorExpr.fUnpack() instanceof Liblkqllang.UnpackPresent;
+
         // Get the expression mode
         // TODO: Create specialized node for each mode
         SelectorExpr.Mode mode = SelectorExpr.Mode.DEFAULT;
@@ -1483,7 +1478,7 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         }
 
         // Create the new selector expression
-        return new SelectorExpr(loc(selectorExpr), mode, expr);
+        return new SelectorExpr(loc(selectorExpr), mode, expr, hasUnpack);
     }
 
     @Override

@@ -499,6 +499,16 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     }
 
     @Override
+    public Void visit(Liblkqllang.UnpackAbsent unpackAbsent) {
+        return null;
+    }
+
+    @Override
+    public Void visit(Liblkqllang.UnpackPresent unpackPresent) {
+        return null;
+    }
+
+    @Override
     public Void visit(Liblkqllang.SubBlockLiteralList subBlockLiteralList) {
         traverseChildren(subBlockLiteralList);
         return null;
@@ -651,12 +661,6 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
     @Override
     public Void visit(Liblkqllang.ArithBinOp arithBinOp) {
         traverseChildren(arithBinOp);
-        return null;
-    }
-
-    @Override
-    public Void visit(Liblkqllang.Unpack unpack) {
-        traverseChildren(unpack);
         return null;
     }
 

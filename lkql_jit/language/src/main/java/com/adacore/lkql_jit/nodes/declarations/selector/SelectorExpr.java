@@ -29,6 +29,8 @@ public final class SelectorExpr extends LKQLNode {
     @SuppressWarnings("FieldMayBeFinal")
     private Expr expr;
 
+    public final boolean hasUnpack;
+
     // ----- Constructors -----
 
     /**
@@ -37,11 +39,13 @@ public final class SelectorExpr extends LKQLNode {
      * @param location The location of the node in the source.
      * @param mode The mode of the expression.
      * @param expr The expression.
+     * @param hasUnpack
      */
-    public SelectorExpr(SourceLocation location, Mode mode, Expr expr) {
+    public SelectorExpr(SourceLocation location, Mode mode, Expr expr, boolean hasUnpack) {
         super(location);
         this.mode = mode;
         this.expr = expr;
+        this.hasUnpack = hasUnpack;
     }
 
     // ----- Getters -----
