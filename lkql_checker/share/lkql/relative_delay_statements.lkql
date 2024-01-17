@@ -3,4 +3,4 @@
 
 @check(message="relative delay statement", category="Feature")
 fun relative_delay_statements(node) =
-   node is DelayStmt(f_has_until is UntilAbsent)
+   node is DelayStmt(f_has_until: UntilAbsent)

@@ -1,4 +1,4 @@
-select AdaNode(any parent is n@AdaNode)
+select AdaNode(any parent: n@AdaNode)
 when n
 #    ^ This should be illegal, because is scoped to inside the quantified
 #    selector call

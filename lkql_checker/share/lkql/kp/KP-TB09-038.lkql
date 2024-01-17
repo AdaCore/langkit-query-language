@@ -9,10 +9,10 @@ fun is_positive(n) = n.p_is_static_expr() and n.p_eval_as_int() >= 0
 @check(message="possible occurrence of KP TB09-038", impact="20.[12]")
 fun kp_tb09_038(node) =
     # Look for an integer type declaration
-    node is TypeDecl(p_is_int_type() is true,
-                     f_type_def is def@SignedIntTypeDef)
+    node is TypeDecl(p_is_int_type(): true,
+                     f_type_def: def@SignedIntTypeDef)
     # with an explicit range definition
-    when def.f_range.f_range is op@BinOp(f_op is OpDoubleDot)
+    when def.f_range.f_range is op@BinOp(f_op: OpDoubleDot)
      # and both range values of the same sign
      when (if is_positive(op.f_left)
            then is_positive(op.f_right)

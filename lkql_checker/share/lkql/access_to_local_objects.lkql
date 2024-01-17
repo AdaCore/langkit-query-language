@@ -13,8 +13,8 @@
 import stdlib
 
 fun has_access_type(n) =
-    n.p_type_expression() is TypeExpr(p_designated_type_decl() is
-    BaseTypeDecl(p_is_access_type() is true))
+    n.p_type_expression() is TypeExpr(p_designated_type_decl():
+    BaseTypeDecl(p_is_access_type(): true))
 
 fun denotes_local_object(n) = {
     fun dotted_prefix(n) =

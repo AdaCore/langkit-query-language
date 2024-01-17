@@ -5,8 +5,8 @@
        message="possible occurrence of KP VA18-003 if No_Tag is passed",
        impact="21.*,22.*")
 fun kp_va18_003(node) =
-    node is CallExpr(f_suffix is l@AssocList,
-                     p_referenced_decl() is decl@SubpDecl)
+    node is CallExpr(f_suffix: l@AssocList,
+                     p_referenced_decl(): decl@SubpDecl)
     when (match decl.p_canonical_fully_qualified_name()
           | "^ada\.tags\.descendant_tag$"              => true
           | "^ada\.tags\.interface_ancestor_tags$"     => true
@@ -15,6 +15,6 @@ fun kp_va18_003(node) =
      # check all parameters of type Tag
      and [a for a in l.children
           if a.f_r_expr is not
-              AttributeRef(f_attribute is
-                  Identifier(p_name_is("Tag") is true) and
+              AttributeRef(f_attribute:
+                  Identifier(p_name_is("Tag"): true) and
              a.f_r_expr.p_expression_type().p_relative_name().p_name_is("Tag")]

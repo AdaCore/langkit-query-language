@@ -3,7 +3,7 @@
 @check(message="possible occurrence of KP W330-020", impact="20.*,21.*,22.*,23.1")
 fun kp_w330_020(node) =
     node is AttributeRef(
-        f_attribute is Identifier(p_name_is("Address") is true),
-        f_prefix is Name(p_referenced_defining_name() is DefiningName(
-                             p_basic_decl() is ObjectDecl,
-                             p_has_aspect("Size") is true)))
+        f_attribute: Identifier(p_name_is("Address"): true),
+        f_prefix: Name(p_referenced_defining_name(): DefiningName(
+                             p_basic_decl(): ObjectDecl,
+                             p_has_aspect("Size"): true)))

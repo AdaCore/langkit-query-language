@@ -6,10 +6,10 @@ import stdlib
 @check(message="possible occurrence of KP V712-039", impact="22.*")
 fun kp_v712_039(node) =
     node is ForLoopStmt(
-        f_spec is ForLoopSpec(f_iter_expr is Expr(
-            p_expression_type() is TypeDecl(
-                p_has_aspect("Iterable") is true,
-                p_full_view() is TypeDecl(
-                    any stdlib.component_types is TypeDecl(
-                        p_has_aspect("Default_Initial_Condition") is true))))))
+        f_spec: ForLoopSpec(f_iter_expr: Expr(
+            p_expression_type(): TypeDecl(
+                p_has_aspect("Iterable"): true,
+                p_full_view(): TypeDecl(
+                    any stdlib.component_types: TypeDecl(
+                        p_has_aspect("Default_Initial_Condition"): true))))))
 

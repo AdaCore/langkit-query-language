@@ -6,7 +6,7 @@ fun is_real_without_range(decl) =
     decl is
         ((TypeDecl
          when decl.f_type_def is
-              (RealTypeDef(f_range is null) |
+              (RealTypeDef(f_range: null) |
               d@DerivedTypeDef
               when not (from d.f_subtype_indication.f_constraint
                         select first RangeSpec)

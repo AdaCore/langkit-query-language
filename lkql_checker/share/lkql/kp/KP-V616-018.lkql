@@ -3,16 +3,16 @@
 
 fun access_to_unconstrained_array(t) =
     t is TypeDecl(
-        p_is_access_type() is true,
-        p_accessed_type() is TypeDecl(
-            f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices)))
+        p_is_access_type(): true,
+        p_accessed_type(): TypeDecl(
+            f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices)))
 
 @check(message="possible occurrence of KP V616-018", impact="22.*")
 fun kp_v616_018(node) =
     node is ComponentDecl(
-        p_semantic_parent() is TypeDecl(f_type_def is DerivedTypeDef),
-        f_component_def is ComponentDef(
-            f_type_expr is SubtypeIndication(
-                f_name is n@Name
+        p_semantic_parent(): TypeDecl(f_type_def: DerivedTypeDef),
+        f_component_def: ComponentDef(
+            f_type_expr: SubtypeIndication(
+                f_name: n@Name
                 when access_to_unconstrained_array(n.p_referenced_decl())) |
             a@AnonymousType when access_to_unconstrained_array(a.f_type_decl)

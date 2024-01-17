@@ -20,11 +20,11 @@ fun has_visible_components(t) =
 @check(message="type defines publicly accessible components",
        category="Style", subcategory="Object Orientation")
 fun visible_components(node, tagged_only=false) =
-    node is TypeDecl(any parent(depth=2) is PublicPart(
-        parent is BasePackageDecl(any parent is LibraryItem(
-            f_item is PackageDecl | GenericDecl,
-            f_has_private is PrivateAbsent))),
-            all parent is not PrivatePart)
+    node is TypeDecl(any parent(depth=2): PublicPart(
+        parent: BasePackageDecl(any parent: LibraryItem(
+            f_item: PackageDecl | GenericDecl,
+            f_has_private: PrivateAbsent))),
+            all parent: not PrivatePart)
     when node.p_is_record_type()
       and ((not tagged_only) or node.p_is_tagged_type())
       and has_visible_components(node.f_type_def)

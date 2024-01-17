@@ -5,9 +5,9 @@ import stdlib
 
 @check(message="possible occurrence of KP V302-021", impact="21.*,22.1")
 fun kp_v302_021(node) =
-    node is BaseSubpSpec(p_return_type() is ret@TypeDecl,
-                         p_primitive_subp_tagged_type() is type@BaseTypeDecl,
-                         parent is decl@BasicDecl(p_previous_part_for_decl() is null))
+    node is BaseSubpSpec(p_return_type(): ret@TypeDecl,
+                         p_primitive_subp_tagged_type(): type@BaseTypeDecl,
+                         parent: decl@BasicDecl(p_previous_part_for_decl(): null))
     when stdlib.is_limited_type(ret)
      and {
         val num_types = type.p_find_all_derived_types(stdlib.list_of_units()).length;

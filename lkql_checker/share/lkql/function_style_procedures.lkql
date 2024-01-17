@@ -30,9 +30,9 @@ fun function_style_procedures(node) =
          p_out.length == 1 and
          p_out[1].f_ids.children_count == 1 and
          p_out[1].f_type_expr.p_designated_type_decl() is not
-             TypeDecl(f_type_def is
+             TypeDecl(f_type_def:
                           (def@(DerivedTypeDef | PrivateTypeDef |
                                 RecordTypeDef)
                           when def.f_has_limited.p_as_bool())
-                       | InterfaceTypeDef(f_interface_kind is
+                       | InterfaceTypeDef(f_interface_kind:
                                            InterfaceKindLimited))})

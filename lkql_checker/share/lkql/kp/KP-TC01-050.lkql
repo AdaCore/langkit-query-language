@@ -7,9 +7,9 @@ import stdlib
        impact="19.[1-4],20.[12],21.1")
 fun kp_tc01_050(node) =
     node is MembershipExpr(
-      f_membership_exprs is l@ExprAlternativesList
+      f_membership_exprs: l@ExprAlternativesList
       when l.children_count == 1
-       and l[1] is Name(p_referenced_decl() is t@TypeDecl
+       and l[1] is Name(p_referenced_decl(): t@TypeDecl
                         when stdlib.has_interfaces(t))
     )
 

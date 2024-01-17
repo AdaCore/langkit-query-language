@@ -15,10 +15,10 @@ fun kp_t602_028(node) =
     when is_access(node.f_attribute)
      # where prefix is a protected subprogram
      and node.f_prefix.p_referenced_decl() is
-         decl@SubpDecl(any parent is ProtectedDef)
+         decl@SubpDecl(any parent: ProtectedDef)
      # and this subprogram is overloaded
      when decl.f_subp_spec.f_subp_name is name@DefiningName
-      when (decl is *(any prev_siblings is sib@SubpDecl
+      when (decl is *(any prev_siblings: sib@SubpDecl
                      when sib.f_subp_spec.f_subp_name.p_name_matches(name)) or
-            decl is *(any next_siblings is sib@SubpDecl
+            decl is *(any next_siblings: sib@SubpDecl
                      when sib.f_subp_spec.f_subp_name.p_name_matches(name)))

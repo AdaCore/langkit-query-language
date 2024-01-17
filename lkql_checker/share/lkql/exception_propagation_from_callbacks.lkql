@@ -17,7 +17,7 @@ fun get_uninstantiated_subp(subp) =
    |" Works around an inconsistency in LAL's API wrt. generic subprograms
    |" TODO: Fix when eng/libadalang/libadalang/-/issues/1127 is fixed
     match subp
-    | GenericSubpInstantiation(f_generic_subp_name is s) =>
+    | GenericSubpInstantiation(f_generic_subp_name: s) =>
         s.p_referenced_decl().p_get_uninstantiated_node()
     | AdaNode => subp.p_get_uninstantiated_node()
     | * => null
@@ -29,12 +29,12 @@ fun get_uninstantiated_subp(subp) =
 fun exception_propagation_from_callbacks(node, callbacks=[]) =
    # Select 'Access or 'Address on subprograms in a subprogram call
    node is AttributeRef(
-       f_attribute is id@Identifier
+       f_attribute: id@Identifier
            when id.p_name_is("Address") or id.p_name_is("Access"))
     when node.f_prefix.p_referenced_decl() is
          subp@(SubpBody | SubpDecl | SubpBodyStub | GenericSubpInstantiation)
      when (from node through parent
-           select first CallExpr(p_is_call() is true)) is call@CallExpr
+           select first CallExpr(p_is_call(): true)) is call@CallExpr
       when {
           val uninst_subp_name = get_uninstantiated_subp(
               call.f_name.p_referenced_decl()

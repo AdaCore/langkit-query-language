@@ -5,6 +5,6 @@
 @check(message="implicit IN mode in parameter specification",
        remediation="TRIVIAL", category="Feature")
 fun implicit_in_mode_parameters(node) =
-    node is ParamSpec(f_mode is ModeDefault)
+    node is ParamSpec(f_mode: ModeDefault)
     when not node.f_type_expr is
-         AnonymousType(f_type_decl is *(f_type_def is AccessDef))
+         AnonymousType(f_type_decl: *(f_type_def: AccessDef))

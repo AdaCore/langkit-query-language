@@ -16,9 +16,9 @@ fun deep_inheritance(type, n) =
        follow_generic_instantiations=true,
        category="Style", subcategory="Object Orientation")
 fun deep_inheritance_hierarchies(node, n: int = 2) =
-    node is TypeDecl(parent is not GenericFormalTypeDecl,
-                     f_type_def is not
-                     DerivedTypeDef(f_has_with_private is WithPrivatePresent),
-                     p_is_tagged_type() is true,
-                     p_next_part_for_decl() is null)
+    node is TypeDecl(parent: not GenericFormalTypeDecl,
+                     f_type_def: not
+                     DerivedTypeDef(f_has_with_private: WithPrivatePresent),
+                     p_is_tagged_type(): true,
+                     p_next_part_for_decl(): null)
     when deep_inheritance(node, n+1)

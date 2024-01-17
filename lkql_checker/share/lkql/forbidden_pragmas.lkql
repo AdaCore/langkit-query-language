@@ -7,6 +7,6 @@
             category="Style", subcategory="Portability")
 fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) = [
     {message: "use of pragma " & node.f_id.text, loc: node}
-    for node in from unit.root select PragmaNode(f_id is id@Identifier)
+    for node in from unit.root select PragmaNode(f_id: id@Identifier)
     when (all or [p for p in forbidden if id.p_name_is(p)])
      and not [p for p in allowed if id.p_name_is(p)]]

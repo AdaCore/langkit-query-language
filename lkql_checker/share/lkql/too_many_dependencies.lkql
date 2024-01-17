@@ -21,10 +21,10 @@ fun dependencies(unit, parent) = {
           if p.p_referenced_decl() != parent].to_list
          for w in (from unit.f_prelude select WithClause)].to_list);
     unique(match unit.f_body
-           | LibraryItem(f_item is BodyNode(p_previous_part()
-             is prev@BasicDecl))
+           | LibraryItem(f_item: BodyNode(p_previous_part()
+            : prev@BasicDecl))
                => l & dependencies(comp_unit(prev), parent)
-           | Subunit(f_body is *(p_previous_part() is prev@BasicDecl))
+           | Subunit(f_body: *(p_previous_part(): prev@BasicDecl))
                => l & dependencies(comp_unit(prev), parent)
            | * => l)
 }

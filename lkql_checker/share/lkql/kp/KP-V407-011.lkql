@@ -12,13 +12,13 @@ fun check_prefix(param, n) =
     |" - param is a parameter of an anonymous access type
     |" - n is of a type that implements an interface type.
     param.p_referenced_decl() is ParamSpec and
-    param.p_expression_type() is AnonymousTypeDecl(p_is_access_type() is true) and
+    param.p_expression_type() is AnonymousTypeDecl(p_is_access_type(): true) and
     n.p_expression_type() is t@TypeDecl when stdlib.has_interfaces(t)
 
 @check(message="possible occurrence of KP V407-011", impact="20.*,21.*,22.1")
 fun kp_v407_011(node) =
     # Look for 'Access as a parameter of a CallExpr
-    node is AttributeRef(parent is ParamAssoc(parent is l@AssocList(parent is CallExpr)))
+    node is AttributeRef(parent: ParamAssoc(parent: l@AssocList(parent: CallExpr)))
     when node.f_attribute.p_name_is("Access")
      # Check that we have a dereference (direct or indirect) and a type
      # implementing some interface
@@ -28,7 +28,7 @@ fun kp_v407_011(node) =
      # Check that the formal parameter is of a named general access type
      # designating a class-wide type that implements some interface.
      and stdlib.get_parameter(l.p_zip_with_params(), node).parent.parent is
-         ParamSpec(f_type_expr is SubtypeIndication(f_name is n@Name)
+         ParamSpec(f_type_expr: SubtypeIndication(f_name: n@Name)
           when n.p_referenced_decl() is t@TypeDecl
            when t.p_accessed_type() is cw@ClasswideTypeDecl 
             when stdlib.has_interfaces(cw)

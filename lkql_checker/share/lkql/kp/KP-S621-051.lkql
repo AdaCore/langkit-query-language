@@ -6,15 +6,15 @@ import stdlib
 @check(message="possible occurrence of KP S621-051", impact="19.*")
 fun kp_s621_051(node) =
     node is ParamAssoc(
-      parent is AssocList(parent is c@CallExpr(
-          p_is_call() is true
+      parent: AssocList(parent: c@CallExpr(
+          p_is_call(): true
         ) when c.f_name.p_referenced_decl() is decl@BasicDecl(
-            p_has_aspect("Import") is false
+            p_has_aspect("Import"): false
           ) when stdlib.enclosing_body(decl) == stdlib.enclosing_body(node)
       ),
       
-      f_r_expr is Name(
-        p_referenced_decl() is ParamSpec,
-	p_expression_type() is AnonymousTypeDecl(p_is_access_type() is true)
+      f_r_expr: Name(
+        p_referenced_decl(): ParamSpec,
+	p_expression_type(): AnonymousTypeDecl(p_is_access_type(): true)
       )
     )

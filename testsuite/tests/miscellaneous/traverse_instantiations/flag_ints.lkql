@@ -1,6 +1,6 @@
 @check(message="integer object decl", follow_generic_instantiations=true)
 fun int_obj_decl(node) = node is o @ ObjectDecl(
-    p_type_expression() is SubtypeIndication(
-        p_designated_type_decl() is t when t == o.p_std_entity("Integer")
+    p_type_expression(): SubtypeIndication(
+        p_designated_type_decl(): t when t == o.p_std_entity("Integer")
     )
 )

@@ -3,7 +3,7 @@
 
 @check(message="exit out of the nesting loop", category="SPARK")
 fun outer_loop_exits(node) =
-    node is ExitStmt(f_loop_name is Identifier)
+    node is ExitStmt(f_loop_name: Identifier)
     when [p for p in node.parents(include_self=false)
           if p is BaseLoopStmt].to_list[1] is l@BaseLoopStmt
           when not l.f_end_name or

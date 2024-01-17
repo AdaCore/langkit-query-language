@@ -3,5 +3,5 @@
 @check(message="unnamed exit statement", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun unnamed_exits(node) =
-    node is ExitStmt(f_loop_name is null)
+    node is ExitStmt(f_loop_name: null)
     when (from node through parent select first BaseLoopStmt)?.f_end_name is EndName

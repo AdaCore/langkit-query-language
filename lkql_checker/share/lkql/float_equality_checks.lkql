@@ -14,7 +14,7 @@ fun is_float(n) =
 @check(message="use of equality operation for float values", category="Feature")
 fun float_equality_checks(node, follow_renamings=false) =
     node is ((
-        RelationOp(f_op is op@(OpEq | OpNeq))
+        RelationOp(f_op: op@(OpEq | OpNeq))
         when stdlib.is_predefined_op(op, follow_renamings) and is_float(node.f_left)
     )
     | CallExpr

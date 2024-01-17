@@ -2,7 +2,7 @@
 
 fun is_array_slice(expr) =
     |" Return whether the given expression corresponds to an array slice.
-    if expr is CallExpr(p_is_array_slice() is true)
+    if expr is CallExpr(p_is_array_slice(): true)
     then true
     else match expr.p_referenced_decl()
     | o@ObjectDecl => o.f_renaming_clause is r@RenamingClause
@@ -11,7 +11,7 @@ fun is_array_slice(expr) =
         # This node means we have a reference to a generic formal object.
         # Exclude "in" objects since the bug cannot occur there.
         expr.p_get_uninstantiated_node().
-        p_referenced_decl() is ObjectDecl(f_mode is ModeOut | ModeInOut) and
+        p_referenced_decl() is ObjectDecl(f_mode: ModeOut | ModeInOut) and
         is_array_slice(a.f_expr)
     | o          => false
 

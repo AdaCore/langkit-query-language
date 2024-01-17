@@ -7,5 +7,5 @@
        category="Style", subcategory="Object Orientation")
 fun specific_type_invariants(node) =
     node is AspectAssoc(
-        f_id is Identifier(p_name_is("Type_Invariant") is true),
-        any parent(depth=3) is BaseTypeDecl(p_is_tagged_type() is true))
+        f_id: Identifier(p_name_is("Type_Invariant"): true),
+        any parent(depth=3): BaseTypeDecl(p_is_tagged_type(): true))

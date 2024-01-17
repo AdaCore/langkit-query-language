@@ -5,5 +5,5 @@
        impact="7.4.*,1[7-9].*,2[01].*",
        target="leon*")
 fun kp_u727_033(node) =
-    node is LibraryItem(f_item is b@BaseSubpBody)
+    node is LibraryItem(f_item: b@BaseSubpBody)
     when b.f_subp_spec.f_subp_params == null

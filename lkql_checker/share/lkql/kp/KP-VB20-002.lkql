@@ -4,7 +4,7 @@
 import stdlib
 
 fun sso_array_type(typ) =
-    typ is BaseTypeDecl(p_is_array_type() is true)
+    typ is BaseTypeDecl(p_is_array_type(): true)
     and stdlib.has_non_default_sso(typ)
 
 @check(help="possible occurrence of KP VB20-002", impact="22.*",

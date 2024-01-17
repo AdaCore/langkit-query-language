@@ -30,7 +30,7 @@ fun check_then_else(then_stmt, else_stmt) =
 @check(message="redundant boolean expression",
        category="Style", subcategory="Programming Practice")
 fun redundant_boolean_expressions(node) =
-    node is (RelationOp(f_op is op@(OpEq | OpNeq)
+    node is (RelationOp(f_op: op@(OpEq | OpNeq)
             when stdlib.is_predefined_op(op)
              and (node.f_right is name@Name when {
                 val n = name.p_referenced_defining_name()?.
@@ -47,7 +47,7 @@ fun redundant_boolean_expressions(node) =
          | (IfExpr when node.f_alternatives[1] == null
                      and true_and_false(node.f_then_expr, node.f_else_expr))
 
-         | (UnOp(f_op is op@OpNot
+         | (UnOp(f_op: op@OpNot
                   when stdlib.is_predefined_op(op)
                    and stdlib.strip_conversions(node.f_expr) is rel@RelationOp
                        when stdlib.is_predefined_op(rel.f_op))))

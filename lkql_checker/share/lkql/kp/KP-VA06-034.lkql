@@ -3,8 +3,8 @@
 
 @check(message="possible occurrence of KP VA06-034", impact="22.*")
 fun kp_va06_034(node) =
-    node is AttributeRef(parent is c@CallExpr)
+    node is AttributeRef(parent: c@CallExpr)
     when node.f_attribute.p_name_is("Image")
      and node.f_prefix.p_referenced_decl() is
-         TypeDecl(p_has_aspect("Put_Image") is true)
+         TypeDecl(p_has_aspect("Put_Image"): true)
      and c.f_suffix[1].f_r_expr.p_is_static_expr()

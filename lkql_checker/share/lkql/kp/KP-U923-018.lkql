@@ -7,9 +7,9 @@ import stdlib
        impact="21.*", target="powerpc64*")
 fun kp_u923_018(node) =
     node is (ClassicSubpDecl |
-             BaseSubpBody(p_previous_part() is null) |
-             SubpBodyStub(p_previous_part() is null))
-    when node.f_subp_spec is spec@SubpSpec(f_subp_kind is SubpKindFunction)
+             BaseSubpBody(p_previous_part(): null) |
+             SubpBodyStub(p_previous_part(): null))
+    when node.f_subp_spec is spec@SubpSpec(f_subp_kind: SubpKindFunction)
      when spec.f_subp_returns.p_designated_type_decl() is t@BaseTypeDecl
       when t.p_is_array_type()
        and t.p_comp_type().p_is_float_type()
@@ -18,7 +18,7 @@ fun kp_u923_018(node) =
          # will return the base type.
        and ((
            t is TypeDecl when t.f_type_def.f_indices[1] is c@ConstraintList
-            when c[1] is op@BinOp(f_op is OpDoubleDot)
+            when c[1] is op@BinOp(f_op: OpDoubleDot)
              when stdlib.range_values(op.f_left, op.f_right) == 2
        ) or (
            stdlib.number_of_values(t.p_index_type(0)) == 2

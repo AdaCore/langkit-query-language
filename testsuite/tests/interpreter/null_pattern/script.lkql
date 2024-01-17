@@ -1,1 +1,1 @@
-print(select ObjectDecl(f_default_expr is null))
+print(select ObjectDecl(f_default_expr: null))

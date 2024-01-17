@@ -4,9 +4,9 @@
 @check(message="possible occurrence of KP V719-024", impact="22.*")
 fun kp_v719_024(node) =
     # Look for record types with discriminants and a Dynamic_Predicate aspect
-    node is TypeDecl(f_discriminants is not null,
-                     f_type_def is def@RecordTypeDef,
-                     p_has_aspect("Dynamic_Predicate") is true)
+    node is TypeDecl(f_discriminants: not null,
+                     f_type_def: def@RecordTypeDef,
+                     p_has_aspect("Dynamic_Predicate"): true)
     # containing a variant part with an "others" choice
     when (from def.f_record_def.f_components
           select first part@VariantPart

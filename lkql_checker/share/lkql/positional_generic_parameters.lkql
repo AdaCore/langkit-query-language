@@ -13,8 +13,8 @@ fun check_generic(n) =
 @check(message="positional generic association", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun positional_generic_parameters(node) =
-    node is ParamAssoc(f_designator is null,
-                       parent is l@AssocList(parent is g@GenericInstantiation))
+    node is ParamAssoc(f_designator: null,
+                       parent: l@AssocList(parent: g@GenericInstantiation))
     when l.children_count > 1
       or match g
          | p@GenericSubpInstantiation    => check_generic(p.f_generic_subp_name)

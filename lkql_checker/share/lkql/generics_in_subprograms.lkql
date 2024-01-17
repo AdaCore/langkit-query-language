@@ -6,5 +6,5 @@
 
 @check(message="generic definition in subprogram body", category="Feature")
 fun generics_in_subprograms(node) =
-    node is GenericDecl(any parent is BaseSubpBody,
-                        all parent is not GenericPackageDecl)
+    node is GenericDecl(any parent: BaseSubpBody,
+                        all parent: not GenericPackageDecl)

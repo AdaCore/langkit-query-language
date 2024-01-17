@@ -9,7 +9,7 @@
 fun kp_18718(node) =
     node is ObjectDecl(
         # An ObjectDecl with a default expression being a function call
-        f_default_expr is c@Name(p_is_call() is true)
+        f_default_expr: c@Name(p_is_call(): true)
         when {
             # Retrieve the function body for the call
             val b = match c.p_referenced_decl()

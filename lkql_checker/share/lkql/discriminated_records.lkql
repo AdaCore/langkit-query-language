@@ -15,13 +15,13 @@
 # U407-040 for list iterators
 # U407-032 for in list checks
 fun nodelist_contains_id(l, id) =
-    l is *(any children is BaseId(p_name_matches(id) is true))
+    l is *(any children: BaseId(p_name_matches(id): true))
 
 # Return true iff id identifies a discriminant of type_def
 fun id_is_a_discriminant(id, type_def) =
     type_def is DerivedTypeDef(
-        any children is assoc@CompositeConstraintAssoc(
-            f_constraint_expr is i@BaseId
+        any children: assoc@CompositeConstraintAssoc(
+            f_constraint_expr: i@BaseId
             when i?.p_name_matches(id)
         )
         # f_ids contains the defining name (named assoc.) or is null (positional)
@@ -32,9 +32,9 @@ fun id_is_a_discriminant(id, type_def) =
 # (eg to initialize a component, array size...).
 fun is_using_discriminant_in_declaration(type_decl) =
     type_decl.f_discriminants?.f_discr_specs is *(
-        all children(depth=1) is DiscriminantSpec(
-            f_ids is DefiningNameList(
-                all children(depth=2) is decl@BaseId
+        all children(depth=1): DiscriminantSpec(
+            f_ids: DefiningNameList(
+                all children(depth=2): decl@BaseId
                 when id_is_a_discriminant(decl, type_decl?.f_type_def)
             )
         )
@@ -43,7 +43,7 @@ fun is_using_discriminant_in_declaration(type_decl) =
 @check(message="declaration of discriminated record", category="Feature")
 fun discriminated_records(node) =
    node is TypeDecl(
-      any children(depth=2) is DiscriminantSpecList
+      any children(depth=2): DiscriminantSpecList
       when not (
          node.f_type_def is PrivateTypeDef
          or is_using_discriminant_in_declaration(node)

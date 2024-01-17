@@ -46,6 +46,6 @@ fun representation_specifications(unit, record_rep_clauses_only=false) = [
     for n in from unit.root
     select (RecordRepClause |
            (EnumRepClause when not record_rep_clauses_only) |
-           (BasicDecl(any defining_names is dn@*(p_previous_part() is null) when has_rep_aspect(dn))
+           (BasicDecl(any defining_names: dn@*(p_previous_part(): null) when has_rep_aspect(dn))
                 when not record_rep_clauses_only))
 ]

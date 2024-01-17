@@ -18,5 +18,5 @@ fun nested_subprograms(node) =
           node.p_previous_part() is (null | SubpBodyStub))
      and node.p_semantic_parent()
          is not (ProtectedTypeDecl | SingleProtectedDecl)
-     and node is not ClassicSubpDecl(p_body_part() is NullSubpDecl)
-     and node is *(any stdlib.semantic_parent is BaseSubpBody | TaskBody | EntryBody)
+     and node is not ClassicSubpDecl(p_body_part(): NullSubpDecl)
+     and node is *(any stdlib.semantic_parent: BaseSubpBody | TaskBody | EntryBody)

@@ -1133,9 +1133,9 @@ lkql_grammar.add_rules(
     tuple_pattern=TuplePattern("(", List(G.value_pattern, sep=","), ")"),
 
     pattern_arg=Or(
-        NodePatternSelector(G.selector_call, "is", G.or_pattern),
-        NodePatternField(G.id, "is", c(), G.or_pattern),
-        NodePatternProperty(G.fun_call, "is", c(), G.or_pattern)
+        NodePatternSelector(G.selector_call, ":", G.or_pattern),
+        NodePatternField(G.id, ":", c(), G.or_pattern),
+        NodePatternProperty(G.fun_call, ":", c(), G.or_pattern)
     ),
 
     selector_call=SelectorCall(

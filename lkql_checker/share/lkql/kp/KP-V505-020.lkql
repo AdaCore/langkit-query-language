@@ -2,5 +2,5 @@
 
 @check(message="possible occurrence of KP V505-020", impact="22.*")
 fun kp_v505_020(node) =
-    node is ExprFunction(p_decl_part() is null)
+    node is ExprFunction(p_decl_part(): null)
     when node.f_subp_spec.p_primitive_subp_tagged_type() is BaseTypeDecl

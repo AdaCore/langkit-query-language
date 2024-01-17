@@ -6,7 +6,7 @@ import stdlib
 @check(message="possible occurrence of KP S124-035",
        impact="7.[1-4].*,1[7-9].*")
 fun kp_s124_035(node) =
-    node is CallExpr(p_is_call() is true)
+    node is CallExpr(p_is_call(): true)
     when node.f_name.p_referenced_decl() is i@GenericSubpInstantiation
      when stdlib.is_unchecked_conversion(i)
       and (from node.f_suffix select first Aggregate) != null

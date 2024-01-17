@@ -25,7 +25,7 @@ fun param_matches(id, param, name, ignore_comp) = {
    val decl = id.p_referenced_decl();
 
    (match decl
-    | ObjectDecl(f_renaming_clause is r@RenamingClause) =>
+    | ObjectDecl(f_renaming_clause: r@RenamingClause) =>
       stdlib.ultimate_alias(
         r.f_renamed_object,
         strip_component=not ignore_comp
@@ -38,14 +38,14 @@ fun param_matches(id, param, name, ignore_comp) = {
 # defined above, which happens to match the p_is_write_reference() property.
 # param is the ParamDecl of name.
 fun check_stmts(param, name, s, ignore_comp) =
-    s is *(any children is id@Name
+    s is *(any children: id@Name
            when id.p_is_write_reference()
             and param_matches(id, param, name, ignore_comp))
 
 # Return true if the exception handler h contains a raise statement, a call
 # to a No_Return procedure or an assignment to param as defined above.
 fun check_exception_handler(param, name, h, ignore_comp) =
-    (h.f_stmts is *(any children is RaiseStmt |
+    (h.f_stmts is *(any children: RaiseStmt |
                     c@CallStmt when c.f_call.p_is_call()
                                 and c.f_call.p_referenced_decl().
                                     p_has_aspect("No_Return"))) or
@@ -63,10 +63,10 @@ fun unassigned_out_parameters(unit, ignore_component_assignments=false) = [
     {message: "unassigned OUT parameter " & n.f_name.text, loc: n}
     for n in from unit.root
     # Look for out parameters of subprogram bodies only
-    select node@DefiningName(parent is DefiningNameList(parent is
-                ParamSpec(f_mode is ModeOut,
-                          parent is ParamSpecList(parent is Params(parent is
-                          SubpSpec(parent is SubpBody))))))
+    select node@DefiningName(parent: DefiningNameList(parent:
+                ParamSpec(f_mode: ModeOut,
+                          parent: ParamSpecList(parent: Params(parent:
+                          SubpSpec(parent: SubpBody))))))
     when {
         val f = enclosing_body_stmts(node);
         val decl = node.p_basic_decl();

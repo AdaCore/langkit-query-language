@@ -37,23 +37,23 @@ fun is_same_object(a, b) =
 fun use_for_of_loops(node, n : int = 1, ignore = false) =
     # Look for "for <index> in <array>'Range" loops
     node is ForLoopStmt(
-        f_spec is spec@ForLoopSpec(
-            f_has_reverse is not ReversePresent,
-            f_loop_type is IterTypeIn,
-            f_iter_expr is attr@AttributeRef))
+        f_spec: spec@ForLoopSpec(
+            f_has_reverse: not ReversePresent,
+            f_loop_type: IterTypeIn,
+            f_iter_expr: attr@AttributeRef))
     when attr.f_attribute.p_name_is("Range")
      and attr.f_prefix.p_expression_type() is
-         iter_type@TypeDecl(p_is_array_type() is true)
+         iter_type@TypeDecl(p_is_array_type(): true)
      # where <array> is a one dimension array.
      when num_indices(iter_type) == 1
       and {
          val ids = (from node.f_stmts select
-                    Identifier(p_name_matches(spec.f_var_decl.f_id.f_name) is true));
+                    Identifier(p_name_matches(spec.f_var_decl.f_id.f_name): true));
 
          # Now check that all references to <index> are of the form <array>(<index>)
          not [f for f in ids
               if match f.parent
-                 | ParamAssoc(parent is AssocList(parent is call@CallExpr)) =>
+                 | ParamAssoc(parent: AssocList(parent: call@CallExpr)) =>
                      not is_same_object(call.f_name, attr.f_prefix)
                  | * => true]
          # Finally check that we have at least N references to <index>

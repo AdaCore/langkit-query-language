@@ -3,8 +3,8 @@
 
 @check(message="possible occurrence of KP V329-046", impact="22.1")
 fun kp_v329_046(node) =
-    node is ObjectDecl(f_type_expr is AnonymousType(
-        f_type_decl is AnonymousTypeDecl(f_type_def is acc@AccessToSubpDef)))
+    node is ObjectDecl(f_type_expr: AnonymousType(
+        f_type_decl: AnonymousTypeDecl(f_type_def: acc@AccessToSubpDef)))
     when {
        val aspect = node.p_get_aspect("Convention");
        aspect.exists and aspect.value.p_name_is("C")

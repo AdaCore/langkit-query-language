@@ -6,7 +6,7 @@
 @check(message="Ada 2005 formal package declaration",
        category="Style", subcategory="Programming Practice")
 fun ada05_formal_packages(node) =
-    node is GenericPackageInstantiation(parent is GenericFormalPackage)
+    node is GenericPackageInstantiation(parent: GenericFormalPackage)
     when {
         val num_box = [p for p in node.f_params.children
                        if p.f_r_expr is BoxExpr].length;

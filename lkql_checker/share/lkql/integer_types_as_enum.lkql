@@ -11,10 +11,10 @@ fun arithmetic_ops() =
     |" Return a list of all types referenced in any arithmetic operator
     unique([op.p_expression_type()
             for op in select
-                (BinOp(f_op is OpDiv | OpMinus | OpMod | OpMult |
+                (BinOp(f_op: OpDiv | OpMinus | OpMod | OpMult |
                               OpPlus | OpPow | OpRem | OpXor |
                               OpAnd | OpOr) |
-                UnOp(f_op is OpAbs | OpMinus | OpPlus | OpNot))].to_list)
+                UnOp(f_op: OpAbs | OpMinus | OpPlus | OpNot))].to_list)
 
 @memoized
 fun instantiations() =
@@ -30,18 +30,18 @@ fun types() =
     |" and target), subtype declarations and type derivations in the project.
     unique(concat([[c.p_referenced_decl(),
                     c.f_suffix[1].f_r_expr.p_expression_type()]
-                   for c in select CallExpr(p_referenced_decl() is TypeDecl)].
+                   for c in select CallExpr(p_referenced_decl(): TypeDecl)].
                   to_list) &
            [s.f_subtype.f_name.p_referenced_decl()
             for s in select SubtypeDecl].to_list &
            [c.f_type_def.f_subtype_indication?.f_name?.p_referenced_decl()
-            for c in select TypeDecl(f_type_def is DerivedTypeDef)].to_list)
+            for c in select TypeDecl(f_type_def: DerivedTypeDef)].to_list)
 
 @check(help="integer type may be replaced by an enumeration (global analysis required)",
        message="integer type may be replaced by an enumeration",
        category="Style", subcategory="Programming Practice")
 fun integer_types_as_enum(node) =
-     node is TypeDecl(p_is_int_type() is true)
+     node is TypeDecl(p_is_int_type(): true)
      when not [t for t in types() if t == node]
       and not [t for t in instantiations() if t == node]
       and not [t for t in arithmetic_ops() if t == node]

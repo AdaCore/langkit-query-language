@@ -8,7 +8,7 @@ import stdlib
 @check(message="integer literal as index value", category="Feature")
 fun numeric_indexing(node) =
     node is IntLiteral when {
-        val n = if node.parent is UnOp(f_op is op@OpMinus
+        val n = if node.parent is UnOp(f_op: op@OpMinus
                                        when stdlib.is_predefined_op(op))
                 then node.parent
                 else node;
@@ -16,5 +16,5 @@ fun numeric_indexing(node) =
         # Exclude subcomponents by accessing directly parent.parent.parent
         n.parent?.parent?.parent is c@CallExpr
         when c.f_name.p_expression_type() is
-             BaseTypeDecl(p_is_array_type() is true)
+             BaseTypeDecl(p_is_array_type(): true)
     }

@@ -1,4 +1,4 @@
 @check(custom_name="Implicit_Small")
 fun implicit_small() =
-   select t @ TypeDecl(any children is OrdinaryFixedPointDef)
+   select t @ TypeDecl(any children: OrdinaryFixedPointDef)
    when not t.p_has_aspect("Small")

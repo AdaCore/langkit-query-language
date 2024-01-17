@@ -10,8 +10,8 @@ fun primitives(decl) =
 @check(message="possible occurrence of KP S124-035", impact="18.*,19.*")
 fun kp_s114_015(node) =
     # Look for variant record types
-    node is TypeDecl(f_discriminants is not null,
-                     f_type_def is def@RecordTypeDef)
+    node is TypeDecl(f_discriminants: not null,
+                     f_type_def: def@RecordTypeDef)
      when (from def.f_record_def.f_components select first VariantPart) != null
       # Look for all components definitions and check whether their corresponding
       # type has a user-defined equality

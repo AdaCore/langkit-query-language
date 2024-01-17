@@ -5,7 +5,7 @@
 
 fun check_others(stmts) =
     stmts.f_exceptions is AdaNodeList(all children(depth=3)
-                                      is not OthersDesignator)
+                                     : not OthersDesignator)
 
 @unit_check(help="no OTHERS choice in exception handlers",
             category="Style", subcategory="Programming Practice")

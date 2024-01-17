@@ -34,7 +34,7 @@ fun associated_decl(pragma_node) =
 fun misplaced_node(n, decl) =
     match n.previous_sibling()
     | d@BasicDecl        => d != decl
-    | a@AttributeDefClause(f_attribute_expr is AttributeRef) =>
+    | a@AttributeDefClause(f_attribute_expr: AttributeRef) =>
         a.f_attribute_expr.f_prefix.p_referenced_decl() != decl or
         misplaced_node(a, decl)
     | e@EnumRepClause    => e.f_type_name.p_referenced_decl() != decl or
@@ -52,7 +52,7 @@ fun misplaced_node(n, decl) =
        category="Style", subcategory="Programming Practice")
 fun misplaced_representation_items(node) =
     match node
-    | AttributeDefClause(f_attribute_expr is AttributeRef) =>
+    | AttributeDefClause(f_attribute_expr: AttributeRef) =>
         misplaced_node(node,
             node.f_attribute_expr.f_prefix.p_referenced_decl())
     | EnumRepClause   =>

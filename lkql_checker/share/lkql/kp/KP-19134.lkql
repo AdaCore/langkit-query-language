@@ -7,8 +7,8 @@ import stdlib
 # Check that 'type_decl' is an array of int
 fun is_array_of_int(type_decl) =
     type_decl.p_root_type() is TypeDecl(
-        p_is_array_type() is true,
-        f_type_def is def@ArrayTypeDef
+        p_is_array_type(): true,
+        f_type_def: def@ArrayTypeDef
         when def.f_component_type.f_type_expr.p_designated_type_decl().p_is_int_type()
     )
 
@@ -29,6 +29,6 @@ fun is_unck_conv_to_array_of_int(call) =
        message="possible occurrence of KP 19134",
        impact="23.*,24.*")
 fun kp_19134(node) =
-    node is CallExpr(p_is_call() is true)
+    node is CallExpr(p_is_call(): true)
     when stdlib.any([is_unck_conv_to_array_of_int(p.actual)
                      for p in node.p_call_params()])

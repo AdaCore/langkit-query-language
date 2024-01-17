@@ -8,9 +8,9 @@ import stdlib
        category="Style", subcategory="Object Orientation")
 fun constructors(node) =
     node is (BasicSubpDecl |
-             BaseSubpBody(p_previous_part() is null) |
-             SubpBodyStub(p_previous_part() is null))
+             BaseSubpBody(p_previous_part(): null) |
+             SubpBodyStub(p_previous_part(): null))
     # Get subprogram declarations that are primitive of a tagged type
     when node.p_subp_spec_or_null() is
-         spec@BaseSubpSpec(p_primitive_subp_tagged_type() is BaseTypeDecl)
+         spec@BaseSubpSpec(p_primitive_subp_tagged_type(): BaseTypeDecl)
          when stdlib.is_constructor(spec)

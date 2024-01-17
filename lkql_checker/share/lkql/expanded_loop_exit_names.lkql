@@ -2,4 +2,4 @@
 
 @check(message="expanded loop name in exit statement", category="SPARK")
 fun expanded_loop_exit_names(node) =
-    node is ExitStmt(f_loop_name is DottedName)
+    node is ExitStmt(f_loop_name: DottedName)

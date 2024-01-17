@@ -6,18 +6,18 @@
 
 # In the context of a range constraint, a NumberDecl is always an int
 fun is_universal_int(i) =
-    i is IntLiteral or i is Name(p_referenced_decl() is NumberDecl)
+    i is IntLiteral or i is Name(p_referenced_decl(): NumberDecl)
 
 @check(message="range with universal integer bounds", category="SPARK")
 fun universal_ranges(node) =
     node is ((
         # index constraint or constrained array definition
-        CompositeConstraint(p_is_index_constraint() is true)
+        CompositeConstraint(p_is_index_constraint(): true)
         when node.f_constraints[1].f_constraint_expr
-        is r@BinOp(f_op is OpDoubleDot)
+        is r@BinOp(f_op: OpDoubleDot)
             when is_universal_int(r.f_right) and is_universal_int(r.f_left)
     ) | (
         # range of a "for of" loop
-        r@BinOp (parent is ForLoopSpec, f_op is OpDoubleDot)
+        r@BinOp (parent: ForLoopSpec, f_op: OpDoubleDot)
         when is_universal_int(r.f_right) and is_universal_int(r.f_left)
     ))

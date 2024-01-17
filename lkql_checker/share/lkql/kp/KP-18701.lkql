@@ -7,7 +7,7 @@ import stdlib
 fun kp_18701(node) =
     node is Aggregate
     when node.p_expression_type() is BaseTypeDecl(
-         p_canonical_type() is type@ConcreteTypeDecl
+         p_canonical_type(): type@ConcreteTypeDecl
          # Type has discriminants
          when type.f_discriminants is KnownDiscriminantPart
          # with default values

@@ -121,25 +121,25 @@ fun identifier_prefixes(unit,
     [{message: n.text &
       (match n.parent
        | p@(TaskTypeDecl | ProtectedTypeDecl |
-            SubtypeDecl(p_canonical_type() is TaskTypeDecl | ProtectedTypeDecl))
+            SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
          when p is not SingleTaskTypeDecl and concurrent != "-"
        => str_prefix & "concurrent prefix " & concurrent
-       | (TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
-          AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) |
-          SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
-                      TypeAccessDef(f_subtype_indication is *(f_name is
-          AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
+       | (TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
+          AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
+          SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
+                      TypeAccessDef(f_subtype_indication: *(f_name:
+          AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
          when class_access != "-" => str_prefix & "access-to-class prefix " & class_access
-       | (TypeDecl(f_type_def is AccessToSubpDef) |
-          SubtypeDecl(p_canonical_type() is
-                      TypeDecl(f_type_def is AccessToSubpDef)))
+       | (TypeDecl(f_type_def: AccessToSubpDef) |
+          SubtypeDecl(p_canonical_type():
+                      TypeDecl(f_type_def: AccessToSubpDef)))
          when subprogram_access != "-" =>
            str_prefix & "access-to-subprogram prefix " & subprogram_access
-       | (TypeDecl(f_type_def is AccessDef) |
-          SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
+       | (TypeDecl(f_type_def: AccessDef) |
+          SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
          when access != "-" => str_prefix & "access prefix " & access
 
-       | p@(TypeDecl(f_type_def is DerivedTypeDef) | SubtypeDecl)
+       | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
          when derived != [] and
               p.p_canonical_type().p_base_type() is t@BaseTypeDecl
               when get_derived(t, derived) != ""
@@ -161,7 +161,7 @@ fun identifier_prefixes(unit,
     for n in from unit.root select node@DefiningName when match node.parent
     # Concurrent types
     | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody |
-         SubtypeDecl(p_canonical_type() is TaskTypeDecl | ProtectedTypeDecl))
+         SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
       when p is not SingleTaskTypeDecl and concurrent != "-"
     =>
         p.p_previous_part() is (null | IncompleteTypeDecl) and
@@ -171,11 +171,11 @@ fun identifier_prefixes(unit,
                          concurrent_exclusive=false))
 
     # 'Class access
-    | (p@TypeDecl(f_type_def is TypeAccessDef(f_subtype_indication is *(f_name is
-       AttributeRef(f_attribute is Identifier(p_name_is("Class") is true))))) |
-       p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is
-                     TypeAccessDef(f_subtype_indication is *(f_name is
-       AttributeRef(f_attribute is Identifier(p_name_is("Class") is true)))))))
+    | (p@TypeDecl(f_type_def: TypeAccessDef(f_subtype_indication: *(f_name:
+       AttributeRef(f_attribute: Identifier(p_name_is("Class"): true))))) |
+       p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def:
+                     TypeAccessDef(f_subtype_indication: *(f_name:
+       AttributeRef(f_attribute: Identifier(p_name_is("Class"): true)))))))
       when class_access != "-"
     =>
         p?.p_previous_part() is (null | IncompleteTypeDecl) and
@@ -185,9 +185,9 @@ fun identifier_prefixes(unit,
                          class_access_exclusive=false))
 
     # Subprogram access
-    | (p@TypeDecl(f_type_def is AccessToSubpDef) |
-       p@SubtypeDecl(p_canonical_type() is
-                     TypeDecl(f_type_def is AccessToSubpDef)))
+    | (p@TypeDecl(f_type_def: AccessToSubpDef) |
+       p@SubtypeDecl(p_canonical_type():
+                     TypeDecl(f_type_def: AccessToSubpDef)))
       when subprogram_access != "-"
     =>
         p?.p_previous_part() is (null | IncompleteTypeDecl) and
@@ -197,8 +197,8 @@ fun identifier_prefixes(unit,
                          subprogram_access_exclusive=false))
 
     # Other access types
-    | (p@TypeDecl(f_type_def is AccessDef) |
-       p@SubtypeDecl(p_canonical_type() is TypeDecl(f_type_def is AccessDef)))
+    | (p@TypeDecl(f_type_def: AccessDef) |
+       p@SubtypeDecl(p_canonical_type(): TypeDecl(f_type_def: AccessDef)))
       when access != "-"
     =>
         p?.p_previous_part() is (null | IncompleteTypeDecl) and
@@ -213,7 +213,7 @@ fun identifier_prefixes(unit,
                          type_exclusive=false))
 
     # (Sub)Types derived from `derived`
-    | p@(TypeDecl(f_type_def is DerivedTypeDef) | SubtypeDecl)
+    | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
       when derived != [] and
            p.p_canonical_type().p_base_type() is t@BaseTypeDecl
            when get_derived(t, derived) != ""
@@ -241,7 +241,7 @@ fun identifier_prefixes(unit,
     # Look one level up for remaining cases
     | p => match p.parent
         # Constants
-        | ((ObjectDecl(p_is_constant_object() is true) when not node.p_previous_part())
+        | ((ObjectDecl(p_is_constant_object(): true) when not node.p_previous_part())
           | NumberDecl)
         =>
             (constant != "-" and not node.f_name.text.starts_with(constant)) or

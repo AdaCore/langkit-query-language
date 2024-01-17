@@ -4,7 +4,7 @@
 
 @check(message="reference to predefined type")
 fun predefined_types(node) =
-    node is Identifier(p_referenced_decl() is t@BaseTypeDecl)
+    node is Identifier(p_referenced_decl(): t@BaseTypeDecl)
     when match t.p_canonical_fully_qualified_name()
     | "^standard\.boolean$"   => false
     | "^standard\.character$" => false

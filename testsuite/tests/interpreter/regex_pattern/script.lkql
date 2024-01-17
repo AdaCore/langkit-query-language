@@ -1,13 +1,13 @@
 # Check that regex patterns can be applied to nodes directly
 # (Find all declarations starting with "F_" and then at least 5 characters)
-val f_decls = select BasicDecl(p_defining_name() is "^F_.{5,}")
+val f_decls = select BasicDecl(p_defining_name(): "^F_.{5,}")
 print(f_decls)
 
 # Check that LKQL doesn't crash when trying to regex-match null nodes
 # (f_aspects is null for more declarations)
-val nulls = select BasicDecl(f_aspects is ".*")
+val nulls = select BasicDecl(f_aspects: ".*")
 print(nulls)
 
 # Check that the pattern can be applied to string values
-val fqns = select BasicDecl(p_fully_qualified_name() is "^.{15,25}$")
+val fqns = select BasicDecl(p_fully_qualified_name(): "^.{15,25}$")
 print(fqns)

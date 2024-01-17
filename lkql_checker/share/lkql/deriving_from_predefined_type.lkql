@@ -8,6 +8,6 @@ import stdlib
        follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
 fun deriving_from_predefined_type(node) =
-    node is DerivedTypeDef(f_has_with_private is WithPrivateAbsent,
-                           f_record_extension is null)
+    node is DerivedTypeDef(f_has_with_private: WithPrivateAbsent,
+                           f_record_extension: null)
     when stdlib.is_predefined_type(node.f_subtype_indication.f_name)

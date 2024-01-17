@@ -13,5 +13,5 @@ fun bit_records_without_layout_definition(node) =
     when node.f_type_def is (RecordTypeDef | DerivedTypeDef)
      and node.p_has_aspect("Pack")
      and not node.p_get_record_representation_clause()
-     and node is *(any children is c@(ComponentDef | DiscriminantSpec)
+     and node is *(any children: c@(ComponentDef | DiscriminantSpec)
                    when lal_is_mod_type(c))
