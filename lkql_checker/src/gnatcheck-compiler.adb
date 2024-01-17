@@ -1470,7 +1470,7 @@ package body Gnatcheck.Compiler is
       use GNAT.String_Split;
 
       Pid           : Process_Id;
-      Split_Command : constant Slice_Set := Create (Worker_Command, " ");
+      Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker        : String_Access := null;
       Prj           : constant String := Gnatcheck_Prj.Source_Prj;
       CGPR          : constant String := Gnatcheck_Prj.Source_CGPR;
@@ -1495,7 +1495,7 @@ package body Gnatcheck.Compiler is
       --  Test if the worker executable exists
       if Worker = null then
          Error ("cannot locate the worker executable: "
-                & Base_Name (Worker_Command));
+                & Base_Name (Worker_Name));
          raise Fatal_Error;
       end if;
 
@@ -1599,7 +1599,7 @@ package body Gnatcheck.Compiler is
       use GNAT.String_Split;
 
       Pid           : Process_Id;
-      Split_Command : constant Slice_Set := Create (Worker_Command, " ");
+      Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker : String_Access := null;
       Args : Argument_List (1 .. 128);
       Num_Args : Integer := 0;
@@ -1617,7 +1617,7 @@ package body Gnatcheck.Compiler is
 
       if Worker = null then
          Error ("cannot locate the worker executable: "
-                & Base_Name (Worker_Command));
+                & Base_Name (Worker_Name));
          raise Fatal_Error;
       end if;
 

@@ -40,13 +40,6 @@ package Gnatcheck.Options is
       else Default_Worker);
    --  The name of the worker to use.
 
-   Use_External_Worker : constant Boolean := Worker_Name /= "gnatcheck";
-   --  Whether a custom GNATcheck worker executable should be used
-
-   Worker_Command : constant String :=
-     (if Use_External_Worker then Worker_Name else Command_Name);
-   --  The executable to use as GNATcheck worker
-
    RTS_Path : GNAT.OS_Lib.String_Access := new String'("");
    --  Runtime as specified via --RTS= or Runtime attribute
 
