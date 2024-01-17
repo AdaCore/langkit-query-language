@@ -123,11 +123,14 @@ class GnatcheckDriver(BaseDriver):
     This driver also supports performance testing.
 
     Test arguments:
+        - ``jobs``: The number of jobs to forward to the GNATcheck command.
         - ``project``: GPR build file to use (if any)
         - ``input_sources``: Ada files to analyze (if explicit, optional if
           project is passed)
         - ``rule_file``: If passed, files to analyse will be fetched from this
           file
+        - ``ignore_file``: If passed, ignore all sources listed in the provided
+          file.
         - ``extra_args``: Extra arguments to pass to GNATcheck
         - ``rules``: A list of rules with their arguments, in the gnatcheck
           format.  Note that the list can be empty, and people can instead
@@ -140,6 +143,7 @@ class GnatcheckDriver(BaseDriver):
         - ``pre_python``/``post_python``: Python code to be executed
           before/after the test
         - ``worker``: Provide a custom worker for the GNATcheck run
+        - ``timeout``: Set the test timeout in seconds.
 
     .. NOTE:: In practice, the above allows several different ways to express
         the same test, which dis not ideal. It was necessary to transition
@@ -161,6 +165,10 @@ class GnatcheckDriver(BaseDriver):
         'xml': _parse_xml
     }
 
+    @property
+    def default_process_timeout(self):
+        return self.test_env.get("timeout", 300)
+
     def run(self) -> None:
         gnatcheck_env = dict(os.environ)
 
@@ -181,6 +189,14 @@ class GnatcheckDriver(BaseDriver):
         gnatcheck_env["GNATCHECK_WORKER"] = custom_worker or " ".join(
             self.gnatcheck_worker_exe
         )
+
+        # Get the provided project path and set from the testsuite root
+        project_path = self.test_env.get('project_path', None)
+        if project_path:
+            gnatcheck_env["GPR_PROJECT_PATH"] = os.pathsep.join([
+                P.join(self.env.testsuite_root_dir, project_dir)
+                for project_dir in project_path
+            ])
 
         globs, locs = {}, {}
         global_python = self.test_env.get("global_python", None)
@@ -210,7 +226,7 @@ class GnatcheckDriver(BaseDriver):
             assert output_format in GnatcheckDriver.output_formats
             brief = output_format == 'brief'
             exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
-            args = [exe, '-q']
+            args = [exe, '-q', '-m0']
 
             pre_python = test_data.get('pre_python', None)
             post_python = test_data.get('post_python', None)
@@ -224,13 +240,28 @@ class GnatcheckDriver(BaseDriver):
             if test_data.get('show_rule', False):
                 args.append('--show-rule')
 
+            # Set the number of wanted jobs
+            if test_data.get('jobs', None):
+                args.append(f'-j{test_data["jobs"]}')
+
             # Use the test's project, if any
             if test_data.get('project', None):
                 args += ['-P', test_data['project']]
 
+            # Add the ignore file if any
+            ignore_file = test_data.get('ignore_file', None)
+            if ignore_file:
+                abs_ignore_file = self.working_dir(ignore_file)
+                ignore_file = (abs_ignore_file
+                               if P.isfile(abs_ignore_file) else
+                               ignore_file)
+                args += [f'--ignore={ignore_file}']
+
+            # Add the specified sources to GNATcheck arguments
             if test_data.get('input_sources', None):
                 args += test_data['input_sources']
 
+            # Precise the wanted format to the GNATcheck command line
             if output_format == 'brief':
                 args.append('--brief')
             elif output_format == 'xml':
@@ -238,19 +269,29 @@ class GnatcheckDriver(BaseDriver):
             elif output_format == 'short':
                 args.append('-s')
 
+            # Add the scenario variables
             for k, v in test_data.get('scenario_variables', {}).items():
                 args.append(f'-X{k}={v}')
 
+            # Add the rule directories
             for rule_dir in test_data.get('rules_dirs', []):
                 args.append(f'--rules-dir={rule_dir}')
 
+            # Finally add all extra arguments given in the test
             for extra_arg in test_data.get('extra_args', []):
                 args.append(extra_arg)
 
+            # Start the GNATcheck rule section
             args.append("-rules")
+
+            # Add the rule configuration arguments
             rule_file = test_data.get('rule_file', None)
             lkql_rule_file = test_data.get('lkql_rule_file', None)
             if rule_file:
+                abs_rule_file = self.working_dir(rule_file)
+                rule_file = (abs_rule_file
+                             if P.isfile(abs_rule_file) else
+                             rule_file)
                 args += ['-from', rule_file]
             if lkql_rule_file:
                 args += ['-from-lkql', lkql_rule_file]
