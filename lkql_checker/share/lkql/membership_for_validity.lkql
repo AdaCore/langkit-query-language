@@ -13,7 +13,7 @@ fun membership_for_validity(node) =
     node is MembershipExpr(f_expr is var@Name)
     when not node.f_membership_exprs[2]
      and node.f_membership_exprs[1] is
-         (typ@Name when type_of(var) == typ.p_referenced_decl()) or
+         ((typ@Name when type_of(var) == typ.p_referenced_decl()) |
          bin_op@BinOp(f_op is OpDoubleDot,
                f_left is at1@AttributeRef(f_prefix is typ1@*)
                          when at1.f_attribute.p_name_is("First")
@@ -24,4 +24,4 @@ fun membership_for_validity(node) =
          when (
              typ1.p_referenced_decl() == typ2.p_referenced_decl()
              and type_of(var) == typ1.p_referenced_decl()
-         )
+         ))

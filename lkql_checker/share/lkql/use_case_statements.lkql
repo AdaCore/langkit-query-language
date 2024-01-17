@@ -18,7 +18,7 @@ fun check_alternatives(list, id) =
     |" Check that all alternatives are of the form:
     |" Id <relation op> static-expr
     [x for x in list
-     if x.f_cond_expr is r@RelationOp(f_left is id2@(Identifier or DottedName))
+     if x.f_cond_expr is r@RelationOp(f_left is id2@(Identifier | DottedName))
         when is_static_relation(r) and id2.p_name_matches(id)
      ].length == list.length
 
@@ -30,7 +30,7 @@ fun use_case_statements(node) =
         f_cond_expr is r@RelationOp
         when r.f_left is id@(
                  (Identifier when id.p_expression_type().p_is_discrete_type())
-              or (DottedName
+              | (DottedName
                   when id.f_suffix is suffix@Name
                       when suffix.p_referenced_decl() is ComponentDecl
                        and suffix.p_expression_type().p_is_discrete_type()))

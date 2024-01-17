@@ -32,7 +32,7 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
        f_attribute is id@Identifier
            when id.p_name_is("Address") or id.p_name_is("Access"))
     when node.f_prefix.p_referenced_decl() is
-         subp@(SubpBody or SubpDecl or SubpBodyStub or GenericSubpInstantiation)
+         subp@(SubpBody | SubpDecl | SubpBodyStub | GenericSubpInstantiation)
      when (from node through parent
            select first CallExpr(p_is_call() is true)) is call@CallExpr
       when {

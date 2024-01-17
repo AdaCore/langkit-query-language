@@ -19,8 +19,8 @@ fun non_component_in_barriers(unit) = [
                         select DefiningName;
             [id for id in (from node.f_barrier select Identifier)
              if id.p_referenced_decl() is
-                ObjectDecl or ParamSpec or
-                d@ComponentDecl when not is_protected_component(id, d, names)]
+                (ObjectDecl | ParamSpec |
+                d@ComponentDecl when not is_protected_component(id, d, names))]
         }
     )
 ]

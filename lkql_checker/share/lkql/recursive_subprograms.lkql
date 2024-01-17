@@ -35,13 +35,13 @@ fun get_body(node) =
 # Get the bodies of the functions called statically by a given function body
 @memoized
 selector static_calls
-    | b@(BodyNode or GenericDecl) => rec *
+    | b@(BodyNode | GenericDecl) => rec *
         # Grab the bodies for every static call
         [get_body(a)
          for a in stdlib.children_no_nested(b)
-         if a is GenericInstantiation or
+         if a is (GenericInstantiation |
                  BaseId when a.p_is_static_call() or
-                             a.p_referenced_decl() is TaskTypeDecl].to_list
+                             a.p_referenced_decl() is TaskTypeDecl)].to_list
     | *      => ()
 
 @memoized
@@ -65,14 +65,14 @@ fun bodies(name) =
 
 fun calls_helper(b) =
       concat([bodies(a) for a in stdlib.children_no_nested(b)
-              if a is GenericInstantiation or
+              if a is (GenericInstantiation |
                       (BaseId when a.p_is_direct_call() or
-                                   a.p_referenced_decl() is TaskTypeDecl)].
+                                   a.p_referenced_decl() is TaskTypeDecl))].
              to_list)
 
 @memoized
 selector calls
-   | b@(BodyNode or GenericDecl) => rec * calls_helper(b)
+   | b@(BodyNode | GenericDecl) => rec * calls_helper(b)
        # Grab the bodies for every direct call
    | *      => ()
 
@@ -86,8 +86,8 @@ fun recursive_subprograms(node,
                           follow_dispatching_calls=false,
                           follow_ghost_code=false) =
 
-    node is (ClassicSubpDecl or SubpBodyStub(p_previous_part() is null) or
-             BaseSubpBody(p_previous_part() is null or GenericSubpDecl))
+    node is (ClassicSubpDecl | SubpBodyStub(p_previous_part() is null) |
+             BaseSubpBody(p_previous_part() is null | GenericSubpDecl))
 
       when (not stdlib.in_generic_template(node))
        and (follow_ghost_code or not node.p_is_ghost_code())

@@ -11,8 +11,8 @@ import stdlib
 @check(message="first parameter should have name 'This' and proper type",
        remediation="EASY", category="Style", subcategory="Readability")
 fun misnamed_controlling_parameters(node) =
-    node is (BasicSubpDecl or
-             BaseSubpBody(p_previous_part() is null) or
+    node is (BasicSubpDecl |
+             BaseSubpBody(p_previous_part() is null) |
              SubpBodyStub(p_previous_part() is null))
     # Get subprogram declarations that are primitive of a tagged type
     when node.p_subp_spec_or_null() is

@@ -39,25 +39,25 @@ fun is_self_referencing(expr, type_decl) =
 
 @check(message="anonymous subtype", category="Feature")
 fun anonymous_subtypes(node) =
-    node is (SubtypeIndication(f_constraint is constraint@Constraint)
+    node is ((SubtypeIndication(f_constraint is constraint@Constraint)
          when (not (constraint is
                     CompositeConstraint(p_is_discriminant_constraint() is true)
                     and is_self_referencing(constraint, get_type_decl(node))))
           and not (node.parent is SubtypeDecl and
                    constraint is
-                       RangeConstraint or
+                       (RangeConstraint |
                        (CompositeConstraint
                         when constraint.p_is_discriminant_constraint()
                         # If it's an index constraint, check that all
                         # constraints are references to other types
                           or not [c for c in constraint.f_constraints.children
                                   if c.f_constraint_expr is not Name(
-                                      p_referenced_decl() is BaseTypeDecl)])))
-    or BinOp(f_op is OpDoubleDot,
-             parent is not RangeSpec(parent is TypeDef or ComponentClause),
+                                      p_referenced_decl() is BaseTypeDecl)]))))
+    | BinOp(f_op is OpDoubleDot,
+             parent is not RangeSpec(parent is TypeDef | ComponentClause),
              all parent is not Constraint(parent is SubtypeIndication))
-    or AttributeRef(f_attribute is Identifier(p_name_is("Range") is true),
+    | AttributeRef(f_attribute is Identifier(p_name_is("Range") is true),
                     parent is not RangeSpec(parent is
-                                            TypeDef or ComponentClause),
-                    all parent is not Constraint(parent is SubtypeIndication))
+                                            TypeDef | ComponentClause),
+                    all parent is not Constraint(parent is SubtypeIndication)))
     and not is_using_discriminant(node, get_type_decl(node))

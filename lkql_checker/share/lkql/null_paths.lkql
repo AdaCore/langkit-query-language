@@ -9,7 +9,7 @@ fun null_paths(node, except_enums = false) =
     node is StmtList
     when node[1]
      and node is StmtList(any parent is
-                              IfStmt or BaseLoopStmt or
+                              IfStmt | BaseLoopStmt |
                               c@CaseStmt when not
                                   (except_enums and
                                    c.f_expr.p_expression_type().p_is_enum_type()),

@@ -31,19 +31,19 @@ fun non_visible_exceptions(unit) = [
     node@(Identifier(parent is DefiningName(parent is DefiningNameList(parent is
                                             e@ExceptionDecl(f_renames is null)
     # ...declared in a subprogram body, task body or block
-    when e.p_semantic_parent() is p@(SubpBody or TaskBody or DeclBlock)
+    when e.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
        # with either no exception handler
        when not p.f_stmts.f_exceptions
          # or no handler referencing node or "others"
          or not p.f_stmts.f_exceptions is
             AdaNodeList(any children(depth=3) is
-                OthersDesignator or
-                (id@(Identifier or DottedName)
+                OthersDesignator |
+                (id@(Identifier | DottedName)
                  when stdlib.ultimate_exception_alias(id) == e)))))
     # Find also raise statements in an exception handler of a subprogram body,
     # task body or block statement
-    or RaiseStmt(any parent is h@ExceptionHandler
-        when h.p_semantic_parent() is p@(SubpBody or TaskBody or DeclBlock)
+    | RaiseStmt(any parent is h@ExceptionHandler
+        when h.p_semantic_parent() is p@(SubpBody | TaskBody | DeclBlock)
          when
            # raises a locally declared exception
            if node.f_exception_name

@@ -8,4 +8,4 @@ fun size_attribute_for_types(node) =
     node is AttributeRef
     when node.f_attribute?.p_name_is("Size")
      and node.f_prefix?.p_referenced_decl() is BaseTypeDecl
-     and not node is *(any parent is AttributeDefClause or AspectSpec)
+     and not node is *(any parent is AttributeDefClause | AspectSpec)

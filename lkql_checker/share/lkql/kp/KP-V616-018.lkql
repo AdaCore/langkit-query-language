@@ -14,5 +14,5 @@ fun kp_v616_018(node) =
         f_component_def is ComponentDef(
             f_type_expr is SubtypeIndication(
                 f_name is n@Name
-                when access_to_unconstrained_array(n.p_referenced_decl())) or
+                when access_to_unconstrained_array(n.p_referenced_decl())) |
             a@AnonymousType when access_to_unconstrained_array(a.f_type_decl)

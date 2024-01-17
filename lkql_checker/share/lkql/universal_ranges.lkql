@@ -10,14 +10,14 @@ fun is_universal_int(i) =
 
 @check(message="range with universal integer bounds", category="SPARK")
 fun universal_ranges(node) =
-    node is (
+    node is ((
         # index constraint or constrained array definition
         CompositeConstraint(p_is_index_constraint() is true)
         when node.f_constraints[1].f_constraint_expr
         is r@BinOp(f_op is OpDoubleDot)
             when is_universal_int(r.f_right) and is_universal_int(r.f_left)
-    ) or (
+    ) | (
         # range of a "for of" loop
         r@BinOp (parent is ForLoopSpec, f_op is OpDoubleDot)
         when is_universal_int(r.f_right) and is_universal_int(r.f_left)
-    )
+    ))

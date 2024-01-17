@@ -14,7 +14,7 @@ fun check_control_parent(node, n) =
     |" Return true if node and its parents contain more than n control structure
     match node
     | null => false
-    | IfStmt or CaseStmt or BaseLoopStmt or SelectStmt =>
+    | (IfStmt | CaseStmt | BaseLoopStmt | SelectStmt) =>
         if n == 0 then true else check_control_parent(node.parent, n - 1)
     | * => check_control_parent(node.parent, n)
 
@@ -30,5 +30,5 @@ fun check_loop_parent(node, n) =
 fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
     if loops_only
     then node is BaseLoopStmt when check_loop_parent(node.parent, n)
-    else node is (IfStmt or CaseStmt or BaseLoopStmt or SelectStmt)
+    else node is (IfStmt | CaseStmt | BaseLoopStmt | SelectStmt)
          when check_control_parent(node.parent, n)

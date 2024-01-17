@@ -46,4 +46,4 @@ fun kp_19142(node) =
                                  for id in p.f_ids.children])
                      for p in node.f_subp_spec.p_params()
                      if is_unconstrained_discriminated(p.p_formal_type())
-                        and p.f_mode is (ModeOut or ModeInOut)])
+                        and p.f_mode is (ModeOut | ModeInOut)])

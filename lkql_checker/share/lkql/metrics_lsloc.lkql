@@ -15,10 +15,10 @@ fun metrics_lsloc(unit, n : int = 5, subprograms=false) = {
         if subprograms
         then (from unit.root select BaseSubpBody)
         else (from unit.root select
-              GenericPackageDecl or PackageDecl or PackageBody or
-              BaseSubpBody or
-              TaskTypeDecl or SingleTaskDecl or TaskBody or
-              SingleProtectedDecl or ProtectedTypeDecl or ProtectedBody);
+              (GenericPackageDecl | PackageDecl | PackageBody |
+              BaseSubpBody |
+              TaskTypeDecl | SingleTaskDecl | TaskBody |
+              SingleProtectedDecl | ProtectedTypeDecl | ProtectedBody));
 
     [
         { message: "LSLOC is too high: " & img(t[2]), loc: t[1] }

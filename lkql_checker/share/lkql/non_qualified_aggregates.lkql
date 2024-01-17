@@ -9,5 +9,5 @@
 fun non_qualified_aggregates(node) =
     node is Aggregate(p_expression_type() is not AnonymousTypeDecl,
                       p_is_subaggregate() is false,
-                      all parent is not (QualExpr or AspectClause or Aggregate(
+                      all parent is not (QualExpr | AspectClause | Aggregate(
                           p_expression_type() is not AnonymousTypeDecl)))

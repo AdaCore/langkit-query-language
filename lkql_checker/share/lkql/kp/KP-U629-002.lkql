@@ -10,7 +10,7 @@ fun kp_u629_002(node) =
     # Look for type(xxx.all) as part of a return or expression function body
     node is ExplicitDeref(parent is ParamAssoc(parent is AssocList(
         parent is CallExpr(
-            any parent is ExprFunction or ReturnStmt,
+            any parent is ExprFunction | ReturnStmt,
              # the return object is a controlling parameter
             any parent is BaseSubpBody(f_subp_spec is spec@SubpSpec)
                           when stdlib.is_controlling_param_type(spec.p_returns(), spec),

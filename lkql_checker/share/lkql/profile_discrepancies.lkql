@@ -52,9 +52,9 @@ fun profile_discrepancies(unit) = [
     {message: "structure of parameter profile differs from " &
               stdlib.sloc_image(n.p_decl_part()),
      loc: n.p_defining_name()}
-    for n in from unit.root select node@((BaseSubpBody or SubpBodyStub)
+    for n in from unit.root select node@((BaseSubpBody | SubpBodyStub)
         when match node.p_decl_part()
         | g@GenericSubpDecl => subp_mismatch(node, g?.f_subp_decl)
         | s@BasicSubpDecl   => subp_mismatch(node, s)
         | *                 => false
-    or EntryBody when entry_mismatch(node))]
+    | EntryBody when entry_mismatch(node))]

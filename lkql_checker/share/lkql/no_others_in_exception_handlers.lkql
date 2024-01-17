@@ -21,9 +21,9 @@ fun no_others_in_exception_handlers(unit,
      | *        => {message: "no OTHERS choice in exception handler",
                     loc: n.f_exceptions.token_start().previous()})
     for n in from unit.root select
-        (node@((TaskBody when task) or (SubpBody when subprogram))
+        ((node@((TaskBody when task) | (SubpBody when subprogram))
          when not node.f_stmts.f_exceptions[1] or check_others(node.f_stmts))
-        or node@HandledStmts
+        | node@HandledStmts
            when all_handlers and node.f_exceptions[1] and
-                check_others(node)
+                check_others(node))
 ]

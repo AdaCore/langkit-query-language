@@ -4,8 +4,8 @@
 @check(message="definition of non class-wide aspect",
        category="Style", subcategory="Object Orientation")
 fun specific_pre_post(node) =
-    node is (BasicSubpDecl or
-             BaseSubpBody(p_previous_part() is null) or
+    node is (BasicSubpDecl |
+             BaseSubpBody(p_previous_part() is null) |
              SubpBodyStub(p_previous_part() is null))
     # Get subprogram declarations
     when node.p_subp_spec_or_null() is

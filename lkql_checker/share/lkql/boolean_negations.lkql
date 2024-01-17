@@ -15,5 +15,5 @@ fun boolean_negations(node) =
     node is UnOp(f_op is op@OpNot when stdlib.is_predefined_op(op))
     when stdlib.is_standard_boolean(node)
      and strip_parentheses(node.f_expr) is
-         expr_op@(RelationOp or UnOp(f_op is OpNot))
+         expr_op@(RelationOp | UnOp(f_op is OpNot))
          when stdlib.is_predefined_op(expr_op.f_op)

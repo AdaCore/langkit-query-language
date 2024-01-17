@@ -1076,12 +1076,12 @@ lkql_grammar.add_rules(
         G.pattern
     ),
 
-    pattern=Or(
-        OrPattern(G.filtered_pattern, "or", G.pattern),
-        G.filtered_pattern
+    or_pattern=Or(
+        OrPattern(G.pattern, "|", G.or_pattern),
+        G.pattern
     ),
 
-    filtered_pattern=Or(
+    pattern=Or(
         FilteredPattern(G.binding_pattern, "when", G.expr),
         G.binding_pattern
 
@@ -1099,7 +1099,7 @@ lkql_grammar.add_rules(
 
             Or(UniversalPattern("*"),
                NodeKindPattern(G.kind_name),
-               ParenPattern("(", G.pattern, ")")),
+               ParenPattern("(", G.or_pattern, ")")),
 
             Pick("(", c(), List(G.pattern_arg, sep=","), ")")
         ),
@@ -1112,7 +1112,7 @@ lkql_grammar.add_rules(
         G.integer_pattern,
         G.list_pattern,
         G.object_pattern,
-        ParenPattern("(", G.pattern, ")"),
+        ParenPattern("(", G.or_pattern, ")"),
         G.tuple_pattern
     ),
 
@@ -1138,9 +1138,9 @@ lkql_grammar.add_rules(
     tuple_pattern=TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
 
     pattern_arg=Or(
-        NodePatternSelector(G.selector_call, "is", G.pattern),
-        NodePatternField(G.id, "is", c(), G.pattern),
-        NodePatternProperty(G.fun_call, "is", c(), G.pattern)
+        NodePatternSelector(G.selector_call, "is", G.or_pattern),
+        NodePatternField(G.id, "is", c(), G.or_pattern),
+        NodePatternProperty(G.fun_call, "is", c(), G.or_pattern)
     ),
 
     selector_call=SelectorCall(

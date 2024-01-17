@@ -11,10 +11,10 @@
 fun check_decl_parent(node, n) =
     |" Return true if node and its parents contain more than n decl constructs
     if node == null then false
-    else if node is (BasePackageDecl or PackageBody or BasicSubpDecl or
-                     BaseSubpBody or TaskTypeDecl or SingleTaskDecl or
-                     TaskBody or ProtectedTypeDecl or SingleProtectedDecl or
-                     ProtectedBody or EntryBody or BlockStmt)
+    else if node is (BasePackageDecl | PackageBody | BasicSubpDecl |
+                     BaseSubpBody | TaskTypeDecl | SingleTaskDecl |
+                     TaskBody | ProtectedTypeDecl | SingleProtectedDecl |
+                     ProtectedBody | EntryBody | BlockStmt)
     then (if n == 0 then true
          else check_decl_parent(node.parent, n - 1))
     else check_decl_parent(node.parent, n)
@@ -22,8 +22,8 @@ fun check_decl_parent(node, n) =
 @check(message="nesting level of scopes too deep",
        category="Style", subcategory="Programming Practice")
 fun overly_nested_scopes(node, n: int = 10) =
-    node is (BasePackageDecl or PackageBody or BasicSubpDecl or BaseSubpBody or
-             TaskTypeDecl or SingleTaskDecl or TaskBody or
-             ProtectedTypeDecl or SingleProtectedDecl or ProtectedBody or
-             EntryBody or BlockStmt)
+    node is (BasePackageDecl | PackageBody | BasicSubpDecl | BaseSubpBody |
+             TaskTypeDecl | SingleTaskDecl | TaskBody |
+             ProtectedTypeDecl | SingleProtectedDecl | ProtectedBody |
+             EntryBody | BlockStmt)
     when check_decl_parent(node.parent, n)

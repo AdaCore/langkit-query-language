@@ -44,7 +44,7 @@ fun too_many_dependencies(unit, n : int = 5) = [
                   else num_deps(node.parent, node.p_semantic_parent())) & ")",
      loc: node}
     for node in from unit.root select
-        lib@(LibraryItem when num_deps(lib.parent,
-                                       lib.f_item.p_semantic_parent()) > n) or
-        sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n
+        (lib@(LibraryItem when num_deps(lib.parent,
+                                       lib.f_item.p_semantic_parent()) > n) |
+        sub@Subunit when num_deps(sub.parent, sub.p_semantic_parent()) > n)
 ]

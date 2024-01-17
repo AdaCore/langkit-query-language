@@ -15,8 +15,8 @@ fun num_interfaces(n) =
 @check(message="type has too many parents", remediation="MAJOR",
        category="Style", subcategory="Object Orientation")
 fun too_many_parents(node, n : int = 5) =
-    node is (TypeDecl(p_is_tagged_type() is true) or
-             TaskTypeDecl or ProtectedTypeDecl or SingleProtectedDecl)
+    node is (TypeDecl(p_is_tagged_type() is true) |
+             TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl)
     when ({
         val l = num_interfaces(node);
         val st = super_types(node, max_depth=n - l + 1);

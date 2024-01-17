@@ -11,10 +11,10 @@ fun arithmetic_ops() =
     |" Return a list of all types referenced in any arithmetic operator
     unique([op.p_expression_type()
             for op in select
-                BinOp(f_op is OpDiv or OpMinus or OpMod or OpMult or
-                              OpPlus or OpPow or OpRem or OpXor or
-                              OpAnd or OpOr) or
-                UnOp(f_op is OpAbs or OpMinus or OpPlus or OpNot)].to_list)
+                (BinOp(f_op is OpDiv | OpMinus | OpMod | OpMult |
+                              OpPlus | OpPow | OpRem | OpXor |
+                              OpAnd | OpOr) |
+                UnOp(f_op is OpAbs | OpMinus | OpPlus | OpNot))].to_list)
 
 @memoized
 fun instantiations() =

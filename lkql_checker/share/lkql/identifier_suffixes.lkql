@@ -82,7 +82,7 @@ fun identifier_suffixes(unit,
                   "interrupt suffix " & interrupt_suffix
               | TypeDecl(p_is_access_type() is true,
                          p_accessed_type() is
-                             ClasswideTypeDecl or
+                             ClasswideTypeDecl |
                              SubtypeDecl(p_canonical_type() is
                                          ClasswideTypeDecl))
                 when class_access_suffix != ""  =>
@@ -117,24 +117,24 @@ fun identifier_suffixes(unit,
     # 'Class access
     | p@TypeDecl(p_is_access_type() is true,
                  p_accessed_type() is
-                     ClasswideTypeDecl or
+                     ClasswideTypeDecl |
                      SubtypeDecl(p_canonical_type() is ClasswideTypeDecl))
       when class_access_suffix != ""
     =>
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(class_access_suffix)
 
     # 'Class subtype
     | p@BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
       when class_subtype_suffix != ""
     =>
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(class_subtype_suffix)
 
     # Other access types
     | p@TypeDecl(p_is_access_type() is true) when access_suffix != ""
     =>
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(
             if access_access_suffix != ""
                 and p.p_accessed_type() is t@BaseTypeDecl
@@ -149,7 +149,7 @@ fun identifier_suffixes(unit,
     # Other types
     | p@TypeDecl =>
         type_suffix != "" and
-        p.p_previous_part() is (null or IncompleteTypeDecl) and
+        p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(type_suffix)
 
     | p@PackageRenamingDecl =>
@@ -160,14 +160,14 @@ fun identifier_suffixes(unit,
     | p@* => node.p_previous_part() == null and match p.parent
         # Access data objects
         | (ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
-                                     BaseTypeDecl(p_is_access_type() is true))) or
+                                     BaseTypeDecl(p_is_access_type() is true))) |
            ComponentDecl(f_component_def is
                ComponentDef(f_type_expr is
                    TypeExpr(p_designated_type_decl() is
-                            BaseTypeDecl(p_is_access_type() is true)))) or
+                            BaseTypeDecl(p_is_access_type() is true)))) |
            ParamSpec(f_type_expr is
                      TypeExpr(p_designated_type_decl() is
-                              BaseTypeDecl(p_is_access_type() is true))) or
+                              BaseTypeDecl(p_is_access_type() is true))) |
            DiscriminantSpec(f_type_expr is
                             TypeExpr(p_designated_type_decl() is
                             BaseTypeDecl(p_is_access_type() is true))))

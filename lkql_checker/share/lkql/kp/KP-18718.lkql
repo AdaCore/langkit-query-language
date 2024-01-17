@@ -18,10 +18,10 @@ fun kp_18718(node) =
                     | *                 => null;
 
             # An expression function or a function with a single return
-            (b is ExprFunction or
+            (b is (ExprFunction |
                   SubpBody when b.f_stmts.f_stmts.children_count == 1
-                            and b.f_stmts.f_stmts[1] is ReturnStmt or
-                                                        ExtendedReturnStmt) and
+                            and b.f_stmts.f_stmts[1] is (ReturnStmt |
+                                                        ExtendedReturnStmt))) and
             # Retrieve the return type
             b.f_subp_spec.p_return_type() is t@BaseTypeDecl
                when t.p_canonical_type().p_full_view() is type@TypeDecl

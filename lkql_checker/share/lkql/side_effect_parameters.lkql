@@ -18,8 +18,8 @@ fun check_list(l, functions) =
 @check(message="call with side effects",
        category="Style", subcategory="Programming Practice")
 fun side_effect_parameters(node, functions=[]) =
-    node is GenericInstantiation
+    node is (GenericInstantiation
             when check_list(node.p_inst_params(), functions)
-    or
+    |
             AssocList(parent is n@Name(p_is_call() is true))
-            when check_list(n.p_call_params(), functions)
+            when check_list(n.p_call_params(), functions))
