@@ -468,7 +468,7 @@ fun number_of_values(type) =
     | SubtypeDecl => number_of_values(type.f_subtype.f_name.p_referenced_decl())
     | * when type == type.p_universal_int_type() => -1
     | TypeDecl(f_type_def is type_def) => match type_def
-        | EnumTypeDef(f_enum_literals is e@*) => (
+        | EnumTypeDef(f_enum_literals is e) => (
             match type.f_name?.p_canonical_fully_qualified_name()
             | "standard.character"           => 256
             | "standard.wide_character"      => 65536
@@ -482,7 +482,7 @@ fun number_of_values(type) =
           }
         | DerivedTypeDef(f_subtype_indication is *(f_constraint is RangeConstraint(f_range is *(f_range is op@BinOp)))) =>
             range_values(op.f_left, op.f_right)
-        | DerivedTypeDef(f_subtype_indication is s@*) => number_of_values(s.f_name.p_referenced_decl())
+        | DerivedTypeDef(f_subtype_indication is s) => number_of_values(s.f_name.p_referenced_decl())
         | *                     => -1
 
 fun has_interfaces(n) =
@@ -582,7 +582,7 @@ fun has_non_default_sso(decl) =
 
     aspect.exists and match default_bit_order()
     | null   => true
-    | expr@* => match expr.text
+    | expr => match expr.text
         | "High_Order_First" =>
             ultimate_alias(aspect.value).p_canonical_fully_qualified_name()
             != "system.bit_order.high_order_first"

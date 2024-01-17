@@ -76,7 +76,7 @@ fun use_for_loops(node, no_exit = false, no_function = false) =
               and no_write_reference(decl.parent, id)
               # also check that there are no further references to id after the
               # loop.
-              and not node is *(any next_siblings is n@*
+              and not node is *(any next_siblings is n
                                 when has_references(n, id))
     }
     and not (no_exit and exit_stmt(node))

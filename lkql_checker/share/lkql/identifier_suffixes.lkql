@@ -99,7 +99,7 @@ fun identifier_suffixes(unit,
                   else "access suffix " & access_suffix
               | TypeDecl => "type suffix " & type_suffix
               | PackageRenamingDecl => "renaming suffix " & renaming_suffix
-              | p@* => if p.parent is not ObjectDecl or
+              | p => if p.parent is not ObjectDecl or
                           constant_suffix == "" or
                           p.parent.f_type_expr.p_designated_type_decl().
                           p_is_access_type()
@@ -157,7 +157,7 @@ fun identifier_suffixes(unit,
         not node.f_name.text.ends_with(renaming_suffix)
 
     # Look one level up for remaining cases
-    | p@* => node.p_previous_part() == null and match p.parent
+    | p => node.p_previous_part() == null and match p.parent
         # Access data objects
         | (ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
                                      BaseTypeDecl(p_is_access_type() is true))) |

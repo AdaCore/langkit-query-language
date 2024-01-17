@@ -20,7 +20,7 @@ fun expr_complexity(body, exempt_case=false) =
 {
     fun node_weight (n) = match n
         | (BinOp(f_op is OpOrElse | OpAndThen) | IfExpr | ElsifExprPart) => 1
-        | CaseExpr(f_cases is c@*) => if exempt_case then 1 else c.children_count - 1
+        | CaseExpr(f_cases is c) => if exempt_case then 1 else c.children_count - 1
         | QuantifiedExpr => 2
         | * => 0;
 
@@ -38,9 +38,9 @@ fun statement_complexity(body, exempt_case=false) =
         | c@CaseStmt => if exempt_case then 1 else c.f_alternatives.children_count - 1
         | e@ExitStmt(f_cond_expr is not null) => 1
         | s@SelectStmt(
-            f_guards is guards@*,
-            f_else_stmts is elses_stmts@*,
-            f_abort_stmts is abort_stmts@*
+            f_guards is guards,
+            f_else_stmts is elses_stmts,
+            f_abort_stmts is abort_stmts
         ) => guards.children_count
              + (if elses_stmts.children_count == 0 then 0 else 1)
              + (if abort_stmts.children_count == 0 then 0 else 1)

@@ -1,4 +1,4 @@
-script.lkql:1:27: error: Type error: expected Bool but got Str
-1 | val p = select p @ * when "Hello"
-  |                           ^^^^^^^
+script.lkql:1:23: error: Type error: expected Bool but got Str
+1 | val p = select p when "Hello"
+  |                       ^^^^^^^
 

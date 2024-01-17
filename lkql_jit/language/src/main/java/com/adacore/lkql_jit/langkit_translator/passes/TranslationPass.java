@@ -870,8 +870,11 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
         this.scriptFrames.declareBinding(name);
         final int slot = this.scriptFrames.getBinding(name);
 
+        ValuePattern pattern = null;
         // Visit the associated value pattern
-        final ValuePattern pattern = (ValuePattern) bindingPattern.fValuePattern().accept(this);
+        if (!bindingPattern.fValuePattern().isNone()) {
+            pattern = (ValuePattern) bindingPattern.fValuePattern().accept(this);
+        }
 
         // Return the result binding pattern node
         return new BindingPattern(loc(bindingPattern), slot, pattern);

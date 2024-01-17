@@ -54,7 +54,7 @@ public final class BindingPattern extends UnfilteredPattern {
         FrameUtils.writeLocal(frame, this.slot, value);
 
         // Execute the pattern with the binding done
-        return this.pattern.executeValue(frame, value);
+        return this.pattern == null || this.pattern.executeValue(frame, value);
     }
 
     // ----- Override methods -----

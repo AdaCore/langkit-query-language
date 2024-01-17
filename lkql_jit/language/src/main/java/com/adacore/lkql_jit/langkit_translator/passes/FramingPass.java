@@ -273,7 +273,9 @@ public final class FramingPass implements Liblkqllang.BasicVisitor<Void> {
         // TODO: Enable the duplicate binding detection here
         // checkDuplicateBindings(symbol, bindingPattern.fBinding());
         this.scriptFramesBuilder.addBinding(symbol);
-        bindingPattern.fValuePattern().accept(this);
+        if (!bindingPattern.fValuePattern().isNone()) {
+            bindingPattern.fValuePattern().accept(this);
+        }
         return null;
     }
 

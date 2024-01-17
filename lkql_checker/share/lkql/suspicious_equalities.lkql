@@ -5,7 +5,7 @@
 fun name_of(node) =
     match node
     | BinOp(f_left is n@Name) => n
-    | BinOp(f_right is r@*) => r
+    | BinOp(f_right is r) => r
 
 fun is_literal(node) =
     node is (CharLiteral | NumLiteral | StringLiteral)

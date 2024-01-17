@@ -29,7 +29,7 @@ fun denotes_local_object(n) = {
                                            denotes_local_object(n.f_prefix)
         | p@GenericPackageInstantiation => stdlib.has_local_scope(p) or
                                            denotes_local_object(n.f_prefix)
-        | r@*                           =>
+        | r                           =>
           (not has_access_type(r)) and denotes_local_object(n.f_prefix);
 
     match n

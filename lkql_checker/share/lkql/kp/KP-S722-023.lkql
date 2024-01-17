@@ -13,7 +13,7 @@ fun is_array_slice(expr) =
         expr.p_get_uninstantiated_node().
         p_referenced_decl() is ObjectDecl(f_mode is ModeOut | ModeInOut) and
         is_array_slice(a.f_expr)
-    | o@*          => false
+    | o          => false
 
 @check(message="possible occurrence of KP S722-023",
        impact="7.[1-4].*,17.*,18.[12],19.[123]",
