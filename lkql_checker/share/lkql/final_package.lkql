@@ -10,7 +10,7 @@ fun is_final_pkg(pkg) =
     pkg is BasePackageDecl when {
         val aspect = pkg.p_get_aspect("Annotate");
         aspect.exists and aspect.value is Aggregate(
-            f_assocs is a@* when a[1] is "GNATcheck" and a[2] is "Final"
+            f_assocs is a when a[1] is "GNATcheck" and a[2] is "Final"
         )
     }
 

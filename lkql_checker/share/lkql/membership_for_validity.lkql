@@ -15,10 +15,10 @@ fun membership_for_validity(node) =
      and node.f_membership_exprs[1] is
          ((typ@Name when type_of(var) == typ.p_referenced_decl()) |
          bin_op@BinOp(f_op is OpDoubleDot,
-               f_left is at1@AttributeRef(f_prefix is typ1@*)
+               f_left is at1@AttributeRef(f_prefix is typ1)
                          when at1.f_attribute.p_name_is("First")
                           and at1.f_prefix is Name,
-               f_right is at2@AttributeRef(f_prefix is typ2@*)
+               f_right is at2@AttributeRef(f_prefix is typ2)
                           when at2.f_attribute.p_name_is("Last")
                            and at2.f_prefix is Name)
          when (

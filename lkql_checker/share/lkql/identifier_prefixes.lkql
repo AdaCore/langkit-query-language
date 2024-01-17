@@ -151,7 +151,7 @@ fun identifier_prefixes(unit,
 
        | BaseTypeDecl    => str_prefix & "subtype prefix " & type
        | EnumLiteralDecl => str_prefix & "enumeration prefix " & enum
-       | p@* => match p.parent
+       | p => match p.parent
                 | (ObjectDecl | NumberDecl) =>
                     str_prefix & "constant prefix " & constant
                 | SubpRenamingDecl         => str_prefix & "enumeration prefix " & enum
@@ -239,7 +239,7 @@ fun identifier_prefixes(unit,
     | EnumLiteralDecl => check_enum(node.f_name.text)
 
     # Look one level up for remaining cases
-    | p@* => match p.parent
+    | p => match p.parent
         # Constants
         | ((ObjectDecl(p_is_constant_object() is true) when not node.p_previous_part())
           | NumberDecl)
@@ -264,7 +264,7 @@ fun identifier_prefixes(unit,
 
         # Check all other defining names for exclusion except for completions
         # and renaming-as-body
-        | p2@* =>
+        | p2 =>
             (not p2 is (BodyNode | SubpRenamingDecl) or not p2.p_previous_part()) and
             (not p2 is ObjectDecl or not node.p_previous_part()) and
             check_exclusive(node.f_name.text, exclusive=exclusive)]

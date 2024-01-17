@@ -22,7 +22,7 @@ fun is_wrong_call(n, pkg) =
    # declared in pkg
              any stdlib.semantic_parent() is
                  p@GenericPackageDecl when p == pkg,
-             p_referenced_decl() is decl@*)
+             p_referenced_decl() is decl)
    # and is overloaded
    when is_overloaded(decl)
    # and the result type is declared outside pkg

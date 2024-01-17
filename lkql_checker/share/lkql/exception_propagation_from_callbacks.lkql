@@ -17,7 +17,7 @@ fun get_uninstantiated_subp(subp) =
    |" Works around an inconsistency in LAL's API wrt. generic subprograms
    |" TODO: Fix when eng/libadalang/libadalang/-/issues/1127 is fixed
     match subp
-    | GenericSubpInstantiation(f_generic_subp_name is s@*) =>
+    | GenericSubpInstantiation(f_generic_subp_name is s) =>
         s.p_referenced_decl().p_get_uninstantiated_node()
     | AdaNode => subp.p_get_uninstantiated_node()
     | * => null

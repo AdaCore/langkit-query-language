@@ -1,4 +1,4 @@
-script.lkql:1:29: error: No such field
-1 | val p = select p @ * when p.f_nonExistingField is ObjectDecl
-  |                             ^^^^^^^^^^^^^^^^^^
+script.lkql:1:25: error: No such field
+1 | val p = select p when p.f_nonExistingField is ObjectDecl
+  |                         ^^^^^^^^^^^^^^^^^^
 

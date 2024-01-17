@@ -55,7 +55,7 @@ fun enclosing_body_stmts(node) =
    match stdlib.enclosing_body(node)
    | null         => null
    | NullSubpDecl => null
-   | p@*          => p.f_stmts
+   | p          => p.f_stmts
 
 @unit_check(help="OUT parameters do not get values in procedure bodies",
             category="Feature")

@@ -415,7 +415,7 @@ class BindingPattern(BasePattern):
     """
 
     binding = Field(type=Identifier)
-    value_pattern = Field(type=ValuePattern)
+    value_pattern = Field(type=BasePattern)
 
 
 class IsClause(Expr):
@@ -531,7 +531,7 @@ class NotPattern(ValuePattern):
 
        let non_objects = select not ObjectDecl
     """
-    pattern = Field(type=ValuePattern)
+    pattern = Field(type=BasePattern)
 
 
 @abstract
@@ -1082,13 +1082,7 @@ lkql_grammar.add_rules(
     ),
 
     pattern=Or(
-        FilteredPattern(G.binding_pattern, "when", G.expr),
-        G.binding_pattern
-
-    ),
-
-    binding_pattern=Or(
-        BindingPattern(G.id, "@", G.value_pattern),
+        FilteredPattern(G.value_pattern, "when", G.expr),
         G.value_pattern
     ),
 
@@ -1112,6 +1106,7 @@ lkql_grammar.add_rules(
         G.integer_pattern,
         G.list_pattern,
         G.object_pattern,
+        BindingPattern(G.id, Opt("@", G.value_pattern)),
         ParenPattern("(", G.or_pattern, ")"),
         G.tuple_pattern
     ),
@@ -1128,14 +1123,14 @@ lkql_grammar.add_rules(
     integer_pattern=IntegerPattern(Token.Integer),
     list_pattern=ListPattern(
         "[",
-        List(G.binding_pattern | G.splat_pattern, sep=","), "]"
+        List(G.splat_pattern | G.value_pattern, sep=","), "]"
     ),
     object_pattern=ObjectPattern(
         "{",
         List(G.object_pattern_assoc | G.splat_pattern, sep=",", empty_valid=False),
         "}"
     ),
-    tuple_pattern=TuplePattern("(", List(G.binding_pattern, sep=","), ")"),
+    tuple_pattern=TuplePattern("(", List(G.value_pattern, sep=","), ")"),
 
     pattern_arg=Or(
         NodePatternSelector(G.selector_call, "is", G.or_pattern),

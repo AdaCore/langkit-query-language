@@ -3,9 +3,9 @@ fun test_list_patterns(lst) =
         img(lst) & " matches " &
         match lst
         | [1, 2, 3] => "[1, 2, 3]"
-        | [1, a@*, 3] => "[1, a@*, 3], with a = " & img(a)
+        | [1, a, 3] => "[1, a@*, 3], with a = " & img(a)
         | [11, 12, ...] => "[11, 12, ...]"
-        | [1, b@*, c@...] => "[1, b@*, c@...] with b = " & img(b) & " & c = " & img(c)
+        | [1, b, c@...] => "[1, b@*, c@...] with b = " & img(b) & " & c = " & img(c)
         | [...] => "[...]"
         | [..., 1, 2] => "Can never match"
         | * => "*"

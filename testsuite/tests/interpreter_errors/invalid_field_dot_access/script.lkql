@@ -1,2 +1,2 @@
-val p = select p @ * when p.f_nonExistingField is ObjectDecl
+val p = select p when p.f_nonExistingField is ObjectDecl
 print (p)

@@ -115,7 +115,7 @@ fun identifier_casing(unit,
                    | EnumLiteralDecl when enum != ""
                    => msg("for enumeration literals (", enum)
 
-                   | p@* =>
+                   | p =>
                        match p.parent
                        | (ObjectDecl(p_is_constant_object() is true) |
                           NumberDecl) when constant != ""
@@ -146,7 +146,7 @@ fun identifier_casing(unit,
         | EnumLiteralDecl when enum != "" => check_casing(id, enum, exclude)
 
         # Look one level up for remaining cases
-        | p@* => match p.parent
+        | p => match p.parent
 
         # Constants
         | (ObjectDecl(p_is_constant_object() is true) |

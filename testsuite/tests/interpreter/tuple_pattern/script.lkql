@@ -5,7 +5,7 @@ fun test_match_tuple(i) =
 
 fun test_match_tuple_2(i) =
     match i
-    | (1, a@*, b@*, 4) => { print(a); print(b) }
+    | (1, a, b, 4) => { print(a); print(b) }
 
 test_match_tuple((1, 2, 3))
 test_match_tuple((4, 5, 6))

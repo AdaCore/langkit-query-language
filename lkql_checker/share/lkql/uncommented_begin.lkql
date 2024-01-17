@@ -14,7 +14,7 @@ fun uncommented_begin(unit) = [
     select node@HandledStmts(parent is p@(PackageBody | SubpBody |
                                           EntryBody | ProtectedBody |
                                           TaskBody))
-    when p.f_decls is *(f_decls is l@*)
+    when p.f_decls is *(f_decls is l)
          when l[1]
           and not stdlib.find_comment(node.token_start().previous(exclude_trivia=true),
                                       p.p_defining_name().text)

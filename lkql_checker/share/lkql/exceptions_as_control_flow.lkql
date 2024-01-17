@@ -34,9 +34,9 @@ fun exceptions_as_control_flow(node) =
                  when canonical_exception(i) == canonical_exc)
 
           # And the handler belongs to a block that encloses this raise statement
-          and r is *(any parent is p@* when p.parent == stmt_block)
+          and r is *(any parent is p when p.parent == stmt_block)
 
           # But the raise statement is not directly part of the handler
-          and not r is *(any parent is p@* when p.parent == exc_block)
+          and not r is *(any parent is p when p.parent == exc_block)
       }
    )
