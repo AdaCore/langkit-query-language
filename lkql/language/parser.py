@@ -303,15 +303,12 @@ class ArithBinOp(BinOp):
     pass
 
 
-class Unpack(Expr):
+class Unpack(LkqlNode):
     """
-    Unpacking operator, written ``*``.
-
-    For instance::
-
-       \\*listValue
+    Qualifier for unpack operator ("*").
     """
-    collection_expr = Field(type=Expr)
+    enum_node = True
+    qualifier = True
 
 
 class ValDecl(Declaration):
@@ -555,6 +552,7 @@ class Query(Expr):
                          select ObjectDecl [child] AspectAssoc
     """
 
+    unpack_from = Field(type=Unpack)
     from_expr = Field(type=Expr)
     through_expr = Field(type=Expr)
     query_kind = Field(type=QueryKind)
@@ -867,6 +865,7 @@ class SelectorExpr(LkqlNode):
     Expression appearing in the right part of a selector arm.
     """
     mode = Field(type=SelectorExprMode)
+    unpack = Field(type=Unpack)
     expr = Field(type=Expr)
 
 
@@ -1067,13 +1066,23 @@ lkql_grammar.add_rules(
 
     import_clause=Import("import", G.id),
 
-    query=Query(
-        Opt("from", Or(G.expr, Unpack("*", G.expr))),
-        Opt("through", Or(G.expr)),
-        "select", c(), 
-        Or(QueryKind.alt_first(L.Identifier(match_text="first")),
-           QueryKind.alt_all()), 
-        G.pattern
+    query=Or(
+        Query(
+            "from", Unpack("*"), G.expr,
+            Opt("through", Or(G.expr)),
+            "select", c(), 
+            Or(QueryKind.alt_first(L.Identifier(match_text="first")),
+               QueryKind.alt_all()), 
+            G.pattern
+        ),
+        Query(
+            Null(Unpack), Null(G.expr),
+            Opt("through", Or(G.expr)),
+            "select", c(), 
+            Or(QueryKind.alt_first(L.Identifier(match_text="first")),
+               QueryKind.alt_all()), 
+            G.pattern
+        ),
     ),
 
     or_pattern=Or(
@@ -1332,7 +1341,8 @@ lkql_grammar.add_rules(
         Or(SelectorExprMode.alt_rec("rec"),
            SelectorExprMode.alt_skip("skip"),
            SelectorExprMode.alt_default()),
-        Or(G.expr, Unpack("*", G.expr))
+        Unpack("*"),
+        G.expr
     ),
 
     match=Match("match", G.expr, List(G.match_arm, empty_valid=False)),

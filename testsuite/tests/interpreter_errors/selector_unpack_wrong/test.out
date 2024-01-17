@@ -1,0 +1,4 @@
+script.lkql:2:18: error: Type error: expected indexable but got Node
+2 |     | AdaNode => rec *this.parent
+  |                  ^^^^^^^^^^^^^^^^
+

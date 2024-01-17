@@ -115,7 +115,7 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new NodeKindPattern(null, "AdaNode"),
-                        new SelectorExpr(null, SelectorExpr.Mode.REC, funCall));
+                        new SelectorExpr(null, SelectorExpr.Mode.REC, funCall, false));
         res[0] = prevSiblingPath;
 
         // Create the universal path
@@ -123,7 +123,8 @@ public final class PrevSiblingsSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+                        new SelectorExpr(
+                                null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null), false));
         res[1] = universalPath;
 
         // Return the result

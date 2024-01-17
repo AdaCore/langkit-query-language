@@ -31,7 +31,6 @@ import com.adacore.lkql_jit.nodes.declarations.selector.SelectorArm;
 import com.adacore.lkql_jit.nodes.declarations.selector.SelectorExpr;
 import com.adacore.lkql_jit.nodes.expressions.FunCall;
 import com.adacore.lkql_jit.nodes.expressions.FunCallNodeGen;
-import com.adacore.lkql_jit.nodes.expressions.Unpack;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccess;
 import com.adacore.lkql_jit.nodes.expressions.dot.DotAccessNodeGen;
 import com.adacore.lkql_jit.nodes.expressions.literals.UnitLiteral;
@@ -116,8 +115,7 @@ public final class SuperTypesSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new NodeKindPattern(null, "BaseTypeDecl"),
-                        new SelectorExpr(
-                                null, SelectorExpr.Mode.REC, new Unpack(null, propertyCall)));
+                        new SelectorExpr(null, SelectorExpr.Mode.REC, propertyCall, true));
         res[0] = baseTypePath;
 
         // Create the universal path
@@ -125,7 +123,8 @@ public final class SuperTypesSelector implements BuiltInSelector {
                 new SelectorArm(
                         null,
                         new UniversalPattern(null),
-                        new SelectorExpr(null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null)));
+                        new SelectorExpr(
+                                null, SelectorExpr.Mode.DEFAULT, new UnitLiteral(null), false));
         res[1] = universalPath;
 
         // Return the result
