@@ -16,7 +16,7 @@ fun strip(node) =
     | ParenExpr => strip(node.f_expr)
     # Strip type qualifications and conversions
     | QualExpr  => strip(node.f_suffix)
-    | CallExpr(f_name is Name(p_referenced_decl() is BaseTypeDecl))
+    | CallExpr(f_name: Name(p_referenced_decl(): BaseTypeDecl))
                 => strip(node.f_suffix[1].f_r_expr)
     | *         => node
 
@@ -35,7 +35,7 @@ fun check_actual(name, expected) =
 @check(message="actual parameter mismatch",
        category="Style", subcategory="Programming Practice")
 fun actual_parameters(node, forbidden=[]) =
-    node is AssocList(parent is call@CallExpr(p_is_call() is true))
+    node is AssocList(parent: call@CallExpr(p_is_call(): true))
     when {
         val n = call.f_name.p_referenced_decl()?.
                 p_canonical_fully_qualified_name?();
@@ -45,7 +45,7 @@ fun actual_parameters(node, forbidden=[]) =
              [p for p in params
               if p.param.text.to_lower_case == item[2] and
                  strip(p.actual) is name@Name(
-                      p_referenced_decl() is ObjectDecl | NumberDecl |
+                      p_referenced_decl(): ObjectDecl | NumberDecl |
                                              ParamSpec | GenericFormalObjDecl |
                                              BaseSubpBody | BasicSubpDecl)
                  when check_actual(name.p_referenced_defining_name(), item[3])]

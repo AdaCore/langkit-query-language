@@ -10,7 +10,7 @@ fun choices(list) =
                comp + (match node
                        | BinOp =>
                            stdlib.range_values(node.f_left, node.f_right)
-                       | Identifier(p_referenced_decl() is type@BaseTypeDecl) =>
+                       | Identifier(p_referenced_decl(): type@BaseTypeDecl) =>
                            stdlib.number_of_values(type)
                        | *     => 1),
            0)
@@ -24,7 +24,7 @@ fun remaining_values(case) =
 @check(message="OTHERS choice in case statement", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun others_in_case_statements(node, n : int = 0, ignore = false) =
-    node is OthersDesignator(parent is AlternativesList(
-                             parent is alt@CaseStmtAlternative))
+    node is OthersDesignator(parent: AlternativesList(
+                             parent: alt@CaseStmtAlternative))
     when n == 0 or
          { val v = remaining_values(alt.parent.parent); v > 0 and v < n }

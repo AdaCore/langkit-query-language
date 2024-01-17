@@ -9,20 +9,20 @@
 @check(message="OTHERS choice in aggregate", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun others_in_aggregates(node) =
-    node is OthersDesignator(parent is l@AlternativesList(
-                             parent is a@AggregateAssoc
+    node is OthersDesignator(parent: l@AlternativesList(
+                             parent: a@AggregateAssoc
     # Flag all aggregates with more than 2 alternatives
     when a?.parent.children_count > 2
       # Flag all extension aggregates
-      or a?.parent is (AssocList(any parent is
-                                    Aggregate(f_ancestor_expr is AdaNode))
+      or a?.parent is (AssocList(any parent:
+                                    Aggregate(f_ancestor_expr: AdaNode))
       # Find the single alternative and flag in the following cases:
-      | AssocList(any children is assoc@AggregateAssoc
+      | AssocList(any children: assoc@AggregateAssoc
                    when assoc != a
                          # More than one value
                     and (assoc.f_designators.children_count > 1 or
                          # A range
-                         assoc.f_designators[1] is BinOp(f_op is OpDoubleDot) or
+                         assoc.f_designators[1] is BinOp(f_op: OpDoubleDot) or
                          # A (sub)type designator
                          assoc.f_designators[1] is
-                           Identifier(p_referenced_decl() is BaseTypeDecl))))))
+                           Identifier(p_referenced_decl(): BaseTypeDecl))))))

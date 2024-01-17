@@ -9,9 +9,9 @@ fun check_type(params) =
       p.param.p_name_is("T") and
       p.actual.p_referenced_decl().p_root_type() is root@BaseTypeDecl when (
         root.f_type_def.f_has_limited.p_as_bool() and
-        root is TypeDecl(all stdlib.component_types is not TaskTypeDecl) and
+        root is TypeDecl(all stdlib.component_types: not TaskTypeDecl) and
         [t for t in root.p_find_all_derived_types(stdlib.list_of_units()) if
-         t is TypeDecl(any stdlib.component_types is TaskTypeDecl)]
+         t is TypeDecl(any stdlib.component_types: TaskTypeDecl)]
       )
    ]
 

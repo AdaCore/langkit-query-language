@@ -10,7 +10,7 @@ fun is_final_pkg(pkg) =
     pkg is BasePackageDecl when {
         val aspect = pkg.p_get_aspect("Annotate");
         aspect.exists and aspect.value is Aggregate(
-            f_assocs is a when a[1] is "GNATcheck" and a[2] is "Final"
+            f_assocs: a when a[1] is "GNATcheck" and a[2] is "Final"
         )
     }
 
@@ -36,5 +36,5 @@ fun final_package(node) =
     |"     
     |"       package Pkg.Child.Grandchild is -- NOT FLAGGED
     |"       end Pkg.Child.Grandchild;
-    node is BasePackageDecl(parent is LibraryItem)
+    node is BasePackageDecl(parent: LibraryItem)
     when is_final_pkg(node.p_semantic_parent())

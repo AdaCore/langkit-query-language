@@ -6,8 +6,8 @@ fun multiple_of(v, multiple) = v / multiple * multiple == v
        message="possible occurrence of KP 18614 if compiled with optimization",
        impact="2[0-3].*", target="powerpc*,leon*,sparc*")
 fun kp_18614(node) =
-    node is Aggregate(p_expression_type() is
-        t@BaseTypeDecl(p_is_array_type() is true)
+    node is Aggregate(p_expression_type():
+        t@BaseTypeDecl(p_is_array_type(): true)
         when {
             val aspect = t.p_get_aspect("Size");
             aspect.exists and

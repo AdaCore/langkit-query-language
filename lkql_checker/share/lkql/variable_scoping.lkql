@@ -14,7 +14,7 @@ fun check_references(list, subp) = {
     # block with no enclosing loop and is part of subp (as opposed to a nested
     # subprogram).
 
-    block is BlockStmt(all parent is not BaseLoopStmt) and
+    block is BlockStmt(all parent: not BaseLoopStmt) and
     stdlib.enclosing_body(block) == subp and
 
     # Then check that no reference is outside this block apart from the
@@ -39,11 +39,11 @@ fun variable_scoping(unit) = [
 
     for n in from unit.root select
     node@DefiningName(
-        parent is DefiningNameList(
-            parent is decl@ObjectDecl(
-                f_default_expr is null,
-                f_renaming_clause is null,
-                parent is AdaNodeList(
-                    parent is DeclarativePart(parent is subp@SubpBody)))))
+        parent: DefiningNameList(
+            parent: decl@ObjectDecl(
+                f_default_expr: null,
+                f_renaming_clause: null,
+                parent: AdaNodeList(
+                    parent: DeclarativePart(parent: subp@SubpBody)))))
     when check_references(node.p_find_refs(subp), subp)
 ]

@@ -6,21 +6,21 @@
 fun address_specifications_for_initialized_objects(node) =
     # for X'Address use ...
     node is (a@AttributeDefClause(
-        f_attribute_expr is AttributeRef(
+        f_attribute_expr: AttributeRef(
             # Defined attribute is Address
-            f_attribute is Name(p_name_is("Address") is true),
+            f_attribute: Name(p_name_is("Address"): true),
             # X has a default value
-            f_prefix is Name(p_referenced_decl() is
-                             ObjectDecl(f_default_expr is not null))))
+            f_prefix: Name(p_referenced_decl():
+                             ObjectDecl(f_default_expr: not null))))
     # X := ... with Address => ...
     | AspectAssoc(
         # Associated aspect is Address
-        f_id is Name(p_name_is("Address") is true),
+        f_id: Name(p_name_is("Address"): true),
         # X has a default value
-        any parent is ObjectDecl(f_default_expr is not null))
+        any parent: ObjectDecl(f_default_expr: not null))
     # for X use at xxx'Address
-    | AtClause(f_expr is AttributeRef(f_attribute is
-                                       Name(p_name_is("Address") is true)),
+    | AtClause(f_expr: AttributeRef(f_attribute:
+                                       Name(p_name_is("Address"): true)),
                 # X has a default value
-                f_name is Name(p_referenced_decl() is
-                               ObjectDecl(f_default_expr is not null))))
+                f_name: Name(p_referenced_decl():
+                               ObjectDecl(f_default_expr: not null))))

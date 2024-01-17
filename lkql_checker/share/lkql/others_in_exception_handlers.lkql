@@ -3,5 +3,5 @@
 @check(message="OTHERS choice in exception handler",
        category="Style", subcategory="Programming Practice")
 fun others_in_exception_handlers(node) =
-    node is OthersDesignator(parent is AlternativesList(
-                             parent is ExceptionHandler))
+    node is OthersDesignator(parent: AlternativesList(
+                             parent: ExceptionHandler))

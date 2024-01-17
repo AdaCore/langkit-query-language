@@ -34,7 +34,7 @@ fun check_non_const_overlay(decl, overlaid) =
               # Volatile
               or (overlaid_object is
                   not (ParamSpec |
-                       ObjectDecl(parent is GenericFormalObjDecl))
+                       ObjectDecl(parent: GenericFormalObjDecl))
                   and not overlaid_object.p_has_aspect("Volatile")))})
 
 # TODO: customize message:
@@ -45,10 +45,10 @@ fun check_non_const_overlay(decl, overlaid) =
 @check(message="constant object overlays a variable object",
        category="Style", subcategory="Programming Practice")
 fun non_constant_overlays(node) = match node
-    | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
+    | AspectAssoc(f_id: id@Identifier, any parent(depth=3): o@ObjectDecl
         when id.p_name_is("Address")
          and check_non_const_overlay(o, node.f_expr)) => true
-    | AttributeDefClause(f_attribute_expr is at@AttributeRef
+    | AttributeDefClause(f_attribute_expr: at@AttributeRef
         when at.f_attribute.p_name_is("Address")
          and check_non_const_overlay(at.f_prefix.p_referenced_decl(),
                                      node.f_expr)) => true

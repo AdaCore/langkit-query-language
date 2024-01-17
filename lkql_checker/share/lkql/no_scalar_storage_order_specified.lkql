@@ -6,7 +6,7 @@
 
 fun non_empty_rep_clause(n) =
     n.p_get_record_representation_clause() is
-    RecordRepClause(f_components is *(any children(depth=1) is ComponentClause))
+    RecordRepClause(f_components: *(any children(depth=1): ComponentClause))
 
 fun bit_order_image(n) = {
     val aspect = n.p_get_aspect("Bit_Order");

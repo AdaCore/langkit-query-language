@@ -8,8 +8,8 @@
 @check(message="declaration of global variable",
        category="Style", subcategory="Programming Practice")
 fun global_variables(node, only_public=false) =
-    node is ObjectDecl(p_is_constant_object() is false,
-                       p_semantic_parent() is s when {
+    node is ObjectDecl(p_is_constant_object(): false,
+                       p_semantic_parent(): s when {
 
         # Grab the enclosing package when the semantic parent is either
         val pkg = match s
@@ -19,16 +19,16 @@ fun global_variables(node, only_public=false) =
             | p@PackageDecl when not (
                 #  (if only public, filter private packages)
                 only_public
-                and p.parent is LibraryItem(f_has_private is PrivatePresent)
+                and p.parent is LibraryItem(f_has_private: PrivatePresent)
             ) => p
             # 3. A generic package decl
             | p@GenericPackageInternal when not (
                 #  (if only public, filter private packages)
                 only_public
-                and p.parent.parent is LibraryItem(f_has_private is PrivatePresent)
+                and p.parent.parent is LibraryItem(f_has_private: PrivatePresent)
             ) => p
             | * => null;
 
         # Filter out variables declared in nested packages
-        pkg is BasePackageDecl(all parent is not BasePackageDecl)
+        pkg is BasePackageDecl(all parent: not BasePackageDecl)
     })

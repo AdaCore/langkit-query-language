@@ -11,12 +11,12 @@ fun get_type_def(t) =
        impact="18.*,19.[1-4],20.[12]")
 fun kp_r316_001(node) =
     node is (ClassicSubpDecl |
-             BaseSubpBody(p_previous_part() is null) |
-             SubpBodyStub(p_previous_part() is null))
+             BaseSubpBody(p_previous_part(): null) |
+             SubpBodyStub(p_previous_part(): null))
     when node.f_subp_spec is spec@SubpSpec(
-           f_subp_kind is SubpKindFunction,
-           p_return_type() is ret@TypeDecl(
-             f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices)
+           f_subp_kind: SubpKindFunction,
+           p_return_type(): ret@TypeDecl(
+             f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices)
            ) when get_type_def(ret.p_comp_type()) is
                   def@(DerivedTypeDef | PrivateTypeDef | RecordTypeDef)
               when def.f_has_limited is LimitedPresent

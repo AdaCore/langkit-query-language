@@ -9,10 +9,10 @@ import stdlib
        category="Style", subcategory="Programming Practice")
 fun not_imported_overlays(node) =
     node is ((
-      AspectAssoc(f_id is Identifier(p_name_is("Address") is true),
-                  any parent(depth=3) is o@ObjectDecl
+      AspectAssoc(f_id: Identifier(p_name_is("Address"): true),
+                  any parent(depth=3): o@ObjectDecl
                   when not o.p_has_aspect("Import")))
-    | (AttributeDefClause(f_attribute_expr is at@AttributeRef
+    | (AttributeDefClause(f_attribute_expr: at@AttributeRef
         when at.f_attribute.p_name_is("Address")
          and at.f_prefix.p_referenced_decl() is o@ObjectDecl
          when not o.p_has_aspect("Import"))))

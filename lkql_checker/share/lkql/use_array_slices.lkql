@@ -6,12 +6,12 @@
 
 fun array_index(call, var) =
     call is CallExpr(
-        f_suffix is l@AssocList
+        f_suffix: l@AssocList
         when l.children_count == 1
          and l[1].f_r_expr is id@Identifier when id.p_name_matches(var),
         # p_kind does not always work, in particular on e.g. Arr (X)(Y) so
         # perform this test last
-        p_kind() is "array_index")
+        p_kind(): "array_index")
 
 @check(message="FOR loop may be replaced by an array slice",
        category="Style", subcategory="Programming Practice")

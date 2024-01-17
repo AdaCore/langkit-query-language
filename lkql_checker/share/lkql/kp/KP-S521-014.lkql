@@ -2,6 +2,6 @@
 
 @check(message="possible occurrence of KP S521-014", impact="19.*")
 fun kp_s521_014(node) =
-    node is TypeDecl(p_is_tagged_type() is true,
-                     f_discriminants is not null,
-                     any super_types is TypeDecl(p_is_interface_type() is true))
+    node is TypeDecl(p_is_tagged_type(): true,
+                     f_discriminants: not null,
+                     any super_types: TypeDecl(p_is_interface_type(): true))

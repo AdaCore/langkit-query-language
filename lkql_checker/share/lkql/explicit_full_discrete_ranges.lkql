@@ -5,9 +5,9 @@ fun full_range(l, r) =
    and l.f_attribute.p_name_is("First") and r.f_attribute.p_name_is("Last")
    and l.f_prefix.p_referenced_decl() == r.f_prefix.p_referenced_decl()
    # Exclude function calls which may return different values
-   and l.f_prefix is not Name(p_is_call() is true)
+   and l.f_prefix is not Name(p_is_call(): true)
 
 @check(message="range could be replaced by subtype mark or 'Range",
        category="Feature")
 fun explicit_full_discrete_ranges(node) =
-   node is BinOp(f_op is OpDoubleDot) when full_range(node.f_left, node.f_right)
+   node is BinOp(f_op: OpDoubleDot) when full_range(node.f_left, node.f_right)

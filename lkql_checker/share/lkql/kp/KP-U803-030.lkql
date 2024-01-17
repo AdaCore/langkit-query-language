@@ -16,10 +16,10 @@ fun outermost_package_decl(n) =
        impact="21.*")
 fun kp_u803_030(node) =
     node is CallExpr(
-      p_is_call() is true,
-      p_referenced_decl() is func@ExprFunction
+      p_is_call(): true,
+      p_referenced_decl(): func@ExprFunction
     )
     when not stdlib.has_local_scope(func)
      and outermost_package_decl(func) is decl@BasePackageDecl(
-           p_body_part() is null
+           p_body_part(): null
          ) when decl != outermost_package_decl(node)

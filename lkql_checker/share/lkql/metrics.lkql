@@ -19,8 +19,8 @@ fun expr_complexity(body, exempt_case=false) =
     |" Return the cyclomatic complexity of expressions in the given body
 {
     fun node_weight (n) = match n
-        | (BinOp(f_op is OpOrElse | OpAndThen) | IfExpr | ElsifExprPart) => 1
-        | CaseExpr(f_cases is c) => if exempt_case then 1 else c.children_count - 1
+        | (BinOp(f_op: OpOrElse | OpAndThen) | IfExpr | ElsifExprPart) => 1
+        | CaseExpr(f_cases: c) => if exempt_case then 1 else c.children_count - 1
         | QuantifiedExpr => 2
         | * => 0;
 
@@ -36,11 +36,11 @@ fun statement_complexity(body, exempt_case=false) =
         | (IfStmt | ElsifStmtPart | WhileLoopSpec) => 1
         | f@ForLoopSpec when not parent_quantified_expr(f) => 1
         | c@CaseStmt => if exempt_case then 1 else c.f_alternatives.children_count - 1
-        | e@ExitStmt(f_cond_expr is not null) => 1
+        | e@ExitStmt(f_cond_expr: not null) => 1
         | s@SelectStmt(
-            f_guards is guards,
-            f_else_stmts is elses_stmts,
-            f_abort_stmts is abort_stmts
+            f_guards: guards,
+            f_else_stmts: elses_stmts,
+            f_abort_stmts: abort_stmts
         ) => guards.children_count
              + (if elses_stmts.children_count == 0 then 0 else 1)
              + (if abort_stmts.children_count == 0 then 0 else 1)
@@ -60,7 +60,7 @@ fun cyclomatic_complexity(body, exempt_case=false) =
 selector composite_parents
     |" Return a list of composite statement parents, stopping at the enclosing
     |" declaration.
-    | *(parent is CaseStmt | IfStmt | ForLoopStmt
+    | *(parent: CaseStmt | IfStmt | ForLoopStmt
         | LoopStmt | WhileLoopStmt | SelectStmt) => rec this.parent
 
     # Stop exploring downwards when we get out of the current decl
@@ -74,8 +74,8 @@ selector composite_parents
 selector composite_parents_stop_at_loop
     |" Return a list of composite statement parents, stopping at the enclosing
     |" declaration or at the enclosing loop.
-    | *(parent is ForLoopStmt | LoopStmt | WhileLoopStmt) => this.parent
-    | *(parent is CaseStmt | IfStmt | SelectStmt) => rec this.parent
+    | *(parent: ForLoopStmt | LoopStmt | WhileLoopStmt) => this.parent
+    | *(parent: CaseStmt | IfStmt | SelectStmt) => rec this.parent
     # Stop exploring downwards when we get out of the current decl
     | BasicDecl => () 
     | * => skip this.parent
@@ -118,7 +118,7 @@ fun logical_slocs (node) =
             | NamedStmtDecl | LabelDecl | SingleTaskTypeDecl
             | GenericSubpInternal | ExceptionHandler
         )
-    ) | ExceptionHandler(f_exception_name is not null)));
+    ) | ExceptionHandler(f_exception_name: not null)));
 
     nodes.length
 }

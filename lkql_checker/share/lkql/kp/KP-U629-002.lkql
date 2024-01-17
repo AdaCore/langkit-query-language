@@ -8,17 +8,17 @@ import stdlib
 @check(message="possible occurrence of KP U629-002", impact="21.*")
 fun kp_u629_002(node) =
     # Look for type(xxx.all) as part of a return or expression function body
-    node is ExplicitDeref(parent is ParamAssoc(parent is AssocList(
-        parent is CallExpr(
-            any parent is ExprFunction | ReturnStmt,
+    node is ExplicitDeref(parent: ParamAssoc(parent: AssocList(
+        parent: CallExpr(
+            any parent: ExprFunction | ReturnStmt,
              # the return object is a controlling parameter
-            any parent is BaseSubpBody(f_subp_spec is spec@SubpSpec)
+            any parent: BaseSubpBody(f_subp_spec: spec@SubpSpec)
                           when stdlib.is_controlling_param_type(spec.p_returns(), spec),
-            f_name is Identifier(
-                p_referenced_decl() is BaseTypeDecl(
+            f_name: Identifier(
+                p_referenced_decl(): BaseTypeDecl(
                     # where type is tagged and the root type is an interface
-                    p_is_tagged_type() is true,
-                    p_root_type() is BaseTypeDecl(p_is_interface_type() is true)))))))
+                    p_is_tagged_type(): true,
+                    p_root_type(): BaseTypeDecl(p_is_interface_type(): true)))))))
     # and the type of node is a class wide access
     when node.f_prefix.p_referenced_decl()?.p_type_expression?()?.
          p_designated_type_decl?()?.p_accessed_type?() is ClasswideTypeDecl

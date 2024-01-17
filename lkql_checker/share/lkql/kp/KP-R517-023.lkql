@@ -26,12 +26,12 @@ fun get_type(type) =
        impact="7.[1-4].*,17.*,18.[12]",
        follow_generic_instantiations = true)
 fun kp_r517_023(node) =
-    node is CallExpr(p_is_call() is true)
+    node is CallExpr(p_is_call(): true)
     when [p for p in node.p_call_params()
-          if p.param.parent.parent is spec@ParamSpec(f_mode is ModeOut | ModeInOut)
-             when p.actual is DottedName(p_referenced_decl() is comp@ComponentDecl)
+          if p.param.parent.parent is spec@ParamSpec(f_mode: ModeOut | ModeInOut)
+             when p.actual is DottedName(p_referenced_decl(): comp@ComponentDecl)
               when comp.p_semantic_parent().p_get_record_representation_clause() != null
                and get_type(spec.f_type_expr) is TypeDecl(
-                p_is_array_type() is true,
-                p_has_aspect("Pack") is true,
-                f_type_def is ArrayTypeDef(f_indices is UnconstrainedArrayIndices))]
+                p_is_array_type(): true,
+                p_has_aspect("Pack"): true,
+                f_type_def: ArrayTypeDef(f_indices: UnconstrainedArrayIndices))]

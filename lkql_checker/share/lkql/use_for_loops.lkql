@@ -19,18 +19,18 @@ import stdlib
 
 fun write_references(node, id) =
     |" Return all the write references to `id`, starting from `node`
-    from node select Identifier(p_name_matches(id) is true,
-                                p_is_write_reference() is true)
+    from node select Identifier(p_name_matches(id): true,
+                                p_is_write_reference(): true)
 
 fun no_write_reference(node, id) =
     |" Return true if no write reference to `id` is found, starting from `node`
     (from node select first
-     Identifier(p_name_matches(id) is true,
-                p_is_write_reference() is true)) == null
+     Identifier(p_name_matches(id): true,
+                p_is_write_reference(): true)) == null
 
 fun has_references(node, id) =
     |" Return true if any reference to `id` starting from `node` is found
-    (from node select first Identifier(p_name_matches(id) is true)) != null
+    (from node select first Identifier(p_name_matches(id): true)) != null
 
 fun exit_stmt(node) =
     |" Return the first exit statement referencing node (assumed to be a
@@ -51,8 +51,8 @@ fun enclosing_scope(node) = {
        category="Style", subcategory="Programming Practice")
 fun use_for_loops(node, no_exit = false, no_function = false) =
     # Find while loops of the form: while Id <relation op> ... loop
-    node is WhileLoopStmt(f_spec is WhileLoopSpec(f_expr is
-                          rel@RelationOp(f_left is id@Identifier)
+    node is WhileLoopStmt(f_spec: WhileLoopSpec(f_expr:
+                          rel@RelationOp(f_left: id@Identifier)
                           when stdlib.is_predefined_op(rel.f_op)))
     when {
         val refs = write_references(node.f_stmts, id);
@@ -60,12 +60,12 @@ fun use_for_loops(node, no_exit = false, no_function = false) =
         refs.length == 1 and
         # which is of the form: id := id +/- 1
         refs[1].parent is
-        assign@AssignStmt(f_expr is
-            expr@BinOp(f_op is op@(OpPlus | OpMinus)
+        assign@AssignStmt(f_expr:
+            expr@BinOp(f_op: op@(OpPlus | OpMinus)
                            when stdlib.is_predefined_op(op),
-                       f_right is i@IntLiteral
+                       f_right: i@IntLiteral
                        when i.p_denoted_value() == 1,
-                       f_left is Identifier(p_name_matches(id) is true)))
+                       f_left: Identifier(p_name_matches(id): true)))
         # located at the very end of the loop
         when not assign.next_sibling() and assign.parent == node.f_stmts
          # and where id is declared in the same enclosing scope as the loop
@@ -76,9 +76,9 @@ fun use_for_loops(node, no_exit = false, no_function = false) =
               and no_write_reference(decl.parent, id)
               # also check that there are no further references to id after the
               # loop.
-              and not node is *(any next_siblings is n
+              and not node is *(any next_siblings: n
                                 when has_references(n, id))
     }
     and not (no_exit and exit_stmt(node))
     and not (no_function and
-             from rel.f_right select first Name(p_is_call() is true))
+             from rel.f_right select first Name(p_is_call(): true))

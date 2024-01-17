@@ -80,21 +80,21 @@ fun identifier_suffixes(unit,
               match n.parent
               | SubpSpec when interrupt_suffix != "" =>
                   "interrupt suffix " & interrupt_suffix
-              | TypeDecl(p_is_access_type() is true,
-                         p_accessed_type() is
+              | TypeDecl(p_is_access_type(): true,
+                         p_accessed_type():
                              ClasswideTypeDecl |
-                             SubtypeDecl(p_canonical_type() is
+                             SubtypeDecl(p_canonical_type():
                                          ClasswideTypeDecl))
                 when class_access_suffix != ""  =>
                   "access-to-class suffix " & class_access_suffix
-              | BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+              | BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl)
                 when class_subtype_suffix != "" =>
                   "class-wide suffix " & class_subtype_suffix
-              | p@TypeDecl(p_is_access_type() is true)
+              | p@TypeDecl(p_is_access_type(): true)
                 when access_suffix != "" =>
                   if access_access_suffix != "" and
                      p.p_accessed_type() is
-                         BaseTypeDecl(p_is_access_type() is true)
+                         BaseTypeDecl(p_is_access_type(): true)
                   then "access-to-access suffix " & access_suffix & access_access_suffix
                   else "access suffix " & access_suffix
               | TypeDecl => "type suffix " & type_suffix
@@ -109,30 +109,30 @@ fun identifier_suffixes(unit,
     for n in from unit.root select node@DefiningName when match node.parent
     # Interrupt handlers
     | s@SubpSpec when interrupt_suffix != "" =>
-        s is SubpSpec(any parent(depth=4) is ProtectedDef, parent is d@SubpDecl)
+        s is SubpSpec(any parent(depth=4): ProtectedDef, parent: d@SubpDecl)
         when (d.p_has_aspect("Interrupt_Handler") or
               d.p_has_aspect("Attach_Handler")) and
              not node.f_name.text.ends_with(interrupt_suffix)
 
     # 'Class access
-    | p@TypeDecl(p_is_access_type() is true,
-                 p_accessed_type() is
+    | p@TypeDecl(p_is_access_type(): true,
+                 p_accessed_type():
                      ClasswideTypeDecl |
-                     SubtypeDecl(p_canonical_type() is ClasswideTypeDecl))
+                     SubtypeDecl(p_canonical_type(): ClasswideTypeDecl))
       when class_access_suffix != ""
     =>
         p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(class_access_suffix)
 
     # 'Class subtype
-    | p@BaseSubtypeDecl(p_base_subtype() is ClasswideTypeDecl)
+    | p@BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl)
       when class_subtype_suffix != ""
     =>
         p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(class_subtype_suffix)
 
     # Other access types
-    | p@TypeDecl(p_is_access_type() is true) when access_suffix != ""
+    | p@TypeDecl(p_is_access_type(): true) when access_suffix != ""
     =>
         p.p_previous_part() is (null | IncompleteTypeDecl) and
         not node.f_name.text.ends_with(
@@ -159,24 +159,24 @@ fun identifier_suffixes(unit,
     # Look one level up for remaining cases
     | p => node.p_previous_part() == null and match p.parent
         # Access data objects
-        | (ObjectDecl(f_type_expr is TypeExpr(p_designated_type_decl() is
-                                     BaseTypeDecl(p_is_access_type() is true))) |
-           ComponentDecl(f_component_def is
-               ComponentDef(f_type_expr is
-                   TypeExpr(p_designated_type_decl() is
-                            BaseTypeDecl(p_is_access_type() is true)))) |
-           ParamSpec(f_type_expr is
-                     TypeExpr(p_designated_type_decl() is
-                              BaseTypeDecl(p_is_access_type() is true))) |
-           DiscriminantSpec(f_type_expr is
-                            TypeExpr(p_designated_type_decl() is
-                            BaseTypeDecl(p_is_access_type() is true))))
+        | (ObjectDecl(f_type_expr: TypeExpr(p_designated_type_decl():
+                                     BaseTypeDecl(p_is_access_type(): true))) |
+           ComponentDecl(f_component_def:
+               ComponentDef(f_type_expr:
+                   TypeExpr(p_designated_type_decl():
+                            BaseTypeDecl(p_is_access_type(): true)))) |
+           ParamSpec(f_type_expr:
+                     TypeExpr(p_designated_type_decl():
+                              BaseTypeDecl(p_is_access_type(): true))) |
+           DiscriminantSpec(f_type_expr:
+                            TypeExpr(p_designated_type_decl():
+                            BaseTypeDecl(p_is_access_type(): true))))
           when access_obj_suffix != ""
         =>
             not node.f_name.text.ends_with(access_obj_suffix)
 
         # Constants
-        | ObjectDecl(p_is_constant_object() is true)
+        | ObjectDecl(p_is_constant_object(): true)
           when constant_suffix != ""
         =>
             not node.f_name.text.ends_with(constant_suffix)

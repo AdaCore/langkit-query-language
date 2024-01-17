@@ -4,6 +4,6 @@
 @check(message="more than one tagged type declared in package spec",
        category="Style", subcategory="Program Structure")
 fun one_tagged_type_per_package(node) =
-    node is BasePackageDecl(f_public_part is *(f_decls is decls))
+    node is BasePackageDecl(f_public_part: *(f_decls: decls))
     when (from decls select t@BaseTypeDecl
           when t.p_is_tagged_type() and t.parent == decls).length > 1

@@ -8,11 +8,11 @@ import stdlib
             category="Style", subcategory="Programming Practice")
 fun unchecked_conversions_as_actuals(unit) = [
     {message: "instance of Unchecked_Conversion as " &
-              (if n is CallExpr(any parent is CallStmt)
+              (if n is CallExpr(any parent: CallStmt)
                then "actual parameter" else "default parameter value"),
      loc: n}
     for n in from unit.root
-    select node@CallExpr(any parent is CallStmt | SubpSpec)
+    select node@CallExpr(any parent: CallStmt | SubpSpec)
     when stdlib.is_unchecked_conversion(
         stdlib.ultimate_subprogram_alias(node.p_referenced_decl())
     )]

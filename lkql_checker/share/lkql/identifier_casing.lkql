@@ -117,7 +117,7 @@ fun identifier_casing(unit,
 
                    | p =>
                        match p.parent
-                       | (ObjectDecl(p_is_constant_object() is true) |
+                       | (ObjectDecl(p_is_constant_object(): true) |
                           NumberDecl) when constant != ""
                        => msg("for constant names (", constant)
 
@@ -131,7 +131,7 @@ fun identifier_casing(unit,
                }),
      loc: n}
     for n in from unit.root
-    select node@DefiningName(f_name is id@Identifier)
+    select node@DefiningName(f_name: id@Identifier)
     when match node.parent
         # Task objects
         | (SingleTaskDecl | SingleTaskTypeDecl)
@@ -149,7 +149,7 @@ fun identifier_casing(unit,
         | p => match p.parent
 
         # Constants
-        | (ObjectDecl(p_is_constant_object() is true) |
+        | (ObjectDecl(p_is_constant_object(): true) |
            NumberDecl) when constant != ""
         =>
             check_casing(id, constant, exclude)

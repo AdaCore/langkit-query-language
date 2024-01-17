@@ -19,9 +19,9 @@ fun check_nonoverlay(overlaid) =
        category="Style", subcategory="Programming Practice")
 fun nonoverlay_address_specifications(node) =
     node is
-        ((AspectAssoc(f_id is id@Identifier, any parent(depth=3) is ObjectDecl
+        ((AspectAssoc(f_id: id@Identifier, any parent(depth=3): ObjectDecl
          when id.p_name_is("address") and check_nonoverlay (node.f_expr)))
-    | AttributeDefClause(f_attribute_expr is at@AttributeRef
+    | AttributeDefClause(f_attribute_expr: at@AttributeRef
                           when at.f_attribute.p_name_is("address")
                            and at.f_prefix.p_referenced_decl() is ObjectDecl
                            and check_nonoverlay(node.f_expr)))

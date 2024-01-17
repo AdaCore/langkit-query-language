@@ -1,2 +1,2 @@
-val declParent = select *(any children(depth=1) is BasicDecl)
+val declParent = select *(any children(depth=1): BasicDecl)
 print(declParent)

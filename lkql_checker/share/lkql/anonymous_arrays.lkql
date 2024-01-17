@@ -4,5 +4,5 @@
 @check(message="anonymous array type",
        category="Style", subcategory="Programming Practice")
 fun anonymous_arrays(node) =
-    node is AnonymousTypeDecl(any parent is ObjectDecl,
-                              f_type_def is ArrayTypeDef)
+    node is AnonymousTypeDecl(any parent: ObjectDecl,
+                              f_type_def: ArrayTypeDef)

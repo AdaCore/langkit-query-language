@@ -2,5 +2,5 @@
 
 @check(message="derived type that is not a type extension", category="SPARK")
 fun non_tagged_derived_types(node) =
-    node is DerivedTypeDef(f_record_extension is null,
-                           f_has_with_private is WithPrivateAbsent)
+    node is DerivedTypeDef(f_record_extension: null,
+                           f_has_with_private: WithPrivateAbsent)

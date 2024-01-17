@@ -30,10 +30,10 @@ fun check_overlay(decl, overlaid) =
 @check(message="non-constant object overlays a constant",
        category="Style", subcategory="Programming Practice")
 fun constant_overlays(node) = match node
-    | AspectAssoc(f_id is id@Identifier, any parent(depth=3) is o@ObjectDecl
+    | AspectAssoc(f_id: id@Identifier, any parent(depth=3): o@ObjectDecl
         when id.p_name_is("address")
          and check_overlay (o, node.f_expr)) => true
-    | AttributeDefClause(f_attribute_expr is at@AttributeRef
+    | AttributeDefClause(f_attribute_expr: at@AttributeRef
         when at.f_attribute.p_name_is("address")
          and check_overlay(at.f_prefix.p_referenced_decl(),
                            node.f_expr)) => true

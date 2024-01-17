@@ -18,4 +18,4 @@ fun kp_p226_024(node) =
     when has_no_local_po_restriction(node.p_enclosing_compilation_unit())
      and stdlib.has_local_scope(node)
      and node.f_type_expr.p_designated_type_decl() is
-             BaseTypeDecl(any stdlib.component_types is ProtectedTypeDecl)
+             BaseTypeDecl(any stdlib.component_types: ProtectedTypeDecl)

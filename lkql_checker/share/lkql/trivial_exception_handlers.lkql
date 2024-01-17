@@ -6,9 +6,9 @@
        category="Style", subcategory="Programming Practice")
 fun trivial_exception_handlers(node) =
     node is ExceptionHandler
-    when node.f_stmts[1] is RaiseStmt(f_exception_name is null)
+    when node.f_stmts[1] is RaiseStmt(f_exception_name: null)
      and {
         val handlers = node.parent.children;
         val handler = handlers[handlers.length];
         handler.f_handled_exceptions[1] is not OthersDesignator or
-        handler.f_stmts[1] is RaiseStmt(f_exception_name is null)}
+        handler.f_stmts[1] is RaiseStmt(f_exception_name: null)}

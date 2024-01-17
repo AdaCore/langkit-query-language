@@ -6,5 +6,5 @@ import stdlib
 @check(message="explicit reference to predefined numeric subtype",
        category="Style", subcategory="Portability")
 fun predefined_numeric_types(node) =
-    node is Identifier(p_referenced_decl() is t@BaseTypeDecl
+    node is Identifier(p_referenced_decl(): t@BaseTypeDecl
     when stdlib.is_standard_numeric(t.p_canonical_fully_qualified_name()))

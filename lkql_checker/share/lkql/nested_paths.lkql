@@ -7,7 +7,7 @@
 
 fun has_last_breaking_stmt(list) =
     match list[list.children_count]
-    | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr is null) | GotoStmt) => true
+    | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => true
     | b@BlockStmt => b.f_stmts.f_exceptions[1] == null and
                      has_last_breaking_stmt(b.f_stmts.f_stmts)
     | *           => false
@@ -15,7 +15,7 @@ fun has_last_breaking_stmt(list) =
 @check(message="nested path may be moved outside if statement",
        category="Style", subcategory="Programming Practice")
 fun nested_paths(node) =
-    node is StmtList(parent is if_stmt@IfStmt)
+    node is StmtList(parent: if_stmt@IfStmt)
      when if_stmt.f_alternatives[1] == null
       and if_stmt.f_else_stmts[1] != null
       and not has_last_breaking_stmt(node)

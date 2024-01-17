@@ -4,7 +4,7 @@
 @check(message="possible occurrence of KP VA03-035", impact="22.*")
 fun kp_va03_035(node) =
     node is SubpBody
-    when node.p_decl_part() is BasicDecl(p_semantic_parent() is
-         BasicDecl(p_has_aspect("Lock_Free") is true))
+    when node.p_decl_part() is BasicDecl(p_semantic_parent():
+         BasicDecl(p_has_aspect("Lock_Free"): true))
      and (from node select first
-          DottedName(p_referenced_decl() is ObjectDecl)) != null
+          DottedName(p_referenced_decl(): ObjectDecl)) != null
