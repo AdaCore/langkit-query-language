@@ -1959,13 +1959,19 @@ package body Gnatcheck.Projects is
                                      All_Rules.Table (Rule).Target.all)
                then
                   if not Quiet_Mode then
-                     Info ("info: " & All_Rules.Table (Rule).Name.all &
-                           " disabled, target does not match");
+                     Info
+                       ("info: " &
+                        Ada.Strings.Unbounded.To_String
+                          (All_Rules.Table (Rule).Name) &
+                        " disabled, target does not match");
                   end if;
                else
                   if not Quiet_Mode then
-                     Info ("info: " & All_Rules.Table (Rule).Name.all &
-                           " enabled");
+                     Info
+                       ("info: " &
+                        Ada.Strings.Unbounded.To_String
+                          (All_Rules.Table (Rule).Name) &
+                        " enabled");
                   end if;
 
                   Set_Rule_State (Rule, Enabled);

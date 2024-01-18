@@ -86,12 +86,12 @@ package Gnatcheck.Rules is
    --  General - On both
 
    type Rule_Template is tagged record
-      Name : String_Access;
+      Name : Unbounded_String;
       --  The only means of rule identification outside gnatcheck. All the
       --  rules implemented in gnatcheck should have unique names, the casing
       --  is not important.
 
-      Defined_At : String_Access;
+      Defined_At : Unbounded_String;
       --  Location in the rule file where the rule has been enabled. Set to
       --  Nil_String_Loc if the rule has been enabled by command line option.
 
@@ -103,13 +103,13 @@ package Gnatcheck.Rules is
 
       Remediation_Level : Remediation_Levels;
 
-      Help_Info : String_Access;
+      Help_Info : Unbounded_String;
       --  Short help information for the rule
 
-      Category : String_Access;
+      Category : Unbounded_String;
       --  Category for this rule
 
-      Subcategory : String_Access;
+      Subcategory : Unbounded_String;
       --  Subcategory for this rule, "" if none
 
       Allows_Parametrized_Exemption : Boolean;
