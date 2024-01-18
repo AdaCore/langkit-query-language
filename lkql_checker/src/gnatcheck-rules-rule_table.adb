@@ -206,7 +206,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
       --  Try to get the rule from the rule table
       for J in First_Rule .. All_Rules.Last loop
-         if To_Lower (All_Rules.Table (J).Name.all) = Normalized_Rule_Name
+         if To_Lower (To_String (All_Rules.Table (J).Name)) =
+           Normalized_Rule_Name
          then
             return J;
          end if;
@@ -1094,7 +1095,7 @@ package body Gnatcheck.Rules.Rule_Table is
          when Warnings_Id =>
             return "warnings";
          when others =>
-            return All_Rules.Table (R).Name.all;
+            return To_String (All_Rules.Table (R).Name);
       end case;
    end Rule_Name;
 
@@ -1104,10 +1105,10 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Rules_Help is
       function "<" (Left, Right : Rule_Access) return Boolean is
-        (Left.Name.all < Right.Name.all);
+        (Left.Name < Right.Name);
 
       function Equal (Left, Right : Rule_Access) return Boolean is
-        (Left.Name.all = Right.Name.all);
+        (Left.Name = Right.Name);
 
       package Rule_Sets is new
         Ada.Containers.Ordered_Sets (Rule_Access, "=" => Equal);
@@ -1142,7 +1143,9 @@ package body Gnatcheck.Rules.Rule_Table is
             Info (" No relevant detector found");
          else
             for Rule of Set loop
-               Info (" " & Rule.Name.all  & " - " & Rule.Help_Info.all);
+               Info
+                 (" " & To_String (Rule.Name) & " - " &
+                  To_String (Rule.Help_Info));
             end loop;
          end if;
       else
@@ -1227,7 +1230,7 @@ package body Gnatcheck.Rules.Rule_Table is
    --------------
 
    function Name (R : Rule_Access) return String is
-     (R.Category.all & "/" & R.Subcategory.all);
+     (To_String (R.Category & "/" & R.Subcategory));
 
    function "<" (Left, Right : Rule_Access) return Boolean is
      (Name (Left) < Name (Right));
@@ -1255,26 +1258,26 @@ package body Gnatcheck.Rules.Rule_Table is
          Level := 1;
 
          if Previous /= null
-           and then Previous.Subcategory.all /= ""
-           and then Previous.Category.all /= R.Category.all
+           and then Previous.Subcategory /= ""
+           and then Previous.Category /= R.Category
          then
             Info (Indent_String & "</category>");
          end if;
 
-         if R.Subcategory.all = "" then
+         if R.Subcategory = "" then
             Info (Indent_String & "<category name=""" &
-                  R.Category.all & """>");
+                  To_String (R.Category) & """>");
          else
             if Previous = null
-              or else Previous.Category.all /= R.Category.all
+              or else Previous.Category /= R.Category
             then
                Info (Indent_String & "<category name=""" &
-                     R.Category.all & """>");
+                     To_String (R.Category) & """>");
             end if;
 
             Level := 2;
             Info (2 * Indent_String & "<category name=""" &
-                  R.Subcategory.all & """>");
+                  To_String (R.Subcategory) & """>");
          end if;
 
          declare
@@ -1291,7 +1294,7 @@ package body Gnatcheck.Rules.Rule_Table is
          Previous := R;
       end loop;
 
-      if Previous.Subcategory.all /= "" then
+      if Previous.Subcategory /= "" then
          Info (Indent_String & "</category>");
       end if;
 
@@ -1410,25 +1413,27 @@ package body Gnatcheck.Rules.Rule_Table is
                   end if;
             end case;
 
-            Rule.Name        := new String'(Name);
-            Rule.Help_Info   :=
-              new String'(To_String (To_Wide_Wide_String (R.Help)));
+            Rule.Name      := To_Unbounded_String (Name);
+            Rule.Help_Info :=
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Help)));
 
             declare
                Category : constant String :=
                  To_String (To_Wide_Wide_String (R.Category));
             begin
                if Category = "Feature" then
-                  Rule.Category := new String'("Feature Usage Rules");
+                  Rule.Category := To_Unbounded_String ("Feature Usage Rules");
                elsif Category = "Style" then
-                  Rule.Category := new String'("Style-Related Rules");
+                  Rule.Category := To_Unbounded_String ("Style-Related Rules");
                else
-                  Rule.Category := new String'(Category);
+                  Rule.Category := To_Unbounded_String (Category);
                end if;
             end;
 
             Rule.Subcategory :=
-              new String'(To_String (To_Wide_Wide_String (R.Subcategory)));
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Subcategory)));
 
             Rule.Parameters                    := R.Parameters;
             Rule.Remediation_Level             := R.Remediation_Level;
