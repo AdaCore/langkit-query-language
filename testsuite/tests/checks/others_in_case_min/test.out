@@ -1,12 +1,24 @@
-other.adb:21:12: rule violation: OTHERS choice in case statement
-21 |       when others => null;  --  FLAG if N=3
-   |            ^^^^^^
-
 other.adb:27:12: rule violation: OTHERS choice in case statement
-27 |       when others     => null;   --  FLAG
+27 |       when others => null;  --  FLAG if N=3
    |            ^^^^^^
 
-other.adb:32:12: rule violation: OTHERS choice in case statement
-32 |       when others => null;  --  FLAG
+other.adb:33:12: rule violation: OTHERS choice in case statement
+33 |       when others     => null;   --  FLAG
    |            ^^^^^^
+
+other.adb:38:12: rule violation: OTHERS choice in case statement
+38 |       when others => null;  --  FLAG
+   |            ^^^^^^
+
+other.adb:66:12: rule violation: OTHERS choice in case statement
+66 |       when others => null;   -- FLAG if N=3
+   |            ^^^^^^
+
+other.adb:87:12: rule violation: OTHERS choice in case statement
+87 |       when others => null;   -- FLAG if N=3
+   |            ^^^^^^
+
+other.adb:108:12: rule violation: OTHERS choice in case statement
+108 |       when others => null;   -- FLAG if N=3
+    |            ^^^^^^
 
