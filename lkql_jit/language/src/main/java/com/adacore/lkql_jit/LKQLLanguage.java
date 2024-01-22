@@ -205,12 +205,14 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
     static final OptionKey<DiagnosticOutputMode> diagnosticOutputMode =
             new OptionKey<>(DiagnosticOutputMode.PRETTY);
 
+    Liblkqllang.AnalysisContext lkqlAnalysisContext;
+
     // ----- Constructors -----
 
     /** A simple constructor for the library loading. */
     public LKQLLanguage() {
         super();
-
+        this.lkqlAnalysisContext = Liblkqllang.AnalysisContext.create();
         // Set the color support flag
         SUPPORT_COLOR = System.getenv("TERM") != null && System.console() != null;
     }
@@ -298,13 +300,13 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         final Liblkqllang.AnalysisUnit unit;
         TopLevelList result;
 
-        try (Liblkqllang.AnalysisContext analysisContext = Liblkqllang.AnalysisContext.create()) {
+        {
             if (request.getSource().getPath() == null) {
                 unit =
-                        analysisContext.getUnitFromBuffer(
+                        lkqlAnalysisContext.getUnitFromBuffer(
                                 request.getSource().getCharacters().toString(), "<command-line>");
             } else {
-                unit = analysisContext.getUnitFromFile(request.getSource().getPath());
+                unit = lkqlAnalysisContext.getUnitFromFile(request.getSource().getPath());
             }
 
             // Verify the parsing result
