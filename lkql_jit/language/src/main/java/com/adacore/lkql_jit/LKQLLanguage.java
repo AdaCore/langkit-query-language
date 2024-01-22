@@ -7,7 +7,6 @@ package com.adacore.lkql_jit;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.nodes.TopLevelList;
 import com.adacore.lkql_jit.nodes.root_nodes.TopLevelRootNode;
@@ -319,9 +318,7 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
                     (Liblkqllang.TopLevelList) unit.getRoot();
 
             // Translate the LKQL AST from Langkit to a Truffle AST
-            result =
-                    (TopLevelList)
-                            LangkitTranslator.translate(lkqlLangkitRoot, request.getSource());
+            result = (TopLevelList) LKQLContext.translate(lkqlLangkitRoot, request.getSource());
         }
 
         // Get the LKQL context

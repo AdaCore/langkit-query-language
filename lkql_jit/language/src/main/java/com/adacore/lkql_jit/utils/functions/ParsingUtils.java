@@ -11,7 +11,6 @@ import com.adacore.lkql_jit.LKQLTypeSystemGen;
 import com.adacore.lkql_jit.built_ins.values.LKQLNamespace;
 import com.adacore.lkql_jit.built_ins.values.LKQLObject;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.langkit_translator.LangkitTranslator;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.utils.Constants;
 import com.adacore.lkql_jit.utils.LKQLConfigFileResult;
@@ -76,7 +75,7 @@ public class ParsingUtils {
                 final Liblkqllang.LkqlNode root = unit.getRoot();
                 final Source source =
                         Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument").build();
-                final LKQLNode node = LangkitTranslator.translate(root, source);
+                final LKQLNode node = LKQLContext.translate(root, source);
 
                 try {
                     // Add the argument in the result
