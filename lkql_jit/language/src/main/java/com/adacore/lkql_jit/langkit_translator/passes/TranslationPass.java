@@ -273,6 +273,8 @@ public final class TranslationPass implements Liblkqllang.BasicVisitor<LKQLNode>
             } else {
                 return new ReadClosureUnsafe(location, slot, symbol);
             }
+        } else if (this.scriptFrames.isPrelude(symbol)) {
+            return new ReadPrelude(location, this.scriptFrames.getPrelude(symbol));
         }
 
         // Finally look in the LKQL built-ins

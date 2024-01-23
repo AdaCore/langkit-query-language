@@ -24,6 +24,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.ClosureDescriptor;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
@@ -50,6 +51,8 @@ public final class ScriptFrames {
     /** Pointer to the current node frame. */
     private AbstractNodeFrame current;
 
+    private final GlobalScope globalScope;
+
     // ----- Constructors -----
 
     /**
@@ -57,8 +60,11 @@ public final class ScriptFrames {
      *
      * @param builtIns The built-in symbols.
      * @param root The root node frame of the script frames description.
+     * @param globalScope
      */
-    public ScriptFrames(final List<String> builtIns, final AbstractNodeFrame root) {
+    public ScriptFrames(
+            final List<String> builtIns, final AbstractNodeFrame root, GlobalScope globalScope) {
+        this.globalScope = globalScope;
         this.builtIns = new HashMap<>();
         for (int i = 0; i < builtIns.size(); i++) {
             this.builtIns.put(builtIns.get(i), i);
@@ -132,6 +138,14 @@ public final class ScriptFrames {
             throw new TranslatorException("Cannot get closure descriptor for a virtual frame");
         }
         return ((NodeFrame) this.current).getClosureDescriptor();
+    }
+
+    public boolean isPrelude(final String symbol) {
+        return globalScope.preludeMap.containsKey(symbol);
+    }
+
+    public int getPrelude(final String symbol) {
+        return globalScope.preludeMap.get(symbol);
     }
 
     // --- Symbol methods
