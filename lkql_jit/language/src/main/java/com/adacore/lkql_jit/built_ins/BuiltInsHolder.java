@@ -40,15 +40,6 @@ public final class BuiltInsHolder {
                     NodeCheckerFunction.getValue(),
                     UnitCheckerFunction.getValue());
 
-    /** The built-in selector list. */
-    public final List<BuiltInSelector> builtInSelectors =
-            List.of(
-                    ChildrenSelector.getInstance(),
-                    ParentSelector.getInstance(),
-                    NextSiblingsSelector.getInstance(),
-                    PrevSiblingsSelector.getInstance(),
-                    SuperTypesSelector.getInstance());
-
     /** The built-in method list. */
     public final Map<String, Map<String, BuiltInFunctionValue>> builtInMethods =
             Map.ofEntries(

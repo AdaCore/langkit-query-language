@@ -7,6 +7,7 @@ package com.adacore.lkql_jit.langkit_translator.passes.framing_utils;
 
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.exception.TranslatorException;
+import com.adacore.lkql_jit.runtime.GlobalScope;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,7 +162,7 @@ public final class ScriptFramesBuilder {
      *
      * @return The script frames.
      */
-    public ScriptFrames build() {
+    public ScriptFrames build(GlobalScope globalScope) {
         if (this.current != this.root) {
             throw new TranslatorException("Framing pass didn't close all opened frames");
         }
@@ -173,7 +174,7 @@ public final class ScriptFramesBuilder {
         } else {
             rootNodeFrame = this.root.build(null);
         }
-        return new ScriptFrames(this.builtIns, rootNodeFrame);
+        return new ScriptFrames(this.builtIns, rootNodeFrame, globalScope);
     }
 
     // ----- Override methods -----

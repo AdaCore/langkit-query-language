@@ -9,9 +9,6 @@ import com.adacore.libadalang.Libadalang;
 import com.adacore.liblkqllang.Liblkqllang;
 import com.adacore.lkql_jit.built_ins.BuiltInFunctionValue;
 import com.adacore.lkql_jit.exception.LKQLRuntimeException;
-import com.adacore.lkql_jit.langkit_translator.passes.FramingPass;
-import com.adacore.lkql_jit.langkit_translator.passes.TranslationPass;
-import com.adacore.lkql_jit.langkit_translator.passes.framing_utils.ScriptFrames;
 import com.adacore.lkql_jit.nodes.LKQLNode;
 import com.adacore.lkql_jit.runtime.GlobalScope;
 import com.adacore.lkql_jit.utils.Constants;
@@ -41,6 +38,7 @@ import java.util.function.Function;
  * @author Hugo GUERRIER
  */
 public final class LKQLContext {
+    private final LKQLLanguage language;
 
     // ----- Attributes -----
 
@@ -190,12 +188,13 @@ public final class LKQLContext {
      * @param env The environment.
      * @param global The initialized global values.
      */
-    public LKQLContext(TruffleLanguage.Env env, GlobalScope global) {
+    public LKQLContext(TruffleLanguage.Env env, GlobalScope global, LKQLLanguage language) {
         this.env = env;
         this.global = global;
         this.specifiedSourceFiles = new ArrayList<>();
         this.allSourceFiles = new ArrayList<>();
         this.parsed = false;
+        this.language = language;
     }
 
     // ----- Destructors -----
@@ -800,9 +799,60 @@ public final class LKQLContext {
         if (this.allRulesArgs == null) {
             this.allRulesArgs = new HashMap<>();
             this.allRulesArgs.putAll(this.getRuleConfigFileResult().args());
-            this.allRulesArgs.putAll(
-                    ParsingUtils.parseRulesArgs(
-                            this.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";")));
+            // Prepare the result
+            Map<String, Map<String, Object>> res = new HashMap<>();
+
+            for (String ruleArgSource :
+                    this.getEnv().getOptions().get(LKQLLanguage.rulesArgs).split(";")) {
+                // Verify that the rule is not empty
+                if (ruleArgSource.isEmpty() || ruleArgSource.isBlank()) continue;
+
+                // Split the get the names and the value
+                final String[] valueSplit = ruleArgSource.split("=");
+                final String[] nameSplit = valueSplit[0].split("\\.");
+
+                // Verify the rule argument syntax
+                if (valueSplit.length != 2 || nameSplit.length != 2) {
+                    throw LKQLRuntimeException.fromMessage(
+                            "Rule argument syntax error : '" + ruleArgSource + "'");
+                }
+
+                // Get the information from the rule argument source
+                final String ruleName1 = nameSplit[0].toLowerCase().trim();
+                final String argName1 = nameSplit[1].toLowerCase().trim();
+                final String valueSource = valueSplit[1].trim();
+
+                // Parse the value source with Liblkqllang
+                try (Liblkqllang.AnalysisContext analysisContext =
+                        Liblkqllang.AnalysisContext.create()) {
+                    // Parse the argument value source with Liblkqllang
+                    final Liblkqllang.AnalysisUnit unit =
+                            analysisContext.getUnitFromBuffer(
+                                    valueSource,
+                                    "rule_argument",
+                                    null,
+                                    Liblkqllang.GrammarRule.EXPR_RULE);
+                    final Liblkqllang.LkqlNode root = unit.getRoot();
+                    final Source source =
+                            Source.newBuilder(Constants.LKQL_ID, valueSource, "rule_argument")
+                                    .build();
+                    final LKQLNode node = language.translate(root, source);
+
+                    try {
+                        // Add the argument in the result
+                        Map<String, Object> ruleArgs = res.getOrDefault(ruleName1, new HashMap<>());
+                        ruleArgs.put(argName1, node.executeGeneric(null));
+                        res.put(ruleName1, ruleArgs);
+                    } catch (Exception e) {
+                        throw LKQLRuntimeException.fromMessage(
+                                "The rule argument value generated an interpreter error: "
+                                        + valueSource);
+                    }
+                }
+            }
+
+            // Return the result
+            this.allRulesArgs.putAll(res);
         }
         Map<String, Object> ruleArgs = this.allRulesArgs.getOrDefault(ruleName, null);
         return ruleArgs == null ? null : ruleArgs.getOrDefault(argName, null);
@@ -942,24 +992,5 @@ public final class LKQLContext {
      */
     public boolean mustFollowInstantiations() {
         return needsToFollowInstantiations;
-    }
-
-    /**
-     * Translate the given source Langkit AST.
-     *
-     * @param lkqlLangkitRoot The LKQL Langkit AST to translate.
-     * @param source The Truffle source of the AST.
-     * @return The translated LKQL Truffle AST.
-     */
-    public static LKQLNode translate(
-            final Liblkqllang.LkqlNode lkqlLangkitRoot, final Source source) {
-        // Do the framing pass to create the script frame descriptions
-        final FramingPass framingPass = new FramingPass(source);
-        lkqlLangkitRoot.accept(framingPass);
-        final ScriptFrames scriptFrames = framingPass.getScriptFramesBuilder().build();
-
-        // Do the translation pass and return the result
-        final TranslationPass translationPass = new TranslationPass(source, scriptFrames);
-        return lkqlLangkitRoot.accept(translationPass);
     }
 }
