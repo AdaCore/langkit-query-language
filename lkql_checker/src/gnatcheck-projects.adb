@@ -2,7 +2,7 @@
 --                                                                          --
 --                                 GNATCHECK                                --
 --                                                                          --
---                     Copyright (C) 2013-2023, AdaCore                     --
+--                     Copyright (C) 2013-2024, AdaCore                     --
 --                                                                          --
 -- GNATCHECK  is free software;  you can redistribute it and/or modify  it  --
 -- under terms of the GNU General Public License  as published by the Free  --
@@ -36,12 +36,15 @@ with GPR2.Containers;
 with GPR2.Context;
 with GPR2.KB;
 with GPR2.Log;
+with GPR2.Options;
 with GPR2.Path_Name;
 with GPR2.Project.Attribute;
 with GPR2.Project.Attribute_Index;
 with GPR2.Project.Configuration;
 with GPR2.Project.Registry.Attribute;
+with GPR2.Project.Registry.Attribute.Description;
 with GPR2.Project.Registry.Pack;
+with GPR2.Project.Registry.Pack.Description;
 with GPR2.Project.Source.Set;
 with GPR2.Project.View;
 with GPR2.Project.View.Set;
@@ -789,7 +792,6 @@ package body Gnatcheck.Projects is
          return;
       end if;
 
-      Register_Tool_Attributes (My_Project);
       Set_External_Values (My_Project);
 
       if Aggregated_Project then
@@ -860,22 +862,52 @@ package body Gnatcheck.Projects is
    begin
       GPR2.Project.Registry.Pack.Add
         (+"Codepeer", GPR2.Project.Registry.Pack.Everywhere);
+      GPR2.Project.Registry.Pack.Description.Set_Package_Description
+        (+"Codepeer",
+         "This package specifies the options used when " &
+           "calling the tool 'codepeer' or calling 'gnatcheck' with " &
+           "'--simple-project' switch.");
       Add
         (File_Patterns_Attr,
          Index_Type           => GPR2.Project.Registry.Attribute.No_Index,
          Value                => List,
          Value_Case_Sensitive => True,
          Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (File_Patterns_Attr,
+         "If you want to override ada default file " &
+           "extensions (ada, ads, adb, spc & bdy), use this attribute " &
+           "which includes a list of file patterns where you can specify " &
+           "the following meta characters: * : matches any string of 0 " &
+           "or more characters, ? : matches any character, " &
+           " [list of chars] : matches any character listed, [char-char] " &
+           ": matches any character in given range, [^list of chars] : " &
+           "matches any character not listed. These patterns are case " &
+           "insensitive.");
       GPR2.Project.Registry.Pack.Check_Attributes (+"Codepeer", False);
 
       GPR2.Project.Registry.Pack.Add
         (+"Check", GPR2.Project.Registry.Pack.Everywhere);
+      GPR2.Project.Registry.Pack.Description.Set_Package_Description
+        (+"Check",
+         "This package specifies the options used when " &
+           "calling the checking tool 'gnatcheck'. Its attribute " &
+           "Default_Switches has the same semantics as for the package " &
+           "Builder. The first string should always be -rules to specify " &
+           "that all the other options belong to the -rules section of " &
+           "the parameters to 'gnatcheck'.");
       Add
         (Default_Switches_Attr,
          Index_Type           => Language_Index,
          Value                => List,
          Value_Case_Sensitive => True,
          Is_Allowed_In        => Everywhere);
+      GPR2.Project.Registry.Attribute.Description.Set_Attribute_Description
+        (Default_Switches_Attr,
+         "Index is a language name. Value is a " &
+           "list of switches to be used when invoking 'gnatcheck' for a " &
+           "source of the language, if there is no applicable attribute " &
+           "Switches.");
       GPR2.Project.Registry.Pack.Check_Attributes (+"Check");
    end Register_Tool_Attributes;
 
@@ -1278,6 +1310,12 @@ package body Gnatcheck.Projects is
       Initial_Char    : Character;
       Success         : Boolean;
 
+      Print_Registry_Option : constant String :=
+                                GPR2.Options.Print_GPR_Registry_Option
+                                  (GPR2.Options.Print_GPR_Registry_Option'First
+                                    + 1 ..
+                                   GPR2.Options.Print_GPR_Registry_Option'Last);
+
    --  Start of processing for Scan_Arguments
 
    begin
@@ -1321,6 +1359,7 @@ package body Gnatcheck.Projects is
               "-ignore= "                   &
               "-ignore-project-switches "   &
               "-simple-project "            &
+              Print_Registry_Option & " "   &
               "nt xml",
               Parser => Parser);
 
@@ -1718,6 +1757,10 @@ package body Gnatcheck.Projects is
 
                   elsif Full_Switch (Parser => Parser) = "-no_objects_dir" then
                      No_Object_Dir := True;
+
+                  elsif Full_Switch (Parser => Parser) = Print_Registry_Option
+                  then
+                     Print_Gpr_Registry := True;
 
                   elsif Full_Switch (Parser => Parser) = "-no-subprojects" then
                      if not In_Project_File or else not U_Option_Set then

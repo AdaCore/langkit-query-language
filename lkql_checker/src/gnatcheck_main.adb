@@ -42,6 +42,8 @@ with Gnatcheck.String_Utilities; use Gnatcheck.String_Utilities;
 
 with Checker_App;
 
+with GPR2.Project.Registry.Exchange;
+
 procedure Gnatcheck_Main is
    Time_Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
    use type Ada.Calendar.Time;
@@ -359,6 +361,19 @@ begin
 
    elsif Print_Usage then
       Print_Gnatcheck_Usage;
+      OS_Exit (E_Success);
+   end if;
+
+   --  Register GNATcheck GPR attributes
+
+   Register_Tool_Attributes (Gnatcheck_Prj);
+
+   --  Print GPR registered and exit if requested
+
+   if Print_Gpr_Registry then
+      --  Print GPR registry
+
+      GPR2.Project.Registry.Exchange.Export (Output => Put'Access);
       OS_Exit (E_Success);
    end if;
 
