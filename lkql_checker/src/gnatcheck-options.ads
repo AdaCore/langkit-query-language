@@ -210,6 +210,14 @@ package Gnatcheck.Options is
    --  argument file that exists. A tool should not rely on the default setting
    --  of this file.
 
+   No_Detectors_For_KP_Version : Boolean := False;
+   --  Flag indicating that GNATkp was launched with a --kp-version argument
+   --  corresponding to a GNAT version for which there are no known problems
+   --  (and hence no matching rule detector). In that case, we consider the
+   --  run to be successful. NOTE that this only applies to the case where the
+   --  given version is valid, otherwise it must be considered an error and
+   --  this flag should not be set.
+
    ------------------------------------------------------
    -- options related to program global state analysis --
    ------------------------------------------------------
