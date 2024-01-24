@@ -428,7 +428,10 @@ begin
 
    Process_Requested_Rules (Ctx);
 
-   if Nothing_To_Do then
+   if No_Detectors_For_KP_Version then
+      Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
+      OS_Exit (E_Success);
+   elsif Nothing_To_Do then
       Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
       OS_Exit (E_Missing_Source);
    end if;

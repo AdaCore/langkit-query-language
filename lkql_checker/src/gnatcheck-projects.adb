@@ -1905,8 +1905,14 @@ package body Gnatcheck.Projects is
       end if;
 
       if not (Active_Rule_Present or else Analyze_Compiler_Output) then
-         Error ("No rule to check specified");
-         raise Parameter_Error;
+         if Gnatkp_Mode and then KP_Version /= null then
+            Error ("No rule for the given kp-version");
+            No_Detectors_For_KP_Version := True;
+            return;
+         else
+            Error ("No rule to check specified");
+            raise Parameter_Error;
+         end if;
       end if;
 
       if Exempted_Units /= null then
