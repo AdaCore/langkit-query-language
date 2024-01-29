@@ -2269,16 +2269,16 @@ package body Gnatcheck.Diagnoses is
 
                   Insert
                     (Rule_Param_Exempt_Sections (Rule),
-                    (Exempt_Info =>
-                       (Line_Start    => Natural (Sloc_Start.Line),
-                        Col_Start     => Natural (Sloc_Start.Column),
-                        Line_End      => 0,
-                        Col_End       => 0,
-                        Justification => Action.Justification,
-                        Detected      => 0),
-                     Rule        => Rule,
-                     SF          => SF,
-                   Params        => Action.Params));
+                     (Exempt_Info =>
+                        (Line_Start    => Natural (Sloc_Start.Line),
+                         Col_Start     => Natural (Sloc_Start.Column),
+                         Line_End      => 0,
+                         Col_End       => 0,
+                         Justification => Action.Justification,
+                         Detected      => 0),
+                      Rule        => Rule,
+                      SF          => SF,
+                      Params      => Action.Params));
                end if;
             else
                Exemption_Sections (Rule) :=
