@@ -1311,10 +1311,9 @@ package body Gnatcheck.Projects is
       Success         : Boolean;
 
       Print_Registry_Option : constant String :=
-                                GPR2.Options.Print_GPR_Registry_Option
-                                  (GPR2.Options.Print_GPR_Registry_Option'First
-                                    + 1 ..
-                                   GPR2.Options.Print_GPR_Registry_Option'Last);
+        GPR2.Options.Print_GPR_Registry_Option
+          (GPR2.Options.Print_GPR_Registry_Option'First + 1 ..
+           GPR2.Options.Print_GPR_Registry_Option'Last);
 
    --  Start of processing for Scan_Arguments
 
