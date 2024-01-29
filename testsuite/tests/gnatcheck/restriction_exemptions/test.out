@@ -1,0 +1,36 @@
+1. Summary
+
+   fully compliant sources               : 1
+   sources with exempted violations only : 1
+   sources with non-exempted violations  : 0
+   unverified sources                    : 0
+   total sources                         : 2
+   ignored sources                       : 0
+
+   non-exempted violations               : 0
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 1
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+main.ads:5:09: violation of restriction "Max_Protected_Entries = 0"
+   (testing)
+
+3. Non-exempted Coding Standard Violations
+
+   no non-exempted violations detected
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+
