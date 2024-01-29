@@ -733,10 +733,6 @@ package body Gnatcheck.Compiler is
    begin
       if Arrow_Idx /= 0 then
          Rest_Name_End := Arrow_Idx - 1;
-
-         while Rest_Name_End >= Par_Start and then Par (Par_Start) = ' ' loop
-            Rest_Name_End := Rest_Name_End - 1;
-         end loop;
       end if;
 
       begin
