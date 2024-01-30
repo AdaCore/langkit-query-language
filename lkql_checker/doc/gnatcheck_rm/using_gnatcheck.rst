@@ -411,6 +411,20 @@ containing arguments for a run of the rule.
     gnatcheck_rule_2: [{param_1: "Hello", param_2: "World"}]
   }
 
+.. attention::
+
+  Please note that the provided rule names (that are object keys) must strictly be
+  lowercase, following the LKQL parsing rules.
+  Moreover, you cannot provide the same key twice; thus, the following code will 
+  result in a runtime error.
+
+  ::
+
+    val rules = @{
+      gnatcheck_rule_1,
+      gnatcheck_rule_1: [{param_1: "Hello", param_2: "World"}]
+    }
+
 You can use the ``alias_name`` key in an argument object to define an alias for the
 rule.
 
