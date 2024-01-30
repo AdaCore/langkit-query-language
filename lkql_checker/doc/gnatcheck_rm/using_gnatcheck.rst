@@ -351,6 +351,11 @@ The following options control the processing performed by ``gnatcheck``.
   to as a 'coding standard file' below.
 
 
+.. note::
+
+  You can provide ``-from-lkql`` and ``-from`` to the same GNATcheck run. This will
+  combine specified rules in both files.
+
 The default behavior is that all the rule checks are disabled.
 
 If a rule option is given in a rule file, it can contain spaces and line breaks.
