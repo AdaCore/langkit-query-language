@@ -9,6 +9,8 @@ procedure Ada_Code is
    Const_C : constant Int := 1;
 
    Decl : Integer := 10;
+
+   X : array (1 .. 10) of Integer; --  FLAG
 begin
    Decl := @ + 12;  --  NOFLAG because not in SPARK mode
 

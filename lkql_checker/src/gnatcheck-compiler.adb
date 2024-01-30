@@ -1482,10 +1482,10 @@ package body Gnatcheck.Compiler is
          Num_Args := @ + 1;
          Args (Num_Args) :=
            new String'("--rules-from=" & LKQL_Rule_File_Name.all);
-      else
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--rules-from=" & Rule_File);
       end if;
+
+      Num_Args := @ + 1;
+      Args (Num_Args) := new String'("--rules-from=" & Rule_File);
 
       if Debug_Mode then
          --  For debug purposes, we don't want to put the full path to the
