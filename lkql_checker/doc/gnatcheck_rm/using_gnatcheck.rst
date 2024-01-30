@@ -389,6 +389,78 @@ absolute form, then it is treated as being relative to the current directory if
 gnatcheck is called without a project file or as being relative to the project
 file directory if gnatcheck is called with a project file as an argument.
 
+.. _LKQL_options_file:
+
+LKQL rule options file
+----------------------
+
+You can configure GNATcheck rules using an LKQL file, provided with the ``-from-lkql``
+command-line option. This file must be a valid LKQL file that exports at least a
+``rules`` top-level symbol. This symbol must refer to an object value containing rules
+configuration; keys are GNATcheck rules to enable; and values are lists of objects
+containing arguments for a run of the rule.
+
+::
+
+  val rules = @{
+    gnatcheck_rule_1,
+    gnatcheck_rule_2: [{param_1: "Hello", param_2: "World"}]
+  }
+
+.. attention::
+
+  Please note that the provided rule names (that are object keys) must strictly be
+  lowercase, following the LKQL parsing rules.
+  Moreover, you cannot provide the same key twice; thus, the following code will 
+  result in a runtime error.
+
+  ::
+
+    val rules = @{
+      gnatcheck_rule_1,
+      gnatcheck_rule_1: [{param_1: "Hello", param_2: "World"}]
+    }
+
+You can use the ``alias_name`` key in an argument object to define an alias for the
+rule.
+
+::
+
+  val rules = @{
+    gnatcheck_rule_1,
+    gnatcheck_rule_2: [
+      {param_1: "Hello", param_2: "World"},
+      {param_1: "Foo",   param_2: "Bar", alias_name: "Rule_Alias"}
+    ]
+  }
+
+Additionally to the ``rules`` top-level symbol, the LKQL rule file may export ``ada_rules``
+and ``spark_rules`` symbols to enable associated rules, respectively, only on Ada code and
+only on SPARK code. Those symbols must also refer to an object value formatted like the
+``rules`` value.
+
+::
+
+  # Rules to run on both Ada and SPARK code
+  val rules = @{
+    gnatcheck_rule_1
+  }
+
+  # Rules to run only on Ada code
+  val ada_rules = @{
+    gnatcheck_rule_2: [{param_1: 42}]
+  }
+
+  # Rules to run only on SPARK code
+  val spark_rules = @{
+    gnatcheck_rule_3
+  }
+
+.. note::
+
+  Note that an LKQL rules config file may contain arbitrary computation logic; the only
+  rule for this type of file is to export a ``rules`` symbol referring to an object value.
+
 .. _Mapping_gnatcheck_Rules_Onto_Coding_Standards:
 
 Mapping GNATcheck Rules Onto Coding Standards
