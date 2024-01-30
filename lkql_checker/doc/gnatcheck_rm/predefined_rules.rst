@@ -4197,6 +4197,9 @@ Generic subprograms and subprograms detected in generic units are not
 flagged. Recursive subprograms in generic instantiations
 are flagged.
 
+Ghost code and assertion code such as pre & post conditions or code inside of
+`pragma Assert` is not flagged either by default.
+
 The rule does not take into account implicit calls that are the
 result of computing default initial values for an object or a subcomponent
 thereof as a part of the elaboration of an object declaration.
@@ -4209,6 +4212,10 @@ The rule has an optional parameter for the ``+R`` option:
 *Follow_Dispatching_Calls*
    Treat a dispatching call as a set of calls to all the subprograms
    the dispatching call may dispatch to.
+
+*Follow_Ghost_Code*
+   Analyze ghost code and assertion code, which isn't analyzed by this check by
+   default.
 
 .. rubric:: Example
 

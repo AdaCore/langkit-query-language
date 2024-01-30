@@ -1,0 +1,4 @@
+test.adb:4:13: rule violation: recursive subprogram
+4 |    function Factorial (N : Natural) return Positive is  -- FLAG
+  |             ^^^^^^^^^
+

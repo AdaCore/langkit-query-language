@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Recursive_Subprograms
+project: 'prj.gpr'
+rule_arguments:
+    recursive_subprograms.follow_ghost_code: 'true'
