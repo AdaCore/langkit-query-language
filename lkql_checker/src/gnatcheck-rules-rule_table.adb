@@ -28,6 +28,7 @@ with Ada.Text_IO;                use Ada.Text_IO;
 with GNAT.Directory_Operations;  use GNAT.Directory_Operations;
 with GNAT.OS_Lib;                use GNAT.OS_Lib;
 with GNAT.Regexp;                use GNAT.Regexp;
+with GNAT.Table;
 
 with Gnatcheck.Options;          use Gnatcheck.Options;
 with Gnatcheck.Output;           use Gnatcheck.Output;
@@ -164,7 +165,8 @@ package body Gnatcheck.Rules.Rule_Table is
    --------------
 
    function Get_Rule (Rule_Name : String) return Rule_Id is
-      Normalized_Rule_Name : constant String := To_Lower (Rule_Name);
+      Try_Id : constant Rule_Id := Find_Rule_Id (Rule_Name);
+      Normalized_Rule_Name : constant String := Get_Id_Text (Try_Id);
 
       function Has_Element
         (Container : Synonym_Maps.Map; Element : String) return Boolean;
@@ -188,37 +190,31 @@ package body Gnatcheck.Rules.Rule_Table is
 
    begin
       --  First, check if we have a compiler check:
-
-      if Normalized_Rule_Name = "restrictions" then
+      if Try_Id = Restrictions_Id then
          return Restrictions_Id;
-      elsif Normalized_Rule_Name = "style_checks"
+
+      elsif Try_Id = Style_Checks_Id
         or else Has_Element (Style_Synonyms, Normalized_Rule_Name)
       then
          return Style_Checks_Id;
-      elsif Normalized_Rule_Name = "warnings"
+
+      elsif Try_Id = Warnings_Id
         or else Has_Element (Warning_Synonyms, Normalized_Rule_Name)
       then
          return Warnings_Id;
       end if;
 
-      --  This is a rather ineficient implementation. At some point we
-      --  should think about a hash table.
-
-      --  Try to get the rule from the rule table
-      for J in First_Rule .. All_Rules.Last loop
-         if To_Lower (To_String (All_Rules.Table (J).Name)) =
-           Normalized_Rule_Name
-         then
-            return J;
-         end if;
-      end loop;
+      --  Try to get the rule from the rule map
+      if All_Rules.Contains (Try_Id) then
+         return Try_Id;
+      end if;
 
       --  Then try to get the rule from the alias table
       if All_Aliases.Contains (Normalized_Rule_Name) then
          return All_Aliases (Normalized_Rule_Name).Rule;
       end if;
 
-      return No_Rule;
+      return No_Rule_Id;
    end Get_Rule;
 
    ------------------------
@@ -271,34 +267,21 @@ package body Gnatcheck.Rules.Rule_Table is
    ----------------
 
    function Is_Enabled (Rule : Rule_Id) return Boolean is
-      Result : Boolean := False;
    begin
       if not Present (Rule) then
          raise Fatal_Error;
       end if;
 
-      case Rule is
-         when Restrictions_Id =>
-            Result := Check_Restrictions;
-         when Style_Checks_Id =>
-            Result := Use_gnaty_Option;
-         when Warnings_Id =>
-            Result := Use_gnatw_Option;
-         when others =>
-            Result := Is_Enabled (All_Rules.Table (Rule).all);
-      end case;
-
-      return Result;
+      if Rule = Restrictions_Id then
+         return Check_Restrictions;
+      elsif Rule = Style_Checks_Id then
+         return Use_gnaty_Option;
+      elsif Rule = Warnings_Id then
+         return Use_gnatw_Option;
+      else
+         return Is_Enabled (All_Rules (Rule).all);
+      end if;
    end Is_Enabled;
-
-   --------
-   -- No --
-   --------
-
-   function No (Id : Rule_Id) return Boolean is
-   begin
-      return Id not in All_Rules.First .. All_Rules.Last;
-   end No;
 
    -------------------
    -- Pop_Rule_File --
@@ -315,9 +298,9 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Present --
    -------------
 
-   function Present (Id : Rule_Id) return Boolean is
+   function Present (Rule : Rule_Id) return Boolean is
    begin
-      return Id in Compiler_Checks | First_Rule .. All_Rules.Last;
+      return All_Rules.Contains (Rule) or else Is_Compiler_Check (Rule);
    end Present;
 
    -----------------------
@@ -1030,13 +1013,13 @@ package body Gnatcheck.Rules.Rule_Table is
                      Alias      := Create_Alias_For_Rule (Rule);
                      Alias.Name := To_Unbounded_String (User_Synonym);
                      All_Aliases.Include (To_Lower (User_Synonym), Alias);
-                     All_Rules.Table (Rule).Aliases.Append (Alias);
+                     All_Rules (Rule).Aliases.Append (Alias);
                   end;
                end if;
 
                if Word_Start = 0 then
                   Process_Rule_Parameter
-                    (Rule       => All_Rules.Table (Rule).all,
+                    (Rule       => All_Rules (Rule).all,
                      Alias      => Alias,
                      Param      => "",
                      Enable     => Enable,
@@ -1045,7 +1028,7 @@ package body Gnatcheck.Rules.Rule_Table is
                else
                   while Word_Start /= 0 loop
                      Process_Rule_Parameter
-                       (Rule       => All_Rules.Table (Rule).all,
+                       (Rule       => All_Rules (Rule).all,
                         Alias      => Alias,
                         Param      => Option (Word_Start .. Word_End),
                         Enable     => Enable,
@@ -1083,20 +1066,19 @@ package body Gnatcheck.Rules.Rule_Table is
    -- Rule_Name --
    ---------------
 
-   function Rule_Name (R : Rule_Id) return String is
+   function Rule_Name (Rule : Rule_Id) return String is
    begin
-      pragma Assert (Present (R));
+      pragma Assert (Present (Rule));
 
-      case R is
-         when Restrictions_Id =>
-            return "restrictions";
-         when Style_Checks_Id =>
-            return "style_checks";
-         when Warnings_Id =>
-            return "warnings";
-         when others =>
-            return To_String (All_Rules.Table (R).Name);
-      end case;
+      if Rule = Restrictions_Id then
+         return "restrictions";
+      elsif Rule = Style_Checks_Id then
+         return "style_checks";
+      elsif Rule = Warnings_Id then
+         return "warnings";
+      else
+         return To_String (All_Rules (Rule).Name);
+      end if;
    end Rule_Name;
 
    ----------------
@@ -1120,22 +1102,22 @@ package body Gnatcheck.Rules.Rule_Table is
          Info ("gnatkp currently implements the following detectors:");
 
          if KP_Version /= null then
-            for Rule in All_Rules.First .. All_Rules.Last loop
-               if All_Rules.Table (Rule).Impact = null
+            for Rule in All_Rules.Iterate loop
+               if All_Rules (Rule).Impact = null
                  or else
-                   (Match (KP_Version.all, All_Rules.Table (Rule).Impact.all)
+                   (Match (KP_Version.all, All_Rules (Rule).Impact.all)
                     and then
-                      (All_Rules.Table (Rule).Target = null
+                      (All_Rules (Rule).Target = null
                        or else Target.all = ""
                        or else Match (Target.all,
-                                      All_Rules.Table (Rule).Target.all)))
+                                      All_Rules (Rule).Target.all)))
                then
-                  Set.Include (All_Rules.Table (Rule));
+                  Set.Include (All_Rules (Rule));
                end if;
             end loop;
          else
-            for J in First_Rule .. All_Rules.Last loop
-               Set.Include (All_Rules.Table (J));
+            for Rule in All_Rules.Iterate loop
+               Set.Include (All_Rules (Rule));
             end loop;
          end if;
 
@@ -1151,8 +1133,8 @@ package body Gnatcheck.Rules.Rule_Table is
       else
          Info (Executable & " currently implements the following rules:");
 
-         for J in First_Rule .. All_Rules.Last loop
-            Set.Include (All_Rules.Table (J));
+         for Rule in All_Rules.Iterate loop
+            Set.Include (All_Rules (Rule));
          end loop;
 
          if Set.Is_Empty then
@@ -1250,8 +1232,8 @@ package body Gnatcheck.Rules.Rule_Table is
       Info ("<?xml version=""1.0""?>");
       Info ("<gnatcheck>");
 
-      for J in First_Rule .. All_Rules.Last loop
-         Set.Include (All_Rules.Table (J));
+      for Rule in All_Rules.Iterate loop
+         Set.Include (All_Rules (Rule));
       end loop;
 
       for R of Set loop
@@ -1283,9 +1265,9 @@ package body Gnatcheck.Rules.Rule_Table is
          declare
             Category : constant String := Name (R);
          begin
-            for J in First_Rule .. All_Rules.Last loop
-               if Name (All_Rules.Table (J)) = Category then
-                  XML_Rule_Help (All_Rules.Table (J).all, Level + 1);
+            for Rule in All_Rules.Iterate loop
+               if Name (All_Rules (Rule)) = Category then
+                  XML_Rule_Help (All_Rules (Rule).all, Level + 1);
                end if;
             end loop;
          end;
@@ -1311,7 +1293,7 @@ package body Gnatcheck.Rules.Rule_Table is
    procedure Set_Rule_State (For_Rule : Rule_Id; To_State : Rule_States) is
    begin
       pragma Assert (Present (For_Rule));
-      All_Rules.Table (For_Rule).Rule_State := To_State;
+      All_Rules (For_Rule).Rule_State := To_State;
    end Set_Rule_State;
 
    ------------------------
@@ -1320,8 +1302,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Turn_All_Rules_Off is
    begin
-      for J in All_Rules.First .. All_Rules.Last loop
-         All_Rules.Table (J).Rule_State := Disabled;
+      for Rule in All_Rules.Iterate loop
+         All_Rules (Rule).Rule_State := Disabled;
       end loop;
    end Turn_All_Rules_Off;
 
@@ -1331,8 +1313,8 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Turn_All_Rules_On is
    begin
-      for J in All_Rules.First .. All_Rules.Last loop
-         All_Rules.Table (J).Rule_State := Enabled;
+      for Rule in All_Rules.Iterate loop
+         All_Rules (Rule).Rule_State := Enabled;
       end loop;
    end Turn_All_Rules_On;
 
@@ -1342,7 +1324,6 @@ package body Gnatcheck.Rules.Rule_Table is
 
    procedure Process_Rules (Ctx : in out Lkql_Context) is
       Rule : Rule_Access;
-      Seen_Rules : Rule_Set := Rule_Sets.Empty_Set;
    begin
       if not Ctx.All_Rules.Is_Empty then
          return;
@@ -1355,12 +1336,17 @@ package body Gnatcheck.Rules.Rule_Table is
       for R of Ctx.All_Rules loop
          declare
             Name : constant String := To_String (To_Wide_Wide_String (R.Name));
+            Id   : constant Rule_Id := Find_Rule_Id (Name);
          begin
-            if Seen_Rules.Contains (Name) then
+            --  Check that the current rule isn't already in the stored rules
+            if All_Rules.Contains (Id)
+              or else Id = Restrictions_Id
+              or else Id = Style_Checks_Id
+              or else Id = Warnings_Id
+            then
                Error ("multiple rules with the same name: " & Name);
                raise Gnatcheck.Options.Fatal_Error;
             end if;
-            Seen_Rules.Include (Name);
 
             case R.Param_Kind is
                when No_Param =>
@@ -1440,7 +1426,7 @@ package body Gnatcheck.Rules.Rule_Table is
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact                        := R.Impact;
             Rule.Target                        := R.Target;
-            All_Rules.Append (Rule);
+            All_Rules.Insert (Id, Rule);
          end;
       end loop;
    end Process_Rules;

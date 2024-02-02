@@ -1,0 +1,2 @@
+@check
+fun restrictions(node) = false

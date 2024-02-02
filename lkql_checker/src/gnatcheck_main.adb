@@ -31,7 +31,6 @@ with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;       use Gnatcheck.Ids;
 with Gnatcheck.Options;   use Gnatcheck.Options;
 with Gnatcheck.Output;    use Gnatcheck.Output;
 with Gnatcheck.Projects;  use Gnatcheck.Projects;
@@ -177,16 +176,17 @@ procedure Gnatcheck_Main is
 
       Create (File, Out_File, File_Name ("rules", 0));
 
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
-            All_Rules.Table (Rule).Print_Rule_To_Universal_File (File);
+      for Rule_Cursor in All_Rules.Iterate loop
+         if Is_Enabled (All_Rules (Rule_Cursor).all) then
+            Print_Rule_To_Universal_File (All_Rules (Rule_Cursor).all, File);
             New_Line (File);
          end if;
       end loop;
 
-      for Alias in All_Aliases.Iterate loop
-         if Is_Enabled (All_Aliases (Alias).all) then
-            All_Aliases (Alias).all.Print_Alias_To_Universal_File (File);
+      for Alias_Cursor in All_Aliases.Iterate loop
+         if Is_Enabled (All_Aliases (Alias_Cursor).all) then
+            All_Aliases
+              (Alias_Cursor).all.Print_Alias_To_Universal_File (File);
             New_Line (File);
          end if;
       end loop;
@@ -427,10 +427,6 @@ begin
 
    Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
-
-   --  Exemptions are handled fully in the parent process
-
-   Gnatcheck.Diagnoses.Init_Exemptions;
 
    if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;
