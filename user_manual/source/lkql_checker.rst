@@ -89,8 +89,8 @@ Here is an example check:
         |" Will flag object declarations for which the type is the standard
         |" ``Integer`` type
         node is o @ ObjectDecl(
-            p_type_expression() is SubtypeIndication(
-                p_designated_type_decl() is t @ * when t == o.p_std_entity("Integer")
+            p_type_expression(): SubtypeIndication(
+                p_designated_type_decl(): t @ * when t == o.p_std_entity("Integer")
         )
     )
 

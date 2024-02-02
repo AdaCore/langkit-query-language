@@ -543,8 +543,8 @@ trigger the evaluation of the associated expression in the match arm.
 .. code-block:: lkql
 
    match nodes[1]
-     | ObjectDecl(p_has_aliased() is aliased @ *) => aliased
-     | ParamSpec(p_has_aliased() is aliased @ *) => aliased
+     | ObjectDecl(p_has_aliased(): aliased @ *) => aliased
+     | ParamSpec(p_has_aliased(): aliased @ *) => aliased
      | * => false
 
 .. note:: For the moment, there is no check that the matcher is complete. A
@@ -651,7 +651,7 @@ Module
 .. lkql_doc_class:: Import
 
 LKQL has a very simple module system. Basically every file in LKQL is a module,
-and you can import modules from other files with the ``import`` clause. 
+and you can import modules from other files with the ``import`` clause.
 
 .. code-block:: lkql
 
@@ -696,7 +696,7 @@ declarations that have the aliased qualifier.
 
 .. code-block:: lkql
 
-    select ObjectDecl(p_has_aliased() is true)
+    select ObjectDecl(p_has_aliased(): true)
     #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Selector
 
 This will query every source file in the LKQL context, and filter according to
@@ -706,7 +706,7 @@ the pattern.
 
    .. code-block:: lkql
 
-      val a = select ObjectDecl(p_has_aliased() is true)
+      val a = select ObjectDecl(p_has_aliased(): true)
 
 .. admonition:: todo
 
@@ -734,7 +734,7 @@ chain.
 .. code-block:: lkql
 
    selector parent
-      | AdaNode => rec *this.parent
+      | AdaNode => rec(*this.parent, this)
       | *       => ()
 
 Query Expression
@@ -811,11 +811,6 @@ Pattern
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/pattern.svg
 
-.. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/filtered_pattern.svg
-
-.. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/binding_pattern.svg
 
 Patterns are by far the most complex part of the query language subset, but at
 its core, the concept of a pattern is very simple:
@@ -856,7 +851,6 @@ Nested Sub Patterns
 """""""""""""""""""
 
 .. lkql_doc_class:: NodePatternDetail
-.. lkql_doc_class:: DetailValue
 
 .. raw:: html
     :file: ../../lkql/build/railroad-diagrams/pattern_arg.svg
@@ -873,7 +867,7 @@ match its results:
 
 .. code-block:: lkql
 
-   select Body(any children is ForLoopStmt)
+   select Body(any children: ForLoopStmt)
 
 The quantifier part (``any``) can be either ``any`` or ``all``, which will
 alter how the sub-pattern matches:
@@ -896,7 +890,7 @@ construct in the introduction, and it's one of the simplest kind of patterns.
 
 .. code-block:: lkql
 
-   select ObjectDecl(p_default_val() is IntLiteral)
+   select ObjectDecl(p_default_val(): IntLiteral)
 
 Property Call Predicate
 """""""""""""""""""""""
@@ -907,7 +901,7 @@ this is denoted by the parentheses after the property name.
 
 .. code-block:: lkql
 
-   select BaseId(p_referenced_decl() is ObjectDecl)
+   select BaseId(p_referenced_decl(): ObjectDecl)
 
 Regular values patterns
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1058,8 +1052,7 @@ Selector Declaration
 --------------------
 
 .. lkql_doc_class:: SelectorDecl
-.. lkql_doc_class:: SelectorExpr
-.. lkql_doc_class:: SelectorExprMode
+.. lkql_doc_class:: RecExpr
 .. lkql_doc_class:: SelectorArm
 .. lkql_doc_class:: Unpack
 
@@ -1070,11 +1063,10 @@ Selector Declaration
     :file: ../../lkql/build/railroad-diagrams/selector_arm.svg
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/selector_expr.svg
 
-Selectors are a special form of functions that return a lazy stream of node
-values. They're at the basis of the query DSL of LKQL, allowing the easy
-expression of traversal blueprints.
+Selectors are a special form of functions that return a lazy stream of values.
+They're at the basis of the query DSL of LKQL, allowing the easy expression of
+traversal blueprints.
 
 For example, by default, the `Query expression`_ explores the tree via the
 default ``children`` selector.
@@ -1102,30 +1094,42 @@ A selector is a recursive function. In the body of the selector, there is a
 binding from ``this`` to the current node. A selector has an implicit top level
 `Match expression`_ matching on ``this``.
 
-.. note:: The principle of selectors is more general than nodes, but is for the
-   moment only usable with an ``this`` argument that is of type node.
+In the branch of a selector, you can express whatever computation you want for
+the current node. **There is a high-level requirement though, which is that the
+expression returned by a selector branch must be a `RecExpr`, which can be
+created via the call to the `rec` built-in operation.**
 
-In the branch of a selector, you have three choices:
+The `rec` built-in operation looks like a function call.
 
-* You can **recurse** via the ``rec`` keyword, on nodes reachable from ``this``.
-  The node or nodes you will recurse on via this keyword will both be "yielded"
-  by the selector, and explored further (ie. the selector will be called on
-  them)
+.. raw:: html
+    :file: ../../lkql/build/railroad-diagrams/selector_expr.svg
 
-* You can **recurse but skip the node(s)**, via the ``skip`` keyword. This'll have
-  the same effect as ``rec``, except that it will not yield the node(s).
+It takes one or two expressions, which can be prefixed by the splat operator
+`*`.
 
-* You can **return but not recurse**: This is the default action (requires no
-  keyword), and will yield the node(s), but not recurse on them.
+* The first expression represents what has to be added to the recurse list
+  (either an item, or a list of items, if prefixed by `*`). The recurse list is
+  the list of items on which the selector will be called next. Items are added
+  at the end of the list
 
-In ``rec`` or in the regular return branch, you can use the unpack operator, or
-``*expr`` to "unpack" an expression, eg. return each of its values. Here is for
-example how the ``super_types`` selector is expressed:
+* The second expression represents what has to be added to the result list
+  (either an item, or a list of items, if prefixed by `*`). The result list is
+  the list of items that will be yielded, piece-by-piece, to the user.
+
+* You can pass only one expression, in which case it is used both for the
+  result list and for the recurse list.
+
+.. attention:: Selectors calls are lazy, which means that their results are
+   computed on demand. When you first call a selector, nothing is computed.
+   Only by accessing its elements will you signify to LKQL that it has to
+   process the items
+
+Here is for example how the ``super_types`` selector is expressed in Ada:
 
 .. code-block:: lkql
 
     selector super_types
-        | BaseTypeDecl      => rec *this.p_base_types()
+        | BaseTypeDecl      => rec(*this.p_base_types())
         | *                 => ()
 
 Built-in Selectors
