@@ -13,7 +13,6 @@ with GNAT.OS_Lib;       use GNAT.OS_Lib;
 
 with Gnatcheck.Compiler;  use Gnatcheck.Compiler;
 with Gnatcheck.Diagnoses; use Gnatcheck.Diagnoses;
-with Gnatcheck.Ids;       use Gnatcheck.Ids;
 with Gnatcheck.Options;   use Gnatcheck.Options;
 with Gnatcheck.Output;    use Gnatcheck.Output;
 with Gnatcheck.Projects;  use Gnatcheck.Projects;
@@ -135,18 +134,18 @@ procedure Gnatcheck_Main is
       First : Boolean := True;
    begin
       Put_Line (File, "val " & Mode_String & " = @{");
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all)
-           or else not All_Rules.Table (Rule).Aliases.Is_Empty
+      for Rule in All_Rules.Iterate loop
+         if Is_Enabled (All_Rules (Rule).all)
+           or else not All_Rules (Rule).Aliases.Is_Empty
          then
-            if All_Rules.Table (Rule).all.Source_Mode = Mode then
+            if All_Rules (Rule).all.Source_Mode = Mode then
                if First then
                   First := False;
                else
                   Put_Line (File, ",");
                end if;
                Put (File, "    ");
-               All_Rules.Table (Rule).Print_Rule_To_LKQL_File (File);
+               All_Rules (Rule).all.Print_Rule_To_LKQL_File (File);
             end if;
          end if;
       end loop;
@@ -437,10 +436,6 @@ begin
 
    Set_Log_File;
    Gnatcheck.Projects.Check_Parameters;  --  check that the rule exists
-
-   --  Exemptions are handled fully in the parent process
-
-   Gnatcheck.Diagnoses.Init_Exemptions;
 
    if Analyze_Compiler_Output then
       Create_Restriction_Pragmas_File;

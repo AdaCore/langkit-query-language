@@ -1447,7 +1447,7 @@ package body Gnatcheck.Source_Table is
                        (Text           => Msg,
                         Diagnosis_Kind => Internal_Error,
                         SF             => Next_SF,
-                        Rule           => No_Rule);
+                        Rule           => No_Rule_Id);
                   end;
                end if;
          end;

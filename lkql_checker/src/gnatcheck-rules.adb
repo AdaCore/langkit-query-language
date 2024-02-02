@@ -414,12 +414,12 @@ package body Gnatcheck.Rules is
    -- Create_Alias_For_Rule --
    ---------------------------
 
-   function Create_Alias_For_Rule (R_Id : Rule_Id) return Alias_Access is
-      Rule   : constant Rule_Template'Class := All_Rules.Table (R_Id).all;
+   function Create_Alias_For_Rule (Id : Rule_Id) return Alias_Access is
+      Rule   : constant Rule_Access := All_Rules (Id);
       Result : Alias_Access;
    begin
-      Result      := Create_Alias (Rule);
-      Result.Rule := R_Id;
+      Result      := Create_Alias (Rule.all);
+      Result.Rule := Id;
       return Result;
    end Create_Alias_For_Rule;
 
@@ -430,7 +430,7 @@ package body Gnatcheck.Rules is
    function Get_Rule
      (Alias : Alias_Template'Class) return Rule_Template'Class is
    begin
-      return All_Rules.Table (Alias.Rule).all;
+      return All_Rules (Alias.Rule).all;
    end Get_Rule;
 
    --------------------------
@@ -3049,8 +3049,7 @@ package body Gnatcheck.Rules is
      (Alias : in out One_Integer_Or_Booleans_Parameter_Alias;
       Args  : in out Rule_Argument_Vectors.Vector)
    is
-      Rule : constant Rule_Template'Class :=
-        All_Rules.Table (Alias.Rule).all;
+      Rule : constant Rule_Template'Class := Get_Rule (Alias);
    begin
       Append_Int_Param (Args, Param_Name (Rule, 2), Alias.Integer_Param);
       for J in 2 .. Rule.Parameters.Last_Child_Index loop

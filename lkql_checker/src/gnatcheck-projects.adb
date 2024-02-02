@@ -1948,21 +1948,21 @@ package body Gnatcheck.Projects is
       end if;
 
       if Gnatkp_Mode and then KP_Version /= null then
-         for Rule in All_Rules.First .. All_Rules.Last loop
-            if All_Rules.Table (Rule).Impact /= null
+         for Rule in All_Rules.Iterate loop
+            if All_Rules (Rule).Impact /= null
               and then Match (KP_Version.all,
-                              All_Rules.Table (Rule).Impact.all)
+                              All_Rules (Rule).Impact.all)
             then
-               if All_Rules.Table (Rule).Target /= null
+               if All_Rules (Rule).Target /= null
                  and then Target.all /= ""
                  and then not Match (Target.all,
-                                     All_Rules.Table (Rule).Target.all)
+                                     All_Rules (Rule).Target.all)
                then
                   if not Quiet_Mode then
                      Info
                        ("info: " &
                         Ada.Strings.Unbounded.To_String
-                          (All_Rules.Table (Rule).Name) &
+                          (All_Rules (Rule).Name) &
                         " disabled, target does not match");
                   end if;
                else
@@ -1970,25 +1970,25 @@ package body Gnatcheck.Projects is
                      Info
                        ("info: " &
                         Ada.Strings.Unbounded.To_String
-                          (All_Rules.Table (Rule).Name) &
+                          (All_Rules (Rule).Name) &
                         " enabled");
                   end if;
 
-                  Set_Rule_State (Rule, Enabled);
+                  Set_Rule_State (Rule_Map.Key (Rule), Enabled);
                end if;
             end if;
          end loop;
       end if;
 
-      for Rule in All_Rules.First .. All_Rules.Last loop
-         if Is_Enabled (All_Rules.Table (Rule).all) then
+      for Rule_Cursor in All_Rules.Iterate loop
+         if Is_Enabled (All_Rules (Rule_Cursor).all) then
             Active_Rule_Present := True;
             exit;
          end if;
       end loop;
 
-      for Alias in All_Aliases.Iterate loop
-         if Is_Enabled (All_Aliases (Alias).all) then
+      for Alias_Cursor in All_Aliases.Iterate loop
+         if Is_Enabled (All_Aliases (Alias_Cursor).all) then
             Active_Rule_Present := True;
             exit;
          end if;

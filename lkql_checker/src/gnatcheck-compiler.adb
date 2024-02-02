@@ -343,7 +343,7 @@ package body Gnatcheck.Compiler is
                     Msg (Last + 1 .. Alias_Split - 1)
                   else "");
 
-               Id : Rule_Id;
+               Id : Rule_Id := No_Rule_Id;
 
             begin
                if Last = 0 then
@@ -357,7 +357,7 @@ package body Gnatcheck.Compiler is
                                     Msg (File_Idx .. Idx - 1) &
                                     Msg (Idx + 7 .. Last - 2) &
                                     Annotate_Rule
-                                      (All_Rules.Table (Id).all, Alias_Name),
+                                      (All_Rules (Id).all, Alias_Name),
                   Diagnosis_Kind => Rule_Violation,
                   SF             => SF,
                   Rule           => Id);
@@ -416,7 +416,7 @@ package body Gnatcheck.Compiler is
                                  Message_Kind),
             Diagnosis_Kind => Kind,
             SF             => SF,
-            Rule           => (if Message_Kind = Error then No_Rule
+            Rule           => (if Message_Kind = Error then No_Rule_Id
                                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
@@ -678,7 +678,7 @@ package body Gnatcheck.Compiler is
       case Check is
          when Not_A_Message | Error =>
             pragma Assert (False);
-            return No_Rule;
+            return No_Rule_Id;
          when Warning =>
             return Warnings_Id;
          when Style =>

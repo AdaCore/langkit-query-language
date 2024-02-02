@@ -1,0 +1,9 @@
+# Test the definition of a custom rule with the same name as another custom
+# rule.
+
+driver: gnatcheck
+format: brief
+rules_dirs:
+  - rules
+input_sources:
+  - main.adb

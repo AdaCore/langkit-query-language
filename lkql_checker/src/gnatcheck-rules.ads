@@ -63,7 +63,7 @@ package Gnatcheck.Rules is
       --  Name of the alias
 
       Rule : Rule_Id;
-      --  Identifier of the rule associated to the alias
+      --  Name of the rule associated to the alias
 
       Alias_State : Rule_States;
       --  Is the alias active or not
@@ -133,12 +133,13 @@ package Gnatcheck.Rules is
    end record;
 
    type Rule_Access is access all Rule_Template'Class;
+   --  Access to a rule template
 
    ----------------------
    -- Alias operations --
    ----------------------
 
-   function Create_Alias_For_Rule (R_Id : Rule_Id) return Alias_Access;
+   function Create_Alias_For_Rule (Id : Rule_Id) return Alias_Access;
    --  Create a new rule alias record according to the rule type and return
    --  the access to it.
 

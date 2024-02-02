@@ -10,13 +10,11 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
-with GNAT.Table;
 with Checker_App; use Checker_App;
 
 package Gnatcheck.Rules.Rule_Table is
 
-   function No      (Id : Rule_Id) return Boolean;
-   function Present (Id : Rule_Id) return Boolean;
+   function Present (Rule : Rule_Id) return Boolean;
    --  Check if the argument represents an existing rule
 
    procedure Process_Rule_Option
@@ -102,13 +100,14 @@ package Gnatcheck.Rules.Rule_Table is
    --  Prints out the rule help (organized by categories) in XML format for
    --  GNAT Studio needs.
 
-   package All_Rules is new GNAT.Table (
-     Table_Component_Type => Rule_Access,
-     Table_Index_Type     => Rule_Id,
-     Table_Low_Bound      => First_Rule,
-     Table_Initial        => 100,
-     Table_Increment      => 100,
-     Table_Name           => "Rule table");
+   package Rule_Map is new Ada.Containers.Indefinite_Hashed_Maps
+     (Key_Type        => Rule_Id,
+      Element_Type    => Rule_Access,
+      Hash            => Hash,
+      Equivalent_Keys => "=");
+   All_Rules : Rule_Map.Map;
+   --  This map contains all parsed and predefined rules, associating their
+   --  normalized names to an access to the corresponding rule.
 
    package Alias_Map is new Ada.Containers.Indefinite_Hashed_Maps (
       Key_Type        => String,
@@ -120,9 +119,10 @@ package Gnatcheck.Rules.Rule_Table is
    --  with the identifier of the original rule and actual parameters.
 
    function Get_Rule (Rule_Name : String) return Rule_Id;
-   --  Returns the Id for the rule registered under the name Rule_Name or
-   --  corresponding to the compiler check denoted by Rule_Name. If there is no
-   --  such rule, returns No_Rule. Rule names are not case-sensitive.
+   --  Returns the identifier for the provided rule name. This identifier is
+   --  associated to the rule template access in `All_Rules` map.
+   --  If there is no rule designated by `Rule_Name`, this function returns the
+   --  `No_Rule_Id` value.
 
    procedure Turn_All_Rules_Off;
    --  Turns OFF all the rules currently implemented in gnatcheck
@@ -133,7 +133,7 @@ package Gnatcheck.Rules.Rule_Table is
    procedure Set_Rule_State (For_Rule : Rule_Id; To_State : Rule_States);
    --  Sets the state of the argument rule. Requires Present (For_Rule)
 
-   function Rule_Name (R : Rule_Id) return String;
+   function Rule_Name (Rule : Rule_Id) return String;
    --  Returns the name of the rule.
 
    function Is_Enabled (Rule : Rule_Id) return Boolean;
