@@ -4,6 +4,11 @@
 |" These functions may be moved in the future in Libadalang or LKQL's builtin
 |" library.
 
+selector super_types
+    |" Yields the chain of super types for the given type
+    | BaseTypeDecl => rec(*this.p_base_types())
+    | * => ()
+
 selector semantic_parent
     |" Return all semantic parent nodes starting from a given node.
     | null     => ()

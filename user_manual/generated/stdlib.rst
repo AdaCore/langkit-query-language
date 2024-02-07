@@ -269,3 +269,7 @@ Selectors
 
     Return all semantic parent nodes starting from a given node.
 
+.. function:: super_types()
+
+    Yields the chain of super types for the given type
+

@@ -69,10 +69,6 @@ public final class LKQLLanguage extends TruffleLanguage<LKQLContext> {
         |" Yields all the previous siblings of the given node
         | AdaNode => rec(this.previous_sibling())
         | * => ()
-
-        selector super_types
-        | BaseTypeDecl => rec(*this.p_base_types())
-        | * => ()
         """;
 
     // ----- Static variables -----
