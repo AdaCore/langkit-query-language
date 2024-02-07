@@ -1,7 +1,9 @@
 # Flag tagged types that implement interfaces and have discriminants.
 
+import stdlib
+
 @check(message="possible occurrence of KP S521-014", impact="19.*")
 fun kp_s521_014(node) =
     node is TypeDecl(p_is_tagged_type(): true,
                      f_discriminants: not null,
-                     any super_types: TypeDecl(p_is_interface_type(): true))
+                     any stdlib.super_types: TypeDecl(p_is_interface_type(): true))

@@ -6,6 +6,8 @@
 # This rule has the following parameter: n: Positive integer
 # specifying the maximal allowed number of parents/progenitors.
 
+import stdlib
+
 fun num_interfaces(n) =
     |" Return the number of interfaces for a SingleProtectedDecl, 0 otherwise
     |" since for all type declarations, super_types takes interfaces into
@@ -19,6 +21,6 @@ fun too_many_parents(node, n : int = 5) =
              TaskTypeDecl | ProtectedTypeDecl | SingleProtectedDecl)
     when ({
         val l = num_interfaces(node);
-        val st = super_types(node, max_depth=n - l + 1);
+        val st = stdlib.super_types(node, max_depth=n - l + 1);
         l + st.length > n
     })
