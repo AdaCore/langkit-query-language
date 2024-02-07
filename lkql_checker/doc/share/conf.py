@@ -4,23 +4,32 @@
 
 # -- Project information -----------------------------------------------------
 
-import os
+from os import path as P
 import sys
 import time
 
-from liblkqllang import LKQLPygmentsLexer
+# Add own dir path
+own_dir_path = P.dirname(P.realpath(__file__))
+sys.path.append(own_dir_path)
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(dir_path)
+# Add lkql user_manual path into the Python path, so that we have access to the
+# lkql pygments lexer module.
+lkql_user_manual_path = P.join(
+    P.dirname(P.dirname(P.dirname(P.dirname(P.realpath(__file__))))),
+    "user_manual", "source"
+)
+
+sys.path.append(lkql_user_manual_path)
 
 import ada_pygments
 import latex_elements
+import lkql_lexer
 
 # -- General configuration ---------------------------------------------------
 
 from sphinx.highlighting import lexers
 
-lexers['lkql'] = LKQLPygmentsLexer()
+lexers['lkql'] = lkql_lexer.LKQLPygmentsLexer()
 lexers['ada'] = ada_pygments.AdaLexer()
 lexers['gpr'] = ada_pygments.GNATProjectLexer()
 
@@ -30,9 +39,8 @@ lexers['gpr'] = ada_pygments.GNATProjectLexer()
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 
-extensions = ['lkql_doc_class',
-              'sphinx.ext.viewcode',
-              ]
+# TODO: Add back the lkql syntax check, factor it from LKQL's user manual
+extensions = ['sphinx.ext.viewcode', 'lkql_doc_class']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'gnatcheck_rm'
@@ -57,7 +65,7 @@ doc_name = 'gnatcheck_rm'
 pygments_style = 'sphinx'
 
 html_theme = 'sphinx_rtd_theme'
-if os.path.isfile('favicon.ico'):
+if P.isfile('favicon.ico'):
     html_favicon = 'favicon.ico'
 
 html_logo = 'adacore-logo-white.png'
