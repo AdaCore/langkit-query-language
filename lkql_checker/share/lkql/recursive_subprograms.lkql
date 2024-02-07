@@ -83,12 +83,14 @@ selector calls
        category="Style", subcategory="Programming Practice")
 fun recursive_subprograms(node,
                           skip_dispatching_calls=true,
-                          follow_dispatching_calls=false) =
+                          follow_dispatching_calls=false,
+                          follow_ghost_code=false) =
 
     node is (ClassicSubpDecl or SubpBodyStub(p_previous_part() is null) or
              BaseSubpBody(p_previous_part() is null or GenericSubpDecl))
 
       when (not stdlib.in_generic_template(node))
+       and (follow_ghost_code or not node.p_is_ghost_code())
        and stdlib.get_subp_body(node) is b@BaseSubpBody when
            if follow_dispatching_calls
            then b is body@BaseSubpBody(any calls is c@BaseSubpBody when body == c)
