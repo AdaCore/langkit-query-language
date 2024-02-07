@@ -20,16 +20,17 @@
 import os
 import sys
 from sphinx.highlighting import lexers
-from liblkqllang import LKQLPygmentsLexer
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path)
+
+import lkql_lexer
 
 project = 'LKQL'
 copyright = '2020, AdaCore'
 author = 'Raphael Amiard'
 
-lexers['lkql'] = LKQLPygmentsLexer()
+lexers['lkql'] = lkql_lexer.LKQLPygmentsLexer()
 
 # -- General configuration ---------------------------------------------------
 

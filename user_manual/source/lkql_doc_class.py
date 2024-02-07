@@ -11,14 +11,19 @@ from functools import lru_cache
 
 from sphinx.util.docutils import SphinxDirective
 
-import liblkqllang
-import traceback
+try:
+    import liblkqllang
+    LKQL_CLASSES = [
+        v for _, v in liblkqllang.__dict__.items()
+        if (type(v) == type
+            and issubclass(v, liblkqllang.LkqlNode))
+    ]
 
-lkql_classes = [
-    v for _, v in liblkqllang.__dict__.items()
-    if (type(v) == type
-        and issubclass(v, liblkqllang.LkqlNode))
-]
+except ImportError:
+    liblkqllang = None
+    LKQL_CLASSES = []
+
+import traceback
 
 
 @lru_cache
@@ -27,7 +32,7 @@ def lkql_cls_subclasses():
     Return a dict of class to direct subclasses.
     """
     res = defaultdict(list)
-    for cls in lkql_classes:
+    for cls in LKQL_CLASSES:
         if cls != liblkqllang.LkqlNode:
             res[cls.__base__].append(cls)
     return res
@@ -82,7 +87,7 @@ def process_lkql_classes_coverage(app, doctree, fromdocname):
     warnings for every non-documented class.
     """
     try:
-        for cls in lkql_classes:
+        for cls in LKQL_CLASSES:
             if not is_class_documented(cls):
                 doctree.reporter.warning(f"Class not documented: {cls}")
     except Exception as e:
@@ -130,9 +135,10 @@ def check_lkql_code(app, doctree, fromdocname):
 
 
 def setup(app):
-    app.add_directive('lkql_doc_class', LkqlDocClassDirective)
-    app.connect('doctree-resolved', process_lkql_classes_coverage)
-    app.connect('doctree-resolved', check_lkql_code)
+    if liblkqllang:
+        app.add_directive('lkql_doc_class', LkqlDocClassDirective)
+        app.connect('doctree-resolved', process_lkql_classes_coverage)
+        app.connect('doctree-resolved', check_lkql_code)
 
     return {
         'version': '0.1',
