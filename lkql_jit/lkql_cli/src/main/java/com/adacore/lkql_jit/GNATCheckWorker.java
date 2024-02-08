@@ -93,7 +93,7 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         public List<String> rulesDirs = new ArrayList<>();
 
         @CommandLine.Option(names = "--rules-from", description = "The file containing the rules")
-        public String rulesFrom = null;
+        public List<String> rulesFroms = null;
 
         @CommandLine.Option(names = "--files-from", description = "The file containing the files")
         public String filesFrom = null;
@@ -249,15 +249,17 @@ public class GNATCheckWorker extends AbstractLanguageLauncher {
         }
 
         // Set the rule to apply
-        if (!this.args.rulesFrom.isEmpty()) {
-            if (this.args.rulesFrom.endsWith(".lkql")) {
-                contextBuilder.option("lkql.LKQLRuleFile", this.args.rulesFrom);
-            } else {
-                final List<String> allRules = new ArrayList<>();
-                final List<String> allArgs = new ArrayList<>();
-                processRuleSpecificationFile(this.args.rulesFrom, allRules, allArgs);
-                contextBuilder.option("lkql.rules", String.join(",", allRules));
-                contextBuilder.option("lkql.rulesArgs", String.join(";", allArgs));
+        for (var rulesFrom : this.args.rulesFroms) {
+            if (!rulesFrom.isEmpty()) {
+                if (rulesFrom.endsWith(".lkql")) {
+                    contextBuilder.option("lkql.LKQLRuleFile", rulesFrom);
+                } else {
+                    final List<String> allRules = new ArrayList<>();
+                    final List<String> allArgs = new ArrayList<>();
+                    processRuleSpecificationFile(rulesFrom, allRules, allArgs);
+                    contextBuilder.option("lkql.rules", String.join(",", allRules));
+                    contextBuilder.option("lkql.rulesArgs", String.join(";", allArgs));
+                }
             }
         }
 
