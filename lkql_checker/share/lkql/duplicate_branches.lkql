@@ -20,11 +20,15 @@ fun gather_stmts(node) =
     | IfStmt   =>
         [node.f_then_stmts] &
         [n.f_stmts for n in node.f_alternatives.children].to_list &
+        # The `f_else_stmts` field will be a StmtList even if there is no else
+        # branch in the source code, therefore it is safe to include it.
         [node.f_else_stmts]
     | IfExpr   =>
         [node.f_then_expr] &
         [n.f_then_expr for n in node.f_alternatives.children].to_list &
-        [node.f_else_expr]
+        # There might not be an else expression, which translates to the field
+        # being null. In that case, make sure not to include it.
+        (if node.f_else_expr then [node.f_else_expr] else [])
     | CaseStmt => [n.f_stmts for n in node.f_alternatives.children].to_list
     | CaseExpr => [n.f_expr for n in node.f_cases.children].to_list
 
