@@ -19,4 +19,21 @@ begin
          return D;
       end;
    end if;
+
+   declare
+      K : Boolean :=
+        (if 1 = 2 then (
+           1 /= 2
+           and then 1 /= 2
+           and then 1 = 2
+           and then 1 = 2
+        ));
+      --  should not crash the rule because of the omitted else-expression.
+      --  The dummy expression in the then branch is necessary to trigger the
+      --  access check fail in the original bug.
+   begin
+      if Test then
+         null;
+      end if;
+   end;
 end Dup;
