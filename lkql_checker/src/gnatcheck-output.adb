@@ -730,8 +730,7 @@ package body Gnatcheck.Output is
       Info ("");
       Info (" -h   - print out the list of the currently implemented rules");
       Info (" -mn  - n is the maximal number of diagnoses in Stderr");
-
-      Info ("        (n in 0 .. 1000, 0 means no limit)");
+      Info ("        (n in 0 .. 1000, 0 means no limit); default is 0");
       Info (" -jn  - n is the maximal number of processes");
       Info (" -q   - quiet mode (do not report detections in Stderr)");
       Info (" -t   - report execution time in Stderr");

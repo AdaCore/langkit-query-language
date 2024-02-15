@@ -181,8 +181,8 @@ The following switches control the general ``gnatcheck`` behavior
 ``-m``\ nnnn
   Maximum number of diagnostics to be sent to :file:`stdout`, where *nnnn* is in
   the range 0...1000;
-  the default value is 500. Zero means that there is no limitation on
-  the number of diagnostic messages to be output.
+  the default value is 0, which means that there is no limitation on the number of
+  diagnostic messages to be output.
 
   .. index:: -q
 
