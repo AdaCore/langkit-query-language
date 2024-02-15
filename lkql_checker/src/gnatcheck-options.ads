@@ -276,7 +276,7 @@ package Gnatcheck.Options is
    --  Print the short version of the report file.
    --  Only diagnoses are included in the report file.
 
-   Max_Diagnoses : Natural := 500;
+   Max_Diagnoses : Natural := 0;
    --  '-m'
    --  Maximum number of diagnoses to print out into Stdout. Zero means that
    --  there is no limitation on the number of diagnoses to be printed out into
