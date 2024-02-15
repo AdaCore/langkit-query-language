@@ -8,3 +8,7 @@ rules:
   - +Rrecursive_subprograms
 extra_args:
   - --RTS=unknown
+control:
+  - [SKIP,
+     "os != 'windows'",
+     "Disable this test on non-Windows systems due to target formatting"]
