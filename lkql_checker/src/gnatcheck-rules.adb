@@ -954,14 +954,17 @@ package body Gnatcheck.Rules is
 
                Last := Str'Last;
 
-               --  Strip trailing end of line
+               --  If `Last` is null or less, then the header file is empty.
+               --  Thus don't append anything to the rule parameter.
+               if Last > 0 then
+                  --  Strip trailing end of line
+                  if Str (Str'Last) = ASCII.LF then
+                     Last := Last - 1;
+                  end if;
 
-               if Str (Str'Last) = ASCII.LF then
-                  Last := Last - 1;
+                  Append (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
+                  GNAT.OS_Lib.Free (Str);
                end if;
-
-               Append (Rule.Param, To_Wide_Wide_String (Str (1 .. Last)));
-               GNAT.OS_Lib.Free (Str);
             end;
          else
             Append (Rule.Param, To_Wide_Wide_String (Param));
