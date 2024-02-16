@@ -130,18 +130,15 @@
                             <file>${project.basedir}${file.separator}LICENSE</file>
                         </licenseHeader>
 
-                        <googleJavaFormat>
-                            <version>1.17.0</version>
-                            <style>AOSP</style>
-                            <reflowLongStrings>true</reflowLongStrings>
-                            <formatJavadoc>true</formatJavadoc>
-                        </googleJavaFormat>
+                        <palantirJavaFormat>
+                            <version>2.40.0</version>
+                            <style>PALANTIR</style>
+                        </palantirJavaFormat>
 
                         <importOrder>
                             <wildcardsLast>true</wildcardsLast>
                             <semanticSort>true</semanticSort>
                         </importOrder>
-                        <formatAnnotations/>
                         <removeUnusedImports/>
                     </java>
                     <lineEndings>UNIX</lineEndings>
