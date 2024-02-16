@@ -1,0 +1,6 @@
+driver: gnatcheck
+format: short
+input_sources:
+  - main.adb
+rules:
+  - +Rheaders:header.txt
