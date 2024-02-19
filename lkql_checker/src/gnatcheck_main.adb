@@ -446,8 +446,6 @@ begin
       Create_Restriction_Pragmas_File;
    end if;
 
-   Process_Requested_Rules (Ctx);
-
    if No_Detectors_For_KP_Version then
       Gnatcheck.Projects.Clean_Up (Gnatcheck_Prj);
       OS_Exit (E_Success);

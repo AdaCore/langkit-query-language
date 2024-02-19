@@ -144,8 +144,4 @@ package Gnatcheck.Rules.Rule_Table is
    --  Process input rules: Put the rules that have been requested by the user
    --  in internal data structures.
 
-   procedure Process_Requested_Rules (Ctx : in out Lkql_Context);
-   --  Process the rules enabled and set Ctx.Traverse_Instantiations
-   --  TODO: Useless? See #190
-
 end Gnatcheck.Rules.Rule_Table;

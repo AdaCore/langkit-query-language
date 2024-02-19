@@ -28,8 +28,6 @@ with Rules_Factory;              use Rules_Factory;
 
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
-with Langkit_Support.Text;        use Langkit_Support.Text;
-
 package body Gnatcheck.Rules.Rule_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
@@ -1644,48 +1642,5 @@ package body Gnatcheck.Rules.Rule_Table is
          end;
       end loop;
    end Process_Rules;
-
-   -----------------------------
-   -- Process_Requested_Rules --
-   -----------------------------
-
-   procedure Process_Requested_Rules (Ctx : in out Lkql_Context) is
-
-   begin
-      --  Process potential arguments for rules
-
-      for Rule of Ctx.All_Rules loop
-         declare
-            Rule_Name : constant Unbounded_Text_Type := Rule.Name;
-         begin
-            --  Modify the rule command in place, by appending an argument to
-            --  the Rule_Command's arg vector.
-
-            if Rule.Is_Unit_Check then
-               Rule.Rule_Args.Append
-                 (Rule_Argument'(Name  => To_Unbounded_Text ("unit"),
-                                 Value => To_Unbounded_Text ("unit")));
-            else
-               Rule.Rule_Args.Append
-                 (Rule_Argument'(Name  => To_Unbounded_Text ("node"),
-                                 Value => To_Unbounded_Text ("node")));
-            end if;
-
-            --  Compute the map of argument names to values.
-
-            for R in All_Rules.First .. All_Rules.Last loop
-               if To_Text (All_Rules.Table (R).Name.all) = To_Text (Rule_Name)
-               then
-                  if Is_Enabled (All_Rules.Table (R).all) then
-                     Map_Parameters (All_Rules.Table (R).all, Rule.Rule_Args);
-                  end if;
-
-                  exit;
-               end if;
-            end loop;
-         end;
-      end loop;
-
-   end Process_Requested_Rules;
 
 end Gnatcheck.Rules.Rule_Table;
