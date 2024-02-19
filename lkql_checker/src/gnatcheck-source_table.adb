@@ -3,7 +3,6 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Characters.Conversions;  use Ada.Characters.Conversions;
 with Ada.Characters.Handling;     use Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Exceptions;              use Ada.Exceptions;
@@ -32,7 +31,6 @@ with Gnatcheck.Ids;               use Gnatcheck.Ids;
 with Gnatcheck.Output;            use Gnatcheck.Output;
 with Gnatcheck.String_Utilities;  use Gnatcheck.String_Utilities;
 
-with Langkit_Support.Text;        use Langkit_Support.Text;
 with Langkit_Support.Generic_API.Introspection;
 
 with Libadalang.Analysis;         use Libadalang.Analysis;
@@ -215,14 +213,6 @@ package body Gnatcheck.Source_Table is
    --  Return the next non processed source file id.
 
    type EHI is new Event_Handler_Interface with null record;
-
-   procedure Unit_Requested_Callback
-     (Self               : in out EHI;
-      Context            : Analysis_Context'Class;
-      Name               : Text_Type;
-      From               : Analysis_Unit'Class;
-      Found              : Boolean;
-      Is_Not_Found_Error : Boolean);
 
    procedure Release (Self : in out EHI) is null;
    --  No resources associated to Self to release, so just a stub
@@ -1656,23 +1646,5 @@ package body Gnatcheck.Source_Table is
       return Ctx;
 
    end Create_Context;
-
-   -----------------------------
-   -- Unit_Requested_Callback --
-   -----------------------------
-
-   procedure Unit_Requested_Callback
-     (Self               : in out EHI;
-      Context            : Analysis_Context'Class;
-      Name               : Text_Type;
-      From               : Analysis_Unit'Class;
-      Found              : Boolean;
-      Is_Not_Found_Error : Boolean)
-   is
-   begin
-      if not Found and then Is_Not_Found_Error then
-         Report_Missing_File (From.Get_Filename, To_String (Name));
-      end if;
-   end Unit_Requested_Callback;
 
 end Gnatcheck.Source_Table;
