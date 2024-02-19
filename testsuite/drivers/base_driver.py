@@ -131,6 +131,10 @@ class BaseDriver(DiffTestDriver):
                 self.test_env.get("check_flags", True))
 
     @property
+    def lkql_jit_dir(self):
+        return P.join(self.env.root_dir, "lkql_jit")
+
+    @property
     def baseline(self) -> tuple[str, str, bool]:
         # In perf mode, our purpose is to measure performance, not to check
         # results.

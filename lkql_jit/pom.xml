@@ -13,6 +13,7 @@
         <module>lkql_cli</module>
         <module>native</module>
         <module>component</module>
+        <module>benchmarks</module>
     </modules>
 
     <properties>
@@ -122,6 +123,7 @@
                         <includes>
                             <include>language/src/main/java/**/*.java</include>
                             <include>lkql_cli/src/main/java/**/*.java</include>
+                            <include>benchmarks/src/test/java/**/*.java</include>
                         </includes>
 
                         <licenseHeader>
