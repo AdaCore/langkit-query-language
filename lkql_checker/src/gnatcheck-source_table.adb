@@ -1466,15 +1466,11 @@ package body Gnatcheck.Source_Table is
                        File_Name (Next_SF) & ":1:01: internal error: " &
                        Strip_LF (Exception_Information (E));
                   begin
-                     if Subprocess_Mode then
-                        Put_Line (Msg);
-                     else
-                        Store_Diagnosis
-                          (Text           => Msg,
-                           Diagnosis_Kind => Internal_Error,
-                           SF             => Next_SF,
-                           Rule           => No_Rule);
-                     end if;
+                     Store_Diagnosis
+                       (Text           => Msg,
+                        Diagnosis_Kind => Internal_Error,
+                        SF             => Next_SF,
+                        Rule           => No_Rule);
                   end;
                end if;
          end;
@@ -1691,13 +1687,7 @@ package body Gnatcheck.Source_Table is
    is
    begin
       if not Found and then Is_Not_Found_Error then
-         if Subprocess_Mode then
-            Put_Line
-              (From.Get_Filename & ":1:1: warning: cannot find "
-               & To_String (Name));
-         else
-            Report_Missing_File (From.Get_Filename, To_String (Name));
-         end if;
+         Report_Missing_File (From.Get_Filename, To_String (Name));
       end if;
    end Unit_Requested_Callback;
 
