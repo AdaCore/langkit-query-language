@@ -740,10 +740,6 @@ package body Gnatcheck.Compiler is
    begin
       if Arrow_Idx /= 0 then
          Rest_Name_End := Arrow_Idx - 1;
-
-         while Rest_Name_End >= Par_Start and then Par (Par_Start) = ' ' loop
-            Rest_Name_End := Rest_Name_End - 1;
-         end loop;
       end if;
 
       begin
@@ -1301,7 +1297,7 @@ package body Gnatcheck.Compiler is
       R_Name_Start :          Natural;
       R_Name_End   :          Natural;
       Par_End      :          Natural;
-      Arr_Idx      :          Natural;
+      Sep_Idx      :          Natural;
       Diag_End     : constant Positive := Diag'Last;
       R_Id          :          Restriction_Id         := Not_A_Restriction_Id;
       Special_R_Id  :          Special_Restriction_Id :=
@@ -1313,14 +1309,15 @@ package body Gnatcheck.Compiler is
 
       R_Name_Start := R_Name_Start + 16;
 
-      Arr_Idx := Index (Diag (R_Name_Start .. Diag_End), "=>");
+      --  Get the restriction name and parameter separator index. This
+      --  separator may be an arrow `=>` or an equal symbol.
+      Sep_Idx := Index (Diag (R_Name_Start .. Diag_End), "=");
 
-      if Arr_Idx /= 0 then
-         R_Name_End := Arr_Idx - 1;
+      if Sep_Idx /= 0 then
+         R_Name_End := Sep_Idx - 1;
 
-         while R_Name_End > R_Name_Start loop
-            exit when Diag (R_Name_End) /= ' ';
-            R_Name_End := R_Name_End - 1;
+         while R_Name_End > R_Name_Start and then Diag (R_Name_End) = ' ' loop
+            R_Name_End := @ - 1;
          end loop;
       else
          R_Name_End := Index (Diag (R_Name_Start .. Diag_End), """") - 1;
@@ -1344,7 +1341,7 @@ package body Gnatcheck.Compiler is
          end;
       end if;
 
-      if Arr_Idx /= 0
+      if Sep_Idx /= 0
         and then Needs_Parameter_In_Exemption (R_Id, Special_R_Id)
       then
          Par_End := Index (Diag (R_Name_Start .. Diag_End), """") - 1;

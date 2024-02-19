@@ -157,6 +157,13 @@ package Gnatcheck.Compiler is
    --  Assuming that Diag is a diagnosis string corresponding to a violation of
    --  some restriction-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for restrictions)
+   --
+   --  Restriction violation diagnostics may have many formats, thus this
+   --  function aims to support them all.
+   --  Currently supported restriction violation formats are :
+   --    * "Restriction_Name"
+   --    * "Restriction_Name = Param"
+   --    * "Restriction_Name => Param"
 
    function Is_Style_Exemption_Par (Par : String) return Boolean;
    --  Checks if Par can be used as a Style_Checks rule parameter in the
