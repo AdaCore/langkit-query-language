@@ -399,9 +399,7 @@ package body Gnatcheck.Rules is
      (Rule : Rule_Template;
       Alias : String) return String is
    begin
-      if Subprocess_Mode then
-         return " [" & Rule_Name (Rule) & "]";
-      elsif not Mapping_Mode then
+      if not Mapping_Mode then
          return "";
       else
          return " [" &

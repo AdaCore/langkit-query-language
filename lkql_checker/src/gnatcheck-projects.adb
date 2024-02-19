@@ -123,7 +123,7 @@ package body Gnatcheck.Projects is
       Gprbuild : constant String := Global_Report_Dir.all & "gprbuild.err";
 
    begin
-      if not (Subprocess_Mode or Debug_Mode) then
+      if not Debug_Mode then
          Delete_File (Gprbuild, Success);
          Delete_File (Gprbuild & ".out", Success);
       end if;
@@ -1707,11 +1707,6 @@ package body Gnatcheck.Projects is
                   elsif Full_Switch (Parser => Parser) = "-show-rule" then
                      Mapping_Mode := True;
 
-                  elsif Full_Switch (Parser => Parser) = "-subprocess" then
-                     Subprocess_Mode := True;
-                     Quiet_Mode      := True;
-                     Brief_Mode      := True;
-
                   elsif Full_Switch (Parser => Parser) = "-RTS" then
                      --  We do not store --RTS option for gcc now - we have
                      --  to resolve its parameter to the full path, and we
@@ -2027,10 +2022,8 @@ package body Gnatcheck.Projects is
 
       <<Processing_Aggregate_Project>>
 
-      if not Subprocess_Mode then
-         Ada.Directories.Create_Path (Global_Report_Dir.all);
-         Gnatcheck.Output.Set_Report_Files;
-      end if;
+      Ada.Directories.Create_Path (Global_Report_Dir.all);
+      Gnatcheck.Output.Set_Report_Files;
 
    end Check_Parameters;
 

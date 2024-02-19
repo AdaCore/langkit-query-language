@@ -402,7 +402,6 @@ begin
    --  Analyze relevant project properties if needed
 
    if Gnatcheck_Prj.Is_Specified
-     and then not Subprocess_Mode
      and then not In_Aggregate_Project
      and then not Ignore_Project_Switches
    then
@@ -418,9 +417,7 @@ begin
 
    --  Setup LKQL_RULES_PATH to point on built-in rules
 
-   if not Subprocess_Mode then
-      Setup_Search_Paths;
-   end if;
+   Setup_Search_Paths;
 
    --  Load rule files after having parsed --rules-dir
 
